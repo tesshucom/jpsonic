@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.airsonic.player.service.upnp.ApacheUpnpServiceConfiguration;
 import org.airsonic.player.service.upnp.CustomContentDirectory;
 import org.airsonic.player.service.upnp.MSMediaReceiverRegistrarService;
@@ -59,13 +60,12 @@ import org.fourthline.cling.support.connectionmanager.ConnectionManagerService;
 import org.fourthline.cling.support.model.ProtocolInfos;
 import org.fourthline.cling.support.model.dlna.DLNAProfiles;
 import org.fourthline.cling.support.model.dlna.DLNAProtocolInfo;
+import org.fourthline.cling.transport.RouterException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
-
-import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 
 /**
  * @author Sindre Mehus
@@ -139,35 +139,53 @@ public class UPnPService {
     }
 
     private void startService() {
-        try {
+        if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+            LOG.info("Starting UPnP service...");
+        }
+        createService();
+        if (0 < SettingsService.getDefaultUPnPPort()) {
             if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
-                LOG.info("Starting UPnP service...");
+                LOG.info("Successfully started UPnP service on port {}!", SettingsService.getDefaultUPnPPort());
             }
-            createService();
-            if (0 < SettingsService.getDefaultUPnPPort()) {
-                if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
-                    LOG.info("Successfully started UPnP service on port {}!", SettingsService.getDefaultUPnPPort());
-                }
-            } else {
-                if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
-                    LOG.info("Starting UPnP service - Done!");
-                }
-            }
-        } catch (Throwable x) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Failed to start UPnP service: " + x, x);
+        } else {
+            if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+                LOG.info("Starting UPnP service - Done!");
             }
         }
     }
 
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
+    /*
+     * Wrap and rethrow due to constraints of 'fourthline' {@link
+     * UpnpServiceImpl#UpnpServiceImpl(UpnpServiceConfiguration, org.fourthline.cling.registry.RegistryListener...)}
+     */
     private void createService() {
         synchronized (LOCK) {
             UpnpServiceConfiguration upnpConf = 0 < SettingsService.getDefaultUPnPPort()
                     ? new DefaultUpnpServiceConfiguration(SettingsService.getDefaultUPnPPort())
                     : new ApacheUpnpServiceConfiguration();
-            deligate = new UpnpServiceImpl(upnpConf);
+            try {
+                deligate = new UpnpServiceImpl(upnpConf);
+            } catch (RuntimeException e) {
+                // The exception is wrapped in Runtime and thrown!
+                if (e.getCause() instanceof RouterException) {
+                    if (LOG.isErrorEnabled()) {
+                        LOG.error("Failed to start UPnP service.", e);
+                    }
+                    return;
+                }
+                // Other than this, it is not inspected, so rethrow
+                throw e;
+            }
+
             // Asynch search for other devices (most importantly UPnP-enabled routers for port-mapping)
-            deligate.getControlPoint().search();
+            try {
+                deligate.getControlPoint().search();
+            } catch (IllegalArgumentException e) {
+                if (LOG.isInfoEnabled()) {
+                    LOG.error("Network search failed.", e);
+                }
+            }
         }
     }
 

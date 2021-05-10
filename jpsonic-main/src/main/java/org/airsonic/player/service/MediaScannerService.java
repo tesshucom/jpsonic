@@ -37,7 +37,6 @@ import javax.annotation.PreDestroy;
 
 import com.tesshu.jpsonic.service.MediaScannerServiceUtils;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
-
 import net.sf.ehcache.Ehcache;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
@@ -213,8 +212,6 @@ public class MediaScannerService {
             } else if (LOG.isDebugEnabled()) {
                 LOG.debug("Failed to scan media library.", e);
             }
-        } catch (Throwable t) {
-            LOG.error("Failed to scan media library.", t);
         } finally {
             mediaFileService.setMemoryCacheEnabled(true);
             indexManager.stopIndexing(statistics);

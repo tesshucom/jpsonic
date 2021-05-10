@@ -51,7 +51,6 @@ import javax.servlet.http.HttpServletResponse;
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.FontLoader;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
-
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.Album;
@@ -432,9 +431,14 @@ public class CoverArtController implements LastModified {
             if (coverArt != null) {
                 try (InputStream in = getImageInputStream(coverArt)) {
                     return scale(ImageIO.read(in), size, size);
-                } catch (Throwable x) {
+                } catch (IOException e) {
                     if (LOG.isWarnEnabled()) {
-                        LOG.warn("Failed to process cover art " + coverArt + ": " + x, x);
+                        LOG.warn("Failed to process cover art " + coverArt + ": ", e);
+                    }
+                } catch (ExecutionException e) {
+                    ConcurrentUtils.handleCauseUnchecked(e);
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("Failed to process cover art " + coverArt + ": ", e);
                     }
                 }
             }
@@ -664,9 +668,9 @@ public class CoverArtController implements LastModified {
                 if (LOG.isWarnEnabled()) {
                     LOG.warn("Failed to process cover art for " + mediaFile + ": {}", result);
                 }
-            } catch (Throwable x) {
+            } catch (IOException e) {
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to process cover art for " + mediaFile + ": " + x, x);
+                    LOG.warn("Failed to process cover art for " + mediaFile + ": ", e);
                 }
             }
             return createAutoCover(width, height);

@@ -43,6 +43,7 @@ import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
+import org.jaudiotagger.audio.exceptions.CannotWriteException;
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.tag.FieldKey;
@@ -80,9 +81,9 @@ public class JaudiotaggerParser extends MetaDataParser {
     static {
         try {
             LogManager.getLogManager().reset();
-        } catch (Throwable x) {
+        } catch (SecurityException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to turn off logging from Jaudiotagger.", x);
+                LOG.warn("Failed to turn off logging from Jaudiotagger.", e);
             }
         }
     }
@@ -230,7 +231,6 @@ public class JaudiotaggerParser extends MetaDataParser {
      * @param metaData
      *            The new meta data.
      */
-    @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
     @Override
     public void setMetaData(MediaFile file, MetaData metaData) {
 
@@ -265,11 +265,9 @@ public class JaudiotaggerParser extends MetaDataParser {
 
             audioFile.commit();
 
-        } catch (Throwable x) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to update tags for file " + file, x);
-            }
-            throw new CompletionException("Failed to update tags for file " + file + ". " + x.getMessage(), x);
+        } catch (IOException | CannotWriteException | KeyNotFoundException | TagException | CannotReadException
+                | ReadOnlyFileException | InvalidAudioFrameException e) {
+            throw new CompletionException("Failed to update tags for file: " + file.getPath(), e);
         }
     }
 

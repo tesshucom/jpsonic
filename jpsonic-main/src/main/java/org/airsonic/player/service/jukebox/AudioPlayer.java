@@ -118,13 +118,9 @@ public class AudioPlayer {
         }
 
         synchronized (LINE_LOCK) {
-            try {
-                line.get().stop();
-            } catch (Throwable t) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to stop player: ", t);
-                }
-            }
+
+            line.get().stop();
+
             try {
                 if (line.get().isOpen()) {
                     line.get().close();
@@ -132,11 +128,12 @@ public class AudioPlayer {
                         LOG.info("Closed jukebox audio source data Line.");
                     }
                 }
-            } catch (Throwable t) {
+            } catch (SecurityException e) {
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to close player: ", t);
+                    LOG.warn("Failed to close player: ", e);
                 }
             }
+
             try {
                 in.get().close();
             } catch (IOException e) {

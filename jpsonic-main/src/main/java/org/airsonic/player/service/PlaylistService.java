@@ -39,7 +39,6 @@ import com.tesshu.jpsonic.dao.JMediaFileDao;
 import com.tesshu.jpsonic.dao.JPlaylistDao;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
-
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Playlist;
@@ -267,18 +266,12 @@ public class PlaylistService {
     }
 
     public void importPlaylists() {
-        try {
-            if (settingsService.isVerboseLogScanning() && LOG.isInfoEnabled()) {
-                LOG.info("Starting playlist import.");
-            }
-            doImportPlaylists();
-            if (settingsService.isVerboseLogScanning() && LOG.isInfoEnabled()) {
-                LOG.info("Completed playlist import.");
-            }
-        } catch (Throwable x) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to import playlists: " + x, x);
-            }
+        if (settingsService.isVerboseLogScanning() && LOG.isInfoEnabled()) {
+            LOG.info("Starting playlist import.");
+        }
+        doImportPlaylists();
+        if (settingsService.isVerboseLogScanning() && LOG.isInfoEnabled()) {
+            LOG.info("Completed playlist import.");
         }
     }
 
@@ -301,7 +294,7 @@ public class PlaylistService {
                 } catch (ExecutionException e) {
                     ConcurrentUtils.handleCauseUnchecked(e);
                     if (LOG.isWarnEnabled()) {
-                        LOG.warn("Failed to auto-import playlist " + file + ". ", e.getCause());
+                        LOG.warn("Failed to auto-import playlist " + file + ". ", e);
                     }
                 }
             }

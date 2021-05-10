@@ -22,7 +22,6 @@
 package org.airsonic.player.ajax;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,8 +42,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.ServletRequestBindingException;
 
@@ -57,7 +54,6 @@ import org.springframework.web.bind.ServletRequestBindingException;
 @Service("ajaxNowPlayingService")
 public class NowPlayingService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NowPlayingService.class);
     private static final int LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60;
 
     private final PlayerService playerService;
@@ -100,14 +96,7 @@ public class NowPlayingService {
      * @return Details about what all users are currently playing.
      */
     public List<NowPlayingInfo> getNowPlaying() {
-        try {
-            return convert(statusService.getPlayStatuses());
-        } catch (Throwable x) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Unexpected error in getNowPlaying: " + x, x);
-            }
-            return Collections.emptyList();
-        }
+        return convert(statusService.getPlayStatuses());
     }
 
     /**
