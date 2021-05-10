@@ -87,21 +87,19 @@ public class ChangeCoverArtController {
                         settingsService.getSelectedMusicFolder(username)));
     }
 
-    @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
     private List<MediaFile> getAncestors(MediaFile dir) {
         LinkedList<MediaFile> result = new LinkedList<>();
+        if (securityService.isInPodcastFolder(dir.getFile())) {
+            // For podcasts, don't use ancestors
+            return result;
+        }
 
-        try {
-            MediaFile parent = mediaFileService.getParentOf(dir);
-            while (parent != null && !mediaFileService.isRoot(parent)) {
-                result.addFirst(parent);
-                parent = mediaFileService.getParentOf(parent);
-            }
-        } catch (SecurityException x) {
-            // Happens if Podcast directory is outside music folder.
+        MediaFile parent = mediaFileService.getParentOf(dir);
+        while (parent != null && !mediaFileService.isRoot(parent)) {
+            result.addFirst(parent);
+            parent = mediaFileService.getParentOf(parent);
         }
         result.add(dir);
         return result;
     }
-
 }
