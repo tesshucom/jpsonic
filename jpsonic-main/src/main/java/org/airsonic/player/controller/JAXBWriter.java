@@ -31,6 +31,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -70,7 +71,7 @@ public class JAXBWriter {
             jaxbContext = JAXBContext.newInstance(Response.class);
             datatypeFactory = DatatypeFactory.newInstance();
             restProtocolVersion = getRESTProtocolVersion();
-        } catch (JDOMException | IOException | JAXBException | DatatypeConfigurationException e) {
+        } catch (ExecutionException | JAXBException | DatatypeConfigurationException e) {
             throw new CompletionException("Fatal JAXBWriter initialization error.", e);
         }
     }
@@ -101,11 +102,13 @@ public class JAXBWriter {
         }
     }
 
-    private String getRESTProtocolVersion() throws JDOMException, IOException {
+    private String getRESTProtocolVersion() throws ExecutionException {
         try (InputStream in = StringUtil.class.getResourceAsStream("/subsonic-rest-api.xsd")) {
             Document document = createSAXBuilder().build(in);
             Attribute version = document.getRootElement().getAttribute("version");
             return version.getValue();
+        } catch (JDOMException | IOException e) {
+            throw new ExecutionException("Unable to parse subsonic-rest-api.xsd.", e);
         }
     }
 

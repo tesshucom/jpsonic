@@ -26,6 +26,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -62,7 +63,7 @@ public final class NetworkUtils {
                 LOG.debug("Calculated base url to " + baseUrl);
             }
             return baseUrl;
-        } catch (MalformedURLException | URISyntaxException e) {
+        } catch (ExecutionException e) {
             throw new CompletionException("Could not calculate base url: ", e);
         }
     }
@@ -105,14 +106,17 @@ public final class NetworkUtils {
         return StringUtils.isNotBlank(xForardedHost) && !StringUtils.equals("null", xForardedHost);
     }
 
-    private static URI calculateNonProxyUri(HttpServletRequest request)
-            throws MalformedURLException, URISyntaxException {
-        URL url = new URL(request.getRequestURL().toString());
-        String host = url.getHost();
-        String scheme = url.getProtocol();
-        int port = url.getPort();
-        String userInfo = url.getUserInfo();
-        return new URI(scheme, userInfo, host, port, URL_PATH_HELPER.getContextPath(request), null, null);
+    private static URI calculateNonProxyUri(HttpServletRequest request) throws ExecutionException {
+        try {
+            URL url = new URL(request.getRequestURL().toString());
+            String host = url.getHost();
+            String scheme = url.getProtocol();
+            int port = url.getPort();
+            String userInfo = url.getUserInfo();
+            return new URI(scheme, userInfo, host, port, URL_PATH_HELPER.getContextPath(request), null, null);
+        } catch (MalformedURLException | URISyntaxException e) {
+            throw new ExecutionException("URL analysis failed.", e);
+        }
     }
 
 }

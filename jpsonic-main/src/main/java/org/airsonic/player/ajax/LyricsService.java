@@ -27,8 +27,10 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.SocketException;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.airsonic.player.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
@@ -94,7 +96,12 @@ public class LyricsService {
                 LOG.warn("Failed to get lyrics for song '{}': {}", song, e.toString());
             }
             lyrics.setTryLater(true);
-        } catch (IOException | JDOMException e) {
+        } catch (IOException e) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to get lyrics for song '" + song + "'.", e);
+            }
+        } catch (ExecutionException e) {
+            ConcurrentUtils.handleCauseUnchecked(e);
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to get lyrics for song '" + song + "'.", e);
             }
@@ -102,9 +109,14 @@ public class LyricsService {
         return lyrics;
     }
 
-    private LyricsInfo parseSearchResult(String xml) throws JDOMException, IOException {
+    private LyricsInfo parseSearchResult(String xml) throws ExecutionException {
         SAXBuilder builder = createSAXBuilder();
-        Document document = builder.build(new StringReader(xml));
+        Document document;
+        try {
+            document = builder.build(new StringReader(xml));
+        } catch (JDOMException | IOException e) {
+            throw new ExecutionException("Unable to parse XML.", e);
+        }
 
         Element root = document.getRootElement();
         Namespace ns = root.getNamespace();

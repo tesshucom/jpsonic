@@ -187,13 +187,14 @@ public class PlaylistService {
     }
 
     public Playlist importPlaylist(String username, String playlistName, String fileName, InputStream inputStream,
-            Playlist existingPlaylist) throws ExecutionException, IOException {
+            Playlist existingPlaylist) throws ExecutionException {
 
         // TODO: handle other encodings
-        final SpecificPlaylist inputSpecificPlaylist = SpecificPlaylistFactory.getInstance().readFrom(inputStream,
-                "UTF-8");
-        if (inputSpecificPlaylist == null) {
-            throw new ExecutionException(new IOException("Unsupported playlist " + fileName));
+        SpecificPlaylist inputSpecificPlaylist;
+        try {
+            inputSpecificPlaylist = SpecificPlaylistFactory.getInstance().readFrom(inputStream, "UTF-8");
+        } catch (IOException e) {
+            throw new ExecutionException("Unsupported playlist " + fileName, e);
         }
         PlaylistImportHandler importHandler = getImportHandler(inputSpecificPlaylist);
         if (LOG.isDebugEnabled()) {

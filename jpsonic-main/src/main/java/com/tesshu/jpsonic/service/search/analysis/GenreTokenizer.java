@@ -57,9 +57,6 @@ public class GenreTokenizer extends CharTokenizer {
      * @param maxTokenLen
      *            maximum token length the tokenizer will emit. Must be greater than 0 and less than
      *            MAX_TOKEN_LENGTH_LIMIT (1024*1024)
-     * 
-     * @throws IllegalArgumentException
-     *             if maxTokenLen is invalid.
      */
     public GenreTokenizer(AttributeFactory factory, int maxTokenLen) {
         super(factory, maxTokenLen);

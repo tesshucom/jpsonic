@@ -40,15 +40,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.concurrent.ListenableFuture;
 
 @SpringBootTest
-@SpringBootConfiguration
-@ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
 @ExtendWith(NeedsHome.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ExecutorConfigurationTest {
@@ -161,16 +157,16 @@ public class ExecutorConfigurationTest {
 
                     try {
                         future.get(); // OutOfMemoryError!
-                    } catch (InterruptedException | ExecutionException e1) {
+                    } catch (ExecutionException | InterruptedException e) {
 
-                        MatcherAssert.assertThat(e1.getCause(),
+                        MatcherAssert.assertThat(e.getCause(),
                                 CoreMatchers.is(CoreMatchers.instanceOf(OutOfMemoryError.class)));
 
                         c4.addAndGet(1);
 
                         // should be logging ... ...
 
-                        throw new InternalError(e1);
+                        throw new InternalError(e);
                     }
 
                     return 1;

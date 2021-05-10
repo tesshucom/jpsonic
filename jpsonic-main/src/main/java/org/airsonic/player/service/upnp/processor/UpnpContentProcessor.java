@@ -48,8 +48,6 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
 
     /**
      * Browses the root metadata for a type.
-     * 
-     * @throws Exception
      */
     public BrowseResult browseRootMetadata() throws ExecutionException {
         DIDLContent didl = new DIDLContent();

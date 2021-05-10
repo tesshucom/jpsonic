@@ -26,11 +26,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.util.LegacyMap;
 import org.apache.http.client.ClientProtocolException;
@@ -88,19 +91,15 @@ public class ListenBrainzScrobbler {
             }
 
             if (queue.size() >= MAX_PENDING_REGISTRATION) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("ListenBrainz scrobbler queue is full. Ignoring '" + mediaFile.getTitle() + "'");
-                }
+                writeWarn("ListenBrainz scrobbler queue is full. Ignoring '" + mediaFile.getTitle() + "'");
                 return;
             }
 
             RegistrationData registrationData = new RegistrationData(mediaFile, token, submission, time);
             try {
                 queue.put(registrationData);
-            } catch (InterruptedException x) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Interrupted while queuing ListenBrainz scrobble: " + x.toString());
-                }
+            } catch (InterruptedException e) {
+                writeWarn("Interrupted while queuing ListenBrainz scrobble.", e);
             }
         }
 
@@ -113,7 +112,7 @@ public class ListenBrainzScrobbler {
      * @param registrationData
      *            Registration data for the song.
      */
-    protected static void scrobble(RegistrationData registrationData) throws ClientProtocolException, IOException {
+    protected static void scrobble(RegistrationData registrationData) throws ExecutionException {
         if (registrationData == null || registrationData.getToken() == null) {
             return;
         }
@@ -126,7 +125,7 @@ public class ListenBrainzScrobbler {
             }
         } else {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to scrobble song '" + registrationData.getTitle() + "' at ListenBrainz.");
+                writeWarn("Failed to scrobble song '" + registrationData.getTitle() + "' at ListenBrainz.");
             }
         }
     }
@@ -134,7 +133,7 @@ public class ListenBrainzScrobbler {
     /**
      * Returns if submission succeeds.
      */
-    private static boolean submit(RegistrationData registrationData) throws ClientProtocolException, IOException {
+    private static boolean submit(RegistrationData registrationData) throws ExecutionException {
         Map<String, Object> additionalInfo = LegacyMap.of();
         additionalInfo.computeIfAbsent("release_mbid", k -> registrationData.getMusicBrainzReleaseId());
         additionalInfo.computeIfAbsent("recording_mbid", k -> registrationData.getMusicBrainzRecordingId());
@@ -167,15 +166,19 @@ public class ListenBrainzScrobbler {
         content.put("payload", payloads);
 
         ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(content);
+        String json;
+        try {
+            json = mapper.writeValueAsString(content);
+        } catch (JsonProcessingException e) {
+            throw new ExecutionException("Error when writing Json", e);
+        }
 
         executeJsonPostRequest("https://api.listenbrainz.org/1/submit-listens", registrationData.getToken(), json);
 
         return true;
     }
 
-    private static boolean executeJsonPostRequest(String url, String token, String json)
-            throws ClientProtocolException, IOException {
+    private static boolean executeJsonPostRequest(String url, String token, String json) throws ExecutionException {
         HttpPost request = new HttpPost(url);
         request.setEntity(new StringEntity(json, "UTF-8"));
         request.setHeader("Authorization", "token " + token);
@@ -186,9 +189,23 @@ public class ListenBrainzScrobbler {
     }
 
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
-    private static void executeRequest(HttpUriRequest request) throws ClientProtocolException, IOException {
+    private static void executeRequest(HttpUriRequest request) throws ExecutionException {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             client.execute(request);
+        } catch (IOException e) {
+            throw new ExecutionException("Unable to execute Http request.", e);
+        }
+    }
+
+    protected static void writeWarn(String msg) {
+        if (LOG.isWarnEnabled()) {
+            LOG.warn(msg);
+        }
+    }
+
+    protected static void writeWarn(String msg, Throwable cause) {
+        if (LOG.isWarnEnabled()) {
+            LOG.warn(msg, cause);
         }
     }
 
@@ -210,37 +227,44 @@ public class ListenBrainzScrobbler {
             while (true) {
                 RegistrationData registrationData = null;
                 try {
-                    registrationData = queue.take();
-                    scrobble(registrationData);
-                } catch (ClientProtocolException e) {
-                    if (LOG.isTraceEnabled()) {
-                        LOG.trace("Error in ListenBrainz registration.", e);
+                    try {
+                        registrationData = queue.take();
+                    } catch (InterruptedException e) {
+                        writeWarn("Error in Last.fm registration.", e);
+                        break;
                     }
-                    break;
-                } catch (IOException e) {
-                    handleNetworkError(registrationData, e.toString());
-                    break;
-                } catch (InterruptedException e) {
-                    if (LOG.isWarnEnabled()) {
-                        LOG.warn("Error in ListenBrainz registration.", e);
+                    scrobble(registrationData);
+                } catch (ExecutionException e) {
+                    ConcurrentUtils.handleCauseUnchecked(e);
+                    Throwable cause = e.getCause();
+                    if (cause instanceof ClientProtocolException) {
+                        if (LOG.isTraceEnabled()) {
+                            LOG.trace("Error in ListenBrainz registration.", e);
+                        }
+                    } else if (cause instanceof IOException) {
+                        handleError(registrationData, e);
+                    } else {
+                        writeWarn("Error in Last.fm registration.", e);
                     }
                     break;
                 }
             }
         }
 
-        private void handleNetworkError(RegistrationData registrationData, String errorMessage) {
+        private void handleError(RegistrationData registrationData, Throwable cause) {
             try {
                 queue.put(registrationData);
                 if (LOG.isInfoEnabled()) {
-                    LOG.info("ListenBrainz registration for '" + registrationData.getTitle()
-                            + "' encountered network error: " + errorMessage + ".  Will try again later. In queue: "
-                            + queue.size());
+                    LOG.info(
+                            "ListenBrainz registration for '" + registrationData.getTitle()
+                                    + "' encountered network error. Will try again later. In queue: " + queue.size(),
+                            cause);
                 }
             } catch (InterruptedException x) {
                 if (LOG.isErrorEnabled()) {
-                    LOG.error("Failed to reschedule ListenBrainz registration for '" + registrationData.getTitle()
-                            + "': " + x.toString());
+                    LOG.error(
+                            "Failed to reschedule ListenBrainz registration for '" + registrationData.getTitle() + "'.",
+                            cause);
                 }
             }
             try {

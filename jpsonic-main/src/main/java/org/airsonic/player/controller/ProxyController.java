@@ -25,6 +25,7 @@ import static org.springframework.http.HttpStatus.OK;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,7 +33,6 @@ import javax.servlet.http.HttpServletResponse;
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.controller.Attributes;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -57,7 +57,7 @@ public class ProxyController {
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @GetMapping
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletRequestBindingException, ClientProtocolException, IOException {
+            throws ServletRequestBindingException, ExecutionException {
         String url = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.URL.value());
 
         RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(15_000).setSocketTimeout(15_000).build();
@@ -75,6 +75,8 @@ public class ProxyController {
                     response.sendError(statusCode);
                 }
             }
+        } catch (IOException e) {
+            throw new ExecutionException("Unable to handle proxy for external HTTP request.", e);
         }
         return null;
     }
