@@ -22,12 +22,15 @@ package org.airsonic.player.service.upnp.processor;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
+
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
@@ -194,9 +197,9 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> {
                 addItem(didl, item);
             }
             return createBrowseResult(didl, (int) didl.getCount(), result.getTotalHits());
-        } catch (Exception e) {
+        } catch (ExecutionException e) {
+            ConcurrentUtils.handleCauseUnchecked(e);
             return null;
         }
     }
-
 }

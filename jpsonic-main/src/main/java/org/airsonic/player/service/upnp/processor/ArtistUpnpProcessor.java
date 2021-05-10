@@ -22,11 +22,13 @@ package org.airsonic.player.service.upnp.processor;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.dao.JArtistDao;
+import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.CoverArtScheme;
@@ -131,7 +133,8 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor<Artist, Album> {
                 addItem(didl, item);
             }
             return createBrowseResult(didl, (int) didl.getCount(), result.getTotalHits());
-        } catch (Exception e) {
+        } catch (ExecutionException e) {
+            ConcurrentUtils.handleCauseUnchecked(e);
             return null;
         }
     }

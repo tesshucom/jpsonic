@@ -220,7 +220,7 @@ public class ListenBrainzScrobbler {
                 } catch (IOException e) {
                     handleNetworkError(registrationData, e.toString());
                     break;
-                } catch (Exception e) {
+                } catch (InterruptedException e) {
                     if (LOG.isWarnEnabled()) {
                         LOG.warn("Error in ListenBrainz registration.", e);
                     }

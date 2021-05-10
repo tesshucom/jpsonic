@@ -76,14 +76,7 @@ public class RESTFilter implements Filter {
         if (LOG.isWarnEnabled()) {
             LOG.warn("Error in REST API: " + msg, t);
         }
-
-        try {
-            jaxbWriter.writeErrorResponse(request, response, code, msg);
-        } catch (Exception e) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Failed to write error response.", e);
-            }
-        }
+        jaxbWriter.writeErrorResponse(request, response, code, msg);
     }
 
     private String getErrorMessage(Throwable x) {

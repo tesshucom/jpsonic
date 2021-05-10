@@ -1,6 +1,8 @@
 
 package org.airsonic.player;
 
+import java.io.IOException;
+
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
@@ -20,7 +22,7 @@ public class NeedsHome implements BeforeAllCallback {
              * separate topic from the integrity of artifact.
              */
             TestCaseUtils.cleanJpsonicHomeForTest();
-        } catch (Exception e) {
+        } catch (IOException e) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("The behavior of this callback process depends on the platform.", e);
             }

@@ -39,6 +39,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 
 import org.airsonic.player.util.LegacyMap;
 import org.airsonic.player.util.StringUtil;
+import org.apache.commons.codec.DecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,9 +149,9 @@ public class ParameterDecodingFilter implements Filter {
             for (int i = 0; i < values.length; i++) {
                 try {
                     result[i] = StringUtil.utf8HexDecode(values[i]);
-                } catch (Exception x) {
+                } catch (DecoderException e) {
                     if (LOG.isErrorEnabled()) {
-                        LOG.error("Failed to decode parameter value '" + values[i] + "'");
+                        LOG.error("Failed to decode parameter value '" + values[i] + "'", e);
                     }
                     result[i] = values[i];
                 }

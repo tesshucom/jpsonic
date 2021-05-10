@@ -50,7 +50,7 @@ public final class NetworkUtils {
             URI uri;
             try {
                 uri = calculateProxyUri(request);
-            } catch (Exception e) {
+            } catch (URISyntaxException | IllegalArgumentException e) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Could not calculate proxy uri: " + e.getMessage());
                 }

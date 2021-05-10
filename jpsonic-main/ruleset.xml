@@ -96,9 +96,6 @@
         <!-- References to traditionally existing ghost rules. Suppress log warnings.
             This rule cannot be used even if the suppression is removed. -->
         <exclude name="LoosePackageCoupling" />
-
-        <!-- ****************************** Should be triaged (#824, v109.6.0 or later) ****************************** -->
-        <exclude name="AvoidCatchingGenericException" />
     </rule>
 
     <!-- Java Rules:Documentation -->

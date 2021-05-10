@@ -82,21 +82,21 @@ public class LyricsService {
             String xml = executeGetRequest(url);
             lyrics = parseSearchResult(xml);
 
-        } catch (HttpResponseException x) {
+        } catch (HttpResponseException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to get lyrics for song '{}'. Request failed: {}", song, x.toString());
+                LOG.warn("Failed to get lyrics for song '{}'. Request failed: {}", song, e.toString());
             }
-            if (Objects.equals(HttpStatus.SC_SERVICE_UNAVAILABLE, x.getStatusCode())) {
+            if (Objects.equals(HttpStatus.SC_SERVICE_UNAVAILABLE, e.getStatusCode())) {
                 lyrics.setTryLater(true);
             }
-        } catch (SocketException | ConnectTimeoutException x) {
+        } catch (SocketException | ConnectTimeoutException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to get lyrics for song '{}': {}", song, x.toString());
+                LOG.warn("Failed to get lyrics for song '{}': {}", song, e.toString());
             }
             lyrics.setTryLater(true);
-        } catch (Exception x) {
+        } catch (IOException | JDOMException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to get lyrics for song '" + song + "'.", x);
+                LOG.warn("Failed to get lyrics for song '" + song + "'.", e);
             }
         }
         return lyrics;

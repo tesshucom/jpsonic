@@ -38,6 +38,8 @@ import chameleon.playlist.SpecificPlaylistProvider;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
 import com.tesshu.jpsonic.dao.JPlaylistDao;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
+import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
+
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Playlist;
@@ -289,17 +291,17 @@ public class PlaylistService {
             for (File file : listFiles) {
                 try {
                     importPlaylistIfUpdated(file, allPlaylists);
-                } catch (Exception x) {
+                } catch (ExecutionException e) {
+                    ConcurrentUtils.handleCauseUnchecked(e);
                     if (LOG.isWarnEnabled()) {
-                        LOG.warn("Failed to auto-import playlist " + file + ". " + x.getMessage());
+                        LOG.warn("Failed to auto-import playlist " + file + ". ", e.getCause());
                     }
                 }
             }
         }
     }
 
-    private void importPlaylistIfUpdated(File file, List<Playlist> allPlaylists)
-            throws ExecutionException, IOException {
+    private void importPlaylistIfUpdated(File file, List<Playlist> allPlaylists) throws ExecutionException {
 
         String fileName = file.getName();
         Playlist existingPlaylist = null;
@@ -320,6 +322,8 @@ public class PlaylistService {
             if (LOG.isInfoEnabled()) {
                 LOG.info("Auto-imported playlist " + file);
             }
+        } catch (IOException e) {
+            throw new ExecutionException("Unable to read the file: " + file.getPath(), e);
         }
     }
 

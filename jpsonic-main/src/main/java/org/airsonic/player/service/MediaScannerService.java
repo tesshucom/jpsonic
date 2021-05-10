@@ -36,6 +36,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import com.tesshu.jpsonic.service.MediaScannerServiceUtils;
+import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
+
 import net.sf.ehcache.Ehcache;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
@@ -205,6 +207,7 @@ public class MediaScannerService {
             LOG.info("Completed media library scan.");
 
         } catch (ExecutionException e) {
+            ConcurrentUtils.handleCauseUnchecked(e);
             if (destroy.get()) {
                 writeInfo("Interrupted to scan media library.");
             } else if (LOG.isDebugEnabled()) {

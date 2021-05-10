@@ -39,10 +39,9 @@ import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.Version;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.util.StringUtil;
+import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -68,7 +67,6 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  */
 public class RESTRequestParameterProcessingFilter implements Filter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RESTRequestParameterProcessingFilter.class);
     private static final RequestMatcher REQUIRES_AUTHENTICATION_REQUEST_MATCHER = new RegexRequestMatcher("/rest/.+",
             null);
 
@@ -204,20 +202,14 @@ public class RESTRequestParameterProcessingFilter implements Filter {
         }
         try {
             return StringUtil.utf8HexDecode(s.substring(4));
-        } catch (Exception e) {
+        } catch (DecoderException e) {
             return s;
         }
     }
 
     private void sendErrorXml(HttpServletRequest request, HttpServletResponse response,
             SubsonicRESTController.ErrorCode errorCode) {
-        try {
-            jaxbWriter.writeErrorResponse(request, response, errorCode, errorCode.getMessage());
-        } catch (Exception e) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Failed to send error response.", e);
-            }
-        }
+        jaxbWriter.writeErrorResponse(request, response, errorCode, errorCode.getMessage());
     }
 
     @Override

@@ -303,21 +303,11 @@ public class TranscodingService {
      */
     public InputStream getTranscodedInputStream(Parameters parameters) throws IOException {
         try {
-
             if (parameters.getTranscoding() != null) {
                 return createTranscodedInputStream(parameters);
             }
-
-        } catch (IOException x) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Transcoder failed: {}. Using original: "
-                        + parameters.getMediaFile().getFile().getAbsolutePath(), x.toString());
-            }
-        } catch (Exception x) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Transcoder failed. Using original: " + parameters.getMediaFile().getFile().getAbsolutePath(),
-                        x);
-            }
+        } catch (IOException e) {
+            throw new IOException("Transcoder failed: " + parameters.getMediaFile().getFile().getAbsolutePath(), e);
         }
         return Files.newInputStream(Paths.get(parameters.getMediaFile().getFile().toURI()));
     }

@@ -101,13 +101,8 @@ public class UserDaoTest {
 
         user.setAdminRole(true);
         int beforeSize = userDao.getAllUsers().size();
-        boolean caughtException = false;
-        try {
-            userDao.createUser(user);
-        } catch (RuntimeException e) {
-            caughtException = true;
-        }
-        assertTrue(caughtException, "It was expected for createUser to throw an exception");
+        Assertions.assertThrows(RuntimeException.class, () -> userDao.createUser(user),
+                "It was expected for createUser to throw an exception");
         assertEquals(beforeSize, userDao.getAllUsers().size());
     }
 

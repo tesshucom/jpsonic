@@ -21,10 +21,10 @@
 
 package org.airsonic.player.service.jukebox;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -53,7 +53,8 @@ import org.airsonic.player.service.MediaScannerService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.StringUtil;
-import org.assertj.core.api.Assertions;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,6 +73,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @SpringBootTest(classes = AbstractPlayerFactoryTest.Config.class)
 @ExtendWith(NeedsHome.class)
@@ -146,15 +149,15 @@ public abstract class AbstractPlayerFactoryTest {
     private void populateDatabase() {
         if (!dataBasePopulated) {
 
-            Assertions.assertThat(musicFolderDao.getAllMusicFolders().size()).isEqualTo(1);
+            MatcherAssert.assertThat(musicFolderDao.getAllMusicFolders().size(), is(equalTo(1)));
             MusicFolderTestDataUtils.getTestMusicFolders().forEach(musicFolderDao::createMusicFolder);
             settingsService.clearMusicFolderCache();
 
             TestCaseUtils.execScan(mediaScannerService);
 
-            Assertions.assertThat(playerDao.getAllPlayers().size()).isEqualTo(0);
+            MatcherAssert.assertThat(playerDao.getAllPlayers().size(), is(equalTo(0)));
             createTestPlayer();
-            Assertions.assertThat(playerDao.getAllPlayers().size()).isEqualTo(1);
+            MatcherAssert.assertThat(playerDao.getAllPlayers().size(), is(equalTo(1)));
 
             dataBasePopulated = true;
         }
@@ -165,13 +168,13 @@ public abstract class AbstractPlayerFactoryTest {
         populateDatabase();
 
         testJukeboxPlayer = findTestJukeboxPlayer();
-        Assertions.assertThat(testJukeboxPlayer).isNotNull();
+        MatcherAssert.assertThat(testJukeboxPlayer, is(CoreMatchers.notNullValue()));
         Mockito.reset(testJukeboxPlayer.getPlayQueue());
         testJukeboxPlayer.getPlayQueue().clear();
-        Assertions.assertThat(testJukeboxPlayer.getPlayQueue().size()).isEqualTo(0);
+        MatcherAssert.assertThat(testJukeboxPlayer.getPlayQueue().size(), is(equalTo(0)));
         testJukeboxPlayer.getPlayQueue().addFiles(true,
                 mediaFileDao.getSongsForAlbum("_DIR_ Ravel", "Complete Piano Works"));
-        Assertions.assertThat(testJukeboxPlayer.getPlayQueue().size()).isEqualTo(2);
+        MatcherAssert.assertThat(testJukeboxPlayer.getPlayQueue().size(), is(equalTo(2)));
     }
 
     @AfterEach
@@ -199,7 +202,7 @@ public abstract class AbstractPlayerFactoryTest {
         MediaFile parent = mediaFileDao.getMediaFile(mediaFile.getParentPath());
         Album album = albumDao.getAlbum(mediaFile.getArtist(), mediaFile.getAlbumName());
         Artist artist = artistDao.getArtist(mediaFile.getArtist());
-        Assertions.assertThat(album).isNotNull();
+        MatcherAssert.assertThat(album, is(CoreMatchers.notNullValue()));
         return result -> {
             jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].id").value(mediaFile.getId()).match(result);
             jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].parent").value(parent.getId()).match(result);
@@ -232,55 +235,62 @@ public abstract class AbstractPlayerFactoryTest {
 
     @Test
     @WithMockUser(username = "admin")
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
+    /*
+     * Wrap&Throw Exception due to constraints of 'springframework' {@link ResultActions#andExpect(ResultMatcher)}
+     */
     public void jukeboxStartActionTest() throws ExecutionException {
         // Given
 
         // When and Then
+        performStartAction();
+        performStatusAction("true");
         try {
-            performStartAction();
-            performStatusAction("true");
             performGetAction().andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.currentIndex").value("0"))
                     .andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.playing").value("true"))
                     .andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.gain").value("0.75"))
                     .andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.position").value("0"))
                     .andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.entry").isArray())
                     .andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.entry.length()").value(2))
-                    .andExpect(playListItem1isCorrect()).andDo(print());
+                    .andExpect(playListItem1isCorrect()).andDo(MockMvcResultHandlers.print());
         } catch (Exception e) {
             throw new ExecutionException(e);
         }
 
         Mockito.verify(testJukeboxPlayer.getPlayQueue(), Mockito.times(2)).setStatus(PlayQueue.Status.PLAYING);
-        Assertions.assertThat(testJukeboxPlayer.getPlayQueue().getIndex()).isEqualTo(0);
-        Assertions.assertThat(testJukeboxPlayer.getPlayQueue().getStatus()).isEqualTo(PlayQueue.Status.PLAYING);
+        MatcherAssert.assertThat(testJukeboxPlayer.getPlayQueue().getIndex(), is(equalTo(0)));
+        MatcherAssert.assertThat(testJukeboxPlayer.getPlayQueue().getStatus(), is(equalTo(PlayQueue.Status.PLAYING)));
     }
 
+    @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
     @Test
     @WithMockUser(username = "admin")
     public void jukeboxStopActionTest() throws ExecutionException {
         // Given
 
         // When and Then
-        try {
-            performStartAction();
-            performStatusAction("true");
-            performStopAction();
-            performStatusAction("false");
-        } catch (Exception e) {
-            throw new ExecutionException(e);
-        }
+        performStartAction();
+        performStatusAction("true");
+        performStopAction();
+        performStatusAction("false");
 
         Mockito.verify(testJukeboxPlayer.getPlayQueue(), Mockito.times(2)).setStatus(PlayQueue.Status.PLAYING);
         Mockito.verify(testJukeboxPlayer.getPlayQueue(), Mockito.times(1)).setStatus(PlayQueue.Status.STOPPED);
-        Assertions.assertThat(testJukeboxPlayer.getPlayQueue().getIndex()).isEqualTo(0);
-        Assertions.assertThat(testJukeboxPlayer.getPlayQueue().getStatus()).isEqualTo(PlayQueue.Status.STOPPED);
+        MatcherAssert.assertThat(testJukeboxPlayer.getPlayQueue().getIndex(), is(equalTo(0)));
+        MatcherAssert.assertThat(testJukeboxPlayer.getPlayQueue().getStatus(), is(equalTo(PlayQueue.Status.STOPPED)));
     }
 
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
+    /*
+     * Wrap&Throw Exception due to constraints of 'springframework' {@link
+     * MockMvc#perform(org.springframework.test.web.servlet.RequestBuilder)}
+     */
     private void performStatusAction(String expectedPlayingValue) throws ExecutionException {
         try {
             mvc.perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value()).param("v", apiVersion).param("c", CLIENT_NAME)
                     .param("f", EXPECTED_FORMAT).param("action", "status").contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk()).andExpect(jsonPath("$.subsonic-response.status").value("ok"))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andExpect(jsonPath("$.subsonic-response.status").value("ok"))
                     .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.currentIndex").value("0"))
                     .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.playing").value(expectedPlayingValue))
                     .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.position").value("0"));
@@ -289,23 +299,35 @@ public abstract class AbstractPlayerFactoryTest {
         }
     }
 
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
+    /*
+     * Wrap&Throw Exception due to constraints of 'springframework' {@link
+     * MockMvc#perform(org.springframework.test.web.servlet.RequestBuilder)}
+     */
     private ResultActions performGetAction() throws ExecutionException {
         try {
             return mvc
                     .perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value()).param("v", apiVersion)
                             .param("c", CLIENT_NAME).param("f", EXPECTED_FORMAT).param("action", "get")
                             .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk()).andExpect(jsonPath("$.subsonic-response.status").value("ok"));
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andExpect(jsonPath("$.subsonic-response.status").value("ok"));
         } catch (Exception e) {
             throw new ExecutionException(e);
         }
     }
 
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
+    /*
+     * Wrap&Throw Exception due to constraints of 'springframework' {@link
+     * MockMvc#perform(org.springframework.test.web.servlet.RequestBuilder)}
+     */
     private void performStopAction() throws ExecutionException {
         try {
             mvc.perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value()).param("v", apiVersion).param("c", CLIENT_NAME)
                     .param("f", EXPECTED_FORMAT).param("action", "stop").contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk()).andExpect(jsonPath("$.subsonic-response.status").value("ok"))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andExpect(jsonPath("$.subsonic-response.status").value("ok"))
                     .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.currentIndex").value("0"))
                     .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.playing").value("false"))
                     .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.position").value("0"));
@@ -314,11 +336,17 @@ public abstract class AbstractPlayerFactoryTest {
         }
     }
 
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
+    /*
+     * Wrap&Throw Exception due to constraints of 'springframework' {@link
+     * MockMvc#perform(org.springframework.test.web.servlet.RequestBuilder)}
+     */
     private void performStartAction() throws ExecutionException {
         try {
             mvc.perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value()).param("v", apiVersion).param("c", CLIENT_NAME)
                     .param("f", EXPECTED_FORMAT).param("action", "start").contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk()).andExpect(jsonPath("$.subsonic-response.status").value("ok"))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andExpect(jsonPath("$.subsonic-response.status").value("ok"))
                     .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.currentIndex").value("0"))
                     .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.playing").value("true"))
                     .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.position").value("0"));

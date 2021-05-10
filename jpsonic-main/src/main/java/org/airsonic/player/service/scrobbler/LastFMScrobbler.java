@@ -290,11 +290,11 @@ public class LastFMScrobbler {
                 try {
                     registrationData = queue.take();
                     scrobble(registrationData);
-                } catch (IOException x) {
-                    handleNetworkError(registrationData, x.toString());
+                } catch (IOException e) {
+                    handleNetworkError(registrationData, e.toString());
                     break;
-                } catch (Exception x) {
-                    writeWarn("Error in Last.fm registration: " + x.toString());
+                } catch (URISyntaxException | InterruptedException e) {
+                    writeWarn("Error in Last.fm registration: " + e.toString());
                     break;
                 }
             }

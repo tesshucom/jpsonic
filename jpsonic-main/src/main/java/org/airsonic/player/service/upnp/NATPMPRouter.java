@@ -23,6 +23,7 @@ package org.airsonic.player.service.upnp;
 
 import com.hoodcomputing.natpmp.MapRequestMessage;
 import com.hoodcomputing.natpmp.NatPmpDevice;
+import com.hoodcomputing.natpmp.NatPmpException;
 
 /**
  * @author Sindre Mehus
@@ -38,7 +39,7 @@ public final class NATPMPRouter implements Router {
     public static NATPMPRouter findRouter() {
         try {
             return new NATPMPRouter(new NatPmpDevice(false));
-        } catch (Exception x) {
+        } catch (NatPmpException x) {
             return null;
         }
     }

@@ -21,7 +21,13 @@
 
 package org.airsonic.player.service.metadata;
 
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.trimToEmpty;
+import static org.apache.commons.lang.StringUtils.trimToNull;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.CompletionException;
@@ -32,12 +38,17 @@ import java.util.regex.Pattern;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.SettingsService;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
+import org.jaudiotagger.audio.exceptions.CannotReadException;
+import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
+import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.KeyNotFoundException;
 import org.jaudiotagger.tag.Tag;
+import org.jaudiotagger.tag.TagException;
 import org.jaudiotagger.tag.images.Artwork;
 import org.jaudiotagger.tag.reference.GenreTypes;
 import org.slf4j.Logger;
@@ -112,13 +123,13 @@ public class JaudiotaggerParser extends MetaDataParser {
                 metaData.setComposerSort(getTagField(tag, FieldKey.COMPOSER_SORT));
                 // <<<< JP
 
-                if (StringUtils.isBlank(metaData.getArtist())) {
+                if (isBlank(metaData.getArtist())) {
                     metaData.setArtist(metaData.getAlbumArtist());
                     // JP >>>>
                     metaData.setArtistSort(metaData.getAlbumArtistSort());
                     // <<<< JP
                 }
-                if (StringUtils.isBlank(metaData.getAlbumArtist())) {
+                if (isBlank(metaData.getAlbumArtist())) {
                     metaData.setAlbumArtist(metaData.getArtist());
                     // JP >>>>
                     metaData.setAlbumArtistSort(metaData.getArtistSort());
@@ -134,9 +145,10 @@ public class JaudiotaggerParser extends MetaDataParser {
                 metaData.setDurationSeconds(audioHeader.getTrackLength());
             }
 
-        } catch (Throwable x) {
+        } catch (CannotReadException | IOException | TagException | ReadOnlyFileException
+                | InvalidAudioFrameException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Error when parsing tags in " + file, x);
+                LOG.warn("Error when parsing tags in " + file, e);
             }
         }
 
@@ -145,8 +157,8 @@ public class JaudiotaggerParser extends MetaDataParser {
 
     private static String getTagField(Tag tag, FieldKey fieldKey) {
         try {
-            return StringUtils.trimToNull(tag.getFirst(fieldKey));
-        } catch (Exception x) {
+            return trimToNull(tag.getFirst(fieldKey));
+        } catch (KeyNotFoundException x) {
             // Ignored.
             return null;
         }
@@ -207,7 +219,7 @@ public class JaudiotaggerParser extends MetaDataParser {
     }
 
     private static Integer parseInteger(String s) {
-        return parseIntegerPattern(StringUtils.trimToNull(s), null);
+        return parseIntegerPattern(trimToNull(s), null);
     }
 
     /**
@@ -226,14 +238,15 @@ public class JaudiotaggerParser extends MetaDataParser {
             AudioFile audioFile = AudioFileIO.read(file.getFile());
             Tag tag = audioFile.getTagOrCreateAndSetDefault();
 
-            tag.setField(FieldKey.ARTIST, StringUtils.trimToEmpty(metaData.getArtist()));
-            tag.setField(FieldKey.ALBUM, StringUtils.trimToEmpty(metaData.getAlbumName()));
-            tag.setField(FieldKey.TITLE, StringUtils.trimToEmpty(metaData.getTitle()));
-            tag.setField(FieldKey.GENRE, StringUtils.trimToEmpty(metaData.getGenre()));
-            try {
-                tag.setField(FieldKey.ALBUM_ARTIST, StringUtils.trimToEmpty(metaData.getAlbumArtist()));
-            } catch (Exception x) {
+            tag.setField(FieldKey.ARTIST, trimToEmpty(metaData.getArtist()));
+            tag.setField(FieldKey.ALBUM, trimToEmpty(metaData.getAlbumName()));
+            tag.setField(FieldKey.TITLE, trimToEmpty(metaData.getTitle()));
+            tag.setField(FieldKey.GENRE, trimToEmpty(metaData.getGenre()));
+
+            String albumArtist = trimToEmpty(metaData.getAlbumArtist());
+            if (!isEmpty(albumArtist)) {
                 // Silently ignored. ID3v1 doesn't support album artist.
+                tag.setField(FieldKey.ALBUM_ARTIST, albumArtist);
             }
 
             Integer track = metaData.getTrackNumber();
@@ -300,11 +313,12 @@ public class JaudiotaggerParser extends MetaDataParser {
                 || "mp+".equals(format) || "ape".equals(format) || "wma".equals(format);
     }
 
-    public static Artwork getArtwork(MediaFile file) {
+    public static @Nullable Artwork getArtwork(MediaFile file) {
         AudioFile audioFile;
         try {
             audioFile = AudioFileIO.read(file.getFile());
-        } catch (Throwable e) {
+        } catch (CannotReadException | IOException | TagException | ReadOnlyFileException
+                | InvalidAudioFrameException e) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to find cover art tag in " + file, e);
             }

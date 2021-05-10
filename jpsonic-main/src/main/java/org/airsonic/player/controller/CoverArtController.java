@@ -39,7 +39,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
@@ -51,6 +50,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.FontLoader;
+import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
+
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.Album;
@@ -143,7 +144,7 @@ public class CoverArtController implements LastModified {
 
     @GetMapping
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletRequestBindingException, IOException {
+            throws ServletRequestBindingException {
 
         CoverArtRequest coverArtRequest = createCoverArtRequest(request);
         if (LOG.isTraceEnabled()) {
@@ -173,13 +174,13 @@ public class CoverArtController implements LastModified {
             }
             File cachedImage = getCachedImage(coverArtRequest, size);
             sendImage(cachedImage, response);
-        } catch (Exception e) {
+        } catch (ExecutionException e) {
+            ConcurrentUtils.handleCauseUnchecked(e);
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Sending fallback as an exception was encountered during normal cover art processing", e);
             }
             sendFallback(size, response);
         }
-
     }
 
     private CoverArtRequest createCoverArtRequest(HttpServletRequest request) {
@@ -237,14 +238,16 @@ public class CoverArtController implements LastModified {
         return new MediaFileCoverArtRequest(mediaFile);
     }
 
-    private void sendImage(File file, HttpServletResponse response) throws IOException {
+    private void sendImage(File file, HttpServletResponse response) throws ExecutionException {
         response.setContentType(StringUtil.getMimeType(FilenameUtils.getExtension(file.getName())));
         try (InputStream in = Files.newInputStream(Paths.get(file.toURI()))) {
             IOUtils.copy(in, response.getOutputStream());
+        } catch (IOException e) {
+            throw new ExecutionException("Cannot copy image: " + file.getPath(), e);
         }
     }
 
-    private void sendFallback(Integer size, HttpServletResponse response) throws IOException {
+    private void sendFallback(Integer size, HttpServletResponse response) {
         if (response.getContentType() == null) {
             response.setContentType(StringUtil.getMimeType("jpeg"));
         }
@@ -254,19 +257,25 @@ public class CoverArtController implements LastModified {
                 image = scale(image, size, size);
             }
             ImageIO.write(image, "jpeg", response.getOutputStream());
+        } catch (IOException e) {
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Error reading default_cover.jpg", e);
+            }
         }
     }
 
-    private void sendUnscaled(CoverArtRequest coverArtRequest, HttpServletResponse response) throws IOException {
+    private void sendUnscaled(CoverArtRequest coverArtRequest, HttpServletResponse response) throws ExecutionException {
         File file = coverArtRequest.getCoverArt();
         Pair<InputStream, String> imageInputStreamWithType = getImageInputStreamWithType(file);
         response.setContentType(imageInputStreamWithType.getRight());
         try (InputStream in = imageInputStreamWithType.getLeft()) {
             IOUtils.copy(in, response.getOutputStream());
+        } catch (IOException e) {
+            throw new ExecutionException("Cannot copy image: " + file.getPath(), e);
         }
     }
 
-    private File getCachedImage(CoverArtRequest request, int size) throws IOException {
+    private File getCachedImage(CoverArtRequest request, int size) throws ExecutionException {
         String encoding = request.getCoverArt() == null ? "png" : "jpeg";
         File cachedImage = new File(getImageCacheDirectory(size),
                 DigestUtils.md5Hex(request.getKey()) + "." + encoding);
@@ -285,14 +294,11 @@ public class CoverArtController implements LastModified {
                         throw new ExecutionException(new IOException("Unable to decode image."));
                     }
                     ImageIO.write(image, encoding, out);
-                } catch (Throwable t) {
-                    if (LOG.isWarnEnabled()) {
-                        LOG.warn("Failed to create thumbnail for " + request, t);
-                    }
+                } catch (InterruptedException | IOException e) {
                     if (!cachedImage.delete() && LOG.isWarnEnabled()) {
                         LOG.warn("The cached image '{}' could not be deleted.", cachedImage.getAbsolutePath());
                     }
-                    throw new IOException("Failed to create thumbnail for " + request + ". ", t);
+                    throw new ExecutionException("Failed to create thumbnail for " + request + ". ", e);
                 } finally {
                     semaphore.release();
                     IMG_LOCKS.remove(lockKey, lock);
@@ -306,7 +312,7 @@ public class CoverArtController implements LastModified {
      * Returns an input stream to the image in the given file. If the file is an audio file, the embedded album art is
      * returned.
      */
-    private InputStream getImageInputStream(File file) throws IOException {
+    private InputStream getImageInputStream(File file) throws ExecutionException {
         return getImageInputStreamWithType(file).getLeft();
     }
 
@@ -319,27 +325,29 @@ public class CoverArtController implements LastModified {
      * False positive. This method is an intermediate function used internally by createImage, sendUnscaled. The methods
      * calling this method auto-closes the resource after this method completes.
      */
-    private Pair<InputStream, String> getImageInputStreamWithType(File file) throws IOException {
+    private Pair<InputStream, String> getImageInputStreamWithType(File file) throws ExecutionException {
         InputStream is;
         String mimeType;
         if (jaudiotaggerParser.isApplicable(file)) {
             LOG.trace("Using Jaudio Tagger for reading artwork from {}", file);
             MediaFile mediaFile = mediaFileService.getMediaFile(file);
             Artwork artwork;
-            try {
-                LOG.trace("Reading artwork from file {}", mediaFile);
-                artwork = JaudiotaggerParser.getArtwork(mediaFile);
-                is = new ByteArrayInputStream(artwork.getBinaryData());
-                mimeType = artwork.getMimeType();
-            } catch (Exception e) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Could not read artwork from file {}", mediaFile);
-                }
-                throw new CompletionException(e);
+            LOG.trace("Reading artwork from file {}", mediaFile);
+            artwork = JaudiotaggerParser.getArtwork(mediaFile);
+            if (artwork == null) {
+                throw new ExecutionException(new NullPointerException("Image cannot be read: " + file.getPath()));
             }
+            mimeType = artwork.getMimeType();
+
+            is = new ByteArrayInputStream(artwork.getBinaryData());
         } else {
-            is = Files.newInputStream(Paths.get(file.toURI()));
             mimeType = StringUtil.getMimeType(FilenameUtils.getExtension(file.getName()));
+
+            try {
+                is = Files.newInputStream(Paths.get(file.toURI()));
+            } catch (IOException e) {
+                throw new ExecutionException("Image cannot be read: " + file.getPath(), e);
+            }
         }
         return Pair.of(is, mimeType);
     }

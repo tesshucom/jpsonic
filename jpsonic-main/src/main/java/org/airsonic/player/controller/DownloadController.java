@@ -365,8 +365,8 @@ public class DownloadController implements LastModified {
                     if (sleepTime > 0L) {
                         try {
                             Thread.sleep(sleepTime);
-                        } catch (Exception x) {
-                            LOG.warn("Failed to sleep.", x);
+                        } catch (InterruptedException e) {
+                            LOG.warn("Failed to sleep.", e);
                         }
                     }
                 }

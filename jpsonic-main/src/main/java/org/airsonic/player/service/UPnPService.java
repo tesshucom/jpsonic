@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.PostConstruct;
@@ -63,6 +64,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
+
+import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 
 /**
  * @author Sindre Mehus
@@ -176,9 +179,10 @@ public class UPnPService {
                 if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
                     LOG.info("Enabling UPnP/DLNA media server");
                 }
-            } catch (Exception x) {
+            } catch (ExecutionException e) {
+                ConcurrentUtils.handleCauseUnchecked(e);
                 if (LOG.isErrorEnabled()) {
-                    LOG.error("Failed to start UPnP/DLNA media server: " + x, x);
+                    LOG.error("Failed to start UPnP/DLNA media server.", e);
                 }
             }
         } else {
@@ -190,7 +194,7 @@ public class UPnPService {
     /*
      * [PMD.AvoidInstantiatingObjectsInLoops] (DLNAProtocolInfo, AssertionError) Not reusable
      */
-    private LocalDevice createMediaServerDevice() throws ValidationException, IOException {
+    private LocalDevice createMediaServerDevice() throws ExecutionException {
 
         // TODO: DLNACaps
 
@@ -207,9 +211,9 @@ public class UPnPService {
             }
             try {
                 protocols.add(new DLNAProtocolInfo(dlnaProfile));
-            } catch (Exception e) {
+            } catch (IllegalArgumentException e) {
                 if (LOG.isTraceEnabled()) {
-                    LOG.trace("Error in adding dlna protocols.", new AssertionError("Errors with unclear cases.", e));
+                    LOG.trace("Error in adding dlna protocols with unclear cases.", e);
                 }
             }
         }
@@ -231,9 +235,11 @@ public class UPnPService {
                 .read(MSMediaReceiverRegistrarService.class);
         receiverService.setManager(new DefaultServiceManager<>(receiverService, MSMediaReceiverRegistrarService.class));
 
-        Icon icon;
+        Icon icon = null;
         try (InputStream in = getClass().getResourceAsStream("logo-512.png")) {
             icon = new Icon("image/png", 512, 512, 32, "logo-512", in);
+        } catch (IOException e) {
+            new ExecutionException("Icon cannot be generated", e);
         }
 
         String serverName = settingsService.getDlnaServerName();
@@ -241,8 +247,12 @@ public class UPnPService {
                 new ModelDetails(serverName), new DLNADoc[] { new DLNADoc("DMS", DLNADoc.Version.V1_5) }, null);
         DeviceIdentity identity = new DeviceIdentity(UDN.uniqueSystemIdentifier(serverName));
         DeviceType type = new UDADeviceType("MediaServer", 1);
-        return new LocalDevice(identity, type, details, new Icon[] { icon },
-                new LocalService[] { directoryservice, connetionManagerService, receiverService });
+        try {
+            return new LocalDevice(identity, type, details, new Icon[] { icon },
+                    new LocalService[] { directoryservice, connetionManagerService, receiverService });
+        } catch (ValidationException e) {
+            throw new ExecutionException("LocalDevice/Service cannot be generated", e);
+        }
     }
 
     public List<String> getSonosControllerHosts() {

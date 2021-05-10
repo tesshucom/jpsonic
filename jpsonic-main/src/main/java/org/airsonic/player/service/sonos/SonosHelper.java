@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -235,40 +234,33 @@ public class SonosHelper {
     }
 
     public List<AbstractMedia> forMusicFolder(MusicFolder musicFolder, String username, HttpServletRequest request) {
-        try {
+        MediaMetadata shuffle = new MediaMetadata();
+        shuffle.setItemType(ItemType.PROGRAM);
+        shuffle.setId(SonosService.ID_SHUFFLE_MUSICFOLDER_PREFIX + musicFolder.getId());
+        shuffle.setTitle("Shuffle Play");
 
-            MediaMetadata shuffle = new MediaMetadata();
-            shuffle.setItemType(ItemType.PROGRAM);
-            shuffle.setId(SonosService.ID_SHUFFLE_MUSICFOLDER_PREFIX + musicFolder.getId());
-            shuffle.setTitle("Shuffle Play");
+        List<AbstractMedia> result = new ArrayList<>();
+        result.add(shuffle);
 
-            List<AbstractMedia> result = new ArrayList<>();
-            result.add(shuffle);
-
-            for (MediaFile shortcut : musicIndexService.getShortcuts(Arrays.asList(musicFolder))) {
-                result.add(forDirectory(shortcut, request, username));
-            }
-
-            MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(Arrays.asList(musicFolder),
-                    false);
-            for (List<MusicIndex.SortableArtistWithMediaFiles> artists : musicFolderContent.getIndexedArtists()
-                    .values()) {
-                for (MusicIndex.SortableArtistWithMediaFiles artist : artists) {
-                    for (MediaFile artistMediaFile : artist.getMediaFiles()) {
-                        result.add(forDirectory(artistMediaFile, request, username));
-                    }
-                }
-            }
-            for (MediaFile song : musicFolderContent.getSingleSongs()) {
-                if (song.isAudio()) {
-                    result.add(forSong(song, username, request));
-                }
-            }
-            return result;
-
-        } catch (Exception e) {
-            throw new CompletionException(e);
+        for (MediaFile shortcut : musicIndexService.getShortcuts(Arrays.asList(musicFolder))) {
+            result.add(forDirectory(shortcut, request, username));
         }
+
+        MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(Arrays.asList(musicFolder),
+                false);
+        for (List<MusicIndex.SortableArtistWithMediaFiles> artists : musicFolderContent.getIndexedArtists().values()) {
+            for (MusicIndex.SortableArtistWithMediaFiles artist : artists) {
+                for (MediaFile artistMediaFile : artist.getMediaFiles()) {
+                    result.add(forDirectory(artistMediaFile, request, username));
+                }
+            }
+        }
+        for (MediaFile song : musicFolderContent.getSingleSongs()) {
+            if (song.isAudio()) {
+                result.add(forSong(song, username, request));
+            }
+        }
+        return result;
     }
 
     public List<AbstractMedia> forDirectoryContent(int mediaFileId, String username, HttpServletRequest request) {

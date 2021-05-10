@@ -65,6 +65,11 @@ public class SubsonicRESTControllerTest {
 
     @Integration
     @Test
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
+    /*
+     * Wrap&Throw Exception due to constraints of 'springframework' {@link
+     * MockMvc#perform(org.springframework.test.web.servlet.RequestBuilder)}
+     */
     public void pingTest() throws ExecutionException {
         try {
             mvc.perform(get("/rest/ping").param("v", apiVerion).param("c", CLIENT_NAME).param("u", AIRSONIC_USER)

@@ -47,6 +47,10 @@ import java.util.stream.Stream;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.StringUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Miscellaneous string utility methods.
@@ -54,6 +58,8 @@ import org.apache.commons.lang.StringUtils;
  * @author Sindre Mehus
  */
 public final class StringUtil {
+
+    private static final Logger LOG = LoggerFactory.getLogger(StringUtil.class);
 
     public static final String ENCODING_UTF8 = "UTF-8";
     private static final Pattern SPLIT_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
@@ -210,7 +216,7 @@ public final class StringUtil {
      * 
      * @return Array of elements.
      */
-    public static String[] split(String input) {
+    public static @NonNull String[] split(String input) {
         if (input == null) {
             return new String[0];
         }
@@ -241,7 +247,7 @@ public final class StringUtil {
      *             If an I/O error occurs.
      */
     @SuppressWarnings("PMD.UseTryWithResources") // False positive. pmd/pmd/issues/2882
-    public static String[] readLines(InputStream in) throws IOException {
+    public static String[] readLines(@Nullable InputStream in) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
             List<String> result = new ArrayList<>();
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
@@ -251,9 +257,16 @@ public final class StringUtil {
                 }
             }
             return result.toArray(new String[0]);
-
         } finally {
-            FileUtil.closeQuietly(in);
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("Unable to close Stream.", e);
+                    }
+                }
+            }
         }
     }
 
@@ -268,7 +281,7 @@ public final class StringUtil {
      * @throws NumberFormatException
      *             If string contains non-parseable text.
      */
-    public static int[] parseInts(String s) {
+    public static @NonNull int[] parseInts(String s) {
         if (s == null) {
             return new int[0];
         }
@@ -284,7 +297,7 @@ public final class StringUtil {
      * 
      * @return The locale.
      */
-    public static Locale parseLocale(String s) {
+    public static @Nullable Locale parseLocale(String s) {
         if (s == null) {
             return null;
         }
@@ -326,7 +339,7 @@ public final class StringUtil {
      * 
      * @return The encoded string.
      */
-    public static String utf8HexEncode(String s) {
+    public static @Nullable String utf8HexEncode(String s) {
         if (s == null) {
             return null;
         }
@@ -346,7 +359,7 @@ public final class StringUtil {
      * @throws DecoderException
      *             If an error occurs.
      */
-    public static String utf8HexDecode(String s) throws DecoderException {
+    public static @Nullable String utf8HexDecode(String s) throws DecoderException {
         if (s == null) {
             return null;
         }
@@ -367,7 +380,7 @@ public final class StringUtil {
      * 
      * @return The file part, or <code>null</code> if no file can be resolved.
      */
-    public static String getUrlFile(String url) {
+    public static @Nullable String getUrlFile(String url) {
         try {
             String path = new URL(url).getPath();
             if (StringUtils.isBlank(path) || path.endsWith("/")) {
@@ -402,7 +415,7 @@ public final class StringUtil {
         return result;
     }
 
-    public static String removeMarkup(String s) {
+    public static @Nullable String removeMarkup(String s) {
         if (s == null) {
             return null;
         }

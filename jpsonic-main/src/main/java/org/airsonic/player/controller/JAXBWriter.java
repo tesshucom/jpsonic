@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -69,8 +70,8 @@ public class JAXBWriter {
             jaxbContext = JAXBContext.newInstance(Response.class);
             datatypeFactory = DatatypeFactory.newInstance();
             restProtocolVersion = getRESTProtocolVersion();
-        } catch (Exception x) {
-            throw new CompletionException(x);
+        } catch (JDOMException | IOException | JAXBException | DatatypeConfigurationException e) {
+            throw new CompletionException("Fatal JAXBWriter initialization error.", e);
         }
     }
 
@@ -150,11 +151,10 @@ public class JAXBWriter {
                 writer.append(");");
             }
             httpResponse.getWriter().append(writer.getBuffer());
-        } catch (JAXBException | IOException x) {
+        } catch (JAXBException | IOException e) {
             if (LOG.isErrorEnabled()) {
-                LOG.error("Failed to marshal JAXB", x);
+                LOG.error("Failed to marshal JAXB", e);
             }
-            throw new CompletionException(x);
         }
     }
 
