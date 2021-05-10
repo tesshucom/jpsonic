@@ -21,6 +21,8 @@
 
 package org.airsonic.player.service.playlist;
 
+import java.util.concurrent.ExecutionException;
+
 import chameleon.playlist.SpecificPlaylist;
 import chameleon.playlist.SpecificPlaylistProvider;
 import org.springframework.core.Ordered;
@@ -29,6 +31,5 @@ public interface PlaylistExportHandler extends Ordered {
 
     boolean canHandle(Class<? extends SpecificPlaylistProvider> providerClass);
 
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 chameleon
-    SpecificPlaylist handle(int id, SpecificPlaylistProvider provider) throws Exception;
+    SpecificPlaylist handle(int id, SpecificPlaylistProvider provider) throws ExecutionException;
 }

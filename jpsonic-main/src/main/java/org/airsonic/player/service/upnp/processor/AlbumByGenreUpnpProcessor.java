@@ -24,6 +24,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.net.URI;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -78,7 +79,7 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor<MediaFile, M
 
     @Override
     public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy)
-            throws Exception {
+            throws ExecutionException {
         DIDLContent didl = new DIDLContent();
         List<MediaFile> selectedItems = getItems(firstResult, maxResults);
         for (int i = 0; i < selectedItems.size(); i++) {

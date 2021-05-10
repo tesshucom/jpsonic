@@ -20,6 +20,7 @@
 package org.airsonic.player.service.upnp.processor;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.annotation.PostConstruct;
 
@@ -57,7 +58,8 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
     }
 
     @Override
-    public BrowseResult browseRoot(String filter, long offset, long max, SortCriterion... orderBy) throws Exception {
+    public BrowseResult browseRoot(String filter, long offset, long max, SortCriterion... orderBy)
+            throws ExecutionException {
         DIDLContent didl = new DIDLContent();
         if (offset < RECENT_COUNT) {
             long count = RECENT_COUNT < offset + max ? RECENT_COUNT - offset : max;

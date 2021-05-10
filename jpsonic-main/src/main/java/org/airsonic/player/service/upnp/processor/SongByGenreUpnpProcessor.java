@@ -22,6 +22,7 @@
 package org.airsonic.player.service.upnp.processor;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.annotation.PostConstruct;
 
@@ -61,7 +62,7 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor<Genre, MediaF
      */
     @Override
     public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy)
-            throws Exception {
+            throws ExecutionException {
         // we have to override this to do an index-based id.
         DIDLContent didl = new DIDLContent();
         List<Genre> selectedItems = getItems(firstResult, maxResults);

@@ -239,13 +239,20 @@ public class PlaylistService {
         return provider.getContentTypes()[0].getExtensions()[0];
     }
 
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 chameleon
-    public void exportPlaylist(int id, OutputStream out) throws Exception {
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
+    /*
+     * Wrap and rethrow due to constraints of 'chameleon' {@link SpecificPlaylist#writeTo(OutputStream, String)}
+     */
+    public void exportPlaylist(int id, OutputStream out) throws ExecutionException {
         String format = settingsService.getPlaylistExportFormat();
         SpecificPlaylistProvider provider = SpecificPlaylistFactory.getInstance().findProviderById(format);
         PlaylistExportHandler handler = getExportHandler(provider);
-        SpecificPlaylist specificPlaylist = handler.handle(id, provider);
-        specificPlaylist.writeTo(out, StringUtil.ENCODING_UTF8);
+        try {
+            SpecificPlaylist specificPlaylist = handler.handle(id, provider);
+            specificPlaylist.writeTo(out, StringUtil.ENCODING_UTF8);
+        } catch (Exception e) {
+            throw new ExecutionException("Unable to write playlist to stream.", e);
+        }
     }
 
     private PlaylistImportHandler getImportHandler(SpecificPlaylist playlist) {

@@ -28,6 +28,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 import javax.annotation.PostConstruct;
 
@@ -81,7 +82,7 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor<PodcastChannel, P
 
     @Override
     public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy)
-            throws Exception {
+            throws ExecutionException {
         DIDLContent didl = new DIDLContent();
         List<PodcastChannel> channels = getItems(firstResult, maxResults);
         for (PodcastChannel channel : channels) {

@@ -21,6 +21,8 @@
 
 package org.airsonic.player.service.upnp;
 
+import java.util.concurrent.ExecutionException;
+
 import com.google.common.collect.Lists;
 import org.fourthline.cling.support.contentdirectory.AbstractContentDirectoryService;
 import org.fourthline.cling.support.contentdirectory.ContentDirectoryException;
@@ -38,9 +40,16 @@ public abstract class CustomContentDirectory extends AbstractContentDirectorySer
         super(Lists.newArrayList("*"), Lists.newArrayList());
     }
 
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 fourthline
-    protected BrowseResult createBrowseResult(DIDLContent didl, int count, int totalMatches) throws Exception {
-        return new BrowseResult(new DIDLParser().generate(didl), count, totalMatches);
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
+    /*
+     * Wrap and rethrow due to constraints of 'fourthline' {@link DIDLParser#generate(DIDLContent)}
+     */
+    protected BrowseResult createBrowseResult(DIDLContent didl, int count, int totalMatches) throws ExecutionException {
+        try {
+            return new BrowseResult(new DIDLParser().generate(didl), count, totalMatches);
+        } catch (Exception e) {
+            throw new ExecutionException("Unable to generate XML representation of content model.", e);
+        }
     }
 
     @Override

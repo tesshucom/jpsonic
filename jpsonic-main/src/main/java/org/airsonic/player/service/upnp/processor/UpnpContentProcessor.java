@@ -51,8 +51,7 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
      * 
      * @throws Exception
      */
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 fourthline
-    public BrowseResult browseRootMetadata() throws Exception {
+    public BrowseResult browseRootMetadata() throws ExecutionException {
         DIDLContent didl = new DIDLContent();
         didl.addContainer(createRootContainer());
         return createBrowseResult(didl, 1, 1);
@@ -71,9 +70,8 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
     /**
      * Browses the top-level content of a type.
      */
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 fourthline
     public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy)
-            throws Exception {
+            throws ExecutionException {
         DIDLContent didl = new DIDLContent();
         List<T> selectedItems = getItems(firstResult, maxResults);
         for (T item : selectedItems) {

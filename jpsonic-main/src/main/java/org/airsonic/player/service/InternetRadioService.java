@@ -192,7 +192,6 @@ public class InternetRadioService {
      * 
      * @return a list of internet radio sources
      */
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 chameleon
     private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio) throws ExecutionException {
         return retrieveInternetRadioSources(radio, PLAYLIST_REMOTE_MAX_LENGTH, PLAYLIST_REMOTE_MAX_BYTE_SIZE,
                 PLAYLIST_REMOTE_MAX_REDIRECTS);
