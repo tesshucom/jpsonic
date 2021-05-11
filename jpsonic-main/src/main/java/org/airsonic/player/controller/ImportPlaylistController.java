@@ -29,12 +29,14 @@ import java.util.concurrent.ExecutionException;
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FilenameUtils;
@@ -92,8 +94,11 @@ public class ImportPlaylistController {
                     }
                 }
             }
-        } catch (Exception e) {
-            map.put("error", e.getMessage());
+        } catch (FileUploadException | IOException e) {
+            map.put("Error in uploading playlist", e.getMessage());
+        } catch (ExecutionException e) {
+            ConcurrentUtils.handleCauseUnchecked(e);
+            map.put("Error in uploading playlist", e.getMessage());
         }
 
         redirectAttributes.addFlashAttribute(Attributes.Redirect.MODEL.value(), map);

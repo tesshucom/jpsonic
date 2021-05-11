@@ -266,15 +266,9 @@ public class InternalHelpController {
                     if (tableSchema != null && !"public".equalsIgnoreCase(tableSchema)) {
                         continue; // Table schema
                     }
-                    try {
-                        Long tableCount = daoHelper.getJdbcTemplate()
-                                .queryForObject(String.format("SELECT count(*) FROM %s", tableName), Long.class);
-                        dbTableCount.put(tableName, tableCount);
-                    } catch (Exception e) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Unable to gather information", e);
-                        }
-                    }
+                    Long tableCount = daoHelper.getJdbcTemplate()
+                            .queryForObject(String.format("SELECT count(*) FROM %s", tableName), Long.class);
+                    dbTableCount.put(tableName, tableCount);
                 }
                 map.put("dbTableCount", dbTableCount);
             }

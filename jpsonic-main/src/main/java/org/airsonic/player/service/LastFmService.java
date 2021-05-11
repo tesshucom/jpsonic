@@ -39,6 +39,7 @@ import javax.annotation.PostConstruct;
 import com.google.common.collect.Lists;
 import de.umass.lastfm.Album;
 import de.umass.lastfm.Artist;
+import de.umass.lastfm.CallException;
 import de.umass.lastfm.Caller;
 import de.umass.lastfm.ImageSize;
 import de.umass.lastfm.Track;
@@ -109,39 +110,40 @@ public class LastFmService {
         }
 
         String artistName = getArtistName(mediaFile);
+        Collection<Artist> similarArtists;
         try {
-            Collection<Artist> similarArtists = Artist.getSimilar(getCanonicalArtistName(artistName), LAST_FM_KEY);
-
-            // First select artists that are present.
-            for (Artist lastFmArtist : similarArtists) {
-                MediaFile similarArtist = mediaFileDao.getArtistByName(lastFmArtist.getName(), musicFolders);
-                if (similarArtist != null) {
-                    result.add(similarArtist);
-                    if (result.size() == count) {
-                        return result;
-                    }
-                }
-            }
-
-            if (!includeNotPresent) {
-                return result;
-            }
-
-            // Then fill up with non-present artists
-            for (Iterator<Artist> i = similarArtists.iterator(); i.hasNext() && result.size() != count;) {
-                Artist lastFmArtist = i.next();
-                MediaFile similarArtist = mediaFileDao.getArtistByName(lastFmArtist.getName(), musicFolders);
-                if (similarArtist == null) {
-                    MediaFile notPresentArtist = new MediaFile();
-                    notPresentArtist.setId(-1);
-                    notPresentArtist.setArtist(lastFmArtist.getName());
-                    result.add(notPresentArtist);
-                }
-            }
-
-        } catch (Throwable x) {
+            similarArtists = Artist.getSimilar(getCanonicalArtistName(artistName), LAST_FM_KEY);
+        } catch (CallException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to find similar artists for " + artistName, x);
+                LOG.warn("Failed to find similar artists for " + artistName, e);
+            }
+            return result;
+        }
+
+        // First select artists that are present.
+        for (Artist lastFmArtist : similarArtists) {
+            MediaFile similarArtist = mediaFileDao.getArtistByName(lastFmArtist.getName(), musicFolders);
+            if (similarArtist != null) {
+                result.add(similarArtist);
+                if (result.size() == count) {
+                    return result;
+                }
+            }
+        }
+
+        if (!includeNotPresent) {
+            return result;
+        }
+
+        // Then fill up with non-present artists
+        for (Iterator<Artist> i = similarArtists.iterator(); i.hasNext() && result.size() != count;) {
+            Artist lastFmArtist = i.next();
+            MediaFile similarArtist = mediaFileDao.getArtistByName(lastFmArtist.getName(), musicFolders);
+            if (similarArtist == null) {
+                MediaFile notPresentArtist = new MediaFile();
+                notPresentArtist.setId(-1);
+                notPresentArtist.setArtist(lastFmArtist.getName());
+                result.add(notPresentArtist);
             }
         }
         return result;
@@ -166,41 +168,40 @@ public class LastFmService {
             int count, boolean includeNotPresent, List<MusicFolder> musicFolders) {
         List<org.airsonic.player.domain.Artist> result = new ArrayList<>();
 
+        Collection<Artist> similarArtists;
         try {
-
             // First select artists that are present.
-            Collection<Artist> similarArtists = Artist.getSimilar(getCanonicalArtistName(artist.getName()),
-                    LAST_FM_KEY);
-            for (Artist lastFmArtist : similarArtists) {
-                org.airsonic.player.domain.Artist similarArtist = artistDao.getArtist(lastFmArtist.getName(),
-                        musicFolders);
-                if (similarArtist != null) {
-                    result.add(similarArtist);
-                    if (result.size() == count) {
-                        return result;
-                    }
-                }
-            }
-
-            if (!includeNotPresent) {
-                return result;
-            }
-
-            // Then fill up with non-present artists
-            for (Iterator<Artist> i = similarArtists.iterator(); i.hasNext() && result.size() != count;) {
-                Artist lastFmArtist = i.next();
-                org.airsonic.player.domain.Artist similarArtist = artistDao.getArtist(lastFmArtist.getName());
-                if (similarArtist == null) {
-                    org.airsonic.player.domain.Artist notPresentArtist = new org.airsonic.player.domain.Artist();
-                    notPresentArtist.setId(-1);
-                    notPresentArtist.setName(lastFmArtist.getName());
-                    result.add(notPresentArtist);
-                }
-            }
-
-        } catch (Throwable x) {
+            similarArtists = Artist.getSimilar(getCanonicalArtistName(artist.getName()), LAST_FM_KEY);
+        } catch (CallException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to find similar artists for " + artist.getName(), x);
+                LOG.warn("Failed to find similar artists for " + artist.getName(), e);
+            }
+            return result;
+        }
+
+        for (Artist lastFmArtist : similarArtists) {
+            org.airsonic.player.domain.Artist similarArtist = artistDao.getArtist(lastFmArtist.getName(), musicFolders);
+            if (similarArtist != null) {
+                result.add(similarArtist);
+                if (result.size() == count) {
+                    return result;
+                }
+            }
+        }
+
+        if (!includeNotPresent) {
+            return result;
+        }
+
+        // Then fill up with non-present artists
+        for (Iterator<Artist> i = similarArtists.iterator(); i.hasNext() && result.size() != count;) {
+            Artist lastFmArtist = i.next();
+            org.airsonic.player.domain.Artist similarArtist = artistDao.getArtist(lastFmArtist.getName());
+            if (similarArtist == null) {
+                org.airsonic.player.domain.Artist notPresentArtist = new org.airsonic.player.domain.Artist();
+                notPresentArtist.setId(-1);
+                notPresentArtist.setName(lastFmArtist.getName());
+                result.add(notPresentArtist);
             }
         }
         return result;
@@ -282,24 +283,27 @@ public class LastFmService {
     }
 
     private ArtistBio getArtistBio(String artistName, Locale locale) {
-        try {
-            if (artistName == null) {
-                return null;
-            }
+        if (artistName == null) {
+            return null;
+        }
 
-            Artist info = Artist.getInfo(artistName, locale, null /* username */, LAST_FM_KEY);
-            if (info == null) {
-                return null;
-            }
-            return new ArtistBio(processWikiText(info.getWikiSummary()), info.getMbid(), info.getUrl(),
-                    info.getImageURL(ImageSize.MEDIUM), info.getImageURL(ImageSize.LARGE),
-                    info.getImageURL(ImageSize.MEGA));
-        } catch (Throwable x) {
+        Artist info;
+        try {
+            info = Artist.getInfo(artistName, locale, null /* username */, LAST_FM_KEY);
+        } catch (CallException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to find artist bio for " + artistName, x);
+                LOG.warn("Failed to find artist bio for " + artistName, e);
             }
             return null;
         }
+
+        if (info == null) {
+            return null;
+        }
+
+        return new ArtistBio(processWikiText(info.getWikiSummary()), info.getMbid(), info.getUrl(),
+                info.getImageURL(ImageSize.MEDIUM), info.getImageURL(ImageSize.LARGE),
+                info.getImageURL(ImageSize.MEGA));
     }
 
     /**
@@ -331,28 +335,22 @@ public class LastFmService {
      * @return Top songs for artist.
      */
     public List<MediaFile> getTopSongs(String artistName, int count, List<MusicFolder> musicFolders) {
-        try {
-            if (StringUtils.isBlank(artistName) || count <= 0) {
-                return Collections.emptyList();
-            }
+        List<MediaFile> result = new ArrayList<>();
 
-            List<MediaFile> result = new ArrayList<>();
-            for (Track topTrack : Artist.getTopTracks(artistName, LAST_FM_KEY)) {
-                MediaFile song = mediaFileDao.getSongByArtistAndTitle(artistName, topTrack.getName(), musicFolders);
-                if (song != null) {
-                    result.add(song);
-                    if (result.size() == count) {
-                        return result;
-                    }
+        if (StringUtils.isBlank(artistName) || count <= 0) {
+            return result;
+        }
+
+        for (Track topTrack : Artist.getTopTracks(artistName, LAST_FM_KEY)) {
+            MediaFile song = mediaFileDao.getSongByArtistAndTitle(artistName, topTrack.getName(), musicFolders);
+            if (song != null) {
+                result.add(song);
+                if (result.size() == count) {
+                    return result;
                 }
             }
-            return result;
-        } catch (Throwable x) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to find top songs for " + artistName, x);
-            }
-            return Collections.emptyList();
         }
+        return result;
     }
 
     /**
@@ -393,43 +391,49 @@ public class LastFmService {
         if (artist == null || album == null) {
             return null;
         }
+
+        Album info;
         try {
-            Album info = Album.getInfo(artist, album, LAST_FM_KEY);
-            if (info == null) {
-                return null;
-            }
-            return new AlbumNotes(processWikiText(info.getWikiSummary()), info.getMbid(), info.getUrl(),
-                    info.getImageURL(ImageSize.MEDIUM), info.getImageURL(ImageSize.LARGE),
-                    info.getImageURL(ImageSize.MEGA));
-        } catch (Throwable x) {
+            info = Album.getInfo(artist, album, LAST_FM_KEY);
+        } catch (CallException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to find album notes for " + artist + " - " + album, x);
+                LOG.warn("Failed to find album notes for " + artist + " - " + album, e);
             }
             return null;
         }
+
+        if (info == null) {
+            return null;
+        }
+
+        return new AlbumNotes(processWikiText(info.getWikiSummary()), info.getMbid(), info.getUrl(),
+                info.getImageURL(ImageSize.MEDIUM), info.getImageURL(ImageSize.LARGE),
+                info.getImageURL(ImageSize.MEGA));
     }
 
     public List<LastFmCoverArt> searchCoverArt(String artist, String album) {
         if (artist == null && album == null) {
             return Collections.emptyList();
         }
-        try {
-            StringBuilder query = new StringBuilder();
-            if (artist != null) {
-                query.append(artist).append(' ');
-            }
-            if (album != null) {
-                query.append(album);
-            }
+        StringBuilder query = new StringBuilder();
+        if (artist != null) {
+            query.append(artist).append(' ');
+        }
+        if (album != null) {
+            query.append(album);
+        }
 
-            Collection<Album> matches = Album.search(query.toString(), LAST_FM_KEY);
-            return matches.stream().map(this::convert).filter(Objects::nonNull).collect(Collectors.toList());
-        } catch (Throwable x) {
+        Collection<Album> matches;
+        try {
+            matches = Album.search(query.toString(), LAST_FM_KEY);
+        } catch (CallException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to search for cover art for " + artist + " - " + album, x);
+                LOG.warn("Failed to search for cover art for " + artist + " - " + album, e);
             }
             return Collections.emptyList();
         }
+
+        return matches.stream().map(this::convert).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     private LastFmCoverArt convert(Album album) {
@@ -445,25 +449,27 @@ public class LastFmService {
     }
 
     private String getCanonicalArtistName(String artistName) {
+        if (artistName == null) {
+            return null;
+        }
+
+        Artist info;
         try {
-            if (artistName == null) {
-                return null;
-            }
-
-            Artist info = Artist.getInfo(artistName, LAST_FM_KEY);
-            if (info == null) {
-                return null;
-            }
-
-            String biography = processWikiText(info.getWikiSummary());
-            String redirectedArtistName = getRedirectedArtist(biography);
-            return redirectedArtistName == null ? artistName : redirectedArtistName;
-        } catch (Throwable x) {
+            info = Artist.getInfo(artistName, LAST_FM_KEY);
+        } catch (CallException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to find artist bio for " + artistName, x);
+                LOG.warn("Failed to find artist bio for " + artistName, e);
             }
             return null;
         }
+
+        if (info == null) {
+            return null;
+        }
+
+        String biography = processWikiText(info.getWikiSummary());
+        String redirectedArtistName = getRedirectedArtist(biography);
+        return redirectedArtistName == null ? artistName : redirectedArtistName;
     }
 
     private String getRedirectedArtist(String biography) {

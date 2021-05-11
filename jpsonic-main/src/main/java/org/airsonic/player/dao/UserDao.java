@@ -31,6 +31,8 @@ import org.airsonic.player.domain.TranscodeScheme;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.util.StringUtil;
+import org.apache.commons.codec.DecoderException;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
@@ -269,14 +271,10 @@ public class UserDao extends AbstractDao {
         if (s == null) {
             return null;
         }
-        try {
-            return "enc:" + StringUtil.utf8HexEncode(s);
-        } catch (Exception e) {
-            return s;
-        }
+        return "enc:" + StringUtil.utf8HexEncode(s);
     }
 
-    protected static final String decrypt(String s) {
+    protected @Nullable static final String decrypt(String s) {
         if (s == null) {
             return null;
         }
@@ -285,7 +283,7 @@ public class UserDao extends AbstractDao {
         }
         try {
             return StringUtil.utf8HexDecode(s.substring(4));
-        } catch (Exception e) {
+        } catch (DecoderException e) {
             return s;
         }
     }

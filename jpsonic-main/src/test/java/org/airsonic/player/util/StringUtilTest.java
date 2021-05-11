@@ -180,7 +180,7 @@ public class StringUtilTest {
     }
 
     @Test
-    public void testUtf8Hex() throws Exception {
+    public void testUtf8Hex() throws DecoderException {
         assertTrue(doTestUtf8Hex(null));
         assertTrue(doTestUtf8Hex(""));
         assertTrue(doTestUtf8Hex("a"));

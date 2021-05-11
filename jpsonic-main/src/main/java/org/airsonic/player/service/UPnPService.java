@@ -26,11 +26,13 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.airsonic.player.service.upnp.ApacheUpnpServiceConfiguration;
 import org.airsonic.player.service.upnp.CustomContentDirectory;
 import org.airsonic.player.service.upnp.MSMediaReceiverRegistrarService;
@@ -58,6 +60,7 @@ import org.fourthline.cling.support.connectionmanager.ConnectionManagerService;
 import org.fourthline.cling.support.model.ProtocolInfos;
 import org.fourthline.cling.support.model.dlna.DLNAProfiles;
 import org.fourthline.cling.support.model.dlna.DLNAProtocolInfo;
+import org.fourthline.cling.transport.RouterException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -136,35 +139,53 @@ public class UPnPService {
     }
 
     private void startService() {
-        try {
+        if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+            LOG.info("Starting UPnP service...");
+        }
+        createService();
+        if (0 < SettingsService.getDefaultUPnPPort()) {
             if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
-                LOG.info("Starting UPnP service...");
+                LOG.info("Successfully started UPnP service on port {}!", SettingsService.getDefaultUPnPPort());
             }
-            createService();
-            if (0 < SettingsService.getDefaultUPnPPort()) {
-                if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
-                    LOG.info("Successfully started UPnP service on port {}!", SettingsService.getDefaultUPnPPort());
-                }
-            } else {
-                if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
-                    LOG.info("Starting UPnP service - Done!");
-                }
-            }
-        } catch (Throwable x) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Failed to start UPnP service: " + x, x);
+        } else {
+            if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+                LOG.info("Starting UPnP service - Done!");
             }
         }
     }
 
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
+    /*
+     * Wrap and rethrow due to constraints of 'fourthline' {@link
+     * UpnpServiceImpl#UpnpServiceImpl(UpnpServiceConfiguration, org.fourthline.cling.registry.RegistryListener...)}
+     */
     private void createService() {
         synchronized (LOCK) {
             UpnpServiceConfiguration upnpConf = 0 < SettingsService.getDefaultUPnPPort()
                     ? new DefaultUpnpServiceConfiguration(SettingsService.getDefaultUPnPPort())
                     : new ApacheUpnpServiceConfiguration();
-            deligate = new UpnpServiceImpl(upnpConf);
+            try {
+                deligate = new UpnpServiceImpl(upnpConf);
+            } catch (RuntimeException e) {
+                // The exception is wrapped in Runtime and thrown!
+                if (e.getCause() instanceof RouterException) {
+                    if (LOG.isErrorEnabled()) {
+                        LOG.error("Failed to start UPnP service.", e);
+                    }
+                    return;
+                }
+                // Other than this, it is not inspected, so rethrow
+                throw e;
+            }
+
             // Asynch search for other devices (most importantly UPnP-enabled routers for port-mapping)
-            deligate.getControlPoint().search();
+            try {
+                deligate.getControlPoint().search();
+            } catch (IllegalArgumentException e) {
+                if (LOG.isInfoEnabled()) {
+                    LOG.error("Network search failed.", e);
+                }
+            }
         }
     }
 
@@ -176,9 +197,10 @@ public class UPnPService {
                 if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
                     LOG.info("Enabling UPnP/DLNA media server");
                 }
-            } catch (Exception x) {
+            } catch (ExecutionException e) {
+                ConcurrentUtils.handleCauseUnchecked(e);
                 if (LOG.isErrorEnabled()) {
-                    LOG.error("Failed to start UPnP/DLNA media server: " + x, x);
+                    LOG.error("Failed to start UPnP/DLNA media server.", e);
                 }
             }
         } else {
@@ -190,7 +212,7 @@ public class UPnPService {
     /*
      * [PMD.AvoidInstantiatingObjectsInLoops] (DLNAProtocolInfo, AssertionError) Not reusable
      */
-    private LocalDevice createMediaServerDevice() throws ValidationException, IOException {
+    private LocalDevice createMediaServerDevice() throws ExecutionException {
 
         // TODO: DLNACaps
 
@@ -207,9 +229,9 @@ public class UPnPService {
             }
             try {
                 protocols.add(new DLNAProtocolInfo(dlnaProfile));
-            } catch (Exception e) {
+            } catch (IllegalArgumentException e) {
                 if (LOG.isTraceEnabled()) {
-                    LOG.trace("Error in adding dlna protocols.", new AssertionError("Errors with unclear cases.", e));
+                    LOG.trace("Error in adding dlna protocols with unclear cases.", e);
                 }
             }
         }
@@ -231,9 +253,11 @@ public class UPnPService {
                 .read(MSMediaReceiverRegistrarService.class);
         receiverService.setManager(new DefaultServiceManager<>(receiverService, MSMediaReceiverRegistrarService.class));
 
-        Icon icon;
+        Icon icon = null;
         try (InputStream in = getClass().getResourceAsStream("logo-512.png")) {
             icon = new Icon("image/png", 512, 512, 32, "logo-512", in);
+        } catch (IOException e) {
+            new ExecutionException("Icon cannot be generated", e);
         }
 
         String serverName = settingsService.getDlnaServerName();
@@ -241,8 +265,12 @@ public class UPnPService {
                 new ModelDetails(serverName), new DLNADoc[] { new DLNADoc("DMS", DLNADoc.Version.V1_5) }, null);
         DeviceIdentity identity = new DeviceIdentity(UDN.uniqueSystemIdentifier(serverName));
         DeviceType type = new UDADeviceType("MediaServer", 1);
-        return new LocalDevice(identity, type, details, new Icon[] { icon },
-                new LocalService[] { directoryservice, connetionManagerService, receiverService });
+        try {
+            return new LocalDevice(identity, type, details, new Icon[] { icon },
+                    new LocalService[] { directoryservice, connetionManagerService, receiverService });
+        } catch (ValidationException e) {
+            throw new ExecutionException("LocalDevice/Service cannot be generated", e);
+        }
     }
 
     public List<String> getSonosControllerHosts() {

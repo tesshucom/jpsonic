@@ -45,7 +45,7 @@ public class AirsonicSpringLiquibase extends liquibase.integration.spring.Spring
         LOG.trace("Starting Liquibase Update");
         try {
             super.afterPropertiesSet();
-        } catch (Exception e) {
+        } catch (LiquibaseException e) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("===============================================");
                 LOG.error("An exception occurred during database migration");

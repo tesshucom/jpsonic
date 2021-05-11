@@ -92,6 +92,7 @@ import org.airsonic.player.service.search.SearchCriteria;
 import org.airsonic.player.service.search.SearchCriteriaDirector;
 import org.airsonic.player.util.PlayerUtils;
 import org.airsonic.player.util.StringUtil;
+import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -2652,16 +2653,14 @@ public class SubsonicRESTController {
     }
 
     protected final String mapId(String id) {
-
         if (id == null || logic.isAlbum(id) || logic.isArtist(id) || StringUtils.isNumeric(id)) {
             return id;
         }
-
         try {
             String path = StringUtil.utf8HexDecode(id);
             MediaFile mediaFile = mediaFileService.getMediaFile(path);
             return String.valueOf(mediaFile.getId());
-        } catch (Exception x) {
+        } catch (DecoderException e) {
             return id;
         }
     }

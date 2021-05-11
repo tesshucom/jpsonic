@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.sound.sampled.LineUnavailableException;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayQueue;
@@ -178,7 +179,7 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
                 currentPlayingFile = file;
             }
 
-        } catch (Exception e) {
+        } catch (LineUnavailableException | IOException e) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Error in jukebox: ", e);
             }

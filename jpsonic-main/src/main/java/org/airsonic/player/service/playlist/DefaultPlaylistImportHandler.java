@@ -23,6 +23,7 @@ package org.airsonic.player.service.playlist;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,11 +36,15 @@ import chameleon.playlist.SpecificPlaylist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.MediaFileService;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DefaultPlaylistImportHandler implements PlaylistImportHandler {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultPlaylistImportHandler.class);
 
     protected final MediaFileService mediaFileService;
 
@@ -53,6 +58,10 @@ public class DefaultPlaylistImportHandler implements PlaylistImportHandler {
         return true;
     }
 
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
+    /*
+     * LOG Exception due to constraints of 'chameleon'. {@link Playlist#acceptDown(PlaylistVisitor)}
+     */
     @Override
     public Pair<List<MediaFile>, List<String>> handle(SpecificPlaylist inputSpecificPlaylist) {
         List<MediaFile> mediaFiles = new ArrayList<>();
@@ -100,8 +109,11 @@ public class DefaultPlaylistImportHandler implements PlaylistImportHandler {
                         } else {
                             mediaFiles.add(mediaFile);
                         }
-                    } catch (Exception e) {
+                    } catch (URISyntaxException | SecurityException e) {
                         errors.add(e.getMessage());
+                        if (LOG.isErrorEnabled()) {
+                            LOG.error("Unauthorized access to media files :", e);
+                        }
                     }
                 }
 
@@ -112,6 +124,9 @@ public class DefaultPlaylistImportHandler implements PlaylistImportHandler {
             });
         } catch (Exception e) {
             errors.add(e.getMessage());
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("The visitor cannot be accepted.", e);
+            }
         }
 
         return Pair.of(mediaFiles, errors);

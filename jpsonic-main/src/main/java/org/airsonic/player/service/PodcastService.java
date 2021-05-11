@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -267,10 +268,9 @@ public class PodcastService {
                 if (mediaFile != null) {
                     channel.setMediaFileId(mediaFile.getId());
                 }
-            } catch (Exception x) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to resolve media file ID for podcast channel '" + channel.getTitle() + "': " + x,
-                            x);
+            } catch (SecurityException e) {
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Failed to resolve media file ID for podcast channel: " + channel.getTitle(), e);
                 }
             }
         }
@@ -471,9 +471,9 @@ public class PodcastService {
                 Long length = null;
                 try {
                     length = Long.valueOf(enclosure.getAttributeValue("length"));
-                } catch (Exception x) {
+                } catch (NumberFormatException e) {
                     if (LOG.isWarnEnabled()) {
-                        LOG.warn("Failed to parse enclosure length.", x);
+                        LOG.warn("Failed to parse enclosure length.", e);
                     }
                 }
 
@@ -491,7 +491,7 @@ public class PodcastService {
         for (DateFormat dateFormat : RSS_DATE_FORMATS) {
             try {
                 return dateFormat.parse(s);
-            } catch (Exception e) {
+            } catch (ParseException e) {
                 if (LOG.isTraceEnabled()) {
                     LOG.trace("Error in parse of RSS date.", e);
                 }
@@ -659,22 +659,16 @@ public class PodcastService {
     }
 
     private void updateTags(File file, PodcastEpisode episode) {
-        try {
-            MediaFile mediaFile = mediaFileService.getMediaFile(file, false);
-            if (StringUtils.isNotBlank(episode.getTitle())) {
-                MetaDataParser parser = metaDataParserFactory.getParser(file);
-                if (!parser.isEditingSupported()) {
-                    return;
-                }
-                MetaData metaData = parser.getRawMetaData(file);
-                metaData.setTitle(episode.getTitle());
-                parser.setMetaData(mediaFile, metaData);
-                mediaFileService.refreshMediaFile(mediaFile);
+        MediaFile mediaFile = mediaFileService.getMediaFile(file, false);
+        if (StringUtils.isNotBlank(episode.getTitle())) {
+            MetaDataParser parser = metaDataParserFactory.getParser(file);
+            if (!parser.isEditingSupported()) {
+                return;
             }
-        } catch (Exception x) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to update tags for podcast " + episode.getUrl(), x);
-            }
+            MetaData metaData = parser.getRawMetaData(file);
+            metaData.setTitle(episode.getTitle());
+            parser.setMetaData(mediaFile, metaData);
+            mediaFileService.refreshMediaFile(mediaFile);
         }
     }
 

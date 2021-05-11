@@ -47,7 +47,6 @@ public class SonosSoapFault extends RuntimeException {
         return sonosError;
     }
 
-    @SuppressWarnings("serial")
     public static class LoginInvalid extends SonosSoapFault {
 
         public LoginInvalid() {
@@ -55,7 +54,6 @@ public class SonosSoapFault extends RuntimeException {
         }
     }
 
-    @SuppressWarnings("serial")
     public static class LoginUnauthorized extends SonosSoapFault {
 
         public LoginUnauthorized() {

@@ -87,33 +87,25 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
             }
             return false;
         }
-        try {
-            UriComponents expected = UriComponentsBuilder.fromUriString(expectedRaw).build();
-            UriComponents requested = UriComponentsBuilder.fromUriString(requestedPathRaw).build();
-
-            if (!Objects.equals(expected.getPath(), requested.getPath())) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("False: expected path [{}] does not match requested path [{}]", expected.getPath(),
-                            requested.getPath());
-                }
-                return false;
+        UriComponents expected = UriComponentsBuilder.fromUriString(expectedRaw).build();
+        UriComponents requested = UriComponentsBuilder.fromUriString(requestedPathRaw).build();
+        if (!Objects.equals(expected.getPath(), requested.getPath())) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("False: expected path [{}] does not match requested path [{}]", expected.getPath(),
+                        requested.getPath());
             }
+            return false;
+        }
 
-            MapDifference<String, List<String>> difference = Maps.difference(expected.getQueryParams(),
-                    requested.getQueryParams());
-
-            if (!difference.entriesDiffering().isEmpty() || !difference.entriesOnlyOnLeft().isEmpty()
-                    || difference.entriesOnlyOnRight().size() != 1
-                    || difference.entriesOnlyOnRight().get(JWTSecurityService.JWT_PARAM_NAME) == null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("False: expected query params [{}] do not match requested query params [{}]",
-                            expected.getQueryParams(), requested.getQueryParams());
-                }
-                return false;
+        MapDifference<String, List<String>> difference = Maps.difference(expected.getQueryParams(),
+                requested.getQueryParams());
+        if (!difference.entriesDiffering().isEmpty() || !difference.entriesOnlyOnLeft().isEmpty()
+                || difference.entriesOnlyOnRight().size() != 1
+                || difference.entriesOnlyOnRight().get(JWTSecurityService.JWT_PARAM_NAME) == null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("False: expected query params [{}] do not match requested query params [{}]",
+                        expected.getQueryParams(), requested.getQueryParams());
             }
-
-        } catch (Exception e) {
-            LOG.warn("Exception encountered while comparing paths", e);
             return false;
         }
         return true;

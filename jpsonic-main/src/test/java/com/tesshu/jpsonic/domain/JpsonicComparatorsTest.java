@@ -1019,7 +1019,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
      * Copyright 2009 (C) Sindre Mehus
      */
     @Test
-    public void testCompareAlbums() throws Exception {
+    public void testCompareAlbums() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(true);
         final MediaFileComparator comparator = comparators.mediaFileOrder(null);
@@ -1065,7 +1065,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
      * Copyright 2009 (C) Sindre Mehus
      */
     @Test
-    public void testCompareDiscNumbers() throws Exception {
+    public void testCompareDiscNumbers() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
 

@@ -22,6 +22,7 @@
 package org.airsonic.player.controller;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -54,23 +55,29 @@ public class ExportPlayListController {
         this.securityService = securityService;
     }
 
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 chameleon
     @GetMapping
     public ModelAndView exportPlaylist(HttpServletRequest request, HttpServletResponse response)
-            throws ServletRequestBindingException, IOException, Exception {
+            throws ServletRequestBindingException, ExecutionException {
 
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         Playlist playlist = playlistService.getPlaylist(id);
         if (!playlistService.isReadAllowed(playlist, securityService.getCurrentUsername(request))) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            try {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            } catch (IOException e) {
+                throw new ExecutionException(e);
+            }
             return null;
-
         }
+
         response.setContentType("application/x-download");
         response.setHeader("Content-Disposition",
                 "attachment; filename=\"" + StringUtil.fileSystemSafe(playlist.getName()) + ".m3u8\"");
-
-        playlistService.exportPlaylist(id, response.getOutputStream());
+        try {
+            playlistService.exportPlaylist(id, response.getOutputStream());
+        } catch (IOException e) {
+            throw new ExecutionException(e);
+        }
         return null;
     }
 

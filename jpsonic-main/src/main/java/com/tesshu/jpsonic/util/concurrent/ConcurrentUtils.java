@@ -14,22 +14,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2009 Sindre Mehus
- * (C) 2016 Airsonic Authors
- * (C) 2018 tesshucom
+ * (C) 2021 tesshucom
  */
 
-package org.airsonic.player.service.playlist;
+package com.tesshu.jpsonic.util.concurrent;
 
 import java.util.concurrent.ExecutionException;
 
-import chameleon.playlist.SpecificPlaylist;
-import chameleon.playlist.SpecificPlaylistProvider;
-import org.springframework.core.Ordered;
+public final class ConcurrentUtils {
 
-public interface PlaylistExportHandler extends Ordered {
+    private ConcurrentUtils() {
+    }
 
-    boolean canHandle(Class<? extends SpecificPlaylistProvider> providerClass);
-
-    SpecificPlaylist handle(int id, SpecificPlaylistProvider provider) throws ExecutionException;
+    public static void handleCauseUnchecked(final ExecutionException e) {
+        Throwable cause = e.getCause();
+        if (cause instanceof Error) {
+            throw (Error) cause;
+        } else if (cause instanceof RuntimeException) {
+            throw (RuntimeException) cause;
+        }
+    }
 }

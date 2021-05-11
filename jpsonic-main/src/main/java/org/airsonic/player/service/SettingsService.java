@@ -61,6 +61,7 @@ import org.airsonic.player.spring.DataSourceConfigType;
 import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.PlayerUtils;
 import org.airsonic.player.util.StringUtil;
+import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -948,24 +949,16 @@ public class SettingsService {
         String s = getProperty(KEY_LDAP_MANAGER_PASSWORD, DEFAULT_LDAP_MANAGER_PASSWORD);
         try {
             return StringUtil.utf8HexDecode(s);
-        } catch (Exception x) {
+        } catch (DecoderException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to decode LDAP manager password.", x);
+                LOG.warn("Failed to decode LDAP manager password.", e);
             }
             return s;
         }
     }
 
     public void setLdapManagerPassword(final String ldapManagerPassword) {
-        String pass = "";
-        try {
-            pass = StringUtil.utf8HexEncode(ldapManagerPassword);
-        } catch (Exception x) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to encode LDAP manager password.", x);
-            }
-        }
-        setProperty(KEY_LDAP_MANAGER_PASSWORD, pass);
+        setProperty(KEY_LDAP_MANAGER_PASSWORD, StringUtil.utf8HexEncode(ldapManagerPassword));
     }
 
     public boolean isLdapAutoShadowing() {
@@ -1911,24 +1904,16 @@ public class SettingsService {
         String s = getProperty(KEY_SMTP_PASSWORD, DEFAULT_SMTP_PASSWORD);
         try {
             return StringUtil.utf8HexDecode(s);
-        } catch (Exception x) {
+        } catch (DecoderException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to decode Smtp password.", x);
+                LOG.warn("Failed to decode Smtp password.", e);
             }
             return s;
         }
     }
 
     public void setSmtpPassword(String smtpPassword) {
-        String pass = "";
-        try {
-            pass = StringUtil.utf8HexEncode(smtpPassword);
-        } catch (Exception x) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to encode Smtp password.", x);
-            }
-        }
-        setProperty(KEY_SMTP_PASSWORD, pass);
+        setProperty(KEY_SMTP_PASSWORD, StringUtil.utf8HexEncode(smtpPassword));
     }
 
     public String getSmtpFrom() {

@@ -24,6 +24,7 @@ package org.airsonic.player.security;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.service.JWTSecurityService;
@@ -77,16 +78,30 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
         this.customUserDetailsContextMapper = customUserDetailsContextMapper;
     }
 
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 springframework
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
+    /*
+     * Wrap and rethrow due to constraints of 'springframework' {@link
+     * AuthenticationManagerBuilder#ldapAuthentication()} {@link
+     * AuthenticationManagerBuilder#userDetailsService(org.springframework.security.core.userdetails.UserDetailsService)
+     * }
+     */
     @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws ExecutionException {
         if (settingsService.isLdapEnabled()) {
-            auth.ldapAuthentication().contextSource().managerDn(settingsService.getLdapManagerDn())
-                    .managerPassword(settingsService.getLdapManagerPassword()).url(settingsService.getLdapUrl()).and()
-                    .userSearchFilter(settingsService.getLdapSearchFilter())
-                    .userDetailsContextMapper(customUserDetailsContextMapper);
+            try {
+                auth.ldapAuthentication().contextSource().managerDn(settingsService.getLdapManagerDn())
+                        .managerPassword(settingsService.getLdapManagerPassword()).url(settingsService.getLdapUrl())
+                        .and().userSearchFilter(settingsService.getLdapSearchFilter())
+                        .userDetailsContextMapper(customUserDetailsContextMapper);
+            } catch (Exception e) {
+                throw new ExecutionException("Ldap authentication failed.", e);
+            }
         }
-        auth.userDetailsService(securityService);
+        try {
+            auth.userDetailsService(securityService);
+        } catch (Exception e) {
+            throw new ExecutionException("Ldap additional authentication failed.", e);
+        }
         String jwtKey = settingsService.getJWTKey();
         if (StringUtils.isBlank(jwtKey)) {
             if (LOG.isWarnEnabled()) {
@@ -135,10 +150,18 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
             this.csrfSecurityRequestMatcher = csrfSecurityRequestMatcher;
         }
 
-        @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 springframework
+        @SuppressWarnings("PMD.AvoidCatchingGenericException")
+        /*
+         * Wrap and rethrow due to constraints of 'springframework' {@link
+         * WebSecurityConfigurerAdapter#authenticationManager()}
+         */
         @Bean(name = "jwtAuthenticationFilter")
-        public JWTRequestParameterProcessingFilter jwtAuthFilter() throws Exception {
-            return new JWTRequestParameterProcessingFilter(authenticationManager(), FAILURE_URL);
+        public JWTRequestParameterProcessingFilter jwtAuthFilter() throws ExecutionException {
+            try {
+                return new JWTRequestParameterProcessingFilter(authenticationManager(), FAILURE_URL);
+            } catch (Exception e) {
+                throw new ExecutionException("AuthenticationManager initialization failed.", e);
+            }
         }
 
         @Override

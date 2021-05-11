@@ -25,11 +25,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 import chameleon.playlist.Media;
 import chameleon.playlist.Parallel;
@@ -38,6 +40,7 @@ import chameleon.playlist.PlaylistVisitor;
 import chameleon.playlist.Sequence;
 import chameleon.playlist.SpecificPlaylist;
 import chameleon.playlist.SpecificPlaylistFactory;
+import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.airsonic.player.domain.InternetRadio;
 import org.airsonic.player.domain.InternetRadioSource;
 import org.apache.commons.io.input.BoundedInputStream;
@@ -167,7 +170,8 @@ public class InternetRadioService {
                                 sources.size());
                     }
                 }
-            } catch (Exception e) {
+            } catch (ExecutionException e) {
+                ConcurrentUtils.handleCauseUnchecked(e);
                 if (LOG.isErrorEnabled()) {
                     LOG.error("Failed to retrieve sources for internet radio {}.", radio.getStreamUrl(), e);
                 }
@@ -188,9 +192,7 @@ public class InternetRadioService {
      * 
      * @return a list of internet radio sources
      */
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 chameleon
-    private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio)
-            throws MalformedURLException, IOException, PlaylistException, Exception {
+    private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio) throws ExecutionException {
         return retrieveInternetRadioSources(radio, PLAYLIST_REMOTE_MAX_LENGTH, PLAYLIST_REMOTE_MAX_BYTE_SIZE,
                 PLAYLIST_REMOTE_MAX_REDIRECTS);
     }
@@ -209,15 +211,25 @@ public class InternetRadioService {
      * 
      * @return a list of internet radio sources
      */
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 chameleon
+    @SuppressWarnings({ "PMD.AvoidCatchingGenericException", "PMD.InvalidLogMessageFormat" })
+    /*
+     * [AvoidCatchingGenericException] Wrap&Throw Exception due to constraints of 'chameleon'. {@link
+     * Playlist#acceptDown(PlaylistVisitor)} [InvalidLogMessageFormat] false positive
+     */
     private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio, int maxCount, long maxByteSize,
-            int maxRedirects) throws MalformedURLException, IOException, PlaylistException, Exception {
+            int maxRedirects) throws ExecutionException {
         // Retrieve the remote playlist
         String playlistUrl = radio.getStreamUrl();
         if (LOG.isDebugEnabled()) {
             LOG.debug("Parsing internet radio playlist at {}...", playlistUrl);
         }
-        SpecificPlaylist inputPlaylist = retrievePlaylist(new URL(playlistUrl), maxByteSize, maxRedirects);
+        URL url;
+        try {
+            url = new URL(playlistUrl);
+        } catch (MalformedURLException e) {
+            throw new ExecutionException("Unable to generate playlist URI.", e);
+        }
+        SpecificPlaylist inputPlaylist = retrievePlaylist(url, maxByteSize, maxRedirects);
 
         // Retrieve stream URLs
         List<InternetRadioSource> entries = new ArrayList<>();
@@ -225,11 +237,17 @@ public class InternetRadioService {
         PlaylistVisitor visitor = new PlaylistVisitorImpl(maxCount, entries);
         try {
             inputPlaylist.toPlaylist().acceptDown(visitor);
-        } catch (PlaylistTooLarge e) {
+        } catch (ExecutionException e) {
+            ConcurrentUtils.handleCauseUnchecked(e);
+            if (!(e.getCause() instanceof PlaylistTooLarge)) {
+                throw e;
+            }
             // Ignore if playlist is too large, but truncate the rest and log a warning.
             if (LOG.isWarnEnabled()) {
-                LOG.warn(e.getMessage());
+                LOG.warn("The playlist is too large, so truncate the rest.", e);
             }
+        } catch (Exception e) {
+            throw new ExecutionException("The visitor cannot be accepted.", e);
         }
 
         return entries;
@@ -279,16 +297,22 @@ public class InternetRadioService {
         }
 
         @Override
-        public void beginVisitMedia(Media media) throws Exception {
+        public void beginVisitMedia(Media media) throws ExecutionException {
             // Since we're dealing with remote content, we place a hard
             // limit on the maximum number of items to load from the playlist,
             // in order to avoid parsing erroneous data.
             if (maxCount > 0 && entries.size() >= maxCount) {
-                throw new PlaylistTooLarge("Remote playlist has too many sources (maximum " + maxCount + ")");
+                throw new ExecutionException(
+                        new PlaylistTooLarge("Remote playlist has too many sources (maximum " + maxCount + ")"));
             }
-            String streamUrl = media.getSource().getURI().toString();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Got source media at {}", streamUrl);
+            String streamUrl;
+            try {
+                streamUrl = media.getSource().getURI().toString();
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Got source media at {}", streamUrl);
+                }
+            } catch (URISyntaxException e) {
+                throw new ExecutionException("Unable to generate URI for remote content.", e);
             }
             entries.add(new InternetRadioSource(streamUrl));
         }
@@ -311,8 +335,7 @@ public class InternetRadioService {
      * 
      * @return the remote playlist data
      */
-    protected SpecificPlaylist retrievePlaylist(URL url, long maxByteSize, int maxRedirects)
-            throws IOException, PlaylistException {
+    protected SpecificPlaylist retrievePlaylist(URL url, long maxByteSize, int maxRedirects) throws ExecutionException {
 
         SpecificPlaylist playlist;
         HttpURLConnection urlConnection = connectToURLWithRedirects(url, maxRedirects);
@@ -325,11 +348,15 @@ public class InternetRadioService {
             } else {
                 playlist = SpecificPlaylistFactory.getInstance().readFrom(in, contentEncoding);
             }
+        } catch (IOException e) {
+            throw new ExecutionException("Cannot get playlist data from the specified URL.", e);
         } finally {
             urlConnection.disconnect();
         }
+
         if (playlist == null) {
-            throw new PlaylistFormatUnsupported("Unsupported playlist format " + url.toString());
+            throw new ExecutionException(
+                    new PlaylistFormatUnsupported("Unsupported playlist format " + url.toString()));
         }
         return playlist;
     }
@@ -345,35 +372,38 @@ public class InternetRadioService {
      * @return an open connection
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (URL) Not reusable
-    protected HttpURLConnection connectToURLWithRedirects(URL url, int maxRedirects)
-            throws IOException, PlaylistException {
+    protected HttpURLConnection connectToURLWithRedirects(URL url, int maxRedirects) throws ExecutionException {
 
         int redirectCount = 0;
         URL currentURL = url;
 
-        // Start a first connection.
-        HttpURLConnection connection = connectToURL(currentURL);
+        try {
+            // Start a first connection.
+            HttpURLConnection connection = connectToURL(currentURL);
 
-        // While it redirects, follow redirects in new connections.
-        while ((int) connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM
-                || (int) connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP
-                || (int) connection.getResponseCode() == HttpURLConnection.HTTP_SEE_OTHER) {
-            // Check if redirect count is not too large.
-            redirectCount += 1;
-            if (maxRedirects > 0 && redirectCount > maxRedirects) {
+            // While it redirects, follow redirects in new connections.
+            while ((int) connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM
+                    || (int) connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP
+                    || (int) connection.getResponseCode() == HttpURLConnection.HTTP_SEE_OTHER) {
+                // Check if redirect count is not too large.
+                redirectCount += 1;
+                if (maxRedirects > 0 && redirectCount > maxRedirects) {
+                    connection.disconnect();
+                    throw new PlaylistHasTooManyRedirects(
+                            String.format("Too many redirects (%d) for URL %s", redirectCount, url));
+                }
+
+                // Reconnect to the new URL.
+                currentURL = new URL(connection.getHeaderField("Location"));
                 connection.disconnect();
-                throw new PlaylistHasTooManyRedirects(
-                        String.format("Too many redirects (%d) for URL %s", redirectCount, url));
+                connection = connectToURL(currentURL);
             }
 
-            // Reconnect to the new URL.
-            currentURL = new URL(connection.getHeaderField("Location"));
-            connection.disconnect();
-            connection = connectToURL(currentURL);
+            // Return the last connection that did not redirect.
+            return connection;
+        } catch (IOException | PlaylistHasTooManyRedirects e) {
+            throw new ExecutionException("Redirect failed.", e);
         }
-
-        // Return the last connection that did not redirect.
-        return connection;
     }
 
     /**

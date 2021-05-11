@@ -53,10 +53,9 @@ public class FontLoader {
                         .getResourceAsStream("/fonts/kazesawa/Kazesawa-Regular.ttf")) {
                     font = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(fontSize);
                 } catch (IOException | FontFormatException e) {
-                    if (LOG.isTraceEnabled()) {
-                        LOG.trace("Failed to load font. ", e);
+                    if (LOG.isErrorEnabled()) {
+                        LOG.error("Failed to load font. ", e);
                     }
-                    LOG.error("Failed to load font. ", e);
                 } finally {
                     if (font == null) {
                         font = new Font(Font.SANS_SERIF, Font.BOLD, (int) fontSize);

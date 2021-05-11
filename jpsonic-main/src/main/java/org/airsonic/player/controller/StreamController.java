@@ -506,22 +506,21 @@ public class StreamController {
             return null;
         }
 
+        if (fileDuration == null || fileSize == null) {
+            return null;
+        }
+        float offset;
         try {
-            if (fileDuration == null || fileSize == null) {
-                return null;
-            }
-            float offset = Float.parseFloat(offsetSeconds);
-
-            // Convert from time offset to byte offset.
-            long byteOffset = (long) (fileSize * (offset / fileDuration));
-            return new HttpRange(byteOffset, null);
-
-        } catch (Exception e) {
+            offset = Float.parseFloat(offsetSeconds);
+        } catch (NumberFormatException e) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Failed to parse and convert time offset: " + offsetSeconds, e);
             }
             return null;
         }
+        // Convert from time offset to byte offset.
+        long byteOffset = (long) (fileSize * (offset / fileDuration));
+        return new HttpRange(byteOffset, null);
     }
 
     private VideoTranscodingSettings createVideoTranscodingSettings(MediaFile file, HttpServletRequest request)

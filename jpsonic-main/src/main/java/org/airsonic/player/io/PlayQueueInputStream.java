@@ -31,6 +31,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Player;
@@ -112,6 +113,7 @@ public class PlayQueueInputStream extends InputStream {
                 LOG.error("Transcoding was interrupted.", e);
                 return -1;
             } catch (ExecutionException e) {
+                ConcurrentUtils.handleCauseUnchecked(e);
                 LOG.error("Error during transcoding.", e);
                 return -1;
             }

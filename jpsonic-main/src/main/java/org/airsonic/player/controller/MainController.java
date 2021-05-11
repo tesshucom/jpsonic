@@ -82,7 +82,6 @@ public class MainController {
         this.viewSelector = viewSelector;
     }
 
-    @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response,
             @RequestParam(name = Attributes.Request.NameConstants.SHOW_ALL, required = false) Boolean showAll)
@@ -167,12 +166,10 @@ public class MainController {
             map.put("musicBrainzReleaseId", guessMusicBrainzReleaseId(children));
         }
 
-        try {
+        if (!securityService.isInPodcastFolder(dir.getFile())) {
             MediaFile parent = mediaFileService.getParentOf(dir);
             map.put("parent", parent);
             map.put("navigateUpAllowed", !mediaFileService.isRoot(parent));
-        } catch (SecurityException x) {
-            // Happens if Podcast directory is outside music folder.
         }
 
         map.put("thereIsMore", getThereIsMore(thereIsMoreSiblingAlbums, isShowAll, subDirs, userPaginationPreference));
@@ -297,18 +294,17 @@ public class MainController {
         return new ArrayList<>(result);
     }
 
-    @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
     private List<MediaFile> getAncestors(MediaFile dir) {
         LinkedList<MediaFile> result = new LinkedList<>();
+        if (securityService.isInPodcastFolder(dir.getFile())) {
+            // For podcasts, don't use ancestors
+            return result;
+        }
 
-        try {
-            MediaFile parent = mediaFileService.getParentOf(dir);
-            while (parent != null && !mediaFileService.isRoot(parent)) {
-                result.addFirst(parent);
-                parent = mediaFileService.getParentOf(parent);
-            }
-        } catch (SecurityException x) {
-            // Happens if Podcast directory is outside music folder.
+        MediaFile parent = mediaFileService.getParentOf(dir);
+        while (parent != null && !mediaFileService.isRoot(parent)) {
+            result.addFirst(parent);
+            parent = mediaFileService.getParentOf(parent);
         }
         return result;
     }
