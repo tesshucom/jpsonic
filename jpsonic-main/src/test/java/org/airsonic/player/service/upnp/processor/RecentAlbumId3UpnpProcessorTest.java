@@ -35,6 +35,8 @@ import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.util.LegacyMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class RecentAlbumId3UpnpProcessorTest extends AbstractNeedsScan {
@@ -107,6 +109,7 @@ public class RecentAlbumId3UpnpProcessorTest extends AbstractNeedsScan {
 
     }
 
+    @EnabledOnOs(OS.WINDOWS)
     @Test
     public void testGetChildSizeOf() {
         List<Album> albums = processor.getItems(1, 1);
