@@ -20,7 +20,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cxf.version>3.4.3</cxf.version>
         <jackson.version>2.12.3</jackson.version>
-        <tomcat.version>9.0.45</tomcat.version>
+        <tomcat.version>9.0.46</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
         <jetty.version>9.4.40.v20210413</jetty.version>
         <jetty-jsp.version>9.4.40.v20210413</jetty-jsp.version>
