@@ -176,7 +176,7 @@ public class PlayQueueInputStream extends InputStream {
             String user = player.getUsername();
             String title = file.getTitle();
             String thread = Thread.currentThread().getName();
-            LOG.info("{}({}): Transcoding {} in {}", address, user, title, thread);
+            LOG.info("{}({}): Streaming '{}' in {}", address, user, title, thread);
         }
     }
 

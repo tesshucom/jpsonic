@@ -178,7 +178,7 @@ public class StreamController {
         }
 
         Long fileLength = result.getFileLengthExpected();
-        writeLog(res, file, fileLength);
+        writeLog(res, file);
 
         // Terminate any other streams to this player.
         closeAllStreamFor(player, isPodcast, isSingleFile);
@@ -237,8 +237,8 @@ public class StreamController {
         }
     }
 
-    private void writeLog(HttpServletResponse response, MediaFile file, Long fileLengthExpected) {
-        if (settingsService.isVerboseLogPlaying() && LOG.isInfoEnabled() && fileLengthExpected != null) {
+    private void writeLog(HttpServletResponse response, MediaFile file) {
+        if (settingsService.isVerboseLogPlaying() && LOG.isInfoEnabled()) {
             LOG.info("Streaming request for [{}] with range [{}]", file.getPath(), response.getHeader("Content-Range"));
         }
     }

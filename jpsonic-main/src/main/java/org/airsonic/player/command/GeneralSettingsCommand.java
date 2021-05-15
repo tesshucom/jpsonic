@@ -48,6 +48,7 @@ public class GeneralSettingsCommand {
     private boolean gettingStartedEnabled;
     private boolean searchMethodLegacy;
     private boolean searchMethodChanged;
+    private boolean anonymousTranscoding;
     private boolean openDetailSetting;
     private boolean useRadio;
     private boolean useSonos;
@@ -277,6 +278,14 @@ public class GeneralSettingsCommand {
 
     public void setSearchMethodChanged(boolean searchMethodChanged) {
         this.searchMethodChanged = searchMethodChanged;
+    }
+
+    public boolean isAnonymousTranscoding() {
+        return anonymousTranscoding;
+    }
+
+    public void setAnonymousTranscoding(boolean anonymousTranscoding) {
+        this.anonymousTranscoding = anonymousTranscoding;
     }
 
     public boolean isOpenDetailSetting() {

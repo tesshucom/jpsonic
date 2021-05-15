@@ -158,6 +158,7 @@ public class SettingsService {
     private static final String KEY_OUTPUT_SEARCH_QUERY = "OutputSearchQuery";
     private static final String KEY_SEARCH_METHOD_LEGACY = "SearchMethodLegacy";
     private static final String KEY_SEARCH_METHOD_CHANGED = "SearchMethodChanged";
+    private static final String KEY_ANONYMOUS_TRANSCODING = "AnonymousTranscoding";
 
     private static final String KEY_DLNA_ENABLED = "DlnaEnabled";
     private static final String KEY_DLNA_SERVER_NAME = "DlnaServerName";
@@ -306,7 +307,8 @@ public class SettingsService {
     private static final boolean DEFAULT_SEARCH_COMPOSER = false;
     private static final boolean DEFAULT_OUTPUT_SEARCH_QUERY = false;
     private static final boolean DEFAULT_SEARCH_METHOD_LEGACY = false;
-    private static final boolean DEFAULT_KEY_SEARCH_METHOD_CHANGED = false;
+    private static final boolean DEFAULT_SEARCH_METHOD_CHANGED = false;
+    private static final boolean DEFAULT_ANONYMOUS_TRANSCODING = false;
 
     private static final boolean DEFAULT_DLNA_ENABLED = false;
     private static final String DEFAULT_DLNA_SERVER_NAME = "Jpsonic";
@@ -1062,7 +1064,7 @@ public class SettingsService {
     }
 
     public boolean isSearchMethodChanged() {
-        return getBoolean(KEY_SEARCH_METHOD_CHANGED, DEFAULT_KEY_SEARCH_METHOD_CHANGED);
+        return getBoolean(KEY_SEARCH_METHOD_CHANGED, DEFAULT_SEARCH_METHOD_CHANGED);
     }
 
     public void setSearchMethodChanged(boolean b) {
@@ -1071,6 +1073,14 @@ public class SettingsService {
 
     public boolean isIgnoreSymLinks() {
         return getBoolean(KEY_IGNORE_SYMLINKS, DEFAULT_IGNORE_SYMLINKS);
+    }
+
+    public boolean isAnonymousTranscoding() {
+        return getBoolean(KEY_ANONYMOUS_TRANSCODING, DEFAULT_ANONYMOUS_TRANSCODING);
+    }
+
+    public void setAnonymousTranscoding(boolean b) {
+        setBoolean(KEY_ANONYMOUS_TRANSCODING, b);
     }
 
     public void setIgnoreSymLinks(boolean b) {

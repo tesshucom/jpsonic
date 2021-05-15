@@ -62,6 +62,13 @@ $(document).ready(function() {
     <c:param name="existsShare" value="${command.shareCount ne 0}"/>
 </c:import>
 
+<c:if test="${command.admin}">
+    <c:import url="outlineHelpSelector.jsp">
+        <c:param name="targetView" value="playerSettings.view"/>
+        <c:param name="showOutlineHelp" value="${command.showOutlineHelp}"/>
+    </c:import>
+</c:if>
+
 <fmt:message key="common.unknown" var="unknown"/>
 
 <c:choose>
@@ -83,8 +90,14 @@ $(document).ready(function() {
         <form:form modelAttribute="command" method="post" action="playerSettings.view">
             <form:hidden path="playerId"/>
             <details open>
-                <summary class="legacy"><fmt:message key="playersettings.settings"/></summary>
-
+                <summary class="jpsonic"><fmt:message key="playersettings.settings"/></summary>
+                <c:if test="${command.admin}">
+                    <c:if test="${command.showOutlineHelp}">
+                        <div class="outlineHelp">
+                            <fmt:message key="playersettings.outline"/>
+                        </div>
+                    </c:if>
+                </c:if>
                 <dl>
                     <dt><fmt:message key="playersettings.type"/></dt>
                     <dd>
@@ -102,53 +115,61 @@ $(document).ready(function() {
                                 <c:set var="technologyName">
                                     <fmt:message key="playersettings.technology.${fn:toLowerCase(technologyHolder.name)}"/>
                                 </c:set>
-                                <li>
-                                    <form:radiobutton class="technologyRadio" id="radio-${technologyName}" path="technologyName" value="${technologyHolder.name}"/>
-                                    <label for="radio-${technologyName}">${technologyName}</label>
-                                    <c:import url="helpToolTip.jsp"><c:param name="topic" value="playersettings.technology.${fn:toLowerCase(technologyHolder.name)}"/></c:import>
-                                </li>
+                                <c:if test="${not (command.guest or command.anonymous) or technologyHolder.name eq 'WEB'}">
+                                    <li>
+                                        <form:radiobutton class="technologyRadio" id="radio-${technologyName}" path="technologyName" value="${technologyHolder.name}"/>
+                                        <label for="radio-${technologyName}">${technologyName}</label>
+                                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="playersettings.technology.${fn:toLowerCase(technologyHolder.name)}"/></c:import>
+                                    </li>
+                                </c:if>
                             </c:forEach>
                         </ul>
                     </dd>
-                    <dt class="noJavaJuke"><fmt:message key="playersettings.maxbitrate"/></dt>
-                    <dd class="noJavaJuke">
-                        <form:select path="transcodeSchemeName">
-                            <c:forEach items="${command.transcodeSchemeHolders}" var="transcodeSchemeHolder">
-                                <form:option value="${transcodeSchemeHolder.name}" label="${transcodeSchemeHolder.description}"/>
-                            </c:forEach>
-                        </form:select>
-                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="transcode"/></c:import>
-                        <c:if test="${not command.transcodingSupported}">
-                            <strong><fmt:message key="playersettings.notranscoder"/></strong>
-                        </c:if>
-                    </dd>
-                    <c:if test="${not empty command.allTranscodings}">
-                        <dt class="noJavaJuke"><fmt:message key="playersettings.transcodings"/></dt>
+
+                    <c:if test="${not command.anonymous or (command.anonymous and command.anonymousTranscoding)}">
+                        <dt class="noJavaJuke"><fmt:message key="playersettings.maxbitrate"/></dt>
                         <dd class="noJavaJuke">
-                            <c:forEach items="${command.allTranscodings}" var="transcoding" varStatus="loopStatus">
-                                <form:checkbox path="activeTranscodingIds" id="transcoding${transcoding.id}" value="${transcoding.id}" cssClass="checkbox"/>
-                                <label for="transcoding${transcoding.id}">${transcoding.name}</label>
-                            </c:forEach>
+                            <form:select path="transcodeSchemeName">
+                                <c:forEach items="${command.transcodeSchemeHolders}" var="transcodeSchemeHolder">
+                                    <form:option value="${transcodeSchemeHolder.name}" label="${transcodeSchemeHolder.description}"/>
+                                </c:forEach>
+                            </form:select>
+                            <c:import url="helpToolTip.jsp"><c:param name="topic" value="transcode"/></c:import>
+                            <c:if test="${not command.transcodingSupported}">
+                                <strong><fmt:message key="playersettings.notranscoder"/></strong>
+                            </c:if>
                         </dd>
+                        <c:if test="${not empty command.allTranscodings}">
+                            <dt class="noJavaJuke"><fmt:message key="playersettings.transcodings"/></dt>
+                            <dd class="noJavaJuke">
+                                <c:forEach items="${command.allTranscodings}" var="transcoding" varStatus="loopStatus">
+                                    <form:checkbox path="activeTranscodingIds" id="transcoding${transcoding.id}" value="${transcoding.id}" cssClass="checkbox"/>
+                                    <label for="transcoding${transcoding.id}">${transcoding.name}</label>
+                                </c:forEach>
+                            </dd>
+                        </c:if>
                     </c:if>
+
                     <dt class="noJavaJuke"></dt>
                     <dd class="noJavaJuke">
                         <form:checkbox path="dynamicIp" id="dynamicIp" cssClass="checkbox"/>
                         <label for="dynamicIp"><fmt:message key="playersettings.dynamicip"/></label>
                         <c:import url="helpToolTip.jsp"><c:param name="topic" value="dynamicip"/></c:import>
                     </dd>
-                    <dt class="noJavaJuke"></dt>
-                    <dd class="noJavaJuke">
-                        <form:checkbox path="autoControlEnabled" id="autoControlEnabled" cssClass="checkbox"/>
-                        <label for="autoControlEnabled"><fmt:message key="playersettings.autocontrol"/></label>
-                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="autocontrol"/></c:import>
-                    </dd>
-                    <dt class="noJavaJuke"></dt>
-                    <dd class="noJavaJuke">
-                        <form:checkbox path="m3uBomEnabled" id="m3uBomEnabled" cssClass="checkbox"/>
-                        <label for="m3uBomEnabled"><fmt:message key="playersettings.m3ubom"/></label>
-                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="m3ubom"/></c:import>
-                    </dd>
+                    <c:if test="${not (command.guest or command.anonymous)}">
+                        <dt class="noJavaJuke"></dt>
+                        <dd class="noJavaJuke">
+                            <form:checkbox path="autoControlEnabled" id="autoControlEnabled" cssClass="checkbox"/>
+                            <label for="autoControlEnabled"><fmt:message key="playersettings.autocontrol"/></label>
+                            <c:import url="helpToolTip.jsp"><c:param name="topic" value="autocontrol"/></c:import>
+                        </dd>
+                        <dt class="noJavaJuke"></dt>
+                        <dd class="noJavaJuke">
+                            <form:checkbox path="m3uBomEnabled" id="m3uBomEnabled" cssClass="checkbox"/>
+                            <label for="m3uBomEnabled"><fmt:message key="playersettings.m3ubom"/></label>
+                            <c:import url="helpToolTip.jsp"><c:param name="topic" value="m3ubom"/></c:import>
+                        </dd>
+                    </c:if>
                     <dt class="javaJuke"><fmt:message key="playersettings.javaJukeboxMixer"/></dt>
                     <dd class="javaJuke">
                         <form:select path="javaJukeboxMixer">

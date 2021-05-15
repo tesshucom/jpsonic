@@ -13,12 +13,12 @@ function setSimpleIndexString() {
     document.getElementById("index").value = "${command.simpleIndexString}";
 }
 function resetSortSettings() {
-   	$('[name="sortAlbumsByYear"]').prop('checked', ${command.defaultSortAlbumsByYear});
-   	$('[name="sortGenresByAlphabet"]').prop('checked', ${command.defaultSortGenresByAlphabet});
-   	$('[name="prohibitSortVarious"]').prop('checked', ${command.defaultProhibitSortVarious});
-   	$('[name="sortAlphanum"]').prop('checked', ${command.defaultSortAlphanum});
-   	$('[name="sortStrict"]').prop('checked', ${command.defaultSortStrict});
-}
+    $('[name="sortAlbumsByYear"]').prop('checked', ${command.defaultSortAlbumsByYear});
+    $('[name="sortGenresByAlphabet"]').prop('checked', ${command.defaultSortGenresByAlphabet});
+    $('[name="prohibitSortVarious"]').prop('checked', ${command.defaultProhibitSortVarious});
+    $('[name="sortAlphanum"]').prop('checked', ${command.defaultSortAlphanum});
+	$('[name="sortStrict"]').prop('checked', ${command.defaultSortStrict});
+} 
 </script>
 </head>
 
@@ -225,6 +225,12 @@ function resetSortSettings() {
                 <form:checkbox path="searchMethodLegacy" id="searchMethodLegacy"/>
                 <label for="searchMethodLegacy"><fmt:message key="generalsettings.searchmethodlegacy"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="searchmethod"/></c:import>
+            </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="anonymousTranscoding" id="anonymousTranscoding"/>
+                <label for="anonymousTranscoding"><fmt:message key="generalsettings.anonymoustranscoding"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="anonymoustranscoding"/></c:import>
             </dd>
         </dl>
     </details>

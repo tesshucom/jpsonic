@@ -42,6 +42,7 @@ import org.airsonic.player.domain.Transcoding;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.domain.VideoTranscodingSettings;
 import org.airsonic.player.io.TranscodeInputStream;
+import org.airsonic.player.security.JWTAuthenticationToken;
 import org.airsonic.player.util.PlayerUtils;
 import org.airsonic.player.util.StringUtil;
 import org.apache.commons.io.FileUtils;
@@ -227,9 +228,12 @@ public class TranscodingService {
      * 
      * @return Parameters to be used in the {@link #getTranscodedInputStream} method.
      */
-    public Parameters getParameters(MediaFile mediaFile, Player player, final Integer maxBitRate,
+    public Parameters getParameters(MediaFile mediaFile, Player p, final Integer maxBitRate,
             String preferredTargetFormat, VideoTranscodingSettings videoTranscodingSettings) {
 
+        boolean useGuestPlayer = JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(p.getUsername())
+                && !settingsService.isAnonymousTranscoding();
+        Player player = useGuestPlayer ? playerService.getGuestPlayer(null) : p;
         Parameters parameters = new Parameters(mediaFile, videoTranscodingSettings);
 
         Integer mb = maxBitRate == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate()) : maxBitRate;
