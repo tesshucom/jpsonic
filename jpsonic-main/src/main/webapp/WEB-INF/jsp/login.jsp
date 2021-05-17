@@ -16,7 +16,7 @@
         <sec:csrfInput />
 
         <div id="loginframe">
-            <img src="./icons/logo.png" alt="">
+            <img src="./icons/logo.svg" alt="">
 
             <div class="loginmessagetop">${model.loginMessage}</div>
 

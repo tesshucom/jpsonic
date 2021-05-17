@@ -121,7 +121,7 @@ public class PodcastController {
 
         return new ModelAndView("podcast", "model",
                 LegacyMap.of("url", url, "lang", lang, "logo",
-                        url.replaceAll("podcast/" + ViewName.PODCAST.value() + "$", "") + "/icons/logo.png", "podcasts",
+                        url.replaceAll("podcast/" + ViewName.PODCAST.value() + "$", "") + "/icons/logo.svg", "podcasts",
                         podcasts));
     }
 
