@@ -12,7 +12,7 @@ About GPG verification
   Or download it from the repository.
   https://raw.githubusercontent.com/jpsonic/jpsonic/master/install/keys/webmaster%40tesshu.com.pem
 
-  $ gpg --import C:\tmp\webmaster@tesshu.com.pem
+  $ gpg --import webmaster@tesshu.com.pem
 
 2. Verify
 
