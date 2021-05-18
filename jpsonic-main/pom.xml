@@ -382,12 +382,12 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- UPNP / DLNA -->
+        <!-- UPNP -->
         <dependency>
             <groupId>org.fourthline.cling</groupId>
             <artifactId>cling-core</artifactId>
             <!-- Cling removed the org.fourthline.cling.transport.impl.apache package in 2.1, which is needed to make Cling work with Tomcat. -->
-            <!-- Don't upgrade this unless you can test UPnP/DLNA support properly! -->
+            <!-- Don't upgrade this unless you can test UPnP support properly! -->
             <version>2.0.1</version>
         </dependency>
 
@@ -395,7 +395,7 @@
             <groupId>org.fourthline.cling</groupId>
             <artifactId>cling-support</artifactId>
             <!-- Cling removed the org.fourthline.cling.transport.impl.apache package in 2.1, which is needed to make Cling work with Tomcat. -->
-            <!-- Don't upgrade this unless you can test UPnP/DLNA support properly! -->
+            <!-- Don't upgrade this unless you can test UPnP support properly! -->
             <version>2.0.1</version>
         </dependency>
 

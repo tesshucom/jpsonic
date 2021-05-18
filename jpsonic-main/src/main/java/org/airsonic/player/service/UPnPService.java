@@ -119,7 +119,7 @@ public class UPnPService {
             if (bo) {
                 if (deligate != null) {
                     if (settingsService.isVerboseLogShutdown() && LOG.isInfoEnabled()) {
-                        LOG.info("Disabling UPnP/DLNA media server");
+                        LOG.info("Disabling UPnP media server");
                     }
                     deligate.getRegistry().removeAllLocalDevices();
                     if (settingsService.isVerboseLogShutdown() && LOG.isInfoEnabled()) {
@@ -195,12 +195,12 @@ public class UPnPService {
             try {
                 deligate.getRegistry().addDevice(createMediaServerDevice());
                 if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
-                    LOG.info("Enabling UPnP/DLNA media server");
+                    LOG.info("Enabling UPnP media server");
                 }
             } catch (ExecutionException e) {
                 ConcurrentUtils.handleCauseUnchecked(e);
                 if (LOG.isErrorEnabled()) {
-                    LOG.error("Failed to start UPnP/DLNA media server.", e);
+                    LOG.error("Failed to start UPnP media server.", e);
                 }
             }
         } else {
