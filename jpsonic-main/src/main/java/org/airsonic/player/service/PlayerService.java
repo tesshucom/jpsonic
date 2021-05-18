@@ -65,6 +65,7 @@ public class PlayerService {
     private static final Object LOCK = new Object();
     private static final String COOKIE_NAME = "player";
     private static final String ATTRIBUTE_SESSION_KEY = "player";
+    private static final String GUEST_PLAYER_TYPE = "UPnP Processor";
     private static final int COOKIE_EXPIRY = 365 * 24 * 3600; // One year
 
     private final PlayerDao playerDao;
@@ -160,9 +161,6 @@ public class PlayerService {
         // If no player was found, create it.
         if (player == null) {
             player = new Player();
-            // This case is probably anonymous new so we need Address and name
-            player.setIpAddress(request.getRemoteAddr());
-            player.setUsername(username);
             createPlayer(player);
         }
         return player;
@@ -203,23 +201,24 @@ public class PlayerService {
 
     @SuppressFBWarnings(value = "UC_USELESS_CONDITION", justification = "False positive. The value of isStreamRequest is not always false.")
     private boolean isToBeUpdate(HttpServletRequest request, boolean isStreamRequest, Player player) {
+        boolean isToBeUpdate = false;
         String username = securityService.getCurrentUsername(request);
         if (username != null && player.getUsername() == null) {
             player.setUsername(username);
-            return true;
+            isToBeUpdate = true;
         }
         if (player.getIpAddress() == null || isStreamRequest || !isPlayerConnected(player) && player.isDynamicIp()
                 && !request.getRemoteAddr().equals(player.getIpAddress())) {
             player.setIpAddress(request.getRemoteAddr());
-            return true;
+            isToBeUpdate = true;
         }
         String userAgent = request.getHeader("user-agent");
         if (isStreamRequest) {
             player.setType(userAgent);
             player.setLastSeen(new Date());
-            return true;
+            isToBeUpdate = true;
         }
-        return false;
+        return isToBeUpdate;
     }
 
     private @Nullable Player findPlayerInSession(HttpServletRequest request) {
@@ -425,6 +424,7 @@ public class PlayerService {
             player.setIpAddress(request.getRemoteAddr());
         }
         player.setUsername(User.USERNAME_GUEST);
+        player.setType(GUEST_PLAYER_TYPE);
         createPlayer(player);
 
         return player;
