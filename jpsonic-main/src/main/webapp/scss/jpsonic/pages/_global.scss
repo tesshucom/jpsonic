@@ -188,11 +188,10 @@ ul.anchorList {
     content: "";
   }
 }
-.win {
-  .mainframe {
-    &:after {
-      height: 0;
-    }
+
+.mainframe.notMobile {
+  &:after {
+    height: 0;
   }
 }
 

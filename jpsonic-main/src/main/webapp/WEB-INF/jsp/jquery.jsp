@@ -5,3 +5,4 @@
 <script src="<c:url value='/script/jquery-ui-1.12.1.min.js'/>"></script>
 <script src="<c:url value='/script/jquery.toastmessage/jquery.toastmessage.js'/>"></script>
 <%-- include file="grid.jsp" (for debug)--%>
+<script src="<c:url value='/script/jpsonic/styleByAgent.js'/>"></script>

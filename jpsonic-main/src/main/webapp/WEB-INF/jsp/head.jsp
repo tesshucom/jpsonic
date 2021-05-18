@@ -27,6 +27,5 @@ html {
     "keyboardShortcutsEnabled": ${model.keyboardShortcutsEnabled ? 'true' : 'false'}
   }
 </script>
-<script defer src="<c:url value='/script/css_browser_selector.js'/>"></script>
 <script defer src="<c:url value='/script/mousetrap.min.js'/>"></script>
 <script defer src="<c:url value='/script/keyboard_shortcuts.js'/>"></script>
