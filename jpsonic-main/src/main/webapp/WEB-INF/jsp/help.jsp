@@ -40,7 +40,7 @@
     <summary class="jpsonic"><fmt:message key="help.appInfo"/></summary>
     <dl>
         <dt><fmt:message key="help.version.title"/></dt>
-        <dd>Jpsonic ${versionString} (based on Airsonic 11.0.0-SNAPSHOT) &ndash; ${buildDateString}</dd>
+        <dd>Jpsonic ${versionString} &ndash; ${buildDateString}</dd>
         <dt><fmt:message key="help.server.title"/></dt>
         <dd>${model.serverInfo} (<sub:formatBytes bytes="${model.usedMemory}"/> / <sub:formatBytes bytes="${model.totalMemory}"/>)</dd>
         <dt><fmt:message key="help.license.title"/></dt>
@@ -51,7 +51,7 @@
             <a href="http://www.gnu.org/copyleft/gpl.html" target="_blank"><img alt="GPL 3.0" src="<c:url value='/icons/gpl.png'/>"></a>
         </dd>
         <dt><fmt:message key="help.homepage.title"/></dt>
-        <dd><a target="_blank" href="https://tesshu.com/" rel="noopener nofererrer">Jpsonic website</a> / <a target="_blank" href="https://airsonic.github.io/" rel="noopener nofererrer">Airsonic website</a></dd>
+        <dd><a target="_blank" href="https://tesshu.com/" rel="noopener nofererrer">Jpsonic website</a></dd>
     </dl>
 </details>
 
