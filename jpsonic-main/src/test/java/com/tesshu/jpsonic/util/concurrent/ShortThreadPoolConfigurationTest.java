@@ -41,7 +41,7 @@ public class ShortThreadPoolConfigurationTest {
 
     @Test
     void testGetQueueCapacity() {
-        assertEquals(20, configuration.getQueueCapacity());
+        assertEquals(4, configuration.getQueueCapacity());
     }
 
     @Test
