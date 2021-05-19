@@ -277,7 +277,7 @@ public class SettingsService {
     private static final String DEFAULT_THEME_ID = "jpsonic";
     private static final int DEFAULT_INDEX_CREATION_INTERVAL = 1;
     private static final int DEFAULT_INDEX_CREATION_HOUR = 3;
-    private static final boolean DEFAULT_FAST_CACHE_ENABLED = false;
+    private static final boolean DEFAULT_FAST_CACHE_ENABLED = true;
     private static final boolean DEFAULT_IGNORE_FILE_TIMESTAMPS = false;
     private static final int DEFAULT_PODCAST_UPDATE_INTERVAL = 24;
     private static final String DEFAULT_PODCAST_FOLDER = PlayerUtils.getDefaultPodcastFolder();
