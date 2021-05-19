@@ -129,23 +129,50 @@
                 </c:if>
             </dd>
             <dt></dt>
-            <dd><form:checkbox path="settingsRole" id="settings" cssClass="checkbox"/><label for="settings"><fmt:message key="usersettings.settings"/></label></dd>
+            <dd>
+                <form:checkbox path="settingsRole" id="settings" cssClass="checkbox"/>
+                <label for="settings"><fmt:message key="usersettings.settings"/></label>
+            </dd>
             <dt></dt>
-            <dd><form:checkbox path="streamRole" id="stream" cssClass="checkbox"/><label for="stream"><fmt:message key="usersettings.stream"/></label></dd>
+            <dd>
+                <form:checkbox path="streamRole" id="stream" cssClass="checkbox"/>
+                <label for="stream"><fmt:message key="usersettings.stream"/></label>
+            </dd>
             <dt></dt>
-            <dd><form:checkbox path="jukeboxRole" id="jukebox" cssClass="checkbox"/><label for="jukebox"><fmt:message key="usersettings.jukebox"/></label></dd>
+            <dd>
+                <form:checkbox path="jukeboxRole" id="jukebox" cssClass="checkbox"/>
+                <label for="jukebox"><fmt:message key="usersettings.jukebox"/></label>
+            </dd>
             <dt></dt>
-            <dd><form:checkbox path="downloadRole" id="download" cssClass="checkbox"/><label for="download"><fmt:message key="usersettings.download"/></label></dd>
+            <dd>
+                <form:checkbox path="downloadRole" id="download" cssClass="checkbox"/>
+                <label for="download"><fmt:message key="usersettings.download"/></label>
+            </dd>
             <dt></dt>
-            <dd><form:checkbox path="uploadRole" id="upload" cssClass="checkbox"/><label for="upload"><fmt:message key="usersettings.upload"/></label></dd>
+            <dd>
+                <form:checkbox path="uploadRole" id="upload" cssClass="checkbox"/>
+                <label for="upload"><fmt:message key="usersettings.upload"/></label>
+            </dd>
             <dt></dt>
-            <dd><form:checkbox path="shareRole" id="share" cssClass="checkbox"/><label for="share"><fmt:message key="usersettings.share"/></label></dd>
+            <dd>
+                <form:checkbox path="shareRole" id="share" cssClass="checkbox"/>
+                <label for="share"><fmt:message key="usersettings.share"/></label>
+            </dd>
             <dt></dt>
-            <dd><form:checkbox path="coverArtRole" id="coverArt" cssClass="checkbox"/><label for="coverArt"><fmt:message key="usersettings.coverart"/></label></dd>
+            <dd>
+                <form:checkbox path="coverArtRole" id="coverArt" cssClass="checkbox"/>
+                <label for="coverArt"><fmt:message key="usersettings.coverart"/></label>
+            </dd>
             <dt></dt>
-            <dd><form:checkbox path="commentRole" id="comment" cssClass="checkbox"/><label for="comment"><fmt:message key="usersettings.comment"/></label></dd>
+            <dd>
+                <form:checkbox path="commentRole" id="comment" cssClass="checkbox"/>
+                <label for="comment"><fmt:message key="usersettings.comment"/></label>
+            </dd>
             <dt></dt>
-            <dd><form:checkbox path="podcastRole" id="podcast" cssClass="checkbox"/><label for="podcast"><fmt:message key="usersettings.podcast"/></label></dd>
+            <dd>
+                <form:checkbox path="podcastRole" id="podcast" cssClass="checkbox"/>
+                <label for="podcast"><fmt:message key="usersettings.podcast"/></label>
+            </dd>
         </dl>
 
     </details>

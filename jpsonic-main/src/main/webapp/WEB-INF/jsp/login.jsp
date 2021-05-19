@@ -16,9 +16,7 @@
         <sec:csrfInput />
 
         <div id="loginframe">
-            <img src="./icons/logo.svg" alt="">
-
-            <div class="loginmessagetop">${model.loginMessage}</div>
+            <img src="./icons/logo.svg" alt="" class="logo">
 
             <input required type="text" autofocus id="j_username" name="j_username" tabindex="1" placeholder="<fmt:message key='login.username'/>">
 
@@ -49,6 +47,8 @@
             <c:if test="${model.insecure}">
                 <div class="loginmessagebottom"><strong><fmt:message key="login.insecure"><fmt:param value="${model.brand}"/></fmt:message></strong></div>
             </c:if>
+
+            <div class="loginmessagetop">${model.loginMessage}</div>
 
         </div>
     </form>
