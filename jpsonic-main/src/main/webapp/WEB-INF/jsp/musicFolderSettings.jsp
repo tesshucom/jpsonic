@@ -146,7 +146,7 @@
         </dl>
     </details>
 
-    <details open>
+    <details>
         <summary class="jpsonic"><fmt:message key="musicfoldersettings.other"/></summary>
         <dl>
             <dt></dt>

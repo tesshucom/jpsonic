@@ -62,8 +62,8 @@ public class LegacyHsqlDaoHelper extends GenericDaoHelper {
      */
     private void shutdownHsqldbDatabase() {
         try {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Database shutdown in progress...");
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Database shutdown in progress...");
             }
             JdbcTemplate jdbcTemplate = getJdbcTemplate();
             DataSource dataSource = jdbcTemplate.getDataSource();
@@ -73,8 +73,8 @@ public class LegacyHsqlDaoHelper extends GenericDaoHelper {
                 try (Connection conn = DataSourceUtils.getConnection(dataSource)) {
                     jdbcTemplate.execute("SHUTDOWN");
                 }
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Database shutdown complete.");
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Database shutdown complete.");
                 }
             }
         } catch (SQLException e) {

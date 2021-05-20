@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,15 +38,11 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.dao.PodcastDao;
@@ -75,6 +72,8 @@ import org.jdom2.JDOMException;
 import org.jdom2.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 /**
@@ -83,6 +82,7 @@ import org.springframework.stereotype.Service;
  * @author Sindre Mehus
  */
 @Service
+@DependsOn({ "podcastDownloadExecutor", "podcastRefreshExecutor" })
 public class PodcastService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PodcastService.class);
@@ -94,7 +94,6 @@ public class PodcastService {
             Namespace.getNamespace("http://www.itunes.com/dtds/podcast-1.0.dtd") };
     private static final Object EPISODES_LOCK = new Object();
     private static final Object FILE_LOCK = new Object();
-    private static final Object SCHEDULE_LOCK = new Object();
     private static final long DURATION_FORMAT_THRESHOLD = 3600;
 
     private final PodcastDao podcastDao;
@@ -102,88 +101,41 @@ public class PodcastService {
     private final SecurityService securityService;
     private final MediaFileService mediaFileService;
     private final MetaDataParserFactory metaDataParserFactory;
-    private final ExecutorService refreshExecutor;
-    private final ExecutorService downloadExecutor;
-    private final ScheduledExecutorService scheduledExecutor;
+    private final ThreadPoolTaskExecutor podcastDownloadExecutor;
+    private final ThreadPoolTaskExecutor podcastRefreshExecutor;
 
-    private ScheduledFuture<?> scheduledRefresh;
+    private final AtomicBoolean destroy = new AtomicBoolean();
 
     public PodcastService(PodcastDao podcastDao, SettingsService settingsService, SecurityService securityService,
-            MediaFileService mediaFileService, MetaDataParserFactory metaDataParserFactory) {
+            MediaFileService mediaFileService, MetaDataParserFactory metaDataParserFactory,
+            ThreadPoolTaskExecutor podcastDownloadExecutor, ThreadPoolTaskExecutor podcastRefreshExecutor) {
         this.podcastDao = podcastDao;
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.mediaFileService = mediaFileService;
         this.metaDataParserFactory = metaDataParserFactory;
-        ThreadFactory threadFactory = r -> {
-            Thread t = Executors.defaultThreadFactory().newThread(r);
-            t.setDaemon(true);
-            return t;
-        };
-        refreshExecutor = Executors.newFixedThreadPool(5, threadFactory);
-        downloadExecutor = Executors.newFixedThreadPool(3, threadFactory);
-        scheduledExecutor = Executors.newSingleThreadScheduledExecutor(threadFactory);
+        this.podcastDownloadExecutor = podcastDownloadExecutor;
+        this.podcastRefreshExecutor = podcastRefreshExecutor;
     }
 
     @PostConstruct
     public void init() {
+        // Clean up partial downloads.
         synchronized (EPISODES_LOCK) {
-            try {
-                // Clean up partial downloads.
-                for (PodcastChannel channel : getAllChannels()) {
-                    for (PodcastEpisode episode : getEpisodes(channel.getId())) {
-                        if (episode.getStatus() == PodcastStatus.DOWNLOADING) {
-                            deleteEpisode(episode.getId(), false);
-                            if (LOG.isInfoEnabled()) {
-                                LOG.info("Deleted Podcast episode '" + episode.getTitle()
-                                        + "' since download was interrupted.");
-                            }
-                        }
-                    }
+            getAllChannels().forEach(channel -> getEpisodes(channel.getId()).forEach(episode -> {
+                if (episode.getStatus() == PodcastStatus.DOWNLOADING) {
+                    deleteEpisode(episode.getId(), false);
+                    writeInfo("Deleted Podcast episode '" + channel.getTitle() + "(" + episode.getTitle()
+                            + ")' since download was interrupted.");
                 }
-                schedule();
-            } catch (Throwable x) {
-                if (LOG.isErrorEnabled()) {
-                    LOG.error("Failed to initialize PodcastService: " + x, x);
-                }
-            }
+            }));
         }
+        destroy.set(false);
     }
 
-    public void schedule() {
-        synchronized (SCHEDULE_LOCK) {
-
-            if (scheduledRefresh != null) {
-                scheduledRefresh.cancel(true);
-            }
-
-            int hoursBetween = settingsService.getPodcastUpdateInterval();
-            if (hoursBetween == -1) {
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Automatic Podcast update disabled.");
-                }
-                return;
-            }
-
-            Runnable task = () -> {
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Starting scheduled Podcast refresh.");
-                }
-                refreshAllChannels(true);
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Completed scheduled Podcast refresh.");
-                }
-            };
-            long periodMillis = hoursBetween * 60L * 60L * 1000L;
-            long initialDelayMillis = 5L * 60L * 1000L;
-            scheduledRefresh = scheduledExecutor.scheduleAtFixedRate(task, initialDelayMillis, periodMillis,
-                    TimeUnit.MILLISECONDS);
-            Date firstTime = new Date(System.currentTimeMillis() + initialDelayMillis);
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Automatic Podcast update scheduled to run every " + hoursBetween + " hour(s), starting at "
-                        + firstTime);
-            }
-        }
+    @PreDestroy
+    public void onDestroy() {
+        destroy.set(true);
     }
 
     /**
@@ -316,10 +268,9 @@ public class PodcastService {
                 if (mediaFile != null) {
                     channel.setMediaFileId(mediaFile.getId());
                 }
-            } catch (Exception x) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to resolve media file ID for podcast channel '" + channel.getTitle() + "': " + x,
-                            x);
+            } catch (SecurityException e) {
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Failed to resolve media file ID for podcast channel: " + channel.getTitle(), e);
                 }
             }
         }
@@ -336,8 +287,10 @@ public class PodcastService {
 
     private void refreshChannels(final List<PodcastChannel> channels, final boolean downloadEpisodes) {
         for (final PodcastChannel channel : channels) {
-            Runnable task = () -> doRefreshChannel(channel, downloadEpisodes);
-            refreshExecutor.submit(task);
+            if (destroy.get()) {
+                return;
+            }
+            podcastRefreshExecutor.execute(() -> doRefreshChannel(channel, downloadEpisodes));
         }
     }
 
@@ -456,8 +409,10 @@ public class PodcastService {
     }
 
     public void downloadEpisode(final PodcastEpisode episode) {
-        Runnable task = () -> doDownloadEpisode(episode);
-        downloadExecutor.submit(task);
+        if (destroy.get()) {
+            return;
+        }
+        podcastDownloadExecutor.execute(() -> doDownloadEpisode(episode));
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (PodcastEpisode) Not reusable
@@ -506,9 +461,7 @@ public class PodcastService {
 
             Element enclosure = episodeElement.getChild("enclosure");
             if (enclosure == null) {
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("No enclosure found for episode " + title);
-                }
+                writeInfo("No enclosure found for episode " + title);
                 continue;
             }
 
@@ -518,9 +471,9 @@ public class PodcastService {
                 Long length = null;
                 try {
                     length = Long.valueOf(enclosure.getAttributeValue("length"));
-                } catch (Exception x) {
+                } catch (NumberFormatException e) {
                     if (LOG.isWarnEnabled()) {
-                        LOG.warn("Failed to parse enclosure length.", x);
+                        LOG.warn("Failed to parse enclosure length.", e);
                     }
                 }
 
@@ -528,9 +481,7 @@ public class PodcastService {
                 PodcastEpisode episode = new PodcastEpisode(null, channelId, url, null, title, description, date,
                         duration, length, 0L, PodcastStatus.NEW, null);
                 episodes.add(episode);
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Created Podcast episode " + title);
-                }
+                writeInfo("Created Podcast episode " + title);
             }
         }
         return episodes;
@@ -540,7 +491,7 @@ public class PodcastService {
         for (DateFormat dateFormat : RSS_DATE_FORMATS) {
             try {
                 return dateFormat.parse(s);
-            } catch (Exception e) {
+            } catch (ParseException e) {
                 if (LOG.isTraceEnabled()) {
                     LOG.trace("Error in parse of RSS date.", e);
                 }
@@ -588,35 +539,58 @@ public class PodcastService {
         return null;
     }
 
+    private HttpGet createHttpGet(String url) {
+        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(2 * 60 * 1000) // 2 minutes
+                .setSocketTimeout(10 * 60 * 1000) // 10 minutes
+                // Workaround HttpClient circular redirects, which some feeds use (with query parameters)
+                .setCircularRedirectsAllowed(true)
+                // Workaround HttpClient not understanding latest RFC-compliant cookie 'expires' attributes
+                .setCookieSpec(CookieSpecs.STANDARD).build();
+        HttpGet method = new HttpGet(url);
+        method.setConfig(requestConfig);
+        return method;
+    }
+
+    private <E extends Exception> void consumeDownloadError(PodcastEpisode episode, E e) {
+        if (LOG.isWarnEnabled()) {
+            LOG.warn("Failed to download Podcast from " + episode.getUrl(), e);
+        }
+        episode.setStatus(PodcastStatus.ERROR);
+        episode.setErrorMessage(getErrorMessage(e));
+        podcastDao.updateEpisode(episode);
+    }
+
+    private void writeInfo(String format, Object... args) {
+        if (LOG.isInfoEnabled()) {
+            LOG.info(format, args);
+        }
+    }
+
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private void doDownloadEpisode(PodcastEpisode episode) {
+
+        if (destroy.get()) {
+            if (settingsService.isVerboseLogShutdown() && LOG.isInfoEnabled()) {
+                LOG.info("Shutdown has been called. It will not be downloaded.: {}", episode.getTitle());
+            }
+            return;
+        }
 
         synchronized (EPISODES_LOCK) {
 
             if (isEpisodeDeleted(episode)) {
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Podcast " + episode.getUrl() + " was deleted. Aborting download.");
-                }
+                writeInfo("Podcast " + episode.getUrl() + " was deleted. Aborting download.");
                 return;
             }
 
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Starting to download Podcast from " + episode.getUrl());
-            }
+            writeInfo("Starting to download Podcast from " + episode.getUrl());
 
             try (CloseableHttpClient client = HttpClients.createDefault()) {
 
                 PodcastChannel channel = getChannel(episode.getChannelId());
-                RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(2 * 60 * 1000) // 2 minutes
-                        .setSocketTimeout(10 * 60 * 1000) // 10 minutes
-                        // Workaround HttpClient circular redirects, which some feeds use (with query parameters)
-                        .setCircularRedirectsAllowed(true)
-                        // Workaround HttpClient not understanding latest RFC-compliant cookie 'expires' attributes
-                        .setCookieSpec(CookieSpecs.STANDARD).build();
-                HttpGet method = new HttpGet(episode.getUrl());
-                method.setConfig(requestConfig);
+                HttpGet httpGet = createHttpGet(episode.getUrl());
 
-                try (CloseableHttpResponse response = client.execute(method);
+                try (CloseableHttpResponse response = client.execute(httpGet);
                         InputStream in = response.getEntity().getContent()) {
 
                     synchronized (FILE_LOCK) {
@@ -631,9 +605,7 @@ public class PodcastService {
                         long bytesDownloaded = updateEpisode(episode, file, in);
 
                         if (isEpisodeDeleted(episode)) {
-                            if (LOG.isInfoEnabled()) {
-                                LOG.info("Podcast " + episode.getUrl() + " was deleted. Aborting download.");
-                            }
+                            writeInfo("Podcast " + episode.getUrl() + " was deleted. Aborting download.");
                             if (!file.delete() && LOG.isWarnEnabled()) {
                                 LOG.warn("Unable to delete " + file);
                             }
@@ -641,32 +613,18 @@ public class PodcastService {
                             addMediaFileIdToEpisodes(Arrays.asList(episode));
                             episode.setBytesDownloaded(bytesDownloaded);
                             podcastDao.updateEpisode(episode);
-                            if (LOG.isInfoEnabled()) {
-                                LOG.info("Downloaded " + bytesDownloaded + " bytes from Podcast " + episode.getUrl());
-                            }
+                            writeInfo("Downloaded " + bytesDownloaded + " bytes from Podcast " + episode.getUrl());
                             updateTags(file, episode);
                             episode.setStatus(PodcastStatus.COMPLETED);
                             podcastDao.updateEpisode(episode);
                             deleteObsoleteEpisodes(channel);
                         }
-
                     }
-
                 } catch (UnsupportedOperationException | IOException e) {
-                    if (LOG.isWarnEnabled()) {
-                        LOG.warn("Failed to download Podcast from " + episode.getUrl(), e);
-                    }
-                    episode.setStatus(PodcastStatus.ERROR);
-                    episode.setErrorMessage(getErrorMessage(e));
-                    podcastDao.updateEpisode(episode);
+                    consumeDownloadError(episode, e);
                 }
-            } catch (IOException ioe) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to download Podcast from " + episode.getUrl(), ioe);
-                }
-                episode.setStatus(PodcastStatus.ERROR);
-                episode.setErrorMessage(getErrorMessage(ioe));
-                podcastDao.updateEpisode(episode);
+            } catch (IOException e) {
+                consumeDownloadError(episode, e);
             }
         }
     }
@@ -701,22 +659,16 @@ public class PodcastService {
     }
 
     private void updateTags(File file, PodcastEpisode episode) {
-        try {
-            MediaFile mediaFile = mediaFileService.getMediaFile(file, false);
-            if (StringUtils.isNotBlank(episode.getTitle())) {
-                MetaDataParser parser = metaDataParserFactory.getParser(file);
-                if (!parser.isEditingSupported()) {
-                    return;
-                }
-                MetaData metaData = parser.getRawMetaData(file);
-                metaData.setTitle(episode.getTitle());
-                parser.setMetaData(mediaFile, metaData);
-                mediaFileService.refreshMediaFile(mediaFile);
+        MediaFile mediaFile = mediaFileService.getMediaFile(file, false);
+        if (StringUtils.isNotBlank(episode.getTitle())) {
+            MetaDataParser parser = metaDataParserFactory.getParser(file);
+            if (!parser.isEditingSupported()) {
+                return;
             }
-        } catch (Exception x) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to update tags for podcast " + episode.getUrl(), x);
-            }
+            MetaData metaData = parser.getRawMetaData(file);
+            metaData.setTitle(episode.getTitle());
+            parser.setMetaData(mediaFile, metaData);
+            mediaFileService.refreshMediaFile(mediaFile);
         }
     }
 
@@ -742,9 +694,7 @@ public class PodcastService {
             int episodesToDelete = Math.max(0, episodes.size() - episodeCount);
             for (int i = 0; i < episodesToDelete; i++) {
                 deleteEpisode(episodes.get(i).getId(), true);
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Deleted old Podcast episode " + episodes.get(i).getUrl());
-                }
+                writeInfo("Deleted old Podcast episode " + episodes.get(i).getUrl());
             }
         }
     }

@@ -356,7 +356,7 @@ public class SecurityService implements UserDetailsService {
      * 
      * @return Whether the given file is located in the Podcast folder.
      */
-    private boolean isInPodcastFolder(File file) {
+    public boolean isInPodcastFolder(File file) {
         String podcastFolder = settingsService.getPodcastFolder();
         return isFileInFolder(file.getPath(), podcastFolder);
     }

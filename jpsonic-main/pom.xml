@@ -9,13 +9,12 @@
     <parent>
         <groupId>com.tesshu.jpsonic.player</groupId>
         <artifactId>jpsonic</artifactId>
-        <version>11.0.0-SNAPSHOT</version>
+        <version>110.0.0-RELEASE</version>
     </parent>
 
     <properties>
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
-        <jpsonic.version>110.0.0-SNAPSHOT</jpsonic.version>
         <lucene.version>8.8.2</lucene.version>
     </properties>
 
@@ -382,12 +381,12 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- UPNP / DLNA -->
+        <!-- UPNP -->
         <dependency>
             <groupId>org.fourthline.cling</groupId>
             <artifactId>cling-core</artifactId>
             <!-- Cling removed the org.fourthline.cling.transport.impl.apache package in 2.1, which is needed to make Cling work with Tomcat. -->
-            <!-- Don't upgrade this unless you can test UPnP/DLNA support properly! -->
+            <!-- Don't upgrade this unless you can test UPnP support properly! -->
             <version>2.0.1</version>
         </dependency>
 
@@ -395,7 +394,7 @@
             <groupId>org.fourthline.cling</groupId>
             <artifactId>cling-support</artifactId>
             <!-- Cling removed the org.fourthline.cling.transport.impl.apache package in 2.1, which is needed to make Cling work with Tomcat. -->
-            <!-- Don't upgrade this unless you can test UPnP/DLNA support properly! -->
+            <!-- Don't upgrade this unless you can test UPnP support properly! -->
             <version>2.0.1</version>
         </dependency>
 
@@ -761,7 +760,7 @@
                                 <echo file="${project.build.directory}/classes/build_number.txt">${buildNumber}</echo>
                                 <!--suppress MavenModelInspection -->
                                 <echo file="${project.build.directory}/classes/build_date.txt">${DSTAMP}</echo>
-                                <echo file="${project.build.directory}/classes/version.txt">${jpsonic.version}</echo>
+                                <echo file="${project.build.directory}/classes/version.txt">${project.version}</echo>
                                 <copy todir="${project.build.directory}/classes/fonts">
                                     <fileset dir="src/main/webapp/fonts" includes = "**/" />
                                 </copy>

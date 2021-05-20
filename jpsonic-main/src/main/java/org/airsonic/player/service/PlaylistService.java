@@ -38,6 +38,7 @@ import chameleon.playlist.SpecificPlaylistProvider;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
 import com.tesshu.jpsonic.dao.JPlaylistDao;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
+import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Playlist;
@@ -186,13 +187,14 @@ public class PlaylistService {
     }
 
     public Playlist importPlaylist(String username, String playlistName, String fileName, InputStream inputStream,
-            Playlist existingPlaylist) throws ExecutionException, IOException {
+            Playlist existingPlaylist) throws ExecutionException {
 
         // TODO: handle other encodings
-        final SpecificPlaylist inputSpecificPlaylist = SpecificPlaylistFactory.getInstance().readFrom(inputStream,
-                "UTF-8");
-        if (inputSpecificPlaylist == null) {
-            throw new ExecutionException(new IOException("Unsupported playlist " + fileName));
+        SpecificPlaylist inputSpecificPlaylist;
+        try {
+            inputSpecificPlaylist = SpecificPlaylistFactory.getInstance().readFrom(inputStream, "UTF-8");
+        } catch (IOException e) {
+            throw new ExecutionException("Unsupported playlist " + fileName, e);
         }
         PlaylistImportHandler importHandler = getImportHandler(inputSpecificPlaylist);
         if (LOG.isDebugEnabled()) {
@@ -237,13 +239,20 @@ public class PlaylistService {
         return provider.getContentTypes()[0].getExtensions()[0];
     }
 
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 chameleon
-    public void exportPlaylist(int id, OutputStream out) throws Exception {
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
+    /*
+     * Wrap and rethrow due to constraints of 'chameleon' {@link SpecificPlaylist#writeTo(OutputStream, String)}
+     */
+    public void exportPlaylist(int id, OutputStream out) throws ExecutionException {
         String format = settingsService.getPlaylistExportFormat();
         SpecificPlaylistProvider provider = SpecificPlaylistFactory.getInstance().findProviderById(format);
         PlaylistExportHandler handler = getExportHandler(provider);
-        SpecificPlaylist specificPlaylist = handler.handle(id, provider);
-        specificPlaylist.writeTo(out, StringUtil.ENCODING_UTF8);
+        try {
+            SpecificPlaylist specificPlaylist = handler.handle(id, provider);
+            specificPlaylist.writeTo(out, StringUtil.ENCODING_UTF8);
+        } catch (Exception e) {
+            throw new ExecutionException("Unable to write playlist to stream.", e);
+        }
     }
 
     private PlaylistImportHandler getImportHandler(SpecificPlaylist playlist) {
@@ -258,18 +267,12 @@ public class PlaylistService {
     }
 
     public void importPlaylists() {
-        try {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Starting playlist import.");
-            }
-            doImportPlaylists();
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Completed playlist import.");
-            }
-        } catch (Throwable x) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to import playlists: " + x, x);
-            }
+        if (settingsService.isVerboseLogScanning() && LOG.isInfoEnabled()) {
+            LOG.info("Starting playlist import.");
+        }
+        doImportPlaylists();
+        if (settingsService.isVerboseLogScanning() && LOG.isInfoEnabled()) {
+            LOG.info("Completed playlist import.");
         }
     }
 
@@ -289,17 +292,17 @@ public class PlaylistService {
             for (File file : listFiles) {
                 try {
                     importPlaylistIfUpdated(file, allPlaylists);
-                } catch (Exception x) {
+                } catch (ExecutionException e) {
+                    ConcurrentUtils.handleCauseUnchecked(e);
                     if (LOG.isWarnEnabled()) {
-                        LOG.warn("Failed to auto-import playlist " + file + ". " + x.getMessage());
+                        LOG.warn("Failed to auto-import playlist " + file + ". ", e);
                     }
                 }
             }
         }
     }
 
-    private void importPlaylistIfUpdated(File file, List<Playlist> allPlaylists)
-            throws ExecutionException, IOException {
+    private void importPlaylistIfUpdated(File file, List<Playlist> allPlaylists) throws ExecutionException {
 
         String fileName = file.getName();
         Playlist existingPlaylist = null;
@@ -320,6 +323,8 @@ public class PlaylistService {
             if (LOG.isInfoEnabled()) {
                 LOG.info("Auto-imported playlist " + file);
             }
+        } catch (IOException e) {
+            throw new ExecutionException("Unable to read the file: " + file.getPath(), e);
         }
     }
 

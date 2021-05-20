@@ -35,8 +35,10 @@ public final class JettyApplicationHelper {
     public static void configure(JettyServletWebServerFactory factory) {
         factory.addServerCustomizers(server -> {
             Arrays.stream(server.getConnectors()).filter(c -> c instanceof ServerConnector).forEach(c -> {
+                ServerConnector serverConnector = (ServerConnector) c;
+                serverConnector.setIdleTimeout(300_000);
                 @Nullable
-                HttpConnectionFactory hcf = ((ServerConnector) c).getConnectionFactory(HttpConnectionFactory.class);
+                HttpConnectionFactory hcf = serverConnector.getConnectionFactory(HttpConnectionFactory.class);
                 if (hcf != null) {
                     // #953
                     hcf.setHttpCompliance(HttpCompliance.RFC7230_NO_AMBIGUOUS_URIS);

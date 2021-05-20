@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
@@ -78,6 +79,8 @@ public class VersionService {
      */
     private static final long LAST_VERSION_FETCH_INTERVAL = 7L * 24L * 3600L * 1000L; // One week
 
+    private final SettingsService settingsService;
+
     private Version latestFinalVersion;
     private Version latestBetaVersion;
     private Version localVersion;
@@ -89,6 +92,11 @@ public class VersionService {
      */
     private long lastVersionFetched;
 
+    public VersionService(SettingsService settingsService) {
+        super();
+        this.settingsService = settingsService;
+    }
+
     /**
      * Returns the version number for the locally installed Jpsonic version.
      *
@@ -97,15 +105,9 @@ public class VersionService {
     public Version getLocalVersion() {
         synchronized (LOCAL_VERSION_LOCK) {
             if (localVersion == null) {
-                try {
-                    localVersion = new Version(readLineFromResource("/version.txt"));
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info("Resolved local Jpsonic version to: " + localVersion);
-                    }
-                } catch (Exception x) {
-                    if (LOG.isWarnEnabled()) {
-                        LOG.warn("Failed to resolve local Jpsonic version.", x);
-                    }
+                localVersion = new Version(readLineFromResource("/version.txt"));
+                if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+                    LOG.info("Resolved local Jpsonic version to: " + localVersion);
                 }
             }
         }
@@ -148,9 +150,9 @@ public class VersionService {
                     synchronized (DATE_FORMAT) {
                         localBuildDate = DATE_FORMAT.parse(date);
                     }
-                } catch (Exception x) {
+                } catch (ParseException e) {
                     if (LOG.isWarnEnabled()) {
-                        LOG.warn("Failed to resolve local Jpsonic build date.", x);
+                        LOG.warn("Failed to resolve local Jpsonic build date.", e);
                     }
                 }
             }
@@ -167,13 +169,7 @@ public class VersionService {
     public String getLocalBuildNumber() {
         synchronized (LOCAL_BUILD_NUMBER_LOCK) {
             if (localBuildNumber == null) {
-                try {
-                    localBuildNumber = readLineFromResource("/build_number.txt");
-                } catch (Exception x) {
-                    if (LOG.isWarnEnabled()) {
-                        LOG.warn("Failed to resolve local Jpsonic build number.", x);
-                    }
-                }
+                localBuildNumber = readLineFromResource("/build_number.txt");
             }
         }
         return localBuildNumber;
@@ -244,9 +240,9 @@ public class VersionService {
             try {
                 lastVersionFetched = now;
                 readLatestVersion();
-            } catch (Exception x) {
+            } catch (IOException e) {
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to resolve latest Jpsonic version.", x);
+                    LOG.warn("Failed to resolve latest Jpsonic version.", e);
                 }
             }
         }

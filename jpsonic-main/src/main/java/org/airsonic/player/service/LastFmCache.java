@@ -82,7 +82,6 @@ public class LastFmCache extends Cache {
         }
     }
 
-    @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
     @Override
     public void store(String cacheEntryName, InputStream inputStream, long expirationDate) {
         createCache();
@@ -103,7 +102,9 @@ public class LastFmCache extends Cache {
             }
 
         } catch (IOException e) {
-            // we ignore the exception. if something went wrong we just don't cache it.
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Cannot generate cache.", e);
+            }
         }
     }
 

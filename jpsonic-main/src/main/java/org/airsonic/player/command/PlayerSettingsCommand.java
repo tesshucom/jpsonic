@@ -38,6 +38,9 @@ import org.airsonic.player.domain.Transcoding;
 public class PlayerSettingsCommand {
 
     private Integer playerId;
+    private boolean guest;
+    private boolean anonymous;
+    private boolean anonymousTranscoding;
     private String name;
     private String description;
     private String type;
@@ -62,6 +65,7 @@ public class PlayerSettingsCommand {
     private boolean useSonos;
     private boolean showToast;
     private int shareCount;
+    private boolean showOutlineHelp;
 
     public Integer getPlayerId() {
         return playerId;
@@ -69,6 +73,30 @@ public class PlayerSettingsCommand {
 
     public void setPlayerId(Integer playerId) {
         this.playerId = playerId;
+    }
+
+    public boolean isGuest() {
+        return guest;
+    }
+
+    public void setGuest(boolean isGuest) {
+        this.guest = isGuest;
+    }
+
+    public boolean isAnonymous() {
+        return anonymous;
+    }
+
+    public void setAnonymous(boolean isAnonymous) {
+        this.anonymous = isAnonymous;
+    }
+
+    public boolean isAnonymousTranscoding() {
+        return anonymousTranscoding;
+    }
+
+    public void setAnonymousTranscoding(boolean anonymousTranscoding) {
+        this.anonymousTranscoding = anonymousTranscoding;
     }
 
     public String getName() {
@@ -277,6 +305,14 @@ public class PlayerSettingsCommand {
 
     public void setShareCount(int shareCount) {
         this.shareCount = shareCount;
+    }
+
+    public boolean isShowOutlineHelp() {
+        return showOutlineHelp;
+    }
+
+    public void setShowOutlineHelp(boolean showOutlineHelp) {
+        this.showOutlineHelp = showOutlineHelp;
     }
 
     /**

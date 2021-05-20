@@ -20,6 +20,7 @@
 package org.airsonic.player.service.upnp.processor;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.annotation.PostConstruct;
 
@@ -59,7 +60,7 @@ public class RandomSongUpnpProcessor extends MediaFileUpnpProcessor {
 
     @Override
     public BrowseResult browseRoot(String filter, long offset, long maxResults, SortCriterion... orderBy)
-            throws Exception {
+            throws ExecutionException {
         DIDLContent didl = new DIDLContent();
         int randomMax = settingsService.getDlnaRandomMax();
         if (offset < randomMax) {

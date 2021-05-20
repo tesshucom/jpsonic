@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
@@ -115,7 +116,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     }
 
     @Override
-    public BrowseResult browseObjectMetadata(String id) throws Exception {
+    public BrowseResult browseObjectMetadata(String id) throws ExecutionException {
         Id3Wrapper item = getItemById(id);
         DIDLContent didl = new DIDLContent();
         addChild(didl, item);

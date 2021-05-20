@@ -22,8 +22,7 @@ long usedMemory = totalMemory - freeMemory;
 </section>
 
 <p>
-    Airsonic encountered an internal error. You can report this error in the <a href="https://www.reddit.com/r/airsonic" target="_blank" rel="noopener nofererrer">Airsonic Forum</a>.<br>
-    Japanese related errors are supported by <a href="https://tesshu.com/" target="_blank" rel="noopener nofererrer">tesshu.com</a>.<br>
+    Jpsonic encountered an internal error. You can report this error in the <a href="https://github.com/tesshucom/jpsonic/issues" target="_blank" rel="noopener nofererrer">jpsonic#Issues</a>.<br>
     Please include the information below.
 </p>
 

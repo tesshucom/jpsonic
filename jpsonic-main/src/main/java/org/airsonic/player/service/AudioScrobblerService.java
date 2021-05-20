@@ -22,6 +22,7 @@
 package org.airsonic.player.service;
 
 import java.util.Date;
+import java.util.concurrent.Executor;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.UserSettings;
@@ -34,7 +35,7 @@ import org.springframework.stereotype.Service;
  * Provides services for "audioscrobbling", which is the process of registering what songs are played at website.
  */
 @Service
-@DependsOn("settingsService")
+@DependsOn({ "settingsService", "shortExecutor" })
 public class AudioScrobblerService {
 
     private static final Object FM_LOCK = new Object();
@@ -44,9 +45,11 @@ public class AudioScrobblerService {
 
     private LastFMScrobbler lastFMScrobbler;
     private ListenBrainzScrobbler listenBrainzScrobbler;
+    private Executor shortExecutor;
 
-    public AudioScrobblerService(SettingsService settingsService) {
+    public AudioScrobblerService(SettingsService settingsService, Executor shortExecutor) {
         this.settingsService = settingsService;
+        this.shortExecutor = shortExecutor;
     }
 
     /**
@@ -76,7 +79,7 @@ public class AudioScrobblerService {
                 }
             }
             lastFMScrobbler.register(mediaFile, userSettings.getLastFmUsername(), userSettings.getLastFmPassword(),
-                    submission, time);
+                    submission, time, shortExecutor);
         }
 
         if (userSettings.isListenBrainzEnabled() && userSettings.getListenBrainzToken() != null) {
@@ -85,7 +88,8 @@ public class AudioScrobblerService {
                     listenBrainzScrobbler = new ListenBrainzScrobbler();
                 }
             }
-            listenBrainzScrobbler.register(mediaFile, userSettings.getListenBrainzToken(), submission, time);
+            listenBrainzScrobbler.register(mediaFile, userSettings.getListenBrainzToken(), submission, time,
+                    shortExecutor);
         }
     }
 

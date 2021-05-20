@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -101,7 +102,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     }
 
     @Override
-    public BrowseResult browseObjectMetadata(String id) throws Exception {
+    public BrowseResult browseObjectMetadata(String id) throws ExecutionException {
         MediaFile item = getItemById(id);
         DIDLContent didl = new DIDLContent();
         addChild(didl, item);

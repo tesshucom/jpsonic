@@ -70,28 +70,22 @@ public class XspfPlaylistImportHandler implements PlaylistImportHandler {
                     try {
                         File file = new File(new URI(location.getText()));
                         mediaFile = mediaFileService.getMediaFile(file);
+                        if (mediaFile == null && sc.getText() != null) {
+                            mediaFile = mediaFileService.getMediaFile(new File(sc.getText()));
+                        }
                     } catch (URISyntaxException e) {
                         LOG.error("Unable to generate URI.", e);
-                    }
-                    if (mediaFile == null) {
-                        try {
-                            File file = new File(sc.getText());
-                            mediaFile = mediaFileService.getMediaFile(file);
-                        } catch (Exception ignored) {
+                    } catch (SecurityException e) {
+                        if (LOG.isTraceEnabled()) {
+                            LOG.error("SecurityException will be ignored.", e);
                         }
                     }
                 }
             }
             if (mediaFile == null) {
                 StringBuilder errorMsg = new StringBuilder("Could not find media file matching ");
-                try {
-                    errorMsg.append(track.getStringContainers().stream().map(StringContainer::getText)
-                            .collect(Collectors.joining(",")));
-                } catch (Exception e) {
-                    if (LOG.isErrorEnabled()) {
-                        LOG.error(errorMsg.toString(), e);
-                    }
-                }
+                errorMsg.append(track.getStringContainers().stream().map(StringContainer::getText)
+                        .collect(Collectors.joining(",")));
                 errors.add(errorMsg.toString());
             } else {
                 mediaFiles.add(mediaFile);

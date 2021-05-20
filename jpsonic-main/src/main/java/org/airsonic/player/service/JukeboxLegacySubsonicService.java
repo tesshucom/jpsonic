@@ -24,8 +24,14 @@ package org.airsonic.player.service;
 import static java.lang.Float.floatToIntBits;
 import static java.lang.Float.intBitsToFloat;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.sound.sampled.LineUnavailableException;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayQueue;
@@ -59,7 +65,8 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
     private final SettingsService settingsService;
     private final SecurityService securityService;
     private final TranscodingService transcodingService;
-    private final AtomicInteger gain;
+    private final AtomicInteger gain = new AtomicInteger();
+    private final AtomicBoolean destroy = new AtomicBoolean();
 
     private AudioPlayer audioPlayer;
     private Player player;
@@ -78,7 +85,20 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.transcodingService = transcodingService;
-        gain = new AtomicInteger(floatToIntBits(AudioPlayer.DEFAULT_GAIN));
+    }
+
+    @PostConstruct
+    public void init() {
+        gain.set(floatToIntBits(AudioPlayer.DEFAULT_GAIN));
+        destroy.set(false);
+    }
+
+    @PreDestroy
+    public void onDestroy() {
+        destroy.set(true);
+        if (audioPlayer != null) {
+            audioPlayer.close();
+        }
     }
 
     /**
@@ -90,6 +110,9 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
      *            Start playing after this many seconds into the track.
      */
     public void updateJukebox(Player player, int offset) {
+        if (destroy.get()) {
+            return;
+        }
         User user = securityService.getUserByName(player.getUsername());
         if (!user.isJukeboxRole()) {
             if (LOG.isWarnEnabled()) {
@@ -120,6 +143,9 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
      * different location / timing. See AudioPlayer#close. Do not explicitly close it in this class.
      */
     private void play(MediaFile file, int offset) {
+        if (destroy.get()) {
+            return;
+        }
         InputStream in = null;
         try {
             synchronized (PLAYER_LOCK) {
@@ -153,16 +179,27 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
                 currentPlayingFile = file;
             }
 
-        } catch (Exception x) {
+        } catch (LineUnavailableException | IOException e) {
             if (LOG.isErrorEnabled()) {
-                LOG.error("Error in jukebox: " + x, x);
+                LOG.error("Error in jukebox: ", e);
             }
-            FileUtil.closeQuietly(in);
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ioe) {
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("Cannot be close.", ioe);
+                    }
+                }
+            }
         }
     }
 
     @Override
     public void stateChanged(AudioPlayer audioPlayer, AudioPlayer.State state) {
+        if (destroy.get()) {
+            return;
+        }
         synchronized (PLAYER_LOCK) {
             if (state == AudioPlayer.State.EOM) {
                 player.getPlayQueue().next();
@@ -176,6 +213,9 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
     }
 
     public float getGain() {
+        if (destroy.get()) {
+            return 0;
+        }
         return intBitsToFloat(gain.get());
     }
 
@@ -198,6 +238,9 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
     }
 
     private void onSongStart(MediaFile file) {
+        if (destroy.get()) {
+            return;
+        }
         if (LOG.isInfoEnabled()) {
             LOG.info(player.getUsername() + " starting jukebox for \"" + FileUtil.getShortPath(file.getFile()) + "\"");
         }
@@ -209,6 +252,9 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
     }
 
     private void onSongEnd(MediaFile file) {
+        if (destroy.get()) {
+            return;
+        }
         if (LOG.isInfoEnabled()) {
             LOG.info(player.getUsername() + " stopping jukebox for \"" + FileUtil.getShortPath(file.getFile()) + "\"");
         }
@@ -219,12 +265,18 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
     }
 
     private void scrobble(MediaFile file, boolean submission) {
+        if (destroy.get()) {
+            return;
+        }
         if (player.getClientId() == null) { // Don't scrobble REST players.
             audioScrobblerService.register(file, player.getUsername(), submission, null);
         }
     }
 
     public void setGain(float gain) {
+        if (destroy.get()) {
+            return;
+        }
         this.gain.set(floatToIntBits(gain));
         synchronized (PLAYER_LOCK) {
             if (audioPlayer != null) {

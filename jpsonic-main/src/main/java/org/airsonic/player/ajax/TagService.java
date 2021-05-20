@@ -21,6 +21,8 @@
 
 package org.airsonic.player.ajax;
 
+import java.util.concurrent.CompletionException;
+
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.metadata.MetaData;
@@ -78,53 +80,49 @@ public class TagService {
     public String updateTags(int id, String trackStr, String artistStr, String albumStr, String titleStr,
             String yearStr, String genreStr) {
 
-        String track = StringUtils.trimToNull(trackStr);
+        MediaFile file = mediaFileService.getMediaFile(id);
+        MetaDataParser parser = metaDataParserFactory.getParser(file.getFile());
+        if (!parser.isEditingSupported()) {
+            return "Tag editing of " + FilenameUtils.getExtension(file.getPath()) + " files is not supported.";
+        }
+
         String artist = StringUtils.trimToNull(artistStr);
         String album = StringUtils.trimToNull(albumStr);
         String title = StringUtils.trimToNull(titleStr);
-        String year = StringUtils.trimToNull(yearStr);
         String genre = StringUtils.trimToNull(genreStr);
-
+        String track = StringUtils.trimToNull(trackStr);
         Integer trackNumber = getTrackNumber(track);
+        String year = StringUtils.trimToNull(yearStr);
         Integer yearNumber = getYearNumber(year);
+        if (StringUtils.equals(artist, file.getArtist()) && StringUtils.equals(album, file.getAlbumName())
+                && StringUtils.equals(title, file.getTitle()) && ObjectUtils.equals(yearNumber, file.getYear())
+                && StringUtils.equals(genre, file.getGenre())
+                && ObjectUtils.equals(trackNumber, file.getTrackNumber())) {
+            return "SKIPPED";
+        }
+
+        MetaData newMetaData = parser.getMetaData(file.getFile());
+
+        // Note: album artist is intentionally set, as it is not user-changeable.
+        newMetaData.setArtist(artist);
+        newMetaData.setAlbumName(album);
+        newMetaData.setTitle(title);
+        newMetaData.setYear(yearNumber);
+        newMetaData.setGenre(genre);
+        newMetaData.setTrackNumber(trackNumber);
 
         try {
-
-            MediaFile file = mediaFileService.getMediaFile(id);
-            MetaDataParser parser = metaDataParserFactory.getParser(file.getFile());
-
-            if (!parser.isEditingSupported()) {
-                return "Tag editing of " + FilenameUtils.getExtension(file.getPath()) + " files is not supported.";
-            }
-
-            if (StringUtils.equals(artist, file.getArtist()) && StringUtils.equals(album, file.getAlbumName())
-                    && StringUtils.equals(title, file.getTitle()) && ObjectUtils.equals(yearNumber, file.getYear())
-                    && StringUtils.equals(genre, file.getGenre())
-                    && ObjectUtils.equals(trackNumber, file.getTrackNumber())) {
-                return "SKIPPED";
-            }
-
-            MetaData newMetaData = parser.getMetaData(file.getFile());
-
-            // Note: album artist is intentionally set, as it is not user-changeable.
-            newMetaData.setArtist(artist);
-            newMetaData.setAlbumName(album);
-            newMetaData.setTitle(title);
-            newMetaData.setYear(yearNumber);
-            newMetaData.setGenre(genre);
-            newMetaData.setTrackNumber(trackNumber);
             parser.setMetaData(file, newMetaData);
-            mediaFileService.refreshMediaFile(file);
-            file = mediaFileService.getMediaFile(file.getId());
-            mediaFileService.refreshMediaFile(mediaFileService.getParentOf(file));
-            return "UPDATED";
-
-        } catch (Exception x) {
+        } catch (CompletionException | IllegalArgumentException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to update tags for " + id, x);
+                LOG.warn("Failed to update tags for " + id, e);
             }
-            return x.getMessage();
+            return e.getMessage();
         }
+        mediaFileService.refreshMediaFile(file);
+        file = mediaFileService.getMediaFile(file.getId());
+        mediaFileService.refreshMediaFile(mediaFileService.getParentOf(file));
+        return "UPDATED";
     }
 
     private Integer getTrackNumber(String track) {

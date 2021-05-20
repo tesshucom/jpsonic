@@ -21,9 +21,7 @@
 
 package org.airsonic.player.util;
 
-import java.io.Closeable;
 import java.io.File;
-import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,29 +124,6 @@ public final class FileUtil {
             return file.getName();
         }
         return parent.getName() + File.separator + file.getName();
-    }
-
-    /**
-     * Closes the "closable", ignoring any excepetions.
-     *
-     * @param closeable
-     *            The Closable to close, may be {@code null}.
-     * 
-     * @deprecated Deprecated in current Java
-     */
-    @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
-    @Deprecated
-    public static void closeQuietly(Closeable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (IOException e) {
-                if (LOG.isTraceEnabled()) {
-                    LOG.trace("Error in FileUtil#closeQuietly(Closeable).",
-                            new AssertionError("Error expected to be unreachable.", e));
-                }
-            }
-        }
     }
 
     private static <T> T timed(FileTask<T> task) {

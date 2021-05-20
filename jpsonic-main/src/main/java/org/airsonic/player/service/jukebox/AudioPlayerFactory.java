@@ -22,17 +22,30 @@
 package org.airsonic.player.service.jukebox;
 
 import java.io.InputStream;
+import java.util.concurrent.Executor;
 
 import javax.sound.sampled.LineUnavailableException;
 
 import org.airsonic.player.service.JukeboxLegacySubsonicService;
+import org.airsonic.player.service.SettingsService;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 @Component
+@DependsOn("jukeExecutor")
 public class AudioPlayerFactory {
+
+    private final Executor jukeExecutor;
+    private final SettingsService settingsService;
+
+    public AudioPlayerFactory(Executor jukeExecutor, SettingsService settingsService) {
+        super();
+        this.jukeExecutor = jukeExecutor;
+        this.settingsService = settingsService;
+    }
 
     public AudioPlayer createAudioPlayer(InputStream in, JukeboxLegacySubsonicService jukeboxLegacySubsonicService)
             throws LineUnavailableException {
-        return new AudioPlayer(in, jukeboxLegacySubsonicService);
+        return new AudioPlayer(in, jukeboxLegacySubsonicService, jukeExecutor, settingsService.isVerboseLogShutdown());
     }
 }

@@ -24,6 +24,7 @@ package org.airsonic.player.controller;
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.controller.OutlineHelpSelector;
 import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.command.AdvancedSettingsCommand;
 import org.airsonic.player.domain.User;
@@ -58,20 +59,30 @@ public class AdvancedSettingsController {
     private final SettingsService settingsService;
     private final SecurityService securityService;
     private final ShareService shareService;
+    private final OutlineHelpSelector outlineHelpSelector;
 
     public AdvancedSettingsController(SettingsService settingsService, SecurityService securityService,
-            ShareService shareService) {
+            ShareService shareService, OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.shareService = shareService;
+        this.outlineHelpSelector = outlineHelpSelector;
     }
 
     @GetMapping
     protected String formBackingObject(HttpServletRequest request, Model model) {
         AdvancedSettingsCommand command = new AdvancedSettingsCommand();
+
+        command.setVerboseLogStart(settingsService.isVerboseLogStart());
+        command.setVerboseLogScanning(settingsService.isVerboseLogScanning());
+        command.setVerboseLogPlaying(settingsService.isVerboseLogPlaying());
+        command.setVerboseLogShutdown(settingsService.isVerboseLogShutdown());
+
         command.setDownloadLimit(String.valueOf(settingsService.getDownloadBitrateLimit()));
         command.setUploadLimit(String.valueOf(settingsService.getUploadBitrateLimit()));
+        command.setBufferSize(String.valueOf(settingsService.getBufferSize()));
+
         command.setLdapEnabled(settingsService.isLdapEnabled());
         command.setLdapUrl(settingsService.getLdapUrl());
         command.setLdapSearchFilter(settingsService.getLdapSearchFilter());
@@ -92,6 +103,7 @@ public class AdvancedSettingsController {
         command.setShareCount(shareService.getAllShares().size());
 
         User user = securityService.getCurrentUser(request);
+        command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
 
@@ -106,21 +118,18 @@ public class AdvancedSettingsController {
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), false);
         redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
 
-        try { // Should be rewritten if necessary
+        settingsService.setVerboseLogStart(command.isVerboseLogStart());
+        settingsService.setVerboseLogScanning(command.isVerboseLogScanning());
+        settingsService.setVerboseLogPlaying(command.isVerboseLogPlaying());
+        settingsService.setVerboseLogShutdown(command.isVerboseLogShutdown());
+
+        try {
             settingsService.setDownloadBitrateLimit(Long.parseLong(command.getDownloadLimit()));
-        } catch (NumberFormatException e) {
-            if (LOG.isErrorEnabled()) {
-                //
-                LOG.error("Error in parse of downloadBitrateLimit.",
-                        new AssertionError("Error expected to be unreachable.", e));
-            }
-        }
-        try { // Should be rewritten if necessary
             settingsService.setUploadBitrateLimit(Long.parseLong(command.getUploadLimit()));
+            settingsService.setBufferSize(Integer.parseInt(command.getBufferSize()));
         } catch (NumberFormatException e) {
             if (LOG.isErrorEnabled()) {
-                LOG.error("Error in parse of uploadBitrateLimit.",
-                        new AssertionError("Error expected to be unreachable.", e));
+                LOG.error("Error in parse of bitrateLimit or bufferSize.", e);
             }
         }
         settingsService.setLdapEnabled(command.isLdapEnabled());

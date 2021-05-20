@@ -279,18 +279,18 @@ public final class LegacyHsqlUtil {
             Path backupDir;
             try {
                 backupDir = performHsqldbDatabaseBackup();
-            } catch (Exception e) {
+            } catch (IOException e) {
                 throw new CompletionException("Failed to backup HSQLDB database before upgrade", e);
             }
             try {
                 performAdditionOfScript(backupDir);
-            } catch (Exception e) {
+            } catch (IOException e) {
                 throw new CompletionException("Script verification/addition of HSQLDB database failed before upgrade",
                         e);
             }
             try {
                 performHsqldbDatabaseUpgrade();
-            } catch (Exception e) {
+            } catch (SQLException e) {
                 throw new CompletionException("Failed to upgrade HSQLDB database", e);
             }
         }

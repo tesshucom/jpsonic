@@ -31,6 +31,7 @@ import javax.sound.sampled.Mixer;
 
 import com.github.biconou.AudioPlayer.AudioSystemUtils;
 import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.controller.OutlineHelpSelector;
 import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.command.PlayerSettingsCommand;
 import org.airsonic.player.domain.Player;
@@ -39,6 +40,7 @@ import org.airsonic.player.domain.TranscodeScheme;
 import org.airsonic.player.domain.Transcoding;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
+import org.airsonic.player.security.JWTAuthenticationToken;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
@@ -72,15 +74,18 @@ public class PlayerSettingsController {
     private final TranscodingService transcodingService;
     private final SettingsService settingsService;
     private final ShareService shareService;
+    private final OutlineHelpSelector outlineHelpSelector;
 
     public PlayerSettingsController(PlayerService playerService, SecurityService securityService,
-            TranscodingService transcodingService, SettingsService settingsService, ShareService shareService) {
+            TranscodingService transcodingService, SettingsService settingsService, ShareService shareService,
+            OutlineHelpSelector outlineHelpSelector) {
         super();
         this.playerService = playerService;
         this.securityService = securityService;
         this.transcodingService = transcodingService;
         this.settingsService = settingsService;
         this.shareService = shareService;
+        this.outlineHelpSelector = outlineHelpSelector;
     }
 
     @GetMapping
@@ -109,6 +114,9 @@ public class PlayerSettingsController {
 
         if (player != null) {
             command.setPlayerId(player.getId());
+            command.setGuest(User.USERNAME_GUEST.equals(player.getUsername()));
+            command.setAnonymous(JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername()));
+            command.setAnonymousTranscoding(settingsService.isAnonymousTranscoding());
             command.setName(player.getName());
             command.setDescription(player.toString());
             command.setType(player.getType());
@@ -153,6 +161,7 @@ public class PlayerSettingsController {
         command.setUseSonos(settingsService.isUseSonos());
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
+        command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }

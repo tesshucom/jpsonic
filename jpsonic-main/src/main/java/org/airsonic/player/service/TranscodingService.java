@@ -31,6 +31,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import org.airsonic.player.controller.VideoPlayerController;
 import org.airsonic.player.dao.TranscodingDao;
@@ -41,6 +42,7 @@ import org.airsonic.player.domain.Transcoding;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.domain.VideoTranscodingSettings;
 import org.airsonic.player.io.TranscodeInputStream;
+import org.airsonic.player.security.JWTAuthenticationToken;
 import org.airsonic.player.util.PlayerUtils;
 import org.airsonic.player.util.StringUtil;
 import org.apache.commons.io.FileUtils;
@@ -49,6 +51,7 @@ import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -61,6 +64,7 @@ import org.springframework.stereotype.Service;
  * @see TranscodeInputStream
  */
 @Service
+@DependsOn("shortExecutor")
 public class TranscodingService {
 
     private static final Logger LOG = LoggerFactory.getLogger(TranscodingService.class);
@@ -69,13 +73,15 @@ public class TranscodingService {
     private final TranscodingDao transcodingDao;
     private final SettingsService settingsService;
     private final PlayerService playerService;
+    private final Executor shortExecutor;
 
     public TranscodingService(TranscodingDao transcodingDao, SettingsService settingsService,
-            @Lazy PlayerService playerService) {
+            @Lazy PlayerService playerService, Executor shortExecutor) {
         super();
         this.transcodingDao = transcodingDao;
         this.settingsService = settingsService;
         this.playerService = playerService;
+        this.shortExecutor = shortExecutor;
     }
 
     /**
@@ -211,7 +217,7 @@ public class TranscodingService {
      *
      * @param mediaFile
      *            The media file.
-     * @param player
+     * @param p
      *            The player.
      * @param maxBitRate
      *            Overrides the per-player and per-user bitrate limit. May be {@code null}.
@@ -222,9 +228,12 @@ public class TranscodingService {
      * 
      * @return Parameters to be used in the {@link #getTranscodedInputStream} method.
      */
-    public Parameters getParameters(MediaFile mediaFile, Player player, final Integer maxBitRate,
+    public Parameters getParameters(MediaFile mediaFile, Player p, final Integer maxBitRate,
             String preferredTargetFormat, VideoTranscodingSettings videoTranscodingSettings) {
 
+        boolean useGuestPlayer = JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(p.getUsername())
+                && !settingsService.isAnonymousTranscoding();
+        Player player = useGuestPlayer ? playerService.getGuestPlayer(null) : p;
         Parameters parameters = new Parameters(mediaFile, videoTranscodingSettings);
 
         Integer mb = maxBitRate == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate()) : maxBitRate;
@@ -298,21 +307,11 @@ public class TranscodingService {
      */
     public InputStream getTranscodedInputStream(Parameters parameters) throws IOException {
         try {
-
             if (parameters.getTranscoding() != null) {
                 return createTranscodedInputStream(parameters);
             }
-
-        } catch (IOException x) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Transcoder failed: {}. Using original: "
-                        + parameters.getMediaFile().getFile().getAbsolutePath(), x.toString());
-            }
-        } catch (Exception x) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Transcoder failed. Using original: " + parameters.getMediaFile().getFile().getAbsolutePath(),
-                        x);
-            }
+        } catch (IOException e) {
+            throw new IOException("Transcoder failed: " + parameters.getMediaFile().getFile().getAbsolutePath(), e);
         }
         return Files.newInputStream(Paths.get(parameters.getMediaFile().getFile().toURI()));
     }
@@ -436,7 +435,7 @@ public class TranscodingService {
                 // Create temporary file, and feed this to the transcoder.
                 String path = mediaFile.getFile().getAbsolutePath();
                 if (PlayerUtils.isWindows() && !mediaFile.isVideo() && !StringUtils.isAsciiPrintable(path)) {
-                    tmpFile = File.createTempFile("airsonic", "." + FilenameUtils.getExtension(path));
+                    tmpFile = File.createTempFile("jpsonic", "." + FilenameUtils.getExtension(path));
                     tmpFile.deleteOnExit();
                     FileUtils.copyFile(new File(path), tmpFile);
                     if (LOG.isDebugEnabled()) {
@@ -450,7 +449,8 @@ public class TranscodingService {
 
             result.set(i, cmd);
         }
-        return new TranscodeInputStream(new ProcessBuilder(result), in, tmpFile);
+        return new TranscodeInputStream(new ProcessBuilder(result), in, tmpFile, shortExecutor,
+                settingsService.isVerboseLogPlaying());
     }
 
     private String replaceIfcontains(String line, String target, String value) {

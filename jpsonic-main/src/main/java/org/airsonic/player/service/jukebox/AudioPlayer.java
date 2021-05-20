@@ -28,6 +28,7 @@ import static org.airsonic.player.service.jukebox.AudioPlayer.State.PLAYING;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.sound.sampled.AudioFormat;
@@ -36,7 +37,6 @@ import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
-import org.airsonic.player.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,29 +53,34 @@ public class AudioPlayer {
     public static final float DEFAULT_GAIN = 0.75f;
     private static final Object LINE_LOCK = new Object();
 
-    private final InputStream in;
     private final Listener listener;
-    private final SourceDataLine line;
+    private final boolean isVerboseLogShutdown;
+
     private final AtomicReference<State> state;
+    private final AtomicReference<InputStream> in;
+    private final AtomicReference<SourceDataLine> line;
+
     private FloatControl gainControl;
 
-    public AudioPlayer(InputStream in, Listener listener) throws LineUnavailableException {
-        this.in = in;
+    public AudioPlayer(InputStream in, Listener listener, Executor executor, boolean isVerboseLogShutdown)
+            throws LineUnavailableException {
+        this.in = new AtomicReference<>(in);
         this.listener = listener;
+        this.isVerboseLogShutdown = isVerboseLogShutdown;
         state = new AtomicReference<>(PAUSED);
 
         AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44_100.0F, 16, 2, 4, 44_100.0F, true);
-        line = AudioSystem.getSourceDataLine(format);
-        line.open(format);
+        line = new AtomicReference<>(AudioSystem.getSourceDataLine(format));
+        line.get().open(format);
         if (LOG.isDebugEnabled()) {
             LOG.debug("Opened line " + line);
         }
 
-        if (line.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
-            gainControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
+        if (line.get().isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+            gainControl = (FloatControl) line.get().getControl(FloatControl.Type.MASTER_GAIN);
             setGain(DEFAULT_GAIN);
         }
-        new AudioDataWriter();
+        executor.execute(new AudioDataWriteTask());
     }
 
     /**
@@ -84,7 +89,7 @@ public class AudioPlayer {
     public void play() {
         if (state.get() == PAUSED) {
             synchronized (LINE_LOCK) {
-                line.start();
+                line.get().start();
             }
             setState(PLAYING);
         }
@@ -97,8 +102,8 @@ public class AudioPlayer {
         if (state.get() == PLAYING) {
             setState(PAUSED);
             synchronized (LINE_LOCK) {
-                line.stop();
-                line.flush();
+                line.get().stop();
+                line.get().flush();
             }
         }
     }
@@ -113,27 +118,30 @@ public class AudioPlayer {
         }
 
         synchronized (LINE_LOCK) {
+
+            line.get().stop();
+
             try {
-                line.stop();
-            } catch (Throwable x) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to stop player: " + x, x);
-                }
-            }
-            try {
-                if (line.isOpen()) {
-                    line.close();
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Closed line " + line);
+                if (line.get().isOpen()) {
+                    line.get().close();
+                    if (isVerboseLogShutdown && LOG.isInfoEnabled()) {
+                        LOG.info("Closed jukebox audio source data Line.");
                     }
                 }
-            } catch (Throwable x) {
+            } catch (SecurityException e) {
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to close player: " + x, x);
+                    LOG.warn("Failed to close player: ", e);
+                }
+            }
+
+            try {
+                in.get().close();
+            } catch (IOException e) {
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Fail to close jukebox stream.", e);
                 }
             }
         }
-        FileUtil.closeQuietly(in);
     }
 
     /**
@@ -169,7 +177,7 @@ public class AudioPlayer {
      * Returns the position in seconds.
      */
     public int getPosition() {
-        return (int) (line.getMicrosecondPosition() / 1_000_000L);
+        return (int) (line.get().getMicrosecondPosition() / 1_000_000L);
     }
 
     private void setState(State state) {
@@ -182,16 +190,12 @@ public class AudioPlayer {
     /*
      * It is problematic and needs to be redesigned. At Jpsonic, the jukebox is one of the suppressed legacy features.
      */
-    private class AudioDataWriter implements Runnable {
-
-        public AudioDataWriter() {
-            new Thread(this).start();
-        }
+    private class AudioDataWriteTask implements Runnable {
 
         @Override
         public void run() {
             try {
-                byte[] buffer = new byte[line.getBufferSize()];
+                byte[] buffer = new byte[line.get().getBufferSize()];
 
                 while (true) {
 
@@ -209,15 +213,15 @@ public class AudioPlayer {
                             setState(EOM);
                             return;
                         }
-                        line.write(buffer, 0, n);
+                        line.get().write(buffer, 0, n);
                         break;
                     default:
                         throw new AssertionError("Unreachable code.");
                     }
                 }
-            } catch (Throwable x) {
+            } catch (InterruptedException | IOException e) {
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Error when copying audio data: " + x, x);
+                    LOG.warn("Error when copying audio data: ", e);
                 }
             } finally {
                 close();
@@ -227,7 +231,7 @@ public class AudioPlayer {
         private int fill(byte[] buffer) throws IOException {
             int bytesRead = 0;
             while (bytesRead < buffer.length) {
-                int n = in.read(buffer, bytesRead, buffer.length - bytesRead);
+                int n = in.get().read(buffer, bytesRead, buffer.length - bytesRead);
                 if (n == -1) {
                     return bytesRead == 0 ? -1 : bytesRead;
                 }

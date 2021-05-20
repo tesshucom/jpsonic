@@ -27,11 +27,13 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
@@ -83,7 +85,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
 
     @Override
     // overriding for the case of browsing a file
-    public BrowseResult browseObjectMetadata(String id) throws Exception {
+    public BrowseResult browseObjectMetadata(String id) throws ExecutionException {
         MediaFile item = getItemById(id);
         DIDLContent didl = new DIDLContent();
         addChild(didl, item);
@@ -229,7 +231,8 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
         try {
             result.getItems().forEach(i -> addItem(didl, i));
             return createBrowseResult(didl, (int) didl.getCount(), result.getTotalHits());
-        } catch (Exception e) {
+        } catch (ExecutionException e) {
+            ConcurrentUtils.handleCauseUnchecked(e);
             return null;
         }
     }

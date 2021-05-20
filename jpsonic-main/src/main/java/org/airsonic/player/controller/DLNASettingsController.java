@@ -48,7 +48,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
 /**
- * Controller for the page used to administrate the UPnP/DLNA server settings.
+ * Controller for the page used to administrate the UPnP server settings.
  *
  * @author Sindre Mehus
  */

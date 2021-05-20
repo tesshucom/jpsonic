@@ -3,8 +3,27 @@
 # jpsonic/jpsonic
 # -->
 
-## v109.5.0
-#### Based on *airsonic 11.0.0-SNAPSHOT 5c71659*
+## v110.0.0
+
+#### Updates
+  * Streaming improvements. Speeds up transcoding, playback start, and playback position changes.
+  * Change transcoding spec for anonymous users
+  * Add option to change buffer size of transmitted data
+  * Add option to simplify logging
+  * Introduce Graceful shutdown
+  * Change logo. Tiny CSS fixes
+  * Raising JDK requirements. End of Java8 support.
+  * Migrating from JUnit 4 to JUnit 5
+  * Update libs
+
+#### Fixes
+  * Fix degradation that the player type is not displayed correctly
+  * Fix bug that playing might be interrupted
+  * Fix bug that the Mime type may not be correct on UPnP
+  * Fix bug temporary files might not be deleted after transcoding
+
+<details>
+<summary>v109.5.0 Based on airsonic 11.0.0-SNAPSHOT 5c71659</summary>
 
 #### Updates
 
@@ -12,6 +31,8 @@
   * Minor web page fixes primarily for mobile and Firefox
   * Replace avatar image with new image
   * Add Special Thanks to About page
+
+</details>
 
 <details>
 <summary>v109.4.0 Based on airsonic 11.0.0-SNAPSHOT 5c71659</summary>

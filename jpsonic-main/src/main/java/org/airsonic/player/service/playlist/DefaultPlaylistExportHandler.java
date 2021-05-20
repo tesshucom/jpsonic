@@ -22,6 +22,7 @@
 package org.airsonic.player.service.playlist;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import chameleon.content.Content;
 import chameleon.playlist.Media;
@@ -48,11 +49,18 @@ public class DefaultPlaylistExportHandler implements PlaylistExportHandler {
         return true;
     }
 
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 chameleon
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
+    /*
+     * Wrap and rethrow due to constraints of 'chameleon' {@link SpecificPlaylistProvider#toSpecificPlaylist(Playlist)}
+     */
     @Override
-    public SpecificPlaylist handle(int id, SpecificPlaylistProvider provider) throws Exception {
+    public SpecificPlaylist handle(int id, SpecificPlaylistProvider provider) throws ExecutionException {
         Playlist playlist = createChameleonGenericPlaylistFromDBId(id);
-        return provider.toSpecificPlaylist(playlist);
+        try {
+            return provider.toSpecificPlaylist(playlist);
+        } catch (Exception e) {
+            throw new ExecutionException("Unable to build playlist.", e);
+        }
     }
 
     private Playlist createChameleonGenericPlaylistFromDBId(int id) {

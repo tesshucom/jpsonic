@@ -23,6 +23,9 @@ package org.airsonic.player.service.upnp;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+import java.util.concurrent.ExecutionException;
+
+import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
@@ -53,8 +56,6 @@ import org.fourthline.cling.support.contentdirectory.ContentDirectoryException;
 import org.fourthline.cling.support.model.BrowseFlag;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.SortCriterion;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
@@ -64,7 +65,6 @@ import org.springframework.stereotype.Service;
 @DependsOn({ "rootUpnpProcessor", "mediaFileUpnpProcessor" })
 public class DispatchingContentDirectory extends CustomContentDirectory implements UpnpProcessDispatcher {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DispatchingContentDirectory.class);
     private static final int COUNT_MAX = 50;
 
     private final RootUpnpProcessor rootProcessor;
@@ -132,21 +132,21 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         // maxResult == 0 means all.
         long max = maxResults == 0 ? Long.MAX_VALUE : maxResults;
 
-        BrowseResult returnValue;
+        String[] splitId = objectId.split(OBJECT_ID_SEPARATOR);
+        String browseRoot = splitId[0];
+        String itemId = splitId.length == 1 ? null : splitId[1];
+
+        @SuppressWarnings("rawtypes")
+        UpnpContentProcessor processor = findProcessor(browseRoot);
+        if (isEmpty(processor)) {
+            // if it's null then assume it's a file, and that the id
+            // is all that's there.
+            itemId = browseRoot;
+            processor = getMediaFileProcessor();
+        }
+
         try {
-            String[] splitId = objectId.split(OBJECT_ID_SEPARATOR);
-            String browseRoot = splitId[0];
-            String itemId = splitId.length == 1 ? null : splitId[1];
-
-            @SuppressWarnings("rawtypes")
-            UpnpContentProcessor processor = findProcessor(browseRoot);
-            if (isEmpty(processor)) {
-                // if it's null then assume it's a file, and that the id
-                // is all that's there.
-                itemId = browseRoot;
-                processor = getMediaFileProcessor();
-            }
-
+            BrowseResult returnValue;
             if (isEmpty(itemId)) {
                 returnValue = browseFlag == BrowseFlag.METADATA ? processor.browseRootMetadata()
                         : processor.browseRoot(filter, firstResult, max, orderBy);
@@ -155,12 +155,10 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
                         : processor.browseObject(itemId, filter, firstResult, max, orderBy);
             }
             return returnValue;
-        } catch (Throwable t) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("UPnP error: ", t);
-            }
+        } catch (ExecutionException e) {
+            ConcurrentUtils.handleCauseUnchecked(e);
             throw new ContentDirectoryException(ContentDirectoryErrorCode.CANNOT_PROCESS.getCode(),
-                    ContentDirectoryErrorCode.CANNOT_PROCESS.getDescription(), t);
+                    ContentDirectoryErrorCode.CANNOT_PROCESS.getDescription(), e);
         }
     }
 

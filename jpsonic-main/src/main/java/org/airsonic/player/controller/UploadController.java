@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,6 +41,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.airsonic.player.domain.TransferStatus;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.PlayerService;
@@ -53,6 +53,7 @@ import org.airsonic.player.upload.UploadListener;
 import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -134,16 +135,22 @@ public class UploadController {
             }
 
             if (dir == null) {
-                throw new ExecutionException(new IOException("Missing 'dir' parameter."));
+                throw new IOException("Missing 'dir' parameter.");
             }
 
             result = doUnzip(items, dir, unzip);
 
-        } catch (Exception x) {
+        } catch (IOException | FileUploadException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Uploading failed.", x);
+                LOG.warn("Uploading failed.", e);
             }
-            model.put("exception", x);
+            model.put("exception", e);
+        } catch (ExecutionException e) {
+            ConcurrentUtils.handleCauseUnchecked(e);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Uploading failed.", e);
+            }
+            model.put("exception", e);
         } finally {
             if (status != null) {
                 statusService.removeUploadStatus(status);
@@ -181,14 +188,14 @@ public class UploadController {
         }
     }
 
-    @SuppressWarnings({ "PMD.SignatureDeclareThrowsException", "PMD.AvoidInstantiatingObjectsInLoops",
+    @SuppressWarnings({ "PMD.AvoidCatchingGenericException", "PMD.AvoidInstantiatingObjectsInLoops",
             "PMD.UseLocaleWithCaseConversions" })
     /*
-     * [SignatureDeclareThrowsException] #857 apache commons [AvoidInstantiatingObjectsInLoops] (File, Execution) Not
-     * reusable [] The locale doesn't matter, as only comparing the extension literal.
+     * [AvoidCatchingGenericException] Wrap&Throw due to constraints of 'apache commons' {@link FileItem#write(File)}
+     * [AvoidInstantiatingObjectsInLoops] (File, Execution) Not reusable [UseLocaleWithCaseConversions] The locale
+     * doesn't matter, as only comparing the extension literal.
      */
-    private UnzipResult doUnzip(List<FileItem> items, File dir, boolean unzip)
-            throws ExecutionException, IOException, Exception {
+    private UnzipResult doUnzip(List<FileItem> items, File dir, boolean unzip) throws ExecutionException {
         List<File> uploadedFiles = new ArrayList<>();
         List<File> unzippedFiles = new ArrayList<>();
         // Look for file items.
@@ -206,7 +213,11 @@ public class UploadController {
                     LOG.warn("The directory '{}' could not be created.", dir.getAbsolutePath());
                 }
 
-                item.write(targetFile);
+                try {
+                    item.write(targetFile);
+                } catch (Exception e) {
+                    throw new ExecutionException("Unable to write item.", e);
+                }
                 uploadedFiles.add(targetFile);
                 if (LOG.isInfoEnabled()) {
                     LOG.info("Uploaded " + targetFile);
@@ -223,7 +234,7 @@ public class UploadController {
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File, IOException, GeneralSecurityException, byte[])
                                                               // Not reusable
-    private List<File> unzip(File file) throws ExecutionException, ZipException, IOException {
+    private List<File> unzip(File file) throws ExecutionException {
         if (LOG.isInfoEnabled()) {
             LOG.info("Unzipping " + file);
         }
@@ -260,6 +271,8 @@ public class UploadController {
             if (!file.delete() && LOG.isWarnEnabled()) {
                 LOG.warn("The file '{}' could not be deleted.", file.getAbsolutePath());
             }
+        } catch (IOException e) {
+            throw new ExecutionException("Can't unzip.", e);
         }
         return unzippedFiles;
     }

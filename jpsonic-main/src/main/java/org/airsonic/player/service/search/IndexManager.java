@@ -68,6 +68,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -158,9 +159,9 @@ public class IndexManager {
         Document document = documentFactory.createAlbumId3Document(album);
         try {
             writers.get(IndexType.ALBUM_ID3).updateDocument(primarykey, document);
-        } catch (Exception x) {
+        } catch (IOException e) {
             if (LOG.isErrorEnabled()) {
-                LOG.error("Failed to create search index for " + album, x);
+                LOG.error("Failed to create search index for " + album, e);
             }
         }
     }
@@ -170,7 +171,7 @@ public class IndexManager {
         Document document = documentFactory.createArtistId3Document(artist, musicFolder);
         try {
             writers.get(IndexType.ARTIST_ID3).updateDocument(primarykey, document);
-        } catch (Exception x) {
+        } catch (IOException x) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Failed to create search index for " + artist, x);
             }
@@ -195,7 +196,7 @@ public class IndexManager {
                 Document document = documentFactory.createGenreDocument(mediaFile);
                 writers.get(IndexType.GENRE).updateDocument(primarykey, document);
             }
-        } catch (Exception x) {
+        } catch (IOException x) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Failed to create search index for " + mediaFile, x);
             }
@@ -387,7 +388,7 @@ public class IndexManager {
      * False positive. SearcherManager inherits Closeable but ensures each searcher is closed only once all threads have
      * finished using it. No explicit close is done here.
      */
-    public @Nullable IndexSearcher getSearcher(IndexType indexType) {
+    public @Nullable IndexSearcher getSearcher(@NonNull IndexType indexType) {
         if (!searchers.containsKey(indexType)) {
             File indexDirectory = GET_INDEX_DIRECTORY.apply(indexType);
             try {
@@ -415,7 +416,7 @@ public class IndexManager {
             if (!isEmpty(manager)) {
                 return searchers.get(indexType).acquire();
             }
-        } catch (Exception e) {
+        } catch (ClassCastException | IOException e) {
             LOG.warn("Failed to acquire IndexSearcher.", e);
         }
         return null;
@@ -433,7 +434,7 @@ public class IndexManager {
             // irregular case
             try {
                 indexSearcher.getIndexReader().close();
-            } catch (Exception e) {
+            } catch (IOException e) {
                 LOG.warn("Failed to release. IndexSearcher has been closed.", e);
             }
         }
@@ -535,7 +536,9 @@ public class IndexManager {
         // Check if Index is current version
         if (ROOT_INDEX_DIRECTORY.get().exists()) {
             // Index of current version already exists
-            LOG.info("Index was found (index version {}). ", INDEX_VERSION);
+            if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+                LOG.info("Index was found (index version {}). ", INDEX_VERSION);
+            }
         } else {
             if (ROOT_INDEX_DIRECTORY.get().mkdir()) {
                 LOG.info("Index directory was created (index version {}). ", INDEX_VERSION);
@@ -635,7 +638,11 @@ public class IndexManager {
 
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Genre) Not reusable
+    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.AvoidCatchingGenericException" })
+    /*
+     * [AvoidInstantiatingObjectsInLoops] (Genre) Not reusable [AvoidCatchingGenericException] LOG Exception due to
+     * constraints of 'lucene' {@link HighFreqTerms#getHighFreqTerms(IndexReader, int, String, Comparator)}
+     */
     private void refreshMultiGenreMaster() {
 
         IndexSearcher genreSearcher = getSearcher(IndexType.GENRE);
@@ -687,7 +694,7 @@ public class IndexManager {
                 }
 
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             LOG.error("Failed to execute Lucene search.", e);
         } finally {
             release(IndexType.GENRE, genreSearcher);

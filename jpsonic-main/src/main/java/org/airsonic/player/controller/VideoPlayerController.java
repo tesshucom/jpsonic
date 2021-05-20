@@ -73,7 +73,6 @@ public class VideoPlayerController {
         this.settingsService = settingsService;
     }
 
-    @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
             throws ServletRequestBindingException {
@@ -111,13 +110,12 @@ public class VideoPlayerController {
         map.put("isShowDownload", userSettings.isShowDownload());
         map.put("isShowShare", userSettings.isShowShare());
 
-        try {
+        if (!securityService.isInPodcastFolder(dir.getFile())) {
             MediaFile parent = mediaFileService.getParentOf(file);
             map.put("parent", parent);
             map.put("navigateUpAllowed", !mediaFileService.isRoot(parent));
-        } catch (SecurityException x) {
-            // Happens if Podcast directory is outside music folder.
         }
+
         return new ModelAndView("videoPlayer", "model", map);
     }
 

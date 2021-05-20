@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.airsonic.player.domain.LastFmCoverArt;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.LastFmService;
@@ -90,11 +91,12 @@ public class CoverArtService {
             MediaFile mediaFile = mediaFileService.getMediaFile(albumId);
             saveCoverArt(mediaFile.getPath(), url);
             return null;
-        } catch (Exception x) {
+        } catch (ExecutionException e) {
+            ConcurrentUtils.handleCauseUnchecked(e);
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to save cover art for album " + albumId, x);
+                LOG.warn("Failed to save cover art for album " + albumId, e);
             }
-            return x.toString();
+            return e.toString();
         }
     }
 
@@ -105,7 +107,7 @@ public class CoverArtService {
      * [AvoidInstantiatingObjectsInLoops] (File) Not reusable [UseLocaleWithCaseConversions] The locale doesn't matter,
      * as only comparing the extension literal. [ConfusingTernary] false positive
      */
-    private void saveCoverArt(String path, String url) throws ExecutionException, IOException {
+    private void saveCoverArt(String path, String url) throws ExecutionException {
 
         // Attempt to resolve proper suffix.
         String suffix = "jpg";
@@ -145,31 +147,29 @@ public class CoverArtService {
                 dir = mediaFileService.getMediaFile(dir.getId());
 
                 // Rename existing cover files if new cover file is not the preferred.
-                try {
-                    while (true) {
-                        File coverFile = mediaFileService.getCoverArt(dir);
-                        if (coverFile != null && !isMediaFile(coverFile) && !newCoverFile.equals(coverFile)) {
-                            if (!coverFile.renameTo(new File(coverFile.getCanonicalPath() + ".old"))) {
-                                if (LOG.isWarnEnabled()) {
-                                    LOG.warn("Unable to rename old image file " + coverFile);
-                                }
-                                break;
+                while (true) {
+                    File coverFile = mediaFileService.getCoverArt(dir);
+                    if (coverFile != null && !isMediaFile(coverFile) && !newCoverFile.equals(coverFile)) {
+                        if (!coverFile.renameTo(new File(coverFile.getCanonicalPath() + ".old"))) {
+                            if (LOG.isWarnEnabled()) {
+                                LOG.warn("Unable to rename old image file " + coverFile);
                             }
-                            if (LOG.isInfoEnabled()) {
-                                LOG.info("Renamed old image file " + coverFile);
-                            }
-
-                            // Must refresh again.
-                            mediaFileService.refreshMediaFile(dir);
-                            dir = mediaFileService.getMediaFile(dir.getId());
-                        } else {
                             break;
                         }
+                        if (LOG.isInfoEnabled()) {
+                            LOG.info("Renamed old image file " + coverFile);
+                        }
+
+                        // Must refresh again.
+                        mediaFileService.refreshMediaFile(dir);
+                        dir = mediaFileService.getMediaFile(dir.getId());
+                    } else {
+                        break;
                     }
-                } catch (Exception x) {
-                    LOG.warn("Failed to rename existing cover file.", x);
                 }
             }
+        } catch (UnsupportedOperationException | IOException e) {
+            throw new ExecutionException("Failed to save coverArt: " + path, e);
         }
     }
 

@@ -22,6 +22,7 @@
 package org.airsonic.player.service.upnp.processor;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.contentdirectory.DIDLParser;
@@ -47,11 +48,8 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
 
     /**
      * Browses the root metadata for a type.
-     * 
-     * @throws Exception
      */
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 fourthline
-    public BrowseResult browseRootMetadata() throws Exception {
+    public BrowseResult browseRootMetadata() throws ExecutionException {
         DIDLContent didl = new DIDLContent();
         didl.addContainer(createRootContainer());
         return createBrowseResult(didl, 1, 1);
@@ -70,9 +68,8 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
     /**
      * Browses the top-level content of a type.
      */
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 fourthline
     public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy)
-            throws Exception {
+            throws ExecutionException {
         DIDLContent didl = new DIDLContent();
         List<T> selectedItems = getItems(firstResult, maxResults);
         for (T item : selectedItems) {
@@ -84,8 +81,7 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
     /**
      * Browses metadata for a child.
      */
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 fourthline
-    public BrowseResult browseObjectMetadata(String id) throws Exception {
+    public BrowseResult browseObjectMetadata(String id) throws ExecutionException {
         T item = getItemById(id);
         DIDLContent didl = new DIDLContent();
         addItem(didl, item);
@@ -95,9 +91,8 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
     /**
      * Browses a child of the container.
      */
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 fourthline
     public BrowseResult browseObject(String id, String filter, long firstResult, long maxResults,
-            SortCriterion... orderBy) throws Exception {
+            SortCriterion... orderBy) throws ExecutionException {
         T item = getItemById(id);
         List<U> selectedChildren = getChildren(item, firstResult, maxResults);
         DIDLContent didl = new DIDLContent();
@@ -107,9 +102,19 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
         return createBrowseResult(didl, selectedChildren.size(), getChildSizeOf(item));
     }
 
-    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 fourthline
-    protected final BrowseResult createBrowseResult(DIDLContent didl, int count, int totalMatches) throws Exception {
-        return new BrowseResult(new DIDLParser().generate(didl), count, totalMatches);
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
+    /*
+     * Wrap&Throw due to constraints of 'fourthline' {@link DIDLParser#generate(DIDLContent)}
+     */
+    protected final BrowseResult createBrowseResult(DIDLContent didl, int count, int totalMatches)
+            throws ExecutionException {
+        String result;
+        try {
+            result = new DIDLParser().generate(didl);
+        } catch (Exception e) {
+            throw new ExecutionException("Unable to generate XML representation of content model.", e);
+        }
+        return new BrowseResult(result, count, totalMatches);
     }
 
     protected final UpnpProcessDispatcher getDispatcher() {

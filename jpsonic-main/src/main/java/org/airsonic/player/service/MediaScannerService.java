@@ -24,20 +24,19 @@ package org.airsonic.player.service;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 import java.io.File;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import com.tesshu.jpsonic.service.MediaScannerServiceUtils;
+import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import net.sf.ehcache.Ehcache;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
@@ -53,6 +52,8 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 /**
@@ -61,11 +62,11 @@ import org.springframework.stereotype.Service;
  * @author Sindre Mehus
  */
 @Service
+@DependsOn("scanExecutor")
 public class MediaScannerService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaScannerService.class);
     private static final AtomicBoolean IS_SCANNING = new AtomicBoolean();
-    private static final Object SCHEDULE_LOCK = new Object();
     private static final Object SCAN_LOCK = new Object();
 
     private final SettingsService settingsService;
@@ -77,14 +78,16 @@ public class MediaScannerService {
     private final AlbumDao albumDao;
     private final Ehcache indexCache;
     private final MediaScannerServiceUtils utils;
+    private final ThreadPoolTaskExecutor scanExecutor;
 
-    private boolean jpsonicCleansingProcess = true; // for debug
-    private int scanCount;
-    private ScheduledExecutorService scheduler;
+    private AtomicBoolean cleansingProcess = new AtomicBoolean();
+    private AtomicInteger scanCount = new AtomicInteger();
+    private AtomicBoolean destroy = new AtomicBoolean();
 
     public MediaScannerService(SettingsService settingsService, IndexManager indexManager,
             PlaylistService playlistService, MediaFileService mediaFileService, MediaFileDao mediaFileDao,
-            ArtistDao artistDao, AlbumDao albumDao, Ehcache indexCache, MediaScannerServiceUtils utils) {
+            ArtistDao artistDao, AlbumDao albumDao, Ehcache indexCache, MediaScannerServiceUtils utils,
+            ThreadPoolTaskExecutor scanExecutor) {
         super();
         this.settingsService = settingsService;
         this.indexManager = indexManager;
@@ -95,60 +98,24 @@ public class MediaScannerService {
         this.albumDao = albumDao;
         this.indexCache = indexCache;
         this.utils = utils;
+        this.scanExecutor = scanExecutor;
     }
 
     @PostConstruct
     public void init() {
+        cleansingProcess.set(true);
+        destroy.set(false);
         indexManager.deleteOldIndexFiles();
         indexManager.initializeIndexDirectory();
-        schedule();
+    }
+
+    @PreDestroy
+    public void onDestroy() {
+        destroy.set(true);
     }
 
     public void initNoSchedule() {
         indexManager.deleteOldIndexFiles();
-    }
-
-    /**
-     * Schedule background execution of media library scanning.
-     */
-    public void schedule() {
-
-        synchronized (SCHEDULE_LOCK) {
-
-            if (scheduler != null) {
-                scheduler.shutdown();
-            }
-
-            long daysBetween = settingsService.getIndexCreationInterval();
-            if (daysBetween == -1) {
-                writeInfo("Automatic media scanning disabled.");
-                return;
-            }
-
-            int hour = settingsService.getIndexCreationHour();
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime nextRun = now.withHour(hour).withMinute(0).withSecond(0);
-            if (now.compareTo(nextRun) > 0) {
-                nextRun = nextRun.plusDays(1);
-            }
-
-            long initialDelay = ChronoUnit.MILLIS.between(now, nextRun);
-
-            scheduler = Executors.newSingleThreadScheduledExecutor();
-            scheduler.scheduleAtFixedRate(this::scanLibrary, initialDelay, TimeUnit.DAYS.toMillis(daysBetween),
-                    TimeUnit.MILLISECONDS);
-
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Automatic media library scanning scheduled to run every {} day(s), starting at {}",
-                        daysBetween, nextRun);
-            }
-
-            // In addition, create index immediately if it doesn't exist on disk.
-            if (SettingsService.isScanOnBoot() && neverScanned()) {
-                writeInfo("Media library never scanned. Doing it now.");
-                scanLibrary();
-            }
-        }
     }
 
     public boolean neverScanned() {
@@ -166,7 +133,7 @@ public class MediaScannerService {
      * Returns the number of files scanned so far.
      */
     public int getScanCount() {
-        return scanCount;
+        return scanCount.get();
     }
 
     /**
@@ -174,31 +141,19 @@ public class MediaScannerService {
      */
     @SuppressWarnings("PMD.AccessorMethodGeneration") // Triaged in #833 or #834
     public void scanLibrary() {
-
         if (isScanning()) {
             return;
         }
-
         synchronized (SCAN_LOCK) {
-
             IS_SCANNING.set(true);
-
-            Thread thread = new Thread("MediaLibraryScanner") {
-                @Override
-                public void run() {
-                    doScanLibrary();
-                    playlistService.importPlaylists();
-                    mediaFileDao.checkpoint();
-                }
-            };
-
-            thread.setPriority(Thread.MIN_PRIORITY);
-            thread.start();
+            scanExecutor.execute(this::doScanLibrary);
         }
     }
 
     private void doScanLibrary() {
-        writeInfo("Starting to scan media library.");
+
+        LOG.info("Starting to scan media library.");
+
         MediaLibraryStatistics statistics = new MediaLibraryStatistics(DateUtils.truncate(new Date(), Calendar.SECOND));
         if (LOG.isDebugEnabled()) {
             LOG.debug("New last scan date is " + statistics.getScanDate());
@@ -206,18 +161,14 @@ public class MediaScannerService {
 
         try {
 
-            // Maps from artist name to album count.
+            // init
             Map<String, Integer> albumCount = new ConcurrentHashMap<>();
             Genres genres = new Genres();
-
-            scanCount = 0;
-
+            scanCount.set(0);
             utils.clearOrder();
             indexCache.removeAll();
-
             mediaFileService.setMemoryCacheEnabled(false);
             indexManager.startIndexing();
-
             mediaFileService.clearMemoryCache();
 
             // Recurse through all files on disk.
@@ -235,13 +186,10 @@ public class MediaScannerService {
 
             writeInfo("Scanned media library with " + scanCount + " entries.");
             writeInfo("Marking non-present files.");
-
             mediaFileDao.markNonPresent(statistics.getScanDate());
             writeInfo("Marking non-present artists.");
-
             artistDao.markNonPresent(statistics.getScanDate());
             writeInfo("Marking non-present albums.");
-
             albumDao.markNonPresent(statistics.getScanDate());
 
             // Update statistics
@@ -253,47 +201,67 @@ public class MediaScannerService {
             // Update genres
             mediaFileDao.updateGenres(genres.getGenres());
 
-            if (jpsonicCleansingProcess) {
+            docleansingProcess();
 
-                writeInfo("[1/2] Additional processing after scanning by Jpsonic. Supplementing sort/read data.");
-                utils.updateSortOfArtist();
-                utils.updateSortOfAlbum();
-                writeInfo("[1/2] Done.");
+            LOG.info("Completed media library scan.");
 
-                if (settingsService.isSortStrict()) {
-                    writeInfo(
-                            "[2/2] Additional processing after scanning by Jpsonic. Create dictionary sort index in database.");
-                    utils.updateOrderOfAll();
-                } else {
-                    writeInfo(
-                            "[2/2] A dictionary sort index is not created in the database. See Settings > General > Sort settings.");
-                }
-                writeInfo("[2/2] Done.");
-
+        } catch (ExecutionException e) {
+            ConcurrentUtils.handleCauseUnchecked(e);
+            if (destroy.get()) {
+                writeInfo("Interrupted to scan media library.");
+            } else if (LOG.isDebugEnabled()) {
+                LOG.debug("Failed to scan media library.", e);
             }
-
-            writeInfo("Completed media library scan.");
-
-        } catch (Throwable x) {
-            LOG.error("Failed to scan media library.", x);
         } finally {
             mediaFileService.setMemoryCacheEnabled(true);
             indexManager.stopIndexing(statistics);
             IS_SCANNING.set(false);
             utils.clearMemoryCache();
         }
+
+        if (!destroy.get()) {
+            playlistService.importPlaylists();
+            mediaFileDao.checkpoint();
+        }
+    }
+
+    private void docleansingProcess() {
+        if (!destroy.get() && cleansingProcess.get()) {
+            writeInfo("[1/2] Additional processing after scanning by Jpsonic. Supplementing sort/read data.");
+            utils.updateSortOfArtist();
+            utils.updateSortOfAlbum();
+            writeInfo("[1/2] Done.");
+            if (settingsService.isSortStrict()) {
+                writeInfo(
+                        "[2/2] Additional processing after scanning by Jpsonic. Create dictionary sort index in database.");
+                utils.updateOrderOfAll();
+            } else {
+                writeInfo(
+                        "[2/2] A dictionary sort index is not created in the database. See Settings > General > Sort settings.");
+            }
+            writeInfo("[2/2] Done.");
+        }
     }
 
     private void writeInfo(String msg) {
-        if (LOG.isInfoEnabled()) {
+        if (settingsService.isVerboseLogScanning() && LOG.isInfoEnabled()) {
             LOG.info(msg);
         }
     }
 
+    private void interruptIfdestroyed() throws ExecutionException {
+        if (destroy.get()) {
+            throw new ExecutionException(new InterruptedException("The scan was stopped due to the shutdown."));
+        }
+    }
+
     private void scanFile(MediaFile file, MusicFolder musicFolder, MediaLibraryStatistics statistics,
-            Map<String, Integer> albumCount, Genres genres, boolean isPodcast) {
-        scanCount++;
-        if (LOG.isInfoEnabled() && scanCount % 250 == 0) {
+            Map<String, Integer> albumCount, Genres genres, boolean isPodcast) throws ExecutionException {
+
+        interruptIfdestroyed();
+
+        scanCount.incrementAndGet();
+        if (LOG.isInfoEnabled() && scanCount.get() % 250 == 0) {
             writeInfo("Scanned media library with " + scanCount + " entries.");
         } else if (LOG.isTraceEnabled()) {
             LOG.trace("Scanning file {}", file.getPath());
@@ -480,10 +448,10 @@ public class MediaScannerService {
     }
 
     public boolean isJpsonicCleansingProcess() {
-        return jpsonicCleansingProcess;
+        return cleansingProcess.get();
     }
 
-    public void setJpsonicCleansingProcess(boolean isJpsonicCleansingProcess) {
-        this.jpsonicCleansingProcess = isJpsonicCleansingProcess;
+    public void setJpsonicCleansingProcess(boolean b) {
+        this.cleansingProcess.set(b);
     }
 }

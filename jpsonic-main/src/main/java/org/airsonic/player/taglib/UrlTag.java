@@ -37,8 +37,6 @@ import org.airsonic.player.util.StringUtil;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.taglibs.standard.tag.common.core.UrlSupport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Creates a URL with optional query parameters. Similar to 'c:url', but you may specify which character encoding to use
@@ -59,7 +57,6 @@ import org.slf4j.LoggerFactory;
 public class UrlTag extends BodyTagSupport {
 
     private static final String DEFAULT_ENCODING = "Utf8Hex";
-    private static final Logger LOG = LoggerFactory.getLogger(UrlTag.class);
 
     private final List<Pair<String, String>> parameters;
 
@@ -134,17 +131,8 @@ public class UrlTag extends BodyTagSupport {
             if (isAsciiAlphaNumeric(s)) {
                 return s;
             }
-
-            try {
-                return StringUtil.utf8HexEncode(s);
-            } catch (Exception x) {
-                if (LOG.isErrorEnabled()) {
-                    LOG.error("Failed to utf8hex-encode the string '" + s + "'.", x);
-                }
-                return s;
-            }
+            return StringUtil.utf8HexEncode(s);
         }
-
         return URLEncoder.encode(s, encoding);
     }
 

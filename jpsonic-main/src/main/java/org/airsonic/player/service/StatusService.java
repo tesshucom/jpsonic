@@ -62,10 +62,10 @@ public class StatusService {
     private static final Object REMOTE_LOCK = new Object();
 
     private final MediaFileService mediaFileService;
-    private final List<TransferStatus> streamStatuses;
-    private final List<TransferStatus> downloadStatuses;
-    private final List<TransferStatus> uploadStatuses;
-    private final List<PlayStatus> remotePlays;
+    private final transient List<TransferStatus> streamStatuses;
+    private final transient List<TransferStatus> downloadStatuses;
+    private final transient List<TransferStatus> uploadStatuses;
+    private final transient List<PlayStatus> remotePlays;
 
     // Maps from player ID to latest inactive stream status.
     private final Map<Integer, TransferStatus> inactiveStreamStatuses;

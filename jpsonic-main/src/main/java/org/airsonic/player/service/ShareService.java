@@ -96,9 +96,9 @@ public class ShareService {
                 if (mediaFile != null) {
                     result.add(mediaFile);
                 }
-            } catch (Exception e) {
-                if (LOG.isTraceEnabled()) {
-                    LOG.trace("Error in getSharedFiles(int, List<MusicFolder>).", e);
+            } catch (SecurityException e) {
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Error in getSharedFiles(int, List<MusicFolder>).", e);
                 }
             }
         }

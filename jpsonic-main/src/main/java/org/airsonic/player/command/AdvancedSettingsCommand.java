@@ -30,8 +30,15 @@ import org.airsonic.player.controller.AdvancedSettingsController;
  */
 public class AdvancedSettingsCommand {
 
+    private boolean verboseLogStart;
+    private boolean verboseLogScanning;
+    private boolean verboseLogPlaying;
+    private boolean verboseLogShutdown;
+
     private String downloadLimit;
     private String uploadLimit;
+    private String bufferSize;
+
     private boolean ldapEnabled;
     private String ldapUrl;
     private String ldapSearchFilter;
@@ -51,10 +58,43 @@ public class AdvancedSettingsCommand {
     private String recaptchaSiteKey;
     private String recaptchaSecretKey;
 
+    private boolean showOutlineHelp;
     private boolean openDetailSetting;
     private boolean useRadio;
     private boolean useSonos;
     private int shareCount;
+
+    public boolean isVerboseLogStart() {
+        return verboseLogStart;
+    }
+
+    public void setVerboseLogStart(boolean verboseLogStart) {
+        this.verboseLogStart = verboseLogStart;
+    }
+
+    public boolean isVerboseLogScanning() {
+        return verboseLogScanning;
+    }
+
+    public void setVerboseLogScanning(boolean verboseLogScanning) {
+        this.verboseLogScanning = verboseLogScanning;
+    }
+
+    public boolean isVerboseLogPlaying() {
+        return verboseLogPlaying;
+    }
+
+    public void setVerboseLogPlaying(boolean verboseLogPlaying) {
+        this.verboseLogPlaying = verboseLogPlaying;
+    }
+
+    public boolean isVerboseLogShutdown() {
+        return verboseLogShutdown;
+    }
+
+    public void setVerboseLogShutdown(boolean verboseLogShutdown) {
+        this.verboseLogShutdown = verboseLogShutdown;
+    }
 
     public String getDownloadLimit() {
         return downloadLimit;
@@ -70,6 +110,14 @@ public class AdvancedSettingsCommand {
 
     public void setUploadLimit(String uploadLimit) {
         this.uploadLimit = uploadLimit;
+    }
+
+    public String getBufferSize() {
+        return bufferSize;
+    }
+
+    public void setBufferSize(String bufferSize) {
+        this.bufferSize = bufferSize;
     }
 
     public boolean isLdapEnabled() {
@@ -198,6 +246,14 @@ public class AdvancedSettingsCommand {
 
     public void setRecaptchaSecretKey(String recaptchaSecretKey) {
         this.recaptchaSecretKey = recaptchaSecretKey;
+    }
+
+    public boolean isShowOutlineHelp() {
+        return showOutlineHelp;
+    }
+
+    public void setShowOutlineHelp(boolean showOutlineHelp) {
+        this.showOutlineHelp = showOutlineHelp;
     }
 
     public boolean isOpenDetailSetting() {
