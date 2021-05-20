@@ -217,7 +217,7 @@ public class TranscodingService {
      *
      * @param mediaFile
      *            The media file.
-     * @param player
+     * @param p
      *            The player.
      * @param maxBitRate
      *            Overrides the per-player and per-user bitrate limit. May be {@code null}.
