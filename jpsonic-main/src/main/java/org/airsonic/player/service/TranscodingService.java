@@ -31,6 +31,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 
 import org.airsonic.player.controller.VideoPlayerController;
@@ -49,6 +50,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.DependsOn;
@@ -74,6 +77,9 @@ public class TranscodingService {
     private final SettingsService settingsService;
     private final PlayerService playerService;
     private final Executor shortExecutor;
+    private final String transcodePath = Optional
+            .ofNullable(System.getProperty("transcodePath").replaceAll("\\\\", "\\\\\\\\")).orElse(null);
+    private File transcodeDirectory;
 
     public TranscodingService(TranscodingDao transcodingDao, SettingsService settingsService,
             @Lazy PlayerService playerService, Executor shortExecutor) {
@@ -611,21 +617,31 @@ public class TranscodingService {
     /**
      * Returns the directory in which all transcoders are installed.
      */
-    public File getTranscodeDirectory() {
-        File dir = new File(SettingsService.getJpsonicHome(), "transcode");
-        if (!dir.exists()) {
-            boolean ok = dir.mkdir();
-            if (ok) {
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Created directory " + dir);
+    public @NonNull File getTranscodeDirectory() {
+        if (isEmpty(transcodeDirectory)) {
+            if (isEmpty(transcodePath)) {
+                transcodeDirectory = new File(SettingsService.getJpsonicHome(), "transcode");
+                if (!transcodeDirectory.exists()) {
+                    boolean ok = transcodeDirectory.mkdir();
+                    if (ok) {
+                        if (LOG.isInfoEnabled()) {
+                            LOG.info("Created directory " + transcodeDirectory);
+                        }
+                    } else {
+                        if (LOG.isWarnEnabled()) {
+                            LOG.warn("Failed to create directory " + transcodeDirectory);
+                        }
+                    }
                 }
             } else {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to create directory " + dir);
-                }
+                transcodeDirectory = new File(transcodePath);
             }
         }
-        return dir;
+        return transcodeDirectory;
+    }
+
+    protected void setTranscodeDirectory(@Nullable File transcodeDirectory) {
+        this.transcodeDirectory = transcodeDirectory;
     }
 
     public static class Parameters {
