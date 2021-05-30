@@ -31,6 +31,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 
 import org.airsonic.player.controller.VideoPlayerController;
@@ -49,6 +50,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.DependsOn;
@@ -74,6 +77,9 @@ public class TranscodingService {
     private final SettingsService settingsService;
     private final PlayerService playerService;
     private final Executor shortExecutor;
+    private final String transcodePath = Optional
+            .ofNullable(System.getProperty("transcodePath").replaceAll("\\\\", "\\\\\\\\")).orElse(null);
+    private File transcodeDirectory;
 
     public TranscodingService(TranscodingDao transcodingDao, SettingsService settingsService,
             @Lazy PlayerService playerService, Executor shortExecutor) {
@@ -101,7 +107,7 @@ public class TranscodingService {
      * 
      * @return All active transcodings for the player.
      */
-    public List<Transcoding> getTranscodingsForPlayer(Player player) {
+    public List<Transcoding> getTranscodingsForPlayer(@NonNull Player player) {
         // FIXME - This should probably check isTranscodingInstalled()
         return transcodingDao.getTranscodingsForPlayer(player.getId());
     }
@@ -114,7 +120,7 @@ public class TranscodingService {
      * @param transcodingIds
      *            ID's of the active transcodings.
      */
-    public void setTranscodingsForPlayer(Player player, int... transcodingIds) {
+    public void setTranscodingsForPlayer(@NonNull Player player, int... transcodingIds) {
         transcodingDao.setTranscodingsForPlayer(player.getId(), transcodingIds);
     }
 
@@ -126,7 +132,7 @@ public class TranscodingService {
      * @param transcodings
      *            The active transcodings.
      */
-    public void setTranscodingsForPlayer(Player player, List<Transcoding> transcodings) {
+    public void setTranscodingsForPlayer(@NonNull Player player, @NonNull List<Transcoding> transcodings) {
         int[] transcodingIds = new int[transcodings.size()];
         for (int i = 0; i < transcodingIds.length; i++) {
             transcodingIds[i] = transcodings.get(i).getId();
@@ -140,7 +146,7 @@ public class TranscodingService {
      * @param transcoding
      *            The transcoding to create.
      */
-    public void createTranscoding(Transcoding transcoding) {
+    public void createTranscoding(@NonNull Transcoding transcoding) {
         transcodingDao.createTranscoding(transcoding);
 
         // Activate this transcoding for all players?
@@ -186,7 +192,7 @@ public class TranscodingService {
      * @return Whether transcoding will be performed if invoking the {@link #getTranscodedInputStream} method with the
      *         same arguments.
      */
-    public boolean isTranscodingRequired(MediaFile mediaFile, Player player) {
+    public boolean isTranscodingRequired(@NonNull MediaFile mediaFile, @NonNull Player player) {
         return getTranscoding(mediaFile, player, null, false) != null;
     }
 
@@ -202,7 +208,7 @@ public class TranscodingService {
      * 
      * @return The file suffix, e.g., "mp3".
      */
-    public String getSuffix(Player player, MediaFile file, String preferredTargetFormat) {
+    public String getSuffix(@NonNull Player player, @NonNull MediaFile file, @Nullable String preferredTargetFormat) {
         Transcoding transcoding = getTranscoding(file, player, preferredTargetFormat, false);
         return transcoding == null ? file.getFormat() : transcoding.getTargetFormat();
     }
@@ -228,27 +234,20 @@ public class TranscodingService {
      * 
      * @return Parameters to be used in the {@link #getTranscodedInputStream} method.
      */
-    public Parameters getParameters(MediaFile mediaFile, Player p, final Integer maxBitRate,
-            String preferredTargetFormat, VideoTranscodingSettings videoTranscodingSettings) {
+    public Parameters getParameters(@NonNull MediaFile mediaFile, @NonNull Player p, @Nullable final Integer maxBitRate,
+            @Nullable String preferredTargetFormat, @Nullable VideoTranscodingSettings videoTranscodingSettings) {
 
         boolean useGuestPlayer = JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(p.getUsername())
                 && !settingsService.isAnonymousTranscoding();
-        Player player = useGuestPlayer ? playerService.getGuestPlayer(null) : p;
-        Parameters parameters = new Parameters(mediaFile, videoTranscodingSettings);
-
-        Integer mb = maxBitRate == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate()) : maxBitRate;
-        final TranscodeScheme transcodeScheme = getTranscodeScheme(player)
-                .strictest(TranscodeScheme.fromMaxBitRate(mb));
-        mb = mediaFile.isVideo() ? VideoPlayerController.DEFAULT_BIT_RATE : transcodeScheme.getMaxBitRate();
-        final Integer bitRate = createBitrate(mediaFile);
-
-        if (mb == 0 || bitRate != 0 && bitRate < mb) {
-            mb = bitRate;
-        }
-
+        final Player player = useGuestPlayer ? playerService.getGuestPlayer(null) : p;
+        final TranscodeScheme transcodeScheme = getTranscodeScheme(player).strictest(TranscodeScheme.fromMaxBitRate(
+                maxBitRate == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate()) : maxBitRate));
+        final int bitRate = createBitrate(mediaFile);
+        final int mb = createMaxBitrate(transcodeScheme, mediaFile, bitRate);
         final boolean hls = videoTranscodingSettings != null && videoTranscodingSettings.isHls();
         final Transcoding transcoding = getTranscoding(mediaFile, player, preferredTargetFormat, hls);
 
+        Parameters parameters = new Parameters(mediaFile, videoTranscodingSettings);
         if (isNeedTranscoding(transcoding, mb, bitRate, preferredTargetFormat, mediaFile)) {
             parameters.setTranscoding(transcoding);
         }
@@ -259,8 +258,8 @@ public class TranscodingService {
         return parameters;
     }
 
-    private boolean isNeedTranscoding(Transcoding transcoding, Integer mb, Integer bitRate,
-            String preferredTargetFormat, MediaFile mediaFile) {
+    private boolean isNeedTranscoding(@Nullable Transcoding transcoding, int mb, int bitRate,
+            @Nullable String preferredTargetFormat, @NonNull MediaFile mediaFile) {
         boolean isNeedTranscoding = false;
         if (transcoding != null && (mb != 0 && (bitRate == 0 || bitRate > mb)
                 || preferredTargetFormat != null && !mediaFile.getFormat().equalsIgnoreCase(preferredTargetFormat))) {
@@ -269,9 +268,9 @@ public class TranscodingService {
         return isNeedTranscoding;
     }
 
-    private Integer createBitrate(MediaFile mediaFile) {
+    private int createBitrate(@NonNull MediaFile mediaFile) {
         // If null assume unlimited bitrate
-        Integer bitRate = mediaFile.getBitRate() == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate())
+        int bitRate = mediaFile.getBitRate() == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate())
                 : mediaFile.getBitRate();
         if (!mediaFile.isVideo()) {
             if (mediaFile.isVariableBitRate()) {
@@ -284,6 +283,14 @@ public class TranscodingService {
             }
         }
         return bitRate;
+    }
+
+    private int createMaxBitrate(@NonNull TranscodeScheme transcodeScheme, @NonNull MediaFile mediaFile, int bitRate) {
+        final int mb = mediaFile.isVideo() ? VideoPlayerController.DEFAULT_BIT_RATE : transcodeScheme.getMaxBitRate();
+        if (mb == 0 || bitRate != 0 && bitRate < mb) {
+            return bitRate;
+        }
+        return mb;
     }
 
     /**
@@ -305,21 +312,23 @@ public class TranscodingService {
      * @throws IOException
      *             If an I/O error occurs.
      */
-    public InputStream getTranscodedInputStream(Parameters parameters) throws IOException {
+    public @NonNull InputStream getTranscodedInputStream(@Nullable Parameters parameters) throws IOException {
         try {
             if (parameters.getTranscoding() != null) {
                 return createTranscodedInputStream(parameters);
             }
         } catch (IOException e) {
+            // IOException : Process failure or Windows limited process(createTempFile, File copy)
             throw new IOException("Transcoder failed: " + parameters.getMediaFile().getFile().getAbsolutePath(), e);
         }
+        // IOException : InvalidPathException
         return Files.newInputStream(Paths.get(parameters.getMediaFile().getFile().toURI()));
     }
 
     /**
      * Returns the strictest transcoding scheme defined for the player and the user.
      */
-    private TranscodeScheme getTranscodeScheme(Player player) {
+    private TranscodeScheme getTranscodeScheme(@Nullable Player player) {
         String username = player.getUsername();
         if (username != null) {
             UserSettings userSettings = settingsService.getUserSettings(username);
@@ -341,7 +350,7 @@ public class TranscodingService {
      *             If an I/O error occurs.
      */
     @SuppressWarnings("PMD.ConfusingTernary") // false positive
-    private InputStream createTranscodedInputStream(Parameters parameters) throws IOException {
+    private InputStream createTranscodedInputStream(@NonNull Parameters parameters) throws IOException {
 
         Transcoding transcoding = parameters.getTranscoding();
         Integer maxBitRate = parameters.getMaxBitRate();
@@ -395,8 +404,9 @@ public class TranscodingService {
      *            Data to feed to the process. May be {@code null}. @return The newly created input stream.
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
-    private TranscodeInputStream createTranscodeInputStream(String command, Integer maxBitRate,
-            VideoTranscodingSettings videoTranscodingSettings, MediaFile mediaFile, InputStream in) throws IOException {
+    private TranscodeInputStream createTranscodeInputStream(@NonNull String command, Integer maxBitRate,
+            VideoTranscodingSettings videoTranscodingSettings, @NonNull MediaFile mediaFile, InputStream in)
+            throws IOException {
 
         String title = mediaFile.getTitle();
         String album = mediaFile.getAlbumName();
@@ -453,7 +463,7 @@ public class TranscodingService {
                 settingsService.isVerboseLogPlaying());
     }
 
-    private String replaceIfcontains(String line, String target, String value) {
+    private String replaceIfcontains(@NonNull String line, @NonNull String target, @NonNull String value) {
         if (line.contains(target)) {
             return line.replace(target, value);
         }
@@ -464,15 +474,16 @@ public class TranscodingService {
      * Returns an applicable transcoding for the given file and player, or <code>null</code> if no transcoding should be
      * done.
      */
-    private Transcoding getTranscoding(MediaFile mediaFile, Player player, String preferredTargetFormat, boolean hls) {
+    private @Nullable Transcoding getTranscoding(@NonNull MediaFile mediaFile, @NonNull Player player,
+            @Nullable String preferredTargetFormat, boolean hls) {
+
+        if (FORMAT_RAW.equals(preferredTargetFormat)) {
+            return null;
+        }
 
         if (hls) {
             return new Transcoding(null, "hls", mediaFile.getFormat(), "ts", settingsService.getHlsCommand(), null,
                     null, true);
-        }
-
-        if (FORMAT_RAW.equals(preferredTargetFormat)) {
-            return null;
         }
 
         List<Transcoding> applicableTranscodings = new LinkedList<>();
@@ -497,7 +508,7 @@ public class TranscodingService {
             }
             Arrays.stream(transcoding.getSourceFormatsAsArray())
                     .filter(sourceFormat -> sourceFormat.equalsIgnoreCase(suffix))
-                    .filter(sourceFormat -> isTranscodingInstalled(transcoding))
+                    .filter(sourceFormat -> isTranscoderInstalled(transcoding))
                     .forEach(s -> applicableTranscodings.add(transcoding));
         }
 
@@ -522,10 +533,10 @@ public class TranscodingService {
      * 
      * @return Whether transcoding is supported.
      */
-    public boolean isTranscodingSupported(MediaFile mediaFile) {
+    public boolean isTranscodingSupported(@Nullable MediaFile mediaFile) {
         List<Transcoding> transcodings = getAllTranscodings();
         for (Transcoding transcoding : transcodings) {
-            if (!isTranscodingInstalled(transcoding)) {
+            if (!isTranscoderInstalled(transcoding)) {
                 continue;
             }
             if (mediaFile == null) {
@@ -540,12 +551,12 @@ public class TranscodingService {
         return false;
     }
 
-    private boolean isTranscodingInstalled(Transcoding transcoding) {
-        return isTranscodingStepInstalled(transcoding.getStep1()) && isTranscodingStepInstalled(transcoding.getStep2())
-                && isTranscodingStepInstalled(transcoding.getStep3());
+    private boolean isTranscoderInstalled(@NonNull Transcoding transcoding) {
+        return isTranscoderInstalled(transcoding.getStep1()) && isTranscoderInstalled(transcoding.getStep2())
+                && isTranscoderInstalled(transcoding.getStep3());
     }
 
-    private boolean isTranscodingStepInstalled(String step) {
+    private boolean isTranscoderInstalled(String step) {
         if (StringUtils.isEmpty(step)) {
             return true;
         }
@@ -558,7 +569,7 @@ public class TranscodingService {
     /**
      * Returns the length (or predicted/expected length) of a (possibly padded) media stream
      */
-    private Long getExpectedLength(Parameters parameters) {
+    private @Nullable Long getExpectedLength(@NonNull Parameters parameters) {
 
         MediaFile file = parameters.getMediaFile();
         if (!parameters.isTranscode()) {
@@ -585,7 +596,7 @@ public class TranscodingService {
         return (duration + 2) * (long) maxBitRate * 1000L / 8L;
     }
 
-    private boolean isRangeAllowed(Parameters parameters) {
+    private boolean isRangeAllowed(@NonNull Parameters parameters) {
         Transcoding transcoding = parameters.getTranscoding();
         List<String> steps;
         if (transcoding == null) {
@@ -611,21 +622,31 @@ public class TranscodingService {
     /**
      * Returns the directory in which all transcoders are installed.
      */
-    public File getTranscodeDirectory() {
-        File dir = new File(SettingsService.getJpsonicHome(), "transcode");
-        if (!dir.exists()) {
-            boolean ok = dir.mkdir();
-            if (ok) {
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Created directory " + dir);
+    public @NonNull File getTranscodeDirectory() {
+        if (isEmpty(transcodeDirectory)) {
+            if (isEmpty(transcodePath)) {
+                transcodeDirectory = new File(SettingsService.getJpsonicHome(), "transcode");
+                if (!transcodeDirectory.exists()) {
+                    boolean ok = transcodeDirectory.mkdir();
+                    if (ok) {
+                        if (LOG.isInfoEnabled()) {
+                            LOG.info("Created directory " + transcodeDirectory);
+                        }
+                    } else {
+                        if (LOG.isWarnEnabled()) {
+                            LOG.warn("Failed to create directory " + transcodeDirectory);
+                        }
+                    }
                 }
             } else {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to create directory " + dir);
-                }
+                transcodeDirectory = new File(transcodePath);
             }
         }
-        return dir;
+        return transcodeDirectory;
+    }
+
+    protected void setTranscodeDirectory(@Nullable File transcodeDirectory) {
+        this.transcodeDirectory = transcodeDirectory;
     }
 
     public static class Parameters {

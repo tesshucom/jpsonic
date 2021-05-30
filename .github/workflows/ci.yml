@@ -51,6 +51,11 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11.0.10
+      - name: Set up ffmpeg
+        id: ffmpeg
+        uses: FedericoCarboni/setup-ffmpeg@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Cache Maven packages
         uses: actions/cache@v2
         with:
@@ -60,7 +65,7 @@ jobs:
       - name: Create coverage
         id: create-coverage
         if: contains(matrix.os, 'ubuntu-latest')
-        run: mvn -Punit-test -Psend-coverage -Ptomcat-embed -DfailIfNoTests=false clean test jacoco:report
+        run: mvn -Punit-test -Psend-coverage -Ptomcat-embed -DfailIfNoTests=false -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" clean test jacoco:report
       - name: Archive code coverage
         if: "(steps.create-coverage.conclusion == 'success' && contains(matrix.os, 'ubuntu-latest')) && (github.ref == 'refs/heads/master' || contains(github.ref, 'snapshot'))"
         uses: actions/upload-artifact@v2
@@ -70,7 +75,7 @@ jobs:
           retention-days: 7
       - name: Verify with Maven on Win
         if: contains(matrix.os, 'windows-latest')
-        run: mvn clean verify -B -Ptomcat-embed -Punit-test
+        run: mvn -DfailIfNoTests=false -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" clean verify -B -Ptomcat-embed -Punit-test
   ##########################################################################
   send-coverage:
     name: Send coverage to Codacy
@@ -107,6 +112,11 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java }}
+      - name: Set up ffmpeg
+        id: ffmpeg
+        uses: FedericoCarboni/setup-ffmpeg@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Cache Maven packages
         uses: actions/cache@v2
         with:
@@ -114,7 +124,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2 
       - name: Verify with Maven
-        run: mvn clean verify -B -Ptomcat-embed -Prelease${{ matrix.java }} -Punit-test
+        run: mvn -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" clean verify -B -Ptomcat-embed -Prelease${{ matrix.java }} -Punit-test
   ##########################################################################
   package:
     if: github.ref == 'refs/heads/master'
