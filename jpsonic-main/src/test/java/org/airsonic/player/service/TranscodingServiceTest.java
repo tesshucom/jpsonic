@@ -28,11 +28,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Documented;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.InvalidPathException;
 import java.nio.file.NoSuchFileException;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import org.airsonic.player.Integration;
@@ -676,12 +678,41 @@ public class TranscodingServiceTest {
 
             assertFalse(doIsTranscoderInstalled(transcoding));
 
+            transcodingService.setTranscodeDirectory(f);
+        }
+
+        @Test
+        @Order(6)
+        public void testITI6() throws ExecutionException {
+            Field pathField;
+            String transcodePath;
             try {
-                Method m = transcodingService.getClass().getDeclaredMethod("setTranscodeDirectory", File.class);
-                m.setAccessible(true);
-                m.invoke(transcodingService, f);
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-                    | NoSuchMethodException | SecurityException e) {
+                pathField = transcodingService.getClass().getDeclaredField("transcodePath");
+                pathField.setAccessible(true);
+                transcodePath = Optional.ofNullable((String) pathField.get(transcodingService)).orElse(null);
+                pathField.set(transcodingService, null);
+                transcodingService.setTranscodeDirectory(null);
+            } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+                throw new ExecutionException(e);
+            }
+
+            Transcoding transcoding = new Transcoding(null, null, fmtFlac, fmtMp3, ffmpeg, ffmpeg, ffmpeg, true);
+
+            assertFalse(doIsTranscoderInstalled(transcoding));
+
+            try {
+                pathField.set(transcodingService, null);
+                transcodingService.setTranscodeDirectory(null);
+            } catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
+                throw new ExecutionException(e);
+            }
+
+            Assertions.assertNotNull(transcodingService.getTranscodeDirectory());
+
+            try {
+                pathField.set(transcodingService, transcodePath);
+                transcodingService.setTranscodeDirectory(null);
+            } catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
                 throw new ExecutionException(e);
             }
         }
