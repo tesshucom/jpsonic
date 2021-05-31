@@ -91,6 +91,33 @@ public class TranscodingService {
     }
 
     /**
+     * Returns the directory in which all transcoders are installed.
+     */
+    public @NonNull File getTranscodeDirectory() {
+        if (!isEmpty(transcodeDirectory)) {
+            return transcodeDirectory;
+        }
+        if (isEmpty(transcodePath)) {
+            transcodeDirectory = new File(SettingsService.getJpsonicHome(), "transcode");
+            if (!transcodeDirectory.exists()) {
+                boolean ok = transcodeDirectory.mkdir();
+                if (ok && LOG.isInfoEnabled()) {
+                    LOG.info("Created directory " + transcodeDirectory);
+                } else if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to create directory " + transcodeDirectory);
+                }
+            }
+        } else {
+            transcodeDirectory = new File(transcodePath);
+        }
+        return transcodeDirectory;
+    }
+
+    protected void setTranscodeDirectory(@Nullable File transcodeDirectory) {
+        this.transcodeDirectory = transcodeDirectory;
+    }
+
+    /**
      * Returns all transcodings.
      *
      * @return Possibly empty list of all transcodings.
@@ -151,13 +178,11 @@ public class TranscodingService {
 
         // Activate this transcoding for all players?
         if (transcoding.isDefaultActive()) {
-            for (Player player : playerService.getAllPlayers()) {
-                if (player != null) {
-                    List<Transcoding> transcodings = getTranscodingsForPlayer(player);
-                    transcodings.add(transcoding);
-                    setTranscodingsForPlayer(player, transcodings);
-                }
-            }
+            playerService.getAllPlayers().forEach(player -> {
+                List<Transcoding> transcodings = getTranscodingsForPlayer(player);
+                transcodings.add(transcoding);
+                setTranscodingsForPlayer(player, transcodings);
+            });
         }
     }
 
@@ -214,83 +239,56 @@ public class TranscodingService {
     }
 
     /**
-     * Creates parameters for a possibly transcoded input stream for the given media file and player combination.
-     * <p/>
-     * A transcoding is applied if it is applicable for the format of the given file, and is activated for the given
-     * player, and either the desired format or bitrate needs changing.
-     * <p/>
-     * Otherwise, a normal input stream to the original file is returned.
-     *
-     * @param mediaFile
-     *            The media file.
-     * @param p
-     *            The player.
-     * @param maxBitRate
-     *            Overrides the per-player and per-user bitrate limit. May be {@code null}.
-     * @param preferredTargetFormat
-     *            Used to select among multiple applicable transcodings. May be {@code null}.
-     * @param videoTranscodingSettings
-     *            Parameters used when transcoding video. May be {@code null}.
-     * 
-     * @return Parameters to be used in the {@link #getTranscodedInputStream} method.
+     * Returns an applicable transcoding for the given file and player, or <code>null</code> if no transcoding should be
+     * done.
      */
-    public Parameters getParameters(@NonNull MediaFile mediaFile, @NonNull Player p, @Nullable final Integer maxBitRate,
-            @Nullable String preferredTargetFormat, @Nullable VideoTranscodingSettings videoTranscodingSettings) {
+    private @Nullable Transcoding getTranscoding(@NonNull MediaFile mediaFile, @NonNull Player player,
+            @Nullable String preferredTargetFormat, boolean hls) {
 
-        boolean useGuestPlayer = JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(p.getUsername())
-                && !settingsService.isAnonymousTranscoding();
-        final Player player = useGuestPlayer ? playerService.getGuestPlayer(null) : p;
-        final TranscodeScheme transcodeScheme = getTranscodeScheme(player).strictest(TranscodeScheme.fromMaxBitRate(
-                maxBitRate == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate()) : maxBitRate));
-        final int bitRate = createBitrate(mediaFile);
-        final int mb = createMaxBitrate(transcodeScheme, mediaFile, bitRate);
-        final boolean hls = videoTranscodingSettings != null && videoTranscodingSettings.isHls();
-        final Transcoding transcoding = getTranscoding(mediaFile, player, preferredTargetFormat, hls);
-
-        Parameters parameters = new Parameters(mediaFile, videoTranscodingSettings);
-        if (isNeedTranscoding(transcoding, mb, bitRate, preferredTargetFormat, mediaFile)) {
-            parameters.setTranscoding(transcoding);
+        if (FORMAT_RAW.equals(preferredTargetFormat)) {
+            return null;
         }
 
-        parameters.setMaxBitRate(mb == 0 ? null : mb);
-        parameters.setExpectedLength(getExpectedLength(parameters));
-        parameters.setRangeAllowed(isRangeAllowed(parameters));
-        return parameters;
-    }
-
-    private boolean isNeedTranscoding(@Nullable Transcoding transcoding, int mb, int bitRate,
-            @Nullable String preferredTargetFormat, @NonNull MediaFile mediaFile) {
-        boolean isNeedTranscoding = false;
-        if (transcoding != null && (mb != 0 && (bitRate == 0 || bitRate > mb)
-                || preferredTargetFormat != null && !mediaFile.getFormat().equalsIgnoreCase(preferredTargetFormat))) {
-            isNeedTranscoding = true;
+        if (hls) {
+            return new Transcoding(null, "hls", mediaFile.getFormat(), "ts", settingsService.getHlsCommand(), null,
+                    null, true);
         }
-        return isNeedTranscoding;
-    }
 
-    private int createBitrate(@NonNull MediaFile mediaFile) {
-        // If null assume unlimited bitrate
-        int bitRate = mediaFile.getBitRate() == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate())
-                : mediaFile.getBitRate();
-        if (!mediaFile.isVideo()) {
-            if (mediaFile.isVariableBitRate()) {
-                // Assume VBR needs approx 20% more bandwidth to maintain equivalent quality in CBR
-                bitRate = bitRate * 6 / 5;
+        List<Transcoding> applicableTranscodings = new LinkedList<>();
+        String suffix = mediaFile.getFormat();
+
+        // This is what I'd like todo, but this will most likely break video transcoding as video transcoding is
+        // never expected to be null
+        // if(StringUtils.equalsIgnoreCase(preferredTargetFormat, suffix)) {
+        // LOG.debug("Target formats are the same, returning no transcoding");
+        // return null;
+        // }
+
+        List<Transcoding> transcodingsForPlayer = getTranscodingsForPlayer(player);
+        for (Transcoding transcoding : transcodingsForPlayer) {
+            // special case for now as video must have a transcoding
+            if (mediaFile.isVideo()
+                    && StringUtils.equalsIgnoreCase(preferredTargetFormat, transcoding.getTargetFormat())) {
+                // Detected source to target format match for video
+                return transcoding;
             }
-            // Make sure bitrate is quantized to valid values for CBR
-            if (TranscodeScheme.fromMaxBitRate(bitRate) != null) {
-                bitRate = TranscodeScheme.fromMaxBitRate(bitRate).getMaxBitRate();
+            Arrays.stream(transcoding.getSourceFormatsAsArray())
+                    .filter(sourceFormat -> sourceFormat.equalsIgnoreCase(suffix))
+                    .filter(sourceFormat -> isTranscoderInstalled(transcoding))
+                    .forEach(s -> applicableTranscodings.add(transcoding));
+        }
+
+        if (applicableTranscodings.isEmpty()) {
+            return null;
+        }
+
+        for (Transcoding transcoding : applicableTranscodings) {
+            if (transcoding.getTargetFormat().equalsIgnoreCase(preferredTargetFormat)) {
+                return transcoding;
             }
         }
-        return bitRate;
-    }
 
-    private int createMaxBitrate(@NonNull TranscodeScheme transcodeScheme, @NonNull MediaFile mediaFile, int bitRate) {
-        final int mb = mediaFile.isVideo() ? VideoPlayerController.DEFAULT_BIT_RATE : transcodeScheme.getMaxBitRate();
-        if (mb == 0 || bitRate != 0 && bitRate < mb) {
-            return bitRate;
-        }
-        return mb;
+        return applicableTranscodings.get(0);
     }
 
     /**
@@ -323,19 +321,6 @@ public class TranscodingService {
         }
         // IOException : InvalidPathException
         return Files.newInputStream(Paths.get(parameters.getMediaFile().getFile().toURI()));
-    }
-
-    /**
-     * Returns the strictest transcoding scheme defined for the player and the user.
-     */
-    private TranscodeScheme getTranscodeScheme(@Nullable Player player) {
-        String username = player.getUsername();
-        if (username != null) {
-            UserSettings userSettings = settingsService.getUserSettings(username);
-            return player.getTranscodeScheme().strictest(userSettings.getTranscodeScheme());
-        }
-
-        return player.getTranscodeScheme();
     }
 
     /**
@@ -471,61 +456,6 @@ public class TranscodingService {
     }
 
     /**
-     * Returns an applicable transcoding for the given file and player, or <code>null</code> if no transcoding should be
-     * done.
-     */
-    private @Nullable Transcoding getTranscoding(@NonNull MediaFile mediaFile, @NonNull Player player,
-            @Nullable String preferredTargetFormat, boolean hls) {
-
-        if (FORMAT_RAW.equals(preferredTargetFormat)) {
-            return null;
-        }
-
-        if (hls) {
-            return new Transcoding(null, "hls", mediaFile.getFormat(), "ts", settingsService.getHlsCommand(), null,
-                    null, true);
-        }
-
-        List<Transcoding> applicableTranscodings = new LinkedList<>();
-        String suffix = mediaFile.getFormat();
-
-        // This is what I'd like todo, but this will most likely break video transcoding as video transcoding is
-        // never expected to be null
-        // if(StringUtils.equalsIgnoreCase(preferredTargetFormat, suffix)) {
-        // LOG.debug("Target formats are the same, returning no transcoding");
-        // return null;
-        // }
-
-        List<Transcoding> transcodingsForPlayer = getTranscodingsForPlayer(player);
-        for (Transcoding transcoding : transcodingsForPlayer) {
-            // special case for now as video must have a transcoding
-            if (mediaFile.isVideo()
-                    && StringUtils.equalsIgnoreCase(preferredTargetFormat, transcoding.getTargetFormat())) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Detected source to target format match for video");
-                }
-                return transcoding;
-            }
-            Arrays.stream(transcoding.getSourceFormatsAsArray())
-                    .filter(sourceFormat -> sourceFormat.equalsIgnoreCase(suffix))
-                    .filter(sourceFormat -> isTranscoderInstalled(transcoding))
-                    .forEach(s -> applicableTranscodings.add(transcoding));
-        }
-
-        if (applicableTranscodings.isEmpty()) {
-            return null;
-        }
-
-        for (Transcoding transcoding : applicableTranscodings) {
-            if (transcoding.getTargetFormat().equalsIgnoreCase(preferredTargetFormat)) {
-                return transcoding;
-            }
-        }
-
-        return applicableTranscodings.get(0);
-    }
-
-    /**
      * Returns whether transcoding is supported (i.e. whether ffmpeg is installed or not).
      *
      * @param mediaFile
@@ -536,9 +466,6 @@ public class TranscodingService {
     public boolean isTranscodingSupported(@Nullable MediaFile mediaFile) {
         List<Transcoding> transcodings = getAllTranscodings();
         for (Transcoding transcoding : transcodings) {
-            if (!isTranscoderInstalled(transcoding)) {
-                continue;
-            }
             if (mediaFile == null) {
                 return true;
             }
@@ -564,6 +491,122 @@ public class TranscodingService {
         PrefixFileFilter filter = new PrefixFileFilter(executable);
         String[] matches = getTranscodeDirectory().list(filter);
         return matches != null && matches.length > 0;
+    }
+
+    /**
+     * Creates parameters for a possibly transcoded input stream for the given media file and player combination.
+     * <p/>
+     * A transcoding is applied if it is applicable for the format of the given file, and is activated for the given
+     * player, and either the desired format or bitrate needs changing.
+     * <p/>
+     * Otherwise, a normal input stream to the original file is returned.
+     *
+     * @param mediaFile
+     *            The media file.
+     * @param p
+     *            The player.
+     * @param maxBitRate
+     *            Overrides the per-player and per-user bitrate limit. May be {@code null}.
+     * @param preferredTargetFormat
+     *            Used to select among multiple applicable transcodings. May be {@code null}.
+     * @param videoTranscodingSettings
+     *            Parameters used when transcoding video. May be {@code null}.
+     * 
+     * @return Parameters to be used in the {@link #getTranscodedInputStream} method.
+     */
+    public Parameters getParameters(@NonNull MediaFile mediaFile, @NonNull Player p, @Nullable final Integer maxBitRate,
+            @Nullable String preferredTargetFormat, @Nullable VideoTranscodingSettings videoTranscodingSettings) {
+
+        boolean useGuestPlayer = JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(p.getUsername())
+                && !settingsService.isAnonymousTranscoding();
+        final Player player = useGuestPlayer ? playerService.getGuestPlayer(null) : p;
+        final TranscodeScheme transcodeScheme = getTranscodeScheme(player).strictest(TranscodeScheme.fromMaxBitRate(
+                maxBitRate == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate()) : maxBitRate));
+        final int bitRate = createBitrate(mediaFile);
+        final int mb = createMaxBitrate(transcodeScheme, mediaFile, bitRate);
+        final boolean hls = videoTranscodingSettings != null && videoTranscodingSettings.isHls();
+        final Transcoding transcoding = getTranscoding(mediaFile, player, preferredTargetFormat, hls);
+
+        Parameters parameters = new Parameters(mediaFile, videoTranscodingSettings);
+        if (isNeedTranscoding(transcoding, mb, bitRate, preferredTargetFormat, mediaFile)) {
+            parameters.setTranscoding(transcoding);
+        }
+
+        parameters.setMaxBitRate(mb == 0 ? null : mb);
+        parameters.setRangeAllowed(isRangeAllowed(parameters));
+        parameters.setExpectedLength(getExpectedLength(parameters));
+        return parameters;
+    }
+
+    /**
+     * Returns the strictest transcoding scheme defined for the player and the user.
+     */
+    private TranscodeScheme getTranscodeScheme(@Nullable Player player) {
+        String username = player.getUsername();
+        if (username != null) {
+            UserSettings userSettings = settingsService.getUserSettings(username);
+            return player.getTranscodeScheme().strictest(userSettings.getTranscodeScheme());
+        }
+
+        return player.getTranscodeScheme();
+    }
+
+    private int createBitrate(@NonNull MediaFile mediaFile) {
+        // If null assume unlimited bitrate
+        int bitRate = mediaFile.getBitRate() == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate())
+                : mediaFile.getBitRate();
+        if (!mediaFile.isVideo()) {
+            if (mediaFile.isVariableBitRate()) {
+                // Assume VBR needs approx 20% more bandwidth to maintain equivalent quality in CBR
+                bitRate = bitRate * 6 / 5;
+            }
+            // Make sure bitrate is quantized to valid values for CBR
+            if (TranscodeScheme.fromMaxBitRate(bitRate) != null) {
+                bitRate = TranscodeScheme.fromMaxBitRate(bitRate).getMaxBitRate();
+            }
+        }
+        return bitRate;
+    }
+
+    private int createMaxBitrate(@NonNull TranscodeScheme transcodeScheme, @NonNull MediaFile mediaFile, int bitRate) {
+        final int mb = mediaFile.isVideo() ? VideoPlayerController.DEFAULT_BIT_RATE : transcodeScheme.getMaxBitRate();
+        if (mb == 0 || bitRate != 0 && bitRate < mb) {
+            return bitRate;
+        }
+        return mb;
+    }
+
+    private boolean isNeedTranscoding(@Nullable Transcoding transcoding, int mb, int bitRate,
+            @Nullable String preferredTargetFormat, @NonNull MediaFile mediaFile) {
+        boolean isNeedTranscoding = false;
+        if (transcoding != null && (mb != 0 && (bitRate == 0 || bitRate > mb)
+                || preferredTargetFormat != null && !mediaFile.getFormat().equalsIgnoreCase(preferredTargetFormat))) {
+            isNeedTranscoding = true;
+        }
+        return isNeedTranscoding;
+    }
+
+    private boolean isRangeAllowed(@NonNull Parameters parameters) {
+        Transcoding transcoding = parameters.getTranscoding();
+        List<String> steps;
+        if (transcoding == null) {
+            return true; // not transcoding
+        } else {
+            steps = Arrays.asList(transcoding.getStep3(), transcoding.getStep2(), transcoding.getStep1());
+        }
+
+        // Verify that were able to predict the length
+        if (parameters.getExpectedLength() == null) {
+            return false;
+        }
+
+        // Check if last configured step uses the bitrate, if so, range should be pretty safe
+        for (String step : steps) {
+            if (step != null) {
+                return step.contains("%b");
+            }
+        }
+        return false;
     }
 
     /**
@@ -594,59 +637,6 @@ public class TranscodingService {
 
         // Over-estimate size a bit (2 seconds) so don't cut off early in case of small calculation differences
         return (duration + 2) * (long) maxBitRate * 1000L / 8L;
-    }
-
-    private boolean isRangeAllowed(@NonNull Parameters parameters) {
-        Transcoding transcoding = parameters.getTranscoding();
-        List<String> steps;
-        if (transcoding == null) {
-            return true; // not transcoding
-        } else {
-            steps = Arrays.asList(transcoding.getStep3(), transcoding.getStep2(), transcoding.getStep1());
-        }
-
-        // Verify that were able to predict the length
-        if (parameters.getExpectedLength() == null) {
-            return false;
-        }
-
-        // Check if last configured step uses the bitrate, if so, range should be pretty safe
-        for (String step : steps) {
-            if (step != null) {
-                return step.contains("%b");
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Returns the directory in which all transcoders are installed.
-     */
-    public @NonNull File getTranscodeDirectory() {
-        if (isEmpty(transcodeDirectory)) {
-            if (isEmpty(transcodePath)) {
-                transcodeDirectory = new File(SettingsService.getJpsonicHome(), "transcode");
-                if (!transcodeDirectory.exists()) {
-                    boolean ok = transcodeDirectory.mkdir();
-                    if (ok) {
-                        if (LOG.isInfoEnabled()) {
-                            LOG.info("Created directory " + transcodeDirectory);
-                        }
-                    } else {
-                        if (LOG.isWarnEnabled()) {
-                            LOG.warn("Failed to create directory " + transcodeDirectory);
-                        }
-                    }
-                }
-            } else {
-                transcodeDirectory = new File(transcodePath);
-            }
-        }
-        return transcodeDirectory;
-    }
-
-    protected void setTranscodeDirectory(@Nullable File transcodeDirectory) {
-        this.transcodeDirectory = transcodeDirectory;
     }
 
     public static class Parameters {
