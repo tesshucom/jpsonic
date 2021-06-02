@@ -44,7 +44,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class IndexManagerTest extends AbstractNeedsScan {
+class IndexManagerTest extends AbstractNeedsScan {
 
     private List<MusicFolder> musicFolders;
 
@@ -86,7 +86,7 @@ public class IndexManagerTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testExpunge() throws IOException {
+    void testExpunge() throws IOException {
 
         int offset = 0;
         int count = Integer.MAX_VALUE;

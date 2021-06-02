@@ -39,13 +39,13 @@ import org.springframework.boot.test.context.SpringBootTest;
  */
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
-public class HLSControllerTest {
+class HLSControllerTest {
 
     @Autowired
     private HLSController controller;
 
     @Test
-    public void testParseBitRateSuccess() {
+    void testParseBitRateSuccess() {
         Pair<Integer, Dimension> pair = controller.parseBitRate("1000");
         assertEquals(1000, pair.getLeft().intValue());
         assertNull(pair.getRight());
@@ -57,19 +57,19 @@ public class HLSControllerTest {
 
     @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
     @Test
-    public void testParseBitRateParseError1() {
+    void testParseBitRateParseError1() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> controller.parseBitRate("asdfl"));
     }
 
     @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
     @Test
-    public void testParseBitRateParseError2() {
+    void testParseBitRateParseError2() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> controller.parseBitRate("1000@300"));
     }
 
     @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
     @Test
-    public void testParseBitRateParseError3() {
+    void testParseBitRateParseError3() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> controller.parseBitRate("1000@300x400ZZ"));
     }
 }

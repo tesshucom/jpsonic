@@ -25,10 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class IndexTypeTest {
+class IndexTypeTest {
 
     @Test
-    public void testAlbumBoosts() {
+    void testAlbumBoosts() {
         assertEquals(3, IndexType.ALBUM.getBoosts().size());
         assertEquals(IndexType.ALBUM.getBoosts().get(FieldNamesConstants.ALBUM), 2.3F);
         assertEquals(IndexType.ALBUM.getBoosts().get(FieldNamesConstants.ALBUM_EX), 2.3F);
@@ -36,12 +36,12 @@ public class IndexTypeTest {
     }
 
     @Test
-    public void testAlbumFields() {
+    void testAlbumFields() {
         assertEquals(5, IndexType.ALBUM.getFields().length);
     }
 
     @Test
-    public void testAlbumId3Boosts() {
+    void testAlbumId3Boosts() {
         assertEquals(3, IndexType.ALBUM_ID3.getBoosts().size());
         assertEquals(IndexType.ALBUM_ID3.getBoosts().get(FieldNamesConstants.ALBUM), 2.3F);
         assertEquals(IndexType.ALBUM_ID3.getBoosts().get(FieldNamesConstants.ALBUM_EX), 2.3F);
@@ -49,44 +49,44 @@ public class IndexTypeTest {
     }
 
     @Test
-    public void testAlbumId3Fields() {
+    void testAlbumId3Fields() {
         assertEquals(5, IndexType.ALBUM_ID3.getFields().length);
     }
 
     @Test
-    public void testArtistBoosts() {
+    void testArtistBoosts() {
         assertEquals(1, IndexType.ARTIST.getBoosts().size());
     }
 
     @Test
-    public void testArtistFields() {
+    void testArtistFields() {
         assertEquals(3, IndexType.ARTIST.getFields().length);
     }
 
     @Test
-    public void testArtistId3Boosts() {
+    void testArtistId3Boosts() {
         assertEquals(1, IndexType.ARTIST_ID3.getBoosts().size());
         assertEquals(IndexType.ARTIST_ID3.getBoosts().get(FieldNamesConstants.ARTIST_READING), 1.1F);
     }
 
     @Test
-    public void testArtistId3Fields() {
+    void testArtistId3Fields() {
         assertEquals(3, IndexType.ARTIST_ID3.getFields().length);
     }
 
     @Test
-    public void testGenreBoosts() {
+    void testGenreBoosts() {
         assertEquals(1, IndexType.GENRE.getBoosts().size());
         assertEquals(IndexType.GENRE.getBoosts().get(FieldNamesConstants.GENRE_KEY), 1.1F);
     }
 
     @Test
-    public void testGenreFields() {
+    void testGenreFields() {
         assertEquals(2, IndexType.GENRE.getFields().length);
     }
 
     @Test
-    public void testSongBoosts() {
+    void testSongBoosts() {
         assertEquals(6, IndexType.SONG.getBoosts().size());
         assertEquals(IndexType.SONG.getBoosts().get(FieldNamesConstants.TITLE_EX), 2.3F);
         assertEquals(IndexType.SONG.getBoosts().get(FieldNamesConstants.TITLE), 2.2F);
@@ -97,7 +97,7 @@ public class IndexTypeTest {
     }
 
     @Test
-    public void testSongFields() {
+    void testSongFields() {
         assertEquals(7, IndexType.SONG.getFields().length);
     }
 

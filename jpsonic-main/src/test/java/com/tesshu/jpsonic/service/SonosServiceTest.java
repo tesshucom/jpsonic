@@ -31,13 +31,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
-public class SonosServiceTest {
+class SonosServiceTest {
 
     @Autowired
     private SonosService sonosService;
 
     @Test
-    public void testParsePlaylistIndices() {
+    void testParsePlaylistIndices() {
         assertEquals("[]", sonosService.parsePlaylistIndices("").toString());
         assertEquals("[999]", sonosService.parsePlaylistIndices("999").toString());
         assertEquals("[1, 2, 3]", sonosService.parsePlaylistIndices("1,2,3").toString());

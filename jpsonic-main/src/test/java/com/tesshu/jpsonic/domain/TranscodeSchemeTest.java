@@ -34,13 +34,13 @@ import org.junit.jupiter.api.Test;
  * @author Sindre Mehus
  */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class TranscodeSchemeTest {
+class TranscodeSchemeTest {
 
     /**
      * Tests {@link TranscodeScheme#strictest}.
      */
     @Test
-    public void testStrictest() {
+    void testStrictest() {
         assertSame(OFF, OFF.strictest(null), "Error in strictest().");
         assertSame(OFF, OFF.strictest(OFF), "Error in strictest().");
         assertSame(MAX_32, OFF.strictest(MAX_32), "Error in strictest().");
