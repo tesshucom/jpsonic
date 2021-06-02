@@ -85,22 +85,8 @@ public class RecoverController {
             map.put(Attributes.Request.USERNAME_OR_EMAIL.value(), usernameOrEmail);
             User user = getUserByUsernameOrEmail(usernameOrEmail);
 
-            boolean captchaOk;
-            if (settingsService.isCaptchaEnabled()) {
-                String recaptchaResponse = request.getParameter(Attributes.Request.G_RECAPTCHA_RESPONSE.value());
-                ReCaptcha captcha = new ReCaptcha(settingsService.getRecaptchaSecretKey());
-                captchaOk = recaptchaResponse != null && captcha.isValid(recaptchaResponse);
-            } else {
-                captchaOk = true;
-            }
-
-            if (!captchaOk) {
-                map.put(Attributes.Model.ERROR.value(), "recover.error.invalidcaptcha");
-            } else if (user == null) {
-                map.put(Attributes.Model.ERROR.value(), "recover.error.usernotfound");
-            } else if (user.getEmail() == null) {
-                map.put(Attributes.Model.ERROR.value(), "recover.error.noemail");
-            } else {
+            String errorMsg = validateParam(request, user);
+            if (errorMsg == null) {
                 StringBuilder sb = new StringBuilder(PASSWORD_LENGTH);
                 for (int i = 0; i < PASSWORD_LENGTH; i++) {
                     int index = random.nextInt(SYMBOLS.length());
@@ -116,6 +102,8 @@ public class RecoverController {
                 } else {
                     map.put(Attributes.Model.ERROR.value(), "recover.error.sendfailed");
                 }
+            } else {
+                map.put(Attributes.Model.ERROR.value(), errorMsg);
             }
         }
 
@@ -124,6 +112,27 @@ public class RecoverController {
         }
 
         return new ModelAndView("recover", "model", map);
+    }
+
+    private String validateParam(HttpServletRequest request, User user) {
+        boolean isCaptchaFailed = !validateCaptcha(request);
+        if (isCaptchaFailed) {
+            return "recover.error.invalidcaptcha";
+        } else if (user == null) {
+            return "recover.error.usernotfound";
+        } else if (user.getEmail() == null) {
+            return "recover.error.noemail";
+        }
+        return null;
+    }
+
+    private boolean validateCaptcha(HttpServletRequest request) {
+        if (settingsService.isCaptchaEnabled()) {
+            String recaptchaResponse = request.getParameter(Attributes.Request.G_RECAPTCHA_RESPONSE.value());
+            ReCaptcha captcha = new ReCaptcha(settingsService.getRecaptchaSecretKey());
+            return recaptchaResponse != null && captcha.isValid(recaptchaResponse);
+        }
+        return true;
     }
 
     private User getUserByUsernameOrEmail(String usernameOrEmail) {

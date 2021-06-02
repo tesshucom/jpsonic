@@ -111,8 +111,11 @@ public class QueryFactory {
      * not reduce library update risk. - Self made parser process reduces one library dependency. - It is easy to make
      * corrections later when changing the query to improve search accuracy.
      */
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (ArrayList, WildcardQuery, Term, BoostQuery,
-    // BooleanQuery) Not reusable
+    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.CognitiveComplexity" })
+    /*
+     * [AvoidInstantiatingObjectsInLoops] (ArrayList, WildcardQuery, Term, BoostQuery, BooleanQuery) Not reusable
+     * [CognitiveComplexity] #1020 This is a legacy feature that has no plans for maintenance. Low priority.
+     */
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public final Query createMultiFieldWildQuery(@NonNull String[] fieldNames, @NonNull String queryString,
             @NonNull IndexType indexType) throws IOException {
@@ -121,8 +124,6 @@ public class QueryFactory {
 
         List<List<Query>> fieldsQuerys = new ArrayList<>();
         Analyzer analyzer = analyzerFactory.getQueryAnalyzer();
-
-        // TODO Support for single token fields
 
         /* Wildcard applies to all tokens. **/
         for (String fieldName : fieldNames) {

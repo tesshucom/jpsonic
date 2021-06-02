@@ -92,17 +92,9 @@ public class InternetRadioSettingsController {
             boolean enabled = getParameter(request, Attributes.Request.ENABLED.value(), id) != null;
             boolean delete = getParameter(request, Attributes.Request.DELETE.value(), id) != null;
 
-            if (delete) {
-                settingsService.deleteInternetRadio(id);
-            } else {
-                if (name == null) {
-                    return "internetradiosettings.noname";
-                }
-                if (streamUrl == null) {
-                    return "internetradiosettings.nourl";
-                }
-                settingsService
-                        .updateInternetRadio(new InternetRadio(id, name, streamUrl, homepageUrl, enabled, current));
+            String msg = deleteOrUpdateInternetRadio(id, streamUrl, homepageUrl, name, enabled, delete, current);
+            if (msg != null) {
+                return msg;
             }
         }
 
@@ -121,6 +113,22 @@ public class InternetRadioSettingsController {
             settingsService.createInternetRadio(new InternetRadio(name, streamUrl, homepageUrl, enabled, new Date()));
         }
 
+        return null;
+    }
+
+    private String deleteOrUpdateInternetRadio(Integer id, String streamUrl, String homepageUrl, String name,
+            boolean enabled, boolean delete, Date current) {
+        if (delete) {
+            settingsService.deleteInternetRadio(id);
+        } else {
+            if (name == null) {
+                return "internetradiosettings.noname";
+            }
+            if (streamUrl == null) {
+                return "internetradiosettings.nourl";
+            }
+            settingsService.updateInternetRadio(new InternetRadio(id, name, streamUrl, homepageUrl, enabled, current));
+        }
         return null;
     }
 
