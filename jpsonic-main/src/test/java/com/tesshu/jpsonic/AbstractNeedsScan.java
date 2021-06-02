@@ -100,6 +100,7 @@ public abstract class AbstractNeedsScan implements NeedsScan {
         populateDatabaseOnlyOnce(beforeScan, null);
     }
 
+    @SuppressWarnings("PMD.CognitiveComplexity")
     public final void populateDatabaseOnlyOnce(BeforeScan beforeScan, AfterScan afterscan) {
         if (isDataBasePopulated()) {
             while (!isDataBaseReady()) {

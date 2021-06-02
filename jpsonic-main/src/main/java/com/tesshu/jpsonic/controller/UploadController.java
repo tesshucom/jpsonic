@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -90,11 +91,6 @@ public class UploadController {
         this.settingsService = settingsService;
     }
 
-    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
-    /*
-     * [AvoidInstantiatingObjectsInLoops] (File, GeneralSecurityException) Not reusable [UseLocaleWithCaseConversions]
-     * The locale doesn't matter, as only comparing the extension literal.
-     */
     @PostMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
 
@@ -114,28 +110,14 @@ public class UploadController {
                 throw new ExecutionException(new IOException("Illegal request."));
             }
 
-            File dir = null;
-            boolean unzip = false;
+            List<FileItem> items = getUploadItems(request, status);
 
-            UploadListener listener = new UploadListenerImpl(status, statusService, settingsService);
-
-            FileItemFactory factory = new MonitoredDiskFileItemFactory(listener);
-            ServletFileUpload upload = new ServletFileUpload(factory);
-
-            List<FileItem> items = upload.parseRequest(request);
-
-            // First, look for "dir" and "unzip" parameters.
-            for (FileItem item : items) {
-                if (item.isFormField() && FIELD_NAME_DIR.equals(item.getFieldName())) {
-                    dir = new File(item.getString());
-                } else if (item.isFormField() && FIELD_NAME_UNZIP.equals(item.getFieldName())) {
-                    unzip = true;
-                }
-            }
-
+            File dir = getDir(items);
             if (dir == null) {
                 throw new IOException("Missing 'dir' parameter.");
             }
+
+            boolean unzip = isUnzip(items);
 
             result = doUnzip(items, dir, unzip);
 
@@ -151,12 +133,7 @@ public class UploadController {
             }
             model.put("exception", e);
         } finally {
-            if (status != null) {
-                statusService.removeUploadStatus(status);
-                request.getSession().removeAttribute(Attributes.Session.UPLOAD_STATUS.value());
-                User user = securityService.getCurrentUser(request);
-                securityService.updateUserByteCounts(user, 0L, 0L, status.getBytesTransfered());
-            }
+            afterUpload(request, status);
         }
 
         if (result != null) {
@@ -165,6 +142,41 @@ public class UploadController {
         }
 
         return new ModelAndView("upload", "model", model);
+    }
+
+    private File getDir(List<FileItem> items) {
+        for (FileItem item : items) {
+            if (item.isFormField() && FIELD_NAME_DIR.equals(item.getFieldName())) {
+                return new File(item.getString());
+            }
+        }
+        return null;
+    }
+
+    private boolean isUnzip(List<FileItem> items) {
+        for (FileItem item : items) {
+            if (item.isFormField() && FIELD_NAME_UNZIP.equals(item.getFieldName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private List<FileItem> getUploadItems(HttpServletRequest request, TransferStatus status)
+            throws FileUploadException {
+        UploadListener listener = new UploadListenerImpl(status, statusService, settingsService);
+        FileItemFactory factory = new MonitoredDiskFileItemFactory(listener);
+        ServletFileUpload upload = new ServletFileUpload(factory);
+        return upload.parseRequest(request);
+    }
+
+    private void afterUpload(HttpServletRequest request, TransferStatus status) {
+        if (status != null) {
+            statusService.removeUploadStatus(status);
+            request.getSession().removeAttribute(Attributes.Session.UPLOAD_STATUS.value());
+            User user = securityService.getCurrentUser(request);
+            securityService.updateUserByteCounts(user, 0L, 0L, status.getBytesTransfered());
+        }
     }
 
     private static class UnzipResult {
@@ -187,37 +199,26 @@ public class UploadController {
         }
     }
 
-    @SuppressWarnings({ "PMD.AvoidCatchingGenericException", "PMD.AvoidInstantiatingObjectsInLoops",
-            "PMD.UseLocaleWithCaseConversions" })
+    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
     /*
-     * [AvoidCatchingGenericException] Wrap&Throw due to constraints of 'apache commons' {@link FileItem#write(File)}
      * [AvoidInstantiatingObjectsInLoops] (File, Execution) Not reusable [UseLocaleWithCaseConversions] The locale
      * doesn't matter, as only comparing the extension literal.
      */
     private UnzipResult doUnzip(List<FileItem> items, File dir, boolean unzip) throws ExecutionException {
         List<File> uploadedFiles = new ArrayList<>();
         List<File> unzippedFiles = new ArrayList<>();
+
+        if (!dir.exists() && !dir.mkdirs() && LOG.isWarnEnabled()) {
+            LOG.warn("The directory '{}' could not be created.", dir.getAbsolutePath());
+        }
+
         // Look for file items.
         for (FileItem item : items) {
             if (!item.isFormField() && !StringUtils.isAllBlank(item.getName())) {
 
                 File targetFile = new File(dir, new File(item.getName()).getName());
+                addUploadedFile(item, targetFile, unzippedFiles);
 
-                if (!securityService.isUploadAllowed(targetFile)) {
-                    throw new ExecutionException(new GeneralSecurityException(
-                            "Permission denied: " + StringEscapeUtils.escapeHtml(targetFile.getPath())));
-                }
-
-                if (!dir.exists() && !dir.mkdirs() && LOG.isWarnEnabled()) {
-                    LOG.warn("The directory '{}' could not be created.", dir.getAbsolutePath());
-                }
-
-                try {
-                    item.write(targetFile);
-                } catch (Exception e) {
-                    throw new ExecutionException("Unable to write item.", e);
-                }
-                uploadedFiles.add(targetFile);
                 if (LOG.isInfoEnabled()) {
                     LOG.info("Uploaded " + targetFile);
                 }
@@ -230,14 +231,30 @@ public class UploadController {
         return new UnzipResult(uploadedFiles, unzippedFiles);
     }
 
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
+    /*
+     * [AvoidCatchingGenericException] Wrap&Throw due to constraints of 'apache commons' {@link FileItem#write(File)}
+     */
+    private void addUploadedFile(FileItem targetItem, File targetFile, List<File> to) throws ExecutionException {
+        if (!securityService.isUploadAllowed(targetFile)) {
+            throw new ExecutionException(new GeneralSecurityException(
+                    "Permission denied: " + StringEscapeUtils.escapeHtml(targetFile.getPath())));
+        }
+        try {
+            targetItem.write(targetFile);
+        } catch (Exception e) {
+            throw new ExecutionException("Unable to write item.", e);
+        }
+        to.add(targetFile);
+    }
+
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File, IOException) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File, IOException, GeneralSecurityException, byte[])
-                                                              // Not reusable
     private List<File> unzip(File file) throws ExecutionException {
         if (LOG.isInfoEnabled()) {
             LOG.info("Unzipping " + file);
         }
-        List<File> unzippedFiles = null;
+        List<File> unzippedFiles = Collections.emptyList();
         try (ZipFile zipFile = new ZipFile(file)) {
 
             Enumeration<?> entries = zipFile.entries();
@@ -249,24 +266,13 @@ public class UploadController {
                     throw new ExecutionException(
                             new IOException("Bad zip filename: " + StringEscapeUtils.escapeHtml(entryFile.getPath())));
                 }
-
                 if (!entry.isDirectory()) {
-
-                    if (!securityService.isUploadAllowed(entryFile)) {
-                        throw new ExecutionException(new GeneralSecurityException(
-                                "Permission denied: " + StringEscapeUtils.escapeHtml(entryFile.getPath())));
-                    }
-
-                    if (!entryFile.getParentFile().mkdirs() && LOG.isWarnEnabled()) {
-                        LOG.warn("The directory '{}' could not be created.",
-                                entryFile.getParentFile().getAbsolutePath());
-                    }
-
                     unzippedFiles = unzip(zipFile, entry, entryFile);
                 }
             }
 
             zipFile.close();
+
             if (!file.delete() && LOG.isWarnEnabled()) {
                 LOG.warn("The file '{}' could not be deleted.", file.getAbsolutePath());
             }
@@ -276,7 +282,17 @@ public class UploadController {
         return unzippedFiles;
     }
 
-    private List<File> unzip(ZipFile zipFile, ZipEntry entry, File entryFile) throws IOException {
+    private List<File> unzip(ZipFile zipFile, ZipEntry entry, File entryFile) throws ExecutionException {
+
+        if (!securityService.isUploadAllowed(entryFile)) {
+            throw new ExecutionException(new GeneralSecurityException(
+                    "Permission denied: " + StringEscapeUtils.escapeHtml(entryFile.getPath())));
+        }
+
+        if (!entryFile.getParentFile().mkdirs() && LOG.isWarnEnabled()) {
+            LOG.warn("The directory '{}' could not be created.", entryFile.getParentFile().getAbsolutePath());
+        }
+
         List<File> unzippedFiles = new ArrayList<>();
         try (OutputStream outputStream = Files.newOutputStream(Paths.get(entryFile.toURI()));
                 InputStream inputStream = zipFile.getInputStream(entry)) {
@@ -292,6 +308,8 @@ public class UploadController {
                 LOG.info("Unzipped " + entryFile);
             }
             unzippedFiles.add(entryFile);
+        } catch (IOException e) {
+            throw new ExecutionException(e);
         }
         return unzippedFiles;
     }
@@ -324,26 +342,28 @@ public class UploadController {
         public void bytesRead(long bytesRead) {
 
             // Throttle bitrate.
-
             long byteCount = status.getBytesTransfered() + bytesRead;
             long bitCount = byteCount * 8L;
-
             float elapsedMillis = Math.max(1, System.currentTimeMillis() - startTime);
             float elapsedSeconds = elapsedMillis / 1000.0F;
             long maxBitsPerSecond = getBitrateLimit();
 
             status.setBytesTransfered(byteCount);
 
+            try {
+                doSleep(maxBitsPerSecond, bitCount, elapsedSeconds);
+            } catch (InterruptedException e) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to sleep.", e);
+                }
+            }
+        }
+
+        private void doSleep(long maxBitsPerSecond, long bitCount, float elapsedSeconds) throws InterruptedException {
             if (maxBitsPerSecond > 0) {
                 float sleepMillis = bitCount * 1000.0F / (maxBitsPerSecond - elapsedSeconds) * 1000.0F;
                 if (sleepMillis > 0) {
-                    try {
-                        Thread.sleep((long) sleepMillis);
-                    } catch (InterruptedException x) {
-                        if (LOG.isWarnEnabled()) {
-                            LOG.warn("Failed to sleep.", x);
-                        }
-                    }
+                    Thread.sleep((long) sleepMillis);
                 }
             }
         }

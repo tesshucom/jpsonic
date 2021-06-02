@@ -68,17 +68,17 @@ public class UserDao extends AbstractDao {
             + "show_change_coverart, show_top_songs, show_similar, show_album_actions, breadcrumb_index, put_menu_in_drawer, font_scheme_name, "
             + "show_outline_help, force_bio2eng, voice_input_enabled, show_current_song_info, speech_lang_scheme_name, ietf, "
             + "font_family, font_size"; // <<<< JP
-    private static final Integer ROLE_ID_ADMIN = 1;
-    private static final Integer ROLE_ID_DOWNLOAD = 2;
-    private static final Integer ROLE_ID_UPLOAD = 3;
-    private static final Integer ROLE_ID_PLAYLIST = 4;
-    private static final Integer ROLE_ID_COVER_ART = 5;
-    private static final Integer ROLE_ID_COMMENT = 6;
-    private static final Integer ROLE_ID_PODCAST = 7;
-    private static final Integer ROLE_ID_STREAM = 8;
-    private static final Integer ROLE_ID_SETTINGS = 9;
-    private static final Integer ROLE_ID_JUKEBOX = 10;
-    private static final Integer ROLE_ID_SHARE = 11;
+    private static final int ROLE_ID_ADMIN = 1;
+    private static final int ROLE_ID_DOWNLOAD = 2;
+    private static final int ROLE_ID_UPLOAD = 3;
+    private static final int ROLE_ID_PLAYLIST = 4;
+    private static final int ROLE_ID_COVER_ART = 5;
+    private static final int ROLE_ID_COMMENT = 6;
+    private static final int ROLE_ID_PODCAST = 7;
+    private static final int ROLE_ID_STREAM = 8;
+    private static final int ROLE_ID_SETTINGS = 9;
+    private static final int ROLE_ID_JUKEBOX = 10;
+    private static final int ROLE_ID_SHARE = 11;
     private static final int SINGLE_USER = 1;
 
     private final String userTableQuote;
@@ -292,32 +292,45 @@ public class UserDao extends AbstractDao {
         String sql = "select role_id from user_role where username=?";
         List<?> roles = getJdbcTemplate().queryForList(sql, Integer.class, new Object[] { user.getUsername() });
         for (Object role : roles) {
-            if (ROLE_ID_ADMIN.equals(role)) {
+            switch ((Integer) role) {
+            case ROLE_ID_ADMIN:
                 user.setAdminRole(true);
-            } else if (ROLE_ID_DOWNLOAD.equals(role)) {
+                break;
+            case ROLE_ID_DOWNLOAD:
                 user.setDownloadRole(true);
-            } else if (ROLE_ID_UPLOAD.equals(role)) {
+                break;
+            case ROLE_ID_UPLOAD:
                 user.setUploadRole(true);
-            } else if (ROLE_ID_PLAYLIST.equals(role)) {
+                break;
+            case ROLE_ID_PLAYLIST:
                 user.setPlaylistRole(true);
-            } else if (ROLE_ID_COVER_ART.equals(role)) {
+                break;
+            case ROLE_ID_COVER_ART:
                 user.setCoverArtRole(true);
-            } else if (ROLE_ID_COMMENT.equals(role)) {
+                break;
+            case ROLE_ID_COMMENT:
                 user.setCommentRole(true);
-            } else if (ROLE_ID_PODCAST.equals(role)) {
+                break;
+            case ROLE_ID_PODCAST:
                 user.setPodcastRole(true);
-            } else if (ROLE_ID_STREAM.equals(role)) {
+                break;
+            case ROLE_ID_STREAM:
                 user.setStreamRole(true);
-            } else if (ROLE_ID_SETTINGS.equals(role)) {
+                break;
+            case ROLE_ID_SETTINGS:
                 user.setSettingsRole(true);
-            } else if (ROLE_ID_JUKEBOX.equals(role)) {
+                break;
+            case ROLE_ID_JUKEBOX:
                 user.setJukeboxRole(true);
-            } else if (ROLE_ID_SHARE.equals(role)) {
+                break;
+            case ROLE_ID_SHARE:
                 user.setShareRole(true);
-            } else {
+                break;
+            default:
                 if (LOG.isWarnEnabled()) {
                     LOG.warn("Unknown role: '" + role + '\'');
                 }
+                break;
             }
         }
     }
