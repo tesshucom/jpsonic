@@ -58,7 +58,7 @@ import org.springframework.util.ObjectUtils;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class IndexManagerTest extends AbstractNeedsScan {
+class IndexManagerTest extends AbstractNeedsScan {
 
     private List<MusicFolder> musicFolders;
 
@@ -101,7 +101,7 @@ public class IndexManagerTest extends AbstractNeedsScan {
 
     @Test
     @Order(1)
-    public void testExpunge() throws IOException {
+    void testExpunge() throws IOException {
 
         int offset = 0;
         int count = Integer.MAX_VALUE;

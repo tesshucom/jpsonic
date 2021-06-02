@@ -43,7 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /*
  * Test to correct sort inconsistencies.
  */
-public class ArtistUpnpProcessorTest extends AbstractNeedsScan {
+class ArtistUpnpProcessorTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
@@ -73,12 +73,12 @@ public class ArtistUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetItemCount() {
+    void testGetItemCount() {
         assertEquals(31, artistUpnpProcessor.getItemCount());
     }
 
     @Test
-    public void testGetItems() {
+    void testGetItems() {
 
         List<Artist> items = artistUpnpProcessor.getItems(0, 10);
         for (int i = 0; i < items.size(); i++) {
@@ -99,7 +99,7 @@ public class ArtistUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetChildSizeOf() {
+    void testGetChildSizeOf() {
         List<Artist> artists = artistUpnpProcessor.getItems(0, 1);
         assertEquals(1, artists.size());
         assertEquals("10", artists.get(0).getName());
@@ -107,7 +107,7 @@ public class ArtistUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetChildren() {
+    void testGetChildren() {
 
         settingsService.setSortAlbumsByYear(false);
 
@@ -136,7 +136,7 @@ public class ArtistUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetChildrenByYear() {
+    void testGetChildrenByYear() {
 
         // The result change depending on the setting
         settingsService.setSortAlbumsByYear(true);
@@ -169,7 +169,7 @@ public class ArtistUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testSongs() {
+    void testSongs() {
 
         List<Artist> artists = artistUpnpProcessor.getItems(0, Integer.MAX_VALUE).stream()
                 .filter(a -> "20".equals(a.getName())).collect(Collectors.toList());

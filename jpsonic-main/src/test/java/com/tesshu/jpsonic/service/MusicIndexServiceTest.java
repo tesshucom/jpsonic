@@ -40,13 +40,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class MusicIndexServiceTest {
+class MusicIndexServiceTest {
 
     @Autowired
     private MusicIndexService musicIndexService;
 
     @Test
-    public void testCreateIndexFromExpression() {
+    void testCreateIndexFromExpression() {
         MusicIndex index = musicIndexService.createIndexFromExpression("A");
         assertEquals("A", index.getIndex());
         assertEquals(1, index.getPrefixes().size());
@@ -66,7 +66,7 @@ public class MusicIndexServiceTest {
     }
 
     @Test
-    public void testCreateIndexesFromExpression() {
+    void testCreateIndexesFromExpression() {
         List<MusicIndex> indexes = musicIndexService.createIndexesFromExpression("A B  The X-Z(XYZ)");
         assertEquals(4, indexes.size());
 

@@ -46,7 +46,7 @@ import org.springframework.test.annotation.DirtiesContext;
 @ExtendWith(NeedsHome.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class SearchCriteriaDirectorLegacyTest {
+class SearchCriteriaDirectorLegacyTest {
 
     private static final String QUERY_PATTERN_INCLUDING_KATAKANA = "ネコ ABC";
     private static final String QUERY_PATTERN_ALPHANUMERIC_ONLY = "ABC 123";
@@ -152,7 +152,7 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Conditions.Indextype.ARTIST
     @DirectorDecisions.Actions.Construct
     @Test
-    public void c01() throws IOException {
+    void c01() throws IOException {
         SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, OFFSET, COUNT, false,
                 SINGLE_FOLDERS, IndexType.ARTIST);
         assertEquals("+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(f:" + PATH1 + ")",
@@ -164,7 +164,7 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Conditions.Indextype.ARTIST
     @DirectorDecisions.Actions.Construct
     @Test
-    public void c02() throws IOException {
+    void c02() throws IOException {
         SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, OFFSET, COUNT, true,
                 SINGLE_FOLDERS, IndexType.ARTIST);
         assertEquals("+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(f:" + PATH1 + ")",
@@ -176,7 +176,7 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Conditions.Indextype.ARTIST
     @DirectorDecisions.Actions.Construct
     @Test
-    public void c03() throws IOException {
+    void c03() throws IOException {
         SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, OFFSET, COUNT, false,
                 MULTI_FOLDERS, IndexType.ARTIST);
         assertEquals("+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(f:" + PATH1 + " f:" + PATH2 + ")",
@@ -188,7 +188,7 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Conditions.Indextype.ALBUM
     @DirectorDecisions.Actions.Construct
     @Test
-    public void c04() throws IOException {
+    void c04() throws IOException {
         SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, OFFSET, COUNT, false,
                 SINGLE_FOLDERS, IndexType.ALBUM);
         assertEquals("+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(f:"
@@ -200,7 +200,7 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Conditions.Indextype.ALBUM
     @DirectorDecisions.Actions.Construct
     @Test
-    public void c05() throws IOException {
+    void c05() throws IOException {
         SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, OFFSET, COUNT, true,
                 SINGLE_FOLDERS, IndexType.ALBUM);
         assertEquals("+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(f:"
@@ -212,7 +212,7 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Conditions.Indextype.ALBUM
     @DirectorDecisions.Actions.Construct
     @Test
-    public void c06() throws IOException {
+    void c06() throws IOException {
         SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, OFFSET, COUNT, false,
                 MULTI_FOLDERS, IndexType.ALBUM);
         assertEquals("+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(f:"
@@ -224,7 +224,7 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Conditions.Indextype.SONG
     @DirectorDecisions.Actions.Construct
     @Test
-    public void c07() throws IOException {
+    void c07() throws IOException {
         SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, OFFSET, COUNT, false,
                 SINGLE_FOLDERS, IndexType.SONG);
         assertEquals(
@@ -238,7 +238,7 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Conditions.Indextype.SONG
     @DirectorDecisions.Actions.Construct
     @Test
-    public void c08() throws IOException {
+    void c08() throws IOException {
         SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, OFFSET, COUNT, true,
                 SINGLE_FOLDERS, IndexType.SONG);
         assertEquals(
@@ -252,7 +252,7 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Conditions.Indextype.SONG
     @DirectorDecisions.Actions.Construct
     @Test
-    public void c09() throws IOException {
+    void c09() throws IOException {
         SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, OFFSET, COUNT, false,
                 MULTI_FOLDERS, IndexType.SONG);
         assertEquals(
@@ -266,7 +266,7 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Conditions.Indextype.ArtistId3
     @DirectorDecisions.Actions.Construct
     @Test
-    public void c10() throws IOException {
+    void c10() throws IOException {
         SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, OFFSET, COUNT, false,
                 SINGLE_FOLDERS, IndexType.ARTIST_ID3);
         assertEquals("+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(fId:" + FID1 + ")",
@@ -278,7 +278,7 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Conditions.Indextype.ArtistId3
     @DirectorDecisions.Actions.Construct
     @Test
-    public void c11() throws IOException {
+    void c11() throws IOException {
         SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, OFFSET, COUNT, true,
                 SINGLE_FOLDERS, IndexType.ARTIST_ID3);
         assertEquals("+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(fId:" + FID1 + ")",
@@ -290,7 +290,7 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Conditions.Indextype.ArtistId3
     @DirectorDecisions.Actions.Construct
     @Test
-    public void c12() throws IOException {
+    void c12() throws IOException {
         SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, OFFSET, COUNT, false,
                 MULTI_FOLDERS, IndexType.ARTIST_ID3);
         assertEquals("+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(fId:" + FID1 + " fId:" + FID2 + ")",
@@ -302,7 +302,7 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Conditions.Indextype.AlbumId3
     @DirectorDecisions.Actions.Construct
     @Test
-    public void c13() throws IOException {
+    void c13() throws IOException {
         SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, OFFSET, COUNT, false,
                 SINGLE_FOLDERS, IndexType.ALBUM_ID3);
         assertEquals("+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(fId:"
@@ -314,7 +314,7 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Conditions.Indextype.AlbumId3
     @DirectorDecisions.Actions.Construct
     @Test
-    public void c14() throws IOException {
+    void c14() throws IOException {
         SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, OFFSET, COUNT, true,
                 SINGLE_FOLDERS, IndexType.ALBUM_ID3);
         assertEquals("+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(fId:"
@@ -326,7 +326,7 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Conditions.Indextype.AlbumId3
     @DirectorDecisions.Actions.Construct
     @Test
-    public void c15() throws IOException {
+    void c15() throws IOException {
         SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, OFFSET, COUNT, false,
                 MULTI_FOLDERS, IndexType.ALBUM_ID3);
         assertEquals("+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(fId:"
@@ -334,7 +334,7 @@ public class SearchCriteriaDirectorLegacyTest {
     }
 
     @Test
-    public void testSearchAlbum() throws IOException {
+    void testSearchAlbum() throws IOException {
         SearchCriteria criteria = director.construct(QUERY_PATTERN_INCLUDING_KATAKANA, OFFSET, COUNT, includeComposer,
                 MULTI_FOLDERS, IndexType.ALBUM);
         assertEquals("+(((alb:ネコ*)^2.3 (artR:ねこ*)^1.1 art:ネコ*) ((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*)) +(f:" + PATH1
@@ -359,7 +359,7 @@ public class SearchCriteriaDirectorLegacyTest {
     }
 
     @Test
-    public void testSearchAlbumId3() throws IOException {
+    void testSearchAlbumId3() throws IOException {
         SearchCriteria criteria = director.construct(QUERY_PATTERN_INCLUDING_KATAKANA, OFFSET, COUNT, includeComposer,
                 MULTI_FOLDERS, IndexType.ALBUM_ID3);
         assertEquals("+(((alb:ネコ*)^2.3 (artR:ねこ*)^1.1 art:ネコ*) ((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*)) +(fId:" + FID1
@@ -384,7 +384,7 @@ public class SearchCriteriaDirectorLegacyTest {
     }
 
     @Test
-    public void testSearchArtist() throws IOException {
+    void testSearchArtist() throws IOException {
         SearchCriteria criteria = director.construct(QUERY_PATTERN_INCLUDING_KATAKANA, OFFSET, COUNT, includeComposer,
                 SINGLE_FOLDERS, IndexType.ARTIST);
         assertEquals("+(((artR:ねこ*)^1.1 art:ネコ*) ((artR:abc*)^1.1 art:abc*)) +(f:" + PATH1 + ")",
@@ -412,7 +412,7 @@ public class SearchCriteriaDirectorLegacyTest {
     }
 
     @Test
-    public void testSearchArtistId3() throws IOException {
+    void testSearchArtistId3() throws IOException {
         SearchCriteria criteria = director.construct(QUERY_PATTERN_INCLUDING_KATAKANA, OFFSET, COUNT, includeComposer,
                 MULTI_FOLDERS, IndexType.ARTIST_ID3);
         assertEquals("+(((artR:ねこ*)^1.1 art:ネコ*) ((artR:abc*)^1.1 art:abc*)) +(fId:" + FID1 + " fId:" + FID2 + ")",
@@ -435,7 +435,7 @@ public class SearchCriteriaDirectorLegacyTest {
     }
 
     @Test
-    public void testSearchSong() throws IOException {
+    void testSearchSong() throws IOException {
         SearchCriteria criteria = director.construct(QUERY_PATTERN_INCLUDING_KATAKANA, OFFSET, COUNT, includeComposer,
                 MULTI_FOLDERS, IndexType.SONG);
         assertEquals(

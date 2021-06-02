@@ -36,7 +36,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class JArtistDaoTest extends AbstractNeedsScan {
+class JArtistDaoTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
@@ -62,7 +62,7 @@ public class JArtistDaoTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetAlphabetialArtists() {
+    void testGetAlphabetialArtists() {
         List<Artist> all = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, Arrays.asList(MUSIC_FOLDERS.get(0)));
         List<String> names = all.stream().map(Artist::getName).collect(Collectors.toList());
         assertTrue(JpsonicComparatorsTestUtils.validateNaturalList(names));

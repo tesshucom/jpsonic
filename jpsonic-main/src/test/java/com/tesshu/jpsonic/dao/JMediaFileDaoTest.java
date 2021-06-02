@@ -45,7 +45,7 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class JMediaFileDaoTest extends AbstractNeedsScan {
+class JMediaFileDaoTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
@@ -115,7 +115,7 @@ public class JMediaFileDaoTest extends AbstractNeedsScan {
     @ComparatorsDecisions.DataConditions.FieldToSetDifferentSortValue.Composer
     @ComparatorsDecisions.Actions.GetDuplicateSort
     @Test
-    public void c01() {
+    void c01() {
         Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case01".equals(s.getName())).findFirst();
         if (candidate.isPresent()) {
             // artist-sort is adopted instead of composer-sort
@@ -131,7 +131,7 @@ public class JMediaFileDaoTest extends AbstractNeedsScan {
     @ComparatorsDecisions.DataConditions.FieldToSetDifferentSortValue.AlbumArtist
     @ComparatorsDecisions.Actions.GetDuplicateSort
     @Test
-    public void c02() {
+    void c02() {
         Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case02".equals(s.getName())).findFirst();
         if (candidate.isPresent()) {
             // album-artist-sort is adopted instead of artist-sort
@@ -147,7 +147,7 @@ public class JMediaFileDaoTest extends AbstractNeedsScan {
     @ComparatorsDecisions.DataConditions.FieldToSetDifferentSortValue.Composer
     @ComparatorsDecisions.Actions.GetDuplicateSort
     @Test
-    public void c03() {
+    void c03() {
         Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case03".equals(s.getName())).findFirst();
         if (candidate.isPresent()) {
             // album-artist-sort is adopted instead of composer-sort
@@ -163,7 +163,7 @@ public class JMediaFileDaoTest extends AbstractNeedsScan {
     @ComparatorsDecisions.DataConditions.FieldToSetDifferentSortValue.Composer
     @ComparatorsDecisions.Actions.GetDuplicateSort
     @Test
-    public void c04() {
+    void c04() {
         Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case04".equals(s.getName())).findFirst();
         if (candidate.isPresent()) {
             // artist-sort is adopted instead of composer-sort
@@ -179,7 +179,7 @@ public class JMediaFileDaoTest extends AbstractNeedsScan {
     @ComparatorsDecisions.DataConditions.FieldToSetDifferentSortValue.AlbumArtist
     @ComparatorsDecisions.Actions.GetDuplicateSort
     @Test
-    public void c05() {
+    void c05() {
         Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case05".equals(s.getName())).findFirst();
         if (candidate.isPresent()) {
             // album-artist-sort is adopted instead of artist-sort
@@ -196,7 +196,7 @@ public class JMediaFileDaoTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Actions.GetDuplicateSort
     @Test
     @EnabledOnOs(OS.WINDOWS)
-    public void c06() {
+    void c06() {
         Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case06".equals(s.getName())).findFirst();
         if (candidate.isPresent()) {
             // album-artist-sort is adopted instead of composer-sort
@@ -214,7 +214,7 @@ public class JMediaFileDaoTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Actions.GetDuplicateSort
     @Test
     @EnabledOnOs(OS.WINDOWS)
-    public void c07() {
+    void c07() {
         Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case07".equals(s.getName())).findFirst();
         if (candidate.isPresent()) {
             // artist-sort is adopted instead of composer-sort
@@ -232,7 +232,7 @@ public class JMediaFileDaoTest extends AbstractNeedsScan {
     @ComparatorsDecisions.DataConditions.SetChangeDate
     @ComparatorsDecisions.Actions.GetDuplicateSort
     @Test
-    public void c08() {
+    void c08() {
         Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case08".equals(s.getName())).findFirst();
         if (candidate.isPresent()) {
             // album-artist-sort is adopted instead of artist-sort
@@ -250,7 +250,7 @@ public class JMediaFileDaoTest extends AbstractNeedsScan {
     @ComparatorsDecisions.DataConditions.SetChangeDate
     @ComparatorsDecisions.Actions.GetDuplicateSort
     @Test
-    public void c09() {
+    void c09() {
         Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case09".equals(s.getName())).findFirst();
         if (candidate.isPresent()) {
             // album-artist-sort is adopted instead of composer-sort
@@ -267,7 +267,7 @@ public class JMediaFileDaoTest extends AbstractNeedsScan {
     @ComparatorsDecisions.DataConditions.FieldToSetDifferentSortValue.AlbumArtist
     @ComparatorsDecisions.Actions.GetDuplicateSort
     @Test
-    public void c10() {
+    void c10() {
         Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case10".equals(s.getName())).findFirst();
         if (candidate.isPresent()) {
             assertEquals("artistT", candidate.get().getSort());
@@ -283,7 +283,7 @@ public class JMediaFileDaoTest extends AbstractNeedsScan {
     @ComparatorsDecisions.DataConditions.SetChangeDate
     @ComparatorsDecisions.Actions.GetDuplicateSort
     @Test
-    public void c11() {
+    void c11() {
         Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case11".equals(s.getName())).findFirst();
         if (candidate.isPresent()) {
             assertEquals("artistU", candidate.get().getSort());
@@ -323,7 +323,7 @@ public class JMediaFileDaoTest extends AbstractNeedsScan {
 
     @Test
     @EnabledOnOs(OS.WINDOWS)
-    public void testGetDirtySorts() {
+    void testGetDirtySorts() {
 
         assertEquals(11, candidates.size());
 
@@ -447,7 +447,7 @@ public class JMediaFileDaoTest extends AbstractNeedsScan {
 
     @Test
     @EnabledOnOs(OS.WINDOWS)
-    public void testGetToBeFixedSort() {
+    void testGetToBeFixedSort() {
         assertEquals(0, mediaFileDao.getSortOfArtistToBeFixed(null).size());
         assertEquals(0, mediaFileDao.getSortOfArtistToBeFixed(Collections.emptyList()).size());
         assertEquals(22, mediaFileDao.getSortOfArtistToBeFixed(candidates).size());

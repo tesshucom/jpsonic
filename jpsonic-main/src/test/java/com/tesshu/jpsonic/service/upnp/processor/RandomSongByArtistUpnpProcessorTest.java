@@ -43,7 +43,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  * Test to correct sort inconsistencies.
  */
 @SpringBootTest
-public class RandomSongByArtistUpnpProcessorTest extends AbstractNeedsScan {
+class RandomSongByArtistUpnpProcessorTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
@@ -70,12 +70,12 @@ public class RandomSongByArtistUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetItemCount() {
+    void testGetItemCount() {
         assertEquals(31, randomSongByArtistUpnpProcessor.getItemCount());
     }
 
     @Test
-    public void testGetItems() {
+    void testGetItems() {
 
         Map<String, Artist> c = LegacyMap.of();
 
@@ -95,14 +95,14 @@ public class RandomSongByArtistUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetChildSizeOf() {
+    void testGetChildSizeOf() {
         List<Artist> artists = randomSongByArtistUpnpProcessor.getItems(0, 1);
         assertEquals(1, artists.size());
         assertEquals(50, randomSongByArtistUpnpProcessor.getChildSizeOf(artists.get(0)));
     }
 
     @Test
-    public void testGetChildren() {
+    void testGetChildren() {
 
         List<Artist> artists = randomSongByArtistUpnpProcessor.getItems(0, 1);
         assertEquals(1, artists.size());

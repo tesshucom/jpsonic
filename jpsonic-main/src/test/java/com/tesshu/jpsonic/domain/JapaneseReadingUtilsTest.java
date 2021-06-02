@@ -44,7 +44,7 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(basePackages = "com.tesshu.jpsonic")
 @ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class JapaneseReadingUtilsTest {
+class JapaneseReadingUtilsTest {
 
     @Autowired
     private JapaneseReadingUtils utils;
@@ -80,7 +80,7 @@ public class JapaneseReadingUtilsTest {
     }
 
     @Test
-    public void testCreateReading() throws ExecutionException {
+    void testCreateReading() throws ExecutionException {
         assertEquals("アイウエオ", createReading("あいうえお"));
         assertEquals("アイウエオ", createReading("アイウエオ"));
         assertEquals("ァィゥェォ", createReading("ァィゥェォ"));
@@ -131,7 +131,7 @@ public class JapaneseReadingUtilsTest {
     }
 
     @Test
-    public void testNormalize() throws ExecutionException {
+    void testNormalize() throws ExecutionException {
         assertEquals("あいうえお", normalize("あいうえお"));
         assertEquals("アイウエオ", normalize("アイウエオ"));
         assertEquals("ァィゥェォ", normalize("ァィゥェォ"));
@@ -167,7 +167,7 @@ public class JapaneseReadingUtilsTest {
     }
 
     @Test
-    public void testAnalyzeIfSortExists() {
+    void testAnalyzeIfSortExists() {
 
         MediaFile artist = toMediaFile.apply(null, null);
         utils.analyze(artist);
@@ -256,7 +256,7 @@ public class JapaneseReadingUtilsTest {
     }
 
     @Test
-    public void testAnalyzeIfNoSortExists() {
+    void testAnalyzeIfNoSortExists() {
 
         MediaFile artist = toMediaFile.apply(null, null);
         utils.analyze(artist);
@@ -345,7 +345,7 @@ public class JapaneseReadingUtilsTest {
     }
 
     @Test
-    public void testCreateIndexableName4MediaFile() {
+    void testCreateIndexableName4MediaFile() {
 
         MediaFile file = toAnalyzedMediaFile.apply(null, "  ");
         assertEquals("  ", file.getPath());
@@ -388,7 +388,7 @@ public class JapaneseReadingUtilsTest {
     }
 
     @Test
-    public void testAnalyzeSortCandidate() {
+    void testAnalyzeSortCandidate() {
 
         SortCandidate candidate = new SortCandidate("Antonín Dvořák", null);
         utils.analyze(candidate);
@@ -417,7 +417,7 @@ public class JapaneseReadingUtilsTest {
     }
 
     @Test
-    public void testIsJapaneseReadable() throws ExecutionException {
+    void testIsJapaneseReadable() throws ExecutionException {
         assertTrue(isJapaneseReadable("あいうえお"));
         assertTrue(isJapaneseReadable("アイウエオ"));
         assertTrue(isJapaneseReadable("ァィゥェォ"));
@@ -461,7 +461,7 @@ public class JapaneseReadingUtilsTest {
     }
 
     @Test
-    public void testRemovePunctuationFromJapaneseReading() {
+    void testRemovePunctuationFromJapaneseReading() {
         assertEquals("あいうえお", utils.removePunctuationFromJapaneseReading("あいうえお"));
         assertEquals("アイウエオ", utils.removePunctuationFromJapaneseReading("アイウエオ"));
         assertEquals("ァィゥェォ", utils.removePunctuationFromJapaneseReading("ァィゥェォ"));
