@@ -351,6 +351,7 @@ class SearchServiceLegacyTest extends AbstractNeedsScan {
     }
 
     @Test
+    @SuppressWarnings("PMD.CognitiveComplexity")
     void testGenre() {
 
         List<MusicFolder> allMusicFolders = musicFolderDao.getAllMusicFolders();

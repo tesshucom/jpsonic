@@ -125,9 +125,9 @@ public class LastFmService {
             MediaFile similarArtist = mediaFileDao.getArtistByName(lastFmArtist.getName(), musicFolders);
             if (similarArtist != null) {
                 result.add(similarArtist);
-                if (result.size() == count) {
-                    return result;
-                }
+            }
+            if (result.size() == count) {
+                return result;
             }
         }
 

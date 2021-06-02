@@ -50,27 +50,30 @@ class AlphanumWrapper extends Collator {
             thisMarker += thisChunk.length();
             String thatChunk = getChunk(s2, s2Length, thatMarker);
             thatMarker += thatChunk.length();
-            int result;
-            if (isDigit(thisChunk.charAt(0)) && isDigit(thatChunk.charAt(0))) {
-                int thisChunkLength = thisChunk.length();
-                result = thisChunkLength - thatChunk.length();
-                if (result == 0) {
-                    for (int i = 0; i < thisChunkLength; i++) {
-                        result = thisChunk.charAt(i) - thatChunk.charAt(i);
-                        if (result != 0) {
-                            return result;
-                        }
-                    }
-                }
-            } else {
-                result = null == deligate ? thisChunk.compareToIgnoreCase(thatChunk)
-                        : deligate.compare(thisChunk, thatChunk);
-            }
+            int result = isDigit(thisChunk.charAt(0)) && isDigit(thatChunk.charAt(0))
+                    ? compareDigit(thisChunk, thatChunk)
+                    : deligate.compare(thisChunk, thatChunk);
             if (result != 0) {
                 return result;
             }
         }
         return s1Length - s2Length;
+    }
+
+    private int compareDigit(String thisChunk, String thatChunk) {
+        int result;
+        int thisChunkLength = thisChunk.length();
+        result = thisChunkLength - thatChunk.length();
+        if (result != 0) {
+            return result;
+        }
+        for (int i = 0; i < thisChunkLength; i++) {
+            result = thisChunk.charAt(i) - thatChunk.charAt(i);
+            if (result != 0) {
+                return result;
+            }
+        }
+        return result;
     }
 
     private String getChunk(String s, int slength, int marker) {

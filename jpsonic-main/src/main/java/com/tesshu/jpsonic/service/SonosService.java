@@ -649,9 +649,7 @@ public class SonosService implements SonosSoap {
                 // Note: We're using the username as session ID.
                 String username = c.getSessionId();
                 if (username == null) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("No session id in credentials object, get from login");
-                    }
+                    // No session id in credentials object, get from login
                     username = c.getLogin().getUsername();
                 }
                 return username;

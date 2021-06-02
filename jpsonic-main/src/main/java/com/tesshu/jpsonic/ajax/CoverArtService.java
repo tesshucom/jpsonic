@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
@@ -101,21 +102,10 @@ public class CoverArtService {
     }
 
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
-    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions",
-            "PMD.ConfusingTernary" })
-    /*
-     * [AvoidInstantiatingObjectsInLoops] (File) Not reusable [UseLocaleWithCaseConversions] The locale doesn't matter,
-     * as only comparing the extension literal. [ConfusingTernary] false positive
-     */
     private void saveCoverArt(String path, String url) throws ExecutionException {
 
         // Attempt to resolve proper suffix.
-        String suffix = "jpg";
-        if (url.toLowerCase().endsWith(".gif")) {
-            suffix = "gif";
-        } else if (url.toLowerCase().endsWith(".png")) {
-            suffix = "png";
-        }
+        String suffix = getProperSuffix(url);
 
         // Check permissions.
         File newCoverFile = new File(path, "cover." + suffix);
@@ -147,30 +137,45 @@ public class CoverArtService {
                 dir = mediaFileService.getMediaFile(dir.getId());
 
                 // Rename existing cover files if new cover file is not the preferred.
-                while (true) {
-                    File coverFile = mediaFileService.getCoverArt(dir);
-                    if (coverFile != null && !isMediaFile(coverFile) && !newCoverFile.equals(coverFile)) {
-                        if (!coverFile.renameTo(new File(coverFile.getCanonicalPath() + ".old"))) {
-                            if (LOG.isWarnEnabled()) {
-                                LOG.warn("Unable to rename old image file " + coverFile);
-                            }
-                            break;
-                        }
-                        if (LOG.isInfoEnabled()) {
-                            LOG.info("Renamed old image file " + coverFile);
-                        }
-
-                        // Must refresh again.
-                        mediaFileService.refreshMediaFile(dir);
-                        dir = mediaFileService.getMediaFile(dir.getId());
-                    } else {
-                        break;
-                    }
-                }
+                renameWithoutReplacement(dir, newCoverFile);
             }
         } catch (UnsupportedOperationException | IOException e) {
             throw new ExecutionException("Failed to save coverArt: " + path, e);
         }
+    }
+
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
+    private void renameWithoutReplacement(MediaFile mediaFile, File newCoverFile) throws IOException {
+        MediaFile dir = mediaFile;
+        while (true) {
+            File coverFile = mediaFileService.getCoverArt(dir);
+            if (coverFile == null || isMediaFile(coverFile) || newCoverFile.equals(coverFile)) {
+                break;
+            }
+
+            boolean renamed = coverFile.renameTo(new File(coverFile.getCanonicalPath() + ".old"));
+            if (!renamed && LOG.isWarnEnabled()) {
+                LOG.warn("Unable to rename old image file " + coverFile);
+            }
+            if (renamed && LOG.isInfoEnabled()) {
+                LOG.info("Renamed old image file " + coverFile);
+            }
+            if (renamed) {
+                // Must refresh again.
+                mediaFileService.refreshMediaFile(dir);
+                dir = mediaFileService.getMediaFile(dir.getId());
+            }
+        }
+    }
+
+    private String getProperSuffix(String url) {
+        String suffix = "jpg";
+        if (url.toLowerCase(Locale.getDefault()).endsWith(".gif")) {
+            suffix = "gif";
+        } else if (url.toLowerCase(Locale.getDefault()).endsWith(".png")) {
+            suffix = "png";
+        }
+        return suffix;
     }
 
     private boolean isMediaFile(File file) {

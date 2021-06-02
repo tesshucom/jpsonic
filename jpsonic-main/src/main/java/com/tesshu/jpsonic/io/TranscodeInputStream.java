@@ -201,30 +201,43 @@ public final class TranscodeInputStream extends InputStream {
         }
 
         if (!isEmpty(tmpFile)) {
-            /*
-             * If it fails, will be removed when the VM is shut down, but once started, this product will not shut down
-             * for a very long time. Therefore, it will retry up to 3 times and delete it as soon as possible.
-             */
-            executor.execute(() -> {
-                boolean isDelete = false;
-                for (int i = 0; i < 3; i++) {
-                    isDelete = isEmpty(tmpFile) || tmpFile.get().delete();
-                    if (isDelete) {
-                        break;
-                    } else {
-                        try {
-                            Thread.sleep(3000);
-                        } catch (InterruptedException e) {
-                            if (LOG.isWarnEnabled()) {
-                                LOG.warn("The deleting tmp file has been interrupted.: " + tmpFile.get(), e);
-                            }
+            executor.execute(new DeleteTmpFileTask(tmpFile.get()));
+        }
+    }
+
+    /*
+     * If it fails, will be removed when the VM is shut down, but once started, this product will not shut down for a
+     * very long time. Therefore, it will retry and delete it as soon as possible.
+     */
+    private static class DeleteTmpFileTask implements Runnable {
+
+        private File tmpFile;
+
+        public DeleteTmpFileTask(File tmpFile) {
+            super();
+            this.tmpFile = tmpFile;
+        }
+
+        @Override
+        public void run() {
+            boolean isDelete = false;
+            for (int i = 0; i < 3; i++) {
+                isDelete = isEmpty(tmpFile) || tmpFile.delete();
+                if (isDelete) {
+                    break;
+                } else {
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        if (LOG.isWarnEnabled()) {
+                            LOG.warn("The deleting tmp file has been interrupted.: " + tmpFile, e);
                         }
                     }
                 }
-                if (!isDelete && LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to delete tmp file: " + tmpFile.get());
-                }
-            });
+            }
+            if (!isDelete && LOG.isWarnEnabled()) {
+                LOG.warn("Failed to delete tmp file: " + tmpFile);
+            }
         }
     }
 }
