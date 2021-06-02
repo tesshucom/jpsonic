@@ -186,7 +186,7 @@ public abstract class AbstractPlayerFactoryTest {
     protected abstract void createTestPlayer();
 
     private Player findTestJukeboxPlayer() {
-        return playerDao.getAllPlayers().stream().filter(player -> player.getName().equals(JUKEBOX_PLAYER_NAME))
+        return playerDao.getAllPlayers().stream().filter(player -> JUKEBOX_PLAYER_NAME.equals(player.getName()))
                 .findFirst().orElseThrow(() -> new RuntimeException("No player found in database"));
     }
 
