@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 
-public class PasswordSettingsValidatorTest {
+class PasswordSettingsValidatorTest {
 
     private PasswordSettingsCommand psc;
 
@@ -49,14 +49,14 @@ public class PasswordSettingsValidatorTest {
     }
 
     @Test
-    public void testValidateEmptyPassword() {
+    void testValidateEmptyPassword() {
         psc.setPassword("");
         Errors errors = this.validatePassword();
         assertTrue(errors.hasErrors());
     }
 
     @Test
-    public void testValidateDifferentPasswords() {
+    void testValidateDifferentPasswords() {
         psc.setConfirmPassword("5678");
 
         Errors errors = this.validatePassword();
@@ -64,7 +64,7 @@ public class PasswordSettingsValidatorTest {
     }
 
     @Test
-    public void testValidateEverythingOK() {
+    void testValidateEverythingOK() {
         psc.setConfirmPassword("1234");
 
         Errors errors = this.validatePassword();

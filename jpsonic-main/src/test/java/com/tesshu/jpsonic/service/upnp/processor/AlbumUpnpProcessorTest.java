@@ -42,7 +42,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootConfiguration
 @ComponentScan(basePackages = "com.tesshu.jpsonic")
 @SpringBootTest
-public class AlbumUpnpProcessorTest extends AbstractNeedsScan {
+class AlbumUpnpProcessorTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
@@ -68,12 +68,12 @@ public class AlbumUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetItemCount() {
+    void testGetItemCount() {
         assertEquals(31, albumUpnpProcessor.getItemCount());
     }
 
     @Test
-    public void testGetItems() {
+    void testGetItems() {
 
         settingsService.setSortAlbumsByYear(false);
 
@@ -96,7 +96,7 @@ public class AlbumUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetItemsByYear() {
+    void testGetItemsByYear() {
 
         // The result does not change depending on the setting
         settingsService.setSortAlbumsByYear(true);
@@ -120,7 +120,7 @@ public class AlbumUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetChildSizeOf() {
+    void testGetChildSizeOf() {
         List<Album> albums = albumUpnpProcessor.getItems(0, 1);
         assertEquals(1, albums.size());
         assertEquals("10", albums.get(0).getName());
@@ -128,7 +128,7 @@ public class AlbumUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetChild() {
+    void testGetChild() {
 
         List<Album> albums = albumUpnpProcessor.getItems(0, 1);
         assertEquals(1, albums.size());

@@ -42,7 +42,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class MusicFolderDaoTest {
+class MusicFolderDaoTest {
 
     @Autowired
     private GenericDaoHelper daoHelper;
@@ -56,7 +56,7 @@ public class MusicFolderDaoTest {
     }
 
     @Test
-    public void testCreateMusicFolder() {
+    void testCreateMusicFolder() {
         MusicFolder musicFolder = new MusicFolder(new File("path"), "name", true, new Date());
         musicFolderDao.createMusicFolder(musicFolder);
 
@@ -65,7 +65,7 @@ public class MusicFolderDaoTest {
     }
 
     @Test
-    public void testUpdateMusicFolder() {
+    void testUpdateMusicFolder() {
         MusicFolder musicFolder = new MusicFolder(new File("path"), "name", true, new Date());
         musicFolderDao.createMusicFolder(musicFolder);
         musicFolder = musicFolderDao.getAllMusicFolders().get(0);
@@ -81,7 +81,7 @@ public class MusicFolderDaoTest {
     }
 
     @Test
-    public void testDeleteMusicFolder() {
+    void testDeleteMusicFolder() {
         assertEquals(0, musicFolderDao.getAllMusicFolders().size(), "Wrong number of music folders.");
 
         musicFolderDao.createMusicFolder(new MusicFolder(new File("path"), "name", true, new Date()));
