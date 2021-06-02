@@ -41,7 +41,7 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(basePackages = "com.tesshu.jpsonic")
 @ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class JaudiotaggerParserTest {
+class JaudiotaggerParserTest {
 
     @Autowired
     private JaudiotaggerParser parser;
@@ -93,103 +93,103 @@ public class JaudiotaggerParserTest {
     }
 
     @Test
-    public void testGetMetaDataForITunes4EN() throws URISyntaxException {
+    void testGetMetaDataForITunes4EN() throws URISyntaxException {
         assertITunesEN(createFile("/MEDIAS/Metadata/v2.2/iTunes4.1.0.52.mp3"), false);
     }
 
     /** v2.2, UTF-16 */
     @Test
-    public void testGetMetaDataForITunes4JP() throws URISyntaxException {
+    void testGetMetaDataForITunes4JP() throws URISyntaxException {
         assertITunesJP(createFile("/MEDIAS/Metadata/v2.2/UTF-16/iTunes4.1.0.52JP.mp3"), false);
     }
 
     /** v2.2 */
     @Test
-    public void testGetMetaDataForiTunes5() throws URISyntaxException {
+    void testGetMetaDataForiTunes5() throws URISyntaxException {
         assertITunesEN(createFile("/MEDIAS/Metadata/v2.2/iTunes5.0.1.4.mp3"), false);
     }
 
     /** v2.2, UTF-16 */
     @Test
-    public void testGetMetaDataForiTunes5JP() throws URISyntaxException {
+    void testGetMetaDataForiTunes5JP() throws URISyntaxException {
         assertITunesJP(createFile("/MEDIAS/Metadata/v2.2/UTF-16/iTunes5.0.1.4JP.mp3"), false);
     }
 
     /** v2.2 */
     @Test
-    public void testGetMetaDataForiTunes6() throws URISyntaxException {
+    void testGetMetaDataForiTunes6() throws URISyntaxException {
         assertITunesEN(createFile("/MEDIAS/Metadata/v2.2/iTunes6.0.0.18.mp3"), false);
     }
 
     /** v2.2, UTF-16 */
     @Test
-    public void testGetMetaDataForiTunes6JP() throws URISyntaxException {
+    void testGetMetaDataForiTunes6JP() throws URISyntaxException {
         assertITunesJP(createFile("/MEDIAS/Metadata/v2.2/UTF-16/iTunes6.0.0.18JP.mp3"), false);
     }
 
     /** v2.2 */
     @Test
-    public void testGetMetaDataForiTunes7() throws URISyntaxException {
+    void testGetMetaDataForiTunes7() throws URISyntaxException {
         assertITunesEN(createFile("/MEDIAS/Metadata/v2.2/iTunes7.0.0.70.mp3"), true);
     }
 
     /** v2.2, UTF-16 */
     @Test
-    public void testGetMetaDataForiTunes7JP() throws URISyntaxException {
+    void testGetMetaDataForiTunes7JP() throws URISyntaxException {
         assertITunesJP(createFile("/MEDIAS/Metadata/v2.2/UTF-16/iTunes7.0.0.70JP.mp3"), true);
     }
 
     /** v2.2 */
     @Test
-    public void testGetMetaDataForiTunes8() throws URISyntaxException {
+    void testGetMetaDataForiTunes8() throws URISyntaxException {
         assertITunesEN(createFile("/MEDIAS/Metadata/v2.2/iTunes8.1.0.52.mp3"), true);
     }
 
     /** v2.2, UTF-16 */
     @Test
-    public void testGetMetaDataForiTunes8JP() throws URISyntaxException {
+    void testGetMetaDataForiTunes8JP() throws URISyntaxException {
         assertITunesJP(createFile("/MEDIAS/Metadata/v2.2/UTF-16/iTunes8.1.0.52JP.mp3"), true);
     }
 
     /** v2.2 */
     @Test
-    public void testGetMetaDataForiTunes10() throws URISyntaxException {
+    void testGetMetaDataForiTunes10() throws URISyntaxException {
         assertITunesEN(createFile("/MEDIAS/Metadata/v2.2/iTunes10.0.0.68.mp3"), true);
     }
 
     /** v2.2, UTF-16 */
     @Test
-    public void testGetMetaDataForiTunes10JP() throws URISyntaxException {
+    void testGetMetaDataForiTunes10JP() throws URISyntaxException {
         assertITunesJP(createFile("/MEDIAS/Metadata/v2.2/UTF-16/iTunes10.0.0.68JP.mp3"), true);
     }
 
     /** v2.2 */
     @Test
-    public void testGetMetaDataForiTunes11() throws URISyntaxException {
+    void testGetMetaDataForiTunes11() throws URISyntaxException {
         assertITunesEN(createFile("/MEDIAS/Metadata/v2.2/iTunes11.0.0.163.mp3"), true);
     }
 
     /** v2.2, UTF-16 */
     @Test
-    public void testGetMetaDataForiTunes11JP() throws URISyntaxException {
+    void testGetMetaDataForiTunes11JP() throws URISyntaxException {
         assertITunesJP(createFile("/MEDIAS/Metadata/v2.2/UTF-16/iTunes11.0.0.163JP.mp3"), true);
     }
 
     /** v2.2 */
     @Test
-    public void testGetMetaDataForiTunes12() throws URISyntaxException {
+    void testGetMetaDataForiTunes12() throws URISyntaxException {
         assertITunesEN(createFile("/MEDIAS/Metadata/v2.2/iTunes12.9.6.3.mp3"), true);
     }
 
     /** v2.2, UTF-16 */
     @Test
-    public void testGetMetaDataForiTunes12JP() throws URISyntaxException {
+    void testGetMetaDataForiTunes12JP() throws URISyntaxException {
         assertITunesJP(createFile("/MEDIAS/Metadata/v2.2/UTF-16/iTunes12.9.6.3JP.mp3"), true);
     }
 
     /** v2.3 v1.0 */
     @Test
-    public void testGetMetaDataForMusicCenter() throws URISyntaxException {
+    void testGetMetaDataForMusicCenter() throws URISyntaxException {
         MetaData metaData = parser.getRawMetaData(createFile("/MEDIAS/Metadata/v2.3+v1.0/MusicCenter2.1.0.mp3"));
         assertEquals("MusicCenter-Title", metaData.getTitle());
         assertEquals("MusicCenter-Title(Reading)", metaData.getTitleSort());
@@ -214,7 +214,7 @@ public class JaudiotaggerParserTest {
 
     /** v2.3 v1.1 */
     @Test
-    public void testGetMetaDataForMusicCenterJP() throws URISyntaxException {
+    void testGetMetaDataForMusicCenterJP() throws URISyntaxException {
         MetaData metaData = parser.getRawMetaData(createFile("/MEDIAS/Metadata/v2.3+v1.1/MusicCenter2.1.0JP.mp3"));
         assertEquals("MusicCenter～タイトル", metaData.getTitle());
         assertEquals("MusicCenter～タイトル(読み)", metaData.getTitleSort());
@@ -239,7 +239,7 @@ public class JaudiotaggerParserTest {
 
     /** v2.3 */
     @Test
-    public void testGetMetaDataForV23WithMp3TagJP() throws URISyntaxException {
+    void testGetMetaDataForV23WithMp3TagJP() throws URISyntaxException {
         MetaData metaData = parser.getRawMetaData(createFile("/MEDIAS/Metadata/v2.3/Mp3tag2.9.7.mp3"));
         assertEquals("MusicCenter～タイトル", metaData.getTitle());
         assertEquals("MusicCenter～タイトル(読み)", metaData.getTitleSort());
@@ -264,7 +264,7 @@ public class JaudiotaggerParserTest {
 
     /** v2.4 */
     @Test
-    public void testGetMetaDataForv24WithMp3TagJP() throws URISyntaxException {
+    void testGetMetaDataForv24WithMp3TagJP() throws URISyntaxException {
         MetaData metaData = parser.getRawMetaData(createFile("/MEDIAS/Metadata/v2.4/Mp3tag2.9.7.mp3"));
         assertEquals("MusicCenter～タイトル", metaData.getTitle());
         assertEquals("MusicCenter～タイトル(読み)", metaData.getTitleSort());

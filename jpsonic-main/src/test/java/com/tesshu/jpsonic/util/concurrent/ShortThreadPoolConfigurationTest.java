@@ -29,7 +29,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
-public class ShortThreadPoolConfigurationTest {
+class ShortThreadPoolConfigurationTest {
 
     @Autowired
     private ShortTaskPoolConfiguration configuration;

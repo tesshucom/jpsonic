@@ -50,7 +50,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class PlayerDaoTest {
+class PlayerDaoTest {
 
     @Autowired
     private GenericDaoHelper daoHelper;
@@ -64,7 +64,7 @@ public class PlayerDaoTest {
     }
 
     @Test
-    public void testCreatePlayer() {
+    void testCreatePlayer() {
         Player player = new Player();
         player.setName("name");
         player.setType("type");
@@ -86,7 +86,7 @@ public class PlayerDaoTest {
     }
 
     @Test
-    public void testDefaultValues() {
+    void testDefaultValues() {
         playerDao.createPlayer(new Player());
         Player player = playerDao.getAllPlayers().get(0);
 
@@ -96,7 +96,7 @@ public class PlayerDaoTest {
     }
 
     @Test
-    public void testIdentity() {
+    void testIdentity() {
         Player player = new Player();
 
         playerDao.createPlayer(player);
@@ -124,7 +124,7 @@ public class PlayerDaoTest {
 
     @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
     @Test
-    public void testPlaylist() {
+    void testPlaylist() {
         Player player = new Player();
         playerDao.createPlayer(player);
         PlayQueue playQueue = player.getPlayQueue();
@@ -136,7 +136,7 @@ public class PlayerDaoTest {
     }
 
     @Test
-    public void testGetPlayersForUserAndClientId() {
+    void testGetPlayersForUserAndClientId() {
         Player player = new Player();
         player.setUsername("sindre");
         playerDao.createPlayer(player);
@@ -159,7 +159,7 @@ public class PlayerDaoTest {
     }
 
     @Test
-    public void testUpdatePlayer() {
+    void testUpdatePlayer() {
         Player player = new Player();
         playerDao.createPlayer(player);
         assertPlayerEquals(player, playerDao.getAllPlayers().get(0));
@@ -181,7 +181,7 @@ public class PlayerDaoTest {
     }
 
     @Test
-    public void testDeletePlayer() {
+    void testDeletePlayer() {
         assertEquals(0, playerDao.getAllPlayers().size(), "Wrong number of players.");
 
         playerDao.createPlayer(new Player());

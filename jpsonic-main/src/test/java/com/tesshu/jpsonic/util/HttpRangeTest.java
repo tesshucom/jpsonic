@@ -34,10 +34,10 @@ import org.junit.jupiter.api.Test;
  * @author Sindre Mehus
  */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class HttpRangeTest {
+class HttpRangeTest {
 
     @Test
-    public void testSize() {
+    void testSize() {
         assertEquals(1, new HttpRange(0L, 0L).size());
         assertEquals(2, new HttpRange(0L, 1L).size());
         assertEquals(1, new HttpRange(66L, 66L).size());
@@ -47,7 +47,7 @@ public class HttpRangeTest {
     }
 
     @Test
-    public void testContains() {
+    void testContains() {
         assertFalse(new HttpRange(0L, 0L).contains(-1));
         assertTrue(new HttpRange(0L, 0L).contains(0));
         assertFalse(new HttpRange(0L, 0L).contains(1));
@@ -68,7 +68,7 @@ public class HttpRangeTest {
     }
 
     @Test
-    public void testParseRange() {
+    void testParseRange() {
         doTestParseRange(0L, 0L, "bytes=0-0");
         doTestParseRange(0L, 1L, "bytes=0-1");
         doTestParseRange(100L, 100L, "bytes=100-100");

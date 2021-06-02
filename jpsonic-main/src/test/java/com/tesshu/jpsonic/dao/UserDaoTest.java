@@ -54,7 +54,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class UserDaoTest {
+class UserDaoTest {
 
     @Autowired
     private GenericDaoHelper daoHelper;
@@ -72,7 +72,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void testCreateUser() {
+    void testCreateUser() {
         User user = new User("sindre", "secret", "sindre@activeobjects.no", false, 1000L, 2000L, 3000L);
         user.setAdminRole(true);
         user.setCommentRole(true);
@@ -91,7 +91,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void testCreateUserTransactionalError() {
+    void testCreateUserTransactionalError() {
         User user = new User("muff1nman", "secret", "noemail") {
             @Override
             public boolean isPlaylistRole() {
@@ -107,7 +107,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void testUpdateUser() {
+    void testUpdateUser() {
         User user = new User("sindre", "secret", null);
         user.setAdminRole(true);
         user.setCommentRole(true);
@@ -147,7 +147,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void testGetUserByName() {
+    void testGetUserByName() {
         User user = new User("sindre", "secret", null);
         userDao.createUser(user);
 
@@ -163,7 +163,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void testDeleteUser() {
+    void testDeleteUser() {
         assertEquals(0, userDao.getAllUsers().size(), "Wrong number of users.");
 
         userDao.createUser(new User("sindre", "secret", null));
@@ -180,7 +180,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void testGetRolesForUser() {
+    void testGetRolesForUser() {
         User user = new User("sindre", "secret", null);
         user.setAdminRole(true);
         user.setCommentRole(true);
@@ -199,7 +199,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void testCreateDefaultUserSettingsWithNonExist() throws ExecutionException {
+    void testCreateDefaultUserSettingsWithNonExist() throws ExecutionException {
         assertNull(userDao.getUserSettings("sindre"), "Error in getUserSettings.");
         Method method;
         try {
@@ -213,7 +213,7 @@ public class UserDaoTest {
     }
 
     @Test
-    public void testUserSettings() throws ExecutionException {
+    void testUserSettings() throws ExecutionException {
         userDao.createUser(new User("sindre", "secret", null));
 
         assertNull(userDao.getUserSettings("sindre"), "Error in getUserSettings.");
