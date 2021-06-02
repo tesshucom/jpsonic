@@ -116,24 +116,17 @@ public class UPnPService {
     @PreDestroy()
     public void ensureServiceStopped() {
         running.getAndUpdate(bo -> {
-            if (bo) {
-                if (deligate != null) {
-                    if (settingsService.isVerboseLogShutdown() && LOG.isInfoEnabled()) {
-                        LOG.info("Disabling UPnP media server");
-                    }
-                    deligate.getRegistry().removeAllLocalDevices();
-                    if (settingsService.isVerboseLogShutdown() && LOG.isInfoEnabled()) {
-                        LOG.info("Shutting down UPnP service...");
-                    }
-                    deligate.shutdown();
-                    if (settingsService.isVerboseLogShutdown() && LOG.isInfoEnabled()) {
-                        LOG.info("Shutting down UPnP service - Done!");
-                    }
+            if (bo && deligate != null) {
+                if (settingsService.isVerboseLogShutdown() && LOG.isInfoEnabled()) {
+                    LOG.info("Shutting down UPnP service...");
                 }
-                return false;
-            } else {
-                return false;
+                deligate.getRegistry().removeAllLocalDevices();
+                deligate.shutdown();
+                if (settingsService.isVerboseLogShutdown() && LOG.isInfoEnabled()) {
+                    LOG.info("Shutting down UPnP service - Done!");
+                }
             }
+            return false;
         });
 
     }

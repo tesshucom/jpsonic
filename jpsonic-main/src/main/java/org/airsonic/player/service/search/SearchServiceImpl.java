@@ -137,10 +137,7 @@ public class SearchServiceImpl implements SearchService {
             return result;
         }
 
-        if (settingsService.isOutputSearchQuery() && LOG.isInfoEnabled()) {
-            LOG.info("UpnP: UpnP-compliant field search : {} -> query:{}, offset:{}, count:{}", indexType,
-                    criteria.getQuery(), criteria.getOffset(), criteria.getCount());
-        }
+        writeUPnPSerchLog(indexType, criteria);
 
         try {
 
@@ -180,6 +177,13 @@ public class SearchServiceImpl implements SearchService {
         }
         return result;
 
+    }
+
+    private void writeUPnPSerchLog(IndexType indexType, UPnPSearchCriteria criteria) {
+        if (settingsService.isOutputSearchQuery() && LOG.isInfoEnabled()) {
+            LOG.info("UpnP: UpnP-compliant field search : {} -> query:{}, offset:{}, count:{}", indexType,
+                    criteria.getQuery(), criteria.getOffset(), criteria.getCount());
+        }
     }
 
     private IndexType searchableIndex(UPnPSearchCriteria criteria) {

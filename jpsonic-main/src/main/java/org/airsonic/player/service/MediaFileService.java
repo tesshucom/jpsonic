@@ -591,86 +591,92 @@ public class MediaFileService {
         mediaFile.setPresent(true);
 
         if (file.isFile()) {
-
-            MetaDataParser parser = metaDataParserFactory.getParser(file);
-            if (parser != null) {
-                MetaData metaData = parser.getMetaData(file);
-                mediaFile.setArtist(metaData.getArtist());
-                mediaFile.setAlbumArtist(metaData.getAlbumArtist());
-                mediaFile.setAlbumName(metaData.getAlbumName());
-                mediaFile.setTitle(metaData.getTitle());
-                mediaFile.setDiscNumber(metaData.getDiscNumber());
-                mediaFile.setTrackNumber(metaData.getTrackNumber());
-                mediaFile.setGenre(metaData.getGenre());
-                mediaFile.setYear(metaData.getYear());
-                mediaFile.setDurationSeconds(metaData.getDurationSeconds());
-                mediaFile.setBitRate(metaData.getBitRate());
-                mediaFile.setVariableBitRate(metaData.isVariableBitRate());
-                mediaFile.setHeight(metaData.getHeight());
-                mediaFile.setWidth(metaData.getWidth());
-                mediaFile.setTitleSort(metaData.getTitleSort());
-                mediaFile.setAlbumSort(metaData.getAlbumSort());
-                mediaFile.setAlbumSortRaw(metaData.getAlbumSort());
-                mediaFile.setArtistSort(metaData.getArtistSort());
-                mediaFile.setArtistSortRaw(metaData.getArtistSort());
-                mediaFile.setAlbumArtistSort(metaData.getAlbumArtistSort());
-                mediaFile.setAlbumArtistSortRaw(metaData.getAlbumArtistSort());
-                mediaFile.setMusicBrainzReleaseId(metaData.getMusicBrainzReleaseId());
-                mediaFile.setMusicBrainzRecordingId(metaData.getMusicBrainzRecordingId());
-                mediaFile.setComposer(metaData.getComposer());
-                mediaFile.setComposerSort(metaData.getComposerSort());
-                mediaFile.setComposerSortRaw(metaData.getComposerSort());
-                utils.analyze(mediaFile);
-            }
-            String format = StringUtils
-                    .trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(mediaFile.getPath())));
-            mediaFile.setFormat(format);
-            mediaFile.setFileSize(FileUtil.length(file));
-            mediaFile.setMediaType(getMediaType(mediaFile));
-
+            applyFile(file, mediaFile);
         } else {
+            applyDirectory(file, mediaFile);
+        }
+        return mediaFile;
+    }
 
-            // Is this an album?
-            if (!isRoot(mediaFile)) {
-                File[] children = FileUtil.listFiles(file);
-                File firstChild = null;
-                for (File child : filterMediaFiles(children)) {
-                    if (FileUtil.isFile(child)) {
-                        firstChild = child;
-                        break;
-                    }
+    private void applyFile(File file, MediaFile to) {
+        MetaDataParser parser = metaDataParserFactory.getParser(file);
+        if (parser != null) {
+            MetaData metaData = parser.getMetaData(file);
+            to.setArtist(metaData.getArtist());
+            to.setAlbumArtist(metaData.getAlbumArtist());
+            to.setAlbumName(metaData.getAlbumName());
+            to.setTitle(metaData.getTitle());
+            to.setDiscNumber(metaData.getDiscNumber());
+            to.setTrackNumber(metaData.getTrackNumber());
+            to.setGenre(metaData.getGenre());
+            to.setYear(metaData.getYear());
+            to.setDurationSeconds(metaData.getDurationSeconds());
+            to.setBitRate(metaData.getBitRate());
+            to.setVariableBitRate(metaData.isVariableBitRate());
+            to.setHeight(metaData.getHeight());
+            to.setWidth(metaData.getWidth());
+            to.setTitleSort(metaData.getTitleSort());
+            to.setAlbumSort(metaData.getAlbumSort());
+            to.setAlbumSortRaw(metaData.getAlbumSort());
+            to.setArtistSort(metaData.getArtistSort());
+            to.setArtistSortRaw(metaData.getArtistSort());
+            to.setAlbumArtistSort(metaData.getAlbumArtistSort());
+            to.setAlbumArtistSortRaw(metaData.getAlbumArtistSort());
+            to.setMusicBrainzReleaseId(metaData.getMusicBrainzReleaseId());
+            to.setMusicBrainzRecordingId(metaData.getMusicBrainzRecordingId());
+            to.setComposer(metaData.getComposer());
+            to.setComposerSort(metaData.getComposerSort());
+            to.setComposerSortRaw(metaData.getComposerSort());
+            utils.analyze(to);
+        }
+        String format = StringUtils.trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(to.getPath())));
+        to.setFormat(format);
+        to.setFileSize(FileUtil.length(file));
+        to.setMediaType(getMediaType(to));
+    }
+
+    private void applyDirectory(File file, MediaFile to) {
+        // Is this an album?
+        if (!isRoot(to)) {
+            File[] children = FileUtil.listFiles(file);
+            File firstChildMediaFile = getFirstChildMediaFile(children);
+
+            if (firstChildMediaFile == null) {
+                to.setArtist(file.getName());
+            } else {
+                to.setMediaType(MediaFile.MediaType.ALBUM);
+
+                // Guess artist/album name, year and genre.
+                MetaDataParser parser = metaDataParserFactory.getParser(firstChildMediaFile);
+                if (parser != null) {
+                    MetaData metaData = parser.getMetaData(firstChildMediaFile);
+                    to.setArtist(metaData.getAlbumArtist());
+                    to.setArtistSort(metaData.getAlbumArtistSort());
+                    to.setArtistSortRaw(metaData.getAlbumArtistSort());
+                    to.setAlbumName(metaData.getAlbumName());
+                    to.setAlbumSort(metaData.getAlbumSort());
+                    to.setAlbumSortRaw(metaData.getAlbumSort());
+                    to.setYear(metaData.getYear());
+                    to.setGenre(metaData.getGenre());
                 }
 
-                if (firstChild == null) {
-                    mediaFile.setArtist(file.getName());
-                } else {
-                    mediaFile.setMediaType(MediaFile.MediaType.ALBUM);
-
-                    // Guess artist/album name, year and genre.
-                    MetaDataParser parser = metaDataParserFactory.getParser(firstChild);
-                    if (parser != null) {
-                        MetaData metaData = parser.getMetaData(firstChild);
-                        mediaFile.setArtist(metaData.getAlbumArtist());
-                        mediaFile.setArtistSort(metaData.getAlbumArtistSort());
-                        mediaFile.setArtistSortRaw(metaData.getAlbumArtistSort());
-                        mediaFile.setAlbumName(metaData.getAlbumName());
-                        mediaFile.setAlbumSort(metaData.getAlbumSort());
-                        mediaFile.setAlbumSortRaw(metaData.getAlbumSort());
-                        mediaFile.setYear(metaData.getYear());
-                        mediaFile.setGenre(metaData.getGenre());
-                    }
-
-                    // Look for cover art.
-                    File coverArt = findCoverArt(children);
-                    if (coverArt != null) {
-                        mediaFile.setCoverArtPath(coverArt.getPath());
-                    }
+                // Look for cover art.
+                File coverArt = findCoverArt(children);
+                if (coverArt != null) {
+                    to.setCoverArtPath(coverArt.getPath());
                 }
-                utils.analyze(mediaFile);
+            }
+            utils.analyze(to);
+        }
+    }
+
+    private File getFirstChildMediaFile(File... children) {
+        for (File child : filterMediaFiles(children)) {
+            if (FileUtil.isFile(child)) {
+                return child;
             }
         }
-
-        return mediaFile;
+        return null;
     }
 
     @SuppressWarnings("PMD.UseLocaleWithCaseConversions")

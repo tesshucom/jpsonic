@@ -35,6 +35,7 @@ import chameleon.playlist.xspf.StringContainer;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.MediaFileService;
 import org.apache.commons.lang3.tuple.Pair;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -65,22 +66,7 @@ public class XspfPlaylistImportHandler implements PlaylistImportHandler {
         xspfPlaylist.getTracks().forEach(track -> {
             MediaFile mediaFile = null;
             for (StringContainer sc : track.getStringContainers()) {
-                if (sc instanceof Location) {
-                    Location location = (Location) sc;
-                    try {
-                        File file = new File(new URI(location.getText()));
-                        mediaFile = mediaFileService.getMediaFile(file);
-                        if (mediaFile == null && sc.getText() != null) {
-                            mediaFile = mediaFileService.getMediaFile(new File(sc.getText()));
-                        }
-                    } catch (URISyntaxException e) {
-                        LOG.error("Unable to generate URI.", e);
-                    } catch (SecurityException e) {
-                        if (LOG.isTraceEnabled()) {
-                            LOG.error("SecurityException will be ignored.", e);
-                        }
-                    }
-                }
+                mediaFile = getMediaFile(sc);
             }
             if (mediaFile == null) {
                 StringBuilder errorMsg = new StringBuilder("Could not find media file matching ");
@@ -92,6 +78,26 @@ public class XspfPlaylistImportHandler implements PlaylistImportHandler {
             }
         });
         return Pair.of(mediaFiles, errors);
+    }
+
+    private @Nullable MediaFile getMediaFile(StringContainer sc) {
+        if (sc instanceof Location) {
+            Location location = (Location) sc;
+            try {
+                File file = new File(new URI(location.getText()));
+                MediaFile mediaFile = mediaFileService.getMediaFile(file);
+                if (mediaFile == null && sc.getText() != null) {
+                    return mediaFileService.getMediaFile(new File(sc.getText()));
+                }
+            } catch (URISyntaxException e) {
+                LOG.error("Unable to generate URI.", e);
+            } catch (SecurityException e) {
+                if (LOG.isTraceEnabled()) {
+                    LOG.error("SecurityException will be ignored.", e);
+                }
+            }
+        }
+        return null;
     }
 
     @Override

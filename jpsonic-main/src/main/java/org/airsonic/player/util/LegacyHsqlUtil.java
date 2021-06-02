@@ -132,16 +132,9 @@ public final class LegacyHsqlUtil {
         // Log what we're about to do and determine if we should perform a controlled upgrade with backups.
         if (currentVersion.startsWith(driverVersion)) {
             // If we're already on the same version as the driver, nothing should happen.
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("HSQLDB database upgrade unneeded, already on version {}", driverVersion);
-            }
             return false;
         } else if (currentVersion.startsWith("2.")) {
             // If the database version is 2.x but older than the driver, the upgrade should be relatively painless.
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("HSQLDB database will be silently upgraded from version {} to {}", currentVersion,
-                        driverVersion);
-            }
             return false;
         } else if (UPGRADE_NEEDED_VERSION1.equals(currentVersion) || UPGRADE_NEEDED_VERSION2.equals(currentVersion)) {
             // If we're on a 1.8.0 or 1.8.1 database and upgrading to 2.x, we're going to handle this manually and check

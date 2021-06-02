@@ -150,14 +150,7 @@ public class DownloadController implements LastModified {
                     return;
                 }
 
-                if (mediaFile.isFile()) {
-                    downloadFile(response, status, mediaFile.getFile(), range);
-                } else {
-                    List<MediaFile> children = mediaFileService.getChildrenOf(mediaFile, true, false, true);
-                    String zipFileName = FilenameUtils.getBaseName(mediaFile.getPath()) + ".zip";
-                    File coverArtFile = indexes == null ? mediaFile.getCoverArtFile() : null;
-                    downloadFiles(response, status, children, indexes, coverArtFile, range, zipFileName);
-                }
+                doDownload(response, status, mediaFile, range, indexes);
 
             } else if (playlistId != null) {
                 List<MediaFile> songs = playlistService.getFilesInPlaylist(playlistId);
@@ -176,6 +169,18 @@ public class DownloadController implements LastModified {
                 statusService.removeDownloadStatus(status);
                 securityService.updateUserByteCounts(user, 0L, status.getBytesTransfered(), 0L);
             }
+        }
+    }
+
+    private void doDownload(HttpServletResponse response, TransferStatus status, MediaFile mediaFile, HttpRange range,
+            int... indexes) throws IOException {
+        if (mediaFile.isFile()) {
+            downloadFile(response, status, mediaFile.getFile(), range);
+        } else {
+            List<MediaFile> children = mediaFileService.getChildrenOf(mediaFile, true, false, true);
+            String zipFileName = FilenameUtils.getBaseName(mediaFile.getPath()) + ".zip";
+            File coverArtFile = indexes == null ? mediaFile.getCoverArtFile() : null;
+            downloadFiles(response, status, children, indexes, coverArtFile, range, zipFileName);
         }
     }
 
@@ -360,19 +365,24 @@ public class DownloadController implements LastModified {
                 }
 
                 // Sleep for a while to throttle bitrate.
-                if (bitrateLimit != 0) {
-                    long sleepTime = 8L * 1000 * bufferSize / bitrateLimit - (after - before);
-                    if (sleepTime > 0L) {
-                        try {
-                            Thread.sleep(sleepTime);
-                        } catch (InterruptedException e) {
-                            LOG.warn("Failed to sleep.", e);
-                        }
-                    }
+                try {
+                    doSleepIfNecessary(bitrateLimit, bufferSize, after, before);
+                } catch (InterruptedException e) {
+                    LOG.warn("Failed to sleep.", e);
                 }
             }
         } finally {
             out.flush();
+        }
+    }
+
+    private void doSleepIfNecessary(long bitrateLimit, int bufferSize, long after, long before)
+            throws InterruptedException {
+        if (bitrateLimit != 0) {
+            long sleepTime = 8L * 1000 * bufferSize / bitrateLimit - (after - before);
+            if (sleepTime > 0L) {
+                Thread.sleep(sleepTime);
+            }
         }
     }
 

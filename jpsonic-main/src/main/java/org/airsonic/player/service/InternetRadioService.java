@@ -150,26 +150,10 @@ public class InternetRadioService {
     public List<InternetRadioSource> getInternetRadioSources(InternetRadio radio) {
         List<InternetRadioSource> sources;
         if (cachedSources.containsKey(radio.getId())) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Got cached sources for internet radio {}!", radio.getStreamUrl());
-            }
             sources = cachedSources.get(radio.getId());
         } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Retrieving sources for internet radio {}...", radio.getStreamUrl());
-            }
             try {
                 sources = retrieveInternetRadioSources(radio);
-                if (sources.isEmpty()) {
-                    if (LOG.isWarnEnabled()) {
-                        LOG.warn("No entries found for internet radio {}.", radio.getStreamUrl());
-                    }
-                } else {
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info("Retrieved playlist for internet radio {}, got {} sources.", radio.getStreamUrl(),
-                                sources.size());
-                    }
-                }
             } catch (ExecutionException e) {
                 ConcurrentUtils.handleCauseUnchecked(e);
                 if (LOG.isErrorEnabled()) {
@@ -193,8 +177,19 @@ public class InternetRadioService {
      * @return a list of internet radio sources
      */
     private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio) throws ExecutionException {
-        return retrieveInternetRadioSources(radio, PLAYLIST_REMOTE_MAX_LENGTH, PLAYLIST_REMOTE_MAX_BYTE_SIZE,
-                PLAYLIST_REMOTE_MAX_REDIRECTS);
+        List<InternetRadioSource> sources = retrieveInternetRadioSources(radio, PLAYLIST_REMOTE_MAX_LENGTH,
+                PLAYLIST_REMOTE_MAX_BYTE_SIZE, PLAYLIST_REMOTE_MAX_REDIRECTS);
+        if (sources.isEmpty()) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("No entries found for internet radio {}.", radio.getStreamUrl());
+            }
+        } else {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Retrieved playlist for internet radio {}, got {} sources.", radio.getStreamUrl(),
+                        sources.size());
+            }
+        }
+        return sources;
     }
 
     /**

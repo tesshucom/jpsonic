@@ -249,23 +249,12 @@ public class MediaScannerService {
         }
     }
 
-    private void interruptIfdestroyed() throws ExecutionException {
-        if (destroy.get()) {
-            throw new ExecutionException(new InterruptedException("The scan was stopped due to the shutdown."));
-        }
-    }
-
     private void scanFile(MediaFile file, MusicFolder musicFolder, MediaLibraryStatistics statistics,
             Map<String, Integer> albumCount, Genres genres, boolean isPodcast) throws ExecutionException {
 
-        interruptIfdestroyed();
-
+        interruptIfDestroyed();
         scanCount.incrementAndGet();
-        if (LOG.isInfoEnabled() && scanCount.get() % 250 == 0) {
-            writeInfo("Scanned media library with " + scanCount + " entries.");
-        } else if (LOG.isTraceEnabled()) {
-            LOG.trace("Scanning file {}", file.getPath());
-        }
+        writeScanLog(file);
 
         // Update the root folder if it has changed.
         if (!musicFolder.getPath().getPath().equals(file.getFolder())) {
@@ -299,6 +288,20 @@ public class MediaScannerService {
         }
         if (file.getFileSize() != null) {
             statistics.incrementTotalLengthInBytes(file.getFileSize());
+        }
+    }
+
+    private void interruptIfDestroyed() throws ExecutionException {
+        if (destroy.get()) {
+            throw new ExecutionException(new InterruptedException("The scan was stopped due to the shutdown."));
+        }
+    }
+
+    private void writeScanLog(MediaFile file) {
+        if (LOG.isInfoEnabled() && scanCount.get() % 250 == 0) {
+            writeInfo("Scanned media library with " + scanCount + " entries.");
+        } else if (LOG.isTraceEnabled()) {
+            LOG.trace("Scanning file {}", file.getPath());
         }
     }
 

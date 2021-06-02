@@ -348,7 +348,21 @@ public class SubsonicRESTController {
         }
 
         MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFolders, false);
+        setRatingAndStarred(musicFolderContent, indexes, username);
 
+        // Add children
+        Player player = playerService.getPlayer(request, response);
+
+        for (MediaFile singleSong : musicFolderContent.getSingleSongs()) {
+            indexes.getChild().add(createJaxbChild(player, singleSong, username));
+        }
+
+        res.setIndexes(indexes);
+        jaxbWriter.writeResponse(request, response, res);
+    }
+
+    @SuppressWarnings("PMD.CognitiveComplexity") // #1020 Move to support class or service
+    private void setRatingAndStarred(MusicFolderContent musicFolderContent, Indexes indexes, String username) {
         for (Map.Entry<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> entry : musicFolderContent
                 .getIndexedArtists().entrySet()) {
             Index index = new Index();
@@ -373,16 +387,6 @@ public class SubsonicRESTController {
                 }
             }
         }
-
-        // Add children
-        Player player = playerService.getPlayer(request, response);
-
-        for (MediaFile singleSong : musicFolderContent.getSingleSongs()) {
-            indexes.getChild().add(createJaxbChild(player, singleSong, username));
-        }
-
-        res.setIndexes(indexes);
-        jaxbWriter.writeResponse(request, response, res);
     }
 
     @RequestMapping("/getGenres")
@@ -1485,6 +1489,7 @@ public class SubsonicRESTController {
         return createJaxbChild(new Child(), player, mediaFile, username);
     }
 
+    @SuppressWarnings("PMD.CognitiveComplexity") // #1020 Move to support class or service
     private <T extends Child> T createJaxbChild(T child, Player player, MediaFile mediaFile, String username) {
         MediaFile parent = mediaFileService.getParentOf(mediaFile);
         child.setId(String.valueOf(mediaFile.getId()));
@@ -1714,6 +1719,7 @@ public class SubsonicRESTController {
         starOrUnstar(request, response, false);
     }
 
+    @SuppressWarnings("PMD.CognitiveComplexity") // #1020 Move to support class or service
     private void starOrUnstar(HttpServletRequest req, HttpServletResponse response, boolean star) {
         HttpServletRequest request = wrapRequest(req);
 

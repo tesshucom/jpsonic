@@ -158,33 +158,15 @@ public class MusicFolderSettingsController {
         if (statistics != null && !mediaScannerService.isScanning()) {
 
             // to be before dao#expunge
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Cleaning search index...");
-            }
             indexManager.startIndexing();
             indexManager.expunge();
             indexManager.stopIndexing(statistics);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Search index cleanup complete.");
-            }
 
             // to be after indexManager#expunge
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Cleaning database...");
-                LOG.debug("Deleting non-present artists...");
-            }
             artistDao.expunge();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Deleting non-present albums...");
-            }
             albumDao.expunge();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Deleting non-present media files...");
-            }
             mediaFileDao.expunge();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Database cleanup complete.");
-            }
+
             mediaFileDao.checkpoint();
 
         } else {

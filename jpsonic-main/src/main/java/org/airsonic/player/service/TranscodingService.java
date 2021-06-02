@@ -381,7 +381,7 @@ public class TranscodingService {
      *            The command line string.
      * @param maxBitRate
      *            The maximum bitrate to use. May not be {@code null}.
-     * @param videoTranscodingSettings
+     * @param vts
      *            Parameters used when transcoding video. May be {@code null}.
      * @param mediaFile
      *            The media file.
@@ -390,8 +390,7 @@ public class TranscodingService {
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     private TranscodeInputStream createTranscodeInputStream(@NonNull String command, Integer maxBitRate,
-            VideoTranscodingSettings videoTranscodingSettings, @NonNull MediaFile mediaFile, InputStream in)
-            throws IOException {
+            VideoTranscodingSettings vts, @NonNull MediaFile mediaFile, InputStream in) throws IOException {
 
         String title = mediaFile.getTitle();
         String album = mediaFile.getAlbumName();
@@ -411,21 +410,10 @@ public class TranscodingService {
         result.set(0, getTranscodeDirectory().getPath() + File.separatorChar + result.get(0));
 
         File tmpFile = null;
-
         for (int i = 1; i < result.size(); i++) {
             String cmd = result.get(i);
-            cmd = replaceIfcontains(cmd, "%b", String.valueOf(maxBitRate));
-            cmd = replaceIfcontains(cmd, "%t", title);
-            cmd = replaceIfcontains(cmd, "%l", album);
-            cmd = replaceIfcontains(cmd, "%a", artist);
-            if (videoTranscodingSettings != null) {
-                cmd = replaceIfcontains(cmd, "%o", String.valueOf(videoTranscodingSettings.getTimeOffset()));
-                cmd = replaceIfcontains(cmd, "%d", String.valueOf(videoTranscodingSettings.getDuration()));
-                cmd = replaceIfcontains(cmd, "%w", String.valueOf(videoTranscodingSettings.getWidth()));
-                cmd = replaceIfcontains(cmd, "%h", String.valueOf(videoTranscodingSettings.getHeight()));
-            }
+            cmd = mergeTransCommand(cmd, artist, album, title, maxBitRate, vts);
             if (cmd.contains("%s")) {
-
                 // Work-around for filename character encoding problem on Windows.
                 // Create temporary file, and feed this to the transcoder.
                 String path = mediaFile.getFile().getAbsolutePath();
@@ -433,19 +421,30 @@ public class TranscodingService {
                     tmpFile = File.createTempFile("jpsonic", "." + FilenameUtils.getExtension(path));
                     tmpFile.deleteOnExit();
                     FileUtils.copyFile(new File(path), tmpFile);
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Created tmp file: " + tmpFile);
-                    }
                     cmd = cmd.replace("%s", tmpFile.getPath());
                 } else {
                     cmd = cmd.replace("%s", path);
                 }
             }
-
             result.set(i, cmd);
         }
         return new TranscodeInputStream(new ProcessBuilder(result), in, tmpFile, shortExecutor,
                 settingsService.isVerboseLogPlaying());
+    }
+
+    private String mergeTransCommand(@NonNull String transCommand, String artist, String album, String title,
+            Integer maxBitRate, VideoTranscodingSettings vts) {
+        String cmd = replaceIfcontains(transCommand, "%b", String.valueOf(maxBitRate));
+        cmd = replaceIfcontains(cmd, "%t", title);
+        cmd = replaceIfcontains(cmd, "%l", album);
+        cmd = replaceIfcontains(cmd, "%a", artist);
+        if (vts != null) {
+            cmd = replaceIfcontains(cmd, "%o", String.valueOf(vts.getTimeOffset()));
+            cmd = replaceIfcontains(cmd, "%d", String.valueOf(vts.getDuration()));
+            cmd = replaceIfcontains(cmd, "%w", String.valueOf(vts.getWidth()));
+            cmd = replaceIfcontains(cmd, "%h", String.valueOf(vts.getHeight()));
+        }
+        return cmd;
     }
 
     private String replaceIfcontains(@NonNull String line, @NonNull String target, @NonNull String value) {

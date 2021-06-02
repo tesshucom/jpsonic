@@ -134,33 +134,37 @@ public class NowPlayingService {
                 lyricsUrl = url + ViewName.LYRICS.value() + "?artistUtf8Hex=" + StringUtil.utf8HexEncode(artist)
                         + "&songUtf8Hex=" + StringUtil.utf8HexEncode(title);
             }
+
             String coverArtUrl = url + ViewName.COVER_ART.value() + "?size=60&id=" + mediaFile.getId();
-
-            String avatarUrl = null;
-            if (userSettings.getAvatarScheme() == AvatarScheme.SYSTEM) {
-                avatarUrl = url + ViewName.AVATAR.value() + "?id=" + userSettings.getSystemAvatarId();
-            } else if (userSettings.getAvatarScheme() == AvatarScheme.CUSTOM
-                    && settingsService.getCustomAvatar(username) != null) {
-                avatarUrl = url + ViewName.AVATAR.value() + "?usernameUtf8Hex=" + StringUtil.utf8HexEncode(username);
-            }
-
+            String avatarUrl = createAvatarUrl(url, userSettings);
             String tooltip = StringEscapeUtils.escapeHtml(artist) + " &ndash; " + StringEscapeUtils.escapeHtml(title);
+            artist = StringEscapeUtils.escapeHtml(StringUtils.abbreviate(artist, 25));
+            title = StringEscapeUtils.escapeHtml(StringUtils.abbreviate(title, 25));
 
             if (StringUtils.isNotBlank(player.getName())) {
                 builder.setLength(0);
                 username = builder.append(username).append('@').append(player.getName()).toString();
             }
-            artist = StringEscapeUtils.escapeHtml(StringUtils.abbreviate(artist, 25));
-            title = StringEscapeUtils.escapeHtml(StringUtils.abbreviate(title, 25));
             username = StringEscapeUtils.escapeHtml(StringUtils.abbreviate(username, 25));
 
             long minutesAgo = status.getMinutesAgo();
-
             if (minutesAgo < LIMIT_OF_HISTORY_TO_BE_PRESENTED) {
                 result.add(new NowPlayingInfo(player.getId(), username, artist, title, tooltip, streamUrl, albumUrl,
                         lyricsUrl, coverArtUrl, avatarUrl, (int) minutesAgo));
             }
         }
         return result;
+    }
+
+    private String createAvatarUrl(String url, UserSettings userSettings) {
+        String avatarUrl = null;
+        if (userSettings.getAvatarScheme() == AvatarScheme.SYSTEM) {
+            avatarUrl = url + ViewName.AVATAR.value() + "?id=" + userSettings.getSystemAvatarId();
+        } else if (userSettings.getAvatarScheme() == AvatarScheme.CUSTOM
+                && settingsService.getCustomAvatar(userSettings.getUsername()) != null) {
+            avatarUrl = url + ViewName.AVATAR.value() + "?usernameUtf8Hex="
+                    + StringUtil.utf8HexEncode(userSettings.getUsername());
+        }
+        return avatarUrl;
     }
 }

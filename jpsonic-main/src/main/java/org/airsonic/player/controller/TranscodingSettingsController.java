@@ -106,24 +106,10 @@ public class TranscodingSettingsController {
             String step1 = getParameter(request, Attributes.Request.STEP1.value(), id);
             String step2 = getParameter(request, Attributes.Request.STEP2.value(), id);
             boolean delete = getParameter(request, Attributes.Request.DELETE.value(), id) != null;
-
-            if (delete) {
-                transcodingService.deleteTranscoding(id);
-            } else if (name == null) {
-                return "transcodingsettings.noname";
-            } else if (sourceFormats == null) {
-                return "transcodingsettings.nosourceformat";
-            } else if (targetFormat == null) {
-                return "transcodingsettings.notargetformat";
-            } else if (step1 == null) {
-                return "transcodingsettings.nostep1";
-            } else {
-                transcoding.setName(name);
-                transcoding.setSourceFormats(sourceFormats);
-                transcoding.setTargetFormat(targetFormat);
-                transcoding.setStep1(step1);
-                transcoding.setStep2(step2);
-                transcodingService.updateTranscoding(transcoding);
+            String errorMsg = updateOrDeleteTranscoding(delete, transcoding, id, name, sourceFormats, targetFormat,
+                    step1, step2);
+            if (errorMsg != null) {
+                return errorMsg;
             }
         }
 
@@ -156,6 +142,29 @@ public class TranscodingSettingsController {
         }
         settingsService.setHlsCommand(StringUtils.trim(request.getParameter(Attributes.Request.HLS_COMMAND.value())));
         settingsService.save();
+        return null;
+    }
+
+    private String updateOrDeleteTranscoding(boolean delete, Transcoding transcoding, Integer id, String name,
+            String sourceFormats, String targetFormat, String step1, String step2) {
+        if (delete) {
+            transcodingService.deleteTranscoding(id);
+        } else if (name == null) {
+            return "transcodingsettings.noname";
+        } else if (sourceFormats == null) {
+            return "transcodingsettings.nosourceformat";
+        } else if (targetFormat == null) {
+            return "transcodingsettings.notargetformat";
+        } else if (step1 == null) {
+            return "transcodingsettings.nostep1";
+        } else {
+            transcoding.setName(name);
+            transcoding.setSourceFormats(sourceFormats);
+            transcoding.setTargetFormat(targetFormat);
+            transcoding.setStep1(step1);
+            transcoding.setStep2(step2);
+            transcodingService.updateTranscoding(transcoding);
+        }
         return null;
     }
 
