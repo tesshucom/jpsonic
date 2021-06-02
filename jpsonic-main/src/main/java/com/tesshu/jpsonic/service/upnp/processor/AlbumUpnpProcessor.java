@@ -123,7 +123,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> {
     @Override
     public Album getItemById(String id) {
         Album returnValue;
-        if (id.startsWith(ALL_BY_ARTIST) || id.equalsIgnoreCase(ALL_RECENT_ID3)) {
+        if (id.startsWith(ALL_BY_ARTIST) || ALL_RECENT_ID3.equalsIgnoreCase(id)) {
             returnValue = new Album();
             returnValue.setId(-1);
             returnValue.setComment(id);
@@ -148,7 +148,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> {
                 ArtistUpnpProcessor ap = getDispatcher().getArtistProcessor();
                 albums = ap.getChildren(ap.getItemById(album.getComment().replaceAll(ALL_BY_ARTIST + "_", "")), offset,
                         maxResults);
-            } else if (album.getComment().equalsIgnoreCase(ALL_RECENT_ID3)) {
+            } else if (ALL_RECENT_ID3.equalsIgnoreCase(album.getComment())) {
                 albums = getDispatcher().getRecentAlbumId3Processor().getItems(offset, maxResults);
             } else {
                 albums = new ArrayList<>();
