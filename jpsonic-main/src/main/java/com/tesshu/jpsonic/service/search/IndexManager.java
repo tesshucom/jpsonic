@@ -480,7 +480,7 @@ public class IndexManager {
         // Delete if not old index version
         Arrays.stream(SettingsService.getJpsonicHome().listFiles(
                 (file, name) -> Pattern.compile("^" + INDEX_ROOT_DIR_NAME + "\\d+$").matcher(name).matches()))
-                .filter(dir -> !dir.getName().equals(ROOT_INDEX_DIRECTORY.get().getName())).forEach(old -> {
+                .filter(dir -> !ROOT_INDEX_DIRECTORY.get().getName().equals(dir.getName())).forEach(old -> {
                     if (FileUtil.exists(old)) {
                         if (LOG.isInfoEnabled()) {
                             LOG.info("Found old index file. Try to delete : {}", old.getAbsolutePath());
@@ -505,7 +505,7 @@ public class IndexManager {
         if (settingsService.isSearchMethodChanged()) {
             Arrays.stream(SettingsService.getJpsonicHome().listFiles(
                     (file, name) -> Pattern.compile("^" + INDEX_ROOT_DIR_NAME + "\\d+$").matcher(name).matches()))
-                    .filter(dir -> dir.getName().equals(ROOT_INDEX_DIRECTORY.get().getName())).forEach(old -> {
+                    .filter(dir -> ROOT_INDEX_DIRECTORY.get().getName().equals(dir.getName())).forEach(old -> {
                         if (FileUtil.exists(old)) {
                             if (LOG.isInfoEnabled()) {
                                 LOG.info("The search method has changed. Try to delete : {}", old.getAbsolutePath());

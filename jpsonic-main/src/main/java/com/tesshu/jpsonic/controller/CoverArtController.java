@@ -282,7 +282,7 @@ public class CoverArtController implements LastModified {
         IMG_LOCKS.putIfAbsent(lockKey, lock);
 
         synchronized (IMG_LOCKS.get(lockKey)) {
-            if (lock.equals(IMG_LOCKS.get(lockKey))
+            if (IMG_LOCKS.get(lockKey).equals(lock)
                     && (!cachedImage.exists() || request.lastModified() > cachedImage.lastModified())) {
                 try (OutputStream out = Files.newOutputStream(Paths.get(cachedImage.toURI()))) {
                     semaphore.acquire();
