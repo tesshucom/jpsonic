@@ -85,24 +85,9 @@ public class InternetRadioSettingsController {
         List<InternetRadio> radios = settingsService.getAllInternetRadios(true);
         Date current = new Date();
         for (InternetRadio radio : radios) {
-            Integer id = radio.getId();
-            String streamUrl = getParameter(request, Attributes.Request.STREAM_URL.value(), id);
-            String homepageUrl = getParameter(request, Attributes.Request.HOMEPAGE_URL.value(), id);
-            String name = getParameter(request, Attributes.Request.NAME.value(), id);
-            boolean enabled = getParameter(request, Attributes.Request.ENABLED.value(), id) != null;
-            boolean delete = getParameter(request, Attributes.Request.DELETE.value(), id) != null;
-
-            if (delete) {
-                settingsService.deleteInternetRadio(id);
-            } else {
-                if (name == null) {
-                    return "internetradiosettings.noname";
-                }
-                if (streamUrl == null) {
-                    return "internetradiosettings.nourl";
-                }
-                settingsService
-                        .updateInternetRadio(new InternetRadio(id, name, streamUrl, homepageUrl, enabled, current));
+            String msg = updateOrDeleteInternetRadio(request, radio, current);
+            if (msg != null) {
+                return msg;
             }
         }
 
@@ -124,7 +109,29 @@ public class InternetRadioSettingsController {
         return null;
     }
 
-    private String getParameter(HttpServletRequest request, String name, Integer id) {
+    private String updateOrDeleteInternetRadio(HttpServletRequest request, InternetRadio radio, Date current) {
+        Integer id = radio.getId();
+        String streamUrl = getParam4Array(request, Attributes.Request.STREAM_URL.value(), id);
+        String homepageUrl = getParam4Array(request, Attributes.Request.HOMEPAGE_URL.value(), id);
+        String name = getParam4Array(request, Attributes.Request.NAME.value(), id);
+        boolean enabled = getParam4Array(request, Attributes.Request.ENABLED.value(), id) != null;
+        boolean delete = getParam4Array(request, Attributes.Request.DELETE.value(), id) != null;
+
+        if (delete) {
+            settingsService.deleteInternetRadio(id);
+        } else {
+            if (name == null) {
+                return "internetradiosettings.noname";
+            }
+            if (streamUrl == null) {
+                return "internetradiosettings.nourl";
+            }
+            settingsService.updateInternetRadio(new InternetRadio(id, name, streamUrl, homepageUrl, enabled, current));
+        }
+        return null;
+    }
+
+    private String getParam4Array(HttpServletRequest request, String name, Integer id) {
         return StringUtils.trimToNull(request.getParameter(name + "[" + id + "]"));
     }
 

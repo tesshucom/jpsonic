@@ -99,28 +99,27 @@ public class UrlTag extends BodyTagSupport {
 
         StringBuilder result = new StringBuilder();
         result.append(baseUrl);
-        if (!parameters.isEmpty()) {
-            result.append('?');
+        if (parameters.isEmpty()) {
+            return result.toString();
+        }
 
-            for (int i = 0; i < parameters.size(); i++) {
-                Pair<String, String> parameter = parameters.get(i);
+        result.append('?');
+        for (int i = 0; i < parameters.size(); i++) {
+            Pair<String, String> parameter = parameters.get(i);
+            result.append(parameter.getLeft());
+            if (isUtf8Hex() && !isAsciiAlphaNumeric(parameter.getRight())) {
+                result.append(ParameterDecodingFilter.PARAM_SUFFIX);
+            }
+            result.append('=');
+            if (parameter.getRight() != null) {
                 try {
-                    result.append(parameter.getLeft());
-                    if (isUtf8Hex() && !isAsciiAlphaNumeric(parameter.getRight())) {
-                        result.append(ParameterDecodingFilter.PARAM_SUFFIX);
-                    }
-
-                    result.append('=');
-                    if (parameter.getRight() != null) {
-                        result.append(encode(parameter.getRight()));
-                    }
-                    if (i < parameters.size() - 1) {
-                        result.append('&');
-                    }
-
-                } catch (UnsupportedEncodingException x) {
-                    throw new JspTagException(x);
+                    result.append(encode(parameter.getRight()));
+                } catch (UnsupportedEncodingException e) {
+                    throw new JspTagException(e);
                 }
+            }
+            if (i < parameters.size() - 1) {
+                result.append('&');
             }
         }
         return result.toString();

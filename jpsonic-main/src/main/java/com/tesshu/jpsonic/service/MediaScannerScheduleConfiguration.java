@@ -71,17 +71,7 @@ public class MediaScannerScheduleConfiguration implements SchedulingConfigurer {
     public void configureTasks(ScheduledTaskRegistrar scheduledTaskRegistrar) {
         scheduledTaskRegistrar.setScheduler(taskScheduler);
 
-        scheduledTaskRegistrar.addTriggerTask(() -> {
-
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Starting scheduled Podcast refresh.");
-            }
-            mediaScannerService.scanLibrary();
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Completed scheduled Podcast refresh.");
-            }
-
-        }, (context) -> {
+        scheduledTaskRegistrar.addTriggerTask(new ScanLibraryTask(mediaScannerService), (context) -> {
 
             long daysBetween = settingsService.getIndexCreationInterval();
             if (daysBetween == -1 && LOG.isInfoEnabled()) {
@@ -106,5 +96,26 @@ public class MediaScannerScheduleConfiguration implements SchedulingConfigurer {
 
             return Date.from(nextExecutionTime);
         });
+    }
+
+    private static class ScanLibraryTask implements Runnable {
+
+        private MediaScannerService mediaScannerService;
+
+        public ScanLibraryTask(MediaScannerService mediaScannerService) {
+            super();
+            this.mediaScannerService = mediaScannerService;
+        }
+
+        @Override
+        public void run() {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Starting scheduled Podcast refresh.");
+            }
+            mediaScannerService.scanLibrary();
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Completed scheduled Podcast refresh.");
+            }
+        }
     }
 }
