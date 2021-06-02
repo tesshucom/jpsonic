@@ -32,17 +32,17 @@ import java.util.Map;
 import org.airsonic.player.domain.MediaLibraryStatistics;
 import org.junit.jupiter.api.Test;
 
-public class PlayerUtilsTest {
+class PlayerUtilsTest {
 
     @Test
-    public void objectToStringMapNull() {
+    void testObjectToStringMapNull() {
         MediaLibraryStatistics statistics = null;
         Map<String, String> stringStringMap = PlayerUtils.objectToStringMap(statistics);
         assertNull(stringStringMap);
     }
 
     @Test
-    public void objectToStringMap() {
+    void testObjectToStringMap() {
         Date date = new Date(1_568_350_960_725L);
         MediaLibraryStatistics statistics = new MediaLibraryStatistics(date);
         statistics.incrementAlbums(5);
@@ -60,7 +60,7 @@ public class PlayerUtilsTest {
     }
 
     @Test
-    public void stringMapToObject() {
+    void testStringMapToObject() {
         Map<String, String> stringStringMap = LegacyMap.of("albumCount", "5", "songCount", "4", "artistCount", "910823",
                 "totalDurationInSeconds", "30", "totalLengthInBytes", "2930491082", "scanDate", "1568350960725");
         MediaLibraryStatistics statistics = PlayerUtils.stringMapToObject(MediaLibraryStatistics.class,
@@ -74,7 +74,7 @@ public class PlayerUtilsTest {
     }
 
     @Test
-    public void stringMapToObjectWithExtraneousData() {
+    void testStringMapToObjectWithExtraneousData() {
         Map<String, String> stringStringMap = LegacyMap.of("albumCount", "5", "songCount", "4", "artistCount", "910823",
                 "totalDurationInSeconds", "30", "totalLengthInBytes", "2930491082", "scanDate", "1568350960725",
                 "extraneousData", "nothingHereToLookAt");
@@ -89,13 +89,13 @@ public class PlayerUtilsTest {
     }
 
     @Test
-    public void stringMapToObjectWithNoData() {
+    void testStringMapToObjectWithNoData() {
         MediaLibraryStatistics statistics = PlayerUtils.stringMapToObject(MediaLibraryStatistics.class, LegacyMap.of());
         assertNotNull(statistics);
     }
 
     @Test
-    public void stringMapToValidObjectWithNoData() {
+    void testStringMapToValidObjectWithNoData() {
         assertThrows(IllegalArgumentException.class,
                 () -> PlayerUtils.stringMapToValidObject(MediaLibraryStatistics.class, LegacyMap.of()));
     }

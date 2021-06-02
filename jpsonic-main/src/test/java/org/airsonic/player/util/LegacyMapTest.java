@@ -29,10 +29,10 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class LegacyMapTest {
+class LegacyMapTest {
 
     @Test
-    public void testOf() {
+    void testOf() {
         Map<String, Integer> map = LegacyMap.of();
         assertEquals(0, map.size());
         map.put("String1", 1);

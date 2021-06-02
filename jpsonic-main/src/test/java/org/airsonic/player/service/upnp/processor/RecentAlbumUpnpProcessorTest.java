@@ -39,7 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class RecentAlbumUpnpProcessorTest extends AbstractNeedsScan {
+class RecentAlbumUpnpProcessorTest extends AbstractNeedsScan {
 
     private static final Logger LOG = LoggerFactory.getLogger(RecentAlbumUpnpProcessorTest.class);
 
@@ -67,13 +67,13 @@ public class RecentAlbumUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetItemCount() {
+    void testGetItemCount() {
         // Does not include ''-ALL-''
         assertEquals(31, processor.getItemCount());
     }
 
     @Test
-    public void testGetItems() {
+    void testGetItems() {
 
         assertEquals(30, processor.getItems(0, 30).size());
         assertEquals(1, processor.getItems(30, 30).size());
@@ -107,7 +107,7 @@ public class RecentAlbumUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetChildSizeOf() {
+    void testGetChildSizeOf() {
         List<MediaFile> albums = processor.getItems(1, 1);
         assertEquals(1, albums.size());
         int childSizeOf = processor.getChildSizeOf(albums.get(0));

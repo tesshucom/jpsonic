@@ -40,7 +40,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class IndexUpnpProcessorTest extends AbstractNeedsScan {
+class IndexUpnpProcessorTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
@@ -69,12 +69,12 @@ public class IndexUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetItemCount() {
+    void testGetItemCount() {
         assertEquals(31, indexUpnpProcessor.getItemCount());
     }
 
     @Test
-    public void testGetItems() {
+    void testGetItems() {
 
         List<MediaFile> items = indexUpnpProcessor.getItems(0, 10);
         assertEquals(10, items.size());
@@ -154,7 +154,7 @@ public class IndexUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetChildSizeOf() {
+    void testGetChildSizeOf() {
 
         List<MediaFile> items = indexUpnpProcessor.getItems(0, 100);
         assertEquals(31, items.size());
@@ -172,7 +172,7 @@ public class IndexUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testgetChildren() {
+    void testgetChildren() {
 
         List<String> artistNames = indexUpnpProcessor.getItems(0, 100).stream()
                 .flatMap(m -> indexUpnpProcessor.getChildren(m, 0, 100).stream()).map(MediaFile::getName)
@@ -225,7 +225,7 @@ public class IndexUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testAlbum() {
+    void testAlbum() {
 
         settingsService.setSortAlbumsByYear(false);
 
@@ -249,7 +249,7 @@ public class IndexUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testAlbumByYear() {
+    void testAlbumByYear() {
 
         // The result change depending on the setting
         settingsService.setSortAlbumsByYear(true);
@@ -275,7 +275,7 @@ public class IndexUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testSongs() {
+    void testSongs() {
 
         List<MediaFile> indexes = indexUpnpProcessor.getItems(0, 100).stream().filter(a -> "#".equals(a.getName()))
                 .collect(Collectors.toList());

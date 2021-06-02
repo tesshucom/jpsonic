@@ -36,7 +36,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(NeedsHome.class)
 @ExtendWith(MockitoExtension.class)
-public class MediaScannerServiceUnitTest {
+class MediaScannerServiceUnitTest {
 
     @InjectMocks
     private MediaScannerService mediaScannerService;
@@ -45,7 +45,7 @@ public class MediaScannerServiceUnitTest {
     private IndexManager indexManager;
 
     @Test
-    public void neverScanned() {
+    void testNeverScanned() {
         when(indexManager.getStatistics()).thenReturn(null);
         assertTrue(mediaScannerService.neverScanned());
 

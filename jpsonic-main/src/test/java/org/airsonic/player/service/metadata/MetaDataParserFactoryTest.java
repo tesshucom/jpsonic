@@ -39,7 +39,7 @@ import org.springframework.test.annotation.DirtiesContext;
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class MetaDataParserFactoryTest {
+class MetaDataParserFactoryTest {
 
     private static File someMp3;
     private static File someFlv;
@@ -67,7 +67,7 @@ public class MetaDataParserFactoryTest {
     }
 
     @Test
-    public void testorder() {
+    void testorder() {
         MetaDataParser parser;
 
         settingsService.setVideoFileTypes("mp3 flv");

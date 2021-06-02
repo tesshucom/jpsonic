@@ -41,7 +41,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class JukeboxJavaServiceTest {
+class JukeboxJavaServiceTest {
 
     private static final String USER_NAME = "admin";
 
@@ -81,7 +81,7 @@ public class JukeboxJavaServiceTest {
     }
 
     @Test
-    public void play() {
+    void testPlay() {
         // When
         service.play(airsonicPlayer);
         // Then
@@ -90,7 +90,7 @@ public class JukeboxJavaServiceTest {
     }
 
     @Test
-    public void playForNonDefaultMixer() {
+    void testPlayForNonDefaultMixer() {
         // Given
         when(airsonicPlayer.getJavaJukeboxMixer()).thenReturn("mixer");
         when(javaPlayerFactory.createJavaPlayer("mixer")).thenReturn(player);
@@ -102,7 +102,7 @@ public class JukeboxJavaServiceTest {
     }
 
     @Test
-    public void playAndStop() {
+    void testPlayAndStop() {
         // When
         service.play(airsonicPlayer);
         // Then
@@ -117,7 +117,7 @@ public class JukeboxJavaServiceTest {
     }
 
     @Test
-    public void playWithNonJukeboxUser() {
+    void testPlayWithNonJukeboxUser() {
         // Given
         when(user.isJukeboxRole()).thenReturn(false);
         // CreateJavaPlayer should not be called if you do not have permission.
@@ -128,7 +128,7 @@ public class JukeboxJavaServiceTest {
 
     @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
     @Test
-    public void playWithNonJukeboxPlayer() {
+    void testPlayWithNonJukeboxPlayer() {
         // Given
         when(airsonicPlayer.getTechnology()).thenReturn(PlayerTechnology.WEB);
         // When
@@ -136,7 +136,7 @@ public class JukeboxJavaServiceTest {
     }
 
     @Test
-    public void playWithNoPlayQueueEmpty() {
+    void testPlayWithNoPlayQueueEmpty() {
         // Given
         when(playQueue.getCurrentFile()).thenReturn(null);
         // When
@@ -148,7 +148,7 @@ public class JukeboxJavaServiceTest {
 
     @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
     @Test
-    public void playerInitProblem() {
+    void testPlayerInitProblem() {
         // Given
         when(javaPlayerFactory.createJavaPlayer()).thenReturn(null);
         // When

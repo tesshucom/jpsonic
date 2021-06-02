@@ -42,7 +42,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class TranscodingDaoTest {
+class TranscodingDaoTest {
 
     @Autowired
     private GenericDaoHelper daoHelper;
@@ -59,7 +59,7 @@ public class TranscodingDaoTest {
     }
 
     @Test
-    public void testCreateTranscoding() {
+    void testCreateTranscoding() {
         Transcoding transcoding = new Transcoding(null, "name", "sourceFormats", "targetFormat", "step1", "step2",
                 "step3", false);
         transcodingDao.createTranscoding(transcoding);
@@ -69,7 +69,7 @@ public class TranscodingDaoTest {
     }
 
     @Test
-    public void testUpdateTranscoding() {
+    void testUpdateTranscoding() {
         Transcoding transcoding = new Transcoding(null, "name", "sourceFormats", "targetFormat", "step1", "step2",
                 "step3", false);
         transcodingDao.createTranscoding(transcoding);
@@ -89,7 +89,7 @@ public class TranscodingDaoTest {
     }
 
     @Test
-    public void testDeleteTranscoding() {
+    void testDeleteTranscoding() {
         assertEquals(0, transcodingDao.getAllTranscodings().size(), "Wrong number of transcodings.");
 
         transcodingDao.createTranscoding(
@@ -108,7 +108,7 @@ public class TranscodingDaoTest {
     }
 
     @Test
-    public void testPlayerTranscoding() {
+    void testPlayerTranscoding() {
         Player player = new Player();
         playerDao.createPlayer(player);
 
@@ -143,7 +143,7 @@ public class TranscodingDaoTest {
     }
 
     @Test
-    public void testCascadingDeletePlayer() {
+    void testCascadingDeletePlayer() {
         Player player = new Player();
         playerDao.createPlayer(player);
 
@@ -161,7 +161,7 @@ public class TranscodingDaoTest {
     }
 
     @Test
-    public void testCascadingDeleteTranscoding() {
+    void testCascadingDeleteTranscoding() {
         Player player = new Player();
         playerDao.createPlayer(player);
 

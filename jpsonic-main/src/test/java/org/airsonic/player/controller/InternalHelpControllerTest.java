@@ -39,7 +39,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @ExtendWith(NeedsHome.class)
 @AutoConfigureMockMvc
 @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert") // pmd/pmd/issues/1084
-public class InternalHelpControllerTest {
+class InternalHelpControllerTest {
 
     @Autowired
     private MockMvc mvc;
@@ -47,14 +47,14 @@ public class InternalHelpControllerTest {
     @Integration
     @Test
     @WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
-    public void testOkForAdmins() throws Exception {
+    void testOkForAdmins() throws Exception {
         mvc.perform(get("/internalhelp").contentType(MediaType.TEXT_HTML)).andExpect(status().isOk());
     }
 
     @Integration
     @Test
     @WithMockUser(username = "user", roles = { "USER" })
-    public void testNotOkForUsers() throws Exception {
+    void testNotOkForUsers() throws Exception {
         mvc.perform(get("/internalhelp").contentType(MediaType.TEXT_HTML)).andExpect(status().isForbidden());
     }
 }

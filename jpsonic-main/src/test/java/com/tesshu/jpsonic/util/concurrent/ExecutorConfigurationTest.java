@@ -47,7 +47,7 @@ import org.springframework.util.concurrent.ListenableFuture;
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class ExecutorConfigurationTest {
+class ExecutorConfigurationTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExecutorConfigurationTest.class);
 
@@ -69,39 +69,39 @@ public class ExecutorConfigurationTest {
 
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Nested
-    public class TestInstance {
+    class TestInstance {
 
         @Order(1)
         @Test
-        public void testShortExecutor() {
+        void testShortExecutor() {
             MatcherAssert.assertThat(shortExecutor, CoreMatchers.instanceOf(ThreadPoolTaskExecutor.class));
             assertEquals("short-task-pool-", shortExecutor.getThreadNamePrefix());
         }
 
         @Order(2)
         @Test
-        public void testjukeExecutor() {
+        void testjukeExecutor() {
             MatcherAssert.assertThat(jukeExecutor, CoreMatchers.instanceOf(ThreadPoolTaskExecutor.class));
             assertEquals("juke-task-pool-", jukeExecutor.getThreadNamePrefix());
         }
 
         @Order(3)
         @Test
-        public void testPodcastDownloadExecutor() {
+        void testPodcastDownloadExecutor() {
             MatcherAssert.assertThat(podcastDownloadExecutor, CoreMatchers.instanceOf(ThreadPoolTaskExecutor.class));
             assertEquals("podcast-download-task-pool-", podcastDownloadExecutor.getThreadNamePrefix());
         }
 
         @Order(4)
         @Test
-        public void testPodcastRefreshExecutor() {
+        void testPodcastRefreshExecutor() {
             MatcherAssert.assertThat(podcastRefreshExecutor, CoreMatchers.instanceOf(ThreadPoolTaskExecutor.class));
             assertEquals("podcast-refresh-task-pool-", podcastRefreshExecutor.getThreadNamePrefix());
         }
 
         @Order(5)
         @Test
-        public void testScanExecutor() {
+        void testScanExecutor() {
             MatcherAssert.assertThat(scanExecutor, CoreMatchers.instanceOf(ThreadPoolTaskExecutor.class));
             assertEquals("scan-task-pool-", scanExecutor.getThreadNamePrefix());
         }
@@ -111,7 +111,7 @@ public class ExecutorConfigurationTest {
      * Basically, we should use Future, but if use a derivative of Future, please check the operation in advance.
      */
     @Nested
-    public class DeprecatedFuture {
+    class DeprecatedFuture {
 
         /*
          * We should be able to use ListenableFuture to represent success and failure cases, but it seems to require
@@ -120,7 +120,7 @@ public class ExecutorConfigurationTest {
          */
         @Test
         @SuppressWarnings("PMD.PreserveStackTrace") // false positive
-        public void testDeprecatedListenableFuture() {
+        void testDeprecatedListenableFuture() {
 
             int len = shortThreadPoolConf.getCorePoolSize();
 
@@ -192,14 +192,14 @@ public class ExecutorConfigurationTest {
 
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Nested
-    public class ShortExecutor {
+    class ShortExecutor {
 
         /*
          * Exceptions are caught and logged but not bubbling. The log is output using UncaughtExceptionHandler.
          */
         @Order(1)
         @Test
-        public void testWithRunnableWithinCorePool() {
+        void testWithRunnableWithinCorePool() {
             if (LOG.isInfoEnabled()) {
                 LOG.error("***** It is a test of logging (testWithRunnableWithinCorePool). *****");
             }
@@ -224,7 +224,7 @@ public class ExecutorConfigurationTest {
          */
         @Order(2)
         @Test
-        public void testWithRunnableOverPool() {
+        void testWithRunnableOverPool() {
             if (LOG.isInfoEnabled()) {
                 LOG.error("***** It is a test of logging (testWithRunnableOverPool). *****");
             }
@@ -257,7 +257,7 @@ public class ExecutorConfigurationTest {
          */
         @Order(3)
         @Test
-        public void testWithRunnableWithinQueue() {
+        void testWithRunnableWithinQueue() {
             try {
                 Thread.sleep(PROCESS_DELAY_MILL_SECONDS * 2);
             } catch (InterruptedException e) {
@@ -300,7 +300,7 @@ public class ExecutorConfigurationTest {
          */
         @Order(4)
         @Test
-        public void testWithRunnableOverQueue() {
+        void testWithRunnableOverQueue() {
             if (LOG.isInfoEnabled()) {
                 LOG.error("***** It is a test of logging (testWithRunnableOverQueue). *****");
             }
@@ -332,7 +332,7 @@ public class ExecutorConfigurationTest {
          */
         @Order(5)
         @Test
-        public void testWithFutureWithinCorePool() {
+        void testWithFutureWithinCorePool() {
 
             int len = shortThreadPoolConf.getCorePoolSize();
 
@@ -384,7 +384,7 @@ public class ExecutorConfigurationTest {
          */
         @Order(6)
         @Test
-        public void testWithFutureOverPool() {
+        void testWithFutureOverPool() {
 
             int len = shortThreadPoolConf.getMaxPoolSize() + 5;
 
@@ -436,7 +436,7 @@ public class ExecutorConfigurationTest {
          */
         @Order(7)
         @Test
-        public void testWithFutureWithinQueue() {
+        void testWithFutureWithinQueue() {
 
             int len = shortThreadPoolConf.getQueueCapacity();
 
@@ -494,7 +494,7 @@ public class ExecutorConfigurationTest {
          */
         @Order(8)
         @Test
-        public void testWithFutureOverQueue() {
+        void testWithFutureOverQueue() {
 
             int len = shortThreadPoolConf.getQueueCapacity() + 20;
 
@@ -554,7 +554,7 @@ public class ExecutorConfigurationTest {
         @Order(9)
         @Test
         @SuppressWarnings("PMD.PreserveStackTrace") // false positive
-        public void testWithFutureThrowable() {
+        void testWithFutureThrowable() {
 
             int len = shortThreadPoolConf.getCorePoolSize();
 

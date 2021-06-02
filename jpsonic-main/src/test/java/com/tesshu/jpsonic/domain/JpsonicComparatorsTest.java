@@ -72,7 +72,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * range not defined in the legacy test specification has been expanded.
  */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class JpsonicComparatorsTest extends AbstractNeedsScan {
+class JpsonicComparatorsTest extends AbstractNeedsScan {
 
     protected static final Logger LOG = LoggerFactory.getLogger(JpsonicComparatorsTest.class);
 
@@ -236,7 +236,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Actions.artistOrderByAlpha
     @ComparatorsDecisions.Conditions.Target.Artist
     @Test
-    public void c00() {
+    void c00() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -252,7 +252,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.Artist
     @ComparatorsDecisions.Actions.artistOrderByAlpha
     @Test
-    public void c01() {
+    void c01() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -267,7 +267,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.Album
     @ComparatorsDecisions.Actions.albumOrderByAlpha
     @Test
-    public void c02() {
+    void c02() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -283,7 +283,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.Album
     @ComparatorsDecisions.Actions.albumOrderByAlpha
     @Test
-    public void c03() {
+    void c03() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -301,7 +301,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.parent.isEmpty
     @ComparatorsDecisions.Actions.mediaFileOrder
     @Test
-    public void c16() {
+    void c16() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(true);
@@ -320,7 +320,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.parent.isEmpty
     @ComparatorsDecisions.Actions.mediaFileOrder
     @Test
-    public void c17() {
+    void c17() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(true);
@@ -339,7 +339,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.parent.isEmpty
     @ComparatorsDecisions.Actions.mediaFileOrder
     @Test
-    public void c18() {
+    void c18() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(true);
         settingsService.setProhibitSortVarious(true);
@@ -359,7 +359,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.parent.isEmpty
     @ComparatorsDecisions.Actions.mediaFileOrder
     @Test
-    public void c19() {
+    void c19() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(true);
         settingsService.setProhibitSortVarious(true);
@@ -377,7 +377,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.parent.isVariablePrefix
     @ComparatorsDecisions.Actions.mediaFileOrder
     @Test
-    public void c20() {
+    void c20() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(true);
@@ -396,7 +396,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.parent.isVariablePrefix
     @ComparatorsDecisions.Actions.mediaFileOrder
     @Test
-    public void c21() {
+    void c21() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(true);
@@ -415,7 +415,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.parent.isVariablePrefix
     @ComparatorsDecisions.Actions.mediaFileOrder
     @Test
-    public void c22() {
+    void c22() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(true);
         settingsService.setProhibitSortVarious(true);
@@ -435,7 +435,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.parent.isVariablePrefix
     @ComparatorsDecisions.Actions.mediaFileOrder
     @Test
-    public void c23() {
+    void c23() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(true);
         settingsService.setProhibitSortVarious(true);
@@ -453,7 +453,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.parent.isEmpty
     @ComparatorsDecisions.Actions.mediaFileOrder
     @Test
-    public void c24() {
+    void c24() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(true);
@@ -472,7 +472,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.parent.isEmpty
     @ComparatorsDecisions.Actions.mediaFileOrder
     @Test
-    public void c25() {
+    void c25() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(true);
@@ -491,7 +491,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.parent.isEmpty
     @ComparatorsDecisions.Actions.mediaFileOrder
     @Test
-    public void c26() {
+    void c26() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(true);
         settingsService.setProhibitSortVarious(true);
@@ -510,7 +510,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.parent.isEmpty
     @ComparatorsDecisions.Actions.mediaFileOrder
     @Test
-    public void c27() {
+    void c27() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(true);
         settingsService.setProhibitSortVarious(true);
@@ -527,7 +527,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.parent.isVariablePrefix
     @ComparatorsDecisions.Actions.mediaFileOrder
     @Test
-    public void c28() {
+    void c28() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(true);
@@ -546,7 +546,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.parent.isVariablePrefix
     @ComparatorsDecisions.Actions.mediaFileOrder
     @Test
-    public void c29() {
+    void c29() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(true);
@@ -565,7 +565,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.parent.isVariablePrefix
     @ComparatorsDecisions.Actions.mediaFileOrder
     @Test
-    public void c30() {
+    void c30() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(true);
         settingsService.setProhibitSortVarious(true);
@@ -585,7 +585,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.parent.isVariablePrefix
     @ComparatorsDecisions.Actions.mediaFileOrder
     @Test
-    public void c31() {
+    void c31() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(true);
         settingsService.setProhibitSortVarious(true);
@@ -601,7 +601,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.ARTIST
     @ComparatorsDecisions.Actions.mediaFileOrderByAlpha
     @Test
-    public void c32() {
+    void c32() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -618,7 +618,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.ARTIST
     @ComparatorsDecisions.Actions.mediaFileOrderByAlpha
     @Test
-    public void c33() {
+    void c33() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -635,7 +635,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.ARTIST
     @ComparatorsDecisions.Actions.mediaFileOrderByAlpha
     @Test
-    public void c34() {
+    void c34() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(true);
         settingsService.setProhibitSortVarious(false);
@@ -653,7 +653,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.ARTIST
     @ComparatorsDecisions.Actions.mediaFileOrderByAlpha
     @Test
-    public void c35() {
+    void c35() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(true);
         settingsService.setProhibitSortVarious(false);
@@ -669,7 +669,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.ALBUM
     @ComparatorsDecisions.Actions.mediaFileOrderByAlpha
     @Test
-    public void c36() {
+    void c36() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -686,7 +686,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.ALBUM
     @ComparatorsDecisions.Actions.mediaFileOrderByAlpha
     @Test
-    public void c37() {
+    void c37() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -703,7 +703,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.ALBUM
     @ComparatorsDecisions.Actions.mediaFileOrderByAlpha
     @Test
-    public void c38() {
+    void c38() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(true);
         settingsService.setProhibitSortVarious(false);
@@ -721,7 +721,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.ALBUM
     @ComparatorsDecisions.Actions.mediaFileOrderByAlpha
     @Test
-    public void c39() {
+    void c39() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(true);
         settingsService.setProhibitSortVarious(false);
@@ -737,7 +737,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.Ignore
     @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.Ignore.FieldOrderBy.Artist
     @ComparatorsDecisions.Actions.mediaFileOrderBy
-    public void c40() {
+    void c40() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -754,7 +754,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.Ignore
     @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.Ignore.FieldOrderBy.Artist
     @ComparatorsDecisions.Actions.mediaFileOrderBy
-    public void c41() {
+    void c41() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -770,7 +770,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.Ignore
     @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.Ignore.FieldOrderBy.Album
     @ComparatorsDecisions.Actions.mediaFileOrderBy
-    public void c42() {
+    void c42() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -787,7 +787,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.Ignore
     @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.Ignore.FieldOrderBy.Album
     @ComparatorsDecisions.Actions.mediaFileOrderBy
-    public void c43() {
+    void c43() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -803,7 +803,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.Ignore
     @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.Ignore.FieldOrderBy.Track
     @ComparatorsDecisions.Actions.mediaFileOrderBy
-    public void c44() {
+    void c44() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -820,7 +820,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.Ignore
     @ComparatorsDecisions.Conditions.Target.MediaFile.mediaType.Ignore.FieldOrderBy.Track
     @ComparatorsDecisions.Actions.mediaFileOrderBy
-    public void c45() {
+    void c45() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -835,7 +835,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.Playlist
     @ComparatorsDecisions.Actions.playlistOrder
     @Test
-    public void c46() {
+    void c46() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -856,7 +856,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.Playlist
     @ComparatorsDecisions.Actions.playlistOrder
     @Test
-    public void c47() {
+    void c47() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -876,7 +876,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.Genre
     @ComparatorsDecisions.Actions.genreOrder
     @Test
-    public void c48() {
+    void c48() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -894,7 +894,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.Genre
     @ComparatorsDecisions.Actions.genreOrder
     @Test
-    public void c49() {
+    void c49() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -910,7 +910,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.Genre
     @ComparatorsDecisions.Actions.genreOrderByAlpha
     @Test
-    public void c50() {
+    void c50() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -932,7 +932,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.Genre
     @ComparatorsDecisions.Actions.genreOrderByAlpha
     @Test
-    public void c51() {
+    void c51() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -952,7 +952,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.SortableArtist
     @ComparatorsDecisions.Actions.sortableArtistOrder
     @Test
-    public void c52() {
+    void c52() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -968,7 +968,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @ComparatorsDecisions.Conditions.Target.SortableArtist
     @ComparatorsDecisions.Actions.sortableArtistOrder
     @Test
-    public void c53() {
+    void c53() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -985,7 +985,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
      * some elements included in jPSonicNaturalList.
      */
     @Test
-    public void testAlphanum() {
+    void testAlphanum() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
@@ -1001,7 +1001,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
      * Copyright 2009 (C) Sindre Mehus
      */
     @Test
-    public void testCollation() {
+    void testCollation() {
         List<TestSortableArtist> artists = new ArrayList<>();
 
         artists.add(new TestSortableArtist("p\u00e9ch\u00e9", comparators)); // péché
@@ -1019,7 +1019,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
      * Copyright 2009 (C) Sindre Mehus
      */
     @Test
-    public void testCompareAlbums() {
+    void testCompareAlbums() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(true);
         final MediaFileComparator comparator = comparators.mediaFileOrder(null);
@@ -1065,7 +1065,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
      * Copyright 2009 (C) Sindre Mehus
      */
     @Test
-    public void testCompareDiscNumbers() {
+    void testCompareDiscNumbers() {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
 
@@ -1133,7 +1133,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
      * Copyright 2009 (C) Sindre Mehus
      */
     @Test
-    public void testSorting() {
+    void testSorting() {
         List<TestSortableArtist> artists = new ArrayList<>();
 
         artists.add(new TestSortableArtist("ABBA", comparators));
@@ -1157,7 +1157,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
      */
     @SuppressWarnings("checkstyle:variabledeclarationusagedistance")
     @Test
-    public void testSortingWithAccents() {
+    void testSortingWithAccents() {
 
         final TestSortableArtist a1 = new TestSortableArtist("Sea", comparators);
         final TestSortableArtist a2 = new TestSortableArtist("SEB", comparators);
@@ -1200,7 +1200,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     }
 
     @Nested
-    public class JpsonicComparatorsIntegrationTest {
+    class JpsonicComparatorsIntegrationTest {
 
         @Autowired
         private MainController mainController;
@@ -1269,7 +1269,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
          */
         @Integration
         @Test
-        public void testGetMultiFolderChildren() throws IOException {
+        void testGetMultiFolderChildren() throws IOException {
             SearchCriteria criteria = director.construct("10", 0, Integer.MAX_VALUE, false, MUSIC_FOLDERS,
                     IndexType.ARTIST);
             SearchResult result = searchService.search(criteria);
@@ -1283,7 +1283,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
          */
         @Integration
         @Test
-        public void testGetAllPlaylists() {
+        void testGetAllPlaylists() {
             List<Playlist> all = playlistService.getAllPlaylists();
             List<String> names = all.stream().map(Playlist::getName).collect(Collectors.toList());
             JpsonicComparatorsTestUtils.validateNaturalList(names, 8, 9);
@@ -1300,7 +1300,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
          */
         @Integration
         @Test
-        public void testGetChildrenOf() throws IOException {
+        void testGetChildrenOf() throws IOException {
             SearchCriteria criteria = director.construct("10", 0, Integer.MAX_VALUE, false, MUSIC_FOLDERS,
                     IndexType.ARTIST);
             SearchResult result = searchService.search(criteria);
@@ -1314,7 +1314,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
          */
         @Integration
         @Test
-        public void testGetIndexedArtists() {
+        void testGetIndexedArtists() {
             List<MusicFolder> musicFoldersToUse = Arrays.asList(MUSIC_FOLDERS.get(0));
             SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> m = musicIndexService
                     .getIndexedArtists(musicFoldersToUse, true);
@@ -1329,7 +1329,7 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
          */
         @Integration
         @Test
-        public void testPlayQueueSort() throws IOException {
+        void testPlayQueueSort() throws IOException {
             SearchCriteria criteria = director.construct("empty", 0, Integer.MAX_VALUE, false, MUSIC_FOLDERS,
                     IndexType.SONG);
             SearchResult result = searchService.search(criteria);

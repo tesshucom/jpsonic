@@ -36,10 +36,10 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Sindre Mehus
  */
-public class RangeOutputStreamTest {
+class RangeOutputStreamTest {
 
     @Test
-    public void testWrap() throws IOException {
+    void testWrap() throws IOException {
         assertTrue(doTestWrap(0, 99, 100, 1));
         assertTrue(doTestWrap(0, 99, 100, 10));
         assertTrue(doTestWrap(0, 99, 100, 13));

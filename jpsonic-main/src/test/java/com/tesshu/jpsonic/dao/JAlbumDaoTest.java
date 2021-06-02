@@ -40,7 +40,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootConfiguration
 @ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
-public class JAlbumDaoTest extends AbstractNeedsScan {
+class JAlbumDaoTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
@@ -66,7 +66,7 @@ public class JAlbumDaoTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetAlphabeticalAlbums() {
+    void testGetAlphabeticalAlbums() {
         List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, MUSIC_FOLDERS);
         List<String> names = albums.stream().map(Album::getName).filter(name -> !"☆彡ALBUM".equals(name))
                 .collect(Collectors.toList());

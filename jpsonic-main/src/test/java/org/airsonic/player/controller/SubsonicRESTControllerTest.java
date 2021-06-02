@@ -46,7 +46,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @ExtendWith(NeedsHome.class)
 @AutoConfigureMockMvc
 @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
-public class SubsonicRESTControllerTest {
+class SubsonicRESTControllerTest {
 
     private static final String CLIENT_NAME = "jpsonic";
     private static final String AIRSONIC_USER = "admin";
@@ -70,7 +70,7 @@ public class SubsonicRESTControllerTest {
      * Wrap&Throw Exception due to constraints of 'springframework' {@link
      * MockMvc#perform(org.springframework.test.web.servlet.RequestBuilder)}
      */
-    public void pingTest() throws ExecutionException {
+    void testPing() throws ExecutionException {
         try {
             mvc.perform(get("/rest/ping").param("v", apiVerion).param("c", CLIENT_NAME).param("u", AIRSONIC_USER)
                     .param("p", AIRSONIC_PASSWORD).param("f", EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))

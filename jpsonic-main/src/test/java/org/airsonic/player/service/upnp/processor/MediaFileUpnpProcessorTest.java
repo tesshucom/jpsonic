@@ -40,7 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-public class MediaFileUpnpProcessorTest extends AbstractNeedsScan {
+class MediaFileUpnpProcessorTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
@@ -67,13 +67,13 @@ public class MediaFileUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetItemCount() {
+    void testGetItemCount() {
         // 31 + 22(topnodes)
         assertEquals(53, mediaFileUpnpProcessor.getItemCount());
     }
 
     @Test
-    public void testGetItems() {
+    void testGetItems() {
 
         List<MediaFile> items = mediaFileUpnpProcessor.getItems(0, 10);
         assertEquals(10, items.size());
@@ -91,7 +91,7 @@ public class MediaFileUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetChildSizeOf() {
+    void testGetChildSizeOf() {
         List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream().filter(a -> "10".equals(a.getName()))
                 .collect(Collectors.toList());
         assertEquals(1, artists.size());
@@ -100,7 +100,7 @@ public class MediaFileUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testgetChildren() {
+    void testgetChildren() {
 
         List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream().filter(a -> "10".equals(a.getName()))
                 .collect(Collectors.toList());
@@ -126,7 +126,7 @@ public class MediaFileUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testAlbum() {
+    void testAlbum() {
 
         settingsService.setSortAlbumsByYear(false);
 
@@ -145,7 +145,7 @@ public class MediaFileUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testAlbumByYear() {
+    void testAlbumByYear() {
 
         // The result change depending on the setting
         settingsService.setSortAlbumsByYear(true);
@@ -166,7 +166,7 @@ public class MediaFileUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testSongs() {
+    void testSongs() {
 
         settingsService.setSortAlbumsByYear(false);
 

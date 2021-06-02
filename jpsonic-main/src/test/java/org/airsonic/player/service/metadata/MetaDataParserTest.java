@@ -35,10 +35,10 @@ import org.junit.jupiter.api.Test;
  * @author Sindre Mehus
  */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class MetaDataParserTest {
+class MetaDataParserTest {
 
     @Test
-    public void testRemoveTrackNumberFromTitle() {
+    void testRemoveTrackNumberFromTitle() {
 
         MetaDataParser parser = new MetaDataParser() {
             @Override

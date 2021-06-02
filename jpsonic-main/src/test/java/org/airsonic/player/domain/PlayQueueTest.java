@@ -49,13 +49,13 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
 @ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class PlayQueueTest {
+class PlayQueueTest {
 
     @Autowired
     private JpsonicComparators jpsonicComparators;
 
     @Test
-    public void testEmpty() {
+    void testEmpty() {
         PlayQueue playQueue = new PlayQueue();
         assertEquals(0, playQueue.size());
         assertTrue(playQueue.isEmpty());
@@ -64,7 +64,7 @@ public class PlayQueueTest {
     }
 
     @Test
-    public void testStatus() {
+    void testStatus() {
         PlayQueue playQueue = new PlayQueue();
         assertEquals(PlayQueue.Status.PLAYING, playQueue.getStatus());
 
@@ -79,7 +79,7 @@ public class PlayQueueTest {
     }
 
     @Test
-    public void testMoveUp() {
+    void testMoveUp() {
         PlayQueue playQueue = createPlaylist(0, "A", "B", "C", "D");
         playQueue.moveUp(0);
         assertPlaylistEquals(playQueue, 0, "A", "B", "C", "D");
@@ -98,7 +98,7 @@ public class PlayQueueTest {
     }
 
     @Test
-    public void testMoveDown() {
+    void testMoveDown() {
         PlayQueue playQueue = createPlaylist(0, "A", "B", "C", "D");
         playQueue.moveDown(0);
         assertPlaylistEquals(playQueue, 1, "B", "A", "C", "D");
@@ -117,7 +117,7 @@ public class PlayQueueTest {
     }
 
     @Test
-    public void testRemove() {
+    void testRemove() {
         PlayQueue playQueue = createPlaylist(0, "A", "B", "C", "D");
         playQueue.removeFileAt(0);
         assertPlaylistEquals(playQueue, 0, "B", "C", "D");
@@ -144,7 +144,7 @@ public class PlayQueueTest {
     }
 
     @Test
-    public void testNext() {
+    void testNext() {
         PlayQueue playQueue = createPlaylist(0, "A", "B", "C");
         assertFalse(playQueue.isRepeatEnabled());
         playQueue.next();
@@ -166,7 +166,7 @@ public class PlayQueueTest {
     }
 
     @Test
-    public void testPlayAfterEndReached() {
+    void testPlayAfterEndReached() {
         PlayQueue playQueue = createPlaylist(2, "A", "B", "C");
         playQueue.setStatus(PlayQueue.Status.PLAYING);
         playQueue.next();
@@ -180,7 +180,7 @@ public class PlayQueueTest {
     }
 
     @Test
-    public void testPlayLast() {
+    void testPlayLast() {
         PlayQueue playQueue = createPlaylist(1, "A", "B", "C");
 
         playQueue.addFiles(true, new TestMediaFile("D"));
@@ -191,7 +191,7 @@ public class PlayQueueTest {
     }
 
     @Test
-    public void testAddFilesAt() {
+    void testAddFilesAt() {
         PlayQueue playQueue = createPlaylist(0);
 
         playQueue.addFilesAt(Arrays.asList(new TestMediaFile("A"), new TestMediaFile("B"), new TestMediaFile("C")), 0);
@@ -206,7 +206,7 @@ public class PlayQueueTest {
     }
 
     @Test
-    public void testUndo() {
+    void testUndo() {
         PlayQueue playQueue = createPlaylist(0, "A", "B", "C");
         playQueue.setIndex(2);
         playQueue.undo();
@@ -234,7 +234,7 @@ public class PlayQueueTest {
     }
 
     @Test
-    public void testOrder() {
+    void testOrder() {
         PlayQueue playQueue = new PlayQueue();
         playQueue.addFiles(true, new TestMediaFile(2, "Artist A", "Album B"));
         playQueue.addFiles(true, new TestMediaFile(1, "Artist C", "Album C"));

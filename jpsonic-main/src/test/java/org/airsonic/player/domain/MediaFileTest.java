@@ -31,10 +31,10 @@ import org.junit.jupiter.api.Test;
  *
  * @author Sindre Mehus
  */
-public class MediaFileTest {
+class MediaFileTest {
 
     @Test
-    public void testGetDurationAsString() {
+    void testGetDurationAsString() {
         assertTrue(doTestGetDurationAsString(0, "0:00"));
         assertTrue(doTestGetDurationAsString(1, "0:01"));
         assertTrue(doTestGetDurationAsString(10, "0:10"));

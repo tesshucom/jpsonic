@@ -77,7 +77,7 @@ import org.springframework.test.annotation.DirtiesContext;
 @ExtendWith(NeedsHome.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class MediaScannerServiceTest {
+class MediaScannerServiceTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaScannerServiceTest.class);
 
@@ -111,7 +111,7 @@ public class MediaScannerServiceTest {
      * Tests the MediaScannerService by scanning the test media library into an empty database.
      */
     @Test
-    public void testScanLibrary() {
+    void testScanLibrary() {
         musicFolderDao.getAllMusicFolders()
                 .forEach(musicFolder -> musicFolderDao.deleteMusicFolder(musicFolder.getId()));
         MusicFolderTestDataUtils.getTestMusicFolders().forEach(musicFolderDao::createMusicFolder);
@@ -200,7 +200,7 @@ public class MediaScannerServiceTest {
     }
 
     @Test
-    public void testSpecialCharactersInFilename(@TempDir Path tempDirPath) throws Exception {
+    void testSpecialCharactersInFilename(@TempDir Path tempDirPath) throws Exception {
 
         File tempDir = tempDirPath.toFile();
         tempDir.mkdir();
@@ -232,12 +232,12 @@ public class MediaScannerServiceTest {
     }
 
     @Test
-    public void testNeverScanned() {
+    void testNeverScanned() {
         assertFalse(mediaScannerService.neverScanned());
     }
 
     @Test
-    public void testMusicBrainzReleaseIdTag() {
+    void testMusicBrainzReleaseIdTag() {
 
         // Add the "Music3" folder to the database
         File musicFolderFile = new File(MusicFolderTestDataUtils.resolveMusic3FolderPath());

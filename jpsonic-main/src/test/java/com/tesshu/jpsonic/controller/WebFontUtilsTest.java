@@ -47,7 +47,7 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
 @ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class WebFontUtilsTest {
+class WebFontUtilsTest {
 
     private static final String FONT_FACE_KEY = "viewhint.fontFace";
 
@@ -60,7 +60,7 @@ public class WebFontUtilsTest {
 
     @Test
     @Order(1)
-    public void testSetToRequest() throws ExecutionException {
+    void testSetToRequest() throws ExecutionException {
 
         @Unsigned
         Method method;
@@ -142,7 +142,7 @@ public class WebFontUtilsTest {
 
     @Test
     @Order(2)
-    public void testSetToCommand() throws ExecutionException {
+    void testSetToCommand() throws ExecutionException {
 
         @Unsigned
         Method method;
@@ -177,7 +177,7 @@ public class WebFontUtilsTest {
 
     @Test
     @Order(3)
-    public void testFormatFontFamily() {
+    void testFormatFontFamily() {
         assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, WebFontUtils.formatFontFamily(WebFontUtils.DEFAULT_FONT_FAMILY));
         String jpFontfamily = WebFontUtils.JP_FONT_NAME + ", " + WebFontUtils.DEFAULT_FONT_FAMILY;
         assertEquals(jpFontfamily, WebFontUtils.formatFontFamily(jpFontfamily));
@@ -199,7 +199,7 @@ public class WebFontUtilsTest {
 
     @Test
     @Order(4)
-    public void testSetToSettings() throws ExecutionException {
+    void testSetToSettings() throws ExecutionException {
         PersonalSettingsCommand command = new PersonalSettingsCommand();
         WebFontUtils.setToCommand(new UserSettings(""), command);
 

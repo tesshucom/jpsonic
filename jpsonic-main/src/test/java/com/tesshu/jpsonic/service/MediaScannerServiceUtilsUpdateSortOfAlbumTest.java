@@ -43,7 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /*
  * In the testing class, it may be less readable.
  */
-public class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractNeedsScan {
+class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
@@ -97,7 +97,7 @@ public class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractNeeds
     }
 
     @Test
-    public void testUpdateSortOfAlbum() throws ExecutionException {
+    void testUpdateSortOfAlbum() throws ExecutionException {
 
         List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, MUSIC_FOLDERS);
         assertEquals(5, albums.size());

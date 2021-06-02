@@ -35,7 +35,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class JukeboxServiceTest {
+class JukeboxServiceTest {
 
     private JukeboxService jukeboxService;
 
@@ -78,7 +78,7 @@ public class JukeboxServiceTest {
     }
 
     @Test
-    public void setPositionWithJukeboxPlayer() {
+    void testSetPositionWithJukeboxPlayer() {
         // When
         jukeboxService.setPosition(jukeboxPlayer, 0);
         // Then
@@ -86,13 +86,13 @@ public class JukeboxServiceTest {
     }
 
     @Test
-    public void setPositionWithLegacyJukeboxPlayer() {
+    void testSetPositionWithLegacyJukeboxPlayer() {
         // When
         assertThrows(UnsupportedOperationException.class, () -> jukeboxService.setPosition(legacyJukeboxPlayer, 0));
     }
 
     @Test
-    public void testGetGainWithJukeboxPlayer() {
+    void testGetGainWithJukeboxPlayer() {
         // When
         jukeboxService.getGain(jukeboxPlayer);
         // Then
@@ -100,7 +100,7 @@ public class JukeboxServiceTest {
     }
 
     @Test
-    public void testGetGainWithLegacyJukeboxPlayer() {
+    void testGetGainWithLegacyJukeboxPlayer() {
         // When
         jukeboxService.getGain(legacyJukeboxPlayer);
         // Then
@@ -108,7 +108,7 @@ public class JukeboxServiceTest {
     }
 
     @Test
-    public void testGetGainWithNonJukeboxPlayer() {
+    void testGetGainWithNonJukeboxPlayer() {
         // When
         float gain = jukeboxService.getGain(nonJukeboxPlayer);
         // Then
@@ -116,7 +116,7 @@ public class JukeboxServiceTest {
     }
 
     @Test
-    public void testUpdateJukebox() {
+    void testUpdateJukebox() {
         // When
         jukeboxService.updateJukebox(legacyJukeboxPlayer, 0);
         // Then
@@ -124,7 +124,7 @@ public class JukeboxServiceTest {
     }
 
     @Test
-    public void testGetPositionWithJukeboxPlayer() {
+    void testGetPositionWithJukeboxPlayer() {
         // When
         jukeboxService.getPosition(jukeboxPlayer);
         // Then
@@ -132,7 +132,7 @@ public class JukeboxServiceTest {
     }
 
     @Test
-    public void testGetPositionWithLegacyJukeboxPlayer() {
+    void testGetPositionWithLegacyJukeboxPlayer() {
         // When
         jukeboxService.getPosition(legacyJukeboxPlayer);
         // Then
@@ -140,7 +140,7 @@ public class JukeboxServiceTest {
     }
 
     @Test
-    public void testGetPasitionWithNonJukeboxPlayer() {
+    void testGetPasitionWithNonJukeboxPlayer() {
         // When
         int position = jukeboxService.getPosition(nonJukeboxPlayer);
         // Then
@@ -148,7 +148,7 @@ public class JukeboxServiceTest {
     }
 
     @Test
-    public void testSetGainWithJukeboxPlayer() {
+    void testSetGainWithJukeboxPlayer() {
         // When
         jukeboxService.setGain(jukeboxPlayer, 0.5f);
         // Then
@@ -156,7 +156,7 @@ public class JukeboxServiceTest {
     }
 
     @Test
-    public void testSetGaintWithLegacyJukeboxPlayer() {
+    void testSetGaintWithLegacyJukeboxPlayer() {
         // When
         jukeboxService.setGain(legacyJukeboxPlayer, 0.5f);
         // Then
@@ -164,7 +164,7 @@ public class JukeboxServiceTest {
     }
 
     @Test
-    public void testStartWithJukeboxPlayer() {
+    void testStartWithJukeboxPlayer() {
         // When
         jukeboxService.start(jukeboxPlayer);
         // Then
@@ -172,7 +172,7 @@ public class JukeboxServiceTest {
     }
 
     @Test
-    public void testStartWithLegacyJukeboxPlayer() {
+    void testStartWithLegacyJukeboxPlayer() {
         // When
         jukeboxService.start(legacyJukeboxPlayer);
 
@@ -181,7 +181,7 @@ public class JukeboxServiceTest {
     }
 
     @Test
-    public void testPlayWithJukeboxPlayer() {
+    void testPlayWithJukeboxPlayer() {
         // When
         jukeboxService.play(jukeboxPlayer);
         // Then
@@ -189,7 +189,7 @@ public class JukeboxServiceTest {
     }
 
     @Test
-    public void testPlayWithLegacyJukeboxPlayer() {
+    void testPlayWithLegacyJukeboxPlayer() {
         // When
         jukeboxService.play(legacyJukeboxPlayer);
         // Then
@@ -197,7 +197,7 @@ public class JukeboxServiceTest {
     }
 
     @Test
-    public void testStopWithJukeboxPlayer() {
+    void testStopWithJukeboxPlayer() {
         // When
         jukeboxService.stop(jukeboxPlayer);
         // Then
@@ -205,7 +205,7 @@ public class JukeboxServiceTest {
     }
 
     @Test
-    public void testStopWithLegacyJukeboxPlayer() {
+    void testStopWithLegacyJukeboxPlayer() {
         // When
         jukeboxService.stop(legacyJukeboxPlayer);
         // Then
@@ -213,7 +213,7 @@ public class JukeboxServiceTest {
     }
 
     @Test
-    public void testSkipWithJukeboxPlayer() {
+    void testSkipWithJukeboxPlayer() {
         // When
         jukeboxService.skip(jukeboxPlayer, 0, 1);
         // Then
@@ -221,7 +221,7 @@ public class JukeboxServiceTest {
     }
 
     @Test
-    public void testSkipWithLegacyJukeboxPlayer() {
+    void testSkipWithLegacyJukeboxPlayer() {
         // When
         jukeboxService.skip(legacyJukeboxPlayer, 0, 1);
         // Then
@@ -229,7 +229,7 @@ public class JukeboxServiceTest {
     }
 
     @Test
-    public void testCanControlWithJukeboxPlayer() {
+    void testCanControlWithJukeboxPlayer() {
         // When
         boolean canControl = jukeboxService.canControl(jukeboxPlayer);
         // Then
@@ -237,7 +237,7 @@ public class JukeboxServiceTest {
     }
 
     @Test
-    public void testCanControlWithLegacyJukeboxPlayer() {
+    void testCanControlWithLegacyJukeboxPlayer() {
         // When
         when(jukeboxLegacySubsonicService.getPlayer()).thenReturn(legacyJukeboxPlayer);
         boolean canControl = jukeboxService.canControl(legacyJukeboxPlayer);
@@ -246,7 +246,7 @@ public class JukeboxServiceTest {
     }
 
     @Test
-    public void testCanControlWithLegacyJukeboxPlayerWrongPlayer() {
+    void testCanControlWithLegacyJukeboxPlayerWrongPlayer() {
         // When
         when(jukeboxLegacySubsonicService.getPlayer()).thenReturn(nonJukeboxPlayer);
         boolean canControl = jukeboxService.canControl(legacyJukeboxPlayer);

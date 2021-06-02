@@ -48,7 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * This test case is a FalsePattern for search,
  * but there may be problems with the data flow prior to creating the search index.
  */
-public class SearchServiceSpecialPathTest extends AbstractNeedsScan {
+class SearchServiceSpecialPathTest extends AbstractNeedsScan {
 
     private List<MusicFolder> musicFolders;
 
@@ -78,7 +78,7 @@ public class SearchServiceSpecialPathTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testSpecialCharactersInDirName() {
+    void testSpecialCharactersInDirName() {
 
         List<MusicFolder> folders = getMusicFolders();
 

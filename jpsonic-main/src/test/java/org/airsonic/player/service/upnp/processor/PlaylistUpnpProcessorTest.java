@@ -47,7 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /*
  * Test to correct sort inconsistencies.
  */
-public class PlaylistUpnpProcessorTest extends AbstractNeedsScan {
+class PlaylistUpnpProcessorTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
@@ -111,12 +111,12 @@ public class PlaylistUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetItemCount() {
+    void testGetItemCount() {
         assertEquals(31, playlistUpnpProcessor.getItemCount());
     }
 
     @Test
-    public void testGetItems() {
+    void testGetItems() {
 
         Map<String, Playlist> c = LegacyMap.of();
 
@@ -136,14 +136,14 @@ public class PlaylistUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetChildSizeOf() {
+    void testGetChildSizeOf() {
         List<Playlist> playlists = playlistUpnpProcessor.getItems(0, 1);
         assertEquals(1, playlists.size());
         assertEquals(61, playlistUpnpProcessor.getChildSizeOf(playlists.get(0)));
     }
 
     @Test
-    public void testGetChildren() {
+    void testGetChildren() {
 
         List<Playlist> playlists = playlistUpnpProcessor.getItems(0, 1);
         assertEquals(1, playlists.size());

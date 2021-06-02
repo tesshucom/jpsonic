@@ -52,7 +52,7 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(basePackages = "org.airsonic.player")
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
-public class SettingsServiceTest {
+class SettingsServiceTest {
 
     @Autowired
     private SettingsService settingsService;
@@ -60,13 +60,13 @@ public class SettingsServiceTest {
     private UserSettings settings;
 
     @Test
-    public void testJpsonicHome() {
+    void testJpsonicHome() {
         String homePath = System.getProperty("jpsonic.home");
         assertEquals(homePath, SettingsService.getJpsonicHome().getAbsolutePath(), "Wrong Jpsonic home.");
     }
 
     @Test
-    public void testDefaultValues() {
+    void testDefaultValues() {
         assertEquals("ja", settingsService.getLocale().getLanguage(), "Wrong default language.");
         assertEquals(1, settingsService.getIndexCreationInterval(), "Wrong default index creation interval.");
         assertEquals(3, settingsService.getIndexCreationHour(), "Wrong default index creation hour.");
@@ -89,7 +89,7 @@ public class SettingsServiceTest {
     }
 
     @Test
-    public void testChangeSettings() {
+    void testChangeSettings() {
         settingsService.setIndexString("indexString");
         settingsService.setIgnoredArticles("a the foo bar");
         settingsService.setShortcuts("new incoming \"rock 'n' roll\"");
@@ -168,12 +168,12 @@ public class SettingsServiceTest {
     }
 
     @Test
-    public void testLanguageAndTheme() throws ExecutionException {
+    void testLanguageAndTheme() throws ExecutionException {
         assertEquals("DEFAULT", getUserSettings().getFontSchemeName());
     }
 
     @Test
-    public void testSettings4DesktopPC() throws ExecutionException {
+    void testSettings4DesktopPC() throws ExecutionException {
         UserSettings userSettings = getUserSettings();
         assertTrue(userSettings.isKeyboardShortcutsEnabled());
         assertEquals(AlbumListType.RANDOM, userSettings.getDefaultAlbumList());
@@ -202,7 +202,7 @@ public class SettingsServiceTest {
     }
 
     @Test
-    public void testSettings4Tablet() {
+    void testSettings4Tablet() {
         UserSettings tabletSettings = settingsService.createDefaultTabletUserSettings("");
         assertFalse(tabletSettings.isKeyboardShortcutsEnabled());
         assertEquals(AlbumListType.RANDOM, tabletSettings.getDefaultAlbumList());
@@ -231,7 +231,7 @@ public class SettingsServiceTest {
     }
 
     @Test
-    public void testSettings4Smartphone() {
+    void testSettings4Smartphone() {
         UserSettings smartphoneSettings = settingsService.createDefaultSmartphoneUserSettings("");
         assertFalse(smartphoneSettings.isKeyboardShortcutsEnabled());
         assertEquals(AlbumListType.INDEX, smartphoneSettings.getDefaultAlbumList());
@@ -260,7 +260,7 @@ public class SettingsServiceTest {
     }
 
     @Test
-    public void testDisplay() throws Exception {
+    void testDisplay() throws Exception {
         UserSettings userSettings = getUserSettings();
         assertTrue(userSettings.getMainVisibility().isTrackNumberVisible());
         assertTrue(userSettings.getMainVisibility().isArtistVisible());
@@ -286,7 +286,7 @@ public class SettingsServiceTest {
     }
 
     @Test
-    public void testAdditionalDisplay() throws ExecutionException {
+    void testAdditionalDisplay() throws ExecutionException {
         UserSettings userSettings = getUserSettings();
         assertFalse(userSettings.isShowNowPlayingEnabled());
         assertFalse(userSettings.isNowPlayingAllowed());

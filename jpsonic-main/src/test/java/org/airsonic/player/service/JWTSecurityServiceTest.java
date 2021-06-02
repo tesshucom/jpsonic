@@ -44,7 +44,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @SpringBootConfiguration
 @ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
 @ExtendWith(NeedsHome.class)
-public class JWTSecurityServiceTest {
+class JWTSecurityServiceTest {
 
     private static final String KAY = "someKey";
     private static final Algorithm ALGORITHM = JWTSecurityService.getAlgorithm(KAY);
@@ -63,7 +63,7 @@ public class JWTSecurityServiceTest {
 
     @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert") // false positive
     @Test
-    public void addJWTToken() {
+    void testAddJWTToken() {
         data().forEach(o -> {
             UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(o[0].toString());
             settingsService.setJWTKey(KAY);

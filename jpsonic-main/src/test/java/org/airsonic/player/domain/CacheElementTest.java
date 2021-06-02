@@ -32,10 +32,10 @@ import org.junit.jupiter.api.Test;
  * @author Sindre Mehus
  */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class CacheElementTest {
+class CacheElementTest {
 
     @Test
-    public void testCreateId() {
+    void testCreateId() {
         long ecpected = CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
         long actual = CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
         assertEquals(Long.valueOf(ecpected), Long.valueOf(actual));

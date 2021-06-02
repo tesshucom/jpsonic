@@ -42,7 +42,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class MediaFileDaoTest {
+class MediaFileDaoTest {
 
     // Below is a test of MediaFileDao#RandomSongsQueryBuilder
 
@@ -99,7 +99,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetIfJoinStarred() throws ExecutionException {
+    void testGetIfJoinStarred() throws ExecutionException {
 
         RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, null,
                 null, null, false, false, null);
@@ -127,7 +127,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetIfJoinAlbumRating() throws ExecutionException {
+    void testGetIfJoinAlbumRating() throws ExecutionException {
 
         RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, null,
                 null, null, false, false, null);
@@ -159,7 +159,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetFolderCondition() throws ExecutionException {
+    void testGetFolderCondition() throws ExecutionException {
 
         final String condition = " and media_file.folder in (:folders)";
 
@@ -179,7 +179,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetGenreCondition() throws ExecutionException {
+    void testGetGenreCondition() throws ExecutionException {
 
         final String condition = " and media_file.genre in (:genres)";
 
@@ -199,7 +199,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetFormatCondition() throws ExecutionException {
+    void testGetFormatCondition() throws ExecutionException {
 
         final String condition = " and media_file.format = :format";
 
@@ -217,7 +217,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetFromYearCondition() throws ExecutionException {
+    void testGetFromYearCondition() throws ExecutionException {
 
         final String condition = " and media_file.year >= :fromYear";
 
@@ -236,7 +236,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetToYearCondition() throws ExecutionException {
+    void testGetToYearCondition() throws ExecutionException {
 
         final String condition = " and media_file.year <= :toYear";
 
@@ -255,7 +255,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetMinLastPlayedCondition() throws ExecutionException {
+    void testGetMinLastPlayedCondition() throws ExecutionException {
 
         final String condition = " and media_file.last_played >= :minLastPlayed";
 
@@ -274,7 +274,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetMaxLastPlayedCondition() throws ExecutionException {
+    void testGetMaxLastPlayedCondition() throws ExecutionException {
 
         final String condition1 = " and media_file.last_played <= :maxLastPlayed";
         final String condition2 = " and (media_file.last_played is null or media_file.last_played <= :maxLastPlayed)";
@@ -305,7 +305,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetMinAlbumRatingCondition() throws ExecutionException {
+    void testGetMinAlbumRatingCondition() throws ExecutionException {
 
         RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, null,
                 null, null, false, false, null);
@@ -322,7 +322,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetMaxAlbumRatingCondition() throws ExecutionException {
+    void testGetMaxAlbumRatingCondition() throws ExecutionException {
 
         final String condition1 = " and user_rating.rating <= :maxAlbumRating";
         final String condition2 = " and (user_rating.rating is null or user_rating.rating <= :maxAlbumRating)";
@@ -353,7 +353,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetMinPlayCountCondition() throws ExecutionException {
+    void testGetMinPlayCountCondition() throws ExecutionException {
 
         final String condition = " and media_file.play_count >= :minPlayCount";
 
@@ -372,7 +372,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetMaxPlayCountCondition() throws ExecutionException {
+    void testGetMaxPlayCountCondition() throws ExecutionException {
 
         final String condition1 = " and media_file.play_count <= :maxPlayCount";
         final String condition2 = " and (media_file.play_count is null or media_file.play_count <= :maxPlayCount)";
@@ -403,7 +403,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetShowStarredSongsCondition() throws ExecutionException {
+    void testGetShowStarredSongsCondition() throws ExecutionException {
 
         RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, null,
                 null, null, false, false, null);
@@ -431,7 +431,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetShowUnstarredSongsCondition() throws ExecutionException {
+    void testGetShowUnstarredSongsCondition() throws ExecutionException {
 
         final String condition = " and starred_media_file.id is null";
 
@@ -476,7 +476,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testBuild() throws ExecutionException {
+    void testBuild() throws ExecutionException {
 
         final String noOp = select + where + orderLimit;
         RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(), null,

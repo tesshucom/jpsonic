@@ -49,7 +49,7 @@ import org.springframework.test.annotation.DirtiesContext;
 @ExtendWith(NeedsHome.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class DocumentFactoryLegacyTest {
+class DocumentFactoryLegacyTest {
 
     @Autowired
     private DocumentFactory documentFactory;
@@ -63,7 +63,7 @@ public class DocumentFactoryLegacyTest {
     }
 
     @Test
-    public void testCreateAlbum() {
+    void testCreateAlbum() {
         Album album = new Album();
         album.setId(1);
         album.setName("name");
@@ -86,7 +86,7 @@ public class DocumentFactoryLegacyTest {
     }
 
     @Test
-    public void testCreateArtist() {
+    void testCreateArtist() {
         Artist artist = new Artist();
         artist.setId(1);
         artist.setName("name");
@@ -105,13 +105,13 @@ public class DocumentFactoryLegacyTest {
     }
 
     @Test
-    public void testCreateArtistNullPointer() {
+    void testCreateArtistNullPointer() {
         // Folder is a required item.
         assertThrows(NullPointerException.class, () -> documentFactory.createArtistId3Document(new Artist(), null));
     }
 
     @Test
-    public void testCreateMediaAlbum() {
+    void testCreateMediaAlbum() {
         MediaFile album = new MediaFile();
         album.setId(1);
         album.setAlbumName("albumName");
@@ -134,7 +134,7 @@ public class DocumentFactoryLegacyTest {
     }
 
     @Test
-    public void testCreateMediaArtist() {
+    void testCreateMediaArtist() {
         MediaFile artist = new MediaFile();
         artist.setId(1);
         artist.setArtist("artist");
@@ -151,7 +151,7 @@ public class DocumentFactoryLegacyTest {
     }
 
     @Test
-    public void testCreateMediaSong() {
+    void testCreateMediaSong() {
         MediaFile song = new MediaFile();
         song.setId(1);
         song.setArtist("artist");
@@ -179,7 +179,7 @@ public class DocumentFactoryLegacyTest {
     }
 
     @Test
-    public void testCreateGenreDocument() {
+    void testCreateGenreDocument() {
         MediaFile song = new MediaFile();
         song.setId(1);
         song.setGenre("genre");
@@ -190,12 +190,12 @@ public class DocumentFactoryLegacyTest {
     }
 
     @Test
-    public void testCreateNullAlbum() {
+    void testCreateNullAlbum() {
         assertThrows(NullPointerException.class, () -> documentFactory.createAlbumId3Document(new Album()));
     }
 
     @Test
-    public void testCreateNullArtist() {
+    void testCreateNullArtist() {
         File musicDir = new File(MusicFolderTestDataUtils.resolveMusicFolderPath());
         MusicFolder musicFolder = new MusicFolder(100, musicDir, "Music", true, new Date());
         Document document = documentFactory.createArtistId3Document(new Artist(), musicFolder);
@@ -210,7 +210,7 @@ public class DocumentFactoryLegacyTest {
     }
 
     @Test
-    public void testCreateNullMediaAlbum() {
+    void testCreateNullMediaAlbum() {
         MediaFile mediaFile = new MediaFile();
         mediaFile.setMediaType(MediaType.ALBUM);
         mediaFile.setFolder("folder");
@@ -227,7 +227,7 @@ public class DocumentFactoryLegacyTest {
     }
 
     @Test
-    public void testCreateNullMediaArtist() {
+    void testCreateNullMediaArtist() {
         MediaFile mediaFile = new MediaFile();
         mediaFile.setMediaType(MediaType.DIRECTORY);
         mediaFile.setFolder("folder");
@@ -241,21 +241,21 @@ public class DocumentFactoryLegacyTest {
     }
 
     @Test
-    public void testMediaFileAlbumNullFolder() {
+    void testMediaFileAlbumNullFolder() {
         MediaFile mediaFile = new MediaFile();
         assertNull(mediaFile.getFolder(), "Folder is a required item.");
         assertThrows(IllegalArgumentException.class, () -> documentFactory.createAlbumDocument(mediaFile));
     }
 
     @Test
-    public void testMediaFileArtistNullFolder() {
+    void testMediaFileArtistNullFolder() {
         MediaFile mediaFile = new MediaFile();
         assertNull(mediaFile.getFolder(), "Folder is a required item.");
         assertThrows(IllegalArgumentException.class, () -> documentFactory.createArtistDocument(mediaFile));
     }
 
     @Test
-    public void testMediaFileSongNullFolder() {
+    void testMediaFileSongNullFolder() {
         MediaFile mediaFile = new MediaFile();
         mediaFile.setMediaType(MediaType.MUSIC);
         assertNull(mediaFile.getFolder(), "Folder is a required item.");
@@ -263,14 +263,14 @@ public class DocumentFactoryLegacyTest {
     }
 
     @Test
-    public void testMediaFileSongNullPointer() {
+    void testMediaFileSongNullPointer() {
         MediaFile mediaFile = new MediaFile();
         assertNull(mediaFile.getMediaType(), "MediaType is a required item.");
         assertThrows(NullPointerException.class, () -> documentFactory.createSongDocument(mediaFile));
     }
 
     @Test
-    public void testCreateNullMediaSong() {
+    void testCreateNullMediaSong() {
         MediaFile song = new MediaFile();
         song.setMediaType(MediaType.MUSIC);
         song.setFolder("folder");

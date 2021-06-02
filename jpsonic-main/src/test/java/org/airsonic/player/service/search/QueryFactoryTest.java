@@ -49,7 +49,7 @@ import org.springframework.test.annotation.DirtiesContext;
 @ExtendWith(NeedsHome.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class QueryFactoryTest {
+class QueryFactoryTest {
 
     @Autowired
     private QueryFactory queryFactory;
@@ -76,7 +76,7 @@ public class QueryFactoryTest {
     private static final List<MusicFolder> MULTI_FOLDERS = Arrays.asList(MUSIC_FOLDER1, MUSIC_FOLDER2);
 
     @Test
-    public void testSearchByNameArtist() throws IOException {
+    void testSearchByNameArtist() throws IOException {
         Query query = queryFactory.searchByName(FieldNamesConstants.ARTIST, QUERY_PATTERN_INCLUDING_KATAKANA);
         assertEquals("art:ネコ art:abc*", query.toString(), QUERY_PATTERN_INCLUDING_KATAKANA);
         query = queryFactory.searchByName(FieldNamesConstants.ARTIST, QUERY_PATTERN_ALPHANUMERIC_ONLY);
@@ -88,7 +88,7 @@ public class QueryFactoryTest {
     }
 
     @Test
-    public void testSearchByNameAlbum() throws IOException {
+    void testSearchByNameAlbum() throws IOException {
         Query query = queryFactory.searchByName(FieldNamesConstants.ALBUM, QUERY_PATTERN_INCLUDING_KATAKANA);
         assertEquals("alb:ネコ alb:abc*", query.toString(), QUERY_PATTERN_INCLUDING_KATAKANA);
         query = queryFactory.searchByName(FieldNamesConstants.ALBUM, QUERY_PATTERN_ALPHANUMERIC_ONLY);
@@ -100,7 +100,7 @@ public class QueryFactoryTest {
     }
 
     @Test
-    public void testSearchByNameTitle() throws IOException {
+    void testSearchByNameTitle() throws IOException {
         Query query = queryFactory.searchByName(FieldNamesConstants.TITLE, QUERY_PATTERN_INCLUDING_KATAKANA);
         assertEquals("tit:ネコ tit:abc*", query.toString(), QUERY_PATTERN_INCLUDING_KATAKANA);
         query = queryFactory.searchByName(FieldNamesConstants.TITLE, QUERY_PATTERN_ALPHANUMERIC_ONLY);
@@ -112,7 +112,7 @@ public class QueryFactoryTest {
     }
 
     @Test
-    public void testGetRandomSongs() throws IOException {
+    void testGetRandomSongs() throws IOException {
         RandomSearchCriteria criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"), 1900, 2000,
                 SINGLE_FOLDERS);
         Query query = queryFactory.getRandomSongs(criteria);
@@ -143,7 +143,7 @@ public class QueryFactoryTest {
     }
 
     @Test
-    public void testGetRandomAlbums() {
+    void testGetRandomAlbums() {
         Query query = queryFactory.getRandomAlbums(SINGLE_FOLDERS);
         assertEquals("(f:" + PATH1 + ")", query.toString(), ToStringBuilder.reflectionToString(SINGLE_FOLDERS));
         query = queryFactory.getRandomAlbums(MULTI_FOLDERS);
@@ -152,7 +152,7 @@ public class QueryFactoryTest {
     }
 
     @Test
-    public void testGetRandomAlbumsId3() {
+    void testGetRandomAlbumsId3() {
         Query query = queryFactory.getRandomAlbumsId3(SINGLE_FOLDERS);
         assertEquals("(fId:" + FID1 + ")", query.toString(), ToStringBuilder.reflectionToString(SINGLE_FOLDERS));
         query = queryFactory.getRandomAlbumsId3(MULTI_FOLDERS);
@@ -161,7 +161,7 @@ public class QueryFactoryTest {
     }
 
     @Test
-    public void testGetMediasByGenre() throws IOException {
+    void testGetMediasByGenre() throws IOException {
         Query query = queryFactory.getMediasByGenres("Instrumental pop", SINGLE_FOLDERS);
         assertEquals("+(g:Instrumental pop) +(f:" + PATH1 + ")", query.toString(),
                 ToStringBuilder.reflectionToString(SINGLE_FOLDERS));
@@ -177,7 +177,7 @@ public class QueryFactoryTest {
     }
 
     @Test
-    public void testGetAlbumId3sByGenre() throws IOException {
+    void testGetAlbumId3sByGenre() throws IOException {
         Query query = queryFactory.getAlbumId3sByGenres("Instrumental pop", SINGLE_FOLDERS);
         assertEquals("+(g:Instrumental pop) +(fId:" + FID1 + ")", query.toString(),
                 ToStringBuilder.reflectionToString(SINGLE_FOLDERS));
@@ -190,7 +190,7 @@ public class QueryFactoryTest {
     }
 
     @Test
-    public void testToPreAnalyzedGenres() throws IOException {
+    void testToPreAnalyzedGenres() throws IOException {
         Query query = queryFactory.toPreAnalyzedGenres(Arrays.asList("Classic Rock"));
         assertEquals("+(g:Classic Rock)", query.toString(), "genre");
         query = queryFactory.toPreAnalyzedGenres(Arrays.asList("Classic Rock", "Rock & Roll"));

@@ -39,7 +39,7 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class RecentAlbumId3UpnpProcessorTest extends AbstractNeedsScan {
+class RecentAlbumId3UpnpProcessorTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
@@ -65,12 +65,12 @@ public class RecentAlbumId3UpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetItemCount() {
+    void testGetItemCount() {
         assertEquals(32, processor.getItemCount()); // (allAlbumCount + -ALL-) or MAX
     }
 
     @Test
-    public void testGetItems() {
+    void testGetItems() {
 
         // It is OK if the following requirements can be cleared
 
@@ -111,7 +111,7 @@ public class RecentAlbumId3UpnpProcessorTest extends AbstractNeedsScan {
 
     @EnabledOnOs(OS.WINDOWS)
     @Test
-    public void testGetChildSizeOf() {
+    void testGetChildSizeOf() {
         List<Album> albums = processor.getItems(1, 1);
         assertEquals(1, albums.size());
         assertEquals(1, processor.getChildSizeOf(albums.get(0)));

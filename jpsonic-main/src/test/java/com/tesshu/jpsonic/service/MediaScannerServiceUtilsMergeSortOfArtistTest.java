@@ -51,7 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /*
  * In the testing class, it may be less readable.
  */
-public class MediaScannerServiceUtilsMergeSortOfArtistTest extends AbstractNeedsScan {
+class MediaScannerServiceUtilsMergeSortOfArtistTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
@@ -106,7 +106,7 @@ public class MediaScannerServiceUtilsMergeSortOfArtistTest extends AbstractNeeds
     }
 
     @Test
-    public void testMergeSortOfArtist() throws ExecutionException {
+    void testMergeSortOfArtist() throws ExecutionException {
 
         invokeUtils(utils, "mergeSortOfArtist");
 

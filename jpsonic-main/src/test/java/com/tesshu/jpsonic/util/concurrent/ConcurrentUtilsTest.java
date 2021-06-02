@@ -32,10 +32,10 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootConfiguration
 @ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
 @ExtendWith(NeedsHome.class)
-public class ConcurrentUtilsTest {
+class ConcurrentUtilsTest {
 
     @Test
-    public void testHandleCauseUnchecked() {
+    void testHandleCauseUnchecked() {
 
         assertThrows(StackOverflowError.class,
                 () -> ConcurrentUtils.handleCauseUnchecked(new ExecutionException(new StackOverflowError())));

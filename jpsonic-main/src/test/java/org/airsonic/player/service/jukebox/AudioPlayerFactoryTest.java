@@ -42,7 +42,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithMockUser;
 
-public class AudioPlayerFactoryTest extends AbstractPlayerFactoryTest {
+class AudioPlayerFactoryTest extends AbstractPlayerFactoryTest {
 
     @SpyBean
     private TranscodingService transcodingService;
@@ -79,8 +79,8 @@ public class AudioPlayerFactoryTest extends AbstractPlayerFactoryTest {
     @Test
     @WithMockUser(username = "admin")
     @Override
-    public void jukeboxStartActionTest() throws ExecutionException {
-        super.jukeboxStartActionTest();
+    void testJukeboxStartAction() throws ExecutionException {
+        super.testJukeboxStartAction();
         verify(mockAudioPlayer).play();
     }
 
@@ -88,8 +88,8 @@ public class AudioPlayerFactoryTest extends AbstractPlayerFactoryTest {
     @Test
     @WithMockUser(username = "admin")
     @Override
-    public void jukeboxStopActionTest() throws ExecutionException {
-        super.jukeboxStopActionTest();
+    void testJukeboxStopAction() throws ExecutionException {
+        super.testJukeboxStopAction();
         verify(mockAudioPlayer).play();
         verify(mockAudioPlayer).pause();
     }
