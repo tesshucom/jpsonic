@@ -31,14 +31,9 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import org.airsonic.player.domain.Album;
-import org.airsonic.player.domain.Artist;
-import org.airsonic.player.domain.Genre;
-import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.domain.MediaFile.MediaType;
-import org.airsonic.player.domain.MusicIndex.SortableArtist;
-import org.airsonic.player.domain.MusicIndex.SortableArtistWithMediaFiles;
-import org.airsonic.player.domain.Playlist;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
+import com.tesshu.jpsonic.domain.MusicIndex.SortableArtist;
+import com.tesshu.jpsonic.domain.MusicIndex.SortableArtistWithMediaFiles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

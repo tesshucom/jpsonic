@@ -26,7 +26,6 @@ import java.io.InputStream;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import org.airsonic.player.controller.CoverArtController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

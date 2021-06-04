@@ -24,9 +24,6 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 import java.text.Collator;
 import java.util.Comparator;
 
-import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.domain.MediaFileComparator;
-
 /**
  * Comparator for sorting media files.
  */

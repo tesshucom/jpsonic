@@ -706,7 +706,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>2.4.5</version>
                 <configuration>
-                    <mainClass>org.airsonic.player.Application</mainClass>
+                    <mainClass>com.tesshu.jpsonic.Application</mainClass>
                     <layout>WAR</layout>
                     <excludeGroupIds>${boot.group.excludes}</excludeGroupIds>
                     <excludeArtifactIds>${boot.artifact.excludes}</excludeArtifactIds>
@@ -755,8 +755,8 @@
                         <configuration>
                             <target>
                                 <tstamp/>
-                                <copy file="${basedir}/src/main/resources/org/airsonic/player/i18n/ResourceBundle_en.properties"
-                                      tofile="${project.build.directory}/classes/org/airsonic/player/i18n/ResourceBundle.properties"/>
+                                <copy file="${basedir}/src/main/resources/com/tesshu/jpsonic/i18n/ResourceBundle_en.properties"
+                                      tofile="${project.build.directory}/classes/com/tesshu/jpsonic/i18n/ResourceBundle.properties"/>
                                 <echo file="${project.build.directory}/classes/build_number.txt">${buildNumber}</echo>
                                 <!--suppress MavenModelInspection -->
                                 <echo file="${project.build.directory}/classes/build_date.txt">${DSTAMP}</echo>
@@ -781,7 +781,7 @@
                             <target>
                                 <delete>
                                     <!--This is because *ApplicationHelper may depend on a particular vendor class.　-->
-                                    <fileset dir="${project.build.directory}/classes/org/airsonic/player" includes="${helper.excludes}" />
+                                    <fileset dir="${project.build.directory}/classes/com/tesshu/jpsonic" includes="${helper.excludes}" />
                                 </delete>
                             </target>
                         </configuration>

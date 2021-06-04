@@ -28,10 +28,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils;
-import org.airsonic.player.AbstractNeedsScan;
-import org.airsonic.player.domain.Artist;
-import org.airsonic.player.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.MusicFolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

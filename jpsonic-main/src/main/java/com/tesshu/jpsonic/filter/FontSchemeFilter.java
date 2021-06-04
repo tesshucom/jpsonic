@@ -35,10 +35,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.controller.WebFontUtils;
-import org.airsonic.player.domain.User;
-import org.airsonic.player.domain.UserSettings;
-import org.airsonic.player.service.SecurityService;
-import org.airsonic.player.service.SettingsService;
+import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.SettingsService;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 

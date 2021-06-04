@@ -27,19 +27,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils;
-import org.airsonic.player.AbstractNeedsScan;
-import org.airsonic.player.dao.AlbumDao;
-import org.airsonic.player.domain.Album;
-import org.airsonic.player.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.MusicFolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.context.annotation.ComponentScan;
 
-@SpringBootConfiguration
-@ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
 public class JAlbumDaoTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;

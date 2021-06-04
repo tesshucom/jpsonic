@@ -19,9 +19,9 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.dao.MediaFileDao.getGenreColoms;
+import static com.tesshu.jpsonic.dao.MediaFileDao.getQueryColoms;
 import static java.util.stream.Collectors.toList;
-import static org.airsonic.player.dao.MediaFileDao.getGenreColoms;
-import static org.airsonic.player.dao.MediaFileDao.getQueryColoms;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.sql.ResultSet;
@@ -34,14 +34,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
+import com.tesshu.jpsonic.domain.Genre;
+import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SortCandidate;
-import org.airsonic.player.dao.AbstractDao;
-import org.airsonic.player.dao.DaoHelper;
-import org.airsonic.player.dao.MediaFileDao;
-import org.airsonic.player.domain.Genre;
-import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.util.LegacyMap;
+import com.tesshu.jpsonic.util.LegacyMap;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
