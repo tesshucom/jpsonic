@@ -40,22 +40,22 @@
             <param name="beanName" value="ajaxTransferService"/>
         </create>
 
-        <convert converter="bean" match="org.airsonic.player.ajax.NowPlayingInfo"/>
-        <convert converter="bean" match="org.airsonic.player.ajax.ScanInfo"/>
-        <convert converter="bean" match="org.airsonic.player.ajax.PlayQueueInfo"/>
-        <convert converter="bean" match="org.airsonic.player.ajax.PlayQueueInfo$Entry"/>
-        <convert converter="bean" match="org.airsonic.player.ajax.PlaylistInfo"/>
-        <convert converter="bean" match="org.airsonic.player.ajax.PlaylistInfo$Entry"/>
-        <convert converter="bean" match="org.airsonic.player.domain.Playlist"/>
-        <convert converter="bean" match="org.airsonic.player.domain.ArtistBio"/>
-        <convert converter="bean" match="org.airsonic.player.domain.LastFmCoverArt"/>
+        <convert converter="bean" match="com.tesshu.jpsonic.ajax.NowPlayingInfo"/>
+        <convert converter="bean" match="com.tesshu.jpsonic.ajax.ScanInfo"/>
+        <convert converter="bean" match="com.tesshu.jpsonic.ajax.PlayQueueInfo"/>
+        <convert converter="bean" match="com.tesshu.jpsonic.ajax.PlayQueueInfo$Entry"/>
+        <convert converter="bean" match="com.tesshu.jpsonic.ajax.PlaylistInfo"/>
+        <convert converter="bean" match="com.tesshu.jpsonic.ajax.PlaylistInfo$Entry"/>
+        <convert converter="bean" match="com.tesshu.jpsonic.domain.Playlist"/>
+        <convert converter="bean" match="com.tesshu.jpsonic.domain.ArtistBio"/>
+        <convert converter="bean" match="com.tesshu.jpsonic.domain.LastFmCoverArt"/>
 
-        <convert converter="bean" match="org.airsonic.player.ajax.UploadInfo"/>
-        <convert converter="bean" match="org.airsonic.player.ajax.LyricsInfo"/>
-        <convert converter="bean" match="org.airsonic.player.ajax.CoverArtInfo"/>
-        <convert converter="bean" match="org.airsonic.player.ajax.SimilarArtist"/>
-        <convert converter="bean" match="org.airsonic.player.ajax.ArtistInfo"/>
-        <convert converter="bean" match="org.airsonic.player.ajax.TopSong"/>
+        <convert converter="bean" match="com.tesshu.jpsonic.ajax.UploadInfo"/>
+        <convert converter="bean" match="com.tesshu.jpsonic.ajax.LyricsInfo"/>
+        <convert converter="bean" match="com.tesshu.jpsonic.ajax.CoverArtInfo"/>
+        <convert converter="bean" match="com.tesshu.jpsonic.ajax.SimilarArtist"/>
+        <convert converter="bean" match="com.tesshu.jpsonic.ajax.ArtistInfo"/>
+        <convert converter="bean" match="com.tesshu.jpsonic.ajax.TopSong"/>
 
     </allow>
 </dwr>

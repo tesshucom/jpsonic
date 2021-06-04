@@ -6,7 +6,7 @@
 
         <preConditions onFail="MARK_RAN">
           <dbms type="hsqldb" />
-          <customPrecondition className="org.airsonic.player.spring.DbmsVersionPrecondition" >
+          <customPrecondition className="com.tesshu.jpsonic.spring.DbmsVersionPrecondition" >
             <param name="major" value="2" />
           </customPrecondition>
         </preConditions>
@@ -33,7 +33,7 @@
 
         <preConditions onFail="MARK_RAN">
           <dbms type="hsqldb" />
-          <customPrecondition className="org.airsonic.player.spring.DbmsVersionPrecondition" >
+          <customPrecondition className="com.tesshu.jpsonic.spring.DbmsVersionPrecondition" >
             <param name="major" value="1" />
           </customPrecondition>
         </preConditions>

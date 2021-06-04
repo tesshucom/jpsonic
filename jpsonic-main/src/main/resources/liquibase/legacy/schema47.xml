@@ -221,7 +221,7 @@
         <preConditions onFail="MARK_RAN">
             <not>
                 <dbms type="hsqldb" />
-                <customPrecondition className="org.airsonic.player.spring.DbmsVersionPrecondition" >
+                <customPrecondition className="com.tesshu.jpsonic.spring.DbmsVersionPrecondition" >
                     <param name="major" value="1" />
                 </customPrecondition>
             </not>
@@ -236,7 +236,7 @@
     <changeSet id="schema47_005_2" author="muff1nman">
         <preConditions onFail="MARK_RAN">
             <dbms type="hsqldb" />
-            <customPrecondition className="org.airsonic.player.spring.DbmsVersionPrecondition" >
+            <customPrecondition className="com.tesshu.jpsonic.spring.DbmsVersionPrecondition" >
                 <param name="major" value="1" />
             </customPrecondition>
             <sqlCheck expectedResult="0">

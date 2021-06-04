@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1" %>
-<%--@elvariable id="command" type="org.airsonic.player.command.PersonalSettingsCommand"--%>
+<%--@elvariable id="command" type="com.tesshu.jpsonic.command.PersonalSettingsCommand"--%>
 
 <html><head>
 <%@ include file="head.jsp" %>

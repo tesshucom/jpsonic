@@ -20,7 +20,7 @@
             b) Parameter names are prepended with the suffix "Utf8Hex"
         </description>
         <name>url</name>
-        <tag-class>org.airsonic.player.taglib.UrlTag</tag-class>
+        <tag-class>com.tesshu.jpsonic.taglib.UrlTag</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <description>
@@ -49,7 +49,7 @@
     <tag>
         <description>Adds a parameter to a containing 'url' tag.</description>
         <name>param</name>
-        <tag-class>org.airsonic.player.taglib.ParamTag</tag-class>
+        <tag-class>com.tesshu.jpsonic.taglib.ParamTag</tag-class>
         <body-content>empty</body-content>
         <attribute>
             <description>Name of the query string parameter.</description>
@@ -71,7 +71,7 @@
             to the current locale.
         </description>
         <name>formatBytes</name>
-        <tag-class>org.airsonic.player.taglib.FormatBytesTag</tag-class>
+        <tag-class>com.tesshu.jpsonic.taglib.FormatBytesTag</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <description>The byte count.</description>
@@ -86,7 +86,7 @@
             Escapes the characters in a string using JavaScript rules.
         </description>
         <name>escapeJavaScript</name>
-        <tag-class>org.airsonic.player.taglib.EscapeJavaScriptTag</tag-class>
+        <tag-class>com.tesshu.jpsonic.taglib.EscapeJavaScriptTag</tag-class>
         <body-content>JSP</body-content>
         <attribute>
             <description>The string to escape.</description>

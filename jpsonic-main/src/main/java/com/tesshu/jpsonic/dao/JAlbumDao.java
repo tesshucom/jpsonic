@@ -26,13 +26,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.tesshu.jpsonic.domain.Album;
+import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SortCandidate;
-import org.airsonic.player.dao.AbstractDao;
-import org.airsonic.player.dao.AlbumDao;
-import org.airsonic.player.dao.DaoHelper;
-import org.airsonic.player.domain.Album;
-import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.util.LegacyMap;
+import com.tesshu.jpsonic.util.LegacyMap;
 import org.springframework.stereotype.Repository;
 
 @Repository("jalbumDao")

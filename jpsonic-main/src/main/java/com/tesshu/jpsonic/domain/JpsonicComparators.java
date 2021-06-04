@@ -25,14 +25,8 @@ import java.text.Collator;
 import java.util.Comparator;
 import java.util.regex.Pattern;
 
-import org.airsonic.player.domain.Album;
-import org.airsonic.player.domain.Artist;
-import org.airsonic.player.domain.Genre;
-import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.domain.MediaFileComparator;
-import org.airsonic.player.domain.MusicIndex.SortableArtist;
-import org.airsonic.player.domain.Playlist;
-import org.airsonic.player.service.SettingsService;
+import com.tesshu.jpsonic.domain.MusicIndex.SortableArtist;
+import com.tesshu.jpsonic.service.SettingsService;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.context.annotation.DependsOn;

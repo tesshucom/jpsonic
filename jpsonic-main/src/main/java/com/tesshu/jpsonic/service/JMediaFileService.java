@@ -23,9 +23,8 @@ import java.io.File;
 import java.util.List;
 
 import com.tesshu.jpsonic.dao.JMediaFileDao;
-import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.service.MediaFileService;
+import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MusicFolder;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 

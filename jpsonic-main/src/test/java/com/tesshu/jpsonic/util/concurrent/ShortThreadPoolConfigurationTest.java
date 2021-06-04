@@ -21,7 +21,7 @@ package com.tesshu.jpsonic.util.concurrent;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.airsonic.player.NeedsHome;
+import com.tesshu.jpsonic.NeedsHome;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;

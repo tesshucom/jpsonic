@@ -32,12 +32,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
+import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SortCandidate;
-import org.airsonic.player.AbstractNeedsScan;
-import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.domain.MediaFile.MediaType;
-import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.service.MediaScannerService;
+import com.tesshu.jpsonic.service.MediaScannerService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

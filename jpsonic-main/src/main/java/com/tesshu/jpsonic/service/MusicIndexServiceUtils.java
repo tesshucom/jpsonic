@@ -28,15 +28,13 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
-import org.airsonic.player.domain.Artist;
-import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.domain.MusicIndex;
-import org.airsonic.player.domain.MusicIndex.SortableArtist;
-import org.airsonic.player.service.MediaFileService;
-import org.airsonic.player.service.SettingsService;
+import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.MusicIndex;
+import com.tesshu.jpsonic.domain.MusicIndex.SortableArtist;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 

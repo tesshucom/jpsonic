@@ -28,12 +28,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.airsonic.player.AbstractNeedsScan;
-import org.airsonic.player.dao.AlbumDao;
-import org.airsonic.player.dao.MediaFileDao;
-import org.airsonic.player.domain.Album;
-import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.domain.MusicFolder;
+import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.dao.AlbumDao;
+import com.tesshu.jpsonic.dao.MediaFileDao;
+import com.tesshu.jpsonic.domain.Album;
+import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MusicFolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
