@@ -23,8 +23,8 @@ import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.airsonic.player.domain.UserSettings;
-import org.airsonic.player.service.SettingsService;
+import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.service.SettingsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.ServletRequestUtils;
 

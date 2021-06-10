@@ -21,11 +21,8 @@ package com.tesshu.jpsonic.dao;
 
 import java.util.List;
 
-import org.airsonic.player.dao.AbstractDao;
-import org.airsonic.player.dao.DaoHelper;
-import org.airsonic.player.dao.PlaylistDao;
-import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.domain.Playlist;
+import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.Playlist;
 import org.springframework.stereotype.Repository;
 
 @Repository("jplaylistDao")

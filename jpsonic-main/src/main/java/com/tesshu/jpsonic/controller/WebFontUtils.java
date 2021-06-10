@@ -23,9 +23,9 @@ import static org.springframework.util.StringUtils.hasLength;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.tesshu.jpsonic.command.PersonalSettingsCommand;
 import com.tesshu.jpsonic.domain.FontScheme;
-import org.airsonic.player.command.PersonalSettingsCommand;
-import org.airsonic.player.domain.UserSettings;
+import com.tesshu.jpsonic.domain.UserSettings;
 import org.apache.commons.lang3.ObjectUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
 

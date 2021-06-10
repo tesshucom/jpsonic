@@ -29,8 +29,7 @@ import java.lang.reflect.Method;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiFunction;
 
-import org.airsonic.player.NeedsHome;
-import org.airsonic.player.domain.MediaFile;
+import com.tesshu.jpsonic.NeedsHome;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.signedness.qual.Unsigned;
 import org.junit.jupiter.api.Test;
@@ -42,7 +41,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootTest
 @SpringBootConfiguration
-@ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
+@ComponentScan(basePackages = "com.tesshu.jpsonic")
 @ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class JapaneseReadingUtilsTest {
