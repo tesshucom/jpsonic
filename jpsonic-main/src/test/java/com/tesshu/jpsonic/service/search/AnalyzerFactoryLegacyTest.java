@@ -58,7 +58,7 @@ import org.springframework.context.annotation.ComponentScan;
  * [AvoidDuplicateLiterals] In the testing class, it may be less readable. [JUnitTestsShouldIncludeAssert] dalse
  * positive
  */
-public class AnalyzerFactoryLegacyTest {
+class AnalyzerFactoryLegacyTest {
 
     @Autowired
     private AnalyzerFactory analyzerFactory;
@@ -77,7 +77,7 @@ public class AnalyzerFactoryLegacyTest {
     }
 
     @Test
-    public void testTokenCounts() {
+    void testTokenCounts() {
 
         String queryEng = "The quick brown fox jumps over the lazy dog.";
 
@@ -133,7 +133,7 @@ public class AnalyzerFactoryLegacyTest {
      * Detailed tests on Punctuation. In addition to the common delimiters, there are many delimiters.
      */
     @Test
-    public void testPunctuation1() {
+    void testPunctuation1() {
 
         String query = "B︴C";
         String expected1 = "b";
@@ -198,7 +198,7 @@ public class AnalyzerFactoryLegacyTest {
      * Detailed tests on Punctuation. Many of the symbols are delimiters or target to be removed.
      */
     @Test
-    public void testPunctuation2() {
+    void testPunctuation2() {
 
         String query = "{'“『【【】】[︴○◎@ $〒→+]";
         Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
@@ -229,7 +229,7 @@ public class AnalyzerFactoryLegacyTest {
      * @see org.apache.lucene.analysis.StopAnalyzer#ENGLISH_STOP_WORDS_SET
      */
     @Test
-    public void testStopward() {
+    void testStopward() {
 
         /*
          * article
@@ -344,7 +344,7 @@ public class AnalyzerFactoryLegacyTest {
      * Detailed tests on Artist Stopward.
      */
     @Test
-    public void testArtistStopward() {
+    void testArtistStopward() {
         assertEquals(0, toTermString(FieldNamesConstants.ARTIST, "CV").size());
         assertEquals(0, toTermString(FieldNamesConstants.ARTIST, "feat").size());
         assertEquals(0, toTermString(FieldNamesConstants.ARTIST, "with").size());
@@ -357,7 +357,7 @@ public class AnalyzerFactoryLegacyTest {
      * Simple test on FullWidth.
      */
     @Test
-    public void testFullWidth() {
+    void testFullWidth() {
         String query = "ＦＵＬＬ－ＷＩＤＴＨ";
         List<String> terms = toTermString(query);
         assertEquals(2, terms.size());
@@ -369,7 +369,7 @@ public class AnalyzerFactoryLegacyTest {
      * Combined case of Stop and full-width.
      */
     @Test
-    public void testStopwardAndFullWidth() {
+    void testStopwardAndFullWidth() {
 
         /*
          * Stop word is removed.
@@ -410,7 +410,7 @@ public class AnalyzerFactoryLegacyTest {
      * and diacritical marks is not possible.
      */
     @Test
-    public void testASCIIFoldingStop() {
+    void testASCIIFoldingStop() {
 
         // Filter operation check only. Verify only some settings.
         String query = "Cæsarシーザー";
@@ -458,7 +458,7 @@ public class AnalyzerFactoryLegacyTest {
      * Applies to all except FOLDER, GENRE, MEDIA_TYPE.
      */
     @Test
-    public void testJapanesePartOfSpeechStop() {
+    void testJapanesePartOfSpeechStop() {
 
         // Filter operation check only. Verify only some settings.
         String query = "{'“『【【】】[○◎@ $〒→+]";
@@ -490,7 +490,7 @@ public class AnalyzerFactoryLegacyTest {
      * Applies to all except FOLDER, GENRE, MEDIA_TYPE.
      */
     @Test
-    public void testCJKWidth() {
+    void testCJKWidth() {
         String query = "ＡＢＣａｂｃｱｲｳ";
         String apply1 = "ABCabcアイウ";
         String apply1a = "abcabc";
@@ -540,7 +540,7 @@ public class AnalyzerFactoryLegacyTest {
      * Detailed tests on LowerCase.
      */
     @Test
-    public void testLowerCase() {
+    void testLowerCase() {
 
         // Filter operation check only. Verify only some settings.
         String query = "ABCDEFGふ";
@@ -585,7 +585,7 @@ public class AnalyzerFactoryLegacyTest {
      * it may be a problem.
      */
     @Test
-    public void testLuceneEscapeRequires() {
+    void testLuceneEscapeRequires() {
 
         String escapeRequires = "+-&&||!(){}[]^\"~*?:\\/";
         String fileUsable = "+-&&!(){}[]^~";
@@ -618,7 +618,7 @@ public class AnalyzerFactoryLegacyTest {
      * Create an example that makes UAX 29 differences easy to understand.
      */
     @Test
-    public void testUax29() {
+    void testUax29() {
 
         /*
          * Case using test resource name
@@ -758,7 +758,7 @@ public class AnalyzerFactoryLegacyTest {
      * Special handling of single quotes.
      */
     @Test
-    public void testSingleQuotes() {
+    void testSingleQuotes() {
 
         /*
          * A somewhat cultural that seems to be related to a specific language.
@@ -814,7 +814,7 @@ public class AnalyzerFactoryLegacyTest {
      * There is also a filter that converts the tense to correspond to the search by the present tense.
      */
     @Test
-    public void testPastParticiple() {
+    void testPastParticiple() {
 
         /*
          * Confirming no conversion to present tense.
@@ -840,7 +840,7 @@ public class AnalyzerFactoryLegacyTest {
      * There are also filters that convert plurals to singular.
      */
     @Test
-    public void testNumeral() {
+    void testNumeral() {
 
         /*
          * Confirming no conversion to singular.
@@ -862,7 +862,7 @@ public class AnalyzerFactoryLegacyTest {
      * register in CDDB with Katakana/Hiragana)
      */
     @Test
-    public void testToHiragana() {
+    void testToHiragana() {
 
         String n = FieldNamesConstants.ARTIST_READING;
 
@@ -890,7 +890,7 @@ public class AnalyzerFactoryLegacyTest {
      * soft impression, but are generally not used very often.)
      */
     @Test
-    public void testHiraganaTermStemOnlyHiragana() {
+    void testHiraganaTermStemOnlyHiragana() {
 
         String notPass1 = "THE BLUE HEARTS";
         String notPass2 = "ABC123";
@@ -915,7 +915,7 @@ public class AnalyzerFactoryLegacyTest {
      * Applies to all except FOLDER, GENRE, MEDIA_TYPE.
      */
     @Test
-    public void testPunctuationStem() {
+    void testPunctuationStem() {
 
         // Filter operation check only. Verify only some settings.
         String query = "B︴C";

@@ -39,10 +39,10 @@ import org.junit.jupiter.api.Test;
  * @author Sindre Mehus
  */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class StringUtilTest {
+class StringUtilTest {
 
     @Test
-    public void testToHtml() {
+    void testToHtml() {
         assertNull(StringEscapeUtils.escapeHtml(null));
         assertEquals(StringEscapeUtils.escapeHtml(""), "");
         assertEquals(StringEscapeUtils.escapeHtml(" "), " ");
@@ -51,7 +51,7 @@ public class StringUtilTest {
     }
 
     @Test
-    public void testGetMimeType() {
+    void testGetMimeType() {
         assertEquals("audio/mpeg", StringUtil.getMimeType("mp3"), "Error in getMimeType().");
         assertEquals("audio/mpeg", StringUtil.getMimeType(".mp3"), "Error in getMimeType().");
         assertEquals("audio/mpeg", StringUtil.getMimeType(".MP3"), "Error in getMimeType().");
@@ -61,7 +61,7 @@ public class StringUtilTest {
     }
 
     @Test
-    public void testFormatBytes() {
+    void testFormatBytes() {
         Locale locale = Locale.ENGLISH;
         assertEquals("918 B", StringUtil.formatBytes(918, locale), "Error in formatBytes().");
         assertEquals("1023 B", StringUtil.formatBytes(1_023, locale), "Error in formatBytes().");
@@ -86,7 +86,7 @@ public class StringUtilTest {
     }
 
     @Test
-    public void testFormatDurationMSS() {
+    void testFormatDurationMSS() {
         assertEquals("0:00", StringUtil.formatDurationMSS(0), "Error in formatDurationMSS().");
         assertEquals("0:05", StringUtil.formatDurationMSS(5), "Error in formatDurationMSS().");
         assertEquals("0:10", StringUtil.formatDurationMSS(10), "Error in formatDurationMSS().");
@@ -101,7 +101,7 @@ public class StringUtilTest {
     }
 
     @Test
-    public void testFormatDurationHMMSS() {
+    void testFormatDurationHMMSS() {
         assertEquals("0:00:00", StringUtil.formatDurationHMMSS(0), "Error in formatDurationHMMSS().");
         assertEquals("0:00:05", StringUtil.formatDurationHMMSS(5), "Error in formatDurationHMMSS().");
         assertEquals("0:00:10", StringUtil.formatDurationHMMSS(10), "Error in formatDurationHMMSS().");
@@ -116,7 +116,7 @@ public class StringUtilTest {
     }
 
     @Test
-    public void testFormatDuration() {
+    void testFormatDuration() {
         assertEquals("0:00", StringUtil.formatDuration(0), "Error in formatDuration().");
         assertEquals("0:05", StringUtil.formatDuration(5), "Error in formatDuration().");
         assertEquals("0:10", StringUtil.formatDuration(10), "Error in formatDuration().");
@@ -131,7 +131,7 @@ public class StringUtilTest {
     }
 
     @Test
-    public void testSplit() {
+    void testSplit() {
         doTestSplit("u2 rem \"greatest hits\"", "u2", "rem", "greatest hits");
         doTestSplit("u2", "u2");
         doTestSplit("u2 rem", "u2", "rem");
@@ -154,7 +154,7 @@ public class StringUtilTest {
     }
 
     @Test
-    public void testParseInts() {
+    void testParseInts() {
         doTestParseInts("123", 123);
         doTestParseInts("1 2 3", 1, 2, 3);
         doTestParseInts("10  20 \t\n 30", 10, 20, 30);
@@ -170,7 +170,7 @@ public class StringUtilTest {
     }
 
     @Test
-    public void testParseLocale() {
+    void testParseLocale() {
         assertEquals(new Locale("en"), StringUtil.parseLocale("en"), "Error in parseLocale().");
         assertEquals(new Locale("en"), StringUtil.parseLocale("en_"), "Error in parseLocale().");
         assertEquals(new Locale("en"), StringUtil.parseLocale("en__"), "Error in parseLocale().");
@@ -180,7 +180,7 @@ public class StringUtilTest {
     }
 
     @Test
-    public void testUtf8Hex() throws DecoderException {
+    void testUtf8Hex() throws DecoderException {
         assertTrue(doTestUtf8Hex(null));
         assertTrue(doTestUtf8Hex(""));
         assertTrue(doTestUtf8Hex("a"));
@@ -195,7 +195,7 @@ public class StringUtilTest {
     }
 
     @Test
-    public void testGetUrlFile() {
+    void testGetUrlFile() {
         assertEquals("foo.mp3", StringUtil.getUrlFile("http://www.asdf.com/foo.mp3"), "Error in getUrlFile().");
         assertEquals("foo.mp3", StringUtil.getUrlFile("http://www.asdf.com/bar/foo.mp3"), "Error in getUrlFile().");
         assertEquals("foo", StringUtil.getUrlFile("http://www.asdf.com/bar/foo"), "Error in getUrlFile().");
@@ -208,7 +208,7 @@ public class StringUtilTest {
     }
 
     @Test
-    public void testFileSystemSafe() {
+    void testFileSystemSafe() {
         assertEquals("foo", StringUtil.fileSystemSafe("foo"), "Error in fileSystemSafe().");
         assertEquals("foo.mp3", StringUtil.fileSystemSafe("foo.mp3"), "Error in fileSystemSafe().");
         assertEquals("foo-bar", StringUtil.fileSystemSafe("foo/bar"), "Error in fileSystemSafe().");
@@ -217,7 +217,7 @@ public class StringUtilTest {
     }
 
     @Test
-    public void testRemoveMarkup() {
+    void testRemoveMarkup() {
         assertEquals("foo", StringUtil.removeMarkup("<b>foo</b>"), "Error in removeMarkup()");
         assertEquals("foobar", StringUtil.removeMarkup("<b>foo</b>bar"), "Error in removeMarkup()");
         assertEquals("foo", StringUtil.removeMarkup("foo"), "Error in removeMarkup()");

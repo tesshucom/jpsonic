@@ -34,7 +34,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class RandomSongByFolderArtistUpnpProcessorTest extends AbstractNeedsScan {
+class RandomSongByFolderArtistUpnpProcessorTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
@@ -61,26 +61,26 @@ public class RandomSongByFolderArtistUpnpProcessorTest extends AbstractNeedsScan
     }
 
     @Test
-    public void testGetItemCount() {
+    void testGetItemCount() {
         assertEquals(1, processor.getItemCount());
     }
 
     @Test
-    public void testGetItems() {
+    void testGetItems() {
         List<FolderArtistWrapper> items = processor.getItems(0, 10);
         assertEquals(1, items.size());
         assertEquals("Artists", items.get(0).getFolder().getName());
     }
 
     @Test
-    public void testGetChildSizeOf() {
+    void testGetChildSizeOf() {
         List<FolderArtistWrapper> artists = processor.getItems(0, 1);
         assertEquals(1, artists.size());
         assertEquals(1, processor.getChildSizeOf(artists.get(0)));
     }
 
     @Test
-    public void testGetChildren() {
+    void testGetChildren() {
 
         List<FolderArtistWrapper> folders = processor.getItems(0, 10);
         assertEquals(1, folders.size());

@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class SearchServiceLegacyTest extends AbstractNeedsScan {
+class SearchServiceLegacyTest extends AbstractNeedsScan {
 
     private static final Logger LOG = LoggerFactory.getLogger(SearchServiceLegacyTest.class);
 
@@ -90,7 +90,7 @@ public class SearchServiceLegacyTest extends AbstractNeedsScan {
      * bit.
      */
     @Test
-    public void testSearchTypical() throws IOException {
+    void testSearchTypical() throws IOException {
 
         /*
          * A simple test that is expected to easily detect API syntax differences when updating lucene. Complete route
@@ -351,7 +351,8 @@ public class SearchServiceLegacyTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGenre() {
+    @SuppressWarnings("PMD.CognitiveComplexity")
+    void testGenre() {
 
         List<MusicFolder> allMusicFolders = musicFolderDao.getAllMusicFolders();
 
@@ -480,7 +481,7 @@ public class SearchServiceLegacyTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGenreMaster() {
+    void testGenreMaster() {
 
         List<Genre> genres = searchService.getGenres(false);
         assertEquals(5, genres.size(), "Song genre size");
@@ -516,7 +517,7 @@ public class SearchServiceLegacyTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testToPreAnalyzedGenres() {
+    void testToPreAnalyzedGenres() {
 
         List<String> preAnalyzedGenres = indexManager
                 .toPreAnalyzedGenres(Arrays.asList("Baroque Instrumental", "Gothik Folk Psychobilly"));

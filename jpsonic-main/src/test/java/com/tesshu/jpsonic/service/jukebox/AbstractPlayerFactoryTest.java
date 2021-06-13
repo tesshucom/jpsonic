@@ -186,7 +186,7 @@ public abstract class AbstractPlayerFactoryTest {
     protected abstract void createTestPlayer();
 
     private Player findTestJukeboxPlayer() {
-        return playerDao.getAllPlayers().stream().filter(player -> player.getName().equals(JUKEBOX_PLAYER_NAME))
+        return playerDao.getAllPlayers().stream().filter(player -> JUKEBOX_PLAYER_NAME.equals(player.getName()))
                 .findFirst().orElseThrow(() -> new RuntimeException("No player found in database"));
     }
 
@@ -239,7 +239,7 @@ public abstract class AbstractPlayerFactoryTest {
     /*
      * Wrap&Throw Exception due to constraints of 'springframework' {@link ResultActions#andExpect(ResultMatcher)}
      */
-    public void jukeboxStartActionTest() throws ExecutionException {
+    void testJukeboxStartAction() throws ExecutionException {
         // Given
 
         // When and Then
@@ -265,7 +265,7 @@ public abstract class AbstractPlayerFactoryTest {
     @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
     @Test
     @WithMockUser(username = "admin")
-    public void jukeboxStopActionTest() throws ExecutionException {
+    void testJukeboxStopAction() throws ExecutionException {
         // Given
 
         // When and Then

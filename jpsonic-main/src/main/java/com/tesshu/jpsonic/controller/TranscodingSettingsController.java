@@ -96,31 +96,9 @@ public class TranscodingSettingsController {
     private String handleParameters(HttpServletRequest request, RedirectAttributes redirectAttributes) {
 
         for (Transcoding transcoding : transcodingService.getAllTranscodings()) {
-            Integer id = transcoding.getId();
-            String name = getParameter(request, Attributes.Request.NAME.value(), id);
-            String sourceFormats = getParameter(request, Attributes.Request.SOURCE_FORMATS.value(), id);
-            String targetFormat = getParameter(request, Attributes.Request.TARGET_FORMAT.value(), id);
-            String step1 = getParameter(request, Attributes.Request.STEP1.value(), id);
-            String step2 = getParameter(request, Attributes.Request.STEP2.value(), id);
-            boolean delete = getParameter(request, Attributes.Request.DELETE.value(), id) != null;
-
-            if (delete) {
-                transcodingService.deleteTranscoding(id);
-            } else if (name == null) {
-                return "transcodingsettings.noname";
-            } else if (sourceFormats == null) {
-                return "transcodingsettings.nosourceformat";
-            } else if (targetFormat == null) {
-                return "transcodingsettings.notargetformat";
-            } else if (step1 == null) {
-                return "transcodingsettings.nostep1";
-            } else {
-                transcoding.setName(name);
-                transcoding.setSourceFormats(sourceFormats);
-                transcoding.setTargetFormat(targetFormat);
-                transcoding.setStep1(step1);
-                transcoding.setStep2(step2);
-                transcodingService.updateTranscoding(transcoding);
+            String errorMsg = updateOrDeleteTranscoding(request, transcoding);
+            if (errorMsg != null) {
+                return errorMsg;
             }
         }
 
@@ -156,7 +134,36 @@ public class TranscodingSettingsController {
         return null;
     }
 
-    private String getParameter(HttpServletRequest request, String name, Integer id) {
+    private String updateOrDeleteTranscoding(HttpServletRequest request, Transcoding transcoding) {
+        Integer id = transcoding.getId();
+        String name = getParam4Array(request, Attributes.Request.NAME.value(), id);
+        String sourceFormats = getParam4Array(request, Attributes.Request.SOURCE_FORMATS.value(), id);
+        String targetFormat = getParam4Array(request, Attributes.Request.TARGET_FORMAT.value(), id);
+        String step1 = getParam4Array(request, Attributes.Request.STEP1.value(), id);
+        String step2 = getParam4Array(request, Attributes.Request.STEP2.value(), id);
+        boolean delete = getParam4Array(request, Attributes.Request.DELETE.value(), id) != null;
+        if (delete) {
+            transcodingService.deleteTranscoding(id);
+        } else if (name == null) {
+            return "transcodingsettings.noname";
+        } else if (sourceFormats == null) {
+            return "transcodingsettings.nosourceformat";
+        } else if (targetFormat == null) {
+            return "transcodingsettings.notargetformat";
+        } else if (step1 == null) {
+            return "transcodingsettings.nostep1";
+        } else {
+            transcoding.setName(name);
+            transcoding.setSourceFormats(sourceFormats);
+            transcoding.setTargetFormat(targetFormat);
+            transcoding.setStep1(step1);
+            transcoding.setStep2(step2);
+            transcodingService.updateTranscoding(transcoding);
+        }
+        return null;
+    }
+
+    private String getParam4Array(HttpServletRequest request, String name, Integer id) {
         return StringUtils.trimToNull(request.getParameter(name + "[" + id + "]"));
     }
 }

@@ -22,14 +22,20 @@
 package com.tesshu.jpsonic.service.search;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.springframework.util.ObjectUtils.isEmpty;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.dao.AlbumDao;
@@ -39,12 +45,20 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SearchResult;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
+import org.apache.lucene.search.SearcherManager;
+import org.apache.lucene.store.AlreadyClosedException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ObjectUtils;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class IndexManagerTest extends AbstractNeedsScan {
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+class IndexManagerTest extends AbstractNeedsScan {
 
     private List<MusicFolder> musicFolders;
 
@@ -71,7 +85,7 @@ public class IndexManagerTest extends AbstractNeedsScan {
 
     @Override
     public List<MusicFolder> getMusicFolders() {
-        if (isEmpty(musicFolders)) {
+        if (ObjectUtils.isEmpty(musicFolders)) {
             musicFolders = new ArrayList<>();
             File musicDir = new File(resolveBaseMediaPath("Music"));
             musicFolders.add(new MusicFolder(1, musicDir, "Music", true, new Date()));
@@ -86,7 +100,8 @@ public class IndexManagerTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testExpunge() throws IOException {
+    @Order(1)
+    void testExpunge() throws IOException {
 
         int offset = 0;
         int count = Integer.MAX_VALUE;
@@ -138,7 +153,7 @@ public class IndexManagerTest extends AbstractNeedsScan {
         } else if ("02 - Gaspard de la Nuit - ii. Le Gibet".equals(result.getMediaFiles().get(0).getName())) {
             assertEquals("01 - Gaspard de la Nuit - i. Ondine", result.getMediaFiles().get(1).getName());
         } else {
-            fail("Search results are not correct.");
+            Assertions.fail("Search results are not correct.");
         }
 
         candidates = mediaFileDao.getSongExpungeCandidates();
@@ -201,4 +216,87 @@ public class IndexManagerTest extends AbstractNeedsScan {
 
     }
 
+    @Test
+    @Order(2)
+    void testDeleteLegacyFiles() throws ExecutionException, IOException {
+        // Remove the index used in the early days of Airsonic(Close to Subsonic)
+        File legacyFile = new File(SettingsService.getJpsonicHome(), "lucene2");
+        if (legacyFile.createNewFile()) {
+            assertTrue(legacyFile.exists());
+        } else {
+            Assertions.fail();
+        }
+        File legacyDir = new File(SettingsService.getJpsonicHome(), "lucene3");
+        if (legacyDir.mkdir()) {
+            assertTrue(legacyDir.exists());
+        } else {
+            Assertions.fail();
+        }
+        try {
+            Method method = indexManager.getClass().getDeclaredMethod("deleteLegacyFiles");
+            method.setAccessible(true);
+            method.invoke(indexManager);
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException e) {
+            throw new ExecutionException(e);
+        }
+        assertFalse(legacyFile.exists());
+        assertFalse(legacyDir.exists());
+    }
+
+    @Test
+    @Order(3)
+    void testDeleteOldFiles() throws ExecutionException, IOException {
+        // If the index version does not match, delete it
+        File oldDir = new File(SettingsService.getJpsonicHome(), "index-JP22");
+        if (oldDir.mkdir()) {
+            assertTrue(oldDir.exists());
+        } else {
+            Assertions.fail();
+        }
+        try {
+            Method method = indexManager.getClass().getDeclaredMethod("deleteOldFiles");
+            method.setAccessible(true);
+            method.invoke(indexManager);
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException e) {
+            throw new ExecutionException(e);
+        }
+        assertFalse(oldDir.exists());
+    }
+
+    @SuppressWarnings({ "PMD.CloseResource", "PMD.EmptyCatchBlock" })
+    // Because, not using the searcherManager but force a close
+    @Test
+    @Order(4)
+    void testDdeleteOldMethodFiles() throws ExecutionException, IOException {
+        // Delete the index currently in use to switch to the backward compatible (Airsonic method)
+        // index.
+        assertNotNull(indexManager.getStatistics());
+        settingsService.setSearchMethodChanged(true);
+        try {
+            Field field = indexManager.getClass().getDeclaredField("searchers");
+            field.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            Map<IndexType, SearcherManager> searchers = (Map<IndexType, SearcherManager>) field.get(indexManager);
+            /*
+             * This method is only executed when the server starts. (Before the index is opened) Here, in a pseudo
+             * manner, the index is forcibly closed and then the method is executed.
+             */
+            for (SearcherManager searcherManager : searchers.values()) {
+                try {
+                    searcherManager.close();
+                } catch (AlreadyClosedException e) {
+                    // Silent close.
+                }
+            }
+            Method method = indexManager.getClass().getDeclaredMethod("deleteOldMethodFiles");
+            method.setAccessible(true);
+            method.invoke(indexManager);
+        } catch (NoSuchFieldException | NoSuchMethodException | SecurityException | IllegalAccessException
+                | IllegalArgumentException | InvocationTargetException e) {
+            throw new ExecutionException(e);
+        }
+        assertFalse(settingsService.isSearchMethodChanged());
+    }
 }

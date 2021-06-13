@@ -41,7 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /*
  * Test to correct sort inconsistencies.
  */
-public class SongByGenreUpnpProcessorTest extends AbstractNeedsScan {
+class SongByGenreUpnpProcessorTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
@@ -69,12 +69,12 @@ public class SongByGenreUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetItemCount() {
+    void testGetItemCount() {
         assertEquals(31, songByGenreUpnpProcessor.getItemCount());
     }
 
     @Test
-    public void testGetItems() {
+    void testGetItems() {
 
         Map<String, Genre> c = LegacyMap.of();
 
@@ -94,7 +94,7 @@ public class SongByGenreUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetChildSizeOf() {
+    void testGetChildSizeOf() {
         List<Genre> artists = songByGenreUpnpProcessor.getItems(0, 1);
         assertEquals(1, artists.size());
         // assertEquals("A;B;C", artists.get(0).getName());
@@ -102,7 +102,7 @@ public class SongByGenreUpnpProcessorTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testGetChildren() {
+    void testGetChildren() {
 
         List<Genre> artists = songByGenreUpnpProcessor.getItems(0, 1);
         assertEquals(1, artists.size());

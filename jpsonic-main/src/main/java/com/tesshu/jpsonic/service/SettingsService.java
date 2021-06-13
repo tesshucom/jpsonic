@@ -1195,7 +1195,11 @@ public class SettingsService {
      */
     @SuppressFBWarnings(value = { "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE",
             "MS_EXPOSE_REP" }, justification = "False positive by try with resources. Returns an immutable list without unnecessary copying.")
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Theme) Cannot be reused but is cached
+    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.CognitiveComplexity" })
+    /*
+     * [AvoidInstantiatingObjectsInLoops] (Theme) Cannot be reused but is cached [CognitiveComplexity] #1020 Remove them
+     * as they now contain unnecessary processing.
+     */
     public static List<Theme> getAvailableThemes() {
         synchronized (LOCKS.get(LocksKeys.THEMES)) {
             if (themes == null) {
@@ -1214,9 +1218,9 @@ public class SettingsService {
                             }
                         }
                     }
-                } catch (IOException x) {
+                } catch (IOException e) {
                     if (LOG.isErrorEnabled()) {
-                        LOG.error("Failed to resolve list of themes.", x);
+                        LOG.error("Failed to resolve list of themes.", e);
                     }
                     l.add(new Theme("default", "Jpsonic default"));
                 }

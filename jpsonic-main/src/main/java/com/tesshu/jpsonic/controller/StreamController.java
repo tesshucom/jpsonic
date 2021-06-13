@@ -301,14 +301,10 @@ public class StreamController {
             final Authentication authentication, final User user, final Player player, final MediaFile file,
             final String preferredTargetFormat, final Integer maxBitRate) throws ServletRequestBindingException {
 
-        HttpRange range = null;
-        Long fileLengthExpected = null;
-        VideoTranscodingSettings videoTranscodingSettings = null;
-
         if (!(authentication instanceof JWTAuthenticationToken)
                 && !securityService.isFolderAccessAllowed(file, user.getUsername())) {
             sendForbidden(response, "Access to file " + file.getId() + " is forbidden for user " + user.getUsername());
-            return new PrepareResponseResult(true, range, fileLengthExpected, videoTranscodingSettings);
+            return new PrepareResponseResult(true, null, null, null);
         }
 
         // Update the index of the currently playing media file. At
@@ -324,11 +320,24 @@ public class StreamController {
         playQueue.addFiles(true, file);
         player.setPlayQueue(playQueue);
 
-        TranscodingService.Parameters parameters = transcodingService.getParameters(file, player, maxBitRate,
+        final TranscodingService.Parameters parameters = transcodingService.getParameters(file, player, maxBitRate,
                 preferredTargetFormat, null);
-        boolean isHls = getBooleanParameter(request, Attributes.Request.HLS.value(), false);
-        fileLengthExpected = parameters.getExpectedLength();
+        HttpRange range = applyHeader(request, response, file, parameters);
 
+        // Set content type of response
+        final boolean isHls = getBooleanParameter(request, Attributes.Request.HLS.value(), false);
+        setContentType(isHls, response, player, file, preferredTargetFormat);
+
+        final VideoTranscodingSettings videoTranscodingSettings = file.isVideo() || isHls
+                ? createVideoTranscodingSettings(file, request) : null;
+
+        return new PrepareResponseResult(false, range, parameters.getExpectedLength(), videoTranscodingSettings);
+    }
+
+    private HttpRange applyHeader(HttpServletRequest request, HttpServletResponse response, MediaFile file,
+            TranscodingService.Parameters parameters) {
+        HttpRange range = null;
+        Long fileLengthExpected = parameters.getExpectedLength();
         // Wrangle response length and ranges.
         //
         // Support ranges as long as we're not transcoding blindly; video is always assumed to
@@ -363,8 +372,11 @@ public class StreamController {
             response.setIntHeader("ETag", file.getId());
             PlayerUtils.setContentLength(response, contentLength);
         }
+        return range;
+    }
 
-        // Set content type of response
+    private void setContentType(boolean isHls, HttpServletResponse response, Player player, MediaFile file,
+            String preferredTargetFormat) {
         if (isHls) {
             response.setContentType(getMimeType("ts")); // HLS is always MPEG TS.
         } else {
@@ -373,13 +385,9 @@ public class StreamController {
             response.setContentType(getMimeType(transcodedSuffix, sonos));
             setContentDuration(response, file);
         }
-
-        if (file.isVideo() || isHls) {
-            videoTranscodingSettings = createVideoTranscodingSettings(file, request);
-        }
-        return new PrepareResponseResult(false, range, fileLengthExpected, videoTranscodingSettings);
     }
 
+    @SuppressWarnings("PMD.CognitiveComplexity") // #1020
     private void writeStream(Player player, InputStream in, OutputStream out, Long fileLengthExpected,
             boolean isPodcast, boolean isSingleFile) throws IOException {
         byte[] buf = new byte[settingsService.getBufferSize()];

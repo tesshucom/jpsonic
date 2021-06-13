@@ -47,7 +47,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class PodcastDaoTest {
+class PodcastDaoTest {
 
     @Autowired
     private GenericDaoHelper daoHelper;
@@ -61,7 +61,7 @@ public class PodcastDaoTest {
     }
 
     @Test
-    public void testCreateChannel() {
+    void testCreateChannel() {
         PodcastChannel channel = new PodcastChannel("http://foo");
         podcastDao.createChannel(channel);
 
@@ -71,7 +71,7 @@ public class PodcastDaoTest {
     }
 
     @Test
-    public void testChannelId() {
+    void testChannelId() {
         int channelId = podcastDao.createChannel(new PodcastChannel("http://foo"));
 
         assertEquals(channelId + 1, podcastDao.createChannel(new PodcastChannel("http://foo")),
@@ -91,7 +91,7 @@ public class PodcastDaoTest {
     }
 
     @Test
-    public void testUpdateChannel() {
+    void testUpdateChannel() {
         PodcastChannel channel = new PodcastChannel("http://foo");
         podcastDao.createChannel(channel);
         channel = podcastDao.getAllChannels().get(0);
@@ -111,7 +111,7 @@ public class PodcastDaoTest {
     }
 
     @Test
-    public void testDeleteChannel() {
+    void testDeleteChannel() {
         assertEquals(0, podcastDao.getAllChannels().size(), "Wrong number of channels.");
 
         PodcastChannel channel = new PodcastChannel("http://foo");
@@ -129,7 +129,7 @@ public class PodcastDaoTest {
     }
 
     @Test
-    public void testCreateEpisode() {
+    void testCreateEpisode() {
         int channelId = createChannel();
         PodcastEpisode episode = new PodcastEpisode(null, channelId, "http://bar", "path", "title", "description",
                 new Date(), "12:34", null, null, PodcastStatus.NEW, null);
@@ -141,7 +141,7 @@ public class PodcastDaoTest {
     }
 
     @Test
-    public void testGetEpisode() {
+    void testGetEpisode() {
         assertNull(podcastDao.getEpisode(23), "Error in getEpisode()");
 
         int channelId = createChannel();
@@ -155,7 +155,7 @@ public class PodcastDaoTest {
     }
 
     @Test
-    public void testGetEpisodes() {
+    void testGetEpisodes() {
         int channelId = createChannel();
         PodcastEpisode a = new PodcastEpisode(null, channelId, "a", null, null, null, new Date(3000), null, null, null,
                 PodcastStatus.NEW, null);
@@ -179,7 +179,7 @@ public class PodcastDaoTest {
     }
 
     @Test
-    public void testUpdateEpisode() {
+    void testUpdateEpisode() {
         int channelId = createChannel();
         PodcastEpisode episode = new PodcastEpisode(null, channelId, "http://bar", null, null, null, null, null, null,
                 null, PodcastStatus.NEW, null);
@@ -204,7 +204,7 @@ public class PodcastDaoTest {
     }
 
     @Test
-    public void testDeleteEpisode() {
+    void testDeleteEpisode() {
         int channelId = createChannel();
 
         assertEquals(0, podcastDao.getEpisodes(channelId).size(), "Wrong number of episodes.");
@@ -226,7 +226,7 @@ public class PodcastDaoTest {
     }
 
     @Test
-    public void testCascadingDelete() {
+    void testCascadingDelete() {
         int channelId = createChannel();
         PodcastEpisode episode = new PodcastEpisode(null, channelId, "http://bar", null, null, null, null, null, null,
                 null, PodcastStatus.NEW, null);

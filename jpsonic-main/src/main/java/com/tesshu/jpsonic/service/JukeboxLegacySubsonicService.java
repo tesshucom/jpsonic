@@ -158,9 +158,7 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
                     this.offset = offset;
                     if (audioPlayer != null) {
                         audioPlayer.close();
-                        if (currentPlayingFile != null) {
-                            onSongEnd(currentPlayingFile);
-                        }
+                        onSongEnd(currentPlayingFile);
                     }
 
                     if (file != null) {
@@ -180,16 +178,20 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
             }
 
         } catch (LineUnavailableException | IOException e) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Error in jukebox: ", e);
-            }
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ioe) {
-                    if (LOG.isTraceEnabled()) {
-                        LOG.trace("Cannot be close.", ioe);
-                    }
+            closeOnException(in, e);
+        }
+    }
+
+    private void closeOnException(InputStream in, Exception e) {
+        if (LOG.isErrorEnabled()) {
+            LOG.error("Error in jukebox: ", e);
+        }
+        if (in != null) {
+            try {
+                in.close();
+            } catch (IOException ioe) {
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Cannot be close.", ioe);
                 }
             }
         }
@@ -252,6 +254,9 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
     }
 
     private void onSongEnd(MediaFile file) {
+        if (currentPlayingFile == null) {
+            return;
+        }
         if (destroy.get()) {
             return;
         }
