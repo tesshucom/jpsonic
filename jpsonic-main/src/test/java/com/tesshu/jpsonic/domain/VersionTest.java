@@ -28,13 +28,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class VersionTest {
+class VersionTest {
 
     /**
      * Tests that equals(), hashCode(), toString() and compareTo() works.
      */
     @Test
-    public void testVersion() {
+    void testVersion() {
         assertTrue(doTestVersion("0.0", "0.1"));
         assertTrue(doTestVersion("1.5", "2.3"));
         assertTrue(doTestVersion("2.3", "2.34"));
@@ -55,7 +55,7 @@ public class VersionTest {
     }
 
     @Test
-    public void testIsPreview() {
+    void testIsPreview() {
         Version version = new Version("1.6.0-SNAPSHOT");
         assertTrue(version.isPreview(), "Version should be snapshot");
 

@@ -44,7 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * If SORT exists for one name and null-sort data exists, unify it to SORT.
  */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class MediaScannerServiceUtilsCopySortOfArtistTest extends AbstractNeedsScan {
+class MediaScannerServiceUtilsCopySortOfArtistTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
@@ -79,7 +79,7 @@ public class MediaScannerServiceUtilsCopySortOfArtistTest extends AbstractNeedsS
     }
 
     @Test
-    public void testCopySortOfArtist() throws ExecutionException {
+    void testCopySortOfArtist() throws ExecutionException {
 
         invokeUtils(utils, "mergeSortOfArtist");
 

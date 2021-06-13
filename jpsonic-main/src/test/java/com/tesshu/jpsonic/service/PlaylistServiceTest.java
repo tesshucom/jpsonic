@@ -43,10 +43,10 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-public class PlaylistServiceTest {
+class PlaylistServiceTest {
 
     @Nested
-    public class ExportTest {
+    class ExportTest {
 
         private PlaylistService playlistService;
 
@@ -84,7 +84,7 @@ public class PlaylistServiceTest {
         }
 
         @Test
-        public void testExportToM3U() throws Exception {
+        void testExportToM3U() throws Exception {
             Mockito.when(mediaFileDao.getFilesInPlaylist(ArgumentMatchers.eq(23))).thenReturn(getPlaylistFiles());
             Mockito.when(settingsService.getPlaylistExportFormat()).thenReturn("m3u");
 
@@ -129,7 +129,7 @@ public class PlaylistServiceTest {
     }
 
     @Nested
-    public class ImportTest {
+    class ImportTest {
 
         private PlaylistService playlistService;
 
@@ -179,7 +179,7 @@ public class PlaylistServiceTest {
         }
 
         @Test
-        public void testImportFromM3U() throws Exception {
+        void testImportFromM3U() throws Exception {
             final String username = "testUser";
             final String playlistName = "test-playlist";
             StringBuilder builder = new StringBuilder();
@@ -225,7 +225,7 @@ public class PlaylistServiceTest {
         }
 
         @Test
-        public void testImportFromPLS() throws Exception {
+        void testImportFromPLS() throws Exception {
             final String username = "testUser";
             final String playlistName = "test-playlist";
             File mf1 = new File(tempDir, "PLS-mf1");
@@ -266,7 +266,7 @@ public class PlaylistServiceTest {
         }
 
         @Test
-        public void testImportFromXSPF() throws Exception {
+        void testImportFromXSPF() throws Exception {
             final String username = "testUser";
             final String playlistName = "test-playlist";
             File mf1 = new File(tempDir, "XSPF-mf1");

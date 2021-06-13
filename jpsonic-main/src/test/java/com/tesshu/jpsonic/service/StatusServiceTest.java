@@ -45,7 +45,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class StatusServiceTest {
+class StatusServiceTest {
 
     @Autowired
     private StatusService statusService;
@@ -58,7 +58,7 @@ public class StatusServiceTest {
     }
 
     @Test
-    public void testSimpleAddRemove() {
+    void testSimpleAddRemove() {
         TransferStatus status = statusService.createStreamStatus(player1);
         assertTrue(status.isActive(), "Wrong status.");
         assertEquals(Arrays.asList(status), statusService.getAllStreamStatuses(), "Wrong list of statuses.");
@@ -73,7 +73,7 @@ public class StatusServiceTest {
     }
 
     @Test
-    public void testMultipleStreamsSamePlayer() {
+    void testMultipleStreamsSamePlayer() {
         TransferStatus statusA = statusService.createStreamStatus(player1);
         TransferStatus statusB = statusService.createStreamStatus(player1);
 

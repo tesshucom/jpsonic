@@ -44,7 +44,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class InternetRadioServiceTest {
+class InternetRadioServiceTest {
 
     private static final String TEST_RADIO_NAME = "Test Radio";
     private static final String TEST_RADIO_HOMEPAGE = "http://example.com";
@@ -162,7 +162,7 @@ public class InternetRadioServiceTest {
     }
 
     @Test
-    public void testParseSimplePlaylist() {
+    void testParseSimplePlaylist() {
         List<InternetRadioSource> radioSources = internetRadioService.getInternetRadioSources(radio1);
         assertEquals(2, radioSources.size());
         assertEquals(TEST_STREAM_URL_1, radioSources.get(0).getStreamUrl());
@@ -170,7 +170,7 @@ public class InternetRadioServiceTest {
     }
 
     @Test
-    public void testRedirects() {
+    void testRedirects() {
         List<InternetRadioSource> radioSources = internetRadioService.getInternetRadioSources(radioMove);
         assertEquals(2, radioSources.size());
         assertEquals(TEST_STREAM_URL_3, radioSources.get(0).getStreamUrl());
@@ -178,7 +178,7 @@ public class InternetRadioServiceTest {
     }
 
     @Test
-    public void testLargeInput() {
+    void testLargeInput() {
         List<InternetRadioSource> radioSources = internetRadioService.getInternetRadioSources(radioLarge);
         // A PlaylistTooLarge exception is thrown internally, and the
         // `getInternetRadioSources` method logs it and returns a
@@ -187,7 +187,7 @@ public class InternetRadioServiceTest {
     }
 
     @Test
-    public void testLargeInputURL() {
+    void testLargeInputURL() {
         List<InternetRadioSource> radioSources = internetRadioService.getInternetRadioSources(radioLarge2);
         // A PlaylistTooLarge exception is thrown internally, and the
         // `getInternetRadioSources` method logs it and returns a
@@ -196,7 +196,7 @@ public class InternetRadioServiceTest {
     }
 
     @Test
-    public void testRedirectLoop() {
+    void testRedirectLoop() {
         List<InternetRadioSource> radioSources = internetRadioService.getInternetRadioSources(radioMoveLoop);
         // A PlaylistHasTooManyRedirects exception is thrown internally,
         // and the `getInternetRadioSources` method logs it and returns 0 sources.

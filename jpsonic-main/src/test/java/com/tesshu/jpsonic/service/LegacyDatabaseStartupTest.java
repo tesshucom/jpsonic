@@ -52,7 +52,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
-public class LegacyDatabaseStartupTest {
+class LegacyDatabaseStartupTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(LegacyDatabaseStartupTest.class);
 
@@ -68,7 +68,7 @@ public class LegacyDatabaseStartupTest {
     }
 
     @Test
-    public void testStartup() {
+    void testStartup() {
         assertEquals(1, musicFolderDao.getAllMusicFolders().size());
     }
 
@@ -101,7 +101,7 @@ public class LegacyDatabaseStartupTest {
         return true;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.CognitiveComplexity" })
     private static boolean copyJarResourcesRecursively(final File destDir, final JarURLConnection jarConnection)
             throws IOException {
         try (JarFile jarFile = jarConnection.getJarFile()) {

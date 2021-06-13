@@ -45,7 +45,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class InternetRadioDaoTest {
+class InternetRadioDaoTest {
 
     @Autowired
     private GenericDaoHelper daoHelper;
@@ -59,7 +59,7 @@ public class InternetRadioDaoTest {
     }
 
     @Test
-    public void testCreateInternetRadio() {
+    void testCreateInternetRadio() {
         InternetRadio radio = new InternetRadio("name", "streamUrl", "homePageUrl", true, new Date());
         internetRadioDao.createInternetRadio(radio);
 
@@ -68,7 +68,7 @@ public class InternetRadioDaoTest {
     }
 
     @Test
-    public void testUpdateInternetRadio() {
+    void testUpdateInternetRadio() {
         InternetRadio radio = new InternetRadio("name", "streamUrl", "homePageUrl", true, new Date());
         internetRadioDao.createInternetRadio(radio);
         radio = internetRadioDao.getAllInternetRadios().get(0);
@@ -85,7 +85,7 @@ public class InternetRadioDaoTest {
     }
 
     @Test
-    public void testDeleteInternetRadio() {
+    void testDeleteInternetRadio() {
         assertEquals(0, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
         internetRadioDao.createInternetRadio(new InternetRadio("name", "streamUrl", "homePageUrl", true, new Date()));
         assertEquals(1, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");

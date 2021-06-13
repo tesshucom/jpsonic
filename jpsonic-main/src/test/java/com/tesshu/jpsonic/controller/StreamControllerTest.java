@@ -39,13 +39,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class StreamControllerTest {
+class StreamControllerTest {
 
     @Autowired
     private StreamController controller;
 
     @Test
-    public void testGetRequestedVideoSize() {
+    void testGetRequestedVideoSize() {
 
         // Valid spec.
         assertEquals(new Dimension(123, 456), controller.getRequestedVideoSize("123x456"), "Wrong size.");
@@ -73,7 +73,7 @@ public class StreamControllerTest {
     }
 
     @Test
-    public void testGetSuitableVideoSize() {
+    void testGetSuitableVideoSize() {
 
         // 4:3 aspect rate
         assertTrue(doTestGetSuitableVideoSize(1280, 960, 200, 400, 300));

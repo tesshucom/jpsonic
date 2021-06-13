@@ -38,13 +38,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class SecurityServiceTest {
+class SecurityServiceTest {
 
     @Autowired
     private SecurityService service;
 
     @Test
-    public void testIsFileInFolder() {
+    void testIsFileInFolder() {
 
         assertTrue(service.isFileInFolder("/music/foo.mp3", "\\"));
         assertTrue(service.isFileInFolder("/music/foo.mp3", "/"));

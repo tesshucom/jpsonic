@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 
-public class MediaScannerServiceUpdateAlbumTest extends AbstractNeedsScan {
+class MediaScannerServiceUpdateAlbumTest extends AbstractNeedsScan {
 
     private List<MusicFolder> musicFolders;
 
@@ -77,7 +77,7 @@ public class MediaScannerServiceUpdateAlbumTest extends AbstractNeedsScan {
      * 
      */
     @Test
-    public void testUpdateAlbum() {
+    void testUpdateAlbum() {
 
         // LIFO
         List<MusicFolder> folder = musicFolders.stream().filter(f -> "alphaBeticalProps".equals(f.getName()))

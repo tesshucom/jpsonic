@@ -46,7 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * In the process of hardening the Analyzer implementation,
  * this problem is solved side by side.
  */
-public class SearchServiceStartWithStopwardsTest extends AbstractNeedsScan {
+class SearchServiceStartWithStopwardsTest extends AbstractNeedsScan {
 
     private List<MusicFolder> musicFolders;
 
@@ -76,7 +76,7 @@ public class SearchServiceStartWithStopwardsTest extends AbstractNeedsScan {
     }
 
     @Test
-    public void testStartWithStopwards() throws IOException {
+    void testStartWithStopwards() throws IOException {
 
         int offset = 0;
         int count = Integer.MAX_VALUE;

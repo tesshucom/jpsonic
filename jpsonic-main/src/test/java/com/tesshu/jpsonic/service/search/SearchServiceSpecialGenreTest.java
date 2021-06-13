@@ -43,7 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /*
  * Tests to prove what kind of strings/chars can be used in the genre field.
  */
-public class SearchServiceSpecialGenreTest extends AbstractNeedsScan {
+class SearchServiceSpecialGenreTest extends AbstractNeedsScan {
 
     private List<MusicFolder> musicFolders;
 
@@ -77,7 +77,7 @@ public class SearchServiceSpecialGenreTest extends AbstractNeedsScan {
      * readable value (file tag value). - However, there is an exception in parentheses.
      */
     @Test
-    public void testQueryEscapeRequires() {
+    void testQueryEscapeRequires() {
 
         Function<String, RandomSearchCriteria> simpleStringCriteria = s -> new RandomSearchCriteria(Integer.MAX_VALUE, // count
                 Arrays.asList(s), // genre,
@@ -206,7 +206,7 @@ public class SearchServiceSpecialGenreTest extends AbstractNeedsScan {
      * more natural.
      */
     @Test
-    public void testBrackets() {
+    void testBrackets() {
 
         Function<String, RandomSearchCriteria> simpleStringCriteria = s -> new RandomSearchCriteria(Integer.MAX_VALUE, // count
                 Arrays.asList(s), // genre,
@@ -248,7 +248,7 @@ public class SearchServiceSpecialGenreTest extends AbstractNeedsScan {
      * Jaudiotagger applies special treatment to numeric. (FILE18)
      */
     @Test
-    public void testNumericMapping() {
+    void testNumericMapping() {
 
         List<MusicFolder> folders = getMusicFolders();
 
@@ -277,7 +277,7 @@ public class SearchServiceSpecialGenreTest extends AbstractNeedsScan {
      *
      */
     @Test
-    public void testOthers() {
+    void testOthers() {
 
         Function<String, RandomSearchCriteria> simpleStringCriteria = s -> new RandomSearchCriteria(Integer.MAX_VALUE, // count
                 Arrays.asList(s), // genre,
