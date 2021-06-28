@@ -228,13 +228,9 @@ public class PersonalSettingsController {
         settings.setDefaultAlbumList(AlbumListType.fromId(command.getAlbumListId()));
         settings.setPartyModeEnabled(command.isPartyModeEnabled());
         settings.setQueueFollowingSongs(command.isQueueFollowingSongs());
-        if (settingsService.isOthersPlayingEnabled()) {
-            settings.setShowNowPlayingEnabled(command.isShowNowPlayingEnabled());
-            settings.setNowPlayingAllowed(command.isNowPlayingAllowed());
-        } else {
-            settings.setShowNowPlayingEnabled(false);
-            settings.setNowPlayingAllowed(false);
-        }
+        settings.setNowPlayingAllowed(command.isNowPlayingAllowed());
+        settings.setShowNowPlayingEnabled(
+                settingsService.isOthersPlayingEnabled() && command.isShowNowPlayingEnabled());
         settings.setShowArtistInfoEnabled(command.isShowArtistInfoEnabled());
         settings.setCloseDrawer(command.isCloseDrawer());
         settings.setClosePlayQueue(command.isClosePlayQueue());

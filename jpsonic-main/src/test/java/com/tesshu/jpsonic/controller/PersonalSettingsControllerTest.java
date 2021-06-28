@@ -633,8 +633,6 @@ class PersonalSettingsControllerTest {
                 }
 
                 @interface NowPlayingAllowed {
-                    @interface False {
-                    }
 
                     @interface True {
                     }
@@ -656,7 +654,7 @@ class PersonalSettingsControllerTest {
         @NowPlayingDecision.Conditions.SettingsService.OthersPlayingEnabled.False
         @NowPlayingDecision.Conditions.Command.NowPlayingAllowed.True
         @NowPlayingDecision.Conditions.Command.ShowNowPlayingEnabled.True
-        @NowPlayingDecision.Result.UserSettings.NowPlayingAllowed.False
+        @NowPlayingDecision.Result.UserSettings.NowPlayingAllowed.True
         @NowPlayingDecision.Result.UserSettings.ShowNowPlayingEnabled.False
         @WithMockUser(username = ADMIN_NAME)
         @Test
@@ -687,11 +685,11 @@ class PersonalSettingsControllerTest {
             assertEquals(VIEW_NAME, modelAndView.getViewName());
             command = (PersonalSettingsCommand) modelAndView.getModelMap().get(Attributes.Model.Command.VALUE);
 
-            assertFalse(command.isNowPlayingAllowed());
+            assertTrue(command.isNowPlayingAllowed());
             assertFalse(command.isShowNowPlayingEnabled());
         }
 
-        @NowPlayingDecision.Conditions.UserSettings.NowPlayingAllowed.False
+        @NowPlayingDecision.Conditions.UserSettings.NowPlayingAllowed.True
         @NowPlayingDecision.Conditions.UserSettings.ShowNowPlayingEnabled.False
         @NowPlayingDecision.Conditions.SettingsService.OthersPlayingEnabled.True
         @NowPlayingDecision.Conditions.Command.NowPlayingAllowed.True
@@ -712,7 +710,7 @@ class PersonalSettingsControllerTest {
                     .get(Attributes.Model.Command.VALUE);
             assertNotNull(command);
 
-            assertFalse(command.isNowPlayingAllowed());
+            assertTrue(command.isNowPlayingAllowed());
             assertFalse(command.isShowNowPlayingEnabled());
             command.setNowPlayingAllowed(true);
             command.setShowNowPlayingEnabled(true);
@@ -737,7 +735,7 @@ class PersonalSettingsControllerTest {
         @NowPlayingDecision.Conditions.SettingsService.OthersPlayingEnabled.False
         @NowPlayingDecision.Conditions.Command.NowPlayingAllowed.True
         @NowPlayingDecision.Conditions.Command.ShowNowPlayingEnabled.True
-        @NowPlayingDecision.Result.UserSettings.NowPlayingAllowed.False
+        @NowPlayingDecision.Result.UserSettings.NowPlayingAllowed.True
         @NowPlayingDecision.Result.UserSettings.ShowNowPlayingEnabled.False
         @WithMockUser(username = ADMIN_NAME)
         @Test
@@ -769,7 +767,7 @@ class PersonalSettingsControllerTest {
             assertEquals(VIEW_NAME, modelAndView.getViewName());
             command = (PersonalSettingsCommand) modelAndView.getModelMap().get(Attributes.Model.Command.VALUE);
 
-            assertFalse(command.isNowPlayingAllowed());
+            assertTrue(command.isNowPlayingAllowed());
             assertFalse(command.isShowNowPlayingEnabled());
         }
     }

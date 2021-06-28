@@ -528,17 +528,18 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         </c:if>
         <dl>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="nowPlayingAllowed" id="nowPlayingAllowed" />
+                <label for="nowPlayingAllowed"><fmt:message key="personalsettings.nowplayingallowed"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="nowplayingallowed"/></c:import>
+            </dd>
             <c:if test="${command.othersPlayingEnabled}">
                 <dt><fmt:message key="personalsettings.menu"/></dt>
                 <dd>
                     <form:checkbox path="showNowPlayingEnabled" id="nowPlaying" />
                     <label for="nowPlaying"><fmt:message key="personalsettings.shownowplaying"/></label>
                     <c:import url="helpToolTip.jsp"><c:param name="topic" value="shownowplaying"/></c:import>
-                </dd>
-                <dt><fmt:message key="personalsettings.menu"/></dt>
-                <dd>
-                    <form:checkbox path="nowPlayingAllowed" id="nowPlayingAllowed" />
-                    <label for="nowPlayingAllowed"><fmt:message key="personalsettings.nowplayingallowed"/></label>
                 </dd>
             </c:if>
             <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.artist"/></dt>
