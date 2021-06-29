@@ -20,7 +20,7 @@ function setImage(imageUrl) {
     $("#error").hide();
     $("#errorDetails").hide();
     $("#noImagesFound").hide();
-    coverArtService.setCoverArtImage(${model.id}, imageUrl, setImageComplete);
+    coverArtService.saveCoverArtImage(${model.id}, imageUrl, setImageComplete);
 }
 
 function setImageComplete(errorDetails) {
