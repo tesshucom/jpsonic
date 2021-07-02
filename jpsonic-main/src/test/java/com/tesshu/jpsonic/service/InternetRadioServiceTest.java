@@ -40,7 +40,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -70,11 +69,12 @@ class InternetRadioServiceTest {
     private InternetRadio radioLarge;
     private InternetRadio radioLarge2;
 
-    @Spy
     private InternetRadioService internetRadioService;
 
     @BeforeEach
     public void setup() throws ExecutionException {
+
+        internetRadioService = Mockito.spy(new InternetRadioService(null));
 
         // Prepare a mock InternetRadio object
         radio1 = new InternetRadio(1, TEST_RADIO_NAME, TEST_PLAYLIST_URL_1, TEST_RADIO_HOMEPAGE, true, new Date());

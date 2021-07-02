@@ -29,6 +29,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.domain.InternetRadio;
+import com.tesshu.jpsonic.service.InternetRadioService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.apache.commons.lang.StringUtils;
@@ -52,16 +53,18 @@ import org.springframework.web.servlet.view.RedirectView;
 public class InternetRadioSettingsController {
 
     private final SettingsService settingsService;
+    private final InternetRadioService internetRadioService;
 
-    public InternetRadioSettingsController(SettingsService settingsService) {
+    public InternetRadioSettingsController(SettingsService settingsService, InternetRadioService internetRadioService) {
         super();
         this.settingsService = settingsService;
+        this.internetRadioService = internetRadioService;
     }
 
     @GetMapping
     public String doGet(Model model, @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) {
         Map<String, Object> map = LegacyMap.of();
-        map.put("internetRadios", settingsService.getAllInternetRadios(true));
+        map.put("internetRadios", internetRadioService.getAllInternetRadios(true));
         map.put("useRadio", settingsService.isUseRadio());
         map.put("useSonos", settingsService.isUseSonos());
         toast.ifPresent(b -> map.put("showToast", b));
@@ -82,7 +85,7 @@ public class InternetRadioSettingsController {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (InternetRadio) Not reusable
     private String handleParameters(HttpServletRequest request) {
-        List<InternetRadio> radios = settingsService.getAllInternetRadios(true);
+        List<InternetRadio> radios = internetRadioService.getAllInternetRadios(true);
         Date current = new Date();
         for (InternetRadio radio : radios) {
             String msg = updateOrDeleteInternetRadio(request, radio, current);
@@ -103,7 +106,8 @@ public class InternetRadioSettingsController {
             if (streamUrl == null) {
                 return "internetradiosettings.nourl";
             }
-            settingsService.createInternetRadio(new InternetRadio(name, streamUrl, homepageUrl, enabled, new Date()));
+            internetRadioService
+                    .createInternetRadio(new InternetRadio(name, streamUrl, homepageUrl, enabled, new Date()));
         }
 
         return null;
@@ -118,7 +122,7 @@ public class InternetRadioSettingsController {
         boolean delete = getParam4Array(request, Attributes.Request.DELETE.value(), id) != null;
 
         if (delete) {
-            settingsService.deleteInternetRadio(id);
+            internetRadioService.deleteInternetRadio(id);
         } else {
             if (name == null) {
                 return "internetradiosettings.noname";
@@ -126,7 +130,8 @@ public class InternetRadioSettingsController {
             if (streamUrl == null) {
                 return "internetradiosettings.nourl";
             }
-            settingsService.updateInternetRadio(new InternetRadio(id, name, streamUrl, homepageUrl, enabled, current));
+            internetRadioService
+                    .updateInternetRadio(new InternetRadio(id, name, streamUrl, homepageUrl, enabled, current));
         }
         return null;
     }

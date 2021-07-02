@@ -39,6 +39,7 @@ import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.service.InternetRadioService;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -74,17 +75,19 @@ public class TopController {
     private final MediaScannerService mediaScannerService;
     private final MusicIndexService musicIndexService;
     private final VersionService versionService;
+    private final InternetRadioService internetRadioService;
     private final AirsonicLocaleResolver localeResolver;
 
     public TopController(SettingsService settingsService, SecurityService securityService,
             MediaScannerService mediaScannerService, MusicIndexService musicIndexService, VersionService versionService,
-            AirsonicLocaleResolver localeResolver) {
+            InternetRadioService internetRadioService, AirsonicLocaleResolver localeResolver) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.mediaScannerService = mediaScannerService;
         this.musicIndexService = musicIndexService;
         this.versionService = versionService;
+        this.internetRadioService = internetRadioService;
         this.localeResolver = localeResolver;
     }
 
@@ -131,7 +134,7 @@ public class TopController {
         map.put("scanning", mediaScannerService.isScanning());
         map.put("musicFolders", allMusicFolders);
         map.put("selectedMusicFolder", selectedMusicFolder);
-        map.put("radios", settingsService.getAllInternetRadios());
+        map.put("radios", internetRadioService.getAllInternetRadios());
         map.put("shortcuts", musicIndexService.getShortcuts(musicFoldersToUse));
         map.put("partyMode", userSettings.isPartyModeEnabled());
         map.put("alternativeDrawer", userSettings.isAlternativeDrawer());
@@ -206,7 +209,7 @@ public class TopController {
         }
 
         // When was internet radio table last changed?
-        for (InternetRadio internetRadio : settingsService.getAllInternetRadios()) {
+        for (InternetRadio internetRadio : internetRadioService.getAllInternetRadios()) {
             lastModified = Math.max(lastModified, internetRadio.getChanged().getTime());
         }
 

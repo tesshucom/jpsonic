@@ -71,6 +71,7 @@ import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.service.AudioScrobblerService;
 import com.tesshu.jpsonic.service.BookmarkService;
+import com.tesshu.jpsonic.service.InternetRadioService;
 import com.tesshu.jpsonic.service.JukeboxService;
 import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.MediaFileService;
@@ -200,6 +201,7 @@ public class SubsonicRESTController {
     private final PodcastService podcastService;
     private final RatingService ratingService;
     private final SearchService searchService;
+    private final InternetRadioService internetRadioService;
     private final MediaFileDao mediaFileDao;
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
@@ -221,9 +223,10 @@ public class SubsonicRESTController {
             HLSController hlsController, ShareService shareService, PlaylistService playlistService,
             LyricsService lyricsService, PlayQueueService playQueueService, JukeboxService jukeboxService,
             AudioScrobblerService audioScrobblerService, PodcastService podcastService, RatingService ratingService,
-            SearchService searchService, MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao,
-            BookmarkService bookmarkService, PlayQueueDao playQueueDao, MediaScannerService mediaScannerService,
-            AirsonicLocaleResolver airsonicLocaleResolver, CoverArtLogic logic, SearchCriteriaDirector director) {
+            SearchService searchService, InternetRadioService internetRadioService, MediaFileDao mediaFileDao,
+            ArtistDao artistDao, AlbumDao albumDao, BookmarkService bookmarkService, PlayQueueDao playQueueDao,
+            MediaScannerService mediaScannerService, AirsonicLocaleResolver airsonicLocaleResolver, CoverArtLogic logic,
+            SearchCriteriaDirector director) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
@@ -249,6 +252,7 @@ public class SubsonicRESTController {
         this.podcastService = podcastService;
         this.ratingService = ratingService;
         this.searchService = searchService;
+        this.internetRadioService = internetRadioService;
         this.mediaFileDao = mediaFileDao;
         this.artistDao = artistDao;
         this.albumDao = albumDao;
@@ -1978,7 +1982,7 @@ public class SubsonicRESTController {
         HttpServletRequest request = wrapRequest(req);
 
         InternetRadioStations result = new InternetRadioStations();
-        for (InternetRadio radio : settingsService.getAllInternetRadios()) {
+        for (InternetRadio radio : internetRadioService.getAllInternetRadios()) {
             InternetRadioStation i = new InternetRadioStation();
             i.setId(String.valueOf(radio.getId()));
             i.setName(radio.getName());

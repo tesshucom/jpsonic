@@ -40,6 +40,7 @@ import chameleon.playlist.PlaylistVisitor;
 import chameleon.playlist.Sequence;
 import chameleon.playlist.SpecificPlaylist;
 import chameleon.playlist.SpecificPlaylistFactory;
+import com.tesshu.jpsonic.dao.InternetRadioDao;
 import com.tesshu.jpsonic.domain.InternetRadio;
 import com.tesshu.jpsonic.domain.InternetRadioSource;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
@@ -72,6 +73,66 @@ public class InternetRadioService {
      * A list of cached source URLs for remote playlists.
      */
     private final Map<Integer, List<InternetRadioSource>> cachedSources;
+
+    private final InternetRadioDao internetRadioDao;
+
+    /**
+     * Returns all internet radio stations. Disabled stations are not returned.
+     *
+     * @return Possibly empty list of all internet radio stations.
+     */
+    public List<InternetRadio> getAllInternetRadios() {
+        return getAllInternetRadios(false);
+    }
+
+    /**
+     * Returns all internet radio stations.
+     *
+     * @param includeAll
+     *            Whether disabled stations should be included.
+     * 
+     * @return Possibly empty list of all internet radio stations.
+     */
+    public List<InternetRadio> getAllInternetRadios(boolean includeAll) {
+        List<InternetRadio> all = internetRadioDao.getAllInternetRadios();
+        List<InternetRadio> result = new ArrayList<>(all.size());
+        for (InternetRadio folder : all) {
+            if (includeAll || folder.isEnabled()) {
+                result.add(folder);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Creates a new internet radio station.
+     *
+     * @param radio
+     *            The internet radio station to create.
+     */
+    public void createInternetRadio(InternetRadio radio) {
+        internetRadioDao.createInternetRadio(radio);
+    }
+
+    /**
+     * Deletes the internet radio station with the given ID.
+     *
+     * @param id
+     *            The internet radio station ID.
+     */
+    public void deleteInternetRadio(Integer id) {
+        internetRadioDao.deleteInternetRadio(id);
+    }
+
+    /**
+     * Updates the given internet radio station.
+     *
+     * @param radio
+     *            The internet radio station to update.
+     */
+    public void updateInternetRadio(InternetRadio radio) {
+        internetRadioDao.updateInternetRadio(radio);
+    }
 
     /**
      * Generic exception class for playlists.
@@ -113,7 +174,8 @@ public class InternetRadioService {
         }
     }
 
-    public InternetRadioService() {
+    public InternetRadioService(InternetRadioDao internetRadioDao) {
+        this.internetRadioDao = internetRadioDao;
         this.cachedSources = new ConcurrentHashMap<>();
     }
 

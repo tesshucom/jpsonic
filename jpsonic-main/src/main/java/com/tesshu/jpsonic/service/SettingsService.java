@@ -45,13 +45,11 @@ import javax.annotation.PostConstruct;
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.controller.WebFontUtils;
 import com.tesshu.jpsonic.dao.AvatarDao;
-import com.tesshu.jpsonic.dao.InternetRadioDao;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.dao.UserDao;
 import com.tesshu.jpsonic.domain.AlbumListType;
 import com.tesshu.jpsonic.domain.Avatar;
 import com.tesshu.jpsonic.domain.FontScheme;
-import com.tesshu.jpsonic.domain.InternetRadio;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import com.tesshu.jpsonic.domain.Theme;
@@ -392,7 +390,6 @@ public class SettingsService {
     private static String[] musicFileTypes;
     private static String[] videoFileTypes;
 
-    private final InternetRadioDao internetRadioDao;
     private final MusicFolderDao musicFolderDao;
     private final UserDao userDao;
     private final AvatarDao avatarDao;
@@ -404,10 +401,9 @@ public class SettingsService {
     private Pattern excludePattern;
     private Locale locale;
 
-    public SettingsService(InternetRadioDao internetRadioDao, MusicFolderDao musicFolderDao, UserDao userDao,
-            AvatarDao avatarDao, ApacheCommonsConfigurationService configurationService, Ehcache indexCache) {
+    public SettingsService(MusicFolderDao musicFolderDao, UserDao userDao, AvatarDao avatarDao,
+            ApacheCommonsConfigurationService configurationService, Ehcache indexCache) {
         super();
-        this.internetRadioDao = internetRadioDao;
         this.musicFolderDao = musicFolderDao;
         this.userDao = userDao;
         this.avatarDao = avatarDao;
@@ -1406,64 +1402,6 @@ public class SettingsService {
         cachedMusicFolders = null;
         cachedMusicFoldersPerUser.clear();
         indexCache.removeAll();
-    }
-
-    /**
-     * Returns all internet radio stations. Disabled stations are not returned.
-     *
-     * @return Possibly empty list of all internet radio stations.
-     */
-    public List<InternetRadio> getAllInternetRadios() {
-        return getAllInternetRadios(false);
-    }
-
-    /**
-     * Returns all internet radio stations.
-     *
-     * @param includeAll
-     *            Whether disabled stations should be included.
-     * 
-     * @return Possibly empty list of all internet radio stations.
-     */
-    public List<InternetRadio> getAllInternetRadios(boolean includeAll) {
-        List<InternetRadio> all = internetRadioDao.getAllInternetRadios();
-        List<InternetRadio> result = new ArrayList<>(all.size());
-        for (InternetRadio folder : all) {
-            if (includeAll || folder.isEnabled()) {
-                result.add(folder);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Creates a new internet radio station.
-     *
-     * @param radio
-     *            The internet radio station to create.
-     */
-    public void createInternetRadio(InternetRadio radio) {
-        internetRadioDao.createInternetRadio(radio);
-    }
-
-    /**
-     * Deletes the internet radio station with the given ID.
-     *
-     * @param id
-     *            The internet radio station ID.
-     */
-    public void deleteInternetRadio(Integer id) {
-        internetRadioDao.deleteInternetRadio(id);
-    }
-
-    /**
-     * Updates the given internet radio station.
-     *
-     * @param radio
-     *            The internet radio station to update.
-     */
-    public void updateInternetRadio(InternetRadio radio) {
-        internetRadioDao.updateInternetRadio(radio);
     }
 
     /**
