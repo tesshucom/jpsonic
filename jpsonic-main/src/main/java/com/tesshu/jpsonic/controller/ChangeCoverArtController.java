@@ -31,7 +31,6 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -50,16 +49,13 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/changeCoverArt")
 public class ChangeCoverArtController {
 
-    private final MediaFileService mediaFileService;
     private final SecurityService securityService;
-    private final SettingsService settingsService;
+    private final MediaFileService mediaFileService;
 
-    public ChangeCoverArtController(MediaFileService mediaFileService, SecurityService securityService,
-            SettingsService settingsService) {
+    public ChangeCoverArtController(SecurityService securityService, MediaFileService mediaFileService) {
         super();
-        this.mediaFileService = mediaFileService;
         this.securityService = securityService;
-        this.settingsService = settingsService;
+        this.mediaFileService = mediaFileService;
     }
 
     @GetMapping
@@ -79,11 +75,11 @@ public class ChangeCoverArtController {
         }
 
         String username = securityService.getCurrentUsername(request);
-        UserSettings userSettings = settingsService.getUserSettings(username);
+        UserSettings userSettings = securityService.getUserSettings(username);
         return new ModelAndView("changeCoverArt", "model",
                 LegacyMap.of("id", id, "artist", artist, "album", album, "ancestors", getAncestors(dir),
                         "breadcrumbIndex", userSettings.isBreadcrumbIndex(), "dir", dir, "selectedMusicFolder",
-                        settingsService.getSelectedMusicFolder(username)));
+                        securityService.getSelectedMusicFolder(username)));
     }
 
     private List<MediaFile> getAncestors(MediaFile dir) {

@@ -35,7 +35,7 @@ import com.tesshu.jpsonic.service.AvatarService;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.NetworkUtils;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -54,19 +54,19 @@ public class NowPlayingService {
 
     private static final int LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60;
 
+    private final SecurityService securityService;
     private final PlayerService playerService;
     private final StatusService statusService;
-    private final SettingsService settingsService;
     private final MediaScannerService mediaScannerService;
     private final AvatarService avatarService;
     private final AjaxHelper ajaxHelper;
 
-    public NowPlayingService(PlayerService playerService, StatusService statusService, SettingsService settingsService,
+    public NowPlayingService(SecurityService securityService, PlayerService playerService, StatusService statusService,
             MediaScannerService mediaScannerService, AvatarService avatarService, AjaxHelper ajaxHelper) {
         super();
+        this.securityService = securityService;
         this.playerService = playerService;
         this.statusService = statusService;
-        this.settingsService = settingsService;
         this.mediaScannerService = mediaScannerService;
         this.avatarService = avatarService;
         this.ajaxHelper = ajaxHelper;
@@ -121,7 +121,7 @@ public class NowPlayingService {
             if (username == null) {
                 continue;
             }
-            UserSettings userSettings = settingsService.getUserSettings(username);
+            UserSettings userSettings = securityService.getUserSettings(username);
             if (!userSettings.isNowPlayingAllowed()) {
                 continue;
             }

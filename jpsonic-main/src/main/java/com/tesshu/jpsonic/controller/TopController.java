@@ -102,7 +102,7 @@ public class TopController {
         Map<String, Object> map = LegacyMap.of();
 
         User user = securityService.getCurrentUser(request);
-        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         map.put("user", user);
         map.put("othersPlayingEnabled", settingsService.isOthersPlayingEnabled());
         map.put("showNowPlayingEnabled", userSettings.isShowNowPlayingEnabled());
@@ -131,7 +131,7 @@ public class TopController {
 
         String username = securityService.getCurrentUsername(request);
         List<MusicFolder> allMusicFolders = musicFolderService.getMusicFoldersForUser(username);
-        MusicFolder selectedMusicFolder = settingsService.getSelectedMusicFolder(username);
+        MusicFolder selectedMusicFolder = securityService.getSelectedMusicFolder(username);
         List<MusicFolder> musicFoldersToUse = selectedMusicFolder == null ? allMusicFolders
                 : Collections.singletonList(selectedMusicFolder);
 
@@ -196,7 +196,7 @@ public class TopController {
 
         // When was music folder(s) on disk last changed?
         List<MusicFolder> allMusicFolders = musicFolderService.getMusicFoldersForUser(username);
-        MusicFolder selectedMusicFolder = settingsService.getSelectedMusicFolder(username);
+        MusicFolder selectedMusicFolder = securityService.getSelectedMusicFolder(username);
         if (selectedMusicFolder == null) {
             for (MusicFolder musicFolder : allMusicFolders) {
                 File file = musicFolder.getPath();
@@ -218,7 +218,7 @@ public class TopController {
         }
 
         // When was user settings last changed?
-        UserSettings userSettings = settingsService.getUserSettings(username);
+        UserSettings userSettings = securityService.getUserSettings(username);
         lastModified = Math.max(lastModified, userSettings.getChanged().getTime());
 
         return lastModified;
@@ -232,9 +232,9 @@ public class TopController {
         }
         // Note: UserSettings.setChanged() is intentionally not called. This would break browser caching
         // of the left frame.
-        UserSettings settings = settingsService.getUserSettings(securityService.getCurrentUsername(request));
+        UserSettings settings = securityService.getUserSettings(securityService.getCurrentUsername(request));
         settings.setSelectedMusicFolderId(musicFolderId);
-        settingsService.updateUserSettings(settings);
+        securityService.updateUserSettings(settings);
 
         return true;
     }

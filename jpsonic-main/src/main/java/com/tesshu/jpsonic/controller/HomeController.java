@@ -69,21 +69,21 @@ public class HomeController {
     private static final int LIST_SIZE = 40;
 
     private final SettingsService settingsService;
-    private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
+    private final MusicFolderService musicFolderService;
     private final MediaScannerService mediaScannerService;
     private final RatingService ratingService;
     private final MediaFileService mediaFileService;
     private final SearchService searchService;
     private final MusicIndexService musicIndexService;
 
-    public HomeController(SettingsService settingsService, MusicFolderService musicFolderService,
-            SecurityService securityService, MediaScannerService mediaScannerService, RatingService ratingService,
+    public HomeController(SettingsService settingsService, SecurityService securityService,
+            MusicFolderService musicFolderService, MediaScannerService mediaScannerService, RatingService ratingService,
             MediaFileService mediaFileService, SearchService searchService, MusicIndexService musicIndexService) {
         super();
         this.settingsService = settingsService;
-        this.musicFolderService = musicFolderService;
         this.securityService = securityService;
+        this.musicFolderService = musicFolderService;
         this.mediaScannerService = mediaScannerService;
         this.ratingService = ratingService;
         this.mediaFileService = mediaFileService;
@@ -101,12 +101,12 @@ public class HomeController {
         int listOffset = getIntParameter(request, Attributes.Request.LIST_OFFSET.value(), 0);
         AlbumListType listType = AlbumListType
                 .fromId(getStringParameter(request, Attributes.Request.LIST_TYPE.value()));
-        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         if (listType == null) {
             listType = userSettings.getDefaultAlbumList();
         }
 
-        MusicFolder selectedMusicFolder = settingsService.getSelectedMusicFolder(user.getUsername());
+        MusicFolder selectedMusicFolder = securityService.getSelectedMusicFolder(user.getUsername());
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(user.getUsername(),
                 selectedMusicFolder == null ? null : selectedMusicFolder.getId());
 

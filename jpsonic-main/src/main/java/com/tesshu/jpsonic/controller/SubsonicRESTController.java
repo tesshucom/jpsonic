@@ -569,7 +569,7 @@ public class SubsonicRESTController {
             result.getSimilarArtist().add(createJaxbArtist(similarArtist, user.getUsername()));
         }
 
-        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         Locale locale = userSettings.isForceBio2Eng() ? Locale.ENGLISH : airsonicLocaleResolver.resolveLocale(request);
         ArtistBio artistBio = lastFmService.getArtistBio(mediaFile, locale);
         if (artistBio != null) {
@@ -611,7 +611,7 @@ public class SubsonicRESTController {
             result.getSimilarArtist().add(createJaxbArtist(new ArtistID3(), similarArtist, user.getUsername()));
         }
 
-        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         Locale locale = userSettings.isForceBio2Eng() ? Locale.ENGLISH : airsonicLocaleResolver.resolveLocale(request);
         ArtistBio artistBio = lastFmService.getArtistBio(artist, locale);
         if (artistBio != null) {
@@ -833,7 +833,7 @@ public class SubsonicRESTController {
         int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.COUNT.value(), 20);
         String username = securityService.getCurrentUsername(request);
         boolean includeComposer = settingsService.isSearchComposer()
-                || settingsService.getUserSettings(username).getMainVisibility().isComposerVisible();
+                || securityService.getUserSettings(username).getMainVisibility().isComposerVisible();
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
         SearchCriteria criteria = director.construct(query.toString().trim(), offset, count, includeComposer,
                 musicFolders, IndexType.SONG);
@@ -867,7 +867,7 @@ public class SubsonicRESTController {
         int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.ARTIST_OFFSET.value(), 0);
         int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.ARTIST_COUNT.value(), 20);
         boolean includeComposer = settingsService.isSearchComposer()
-                || settingsService.getUserSettings(username).getMainVisibility().isComposerVisible();
+                || securityService.getUserSettings(username).getMainVisibility().isComposerVisible();
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username,
                 musicFolderId);
 
@@ -914,7 +914,7 @@ public class SubsonicRESTController {
         int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.ARTIST_OFFSET.value(), 0);
         int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.ARTIST_COUNT.value(), 20);
         boolean includeComposer = settingsService.isSearchComposer()
-                || settingsService.getUserSettings(username).getMainVisibility().isComposerVisible();
+                || securityService.getUserSettings(username).getMainVisibility().isComposerVisible();
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username,
                 musicFolderId);
 
@@ -1470,7 +1470,7 @@ public class SubsonicRESTController {
                 continue;
             }
 
-            UserSettings userSettings = settingsService.getUserSettings(username);
+            UserSettings userSettings = securityService.getUserSettings(username);
             if (!userSettings.isNowPlayingAllowed()) {
                 continue;
             }
@@ -1708,7 +1708,7 @@ public class SubsonicRESTController {
             Date time = times.length == 0 ? new Date() : new Date(times[i]);
             statusService.addRemotePlay(new PlayStatus(file, player, time));
             mediaFileService.incrementPlayCount(file);
-            if (settingsService.getUserSettings(player.getUsername()).isLastFmEnabled()) {
+            if (securityService.getUserSettings(player.getUsername()).isLastFmEnabled()) {
                 audioScrobblerService.register(file, player.getUsername(), submission, time);
             }
         }
@@ -2315,7 +2315,7 @@ public class SubsonicRESTController {
     }
 
     private org.subsonic.restapi.User createJaxbUser(User user) {
-        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
 
         org.subsonic.restapi.User result = new org.subsonic.restapi.User();
         result.setUsername(user.getUsername());
@@ -2452,7 +2452,7 @@ public class SubsonicRESTController {
         command.setShareRole(ServletRequestUtils.getBooleanParameter(request, Attributes.Request.SHARE_ROLE.value(),
                 u.isShareRole()));
 
-        UserSettings s = settingsService.getUserSettings(username);
+        UserSettings s = securityService.getUserSettings(username);
         int maxBitRate = ServletRequestUtils.getIntParameter(request, Attributes.Request.MAX_BIT_RATE.value(),
                 s.getTranscodeScheme().getMaxBitRate());
         TranscodeScheme transcodeScheme = TranscodeScheme.fromMaxBitRate(maxBitRate);

@@ -70,7 +70,7 @@ public class TranscodingSettingsController {
     public String doGet(HttpServletRequest request, Model model) {
 
         User user = securityService.getCurrentUser(request);
-        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
 
         model.addAttribute("model",
                 LegacyMap.of("transcodings", transcodingService.getAllTranscodings(), "transcodeDirectory",

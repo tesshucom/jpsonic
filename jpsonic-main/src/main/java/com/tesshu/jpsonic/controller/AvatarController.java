@@ -30,7 +30,7 @@ import com.tesshu.jpsonic.domain.Avatar;
 import com.tesshu.jpsonic.domain.AvatarScheme;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.AvatarService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.SecurityService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,12 +46,12 @@ import org.springframework.web.servlet.mvc.LastModified;
 @RequestMapping("/avatar")
 public class AvatarController implements LastModified {
 
-    private final SettingsService settingsService;
+    private final SecurityService securityService;
     private final AvatarService avatarService;
 
-    public AvatarController(SettingsService settingsService, AvatarService avatarService) {
+    public AvatarController(SecurityService securityService, AvatarService avatarService) {
         super();
-        this.settingsService = settingsService;
+        this.securityService = securityService;
         this.avatarService = avatarService;
     }
 
@@ -62,7 +62,7 @@ public class AvatarController implements LastModified {
 
         String username = request.getParameter(Attributes.Request.USER_NAME.value());
         if (username != null) {
-            UserSettings userSettings = settingsService.getUserSettings(username);
+            UserSettings userSettings = securityService.getUserSettings(username);
             result = Math.max(result, userSettings.getChanged().getTime());
         }
 
@@ -95,7 +95,7 @@ public class AvatarController implements LastModified {
 
         boolean forceCustom = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.FORCE_CUSTOM.value(),
                 false);
-        UserSettings userSettings = settingsService.getUserSettings(username);
+        UserSettings userSettings = securityService.getUserSettings(username);
         if (userSettings.getAvatarScheme() == AvatarScheme.CUSTOM || forceCustom) {
             return avatarService.getCustomAvatar(username);
         }

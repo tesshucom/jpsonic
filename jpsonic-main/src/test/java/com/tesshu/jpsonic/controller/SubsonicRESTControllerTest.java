@@ -52,7 +52,7 @@ import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.StatusService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -116,7 +116,7 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
     @Autowired
     private StatusService statusService;
     @Autowired
-    private SettingsService settingsService;
+    private SecurityService securityService;
     @Autowired
     private MediaFileDao mediaFileDao;
     @Autowired
@@ -652,7 +652,7 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             res = new MockHttpServletResponse();
 
-            UserSettings userSettings = settingsService.getUserSettings(ADMIN_NAME);
+            UserSettings userSettings = securityService.getUserSettings(ADMIN_NAME);
             assertFalse(userSettings.isNowPlayingAllowed()); // default false
             subsonicRESTController.getNowPlaying(req, res);
 
@@ -710,10 +710,10 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             res = new MockHttpServletResponse();
 
-            UserSettings userSettings = settingsService.getUserSettings(ADMIN_NAME);
+            UserSettings userSettings = securityService.getUserSettings(ADMIN_NAME);
             assertFalse(userSettings.isNowPlayingAllowed()); // default false
             userSettings.setNowPlayingAllowed(true); // Change to true
-            settingsService.updateUserSettings(userSettings);
+            securityService.updateUserSettings(userSettings);
             subsonicRESTController.getNowPlaying(req, res);
 
             Response response = JAXB.unmarshal(new StringReader(res.getContentAsString()), Response.class);

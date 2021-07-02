@@ -28,7 +28,6 @@ import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,8 +59,6 @@ class PlaylistControllerTest {
     @Autowired
     private SecurityService securityService;
     @Autowired
-    private SettingsService settingsService;
-    @Autowired
     private PlayerService playerService;
 
     private MockMvc mockMvc;
@@ -70,9 +67,7 @@ class PlaylistControllerTest {
     public void setup() throws ExecutionException {
         Mockito.when(playlistService.getPlaylist(playlistId)).thenReturn(new Playlist());
         mockMvc = MockMvcBuilders
-                .standaloneSetup(
-                        new PlaylistController(securityService, playlistService, settingsService, playerService))
-                .build();
+                .standaloneSetup(new PlaylistController(securityService, playlistService, playerService)).build();
     }
 
     @Test

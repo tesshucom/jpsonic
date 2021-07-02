@@ -37,7 +37,7 @@ import com.tesshu.jpsonic.domain.AvatarScheme;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.SecurityService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -63,7 +63,7 @@ class UserDaoTest {
     private UserDao userDao;
 
     @Autowired
-    private SettingsService settingsService;
+    private SecurityService securityService;
 
     @BeforeEach
     public void setUp() {
@@ -203,10 +203,10 @@ class UserDaoTest {
         assertNull(userDao.getUserSettings("sindre"), "Error in getUserSettings.");
         Method method;
         try {
-            method = settingsService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
+            method = securityService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
             method.setAccessible(true);
             Assertions.assertThrows(DataIntegrityViolationException.class,
-                    () -> userDao.updateUserSettings((UserSettings) method.invoke(settingsService, "sindre")));
+                    () -> userDao.updateUserSettings((UserSettings) method.invoke(securityService, "sindre")));
         } catch (NoSuchMethodException | SecurityException | IllegalArgumentException e) {
             throw new ExecutionException(e);
         }
@@ -219,9 +219,9 @@ class UserDaoTest {
         assertNull(userDao.getUserSettings("sindre"), "Error in getUserSettings.");
         Method method;
         try {
-            method = settingsService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
+            method = securityService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
             method.setAccessible(true);
-            userDao.updateUserSettings((UserSettings) method.invoke(settingsService, "sindre"));
+            userDao.updateUserSettings((UserSettings) method.invoke(securityService, "sindre"));
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
                 | SecurityException e) {
             throw new ExecutionException(e);
@@ -252,7 +252,7 @@ class UserDaoTest {
 
         UserSettings settings;
         try {
-            settings = (UserSettings) method.invoke(settingsService, "sindre");
+            settings = (UserSettings) method.invoke(securityService, "sindre");
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             throw new ExecutionException(e);
         }

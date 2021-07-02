@@ -30,7 +30,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -42,14 +41,7 @@ import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
-import com.tesshu.jpsonic.controller.WebFontUtils;
-import com.tesshu.jpsonic.dao.UserDao;
-import com.tesshu.jpsonic.domain.AlbumListType;
-import com.tesshu.jpsonic.domain.FontScheme;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import com.tesshu.jpsonic.domain.Theme;
-import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import com.tesshu.jpsonic.util.StringUtil;
@@ -384,18 +376,13 @@ public class SettingsService {
     private static String[] musicFileTypes;
     private static String[] videoFileTypes;
 
-    private final UserDao userDao;
-    private final MusicFolderService musicFolderService;
     private final ApacheCommonsConfigurationService configurationService;
 
     private Pattern excludePattern;
     private Locale locale;
 
-    public SettingsService(UserDao userDao, MusicFolderService musicFolderService,
-            ApacheCommonsConfigurationService configurationService) {
+    public SettingsService(ApacheCommonsConfigurationService configurationService) {
         super();
-        this.userDao = userDao;
-        this.musicFolderService = musicFolderService;
         this.configurationService = configurationService;
     }
 
@@ -1247,108 +1234,6 @@ public class SettingsService {
      */
     public String getBrand() {
         return "Jpsonic";
-    }
-
-    /**
-     * Returns the selected music folder for a given user, or {@code null} if all music folders should be displayed.
-     */
-    public MusicFolder getSelectedMusicFolder(String username) {
-        UserSettings settings = getUserSettings(username);
-        int musicFolderId = settings.getSelectedMusicFolderId();
-
-        MusicFolder musicFolder = musicFolderService.getMusicFolderById(musicFolderId);
-        List<MusicFolder> allowedMusicFolders = musicFolderService.getMusicFoldersForUser(username);
-        return allowedMusicFolders.contains(musicFolder) ? musicFolder : null;
-    }
-
-    /**
-     * Returns settings for the given user.
-     *
-     * @param username
-     *            The username.
-     * 
-     * @return User-specific settings. Never <code>null</code>.
-     */
-    public UserSettings getUserSettings(String username) {
-        UserSettings settings = userDao.getUserSettings(username);
-        return settings == null ? createDefaultUserSettings(username) : settings;
-    }
-
-    private UserSettings createDefaultUserSettings(String username) {
-
-        UserSettings settings = new UserSettings(username);
-        settings.setChanged(new Date());
-        settings.setFinalVersionNotificationEnabled(true);
-
-        // settings for desktop PC
-        settings.setKeyboardShortcutsEnabled(true);
-        settings.setDefaultAlbumList(AlbumListType.RANDOM);
-        settings.setShowIndex(true);
-        settings.setClosePlayQueue(true);
-        settings.setAlternativeDrawer(true);
-        settings.setAutoHidePlayQueue(true);
-        settings.setBreadcrumbIndex(true);
-        settings.setAssignAccesskeyToNumber(true);
-        settings.setSimpleDisplay(true);
-        settings.setQueueFollowingSongs(true);
-        settings.setShowCurrentSongInfo(true);
-        settings.setSongNotificationEnabled(false);
-        settings.setSpeechLangSchemeName(SpeechToTextLangScheme.DEFAULT.name());
-        settings.setFontSchemeName(FontScheme.DEFAULT.name());
-        settings.setFontFamily(WebFontUtils.DEFAULT_FONT_FAMILY);
-        settings.setFontSize(WebFontUtils.DEFAULT_FONT_SIZE);
-
-        // display
-        UserSettings.Visibility main = settings.getMainVisibility();
-        main.setTrackNumberVisible(true);
-        main.setArtistVisible(true);
-        main.setComposerVisible(true);
-        main.setGenreVisible(true);
-        main.setDurationVisible(true);
-        UserSettings.Visibility playlist = settings.getPlaylistVisibility();
-        playlist.setArtistVisible(true);
-        playlist.setAlbumVisible(true);
-        playlist.setComposerVisible(true);
-        playlist.setGenreVisible(true);
-        playlist.setYearVisible(true);
-        playlist.setDurationVisible(true);
-        playlist.setBitRateVisible(true);
-        playlist.setFormatVisible(true);
-        playlist.setFileSizeVisible(true);
-
-        // additional display
-        settings.setPaginationSize(40);
-
-        return settings;
-    }
-
-    public UserSettings createDefaultTabletUserSettings(String username) {
-        UserSettings settings = createDefaultUserSettings(username);
-        settings.setKeyboardShortcutsEnabled(false);
-        settings.setCloseDrawer(true);
-        settings.setVoiceInputEnabled(true);
-        return settings;
-    }
-
-    public UserSettings createDefaultSmartphoneUserSettings(String username) {
-        UserSettings settings = createDefaultUserSettings(username);
-        settings.setKeyboardShortcutsEnabled(false);
-        settings.setDefaultAlbumList(AlbumListType.INDEX);
-        settings.setPutMenuInDrawer(true);
-        settings.setShowIndex(false);
-        settings.setCloseDrawer(true);
-        settings.setVoiceInputEnabled(true);
-        return settings;
-    }
-
-    /**
-     * Updates settings for the given username.
-     *
-     * @param settings
-     *            The user-specific settings.
-     */
-    public void updateUserSettings(UserSettings settings) {
-        userDao.updateUserSettings(settings);
     }
 
     public boolean isDlnaEnabled() {

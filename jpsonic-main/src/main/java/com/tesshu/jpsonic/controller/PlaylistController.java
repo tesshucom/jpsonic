@@ -32,7 +32,6 @@ import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -53,15 +52,13 @@ public class PlaylistController {
 
     private final SecurityService securityService;
     private final PlaylistService playlistService;
-    private final SettingsService settingsService;
     private final PlayerService playerService;
 
     public PlaylistController(SecurityService securityService, PlaylistService playlistService,
-            SettingsService settingsService, PlayerService playerService) {
+            PlayerService playerService) {
         super();
         this.securityService = securityService;
         this.playlistService = playlistService;
-        this.settingsService = settingsService;
         this.playerService = playerService;
     }
 
@@ -77,7 +74,7 @@ public class PlaylistController {
 
         User user = securityService.getCurrentUser(request);
         String username = user.getUsername();
-        UserSettings userSettings = settingsService.getUserSettings(username);
+        UserSettings userSettings = securityService.getUserSettings(username);
         Player player = playerService.getPlayer(request, response);
 
         return new ModelAndView("playlist", "model",

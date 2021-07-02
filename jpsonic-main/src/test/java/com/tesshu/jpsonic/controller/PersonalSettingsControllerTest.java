@@ -35,6 +35,7 @@ import com.tesshu.jpsonic.domain.AvatarScheme;
 import com.tesshu.jpsonic.domain.FontScheme;
 import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,6 +72,9 @@ class PersonalSettingsControllerTest {
 
     @Autowired
     private SettingsService settingsService;
+
+    @Autowired
+    private SecurityService securityService;
 
     private MockMvc mockMvc;
 
@@ -285,7 +289,7 @@ class PersonalSettingsControllerTest {
             assertNotNull(command);
             assertNotNull(command.getIetf()); // Depends on the test environment
 
-            UserSettings userSettings = settingsService.getUserSettings(ADMIN_NAME);
+            UserSettings userSettings = securityService.getUserSettings(ADMIN_NAME);
             assertNull(userSettings.getLocale());
             assertEquals(SpeechToTextLangScheme.DEFAULT.name(), userSettings.getSpeechLangSchemeName());
             assertNull(userSettings.getThemeId());
@@ -316,10 +320,10 @@ class PersonalSettingsControllerTest {
                     .get(Attributes.Model.Command.VALUE);
             assertNotNull(command);
 
-            UserSettings userSettings = settingsService.getUserSettings(ADMIN_NAME);
+            UserSettings userSettings = securityService.getUserSettings(ADMIN_NAME);
             userSettings.setLocale(Locale.JAPANESE);
             userSettings.setSpeechLangSchemeName(SpeechToTextLangScheme.BCP47.name());
-            settingsService.updateUserSettings(userSettings);
+            securityService.updateUserSettings(userSettings);
 
             result = mockMvc
                     .perform(MockMvcRequestBuilders.post("/" + ViewName.PERSONAL_SETTINGS.value())
@@ -346,10 +350,10 @@ class PersonalSettingsControllerTest {
                     .get(Attributes.Model.Command.VALUE);
             assertNotNull(command);
 
-            UserSettings userSettings = settingsService.getUserSettings(ADMIN_NAME);
+            UserSettings userSettings = securityService.getUserSettings(ADMIN_NAME);
             userSettings.setLocale(StringUtil.parseLocale("ja_JP"));
             userSettings.setSpeechLangSchemeName(SpeechToTextLangScheme.DEFAULT.name());
-            settingsService.updateUserSettings(userSettings);
+            securityService.updateUserSettings(userSettings);
 
             result = mockMvc
                     .perform(MockMvcRequestBuilders.post("/" + ViewName.PERSONAL_SETTINGS.value())
@@ -375,9 +379,9 @@ class PersonalSettingsControllerTest {
                     .get(Attributes.Model.Command.VALUE);
             assertNotNull(command);
 
-            UserSettings userSettings = settingsService.getUserSettings(ADMIN_NAME);
+            UserSettings userSettings = securityService.getUserSettings(ADMIN_NAME);
             userSettings.setThemeId("jpsonic");
-            settingsService.updateUserSettings(userSettings);
+            securityService.updateUserSettings(userSettings);
 
             result = mockMvc
                     .perform(MockMvcRequestBuilders.post("/" + ViewName.PERSONAL_SETTINGS.value())

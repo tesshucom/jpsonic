@@ -37,7 +37,6 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -54,7 +53,6 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/starred")
 public class StarredController {
 
-    private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
     private final PlayerService playerService;
@@ -62,11 +60,10 @@ public class StarredController {
     private final MediaFileService mediaFileService;
     private final ViewAsListSelector viewSelector;
 
-    public StarredController(SettingsService settingsService, MusicFolderService musicFolderService,
-            SecurityService securityService, PlayerService playerService, MediaFileDao mediaFileDao,
-            MediaFileService mediaFileService, ViewAsListSelector viewSelector) {
+    public StarredController(MusicFolderService musicFolderService, SecurityService securityService,
+            PlayerService playerService, MediaFileDao mediaFileDao, MediaFileService mediaFileService,
+            ViewAsListSelector viewSelector) {
         super();
-        this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
         this.playerService = playerService;
@@ -96,7 +93,7 @@ public class StarredController {
             (file.isVideo() ? videos : songs).add(file);
         }
 
-        UserSettings userSettings = settingsService.getUserSettings(username);
+        UserSettings userSettings = securityService.getUserSettings(username);
         return new ModelAndView("starred", "model",
                 LegacyMap.of("user", user, "partyModeEnabled", userSettings.isPartyModeEnabled(), "visibility",
                         userSettings.getMainVisibility(), "player", playerService.getPlayer(request, response),

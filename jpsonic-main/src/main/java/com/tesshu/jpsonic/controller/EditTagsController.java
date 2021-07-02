@@ -32,7 +32,6 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.metadata.JaudiotaggerParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
@@ -54,18 +53,16 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/editTags")
 public class EditTagsController {
 
+    private final SecurityService securityService;
     private final MetaDataParserFactory metaDataParserFactory;
     private final MediaFileService mediaFileService;
-    private final SecurityService securityService;
-    private final SettingsService settingsService;
 
-    public EditTagsController(MetaDataParserFactory metaDataParserFactory, MediaFileService mediaFileService,
-            SecurityService securityService, SettingsService settingsService) {
+    public EditTagsController(SecurityService securityService, MetaDataParserFactory metaDataParserFactory,
+            MediaFileService mediaFileService) {
         super();
+        this.securityService = securityService;
         this.metaDataParserFactory = metaDataParserFactory;
         this.mediaFileService = mediaFileService;
-        this.securityService = securityService;
-        this.settingsService = settingsService;
     }
 
     @GetMapping
@@ -93,10 +90,10 @@ public class EditTagsController {
         map.put("ancestors", getAncestors(dir));
 
         String username = securityService.getCurrentUsername(request);
-        UserSettings userSettings = settingsService.getUserSettings(username);
+        UserSettings userSettings = securityService.getUserSettings(username);
         map.put("breadcrumbIndex", userSettings.isBreadcrumbIndex());
         map.put("dir", dir);
-        map.put("selectedMusicFolder", settingsService.getSelectedMusicFolder(username));
+        map.put("selectedMusicFolder", securityService.getSelectedMusicFolder(username));
 
         return new ModelAndView("editTags", "model", map);
     }

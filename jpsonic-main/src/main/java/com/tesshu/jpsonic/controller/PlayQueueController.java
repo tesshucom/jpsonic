@@ -30,7 +30,6 @@ import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -49,14 +48,11 @@ public class PlayQueueController {
 
     private final PlayerService playerService;
     private final SecurityService securityService;
-    private final SettingsService settingsService;
 
-    public PlayQueueController(PlayerService playerService, SecurityService securityService,
-            SettingsService settingsService) {
+    public PlayQueueController(SecurityService securityService, PlayerService playerService) {
         super();
-        this.playerService = playerService;
         this.securityService = securityService;
-        this.settingsService = settingsService;
+        this.playerService = playerService;
     }
 
     @GetMapping
@@ -64,7 +60,7 @@ public class PlayQueueController {
             throws ServletRequestBindingException {
 
         User user = securityService.getCurrentUser(request);
-        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         Player player = playerService.getPlayer(request, response);
 
         return new ModelAndView("playQueue", "model", LegacyMap.of("user", user, "player", player, "players",

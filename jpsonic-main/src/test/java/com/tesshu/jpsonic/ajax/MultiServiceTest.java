@@ -39,7 +39,6 @@ import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -58,8 +57,6 @@ class MultiServiceTest extends AbstractNeedsScan {
     private LastFmService lastFmService;
     @Autowired
     private SecurityService securityService;
-    @Autowired
-    private SettingsService settingsService;
     @Autowired
     private AirsonicLocaleResolver airsonicLocaleResolver;
     @Mock
@@ -86,8 +83,8 @@ class MultiServiceTest extends AbstractNeedsScan {
     public void setup() {
         Mockito.when(ajaxHelper.getHttpServletRequest()).thenReturn(httpServletRequest);
         populateDatabaseOnlyOnce();
-        multiService = new MultiService(settingsService, musicFolderService, securityService, mediaFileService,
-                lastFmService, airsonicLocaleResolver, ajaxHelper);
+        multiService = new MultiService(musicFolderService, securityService, mediaFileService, lastFmService,
+                airsonicLocaleResolver, ajaxHelper);
     }
 
     @Test
@@ -102,10 +99,10 @@ class MultiServiceTest extends AbstractNeedsScan {
     @Test
     @WithMockUser(username = ADMIN_NAME)
     void testSetCloseDrawer() {
-        UserSettings userSettings = settingsService.getUserSettings(ADMIN_NAME);
+        UserSettings userSettings = securityService.getUserSettings(ADMIN_NAME);
         assertFalse(userSettings.isCloseDrawer());
         multiService.setCloseDrawer(true);
-        userSettings = settingsService.getUserSettings(ADMIN_NAME);
+        userSettings = securityService.getUserSettings(ADMIN_NAME);
         assertTrue(userSettings.isCloseDrawer());
     }
 }

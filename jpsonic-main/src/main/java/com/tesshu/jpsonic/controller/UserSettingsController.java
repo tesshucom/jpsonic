@@ -68,17 +68,17 @@ import org.springframework.web.servlet.view.RedirectView;
 public class UserSettingsController {
 
     private final SettingsService settingsService;
-    private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
+    private final MusicFolderService musicFolderService;
     private final TranscodingService transcodingService;
     private final ShareService shareService;
 
-    public UserSettingsController(SettingsService settingsService, MusicFolderService musicFolderService,
-            SecurityService securityService, TranscodingService transcodingService, ShareService shareService) {
+    public UserSettingsController(SettingsService settingsService, SecurityService securityService,
+            MusicFolderService musicFolderService, TranscodingService transcodingService, ShareService shareService) {
         super();
         this.settingsService = settingsService;
-        this.musicFolderService = musicFolderService;
         this.securityService = securityService;
+        this.musicFolderService = musicFolderService;
         this.transcodingService = transcodingService;
         this.shareService = shareService;
     }
@@ -105,7 +105,7 @@ public class UserSettingsController {
             } else {
                 command.setUser(user);
                 command.setEmail(user.getEmail());
-                UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+                UserSettings userSettings = securityService.getUserSettings(user.getUsername());
                 command.setTranscodeSchemeName(userSettings.getTranscodeScheme().name());
                 command.setAllowedMusicFolderIds(PlayerUtils.toIntArray(getAllowedMusicFolderIds(user)));
                 command.setCurrentUser(
@@ -214,10 +214,10 @@ public class UserSettingsController {
 
         securityService.updateUser(user);
 
-        UserSettings userSettings = settingsService.getUserSettings(command.getUsername());
+        UserSettings userSettings = securityService.getUserSettings(command.getUsername());
         userSettings.setTranscodeScheme(TranscodeScheme.valueOf(command.getTranscodeSchemeName()));
         userSettings.setChanged(new Date());
-        settingsService.updateUserSettings(userSettings);
+        securityService.updateUserSettings(userSettings);
 
         List<Integer> allowedMusicFolderIds = PlayerUtils.toIntegerList(command.getAllowedMusicFolderIds());
         musicFolderService.setMusicFoldersForUser(command.getUsername(), allowedMusicFolderIds);

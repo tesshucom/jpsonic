@@ -41,14 +41,14 @@ public class AudioScrobblerService {
     private static final Object FM_LOCK = new Object();
     private static final Object BRAINZ_LOCK = new Object();
 
-    private final SettingsService settingsService;
+    private final SecurityService securityService;
 
     private LastFMScrobbler lastFMScrobbler;
     private ListenBrainzScrobbler listenBrainzScrobbler;
     private Executor shortExecutor;
 
-    public AudioScrobblerService(SettingsService settingsService, Executor shortExecutor) {
-        this.settingsService = settingsService;
+    public AudioScrobblerService(SecurityService securityService, Executor shortExecutor) {
+        this.securityService = securityService;
         this.shortExecutor = shortExecutor;
     }
 
@@ -70,7 +70,7 @@ public class AudioScrobblerService {
             return;
         }
 
-        UserSettings userSettings = settingsService.getUserSettings(username);
+        UserSettings userSettings = securityService.getUserSettings(username);
         if (userSettings.isLastFmEnabled() && userSettings.getLastFmUsername() != null
                 && userSettings.getLastFmPassword() != null) {
             synchronized (FM_LOCK) {

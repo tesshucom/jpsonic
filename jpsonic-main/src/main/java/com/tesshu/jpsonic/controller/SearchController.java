@@ -95,7 +95,7 @@ public class SearchController {
             throws ServletRequestBindingException, IOException {
 
         User user = securityService.getCurrentUser(request);
-        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setUser(user);
         command.setPartyModeEnabled(userSettings.isPartyModeEnabled());
         command.setComposerVisible(userSettings.getMainVisibility().isComposerVisible());

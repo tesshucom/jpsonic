@@ -31,6 +31,7 @@ import com.tesshu.jpsonic.dao.DaoHelper;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -74,6 +75,9 @@ public abstract class AbstractNeedsScan implements NeedsScan {
 
     @Autowired
     protected MusicFolderService musicFolderService;
+
+    @Autowired
+    protected SecurityService securityService;
 
     public interface BeforeScan extends Supplier<Boolean> {
     }

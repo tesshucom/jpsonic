@@ -86,12 +86,12 @@ public class PersonalSettingsController {
         PersonalSettingsCommand command = new PersonalSettingsCommand();
 
         User user = securityService.getCurrentUser(request);
-        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
 
         command.setUser(user);
-        command.setDefaultSettings(settingsService.getUserSettings(""));
-        command.setTabletSettings(settingsService.createDefaultTabletUserSettings(""));
-        command.setSmartphoneSettings(settingsService.createDefaultSmartphoneUserSettings(""));
+        command.setDefaultSettings(securityService.getUserSettings(""));
+        command.setTabletSettings(securityService.createDefaultTabletUserSettings(""));
+        command.setSmartphoneSettings(securityService.createDefaultSmartphoneUserSettings(""));
         command.setFontFamilyDefault(WebFontUtils.DEFAULT_FONT_FAMILY);
         command.setFontFamilyJpEmbedDefault(
                 WebFontUtils.JP_FONT_NAME.concat(", ").concat(WebFontUtils.DEFAULT_FONT_FAMILY));
@@ -224,7 +224,7 @@ public class PersonalSettingsController {
         }
 
         String username = command.getUser().getUsername();
-        UserSettings settings = settingsService.getUserSettings(username);
+        UserSettings settings = securityService.getUserSettings(username);
 
         settings.setLocale(locale);
         settings.setThemeId(themeId);
@@ -288,7 +288,7 @@ public class PersonalSettingsController {
         }
         WebFontUtils.setToSettings(command, settings);
         settings.setChanged(new Date());
-        settingsService.updateUserSettings(settings);
+        securityService.updateUserSettings(settings);
 
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
 
