@@ -33,6 +33,7 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
@@ -66,16 +67,18 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/userSettings")
 public class UserSettingsController {
 
-    private final SecurityService securityService;
     private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
+    private final SecurityService securityService;
     private final TranscodingService transcodingService;
     private final ShareService shareService;
 
-    public UserSettingsController(SecurityService securityService, SettingsService settingsService,
-            TranscodingService transcodingService, ShareService shareService) {
+    public UserSettingsController(SettingsService settingsService, MusicFolderService musicFolderService,
+            SecurityService securityService, TranscodingService transcodingService, ShareService shareService) {
         super();
-        this.securityService = securityService;
         this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
+        this.securityService = securityService;
         this.transcodingService = transcodingService;
         this.shareService = shareService;
     }
@@ -115,7 +118,7 @@ public class UserSettingsController {
         command.setTranscodeDirectory(transcodingService.getTranscodeDirectory().getPath());
         command.setTranscodeSchemes(TranscodeScheme.values());
         command.setLdapEnabled(settingsService.isLdapEnabled());
-        command.setAllMusicFolders(settingsService.getAllMusicFolders());
+        command.setAllMusicFolders(musicFolderService.getAllMusicFolders());
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
         toast.ifPresent(command::setShowToast);
@@ -138,8 +141,8 @@ public class UserSettingsController {
 
     private List<Integer> getAllowedMusicFolderIds(User user) {
         List<Integer> result = new ArrayList<>();
-        List<MusicFolder> allowedMusicFolders = user == null ? settingsService.getAllMusicFolders()
-                : settingsService.getMusicFoldersForUser(user.getUsername());
+        List<MusicFolder> allowedMusicFolders = user == null ? musicFolderService.getAllMusicFolders()
+                : musicFolderService.getMusicFoldersForUser(user.getUsername());
 
         for (MusicFolder musicFolder : allowedMusicFolders) {
             result.add(musicFolder.getId());
@@ -217,7 +220,7 @@ public class UserSettingsController {
         settingsService.updateUserSettings(userSettings);
 
         List<Integer> allowedMusicFolderIds = PlayerUtils.toIntegerList(command.getAllowedMusicFolderIds());
-        settingsService.setMusicFoldersForUser(command.getUsername(), allowedMusicFolderIds);
+        musicFolderService.setMusicFoldersForUser(command.getUsername(), allowedMusicFolderIds);
     }
 
 }

@@ -30,6 +30,7 @@ import java.util.function.Supplier;
 import com.tesshu.jpsonic.dao.DaoHelper;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.service.MediaScannerService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -70,6 +71,9 @@ public abstract class AbstractNeedsScan implements NeedsScan {
 
     @Autowired
     protected SettingsService settingsService;
+
+    @Autowired
+    protected MusicFolderService musicFolderService;
 
     public interface BeforeScan extends Supplier<Boolean> {
     }
@@ -116,7 +120,7 @@ public abstract class AbstractNeedsScan implements NeedsScan {
         } else {
             DATA_BASE_POPULATED.set(true);
             getMusicFolders().forEach(musicFolderDao::createMusicFolder);
-            settingsService.clearMusicFolderCache();
+            musicFolderService.clearMusicFolderCache();
             try {
                 // Await time to avoid scan failure.
                 for (int i = 0; i < 5; i++) {

@@ -32,6 +32,7 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SearchResult;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -59,17 +60,20 @@ public class SearchController {
 
     private static final int MATCH_COUNT = 25;
 
-    private final SecurityService securityService;
     private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
+    private final SecurityService securityService;
     private final PlayerService playerService;
     private final SearchService searchService;
     private final SearchCriteriaDirector director;
 
-    public SearchController(SecurityService securityService, SettingsService settingsService,
-            PlayerService playerService, SearchService searchService, SearchCriteriaDirector director) {
+    public SearchController(SettingsService settingsService, MusicFolderService musicFolderService,
+            SecurityService securityService, PlayerService playerService, SearchService searchService,
+            SearchCriteriaDirector director) {
         super();
-        this.securityService = securityService;
         this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
+        this.securityService = securityService;
         this.playerService = playerService;
         this.searchService = searchService;
         this.director = director;
@@ -98,7 +102,7 @@ public class SearchController {
         command.setGenreVisible(userSettings.getMainVisibility().isGenreVisible());
         command.setSimpleDisplay(userSettings.isSimpleDisplay());
 
-        List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(user.getUsername());
+        List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(user.getUsername());
         String query = StringUtils.trimToNull(command.getQuery());
 
         if (query != null) {

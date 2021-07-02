@@ -86,8 +86,8 @@ class MultiServiceTest extends AbstractNeedsScan {
     public void setup() {
         Mockito.when(ajaxHelper.getHttpServletRequest()).thenReturn(httpServletRequest);
         populateDatabaseOnlyOnce();
-        multiService = new MultiService(mediaFileService, lastFmService, securityService, settingsService,
-                airsonicLocaleResolver, ajaxHelper);
+        multiService = new MultiService(settingsService, musicFolderService, securityService, mediaFileService,
+                lastFmService, airsonicLocaleResolver, ajaxHelper);
     }
 
     @Test

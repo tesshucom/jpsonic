@@ -62,9 +62,10 @@ public class MediaFileService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaFileService.class);
 
-    private final Ehcache mediaFileMemoryCache;
-    private final SecurityService securityService;
     private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
+    private final SecurityService securityService;
+    private final Ehcache mediaFileMemoryCache;
     private final MediaFileDao mediaFileDao;
     private final AlbumDao albumDao;
     private final JaudiotaggerParser parser;
@@ -73,13 +74,14 @@ public class MediaFileService {
 
     private boolean memoryCacheEnabled;
 
-    public MediaFileService(Ehcache mediaFileMemoryCache, SecurityService securityService,
-            SettingsService settingsService, MediaFileDao mediaFileDao, AlbumDao albumDao, JaudiotaggerParser parser,
-            MetaDataParserFactory metaDataParserFactory, MediaFileServiceUtils utils) {
+    public MediaFileService(SettingsService settingsService, MusicFolderService musicFolderService,
+            SecurityService securityService, Ehcache mediaFileMemoryCache, MediaFileDao mediaFileDao, AlbumDao albumDao,
+            JaudiotaggerParser parser, MetaDataParserFactory metaDataParserFactory, MediaFileServiceUtils utils) {
         super();
-        this.mediaFileMemoryCache = mediaFileMemoryCache;
-        this.securityService = securityService;
         this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
+        this.securityService = securityService;
+        this.mediaFileMemoryCache = mediaFileMemoryCache;
         this.mediaFileDao = mediaFileDao;
         this.albumDao = albumDao;
         this.parser = parser;
@@ -267,7 +269,7 @@ public class MediaFileService {
      * @see MusicFolder
      */
     public boolean isRoot(MediaFile mediaFile) {
-        for (MusicFolder musicFolder : settingsService.getAllMusicFolders(false, true)) {
+        for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders(false, true)) {
             if (mediaFile.getPath().equals(musicFolder.getPath().getPath())) {
                 return true;
             }

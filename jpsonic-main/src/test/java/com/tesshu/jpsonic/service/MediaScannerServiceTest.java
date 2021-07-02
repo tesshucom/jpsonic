@@ -105,7 +105,7 @@ class MediaScannerServiceTest {
     private AlbumDao albumDao;
 
     @Autowired
-    private SettingsService settingsService;
+    private MusicFolderService musicFolderService;
 
     /**
      * Tests the MediaScannerService by scanning the test media library into an empty database.
@@ -115,7 +115,7 @@ class MediaScannerServiceTest {
         musicFolderDao.getAllMusicFolders()
                 .forEach(musicFolder -> musicFolderDao.deleteMusicFolder(musicFolder.getId()));
         MusicFolderTestDataUtils.getTestMusicFolders().forEach(musicFolderDao::createMusicFolder);
-        settingsService.clearMusicFolderCache();
+        musicFolderService.clearMusicFolderCache();
 
         Timer globalTimer = metrics.timer(MetricRegistry.name(MediaScannerServiceTest.class, "Timer.global"));
 
@@ -221,7 +221,7 @@ class MediaScannerServiceTest {
 
         MusicFolder musicFolder = new MusicFolder(1, tempDir, "Music", true, new Date());
         musicFolderDao.createMusicFolder(musicFolder);
-        settingsService.clearMusicFolderCache();
+        musicFolderService.clearMusicFolderCache();
         TestCaseUtils.execScan(mediaScannerService);
         MediaFile mediaFile = mediaFileService.getMediaFile(musicFile);
         assertEquals(mediaFile.getFile().toString(), musicFile.toString());
@@ -243,7 +243,7 @@ class MediaScannerServiceTest {
         File musicFolderFile = new File(MusicFolderTestDataUtils.resolveMusic3FolderPath());
         MusicFolder musicFolder = new MusicFolder(1, musicFolderFile, "Music3", true, new Date());
         musicFolderDao.createMusicFolder(musicFolder);
-        settingsService.clearMusicFolderCache();
+        musicFolderService.clearMusicFolderCache();
         TestCaseUtils.execScan(mediaScannerService);
 
         // Retrieve the "Music3" folder from the database to make

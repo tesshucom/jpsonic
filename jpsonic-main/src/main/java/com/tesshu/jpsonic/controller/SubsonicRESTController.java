@@ -76,6 +76,7 @@ import com.tesshu.jpsonic.service.JukeboxService;
 import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MediaScannerService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PlaylistService;
@@ -178,6 +179,7 @@ public class SubsonicRESTController {
     private static final long LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60;
 
     private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
     private final PlayerService playerService;
     private final MediaFileService mediaFileService;
@@ -214,9 +216,9 @@ public class SubsonicRESTController {
 
     private final JAXBWriter jaxbWriter;
 
-    public SubsonicRESTController(SettingsService settingsService, SecurityService securityService,
-            PlayerService playerService, MediaFileService mediaFileService, LastFmService lastFmService,
-            MusicIndexService musicIndexService, TranscodingService transcodingService,
+    public SubsonicRESTController(SettingsService settingsService, MusicFolderService musicFolderService,
+            SecurityService securityService, PlayerService playerService, MediaFileService mediaFileService,
+            LastFmService lastFmService, MusicIndexService musicIndexService, TranscodingService transcodingService,
             DownloadController downloadController, CoverArtController coverArtController,
             AvatarController avatarController, UserSettingsController userSettingsController,
             TopController topController, StatusService statusService, StreamController streamController,
@@ -229,6 +231,7 @@ public class SubsonicRESTController {
             SearchCriteriaDirector director) {
         super();
         this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
         this.securityService = securityService;
         this.playerService = playerService;
         this.mediaFileService = mediaFileService;
@@ -305,7 +308,7 @@ public class SubsonicRESTController {
 
         MusicFolders musicFolders = new MusicFolders();
         String username = securityService.getCurrentUsername(request);
-        for (com.tesshu.jpsonic.domain.MusicFolder musicFolder : settingsService.getMusicFoldersForUser(username)) {
+        for (com.tesshu.jpsonic.domain.MusicFolder musicFolder : musicFolderService.getMusicFoldersForUser(username)) {
             org.subsonic.restapi.MusicFolder mf = new org.subsonic.restapi.MusicFolder();
             mf.setId(musicFolder.getId());
             mf.setName(musicFolder.getName());
@@ -334,7 +337,7 @@ public class SubsonicRESTController {
         indexes.setLastModified(lastModified);
         indexes.setIgnoredArticles(settingsService.getIgnoredArticles());
 
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
         Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
                 Attributes.Request.MUSIC_FOLDER_ID.value());
         if (musicFolderId != null) {
@@ -424,7 +427,7 @@ public class SubsonicRESTController {
         count = Math.max(0, Math.min(count, 500));
         Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
                 Attributes.Request.MUSIC_FOLDER_ID.value());
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username,
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username,
                 musicFolderId);
 
         for (MediaFile mediaFile : searchService.getSongsByGenres(genre, offset, count, musicFolders)) {
@@ -442,7 +445,7 @@ public class SubsonicRESTController {
 
         ArtistsID3 result = new ArtistsID3();
         result.setIgnoredArticles(settingsService.getIgnoredArticles());
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
 
         List<com.tesshu.jpsonic.domain.Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE,
                 musicFolders);
@@ -478,7 +481,7 @@ public class SubsonicRESTController {
         int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.COUNT.value(), 50);
         SimilarSongs result = new SimilarSongs();
 
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
         List<MediaFile> similarSongs = lastFmService.getSimilarSongs(mediaFile, count, musicFolders);
         Player player = playerService.getPlayer(request, response);
         for (MediaFile similarSong : similarSongs) {
@@ -505,7 +508,7 @@ public class SubsonicRESTController {
         String username = securityService.getCurrentUsername(request);
         int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.COUNT.value(), 50);
         SimilarSongs2 result = new SimilarSongs2();
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
         List<MediaFile> similarSongs = lastFmService.getSimilarSongs(artist, count, musicFolders);
         Player player = playerService.getPlayer(request, response);
         for (MediaFile similarSong : similarSongs) {
@@ -528,7 +531,7 @@ public class SubsonicRESTController {
 
         TopSongs result = new TopSongs();
 
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
         List<MediaFile> topSongs = lastFmService.getTopSongs(artist, count, musicFolders);
         Player player = playerService.getPlayer(request, response);
         for (MediaFile topSong : topSongs) {
@@ -558,7 +561,7 @@ public class SubsonicRESTController {
         ArtistInfo result = new ArtistInfo();
 
         User user = securityService.getCurrentUser(request);
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
                 .getMusicFoldersForUser(user.getUsername());
         List<MediaFile> similarArtists = lastFmService.getSimilarArtists(mediaFile, count, includeNotPresent,
                 musicFolders);
@@ -600,7 +603,7 @@ public class SubsonicRESTController {
                 Attributes.Request.INCLUDE_NOT_PRESENT.value(), false);
         ArtistInfo2 result = new ArtistInfo2();
         User user = securityService.getCurrentUser(request);
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
                 .getMusicFoldersForUser(user.getUsername());
         List<com.tesshu.jpsonic.domain.Artist> similarArtists = lastFmService.getSimilarArtists(artist, count,
                 includeNotPresent, musicFolders);
@@ -658,7 +661,7 @@ public class SubsonicRESTController {
         }
 
         String username = securityService.getCurrentUsername(request);
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
         ArtistWithAlbumsID3 result = createJaxbArtist(new ArtistWithAlbumsID3(), artist, username);
         for (Album album : albumDao.getAlbumsForArtist(artist.getName(), musicFolders)) {
             result.getAlbum().add(createJaxbAlbum(new AlbumID3(), album, username));
@@ -831,7 +834,7 @@ public class SubsonicRESTController {
         String username = securityService.getCurrentUsername(request);
         boolean includeComposer = settingsService.isSearchComposer()
                 || settingsService.getUserSettings(username).getMainVisibility().isComposerVisible();
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
         SearchCriteria criteria = director.construct(query.toString().trim(), offset, count, includeComposer,
                 musicFolders, IndexType.SONG);
 
@@ -865,7 +868,7 @@ public class SubsonicRESTController {
         int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.ARTIST_COUNT.value(), 20);
         boolean includeComposer = settingsService.isSearchComposer()
                 || settingsService.getUserSettings(username).getMainVisibility().isComposerVisible();
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username,
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username,
                 musicFolderId);
 
         SearchCriteria criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders,
@@ -912,7 +915,7 @@ public class SubsonicRESTController {
         int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.ARTIST_COUNT.value(), 20);
         boolean includeComposer = settingsService.isSearchComposer()
                 || settingsService.getUserSettings(username).getMainVisibility().isComposerVisible();
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username,
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username,
                 musicFolderId);
 
         SearchCriteria criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders,
@@ -1303,7 +1306,7 @@ public class SubsonicRESTController {
         Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
                 Attributes.Request.MUSIC_FOLDER_ID.value());
 
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username,
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username,
                 musicFolderId);
 
         size = Math.max(0, Math.min(size, 500));
@@ -1362,7 +1365,7 @@ public class SubsonicRESTController {
         String username = securityService.getCurrentUsername(request);
         Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
                 Attributes.Request.MUSIC_FOLDER_ID.value());
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username,
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username,
                 musicFolderId);
 
         List<Album> albums;
@@ -1421,7 +1424,7 @@ public class SubsonicRESTController {
         Integer toYear = ServletRequestUtils.getIntParameter(request, Attributes.Request.TO_YEAR.value());
         Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
                 Attributes.Request.MUSIC_FOLDER_ID.value());
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username,
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username,
                 musicFolderId);
         RandomSearchCriteria criteria = new RandomSearchCriteria(size, genres, fromYear, toYear, musicFolders);
 
@@ -1442,7 +1445,7 @@ public class SubsonicRESTController {
 
         int size = ServletRequestUtils.getIntParameter(request, Attributes.Request.SIZE.value(), Integer.MAX_VALUE);
         int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
 
         Videos result = new Videos();
         for (MediaFile mediaFile : mediaFileDao.getVideos(size, offset, musicFolders)) {
@@ -1528,7 +1531,7 @@ public class SubsonicRESTController {
             child.setSuffix(suffix);
             child.setContentType(StringUtil.getMimeType(suffix));
             child.setIsVideo(mediaFile.isVideo());
-            child.setPath(getRelativePath(mediaFile, settingsService));
+            child.setPath(getRelativePath(mediaFile, settingsService, musicFolderService));
 
             if (mediaFile.getAlbumArtist() != null && mediaFile.getAlbumName() != null) {
                 Album album = albumDao.getAlbum(mediaFile.getAlbumArtist(), mediaFile.getAlbumName());
@@ -1587,7 +1590,8 @@ public class SubsonicRESTController {
         return null;
     }
 
-    public static String getRelativePath(MediaFile musicFile, SettingsService settingsService) {
+    public static String getRelativePath(MediaFile musicFile, SettingsService settingsService,
+            MusicFolderService musicFolderService) {
 
         String filePath = musicFile.getPath();
 
@@ -1596,7 +1600,7 @@ public class SubsonicRESTController {
 
         String filePathLower = filePath.toLowerCase(settingsService.getLocale());
 
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService.getAllMusicFolders(false, true);
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getAllMusicFolders(false, true);
         StringBuilder builder = new StringBuilder();
         for (com.tesshu.jpsonic.domain.MusicFolder musicFolder : musicFolders) {
             String folderPath = musicFolder.getPath().getPath();
@@ -1774,7 +1778,7 @@ public class SubsonicRESTController {
         String username = securityService.getCurrentUsername(request);
         Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
                 Attributes.Request.MUSIC_FOLDER_ID.value());
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username,
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username,
                 musicFolderId);
 
         Starred result = new Starred();
@@ -1800,7 +1804,7 @@ public class SubsonicRESTController {
         String username = securityService.getCurrentUsername(request);
         Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
                 Attributes.Request.MUSIC_FOLDER_ID.value());
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username,
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username,
                 musicFolderId);
 
         Starred2 result = new Starred2();
@@ -2108,7 +2112,7 @@ public class SubsonicRESTController {
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
         User user = securityService.getCurrentUser(request);
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
 
         Shares result = new Shares();
         for (com.tesshu.jpsonic.domain.Share share : shareService.getSharesForUser(user)) {
@@ -2154,7 +2158,7 @@ public class SubsonicRESTController {
 
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
         for (MediaFile mediaFile : shareService.getSharedFiles(share.getId(), musicFolders)) {
             s.getEntry().add(createJaxbChild(player, mediaFile, username));
         }
@@ -2338,7 +2342,7 @@ public class SubsonicRESTController {
             result.setMaxBitRate(transcodeScheme.getMaxBitRate());
         }
 
-        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = settingsService
+        List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
                 .getMusicFoldersForUser(user.getUsername());
         for (com.tesshu.jpsonic.domain.MusicFolder musicFolder : musicFolders) {
             result.getFolder().add(musicFolder.getId());
@@ -2388,8 +2392,8 @@ public class SubsonicRESTController {
 
         int[] folderIds = ServletRequestUtils.getIntParameters(request, Attributes.Request.MUSIC_FOLDER_ID.value());
         if (folderIds.length == 0) {
-            folderIds = PlayerUtils
-                    .toIntArray(com.tesshu.jpsonic.domain.MusicFolder.toIdList(settingsService.getAllMusicFolders()));
+            folderIds = PlayerUtils.toIntArray(
+                    com.tesshu.jpsonic.domain.MusicFolder.toIdList(musicFolderService.getAllMusicFolders()));
         }
         command.setAllowedMusicFolderIds(folderIds);
 
@@ -2464,8 +2468,8 @@ public class SubsonicRESTController {
 
         int[] folderIds = ServletRequestUtils.getIntParameters(request, Attributes.Request.MUSIC_FOLDER_ID.value());
         if (folderIds.length == 0) {
-            folderIds = PlayerUtils.toIntArray(
-                    com.tesshu.jpsonic.domain.MusicFolder.toIdList(settingsService.getMusicFoldersForUser(username)));
+            folderIds = PlayerUtils.toIntArray(com.tesshu.jpsonic.domain.MusicFolder
+                    .toIdList(musicFolderService.getMusicFoldersForUser(username)));
         }
         command.setAllowedMusicFolderIds(folderIds);
 

@@ -124,10 +124,10 @@ class PlayQueueServiceTest extends AbstractNeedsScan {
         Mockito.when(podcastService.getEpisode(Mockito.anyInt(), Mockito.anyBoolean())).thenReturn(podcastEpisode);
         Mockito.when(podcastService.getEpisodes(Mockito.anyInt())).thenReturn(Collections.emptyList());
         populateDatabaseOnlyOnce();
-        playQueueService = new PlayQueueService(playerService, jukeboxService, settingsService, comparators,
-                mediaFileService, lastFmService, securityService, searchService, ratingService, podcastService,
-                playlistService, mediaFileDao, playQueueDao, internetRadioDao, jwtSecurityService, internetRadioService,
-                ajaxHelper);
+        playQueueService = new PlayQueueService(settingsService, musicFolderService, securityService, playerService,
+                jukeboxService, comparators, mediaFileService, lastFmService, searchService, ratingService,
+                podcastService, playlistService, mediaFileDao, playQueueDao, internetRadioDao, jwtSecurityService,
+                internetRadioService, ajaxHelper);
     }
 
     @Test

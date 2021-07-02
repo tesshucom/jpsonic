@@ -26,7 +26,7 @@ import java.util.List;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -145,8 +145,7 @@ public abstract class MetaDataParser {
     }
 
     private boolean isRoot(File file) {
-        SettingsService settings = getSettingsService();
-        List<MusicFolder> folders = settings.getAllMusicFolders(false, true);
+        List<MusicFolder> folders = getMusicFolderService().getAllMusicFolders(false, true);
         for (MusicFolder folder : folders) {
             if (file.equals(folder.getPath())) {
                 return true;
@@ -155,7 +154,7 @@ public abstract class MetaDataParser {
         return false;
     }
 
-    protected abstract SettingsService getSettingsService();
+    protected abstract MusicFolderService getMusicFolderService();
 
     /**
      * Removes any prefixed track number from the given title string.

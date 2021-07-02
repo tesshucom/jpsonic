@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.File;
 
 import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -57,7 +57,7 @@ class MetaDataParserTest {
             }
 
             @Override
-            protected SettingsService getSettingsService() {
+            protected MusicFolderService getMusicFolderService() {
                 return null;
             }
 

@@ -57,6 +57,7 @@ import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.JukeboxService;
 import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.NetworkUtils;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PlaylistService;
@@ -79,13 +80,14 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 @Service("ajaxPlayQueueService")
 public class PlayQueueService {
 
+    private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
+    private final SecurityService securityService;
     private final PlayerService playerService;
     private final JukeboxService jukeboxService;
-    private final SettingsService settingsService;
     private final JpsonicComparators comparators;
     private final MediaFileService mediaFileService;
     private final LastFmService lastFmService;
-    private final SecurityService securityService;
     private final SearchService searchService;
     private final RatingService ratingService;
     private final PodcastService podcastService;
@@ -97,20 +99,22 @@ public class PlayQueueService {
     private final InternetRadioService internetRadioService;
     private final AjaxHelper ajaxHelper;
 
-    public PlayQueueService(PlayerService playerService, JukeboxService jukeboxService, SettingsService settingsService,
+    public PlayQueueService(SettingsService settingsService, MusicFolderService musicFolderService,
+            SecurityService securityService, PlayerService playerService, JukeboxService jukeboxService,
             JpsonicComparators comparators, MediaFileService mediaFileService, LastFmService lastFmService,
-            SecurityService securityService, SearchService searchService, RatingService ratingService,
-            PodcastService podcastService, PlaylistService playlistService, MediaFileDao mediaFileDao,
-            PlayQueueDao playQueueDao, InternetRadioDao internetRadioDao, JWTSecurityService jwtSecurityService,
+            SearchService searchService, RatingService ratingService, PodcastService podcastService,
+            PlaylistService playlistService, MediaFileDao mediaFileDao, PlayQueueDao playQueueDao,
+            InternetRadioDao internetRadioDao, JWTSecurityService jwtSecurityService,
             InternetRadioService internetRadioService, AjaxHelper ajaxHelper) {
         super();
+        this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
+        this.securityService = securityService;
         this.playerService = playerService;
         this.jukeboxService = jukeboxService;
-        this.settingsService = settingsService;
         this.comparators = comparators;
         this.mediaFileService = mediaFileService;
         this.lastFmService = lastFmService;
-        this.securityService = securityService;
         this.searchService = searchService;
         this.ratingService = ratingService;
         this.podcastService = podcastService;
@@ -351,7 +355,7 @@ public class PlayQueueService {
         String username = securityService.getCurrentUsername(request);
         boolean queueFollowingSongs = settingsService.getUserSettings(username).isQueueFollowingSongs();
 
-        List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
+        List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
         List<MediaFile> files = lastFmService.getTopSongs(mediaFileService.getMediaFile(id), 50, musicFolders);
         if (!files.isEmpty() && startIndex != null) {
             if (queueFollowingSongs) {
@@ -435,7 +439,7 @@ public class PlayQueueService {
         HttpServletResponse response = ajaxHelper.getHttpServletResponse();
 
         String username = securityService.getCurrentUsername(request);
-        List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
+        List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
         List<MediaFile> files = mediaFileDao.getStarredFiles(0, Integer.MAX_VALUE, username, musicFolders);
         Player player = getCurrentPlayer(request, response);
         return doPlay(request, player, files).startPlayerAtAndGetInfo(0);
@@ -447,7 +451,7 @@ public class PlayQueueService {
         String username = securityService.getCurrentUsername(request);
 
         MusicFolder selectedMusicFolder = settingsService.getSelectedMusicFolder(username);
-        List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username,
+        List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username,
                 selectedMusicFolder == null ? null : selectedMusicFolder.getId());
         List<MediaFile> albums;
         if ("highest".equals(albumListType)) {
@@ -528,7 +532,7 @@ public class PlayQueueService {
         HttpServletResponse response = ajaxHelper.getHttpServletResponse();
         MediaFile artist = mediaFileService.getMediaFile(id);
         String username = securityService.getCurrentUsername(request);
-        List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
+        List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
         List<MediaFile> similarSongs = lastFmService.getSimilarSongs(artist, count, musicFolders);
         Player player = getCurrentPlayer(request, response);
         player.getPlayQueue().addFiles(false, similarSongs);

@@ -41,6 +41,7 @@ import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.service.InternetRadioService;
 import com.tesshu.jpsonic.service.MediaScannerService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -71,6 +72,7 @@ public class TopController {
             ViewName.PLAYER_SETTINGS.value(), ViewName.INTERNET_RADIO_SETTINGS.value(), ViewName.MORE.value());
 
     private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
     private final MediaScannerService mediaScannerService;
     private final MusicIndexService musicIndexService;
@@ -78,11 +80,13 @@ public class TopController {
     private final InternetRadioService internetRadioService;
     private final AirsonicLocaleResolver localeResolver;
 
-    public TopController(SettingsService settingsService, SecurityService securityService,
-            MediaScannerService mediaScannerService, MusicIndexService musicIndexService, VersionService versionService,
+    public TopController(SettingsService settingsService, MusicFolderService musicFolderService,
+            SecurityService securityService, MediaScannerService mediaScannerService,
+            MusicIndexService musicIndexService, VersionService versionService,
             InternetRadioService internetRadioService, AirsonicLocaleResolver localeResolver) {
         super();
         this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
         this.securityService = securityService;
         this.mediaScannerService = mediaScannerService;
         this.musicIndexService = musicIndexService;
@@ -122,11 +126,11 @@ public class TopController {
 
         boolean refresh = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.REFRESH.value(), false);
         if (refresh) {
-            settingsService.clearMusicFolderCache();
+            musicFolderService.clearMusicFolderCache();
         }
 
         String username = securityService.getCurrentUsername(request);
-        List<MusicFolder> allMusicFolders = settingsService.getMusicFoldersForUser(username);
+        List<MusicFolder> allMusicFolders = musicFolderService.getMusicFoldersForUser(username);
         MusicFolder selectedMusicFolder = settingsService.getSelectedMusicFolder(username);
         List<MusicFolder> musicFoldersToUse = selectedMusicFolder == null ? allMusicFolders
                 : Collections.singletonList(selectedMusicFolder);
@@ -191,7 +195,7 @@ public class TopController {
         lastModified = Math.max(lastModified, settingsService.getSettingsChanged());
 
         // When was music folder(s) on disk last changed?
-        List<MusicFolder> allMusicFolders = settingsService.getMusicFoldersForUser(username);
+        List<MusicFolder> allMusicFolders = musicFolderService.getMusicFoldersForUser(username);
         MusicFolder selectedMusicFolder = settingsService.getSelectedMusicFolder(username);
         if (selectedMusicFolder == null) {
             for (MusicFolder musicFolder : allMusicFolders) {

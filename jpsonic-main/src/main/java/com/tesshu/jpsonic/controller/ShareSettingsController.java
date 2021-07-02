@@ -33,6 +33,7 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.Share;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
@@ -57,18 +58,20 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/shareSettings")
 public class ShareSettingsController {
 
-    private final ShareService shareService;
-    private final SecurityService securityService;
-    private final MediaFileService mediaFileService;
     private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
+    private final SecurityService securityService;
+    private final ShareService shareService;
+    private final MediaFileService mediaFileService;
 
-    public ShareSettingsController(ShareService shareService, SecurityService securityService,
-            MediaFileService mediaFileService, SettingsService settingsService) {
+    public ShareSettingsController(SettingsService settingsService, MusicFolderService musicFolderService,
+            SecurityService securityService, ShareService shareService, MediaFileService mediaFileService) {
         super();
-        this.shareService = shareService;
-        this.securityService = securityService;
-        this.mediaFileService = mediaFileService;
         this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
+        this.securityService = securityService;
+        this.shareService = shareService;
+        this.mediaFileService = mediaFileService;
     }
 
     @GetMapping
@@ -124,7 +127,7 @@ public class ShareSettingsController {
     private List<ShareInfo> getShareInfos(HttpServletRequest request) {
         List<ShareInfo> result = new ArrayList<>();
         User user = securityService.getCurrentUser(request);
-        List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(user.getUsername());
+        List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(user.getUsername());
 
         for (Share share : shareService.getSharesForUser(user)) {
             List<MediaFile> files = shareService.getSharedFiles(share.getId(), musicFolders);

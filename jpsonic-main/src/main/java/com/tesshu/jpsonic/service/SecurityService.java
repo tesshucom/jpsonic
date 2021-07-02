@@ -60,12 +60,15 @@ public class SecurityService implements UserDetailsService {
 
     private final UserDao userDao;
     private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
     private final Ehcache userCache;
 
-    public SecurityService(UserDao userDao, SettingsService settingsService, Ehcache userCache) {
+    public SecurityService(UserDao userDao, SettingsService settingsService, MusicFolderService musicFolderService,
+            Ehcache userCache) {
         super();
         this.userDao = userDao;
         this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
         this.userCache = userCache;
     }
 
@@ -213,8 +216,8 @@ public class SecurityService implements UserDetailsService {
      */
     public void createUser(User user) {
         userDao.createUser(user);
-        settingsService.setMusicFoldersForUser(user.getUsername(),
-                MusicFolder.toIdList(settingsService.getAllMusicFolders()));
+        musicFolderService.setMusicFoldersForUser(user.getUsername(),
+                MusicFolder.toIdList(musicFolderService.getAllMusicFolders()));
         if (LOG.isInfoEnabled()) {
             LOG.info("Created user " + user.getUsername());
         }
@@ -328,7 +331,7 @@ public class SecurityService implements UserDetailsService {
     }
 
     private MusicFolder getMusicFolderForFile(String path) {
-        List<MusicFolder> folders = settingsService.getAllMusicFolders(false, true);
+        List<MusicFolder> folders = musicFolderService.getAllMusicFolders(false, true);
         for (MusicFolder folder : folders) {
             if (isFileInFolder(path, folder.getPath().getPath())) {
                 return folder;
@@ -338,7 +341,7 @@ public class SecurityService implements UserDetailsService {
     }
 
     private MusicFolder getMusicFolderForFile(File file) {
-        List<MusicFolder> folders = settingsService.getAllMusicFolders(false, true);
+        List<MusicFolder> folders = musicFolderService.getAllMusicFolders(false, true);
         String path = file.getPath();
         for (MusicFolder folder : folders) {
             if (isFileInFolder(path, folder.getPath().getPath())) {
@@ -383,7 +386,7 @@ public class SecurityService implements UserDetailsService {
             return true;
         }
 
-        for (MusicFolder musicFolder : settingsService.getMusicFoldersForUser(username)) {
+        for (MusicFolder musicFolder : musicFolderService.getMusicFoldersForUser(username)) {
             if (musicFolder.getPath().getPath().equals(file.getFolder())) {
                 return true;
             }
