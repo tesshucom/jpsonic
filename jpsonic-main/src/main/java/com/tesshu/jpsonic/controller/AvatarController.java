@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.tesshu.jpsonic.domain.Avatar;
 import com.tesshu.jpsonic.domain.AvatarScheme;
 import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.service.AvatarService;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -46,10 +47,12 @@ import org.springframework.web.servlet.mvc.LastModified;
 public class AvatarController implements LastModified {
 
     private final SettingsService settingsService;
+    private final AvatarService avatarService;
 
-    public AvatarController(SettingsService settingsService) {
+    public AvatarController(SettingsService settingsService, AvatarService avatarService) {
         super();
         this.settingsService = settingsService;
+        this.avatarService = avatarService;
     }
 
     @Override
@@ -82,7 +85,7 @@ public class AvatarController implements LastModified {
     private Avatar getAvatar(HttpServletRequest request) {
         String id = request.getParameter(Attributes.Request.ID.value());
         if (id != null) {
-            return settingsService.getSystemAvatar(Integer.parseInt(id));
+            return avatarService.getSystemAvatar(Integer.parseInt(id));
         }
 
         String username = request.getParameter(Attributes.Request.USER_NAME.value());
@@ -94,12 +97,12 @@ public class AvatarController implements LastModified {
                 false);
         UserSettings userSettings = settingsService.getUserSettings(username);
         if (userSettings.getAvatarScheme() == AvatarScheme.CUSTOM || forceCustom) {
-            return settingsService.getCustomAvatar(username);
+            return avatarService.getCustomAvatar(username);
         }
         if (userSettings.getAvatarScheme() == AvatarScheme.NONE) {
             return null;
         }
-        return settingsService.getSystemAvatar(userSettings.getSystemAvatarId());
+        return avatarService.getSystemAvatar(userSettings.getSystemAvatarId());
     }
 
 }

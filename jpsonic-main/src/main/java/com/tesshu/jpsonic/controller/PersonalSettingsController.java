@@ -39,6 +39,7 @@ import com.tesshu.jpsonic.domain.SupportableBCP47;
 import com.tesshu.jpsonic.domain.Theme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.service.AvatarService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
@@ -66,14 +67,16 @@ public class PersonalSettingsController {
     private final SettingsService settingsService;
     private final SecurityService securityService;
     private final ShareService shareService;
+    private final AvatarService avatarService;
     private final OutlineHelpSelector outlineHelpSelector;
 
     public PersonalSettingsController(SettingsService settingsService, SecurityService securityService,
-            ShareService shareService, OutlineHelpSelector outlineHelpSelector) {
+            ShareService shareService, AvatarService avatarService, OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.shareService = shareService;
+        this.avatarService = avatarService;
         this.outlineHelpSelector = outlineHelpSelector;
     }
 
@@ -98,8 +101,8 @@ public class PersonalSettingsController {
         command.setThemeIndex("-1");
         command.setAlbumLists(AlbumListType.values());
         command.setAlbumListId(userSettings.getDefaultAlbumList().getId());
-        command.setAvatars(settingsService.getAllSystemAvatars());
-        command.setCustomAvatar(settingsService.getCustomAvatar(user.getUsername()));
+        command.setAvatars(avatarService.getAllSystemAvatars());
+        command.setCustomAvatar(avatarService.getCustomAvatar(user.getUsername()));
         command.setAvatarId(getAvatarId(userSettings));
         command.setPartyModeEnabled(userSettings.isPartyModeEnabled());
         command.setQueueFollowingSongs(userSettings.isQueueFollowingSongs());

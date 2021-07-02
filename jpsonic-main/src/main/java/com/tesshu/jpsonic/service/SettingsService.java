@@ -44,11 +44,9 @@ import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.controller.WebFontUtils;
-import com.tesshu.jpsonic.dao.AvatarDao;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.dao.UserDao;
 import com.tesshu.jpsonic.domain.AlbumListType;
-import com.tesshu.jpsonic.domain.Avatar;
 import com.tesshu.jpsonic.domain.FontScheme;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
@@ -392,7 +390,6 @@ public class SettingsService {
 
     private final MusicFolderDao musicFolderDao;
     private final UserDao userDao;
-    private final AvatarDao avatarDao;
     private final ApacheCommonsConfigurationService configurationService;
     private final Ehcache indexCache;
     private final ConcurrentMap<String, List<MusicFolder>> cachedMusicFoldersPerUser;
@@ -401,12 +398,11 @@ public class SettingsService {
     private Pattern excludePattern;
     private Locale locale;
 
-    public SettingsService(MusicFolderDao musicFolderDao, UserDao userDao, AvatarDao avatarDao,
+    public SettingsService(MusicFolderDao musicFolderDao, UserDao userDao,
             ApacheCommonsConfigurationService configurationService, Ehcache indexCache) {
         super();
         this.musicFolderDao = musicFolderDao;
         this.userDao = userDao;
-        this.avatarDao = avatarDao;
         this.configurationService = configurationService;
         this.indexCache = indexCache;
         cachedMusicFoldersPerUser = new ConcurrentHashMap<>();
@@ -1492,51 +1488,6 @@ public class SettingsService {
      */
     public void updateUserSettings(UserSettings settings) {
         userDao.updateUserSettings(settings);
-    }
-
-    /**
-     * Returns all system avatars.
-     *
-     * @return All system avatars.
-     */
-    public List<Avatar> getAllSystemAvatars() {
-        return avatarDao.getAllSystemAvatars();
-    }
-
-    /**
-     * Returns the system avatar with the given ID.
-     *
-     * @param id
-     *            The system avatar ID.
-     * 
-     * @return The avatar or <code>null</code> if not found.
-     */
-    public Avatar getSystemAvatar(int id) {
-        return avatarDao.getSystemAvatar(id);
-    }
-
-    /**
-     * Returns the custom avatar for the given user.
-     *
-     * @param username
-     *            The username.
-     * 
-     * @return The avatar or <code>null</code> if not found.
-     */
-    public Avatar getCustomAvatar(String username) {
-        return avatarDao.getCustomAvatar(username);
-    }
-
-    /**
-     * Sets the custom avatar for the given user.
-     *
-     * @param avatar
-     *            The avatar, or <code>null</code> to remove the avatar.
-     * @param username
-     *            The username.
-     */
-    public void setCustomAvatar(Avatar avatar, String username) {
-        avatarDao.setCustomAvatar(avatar, username);
     }
 
     public boolean isDlnaEnabled() {

@@ -20,20 +20,15 @@
 package com.tesshu.jpsonic.ajax;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.NeedsHome;
-import com.tesshu.jpsonic.domain.AvatarScheme;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PlayStatus;
 import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.service.AvatarService;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -63,6 +58,8 @@ class NowPlayingServiceTest {
     private SettingsService settingsService;
     @Autowired
     private MediaScannerService mediaScannerService;
+    @Autowired
+    private AvatarService avatarService;
     @Mock
     private AjaxHelper ajaxHelper;
     @Autowired
@@ -84,32 +81,12 @@ class NowPlayingServiceTest {
         Mockito.when(statusService.getPlayStatuses()).thenReturn(Arrays.asList(playStatus));
 
         nowPlayingService = new NowPlayingService(playerService, statusService, settingsService, mediaScannerService,
-                ajaxHelper);
+                avatarService, ajaxHelper);
     }
 
     @Test
     @WithMockUser(username = ADMIN_NAME)
     void testGetNowPlaying() {
         assertNotNull(nowPlayingService.getNowPlaying());
-    }
-
-    @Test
-    void testCreateAvatarUrl() throws ExecutionException {
-
-        String url = "";
-        UserSettings userSettings = new UserSettings();
-        userSettings.setUsername(ADMIN_NAME);
-        userSettings.setAvatarScheme(AvatarScheme.CUSTOM);
-
-        Method method;
-        try {
-            method = nowPlayingService.getClass().getDeclaredMethod("createAvatarUrl", String.class,
-                    UserSettings.class);
-            method.setAccessible(true);
-            assertNull(method.invoke(nowPlayingService, url, userSettings));
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException e) {
-            throw new ExecutionException(e);
-        }
     }
 }
