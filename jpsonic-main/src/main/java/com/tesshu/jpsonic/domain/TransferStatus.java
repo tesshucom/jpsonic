@@ -22,6 +22,7 @@
 package com.tesshu.jpsonic.domain;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
@@ -31,8 +32,9 @@ import org.apache.commons.collections4.queue.CircularFifoQueue;
  *
  * @author Sindre Mehus
  */
-public class TransferStatus {
+public class TransferStatus implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     private static final int HISTORY_LENGTH = 200;
     private static final long SAMPLE_INTERVAL_MILLIS = 5000;
 
@@ -42,7 +44,7 @@ public class TransferStatus {
      */
     private static final Object HISTORY_LOCK = new Object();
 
-    private Player player;
+    private transient Player player;
     private File file;
     private final AtomicLong bytesTransfered;
     private final AtomicLong bytesSkipped;
