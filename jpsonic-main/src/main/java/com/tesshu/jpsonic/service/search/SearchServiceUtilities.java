@@ -34,6 +34,7 @@ import java.util.function.Function;
 
 import javax.annotation.PostConstruct;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Album;
@@ -64,6 +65,8 @@ import org.springframework.stereotype.Component;
  * Exception handling is not termination, so do not include exception handling in this class.
  */
 @Component
+@SuppressFBWarnings(value = { "DMI_RANDOM_USED_ONLY_ONCE",
+        "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD" }, justification = "False positive. This class is a singleton and random objects are shared from the outer class.")
 public class SearchServiceUtilities {
 
     private static final Logger LOG = LoggerFactory.getLogger(SearchServiceUtilities.class);
