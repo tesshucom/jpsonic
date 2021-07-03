@@ -201,9 +201,10 @@ public class UPnPService {
         }
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UnusedAssignment" })
     /*
-     * [PMD.AvoidInstantiatingObjectsInLoops] (DLNAProtocolInfo, AssertionError) Not reusable
+     * [AvoidInstantiatingObjectsInLoops] (DLNAProtocolInfo, AssertionError) Not reusable [UnusedAssignment] (icon)
+     * false positive
      */
     private LocalDevice createMediaServerDevice() throws ExecutionException {
 
