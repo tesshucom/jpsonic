@@ -24,6 +24,7 @@ package com.tesshu.jpsonic.security;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.Attributes;
@@ -187,6 +188,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
 
         private final CsrfSecurityRequestMatcher csrfSecurityRequestMatcher;
         private final ApplicationEventPublisher eventPublisher;
+        private final Random random = new SecureRandom();
         private final SecurityService securityService;
         private final SettingsService settingsService;
 
@@ -202,7 +204,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
 
         private String generateRememberMeKey() {
             byte[] array = new byte[32];
-            new SecureRandom().nextBytes(array);
+            random.nextBytes(array);
             return new String(array, StandardCharsets.UTF_8);
         }
 
