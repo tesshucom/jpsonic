@@ -310,7 +310,7 @@ public class TranscodingService {
      * @throws IOException
      *             If an I/O error occurs.
      */
-    public @NonNull InputStream getTranscodedInputStream(@Nullable Parameters parameters) throws IOException {
+    public @NonNull InputStream getTranscodedInputStream(@NonNull Parameters parameters) throws IOException {
         try {
             if (parameters.getTranscoding() != null) {
                 return createTranscodedInputStream(parameters);
@@ -540,7 +540,7 @@ public class TranscodingService {
     /**
      * Returns the strictest transcoding scheme defined for the player and the user.
      */
-    private TranscodeScheme getTranscodeScheme(@Nullable Player player) {
+    private TranscodeScheme getTranscodeScheme(@NonNull Player player) {
         String username = player.getUsername();
         if (username != null) {
             UserSettings userSettings = settingsService.getUserSettings(username);

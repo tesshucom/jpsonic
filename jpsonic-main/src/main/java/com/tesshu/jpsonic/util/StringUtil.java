@@ -247,7 +247,7 @@ public final class StringUtil {
      *             If an I/O error occurs.
      */
     @SuppressWarnings("PMD.UseTryWithResources") // False positive. pmd/pmd/issues/2882
-    public static String[] readLines(@Nullable InputStream in) throws IOException {
+    public static String[] readLines(@NonNull InputStream in) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
             List<String> result = new ArrayList<>();
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
