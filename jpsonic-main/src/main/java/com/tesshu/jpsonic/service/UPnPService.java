@@ -201,9 +201,10 @@ public class UPnPService {
         }
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UnusedAssignment" })
     /*
-     * [PMD.AvoidInstantiatingObjectsInLoops] (DLNAProtocolInfo, AssertionError) Not reusable
+     * [AvoidInstantiatingObjectsInLoops] (DLNAProtocolInfo, AssertionError) Not reusable [UnusedAssignment] (icon)
+     * false positive
      */
     private LocalDevice createMediaServerDevice() throws ExecutionException {
 
@@ -250,7 +251,7 @@ public class UPnPService {
         try (InputStream in = getClass().getResourceAsStream("logo-512.png")) {
             icon = new Icon("image/png", 512, 512, 32, "logo-512", in);
         } catch (IOException e) {
-            new ExecutionException("Icon cannot be generated", e);
+            throw new ExecutionException("Icon cannot be generated", e);
         }
 
         String serverName = settingsService.getDlnaServerName();

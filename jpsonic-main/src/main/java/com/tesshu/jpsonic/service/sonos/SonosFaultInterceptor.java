@@ -23,6 +23,7 @@ package com.tesshu.jpsonic.service.sonos;
 
 import javax.xml.namespace.QName;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.helpers.DOMUtils;
@@ -42,6 +43,7 @@ import org.w3c.dom.Element;
 @Component
 public class SonosFaultInterceptor extends AbstractSoapInterceptor {
 
+    @SuppressFBWarnings(value = "UUF_UNUSED_FIELD", justification = "False positive.")
     private static final Logger LOG = LoggerFactory.getLogger(SonosFaultInterceptor.class);
 
     /**

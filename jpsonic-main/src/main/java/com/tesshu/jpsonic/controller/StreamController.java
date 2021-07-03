@@ -397,7 +397,7 @@ public class StreamController {
 
         while (alive) {
 
-            if (!alive && LOG.isInfoEnabled()) {
+            if (LOG.isInfoEnabled()) {
                 LOG.info("Transfer was interrupted.(Player :name={}, ip={}, user={})", player.getName(),
                         player.getIpAddress(), player.getUsername());
             }
@@ -407,16 +407,14 @@ public class StreamController {
 
             if (checkRequired && player.getPlayQueue().getStatus() == PlayQueue.Status.STOPPED) {
                 // The significance of the existence of this block is doubtful
-                if (!alive) {
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info("PlayQueue stopped playing.(Player :name={}, ip={}, user={})", player.getName(),
-                                player.getIpAddress(), player.getUsername());
-                    }
-                    if (isPodcast || isSingleFile) {
-                        break;
-                    } else {
-                        sendDummyDelayed(buf, out);
-                    }
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("PlayQueue stopped playing.(Player :name={}, ip={}, user={})", player.getName(),
+                            player.getIpAddress(), player.getUsername());
+                }
+                if (isPodcast || isSingleFile) {
+                    break;
+                } else {
+                    sendDummyDelayed(buf, out);
                 }
             } else {
                 int n = in.read(buf);
