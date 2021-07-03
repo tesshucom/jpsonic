@@ -26,6 +26,7 @@ import java.security.SecureRandom;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -60,6 +61,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
  */
 @Order(SecurityProperties.BASIC_AUTH_ORDER - 2)
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
+@SuppressFBWarnings(value = "DMI_RANDOM_USED_ONLY_ONCE", justification = "False positive. See spotbugs/spotbugs#1539.")
 public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(GlobalSecurityConfig.class);
