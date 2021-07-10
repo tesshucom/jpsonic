@@ -19,11 +19,11 @@
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cxf.version>3.4.4</cxf.version>
-        <jackson.version>2.12.3</jackson.version>
+        <jackson.version>2.12.4</jackson.version>
         <tomcat.version>9.0.50</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
-        <jetty.version>9.4.42.v20210604</jetty.version>
-        <jetty-jsp.version>9.4.42.v20210604</jetty-jsp.version>
+        <jetty.version>9.4.43.v20210629</jetty.version>
+        <jetty-jsp.version>9.4.43.v20210629</jetty-jsp.version>
         <pmd.version>6.36.0</pmd.version>
         <log4j.version>2.14.1</log4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
@@ -574,7 +574,7 @@
                 <plugin>
                     <groupId>net.nicoulaj.maven.plugins</groupId>
                     <artifactId>checksum-maven-plugin</artifactId>
-                    <version>1.10</version>
+                    <version>1.11</version>
                     <executions>
                         <execution>
                             <phase>package</phase>
