@@ -32,15 +32,15 @@ public class ShortTaskPoolConfiguration {
     private int maxPoolSize;
 
     public void setCorePoolSize(@NonNull String corePoolSize) {
-        this.corePoolSize = Integer.valueOf(corePoolSize);
+        this.corePoolSize = Integer.parseInt(corePoolSize);
     }
 
     public void setQueueCapacity(@NonNull String queueCapacity) {
-        this.queueCapacity = Integer.valueOf(queueCapacity);
+        this.queueCapacity = Integer.parseInt(queueCapacity);
     }
 
     public void setMaxPoolSize(@NonNull String maxPoolSize) {
-        this.maxPoolSize = Integer.valueOf(maxPoolSize);
+        this.maxPoolSize = Integer.parseInt(maxPoolSize);
     }
 
     public int getCorePoolSize() {

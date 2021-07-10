@@ -225,7 +225,7 @@ public class PlayQueueInputStream extends InputStream {
     private void scrobble() {
         // Don't scrobble REST players (except Sonos)
         if (!isEmpty(currentFile)
-                && (isEmpty(player.getClientId()) || player.getClientId().equals(SonosHelper.JPSONIC_CLIENT_ID))) {
+                && (isEmpty(player.getClientId()) || SonosHelper.JPSONIC_CLIENT_ID.equals(player.getClientId()))) {
             audioScrobblerService.register(currentFile.get(), player.getUsername(), true, null);
         }
     }

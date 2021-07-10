@@ -388,6 +388,7 @@ public class StreamController {
     }
 
     @SuppressWarnings("PMD.CognitiveComplexity") // #1020
+    @SuppressFBWarnings(value = "UC_USELESS_CONDITION", justification = "False positive. #1078")
     private void writeStream(Player player, InputStream in, OutputStream out, Long fileLengthExpected,
             boolean isPodcast, boolean isSingleFile) throws IOException {
         byte[] buf = new byte[settingsService.getBufferSize()];
@@ -406,17 +407,14 @@ public class StreamController {
             boolean checkRequired = bytesWritten % 4096 * 200 == 0; // 0.8192Mb
 
             if (checkRequired && player.getPlayQueue().getStatus() == PlayQueue.Status.STOPPED) {
-                // The significance of the existence of this block is doubtful
-                if (!alive) {
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info("PlayQueue stopped playing.(Player :name={}, ip={}, user={})", player.getName(),
-                                player.getIpAddress(), player.getUsername());
-                    }
-                    if (isPodcast || isSingleFile) {
-                        break;
-                    } else {
-                        sendDummyDelayed(buf, out);
-                    }
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("PlayQueue stopped playing.(Player :name={}, ip={}, user={})", player.getName(),
+                            player.getIpAddress(), player.getUsername());
+                }
+                if (isPodcast || isSingleFile) {
+                    break;
+                } else {
+                    sendDummyDelayed(buf, out);
                 }
             } else {
                 int n = in.read(buf);
