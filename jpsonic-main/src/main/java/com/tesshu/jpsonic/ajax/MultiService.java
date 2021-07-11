@@ -39,7 +39,6 @@ import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
-import org.directwebremoting.WebContextFactory;
 import org.springframework.stereotype.Service;
 
 /**
@@ -57,19 +56,21 @@ public class MultiService {
     private final SecurityService securityService;
     private final SettingsService settingsService;
     private final AirsonicLocaleResolver airsonicLocaleResolver;
+    private final AjaxHelper ajaxHelper;
 
     public MultiService(MediaFileService mediaFileService, LastFmService lastFmService, SecurityService securityService,
-            SettingsService settingsService, AirsonicLocaleResolver airsonicLocaleResolver) {
+            SettingsService settingsService, AirsonicLocaleResolver airsonicLocaleResolver, AjaxHelper ajaxHelper) {
         super();
         this.mediaFileService = mediaFileService;
         this.lastFmService = lastFmService;
         this.securityService = securityService;
         this.settingsService = settingsService;
         this.airsonicLocaleResolver = airsonicLocaleResolver;
+        this.ajaxHelper = ajaxHelper;
     }
 
     public ArtistInfo getArtistInfo(int mediaFileId, int maxSimilarArtists, int maxTopSongs) {
-        HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
+        HttpServletRequest request = ajaxHelper.getHttpServletRequest();
 
         MediaFile mediaFile = mediaFileService.getMediaFile(mediaFileId);
         List<SimilarArtist> similarArtists = getSimilarArtists(mediaFileId, maxSimilarArtists);
@@ -85,7 +86,7 @@ public class MultiService {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TopSong) Not reusable
     private List<TopSong> getTopSongs(MediaFile mediaFile, int limit) {
-        HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
+        HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         String username = securityService.getCurrentUsername(request);
         List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
 
@@ -101,7 +102,7 @@ public class MultiService {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (SimilarArtist) Not reusable
     private List<SimilarArtist> getSimilarArtists(int mediaFileId, int limit) {
-        HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
+        HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         String username = securityService.getCurrentUsername(request);
         List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
 
@@ -116,7 +117,7 @@ public class MultiService {
     }
 
     public void setCloseDrawer(boolean b) {
-        HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
+        HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         String username = securityService.getCurrentUsername(request);
         UserSettings userSettings = settingsService.getUserSettings(username);
         userSettings.setCloseDrawer(b);

@@ -24,8 +24,6 @@ package com.tesshu.jpsonic.ajax;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.SecurityService;
-import org.directwebremoting.WebContext;
-import org.directwebremoting.WebContextFactory;
 import org.springframework.stereotype.Service;
 
 /**
@@ -40,11 +38,13 @@ public class StarService {
 
     private final SecurityService securityService;
     private final MediaFileDao mediaFileDao;
+    private final AjaxHelper ajaxHelper;
 
-    public StarService(SecurityService securityService, MediaFileDao mediaFileDao) {
+    public StarService(SecurityService securityService, MediaFileDao mediaFileDao, AjaxHelper ajaxHelper) {
         super();
         this.securityService = securityService;
         this.mediaFileDao = mediaFileDao;
+        this.ajaxHelper = ajaxHelper;
     }
 
     public void star(int id) {
@@ -56,8 +56,7 @@ public class StarService {
     }
 
     private String getUser() {
-        WebContext webContext = WebContextFactory.get();
-        User user = securityService.getCurrentUser(webContext.getHttpServletRequest());
+        User user = securityService.getCurrentUser(ajaxHelper.getHttpServletRequest());
         return user.getUsername();
     }
 }

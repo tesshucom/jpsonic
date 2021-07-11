@@ -42,7 +42,6 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
-import org.directwebremoting.WebContextFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -63,11 +62,12 @@ public class PlaylistService {
     private final SettingsService settingsService;
     private final PlayerService playerService;
     private final AirsonicLocaleResolver airsonicLocaleResolver;
+    private final AjaxHelper ajaxHelper;
 
     public PlaylistService(MediaFileService mediaFileService, SecurityService securityService,
             @Qualifier("playlistService") com.tesshu.jpsonic.service.PlaylistService deligate,
             MediaFileDao mediaFileDao, SettingsService settingsService, PlayerService playerService,
-            AirsonicLocaleResolver airsonicLocaleResolver) {
+            AirsonicLocaleResolver airsonicLocaleResolver, AjaxHelper ajaxHelper) {
         super();
         this.mediaFileService = mediaFileService;
         this.securityService = securityService;
@@ -76,22 +76,23 @@ public class PlaylistService {
         this.settingsService = settingsService;
         this.playerService = playerService;
         this.airsonicLocaleResolver = airsonicLocaleResolver;
+        this.ajaxHelper = ajaxHelper;
     }
 
     public List<Playlist> getReadablePlaylists() {
-        HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
+        HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         String username = securityService.getCurrentUsername(request);
         return deligate.getReadablePlaylistsForUser(username);
     }
 
     public List<Playlist> getWritablePlaylists() {
-        HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
+        HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         String username = securityService.getCurrentUsername(request);
         return deligate.getWritablePlaylistsForUser(username);
     }
 
     public PlaylistInfo getPlaylist(int id) {
-        HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
+        HttpServletRequest request = ajaxHelper.getHttpServletRequest();
 
         Playlist playlist = deligate.getPlaylist(id);
         List<MediaFile> files = deligate.getFilesInPlaylist(id, true);
@@ -111,7 +112,7 @@ public class PlaylistService {
     }
 
     public List<Playlist> createEmptyPlaylist() {
-        HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
+        HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         Locale locale = airsonicLocaleResolver.resolveLocale(request);
         DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale);
 
@@ -128,7 +129,7 @@ public class PlaylistService {
     }
 
     public int createPlaylistForPlayQueue() throws ServletRequestBindingException {
-        HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
+        HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         Locale locale = airsonicLocaleResolver.resolveLocale(request);
         DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale);
 
@@ -141,7 +142,7 @@ public class PlaylistService {
         playlist.setName(dateFormat.format(now));
         deligate.createPlaylist(playlist);
 
-        HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
+        HttpServletResponse response = ajaxHelper.getHttpServletResponse();
         Player player = playerService.getPlayer(request, response);
         deligate.setFilesInPlaylist(playlist.getId(), player.getPlayQueue().getFiles());
 
@@ -149,7 +150,7 @@ public class PlaylistService {
     }
 
     public int createPlaylistForStarredSongs() {
-        HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
+        HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         Locale locale = airsonicLocaleResolver.resolveLocale(request);
         DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale);
 
@@ -196,7 +197,7 @@ public class PlaylistService {
     }
 
     public PlaylistInfo toggleStar(int id, int index) {
-        HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
+        HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         String username = securityService.getCurrentUsername(request);
         List<MediaFile> files = deligate.getFilesInPlaylist(id, true);
         MediaFile file = files.get(index);
