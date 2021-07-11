@@ -63,7 +63,8 @@ public class PodcastSettingsController {
     }
 
     @PostMapping
-    protected ModelAndView doSubmitAction(@ModelAttribute PodcastSettingsCommand command,
+    protected ModelAndView doSubmitAction(
+            @ModelAttribute(Attributes.Model.Command.VALUE) PodcastSettingsCommand command,
             RedirectAttributes redirectAttributes) {
         settingsService.setPodcastUpdateInterval(Integer.parseInt(command.getInterval()));
         settingsService.setPodcastEpisodeRetentionCount(Integer.parseInt(command.getEpisodeRetentionCount()));
