@@ -34,9 +34,7 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
 class CoverArtServiceTest extends AbstractNeedsScan {
 
     private static final String TEST_IMAGE_URL = "https://avatars.githubusercontent.com/u/44695789?s=200&v=4";
