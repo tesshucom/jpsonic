@@ -38,7 +38,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.Integration;
 import com.tesshu.jpsonic.controller.MainController;
 import com.tesshu.jpsonic.dao.PlaylistDao;
 import com.tesshu.jpsonic.domain.MusicIndex.SortableArtist;
@@ -1257,7 +1256,6 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         /**
          * {@link MainController#getMultiFolderChildren}
          */
-        @Integration
         @Test
         void testGetMultiFolderChildren() throws IOException {
             SearchCriteria criteria = director.construct("10", 0, Integer.MAX_VALUE, false, MUSIC_FOLDERS,
@@ -1271,7 +1269,6 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         /**
          * {@link PlaylistService#getAllPlaylists()}
          */
-        @Integration
         @Test
         void testGetAllPlaylists() {
             List<Playlist> all = playlistService.getAllPlaylists();
@@ -1288,7 +1285,6 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         /**
          * {@link MediaFileService#getChildrenOf(MediaFile, boolean, boolean, boolean, boolean)}
          */
-        @Integration
         @Test
         void testGetChildrenOf() throws IOException {
             SearchCriteria criteria = director.construct("10", 0, Integer.MAX_VALUE, false, MUSIC_FOLDERS,
@@ -1302,7 +1298,6 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         /**
          * {@link MusicIndexService#getIndexedArtists(List, boolean)}
          */
-        @Integration
         @Test
         void testGetIndexedArtists() {
             List<MusicFolder> musicFoldersToUse = Arrays.asList(MUSIC_FOLDERS.get(0));
@@ -1317,7 +1312,6 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         /**
          * {@link PlayQueue#sort(java.util.Comparator)}
          */
-        @Integration
         @Test
         void testPlayQueueSort() throws IOException {
             SearchCriteria criteria = director.construct("empty", 0, Integer.MAX_VALUE, false, MUSIC_FOLDERS,

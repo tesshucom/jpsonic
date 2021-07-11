@@ -37,8 +37,6 @@ import java.util.concurrent.ExecutionException;
 import javax.xml.bind.JAXB;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.Integration;
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
@@ -62,10 +60,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -78,8 +74,6 @@ import org.subsonic.restapi.NowPlaying;
 import org.subsonic.restapi.Response;
 import org.subsonic.restapi.ResponseStatus;
 
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
 @AutoConfigureMockMvc
 @SuppressWarnings({ "PMD.JUnitTestsShouldIncludeAssert", "PMD.AvoidCatchingGenericException", "PMD.DetachedTestCase" })
 /*
@@ -137,7 +131,6 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         apiVerion = TestCaseUtils.restApiVersion();
     }
 
-    @Integration
     @Test
     void testPing() throws ExecutionException {
         try {
@@ -615,7 +608,6 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         /*
          * @see #1048
          */
-        @Integration
         @Test
         @WithMockUser(username = ADMIN_NAME)
         @Order(1)
@@ -673,7 +665,6 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
             res.getOutputStream().close();
         }
 
-        @Integration
         @Test
         @WithMockUser(username = ADMIN_NAME)
         @Order(2)

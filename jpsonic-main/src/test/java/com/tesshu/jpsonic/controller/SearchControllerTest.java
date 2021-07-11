@@ -27,15 +27,12 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.command.SearchCommand;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -44,9 +41,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 
-@SpringBootTest
 @AutoConfigureMockMvc
-@ExtendWith(NeedsHome.class)
 class SearchControllerTest extends AbstractNeedsScan {
 
     private static final String ADMIN_NAME = "admin";

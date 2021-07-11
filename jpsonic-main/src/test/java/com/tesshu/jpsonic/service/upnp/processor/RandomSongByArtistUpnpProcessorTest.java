@@ -37,12 +37,10 @@ import com.tesshu.jpsonic.util.LegacyMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 /*
  * Test to correct sort inconsistencies.
  */
-@SpringBootTest
 class RandomSongByArtistUpnpProcessorTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;
