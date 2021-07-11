@@ -109,7 +109,8 @@ public class AdvancedSettingsController {
     }
 
     @PostMapping
-    protected ModelAndView doSubmitAction(@ModelAttribute AdvancedSettingsCommand command,
+    protected ModelAndView doSubmitAction(
+            @ModelAttribute(Attributes.Model.Command.VALUE) AdvancedSettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), false);

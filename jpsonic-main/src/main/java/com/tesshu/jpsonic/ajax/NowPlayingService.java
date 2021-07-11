@@ -40,8 +40,6 @@ import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.directwebremoting.WebContext;
-import org.directwebremoting.WebContextFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.ServletRequestBindingException;
 
@@ -60,14 +58,16 @@ public class NowPlayingService {
     private final StatusService statusService;
     private final SettingsService settingsService;
     private final MediaScannerService mediaScannerService;
+    private final AjaxHelper ajaxHelper;
 
     public NowPlayingService(PlayerService playerService, StatusService statusService, SettingsService settingsService,
-            MediaScannerService mediaScannerService) {
+            MediaScannerService mediaScannerService, AjaxHelper ajaxHelper) {
         super();
         this.playerService = playerService;
         this.statusService = statusService;
         this.settingsService = settingsService;
         this.mediaScannerService = mediaScannerService;
+        this.ajaxHelper = ajaxHelper;
     }
 
     /**
@@ -78,9 +78,8 @@ public class NowPlayingService {
      * @throws ServletRequestBindingException
      */
     public NowPlayingInfo getNowPlayingForCurrentPlayer() throws ServletRequestBindingException {
-        WebContext webContext = WebContextFactory.get();
-        Player player = playerService.getPlayer(webContext.getHttpServletRequest(),
-                webContext.getHttpServletResponse());
+        Player player = playerService.getPlayer(ajaxHelper.getHttpServletRequest(),
+                ajaxHelper.getHttpServletResponse());
 
         for (NowPlayingInfo info : getNowPlaying()) {
             if (player.getId().equals(info.getPlayerId())) {
@@ -108,7 +107,7 @@ public class NowPlayingService {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (NowPlayingInfo) Not reusable
     private List<NowPlayingInfo> convert(List<PlayStatus> playStatuses) {
-        HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
+        HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         String url = NetworkUtils.getBaseUrl(request);
         List<NowPlayingInfo> result = new ArrayList<>();
         final StringBuilder builder = new StringBuilder();
