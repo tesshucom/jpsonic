@@ -63,8 +63,21 @@ class IndexUpnpProcessorTest extends AbstractNeedsScan {
         setSortStrict(true);
         setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
+
+        String simpleIndex = "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ) " // En
+                + "\u3042(\u30A2\u30A4\u30A6\u30A8\u30AA) " // Jp(a)
+                + "\u304B(\u30AB\u30AD\u30AF\u30B1\u30B3) " // Jp(ka)
+                + "\u3055(\u30B5\u30B7\u30B9\u30BB\u30BD) " // Jp(sa)
+                + "\u305F(\u30BF\u30C1\u30C4\u30C6\u30C8) " // Jp(ta)
+                + "\u306A(\u30CA\u30CB\u30CC\u30CD\u30CE) " // Jp(na)
+                + "\u306F(\u30CF\u30D2\u30D5\u30D8\u30DB) " // Jp(ha)
+                + "\u307E(\u30DE\u30DF\u30E0\u30E1\u30E2) " // Jp(ma)
+                + "\u3084(\u30E4\u30E6\u30E8) " // Jp(ya)
+                + "\u3089(\u30E9\u30EA\u30EB\u30EC\u30ED) " // Jp(ra)
+                + "\u308F(\u30EF\u30F2\u30F3)"; // Jp(wa)
+
         // Test case is created on the premise of simpleIndex.
-        settingsService.setIndexString(settingsService.getSimpleIndexString());
+        settingsService.setIndexString(simpleIndex);
         populateDatabaseOnlyOnce();
     }
 

@@ -284,14 +284,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testGetSimpleIndexString() {
-        assertEquals(
-                "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ) "
-                        + "あ(アイウエオ) か(カキクケコ) さ(サシスセソ) た(タチツテト) な(ナニヌネノ) " + "は(ハヒフヘホ) ま(マミムメモ) や(ヤユヨ) ら(ラリルレロ) わ(ワヲン)",
-                settingsService.getSimpleIndexString());
-    }
-
-    @Test
     void testGetIndexString() {
         assertEquals(
                 "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ) "

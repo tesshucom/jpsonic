@@ -225,20 +225,6 @@ public class SettingsService {
             + "\u3084(\u30E4) \u3086(\u30E6) \u3088(\u30E8) " // Jp(ya)
             + "\u3089(\u30E9) \u308A(\u30EA) \u308B(\u30EB) \u308C(\u30EC) \u308D(\u30ED) " // Jp(ra)
             + "\u308F(\u30EF) \u3092(\u30F2) \u3093(\u30F3)"; // Jp(wa)
-    /*
-     * It's EN and JP(consonant)
-     */
-    private static final String SIMPLE_INDEX_STRING = "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ) " // En
-            + "\u3042(\u30A2\u30A4\u30A6\u30A8\u30AA) " // Jp(a)
-            + "\u304B(\u30AB\u30AD\u30AF\u30B1\u30B3) " // Jp(ka)
-            + "\u3055(\u30B5\u30B7\u30B9\u30BB\u30BD) " // Jp(sa)
-            + "\u305F(\u30BF\u30C1\u30C4\u30C6\u30C8) " // Jp(ta)
-            + "\u306A(\u30CA\u30CB\u30CC\u30CD\u30CE) " // Jp(na)
-            + "\u306F(\u30CF\u30D2\u30D5\u30D8\u30DB) " // Jp(ha)
-            + "\u307E(\u30DE\u30DF\u30E0\u30E1\u30E2) " // Jp(ma)
-            + "\u3084(\u30E4\u30E6\u30E8) " // Jp(ya)
-            + "\u3089(\u30E9\u30EA\u30EB\u30EC\u30ED) " // Jp(ra)
-            + "\u308F(\u30EF\u30F2\u30F3)"; // Jp(wa)
 
     private static final String DEFAULT_IGNORED_ARTICLES = "The El La Las Le Les";
     private static final String DEFAULT_SHORTCUTS = "New Incoming Podcast";
@@ -568,10 +554,6 @@ public class SettingsService {
 
     public String getDefaultIndexString() {
         return DEFAULT_INDEX_STRING;
-    }
-
-    public String getSimpleIndexString() {
-        return SIMPLE_INDEX_STRING;
     }
 
     public String getIndexString() {
