@@ -37,8 +37,8 @@ import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.springframework.stereotype.Service;
 
 /**
@@ -51,20 +51,21 @@ import org.springframework.stereotype.Service;
 @Service("ajaxMultiService")
 public class MultiService {
 
+    private final MusicFolderService musicFolderService;
+    private final SecurityService securityService;
     private final MediaFileService mediaFileService;
     private final LastFmService lastFmService;
-    private final SecurityService securityService;
-    private final SettingsService settingsService;
     private final AirsonicLocaleResolver airsonicLocaleResolver;
     private final AjaxHelper ajaxHelper;
 
-    public MultiService(MediaFileService mediaFileService, LastFmService lastFmService, SecurityService securityService,
-            SettingsService settingsService, AirsonicLocaleResolver airsonicLocaleResolver, AjaxHelper ajaxHelper) {
+    public MultiService(MusicFolderService musicFolderService, SecurityService securityService,
+            MediaFileService mediaFileService, LastFmService lastFmService,
+            AirsonicLocaleResolver airsonicLocaleResolver, AjaxHelper ajaxHelper) {
         super();
+        this.musicFolderService = musicFolderService;
+        this.securityService = securityService;
         this.mediaFileService = mediaFileService;
         this.lastFmService = lastFmService;
-        this.securityService = securityService;
-        this.settingsService = settingsService;
         this.airsonicLocaleResolver = airsonicLocaleResolver;
         this.ajaxHelper = ajaxHelper;
     }
@@ -76,7 +77,7 @@ public class MultiService {
         List<SimilarArtist> similarArtists = getSimilarArtists(mediaFileId, maxSimilarArtists);
 
         User user = securityService.getCurrentUser(request);
-        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         Locale locale = userSettings.isForceBio2Eng() ? Locale.ENGLISH : airsonicLocaleResolver.resolveLocale(request);
         ArtistBio artistBio = lastFmService.getArtistBio(mediaFile, locale);
         List<TopSong> topSongs = getTopSongs(mediaFile, maxTopSongs);
@@ -88,7 +89,7 @@ public class MultiService {
     private List<TopSong> getTopSongs(MediaFile mediaFile, int limit) {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         String username = securityService.getCurrentUsername(request);
-        List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
+        List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
 
         List<TopSong> result = new ArrayList<>();
         List<MediaFile> files = lastFmService.getTopSongs(mediaFile, limit, musicFolders);
@@ -104,7 +105,7 @@ public class MultiService {
     private List<SimilarArtist> getSimilarArtists(int mediaFileId, int limit) {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         String username = securityService.getCurrentUsername(request);
-        List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
+        List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
 
         MediaFile artist = mediaFileService.getMediaFile(mediaFileId);
         List<MediaFile> similarArtists = lastFmService.getSimilarArtists(artist, limit, false, musicFolders);
@@ -119,9 +120,9 @@ public class MultiService {
     public void setCloseDrawer(boolean b) {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         String username = securityService.getCurrentUsername(request);
-        UserSettings userSettings = settingsService.getUserSettings(username);
+        UserSettings userSettings = securityService.getUserSettings(username);
         userSettings.setCloseDrawer(b);
         userSettings.setChanged(new Date());
-        settingsService.updateUserSettings(userSettings);
+        securityService.updateUserSettings(userSettings);
     }
 }

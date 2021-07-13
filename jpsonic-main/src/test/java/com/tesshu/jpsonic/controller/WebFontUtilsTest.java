@@ -31,7 +31,7 @@ import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.command.PersonalSettingsCommand;
 import com.tesshu.jpsonic.domain.FontScheme;
 import com.tesshu.jpsonic.domain.UserSettings;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.SecurityService;
 import org.apache.catalina.connector.Request;
 import org.checkerframework.checker.signedness.qual.Unsigned;
 import org.junit.jupiter.api.Order;
@@ -56,7 +56,7 @@ class WebFontUtilsTest {
     private static final String FONT_SIZE_KEY = "viewhint.fontSize";
 
     @Autowired
-    private SettingsService settingsService;
+    private SecurityService securityService;
 
     @Test
     @Order(1)
@@ -68,9 +68,9 @@ class WebFontUtilsTest {
         UserSettings settings;
 
         try {
-            method = settingsService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
+            method = securityService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
             method.setAccessible(true);
-            settings = (UserSettings) method.invoke(settingsService, "");
+            settings = (UserSettings) method.invoke(securityService, "");
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e) {
             throw new ExecutionException(e);
@@ -108,7 +108,7 @@ class WebFontUtilsTest {
         request = new Request(null);
         command = new PersonalSettingsCommand();
         try {
-            WebFontUtils.setToCommand((UserSettings) method.invoke(settingsService, ""), command);
+            WebFontUtils.setToCommand((UserSettings) method.invoke(securityService, ""), command);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             throw new ExecutionException(e);
         }
@@ -151,9 +151,9 @@ class WebFontUtilsTest {
         UserSettings from;
 
         try {
-            method = settingsService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
+            method = securityService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
             method.setAccessible(true);
-            from = (UserSettings) method.invoke(settingsService, "");
+            from = (UserSettings) method.invoke(securityService, "");
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e) {
             throw new ExecutionException(e);
@@ -210,9 +210,9 @@ class WebFontUtilsTest {
         UserSettings to;
 
         try {
-            method = settingsService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
+            method = securityService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
             method.setAccessible(true);
-            to = (UserSettings) method.invoke(settingsService, "");
+            to = (UserSettings) method.invoke(securityService, "");
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e) {
             throw new ExecutionException(e);

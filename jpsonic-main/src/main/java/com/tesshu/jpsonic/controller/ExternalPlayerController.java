@@ -39,9 +39,9 @@ import com.tesshu.jpsonic.domain.Share;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.NetworkUtils;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.apache.commons.lang3.StringUtils;
@@ -68,16 +68,16 @@ public class ExternalPlayerController {
     private static final String MAX_BIT_RATE_VALUE = "1200";
     private static final String MAX_SIZE_VALUE = "500";
 
-    private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
     private final PlayerService playerService;
     private final ShareService shareService;
     private final MediaFileService mediaFileService;
     private final JWTSecurityService jwtSecurityService;
 
-    public ExternalPlayerController(SettingsService settingsService, PlayerService playerService,
+    public ExternalPlayerController(MusicFolderService musicFolderService, PlayerService playerService,
             ShareService shareService, MediaFileService mediaFileService, JWTSecurityService jwtSecurityService) {
         super();
-        this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
         this.playerService = playerService;
         this.shareService = shareService;
         this.mediaFileService = mediaFileService;
@@ -134,7 +134,7 @@ public class ExternalPlayerController {
 
         List<MediaFileWithUrlInfo> result = new ArrayList<>();
 
-        List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(player.getUsername());
+        List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(player.getUsername());
 
         if (share != null) {
             for (MediaFile file : shareService.getSharedFiles(share.getId(), musicFolders)) {

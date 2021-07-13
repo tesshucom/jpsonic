@@ -34,7 +34,6 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.NetworkUtils;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.springframework.stereotype.Controller;
@@ -57,18 +56,16 @@ public class VideoPlayerController {
     public static final int DEFAULT_BIT_RATE = 2000;
     private static final int[] BIT_RATES = { 200, 300, 400, 500, 700, 1000, 1200, 1500, 2000, 3000, 5000 };
 
+    private final SecurityService securityService;
     private final MediaFileService mediaFileService;
     private final PlayerService playerService;
-    private final SecurityService securityService;
-    private final SettingsService settingsService;
 
-    public VideoPlayerController(MediaFileService mediaFileService, PlayerService playerService,
-            SecurityService securityService, SettingsService settingsService) {
+    public VideoPlayerController(SecurityService securityService, MediaFileService mediaFileService,
+            PlayerService playerService) {
         super();
+        this.securityService = securityService;
         this.mediaFileService = mediaFileService;
         this.playerService = playerService;
-        this.securityService = securityService;
-        this.settingsService = settingsService;
     }
 
     @GetMapping
@@ -91,12 +88,12 @@ public class VideoPlayerController {
         String url = NetworkUtils.getBaseUrl(request);
         String streamUrl = url + "stream?id=" + file.getId() + "&player=" + playerId + "&format=mp4";
         String coverArtUrl = url + ViewName.COVER_ART.value() + "?id=" + file.getId();
-        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
 
         Map<String, Object> map = LegacyMap.of();
         map.put("dir", dir);
         map.put("breadcrumbIndex", userSettings.isBreadcrumbIndex());
-        map.put("selectedMusicFolder", settingsService.getSelectedMusicFolder(user.getUsername()));
+        map.put("selectedMusicFolder", securityService.getSelectedMusicFolder(user.getUsername()));
         map.put("video", file);
         map.put("streamUrl", streamUrl);
         map.put("remoteStreamUrl", streamUrl);

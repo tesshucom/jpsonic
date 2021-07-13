@@ -24,28 +24,28 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.domain.UserSettings;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.SecurityService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.ServletRequestUtils;
 
 @Component
 public class OutlineHelpSelector {
 
-    private final SettingsService settingsService;
+    private final SecurityService securityService;
 
-    public OutlineHelpSelector(SettingsService settingsService) {
+    public OutlineHelpSelector(SecurityService securityService) {
         super();
-        this.settingsService = settingsService;
+        this.securityService = securityService;
     }
 
     public boolean isShowOutlineHelp(HttpServletRequest request, String username) {
-        UserSettings userSettings = settingsService.getUserSettings(username);
+        UserSettings userSettings = securityService.getUserSettings(username);
         boolean showOutlineHelp = ServletRequestUtils.getBooleanParameter(request,
                 Attributes.Request.SHOW_OUTLINE_HELP.value(), userSettings.isShowOutlineHelp());
         if (showOutlineHelp != userSettings.isShowOutlineHelp()) {
             userSettings.setShowOutlineHelp(showOutlineHelp);
             userSettings.setChanged(new Date());
-            settingsService.updateUserSettings(userSettings);
+            securityService.updateUserSettings(userSettings);
         }
         return showOutlineHelp;
     }

@@ -69,6 +69,7 @@ public class MediaScannerService {
     private static final Object SCAN_LOCK = new Object();
 
     private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
     private final IndexManager indexManager;
     private final PlaylistService playlistService;
     private final MediaFileService mediaFileService;
@@ -83,12 +84,13 @@ public class MediaScannerService {
     private AtomicInteger scanCount = new AtomicInteger();
     private AtomicBoolean destroy = new AtomicBoolean();
 
-    public MediaScannerService(SettingsService settingsService, IndexManager indexManager,
-            PlaylistService playlistService, MediaFileService mediaFileService, MediaFileDao mediaFileDao,
-            ArtistDao artistDao, AlbumDao albumDao, Ehcache indexCache, MediaScannerServiceUtils utils,
-            ThreadPoolTaskExecutor scanExecutor) {
+    public MediaScannerService(SettingsService settingsService, MusicFolderService musicFolderService,
+            IndexManager indexManager, PlaylistService playlistService, MediaFileService mediaFileService,
+            MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao, Ehcache indexCache,
+            MediaScannerServiceUtils utils, ThreadPoolTaskExecutor scanExecutor) {
         super();
         this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
         this.indexManager = indexManager;
         this.playlistService = playlistService;
         this.mediaFileService = mediaFileService;
@@ -171,7 +173,7 @@ public class MediaScannerService {
             mediaFileService.clearMemoryCache();
 
             // Recurse through all files on disk.
-            for (MusicFolder musicFolder : settingsService.getAllMusicFolders()) {
+            for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders()) {
                 MediaFile root = mediaFileService.getMediaFile(musicFolder.getPath(), false);
                 scanFile(root, musicFolder, statistics, albumCount, genres, false);
             }

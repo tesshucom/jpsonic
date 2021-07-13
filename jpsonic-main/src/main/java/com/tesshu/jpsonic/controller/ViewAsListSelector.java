@@ -24,28 +24,28 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.domain.UserSettings;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.SecurityService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.ServletRequestUtils;
 
 @Component
 public class ViewAsListSelector {
 
-    private final SettingsService settingsService;
+    private final SecurityService securityService;
 
-    public ViewAsListSelector(SettingsService settingsService) {
+    public ViewAsListSelector(SecurityService securityService) {
         super();
-        this.settingsService = settingsService;
+        this.securityService = securityService;
     }
 
     public boolean isViewAsList(HttpServletRequest request, String username) {
-        UserSettings userSettings = settingsService.getUserSettings(username);
+        UserSettings userSettings = securityService.getUserSettings(username);
         boolean viewAsList = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.VIEW_AS_LIST.value(),
                 userSettings.isViewAsList());
         if (viewAsList != userSettings.isViewAsList()) {
             userSettings.setViewAsList(viewAsList);
             userSettings.setChanged(new Date());
-            settingsService.updateUserSettings(userSettings);
+            securityService.updateUserSettings(userSettings);
         }
         return viewAsList;
     }

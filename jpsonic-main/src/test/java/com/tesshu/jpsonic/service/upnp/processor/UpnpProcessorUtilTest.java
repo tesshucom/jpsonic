@@ -25,6 +25,7 @@ import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.service.JWTSecurityService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import org.junit.jupiter.api.Test;
@@ -38,12 +39,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 @ExtendWith(NeedsHome.class)
 class UpnpProcessorUtilTest {
 
+    @Mock
+    private SettingsService settingsService;
+    @Autowired
+    private MusicFolderService musicFolderService;
     @Autowired
     private JpsonicComparators comparators;
     @Autowired
     private JWTSecurityService securityService;
-    @Mock
-    private SettingsService settingsService;
     @Autowired
     private TranscodingService transcodingService;
     @Autowired
@@ -52,8 +55,8 @@ class UpnpProcessorUtilTest {
     @Test
     void testGetAllMusicFolders() {
         Mockito.when(settingsService.isDlnaGuestPublish()).thenReturn(true);
-        UpnpProcessorUtil upnpProcessorUtil = new UpnpProcessorUtil(comparators, securityService, settingsService,
-                transcodingService, musicFolderDao);
+        UpnpProcessorUtil upnpProcessorUtil = new UpnpProcessorUtil(settingsService, musicFolderService, comparators,
+                securityService, transcodingService, musicFolderDao);
         assertNotNull(upnpProcessorUtil.getAllMusicFolders());
     }
 }

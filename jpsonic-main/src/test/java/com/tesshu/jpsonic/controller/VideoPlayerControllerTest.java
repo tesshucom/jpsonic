@@ -29,7 +29,6 @@ import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,10 +56,11 @@ class VideoPlayerControllerTest {
     private MediaFileService mediaFileService;
     @Autowired
     private PlayerService playerService;
-    @Mock
-    private SecurityService securityService;
     @Autowired
-    private SettingsService settingsService;
+    private SecurityService securityService;
+    @Mock
+    private SecurityService securityMock;
+
     private MockMvc mockMvc;
 
     @BeforeEach
@@ -73,15 +73,14 @@ class VideoPlayerControllerTest {
         User user = new User(ADMIN_NAME, ADMIN_NAME, ADMIN_NAME);
         Mockito.when(mediaFileService.getMediaFile(file.getId())).thenReturn(file);
         Mockito.when(mediaFileService.getParentOf(file)).thenReturn(dir);
-        Mockito.when(securityService.getCurrentUsername(Mockito.any())).thenReturn(ADMIN_NAME);
-        Mockito.when(securityService.isFolderAccessAllowed(dir, ADMIN_NAME)).thenReturn(true);
-        Mockito.when(securityService.getCurrentUser(Mockito.any())).thenReturn(user);
+        Mockito.when(securityMock.getCurrentUsername(Mockito.any())).thenReturn(ADMIN_NAME);
+        Mockito.when(securityMock.isFolderAccessAllowed(dir, ADMIN_NAME)).thenReturn(true);
+        Mockito.when(securityMock.getUserSettings(ADMIN_NAME)).thenReturn(securityService.getUserSettings(ADMIN_NAME));
+        Mockito.when(securityMock.getCurrentUser(Mockito.any())).thenReturn(user);
         Mockito.doNothing().when(mediaFileService).populateStarredDate(Mockito.any(MediaFile.class), Mockito.any());
-        Mockito.when(securityService.isInPodcastFolder(Mockito.any())).thenReturn(true);
+        Mockito.when(securityMock.isInPodcastFolder(Mockito.any())).thenReturn(true);
         mockMvc = MockMvcBuilders
-                .standaloneSetup(
-                        new VideoPlayerController(mediaFileService, playerService, securityService, settingsService))
-                .build();
+                .standaloneSetup(new VideoPlayerController(securityMock, mediaFileService, playerService)).build();
     }
 
     @Test

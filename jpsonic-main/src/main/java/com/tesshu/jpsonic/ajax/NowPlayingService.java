@@ -27,15 +27,15 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.controller.ViewName;
-import com.tesshu.jpsonic.domain.AvatarScheme;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PlayStatus;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.service.AvatarService;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.NetworkUtils;
 import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -54,19 +54,21 @@ public class NowPlayingService {
 
     private static final int LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60;
 
+    private final SecurityService securityService;
     private final PlayerService playerService;
     private final StatusService statusService;
-    private final SettingsService settingsService;
     private final MediaScannerService mediaScannerService;
+    private final AvatarService avatarService;
     private final AjaxHelper ajaxHelper;
 
-    public NowPlayingService(PlayerService playerService, StatusService statusService, SettingsService settingsService,
-            MediaScannerService mediaScannerService, AjaxHelper ajaxHelper) {
+    public NowPlayingService(SecurityService securityService, PlayerService playerService, StatusService statusService,
+            MediaScannerService mediaScannerService, AvatarService avatarService, AjaxHelper ajaxHelper) {
         super();
+        this.securityService = securityService;
         this.playerService = playerService;
         this.statusService = statusService;
-        this.settingsService = settingsService;
         this.mediaScannerService = mediaScannerService;
+        this.avatarService = avatarService;
         this.ajaxHelper = ajaxHelper;
     }
 
@@ -119,7 +121,7 @@ public class NowPlayingService {
             if (username == null) {
                 continue;
             }
-            UserSettings userSettings = settingsService.getUserSettings(username);
+            UserSettings userSettings = securityService.getUserSettings(username);
             if (!userSettings.isNowPlayingAllowed()) {
                 continue;
             }
@@ -135,7 +137,7 @@ public class NowPlayingService {
             }
 
             String coverArtUrl = url + ViewName.COVER_ART.value() + "?size=60&id=" + mediaFile.getId();
-            String avatarUrl = createAvatarUrl(url, userSettings);
+            String avatarUrl = avatarService.createAvatarUrl(url, userSettings);
             String tooltip = StringEscapeUtils.escapeHtml(artist) + " &ndash; " + StringEscapeUtils.escapeHtml(title);
             artist = StringEscapeUtils.escapeHtml(StringUtils.abbreviate(artist, 25));
             title = StringEscapeUtils.escapeHtml(StringUtils.abbreviate(title, 25));
@@ -153,17 +155,5 @@ public class NowPlayingService {
             }
         }
         return result;
-    }
-
-    private String createAvatarUrl(String url, UserSettings userSettings) {
-        String avatarUrl = null;
-        if (userSettings.getAvatarScheme() == AvatarScheme.SYSTEM) {
-            avatarUrl = url + ViewName.AVATAR.value() + "?id=" + userSettings.getSystemAvatarId();
-        } else if (userSettings.getAvatarScheme() == AvatarScheme.CUSTOM
-                && settingsService.getCustomAvatar(userSettings.getUsername()) != null) {
-            avatarUrl = url + ViewName.AVATAR.value() + "?usernameUtf8Hex="
-                    + StringUtil.utf8HexEncode(userSettings.getUsername());
-        }
-        return avatarUrl;
     }
 }

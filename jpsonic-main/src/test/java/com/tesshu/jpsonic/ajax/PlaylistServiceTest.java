@@ -25,9 +25,9 @@ import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,6 +45,8 @@ class PlaylistServiceTest {
     private static final String ADMIN_NAME = "admin";
 
     @Autowired
+    private MusicFolderService musicFolderService;
+    @Autowired
     private MediaFileService mediaFileService;
     @Autowired
     private SecurityService securityService;
@@ -52,8 +54,6 @@ class PlaylistServiceTest {
     private com.tesshu.jpsonic.service.PlaylistService deligate;
     @Autowired
     private MediaFileDao mediaFileDao;
-    @Autowired
-    private SettingsService settingsService;
     @Autowired
     private PlayerService playerService;
     @Autowired
@@ -68,8 +68,8 @@ class PlaylistServiceTest {
     @BeforeEach
     public void setup() {
         Mockito.when(ajaxHelper.getHttpServletRequest()).thenReturn(httpServletRequest);
-        playlistService = new PlaylistService(mediaFileService, securityService, deligate, mediaFileDao,
-                settingsService, playerService, airsonicLocaleResolver, ajaxHelper);
+        playlistService = new PlaylistService(musicFolderService, securityService, mediaFileService, deligate,
+                mediaFileDao, playerService, airsonicLocaleResolver, ajaxHelper);
     }
 
     @Test

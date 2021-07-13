@@ -34,9 +34,9 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -53,20 +53,21 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/starred")
 public class StarredController {
 
+    private final MusicFolderService musicFolderService;
+    private final SecurityService securityService;
     private final PlayerService playerService;
     private final MediaFileDao mediaFileDao;
-    private final SecurityService securityService;
-    private final SettingsService settingsService;
     private final MediaFileService mediaFileService;
     private final ViewAsListSelector viewSelector;
 
-    public StarredController(PlayerService playerService, MediaFileDao mediaFileDao, SecurityService securityService,
-            SettingsService settingsService, MediaFileService mediaFileService, ViewAsListSelector viewSelector) {
+    public StarredController(MusicFolderService musicFolderService, SecurityService securityService,
+            PlayerService playerService, MediaFileDao mediaFileDao, MediaFileService mediaFileService,
+            ViewAsListSelector viewSelector) {
         super();
+        this.musicFolderService = musicFolderService;
+        this.securityService = securityService;
         this.playerService = playerService;
         this.mediaFileDao = mediaFileDao;
-        this.securityService = securityService;
-        this.settingsService = settingsService;
         this.mediaFileService = mediaFileService;
         this.viewSelector = viewSelector;
     }
@@ -77,7 +78,7 @@ public class StarredController {
 
         User user = securityService.getCurrentUser(request);
         String username = user.getUsername();
-        List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
+        List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
 
         List<MediaFile> artists = mediaFileDao.getStarredDirectories(0, Integer.MAX_VALUE, username, musicFolders);
         List<MediaFile> albums = mediaFileDao.getStarredAlbums(0, Integer.MAX_VALUE, username, musicFolders);
@@ -92,7 +93,7 @@ public class StarredController {
             (file.isVideo() ? videos : songs).add(file);
         }
 
-        UserSettings userSettings = settingsService.getUserSettings(username);
+        UserSettings userSettings = securityService.getUserSettings(username);
         return new ModelAndView("starred", "model",
                 LegacyMap.of("user", user, "partyModeEnabled", userSettings.isPartyModeEnabled(), "visibility",
                         userSettings.getMainVisibility(), "player", playerService.getPlayer(request, response),

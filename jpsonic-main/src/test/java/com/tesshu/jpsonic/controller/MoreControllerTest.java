@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -56,6 +57,9 @@ class MoreControllerTest {
     private SettingsService settingsService;
 
     @Autowired
+    private MusicFolderService musicFolderService;
+
+    @Autowired
     private SecurityService securityService;
 
     @Autowired
@@ -69,8 +73,8 @@ class MoreControllerTest {
     @BeforeEach
     public void setup() throws ExecutionException {
         Mockito.when(searchService.getGenres(false)).thenReturn(Collections.emptyList());
-        mockMvc = MockMvcBuilders
-                .standaloneSetup(new MoreController(settingsService, securityService, playerService, searchService))
+        mockMvc = MockMvcBuilders.standaloneSetup(
+                new MoreController(settingsService, musicFolderService, securityService, playerService, searchService))
                 .build();
     }
 

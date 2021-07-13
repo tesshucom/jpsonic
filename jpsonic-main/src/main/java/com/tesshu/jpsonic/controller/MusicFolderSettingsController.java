@@ -38,6 +38,7 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MediaScannerService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
@@ -69,25 +70,27 @@ public class MusicFolderSettingsController {
     private static final AtomicBoolean IS_EXPUNGING = new AtomicBoolean();
 
     private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
+    private final SecurityService securityService;
     private final MediaScannerService mediaScannerService;
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
     private final MediaFileDao mediaFileDao;
     private final IndexManager indexManager;
-    private final SecurityService securityService;
     private final ShareService shareService;
 
-    public MusicFolderSettingsController(SettingsService settingsService, MediaScannerService mediaScannerService,
-            ArtistDao artistDao, AlbumDao albumDao, MediaFileDao mediaFileDao, IndexManager indexManager,
-            SecurityService securityService, ShareService shareService) {
+    public MusicFolderSettingsController(SettingsService settingsService, MusicFolderService musicFolderService,
+            SecurityService securityService, MediaScannerService mediaScannerService, ArtistDao artistDao,
+            AlbumDao albumDao, MediaFileDao mediaFileDao, IndexManager indexManager, ShareService shareService) {
         super();
         this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
+        this.securityService = securityService;
         this.mediaScannerService = mediaScannerService;
         this.artistDao = artistDao;
         this.albumDao = albumDao;
         this.mediaFileDao = mediaFileDao;
         this.indexManager = indexManager;
-        this.securityService = securityService;
         this.shareService = shareService;
     }
 
@@ -104,7 +107,7 @@ public class MusicFolderSettingsController {
 
         MusicFolderSettingsCommand command = new MusicFolderSettingsCommand();
         if (!ObjectUtils.isEmpty(scanNow)) {
-            settingsService.clearMusicFolderCache();
+            musicFolderService.clearMusicFolderCache();
             mediaScannerService.scanLibrary();
         }
         if (!ObjectUtils.isEmpty(expunge)) {
@@ -116,7 +119,7 @@ public class MusicFolderSettingsController {
         command.setFastCache(settingsService.isFastCacheEnabled());
         command.setOrganizeByFolderStructure(settingsService.isOrganizeByFolderStructure());
         command.setScanning(mediaScannerService.isScanning());
-        command.setMusicFolders(wrap(settingsService.getAllMusicFolders(true, true)));
+        command.setMusicFolders(wrap(musicFolderService.getAllMusicFolders(true, true)));
         command.setNewMusicFolder(new MusicFolderSettingsCommand.MusicFolderInfo());
         command.setExcludePatternString(settingsService.getExcludePatternString());
         command.setIgnoreSymLinks(settingsService.isIgnoreSymLinks());
@@ -127,7 +130,7 @@ public class MusicFolderSettingsController {
         command.setShareCount(shareService.getAllShares().size());
 
         User user = securityService.getCurrentUser(request);
-        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
@@ -187,18 +190,18 @@ public class MusicFolderSettingsController {
 
         for (MusicFolderSettingsCommand.MusicFolderInfo musicFolderInfo : command.getMusicFolders()) {
             if (musicFolderInfo.isDelete()) {
-                settingsService.deleteMusicFolder(musicFolderInfo.getId());
+                musicFolderService.deleteMusicFolder(musicFolderInfo.getId());
             } else {
                 MusicFolder musicFolder = musicFolderInfo.toMusicFolder();
                 if (musicFolder != null) {
-                    settingsService.updateMusicFolder(musicFolder);
+                    musicFolderService.updateMusicFolder(musicFolder);
                 }
             }
         }
 
         MusicFolder newMusicFolder = command.getNewMusicFolder().toMusicFolder();
         if (newMusicFolder != null) {
-            settingsService.createMusicFolder(newMusicFolder);
+            musicFolderService.createMusicFolder(newMusicFolder);
         }
 
         settingsService.setIndexCreationInterval(Integer.parseInt(command.getInterval()));

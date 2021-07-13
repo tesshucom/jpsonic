@@ -37,7 +37,6 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.Integration;
 import com.tesshu.jpsonic.MusicFolderTestDataUtils;
 import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -104,7 +103,6 @@ class TranscodingServiceTest {
         playerService.removePlayerById(playerId);
     }
 
-    @Integration
     @Test
     void testCRUDTranscoding() {
 

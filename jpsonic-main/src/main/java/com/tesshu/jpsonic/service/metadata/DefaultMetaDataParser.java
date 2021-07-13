@@ -24,7 +24,7 @@ package com.tesshu.jpsonic.service.metadata;
 import java.io.File;
 
 import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
@@ -37,11 +37,11 @@ import org.springframework.stereotype.Service;
 @Order(200)
 public class DefaultMetaDataParser extends MetaDataParser {
 
-    private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
 
-    public DefaultMetaDataParser(SettingsService settingsService) {
+    public DefaultMetaDataParser(MusicFolderService musicFolderService) {
         super();
-        this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
     }
 
     /**
@@ -87,8 +87,8 @@ public class DefaultMetaDataParser extends MetaDataParser {
     }
 
     @Override
-    protected SettingsService getSettingsService() {
-        return settingsService;
+    protected MusicFolderService getMusicFolderService() {
+        return musicFolderService;
     }
 
     /**

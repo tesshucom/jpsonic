@@ -36,7 +36,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import org.apache.commons.io.FilenameUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jaudiotagger.audio.AudioFile;
@@ -71,11 +71,11 @@ public class JaudiotaggerParser extends MetaDataParser {
     private static final Pattern TRACK_NUMBER_PATTERN = Pattern.compile("(\\d+)/\\d+");
     private static final Pattern YEAR_NUMBER_PATTERN = Pattern.compile("(\\d{4}).*");
 
-    private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
 
-    public JaudiotaggerParser(SettingsService settingsService) {
+    public JaudiotaggerParser(MusicFolderService musicFolderService) {
         super();
-        this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
     }
 
     static {
@@ -282,8 +282,8 @@ public class JaudiotaggerParser extends MetaDataParser {
     }
 
     @Override
-    protected SettingsService getSettingsService() {
-        return settingsService;
+    protected MusicFolderService getMusicFolderService() {
+        return musicFolderService;
     }
 
     /**

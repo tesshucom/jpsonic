@@ -99,7 +99,7 @@ public class DLNASettingsController {
         map.put("shareCount", shareService.getAllShares().size());
 
         User user = securityService.getCurrentUser(request);
-        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         map.put("isOpenDetailSetting", userSettings.isOpenDetailSetting());
 
         map.put("useRadio", settingsService.isUseRadio());

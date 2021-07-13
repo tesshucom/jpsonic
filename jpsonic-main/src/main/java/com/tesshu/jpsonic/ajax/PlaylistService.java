@@ -39,9 +39,9 @@ import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -55,25 +55,26 @@ import org.springframework.web.bind.ServletRequestBindingException;
 @Service("ajaxPlaylistService")
 public class PlaylistService {
 
-    private final MediaFileService mediaFileService;
+    private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
+    private final MediaFileService mediaFileService;
     private final com.tesshu.jpsonic.service.PlaylistService deligate;
     private final MediaFileDao mediaFileDao;
-    private final SettingsService settingsService;
     private final PlayerService playerService;
     private final AirsonicLocaleResolver airsonicLocaleResolver;
     private final AjaxHelper ajaxHelper;
 
-    public PlaylistService(MediaFileService mediaFileService, SecurityService securityService,
+    public PlaylistService(MusicFolderService musicFolderService, SecurityService securityService,
+            MediaFileService mediaFileService,
             @Qualifier("playlistService") com.tesshu.jpsonic.service.PlaylistService deligate,
-            MediaFileDao mediaFileDao, SettingsService settingsService, PlayerService playerService,
-            AirsonicLocaleResolver airsonicLocaleResolver, AjaxHelper ajaxHelper) {
+            MediaFileDao mediaFileDao, PlayerService playerService, AirsonicLocaleResolver airsonicLocaleResolver,
+            AjaxHelper ajaxHelper) {
         super();
-        this.mediaFileService = mediaFileService;
+        this.musicFolderService = musicFolderService;
         this.securityService = securityService;
+        this.mediaFileService = mediaFileService;
         this.deligate = deligate;
         this.mediaFileDao = mediaFileDao;
-        this.settingsService = settingsService;
         this.playerService = playerService;
         this.airsonicLocaleResolver = airsonicLocaleResolver;
         this.ajaxHelper = ajaxHelper;
@@ -166,7 +167,7 @@ public class PlaylistService {
         playlist.setName(bundle.getString("top.starred") + " " + dateFormat.format(now));
 
         deligate.createPlaylist(playlist);
-        List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
+        List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
         List<MediaFile> songs = mediaFileDao.getStarredFiles(0, Integer.MAX_VALUE, username, musicFolders);
         deligate.setFilesInPlaylist(playlist.getId(), songs);
 

@@ -28,11 +28,9 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -46,7 +44,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ExtendWith(NeedsHome.class)
 class RandomPlayQueueControllerTest extends AbstractNeedsScan {
 
     private static final String ADMIN_NAME = "admin";

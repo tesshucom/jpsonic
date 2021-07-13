@@ -84,7 +84,7 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
         // Look for user-specific locale.
         String username = securityService.getCurrentUsername(request);
         if (username != null) {
-            UserSettings userSettings = settingsService.getUserSettings(username);
+            UserSettings userSettings = securityService.getUserSettings(username);
             if (userSettings != null) {
                 locale = userSettings.getLocale();
             }

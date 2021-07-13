@@ -73,7 +73,7 @@ public class FontSchemeFilter implements Filter {
          */
         if (!excludes.contains(request.getServletPath()) && !isEmpty(settingsService) && !isEmpty(securityService)) {
             User user = securityService.getCurrentUser(request);
-            UserSettings settings = isEmpty(user) ? null : settingsService.getUserSettings(user.getUsername());
+            UserSettings settings = isEmpty(user) ? null : securityService.getUserSettings(user.getUsername());
             WebFontUtils.setToRequest(settings, request);
         }
         chain.doFilter(request, res);

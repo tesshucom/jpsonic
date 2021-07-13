@@ -30,6 +30,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import org.apache.commons.io.FilenameUtils;
@@ -54,13 +55,16 @@ public class FFmpegParser extends MetaDataParser {
     private static final String[] FFPROBE_OPTIONS = { "-v", "quiet", "-print_format", "json", "-show_format",
             "-show_streams" };
 
-    private final TranscodingService transcodingService;
     private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
+    private final TranscodingService transcodingService;
 
-    public FFmpegParser(TranscodingService transcodingService, SettingsService settingsService) {
+    public FFmpegParser(SettingsService settingsService, MusicFolderService musicFolderService,
+            TranscodingService transcodingService) {
         super();
-        this.transcodingService = transcodingService;
         this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
+        this.transcodingService = transcodingService;
     }
 
     /**
@@ -147,8 +151,8 @@ public class FFmpegParser extends MetaDataParser {
     }
 
     @Override
-    protected SettingsService getSettingsService() {
-        return settingsService;
+    protected MusicFolderService getMusicFolderService() {
+        return musicFolderService;
     }
 
     /**

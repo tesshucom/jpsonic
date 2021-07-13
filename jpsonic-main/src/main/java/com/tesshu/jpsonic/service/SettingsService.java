@@ -30,37 +30,21 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
-import com.tesshu.jpsonic.controller.WebFontUtils;
-import com.tesshu.jpsonic.dao.AvatarDao;
-import com.tesshu.jpsonic.dao.InternetRadioDao;
-import com.tesshu.jpsonic.dao.MusicFolderDao;
-import com.tesshu.jpsonic.dao.UserDao;
-import com.tesshu.jpsonic.domain.AlbumListType;
-import com.tesshu.jpsonic.domain.Avatar;
-import com.tesshu.jpsonic.domain.FontScheme;
-import com.tesshu.jpsonic.domain.InternetRadio;
-import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import com.tesshu.jpsonic.domain.Theme;
-import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
-import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import com.tesshu.jpsonic.util.StringUtil;
-import net.sf.ehcache.Ehcache;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -392,28 +376,14 @@ public class SettingsService {
     private static String[] musicFileTypes;
     private static String[] videoFileTypes;
 
-    private final InternetRadioDao internetRadioDao;
-    private final MusicFolderDao musicFolderDao;
-    private final UserDao userDao;
-    private final AvatarDao avatarDao;
     private final ApacheCommonsConfigurationService configurationService;
-    private final Ehcache indexCache;
-    private final ConcurrentMap<String, List<MusicFolder>> cachedMusicFoldersPerUser;
 
-    private List<MusicFolder> cachedMusicFolders;
     private Pattern excludePattern;
     private Locale locale;
 
-    public SettingsService(InternetRadioDao internetRadioDao, MusicFolderDao musicFolderDao, UserDao userDao,
-            AvatarDao avatarDao, ApacheCommonsConfigurationService configurationService, Ehcache indexCache) {
+    public SettingsService(ApacheCommonsConfigurationService configurationService) {
         super();
-        this.internetRadioDao = internetRadioDao;
-        this.musicFolderDao = musicFolderDao;
-        this.userDao = userDao;
-        this.avatarDao = avatarDao;
         this.configurationService = configurationService;
-        this.indexCache = indexCache;
-        cachedMusicFoldersPerUser = new ConcurrentHashMap<>();
     }
 
     private void removeObsoleteProperties() {
@@ -1264,341 +1234,6 @@ public class SettingsService {
      */
     public String getBrand() {
         return "Jpsonic";
-    }
-
-    /**
-     * Returns all music folders. Non-existing and disabled folders are not included.
-     *
-     * @return Possibly empty list of all music folders.
-     */
-    public List<MusicFolder> getAllMusicFolders() {
-        return getAllMusicFolders(false, false);
-    }
-
-    /**
-     * Returns all music folders.
-     *
-     * @param includeDisabled
-     *            Whether to include disabled folders.
-     * @param includeNonExisting
-     *            Whether to include non-existing folders.
-     * 
-     * @return Possibly empty list of all music folders.
-     */
-    public List<MusicFolder> getAllMusicFolders(boolean includeDisabled, boolean includeNonExisting) {
-        if (cachedMusicFolders == null) {
-            cachedMusicFolders = musicFolderDao.getAllMusicFolders();
-        }
-
-        List<MusicFolder> result = new ArrayList<>(cachedMusicFolders.size());
-        for (MusicFolder folder : cachedMusicFolders) {
-            if ((includeDisabled || folder.isEnabled()) && (includeNonExisting || FileUtil.exists(folder.getPath()))) {
-                result.add(folder);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Returns all music folders a user have access to. Non-existing and disabled folders are not included.
-     *
-     * @return Possibly empty list of music folders.
-     */
-    public List<MusicFolder> getMusicFoldersForUser(String username) {
-        List<MusicFolder> result = cachedMusicFoldersPerUser.get(username);
-        if (result == null) {
-            result = musicFolderDao.getMusicFoldersForUser(username);
-            result.retainAll(getAllMusicFolders(false, false));
-            cachedMusicFoldersPerUser.put(username, result);
-        }
-        return result;
-    }
-
-    /**
-     * Returns all music folders a user have access to. Non-existing and disabled folders are not included.
-     *
-     * @param selectedMusicFolderId
-     *            If non-null and included in the list of allowed music folders, this methods returns a list of only
-     *            this music folder.
-     * 
-     * @return Possibly empty list of music folders.
-     */
-    public List<MusicFolder> getMusicFoldersForUser(String username, Integer selectedMusicFolderId) {
-        List<MusicFolder> allowed = getMusicFoldersForUser(username);
-        if (selectedMusicFolderId == null) {
-            return allowed;
-        }
-        MusicFolder selected = getMusicFolderById(selectedMusicFolderId);
-        return allowed.contains(selected) ? Collections.singletonList(selected) : Collections.emptyList();
-    }
-
-    /**
-     * Returns the selected music folder for a given user, or {@code null} if all music folders should be displayed.
-     */
-    public MusicFolder getSelectedMusicFolder(String username) {
-        UserSettings settings = getUserSettings(username);
-        int musicFolderId = settings.getSelectedMusicFolderId();
-
-        MusicFolder musicFolder = getMusicFolderById(musicFolderId);
-        List<MusicFolder> allowedMusicFolders = getMusicFoldersForUser(username);
-        return allowedMusicFolders.contains(musicFolder) ? musicFolder : null;
-    }
-
-    public void setMusicFoldersForUser(String username, List<Integer> musicFolderIds) {
-        musicFolderDao.setMusicFoldersForUser(username, musicFolderIds);
-        cachedMusicFoldersPerUser.remove(username);
-        indexCache.removeAll();
-    }
-
-    /**
-     * Returns the music folder with the given ID.
-     *
-     * @param id
-     *            The ID.
-     * 
-     * @return The music folder with the given ID, or <code>null</code> if not found.
-     */
-    public MusicFolder getMusicFolderById(Integer id) {
-        List<MusicFolder> all = getAllMusicFolders();
-        for (MusicFolder folder : all) {
-            if (id.equals(folder.getId())) {
-                return folder;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Creates a new music folder.
-     *
-     * @param musicFolder
-     *            The music folder to create.
-     */
-    public void createMusicFolder(MusicFolder musicFolder) {
-        musicFolderDao.createMusicFolder(musicFolder);
-        clearMusicFolderCache();
-    }
-
-    /**
-     * Deletes the music folder with the given ID.
-     *
-     * @param id
-     *            The ID of the music folder to delete.
-     */
-    public void deleteMusicFolder(Integer id) {
-        musicFolderDao.deleteMusicFolder(id);
-        clearMusicFolderCache();
-    }
-
-    /**
-     * Updates the given music folder.
-     *
-     * @param musicFolder
-     *            The music folder to update.
-     */
-    public void updateMusicFolder(MusicFolder musicFolder) {
-        musicFolderDao.updateMusicFolder(musicFolder);
-        clearMusicFolderCache();
-    }
-
-    @SuppressWarnings("PMD.NullAssignment") // (cachedMusicFolders) Intentional allocation to clear cache
-    public void clearMusicFolderCache() {
-        cachedMusicFolders = null;
-        cachedMusicFoldersPerUser.clear();
-        indexCache.removeAll();
-    }
-
-    /**
-     * Returns all internet radio stations. Disabled stations are not returned.
-     *
-     * @return Possibly empty list of all internet radio stations.
-     */
-    public List<InternetRadio> getAllInternetRadios() {
-        return getAllInternetRadios(false);
-    }
-
-    /**
-     * Returns all internet radio stations.
-     *
-     * @param includeAll
-     *            Whether disabled stations should be included.
-     * 
-     * @return Possibly empty list of all internet radio stations.
-     */
-    public List<InternetRadio> getAllInternetRadios(boolean includeAll) {
-        List<InternetRadio> all = internetRadioDao.getAllInternetRadios();
-        List<InternetRadio> result = new ArrayList<>(all.size());
-        for (InternetRadio folder : all) {
-            if (includeAll || folder.isEnabled()) {
-                result.add(folder);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Creates a new internet radio station.
-     *
-     * @param radio
-     *            The internet radio station to create.
-     */
-    public void createInternetRadio(InternetRadio radio) {
-        internetRadioDao.createInternetRadio(radio);
-    }
-
-    /**
-     * Deletes the internet radio station with the given ID.
-     *
-     * @param id
-     *            The internet radio station ID.
-     */
-    public void deleteInternetRadio(Integer id) {
-        internetRadioDao.deleteInternetRadio(id);
-    }
-
-    /**
-     * Updates the given internet radio station.
-     *
-     * @param radio
-     *            The internet radio station to update.
-     */
-    public void updateInternetRadio(InternetRadio radio) {
-        internetRadioDao.updateInternetRadio(radio);
-    }
-
-    /**
-     * Returns settings for the given user.
-     *
-     * @param username
-     *            The username.
-     * 
-     * @return User-specific settings. Never <code>null</code>.
-     */
-    public UserSettings getUserSettings(String username) {
-        UserSettings settings = userDao.getUserSettings(username);
-        return settings == null ? createDefaultUserSettings(username) : settings;
-    }
-
-    private UserSettings createDefaultUserSettings(String username) {
-
-        UserSettings settings = new UserSettings(username);
-        settings.setChanged(new Date());
-        settings.setFinalVersionNotificationEnabled(true);
-
-        // settings for desktop PC
-        settings.setKeyboardShortcutsEnabled(true);
-        settings.setDefaultAlbumList(AlbumListType.RANDOM);
-        settings.setShowIndex(true);
-        settings.setClosePlayQueue(true);
-        settings.setAlternativeDrawer(true);
-        settings.setAutoHidePlayQueue(true);
-        settings.setBreadcrumbIndex(true);
-        settings.setAssignAccesskeyToNumber(true);
-        settings.setSimpleDisplay(true);
-        settings.setQueueFollowingSongs(true);
-        settings.setShowCurrentSongInfo(true);
-        settings.setSongNotificationEnabled(false);
-        settings.setSpeechLangSchemeName(SpeechToTextLangScheme.DEFAULT.name());
-        settings.setFontSchemeName(FontScheme.DEFAULT.name());
-        settings.setFontFamily(WebFontUtils.DEFAULT_FONT_FAMILY);
-        settings.setFontSize(WebFontUtils.DEFAULT_FONT_SIZE);
-
-        // display
-        UserSettings.Visibility main = settings.getMainVisibility();
-        main.setTrackNumberVisible(true);
-        main.setArtistVisible(true);
-        main.setComposerVisible(true);
-        main.setGenreVisible(true);
-        main.setDurationVisible(true);
-        UserSettings.Visibility playlist = settings.getPlaylistVisibility();
-        playlist.setArtistVisible(true);
-        playlist.setAlbumVisible(true);
-        playlist.setComposerVisible(true);
-        playlist.setGenreVisible(true);
-        playlist.setYearVisible(true);
-        playlist.setDurationVisible(true);
-        playlist.setBitRateVisible(true);
-        playlist.setFormatVisible(true);
-        playlist.setFileSizeVisible(true);
-
-        // additional display
-        settings.setPaginationSize(40);
-
-        return settings;
-    }
-
-    public UserSettings createDefaultTabletUserSettings(String username) {
-        UserSettings settings = createDefaultUserSettings(username);
-        settings.setKeyboardShortcutsEnabled(false);
-        settings.setCloseDrawer(true);
-        settings.setVoiceInputEnabled(true);
-        return settings;
-    }
-
-    public UserSettings createDefaultSmartphoneUserSettings(String username) {
-        UserSettings settings = createDefaultUserSettings(username);
-        settings.setKeyboardShortcutsEnabled(false);
-        settings.setDefaultAlbumList(AlbumListType.INDEX);
-        settings.setPutMenuInDrawer(true);
-        settings.setShowIndex(false);
-        settings.setCloseDrawer(true);
-        settings.setVoiceInputEnabled(true);
-        return settings;
-    }
-
-    /**
-     * Updates settings for the given username.
-     *
-     * @param settings
-     *            The user-specific settings.
-     */
-    public void updateUserSettings(UserSettings settings) {
-        userDao.updateUserSettings(settings);
-    }
-
-    /**
-     * Returns all system avatars.
-     *
-     * @return All system avatars.
-     */
-    public List<Avatar> getAllSystemAvatars() {
-        return avatarDao.getAllSystemAvatars();
-    }
-
-    /**
-     * Returns the system avatar with the given ID.
-     *
-     * @param id
-     *            The system avatar ID.
-     * 
-     * @return The avatar or <code>null</code> if not found.
-     */
-    public Avatar getSystemAvatar(int id) {
-        return avatarDao.getSystemAvatar(id);
-    }
-
-    /**
-     * Returns the custom avatar for the given user.
-     *
-     * @param username
-     *            The username.
-     * 
-     * @return The avatar or <code>null</code> if not found.
-     */
-    public Avatar getCustomAvatar(String username) {
-        return avatarDao.getCustomAvatar(username);
-    }
-
-    /**
-     * Sets the custom avatar for the given user.
-     *
-     * @param avatar
-     *            The avatar, or <code>null</code> to remove the avatar.
-     * @param username
-     *            The username.
-     */
-    public void setCustomAvatar(Avatar avatar, String username) {
-        avatarDao.setCustomAvatar(avatar, username);
     }
 
     public boolean isDlnaEnabled() {

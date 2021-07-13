@@ -31,6 +31,7 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.JWTSecurityService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.util.StringUtil;
@@ -46,16 +47,19 @@ public class UpnpProcessorUtil {
     private static final Object LOCK = new Object();
     private static final AtomicBoolean RESOURCE_LOADED = new AtomicBoolean();
 
-    private final JpsonicComparators comparators;
-    private final JWTSecurityService securityService;
-    private final SettingsService settingsService;
-    private final TranscodingService transcodingService;
-    private final MusicFolderDao musicFolderDao;
     private static ResourceBundle resourceBundle;
 
-    public UpnpProcessorUtil(JpsonicComparators c, JWTSecurityService jwt, SettingsService ss, TranscodingService ts,
-            MusicFolderDao md) {
+    private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
+    private final JWTSecurityService securityService;
+    private final TranscodingService transcodingService;
+    private final MusicFolderDao musicFolderDao;
+    private final JpsonicComparators comparators;
+
+    public UpnpProcessorUtil(SettingsService ss, MusicFolderService mfs, JpsonicComparators c, JWTSecurityService jwt,
+            TranscodingService ts, MusicFolderDao md) {
         settingsService = ss;
+        musicFolderService = mfs;
         securityService = jwt;
         comparators = c;
         musicFolderDao = md;
@@ -78,7 +82,7 @@ public class UpnpProcessorUtil {
         if (settingsService.isDlnaGuestPublish()) {
             return musicFolderDao.getMusicFoldersForUser(User.USERNAME_GUEST);
         }
-        return settingsService.getAllMusicFolders();
+        return musicFolderService.getAllMusicFolders();
     }
 
     public String getBaseUrl() {

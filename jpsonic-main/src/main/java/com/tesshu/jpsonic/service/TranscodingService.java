@@ -73,19 +73,21 @@ public class TranscodingService {
     private static final Logger LOG = LoggerFactory.getLogger(TranscodingService.class);
     public static final String FORMAT_RAW = "raw";
 
-    private final TranscodingDao transcodingDao;
     private final SettingsService settingsService;
+    private final SecurityService securityService;
+    private final TranscodingDao transcodingDao;
     private final PlayerService playerService;
     private final Executor shortExecutor;
     private final String transcodePath = Optional.ofNullable(System.getProperty("transcodePath") == null ? null
             : System.getProperty("transcodePath").replaceAll("\\\\", "\\\\\\\\")).orElse(null);
     private File transcodeDirectory;
 
-    public TranscodingService(TranscodingDao transcodingDao, SettingsService settingsService,
-            @Lazy PlayerService playerService, Executor shortExecutor) {
+    public TranscodingService(SettingsService settingsService, SecurityService securityService,
+            TranscodingDao transcodingDao, @Lazy PlayerService playerService, Executor shortExecutor) {
         super();
-        this.transcodingDao = transcodingDao;
         this.settingsService = settingsService;
+        this.securityService = securityService;
+        this.transcodingDao = transcodingDao;
         this.playerService = playerService;
         this.shortExecutor = shortExecutor;
     }
@@ -543,7 +545,7 @@ public class TranscodingService {
     private TranscodeScheme getTranscodeScheme(@NonNull Player player) {
         String username = player.getUsername();
         if (username != null) {
-            UserSettings userSettings = settingsService.getUserSettings(username);
+            UserSettings userSettings = securityService.getUserSettings(username);
             return player.getTranscodeScheme().strictest(userSettings.getTranscodeScheme());
         }
 

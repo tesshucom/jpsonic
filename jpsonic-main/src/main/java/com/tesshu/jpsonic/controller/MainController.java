@@ -60,19 +60,19 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/main")
 public class MainController {
 
-    private final SecurityService securityService;
     private final SettingsService settingsService;
+    private final SecurityService securityService;
     private final JpsonicComparators jpsonicComparator;
     private final RatingService ratingService;
     private final MediaFileService mediaFileService;
     private final ViewAsListSelector viewSelector;
 
-    public MainController(SecurityService securityService, SettingsService settingsService,
+    public MainController(SettingsService settingsService, SecurityService securityService,
             JpsonicComparators jpsonicComparator, RatingService ratingService, MediaFileService mediaFileService,
             ViewAsListSelector viewSelector) {
         super();
-        this.securityService = securityService;
         this.settingsService = settingsService;
+        this.securityService = securityService;
         this.jpsonicComparator = jpsonicComparator;
         this.ratingService = ratingService;
         this.mediaFileService = mediaFileService;
@@ -104,7 +104,7 @@ public class MainController {
             return new ModelAndView(new RedirectView(ViewName.ACCESS_DENIED.value()));
         }
 
-        UserSettings userSettings = settingsService.getUserSettings(username);
+        UserSettings userSettings = securityService.getUserSettings(username);
 
         List<MediaFile> children = mediaFiles.size() == 1 ? mediaFileService.getChildrenOf(dir, true, true, true)
                 : getMultiFolderChildren(mediaFiles);
@@ -149,7 +149,7 @@ public class MainController {
         map.put("showAlbumActions", userSettings.isShowAlbumActions());
         map.put("breadcrumbIndex", userSettings.isBreadcrumbIndex());
         map.put("simpleDisplay", userSettings.isSimpleDisplay());
-        map.put("selectedMusicFolder", settingsService.getSelectedMusicFolder(username));
+        map.put("selectedMusicFolder", securityService.getSelectedMusicFolder(username));
 
         boolean thereIsMoreSiblingAlbums = false;
         if (dir.isAlbum()) {
