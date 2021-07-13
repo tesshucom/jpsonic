@@ -360,11 +360,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testGetCoverArtConcurrency() {
-        assertEquals(4, settingsService.getCoverArtConcurrency());
-    }
-
-    @Test
     void testGetWelcomeTitle() {
         assertNotNull(settingsService.getWelcomeTitle());
     }

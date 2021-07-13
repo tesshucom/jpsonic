@@ -93,12 +93,12 @@ public class CoverArtController implements LastModified {
 
     private static final Logger LOG = LoggerFactory.getLogger(CoverArtController.class);
     private static final String VIDEO_IMAGE_COMMAND = "ffmpeg -r 1 -ss %o -t 1 -i %s -s %wx%h -v 0 -f mjpeg -";
+    private static final int COVER_ART_CONCURRENCY = 4;
     private static final Object DIRS_LOCK = new Object();
     private static final Map<String, Object> IMG_LOCKS = new ConcurrentHashMap<>();
 
     private final MediaFileService mediaFileService;
     private final TranscodingService transcodingService;
-    private final SettingsService settingsService;
     private final PlaylistService playlistService;
     private final PodcastService podcastService;
     private final ArtistDao artistDao;
@@ -110,13 +110,11 @@ public class CoverArtController implements LastModified {
     private Semaphore semaphore;
 
     public CoverArtController(MediaFileService mediaFileService, TranscodingService transcodingService,
-            SettingsService settingsService, PlaylistService playlistService, PodcastService podcastService,
-            ArtistDao artistDao, AlbumDao albumDao, JaudiotaggerParser jaudiotaggerParser, CoverArtLogic logic,
-            FontLoader fontLoader) {
+            PlaylistService playlistService, PodcastService podcastService, ArtistDao artistDao, AlbumDao albumDao,
+            JaudiotaggerParser jaudiotaggerParser, CoverArtLogic logic, FontLoader fontLoader) {
         super();
         this.mediaFileService = mediaFileService;
         this.transcodingService = transcodingService;
-        this.settingsService = settingsService;
         this.playlistService = playlistService;
         this.podcastService = podcastService;
         this.artistDao = artistDao;
@@ -128,7 +126,7 @@ public class CoverArtController implements LastModified {
 
     @PostConstruct
     public void init() {
-        semaphore = new Semaphore(settingsService.getCoverArtConcurrency());
+        semaphore = new Semaphore(COVER_ART_CONCURRENCY);
     }
 
     @Override
