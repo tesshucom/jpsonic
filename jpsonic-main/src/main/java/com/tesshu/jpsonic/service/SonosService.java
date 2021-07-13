@@ -112,6 +112,7 @@ import org.w3c.dom.Node;
 public class SonosService implements SonosSoap {
 
     private static final Logger LOG = LoggerFactory.getLogger(SonosService.class);
+    private static final int SONOS_SERVICE_ID = 242;
     public static final String ID_ROOT = "root";
     public static final String ID_SHUFFLE = "shuffle";
     public static final String ID_ALBUMLISTS = "albumlists";
@@ -177,12 +178,11 @@ public class SonosService implements SonosSoap {
         }
 
         String sonosServiceName = settingsService.getSonosServiceName();
-        int sonosServiceId = settingsService.getSonosServiceId();
 
         for (String sonosController : sonosControllers) {
             try {
                 new SonosServiceRegistration().setEnabled(baseUrl, sonosController, enabled, sonosServiceName,
-                        sonosServiceId);
+                        SONOS_SERVICE_ID);
                 break;
             } catch (IOException x) {
                 LOG.warn("Failed to enable/disable music service in Sonos controller {}: {}", sonosController, x);

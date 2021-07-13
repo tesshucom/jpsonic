@@ -752,11 +752,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testGetSonosServiceId() {
-        assertEquals(242, settingsService.getSonosServiceId());
-    }
-
-    @Test
     void testGetSmtpServer() {
         assertNull(settingsService.getSmtpServer());
     }

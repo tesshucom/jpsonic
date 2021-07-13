@@ -172,7 +172,6 @@ public class SettingsService {
     private static final String KEY_SHOW_REMEMBER_ME = "ShowRememberMe";
     private static final String KEY_SONOS_ENABLED = "SonosEnabled";
     private static final String KEY_SONOS_SERVICE_NAME = "SonosServiceName";
-    private static final String KEY_SONOS_SERVICE_ID = "SonosServiceId";
     private static final String KEY_JWT_KEY = "JWTKey";
     private static final String KEY_REMEMBER_ME_KEY = "RememberMeKey";
 
@@ -321,7 +320,6 @@ public class SettingsService {
     private static final boolean DEFAULT_SHOW_REMEMBER_ME = false;
     private static final boolean DEFAULT_SONOS_ENABLED = false;
     private static final String DEFAULT_SONOS_SERVICE_NAME = "Jpsonic";
-    private static final int DEFAULT_SONOS_SERVICE_ID = 242;
     private static final String DEFAULT_EXPORT_PLAYLIST_FORMAT = "m3u";
     private static final boolean DEFAULT_IGNORE_SYMLINKS = false;
     private static final String DEFAULT_EXCLUDE_PATTERN_STRING = null;
@@ -1465,10 +1463,6 @@ public class SettingsService {
 
     public void setSonosServiceName(String sonosServiceName) {
         setString(KEY_SONOS_SERVICE_NAME, sonosServiceName);
-    }
-
-    int getSonosServiceId() {
-        return getInt(KEY_SONOS_SERVICE_ID, DEFAULT_SONOS_SERVICE_ID);
     }
 
     private void setProperty(String key, Object value) {
