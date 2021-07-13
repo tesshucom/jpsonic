@@ -455,11 +455,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testGetVideoImageCommand() {
-        assertEquals("ffmpeg -r 1 -ss %o -t 1 -i %s -s %wx%h -v 0 -f mjpeg -", settingsService.getVideoImageCommand());
-    }
-
-    @Test
     void testIsLdapEnabled() {
         assertFalse(settingsService.isLdapEnabled(), "Wrong default LDAP enabled.");
     }

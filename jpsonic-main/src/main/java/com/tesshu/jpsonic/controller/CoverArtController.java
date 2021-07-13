@@ -92,6 +92,7 @@ import org.springframework.web.servlet.mvc.LastModified;
 public class CoverArtController implements LastModified {
 
     private static final Logger LOG = LoggerFactory.getLogger(CoverArtController.class);
+    private static final String VIDEO_IMAGE_COMMAND = "ffmpeg -r 1 -ss %o -t 1 -i %s -s %wx%h -v 0 -f mjpeg -";
     private static final Object DIRS_LOCK = new Object();
     private static final Map<String, Object> IMG_LOCKS = new ConcurrentHashMap<>();
 
@@ -353,8 +354,7 @@ public class CoverArtController implements LastModified {
             throws IOException {
         VideoTranscodingSettings videoSettings = new VideoTranscodingSettings(width, height, offset, 0, false);
         TranscodingService.Parameters parameters = new TranscodingService.Parameters(mediaFile, videoSettings);
-        String command = settingsService.getVideoImageCommand();
-        parameters.setTranscoding(new Transcoding(null, null, null, null, command, null, null, false));
+        parameters.setTranscoding(new Transcoding(null, null, null, null, VIDEO_IMAGE_COMMAND, null, null, false));
         return transcodingService.getTranscodedInputStream(parameters);
     }
 
