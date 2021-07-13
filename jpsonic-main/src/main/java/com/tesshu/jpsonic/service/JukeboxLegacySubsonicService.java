@@ -56,13 +56,13 @@ import org.springframework.stereotype.Service;
 public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
 
     private static final Logger LOG = LoggerFactory.getLogger(JukeboxLegacySubsonicService.class);
+    private static final String JUKEBOX_COMMAND = "ffmpeg -ss %o -i %s -map 0:0 -v 0 -ar 44100 -ac 2 -f s16be -";
     private static final Object PLAYER_LOCK = new Object();
 
     private final AudioScrobblerService audioScrobblerService;
     private final StatusService statusService;
     private final MediaFileService mediaFileService;
     private final AudioPlayerFactory audioPlayerFactory;
-    private final SettingsService settingsService;
     private final SecurityService securityService;
     private final TranscodingService transcodingService;
     private final AtomicInteger gain = new AtomicInteger();
@@ -75,14 +75,13 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
     private int offset;
 
     public JukeboxLegacySubsonicService(AudioScrobblerService audioScrobblerService, StatusService statusService,
-            MediaFileService mediaFileService, AudioPlayerFactory audioPlayerFactory, SettingsService settingsService,
-            SecurityService securityService, TranscodingService transcodingService) {
+            MediaFileService mediaFileService, AudioPlayerFactory audioPlayerFactory, SecurityService securityService,
+            TranscodingService transcodingService) {
         super();
         this.audioScrobblerService = audioScrobblerService;
         this.statusService = statusService;
         this.mediaFileService = mediaFileService;
         this.audioPlayerFactory = audioPlayerFactory;
-        this.settingsService = settingsService;
         this.securityService = securityService;
         this.transcodingService = transcodingService;
     }
@@ -165,8 +164,8 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
                         int duration = file.getDurationSeconds() == null ? 0 : file.getDurationSeconds() - offset;
                         TranscodingService.Parameters parameters = new TranscodingService.Parameters(file,
                                 new VideoTranscodingSettings(0, 0, offset, duration, false));
-                        String command = settingsService.getJukeboxCommand();
-                        parameters.setTranscoding(new Transcoding(null, null, null, null, command, null, null, false));
+                        parameters.setTranscoding(
+                                new Transcoding(null, null, null, null, JUKEBOX_COMMAND, null, null, false));
                         in = transcodingService.getTranscodedInputStream(parameters);
                         audioPlayer = audioPlayerFactory.createAudioPlayer(in, this);
                         audioPlayer.setGain(intBitsToFloat(gain.get()));

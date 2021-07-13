@@ -100,7 +100,6 @@ public class SettingsService {
     private static final String KEY_MUSIC_FILE_TYPES = "MusicFileTypes";
     private static final String KEY_VIDEO_FILE_TYPES = "VideoFileTypes";
     private static final String KEY_COVER_ART_FILE_TYPES = "CoverArtFileTypes2";
-    private static final String KEY_COVER_ART_CONCURRENCY = "CoverArtConcurrency";
     private static final String KEY_WELCOME_TITLE = "WelcomeTitle";
     private static final String KEY_WELCOME_SUBTITLE = "WelcomeSubtitle";
     private static final String KEY_WELCOME_MESSAGE = "WelcomeMessage2";
@@ -121,8 +120,6 @@ public class SettingsService {
     private static final String KEY_UPLOAD_BITRATE_LIMIT = "UploadBitrateLimit";
     private static final String KEY_BUFFER_SIZE = "BufferSize";
     private static final String KEY_HLS_COMMAND = "HlsCommand3";
-    private static final String KEY_JUKEBOX_COMMAND = "JukeboxCommand2";
-    private static final String KEY_VIDEO_IMAGE_COMMAND = "VideoImageCommand";
     private static final String KEY_LDAP_ENABLED = "LdapEnabled";
     private static final String KEY_LDAP_URL = "LdapUrl";
     private static final String KEY_LDAP_MANAGER_DN = "LdapManagerDn";
@@ -174,7 +171,6 @@ public class SettingsService {
     private static final String KEY_SHOW_REMEMBER_ME = "ShowRememberMe";
     private static final String KEY_SONOS_ENABLED = "SonosEnabled";
     private static final String KEY_SONOS_SERVICE_NAME = "SonosServiceName";
-    private static final String KEY_SONOS_SERVICE_ID = "SonosServiceId";
     private static final String KEY_JWT_KEY = "JWTKey";
     private static final String KEY_REMEMBER_ME_KEY = "RememberMeKey";
 
@@ -184,7 +180,6 @@ public class SettingsService {
     private static final String KEY_SMTP_USER = "SmtpUser";
     private static final String KEY_SMTP_PASSWORD = "SmtpPassword";
     private static final String KEY_SMTP_FROM = "SmtpFrom";
-    private static final String KEY_EXPORT_PLAYLIST_FORMAT = "PlaylistExportFormat";
     private static final String KEY_IGNORE_SYMLINKS = "IgnoreSymLinks";
     private static final String KEY_EXCLUDE_PATTERN_STRING = "ExcludePattern";
 
@@ -229,20 +224,6 @@ public class SettingsService {
             + "\u3084(\u30E4) \u3086(\u30E6) \u3088(\u30E8) " // Jp(ya)
             + "\u3089(\u30E9) \u308A(\u30EA) \u308B(\u30EB) \u308C(\u30EC) \u308D(\u30ED) " // Jp(ra)
             + "\u308F(\u30EF) \u3092(\u30F2) \u3093(\u30F3)"; // Jp(wa)
-    /*
-     * It's EN and JP(consonant)
-     */
-    private static final String SIMPLE_INDEX_STRING = "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ) " // En
-            + "\u3042(\u30A2\u30A4\u30A6\u30A8\u30AA) " // Jp(a)
-            + "\u304B(\u30AB\u30AD\u30AF\u30B1\u30B3) " // Jp(ka)
-            + "\u3055(\u30B5\u30B7\u30B9\u30BB\u30BD) " // Jp(sa)
-            + "\u305F(\u30BF\u30C1\u30C4\u30C6\u30C8) " // Jp(ta)
-            + "\u306A(\u30CA\u30CB\u30CC\u30CD\u30CE) " // Jp(na)
-            + "\u306F(\u30CF\u30D2\u30D5\u30D8\u30DB) " // Jp(ha)
-            + "\u307E(\u30DE\u30DF\u30E0\u30E1\u30E2) " // Jp(ma)
-            + "\u3084(\u30E4\u30E6\u30E8) " // Jp(ya)
-            + "\u3089(\u30E9\u30EA\u30EB\u30EC\u30ED) " // Jp(ra)
-            + "\u308F(\u30EF\u30F2\u30F3)"; // Jp(wa)
 
     private static final String DEFAULT_IGNORED_ARTICLES = "The El La Las Le Les";
     private static final String DEFAULT_SHORTCUTS = "New Incoming Podcast";
@@ -250,7 +231,6 @@ public class SettingsService {
     private static final String DEFAULT_MUSIC_FILE_TYPES = "mp3 ogg oga aac m4a m4b flac wav wma aif aiff ape mpc shn mka opus";
     private static final String DEFAULT_VIDEO_FILE_TYPES = "flv avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts webm";
     private static final String DEFAULT_COVER_ART_FILE_TYPES = "cover.jpg cover.png cover.gif folder.jpg jpg jpeg gif png";
-    private static final int DEFAULT_COVER_ART_CONCURRENCY = 4;
     private static final String DEFAULT_WELCOME_TITLE = "\u30db\u30fc\u30e0"; // "Home" in Japanese
     private static final String DEFAULT_WELCOME_SUBTITLE = null;
     private static final String DEFAULT_WELCOME_MESSAGE = null;
@@ -271,8 +251,6 @@ public class SettingsService {
     private static final long DEFAULT_UPLOAD_BITRATE_LIMIT = 0;
     private static final int DEFAULT_BUFFER_SIZE = 4096;
     private static final String DEFAULT_HLS_COMMAND = "ffmpeg -ss %o -t %d -i %s -async 1 -b:v %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f mpegts -c:v libx264 -preset superfast -c:a libmp3lame -threads 0 -";
-    private static final String DEFAULT_JUKEBOX_COMMAND = "ffmpeg -ss %o -i %s -map 0:0 -v 0 -ar 44100 -ac 2 -f s16be -";
-    private static final String DEFAULT_VIDEO_IMAGE_COMMAND = "ffmpeg -r 1 -ss %o -t 1 -i %s -s %wx%h -v 0 -f mjpeg -";
     private static final boolean DEFAULT_LDAP_ENABLED = false;
     private static final String DEFAULT_LDAP_URL = "ldap://host.domain.com:389/cn=Users,dc=domain,dc=com";
     private static final String DEFAULT_LDAP_MANAGER_DN = null;
@@ -325,8 +303,6 @@ public class SettingsService {
     private static final boolean DEFAULT_SHOW_REMEMBER_ME = false;
     private static final boolean DEFAULT_SONOS_ENABLED = false;
     private static final String DEFAULT_SONOS_SERVICE_NAME = "Jpsonic";
-    private static final int DEFAULT_SONOS_SERVICE_ID = 242;
-    private static final String DEFAULT_EXPORT_PLAYLIST_FORMAT = "m3u";
     private static final boolean DEFAULT_IGNORE_SYMLINKS = false;
     private static final String DEFAULT_EXCLUDE_PATTERN_STRING = null;
 
@@ -578,10 +554,6 @@ public class SettingsService {
         return DEFAULT_INDEX_STRING;
     }
 
-    public String getSimpleIndexString() {
-        return SIMPLE_INDEX_STRING;
-    }
-
     public String getIndexString() {
         return getProperty(KEY_INDEX_STRING, DEFAULT_INDEX_STRING);
     }
@@ -693,10 +665,6 @@ public class SettingsService {
             }
         }
         return coverArtFileTypes;
-    }
-
-    public int getCoverArtConcurrency() {
-        return getInt(KEY_COVER_ART_CONCURRENCY, DEFAULT_COVER_ART_CONCURRENCY);
     }
 
     public String getWelcomeTitle() {
@@ -875,14 +843,6 @@ public class SettingsService {
 
     public void setHlsCommand(String command) {
         setProperty(KEY_HLS_COMMAND, command);
-    }
-
-    String getJukeboxCommand() {
-        return getProperty(KEY_JUKEBOX_COMMAND, DEFAULT_JUKEBOX_COMMAND);
-    }
-
-    public String getVideoImageCommand() {
-        return getProperty(KEY_VIDEO_IMAGE_COMMAND, DEFAULT_VIDEO_IMAGE_COMMAND);
     }
 
     public boolean isLdapEnabled() {
@@ -1479,10 +1439,6 @@ public class SettingsService {
         setString(KEY_SONOS_SERVICE_NAME, sonosServiceName);
     }
 
-    int getSonosServiceId() {
-        return getInt(KEY_SONOS_SERVICE_ID, DEFAULT_SONOS_SERVICE_ID);
-    }
-
     private void setProperty(String key, Object value) {
         if (value == null) {
             configurationService.clearProperty(key);
@@ -1699,9 +1655,5 @@ public class SettingsService {
         setDatabaseMysqlVarcharMaxlength(DEFAULT_DATABASE_MYSQL_VARCHAR_MAXLENGTH);
         setDatabaseUsertableQuote(DEFAULT_DATABASE_USERTABLE_QUOTE);
         setDatabaseConfigType(DEFAULT_DATABASE_CONFIG_TYPE);
-    }
-
-    String getPlaylistExportFormat() {
-        return getProperty(KEY_EXPORT_PLAYLIST_FORMAT, DEFAULT_EXPORT_PLAYLIST_FORMAT);
     }
 }
