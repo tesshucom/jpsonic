@@ -876,9 +876,4 @@ class SettingsServiceTest {
     void testIsDefaultSortStrict() {
         assertTrue(settingsService.isDefaultSortStrict());
     }
-
-    @Test
-    void testGetPlaylistExportFormat() {
-        assertEquals("m3u", settingsService.getPlaylistExportFormat());
-    }
 }

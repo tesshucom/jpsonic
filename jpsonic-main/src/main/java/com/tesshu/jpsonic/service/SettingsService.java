@@ -181,7 +181,6 @@ public class SettingsService {
     private static final String KEY_SMTP_USER = "SmtpUser";
     private static final String KEY_SMTP_PASSWORD = "SmtpPassword";
     private static final String KEY_SMTP_FROM = "SmtpFrom";
-    private static final String KEY_EXPORT_PLAYLIST_FORMAT = "PlaylistExportFormat";
     private static final String KEY_IGNORE_SYMLINKS = "IgnoreSymLinks";
     private static final String KEY_EXCLUDE_PATTERN_STRING = "ExcludePattern";
 
@@ -320,7 +319,6 @@ public class SettingsService {
     private static final boolean DEFAULT_SHOW_REMEMBER_ME = false;
     private static final boolean DEFAULT_SONOS_ENABLED = false;
     private static final String DEFAULT_SONOS_SERVICE_NAME = "Jpsonic";
-    private static final String DEFAULT_EXPORT_PLAYLIST_FORMAT = "m3u";
     private static final boolean DEFAULT_IGNORE_SYMLINKS = false;
     private static final String DEFAULT_EXCLUDE_PATTERN_STRING = null;
 
@@ -1681,9 +1679,5 @@ public class SettingsService {
         setDatabaseMysqlVarcharMaxlength(DEFAULT_DATABASE_MYSQL_VARCHAR_MAXLENGTH);
         setDatabaseUsertableQuote(DEFAULT_DATABASE_USERTABLE_QUOTE);
         setDatabaseConfigType(DEFAULT_DATABASE_CONFIG_TYPE);
-    }
-
-    String getPlaylistExportFormat() {
-        return getProperty(KEY_EXPORT_PLAYLIST_FORMAT, DEFAULT_EXPORT_PLAYLIST_FORMAT);
     }
 }
