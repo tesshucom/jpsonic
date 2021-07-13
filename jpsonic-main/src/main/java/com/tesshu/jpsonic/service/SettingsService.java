@@ -120,7 +120,6 @@ public class SettingsService {
     private static final String KEY_UPLOAD_BITRATE_LIMIT = "UploadBitrateLimit";
     private static final String KEY_BUFFER_SIZE = "BufferSize";
     private static final String KEY_HLS_COMMAND = "HlsCommand3";
-    private static final String KEY_JUKEBOX_COMMAND = "JukeboxCommand2";
     private static final String KEY_LDAP_ENABLED = "LdapEnabled";
     private static final String KEY_LDAP_URL = "LdapUrl";
     private static final String KEY_LDAP_MANAGER_DN = "LdapManagerDn";
@@ -252,7 +251,6 @@ public class SettingsService {
     private static final long DEFAULT_UPLOAD_BITRATE_LIMIT = 0;
     private static final int DEFAULT_BUFFER_SIZE = 4096;
     private static final String DEFAULT_HLS_COMMAND = "ffmpeg -ss %o -t %d -i %s -async 1 -b:v %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f mpegts -c:v libx264 -preset superfast -c:a libmp3lame -threads 0 -";
-    private static final String DEFAULT_JUKEBOX_COMMAND = "ffmpeg -ss %o -i %s -map 0:0 -v 0 -ar 44100 -ac 2 -f s16be -";
     private static final boolean DEFAULT_LDAP_ENABLED = false;
     private static final String DEFAULT_LDAP_URL = "ldap://host.domain.com:389/cn=Users,dc=domain,dc=com";
     private static final String DEFAULT_LDAP_MANAGER_DN = null;
@@ -845,10 +843,6 @@ public class SettingsService {
 
     public void setHlsCommand(String command) {
         setProperty(KEY_HLS_COMMAND, command);
-    }
-
-    String getJukeboxCommand() {
-        return getProperty(KEY_JUKEBOX_COMMAND, DEFAULT_JUKEBOX_COMMAND);
     }
 
     public boolean isLdapEnabled() {

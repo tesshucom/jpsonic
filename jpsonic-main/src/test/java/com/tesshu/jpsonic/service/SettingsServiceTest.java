@@ -436,12 +436,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testGetJukeboxCommand() {
-        assertEquals("ffmpeg -ss %o -i %s -map 0:0 -v 0 -ar 44100 -ac 2 -f s16be -",
-                settingsService.getJukeboxCommand());
-    }
-
-    @Test
     void testIsLdapEnabled() {
         assertFalse(settingsService.isLdapEnabled(), "Wrong default LDAP enabled.");
     }
