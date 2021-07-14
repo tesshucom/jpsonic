@@ -28,7 +28,6 @@ import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,9 +53,6 @@ class MoreControllerTest {
     private static final String VIEW_NAME = "more";
 
     @Autowired
-    private SettingsService settingsService;
-
-    @Autowired
     private MusicFolderService musicFolderService;
 
     @Autowired
@@ -73,8 +69,8 @@ class MoreControllerTest {
     @BeforeEach
     public void setup() throws ExecutionException {
         Mockito.when(searchService.getGenres(false)).thenReturn(Collections.emptyList());
-        mockMvc = MockMvcBuilders.standaloneSetup(
-                new MoreController(settingsService, musicFolderService, securityService, playerService, searchService))
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(new MoreController(musicFolderService, securityService, playerService, searchService))
                 .build();
     }
 

@@ -92,7 +92,7 @@ public class HelpController {
         User user = securityService.getCurrentUser(request);
         map.put("user", user);
         map.put("admin", securityService.isAdmin(user.getUsername()));
-        map.put("brand", settingsService.getBrand());
+        map.put("brand", SettingsService.getBrand());
         map.put("localVersion", versionService.getLocalVersion());
         map.put("buildDate", versionService.getLocalBuildDate());
         map.put("buildNumber", versionService.getLocalBuildNumber());

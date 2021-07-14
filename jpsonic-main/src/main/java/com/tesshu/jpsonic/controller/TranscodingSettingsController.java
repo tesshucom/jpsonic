@@ -75,7 +75,7 @@ public class TranscodingSettingsController {
         model.addAttribute("model",
                 LegacyMap.of("transcodings", transcodingService.getAllTranscodings(), "transcodeDirectory",
                         transcodingService.getTranscodeDirectory(), "hlsCommand", settingsService.getHlsCommand(),
-                        "brand", settingsService.getBrand(), "isOpenDetailSetting", userSettings.isOpenDetailSetting(),
+                        "brand", SettingsService.getBrand(), "isOpenDetailSetting", userSettings.isOpenDetailSetting(),
                         "useRadio", settingsService.isUseRadio(), "useSonos", settingsService.isUseSonos(),
                         "showOutlineHelp", outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()),
                         "shareCount", shareService.getAllShares().size()));

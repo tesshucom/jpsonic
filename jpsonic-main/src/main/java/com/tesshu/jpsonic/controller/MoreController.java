@@ -52,16 +52,14 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/more")
 public class MoreController {
 
-    private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
     private final PlayerService playerService;
     private final SearchService searchService;
 
-    public MoreController(SettingsService settingsService, MusicFolderService musicFolderService,
-            SecurityService securityService, PlayerService playerService, SearchService searchService) {
+    public MoreController(MusicFolderService musicFolderService, SecurityService securityService,
+            PlayerService playerService, SearchService searchService) {
         super();
-        this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
         this.playerService = playerService;
@@ -86,7 +84,7 @@ public class MoreController {
                 LegacyMap.of("user", user, "uploadDirectory", uploadDirectory, "genres", searchService.getGenres(false),
                         "currentYear", Calendar.getInstance().get(Calendar.YEAR), "musicFolders", musicFolders,
                         "clientSidePlaylist", player.isExternalWithPlaylist() || player.isWeb(), "brand",
-                        settingsService.getBrand()));
+                        SettingsService.getBrand()));
         return result;
     }
 }

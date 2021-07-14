@@ -280,7 +280,7 @@ class SettingsServiceTest {
                         + "さ(サ) し(シ) す(ス) せ(セ) そ(ソ) た(タ) ち(チ) つ(ツ) て(テ) と(ト) "
                         + "な(ナ) に(ニ) ぬ(ヌ) ね(ネ) の(ノ) は(ハ) ひ(ヒ) ふ(フ) へ(ヘ) ほ(ホ) "
                         + "ま(マ) み(ミ) む(ム) め(メ) も(モ) や(ヤ) ゆ(ユ) よ(ヨ) ら(ラ) り(リ) る(ル) れ(レ) ろ(ロ) わ(ワ) を(ヲ) ん(ン)",
-                settingsService.getDefaultIndexString());
+                SettingsService.getDefaultIndexString());
     }
 
     @Test
@@ -584,7 +584,7 @@ class SettingsServiceTest {
 
     @Test
     void testGetBrand() {
-        assertEquals("Jpsonic", settingsService.getBrand());
+        assertEquals("Jpsonic", SettingsService.getBrand());
     }
 
     @Test
@@ -840,26 +840,26 @@ class SettingsServiceTest {
 
     @Test
     void testIsDefaultSortAlbumsByYear() {
-        assertTrue(settingsService.isDefaultSortAlbumsByYear());
+        assertTrue(SettingsService.isDefaultSortAlbumsByYear());
     }
 
     @Test
     void testIsDefaultSortGenresByAlphabet() {
-        assertTrue(settingsService.isDefaultSortGenresByAlphabet());
+        assertTrue(SettingsService.isDefaultSortGenresByAlphabet());
     }
 
     @Test
     void testIsDefaultProhibitSortVarious() {
-        assertTrue(settingsService.isDefaultProhibitSortVarious());
+        assertTrue(SettingsService.isDefaultProhibitSortVarious());
     }
 
     @Test
     void testIsDefaultSortAlphanum() {
-        assertTrue(settingsService.isDefaultSortAlphanum());
+        assertTrue(SettingsService.isDefaultSortAlphanum());
     }
 
     @Test
     void testIsDefaultSortStrict() {
-        assertTrue(settingsService.isDefaultSortStrict());
+        assertTrue(SettingsService.isDefaultSortStrict());
     }
 }

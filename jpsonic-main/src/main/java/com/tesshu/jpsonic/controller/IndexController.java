@@ -41,19 +41,17 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/index")
 public class IndexController {
 
-    private final SettingsService settingsService;
     private final SecurityService securityService;
 
-    public IndexController(SettingsService settingsService, SecurityService securityService) {
+    public IndexController(SecurityService securityService) {
         super();
-        this.settingsService = settingsService;
         this.securityService = securityService;
     }
 
     private Map<String, Object> createDefaultModel(HttpServletRequest request) {
         UserSettings userSettings = securityService.getUserSettings(securityService.getCurrentUsername(request));
         return LegacyMap.of("keyboardShortcutsEnabled", userSettings.isKeyboardShortcutsEnabled(), "showLeft",
-                userSettings.isCloseDrawer(), "brand", settingsService.getBrand());
+                userSettings.isCloseDrawer(), "brand", SettingsService.getBrand());
     }
 
     @GetMapping

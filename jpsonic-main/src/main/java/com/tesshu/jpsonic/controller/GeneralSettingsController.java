@@ -122,13 +122,13 @@ public class GeneralSettingsController {
         command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
         command.setShowRememberMe(settingsService.isShowRememberMe());
 
-        command.setDefaultIndexString(settingsService.getDefaultIndexString());
+        command.setDefaultIndexString(SettingsService.getDefaultIndexString());
         command.setSimpleIndexString(SIMPLE_INDEX_STRING);
-        command.setDefaultSortAlbumsByYear(settingsService.isDefaultSortAlbumsByYear());
-        command.setDefaultSortGenresByAlphabet(settingsService.isDefaultSortGenresByAlphabet());
-        command.setDefaultProhibitSortVarious(settingsService.isDefaultProhibitSortVarious());
-        command.setDefaultSortAlphanum(settingsService.isDefaultSortAlphanum());
-        command.setDefaultSortStrict(settingsService.isDefaultSortStrict());
+        command.setDefaultSortAlbumsByYear(SettingsService.isDefaultSortAlbumsByYear());
+        command.setDefaultSortGenresByAlphabet(SettingsService.isDefaultSortGenresByAlphabet());
+        command.setDefaultProhibitSortVarious(SettingsService.isDefaultProhibitSortVarious());
+        command.setDefaultSortAlphanum(SettingsService.isDefaultSortAlphanum());
+        command.setDefaultSortStrict(SettingsService.isDefaultSortStrict());
 
         User user = securityService.getCurrentUser(request);
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));

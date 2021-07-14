@@ -154,7 +154,7 @@ public class TopController {
             map.put("newVersionAvailable", true);
             map.put("latestVersion", versionService.getLatestBetaVersion());
         }
-        map.put("brand", settingsService.getBrand());
+        map.put("brand", SettingsService.getBrand());
 
         MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFoldersToUse, refresh);
         map.put("indexedArtists", musicFolderContent.getIndexedArtists());

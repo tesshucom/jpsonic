@@ -135,7 +135,7 @@ public class MainController {
         map.put("showTopSongs", userSettings.isShowTopSongs());
         map.put("showSimilar", userSettings.isShowSimilar());
         map.put("partyMode", userSettings.isPartyModeEnabled());
-        map.put("brand", settingsService.getBrand());
+        map.put("brand", SettingsService.getBrand());
         map.put("viewAsList", viewSelector.isViewAsList(request, userSettings.getUsername()));
         map.put("showDownload", userSettings.isShowDownload());
         map.put("showTag", userSettings.isShowTag());

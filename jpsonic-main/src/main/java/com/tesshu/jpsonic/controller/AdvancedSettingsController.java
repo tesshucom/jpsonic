@@ -85,7 +85,7 @@ public class AdvancedSettingsController {
         command.setLdapSearchFilter(settingsService.getLdapSearchFilter());
         command.setLdapManagerDn(settingsService.getLdapManagerDn());
         command.setLdapAutoShadowing(settingsService.isLdapAutoShadowing());
-        command.setBrand(settingsService.getBrand());
+        command.setBrand(SettingsService.getBrand());
 
         command.setSmtpServer(settingsService.getSmtpServer());
         command.setSmtpEncryption(settingsService.getSmtpEncryption());

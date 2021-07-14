@@ -550,7 +550,7 @@ public class SettingsService {
         setBoolean(KEY_VERBOSE_LOG_SHUTDOWN, b);
     }
 
-    public String getDefaultIndexString() {
+    public static String getDefaultIndexString() {
         return DEFAULT_INDEX_STRING;
     }
 
@@ -1192,7 +1192,7 @@ public class SettingsService {
      *
      * @return The brand name.
      */
-    public String getBrand() {
+    public static String getBrand() {
         return "Jpsonic";
     }
 
@@ -1626,23 +1626,23 @@ public class SettingsService {
         setString(KEY_JWT_KEY, jwtKey);
     }
 
-    public boolean isDefaultSortAlbumsByYear() {
+    public static boolean isDefaultSortAlbumsByYear() {
         return DEFAULT_SORT_ALBUMS_BY_YEAR;
     }
 
-    public boolean isDefaultSortGenresByAlphabet() {
+    public static boolean isDefaultSortGenresByAlphabet() {
         return DEFAULT_SORT_GENRES_BY_ALPHABET;
     }
 
-    public boolean isDefaultProhibitSortVarious() {
+    public static boolean isDefaultProhibitSortVarious() {
         return DEFAULT_PROHIBIT_SORT_VARIOUS;
     }
 
-    public boolean isDefaultSortAlphanum() {
+    public static boolean isDefaultSortAlphanum() {
         return DEFAULT_SORT_ALPHANUM;
     }
 
-    public boolean isDefaultSortStrict() {
+    public static boolean isDefaultSortStrict() {
         return DEFAULT_SORT_STRICT;
     }
 
