@@ -40,7 +40,6 @@ public class MusicFolderSettingsCommand {
     private String hour;
     private boolean scanning;
     private boolean fastCache;
-    private boolean organizeByFolderStructure;
     private List<MusicFolderInfo> musicFolders;
     private MusicFolderInfo newMusicFolder;
     private String excludePatternString;
@@ -98,14 +97,6 @@ public class MusicFolderSettingsCommand {
 
     public void setNewMusicFolder(MusicFolderInfo newMusicFolder) {
         this.newMusicFolder = newMusicFolder;
-    }
-
-    public boolean isOrganizeByFolderStructure() {
-        return organizeByFolderStructure;
-    }
-
-    public void setOrganizeByFolderStructure(boolean organizeByFolderStructure) {
-        this.organizeByFolderStructure = organizeByFolderStructure;
     }
 
     public String getExcludePatternString() {

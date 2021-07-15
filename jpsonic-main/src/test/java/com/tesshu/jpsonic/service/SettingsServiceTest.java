@@ -481,11 +481,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsOrganizeByFolderStructure() {
-        assertTrue(settingsService.isOrganizeByFolderStructure());
-    }
-
-    @Test
     void testIsIndexEnglishPrior() {
         assertTrue(settingsService.isIndexEnglishPrior());
     }

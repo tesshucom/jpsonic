@@ -142,7 +142,6 @@ public class TopController {
         map.put("shortcuts", musicIndexService.getShortcuts(musicFoldersToUse));
         map.put("partyMode", userSettings.isPartyModeEnabled());
         map.put("alternativeDrawer", userSettings.isAlternativeDrawer());
-        map.put("organizeByFolderStructure", settingsService.isOrganizeByFolderStructure());
         boolean musicFolderChanged = saveSelectedMusicFolder(request);
         map.put("musicFolderChanged", musicFolderChanged);
 

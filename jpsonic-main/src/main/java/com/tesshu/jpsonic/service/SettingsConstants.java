@@ -55,12 +55,6 @@ class SettingsConstants {
 
     static class MusicFolder {
 
-        /**
-         * @deprecated It has never been used since the days of legacy servers
-         */
-        @Deprecated
-        static final Pair<Boolean> ORGANIZE_BY_FOLDER_STRUCTURE = Pair.of("OrganizeByFolderStructure", true);
-
         static class Scan {
             static final Pair<Integer> INDEX_CREATION_INTERVAL = Pair.of("IndexCreationInterval", 1);
             static final Pair<Integer> INDEX_CREATION_HOUR = Pair.of("IndexCreationHour", 3);

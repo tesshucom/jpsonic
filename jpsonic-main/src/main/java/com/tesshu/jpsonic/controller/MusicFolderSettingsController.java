@@ -117,7 +117,6 @@ public class MusicFolderSettingsController {
         command.setInterval(String.valueOf(settingsService.getIndexCreationInterval()));
         command.setHour(String.valueOf(settingsService.getIndexCreationHour()));
         command.setFastCache(settingsService.isFastCacheEnabled());
-        command.setOrganizeByFolderStructure(settingsService.isOrganizeByFolderStructure());
         command.setScanning(mediaScannerService.isScanning());
         command.setMusicFolders(wrap(musicFolderService.getAllMusicFolders(true, true)));
         command.setNewMusicFolder(new MusicFolderSettingsCommand.MusicFolderInfo());
@@ -207,7 +206,6 @@ public class MusicFolderSettingsController {
         settingsService.setIndexCreationInterval(Integer.parseInt(command.getInterval()));
         settingsService.setIndexCreationHour(Integer.parseInt(command.getHour()));
         settingsService.setFastCacheEnabled(command.isFastCache());
-        settingsService.setOrganizeByFolderStructure(command.isOrganizeByFolderStructure());
         settingsService.setExcludePatternString(command.getExcludePatternString());
         settingsService.setIgnoreSymLinks(command.isIgnoreSymLinks());
         settingsService.setIndexEnglishPrior(command.isIndexEnglishPrior());

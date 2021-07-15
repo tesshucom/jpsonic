@@ -634,14 +634,6 @@ public class SettingsService {
         return getLong(SettingsConstants.SETTINGS_CHANGED);
     }
 
-    public boolean isOrganizeByFolderStructure() {
-        return getBoolean(SettingsConstants.MusicFolder.ORGANIZE_BY_FOLDER_STRUCTURE);
-    }
-
-    public void setOrganizeByFolderStructure(boolean b) {
-        setProperty(SettingsConstants.MusicFolder.ORGANIZE_BY_FOLDER_STRUCTURE, b);
-    }
-
     public boolean isIndexEnglishPrior() {
         return getBoolean(SettingsConstants.MusicFolder.Others.INDEX_ENGLISH_PRIOR);
     }
