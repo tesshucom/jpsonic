@@ -328,6 +328,7 @@ class SettingsServiceTest {
     @Test
     void testGetMusicFileTypesAsArray() {
         assertEquals(16, settingsService.getMusicFileTypesAsArray().length);
+        assertEquals(16, settingsService.getMusicFileTypesAsArray().length); // Cashed path
     }
 
     @Test
@@ -338,6 +339,7 @@ class SettingsServiceTest {
     @Test
     void testGetVideoFileTypesAsArray() {
         assertEquals(13, settingsService.getVideoFileTypesAsArray().length);
+        assertEquals(13, settingsService.getVideoFileTypesAsArray().length); // Cashed path
     }
 
     @Test
@@ -349,6 +351,7 @@ class SettingsServiceTest {
     @Test
     void testGetCoverArtFileTypesAsArray() {
         assertEquals(8, settingsService.getCoverArtFileTypesAsArray().length);
+        assertEquals(8, settingsService.getCoverArtFileTypesAsArray().length); // Cashed path
     }
 
     @Test
@@ -575,11 +578,13 @@ class SettingsServiceTest {
     @Test
     void testGetAvailableThemes() {
         assertEquals(18, SettingsService.getAvailableThemes().size());
+        assertEquals(18, SettingsService.getAvailableThemes().size()); // Cashed path
     }
 
     @Test
     void testGetAvailableLocales() {
         assertEquals(28, settingsService.getAvailableLocales().length);
+        assertEquals(28, settingsService.getAvailableLocales().length); // Cashed path
     }
 
     @Test
