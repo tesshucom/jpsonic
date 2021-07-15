@@ -44,6 +44,7 @@ import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.Theme;
 import com.tesshu.jpsonic.service.SettingsConstants.Pair;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
+import com.tesshu.jpsonic.util.PlayerUtils;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
@@ -114,6 +115,10 @@ public class SettingsService {
         this.configurationService = configurationService;
     }
 
+    public static boolean isDevelopmentMode() {
+        return System.getProperty("airsonic.development") != null;
+    }
+
     private void removeObsoleteProperties() {
         OBSOLETE_KEYS.forEach(oKey -> {
             if (configurationService.containsKey(oKey)) {
@@ -123,6 +128,19 @@ public class SettingsService {
                 configurationService.clearProperty(oKey);
             }
         });
+    }
+
+    private static void ensureDirectoryPresent(File home) {
+        // Attempt to create home directory if it doesn't exist.
+        if (!home.exists() || !home.isDirectory()) {
+            boolean success = home.mkdirs();
+            if (!success) {
+                String message = "The directory " + home + " does not exist. Please create it and make it writable. "
+                        + "(You can override the directory location by specifying -Djpsonic.home=... when "
+                        + "starting the servlet container.)";
+                throw new IllegalStateException(message);
+            }
+        }
     }
 
     @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions", "PMD.ConfusingTernary" })
@@ -140,8 +158,7 @@ public class SettingsService {
             } else if (oldHome != null) {
                 home = new File(oldHome);
             } else {
-                boolean isWindows = System.getProperty("os.name", "Windows").toLowerCase().startsWith("windows");
-                home = isWindows ? JPSONIC_HOME_WINDOWS : JPSONIC_HOME_OTHER;
+                home = PlayerUtils.isWindows() ? JPSONIC_HOME_WINDOWS : JPSONIC_HOME_OTHER;
             }
             ensureDirectoryPresent(home);
         }
@@ -191,42 +208,6 @@ public class SettingsService {
         return new File(jpsonicHome, getFileSystemAppName() + ".log");
     }
 
-    @PostConstruct
-    public void init() {
-        logServerInfo();
-    }
-
-    private void logServerInfo() {
-        if (isVerboseLogStart() && LOG.isInfoEnabled()) {
-            LOG.info("Java: " + System.getProperty("java.version") + ", OS: " + System.getProperty("os.name"));
-        }
-    }
-
-    public void save() {
-        save(true);
-    }
-
-    public void save(boolean updateSettingsChanged) {
-        if (updateSettingsChanged) {
-            removeObsoleteProperties();
-            setProperty(SettingsConstants.SETTINGS_CHANGED, System.currentTimeMillis());
-        }
-        configurationService.save();
-    }
-
-    private static void ensureDirectoryPresent(File home) {
-        // Attempt to create home directory if it doesn't exist.
-        if (!home.exists() || !home.isDirectory()) {
-            boolean success = home.mkdirs();
-            if (!success) {
-                String message = "The directory " + home + " does not exist. Please create it and make it writable. "
-                        + "(You can override the directory location by specifying -Djpsonic.home=... when "
-                        + "starting the servlet container.)";
-                throw new IllegalStateException(message);
-            }
-        }
-    }
-
     static File getPropertyFile() {
         File propertyFile = getJpsonicHome();
         return new File(propertyFile, getFileSystemAppName() + ".properties");
@@ -248,40 +229,244 @@ public class SettingsService {
         return configurationService.getString(p.key, p.defaultValue);
     }
 
-    public boolean isVerboseLogStart() {
-        return getBoolean(SettingsConstants.Advanced.VerboseLog.START);
+    private void setProperty(Pair<?> p, Object value) {
+        if (value == null) {
+            configurationService.clearProperty(p.key);
+        } else {
+            configurationService.setProperty(p.key, value);
+        }
     }
 
-    public void setVerboseLogStart(boolean b) {
-        setProperty(SettingsConstants.Advanced.VerboseLog.START, b);
+    private String[] toStringArray(String s) {
+        List<String> result = new ArrayList<>();
+        StringTokenizer tokenizer = new StringTokenizer(s, " ");
+        while (tokenizer.hasMoreTokens()) {
+            result.add(tokenizer.nextToken());
+        }
+
+        return result.toArray(new String[0]);
     }
 
-    public boolean isVerboseLogScanning() {
-        return getBoolean(SettingsConstants.Advanced.VerboseLog.SCANNING);
+    @PostConstruct
+    public void init() {
+        if (isVerboseLogStart() && LOG.isInfoEnabled()) {
+            LOG.info("Java: " + System.getProperty("java.version") + ", OS: " + System.getProperty("os.name"));
+        }
     }
 
-    public void setVerboseLogScanning(boolean b) {
-        setProperty(SettingsConstants.Advanced.VerboseLog.SCANNING, b);
+    public long getSettingsChanged() {
+        return getLong(SettingsConstants.SETTINGS_CHANGED);
     }
 
-    public boolean isVerboseLogPlaying() {
-        return getBoolean(SettingsConstants.Advanced.VerboseLog.PLAYING);
+    public String getJWTKey() {
+        return getString(SettingsConstants.JWT_KEY);
     }
 
-    public void setVerboseLogPlaying(boolean b) {
-        setProperty(SettingsConstants.Advanced.VerboseLog.PLAYING, b);
+    public void setJWTKey(String s) {
+        setProperty(SettingsConstants.JWT_KEY, s);
     }
 
-    public boolean isVerboseLogShutdown() {
-        return getBoolean(SettingsConstants.Advanced.VerboseLog.SHUTDOWN);
+    public String getRememberMeKey() {
+        String key = null;
+        if (StringUtils.isBlank(key)) {
+            key = getString(SettingsConstants.REMEMBER_ME_KEY);
+        }
+        if (StringUtils.isBlank(key)) {
+            key = System.getProperty("airsonic.rememberMeKey");
+        }
+        return key;
     }
 
-    public void setVerboseLogShutdown(boolean b) {
-        setProperty(SettingsConstants.Advanced.VerboseLog.SHUTDOWN, b);
+    public void save(boolean updateSettingsChanged) {
+        if (updateSettingsChanged) {
+            removeObsoleteProperties();
+            setProperty(SettingsConstants.SETTINGS_CHANGED, System.currentTimeMillis());
+        }
+        configurationService.save();
     }
 
-    public static String getDefaultIndexString() {
-        return SettingsConstants.General.Index.INDEX_STRING.defaultValue;
+    public void save() {
+        save(true);
+    }
+
+    /**
+     * Returns the number of days between automatic index creation, of -1 if automatic index creation is disabled.
+     */
+    public int getIndexCreationInterval() {
+        return getInt(SettingsConstants.MusicFolder.Scan.INDEX_CREATION_INTERVAL);
+    }
+
+    /**
+     * Sets the number of days between automatic index creation, of -1 if automatic index creation is disabled.
+     */
+    public void setIndexCreationInterval(int days) {
+        setProperty(SettingsConstants.MusicFolder.Scan.INDEX_CREATION_INTERVAL, days);
+    }
+
+    /**
+     * Returns the hour of day (0 - 23) when automatic index creation should run.
+     */
+    public int getIndexCreationHour() {
+        return getInt(SettingsConstants.MusicFolder.Scan.INDEX_CREATION_HOUR);
+    }
+
+    /**
+     * Sets the hour of day (0 - 23) when automatic index creation should run.
+     */
+    public void setIndexCreationHour(int hour) {
+        setProperty(SettingsConstants.MusicFolder.Scan.INDEX_CREATION_HOUR, hour);
+    }
+
+    public String getExcludePatternString() {
+        return getString(SettingsConstants.MusicFolder.Exclusion.EXCLUDE_PATTERN_STRING);
+    }
+
+    @SuppressWarnings({ "PMD.NullAssignment", "PMD.ConfusingTernary" })
+    /*
+     * [NullAssignment](excludePattern) Intentional allocation to clear cache. [ConfusingTernary] false positive
+     */
+    private void compileExcludePattern() {
+        if (getExcludePatternString() != null && !StringUtils.isAllBlank(getExcludePatternString())) {
+            excludePattern = Pattern.compile(getExcludePatternString());
+        } else {
+            excludePattern = null;
+        }
+    }
+
+    public void setExcludePatternString(String s) {
+        setProperty(SettingsConstants.MusicFolder.Exclusion.EXCLUDE_PATTERN_STRING, s);
+        compileExcludePattern();
+    }
+
+    public Pattern getExcludePattern() {
+        if (excludePattern == null && getExcludePatternString() != null) {
+            compileExcludePattern();
+        }
+        return excludePattern;
+    }
+
+    public boolean isIgnoreSymLinks() {
+        return getBoolean(SettingsConstants.MusicFolder.Exclusion.IGNORE_SYMLINKS);
+    }
+
+    public void setIgnoreSymLinks(boolean b) {
+        setProperty(SettingsConstants.MusicFolder.Exclusion.IGNORE_SYMLINKS, b);
+    }
+
+    public boolean isFastCacheEnabled() {
+        return getBoolean(SettingsConstants.MusicFolder.Others.FAST_CACHE_ENABLED);
+    }
+
+    public void setFastCacheEnabled(boolean b) {
+        setProperty(SettingsConstants.MusicFolder.Others.FAST_CACHE_ENABLED, b);
+    }
+
+    public boolean isIndexEnglishPrior() {
+        return getBoolean(SettingsConstants.MusicFolder.Others.INDEX_ENGLISH_PRIOR);
+    }
+
+    public void setIndexEnglishPrior(boolean b) {
+        setProperty(SettingsConstants.MusicFolder.Others.INDEX_ENGLISH_PRIOR, b);
+    }
+
+    public boolean isIgnoreFileTimestamps() {
+        return getBoolean(SettingsConstants.MusicFolder.Others.IGNORE_FILE_TIMESTAMPS);
+    }
+
+    public void setIgnoreFileTimestamps(boolean b) {
+        setProperty(SettingsConstants.MusicFolder.Others.IGNORE_FILE_TIMESTAMPS, b);
+    }
+
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
+    public Locale[] getAvailableLocales() {
+        synchronized (LOCKS.get(LocksKeys.LOCALES)) {
+            if (locales == null) {
+                List<Locale> l = new ArrayList<>();
+                try (InputStream in = SettingsService.class.getResourceAsStream(LOCALES_FILE)) {
+                    String[] lines = StringUtil.readLines(in);
+                    for (String line : lines) {
+                        l.add(StringUtil.parseLocale(line));
+                    }
+                } catch (IOException x) {
+                    if (LOG.isErrorEnabled()) {
+                        LOG.error("Failed to resolve list of locales.", x);
+                    }
+                    l.add(Locale.ENGLISH);
+                }
+                locales = l.toArray(new Locale[0]);
+            }
+        }
+        return locales;
+    }
+
+    public static String getBrand() {
+        return "Jpsonic";
+    }
+
+    public Locale getLocale() {
+        if (isEmpty(locale)) {
+            String language = getString(SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE);
+            String country = getString(SettingsConstants.General.ThemeAndLang.LOCALE_COUNTRY);
+            String variant = getString(SettingsConstants.General.ThemeAndLang.LOCALE_VARIANT);
+            locale = new Locale(language, country, variant);
+        }
+        return locale;
+    }
+
+    @SuppressWarnings("PMD.NullAssignment") // (locale) Intentional allocation to clear cache
+    public void setLocale(Locale locale) {
+        this.locale = null;
+        setProperty(SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE, locale.getLanguage());
+        setProperty(SettingsConstants.General.ThemeAndLang.LOCALE_COUNTRY, locale.getCountry());
+        setProperty(SettingsConstants.General.ThemeAndLang.LOCALE_VARIANT, locale.getVariant());
+    }
+
+    /**
+     * Returns a list of available themes.
+     *
+     * @return A list of available themes.
+     */
+    @SuppressFBWarnings(value = { "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE",
+            "MS_EXPOSE_REP" }, justification = "False positive by try with resources. Returns an immutable list without unnecessary copying.")
+    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.CognitiveComplexity" })
+    /*
+     * [AvoidInstantiatingObjectsInLoops] (Theme) Cannot be reused but is cached [CognitiveComplexity] #1020 Remove them
+     * as they now contain unnecessary processing.
+     */
+    public static List<Theme> getAvailableThemes() {
+        synchronized (LOCKS.get(LocksKeys.THEMES)) {
+            if (themes == null) {
+                List<Theme> l = new ArrayList<>();
+                try (InputStream in = SettingsService.class.getResourceAsStream(THEMES_FILE)) {
+                    String[] lines = StringUtil.readLines(in);
+                    for (String line : lines) {
+                        String[] elements = StringUtil.split(line);
+                        if (elements.length == ELEMENT_COUNT_IN_LINE_OF_THEME) {
+                            l.add(new Theme(elements[0], elements[1]));
+                        } else {
+                            if (LOG.isWarnEnabled()) {
+                                LOG.warn("Failed to parse theme from line: [" + line + "].");
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                    if (LOG.isErrorEnabled()) {
+                        LOG.error("Failed to resolve list of themes.", e);
+                    }
+                    l.add(new Theme("default", "Jpsonic default"));
+                }
+                themes = Collections.unmodifiableList(l);
+            }
+        }
+        return themes;
+    }
+
+    public String getThemeId() {
+        return getString(SettingsConstants.General.ThemeAndLang.THEME_ID);
+    }
+
+    public void setThemeId(String s) {
+        setProperty(SettingsConstants.General.ThemeAndLang.THEME_ID, s);
     }
 
     public String getIndexString() {
@@ -292,36 +477,184 @@ public class SettingsService {
         setProperty(SettingsConstants.General.Index.INDEX_STRING, s);
     }
 
-    public String getIgnoredArticles() {
-        return getString(SettingsConstants.General.Index.IGNORED_ARTICLES);
+    public static String getDefaultIndexString() {
+        return SettingsConstants.General.Index.INDEX_STRING.defaultValue;
     }
 
-    public String[] getIgnoredArticlesAsArray() {
-        return getIgnoredArticles().split("\\s+");
+    public String getIgnoredArticles() {
+        return getString(SettingsConstants.General.Index.IGNORED_ARTICLES);
     }
 
     public void setIgnoredArticles(String s) {
         setProperty(SettingsConstants.General.Index.IGNORED_ARTICLES, s);
     }
 
-    public String getShortcuts() {
-        return getString(SettingsConstants.General.Extension.SHORTCUTS);
+    public String[] getIgnoredArticlesAsArray() {
+        return getIgnoredArticles().split("\\s+");
     }
 
-    public String[] getShortcutsAsArray() {
-        return StringUtil.split(getShortcuts());
+    public boolean isSortAlbumsByYear() {
+        return getBoolean(SettingsConstants.General.Sort.ALBUMS_BY_YEAR);
     }
 
-    public void setShortcuts(String s) {
-        setProperty(SettingsConstants.General.Extension.SHORTCUTS, s);
+    public void setSortAlbumsByYear(boolean b) {
+        setProperty(SettingsConstants.General.Sort.ALBUMS_BY_YEAR, b);
     }
 
-    public String getPlaylistFolder() {
-        return getString(SettingsConstants.General.Extension.PLAYLIST_FOLDER);
+    public static boolean isDefaultSortAlbumsByYear() {
+        return SettingsConstants.General.Sort.ALBUMS_BY_YEAR.defaultValue;
     }
 
-    public void setPlaylistFolder(String s) {
-        setProperty(SettingsConstants.General.Extension.PLAYLIST_FOLDER, s);
+    public boolean isSortGenresByAlphabet() {
+        return getBoolean(SettingsConstants.General.Sort.GENRES_BY_ALPHABET);
+    }
+
+    public void setSortGenresByAlphabet(boolean b) {
+        setProperty(SettingsConstants.General.Sort.GENRES_BY_ALPHABET, b);
+    }
+
+    public static boolean isDefaultSortGenresByAlphabet() {
+        return SettingsConstants.General.Sort.GENRES_BY_ALPHABET.defaultValue;
+    }
+
+    public boolean isProhibitSortVarious() {
+        return getBoolean(SettingsConstants.General.Sort.PROHIBIT_SORT_VARIOUS);
+    }
+
+    public void setProhibitSortVarious(boolean b) {
+        setProperty(SettingsConstants.General.Sort.PROHIBIT_SORT_VARIOUS, b);
+    }
+
+    public static boolean isDefaultProhibitSortVarious() {
+        return SettingsConstants.General.Sort.PROHIBIT_SORT_VARIOUS.defaultValue;
+    }
+
+    public boolean isSortAlphanum() {
+        return getBoolean(SettingsConstants.General.Sort.ALPHANUM);
+    }
+
+    public void setSortAlphanum(boolean b) {
+        setProperty(SettingsConstants.General.Sort.ALPHANUM, b);
+    }
+
+    public static boolean isDefaultSortAlphanum() {
+        return SettingsConstants.General.Sort.ALPHANUM.defaultValue;
+    }
+
+    public boolean isSortStrict() {
+        return getBoolean(SettingsConstants.General.Sort.STRICT);
+    }
+
+    public void setSortStrict(boolean b) {
+        setProperty(SettingsConstants.General.Sort.STRICT, b);
+    }
+
+    public static boolean isDefaultSortStrict() {
+        return SettingsConstants.General.Sort.STRICT.defaultValue;
+    }
+
+    public boolean isSearchComposer() {
+        return getBoolean(SettingsConstants.General.Search.SEARCH_COMPOSER);
+    }
+
+    public void setSearchComposer(boolean b) {
+        setProperty(SettingsConstants.General.Search.SEARCH_COMPOSER, b);
+    }
+
+    public boolean isOutputSearchQuery() {
+        return getBoolean(SettingsConstants.General.Search.OUTPUT_SEARCH_QUERY);
+    }
+
+    public void setOutputSearchQuery(boolean b) {
+        setProperty(SettingsConstants.General.Search.OUTPUT_SEARCH_QUERY, b);
+    }
+
+    public boolean isShowJavaJukebox() {
+        return getBoolean(SettingsConstants.General.Legacy.SHOW_JAVAJUKE_BOX);
+    }
+
+    public void setShowJavaJukebox(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.SHOW_JAVAJUKE_BOX, b);
+    }
+
+    public boolean isShowServerLog() {
+        return getBoolean(SettingsConstants.General.Legacy.SHOW_SERVER_LOG);
+    }
+
+    public void setShowServerLog(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.SHOW_SERVER_LOG, b);
+    }
+
+    public boolean isShowStatus() {
+        return getBoolean(SettingsConstants.General.Legacy.SHOW_STATUS);
+    }
+
+    public void setShowStatus(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.SHOW_STATUS, b);
+    }
+
+    public boolean isOthersPlayingEnabled() {
+        return getBoolean(SettingsConstants.General.Legacy.OTHERS_PLAYING_ENABLED);
+    }
+
+    public void setOthersPlayingEnabled(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.OTHERS_PLAYING_ENABLED, b);
+    }
+
+    public boolean isShowRememberMe() {
+        return getBoolean(SettingsConstants.General.Legacy.SHOW_REMEMBER_ME);
+    }
+
+    public void setShowRememberMe(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.SHOW_REMEMBER_ME, b);
+    }
+
+    public boolean isPublishPodcast() {
+        return getBoolean(SettingsConstants.General.Legacy.PUBLISH_PODCAST);
+    }
+
+    public void setPublishPodcast(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.PUBLISH_PODCAST, b);
+    }
+
+    public boolean isUseRadio() {
+        return getBoolean(SettingsConstants.General.Legacy.USE_RADIO);
+    }
+
+    public void setUseRadio(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.USE_RADIO, b);
+    }
+
+    public boolean isUseSonos() {
+        return getBoolean(SettingsConstants.General.Legacy.USE_SONOS);
+    }
+
+    public void setUseSonos(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.USE_SONOS, b);
+    }
+
+    public boolean isSearchMethodLegacy() {
+        return getBoolean(SettingsConstants.General.Legacy.SEARCH_METHOD_LEGACY);
+    }
+
+    public void setSearchMethodLegacy(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.SEARCH_METHOD_LEGACY, b);
+    }
+
+    public boolean isSearchMethodChanged() {
+        return getBoolean(SettingsConstants.General.Legacy.SEARCH_METHOD_CHANGED);
+    }
+
+    public void setSearchMethodChanged(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.SEARCH_METHOD_CHANGED, b);
+    }
+
+    public boolean isAnonymousTranscoding() {
+        return getBoolean(SettingsConstants.General.Legacy.ANONYMOUS_TRANSCODING);
+    }
+
+    public void setAnonymousTranscoding(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.ANONYMOUS_TRANSCODING, b);
     }
 
     public String getMusicFileTypes() {
@@ -393,6 +726,34 @@ public class SettingsService {
         return coverArtFileTypes;
     }
 
+    public String getPlaylistFolder() {
+        return getString(SettingsConstants.General.Extension.PLAYLIST_FOLDER);
+    }
+
+    public void setPlaylistFolder(String s) {
+        setProperty(SettingsConstants.General.Extension.PLAYLIST_FOLDER, s);
+    }
+
+    public String getShortcuts() {
+        return getString(SettingsConstants.General.Extension.SHORTCUTS);
+    }
+
+    public void setShortcuts(String s) {
+        setProperty(SettingsConstants.General.Extension.SHORTCUTS, s);
+    }
+
+    public String[] getShortcutsAsArray() {
+        return StringUtil.split(getShortcuts());
+    }
+
+    public boolean isGettingStartedEnabled() {
+        return getBoolean(SettingsConstants.General.Welcome.GETTING_STARTED_ENABLED);
+    }
+
+    public void setGettingStartedEnabled(boolean b) {
+        setProperty(SettingsConstants.General.Welcome.GETTING_STARTED_ENABLED, b);
+    }
+
     public String getWelcomeTitle() {
         return StringUtils.trimToNull(getString(SettingsConstants.General.Welcome.TITLE));
     }
@@ -425,98 +786,36 @@ public class SettingsService {
         setProperty(SettingsConstants.General.Welcome.LOGIN_MESSAGE, s);
     }
 
-    /**
-     * Returns the number of days between automatic index creation, of -1 if automatic index creation is disabled.
-     */
-    public int getIndexCreationInterval() {
-        return getInt(SettingsConstants.MusicFolder.Scan.INDEX_CREATION_INTERVAL);
+    public boolean isVerboseLogStart() {
+        return getBoolean(SettingsConstants.Advanced.VerboseLog.START);
     }
 
-    /**
-     * Sets the number of days between automatic index creation, of -1 if automatic index creation is disabled.
-     */
-    public void setIndexCreationInterval(int days) {
-        setProperty(SettingsConstants.MusicFolder.Scan.INDEX_CREATION_INTERVAL, days);
+    public void setVerboseLogStart(boolean b) {
+        setProperty(SettingsConstants.Advanced.VerboseLog.START, b);
     }
 
-    /**
-     * Returns the hour of day (0 - 23) when automatic index creation should run.
-     */
-    public int getIndexCreationHour() {
-        return getInt(SettingsConstants.MusicFolder.Scan.INDEX_CREATION_HOUR);
+    public boolean isVerboseLogScanning() {
+        return getBoolean(SettingsConstants.Advanced.VerboseLog.SCANNING);
     }
 
-    /**
-     * Sets the hour of day (0 - 23) when automatic index creation should run.
-     */
-    public void setIndexCreationHour(int hour) {
-        setProperty(SettingsConstants.MusicFolder.Scan.INDEX_CREATION_HOUR, hour);
+    public void setVerboseLogScanning(boolean b) {
+        setProperty(SettingsConstants.Advanced.VerboseLog.SCANNING, b);
     }
 
-    public boolean isFastCacheEnabled() {
-        return getBoolean(SettingsConstants.MusicFolder.Others.FAST_CACHE_ENABLED);
+    public boolean isVerboseLogPlaying() {
+        return getBoolean(SettingsConstants.Advanced.VerboseLog.PLAYING);
     }
 
-    public void setFastCacheEnabled(boolean b) {
-        setProperty(SettingsConstants.MusicFolder.Others.FAST_CACHE_ENABLED, b);
+    public void setVerboseLogPlaying(boolean b) {
+        setProperty(SettingsConstants.Advanced.VerboseLog.PLAYING, b);
     }
 
-    public boolean isIgnoreFileTimestamps() {
-        return getBoolean(SettingsConstants.MusicFolder.Others.IGNORE_FILE_TIMESTAMPS);
+    public boolean isVerboseLogShutdown() {
+        return getBoolean(SettingsConstants.Advanced.VerboseLog.SHUTDOWN);
     }
 
-    public void setIgnoreFileTimestamps(boolean b) {
-        setProperty(SettingsConstants.MusicFolder.Others.IGNORE_FILE_TIMESTAMPS, b);
-    }
-
-    /**
-     * Returns the number of hours between Podcast updates, of -1 if automatic updates are disabled.
-     */
-    public int getPodcastUpdateInterval() {
-        return getInt(SettingsConstants.Podcast.UPDATE_INTERVAL);
-    }
-
-    /**
-     * Sets the number of hours between Podcast updates, of -1 if automatic updates are disabled.
-     */
-    public void setPodcastUpdateInterval(int i) {
-        setProperty(SettingsConstants.Podcast.UPDATE_INTERVAL, i);
-    }
-
-    /**
-     * Returns the number of Podcast episodes to keep (-1 to keep all).
-     */
-    public int getPodcastEpisodeRetentionCount() {
-        return getInt(SettingsConstants.Podcast.EPISODE_RETENTION_COUNT);
-    }
-
-    /**
-     * Sets the number of Podcast episodes to keep (-1 to keep all).
-     */
-    public void setPodcastEpisodeRetentionCount(int i) {
-        setProperty(SettingsConstants.Podcast.EPISODE_RETENTION_COUNT, i);
-    }
-
-    /**
-     * Returns the number of Podcast episodes to download (-1 to download all).
-     */
-    public int getPodcastEpisodeDownloadCount() {
-        return getInt(SettingsConstants.Podcast.EPISODE_DOWNLOAD_COUNT);
-    }
-
-    /**
-     * Sets the number of Podcast episodes to download (-1 to download all).
-     */
-    public void setPodcastEpisodeDownloadCount(int count) {
-        setProperty(SettingsConstants.Podcast.EPISODE_DOWNLOAD_COUNT, count);
-    }
-
-    public String getPodcastFolder() {
-        return getString(SettingsConstants.Podcast.FOLDER);
-    }
-
-    public void setPodcastFolder(String s) {
-        setProperty(SettingsConstants.Podcast.FOLDER, s);
+    public void setVerboseLogShutdown(boolean b) {
+        setProperty(SettingsConstants.Advanced.VerboseLog.SHUTDOWN, b);
     }
 
     /**
@@ -557,12 +856,60 @@ public class SettingsService {
         setProperty(SettingsConstants.Advanced.Bandwidth.BUFFER_SIZE, bufferSize);
     }
 
-    public String getHlsCommand() {
-        return getString(SettingsConstants.Transcoding.HLS_COMMAND);
+    public String getSmtpFrom() {
+        return getString(SettingsConstants.Advanced.Smtp.FROM);
     }
 
-    public void setHlsCommand(String s) {
-        setProperty(SettingsConstants.Transcoding.HLS_COMMAND, s);
+    public void setSmtpFrom(String s) {
+        setProperty(SettingsConstants.Advanced.Smtp.FROM, s);
+    }
+
+    public String getSmtpServer() {
+        return getString(SettingsConstants.Advanced.Smtp.SERVER);
+    }
+
+    public void setSmtpServer(String s) {
+        setProperty(SettingsConstants.Advanced.Smtp.SERVER, s);
+    }
+
+    public String getSmtpPort() {
+        return getString(SettingsConstants.Advanced.Smtp.PORT);
+    }
+
+    public void setSmtpPort(String s) {
+        setProperty(SettingsConstants.Advanced.Smtp.PORT, s);
+    }
+
+    public String getSmtpEncryption() {
+        return getString(SettingsConstants.Advanced.Smtp.ENCRYPTION);
+    }
+
+    public void setSmtpEncryption(String s) {
+        setProperty(SettingsConstants.Advanced.Smtp.ENCRYPTION, s);
+    }
+
+    public String getSmtpUser() {
+        return getString(SettingsConstants.Advanced.Smtp.USER);
+    }
+
+    public void setSmtpUser(String s) {
+        setProperty(SettingsConstants.Advanced.Smtp.USER, s);
+    }
+
+    public String getSmtpPassword() {
+        String s = getString(SettingsConstants.Advanced.Smtp.PASSWORD);
+        try {
+            return StringUtil.utf8HexDecode(s);
+        } catch (DecoderException e) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to decode Smtp password.", e);
+            }
+            return s;
+        }
+    }
+
+    public void setSmtpPassword(String s) {
+        setProperty(SettingsConstants.Advanced.Smtp.PASSWORD, StringUtil.utf8HexEncode(s));
     }
 
     public boolean isLdapEnabled() {
@@ -621,247 +968,78 @@ public class SettingsService {
         setProperty(SettingsConstants.Advanced.Ldap.AUTO_SHADOWING, b);
     }
 
-    public boolean isGettingStartedEnabled() {
-        return getBoolean(SettingsConstants.General.Welcome.GETTING_STARTED_ENABLED);
+    public boolean isCaptchaEnabled() {
+        return getBoolean(SettingsConstants.Advanced.Captcha.ENABLED);
     }
 
-    public void setGettingStartedEnabled(boolean b) {
-        setProperty(SettingsConstants.General.Welcome.GETTING_STARTED_ENABLED, b);
+    public void setCaptchaEnabled(boolean b) {
+        setProperty(SettingsConstants.Advanced.Captcha.ENABLED, b);
     }
 
-    public long getSettingsChanged() {
-        return getLong(SettingsConstants.SETTINGS_CHANGED);
+    public String getRecaptchaSiteKey() {
+        return getString(SettingsConstants.Advanced.Captcha.SITE_KEY);
     }
 
-    public boolean isIndexEnglishPrior() {
-        return getBoolean(SettingsConstants.MusicFolder.Others.INDEX_ENGLISH_PRIOR);
+    public void setRecaptchaSiteKey(String s) {
+        setProperty(SettingsConstants.Advanced.Captcha.SITE_KEY, s);
     }
 
-    public void setIndexEnglishPrior(boolean b) {
-        setProperty(SettingsConstants.MusicFolder.Others.INDEX_ENGLISH_PRIOR, b);
+    public String getRecaptchaSecretKey() {
+        return getString(SettingsConstants.Advanced.Captcha.SECRET_KEY);
     }
 
-    public boolean isSortAlbumsByYear() {
-        return getBoolean(SettingsConstants.General.Sort.ALBUMS_BY_YEAR);
+    public void setRecaptchaSecretKey(String s) {
+        setProperty(SettingsConstants.Advanced.Captcha.SECRET_KEY, s);
     }
 
-    public void setSortAlbumsByYear(boolean b) {
-        setProperty(SettingsConstants.General.Sort.ALBUMS_BY_YEAR, b);
+    public String getPodcastFolder() {
+        return getString(SettingsConstants.Podcast.FOLDER);
     }
 
-    public boolean isSortGenresByAlphabet() {
-        return getBoolean(SettingsConstants.General.Sort.GENRES_BY_ALPHABET);
-    }
-
-    public void setSortGenresByAlphabet(boolean b) {
-        setProperty(SettingsConstants.General.Sort.GENRES_BY_ALPHABET, b);
-    }
-
-    public boolean isProhibitSortVarious() {
-        return getBoolean(SettingsConstants.General.Sort.PROHIBIT_SORT_VARIOUS);
-    }
-
-    public void setProhibitSortVarious(boolean b) {
-        setProperty(SettingsConstants.General.Sort.PROHIBIT_SORT_VARIOUS, b);
-    }
-
-    public boolean isSortAlphanum() {
-        return getBoolean(SettingsConstants.General.Sort.ALPHANUM);
-    }
-
-    public void setSortAlphanum(boolean b) {
-        setProperty(SettingsConstants.General.Sort.ALPHANUM, b);
-    }
-
-    public boolean isSortStrict() {
-        return getBoolean(SettingsConstants.General.Sort.STRICT);
-    }
-
-    public void setSortStrict(boolean b) {
-        setProperty(SettingsConstants.General.Sort.STRICT, b);
-    }
-
-    public boolean isSearchComposer() {
-        return getBoolean(SettingsConstants.General.Search.SEARCH_COMPOSER);
-    }
-
-    public void setSearchComposer(boolean b) {
-        setProperty(SettingsConstants.General.Search.SEARCH_COMPOSER, b);
-    }
-
-    public boolean isOutputSearchQuery() {
-        return getBoolean(SettingsConstants.General.Search.OUTPUT_SEARCH_QUERY);
-    }
-
-    public void setOutputSearchQuery(boolean b) {
-        setProperty(SettingsConstants.General.Search.OUTPUT_SEARCH_QUERY, b);
-    }
-
-    public boolean isSearchMethodLegacy() {
-        return getBoolean(SettingsConstants.General.Legacy.SEARCH_METHOD_LEGACY);
-    }
-
-    public void setSearchMethodLegacy(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.SEARCH_METHOD_LEGACY, b);
-    }
-
-    public boolean isSearchMethodChanged() {
-        return getBoolean(SettingsConstants.General.Legacy.SEARCH_METHOD_CHANGED);
-    }
-
-    public void setSearchMethodChanged(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.SEARCH_METHOD_CHANGED, b);
-    }
-
-    public boolean isIgnoreSymLinks() {
-        return getBoolean(SettingsConstants.MusicFolder.Exclusion.IGNORE_SYMLINKS);
-    }
-
-    public boolean isAnonymousTranscoding() {
-        return getBoolean(SettingsConstants.General.Legacy.ANONYMOUS_TRANSCODING);
-    }
-
-    public void setAnonymousTranscoding(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.ANONYMOUS_TRANSCODING, b);
-    }
-
-    public void setIgnoreSymLinks(boolean b) {
-        setProperty(SettingsConstants.MusicFolder.Exclusion.IGNORE_SYMLINKS, b);
-    }
-
-    public String getExcludePatternString() {
-        return getString(SettingsConstants.MusicFolder.Exclusion.EXCLUDE_PATTERN_STRING);
-    }
-
-    public void setExcludePatternString(String s) {
-        setProperty(SettingsConstants.MusicFolder.Exclusion.EXCLUDE_PATTERN_STRING, s);
-        compileExcludePattern();
-    }
-
-    @SuppressWarnings({ "PMD.NullAssignment", "PMD.ConfusingTernary" })
-    /*
-     * [NullAssignment](excludePattern) Intentional allocation to clear cache. [ConfusingTernary] false positive
-     */
-    private void compileExcludePattern() {
-        if (getExcludePatternString() != null && !StringUtils.isAllBlank(getExcludePatternString())) {
-            excludePattern = Pattern.compile(getExcludePatternString());
-        } else {
-            excludePattern = null;
-        }
-    }
-
-    public Pattern getExcludePattern() {
-        if (excludePattern == null && getExcludePatternString() != null) {
-            compileExcludePattern();
-        }
-        return excludePattern;
-    }
-
-    public static boolean isDevelopmentMode() {
-        return System.getProperty("airsonic.development") != null;
-    }
-
-    public String getRememberMeKey() {
-        String key = null;
-        if (StringUtils.isBlank(key)) {
-            key = getString(SettingsConstants.REMEMBER_ME_KEY);
-        }
-        if (StringUtils.isBlank(key)) {
-            key = System.getProperty("airsonic.rememberMeKey");
-        }
-        return key;
-    }
-
-    public Locale getLocale() {
-        if (isEmpty(locale)) {
-            String language = getString(SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE);
-            String country = getString(SettingsConstants.General.ThemeAndLang.LOCALE_COUNTRY);
-            String variant = getString(SettingsConstants.General.ThemeAndLang.LOCALE_VARIANT);
-            locale = new Locale(language, country, variant);
-        }
-        return locale;
-    }
-
-    @SuppressWarnings("PMD.NullAssignment") // (locale) Intentional allocation to clear cache
-    public void setLocale(Locale locale) {
-        this.locale = null;
-        setProperty(SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE, locale.getLanguage());
-        setProperty(SettingsConstants.General.ThemeAndLang.LOCALE_COUNTRY, locale.getCountry());
-        setProperty(SettingsConstants.General.ThemeAndLang.LOCALE_VARIANT, locale.getVariant());
-    }
-
-    public String getThemeId() {
-        return getString(SettingsConstants.General.ThemeAndLang.THEME_ID);
-    }
-
-    public void setThemeId(String s) {
-        setProperty(SettingsConstants.General.ThemeAndLang.THEME_ID, s);
+    public void setPodcastFolder(String s) {
+        setProperty(SettingsConstants.Podcast.FOLDER, s);
     }
 
     /**
-     * Returns a list of available themes.
-     *
-     * @return A list of available themes.
+     * Returns the number of hours between Podcast updates, of -1 if automatic updates are disabled.
      */
-    @SuppressFBWarnings(value = { "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE",
-            "MS_EXPOSE_REP" }, justification = "False positive by try with resources. Returns an immutable list without unnecessary copying.")
-    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.CognitiveComplexity" })
-    /*
-     * [AvoidInstantiatingObjectsInLoops] (Theme) Cannot be reused but is cached [CognitiveComplexity] #1020 Remove them
-     * as they now contain unnecessary processing.
-     */
-    public static List<Theme> getAvailableThemes() {
-        synchronized (LOCKS.get(LocksKeys.THEMES)) {
-            if (themes == null) {
-                List<Theme> l = new ArrayList<>();
-                try (InputStream in = SettingsService.class.getResourceAsStream(THEMES_FILE)) {
-                    String[] lines = StringUtil.readLines(in);
-                    for (String line : lines) {
-                        String[] elements = StringUtil.split(line);
-                        if (elements.length == ELEMENT_COUNT_IN_LINE_OF_THEME) {
-                            l.add(new Theme(elements[0], elements[1]));
-                        } else {
-                            if (LOG.isWarnEnabled()) {
-                                LOG.warn("Failed to parse theme from line: [" + line + "].");
-                            }
-                        }
-                    }
-                } catch (IOException e) {
-                    if (LOG.isErrorEnabled()) {
-                        LOG.error("Failed to resolve list of themes.", e);
-                    }
-                    l.add(new Theme("default", "Jpsonic default"));
-                }
-                themes = Collections.unmodifiableList(l);
-            }
-        }
-        return themes;
+    public int getPodcastUpdateInterval() {
+        return getInt(SettingsConstants.Podcast.UPDATE_INTERVAL);
     }
 
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
-    public Locale[] getAvailableLocales() {
-        synchronized (LOCKS.get(LocksKeys.LOCALES)) {
-            if (locales == null) {
-                List<Locale> l = new ArrayList<>();
-                try (InputStream in = SettingsService.class.getResourceAsStream(LOCALES_FILE)) {
-                    String[] lines = StringUtil.readLines(in);
-                    for (String line : lines) {
-                        l.add(StringUtil.parseLocale(line));
-                    }
-                } catch (IOException x) {
-                    if (LOG.isErrorEnabled()) {
-                        LOG.error("Failed to resolve list of locales.", x);
-                    }
-                    l.add(Locale.ENGLISH);
-                }
-                locales = l.toArray(new Locale[0]);
-            }
-        }
-        return locales;
+    /**
+     * Sets the number of hours between Podcast updates, of -1 if automatic updates are disabled.
+     */
+    public void setPodcastUpdateInterval(int i) {
+        setProperty(SettingsConstants.Podcast.UPDATE_INTERVAL, i);
     }
 
-    public static String getBrand() {
-        return "Jpsonic";
+    /**
+     * Returns the number of Podcast episodes to keep (-1 to keep all).
+     */
+    public int getPodcastEpisodeRetentionCount() {
+        return getInt(SettingsConstants.Podcast.EPISODE_RETENTION_COUNT);
+    }
+
+    /**
+     * Sets the number of Podcast episodes to keep (-1 to keep all).
+     */
+    public void setPodcastEpisodeRetentionCount(int i) {
+        setProperty(SettingsConstants.Podcast.EPISODE_RETENTION_COUNT, i);
+    }
+
+    /**
+     * Returns the number of Podcast episodes to download (-1 to download all).
+     */
+    public int getPodcastEpisodeDownloadCount() {
+        return getInt(SettingsConstants.Podcast.EPISODE_DOWNLOAD_COUNT);
+    }
+
+    /**
+     * Sets the number of Podcast episodes to download (-1 to download all).
+     */
+    public void setPodcastEpisodeDownloadCount(int count) {
+        setProperty(SettingsConstants.Podcast.EPISODE_DOWNLOAD_COUNT, count);
     }
 
     public boolean isDlnaEnabled() {
@@ -888,12 +1066,28 @@ public class SettingsService {
         setProperty(SettingsConstants.UPnP.Basic.BASE_LAN_URL, s);
     }
 
-    public boolean isDlnaAlbumVisible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.ALBUM);
+    public boolean isDlnaIndexVisible() {
+        return getBoolean(SettingsConstants.UPnP.Processor.INDEX);
     }
 
-    public void setDlnaAlbumVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.ALBUM, b);
+    public void setDlnaIndexVisible(boolean b) {
+        setProperty(SettingsConstants.UPnP.Processor.INDEX, b);
+    }
+
+    public boolean isDlnaIndexId3Visible() {
+        return getBoolean(SettingsConstants.UPnP.Processor.INDEX_ID3);
+    }
+
+    public void setDlnaIndexId3Visible(boolean b) {
+        setProperty(SettingsConstants.UPnP.Processor.INDEX_ID3, b);
+    }
+
+    public boolean isDlnaFolderVisible() {
+        return getBoolean(SettingsConstants.UPnP.Processor.FOLDER);
+    }
+
+    public void setDlnaFolderVisible(boolean b) {
+        setProperty(SettingsConstants.UPnP.Processor.FOLDER, b);
     }
 
     public boolean isDlnaArtistVisible() {
@@ -912,6 +1106,22 @@ public class SettingsService {
         setProperty(SettingsConstants.UPnP.Processor.ARTIST_BY_FOLDER, b);
     }
 
+    public boolean isDlnaAlbumVisible() {
+        return getBoolean(SettingsConstants.UPnP.Processor.ALBUM);
+    }
+
+    public void setDlnaAlbumVisible(boolean b) {
+        setProperty(SettingsConstants.UPnP.Processor.ALBUM, b);
+    }
+
+    public boolean isDlnaPlaylistVisible() {
+        return getBoolean(SettingsConstants.UPnP.Processor.PLAYLIST);
+    }
+
+    public void setDlnaPlaylistVisible(boolean b) {
+        setProperty(SettingsConstants.UPnP.Processor.PLAYLIST, b);
+    }
+
     public boolean isDlnaAlbumByGenreVisible() {
         return getBoolean(SettingsConstants.UPnP.Processor.ALBUM_BY_GENRE);
     }
@@ -926,30 +1136,6 @@ public class SettingsService {
 
     public void setDlnaSongByGenreVisible(boolean b) {
         setProperty(SettingsConstants.UPnP.Processor.SONG_BY_GENRE, b);
-    }
-
-    public boolean isDlnaGenreCountVisible() {
-        return getBoolean(SettingsConstants.UPnP.Options.GENRE_COUNT);
-    }
-
-    public void setDlnaGenreCountVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Options.GENRE_COUNT, b);
-    }
-
-    public boolean isDlnaFolderVisible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.FOLDER);
-    }
-
-    public void setDlnaFolderVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.FOLDER, b);
-    }
-
-    public boolean isDlnaPlaylistVisible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.PLAYLIST);
-    }
-
-    public void setDlnaPlaylistVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.PLAYLIST, b);
     }
 
     public boolean isDlnaRecentAlbumVisible() {
@@ -968,28 +1154,12 @@ public class SettingsService {
         setProperty(SettingsConstants.UPnP.Processor.RECENT_ALBUM_ID3, b);
     }
 
-    public boolean isDlnaIndexVisible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.INDEX);
+    public boolean isDlnaRandomSongVisible() {
+        return getBoolean(SettingsConstants.UPnP.Processor.RANDOM_SONG);
     }
 
-    public void setDlnaIndexVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.INDEX, b);
-    }
-
-    public boolean isDlnaIndexId3Visible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.INDEX_ID3);
-    }
-
-    public void setDlnaIndexId3Visible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.INDEX_ID3, b);
-    }
-
-    public boolean isDlnaPodcastVisible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.PODCAST);
-    }
-
-    public void setDlnaPodcastVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.PODCAST, b);
+    public void setDlnaRandomSongVisible(boolean b) {
+        setProperty(SettingsConstants.UPnP.Processor.RANDOM_SONG, b);
     }
 
     public boolean isDlnaRandomAlbumVisible() {
@@ -998,14 +1168,6 @@ public class SettingsService {
 
     public void setDlnaRandomAlbumVisible(boolean b) {
         setProperty(SettingsConstants.UPnP.Processor.RANDOM_ALBUM, b);
-    }
-
-    public boolean isDlnaRandomSongVisible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.RANDOM_SONG);
-    }
-
-    public void setDlnaRandomSongVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.RANDOM_SONG, b);
     }
 
     public boolean isDlnaRandomSongByArtistVisible() {
@@ -1024,12 +1186,20 @@ public class SettingsService {
         setProperty(SettingsConstants.UPnP.Processor.RANDOM_SONG_BY_FOLDER_ARTIST, b);
     }
 
-    public boolean isDlnaGuestPublish() {
-        return getBoolean(SettingsConstants.UPnP.Options.GUEST_PUBLISH);
+    public boolean isDlnaPodcastVisible() {
+        return getBoolean(SettingsConstants.UPnP.Processor.PODCAST);
     }
 
-    public void setDlnaGuestPublish(boolean b) {
-        setProperty(SettingsConstants.UPnP.Options.GUEST_PUBLISH, b);
+    public void setDlnaPodcastVisible(boolean b) {
+        setProperty(SettingsConstants.UPnP.Processor.PODCAST, b);
+    }
+
+    public boolean isDlnaGenreCountVisible() {
+        return getBoolean(SettingsConstants.UPnP.Options.GENRE_COUNT);
+    }
+
+    public void setDlnaGenreCountVisible(boolean b) {
+        setProperty(SettingsConstants.UPnP.Options.GENRE_COUNT, b);
     }
 
     public int getDlnaRandomMax() {
@@ -1042,52 +1212,12 @@ public class SettingsService {
         }
     }
 
-    public boolean isPublishPodcast() {
-        return getBoolean(SettingsConstants.General.Legacy.PUBLISH_PODCAST);
+    public boolean isDlnaGuestPublish() {
+        return getBoolean(SettingsConstants.UPnP.Options.GUEST_PUBLISH);
     }
 
-    public void setPublishPodcast(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.PUBLISH_PODCAST, b);
-    }
-
-    public boolean isShowJavaJukebox() {
-        return getBoolean(SettingsConstants.General.Legacy.SHOW_JAVAJUKE_BOX);
-    }
-
-    public void setShowJavaJukebox(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.SHOW_JAVAJUKE_BOX, b);
-    }
-
-    public boolean isShowServerLog() {
-        return getBoolean(SettingsConstants.General.Legacy.SHOW_SERVER_LOG);
-    }
-
-    public void setShowServerLog(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.SHOW_SERVER_LOG, b);
-    }
-
-    public boolean isShowStatus() {
-        return getBoolean(SettingsConstants.General.Legacy.SHOW_STATUS);
-    }
-
-    public void setShowStatus(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.SHOW_STATUS, b);
-    }
-
-    public boolean isOthersPlayingEnabled() {
-        return getBoolean(SettingsConstants.General.Legacy.OTHERS_PLAYING_ENABLED);
-    }
-
-    public void setOthersPlayingEnabled(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.OTHERS_PLAYING_ENABLED, b);
-    }
-
-    public boolean isShowRememberMe() {
-        return getBoolean(SettingsConstants.General.Legacy.SHOW_REMEMBER_ME);
-    }
-
-    public void setShowRememberMe(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.SHOW_REMEMBER_ME, b);
+    public void setDlnaGuestPublish(boolean b) {
+        setProperty(SettingsConstants.UPnP.Options.GUEST_PUBLISH, b);
     }
 
     public boolean isSonosEnabled() {
@@ -1106,118 +1236,12 @@ public class SettingsService {
         setProperty(SettingsConstants.Sonos.SERVICE_NAME, s);
     }
 
-    private void setProperty(Pair<?> p, Object value) {
-        if (value == null) {
-            configurationService.clearProperty(p.key);
-        } else {
-            configurationService.setProperty(p.key, value);
-        }
+    public String getHlsCommand() {
+        return getString(SettingsConstants.Transcoding.HLS_COMMAND);
     }
 
-    private String[] toStringArray(String s) {
-        List<String> result = new ArrayList<>();
-        StringTokenizer tokenizer = new StringTokenizer(s, " ");
-        while (tokenizer.hasMoreTokens()) {
-            result.add(tokenizer.nextToken());
-        }
-
-        return result.toArray(new String[0]);
-    }
-
-    public String getSmtpServer() {
-        return getString(SettingsConstants.Advanced.Smtp.SERVER);
-    }
-
-    public void setSmtpServer(String s) {
-        setProperty(SettingsConstants.Advanced.Smtp.SERVER, s);
-    }
-
-    public String getSmtpPort() {
-        return getString(SettingsConstants.Advanced.Smtp.PORT);
-    }
-
-    public void setSmtpPort(String s) {
-        setProperty(SettingsConstants.Advanced.Smtp.PORT, s);
-    }
-
-    public boolean isUseRadio() {
-        return getBoolean(SettingsConstants.General.Legacy.USE_RADIO);
-    }
-
-    public void setUseRadio(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.USE_RADIO, b);
-    }
-
-    public boolean isUseSonos() {
-        return getBoolean(SettingsConstants.General.Legacy.USE_SONOS);
-    }
-
-    public void setUseSonos(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.USE_SONOS, b);
-    }
-
-    public String getSmtpEncryption() {
-        return getString(SettingsConstants.Advanced.Smtp.ENCRYPTION);
-    }
-
-    public void setSmtpEncryption(String s) {
-        setProperty(SettingsConstants.Advanced.Smtp.ENCRYPTION, s);
-    }
-
-    public String getSmtpUser() {
-        return getString(SettingsConstants.Advanced.Smtp.USER);
-    }
-
-    public void setSmtpUser(String s) {
-        setProperty(SettingsConstants.Advanced.Smtp.USER, s);
-    }
-
-    public String getSmtpPassword() {
-        String s = getString(SettingsConstants.Advanced.Smtp.PASSWORD);
-        try {
-            return StringUtil.utf8HexDecode(s);
-        } catch (DecoderException e) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to decode Smtp password.", e);
-            }
-            return s;
-        }
-    }
-
-    public void setSmtpPassword(String s) {
-        setProperty(SettingsConstants.Advanced.Smtp.PASSWORD, StringUtil.utf8HexEncode(s));
-    }
-
-    public String getSmtpFrom() {
-        return getString(SettingsConstants.Advanced.Smtp.FROM);
-    }
-
-    public void setSmtpFrom(String s) {
-        setProperty(SettingsConstants.Advanced.Smtp.FROM, s);
-    }
-
-    public boolean isCaptchaEnabled() {
-        return getBoolean(SettingsConstants.Advanced.Captcha.ENABLED);
-    }
-
-    public void setCaptchaEnabled(boolean b) {
-        setProperty(SettingsConstants.Advanced.Captcha.ENABLED, b);
-    }
-
-    public String getRecaptchaSiteKey() {
-        return getString(SettingsConstants.Advanced.Captcha.SITE_KEY);
-    }
-
-    public void setRecaptchaSiteKey(String s) {
-        setProperty(SettingsConstants.Advanced.Captcha.SITE_KEY, s);
-    }
-
-    public String getRecaptchaSecretKey() {
-        return getString(SettingsConstants.Advanced.Captcha.SECRET_KEY);
-    }
-
-    public void setRecaptchaSecretKey(String s) {
-        setProperty(SettingsConstants.Advanced.Captcha.SECRET_KEY, s);
+    public void setHlsCommand(String s) {
+        setProperty(SettingsConstants.Transcoding.HLS_COMMAND, s);
     }
 
     public DataSourceConfigType getDatabaseConfigType() {
@@ -1283,34 +1307,6 @@ public class SettingsService {
 
     public void setDatabaseUsertableQuote(String s) {
         setProperty(SettingsConstants.Database.USERTABLE_QUOTE, s);
-    }
-
-    public String getJWTKey() {
-        return getString(SettingsConstants.JWT_KEY);
-    }
-
-    public void setJWTKey(String s) {
-        setProperty(SettingsConstants.JWT_KEY, s);
-    }
-
-    public static boolean isDefaultSortAlbumsByYear() {
-        return SettingsConstants.General.Sort.ALBUMS_BY_YEAR.defaultValue;
-    }
-
-    public static boolean isDefaultSortGenresByAlphabet() {
-        return SettingsConstants.General.Sort.GENRES_BY_ALPHABET.defaultValue;
-    }
-
-    public static boolean isDefaultProhibitSortVarious() {
-        return SettingsConstants.General.Sort.PROHIBIT_SORT_VARIOUS.defaultValue;
-    }
-
-    public static boolean isDefaultSortAlphanum() {
-        return SettingsConstants.General.Sort.ALPHANUM.defaultValue;
-    }
-
-    public static boolean isDefaultSortStrict() {
-        return SettingsConstants.General.Sort.STRICT.defaultValue;
     }
 
     public void resetDatabaseToDefault() {
