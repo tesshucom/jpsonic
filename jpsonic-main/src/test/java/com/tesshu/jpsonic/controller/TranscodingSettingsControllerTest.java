@@ -101,7 +101,7 @@ class TranscodingSettingsControllerTest {
         assertFalse((Boolean) model.get("useRadio"));
         assertEquals(transcodingService.getTranscodeDirectory(), model.get("transcodeDirectory"));
         assertFalse((Boolean) model.get("useSonos"));
-        assertEquals(settingsService.getBrand(), model.get("brand"));
+        assertEquals(SettingsService.getBrand(), model.get("brand"));
         assertEquals(transcodingService.getAllTranscodings(), model.get("transcodings"));
     }
 

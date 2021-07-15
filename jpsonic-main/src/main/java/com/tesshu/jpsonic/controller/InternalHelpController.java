@@ -130,7 +130,7 @@ public class InternalHelpController {
                 + System.getProperty("java.version") + ", " + System.getProperty("os.name");
 
         map.put("user", securityService.getCurrentUser(request));
-        map.put("brand", settingsService.getBrand());
+        map.put("brand", SettingsService.getBrand());
         map.put("localVersion", versionService.getLocalVersion());
         map.put("buildDate", versionService.getLocalBuildDate());
         map.put("buildNumber", versionService.getLocalBuildNumber());

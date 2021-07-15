@@ -70,7 +70,7 @@ public class LoginController {
 
         Map<String, Object> map = LegacyMap.of("logout",
                 request.getParameter(Attributes.Request.LOGOUT.value()) != null, "error",
-                request.getParameter(Attributes.Request.ERROR.value()) != null, "brand", settingsService.getBrand(),
+                request.getParameter(Attributes.Request.ERROR.value()) != null, "brand", SettingsService.getBrand(),
                 "loginMessage", settingsService.getLoginMessage(), "showRememberMe",
                 settingsService.isShowRememberMe());
 

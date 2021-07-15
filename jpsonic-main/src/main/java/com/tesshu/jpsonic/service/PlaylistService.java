@@ -64,6 +64,8 @@ public class PlaylistService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlaylistService.class);
 
+    private static final String EXPORT_PLAYLIST_FORMAT = "m3u";
+
     private final JMediaFileDao mediaFileDao;
     private final JPlaylistDao playlistDao;
     private final SecurityService securityService;
@@ -234,8 +236,8 @@ public class PlaylistService {
     }
 
     public String getExportPlaylistExtension() {
-        String format = settingsService.getPlaylistExportFormat();
-        SpecificPlaylistProvider provider = SpecificPlaylistFactory.getInstance().findProviderById(format);
+        SpecificPlaylistProvider provider = SpecificPlaylistFactory.getInstance()
+                .findProviderById(EXPORT_PLAYLIST_FORMAT);
         return provider.getContentTypes()[0].getExtensions()[0];
     }
 
@@ -244,8 +246,8 @@ public class PlaylistService {
      * Wrap and rethrow due to constraints of 'chameleon' {@link SpecificPlaylist#writeTo(OutputStream, String)}
      */
     public void exportPlaylist(int id, OutputStream out) throws ExecutionException {
-        String format = settingsService.getPlaylistExportFormat();
-        SpecificPlaylistProvider provider = SpecificPlaylistFactory.getInstance().findProviderById(format);
+        SpecificPlaylistProvider provider = SpecificPlaylistFactory.getInstance()
+                .findProviderById(EXPORT_PLAYLIST_FORMAT);
         PlaylistExportHandler handler = getExportHandler(provider);
         try {
             SpecificPlaylist specificPlaylist = handler.handle(id, provider);

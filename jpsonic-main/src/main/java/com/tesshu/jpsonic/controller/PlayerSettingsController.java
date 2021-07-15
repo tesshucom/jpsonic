@@ -66,21 +66,21 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/playerSettings")
 public class PlayerSettingsController {
 
-    private final PlayerService playerService;
-    private final SecurityService securityService;
-    private final TranscodingService transcodingService;
     private final SettingsService settingsService;
+    private final SecurityService securityService;
+    private final PlayerService playerService;
+    private final TranscodingService transcodingService;
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public PlayerSettingsController(PlayerService playerService, SecurityService securityService,
-            TranscodingService transcodingService, SettingsService settingsService, ShareService shareService,
+    public PlayerSettingsController(SettingsService settingsService, SecurityService securityService,
+            PlayerService playerService, TranscodingService transcodingService, ShareService shareService,
             OutlineHelpSelector outlineHelpSelector) {
         super();
-        this.playerService = playerService;
-        this.securityService = securityService;
-        this.transcodingService = transcodingService;
         this.settingsService = settingsService;
+        this.securityService = securityService;
+        this.playerService = playerService;
+        this.transcodingService = transcodingService;
         this.shareService = shareService;
         this.outlineHelpSelector = outlineHelpSelector;
     }
@@ -131,7 +131,7 @@ public class PlayerSettingsController {
             }
             command.setActiveTranscodingIds(activeTranscodingIds);
 
-            UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+            UserSettings userSettings = securityService.getUserSettings(user.getUsername());
             command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
 
         }

@@ -85,7 +85,7 @@ public class AdvancedSettingsController {
         command.setLdapSearchFilter(settingsService.getLdapSearchFilter());
         command.setLdapManagerDn(settingsService.getLdapManagerDn());
         command.setLdapAutoShadowing(settingsService.isLdapAutoShadowing());
-        command.setBrand(settingsService.getBrand());
+        command.setBrand(SettingsService.getBrand());
 
         command.setSmtpServer(settingsService.getSmtpServer());
         command.setSmtpEncryption(settingsService.getSmtpEncryption());
@@ -101,7 +101,7 @@ public class AdvancedSettingsController {
 
         User user = securityService.getCurrentUser(request);
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
-        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
@@ -109,7 +109,8 @@ public class AdvancedSettingsController {
     }
 
     @PostMapping
-    protected ModelAndView doSubmitAction(@ModelAttribute AdvancedSettingsCommand command,
+    protected ModelAndView doSubmitAction(
+            @ModelAttribute(Attributes.Model.Command.VALUE) AdvancedSettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), false);

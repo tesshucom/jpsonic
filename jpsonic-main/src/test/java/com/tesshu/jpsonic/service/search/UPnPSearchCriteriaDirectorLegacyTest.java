@@ -35,6 +35,7 @@ import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -235,10 +236,10 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractNeedsScan {
 
     @Autowired
     private SettingsService settingsService;
-
+    @Autowired
+    private MusicFolderService musicFolderService;
     @Autowired
     private AnalyzerFactory analyzerFactory;
-
     @Autowired
     private UPnPSearchCriteriaDirector director;
 
@@ -255,7 +256,7 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractNeedsScan {
         settingsService.setSearchMethodLegacy(true);
         populateDatabaseOnlyOnce();
         settingsService.setSearchComposer(true);
-        for (MusicFolder m : settingsService.getAllMusicFolders()) {
+        for (MusicFolder m : musicFolderService.getAllMusicFolders()) {
             path = path.concat("f:").concat(m.getPath().getPath()).concat(" ");
             fid = fid.concat("fId:").concat(Integer.toString(m.getId())).concat(" ");
         }

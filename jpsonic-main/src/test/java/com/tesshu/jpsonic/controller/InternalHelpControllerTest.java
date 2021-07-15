@@ -24,7 +24,6 @@ package com.tesshu.jpsonic.controller;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.tesshu.jpsonic.Integration;
 import com.tesshu.jpsonic.NeedsHome;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,14 +43,12 @@ class InternalHelpControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    @Integration
     @Test
     @WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
     void testOkForAdmins() throws Exception {
         mvc.perform(get("/internalhelp").contentType(MediaType.TEXT_HTML)).andExpect(status().isOk());
     }
 
-    @Integration
     @Test
     @WithMockUser(username = "user", roles = { "USER" })
     void testNotOkForUsers() throws Exception {

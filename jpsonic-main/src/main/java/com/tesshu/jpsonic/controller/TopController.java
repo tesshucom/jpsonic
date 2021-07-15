@@ -39,7 +39,9 @@ import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.service.InternetRadioService;
 import com.tesshu.jpsonic.service.MediaScannerService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -70,21 +72,26 @@ public class TopController {
             ViewName.PLAYER_SETTINGS.value(), ViewName.INTERNET_RADIO_SETTINGS.value(), ViewName.MORE.value());
 
     private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
     private final MediaScannerService mediaScannerService;
     private final MusicIndexService musicIndexService;
     private final VersionService versionService;
+    private final InternetRadioService internetRadioService;
     private final AirsonicLocaleResolver localeResolver;
 
-    public TopController(SettingsService settingsService, SecurityService securityService,
-            MediaScannerService mediaScannerService, MusicIndexService musicIndexService, VersionService versionService,
-            AirsonicLocaleResolver localeResolver) {
+    public TopController(SettingsService settingsService, MusicFolderService musicFolderService,
+            SecurityService securityService, MediaScannerService mediaScannerService,
+            MusicIndexService musicIndexService, VersionService versionService,
+            InternetRadioService internetRadioService, AirsonicLocaleResolver localeResolver) {
         super();
         this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
         this.securityService = securityService;
         this.mediaScannerService = mediaScannerService;
         this.musicIndexService = musicIndexService;
         this.versionService = versionService;
+        this.internetRadioService = internetRadioService;
         this.localeResolver = localeResolver;
     }
 
@@ -95,7 +102,7 @@ public class TopController {
         Map<String, Object> map = LegacyMap.of();
 
         User user = securityService.getCurrentUser(request);
-        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         map.put("user", user);
         map.put("othersPlayingEnabled", settingsService.isOthersPlayingEnabled());
         map.put("showNowPlayingEnabled", userSettings.isShowNowPlayingEnabled());
@@ -119,23 +126,22 @@ public class TopController {
 
         boolean refresh = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.REFRESH.value(), false);
         if (refresh) {
-            settingsService.clearMusicFolderCache();
+            musicFolderService.clearMusicFolderCache();
         }
 
         String username = securityService.getCurrentUsername(request);
-        List<MusicFolder> allMusicFolders = settingsService.getMusicFoldersForUser(username);
-        MusicFolder selectedMusicFolder = settingsService.getSelectedMusicFolder(username);
+        List<MusicFolder> allMusicFolders = musicFolderService.getMusicFoldersForUser(username);
+        MusicFolder selectedMusicFolder = securityService.getSelectedMusicFolder(username);
         List<MusicFolder> musicFoldersToUse = selectedMusicFolder == null ? allMusicFolders
                 : Collections.singletonList(selectedMusicFolder);
 
         map.put("scanning", mediaScannerService.isScanning());
         map.put("musicFolders", allMusicFolders);
         map.put("selectedMusicFolder", selectedMusicFolder);
-        map.put("radios", settingsService.getAllInternetRadios());
+        map.put("radios", internetRadioService.getAllInternetRadios());
         map.put("shortcuts", musicIndexService.getShortcuts(musicFoldersToUse));
         map.put("partyMode", userSettings.isPartyModeEnabled());
         map.put("alternativeDrawer", userSettings.isAlternativeDrawer());
-        map.put("organizeByFolderStructure", settingsService.isOrganizeByFolderStructure());
         boolean musicFolderChanged = saveSelectedMusicFolder(request);
         map.put("musicFolderChanged", musicFolderChanged);
 
@@ -147,7 +153,7 @@ public class TopController {
             map.put("newVersionAvailable", true);
             map.put("latestVersion", versionService.getLatestBetaVersion());
         }
-        map.put("brand", settingsService.getBrand());
+        map.put("brand", SettingsService.getBrand());
 
         MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFoldersToUse, refresh);
         map.put("indexedArtists", musicFolderContent.getIndexedArtists());
@@ -188,8 +194,8 @@ public class TopController {
         lastModified = Math.max(lastModified, settingsService.getSettingsChanged());
 
         // When was music folder(s) on disk last changed?
-        List<MusicFolder> allMusicFolders = settingsService.getMusicFoldersForUser(username);
-        MusicFolder selectedMusicFolder = settingsService.getSelectedMusicFolder(username);
+        List<MusicFolder> allMusicFolders = musicFolderService.getMusicFoldersForUser(username);
+        MusicFolder selectedMusicFolder = securityService.getSelectedMusicFolder(username);
         if (selectedMusicFolder == null) {
             for (MusicFolder musicFolder : allMusicFolders) {
                 File file = musicFolder.getPath();
@@ -206,12 +212,12 @@ public class TopController {
         }
 
         // When was internet radio table last changed?
-        for (InternetRadio internetRadio : settingsService.getAllInternetRadios()) {
+        for (InternetRadio internetRadio : internetRadioService.getAllInternetRadios()) {
             lastModified = Math.max(lastModified, internetRadio.getChanged().getTime());
         }
 
         // When was user settings last changed?
-        UserSettings userSettings = settingsService.getUserSettings(username);
+        UserSettings userSettings = securityService.getUserSettings(username);
         lastModified = Math.max(lastModified, userSettings.getChanged().getTime());
 
         return lastModified;
@@ -225,9 +231,9 @@ public class TopController {
         }
         // Note: UserSettings.setChanged() is intentionally not called. This would break browser caching
         // of the left frame.
-        UserSettings settings = settingsService.getUserSettings(securityService.getCurrentUsername(request));
+        UserSettings settings = securityService.getUserSettings(securityService.getCurrentUsername(request));
         settings.setSelectedMusicFolderId(musicFolderId);
-        settingsService.updateUserSettings(settings);
+        securityService.updateUserSettings(settings);
 
         return true;
     }

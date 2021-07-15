@@ -88,7 +88,7 @@ public class StatusController {
             transferStatuses.add(new TransferStatusHolder(uploadStatuses.get(i), false, false, true, i, locale));
         }
         return new ModelAndView("status", "model",
-                LegacyMap.of("brand", settingsService.getBrand(), "admin",
+                LegacyMap.of("brand", SettingsService.getBrand(), "admin",
                         securityService.isAdmin(securityService.getCurrentUser(request).getUsername()), "showStatus",
                         settingsService.isShowStatus(), "transferStatuses", transferStatuses, "chartWidth",
                         StatusChartController.IMAGE_WIDTH, "chartHeight", StatusChartController.IMAGE_HEIGHT));

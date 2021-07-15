@@ -50,6 +50,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PlayQueue;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.service.MediaScannerService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.StringUtil;
@@ -98,6 +99,8 @@ public abstract class AbstractPlayerFactoryTest {
     private MusicFolderDao musicFolderDao;
     @Autowired
     private SettingsService settingsService;
+    @Autowired
+    private MusicFolderService musicFolderService;
     @Autowired
     private MediaScannerService mediaScannerService;
     @Autowired
@@ -151,7 +154,7 @@ public abstract class AbstractPlayerFactoryTest {
 
             MatcherAssert.assertThat(musicFolderDao.getAllMusicFolders().size(), is(equalTo(1)));
             MusicFolderTestDataUtils.getTestMusicFolders().forEach(musicFolderDao::createMusicFolder);
-            settingsService.clearMusicFolderCache();
+            musicFolderService.clearMusicFolderCache();
 
             TestCaseUtils.execScan(mediaScannerService);
 
@@ -221,7 +224,8 @@ public abstract class AbstractPlayerFactoryTest {
             jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].bitRate").value(mediaFile.getBitRate())
                     .match(result);
             jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].path")
-                    .value(SubsonicRESTController.getRelativePath(mediaFile, settingsService)).match(result);
+                    .value(SubsonicRESTController.getRelativePath(mediaFile, settingsService, musicFolderService))
+                    .match(result);
             jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].isVideo").value(mediaFile.isVideo()).match(result);
             jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].playCount").isNumber().match(result);
             jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].created")

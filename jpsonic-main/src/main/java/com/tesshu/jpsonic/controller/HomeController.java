@@ -43,6 +43,7 @@ import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MediaScannerService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.RatingService;
 import com.tesshu.jpsonic.service.SearchService;
@@ -68,21 +69,23 @@ public class HomeController {
     private static final int LIST_SIZE = 40;
 
     private final SettingsService settingsService;
+    private final SecurityService securityService;
+    private final MusicFolderService musicFolderService;
     private final MediaScannerService mediaScannerService;
     private final RatingService ratingService;
-    private final SecurityService securityService;
     private final MediaFileService mediaFileService;
     private final SearchService searchService;
     private final MusicIndexService musicIndexService;
 
-    public HomeController(SettingsService settingsService, MediaScannerService mediaScannerService,
-            RatingService ratingService, SecurityService securityService, MediaFileService mediaFileService,
-            SearchService searchService, MusicIndexService musicIndexService) {
+    public HomeController(SettingsService settingsService, SecurityService securityService,
+            MusicFolderService musicFolderService, MediaScannerService mediaScannerService, RatingService ratingService,
+            MediaFileService mediaFileService, SearchService searchService, MusicIndexService musicIndexService) {
         super();
         this.settingsService = settingsService;
+        this.securityService = securityService;
+        this.musicFolderService = musicFolderService;
         this.mediaScannerService = mediaScannerService;
         this.ratingService = ratingService;
-        this.securityService = securityService;
         this.mediaFileService = mediaFileService;
         this.searchService = searchService;
         this.musicIndexService = musicIndexService;
@@ -98,13 +101,13 @@ public class HomeController {
         int listOffset = getIntParameter(request, Attributes.Request.LIST_OFFSET.value(), 0);
         AlbumListType listType = AlbumListType
                 .fromId(getStringParameter(request, Attributes.Request.LIST_TYPE.value()));
-        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         if (listType == null) {
             listType = userSettings.getDefaultAlbumList();
         }
 
-        MusicFolder selectedMusicFolder = settingsService.getSelectedMusicFolder(user.getUsername());
-        List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(user.getUsername(),
+        MusicFolder selectedMusicFolder = securityService.getSelectedMusicFolder(user.getUsername());
+        List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(user.getUsername(),
                 selectedMusicFolder == null ? null : selectedMusicFolder.getId());
 
         Map<String, Object> map = LegacyMap.of();
@@ -169,7 +172,7 @@ public class HomeController {
         map.put("welcomeSubtitle", settingsService.getWelcomeSubtitle());
         map.put("welcomeMessage", settingsService.getWelcomeMessage());
         map.put("isIndexBeingCreated", mediaScannerService.isScanning());
-        map.put("musicFoldersExist", !settingsService.getAllMusicFolders().isEmpty());
+        map.put("musicFoldersExist", !musicFolderService.getAllMusicFolders().isEmpty());
         map.put("listType", listType.getId());
         map.put("listSize", LIST_SIZE);
         map.put("coverArtSize", CoverArtScheme.MEDIUM.getSize());

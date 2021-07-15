@@ -54,6 +54,21 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/generalSettings")
 public class GeneralSettingsController {
 
+    /*
+     * It's EN and JP(consonant)
+     */
+    private static final String SIMPLE_INDEX_STRING = "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ) " // En
+            + "\u3042(\u30A2\u30A4\u30A6\u30A8\u30AA) " // Jp(a)
+            + "\u304B(\u30AB\u30AD\u30AF\u30B1\u30B3) " // Jp(ka)
+            + "\u3055(\u30B5\u30B7\u30B9\u30BB\u30BD) " // Jp(sa)
+            + "\u305F(\u30BF\u30C1\u30C4\u30C6\u30C8) " // Jp(ta)
+            + "\u306A(\u30CA\u30CB\u30CC\u30CD\u30CE) " // Jp(na)
+            + "\u306F(\u30CF\u30D2\u30D5\u30D8\u30DB) " // Jp(ha)
+            + "\u307E(\u30DE\u30DF\u30E0\u30E1\u30E2) " // Jp(ma)
+            + "\u3084(\u30E4\u30E6\u30E8) " // Jp(ya)
+            + "\u3089(\u30E9\u30EA\u30EB\u30EC\u30ED) " // Jp(ra)
+            + "\u308F(\u30EF\u30F2\u30F3)"; // Jp(wa)
+
     private final SettingsService settingsService;
     private final SecurityService securityService;
     private final ShareService shareService;
@@ -107,13 +122,13 @@ public class GeneralSettingsController {
         command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
         command.setShowRememberMe(settingsService.isShowRememberMe());
 
-        command.setDefaultIndexString(settingsService.getDefaultIndexString());
-        command.setSimpleIndexString(settingsService.getSimpleIndexString());
-        command.setDefaultSortAlbumsByYear(settingsService.isDefaultSortAlbumsByYear());
-        command.setDefaultSortGenresByAlphabet(settingsService.isDefaultSortGenresByAlphabet());
-        command.setDefaultProhibitSortVarious(settingsService.isDefaultProhibitSortVarious());
-        command.setDefaultSortAlphanum(settingsService.isDefaultSortAlphanum());
-        command.setDefaultSortStrict(settingsService.isDefaultSortStrict());
+        command.setDefaultIndexString(SettingsService.getDefaultIndexString());
+        command.setSimpleIndexString(SIMPLE_INDEX_STRING);
+        command.setDefaultSortAlbumsByYear(SettingsService.isDefaultSortAlbumsByYear());
+        command.setDefaultSortGenresByAlphabet(SettingsService.isDefaultSortGenresByAlphabet());
+        command.setDefaultProhibitSortVarious(SettingsService.isDefaultProhibitSortVarious());
+        command.setDefaultSortAlphanum(SettingsService.isDefaultSortAlphanum());
+        command.setDefaultSortStrict(SettingsService.isDefaultSortStrict());
 
         User user = securityService.getCurrentUser(request);
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
@@ -144,7 +159,7 @@ public class GeneralSettingsController {
 
         command.setShareCount(shareService.getAllShares().size());
 
-        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);

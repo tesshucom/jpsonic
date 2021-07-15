@@ -31,7 +31,6 @@ import java.util.concurrent.ExecutionException;
 
 import javax.sound.sampled.LineUnavailableException;
 
-import com.tesshu.jpsonic.Integration;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.PlayerTechnology;
 import com.tesshu.jpsonic.service.TranscodingService;
@@ -75,7 +74,6 @@ class AudioPlayerFactoryTest extends AbstractPlayerFactoryTest {
         playerService.createPlayer(jukeBoxPlayer);
     }
 
-    @Integration
     @Test
     @WithMockUser(username = "admin")
     @Override
@@ -84,7 +82,6 @@ class AudioPlayerFactoryTest extends AbstractPlayerFactoryTest {
         verify(mockAudioPlayer).play();
     }
 
-    @Integration
     @Test
     @WithMockUser(username = "admin")
     @Override
@@ -93,5 +90,4 @@ class AudioPlayerFactoryTest extends AbstractPlayerFactoryTest {
         verify(mockAudioPlayer).play();
         verify(mockAudioPlayer).pause();
     }
-
 }

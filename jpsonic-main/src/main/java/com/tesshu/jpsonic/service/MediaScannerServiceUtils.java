@@ -60,11 +60,11 @@ import org.springframework.stereotype.Component;
  * This class has a great influence on the accuracy of sorting and searching.
  */
 @Component
-@DependsOn({ "settingsService", "jmediaFileDao", "jartistDao", "jalbumDao", "japaneseReadingUtils", "indexManager",
+@DependsOn({ "musicFolderService", "jmediaFileDao", "jartistDao", "jalbumDao", "japaneseReadingUtils", "indexManager",
         "jpsonicComparators" })
 public class MediaScannerServiceUtils {
 
-    private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
     private final JMediaFileDao mediaFileDao;
     private final JArtistDao artistDao;
     private final JAlbumDao albumDao;
@@ -72,11 +72,11 @@ public class MediaScannerServiceUtils {
     private final IndexManager indexManager;
     private final JpsonicComparators comparators;
 
-    public MediaScannerServiceUtils(SettingsService settingsService, JMediaFileDao mediaFileDao, JArtistDao artistDao,
-            JAlbumDao albumDao, JapaneseReadingUtils utils, IndexManager indexManager,
+    public MediaScannerServiceUtils(MusicFolderService musicFolderService, JMediaFileDao mediaFileDao,
+            JArtistDao artistDao, JAlbumDao albumDao, JapaneseReadingUtils utils, IndexManager indexManager,
             JpsonicComparators jpsonicComparator) {
         super();
-        this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
         this.mediaFileDao = mediaFileDao;
         this.artistDao = artistDao;
         this.albumDao = albumDao;
@@ -156,13 +156,13 @@ public class MediaScannerServiceUtils {
             fixedIdAll.getAlbumIds().addAll(toBeFixed.getAlbumIds());
         }
         fixedIdAll.getMediaFileIds().forEach(id -> indexManager.index(mediaFileDao.getMediaFile(id)));
-        List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
+        List<MusicFolder> folders = musicFolderService.getAllMusicFolders(false, false);
         fixedIdAll.getArtistIds().forEach(id -> folders.forEach(m -> indexManager.index(artistDao.getArtist(id), m)));
         fixedIdAll.getAlbumIds().forEach(id -> indexManager.index(albumDao.getAlbum(id)));
     }
 
     private void updateOrderOfAlbum() {
-        List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
+        List<MusicFolder> folders = musicFolderService.getAllMusicFolders(false, false);
         List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folders);
         albums.sort(comparators.albumOrderByAlpha());
         int i = 0;
@@ -179,7 +179,7 @@ public class MediaScannerServiceUtils {
     }
 
     private void updateOrderOfArtist() {
-        List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
+        List<MusicFolder> folders = musicFolderService.getAllMusicFolders(false, false);
         List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
         artists.sort(comparators.artistOrderByAlpha());
         int i = 0;
@@ -191,7 +191,7 @@ public class MediaScannerServiceUtils {
 
     private void updateOrderOfFileStructure() {
 
-        List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
+        List<MusicFolder> folders = musicFolderService.getAllMusicFolders(false, false);
         List<MediaFile> artists = mediaFileDao.getArtistAll(folders);
         artists.sort(comparators.mediaFileOrderByAlpha());
 

@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
  * Tag representing integration.
  * In the legacy test case, it was represented by the suffix of Int.
  */
-@Target(ElementType.METHOD)
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Tag("integration")
 @Test

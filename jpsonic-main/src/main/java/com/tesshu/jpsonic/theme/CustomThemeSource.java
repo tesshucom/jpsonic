@@ -21,12 +21,8 @@
 
 package com.tesshu.jpsonic.theme;
 
-import com.tesshu.jpsonic.domain.Theme;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
-import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.context.support.ResourceBundleThemeSource;
 import org.springframework.ui.context.support.UiApplicationContextUtils;
@@ -40,29 +36,10 @@ import org.springframework.ui.context.support.UiApplicationContextUtils;
 @Component(UiApplicationContextUtils.THEME_SOURCE_BEAN_NAME)
 public class CustomThemeSource extends ResourceBundleThemeSource {
 
-    private String basenamePrefix;
-
-    @Override
-    protected MessageSource createMessageSource(String basename) {
-        ResourceBundleMessageSource messageSource = (ResourceBundleMessageSource) super.createMessageSource(basename);
-
-        // Create parent theme recursively.
-        for (Theme theme : SettingsService.getAvailableThemes()) {
-            String maybeBasename = basenamePrefix + theme.getId();
-            if (maybeBasename.equals(basename) && theme.getParent() != null) {
-                String parent = basenamePrefix + theme.getParent();
-                messageSource.setParentMessageSource(createMessageSource(parent));
-                break;
-            }
-        }
-        return messageSource;
-    }
-
     @Autowired
     @Value("com.tesshu.jpsonic.theme.")
     @Override
     public void setBasenamePrefix(String basenamePrefix) {
-        this.basenamePrefix = basenamePrefix;
         super.setBasenamePrefix(basenamePrefix);
     }
 

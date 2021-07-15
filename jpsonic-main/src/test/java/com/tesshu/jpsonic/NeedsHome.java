@@ -8,6 +8,13 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Callbacks used for test classes that rely on the local resource directory (home directory) to use property files,
+ * local databases, search indexes, etc. It is necessary for testing highly coupled processes. On the other hand, the
+ * cost is high, so if this callback is used for unit testing, it is necessary to consider whether it can be replaced
+ * with a mock.
+ */
+@Integration
 public class NeedsHome implements BeforeAllCallback {
 
     private static final Logger LOG = LoggerFactory.getLogger(NeedsHome.class);

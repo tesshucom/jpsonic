@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -51,15 +52,15 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/more")
 public class MoreController {
 
-    private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
     private final PlayerService playerService;
     private final SearchService searchService;
 
-    public MoreController(SettingsService settingsService, SecurityService securityService, PlayerService playerService,
-            SearchService searchService) {
+    public MoreController(MusicFolderService musicFolderService, SecurityService securityService,
+            PlayerService playerService, SearchService searchService) {
         super();
-        this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
         this.securityService = securityService;
         this.playerService = playerService;
         this.searchService = searchService;
@@ -72,7 +73,7 @@ public class MoreController {
         User user = securityService.getCurrentUser(request);
 
         String uploadDirectory = null;
-        List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(user.getUsername());
+        List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(user.getUsername());
         if (!musicFolders.isEmpty()) {
             uploadDirectory = new File(musicFolders.get(0).getPath(), "Incoming").getPath();
         }
@@ -83,7 +84,7 @@ public class MoreController {
                 LegacyMap.of("user", user, "uploadDirectory", uploadDirectory, "genres", searchService.getGenres(false),
                         "currentYear", Calendar.getInstance().get(Calendar.YEAR), "musicFolders", musicFolders,
                         "clientSidePlaylist", player.isExternalWithPlaylist() || player.isWeb(), "brand",
-                        settingsService.getBrand()));
+                        SettingsService.getBrand()));
         return result;
     }
 }

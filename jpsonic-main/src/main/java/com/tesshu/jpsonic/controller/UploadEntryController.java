@@ -26,8 +26,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,12 +38,12 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/uploadEntry")
 public class UploadEntryController {
 
-    private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
 
-    public UploadEntryController(SettingsService settingsService, SecurityService securityService) {
+    public UploadEntryController(MusicFolderService musicFolderService, SecurityService securityService) {
         super();
-        this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
         this.securityService = securityService;
     }
 
@@ -53,7 +53,7 @@ public class UploadEntryController {
         User user = securityService.getCurrentUser(request);
 
         String uploadDirectory = null;
-        List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(user.getUsername());
+        List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(user.getUsername());
         if (!musicFolders.isEmpty()) {
             uploadDirectory = new File(musicFolders.get(0).getPath(), "Incoming").getPath();
         }

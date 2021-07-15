@@ -83,7 +83,7 @@ public class CustomThemeResolver implements ThemeResolver {
         // Look for user-specific theme.
         String username = securityService.getCurrentUsername(request);
         if (username != null) {
-            UserSettings userSettings = settingsService.getUserSettings(username);
+            UserSettings userSettings = securityService.getUserSettings(username);
             if (userSettings != null) {
                 themeId = userSettings.getThemeId();
             }

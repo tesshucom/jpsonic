@@ -21,11 +21,8 @@
 
 package com.tesshu.jpsonic.ajax;
 
-import javax.servlet.http.HttpSession;
-
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.domain.TransferStatus;
-import org.directwebremoting.WebContextFactory;
 import org.springframework.stereotype.Service;
 
 /**
@@ -37,6 +34,13 @@ import org.springframework.stereotype.Service;
 @Service("ajaxTransferService")
 public class TransferService {
 
+    private final AjaxHelper ajaxHelper;
+
+    public TransferService(AjaxHelper ajaxHelper) {
+        super();
+        this.ajaxHelper = ajaxHelper;
+    }
+
     /**
      * Returns info about any ongoing upload within the current session.
      * 
@@ -44,8 +48,8 @@ public class TransferService {
      */
     public UploadInfo getUploadInfo() {
 
-        HttpSession session = WebContextFactory.get().getSession();
-        TransferStatus status = (TransferStatus) session.getAttribute(Attributes.Session.UPLOAD_STATUS.value());
+        TransferStatus status = (TransferStatus) ajaxHelper.getSession()
+                .getAttribute(Attributes.Session.UPLOAD_STATUS.value());
 
         if (status != null) {
             return new UploadInfo(status.getBytesTransfered(), status.getBytesTotal());

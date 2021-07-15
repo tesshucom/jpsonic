@@ -37,9 +37,9 @@ import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.apache.commons.lang.StringUtils;
@@ -65,19 +65,19 @@ public class RandomPlayQueueController {
     private static final Logger LOG = LoggerFactory.getLogger(RandomPlayQueueController.class);
     private static final String REQUEST_VALUE_ANY = "any";
 
+    private final MusicFolderService musicFolderService;
+    private final SecurityService securityService;
     private final PlayerService playerService;
     private final MediaFileService mediaFileService;
-    private final SecurityService securityService;
-    private final SettingsService settingsService;
     private final IndexManager indexManager;
 
-    public RandomPlayQueueController(PlayerService playerService, MediaFileService mediaFileService,
-            SecurityService securityService, SettingsService settingsService, IndexManager indexManager) {
+    public RandomPlayQueueController(MusicFolderService musicFolderService, SecurityService securityService,
+            PlayerService playerService, MediaFileService mediaFileService, IndexManager indexManager) {
         super();
+        this.musicFolderService = musicFolderService;
+        this.securityService = securityService;
         this.playerService = playerService;
         this.mediaFileService = mediaFileService;
-        this.securityService = securityService;
-        this.settingsService = settingsService;
         this.indexManager = indexManager;
     }
 
@@ -399,6 +399,6 @@ public class RandomPlayQueueController {
         if (selectedMusicFolderId == -1) {
             selectedMusicFolderId = null;
         }
-        return settingsService.getMusicFoldersForUser(username, selectedMusicFolderId);
+        return musicFolderService.getMusicFoldersForUser(username, selectedMusicFolderId);
     }
 }
