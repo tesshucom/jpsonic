@@ -96,8 +96,7 @@ public class SettingsService {
             "database.config.embed.url", "database.config.embed.username", "database.config.embed.password",
             "database.config.jndi.name", "database.usertable.quote");
 
-    private static final int ELEMENT_COUNT_IN_LINE_OF_DEFAULT_THEME = 2;
-    private static final int ELEMENT_COUNT_IN_LINE_OF_EXTENDS_THEME = 3;
+    private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
     private static List<Theme> themes;
     private static Locale[] locales;
@@ -819,10 +818,8 @@ public class SettingsService {
                     String[] lines = StringUtil.readLines(in);
                     for (String line : lines) {
                         String[] elements = StringUtil.split(line);
-                        if (elements.length == ELEMENT_COUNT_IN_LINE_OF_DEFAULT_THEME) {
+                        if (elements.length == ELEMENT_COUNT_IN_LINE_OF_THEME) {
                             l.add(new Theme(elements[0], elements[1]));
-                        } else if (elements.length == ELEMENT_COUNT_IN_LINE_OF_EXTENDS_THEME) {
-                            l.add(new Theme(elements[0], elements[1], elements[2]));
                         } else {
                             if (LOG.isWarnEnabled()) {
                                 LOG.warn("Failed to parse theme from line: [" + line + "].");
