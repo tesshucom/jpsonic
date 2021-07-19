@@ -19,15 +19,19 @@ package com.tesshu.jpsonic.controller;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.service.SecurityService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -46,14 +50,17 @@ class IndexControllerTest {
     private static final String ADMIN_NAME = "admin";
     private static final String VIEW_NAME = "index";
 
-    @Autowired
-    private IndexController controller;
+    @Mock
+    private SecurityService securityService;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        UserSettings settings = new UserSettings(ADMIN_NAME);
+        Mockito.when(securityService.getCurrentUsername(Mockito.any())).thenReturn(ADMIN_NAME);
+        Mockito.when(securityService.getUserSettings(ADMIN_NAME)).thenReturn(settings);
+        mockMvc = MockMvcBuilders.standaloneSetup(new IndexController(securityService)).build();
     }
 
     @Test
@@ -68,5 +75,30 @@ class IndexControllerTest {
         @SuppressWarnings("unchecked")
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get("model");
         assertNotNull(model);
+        assertEquals(3, model.size());
+        assertEquals(model.get("brand"), "Jpsonic");
+        assertFalse((Boolean) model.get("keyboardShortcutsEnabled"));
+        assertFalse((Boolean) model.get("showLeft"));
+    }
+
+    @Test
+    @WithMockUser(username = ADMIN_NAME)
+    void testPostWithView() throws Exception {
+        MvcResult result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/index.view").param("mainView",
+                        ViewName.MUSIC_FOLDER_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        assertNotNull(result);
+        ModelAndView modelAndView = result.getModelAndView();
+        assertEquals(VIEW_NAME, modelAndView.getViewName());
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get("model");
+        assertNotNull(model);
+        assertEquals(4, model.size());
+        assertEquals(model.get("brand"), "Jpsonic");
+        assertFalse((Boolean) model.get("keyboardShortcutsEnabled"));
+        assertFalse((Boolean) model.get("showLeft"));
+        assertEquals(model.get("mainView"), "musicFolderSettings.view");
     }
 }
