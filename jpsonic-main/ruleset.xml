@@ -19,6 +19,7 @@
     <exclude-pattern>.*/.*Id3ArtistTokenizerTest.java</exclude-pattern>
     <exclude-pattern>.*/.*UPnPSearchCriteriaDirectorLegacyTest.java</exclude-pattern>
     <exclude-pattern>.*/.*UPnPSearchCriteriaDirectorTest.java</exclude-pattern>
+    <exclude-pattern>.*/.*JapaneseReadingUtilsTest.java</exclude-pattern>
 
     <!-- Java Rules:Best Practices -->
     <rule ref="category/java/bestpractices.xml">

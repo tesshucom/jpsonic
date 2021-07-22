@@ -96,11 +96,11 @@ public class JapaneseReadingUtils {
         truncatedReadingMap = new ConcurrentHashMap<>();
     }
 
-    public void analyze(Genre g) {
+    public void analyze(@NonNull Genre g) {
         g.setReading(createReading(defaultIfBlank(g.getName(), g.getReading())));
     }
 
-    public void analyze(MediaFile m) {
+    public void analyze(@NonNull MediaFile m) {
         m.setArtistSort(normalize(m.getArtistSort()));
         m.setArtistReading(createReading(m.getArtist(), m.getArtistSort()));
         m.setAlbumArtistSort(normalize(m.getAlbumArtistSort()));
@@ -109,11 +109,11 @@ public class JapaneseReadingUtils {
         m.setAlbumReading(createReading(m.getAlbumName(), m.getAlbumSort()));
     }
 
-    public void analyze(Playlist p) {
+    public void analyze(@NonNull Playlist p) {
         p.setReading(createReading(defaultIfBlank(p.getName(), p.getReading())));
     }
 
-    public void analyze(SortCandidate c) {
+    public void analyze(@NonNull SortCandidate c) {
         c.setReading(createReading(c.getName(), c.getSort()));
         if (isEmpty(c.getSort())) {
             c.setSort(c.getReading());
@@ -125,10 +125,7 @@ public class JapaneseReadingUtils {
         truncatedReadingMap.clear();
     }
 
-    /**
-     * 
-     */
-    private boolean isJapaneseReadable(String str) {
+    private boolean isJapaneseReadable(@Nullable String str) {
         if (isEmpty(str)) {
             return false;
         }
@@ -153,7 +150,7 @@ public class JapaneseReadingUtils {
         return toBeUpdate;
     }
 
-    private String createIgnoredArticles(String s) {
+    private String createIgnoredArticles(@Nullable String s) {
         if (isEmpty(s)) {
             return null;
         }
@@ -173,7 +170,7 @@ public class JapaneseReadingUtils {
     }
 
     @SuppressWarnings("PMD.ConfusingTernary") // false positive
-    public String createIndexableName(Artist artist) {
+    public String createIndexableName(@NonNull Artist artist) {
         String indexableName = artist.getName();
         if (settingsService.isIndexEnglishPrior() && isStartWithAlpha(artist.getName())) {
             indexableName = artist.getName();
@@ -186,14 +183,14 @@ public class JapaneseReadingUtils {
     }
 
     @SuppressWarnings("PMD.ConfusingTernary") // false positive
-    public String createIndexableName(MediaFile mediaFile) {
-        String indexableName = mediaFile.getName();
-        if (settingsService.isIndexEnglishPrior() && isStartWithAlpha(mediaFile.getName())) {
-            indexableName = mediaFile.getName();
-        } else if (!isEmpty(mediaFile.getArtistReading())) {
-            indexableName = mediaFile.getArtistReading();
-        } else if (!isEmpty(mediaFile.getArtistSort())) {
-            indexableName = createIndexableName(createReading(mediaFile.getArtistSort()));
+    public String createIndexableName(@NonNull MediaFile artist) {
+        String indexableName = artist.getName();
+        if (settingsService.isIndexEnglishPrior() && isStartWithAlpha(artist.getName())) {
+            indexableName = artist.getName();
+        } else if (!isEmpty(artist.getArtistReading())) {
+            indexableName = artist.getArtistReading();
+        } else if (!isEmpty(artist.getArtistSort())) {
+            indexableName = createIndexableName(createReading(artist.getArtistSort()));
         }
         return createIndexableName(indexableName);
     }
@@ -206,7 +203,7 @@ public class JapaneseReadingUtils {
      * 
      * @return indexable Name
      */
-    private String createIndexableName(String sort) {
+    private String createIndexableName(@NonNull String sort) {
         String indexableName = sort;
         if (sort.charAt(0) > WAVY_LINE) {
             indexableName = Transliterator.getInstance("Fullwidth-Halfwidth").transliterate(indexableName);
@@ -217,7 +214,7 @@ public class JapaneseReadingUtils {
         return indexableName;
     }
 
-    private String createReading(String s) {
+    private String createReading(@Nullable String s) {
         if (isEmpty(s)) {
             return null;
         }
@@ -258,7 +255,7 @@ public class JapaneseReadingUtils {
         return reading;
     }
 
-    private boolean isJapaneseReading(String str) {
+    private boolean isJapaneseReading(@Nullable String str) {
         if (isEmpty(str)) {
             return false;
         }
@@ -272,7 +269,7 @@ public class JapaneseReadingUtils {
     }
 
     /* AtoZ only true. */
-    private boolean isStartWithAlpha(String s) {
+    private boolean isStartWithAlpha(@Nullable String s) {
         if (isEmpty(s)) {
             return false;
         }
@@ -314,7 +311,7 @@ public class JapaneseReadingUtils {
      * @param japaneseReading
      *            string after analysis
      */
-    public String removePunctuationFromJapaneseReading(String japaneseReading) {
+    public String removePunctuationFromJapaneseReading(@Nullable String japaneseReading) {
         if (isJapaneseReading(japaneseReading)) {
             if (truncatedReadingMap.containsKey(japaneseReading)) {
                 return truncatedReadingMap.get(japaneseReading);
@@ -331,5 +328,4 @@ public class JapaneseReadingUtils {
         }
         return japaneseReading;
     }
-
 }
