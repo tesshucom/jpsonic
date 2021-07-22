@@ -24,7 +24,6 @@ import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.text.Normalizer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -137,17 +136,6 @@ public class JapaneseReadingUtils {
                     || Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION.equals(b)
                     || Character.UnicodeBlock.GREEK.equals(b);
         });
-    }
-
-    public List<MediaFile> createAlbumSortToBeUpdate(List<MediaFile> candidates) {
-        List<MediaFile> toBeUpdate = new ArrayList<>();
-        for (MediaFile candidate : candidates) {
-            if (!candidate.getAlbumReading().equals(candidate.getAlbumSort())) {
-                candidate.setAlbumSort(candidate.getAlbumSort());
-                toBeUpdate.add(candidate);
-            }
-        }
-        return toBeUpdate;
     }
 
     private String createIgnoredArticles(@Nullable String s) {
