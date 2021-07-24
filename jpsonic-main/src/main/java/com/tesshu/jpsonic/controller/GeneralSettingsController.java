@@ -83,58 +83,12 @@ public class GeneralSettingsController {
         this.outlineHelpSelector = outlineHelpSelector;
     }
 
-    @GetMapping
-    protected String displayForm() {
-        return "generalSettings";
-    }
-
     @ModelAttribute
     protected void formBackingObject(HttpServletRequest request, Model model,
             @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) {
         GeneralSettingsCommand command = new GeneralSettingsCommand();
-        command.setCoverArtFileTypes(settingsService.getCoverArtFileTypes());
-        command.setIgnoredArticles(settingsService.getIgnoredArticles());
-        command.setShortcuts(settingsService.getShortcuts());
-        command.setIndex(settingsService.getIndexString());
-        command.setPlaylistFolder(settingsService.getPlaylistFolder());
-        command.setMusicFileTypes(settingsService.getMusicFileTypes());
-        command.setVideoFileTypes(settingsService.getVideoFileTypes());
-        command.setSortAlbumsByYear(settingsService.isSortAlbumsByYear());
-        command.setSortGenresByAlphabet(settingsService.isSortGenresByAlphabet());
-        command.setProhibitSortVarious(settingsService.isProhibitSortVarious());
-        command.setSortAlphanum(settingsService.isSortAlphanum());
-        command.setSortStrict(settingsService.isSortStrict());
-        command.setSearchComposer(settingsService.isSearchComposer());
-        command.setOutputSearchQuery(settingsService.isOutputSearchQuery());
-        command.setSearchMethodLegacy(settingsService.isSearchMethodLegacy());
-        command.setAnonymousTranscoding(settingsService.isAnonymousTranscoding());
-        command.setGettingStartedEnabled(settingsService.isGettingStartedEnabled());
-        command.setWelcomeTitle(settingsService.getWelcomeTitle());
-        command.setWelcomeSubtitle(settingsService.getWelcomeSubtitle());
-        command.setWelcomeMessage(settingsService.getWelcomeMessage());
-        command.setLoginMessage(settingsService.getLoginMessage());
-        command.setUseRadio(settingsService.isUseRadio());
-        command.setUseSonos(settingsService.isUseSonos());
-        command.setPublishPodcast(settingsService.isPublishPodcast());
-        command.setShowJavaJukebox(settingsService.isShowJavaJukebox());
-        command.setShowServerLog(settingsService.isShowServerLog());
-        command.setShowStatus(settingsService.isShowStatus());
-        command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
-        command.setShowRememberMe(settingsService.isShowRememberMe());
 
-        command.setDefaultIndexString(SettingsService.getDefaultIndexString());
-        command.setSimpleIndexString(SIMPLE_INDEX_STRING);
-        command.setDefaultSortAlbumsByYear(SettingsService.isDefaultSortAlbumsByYear());
-        command.setDefaultSortGenresByAlphabet(SettingsService.isDefaultSortGenresByAlphabet());
-        command.setDefaultProhibitSortVarious(SettingsService.isDefaultProhibitSortVarious());
-        command.setDefaultSortAlphanum(SettingsService.isDefaultSortAlphanum());
-        command.setDefaultSortStrict(SettingsService.isDefaultSortStrict());
-
-        User user = securityService.getCurrentUser(request);
-        command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
-
-        toast.ifPresent(command::setShowToast);
-
+        // theme and language
         List<Theme> themes = SettingsService.getAvailableThemes();
         command.setThemes(themes.toArray(new Theme[0]));
         String currentThemeId = settingsService.getThemeId();
@@ -144,7 +98,6 @@ public class GeneralSettingsController {
                 break;
             }
         }
-
         Locale currentLocale = settingsService.getLocale();
         Locale[] locales = settingsService.getAvailableLocales();
         String[] localeStrings = new String[locales.length];
@@ -157,70 +110,152 @@ public class GeneralSettingsController {
         }
         command.setLocales(localeStrings);
 
-        command.setShareCount(shareService.getAllShares().size());
+        // index settings
+        command.setDefaultIndexString(SettingsService.getDefaultIndexString());
+        command.setSimpleIndexString(SIMPLE_INDEX_STRING);
+        command.setIndex(settingsService.getIndexString());
+        command.setIgnoredArticles(settingsService.getIgnoredArticles());
 
+        // sort settings
+        command.setSortAlbumsByYear(settingsService.isSortAlbumsByYear());
+        command.setSortGenresByAlphabet(settingsService.isSortGenresByAlphabet());
+        command.setProhibitSortVarious(settingsService.isProhibitSortVarious());
+        command.setSortAlphanum(settingsService.isSortAlphanum());
+        command.setSortStrict(settingsService.isSortStrict());
+        command.setDefaultSortAlbumsByYear(SettingsService.isDefaultSortAlbumsByYear());
+        command.setDefaultSortGenresByAlphabet(SettingsService.isDefaultSortGenresByAlphabet());
+        command.setDefaultProhibitSortVarious(SettingsService.isDefaultProhibitSortVarious());
+        command.setDefaultSortAlphanum(SettingsService.isDefaultSortAlphanum());
+        command.setDefaultSortStrict(SettingsService.isDefaultSortStrict());
+
+        // search settings
+        command.setSearchComposer(settingsService.isSearchComposer());
+        command.setOutputSearchQuery(settingsService.isOutputSearchQuery());
+
+        // deprecated
+        command.setShowJavaJukebox(settingsService.isShowJavaJukebox());
+        command.setShowServerLog(settingsService.isShowServerLog());
+        command.setShowStatus(settingsService.isShowStatus());
+        command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
+        command.setShowRememberMe(settingsService.isShowRememberMe());
+        command.setPublishPodcast(settingsService.isPublishPodcast());
+        command.setUseRadio(settingsService.isUseRadio());
+        command.setUseSonos(settingsService.isUseSonos());
+        command.setSearchMethodLegacy(settingsService.isSearchMethodLegacy());
+        command.setAnonymousTranscoding(settingsService.isAnonymousTranscoding());
+
+        // shortcuts
+        command.setMusicFileTypes(settingsService.getMusicFileTypes());
+        command.setVideoFileTypes(settingsService.getVideoFileTypes());
+        command.setCoverArtFileTypes(settingsService.getCoverArtFileTypes());
+        command.setPlaylistFolder(settingsService.getPlaylistFolder());
+        command.setShortcuts(settingsService.getShortcuts());
+
+        // welcomme
+        command.setGettingStartedEnabled(settingsService.isGettingStartedEnabled());
+        command.setWelcomeTitle(settingsService.getWelcomeTitle());
+        command.setWelcomeSubtitle(settingsService.getWelcomeSubtitle());
+        command.setWelcomeMessage(settingsService.getWelcomeMessage());
+        command.setLoginMessage(settingsService.getLoginMessage());
+
+        // for view page control
+        User user = securityService.getCurrentUser(request);
+        command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
+        toast.ifPresent(command::setShowToast);
+        command.setShareCount(shareService.getAllShares().size());
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
 
+    @GetMapping
+    protected String get() {
+        return "generalSettings";
+    }
+
     @PostMapping
-    protected ModelAndView doSubmitAction(
-            @ModelAttribute(Attributes.Model.Command.VALUE) GeneralSettingsCommand command,
+    protected ModelAndView post(@ModelAttribute(Attributes.Model.Command.VALUE) GeneralSettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
+        // theme and language
         int themeIndex = Integer.parseInt(command.getThemeIndex());
         Theme theme = SettingsService.getAvailableThemes().get(themeIndex);
-
         int localeIndex = Integer.parseInt(command.getLocaleIndex());
         Locale locale = settingsService.getAvailableLocales()[localeIndex];
 
+        /*
+         * To transition the mainframe after reloading the entire web page, not a simple transition. (Compare before
+         * reflecting settings)
+         */
         boolean isReload = !settingsService.getIndexString().equals(command.getIndex())
                 || !settingsService.getIgnoredArticles().equals(command.getIgnoredArticles())
                 || !settingsService.getShortcuts().equals(command.getShortcuts())
                 || !settingsService.getThemeId().equals(theme.getId()) || !settingsService.getLocale().equals(locale)
                 || settingsService.isOthersPlayingEnabled() != command.isOthersPlayingEnabled();
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), isReload);
-        if (!isReload) {
-            redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
-        }
+
+        settingsService.setThemeId(theme.getId());
+        settingsService.setLocale(locale);
+
+        // index settings
         settingsService.setIndexString(command.getIndex());
         settingsService.setIgnoredArticles(command.getIgnoredArticles());
-        settingsService.setShortcuts(command.getShortcuts());
-        settingsService.setPlaylistFolder(command.getPlaylistFolder());
-        settingsService.setMusicFileTypes(command.getMusicFileTypes());
-        settingsService.setVideoFileTypes(command.getVideoFileTypes());
-        settingsService.setCoverArtFileTypes(command.getCoverArtFileTypes());
+
+        // sort settings
         settingsService.setSortAlbumsByYear(command.isSortAlbumsByYear());
         settingsService.setSortGenresByAlphabet(command.isSortGenresByAlphabet());
         settingsService.setProhibitSortVarious(command.isProhibitSortVarious());
         settingsService.setSortAlphanum(command.isSortAlphanum());
         settingsService.setSortStrict(command.isSortStrict());
+
+        // search settings
         settingsService.setSearchComposer(command.isSearchComposer());
         settingsService.setOutputSearchQuery(command.isOutputSearchQuery());
-        settingsService
-                .setSearchMethodChanged(settingsService.isSearchMethodLegacy() != command.isSearchMethodLegacy());
-        settingsService.setAnonymousTranscoding(command.isAnonymousTranscoding());
-        settingsService.setSearchMethodLegacy(command.isSearchMethodLegacy());
-        settingsService.setGettingStartedEnabled(command.isGettingStartedEnabled());
-        settingsService.setWelcomeTitle(command.getWelcomeTitle());
-        settingsService.setWelcomeSubtitle(command.getWelcomeSubtitle());
-        settingsService.setWelcomeMessage(command.getWelcomeMessage());
-        settingsService.setLoginMessage(command.getLoginMessage());
-        settingsService.setUseRadio(command.isUseRadio());
-        settingsService.setUseSonos(command.isUseSonos());
-        settingsService.setPublishPodcast(command.isPublishPodcast());
-        settingsService.setThemeId(theme.getId());
-        settingsService.setLocale(locale);
+
+        // deprecated
         settingsService.setShowJavaJukebox(command.isShowJavaJukebox());
         settingsService.setShowServerLog(command.isShowServerLog());
         settingsService.setShowStatus(command.isShowStatus());
         settingsService.setOthersPlayingEnabled(command.isOthersPlayingEnabled());
         settingsService.setShowRememberMe(command.isShowRememberMe());
+        settingsService.setPublishPodcast(command.isPublishPodcast());
+        settingsService.setUseRadio(command.isUseRadio());
+        settingsService.setUseSonos(command.isUseSonos());
+        settingsService.setSearchMethodLegacy(command.isSearchMethodLegacy());
+        settingsService.setAnonymousTranscoding(command.isAnonymousTranscoding());
+
+        /*
+         * If this item is changed, the search index will need to be rebuilt.
+         * 
+         * @see IndexManager#deleteOldIndexFiles
+         */
+        settingsService
+                .setSearchMethodChanged(settingsService.isSearchMethodLegacy() != command.isSearchMethodLegacy());
+
+        // shortcuts
+        settingsService.setMusicFileTypes(command.getMusicFileTypes());
+        settingsService.setVideoFileTypes(command.getVideoFileTypes());
+        settingsService.setCoverArtFileTypes(command.getCoverArtFileTypes());
+        settingsService.setPlaylistFolder(command.getPlaylistFolder());
+        settingsService.setShortcuts(command.getShortcuts());
+
+        // welcomme
+        settingsService.setGettingStartedEnabled(command.isGettingStartedEnabled());
+        settingsService.setWelcomeTitle(command.getWelcomeTitle());
+        settingsService.setWelcomeSubtitle(command.getWelcomeSubtitle());
+        settingsService.setWelcomeMessage(command.getWelcomeMessage());
+        settingsService.setLoginMessage(command.getLoginMessage());
+
         settingsService.save();
+
+        // for view page control
+
+        // Updates that do not reload are normal transition and toast messages
+        if (!isReload) {
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
+        }
 
         return new ModelAndView(new RedirectView(ViewName.GENERAL_SETTINGS.value()));
     }
-
 }
