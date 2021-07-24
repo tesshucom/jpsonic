@@ -65,6 +65,7 @@ import org.springframework.stereotype.Service;
 public class MediaScannerService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaScannerService.class);
+    private static final AtomicBoolean IS_EXPUNGING = new AtomicBoolean();
     private static final AtomicBoolean IS_SCANNING = new AtomicBoolean();
     private static final Object SCAN_LOCK = new Object();
 
@@ -142,7 +143,7 @@ public class MediaScannerService {
      */
     @SuppressWarnings("PMD.AccessorMethodGeneration") // Triaged in #833 or #834
     public void scanLibrary() {
-        if (isScanning()) {
+        if (isScanning() || IS_EXPUNGING.get()) {
             return;
         }
         synchronized (SCAN_LOCK) {
@@ -457,5 +458,47 @@ public class MediaScannerService {
 
     public void setJpsonicCleansingProcess(boolean b) {
         this.cleansingProcess.set(b);
+    }
+
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
+    public void expunge() {
+
+        if (IS_EXPUNGING.get()) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Cleanup is already running.");
+            }
+            return;
+        }
+        IS_EXPUNGING.set(true);
+
+        MediaLibraryStatistics statistics = indexManager.getStatistics();
+
+        /*
+         * indexManager#expunge depends on DB delete flag. For consistency, clean of DB and Lucene must run in one
+         * block.
+         *
+         * Lucene's writing is exclusive. This process cannot be performed while during scan or scan has never been
+         * performed.
+         */
+        if (statistics != null && !isScanning()) {
+
+            // to be before dao#expunge
+            indexManager.startIndexing();
+            indexManager.expunge();
+            indexManager.stopIndexing(statistics);
+
+            // to be after indexManager#expunge
+            artistDao.expunge();
+            albumDao.expunge();
+            mediaFileDao.expunge();
+
+            mediaFileDao.checkpoint();
+
+        } else {
+            LOG.warn(
+                    "Index hasn't been created yet or during scanning. Plese execute clean up after scan is completed.");
+        }
+
+        IS_EXPUNGING.set(false);
     }
 }
