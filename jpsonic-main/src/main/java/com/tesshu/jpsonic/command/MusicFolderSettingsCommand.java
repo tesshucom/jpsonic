@@ -50,6 +50,8 @@ public class MusicFolderSettingsCommand {
     private boolean useSonos;
     private boolean showToast;
     private int shareCount;
+    private boolean fullScanNext;
+    private boolean ignoreFileTimestamps;
 
     public String getInterval() {
         return interval;
@@ -163,6 +165,22 @@ public class MusicFolderSettingsCommand {
         this.shareCount = shareCount;
     }
 
+    public boolean isFullScanNext() {
+        return fullScanNext;
+    }
+
+    public void setFullScanNext(boolean fullScanNext) {
+        this.fullScanNext = fullScanNext;
+    }
+
+    public boolean isIgnoreFileTimestamps() {
+        return ignoreFileTimestamps;
+    }
+
+    public void setIgnoreFileTimestamps(boolean ignoreFileTimes) {
+        this.ignoreFileTimestamps = ignoreFileTimes;
+    }
+
     public static class MusicFolderInfo {
 
         private Integer id;
@@ -240,5 +258,6 @@ public class MusicFolderSettingsCommand {
         public boolean isExisting() {
             return existing;
         }
+
     }
 }

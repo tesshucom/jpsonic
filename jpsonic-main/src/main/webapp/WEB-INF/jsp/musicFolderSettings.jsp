@@ -84,6 +84,10 @@
             <dt><fmt:message key='musicfoldersettings.scannow'/><c:import url="helpToolTip.jsp"><c:param name="topic" value="scanMediaFolders"/></c:import></dt>
             <dd>
                 <div>
+                    <c:if test='${command.fullScanNext}'>
+                        <strong><fmt:message key="musicfoldersettings.fullscannext"/></strong>
+                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="fullscannext"/></c:import>
+                    </c:if>
                     <c:choose>
                         <c:when test='${command.scanning}'>
                             <input type="button" onClick="location.href='musicFolderSettings.view?scanNow=true'" value="<fmt:message key='musicfoldersettings.doscan'/>" disabled/>
@@ -157,7 +161,13 @@
             </dd>
             <dt></dt>
             <dd>
-                <form:checkbox path="indexEnglishPrior" id="indexEnglishPrior" disabled="true"/>
+                <form:checkbox path="ignoreFileTimestamps" cssClass="checkbox" id="ignoreFileTimestamps"/>
+                <form:label path="ignoreFileTimestamps"><fmt:message key="musicfoldersettings.ignorefiletimestamps"/></form:label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="ignorefiletimestamps"/></c:import>
+            </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="indexEnglishPrior" id="indexEnglishPrior"/>
                 <label for="indexEnglishPrior"><fmt:message key="generalsettings.indexEnglishPrior"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="indexEnglishPrior"/></c:import>
             </dd>

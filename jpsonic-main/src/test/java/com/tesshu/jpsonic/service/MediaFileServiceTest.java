@@ -124,6 +124,14 @@ class MediaFileServiceTest {
                     }
 
                 }
+
+                @interface LastScanned {
+                    @interface EqZeroDate {
+                    }
+
+                    @interface NeZeroDate {
+                    }
+                }
             }
         }
 
@@ -190,6 +198,7 @@ class MediaFileServiceTest {
         @CheckLastModifiedDecision.Conditions.UseFastCache.False
         @CheckLastModifiedDecision.Conditions.MediaFile.Version.EqDaoVersion
         @CheckLastModifiedDecision.Conditions.MediaFile.Changed.EqLastModified
+        @CheckLastModifiedDecision.Conditions.MediaFile.LastScanned.NeZeroDate
         @CheckLastModifiedDecision.Conditions.IgnoreFileTimestamps.False
         @CheckLastModifiedDecision.Result.CreateOrUpdate.False
         @Test
@@ -285,6 +294,28 @@ class MediaFileServiceTest {
             mediaFile.setPath(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified() - 1_000L));
             assertTrue(mediaFile.getChanged().getTime() < FileUtil.lastModified(mediaFile.getFile()));
+            assertEquals(mediaFile, checkLastModified(mediaFile, false));
+            Mockito.verify(mediaFileDao, Mockito.atLeastOnce()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+        }
+
+        @CheckLastModifiedDecision.Conditions.UseFastCache.False
+        @CheckLastModifiedDecision.Conditions.MediaFile.Version.EqDaoVersion
+        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.EqLastModified
+        @CheckLastModifiedDecision.Conditions.MediaFile.LastScanned.EqZeroDate
+        @CheckLastModifiedDecision.Conditions.IgnoreFileTimestamps.False
+        @CheckLastModifiedDecision.Result.CreateOrUpdate.True
+        @Test
+        void c08() throws ExecutionException {
+            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
+            MediaFile mediaFile = new MediaFile() {
+                @Override
+                public int getVersion() {
+                    return MediaFileDao.VERSION;
+                }
+            };
+            mediaFile.setPath(dir.getPath());
+            mediaFile.setChanged(new Date(dir.lastModified()));
+            mediaFile.setLastScanned(MediaFileDao.ZERO_DATE);
             assertEquals(mediaFile, checkLastModified(mediaFile, false));
             Mockito.verify(mediaFileDao, Mockito.atLeastOnce()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }

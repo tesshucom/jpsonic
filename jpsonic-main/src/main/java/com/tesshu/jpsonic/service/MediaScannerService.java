@@ -152,7 +152,17 @@ public class MediaScannerService {
         }
     }
 
+    private void beforeScan() {
+        if (settingsService.isIgnoreFileTimestampsNext()) {
+            mediaFileDao.resetLastScanned();
+            settingsService.setIgnoreFileTimestampsNext(false);
+            settingsService.save();
+        }
+    }
+
     private void doScanLibrary() {
+
+        beforeScan();
 
         LOG.info("Starting to scan media library.");
 

@@ -74,8 +74,8 @@ class SettingsConstants {
         static class Others {
             static final Pair<Boolean> FAST_CACHE_ENABLED = Pair.of("FastCacheEnabled", true);
             static final Pair<Boolean> INDEX_ENGLISH_PRIOR = Pair.of("IndexEnglishPrior", true);
-            // TODO #1082
             static final Pair<Boolean> IGNORE_FILE_TIMESTAMPS = Pair.of("IgnoreFileTimestamps", false);
+            static final Pair<Boolean> IGNORE_FILE_TIMESTAMPS_NEXT = Pair.of("IgnoreFileTimestampsNext", false);
 
             private Others() {
             }
