@@ -80,7 +80,7 @@ public class MainController {
     }
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response,
+    protected ModelAndView get(HttpServletRequest request, HttpServletResponse response,
             @RequestParam(name = Attributes.Request.NameConstants.SHOW_ALL, required = false) Boolean showAll)
             throws IOException {
 
@@ -106,8 +106,9 @@ public class MainController {
 
         UserSettings userSettings = securityService.getUserSettings(username);
 
-        List<MediaFile> children = mediaFiles.size() == 1 ? mediaFileService.getChildrenOf(dir, true, true, true)
-                : getMultiFolderChildren(mediaFiles);
+        List<MediaFile> children = mediaFiles.size() == 1 // children
+                ? mediaFileService.getChildrenOf(dir, true, true, true) // expected code
+                : getMultiFolderChildren(mediaFiles); // Suspicion of dead code
 
         int userPaginationPreference = userSettings.getPaginationSize();
 
@@ -237,13 +238,13 @@ public class MainController {
 
     private List<MediaFile> getMediaFiles(HttpServletRequest request) {
         List<MediaFile> mediaFiles = new ArrayList<>();
-        for (String path : ServletRequestUtils.getStringParameters(request, "path")) {
+        for (String path : ServletRequestUtils.getStringParameters(request, Attributes.Request.PATH.value())) {
             MediaFile mediaFile = mediaFileService.getMediaFile(path);
             if (mediaFile != null) {
                 mediaFiles.add(mediaFile);
             }
         }
-        for (int id : ServletRequestUtils.getIntParameters(request, "id")) {
+        for (int id : ServletRequestUtils.getIntParameters(request, Attributes.Request.ID.value())) {
             MediaFile mediaFile = mediaFileService.getMediaFile(id);
             if (mediaFile != null) {
                 mediaFiles.add(mediaFile);
