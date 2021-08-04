@@ -31,14 +31,12 @@ import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping("/index")
 public class IndexController {
 
     private final SecurityService securityService;
@@ -48,20 +46,11 @@ public class IndexController {
         this.securityService = securityService;
     }
 
-    private Map<String, Object> createDefaultModel(HttpServletRequest request) {
-        UserSettings userSettings = securityService.getUserSettings(securityService.getCurrentUsername(request));
-        return LegacyMap.of("keyboardShortcutsEnabled", userSettings.isKeyboardShortcutsEnabled(), "showLeft",
-                userSettings.isCloseDrawer(), "brand", SettingsService.getBrand());
-    }
-
-    @GetMapping
-    public ModelAndView index(HttpServletRequest request) {
-        return new ModelAndView("index", "model", createDefaultModel(request));
-    }
-
-    @PostMapping
+    @RequestMapping(value = "/index", method = { RequestMethod.GET, RequestMethod.POST })
     public ModelAndView index(HttpServletRequest request, @RequestParam("mainView") Optional<String> mainView) {
-        Map<String, Object> model = createDefaultModel(request);
+        UserSettings userSettings = securityService.getUserSettings(securityService.getCurrentUsername(request));
+        Map<String, Object> model = LegacyMap.of("keyboardShortcutsEnabled", userSettings.isKeyboardShortcutsEnabled(),
+                "showLeft", userSettings.isCloseDrawer(), "brand", SettingsService.getBrand());
         mainView.ifPresent(v -> model.put("mainView", v));
         return new ModelAndView("index", "model", model);
     }

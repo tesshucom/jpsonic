@@ -31,83 +31,115 @@ import com.tesshu.jpsonic.domain.Theme;
  */
 public class GeneralSettingsCommand {
 
-    private String playlistFolder;
-    private String musicFileTypes;
-    private String videoFileTypes;
-    private String coverArtFileTypes;
+    // theme and language
+    private Theme[] themes;
+    private String themeIndex;
+    private String[] locales;
+    private String localeIndex;
+
+    // index settings
+    private String defaultIndexString;
+    private String simpleIndexString;
     private String index;
     private String ignoredArticles;
-    private String shortcuts;
+
+    // sort settings
     private boolean sortAlbumsByYear;
     private boolean sortGenresByAlphabet;
     private boolean prohibitSortVarious;
     private boolean sortAlphanum;
     private boolean sortStrict;
-    private boolean searchComposer;
-    private boolean outputSearchQuery;
-    private boolean gettingStartedEnabled;
-    private boolean searchMethodLegacy;
-    private boolean searchMethodChanged;
-    private boolean anonymousTranscoding;
-    private boolean openDetailSetting;
-    private boolean useRadio;
-    private boolean useSonos;
-    private boolean publishPodcast;
-    private boolean showJavaJukebox;
-    private boolean showServerLog;
-    private boolean showStatus;
-    private boolean othersPlayingEnabled;
-    private boolean showRememberMe;
-    private boolean showToast;
-    private String welcomeTitle;
-    private String welcomeSubtitle;
-    private String welcomeMessage;
-    private String loginMessage;
-    private String localeIndex;
-    private String[] locales;
-    private String themeIndex;
-    private Theme[] themes;
-    private String simpleIndexString;
-    private boolean showOutlineHelp;
-    private int shareCount;
-
-    private String defaultIndexString;
     private boolean defaultSortAlbumsByYear;
     private boolean defaultSortGenresByAlphabet;
     private boolean defaultProhibitSortVarious;
     private boolean defaultSortAlphanum;
     private boolean defaultSortStrict;
 
-    public String getPlaylistFolder() {
-        return playlistFolder;
+    // search settings
+    private boolean searchComposer;
+    private boolean outputSearchQuery;
+
+    // deprecated
+    private boolean showJavaJukebox;
+    private boolean showServerLog;
+    private boolean showStatus;
+    private boolean othersPlayingEnabled;
+    private boolean showRememberMe;
+    private boolean publishPodcast;
+    private boolean useRadio;
+    private boolean useSonos;
+    private boolean searchMethodLegacy;
+    private boolean searchMethodChanged;
+    private boolean anonymousTranscoding;
+
+    // shortcuts
+    private String musicFileTypes;
+    private String videoFileTypes;
+    private String coverArtFileTypes;
+    private String playlistFolder;
+    private String shortcuts;
+
+    // welcomme
+    private boolean gettingStartedEnabled;
+    private String welcomeTitle;
+    private String welcomeSubtitle;
+    private String welcomeMessage;
+    private String loginMessage;
+
+    // for view page control
+    private boolean showOutlineHelp;
+    private boolean openDetailSetting;
+    private boolean showToast;
+    private int shareCount;
+
+    public Theme[] getThemes() {
+        return themes;
     }
 
-    public void setPlaylistFolder(String playlistFolder) {
-        this.playlistFolder = playlistFolder;
+    public void setThemes(Theme... themes) {
+        if (themes != null) {
+            this.themes = themes.clone();
+        }
     }
 
-    public String getMusicFileTypes() {
-        return musicFileTypes;
+    public String getThemeIndex() {
+        return themeIndex;
     }
 
-    public void setMusicFileTypes(String musicFileTypes) {
-        this.musicFileTypes = musicFileTypes;
+    public void setThemeIndex(String themeIndex) {
+        this.themeIndex = themeIndex;
     }
 
-    public String getVideoFileTypes() {
-        return videoFileTypes;
+    public String[] getLocales() {
+        return locales;
     }
 
-    public void setVideoFileTypes(String videoFileTypes) {
-        this.videoFileTypes = videoFileTypes;
+    public void setLocales(String... locales) {
+        this.locales = locales.clone();
     }
 
-    public String getCoverArtFileTypes() {
-        return coverArtFileTypes;
+    public String getLocaleIndex() {
+        return localeIndex;
     }
 
-    public void setCoverArtFileTypes(String coverArtFileTypes) {
-        this.coverArtFileTypes = coverArtFileTypes;
+    public void setLocaleIndex(String localeIndex) {
+        this.localeIndex = localeIndex;
+    }
+
+    public String getDefaultIndexString() {
+        return defaultIndexString;
+    }
+
+    public void setDefaultIndexString(String defaultIndexString) {
+        this.defaultIndexString = defaultIndexString;
+    }
+
+    public String getSimpleIndexString() {
+        return simpleIndexString;
+    }
+
+    public void setSimpleIndexString(String simpleIndexString) {
+        this.simpleIndexString = simpleIndexString;
     }
 
     public String getIndex() {
@@ -124,80 +156,6 @@ public class GeneralSettingsCommand {
 
     public void setIgnoredArticles(String ignoredArticles) {
         this.ignoredArticles = ignoredArticles;
-    }
-
-    public String getShortcuts() {
-        return shortcuts;
-    }
-
-    public void setShortcuts(String shortcuts) {
-        this.shortcuts = shortcuts;
-    }
-
-    public String getWelcomeTitle() {
-        return welcomeTitle;
-    }
-
-    public void setWelcomeTitle(String welcomeTitle) {
-        this.welcomeTitle = welcomeTitle;
-    }
-
-    public String getWelcomeSubtitle() {
-        return welcomeSubtitle;
-    }
-
-    public void setWelcomeSubtitle(String welcomeSubtitle) {
-        this.welcomeSubtitle = welcomeSubtitle;
-    }
-
-    public String getWelcomeMessage() {
-        return welcomeMessage;
-    }
-
-    public void setWelcomeMessage(String welcomeMessage) {
-        this.welcomeMessage = welcomeMessage;
-    }
-
-    public String getLoginMessage() {
-        return loginMessage;
-    }
-
-    public void setLoginMessage(String loginMessage) {
-        this.loginMessage = loginMessage;
-    }
-
-    public String getLocaleIndex() {
-        return localeIndex;
-    }
-
-    public void setLocaleIndex(String localeIndex) {
-        this.localeIndex = localeIndex;
-    }
-
-    public String[] getLocales() {
-        return locales;
-    }
-
-    public void setLocales(String... locales) {
-        this.locales = locales.clone();
-    }
-
-    public String getThemeIndex() {
-        return themeIndex;
-    }
-
-    public void setThemeIndex(String themeIndex) {
-        this.themeIndex = themeIndex;
-    }
-
-    public Theme[] getThemes() {
-        return themes;
-    }
-
-    public void setThemes(Theme... themes) {
-        if (themes != null) {
-            this.themes = themes.clone();
-        }
     }
 
     public boolean isSortAlbumsByYear() {
@@ -240,6 +198,46 @@ public class GeneralSettingsCommand {
         this.sortStrict = sortStrict;
     }
 
+    public boolean isDefaultSortAlbumsByYear() {
+        return defaultSortAlbumsByYear;
+    }
+
+    public void setDefaultSortAlbumsByYear(boolean defaultSortAlbumsByYear) {
+        this.defaultSortAlbumsByYear = defaultSortAlbumsByYear;
+    }
+
+    public boolean isDefaultSortGenresByAlphabet() {
+        return defaultSortGenresByAlphabet;
+    }
+
+    public void setDefaultSortGenresByAlphabet(boolean defaultSortGenresByAlphabet) {
+        this.defaultSortGenresByAlphabet = defaultSortGenresByAlphabet;
+    }
+
+    public boolean isDefaultProhibitSortVarious() {
+        return defaultProhibitSortVarious;
+    }
+
+    public void setDefaultProhibitSortVarious(boolean defaultProhibitSortVarious) {
+        this.defaultProhibitSortVarious = defaultProhibitSortVarious;
+    }
+
+    public boolean isDefaultSortAlphanum() {
+        return defaultSortAlphanum;
+    }
+
+    public void setDefaultSortAlphanum(boolean defaultSortAlphanum) {
+        this.defaultSortAlphanum = defaultSortAlphanum;
+    }
+
+    public boolean isDefaultSortStrict() {
+        return defaultSortStrict;
+    }
+
+    public void setDefaultSortStrict(boolean defaultSortStrict) {
+        this.defaultSortStrict = defaultSortStrict;
+    }
+
     public boolean isSearchComposer() {
         return searchComposer;
     }
@@ -254,70 +252,6 @@ public class GeneralSettingsCommand {
 
     public void setOutputSearchQuery(boolean outputSearchQuery) {
         this.outputSearchQuery = outputSearchQuery;
-    }
-
-    public boolean isGettingStartedEnabled() {
-        return gettingStartedEnabled;
-    }
-
-    public void setGettingStartedEnabled(boolean gettingStartedEnabled) {
-        this.gettingStartedEnabled = gettingStartedEnabled;
-    }
-
-    public boolean isSearchMethodLegacy() {
-        return searchMethodLegacy;
-    }
-
-    public void setSearchMethodLegacy(boolean searchMethodLegacy) {
-        this.searchMethodLegacy = searchMethodLegacy;
-    }
-
-    public boolean isSearchMethodChanged() {
-        return searchMethodChanged;
-    }
-
-    public void setSearchMethodChanged(boolean searchMethodChanged) {
-        this.searchMethodChanged = searchMethodChanged;
-    }
-
-    public boolean isAnonymousTranscoding() {
-        return anonymousTranscoding;
-    }
-
-    public void setAnonymousTranscoding(boolean anonymousTranscoding) {
-        this.anonymousTranscoding = anonymousTranscoding;
-    }
-
-    public boolean isOpenDetailSetting() {
-        return openDetailSetting;
-    }
-
-    public void setOpenDetailSetting(boolean openDetailSetting) {
-        this.openDetailSetting = openDetailSetting;
-    }
-
-    public boolean isUseRadio() {
-        return useRadio;
-    }
-
-    public void setUseRadio(boolean useRadio) {
-        this.useRadio = useRadio;
-    }
-
-    public boolean isUseSonos() {
-        return useSonos;
-    }
-
-    public void setUseSonos(boolean useSono) {
-        this.useSonos = useSono;
-    }
-
-    public boolean isPublishPodcast() {
-        return publishPodcast;
-    }
-
-    public void setPublishPodcast(boolean publishPodcast) {
-        this.publishPodcast = publishPodcast;
     }
 
     public boolean isShowJavaJukebox() {
@@ -360,20 +294,132 @@ public class GeneralSettingsCommand {
         this.showRememberMe = showRememberMe;
     }
 
-    public boolean isShowToast() {
-        return showToast;
+    public boolean isPublishPodcast() {
+        return publishPodcast;
     }
 
-    public void setShowToast(boolean showToast) {
-        this.showToast = showToast;
+    public void setPublishPodcast(boolean publishPodcast) {
+        this.publishPodcast = publishPodcast;
     }
 
-    public String getSimpleIndexString() {
-        return simpleIndexString;
+    public boolean isUseRadio() {
+        return useRadio;
     }
 
-    public void setSimpleIndexString(String simpleIndexString) {
-        this.simpleIndexString = simpleIndexString;
+    public void setUseRadio(boolean useRadio) {
+        this.useRadio = useRadio;
+    }
+
+    public boolean isUseSonos() {
+        return useSonos;
+    }
+
+    public void setUseSonos(boolean useSono) {
+        this.useSonos = useSono;
+    }
+
+    public boolean isSearchMethodLegacy() {
+        return searchMethodLegacy;
+    }
+
+    public void setSearchMethodLegacy(boolean searchMethodLegacy) {
+        this.searchMethodLegacy = searchMethodLegacy;
+    }
+
+    public boolean isSearchMethodChanged() {
+        return searchMethodChanged;
+    }
+
+    public void setSearchMethodChanged(boolean searchMethodChanged) {
+        this.searchMethodChanged = searchMethodChanged;
+    }
+
+    public boolean isAnonymousTranscoding() {
+        return anonymousTranscoding;
+    }
+
+    public void setAnonymousTranscoding(boolean anonymousTranscoding) {
+        this.anonymousTranscoding = anonymousTranscoding;
+    }
+
+    public String getMusicFileTypes() {
+        return musicFileTypes;
+    }
+
+    public void setMusicFileTypes(String musicFileTypes) {
+        this.musicFileTypes = musicFileTypes;
+    }
+
+    public String getVideoFileTypes() {
+        return videoFileTypes;
+    }
+
+    public void setVideoFileTypes(String videoFileTypes) {
+        this.videoFileTypes = videoFileTypes;
+    }
+
+    public String getCoverArtFileTypes() {
+        return coverArtFileTypes;
+    }
+
+    public void setCoverArtFileTypes(String coverArtFileTypes) {
+        this.coverArtFileTypes = coverArtFileTypes;
+    }
+
+    public String getPlaylistFolder() {
+        return playlistFolder;
+    }
+
+    public void setPlaylistFolder(String playlistFolder) {
+        this.playlistFolder = playlistFolder;
+    }
+
+    public String getShortcuts() {
+        return shortcuts;
+    }
+
+    public void setShortcuts(String shortcuts) {
+        this.shortcuts = shortcuts;
+    }
+
+    public boolean isGettingStartedEnabled() {
+        return gettingStartedEnabled;
+    }
+
+    public void setGettingStartedEnabled(boolean gettingStartedEnabled) {
+        this.gettingStartedEnabled = gettingStartedEnabled;
+    }
+
+    public String getWelcomeTitle() {
+        return welcomeTitle;
+    }
+
+    public void setWelcomeTitle(String welcomeTitle) {
+        this.welcomeTitle = welcomeTitle;
+    }
+
+    public String getWelcomeSubtitle() {
+        return welcomeSubtitle;
+    }
+
+    public void setWelcomeSubtitle(String welcomeSubtitle) {
+        this.welcomeSubtitle = welcomeSubtitle;
+    }
+
+    public String getWelcomeMessage() {
+        return welcomeMessage;
+    }
+
+    public void setWelcomeMessage(String welcomeMessage) {
+        this.welcomeMessage = welcomeMessage;
+    }
+
+    public String getLoginMessage() {
+        return loginMessage;
+    }
+
+    public void setLoginMessage(String loginMessage) {
+        this.loginMessage = loginMessage;
     }
 
     public boolean isShowOutlineHelp() {
@@ -384,59 +430,27 @@ public class GeneralSettingsCommand {
         this.showOutlineHelp = showOutlineHelp;
     }
 
+    public boolean isOpenDetailSetting() {
+        return openDetailSetting;
+    }
+
+    public void setOpenDetailSetting(boolean openDetailSetting) {
+        this.openDetailSetting = openDetailSetting;
+    }
+
+    public boolean isShowToast() {
+        return showToast;
+    }
+
+    public void setShowToast(boolean showToast) {
+        this.showToast = showToast;
+    }
+
     public int getShareCount() {
         return shareCount;
     }
 
     public void setShareCount(int shareCount) {
         this.shareCount = shareCount;
-    }
-
-    public String getDefaultIndexString() {
-        return defaultIndexString;
-    }
-
-    public void setDefaultIndexString(String defaultIndexString) {
-        this.defaultIndexString = defaultIndexString;
-    }
-
-    public boolean isDefaultSortAlbumsByYear() {
-        return defaultSortAlbumsByYear;
-    }
-
-    public void setDefaultSortAlbumsByYear(boolean defaultSortAlbumsByYear) {
-        this.defaultSortAlbumsByYear = defaultSortAlbumsByYear;
-    }
-
-    public boolean isDefaultSortGenresByAlphabet() {
-        return defaultSortGenresByAlphabet;
-    }
-
-    public void setDefaultSortGenresByAlphabet(boolean defaultSortGenresByAlphabet) {
-        this.defaultSortGenresByAlphabet = defaultSortGenresByAlphabet;
-    }
-
-    public boolean isDefaultProhibitSortVarious() {
-        return defaultProhibitSortVarious;
-    }
-
-    public void setDefaultProhibitSortVarious(boolean defaultProhibitSortVarious) {
-        this.defaultProhibitSortVarious = defaultProhibitSortVarious;
-    }
-
-    public boolean isDefaultSortAlphanum() {
-        return defaultSortAlphanum;
-    }
-
-    public void setDefaultSortAlphanum(boolean defaultSortAlphanum) {
-        this.defaultSortAlphanum = defaultSortAlphanum;
-    }
-
-    public boolean isDefaultSortStrict() {
-        return defaultSortStrict;
-    }
-
-    public void setDefaultSortStrict(boolean defaultSortStrict) {
-        this.defaultSortStrict = defaultSortStrict;
     }
 }
