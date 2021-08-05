@@ -395,6 +395,16 @@ class SettingsServiceTest {
     }
 
     @Test
+    void testIsIgnoreFileTimestampsForEachAlbum() {
+        assertFalse(settingsService.isIgnoreFileTimestampsForEachAlbum());
+    }
+
+    @Test
+    void testIsIgnoreFileTimestampsNext() {
+        assertFalse(settingsService.isIgnoreFileTimestampsNext());
+    }
+
+    @Test
     void testGetPodcastUpdateInterval() {
         assertEquals(24, settingsService.getPodcastUpdateInterval(), "Wrong default Podcast update interval.");
     }

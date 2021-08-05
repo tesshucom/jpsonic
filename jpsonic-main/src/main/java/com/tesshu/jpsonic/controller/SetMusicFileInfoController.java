@@ -61,6 +61,8 @@ public class SetMusicFileInfoController {
             mediaFile
                     .setComment(StringEscapeUtils.escapeHtml(request.getParameter(Attributes.Request.COMMENT.value())));
             mediaFileService.updateMediaFile(mediaFile);
+        } else if ("resetLastScanned".equals(action)) {
+            mediaFileService.resetLastScanned(mediaFile);
         }
 
         String url = ViewName.MAIN.value() + "?" + Attributes.Request.ID.value() + "=" + id;

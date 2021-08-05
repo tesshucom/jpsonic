@@ -190,7 +190,8 @@ public class MediaFileService {
 
     private MediaFile checkLastModified(final MediaFile mediaFile, boolean useFastCache) {
         if (useFastCache || mediaFile.getVersion() >= MediaFileDao.VERSION && !settingsService.isIgnoreFileTimestamps()
-                && mediaFile.getChanged().getTime() >= FileUtil.lastModified(mediaFile.getFile())) {
+                && mediaFile.getChanged().getTime() >= FileUtil.lastModified(mediaFile.getFile())
+                && !MediaFileDao.ZERO_DATE.equals(mediaFile.getLastScanned())) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Detected unmodified file (id {}, path {})", mediaFile.getId(), mediaFile.getPath());
             }
@@ -582,7 +583,7 @@ public class MediaFileService {
         mediaFile.setFolder(securityService.getRootFolderForFile(file));
         mediaFile.setParentPath(file.getParent());
         mediaFile.setChanged(lastModified);
-        mediaFile.setLastScanned(new Date());
+        mediaFile.setLastScanned(existingFile == null ? MediaFileDao.ZERO_DATE : existingFile.getLastScanned());
         mediaFile.setPlayCount(existingFile == null ? 0 : existingFile.getPlayCount());
         mediaFile.setLastPlayed(existingFile == null ? null : existingFile.getLastPlayed());
         mediaFile.setComment(existingFile == null ? null : existingFile.getComment());
@@ -830,5 +831,12 @@ public class MediaFileService {
 
     public void clearMemoryCache() {
         mediaFileMemoryCache.removeAll();
+    }
+
+    public void resetLastScanned(MediaFile album) {
+        mediaFileDao.resetLastScanned(album.getId());
+        for (MediaFile child : mediaFileDao.getChildrenOf(album.getPath())) {
+            mediaFileDao.resetLastScanned(child.getId());
+        }
     }
 }

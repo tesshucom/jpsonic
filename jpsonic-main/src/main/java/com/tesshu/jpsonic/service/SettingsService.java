@@ -377,6 +377,22 @@ public class SettingsService {
         setProperty(SettingsConstants.MusicFolder.Others.IGNORE_FILE_TIMESTAMPS, b);
     }
 
+    public boolean isIgnoreFileTimestampsNext() {
+        return getBoolean(SettingsConstants.MusicFolder.Others.IGNORE_FILE_TIMESTAMPS_NEXT);
+    }
+
+    public void setIgnoreFileTimestampsNext(boolean b) {
+        setProperty(SettingsConstants.MusicFolder.Others.IGNORE_FILE_TIMESTAMPS_NEXT, b);
+    }
+
+    public boolean isIgnoreFileTimestampsForEachAlbum() {
+        return getBoolean(SettingsConstants.MusicFolder.Others.IGNORE_FILE_TIMESTAMPS_FOR_EACH_ALBUM);
+    }
+
+    public void setIgnoreFileTimestampsForEachAlbum(boolean b) {
+        setProperty(SettingsConstants.MusicFolder.Others.IGNORE_FILE_TIMESTAMPS_FOR_EACH_ALBUM, b);
+    }
+
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Locale[] getAvailableLocales() {
         synchronized (LOCKS.get(LocksKeys.LOCALES)) {
