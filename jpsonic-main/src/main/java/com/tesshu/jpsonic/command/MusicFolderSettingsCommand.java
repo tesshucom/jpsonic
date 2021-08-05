@@ -36,23 +36,56 @@ import org.apache.commons.lang.StringUtils;
  */
 public class MusicFolderSettingsCommand {
 
-    private String interval;
-    private String hour;
-    private boolean scanning;
-    private boolean fastCache;
+    // musicFolders
     private List<MusicFolderInfo> musicFolders;
     private MusicFolderInfo newMusicFolder;
+
+    // scan
+    private boolean scanning;
+    private String interval;
+    private String hour;
+
+    // exclusion
     private String excludePatternString;
     private boolean ignoreSymLinks;
+
+    // others
+    private boolean fastCache;
+    private boolean ignoreFileTimestamps;
+    private boolean fullScanNext;
+    private boolean ignoreFileTimestampsForEachAlbum;
     private boolean indexEnglishPrior;
-    private boolean openDetailSetting;
+
+    // for view page control
     private boolean useRadio;
     private boolean useSonos;
     private boolean showToast;
     private int shareCount;
-    private boolean fullScanNext;
-    private boolean ignoreFileTimestamps;
-    private boolean ignoreFileTimestampsForEachAlbum;
+    private boolean openDetailSetting;
+
+    public List<MusicFolderInfo> getMusicFolders() {
+        return musicFolders;
+    }
+
+    public void setMusicFolders(List<MusicFolderInfo> musicFolders) {
+        this.musicFolders = musicFolders;
+    }
+
+    public MusicFolderInfo getNewMusicFolder() {
+        return newMusicFolder;
+    }
+
+    public void setNewMusicFolder(MusicFolderInfo newMusicFolder) {
+        this.newMusicFolder = newMusicFolder;
+    }
+
+    public boolean isScanning() {
+        return scanning;
+    }
+
+    public void setScanning(boolean scanning) {
+        this.scanning = scanning;
+    }
 
     public String getInterval() {
         return interval;
@@ -68,38 +101,6 @@ public class MusicFolderSettingsCommand {
 
     public void setHour(String hour) {
         this.hour = hour;
-    }
-
-    public boolean isScanning() {
-        return scanning;
-    }
-
-    public void setScanning(boolean scanning) {
-        this.scanning = scanning;
-    }
-
-    public boolean isFastCache() {
-        return fastCache;
-    }
-
-    public List<MusicFolderInfo> getMusicFolders() {
-        return musicFolders;
-    }
-
-    public void setMusicFolders(List<MusicFolderInfo> musicFolders) {
-        this.musicFolders = musicFolders;
-    }
-
-    public void setFastCache(boolean fastCache) {
-        this.fastCache = fastCache;
-    }
-
-    public MusicFolderInfo getNewMusicFolder() {
-        return newMusicFolder;
-    }
-
-    public void setNewMusicFolder(MusicFolderInfo newMusicFolder) {
-        this.newMusicFolder = newMusicFolder;
     }
 
     public String getExcludePatternString() {
@@ -118,20 +119,44 @@ public class MusicFolderSettingsCommand {
         this.ignoreSymLinks = ignoreSymLinks;
     }
 
+    public boolean isFastCache() {
+        return fastCache;
+    }
+
+    public void setFastCache(boolean fastCache) {
+        this.fastCache = fastCache;
+    }
+
+    public boolean isIgnoreFileTimestamps() {
+        return ignoreFileTimestamps;
+    }
+
+    public void setIgnoreFileTimestamps(boolean ignoreFileTimes) {
+        this.ignoreFileTimestamps = ignoreFileTimes;
+    }
+
+    public boolean isFullScanNext() {
+        return fullScanNext;
+    }
+
+    public void setFullScanNext(boolean fullScanNext) {
+        this.fullScanNext = fullScanNext;
+    }
+
+    public boolean isIgnoreFileTimestampsForEachAlbum() {
+        return ignoreFileTimestampsForEachAlbum;
+    }
+
+    public void setIgnoreFileTimestampsForEachAlbum(boolean ignoreFileTimestampsForEachAlbum) {
+        this.ignoreFileTimestampsForEachAlbum = ignoreFileTimestampsForEachAlbum;
+    }
+
     public boolean isIndexEnglishPrior() {
         return indexEnglishPrior;
     }
 
     public void setIndexEnglishPrior(boolean indexEnglishPrior) {
         this.indexEnglishPrior = indexEnglishPrior;
-    }
-
-    public boolean isOpenDetailSetting() {
-        return openDetailSetting;
-    }
-
-    public void setOpenDetailSetting(boolean openDetailSetting) {
-        this.openDetailSetting = openDetailSetting;
     }
 
     public boolean isUseRadio() {
@@ -166,28 +191,12 @@ public class MusicFolderSettingsCommand {
         this.shareCount = shareCount;
     }
 
-    public boolean isFullScanNext() {
-        return fullScanNext;
+    public boolean isOpenDetailSetting() {
+        return openDetailSetting;
     }
 
-    public void setFullScanNext(boolean fullScanNext) {
-        this.fullScanNext = fullScanNext;
-    }
-
-    public boolean isIgnoreFileTimestamps() {
-        return ignoreFileTimestamps;
-    }
-
-    public void setIgnoreFileTimestamps(boolean ignoreFileTimes) {
-        this.ignoreFileTimestamps = ignoreFileTimes;
-    }
-
-    public boolean isIgnoreFileTimestampsForEachAlbum() {
-        return ignoreFileTimestampsForEachAlbum;
-    }
-
-    public void setIgnoreFileTimestampsForEachAlbum(boolean ignoreFileTimestampsForEachAlbum) {
-        this.ignoreFileTimestampsForEachAlbum = ignoreFileTimestampsForEachAlbum;
+    public void setOpenDetailSetting(boolean openDetailSetting) {
+        this.openDetailSetting = openDetailSetting;
     }
 
     public static class MusicFolderInfo {
