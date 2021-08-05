@@ -107,6 +107,7 @@ public class MusicFolderSettingsController {
         command.setIgnoreFileTimestamps(settingsService.isIgnoreFileTimestamps());
         command.setFullScanNext(
                 settingsService.isIgnoreFileTimestamps() || settingsService.isIgnoreFileTimestampsNext());
+        command.setIgnoreFileTimestampsForEachAlbum(settingsService.isIgnoreFileTimestampsForEachAlbum());
         command.setIndexEnglishPrior(settingsService.isIndexEnglishPrior());
 
         // for view page control
@@ -164,6 +165,7 @@ public class MusicFolderSettingsController {
         // others
         settingsService.setFastCacheEnabled(command.isFastCache());
         settingsService.setIgnoreFileTimestamps(command.isIgnoreFileTimestamps());
+        settingsService.setIgnoreFileTimestampsForEachAlbum(command.isIgnoreFileTimestampsForEachAlbum());
         settingsService.setIndexEnglishPrior(command.isIndexEnglishPrior());
 
         settingsService.save();

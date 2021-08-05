@@ -52,6 +52,7 @@ public class MusicFolderSettingsCommand {
     private int shareCount;
     private boolean fullScanNext;
     private boolean ignoreFileTimestamps;
+    private boolean ignoreFileTimestampsForEachAlbum;
 
     public String getInterval() {
         return interval;
@@ -179,6 +180,14 @@ public class MusicFolderSettingsCommand {
 
     public void setIgnoreFileTimestamps(boolean ignoreFileTimes) {
         this.ignoreFileTimestamps = ignoreFileTimes;
+    }
+
+    public boolean isIgnoreFileTimestampsForEachAlbum() {
+        return ignoreFileTimestampsForEachAlbum;
+    }
+
+    public void setIgnoreFileTimestampsForEachAlbum(boolean ignoreFileTimestampsForEachAlbum) {
+        this.ignoreFileTimestampsForEachAlbum = ignoreFileTimestampsForEachAlbum;
     }
 
     public static class MusicFolderInfo {

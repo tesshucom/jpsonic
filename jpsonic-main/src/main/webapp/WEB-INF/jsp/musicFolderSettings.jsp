@@ -150,7 +150,7 @@
         </dl>
     </details>
 
-    <details>
+    <details ${isOpen}>
         <summary class="jpsonic"><fmt:message key="musicfoldersettings.other"/></summary>
         <dl>
             <dt></dt>
@@ -164,6 +164,12 @@
                 <form:checkbox path="ignoreFileTimestamps" cssClass="checkbox" id="ignoreFileTimestamps"/>
                 <form:label path="ignoreFileTimestamps"><fmt:message key="musicfoldersettings.ignorefiletimestamps"/></form:label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="ignorefiletimestamps"/></c:import>
+            </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="ignoreFileTimestampsForEachAlbum" cssClass="checkbox" id="ignoreFileTimestampsForEachAlbum"/>
+                <form:label path="ignoreFileTimestampsForEachAlbum"><fmt:message key="musicfoldersettings.ignoreFileTimestampsforeachalbum"/></form:label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="ignoreFileTimestampsforeachalbum"/></c:import>
             </dd>
             <dt></dt>
             <dd>

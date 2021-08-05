@@ -76,6 +76,8 @@ class SettingsConstants {
             static final Pair<Boolean> INDEX_ENGLISH_PRIOR = Pair.of("IndexEnglishPrior", true);
             static final Pair<Boolean> IGNORE_FILE_TIMESTAMPS = Pair.of("IgnoreFileTimestamps", false);
             static final Pair<Boolean> IGNORE_FILE_TIMESTAMPS_NEXT = Pair.of("IgnoreFileTimestampsNext", false);
+            static final Pair<Boolean> IGNORE_FILE_TIMESTAMPS_FOR_EACH_ALBUM = Pair
+                    .of("IgnoreFileTimestampsForEachAlbum", false);
 
             private Others() {
             }

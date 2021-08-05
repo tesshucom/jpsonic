@@ -832,4 +832,11 @@ public class MediaFileService {
     public void clearMemoryCache() {
         mediaFileMemoryCache.removeAll();
     }
+
+    public void resetLastScanned(MediaFile album) {
+        mediaFileDao.resetLastScanned(album.getId());
+        for (MediaFile child : mediaFileDao.getChildrenOf(album.getPath())) {
+            mediaFileDao.resetLastScanned(child.getId());
+        }
+    }
 }
