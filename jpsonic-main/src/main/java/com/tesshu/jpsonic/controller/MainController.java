@@ -80,7 +80,7 @@ public class MainController {
     }
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response,
+    protected ModelAndView get(HttpServletRequest request, HttpServletResponse response,
             @RequestParam(name = Attributes.Request.NameConstants.SHOW_ALL, required = false) Boolean showAll)
             throws IOException {
 
@@ -93,65 +93,45 @@ public class MainController {
         if (dir.isFile()) {
             dir = mediaFileService.getParentOf(dir);
         }
-
-        // Redirect if root directory.
         if (mediaFileService.isRoot(dir)) {
             return new ModelAndView(new RedirectView(ViewName.HOME.value() + "?"));
         }
 
-        String username = securityService.getCurrentUsername(request);
+        final String username = securityService.getCurrentUsername(request);
         if (!securityService.isFolderAccessAllowed(dir, username)) {
             return new ModelAndView(new RedirectView(ViewName.ACCESS_DENIED.value()));
         }
 
-        UserSettings userSettings = securityService.getUserSettings(username);
-
-        List<MediaFile> children = mediaFiles.size() == 1 ? mediaFileService.getChildrenOf(dir, true, true, true)
-                : getMultiFolderChildren(mediaFiles);
-
-        int userPaginationPreference = userSettings.getPaginationSize();
-
-        boolean isShowAll = userPaginationPreference <= 0 || null != showAll && showAll;
-
-        mediaFileService.populateStarredDate(dir, username);
-        mediaFileService.populateStarredDate(children, username);
-
         Map<String, Object> map = LegacyMap.of();
+
+        // dir
+        mediaFileService.populateStarredDate(dir, username);
         map.put("dir", dir);
+        map.put("ancestors", getAncestors(dir));
+        map.put("userRating", getUserRating(username, dir));
+        map.put("averageRating", getAverageRating(dir));
+        map.put("starred", mediaFileService.getMediaFileStarredDate(dir.getId(), username) != null);
+        if (!securityService.isInPodcastFolder(dir.getFile())) {
+            MediaFile parent = mediaFileService.getParentOf(dir);
+            map.put("parent", parent);
+            map.put("navigateUpAllowed", !mediaFileService.isRoot(parent));
+        }
 
-        List<MediaFile> files = children.stream().filter(MediaFile::isFile).collect(Collectors.toList());
-        map.put("files", files);
+        // children
+        List<MediaFile> children = mediaFiles.size() == 1 // children
+                ? mediaFileService.getChildrenOf(dir, true, true, true) // expected code
+                : getMultiFolderChildren(mediaFiles); // Suspicion of dead code
+        mediaFileService.populateStarredDate(children, username);
+        map.put("files", children.stream().filter(MediaFile::isFile).collect(Collectors.toList()));
 
-        List<MediaFile> subDirs = children.stream().filter(f -> !f.isFile()).collect(Collectors.toList());
+        // subDirs
+        final List<MediaFile> subDirs = children.stream().filter(f -> !f.isFile()).collect(Collectors.toList());
         map.put("subDirs", subDirs);
 
-        map.put("ancestors", getAncestors(dir));
-        map.put("coverArtSizeMedium", CoverArtScheme.MEDIUM.getSize());
-        map.put("coverArtSizeLarge", CoverArtScheme.LARGE.getSize());
-        map.put("user", securityService.getCurrentUser(request));
-        map.put("visibility", userSettings.getMainVisibility());
-        map.put("showAlbumYear", settingsService.isSortAlbumsByYear());
-        map.put("showArtistInfo", userSettings.isShowArtistInfoEnabled());
-        map.put("showTopSongs", userSettings.isShowTopSongs());
-        map.put("showSimilar", userSettings.isShowSimilar());
-        map.put("partyMode", userSettings.isPartyModeEnabled());
-        map.put("brand", SettingsService.getBrand());
-        map.put("viewAsList", viewSelector.isViewAsList(request, userSettings.getUsername()));
-        map.put("showDownload", userSettings.isShowDownload());
-        map.put("showTag", userSettings.isShowTag());
-        map.put("showChangeCoverArt", userSettings.isShowChangeCoverArt());
-        map.put("showComment", userSettings.isShowComment());
-        map.put("showShare", userSettings.isShowShare());
-        map.put("showRate", userSettings.isShowRate());
-        map.put("showAlbumSearch", userSettings.isShowAlbumSearch());
-        map.put("showLastPlay", userSettings.isShowLastPlay());
-        map.put("showSibling", userSettings.isShowSibling());
-        map.put("showAlbumActions", userSettings.isShowAlbumActions());
-        map.put("breadcrumbIndex", userSettings.isBreadcrumbIndex());
-        map.put("simpleDisplay", userSettings.isSimpleDisplay());
-        map.put("selectedMusicFolder", securityService.getSelectedMusicFolder(username));
-
+        final UserSettings userSettings = securityService.getUserSettings(username);
+        final int userPaginationPreference = userSettings.getPaginationSize();
         boolean thereIsMoreSiblingAlbums = false;
+        final boolean isShowAll = userPaginationPreference <= 0 || null != showAll && showAll;
         if (dir.isAlbum()) {
             if (userSettings.isShowSibling()) {
                 List<MediaFile> siblingAlbums = getSiblingAlbums(dir);
@@ -162,21 +142,38 @@ public class MainController {
             map.put("album", guessAlbum(children));
             map.put("musicBrainzReleaseId", guessMusicBrainzReleaseId(children));
         }
-
-        if (!securityService.isInPodcastFolder(dir.getFile())) {
-            MediaFile parent = mediaFileService.getParentOf(dir);
-            map.put("parent", parent);
-            map.put("navigateUpAllowed", !mediaFileService.isRoot(parent));
-        }
-
         map.put("thereIsMore", getThereIsMore(thereIsMoreSiblingAlbums, isShowAll, subDirs, userPaginationPreference));
-        map.put("userRating", getUserRating(username, dir));
-        map.put("averageRating", getAverageRating(dir));
-        map.put("starred", mediaFileService.getMediaFileStarredDate(dir.getId(), username) != null);
+
+        // others
+        map.put("user", securityService.getCurrentUser(request));
+        map.put("selectedMusicFolder", securityService.getSelectedMusicFolder(username));
+        map.put("viewAsList", viewSelector.isViewAsList(request, userSettings.getUsername()));
+
+        map.put("visibility", userSettings.getMainVisibility());
+        map.put("partyMode", userSettings.isPartyModeEnabled());
+        map.put("simpleDisplay", userSettings.isSimpleDisplay());
+        map.put("showAlbumYear", settingsService.isSortAlbumsByYear());
+        map.put("showArtistInfo", userSettings.isShowArtistInfoEnabled());
+        map.put("showTopSongs", userSettings.isShowTopSongs());
+        map.put("showSimilar", userSettings.isShowSimilar());
+        map.put("showDownload", userSettings.isShowDownload());
+        map.put("showTag", userSettings.isShowTag());
+        map.put("showChangeCoverArt", userSettings.isShowChangeCoverArt());
+        map.put("showComment", userSettings.isShowComment());
+        map.put("showShare", userSettings.isShowShare());
+        map.put("showRate", userSettings.isShowRate());
+        map.put("showAlbumSearch", userSettings.isShowAlbumSearch());
+        map.put("showLastPlay", userSettings.isShowLastPlay());
+        map.put("showSibling", userSettings.isShowSibling());
+        map.put("showAlbumActions", userSettings.isShowAlbumActions());
         map.put("useRadio", settingsService.isUseRadio());
 
-        String view = getTargetView(dir, children);
-        return new ModelAndView(view, "model", map);
+        map.put("brand", SettingsService.getBrand());
+        map.put("coverArtSizeMedium", CoverArtScheme.MEDIUM.getSize());
+        map.put("coverArtSizeLarge", CoverArtScheme.LARGE.getSize());
+        map.put("breadcrumbIndex", userSettings.isBreadcrumbIndex());
+
+        return new ModelAndView(getTargetView(dir, children), "model", map);
     }
 
     private boolean getThereIsMore(boolean thereIsMoreSiblingAlbums, boolean isShowAll, List<MediaFile> subDirs,
@@ -237,13 +234,13 @@ public class MainController {
 
     private List<MediaFile> getMediaFiles(HttpServletRequest request) {
         List<MediaFile> mediaFiles = new ArrayList<>();
-        for (String path : ServletRequestUtils.getStringParameters(request, "path")) {
+        for (String path : ServletRequestUtils.getStringParameters(request, Attributes.Request.PATH.value())) {
             MediaFile mediaFile = mediaFileService.getMediaFile(path);
             if (mediaFile != null) {
                 mediaFiles.add(mediaFile);
             }
         }
-        for (int id : ServletRequestUtils.getIntParameters(request, "id")) {
+        for (int id : ServletRequestUtils.getIntParameters(request, Attributes.Request.ID.value())) {
             MediaFile mediaFile = mediaFileService.getMediaFile(id);
             if (mediaFile != null) {
                 mediaFiles.add(mediaFile);
