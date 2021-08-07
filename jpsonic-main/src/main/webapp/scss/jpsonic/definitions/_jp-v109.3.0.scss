@@ -233,6 +233,13 @@ input[type="checkbox"] {
     transform: rotate(45deg);
     // <
   }
+  &:disabled {
+    &:not(:checked) {
+      &::before {
+        border: 0;
+      }
+    }
+  }
   // <
 }
 

@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.tesshu.jpsonic.controller.MusicFolderSettingsController;
+import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import org.apache.commons.lang.StringUtils;
 
@@ -51,6 +52,7 @@ public class MusicFolderSettingsCommand {
 
     // others
     private boolean fastCache;
+    private FileModifiedCheckScheme fileModifiedCheckScheme;
     private boolean ignoreFileTimestamps;
     private boolean fullScanNext;
     private boolean ignoreFileTimestampsForEachAlbum;
@@ -124,6 +126,14 @@ public class MusicFolderSettingsCommand {
 
     public void setFastCache(boolean fastCache) {
         this.fastCache = fastCache;
+    }
+
+    public FileModifiedCheckScheme getFileModifiedCheckScheme() {
+        return fileModifiedCheckScheme;
+    }
+
+    public void setFileModifiedCheckScheme(FileModifiedCheckScheme fileModifiedCheckScheme) {
+        this.fileModifiedCheckScheme = fileModifiedCheckScheme;
     }
 
     public boolean isIgnoreFileTimestamps() {

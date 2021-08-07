@@ -17,17 +17,21 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Supplier;
 
 import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.command.MusicFolderSettingsCommand;
 import com.tesshu.jpsonic.command.MusicFolderSettingsCommand.MusicFolderInfo;
+import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
@@ -36,6 +40,7 @@ import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -84,6 +89,8 @@ class MusicFolderSettingsControllerTest {
         UserSettings settings = new UserSettings(ADMIN_NAME);
         Mockito.when(securityService.getCurrentUser(Mockito.any())).thenReturn(new User(ADMIN_NAME, ADMIN_NAME, ""));
         Mockito.when(securityService.getUserSettings(ADMIN_NAME)).thenReturn(settings);
+        Mockito.when(settingsService.getFileModifiedCheckSchemeName())
+                .thenReturn(FileModifiedCheckScheme.LAST_MODIFIED.name());
         controller = new MusicFolderSettingsController(settingsService, musicFolderService, securityService,
                 mediaScannerService, shareService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
@@ -244,5 +251,114 @@ class MusicFolderSettingsControllerTest {
         assertEquals(captorDelete.getValue(), musicFolder1.getId());
         assertEquals(captorUpdate.getValue(), musicFolder2);
         assertEquals(2, captorUpdate.getAllValues().size());
+    }
+
+    @Test
+    @Order(10)
+    @WithMockUser(username = ADMIN_NAME)
+    void testIfFullScanNext() throws Exception {
+
+        @SuppressWarnings("PMD.AvoidCatchingGenericException")
+        Supplier<MusicFolderSettingsCommand> supplier = () -> {
+            try {
+                return (MusicFolderSettingsCommand) mockMvc
+                        .perform(MockMvcRequestBuilders.get("/" + ViewName.MUSIC_FOLDER_SETTINGS.value())).andReturn()
+                        .getModelAndView().getModelMap().get(Attributes.Model.Command.VALUE);
+            } catch (Exception e) {
+                Assertions.fail();
+            }
+            return null;
+        };
+
+        // Basically should be false.
+        MusicFolderSettingsCommand command = supplier.get();
+        assertFalse(command.isFullScanNext());
+
+        // Full scan if any property of IgnoreFileTimestamps* is true.
+        Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
+        Mockito.when(settingsService.isIgnoreFileTimestampsNext()).thenReturn(false);
+        assertTrue(supplier.get().isFullScanNext());
+        Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
+        Mockito.when(settingsService.isIgnoreFileTimestampsNext()).thenReturn(true);
+        assertTrue(supplier.get().isFullScanNext());
+
+        /*
+         * IgnoreFileTimestamps is intentionally set by the user from the web page. IgnoreFileTimestamps is a hidden
+         * option on legacy servers and was kept private due to the difficulty of understanding it. (The cases to use
+         * are very limited.) IgnoreFileTimestampsNext is set when it is needed for server processing, not the user.
+         * "Next" is set to false once scan has been performed.
+         */
+    }
+
+    @Test
+    @Order(11)
+    @WithMockUser(username = ADMIN_NAME)
+    void testIfIgnoreFileTimestamps() throws Exception {
+
+        MusicFolderSettingsCommand command = (MusicFolderSettingsCommand) mockMvc
+                .perform(MockMvcRequestBuilders.get("/" + ViewName.MUSIC_FOLDER_SETTINGS.value())).andReturn()
+                .getModelAndView().getModelMap().get(Attributes.Model.Command.VALUE);
+        assertFalse(command.isIgnoreFileTimestamps());
+
+        // IgnoreFileTimestamps is enabled only when the check method is LAST_MODIFIED.
+        command.setFileModifiedCheckScheme(FileModifiedCheckScheme.LAST_MODIFIED);
+        command.setIgnoreFileTimestamps(true);
+        ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(Boolean.class);
+        Mockito.doNothing().when(settingsService).setIgnoreFileTimestamps(captor.capture());
+        controller.post(command, Mockito.mock(RedirectAttributes.class));
+        assertTrue(captor.getValue());
+
+        // Disabled if LAST_SCANNED is specified.
+        command.setFileModifiedCheckScheme(FileModifiedCheckScheme.LAST_SCANNED);
+        command.setIgnoreFileTimestamps(true);
+        captor = ArgumentCaptor.forClass(Boolean.class);
+        Mockito.doNothing().when(settingsService).setIgnoreFileTimestamps(captor.capture());
+        command.setIgnoreFileTimestamps(true);
+        controller.post(command, Mockito.mock(RedirectAttributes.class));
+        assertFalse(captor.getValue());
+    }
+
+    @Test
+    @Order(12)
+    @WithMockUser(username = ADMIN_NAME)
+    void testIfIgnoreFileTimestampsForEachAlbum() throws Exception {
+
+        MusicFolderSettingsCommand command = (MusicFolderSettingsCommand) mockMvc
+                .perform(MockMvcRequestBuilders.get("/" + ViewName.MUSIC_FOLDER_SETTINGS.value())).andReturn()
+                .getModelAndView().getModelMap().get(Attributes.Model.Command.VALUE);
+        assertFalse(command.isIgnoreFileTimestampsForEachAlbum());
+
+        /*
+         * isIgnoreFileTimestampsForEachAlbum is a flag to show the scan-force-button on the album page. Default is
+         * false.
+         */
+        ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(Boolean.class);
+        Mockito.doNothing().when(settingsService).setIgnoreFileTimestampsForEachAlbum(captor.capture());
+        mockMvc.perform(MockMvcRequestBuilders.post("/" + ViewName.MUSIC_FOLDER_SETTINGS.value())
+                .flashAttr(Attributes.Model.Command.VALUE, command)).andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.MUSIC_FOLDER_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().is3xxRedirection());
+        assertFalse(captor.getValue());
+
+        /*
+         * Forced scanning each album can coexist with traditional scanning specifications. Show button if
+         * IgnoreFileTimestampsForEachAlbum is true.
+         */
+        command.setIgnoreFileTimestampsForEachAlbum(true);
+        command.setFileModifiedCheckScheme(FileModifiedCheckScheme.LAST_MODIFIED);
+        captor = ArgumentCaptor.forClass(Boolean.class);
+        Mockito.doNothing().when(settingsService).setIgnoreFileTimestampsForEachAlbum(captor.capture());
+        controller.post(command, Mockito.mock(RedirectAttributes.class));
+        assertTrue(captor.getValue());
+
+        /*
+         * Depending on the scan check method, it is necessary to always display a button on the album page.
+         */
+        command.setIgnoreFileTimestampsForEachAlbum(false);
+        command.setFileModifiedCheckScheme(FileModifiedCheckScheme.LAST_SCANNED);
+        captor = ArgumentCaptor.forClass(Boolean.class);
+        Mockito.doNothing().when(settingsService).setIgnoreFileTimestampsForEachAlbum(captor.capture());
+        controller.post(command, Mockito.mock(RedirectAttributes.class));
+        assertTrue(captor.getValue());
     }
 }

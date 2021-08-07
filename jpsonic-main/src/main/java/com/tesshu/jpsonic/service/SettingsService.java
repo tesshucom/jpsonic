@@ -361,6 +361,14 @@ public class SettingsService {
         setProperty(SettingsConstants.MusicFolder.Others.FAST_CACHE_ENABLED, b);
     }
 
+    public String getFileModifiedCheckSchemeName() {
+        return getString(SettingsConstants.MusicFolder.Others.FILE_MODIFIED_CHECK_SCHEME_NAME);
+    }
+
+    public void setFileModifiedCheckSchemeName(String s) {
+        setProperty(SettingsConstants.MusicFolder.Others.FILE_MODIFIED_CHECK_SCHEME_NAME, s);
+    }
+
     public boolean isIndexEnglishPrior() {
         return getBoolean(SettingsConstants.MusicFolder.Others.INDEX_ENGLISH_PRIOR);
     }

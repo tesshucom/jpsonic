@@ -1,20 +1,37 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1" %>
 <%--@elvariable id="command" type="com.tesshu.jpsonic.command.MusicFolderSettingsCommand"--%>
 
-<html><head>
-    <%@ include file="head.jsp" %>
-    <%@ include file="jquery.jsp" %>
+<html>
+<head>
+<%@ include file="head.jsp" %>
+<%@ include file="jquery.jsp" %>
+<%@ page import="com.tesshu.jpsonic.domain.FileModifiedCheckScheme" %>
 
-    <script>
-        function init() {
-            $('#newMusicFolderName').attr("placeholder", "<fmt:message key="musicfoldersettings.name"/>");
-            $('#newMusicFolderPath').attr("placeholder", "<fmt:message key="musicfoldersettings.path"/>");
-            <c:if test="${settings_reload}">
-                window.top.reloadUpper("musicFolderSettings.view");
-                window.top.reloadPlayQueue();
-            </c:if>
-        }
-    </script>
+<script>
+function init() {
+    $('#newMusicFolderName').attr("placeholder", "<fmt:message key="musicfoldersettings.name"/>");
+    $('#newMusicFolderPath').attr("placeholder", "<fmt:message key="musicfoldersettings.path"/>");
+    <c:if test="${settings_reload}">
+        window.top.reloadUpper("musicFolderSettings.view");
+        window.top.reloadPlayQueue();
+    </c:if>
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    if($("#radio1-2").prop("checked") && $("#ignoreFileTimestampsForEachAlbum").prop("checked")){
+        $("#ignoreFileTimestampsForEachAlbum").prop('disabled', true);
+    }
+    $("#radio1-1").on('change', function(e){
+        $("#ignoreFileTimestamps").prop('disabled', false);
+        $("#ignoreFileTimestampsForEachAlbum").prop("disabled", false);
+    });
+    $("#radio1-2").on('change', function(e){
+        $("#ignoreFileTimestamps").prop({'disabled': true, 'checked': false});
+        $("#ignoreFileTimestampsForEachAlbum").prop({'disabled': true, 'checked': true});
+    });
+}, false);
+
+</script>
 </head>
 <body class="mainframe settings musicFolderSettings" onload="init()">
 
@@ -159,17 +176,35 @@
                 <form:label path="fastCache"><fmt:message key="musicfoldersettings.fastcache"/></form:label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="fastcache"/></c:import>
             </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="ignoreFileTimestamps" cssClass="checkbox" id="ignoreFileTimestamps"/>
-                <form:label path="ignoreFileTimestamps"><fmt:message key="musicfoldersettings.ignorefiletimestamps"/></form:label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="ignorefiletimestamps"/></c:import>
-            </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="ignoreFileTimestampsForEachAlbum" cssClass="checkbox" id="ignoreFileTimestampsForEachAlbum"/>
-                <form:label path="ignoreFileTimestampsForEachAlbum"><fmt:message key="musicfoldersettings.ignoreFileTimestampsforeachalbum"/></form:label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="ignoreFileTimestampsforeachalbum"/></c:import>
+            
+            <dt class="scheme">
+                <fmt:message key="musicfoldersettings.filemodifiedcheckscheme"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="filemodifiedcheckscheme"/></c:import>
+            </dt>
+            <dd class="scheme">
+                <ul class="playerSettings">
+                    <c:forEach items="${FileModifiedCheckScheme.values()}" var="fileModifiedCheckScheme" varStatus="status">
+                        <li>
+                            <form:radiobutton class="technologyRadio" id="radio1-${status.count}" path="fileModifiedCheckScheme" value="${fileModifiedCheckScheme}"
+                                checked="${indexScheme eq command.fileModifiedCheckScheme.name() ? 'checked' : ''}"/>
+                            <label for="radio1-${status.count}"><fmt:message key="musicfoldersettings.filemodifiedcheckscheme.${fn:toLowerCase(fileModifiedCheckScheme)}"/></label>
+                            <c:import url="helpToolTip.jsp"><c:param name="topic" value="filemodifiedcheckscheme.${fn:toLowerCase(fileModifiedCheckScheme)}"/></c:import>
+                        </li>
+                        <c:if test='${"LAST_MODIFIED" eq fileModifiedCheckScheme}'>
+                            <li class="subItem">
+                                <form:checkbox path="ignoreFileTimestamps" cssClass="checkbox" id="ignoreFileTimestamps"/>
+                                <form:label path="ignoreFileTimestamps"><fmt:message key="musicfoldersettings.ignorefiletimestamps"/></form:label>
+                                <c:import url="helpToolTip.jsp"><c:param name="topic" value="ignorefiletimestamps"/></c:import>
+                            </li>
+                        </c:if>
+                    </c:forEach>
+                    <li class="subItem">
+                        <form:checkbox path="ignoreFileTimestampsForEachAlbum" cssClass="checkbox" id="ignoreFileTimestampsForEachAlbum"/>
+                        <form:label path="ignoreFileTimestampsForEachAlbum"><fmt:message key="musicfoldersettings.ignoreFileTimestampsforeachalbum"/></form:label>
+                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="ignoreFileTimestampsforeachalbum"/></c:import>
+                    </li>
+
+                </ul>
             </dd>
         </dl>
     </details>
