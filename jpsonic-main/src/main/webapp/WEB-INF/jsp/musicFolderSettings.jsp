@@ -171,12 +171,6 @@
                 <form:label path="ignoreFileTimestampsForEachAlbum"><fmt:message key="musicfoldersettings.ignoreFileTimestampsforeachalbum"/></form:label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="ignoreFileTimestampsforeachalbum"/></c:import>
             </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="indexEnglishPrior" id="indexEnglishPrior"/>
-                <label for="indexEnglishPrior"><fmt:message key="generalsettings.indexEnglishPrior"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="indexEnglishPrior"/></c:import>
-            </dd>
         </dl>
     </details>
 

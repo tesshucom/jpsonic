@@ -54,7 +54,6 @@ public class MusicFolderSettingsCommand {
     private boolean ignoreFileTimestamps;
     private boolean fullScanNext;
     private boolean ignoreFileTimestampsForEachAlbum;
-    private boolean indexEnglishPrior;
 
     // for view page control
     private boolean useRadio;
@@ -149,14 +148,6 @@ public class MusicFolderSettingsCommand {
 
     public void setIgnoreFileTimestampsForEachAlbum(boolean ignoreFileTimestampsForEachAlbum) {
         this.ignoreFileTimestampsForEachAlbum = ignoreFileTimestampsForEachAlbum;
-    }
-
-    public boolean isIndexEnglishPrior() {
-        return indexEnglishPrior;
-    }
-
-    public void setIndexEnglishPrior(boolean indexEnglishPrior) {
-        this.indexEnglishPrior = indexEnglishPrior;
     }
 
     public boolean isUseRadio() {
