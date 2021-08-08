@@ -13,6 +13,14 @@
     dd {
       height: 30px;
     }
+    dt.scheme,
+    dd.scheme {
+      height: auto;
+    }
+  }
+  .scheme .subItem {
+    height: 30px;
+    margin-left: 22px;
   }
 
   table.tabular.musicfolder {

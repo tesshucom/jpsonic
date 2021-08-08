@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.command.MusicFolderSettingsCommand;
+import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
@@ -104,7 +105,12 @@ public class MusicFolderSettingsController {
 
         // others
         command.setFastCache(settingsService.isFastCacheEnabled());
-        command.setIndexEnglishPrior(settingsService.isIndexEnglishPrior());
+        command.setFileModifiedCheckScheme(
+                FileModifiedCheckScheme.valueOf(settingsService.getFileModifiedCheckSchemeName()));
+        command.setIgnoreFileTimestamps(settingsService.isIgnoreFileTimestamps());
+        command.setFullScanNext(
+                settingsService.isIgnoreFileTimestamps() || settingsService.isIgnoreFileTimestampsNext());
+        command.setIgnoreFileTimestampsForEachAlbum(settingsService.isIgnoreFileTimestampsForEachAlbum());
 
         // for view page control
         command.setUseRadio(settingsService.isUseRadio());
@@ -160,7 +166,13 @@ public class MusicFolderSettingsController {
 
         // others
         settingsService.setFastCacheEnabled(command.isFastCache());
-        settingsService.setIndexEnglishPrior(command.isIndexEnglishPrior());
+        settingsService.setFileModifiedCheckSchemeName(command.getFileModifiedCheckScheme().name());
+        settingsService
+                .setIgnoreFileTimestamps(FileModifiedCheckScheme.LAST_MODIFIED == command.getFileModifiedCheckScheme()
+                        && command.isIgnoreFileTimestamps());
+        settingsService.setIgnoreFileTimestampsForEachAlbum(
+                FileModifiedCheckScheme.LAST_SCANNED == command.getFileModifiedCheckScheme()
+                        || command.isIgnoreFileTimestampsForEachAlbum());
 
         settingsService.save();
 

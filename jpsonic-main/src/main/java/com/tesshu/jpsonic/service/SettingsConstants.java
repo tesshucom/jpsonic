@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.service;
 
+import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
 import com.tesshu.jpsonic.util.PlayerUtils;
 
@@ -73,9 +74,13 @@ class SettingsConstants {
 
         static class Others {
             static final Pair<Boolean> FAST_CACHE_ENABLED = Pair.of("FastCacheEnabled", true);
+            static final Pair<String> FILE_MODIFIED_CHECK_SCHEME_NAME = Pair.of("FileModifiedCheckSchemeName",
+                    FileModifiedCheckScheme.LAST_MODIFIED.name());
             static final Pair<Boolean> INDEX_ENGLISH_PRIOR = Pair.of("IndexEnglishPrior", true);
-            // TODO #1082
             static final Pair<Boolean> IGNORE_FILE_TIMESTAMPS = Pair.of("IgnoreFileTimestamps", false);
+            static final Pair<Boolean> IGNORE_FILE_TIMESTAMPS_NEXT = Pair.of("IgnoreFileTimestampsNext", false);
+            static final Pair<Boolean> IGNORE_FILE_TIMESTAMPS_FOR_EACH_ALBUM = Pair
+                    .of("IgnoreFileTimestampsForEachAlbum", false);
 
             private Others() {
             }

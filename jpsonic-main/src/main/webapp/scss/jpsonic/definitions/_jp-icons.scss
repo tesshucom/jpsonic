@@ -540,7 +540,9 @@ section > details > summary > h1 {
 .control.elasticity {
   @include createButton("\f36b", 18px, -.09em, -.06em);
 }
-
+.control.force-scan {
+  @include createButton("\f42d", 20px);
+}
 // used in createSearchButton
 $icon-height: 26px;
 $icon-width: 40px;
