@@ -3,7 +3,21 @@
 # jpsonic/jpsonic
 # -->
 
-## v110.0.0
+## v110.1.0 (SNAPSHOT)
+
+The binaries of SNAPSHOT are available from the latest artifacts on the [master branch](https://github.com/tesshucom/jpsonic/actions?query=branch%3Amaster) .
+
+#### Enhancement
+  * Add options to control checking for update dates during scanning ([#1101](https://github.com/tesshucom/jpsonic/issues/1101))
+  * Improve setting page to make it easier to switch getNowPlaying ON/OFF ([#1048](https://github.com/tesshucom/jpsonic/issues/1048))
+  * Update libs
+
+#### Fixes
+  * Fix bug that change coverart is not working ([#1051](https://github.com/tesshucom/jpsonic/issues/1051))
+  * Fix bug that some layouts are broken, in certain languages ([#1103](https://github.com/tesshucom/jpsonic/issues/1103))
+
+<details>
+<summary>v110.0.0</summary>
 
 #### Updates
   * Streaming improvements. Speeds up transcoding, playback start, and playback position changes.
@@ -21,6 +35,8 @@
   * Fix bug that playing might be interrupted
   * Fix bug that the Mime type may not be correct on UPnP
   * Fix bug temporary files might not be deleted after transcoding
+
+</details>
 
 <details>
 <summary>v109.5.0 Based on airsonic 11.0.0-SNAPSHOT 5c71659</summary>

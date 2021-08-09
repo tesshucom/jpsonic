@@ -36,6 +36,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -390,8 +391,23 @@ class SettingsServiceTest {
     }
 
     @Test
+    void testGetFileModifiedCheckSchemeName() {
+        assertEquals(FileModifiedCheckScheme.LAST_MODIFIED.name(), settingsService.getFileModifiedCheckSchemeName());
+    }
+
+    @Test
     void testIsIgnoreFileTimestamps() {
         assertFalse(settingsService.isIgnoreFileTimestamps());
+    }
+
+    @Test
+    void testIsIgnoreFileTimestampsForEachAlbum() {
+        assertFalse(settingsService.isIgnoreFileTimestampsForEachAlbum());
+    }
+
+    @Test
+    void testIsIgnoreFileTimestampsNext() {
+        assertFalse(settingsService.isIgnoreFileTimestampsNext());
     }
 
     @Test

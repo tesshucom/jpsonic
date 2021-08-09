@@ -267,6 +267,7 @@ h2 {
   white-space: nowrap;
 }
 .controls,
+.controls,
 .stars,
 .ratings {
   display: flex;
@@ -274,7 +275,8 @@ h2 {
   flex-flow: row nowrap;
   justify-content: start;
   height: 30px;
-  > li {
+  > li,
+  li form {
     display: flex;
     align-items: center;
     flex-flow: row nowrap;
@@ -484,6 +486,7 @@ div.albumThumb > div.coverart > div > a {
 }
 
 // Used when arranging radio buttons vertically
+.mainframe.settings.musicFolderSettings details dl dd ul,
 .mainframe.settings.playerSettings details ul,
 .mainframe.settings.personalSettings details dl dd ul {
   li {

@@ -67,6 +67,7 @@ public class MediaFileDao extends AbstractDao {
     private static final String GENRE_COLUMNS = "name, song_count, album_count";
     private static final int JP_VERSION = 8;
     public static final int VERSION = 4 + JP_VERSION;
+    public static final Date ZERO_DATE = new Date(0L);
 
     private final RowMapper<MediaFile> rowMapper;
     private final RowMapper<MediaFile> musicFileInfoRowMapper;
@@ -227,7 +228,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public void deleteMediaFile(String path) {
-        update("update media_file set present=false, children_last_updated=? where path=?", new Date(0L), path);
+        update("update media_file set present=false, children_last_updated=? where path=?", ZERO_DATE, path);
     }
 
     public List<Genre> getGenres(boolean sortByAlbum) {
@@ -667,6 +668,14 @@ public class MediaFileDao extends AbstractDao {
                 username);
     }
 
+    public void resetLastScanned() {
+        update("update media_file set last_scanned = ? where present", ZERO_DATE);
+    }
+
+    public void resetLastScanned(int id) {
+        update("update media_file set last_scanned = ? where present and id = ?", ZERO_DATE, id);
+    }
+
     public void markPresent(String path, Date lastScanned) {
         update("update media_file set present=?, last_scanned = ? where path=?", true, lastScanned, path);
     }
@@ -676,7 +685,7 @@ public class MediaFileDao extends AbstractDao {
         int maxId = queryForInt("select max(id) from media_file where last_scanned < ? and present", 0, lastScanned);
 
         final int batchSize = 1000;
-        Date childrenLastUpdated = new Date(0L); // Used to force a children rescan if file is later resurrected.
+        Date childrenLastUpdated = ZERO_DATE; // Used to force a children rescan if file is later resurrected.
         for (int id = minId; id <= maxId; id += batchSize) {
             update("update media_file set present=false, children_last_updated=? where id between ? and ? and "
                     + "last_scanned < ? and present", childrenLastUpdated, id, id + batchSize, lastScanned);

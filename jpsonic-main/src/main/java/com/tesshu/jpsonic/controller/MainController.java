@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -116,6 +117,7 @@ public class MainController {
             map.put("parent", parent);
             map.put("navigateUpAllowed", !mediaFileService.isRoot(parent));
         }
+        map.put("scanForcable", !MediaFileDao.ZERO_DATE.equals(dir.getLastScanned()));
 
         // children
         List<MediaFile> children = mediaFiles.size() == 1 // children
@@ -167,6 +169,7 @@ public class MainController {
         map.put("showSibling", userSettings.isShowSibling());
         map.put("showAlbumActions", userSettings.isShowAlbumActions());
         map.put("useRadio", settingsService.isUseRadio());
+        map.put("ignoreFileTimestampsForEachAlbum", settingsService.isIgnoreFileTimestampsForEachAlbum());
 
         map.put("brand", SettingsService.getBrand());
         map.put("coverArtSizeMedium", CoverArtScheme.MEDIUM.getSize());

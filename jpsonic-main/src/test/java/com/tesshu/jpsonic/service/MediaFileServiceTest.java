@@ -33,6 +33,7 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
+import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.metadata.JaudiotaggerParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
@@ -75,9 +76,11 @@ class MediaFileServiceTest {
 
     @BeforeEach
     public void setup() throws URISyntaxException {
+        Mockito.when(settingsService.getFileModifiedCheckSchemeName())
+                .thenReturn(FileModifiedCheckScheme.LAST_MODIFIED.name());
         mediaFileService = new MediaFileService(settingsService, musicFolderService, securityService,
                 mediaFileMemoryCache, mediaFileDao, albumDao, parser, metaDataParserFactory, utils);
-        dir = new File(CheckLastModified.class.getResource("/MEDIAS/Music").toURI());
+        dir = new File(MediaFileServiceTest.class.getResource("/MEDIAS/Music").toURI());
     }
 
     @Documented
@@ -124,6 +127,14 @@ class MediaFileServiceTest {
                     }
 
                 }
+
+                @interface LastScanned {
+                    @interface EqZeroDate {
+                    }
+
+                    @interface NeZeroDate {
+                    }
+                }
             }
         }
 
@@ -140,7 +151,7 @@ class MediaFileServiceTest {
     }
 
     @Nested
-    class CheckLastModified {
+    class CheckLastModifiedWithSchemeOfLastModified {
 
         private MediaFile checkLastModified(final MediaFile mediaFile, boolean useFastCache) throws ExecutionException {
             Method method;
@@ -190,6 +201,7 @@ class MediaFileServiceTest {
         @CheckLastModifiedDecision.Conditions.UseFastCache.False
         @CheckLastModifiedDecision.Conditions.MediaFile.Version.EqDaoVersion
         @CheckLastModifiedDecision.Conditions.MediaFile.Changed.EqLastModified
+        @CheckLastModifiedDecision.Conditions.MediaFile.LastScanned.NeZeroDate
         @CheckLastModifiedDecision.Conditions.IgnoreFileTimestamps.False
         @CheckLastModifiedDecision.Result.CreateOrUpdate.False
         @Test
@@ -287,6 +299,105 @@ class MediaFileServiceTest {
             assertTrue(mediaFile.getChanged().getTime() < FileUtil.lastModified(mediaFile.getFile()));
             assertEquals(mediaFile, checkLastModified(mediaFile, false));
             Mockito.verify(mediaFileDao, Mockito.atLeastOnce()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+        }
+
+        @CheckLastModifiedDecision.Conditions.UseFastCache.False
+        @CheckLastModifiedDecision.Conditions.MediaFile.Version.EqDaoVersion
+        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.EqLastModified
+        @CheckLastModifiedDecision.Conditions.MediaFile.LastScanned.EqZeroDate
+        @CheckLastModifiedDecision.Conditions.IgnoreFileTimestamps.False
+        @CheckLastModifiedDecision.Result.CreateOrUpdate.True
+        @Test
+        void c08() throws ExecutionException {
+            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
+            MediaFile mediaFile = new MediaFile() {
+                @Override
+                public int getVersion() {
+                    return MediaFileDao.VERSION;
+                }
+            };
+            mediaFile.setPath(dir.getPath());
+            mediaFile.setChanged(new Date(dir.lastModified()));
+            mediaFile.setLastScanned(MediaFileDao.ZERO_DATE);
+            assertEquals(mediaFile, checkLastModified(mediaFile, false));
+            Mockito.verify(mediaFileDao, Mockito.atLeastOnce()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+        }
+    }
+
+    /*
+     * @see #1101. For HDD rather than SSD, accessing file modification dates can be the biggest bottleneck. And even
+     * with SSD, there is the same risk when going through an external network. Furthermore, since the spec of the
+     * update date of the directory depends on the OS, the check itself that relies on the update date may not be
+     * effective in the first place. Therefore, Jpsonic provides a method for the user to explicitly specify the scan
+     * target so that the update date check can be avoided. CheckLastModifiedWithSchemeOfLastModified test cases are
+     * based on traditional scanning specifications. On the other hand, the following test cases are extracted only from
+     * cases where the expected results differ due to the change in the check method.
+     */
+    @Nested
+    class CheckLastModifiedWithSchemeOfLastScanned {
+
+        private MediaFile checkLastModified(final MediaFile mediaFile, boolean useFastCache) throws ExecutionException {
+            Method method;
+            try {
+                method = mediaFileService.getClass().getDeclaredMethod("checkLastModified", MediaFile.class,
+                        boolean.class);
+                method.setAccessible(true);
+                return (MediaFile) method.invoke(mediaFileService, mediaFile, useFastCache);
+            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+                    | InvocationTargetException e) {
+                throw new ExecutionException(e);
+            }
+        }
+
+        /*
+         * Because update-date is not checked
+         */
+        @CheckLastModifiedDecision.Conditions.UseFastCache.False
+        @CheckLastModifiedDecision.Conditions.MediaFile.Version.EqDaoVersion
+        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.EqLastModified
+        @CheckLastModifiedDecision.Conditions.IgnoreFileTimestamps.True
+        @CheckLastModifiedDecision.Result.CreateOrUpdate.False
+        @Test
+        void c05() throws ExecutionException {
+            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
+            Mockito.when(settingsService.getFileModifiedCheckSchemeName())
+                    .thenReturn(FileModifiedCheckScheme.LAST_SCANNED.name());
+            MediaFile mediaFile = new MediaFile() {
+                @Override
+                public int getVersion() {
+                    return MediaFileDao.VERSION;
+                }
+            };
+            mediaFile.setPath(dir.getPath());
+            mediaFile.setChanged(new Date(dir.lastModified()));
+            assertEquals(mediaFile, checkLastModified(mediaFile, false));
+            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+        }
+
+        /*
+         * Because update-date is not checked
+         */
+        @CheckLastModifiedDecision.Conditions.UseFastCache.False
+        @CheckLastModifiedDecision.Conditions.MediaFile.Version.EqDaoVersion
+        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.LtLastModified
+        @CheckLastModifiedDecision.Conditions.IgnoreFileTimestamps.False
+        @CheckLastModifiedDecision.Result.CreateOrUpdate.False
+        @Test
+        void c07() throws ExecutionException {
+            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
+            Mockito.when(settingsService.getFileModifiedCheckSchemeName())
+                    .thenReturn(FileModifiedCheckScheme.LAST_SCANNED.name());
+            MediaFile mediaFile = new MediaFile() {
+                @Override
+                public int getVersion() {
+                    return MediaFileDao.VERSION;
+                }
+            };
+            mediaFile.setPath(dir.getPath());
+            mediaFile.setChanged(new Date(dir.lastModified() - 1_000L));
+            assertTrue(mediaFile.getChanged().getTime() < FileUtil.lastModified(mediaFile.getFile()));
+            assertEquals(mediaFile, checkLastModified(mediaFile, false));
+            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
     }
 }

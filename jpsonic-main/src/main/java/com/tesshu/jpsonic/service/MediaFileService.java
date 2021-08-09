@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
+import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -189,16 +190,32 @@ public class MediaFileService {
     }
 
     private MediaFile checkLastModified(final MediaFile mediaFile, boolean useFastCache) {
-        if (useFastCache || mediaFile.getVersion() >= MediaFileDao.VERSION && !settingsService.isIgnoreFileTimestamps()
-                && mediaFile.getChanged().getTime() >= FileUtil.lastModified(mediaFile.getFile())) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Detected unmodified file (id {}, path {})", mediaFile.getId(), mediaFile.getPath());
-            }
+
+        // Determine if the file has not changed
+        if (useFastCache) {
             return mediaFile;
+        } else if (mediaFile.getVersion() >= MediaFileDao.VERSION) {
+            FileModifiedCheckScheme scheme = FileModifiedCheckScheme
+                    .valueOf(settingsService.getFileModifiedCheckSchemeName());
+            switch (scheme) {
+            case LAST_MODIFIED:
+                if (!settingsService.isIgnoreFileTimestamps()
+                        && mediaFile.getChanged().getTime() >= FileUtil.lastModified(mediaFile.getFile())
+                        && !MediaFileDao.ZERO_DATE.equals(mediaFile.getLastScanned())) {
+                    return mediaFile;
+                }
+                break;
+            case LAST_SCANNED:
+                if (!MediaFileDao.ZERO_DATE.equals(mediaFile.getLastScanned())) {
+                    return mediaFile;
+                }
+                break;
+            default:
+                break;
+            }
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Updating database file from disk (id {}, path {})", mediaFile.getId(), mediaFile.getPath());
-        }
+
+        // Updating database file from disk
         MediaFile mf = createMediaFile(mediaFile.getFile());
         mediaFileDao.createOrUpdateMediaFile(mf);
         return mf;
@@ -582,7 +599,7 @@ public class MediaFileService {
         mediaFile.setFolder(securityService.getRootFolderForFile(file));
         mediaFile.setParentPath(file.getParent());
         mediaFile.setChanged(lastModified);
-        mediaFile.setLastScanned(new Date());
+        mediaFile.setLastScanned(existingFile == null ? MediaFileDao.ZERO_DATE : existingFile.getLastScanned());
         mediaFile.setPlayCount(existingFile == null ? 0 : existingFile.getPlayCount());
         mediaFile.setLastPlayed(existingFile == null ? null : existingFile.getLastPlayed());
         mediaFile.setComment(existingFile == null ? null : existingFile.getComment());
@@ -830,5 +847,12 @@ public class MediaFileService {
 
     public void clearMemoryCache() {
         mediaFileMemoryCache.removeAll();
+    }
+
+    public void resetLastScanned(MediaFile album) {
+        mediaFileDao.resetLastScanned(album.getId());
+        for (MediaFile child : mediaFileDao.getChildrenOf(album.getPath())) {
+            mediaFileDao.resetLastScanned(child.getId());
+        }
     }
 }
