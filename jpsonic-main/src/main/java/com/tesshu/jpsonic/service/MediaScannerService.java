@@ -213,7 +213,7 @@ public class MediaScannerService {
             // Update genres
             mediaFileDao.updateGenres(genres.getGenres());
 
-            docleansingProcess();
+            doCleansingProcess();
 
             LOG.info("Completed media library scan.");
 
@@ -237,7 +237,7 @@ public class MediaScannerService {
         }
     }
 
-    private void docleansingProcess() {
+    private void doCleansingProcess() {
         if (!destroy.get() && cleansingProcess.get()) {
             writeInfo("[1/2] Additional processing after scanning by Jpsonic. Supplementing sort/read data.");
             utils.updateSortOfArtist();
