@@ -140,10 +140,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 <div>
                     <c:choose>
                         <c:when test='${command.scanning}'>
-                            <input type="button" onClick="location.href='musicFolderSettings.view?expunge'" value="<fmt:message key='musicfoldersettings.doexpunge'/>" disabled/>
+                            <input type="button" onClick="location.href='musicFolderSettings.view?expunge=true'" value="<fmt:message key='musicfoldersettings.doexpunge'/>" disabled/>
                         </c:when>
                         <c:otherwise>
-                            <input type="button" onClick="location.href='musicFolderSettings.view?expunge'" value="<fmt:message key='musicfoldersettings.doexpunge'/>"/>
+                            <input type="button" onClick="location.href='musicFolderSettings.view?expunge=true'" value="<fmt:message key='musicfoldersettings.doexpunge'/>"/>
                         </c:otherwise>
                     </c:choose>
                 </div>
