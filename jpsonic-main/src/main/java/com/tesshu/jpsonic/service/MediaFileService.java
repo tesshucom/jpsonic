@@ -37,6 +37,7 @@ import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import com.tesshu.jpsonic.service.metadata.JaudiotaggerParser;
@@ -489,8 +490,19 @@ public class MediaFileService {
 
     private void updateChildren(MediaFile parent) {
 
-        // Check timestamps.
-        if (parent.getChildrenLastUpdated().getTime() >= parent.getChanged().getTime()) {
+        FileModifiedCheckScheme checkScheme = FileModifiedCheckScheme
+                .valueOf(settingsService.getFileModifiedCheckSchemeName());
+
+        /*
+         * LAST_MODIFIED : Check timestamps. LAST_SCANNED : Albums other than those specified by the user or newly added
+         * are considered unchanged and skipped. Others (DIRECTORY) do not access the update date and are all subject to
+         * update check.
+         */
+        if (FileModifiedCheckScheme.LAST_MODIFIED == checkScheme
+                && parent.getChildrenLastUpdated().getTime() >= parent.getChanged().getTime()) {
+            return;
+        } else if (FileModifiedCheckScheme.LAST_SCANNED == checkScheme && parent.getMediaType() == MediaType.ALBUM
+                && !MediaFileDao.ZERO_DATE.equals(parent.getLastScanned())) {
             return;
         }
 
@@ -519,7 +531,7 @@ public class MediaFileService {
         mediaFileDao.createOrUpdateMediaFile(parent);
     }
 
-    public boolean includeMediaFile(MediaFile candidate) {
+    private boolean includeMediaFile(MediaFile candidate) {
         return includeMediaFile(candidate.getFile());
     }
 
@@ -530,7 +542,7 @@ public class MediaFileService {
                 && (FileUtil.isDirectory(candidate) || isAudioFile(suffix) || isVideoFile(suffix));
     }
 
-    public List<File> filterMediaFiles(File... candidates) {
+    private List<File> filterMediaFiles(File... candidates) {
         List<File> result = new ArrayList<>();
         for (File candidate : candidates) {
             if (includeMediaFile(candidate)) {

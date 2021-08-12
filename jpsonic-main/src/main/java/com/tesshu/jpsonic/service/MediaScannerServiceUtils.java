@@ -234,6 +234,7 @@ public class MediaScannerServiceUtils {
     }
 
     public void updateSortOfArtist() {
+        mediaFileDao.clearArtistReadingOfDirectory();
         FixedIds merged = mergeSortOfArtist();
         FixedIds copied = copySortOfArtist();
         FixedIds compensated = compensateSortOfArtist();

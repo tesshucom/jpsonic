@@ -15,6 +15,8 @@ The binaries of SNAPSHOT are available from the latest artifacts on the [master 
 #### Fixes
   * Fix bug that change coverart is not working ([#1051](https://github.com/tesshucom/jpsonic/issues/1051))
   * Fix bug that some layouts are broken, in certain languages ([#1103](https://github.com/tesshucom/jpsonic/issues/1103))
+  * Fix bug that database cleanup could not be started ([#1109](https://github.com/tesshucom/jpsonic/issues/1109))
+  * Fix bug that the reading of the artist (directory) was not updated ([#1110](https://github.com/tesshucom/jpsonic/issues/1110))
 
 <details>
 <summary>v110.0.0</summary>
