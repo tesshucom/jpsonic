@@ -55,7 +55,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/shareSettings")
+@RequestMapping({ "/shareSettings", "/shareSettings.view" })
 public class ShareSettingsController {
 
     private final SettingsService settingsService;

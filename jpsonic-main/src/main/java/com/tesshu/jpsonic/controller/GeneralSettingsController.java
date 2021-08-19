@@ -51,7 +51,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/generalSettings")
+@RequestMapping({ "/generalSettings", "/generalSettings.view" })
 public class GeneralSettingsController {
 
     /*

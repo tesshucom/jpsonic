@@ -50,7 +50,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/editTags")
+@RequestMapping({ "/editTags", "/editTags.view" })
 public class EditTagsController {
 
     private final SecurityService securityService;

@@ -41,7 +41,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/setRating")
+@RequestMapping({ "/setRating", "/setRating.view" })
 public class SetRatingController {
 
     private final RatingService ratingService;

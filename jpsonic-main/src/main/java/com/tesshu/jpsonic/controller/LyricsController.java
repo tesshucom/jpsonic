@@ -35,11 +35,11 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/lyrics")
+@RequestMapping({ "/lyrics", "/lyrics.view" })
 public class LyricsController {
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request) {
+    protected ModelAndView get(HttpServletRequest request) {
         return new ModelAndView("lyrics", "model",
                 LegacyMap.of("artist", request.getParameter(Attributes.Request.ARTIST.value()), "song",
                         request.getParameter(Attributes.Request.SONG.value())));

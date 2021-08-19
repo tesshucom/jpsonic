@@ -40,20 +40,20 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/podcastChannel")
+@RequestMapping({ "/podcastChannel", "/podcastChannel.view" })
 public class PodcastChannelController {
 
-    private final PodcastService podcastService;
     private final SecurityService securityService;
+    private final PodcastService podcastService;
 
-    public PodcastChannelController(PodcastService podcastService, SecurityService securityService) {
+    public PodcastChannelController(SecurityService securityService, PodcastService podcastService) {
         super();
-        this.podcastService = podcastService;
         this.securityService = securityService;
+        this.podcastService = podcastService;
     }
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request) throws ServletRequestBindingException {
+    protected ModelAndView get(HttpServletRequest request) throws ServletRequestBindingException {
 
         ModelAndView result = new ModelAndView();
 

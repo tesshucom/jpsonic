@@ -42,7 +42,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/podcastReceiverAdmin")
+@RequestMapping({ "/podcastReceiverAdmin", "/podcastReceiverAdmin.view" })
 public class PodcastReceiverAdminController {
 
     private final PodcastService podcastService;

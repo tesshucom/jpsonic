@@ -61,7 +61,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/statusChart")
+@RequestMapping({ "/statusChart", "/statusChart.view" })
 public class StatusChartController extends AbstractChartController {
 
     public static final int IMAGE_WIDTH = 240;

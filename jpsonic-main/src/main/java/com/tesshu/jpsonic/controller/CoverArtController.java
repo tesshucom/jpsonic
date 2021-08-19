@@ -87,7 +87,7 @@ import org.springframework.web.servlet.mvc.LastModified;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping({ "/coverArt", "/ext/coverArt" })
+@RequestMapping({ "/coverArt", "/coverArt.view", "/ext/coverArt", "/ext/coverArt.view" })
 @SuppressWarnings("PMD.AccessorMethodGeneration") // Triaged in #834
 public class CoverArtController implements LastModified {
 

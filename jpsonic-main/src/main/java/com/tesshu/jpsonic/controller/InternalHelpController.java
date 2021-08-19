@@ -73,7 +73,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/internalhelp")
+@RequestMapping({ "/internalhelp", "/internalhelp.view" })
 public class InternalHelpController {
 
     private static final Logger LOG = LoggerFactory.getLogger(InternalHelpController.class);

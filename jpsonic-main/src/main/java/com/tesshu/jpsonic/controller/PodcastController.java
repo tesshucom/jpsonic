@@ -49,7 +49,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/podcast")
+@RequestMapping({ "/podcast", "/podcast.view" })
 public class PodcastController {
 
     private static final Object DATE_LOCK = new Object();

@@ -25,11 +25,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping("/keyboardShortcuts")
+@RequestMapping({ "/keyboardShortcuts", "/keyboardShortcuts.view" })
 public class KeyboardShortcutsController {
 
     @GetMapping
-    protected ModelAndView handleRequestInternal() {
+    protected ModelAndView get() {
         return new ModelAndView("keyboardShortcuts");
     }
 

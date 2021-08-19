@@ -45,7 +45,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/nowPlaying")
+@RequestMapping({ "/nowPlaying", "/nowPlaying.view" })
 public class NowPlayingController {
 
     private final PlayerService playerService;
@@ -62,7 +62,7 @@ public class NowPlayingController {
 
     @SuppressWarnings("PMD.ConfusingTernary") // false positive
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+    protected ModelAndView get(HttpServletRequest request, HttpServletResponse response)
             throws ServletRequestBindingException {
 
         Player player = playerService.getPlayer(request, response);

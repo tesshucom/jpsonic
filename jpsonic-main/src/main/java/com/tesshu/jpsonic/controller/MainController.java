@@ -58,7 +58,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/main")
+@RequestMapping({ "/main", "/main.view" })
 public class MainController {
 
     private final SettingsService settingsService;

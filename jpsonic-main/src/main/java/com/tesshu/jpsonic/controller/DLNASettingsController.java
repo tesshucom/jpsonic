@@ -51,7 +51,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/dlnaSettings")
+@RequestMapping({ "/dlnaSettings", "/dlnaSettings.view" })
 public class DLNASettingsController {
 
     private final UPnPService upnpService;

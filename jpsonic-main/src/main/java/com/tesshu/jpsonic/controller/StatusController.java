@@ -47,7 +47,7 @@ import org.springframework.web.servlet.support.RequestContextUtils;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/status")
+@RequestMapping({ "/status", "/status.view" })
 public class StatusController {
 
     private static final long LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60L;
