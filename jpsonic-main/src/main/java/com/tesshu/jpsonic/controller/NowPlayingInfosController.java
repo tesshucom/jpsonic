@@ -28,11 +28,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping("/nowPlayingInfos")
+@RequestMapping({ "/nowPlayingInfos", "/nowPlayingInfos.view" })
 public class NowPlayingInfosController {
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
+    protected ModelAndView get(HttpServletRequest request, HttpServletResponse response) {
         return new ModelAndView("nowPlayingInfos");
     }
 

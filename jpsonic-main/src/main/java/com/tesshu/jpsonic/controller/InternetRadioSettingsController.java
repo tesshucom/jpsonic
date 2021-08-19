@@ -49,7 +49,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/internetRadioSettings")
+@RequestMapping({ "/internetRadioSettings", "/internetRadioSettings.view" })
 public class InternetRadioSettingsController {
 
     private final SettingsService settingsService;

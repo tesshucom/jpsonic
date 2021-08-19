@@ -47,7 +47,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/playlist")
+@RequestMapping({ "/playlist", "/playlist.view" })
 public class PlaylistController {
 
     private final SecurityService securityService;

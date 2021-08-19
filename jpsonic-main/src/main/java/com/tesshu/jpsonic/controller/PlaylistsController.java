@@ -43,7 +43,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/playlists")
+@RequestMapping({ "/playlists", "/playlists.view", })
 public class PlaylistsController {
 
     private final SecurityService securityService;

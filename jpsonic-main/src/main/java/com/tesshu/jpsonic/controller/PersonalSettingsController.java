@@ -61,7 +61,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/personalSettings")
+@RequestMapping({ "/personalSettings", "/personalSettings.view" })
 public class PersonalSettingsController {
 
     private final SettingsService settingsService;

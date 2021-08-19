@@ -39,7 +39,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/podcastSettings")
+@RequestMapping({ "/podcastSettings", "/podcastSettings.view" })
 public class PodcastSettingsController {
 
     private final SettingsService settingsService;
