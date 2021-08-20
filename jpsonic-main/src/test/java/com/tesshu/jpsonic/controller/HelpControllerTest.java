@@ -22,14 +22,20 @@ package com.tesshu.jpsonic.controller;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Map;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.VersionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -41,55 +47,41 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 
 @SpringBootTest
-@AutoConfigureMockMvc
 @ExtendWith(NeedsHome.class)
-class DLNASettingsControllerTest {
+@AutoConfigureMockMvc
+class HelpControllerTest {
 
     private static final String ADMIN_NAME = "admin";
-    private static final String VIEW_NAME = "dlnaSettings";
 
-    @Autowired
-    private DLNASettingsController controller;
+    @Mock
+    private VersionService versionService;
+    @Mock
+    private SettingsService settingsService;
+    @Mock
+    private SecurityService securityService;
+    @Mock
+    private AirsonicLocaleResolver airsonicLocaleResolver;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        Mockito.when(securityService.getCurrentUser(Mockito.any())).thenReturn(new User(ADMIN_NAME, ADMIN_NAME, ""));
+        Mockito.when(airsonicLocaleResolver.resolveLocale(Mockito.any())).thenReturn(Locale.ENGLISH);
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(
+                        new HelpController(versionService, settingsService, securityService, airsonicLocaleResolver))
+                .build();
     }
 
     @Test
     @WithMockUser(username = ADMIN_NAME)
-    void testHandleGet() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.DLNA_SETTINGS.value()))
+    void testGet() throws Exception {
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.HELP.value()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
+
         ModelAndView modelAndView = result.getModelAndView();
-        assertEquals(VIEW_NAME, modelAndView.getViewName());
-
-        @SuppressWarnings("unchecked")
-        Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get("model");
-        assertNotNull(model);
-    }
-
-    @Test
-    @WithMockUser(username = ADMIN_NAME)
-    void testHandlePost() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.DLNA_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        assertNotNull(result);
-        ModelAndView modelAndView = result.getModelAndView();
-        assertEquals(VIEW_NAME, modelAndView.getViewName());
-
-        @SuppressWarnings("unchecked")
-        Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get("model");
-        assertNotNull(model);
-
-        result = mockMvc
-                .perform(MockMvcRequestBuilders.post("/" + ViewName.DLNA_SETTINGS.value()).flashAttr("model", model))
-                .andExpect(MockMvcResultMatchers.status().isFound())
-                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.DLNA_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
-        assertNotNull(result);
+        assertEquals("help", modelAndView.getViewName());
     }
 }

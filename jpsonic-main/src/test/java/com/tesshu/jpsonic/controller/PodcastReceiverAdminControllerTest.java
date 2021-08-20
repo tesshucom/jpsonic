@@ -20,16 +20,15 @@
 package com.tesshu.jpsonic.controller;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.service.PodcastService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -38,50 +37,28 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.servlet.ModelAndView;
 
 @SpringBootTest
-@AutoConfigureMockMvc
 @ExtendWith(NeedsHome.class)
-class ShareSettingsControllerTest {
+@AutoConfigureMockMvc
+class PodcastReceiverAdminControllerTest {
 
-    private static final String ADMIN_NAME = "admin";
-    private static final String VIEW_NAME = "shareSettings";
-
-    @Autowired
-    private ShareSettingsController controller;
+    @Mock
+    private PodcastService podcastService;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(new PodcastReceiverAdminController(podcastService)).build();
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
-    void testDoGet() throws Exception {
-        MvcResult result = mockMvc
-                .perform(MockMvcRequestBuilders.get("/" + ViewName.SHARE_SETTINGS.value())
-                        .param(Attributes.Request.DELETE.value(), "false"))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        assertNotNull(result);
-        ModelAndView modelAndView = result.getModelAndView();
-        assertEquals(VIEW_NAME, modelAndView.getViewName());
-
-        @SuppressWarnings("unchecked")
-        Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get("model");
-        assertNotNull(model);
-    }
-
-    @Test
-    @WithMockUser(username = ADMIN_NAME)
-    void testDoPost() throws Exception {
-        MvcResult result = mockMvc
-                .perform(MockMvcRequestBuilders.post("/" + ViewName.SHARE_SETTINGS.value())
-                        .param(Attributes.Request.DELETE.value(), "false"))
+    @WithMockUser(username = "admin")
+    void testGet() throws Exception {
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/podcastReceiverAdmin.view"))
                 .andExpect(MockMvcResultMatchers.status().isFound())
-                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.SHARE_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PODCAST_CHANNELS.value()))
                 .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
         assertNotNull(result);
     }

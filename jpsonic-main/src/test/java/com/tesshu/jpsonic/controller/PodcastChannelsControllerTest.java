@@ -22,14 +22,17 @@ package com.tesshu.jpsonic.controller;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.service.PodcastService;
+import com.tesshu.jpsonic.service.SecurityService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -41,55 +44,36 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 
 @SpringBootTest
-@AutoConfigureMockMvc
 @ExtendWith(NeedsHome.class)
-class DLNASettingsControllerTest {
+@AutoConfigureMockMvc
+class PodcastChannelsControllerTest {
 
     private static final String ADMIN_NAME = "admin";
-    private static final String VIEW_NAME = "dlnaSettings";
 
-    @Autowired
-    private DLNASettingsController controller;
+    @Mock
+    private PodcastService podcastService;
+    @Mock
+    private SecurityService securityService;
+    @Mock
+    private ViewAsListSelector viewSelector;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        Mockito.when(securityService.getCurrentUser(Mockito.any())).thenReturn(new User(ADMIN_NAME, ADMIN_NAME, ""));
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(new PodcastChannelsController(podcastService, securityService, viewSelector)).build();
     }
 
     @Test
     @WithMockUser(username = ADMIN_NAME)
-    void testHandleGet() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.DLNA_SETTINGS.value()))
+    void testGet() throws Exception {
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PODCAST_CHANNELS.value()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
+
         ModelAndView modelAndView = result.getModelAndView();
-        assertEquals(VIEW_NAME, modelAndView.getViewName());
-
-        @SuppressWarnings("unchecked")
-        Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get("model");
-        assertNotNull(model);
-    }
-
-    @Test
-    @WithMockUser(username = ADMIN_NAME)
-    void testHandlePost() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.DLNA_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
-        assertNotNull(result);
-        ModelAndView modelAndView = result.getModelAndView();
-        assertEquals(VIEW_NAME, modelAndView.getViewName());
-
-        @SuppressWarnings("unchecked")
-        Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get("model");
-        assertNotNull(model);
-
-        result = mockMvc
-                .perform(MockMvcRequestBuilders.post("/" + ViewName.DLNA_SETTINGS.value()).flashAttr("model", model))
-                .andExpect(MockMvcResultMatchers.status().isFound())
-                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.DLNA_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
-        assertNotNull(result);
+        assertEquals("podcastChannels", modelAndView.getViewName());
     }
 }
