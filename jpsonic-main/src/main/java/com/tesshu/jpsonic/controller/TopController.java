@@ -62,7 +62,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/top")
+@RequestMapping({ "/top", "/top.view" })
 public class TopController {
 
     // Update this time if you want to force a refresh in clients.

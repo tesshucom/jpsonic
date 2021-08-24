@@ -47,7 +47,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/transcodingSettings")
+@RequestMapping({ "/transcodingSettings", "/transcodingSettings.view" })
 public class TranscodingSettingsController {
 
     private final TranscodingService transcodingService;

@@ -46,7 +46,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/changeCoverArt")
+@RequestMapping({ "/changeCoverArt", "/changeCoverArt.view" })
 public class ChangeCoverArtController {
 
     private final SecurityService securityService;

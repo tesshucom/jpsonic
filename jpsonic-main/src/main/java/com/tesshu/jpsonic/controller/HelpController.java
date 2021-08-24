@@ -52,7 +52,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/help")
+@RequestMapping({ "/help", "/help.view" })
 public class HelpController {
 
     private static final Logger LOG = LoggerFactory.getLogger(HelpController.class);
@@ -73,7 +73,7 @@ public class HelpController {
     }
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request) {
+    protected ModelAndView get(HttpServletRequest request) {
         Map<String, Object> map = LegacyMap.of();
 
         if (versionService.isNewFinalVersionAvailable()) {

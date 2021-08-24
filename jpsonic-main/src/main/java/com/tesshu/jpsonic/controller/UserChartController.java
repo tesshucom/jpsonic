@@ -61,7 +61,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/userChart")
+@RequestMapping("/userChart.view")
 public class UserChartController extends AbstractChartController {
 
     public static final int IMAGE_WIDTH = 400;

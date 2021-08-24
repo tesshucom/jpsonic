@@ -52,7 +52,7 @@ import org.springframework.web.servlet.ModelAndView;
  * Spring MVC Controller that serves the login page.
  */
 @Controller
-@RequestMapping("/recover")
+@RequestMapping({ "/recover", "/recover.view" })
 public class RecoverController {
 
     private static final Logger LOG = LoggerFactory.getLogger(RecoverController.class);

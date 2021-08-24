@@ -275,7 +275,7 @@ public class SubsonicRESTController {
                 "Required param (" + exception.getParameterName() + ") is missing");
     }
 
-    @RequestMapping("/ping")
+    @RequestMapping({ "/ping", "/ping.view" })
     public void ping(HttpServletRequest request, HttpServletResponse response) {
         Response res = createResponse();
         jaxbWriter.writeResponse(request, response, res);
@@ -284,11 +284,11 @@ public class SubsonicRESTController {
     /**
      * CAUTION : this method is required by mobile applications and must not be removed.
      */
-    @RequestMapping("/getLicense")
+    @RequestMapping({ "/getLicense", "/getLicense.view" })
     public void getLicense(HttpServletRequest req, HttpServletResponse response) {
         License license = new License();
 
-        license.setEmail("airsonic@github.com");
+        license.setEmail("webmaster@tesshu.com");
         license.setValid(true);
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.YEAR, 100);
@@ -302,7 +302,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getMusicFolders")
+    @RequestMapping({ "/getMusicFolders", "/getMusicFolders.view" })
     public void getMusicFolders(HttpServletRequest req, HttpServletResponse response) {
         HttpServletRequest request = wrapRequest(req);
 
@@ -319,7 +319,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getIndexes")
+    @RequestMapping({ "/getIndexes", "/getIndexes.view" })
     public void getIndexes(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
@@ -395,7 +395,7 @@ public class SubsonicRESTController {
         }
     }
 
-    @RequestMapping("/getGenres")
+    @RequestMapping({ "/getGenres", "/getGenres.view" })
     public void getGenres(HttpServletRequest req, HttpServletResponse response) {
         HttpServletRequest request = wrapRequest(req);
         org.subsonic.restapi.Genres genres = new org.subsonic.restapi.Genres();
@@ -412,7 +412,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getSongsByGenre")
+    @RequestMapping({ "/getSongsByGenre", "/getSongsByGenre.view" })
     public void getSongsByGenre(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -438,7 +438,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getArtists")
+    @RequestMapping({ "/getArtists", "/getArtists.view" })
     public void getArtists(HttpServletRequest req, HttpServletResponse response) {
         HttpServletRequest request = wrapRequest(req);
         String username = securityService.getCurrentUsername(request);
@@ -465,7 +465,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getSimilarSongs")
+    @RequestMapping({ "/getSimilarSongs", "/getSimilarSongs.view" })
     public void getSimilarSongs(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
 
@@ -493,7 +493,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getSimilarSongs2")
+    @RequestMapping({ "/getSimilarSongs2", "/getSimilarSongs2.view" })
     public void getSimilarSongs2(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
 
@@ -520,7 +520,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getTopSongs")
+    @RequestMapping({ "/getTopSongs", "/getTopSongs.view" })
     public void getTopSongs(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -543,7 +543,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getArtistInfo")
+    @RequestMapping({ "/getArtistInfo", "/getArtistInfo.view" })
     public void getArtistInfo(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -586,7 +586,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getArtistInfo2")
+    @RequestMapping({ "/getArtistInfo2", "/getArtistInfo2.view" })
     public void getArtistInfo2(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
 
@@ -649,7 +649,7 @@ public class SubsonicRESTController {
         return result;
     }
 
-    @RequestMapping("/getArtist")
+    @RequestMapping({ "/getArtist", "/getArtist.view" })
     public void getArtist(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
@@ -713,7 +713,7 @@ public class SubsonicRESTController {
         return jaxbPlaylist;
     }
 
-    @RequestMapping("/getAlbum")
+    @RequestMapping({ "/getAlbum", "/getAlbum.view" })
     public void getAlbum(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
@@ -735,7 +735,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getSong")
+    @RequestMapping({ "/getSong", "/getSong.view" })
     public void getSong(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
@@ -758,7 +758,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getMusicDirectory")
+    @RequestMapping({ "/getMusicDirectory", "/getMusicDirectory.view" })
     public void getMusicDirectory(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -806,7 +806,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/search")
+    @RequestMapping({ "/search", "/search.view" })
     public void search(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
@@ -852,7 +852,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/search2")
+    @RequestMapping({ "/search2", "/search2.view" })
     public void search2(HttpServletRequest req, HttpServletResponse response)
             throws IOException, ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -899,7 +899,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/search3")
+    @RequestMapping({ "/search3", "/search3.view" })
     public void search3(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
@@ -946,7 +946,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getPlaylists")
+    @RequestMapping({ "/getPlaylists", "/getPlaylists.view" })
     public void getPlaylists(HttpServletRequest req, HttpServletResponse response) {
         HttpServletRequest request = wrapRequest(req);
 
@@ -974,7 +974,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getPlaylist")
+    @RequestMapping({ "/getPlaylist", "/getPlaylist.view" })
     public void getPlaylist(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -1004,7 +1004,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/jukeboxControl")
+    @RequestMapping({ "/jukeboxControl", "/jukeboxControl.view" })
     public void jukeboxControl(HttpServletRequest req, HttpServletResponse response)
             throws ExecutionException, ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req, true);
@@ -1153,7 +1153,7 @@ public class SubsonicRESTController {
         return response;
     }
 
-    @RequestMapping("/createPlaylist")
+    @RequestMapping({ "/createPlaylist", "/createPlaylist.view" })
     public void createPlaylist(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req, true);
@@ -1198,7 +1198,7 @@ public class SubsonicRESTController {
         writeEmptyResponse(request, response);
     }
 
-    @RequestMapping("/updatePlaylist")
+    @RequestMapping({ "/updatePlaylist", "/updatePlaylist.view" })
     public void updatePlaylist(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
 
@@ -1274,7 +1274,7 @@ public class SubsonicRESTController {
         }
     }
 
-    @RequestMapping("/deletePlaylist")
+    @RequestMapping({ "/deletePlaylist", "/deletePlaylist.view" })
     public void deletePlaylist(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req, true);
@@ -1295,7 +1295,7 @@ public class SubsonicRESTController {
         writeEmptyResponse(request, response);
     }
 
-    @RequestMapping("/getAlbumList")
+    @RequestMapping({ "/getAlbumList", "/getAlbumList.view" })
     public void getAlbumList(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException, ExecutionException {
         HttpServletRequest request = wrapRequest(req);
@@ -1353,7 +1353,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getAlbumList2")
+    @RequestMapping({ "/getAlbumList2", "/getAlbumList2.view" })
     public void getAlbumList2(HttpServletRequest req, HttpServletResponse response)
             throws ExecutionException, ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -1405,7 +1405,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getRandomSongs")
+    @RequestMapping({ "/getRandomSongs", "/getRandomSongs.view" })
     public void getRandomSongs(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -1437,7 +1437,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getVideos")
+    @RequestMapping({ "/getVideos", "/getVideos.view" })
     public void getVideos(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
@@ -1456,7 +1456,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getNowPlaying")
+    @RequestMapping({ "/getNowPlaying", "/getNowPlaying.view" })
     public void getNowPlaying(HttpServletRequest req, HttpServletResponse response) {
         HttpServletRequest request = wrapRequest(req);
         NowPlaying result = new NowPlaying();
@@ -1620,7 +1620,7 @@ public class SubsonicRESTController {
         return null;
     }
 
-    @RequestMapping("/download")
+    @RequestMapping({ "/download", "/download.view" })
     public void download(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
@@ -1646,7 +1646,7 @@ public class SubsonicRESTController {
         downloadController.handleRequest(request, response);
     }
 
-    @RequestMapping("/stream")
+    @RequestMapping({ "/stream", "/stream.view" })
     public void stream(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
@@ -1660,7 +1660,7 @@ public class SubsonicRESTController {
         streamController.handleRequest(request, response);
     }
 
-    @RequestMapping("/hls")
+    @RequestMapping({ "/hls", "/hls.view" })
     public void hls(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
@@ -1683,7 +1683,7 @@ public class SubsonicRESTController {
         hlsController.handleRequest(request, response);
     }
 
-    @RequestMapping("/scrobble")
+    @RequestMapping({ "/scrobble", "/scrobble.view" })
     public void scrobble(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         int[] ids = ServletRequestUtils.getRequiredIntParameters(request, Attributes.Request.ID.value());
@@ -1716,12 +1716,12 @@ public class SubsonicRESTController {
         writeEmptyResponse(request, response);
     }
 
-    @RequestMapping("/star")
+    @RequestMapping({ "/star", "/star.view" })
     public void star(HttpServletRequest request, HttpServletResponse response) {
         starOrUnstar(request, response, true);
     }
 
-    @RequestMapping("/unstar")
+    @RequestMapping({ "/unstar", "/unstar.view" })
     public void unstar(HttpServletRequest request, HttpServletResponse response) {
         starOrUnstar(request, response, false);
     }
@@ -1771,7 +1771,7 @@ public class SubsonicRESTController {
         writeEmptyResponse(request, response);
     }
 
-    @RequestMapping("/getStarred")
+    @RequestMapping({ "/getStarred", "/getStarred.view" })
     public void getStarred(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
@@ -1796,7 +1796,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getStarred2")
+    @RequestMapping({ "/getStarred2", "/getStarred2.view" })
     public void getStarred2(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -1823,7 +1823,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getPodcasts")
+    @RequestMapping({ "/getPodcasts", "/getPodcasts.view" })
     public void getPodcasts(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -1864,7 +1864,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getNewestPodcasts")
+    @RequestMapping({ "/getNewestPodcasts", "/getNewestPodcasts.view" })
     public void getNewestPodcasts(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -1903,7 +1903,7 @@ public class SubsonicRESTController {
         return e;
     }
 
-    @RequestMapping("/refreshPodcasts")
+    @RequestMapping({ "/refreshPodcasts", "/refreshPodcasts.view" })
     public void refreshPodcasts(HttpServletRequest req, HttpServletResponse response) {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
@@ -1915,7 +1915,7 @@ public class SubsonicRESTController {
         writeEmptyResponse(request, response);
     }
 
-    @RequestMapping("/createPodcastChannel")
+    @RequestMapping({ "/createPodcastChannel", "/createPodcastChannel.view" })
     public void createPodcastChannel(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -1930,7 +1930,7 @@ public class SubsonicRESTController {
         writeEmptyResponse(request, response);
     }
 
-    @RequestMapping("/deletePodcastChannel")
+    @RequestMapping({ "/deletePodcastChannel", "/deletePodcastChannel.view" })
     public void deletePodcastChannel(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -1945,7 +1945,7 @@ public class SubsonicRESTController {
         writeEmptyResponse(request, response);
     }
 
-    @RequestMapping("/deletePodcastEpisode")
+    @RequestMapping({ "/deletePodcastEpisode", "/deletePodcastEpisode.view" })
     public void deletePodcastEpisode(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -1960,7 +1960,7 @@ public class SubsonicRESTController {
         writeEmptyResponse(request, response);
     }
 
-    @RequestMapping("/downloadPodcastEpisode")
+    @RequestMapping({ "/downloadPodcastEpisode", "/downloadPodcastEpisode.view" })
     public void downloadPodcastEpisode(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -1981,7 +1981,7 @@ public class SubsonicRESTController {
         writeEmptyResponse(request, response);
     }
 
-    @RequestMapping("/getInternetRadioStations")
+    @RequestMapping({ "/getInternetRadioStations", "/getInternetRadioStations.view" })
     public void getInternetRadioStations(HttpServletRequest req, HttpServletResponse response) {
         HttpServletRequest request = wrapRequest(req);
 
@@ -1999,7 +1999,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getBookmarks")
+    @RequestMapping({ "/getBookmarks", "/getBookmarks.view" })
     public void getBookmarks(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -2025,7 +2025,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/createBookmark")
+    @RequestMapping({ "/createBookmark", "/createBookmark.view" })
     public void createBookmark(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -2040,7 +2040,7 @@ public class SubsonicRESTController {
         writeEmptyResponse(request, response);
     }
 
-    @RequestMapping("/deleteBookmark")
+    @RequestMapping({ "/deleteBookmark", "/deleteBookmark.view" })
     public void deleteBookmark(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -2052,7 +2052,7 @@ public class SubsonicRESTController {
         writeEmptyResponse(request, response);
     }
 
-    @RequestMapping("/getPlayQueue")
+    @RequestMapping({ "/getPlayQueue", "/getPlayQueue.view" })
     public void getPlayQueue(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -2083,7 +2083,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/savePlayQueue")
+    @RequestMapping({ "/savePlayQueue", "/savePlayQueue.view" })
     public void savePlayQueue(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -2106,7 +2106,7 @@ public class SubsonicRESTController {
         writeEmptyResponse(request, response);
     }
 
-    @RequestMapping("/getShares")
+    @RequestMapping({ "/getShares", "/getShares.view" })
     public void getShares(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
@@ -2128,7 +2128,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/createShare")
+    @RequestMapping({ "/createShare", "/createShare.view" })
     public void createShare(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -2168,7 +2168,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/deleteShare")
+    @RequestMapping({ "/deleteShare", "/deleteShare.view" })
     public void deleteShare(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
 
@@ -2190,7 +2190,7 @@ public class SubsonicRESTController {
         writeEmptyResponse(request, response);
     }
 
-    @RequestMapping("/updateShare")
+    @RequestMapping({ "/updateShare", "/updateShare.view" })
     public void updateShare(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
 
@@ -2232,20 +2232,20 @@ public class SubsonicRESTController {
         return result;
     }
 
-    @RequestMapping("/getCoverArt")
+    @RequestMapping({ "/getCoverArt", "/getCoverArt.view" })
     public void getCoverArt(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
         coverArtController.handleRequest(request, response);
     }
 
-    @RequestMapping("/getAvatar")
+    @RequestMapping({ "/getAvatar", "/getAvatar.view" })
     public void getAvatar(HttpServletRequest req, HttpServletResponse response) throws IOException {
         HttpServletRequest request = wrapRequest(req);
         avatarController.handleRequest(request, response);
     }
 
-    @RequestMapping("/changePassword")
+    @RequestMapping({ "/changePassword", "/changePassword.view" })
     public void changePassword(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
 
@@ -2269,7 +2269,7 @@ public class SubsonicRESTController {
         writeEmptyResponse(request, response);
     }
 
-    @RequestMapping("/getUser")
+    @RequestMapping({ "/getUser", "/getUser.view" })
     public void getUser(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
 
@@ -2293,7 +2293,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping("/getUsers")
+    @RequestMapping({ "/getUsers", "/getUsers.view" })
     public void getUsers(HttpServletRequest req, HttpServletResponse response) {
         HttpServletRequest request = wrapRequest(req);
 
@@ -2350,7 +2350,7 @@ public class SubsonicRESTController {
         return result;
     }
 
-    @RequestMapping("/createUser")
+    @RequestMapping({ "/createUser", "/createUser.view" })
     public void createUser(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
@@ -2401,7 +2401,7 @@ public class SubsonicRESTController {
         writeEmptyResponse(request, response);
     }
 
-    @RequestMapping("/updateUser")
+    @RequestMapping({ "/updateUser", "/updateUser.view" })
     public void updateUser(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
@@ -2481,7 +2481,7 @@ public class SubsonicRESTController {
         return request.getParameter(name) != null;
     }
 
-    @RequestMapping("/deleteUser")
+    @RequestMapping({ "/deleteUser", "/deleteUser.view" })
     public void deleteUser(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
@@ -2510,17 +2510,17 @@ public class SubsonicRESTController {
         writeEmptyResponse(request, response);
     }
 
-    @RequestMapping("/getChatMessages")
+    @RequestMapping({ "/getChatMessages", "/getChatMessages.view" })
     public ResponseEntity<String> getChatMessages(HttpServletRequest req, HttpServletResponse response) {
         return ResponseEntity.status(HttpStatus.SC_GONE).body(NO_LONGER_SUPPORTED);
     }
 
-    @RequestMapping("/addChatMessage")
+    @RequestMapping({ "/addChatMessage", "/addChatMessage.view" })
     public ResponseEntity<String> addChatMessage(HttpServletRequest req, HttpServletResponse response) {
         return ResponseEntity.status(HttpStatus.SC_GONE).body(NO_LONGER_SUPPORTED);
     }
 
-    @RequestMapping("/getLyrics")
+    @RequestMapping({ "/getLyrics", "/getLyrics.view" })
     public void getLyrics(HttpServletRequest req, HttpServletResponse response) {
         HttpServletRequest request = wrapRequest(req);
         String artist = request.getParameter(Attributes.Request.ARTIST.value());
@@ -2538,7 +2538,7 @@ public class SubsonicRESTController {
     }
 
     @SuppressWarnings("PMD.NullAssignment") // (rating) Intentional allocation to register null
-    @RequestMapping("/setRating")
+    @RequestMapping({ "/setRating", "/setRating.view" })
     public void setRating(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Integer rating = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.RATING.value());
@@ -2559,7 +2559,7 @@ public class SubsonicRESTController {
         writeEmptyResponse(request, response);
     }
 
-    @RequestMapping(path = "/getAlbumInfo")
+    @RequestMapping({ "/getAlbumInfo", "/getAlbumInfo.view" })
     public void getAlbumInfo(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -2579,7 +2579,7 @@ public class SubsonicRESTController {
         this.jaxbWriter.writeResponse(request, response, res);
     }
 
-    @RequestMapping(path = "/getAlbumInfo2")
+    @RequestMapping({ "/getAlbumInfo2", "/getAlbumInfo2.view" })
     public void getAlbumInfo2(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -2612,24 +2612,24 @@ public class SubsonicRESTController {
         return result;
     }
 
-    @RequestMapping("/getVideoInfo")
+    @RequestMapping({ "/getVideoInfo", "/getVideoInfo.view" })
     public ResponseEntity<String> getVideoInfo() {
         return ResponseEntity.status(HttpStatus.SC_NOT_IMPLEMENTED).body(NOT_YET_IMPLEMENTED);
     }
 
-    @RequestMapping("/getCaptions")
+    @RequestMapping({ "/getCaptions", "/getCaptions.view" })
     public ResponseEntity<String> getCaptions() {
         return ResponseEntity.status(HttpStatus.SC_NOT_IMPLEMENTED).body(NOT_YET_IMPLEMENTED);
     }
 
-    @RequestMapping("/startScan")
+    @RequestMapping({ "/startScan", "/startScan.view" })
     public void startScan(HttpServletRequest req, HttpServletResponse response) {
         HttpServletRequest request = wrapRequest(req);
         mediaScannerService.scanLibrary();
         getScanStatus(request, response);
     }
 
-    @RequestMapping("/getScanStatus")
+    @RequestMapping({ "/getScanStatus", "/getScanStatus.view" })
     public void getScanStatus(HttpServletRequest req, HttpServletResponse response) {
         ScanStatus scanStatus = new ScanStatus();
         scanStatus.setScanning(this.mediaScannerService.isScanning());

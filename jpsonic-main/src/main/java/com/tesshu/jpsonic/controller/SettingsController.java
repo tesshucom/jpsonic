@@ -37,7 +37,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/settings")
+@RequestMapping("/settings.view")
 public class SettingsController {
 
     private final SecurityService securityService;

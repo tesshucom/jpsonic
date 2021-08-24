@@ -42,7 +42,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * Spring MVC Controller that serves the login page.
  */
 @Controller
-@RequestMapping("/login")
+@RequestMapping({ "/login", "/login.view" })
 public class LoginController {
 
     private final SecurityService securityService;
@@ -55,7 +55,7 @@ public class LoginController {
     }
 
     @GetMapping
-    public ModelAndView login(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView get(HttpServletRequest request, HttpServletResponse response) {
 
         // Auto-login if "user" and "password" parameters are given.
         String username = request.getParameter(Attributes.Request.USER.value());

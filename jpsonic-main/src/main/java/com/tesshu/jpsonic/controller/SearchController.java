@@ -55,7 +55,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/search")
+@RequestMapping({ "/search", "/search.view" })
 public class SearchController {
 
     private static final int MATCH_COUNT = 25;

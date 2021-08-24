@@ -44,7 +44,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/sonosSettings")
+@RequestMapping({ "/sonosSettings", "/sonosSettings.view" })
 public class SonosSettingsController {
 
     private final SettingsService settingsService;

@@ -49,7 +49,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/avatarUpload")
+@RequestMapping("/avatarUpload.view")
 public class AvatarUploadController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AvatarUploadController.class);
