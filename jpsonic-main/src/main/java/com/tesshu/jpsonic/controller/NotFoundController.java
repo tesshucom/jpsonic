@@ -30,11 +30,11 @@ import org.springframework.web.servlet.ModelAndView;
  * Spring MVC Controller that serves the login page.
  */
 @Controller
-@RequestMapping("/notFound")
+@RequestMapping({ "/notFound", "/notFound.view" })
 public class NotFoundController {
 
     @GetMapping
-    public ModelAndView notFound() {
+    public ModelAndView get() {
         return new ModelAndView("notFound");
     }
 }

@@ -69,7 +69,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Sindre Mehus
  */
 @org.springframework.stereotype.Controller
-@RequestMapping("/upload")
+@RequestMapping({ "/upload", "/upload.view" })
 public class UploadController {
 
     public static final String FIELD_NAME_DIR = "dir";

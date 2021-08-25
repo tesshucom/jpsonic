@@ -34,13 +34,13 @@ import org.springframework.web.servlet.ModelAndView;
  * Spring MVC Controller that serves the login page.
  */
 @Controller
-@RequestMapping("/accessDenied")
+@RequestMapping({ "/accessDenied", "/accessDenied.view" })
 public class AccessDeniedController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AccessDeniedController.class);
 
     @GetMapping
-    public ModelAndView accessDenied(HttpServletRequest request) {
+    public ModelAndView get(HttpServletRequest request) {
         if (LOG.isInfoEnabled()) {
             LOG.info("The IP {} tried to access the forbidden url {}.", request.getRemoteAddr(),
                     request.getRequestURL());

@@ -48,7 +48,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/advancedSettings")
+@RequestMapping({ "/advancedSettings", "/advancedSettings.view" })
 public class AdvancedSettingsController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdvancedSettingsController.class);

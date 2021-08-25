@@ -43,7 +43,7 @@ import org.springframework.web.servlet.mvc.LastModified;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/avatar")
+@RequestMapping("/avatar.view")
 public class AvatarController implements LastModified {
 
     private final SecurityService securityService;

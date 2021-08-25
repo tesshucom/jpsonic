@@ -40,7 +40,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/setMusicFileInfo")
+@RequestMapping("/setMusicFileInfo.view")
 public class SetMusicFileInfoController {
 
     private final MediaFileService mediaFileService;

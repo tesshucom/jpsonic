@@ -50,7 +50,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/importPlaylist")
+@RequestMapping({ "/importPlaylist", "/importPlaylist.view" })
 public class ImportPlaylistController {
 
     private static final String FIELD_NAME_FILE = "file";
@@ -105,7 +105,7 @@ public class ImportPlaylistController {
     }
 
     @GetMapping
-    public String handleGet() {
+    public String get() {
         return "importPlaylist";
     }
 

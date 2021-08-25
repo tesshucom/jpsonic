@@ -46,7 +46,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/podcastChannels")
+@RequestMapping({ "/podcastChannels", "/podcastChannels.view" })
 public class PodcastChannelsController {
 
     private final PodcastService podcastService;

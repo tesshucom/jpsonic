@@ -63,7 +63,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/playerSettings")
+@RequestMapping({ "/playerSettings", "/playerSettings.view" })
 public class PlayerSettingsController {
 
     private final SettingsService settingsService;

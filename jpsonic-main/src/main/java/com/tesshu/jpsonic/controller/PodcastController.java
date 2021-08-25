@@ -49,21 +49,21 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/podcast")
+@RequestMapping({ "/podcast", "/podcast.view" })
 public class PodcastController {
 
     private static final Object DATE_LOCK = new Object();
 
-    private final PlaylistService playlistService;
     private final SettingsService settingsService;
     private final SecurityService securityService;
+    private final PlaylistService playlistService;
 
     // Locale is changed by Setting, but restart is required.
     private DateFormat rssDateFormat;
     private String lang;
 
-    public PodcastController(PlaylistService playlistService, SettingsService settingsService,
-            SecurityService securityService) {
+    public PodcastController(SettingsService settingsService, SecurityService securityService,
+            PlaylistService playlistService) {
         super();
         this.playlistService = playlistService;
         this.settingsService = settingsService;

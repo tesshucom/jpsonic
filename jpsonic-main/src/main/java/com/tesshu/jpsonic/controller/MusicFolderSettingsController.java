@@ -56,7 +56,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/musicFolderSettings")
+@RequestMapping({ "/musicFolderSettings", "/musicFolderSettings.view" })
 public class MusicFolderSettingsController {
 
     private final SettingsService settingsService;

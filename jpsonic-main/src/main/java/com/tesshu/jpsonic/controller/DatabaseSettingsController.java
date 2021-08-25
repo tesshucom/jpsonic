@@ -42,7 +42,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
-@RequestMapping("/databaseSettings")
+@RequestMapping({ "/databaseSettings", "/databaseSettings.view" })
 public class DatabaseSettingsController {
 
     private final SettingsService settingsService;
@@ -60,7 +60,7 @@ public class DatabaseSettingsController {
     }
 
     @GetMapping
-    protected String displayForm() {
+    protected String get() {
         return "databaseSettings";
     }
 
