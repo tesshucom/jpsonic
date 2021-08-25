@@ -43,7 +43,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/playQueue")
+@RequestMapping({ "/playQueue", "/playQueue.view" })
 public class PlayQueueController {
 
     private final PlayerService playerService;

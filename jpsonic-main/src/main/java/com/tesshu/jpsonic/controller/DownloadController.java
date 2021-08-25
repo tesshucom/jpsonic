@@ -74,7 +74,7 @@ import org.springframework.web.servlet.mvc.LastModified;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/download")
+@RequestMapping("/download.view")
 public class DownloadController implements LastModified {
 
     private static final Logger LOG = LoggerFactory.getLogger(DownloadController.class);

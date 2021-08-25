@@ -49,7 +49,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/more")
+@RequestMapping({ "/more", "/more.view" })
 public class MoreController {
 
     private final MusicFolderService musicFolderService;

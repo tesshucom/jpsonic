@@ -45,7 +45,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * @author Sindre Mehus
  */
 @org.springframework.stereotype.Controller
-@RequestMapping("/passwordSettings")
+@RequestMapping({ "/passwordSettings", "/passwordSettings.view" })
 public class PasswordSettingsController {
 
     private final SecurityService securityService;
@@ -64,7 +64,7 @@ public class PasswordSettingsController {
     }
 
     @GetMapping
-    protected ModelAndView displayForm(HttpServletRequest request) {
+    protected ModelAndView get(HttpServletRequest request) {
         PasswordSettingsCommand command = new PasswordSettingsCommand();
         User user = securityService.getCurrentUser(request);
         command.setUsername(user.getUsername());

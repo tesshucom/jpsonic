@@ -50,7 +50,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/starred")
+@RequestMapping({ "/starred", "/starred.view" })
 public class StarredController {
 
     private final MusicFolderService musicFolderService;

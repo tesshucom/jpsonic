@@ -32,7 +32,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
-@RequestMapping("/gettingStarted")
+@RequestMapping({ "/gettingStarted", "/gettingStarted.view" })
 public class GettingStartedController {
 
     private final SettingsService settingsService;
@@ -43,7 +43,7 @@ public class GettingStartedController {
     }
 
     @GetMapping
-    public ModelAndView gettingStarted(HttpServletRequest request) {
+    public ModelAndView get(HttpServletRequest request) {
 
         if (request.getParameter(Attributes.Request.HIDE.value()) != null) {
             settingsService.setGettingStartedEnabled(false);

@@ -50,7 +50,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/createShare")
+@RequestMapping({ "/createShare", "/createShare.view" })
 public class ShareManagementController {
 
     private final MediaFileService mediaFileService;

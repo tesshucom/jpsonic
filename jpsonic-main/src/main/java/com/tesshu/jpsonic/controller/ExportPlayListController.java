@@ -42,7 +42,7 @@ import org.springframework.web.servlet.ModelAndView;
  * Spring MVC Controller that serves the login page.
  */
 @Controller
-@RequestMapping("/exportPlaylist")
+@RequestMapping("/exportPlaylist.view")
 public class ExportPlayListController {
 
     private final PlaylistService playlistService;

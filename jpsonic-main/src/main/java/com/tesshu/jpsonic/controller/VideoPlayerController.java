@@ -50,7 +50,7 @@ import org.springframework.web.servlet.view.RedirectView;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/videoPlayer")
+@RequestMapping({ "/videoPlayer", "/videoPlayer.view" })
 public class VideoPlayerController {
 
     public static final int DEFAULT_BIT_RATE = 2000;
