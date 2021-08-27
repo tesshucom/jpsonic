@@ -706,7 +706,6 @@
                     <includes>
                         <include>**/*.java</include>
                         <include>**/*.jsp</include>
-                        <include>**/*.jspf</include>
                     </includes>
                     <minimumPriority>5</minimumPriority>
                     <rulesets>
