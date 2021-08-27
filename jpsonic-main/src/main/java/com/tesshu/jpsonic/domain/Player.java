@@ -46,7 +46,6 @@ public class Player {
     private Date lastSeen;
     private TranscodeScheme transcodeScheme = TranscodeScheme.OFF;
     private PlayQueue playQueue;
-    private String javaJukeboxMixer;
 
     /**
      * Returns the player ID.
@@ -87,7 +86,7 @@ public class Player {
     }
 
     /**
-     * Returns the player "technology", e.g., web, external or jukebox.
+     * Returns the player "technology"
      *
      * @return The player technology.
      */
@@ -115,29 +114,13 @@ public class Player {
     }
 
     /**
-     * Sets the player "technology", e.g., web, external or jukebox.
+     * Sets the player "technology"
      *
      * @param technology
      *            The player technology.
      */
     public void setTechnology(PlayerTechnology technology) {
         this.technology = technology;
-    }
-
-    /**
-     * @deprecated To conform to JEP 396 in JDK16
-     */
-    @Deprecated
-    public boolean isJukebox() {
-        return technology == PlayerTechnology.JUKEBOX || technology == PlayerTechnology.JAVA_JUKEBOX;
-    }
-
-    /**
-     * @deprecated To conform to JEP 396 in JDK16
-     */
-    @Deprecated
-    public boolean isJavaJukebox() {
-        return technology == PlayerTechnology.JAVA_JUKEBOX;
     }
 
     public boolean isExternal() {
@@ -350,22 +333,6 @@ public class Player {
             return name;
         }
         return "Player " + id;
-    }
-
-    /**
-     * @deprecated To conform to JEP 396 in JDK16
-     */
-    @Deprecated
-    public void setJavaJukeboxMixer(String javaJukeboxMixer) {
-        this.javaJukeboxMixer = javaJukeboxMixer;
-    }
-
-    /**
-     * @deprecated To conform to JEP 396 in JDK16
-     */
-    @Deprecated
-    public String getJavaJukeboxMixer() {
-        return javaJukeboxMixer;
     }
 
     /**
