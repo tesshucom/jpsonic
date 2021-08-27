@@ -92,10 +92,9 @@ public class SettingsService {
             "HlsCommand2", "JukeboxCommand", "CoverArtFileTypes", "UrlRedirectCustomHost", "CoverArtLimit",
             "StreamPort", "PortForwardingEnabled", "RewriteUrl", "UrlRedirectCustomUrl", "UrlRedirectContextPath",
             "UrlRedirectFrom", "UrlRedirectionEnabled", "UrlRedirectType", "Port", "HttpsPort",
-            // Database settings renamed
             "database.varchar.maxlength", "database.config.type", "database.config.embed.driver",
             "database.config.embed.url", "database.config.embed.username", "database.config.embed.password",
-            "database.config.jndi.name", "database.usertable.quote");
+            "database.config.jndi.name", "database.usertable.quote", "ShowJavaJukebox");
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
@@ -591,14 +590,6 @@ public class SettingsService {
 
     public void setOutputSearchQuery(boolean b) {
         setProperty(SettingsConstants.General.Search.OUTPUT_SEARCH_QUERY, b);
-    }
-
-    public boolean isShowJavaJukebox() {
-        return getBoolean(SettingsConstants.General.Legacy.SHOW_JAVAJUKE_BOX);
-    }
-
-    public void setShowJavaJukebox(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.SHOW_JAVAJUKE_BOX, b);
     }
 
     public boolean isShowServerLog() {

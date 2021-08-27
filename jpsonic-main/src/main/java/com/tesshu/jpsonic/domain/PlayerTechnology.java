@@ -42,16 +42,16 @@ public enum PlayerTechnology {
      * Same as above, but the playlist is managed by the player, rather than the Airsonic server. In this mode, skipping
      * within songs is possible.
      */
-    EXTERNAL_WITH_PLAYLIST,
+    EXTERNAL_WITH_PLAYLIST;
 
-    /**
-     * Plays music directly on the audio device of the Airsonic server.
-     */
-    JUKEBOX,
-
-    /**
-     * Jukebox player that uses the Java Sound API.
-     */
-    JAVA_JUKEBOX
-
+    public static PlayerTechnology of(String s) {
+        if (WEB.name().equals(s)) {
+            return WEB;
+        } else if (EXTERNAL.name().equals(s)) {
+            return EXTERNAL;
+        } else if (EXTERNAL_WITH_PLAYLIST.name().equals(s)) {
+            return EXTERNAL_WITH_PLAYLIST;
+        }
+        return WEB;
+    }
 }

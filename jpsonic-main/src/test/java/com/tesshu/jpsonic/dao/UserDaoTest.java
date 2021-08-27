@@ -82,7 +82,6 @@ class UserDaoTest {
         user.setUploadRole(false);
         user.setPodcastRole(true);
         user.setStreamRole(true);
-        user.setJukeboxRole(true);
         user.setSettingsRole(true);
         userDao.createUser(user);
 
@@ -117,7 +116,6 @@ class UserDaoTest {
         user.setUploadRole(false);
         user.setPodcastRole(true);
         user.setStreamRole(true);
-        user.setJukeboxRole(true);
         user.setSettingsRole(true);
         userDao.createUser(user);
 
@@ -135,7 +133,6 @@ class UserDaoTest {
         user.setUploadRole(true);
         user.setPodcastRole(false);
         user.setStreamRole(false);
-        user.setJukeboxRole(false);
         user.setSettingsRole(false);
         userDao.updateUser(user);
 
@@ -340,7 +337,6 @@ class UserDaoTest {
         assertEquals(expected.isUploadRole(), actual.isUploadRole(), "Wrong upload role.");
         assertEquals(expected.isDownloadRole(), actual.isDownloadRole(), "Wrong download role.");
         assertEquals(expected.isStreamRole(), actual.isStreamRole(), "Wrong stream role.");
-        assertEquals(expected.isJukeboxRole(), actual.isJukeboxRole(), "Wrong jukebox role.");
         assertEquals(expected.isSettingsRole(), actual.isSettingsRole(), "Wrong settings role.");
     }
 }

@@ -140,11 +140,6 @@
             </dd>
             <dt></dt>
             <dd>
-                <form:checkbox path="jukeboxRole" id="jukebox" cssClass="checkbox"/>
-                <label for="jukebox"><fmt:message key="usersettings.jukebox"/></label>
-            </dd>
-            <dt></dt>
-            <dd>
                 <form:checkbox path="downloadRole" id="download" cssClass="checkbox"/>
                 <label for="download"><fmt:message key="usersettings.download"/></label>
             </dd>

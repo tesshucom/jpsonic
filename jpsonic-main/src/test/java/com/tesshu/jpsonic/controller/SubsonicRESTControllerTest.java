@@ -705,6 +705,28 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
     }
 
     @Test
+    void testJukeboxControl() throws ExecutionException {
+        try {
+
+            mvc.perform(MockMvcRequestBuilders.get("/rest/jukeboxControl")
+                    .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isGone());
+
+            mvc.perform(MockMvcRequestBuilders.get("/rest/jukeboxControl.view")
+                    .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isGone());
+
+        } catch (Exception e) {
+            Assertions.fail();
+            throw new ExecutionException(e);
+        }
+    }
+
+    @Test
     void testGetPlaylist() throws ExecutionException {
         try {
 
