@@ -175,7 +175,7 @@ public class PlayerSettingsController {
             player.setDynamicIp(command.isDynamicIp());
             player.setName(StringUtils.trimToNull(command.getName()));
             player.setTranscodeScheme(TranscodeScheme.valueOf(command.getTranscodeSchemeName()));
-            player.setTechnology(PlayerTechnology.valueOf(command.getTechnologyName()));
+            player.setTechnology(PlayerTechnology.of(command.getTechnologyName()));
             player.setJavaJukeboxMixer(command.getJavaJukeboxMixer());
 
             playerService.updatePlayer(player);

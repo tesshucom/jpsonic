@@ -213,7 +213,7 @@ public class PlayerDao extends AbstractDao {
             col++; // Ignore cover art scheme.
             player.setTranscodeScheme(TranscodeScheme.valueOf(rs.getString(col++)));
             player.setDynamicIp(rs.getBoolean(col++));
-            player.setTechnology(PlayerTechnology.valueOf(rs.getString(col++)));
+            player.setTechnology(PlayerTechnology.of(rs.getString(col++)));
             player.setClientId(rs.getString(col++));
             player.setJavaJukeboxMixer(rs.getString(col));
             addPlaylist(player, playlistMap, factory);
