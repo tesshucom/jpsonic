@@ -257,9 +257,7 @@ class PlaylistServiceTest {
             expected.setShared(true);
             expected.setId(23);
 
-            assertTrue(EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"),
-                    "\n" + ToStringBuilder.reflectionToString(actual.getValue()) + "\n\n did not equal \n\n"
-                            + ToStringBuilder.reflectionToString(expected));
+            assertTrue(EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"));
             List<MediaFile> mediaFiles = medias.getValue();
             assertEquals(3, mediaFiles.size());
         }
@@ -300,9 +298,7 @@ class PlaylistServiceTest {
             expected.setImportedFrom(path);
             expected.setShared(true);
             expected.setId(23);
-            assertTrue(EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"),
-                    "\n" + ToStringBuilder.reflectionToString(actual.getValue()) + "\n\n did not equal \n\n"
-                            + ToStringBuilder.reflectionToString(expected));
+            assertTrue(EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"));
             List<MediaFile> mediaFiles = medias.getValue();
             assertEquals(3, mediaFiles.size());
         }
