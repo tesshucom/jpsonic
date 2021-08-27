@@ -44,7 +44,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import com.tesshu.jpsonic.ajax.LyricsInfo;
 import com.tesshu.jpsonic.ajax.LyricsService;
-import com.tesshu.jpsonic.ajax.PlayQueueService;
 import com.tesshu.jpsonic.command.UserSettingsCommand;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
@@ -58,7 +57,6 @@ import com.tesshu.jpsonic.domain.InternetRadio;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.domain.MusicIndex;
-import com.tesshu.jpsonic.domain.PlayQueue;
 import com.tesshu.jpsonic.domain.PlayStatus;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.PlayerTechnology;
@@ -72,7 +70,6 @@ import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.service.AudioScrobblerService;
 import com.tesshu.jpsonic.service.BookmarkService;
 import com.tesshu.jpsonic.service.InternetRadioService;
-import com.tesshu.jpsonic.service.JukeboxService;
 import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MediaScannerService;
@@ -124,8 +121,6 @@ import org.subsonic.restapi.IndexID3;
 import org.subsonic.restapi.Indexes;
 import org.subsonic.restapi.InternetRadioStation;
 import org.subsonic.restapi.InternetRadioStations;
-import org.subsonic.restapi.JukeboxPlaylist;
-import org.subsonic.restapi.JukeboxStatus;
 import org.subsonic.restapi.License;
 import org.subsonic.restapi.Lyrics;
 import org.subsonic.restapi.MediaType;
@@ -197,8 +192,6 @@ public class SubsonicRESTController {
     private final ShareService shareService;
     private final PlaylistService playlistService;
     private final LyricsService lyricsService;
-    private final PlayQueueService playQueueService;
-    private final JukeboxService jukeboxService;
     private final AudioScrobblerService audioScrobblerService;
     private final PodcastService podcastService;
     private final RatingService ratingService;
@@ -223,12 +216,11 @@ public class SubsonicRESTController {
             AvatarController avatarController, UserSettingsController userSettingsController,
             TopController topController, StatusService statusService, StreamController streamController,
             HLSController hlsController, ShareService shareService, PlaylistService playlistService,
-            LyricsService lyricsService, PlayQueueService playQueueService, JukeboxService jukeboxService,
-            AudioScrobblerService audioScrobblerService, PodcastService podcastService, RatingService ratingService,
-            SearchService searchService, InternetRadioService internetRadioService, MediaFileDao mediaFileDao,
-            ArtistDao artistDao, AlbumDao albumDao, BookmarkService bookmarkService, PlayQueueDao playQueueDao,
-            MediaScannerService mediaScannerService, AirsonicLocaleResolver airsonicLocaleResolver, CoverArtLogic logic,
-            SearchCriteriaDirector director) {
+            LyricsService lyricsService, AudioScrobblerService audioScrobblerService, PodcastService podcastService,
+            RatingService ratingService, SearchService searchService, InternetRadioService internetRadioService,
+            MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao, BookmarkService bookmarkService,
+            PlayQueueDao playQueueDao, MediaScannerService mediaScannerService,
+            AirsonicLocaleResolver airsonicLocaleResolver, CoverArtLogic logic, SearchCriteriaDirector director) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
@@ -249,8 +241,6 @@ public class SubsonicRESTController {
         this.shareService = shareService;
         this.playlistService = playlistService;
         this.lyricsService = lyricsService;
-        this.playQueueService = playQueueService;
-        this.jukeboxService = jukeboxService;
         this.audioScrobblerService = audioScrobblerService;
         this.podcastService = podcastService;
         this.ratingService = ratingService;
@@ -1005,158 +995,14 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping({ "/jukeboxControl", "/jukeboxControl.view" })
-    public void jukeboxControl(HttpServletRequest req, HttpServletResponse response)
-            throws ExecutionException, ServletRequestBindingException {
-        HttpServletRequest request = wrapRequest(req, true);
-
-        User user = securityService.getCurrentUser(request);
-        if (!user.isJukeboxRole()) {
-            writeError(request, response, ErrorCode.NOT_AUTHORIZED,
-                    user.getUsername() + " is not authorized to use jukebox.");
-            return;
-        }
-
-        Player player = playerService.getPlayer(request, response);
-
-        String action = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.ACTION.value());
-        doJukeboxAction(action, request, player);
-
-        String username = securityService.getCurrentUsername(request);
-        PlayQueue playQueue = player.getPlayQueue();
-
-        // this variable is only needed for the JukeboxLegacySubsonicService. To be removed.
-        boolean controlsJukebox = jukeboxService.canControl(player);
-
-        int currentIndex = controlsJukebox && !playQueue.isEmpty() ? playQueue.getIndex() : -1;
-        boolean playing = controlsJukebox && !playQueue.isEmpty() && playQueue.getStatus() == PlayQueue.Status.PLAYING;
-        float gain;
-        int position;
-        gain = jukeboxService.getGain(player);
-        position = controlsJukebox && !playQueue.isEmpty() ? jukeboxService.getPosition(player) : 0;
-
-        boolean returnPlaylist = "get".equals(action);
-        JukeboxControlResponseParam responseParam = new JukeboxControlResponseParam(returnPlaylist, currentIndex,
-                playing, gain, position);
-        Response res = createJukeboxControlResponse(responseParam, username, player, playQueue);
-        jaxbWriter.writeResponse(request, response, res);
-    }
-
-    private void doJukeboxAction(String action, HttpServletRequest request, Player player)
-            throws ServletRequestBindingException, ExecutionException {
-        switch (action) {
-        case "start":
-            player.getPlayQueue().setStatus(PlayQueue.Status.PLAYING);
-            jukeboxService.start(player);
-            break;
-        case "stop":
-            player.getPlayQueue().setStatus(PlayQueue.Status.STOPPED);
-            jukeboxService.stop(player);
-            break;
-        case "skip":
-            int index = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.INDEX.value());
-            int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
-            player.getPlayQueue().setIndex(index);
-            jukeboxService.skip(player, index, offset);
-            break;
-        case "add":
-            int[] ids = ServletRequestUtils.getIntParameters(request, Attributes.Request.ID.value());
-            playQueueService.addMediaFilesToPlayQueue(player.getPlayQueue(), ids, null, true);
-            break;
-        case "set":
-            ids = ServletRequestUtils.getIntParameters(request, Attributes.Request.ID.value());
-            playQueueService.resetPlayQueue(player.getPlayQueue(), ids, true);
-            break;
-        case "clear":
-            player.getPlayQueue().clear();
-            break;
-        case "remove":
-            index = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.INDEX.value());
-            player.getPlayQueue().removeFileAt(index);
-            break;
-        case "shuffle":
-            player.getPlayQueue().shuffle();
-            break;
-        case "setGain":
-            float gain = ServletRequestUtils.getRequiredFloatParameter(request, Attributes.Request.GAIN.value());
-            jukeboxService.setGain(player, gain);
-            break;
-        case "get":
-            // No action necessary. However, the response format is different from the others.
-            break;
-        case "status":
-            // No action necessary.
-            break;
-        default:
-            throw new ExecutionException(new IOException("Unknown jukebox action: '" + action + "'."));
-        }
-    }
-
-    private static class JukeboxControlResponseParam {
-        private final boolean returnPlaylist;
-        private final int currentIndex;
-        private final boolean playing;
-        private final float gain;
-        private final Integer position;
-
-        public JukeboxControlResponseParam(boolean returnPlaylist, int currentIndex, boolean playing, float gain,
-                Integer position) {
-            super();
-            this.returnPlaylist = returnPlaylist;
-            this.currentIndex = currentIndex;
-            this.playing = playing;
-            this.gain = gain;
-            this.position = position;
-        }
-
-        public boolean isReturnPlaylist() {
-            return returnPlaylist;
-        }
-
-        public int getCurrentIndex() {
-            return currentIndex;
-        }
-
-        public boolean isPlaying() {
-            return playing;
-        }
-
-        public float getGain() {
-            return gain;
-        }
-
-        public Integer getPosition() {
-            return position;
-        }
-    }
-
-    private Response createJukeboxControlResponse(JukeboxControlResponseParam param, String username, Player player,
-            PlayQueue playQueue) {
-        Response response = createResponse();
-        if (param.isReturnPlaylist()) {
-            JukeboxPlaylist result = new JukeboxPlaylist();
-            response.setJukeboxPlaylist(result);
-            result.setCurrentIndex(param.getCurrentIndex());
-            result.setPlaying(param.isPlaying());
-            result.setGain(param.getGain());
-            result.setPosition(param.getPosition());
-            for (MediaFile mediaFile : playQueue.getFiles()) {
-                result.getEntry().add(createJaxbChild(player, mediaFile, username));
-            }
-        } else {
-            JukeboxStatus result = new JukeboxStatus();
-            response.setJukeboxStatus(result);
-            result.setCurrentIndex(param.getCurrentIndex());
-            result.setPlaying(param.isPlaying());
-            result.setGain(param.getGain());
-            result.setPosition(param.getPosition());
-        }
-        return response;
+    public ResponseEntity<String> jukeboxControl(HttpServletRequest req, HttpServletResponse response) {
+        return ResponseEntity.status(HttpStatus.SC_GONE).body(NO_LONGER_SUPPORTED);
     }
 
     @RequestMapping({ "/createPlaylist", "/createPlaylist.view" })
     public void createPlaylist(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
-        HttpServletRequest request = wrapRequest(req, true);
+        HttpServletRequest request = wrapRequest(req);
         Integer playlistId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYLIST_ID.value());
         String name = request.getParameter(Attributes.Request.NAME.value());
         if (playlistId == null && name == null) {
@@ -1202,7 +1048,7 @@ public class SubsonicRESTController {
     public void updatePlaylist(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
 
-        HttpServletRequest request = wrapRequest(req, true);
+        HttpServletRequest request = wrapRequest(req);
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.PLAYLIST_ID.value());
         com.tesshu.jpsonic.domain.Playlist playlist = playlistService.getPlaylist(id);
         if (playlist == null) {
@@ -1277,7 +1123,7 @@ public class SubsonicRESTController {
     @RequestMapping({ "/deletePlaylist", "/deletePlaylist.view" })
     public void deletePlaylist(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
-        HttpServletRequest request = wrapRequest(req, true);
+        HttpServletRequest request = wrapRequest(req);
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         com.tesshu.jpsonic.domain.Playlist playlist = playlistService.getPlaylist(id);
         if (playlist == null) {
@@ -2330,7 +2176,7 @@ public class SubsonicRESTController {
         result.setCommentRole(user.isCommentRole());
         result.setPodcastRole(user.isPodcastRole());
         result.setStreamRole(user.isStreamRole());
-        result.setJukeboxRole(user.isJukeboxRole());
+        result.setJukeboxRole(false);
         result.setShareRole(user.isShareRole());
         // currently this role isn't supported by airsonic
         result.setVideoConversionRole(false);
@@ -2641,12 +2487,8 @@ public class SubsonicRESTController {
         this.jaxbWriter.writeResponse(request, response, res);
     }
 
-    private HttpServletRequest wrapRequest(HttpServletRequest request) {
-        return wrapRequest(request, false);
-    }
-
-    private HttpServletRequest wrapRequest(final HttpServletRequest request, boolean jukebox) {
-        final String playerId = createPlayerIfNecessary(request, jukebox);
+    private HttpServletRequest wrapRequest(final HttpServletRequest request) {
+        final String playerId = createPlayerIfNecessary(request);
         return new HttpServletRequestWrapper(request) {
             @Override
             public String getParameter(String name) {
@@ -2690,12 +2532,9 @@ public class SubsonicRESTController {
         jaxbWriter.writeErrorResponse(request, response, code, message);
     }
 
-    private String createPlayerIfNecessary(HttpServletRequest request, boolean jukebox) {
+    private String createPlayerIfNecessary(HttpServletRequest request) {
         String username = request.getRemoteUser();
         String clientId = request.getParameter(Attributes.Request.C.value());
-        if (jukebox) {
-            clientId += "-jukebox";
-        }
 
         List<Player> players = playerService.getPlayersForUserAndClientId(username, clientId);
 
@@ -2706,7 +2545,7 @@ public class SubsonicRESTController {
             player.setUsername(username);
             player.setClientId(clientId);
             player.setName(clientId);
-            player.setTechnology(jukebox ? PlayerTechnology.JUKEBOX : PlayerTechnology.EXTERNAL_WITH_PLAYLIST);
+            player.setTechnology(PlayerTechnology.WEB);
             playerService.createPlayer(player);
             players = playerService.getPlayersForUserAndClientId(username, clientId);
         }
