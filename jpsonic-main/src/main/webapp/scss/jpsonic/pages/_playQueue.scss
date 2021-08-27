@@ -394,11 +394,9 @@ $buttons-top: 20px;
     }
 
     .mejs__play button,
-    #javaJukeboxPlayerControlBar > button#startIcon,
     #castPlay,
     #start,
     .mejs__pause button,
-    #javaJukeboxPlayerControlBar > button#pauseIcon,
     #castPause,
     #stop {
       position: absolute;
@@ -413,17 +411,14 @@ $buttons-top: 20px;
       }
     }
     .mejs__play button,
-    #javaJukeboxPlayerControlBar > button#startIcon,
     #castPlay {
       @include createButton("\f357", 16px, -.06em, .06em);
     }
     .mejs__pause button,
     .mejs__pause > button,
-    #javaJukeboxPlayerControlBar > button#pauseIcon,
     #castPause {
       @include createButton("\f478", 16px, -.06em, -.01em);
     }
-    #javaJukeboxPlayerControlBar > button#pauseIcon,
     #castPlayer,
     #castPause,
     #castMuteOff,
@@ -524,9 +519,7 @@ $buttons-top: 20px;
     visibility: visible;
     &:checked ~ .bar {
       .mejs__play > button,
-      #javaJukeboxPlayerControlBar > button#startIcon,
-      .mejs__pause > button,
-      #javaJukeboxPlayerControlBar > button#pauseIcon {
+      .mejs__pause > button {
         left: calc((100vw - #{$jp-drawer-width} - #{$play-button-size}) / 2 - (#{$play-button-size} - #{$button-size}));
         &:active {
           left: calc((100vw - #{$jp-drawer-width} - #{$play-button-size}) / 2 - (#{$play-button-size} - #{$button-size}));
@@ -559,10 +552,6 @@ $buttons-top: 20px;
   position: absolute;
   top: -55px;
   right: 60px;
-  #jukeboxVolume {
-    width: 80px;
-    height: 8px;
-  }
   .ui-widget-content {
     @include primaryMaskedBg(.5);
   }

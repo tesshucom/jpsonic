@@ -48,7 +48,6 @@ public class User {
     private boolean commentRole;
     private boolean podcastRole;
     private boolean streamRole;
-    private boolean jukeboxRole;
     private boolean shareRole;
 
     public User(String username, String password, String email, boolean ldapAuthenticated, long bytesStreamed,
@@ -190,14 +189,6 @@ public class User {
         this.streamRole = streamRole;
     }
 
-    public boolean isJukeboxRole() {
-        return jukeboxRole;
-    }
-
-    public void setJukeboxRole(boolean jukeboxRole) {
-        this.jukeboxRole = jukeboxRole;
-    }
-
     public boolean isShareRole() {
         return shareRole;
     }
@@ -237,9 +228,6 @@ public class User {
         }
         if (streamRole) {
             result.append(" [stream]");
-        }
-        if (jukeboxRole) {
-            result.append(" [jukebox]");
         }
         if (shareRole) {
             result.append(" [share]");
