@@ -43,11 +43,6 @@ public class UserSettingsCommand {
     private boolean commentRole;
     private boolean podcastRole;
     private boolean streamRole;
-    /**
-     * @deprecated To conform to JEP 396 in JDK16
-     */
-    @Deprecated
-    private boolean jukeboxRole;
     private boolean settingsRole;
     private boolean shareRole;
 
@@ -137,22 +132,6 @@ public class UserSettingsCommand {
 
     public void setStreamRole(boolean streamRole) {
         this.streamRole = streamRole;
-    }
-
-    /**
-     * @deprecated To conform to JEP 396 in JDK16
-     */
-    @Deprecated
-    public boolean isJukeboxRole() {
-        return jukeboxRole;
-    }
-
-    /**
-     * @deprecated To conform to JEP 396 in JDK16
-     */
-    @Deprecated
-    public void setJukeboxRole(boolean jukeboxRole) {
-        this.jukeboxRole = jukeboxRole;
     }
 
     public boolean isSettingsRole() {
@@ -355,7 +334,6 @@ public class UserSettingsCommand {
         commentRole = user != null && user.isCommentRole();
         podcastRole = user != null && user.isPodcastRole();
         streamRole = user != null && user.isStreamRole();
-        jukeboxRole = user != null && user.isJukeboxRole();
         settingsRole = user != null && user.isSettingsRole();
         shareRole = user != null && user.isShareRole();
         ldapAuthenticated = user != null && user.isLdapAuthenticated();

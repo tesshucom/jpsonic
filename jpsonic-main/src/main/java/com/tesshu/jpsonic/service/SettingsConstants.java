@@ -130,11 +130,6 @@ class SettingsConstants {
         }
 
         static class Legacy {
-            /**
-             * @deprecated To conform to JEP 396 in JDK16
-             */
-            @Deprecated
-            static final Pair<Boolean> SHOW_JAVAJUKE_BOX = Pair.of("ShowJavaJukebox", false);
             static final Pair<Boolean> SHOW_SERVER_LOG = Pair.of("ShowServerLog", false);
             static final Pair<Boolean> SHOW_STATUS = Pair.of("ShowStatus", false);
             static final Pair<Boolean> OTHERS_PLAYING_ENABLED = Pair.of("OthersPlayingEnabled", false);

@@ -58,14 +58,6 @@ public class PlayerSettingsCommand {
     private EnumHolder[] transcodeSchemeHolders;
     private Player[] players;
     private boolean admin;
-    /**
-     * @deprecated To conform to JEP 396 in JDK16
-     */
-    private String javaJukeboxMixer;
-    /**
-     * @deprecated To conform to JEP 396 in JDK16
-     */
-    private String[] javaJukeboxMixers;
     private boolean openDetailSetting;
     private boolean useRadio;
     private boolean useSonos;
@@ -253,36 +245,6 @@ public class PlayerSettingsCommand {
 
     public void setAdmin(boolean admin) {
         this.admin = admin;
-    }
-
-    /**
-     * @deprecated To conform to JEP 396 in JDK16
-     */
-    public String getJavaJukeboxMixer() {
-        return javaJukeboxMixer;
-    }
-
-    /**
-     * @deprecated To conform to JEP 396 in JDK16
-     */
-    public void setJavaJukeboxMixer(String javaJukeboxMixer) {
-        this.javaJukeboxMixer = javaJukeboxMixer;
-    }
-
-    /**
-     * @deprecated To conform to JEP 396 in JDK16
-     */
-    public String[] getJavaJukeboxMixers() {
-        return javaJukeboxMixers;
-    }
-
-    /**
-     * @deprecated To conform to JEP 396 in JDK16
-     */
-    public void setJavaJukeboxMixers(String... javaJukeboxMixers) {
-        if (javaJukeboxMixers != null) {
-            this.javaJukeboxMixers = javaJukeboxMixers.clone();
-        }
     }
 
     public boolean isOpenDetailSetting() {

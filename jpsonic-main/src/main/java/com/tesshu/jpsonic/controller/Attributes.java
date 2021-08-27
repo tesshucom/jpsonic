@@ -123,14 +123,14 @@ public class Attributes {
         ID(NameConstants.ID), IF_MODIFIED_SINCE(NameConstants.IF_MODIFIED_SINCE),
         INCLUDE_EPISODES(NameConstants.INCLUDE_EPISODES), INCLUDE_NOT_PRESENT(NameConstants.INCLUDE_NOT_PRESENT),
         INDEX(NameConstants.INDEX), J_PASSWORD(NameConstants.J_PASSWORD), J_USERNAME(NameConstants.J_USERNAME),
-        JUKEBOX_ROLE(NameConstants.JUKEBOX_ROLE), LDAP_AUTHENTICATED(NameConstants.LDAP_AUTHENTICATED),
-        LIST_OFFSET(NameConstants.LIST_OFFSET), LIST_TYPE(NameConstants.LIST_TYPE), LOGOUT(NameConstants.LOGOUT),
-        MAX_BIT_RATE(NameConstants.MAX_BIT_RATE), MUSIC_FOLDER_ID(NameConstants.MUSIC_FOLDER_ID),
-        NAME(NameConstants.NAME), OFFSET(NameConstants.OFFSET), OFFSET_SECONDS(NameConstants.OFFSET_SECONDS),
-        P(NameConstants.P), PASSWORD(NameConstants.PASSWORD), PATH(NameConstants.PATH), PLAYER(NameConstants.PLAYER),
-        PLAYLIST(NameConstants.PLAYLIST), PLAYLIST_ID(NameConstants.PLAYLIST_ID),
-        PODCAST_ROLE(NameConstants.PODCAST_ROLE), POSITION(NameConstants.POSITION), PUBLIC(NameConstants.PUBLIC),
-        QUERY(NameConstants.QUERY), RATING(NameConstants.RATING), REFRESH(NameConstants.REFRESH), S(NameConstants.S),
+        LDAP_AUTHENTICATED(NameConstants.LDAP_AUTHENTICATED), LIST_OFFSET(NameConstants.LIST_OFFSET),
+        LIST_TYPE(NameConstants.LIST_TYPE), LOGOUT(NameConstants.LOGOUT), MAX_BIT_RATE(NameConstants.MAX_BIT_RATE),
+        MUSIC_FOLDER_ID(NameConstants.MUSIC_FOLDER_ID), NAME(NameConstants.NAME), OFFSET(NameConstants.OFFSET),
+        OFFSET_SECONDS(NameConstants.OFFSET_SECONDS), P(NameConstants.P), PASSWORD(NameConstants.PASSWORD),
+        PATH(NameConstants.PATH), PLAYER(NameConstants.PLAYER), PLAYLIST(NameConstants.PLAYLIST),
+        PLAYLIST_ID(NameConstants.PLAYLIST_ID), PODCAST_ROLE(NameConstants.PODCAST_ROLE),
+        POSITION(NameConstants.POSITION), PUBLIC(NameConstants.PUBLIC), QUERY(NameConstants.QUERY),
+        RATING(NameConstants.RATING), REFRESH(NameConstants.REFRESH), S(NameConstants.S),
         SETTINGS_ROLE(NameConstants.SETTINGS_ROLE), SHARE_ROLE(NameConstants.SHARE_ROLE),
         SHOW_OUTLINE_HELP(NameConstants.SHOW_OUTLINE_HELP), SIZE(NameConstants.SIZE), SONG(NameConstants.SONG),
         SONG_COUNT(NameConstants.SONG_COUNT), SONG_ID(NameConstants.SONG_ID),
@@ -238,7 +238,6 @@ public class Attributes {
             public static final String INDEX = "index";
             public static final String J_PASSWORD = "j_password";
             public static final String J_USERNAME = "j_username";
-            public static final String JUKEBOX_ROLE = "jukeboxRole";
             public static final String LAST_PLAYED_COMP = "lastPlayedComp";
             public static final String LAST_PLAYED_VALUE = "lastPlayedValue";
             public static final String LDAP_AUTHENTICATED = "ldapAuthenticated";
