@@ -190,10 +190,18 @@ public class User {
         this.streamRole = streamRole;
     }
 
+    /**
+     * @deprecated To conform to JEP 396 in JDK16
+     */
+    @Deprecated
     public boolean isJukeboxRole() {
         return jukeboxRole;
     }
 
+    /**
+     * @deprecated To conform to JEP 396 in JDK16
+     */
+    @Deprecated
     public void setJukeboxRole(boolean jukeboxRole) {
         this.jukeboxRole = jukeboxRole;
     }

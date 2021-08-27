@@ -40,6 +40,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+/**
+ * @deprecated To conform to JEP 396 in JDK16
+ */
+@Deprecated
 @ExtendWith(MockitoExtension.class)
 class JukeboxJavaServiceTest {
 

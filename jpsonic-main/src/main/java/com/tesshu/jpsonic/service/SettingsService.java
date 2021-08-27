@@ -593,10 +593,18 @@ public class SettingsService {
         setProperty(SettingsConstants.General.Search.OUTPUT_SEARCH_QUERY, b);
     }
 
+    /**
+     * @deprecated To conform to JEP 396 in JDK16
+     */
+    @Deprecated
     public boolean isShowJavaJukebox() {
         return getBoolean(SettingsConstants.General.Legacy.SHOW_JAVAJUKE_BOX);
     }
 
+    /**
+     * @deprecated To conform to JEP 396 in JDK16
+     */
+    @Deprecated
     public void setShowJavaJukebox(boolean b) {
         setProperty(SettingsConstants.General.Legacy.SHOW_JAVAJUKE_BOX, b);
     }

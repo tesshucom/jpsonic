@@ -45,6 +45,10 @@ import org.springframework.stereotype.Service;
  * @author Rémi Cocula
  */
 @Service
+/**
+ * @deprecated To conform to JEP 396 in JDK16
+ */
+@Deprecated
 public class JukeboxJavaService {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(JukeboxJavaService.class);

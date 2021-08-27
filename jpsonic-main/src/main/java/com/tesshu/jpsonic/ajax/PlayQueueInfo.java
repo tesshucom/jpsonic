@@ -38,6 +38,10 @@ public class PlayQueueInfo {
     private final boolean shuffleRadioEnabled;
     private final boolean internetRadioEnabled;
     private final boolean sendM3U;
+    /**
+     * @deprecated To conform to JEP 396 in JDK16
+     */
+    @Deprecated
     private final float gain;
 
     private int startPlayerAt;
@@ -89,6 +93,10 @@ public class PlayQueueInfo {
         return internetRadioEnabled;
     }
 
+    /**
+     * @deprecated To conform to JEP 396 in JDK16
+     */
+    @Deprecated
     public float getGain() {
         return gain;
     }

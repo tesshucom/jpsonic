@@ -46,12 +46,17 @@ public enum PlayerTechnology {
 
     /**
      * Plays music directly on the audio device of the Airsonic server.
+     * 
+     * @deprecated To conform to JEP 396 in JDK16
      */
+    @Deprecated
     JUKEBOX,
 
     /**
      * Jukebox player that uses the Java Sound API.
+     * 
+     * @deprecated To conform to JEP 396 in JDK16
      */
-    JAVA_JUKEBOX
-
+    @Deprecated
+    JAVA_JUKEBOX;
 }

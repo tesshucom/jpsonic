@@ -60,6 +60,9 @@ public class GeneralSettingsCommand {
     private boolean outputSearchQuery;
 
     // deprecated
+    /**
+     * @deprecated To conform to JEP 396 in JDK16
+     */
     private boolean showJavaJukebox;
     private boolean showServerLog;
     private boolean showStatus;
@@ -254,10 +257,18 @@ public class GeneralSettingsCommand {
         this.outputSearchQuery = outputSearchQuery;
     }
 
+    /**
+     * @deprecated To conform to JEP 396 in JDK16
+     */
+    @Deprecated
     public boolean isShowJavaJukebox() {
         return showJavaJukebox;
     }
 
+    /**
+     * @deprecated To conform to JEP 396 in JDK16
+     */
+    @Deprecated
     public void setShowJavaJukebox(boolean showJavaJukebox) {
         this.showJavaJukebox = showJavaJukebox;
     }

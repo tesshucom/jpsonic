@@ -124,10 +124,18 @@ public class Player {
         this.technology = technology;
     }
 
+    /**
+     * @deprecated To conform to JEP 396 in JDK16
+     */
+    @Deprecated
     public boolean isJukebox() {
         return technology == PlayerTechnology.JUKEBOX || technology == PlayerTechnology.JAVA_JUKEBOX;
     }
 
+    /**
+     * @deprecated To conform to JEP 396 in JDK16
+     */
+    @Deprecated
     public boolean isJavaJukebox() {
         return technology == PlayerTechnology.JAVA_JUKEBOX;
     }
@@ -344,10 +352,18 @@ public class Player {
         return "Player " + id;
     }
 
+    /**
+     * @deprecated To conform to JEP 396 in JDK16
+     */
+    @Deprecated
     public void setJavaJukeboxMixer(String javaJukeboxMixer) {
         this.javaJukeboxMixer = javaJukeboxMixer;
     }
 
+    /**
+     * @deprecated To conform to JEP 396 in JDK16
+     */
+    @Deprecated
     public String getJavaJukeboxMixer() {
         return javaJukeboxMixer;
     }

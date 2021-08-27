@@ -51,7 +51,10 @@ import org.springframework.stereotype.Service;
  * Plays music on the local audio device.
  *
  * @author Sindre Mehus
+ * 
+ * @deprecated To conform to JEP 396 in JDK16
  */
+@Deprecated
 @Service
 public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
 

@@ -27,8 +27,11 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author Rémi Cocula
+ * 
+ * @deprecated To conform to JEP 396 in JDK16
  */
 @Service
+@Deprecated
 public class JukeboxService {
 
     private final JukeboxLegacySubsonicService jukeboxLegacySubsonicService;
