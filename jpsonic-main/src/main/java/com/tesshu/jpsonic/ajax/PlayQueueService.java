@@ -54,7 +54,6 @@ import com.tesshu.jpsonic.domain.PodcastStatus;
 import com.tesshu.jpsonic.domain.SavedPlayQueue;
 import com.tesshu.jpsonic.service.InternetRadioService;
 import com.tesshu.jpsonic.service.JWTSecurityService;
-import com.tesshu.jpsonic.service.JukeboxService;
 import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -82,7 +81,6 @@ public class PlayQueueService {
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
     private final PlayerService playerService;
-    private final JukeboxService jukeboxService;
     private final JpsonicComparators comparators;
     private final MediaFileService mediaFileService;
     private final LastFmService lastFmService;
@@ -98,16 +96,15 @@ public class PlayQueueService {
     private final AjaxHelper ajaxHelper;
 
     public PlayQueueService(MusicFolderService musicFolderService, SecurityService securityService,
-            PlayerService playerService, JukeboxService jukeboxService, JpsonicComparators comparators,
-            MediaFileService mediaFileService, LastFmService lastFmService, SearchService searchService,
-            RatingService ratingService, PodcastService podcastService, PlaylistService playlistService,
-            MediaFileDao mediaFileDao, PlayQueueDao playQueueDao, InternetRadioDao internetRadioDao,
-            JWTSecurityService jwtSecurityService, InternetRadioService internetRadioService, AjaxHelper ajaxHelper) {
+            PlayerService playerService, JpsonicComparators comparators, MediaFileService mediaFileService,
+            LastFmService lastFmService, SearchService searchService, RatingService ratingService,
+            PodcastService podcastService, PlaylistService playlistService, MediaFileDao mediaFileDao,
+            PlayQueueDao playQueueDao, InternetRadioDao internetRadioDao, JWTSecurityService jwtSecurityService,
+            InternetRadioService internetRadioService, AjaxHelper ajaxHelper) {
         super();
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
         this.playerService = playerService;
-        this.jukeboxService = jukeboxService;
         this.comparators = comparators;
         this.mediaFileService = mediaFileService;
         this.lastFmService = lastFmService;
@@ -138,18 +135,12 @@ public class PlayQueueService {
     public PlayQueueInfo start() throws ServletRequestBindingException {
         Player player = resolvePlayer();
         player.getPlayQueue().setStatus(PlayQueue.Status.PLAYING);
-        if (player.isJukebox()) {
-            jukeboxService.start(player);
-        }
         return convert(resolveHttpServletRequest(), player, true);
     }
 
     public PlayQueueInfo stop() throws ServletRequestBindingException {
         Player player = resolvePlayer();
         player.getPlayQueue().setStatus(PlayQueue.Status.STOPPED);
-        if (player.isJukebox()) {
-            jukeboxService.stop(player);
-        }
         return convert(resolveHttpServletRequest(), player, true);
     }
 
@@ -178,9 +169,6 @@ public class PlayQueueService {
         Player player = resolvePlayer();
         player.getPlayQueue().setIndex(index);
         boolean serverSidePlaylist = !player.isExternalWithPlaylist();
-        if (serverSidePlaylist && player.isJukebox()) {
-            jukeboxService.skip(player, index, offset);
-        }
         return convert(resolveHttpServletRequest(), player, serverSidePlaylist);
     }
 
@@ -493,9 +481,6 @@ public class PlayQueueService {
         player.getPlayQueue().addFiles(false, files);
         player.getPlayQueue().setRandomSearchCriteria(null);
         player.getPlayQueue().setInternetRadio(null);
-        if (player.isJukebox()) {
-            jukeboxService.play(player);
-        }
         return convert(request, player, true);
     }
 
@@ -504,9 +489,6 @@ public class PlayQueueService {
         player.getPlayQueue().clear();
         player.getPlayQueue().setRandomSearchCriteria(null);
         player.getPlayQueue().setInternetRadio(radio);
-        if (player.isJukebox()) {
-            jukeboxService.play(player);
-        }
         return convert(request, player, true);
     }
 
@@ -748,10 +730,8 @@ public class PlayQueueService {
         boolean isServerSidePlaylist = player.isAutoControlEnabled() && m3uSupported && isCurrentPlayer
                 && serverSidePlaylist;
 
-        float gain = jukeboxService.getGain(player);
-
         return new PlayQueueInfo(entries, isStopEnabled, playQueue.isRepeatEnabled(), playQueue.isShuffleRadioEnabled(),
-                playQueue.isInternetRadioEnabled(), isServerSidePlaylist, gain);
+                playQueue.isInternetRadioEnabled(), isServerSidePlaylist);
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Entry) Not reusable
@@ -863,23 +843,5 @@ public class PlayQueueService {
 
     private HttpServletResponse resolveHttpServletResponse() {
         return ajaxHelper.getHttpServletResponse();
-    }
-
-    //
-    // Methods dedicated to jukebox
-    //
-
-    public void setGain(float gain) throws ServletRequestBindingException {
-        HttpServletRequest request = ajaxHelper.getHttpServletRequest();
-        HttpServletResponse response = ajaxHelper.getHttpServletResponse();
-        Player player = getCurrentPlayer(request, response);
-        if (player != null) {
-            jukeboxService.setGain(player, gain);
-        }
-    }
-
-    public void setJukeboxPosition(int positionInSeconds) throws ServletRequestBindingException {
-        Player player = resolvePlayer();
-        jukeboxService.setPosition(player, positionInSeconds);
     }
 }
