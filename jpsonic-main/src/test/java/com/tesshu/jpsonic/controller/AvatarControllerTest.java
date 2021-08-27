@@ -20,7 +20,6 @@
 package com.tesshu.jpsonic.controller;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.util.concurrent.ExecutionException;
 
@@ -31,7 +30,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -51,13 +49,6 @@ class AvatarControllerTest {
     @BeforeEach
     public void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
-    }
-
-    @Test
-    void testGetLastModified() throws Exception {
-        MockHttpServletRequest req = new MockHttpServletRequest();
-        req.addParameter(Attributes.Request.USER_NAME.value(), "admin");
-        assertNotEquals(0L, controller.getLastModified(req));
     }
 
     @Test

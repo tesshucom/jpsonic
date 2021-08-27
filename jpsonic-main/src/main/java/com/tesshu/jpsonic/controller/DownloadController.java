@@ -64,7 +64,6 @@ import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.mvc.LastModified;
 
 /**
  * A controller used for downloading files to a remote client. If the requested path refers to a file, the given file is
@@ -75,7 +74,7 @@ import org.springframework.web.servlet.mvc.LastModified;
  */
 @Controller
 @RequestMapping("/download.view")
-public class DownloadController implements LastModified {
+public class DownloadController {
 
     private static final Logger LOG = LoggerFactory.getLogger(DownloadController.class);
     private static final int BITRATE_LIMIT_UPDATE_INTERVAL = 5000;
@@ -98,7 +97,9 @@ public class DownloadController implements LastModified {
         this.mediaFileService = mediaFileService;
     }
 
-    @Override
+    /*
+     * To be triaged in #1122.
+     */
     public long getLastModified(HttpServletRequest request) {
         try {
             MediaFile mediaFile = getMediaFile(request);
