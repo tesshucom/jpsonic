@@ -103,7 +103,7 @@ jobs:
     name: Verify with JDK ${{ matrix.java }} on ubuntu-latest
     strategy:
       matrix:
-        java: [ 12, 13, 14, 15 ]
+        java: [ 12, 13, 14, 15, 16, 17-ea ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -124,7 +124,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2 
       - name: Verify with Maven
-        run: mvn -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" clean verify -B -Ptomcat-embed -Prelease${{ matrix.java }} -Punit-test
+        run: mvn -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" -Dmdep.analyze.skip=true clean verify -B -Ptomcat-embed -Prelease${{ matrix.java }} -Punit-test
   ##########################################################################
   package:
     if: github.ref == 'refs/heads/master'
@@ -132,7 +132,7 @@ jobs:
     name: Package with JDK ${{ matrix.java }} on ubuntu-latest
     strategy:
       matrix:
-        java: [ 11, 12, 13, 14, 15 ]
+        java: [ 11, 12, 13, 14, 15, 16, 17-ea ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
