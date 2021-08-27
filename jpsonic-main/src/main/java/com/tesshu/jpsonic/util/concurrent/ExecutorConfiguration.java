@@ -43,7 +43,6 @@ public class ExecutorConfiguration {
     private static final Logger LOG = LoggerFactory.getLogger(ExecutorConfiguration.class);
 
     protected static final int SHORT_AWAIT_TERMINATION = 20_000;
-    protected static final int JUKE_AWAIT_TERMINATION = 2_000;
     protected static final int PODCAST_DOWNLOAD_AWAIT_TERMINATION = 30_000;
     protected static final int PODCAST_REFRESH_AWAIT_TERMINATION = 30_000;
     protected static final int SCAN_AWAIT_TERMINATION = 30_000;
@@ -97,29 +96,6 @@ public class ExecutorConfiguration {
         executor.setThreadFactory(createThreadFactory(threadGroupName, Thread.MIN_PRIORITY));
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         executor.setDaemon(true);
-
-        executor.initialize();
-        return executor;
-    }
-
-    /*
-     * Executor for Jukebox. Shutdown involves closing the stream.
-     */
-    @Bean
-    @DependsOn({ "legacyDaoHelper", "cacheDisposer", "shortExecutor" })
-    public ThreadPoolTaskExecutor jukeExecutor() {
-
-        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-
-        executor.setWaitForTasksToCompleteOnShutdown(true); // To handle SourceDataLine
-        executor.setAwaitTerminationMillis(JUKE_AWAIT_TERMINATION);
-        executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(2);
-        suppressIfLargePool(executor);
-
-        String threadGroupName = "juke-task";
-        executor.setThreadNamePrefix(createThreadNamePrefix(threadGroupName));
-        executor.setThreadFactory(createThreadFactory(threadGroupName, Thread.NORM_PRIORITY));
 
         executor.initialize();
         return executor;

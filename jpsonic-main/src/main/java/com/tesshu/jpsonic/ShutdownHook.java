@@ -38,7 +38,7 @@ import org.springframework.stereotype.Component;
  * is 'legacy' LegacyHsqlDaoHelper#onDestroy
  */
 @Component
-@DependsOn({ "shortExecutor", "jukeExecutor", "podcastDownloadExecutor", "podcastRefreshExecutor", "scanExecutor" })
+@DependsOn({ "shortExecutor", "podcastDownloadExecutor", "podcastRefreshExecutor", "scanExecutor" })
 public class ShutdownHook implements ApplicationListener<ContextClosedEvent> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ShutdownHook.class);
