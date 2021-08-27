@@ -174,12 +174,6 @@ function resetSortSettings() {
         <dl>
             <dt></dt>
             <dd>
-                <form:checkbox path="showJavaJukebox" id="showJavaJukebox"/>
-                <label for="showJavaJukebox"><fmt:message key="generalsettings.showjavajukebox"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="showjavajukebox"/></c:import>
-            </dd>
-            <dt></dt>
-            <dd>
                 <form:checkbox path="showServerLog" id="showServerLog"/>
                 <label for="showServerLog"><fmt:message key="generalsettings.showserverlog"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="showserverlog"/></c:import>

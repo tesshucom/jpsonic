@@ -2380,8 +2380,6 @@ public class SubsonicRESTController {
                 ServletRequestUtils.getBooleanParameter(request, Attributes.Request.STREAM_ROLE.value(), true));
         command.setUploadRole(
                 ServletRequestUtils.getBooleanParameter(request, Attributes.Request.UPLOAD_ROLE.value(), false));
-        command.setJukeboxRole(
-                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.JUKEBOX_ROLE.value(), false));
         command.setPodcastRole(
                 ServletRequestUtils.getBooleanParameter(request, Attributes.Request.PODCAST_ROLE.value(), false));
         command.setSettingsRole(
@@ -2443,8 +2441,6 @@ public class SubsonicRESTController {
                 u.isDownloadRole()));
         command.setUploadRole(ServletRequestUtils.getBooleanParameter(request, Attributes.Request.UPLOAD_ROLE.value(),
                 u.isUploadRole()));
-        command.setJukeboxRole(ServletRequestUtils.getBooleanParameter(request, Attributes.Request.JUKEBOX_ROLE.value(),
-                u.isJukeboxRole()));
         command.setPodcastRole(ServletRequestUtils.getBooleanParameter(request, Attributes.Request.PODCAST_ROLE.value(),
                 u.isPodcastRole()));
         command.setSettingsRole(ServletRequestUtils.getBooleanParameter(request,
