@@ -124,7 +124,7 @@ public class PlayerDao extends AbstractDao {
         update(sql, player.getId(), player.getName(), player.getType(), player.getUsername(), player.getIpAddress(),
                 player.isAutoControlEnabled(), player.isM3uBomEnabled(), player.getLastSeen(),
                 CoverArtScheme.MEDIUM.name(), player.getTranscodeScheme().name(), player.isDynamicIp(),
-                player.getTechnology().name(), player.getClientId(), player.getJavaJukeboxMixer());
+                player.getTechnology().name(), player.getClientId(), null);
         addPlaylist(player, playlists, playerDaoPlayQueueFactory);
 
         if (LOG.isInfoEnabled()) {
@@ -174,7 +174,7 @@ public class PlayerDao extends AbstractDao {
         update(sql, player.getName(), player.getType(), player.getUsername(), player.getIpAddress(),
                 player.isAutoControlEnabled(), player.isM3uBomEnabled(), player.getLastSeen(),
                 player.getTranscodeScheme().name(), player.isDynamicIp(), player.getTechnology().name(),
-                player.getClientId(), player.getJavaJukeboxMixer(), player.getId());
+                player.getClientId(), null, player.getId());
     }
 
     protected static final void addPlaylist(Player player, Map<Integer, PlayQueue> playlistMap,
@@ -214,8 +214,7 @@ public class PlayerDao extends AbstractDao {
             player.setTranscodeScheme(TranscodeScheme.valueOf(rs.getString(col++)));
             player.setDynamicIp(rs.getBoolean(col++));
             player.setTechnology(PlayerTechnology.of(rs.getString(col++)));
-            player.setClientId(rs.getString(col++));
-            player.setJavaJukeboxMixer(rs.getString(col));
+            player.setClientId(rs.getString(col));
             addPlaylist(player, playlistMap, factory);
             return player;
         }
