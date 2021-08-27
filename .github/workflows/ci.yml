@@ -103,7 +103,7 @@ jobs:
     name: Verify with JDK ${{ matrix.java }} on ubuntu-latest
     strategy:
       matrix:
-        java: [ 12, 13, 14, 15 ]
+        java: [ 12, 13, 14, 15, 16 ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -132,7 +132,7 @@ jobs:
     name: Package with JDK ${{ matrix.java }} on ubuntu-latest
     strategy:
       matrix:
-        java: [ 11, 12, 13, 14, 15 ]
+        java: [ 11, 12, 13, 14, 15, 16 ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
