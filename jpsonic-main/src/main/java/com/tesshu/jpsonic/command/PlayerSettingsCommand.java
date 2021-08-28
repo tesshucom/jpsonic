@@ -58,8 +58,6 @@ public class PlayerSettingsCommand {
     private EnumHolder[] transcodeSchemeHolders;
     private Player[] players;
     private boolean admin;
-    private String javaJukeboxMixer;
-    private String[] javaJukeboxMixers;
     private boolean openDetailSetting;
     private boolean useRadio;
     private boolean useSonos;
@@ -247,24 +245,6 @@ public class PlayerSettingsCommand {
 
     public void setAdmin(boolean admin) {
         this.admin = admin;
-    }
-
-    public String getJavaJukeboxMixer() {
-        return javaJukeboxMixer;
-    }
-
-    public void setJavaJukeboxMixer(String javaJukeboxMixer) {
-        this.javaJukeboxMixer = javaJukeboxMixer;
-    }
-
-    public String[] getJavaJukeboxMixers() {
-        return javaJukeboxMixers;
-    }
-
-    public void setJavaJukeboxMixers(String... javaJukeboxMixers) {
-        if (javaJukeboxMixers != null) {
-            this.javaJukeboxMixers = javaJukeboxMixers.clone();
-        }
     }
 
     public boolean isOpenDetailSetting() {

@@ -321,7 +321,6 @@ public class UserDao extends AbstractDao {
                 user.setSettingsRole(true);
                 break;
             case ROLE_ID_JUKEBOX:
-                user.setJukeboxRole(true);
                 break;
             case ROLE_ID_SHARE:
                 user.setShareRole(true);
@@ -361,9 +360,6 @@ public class UserDao extends AbstractDao {
         }
         if (user.isStreamRole()) {
             updateRole(user.getUsername(), ROLE_ID_STREAM);
-        }
-        if (user.isJukeboxRole()) {
-            updateRole(user.getUsername(), ROLE_ID_JUKEBOX);
         }
         if (user.isSettingsRole()) {
             updateRole(user.getUsername(), ROLE_ID_SETTINGS);
