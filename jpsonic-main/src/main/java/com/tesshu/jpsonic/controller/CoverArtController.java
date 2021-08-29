@@ -79,7 +79,6 @@ import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.mvc.LastModified;
 
 /**
  * Controller which produces cover art images.
@@ -89,7 +88,7 @@ import org.springframework.web.servlet.mvc.LastModified;
 @Controller
 @RequestMapping({ "/coverArt.view", "/ext/coverArt.view" })
 @SuppressWarnings("PMD.AccessorMethodGeneration") // Triaged in #834
-public class CoverArtController implements LastModified {
+public class CoverArtController {
 
     private static final Logger LOG = LoggerFactory.getLogger(CoverArtController.class);
     private static final String VIDEO_IMAGE_COMMAND = "ffmpeg -r 1 -ss %o -t 1 -i %s -s %wx%h -v 0 -f mjpeg -";
@@ -129,7 +128,9 @@ public class CoverArtController implements LastModified {
         semaphore = new Semaphore(COVER_ART_CONCURRENCY);
     }
 
-    @Override
+    /*
+     * To be triaged in #1122.
+     */
     public long getLastModified(HttpServletRequest request) {
         CoverArtRequest coverArtRequest = createCoverArtRequest(request);
         if (null == coverArtRequest) {

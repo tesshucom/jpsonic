@@ -35,7 +35,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.mvc.LastModified;
 
 /**
  * Controller which produces avatar images.
@@ -44,7 +43,7 @@ import org.springframework.web.servlet.mvc.LastModified;
  */
 @Controller
 @RequestMapping("/avatar.view")
-public class AvatarController implements LastModified {
+public class AvatarController {
 
     private final SecurityService securityService;
     private final AvatarService avatarService;
@@ -53,20 +52,6 @@ public class AvatarController implements LastModified {
         super();
         this.securityService = securityService;
         this.avatarService = avatarService;
-    }
-
-    @Override
-    public long getLastModified(HttpServletRequest request) {
-        Avatar avatar = getAvatar(request);
-        long result = avatar == null ? -1L : avatar.getCreatedDate().getTime();
-
-        String username = request.getParameter(Attributes.Request.USER_NAME.value());
-        if (username != null) {
-            UserSettings userSettings = securityService.getUserSettings(username);
-            result = Math.max(result, userSettings.getChanged().getTime());
-        }
-
-        return result;
     }
 
     @GetMapping

@@ -719,11 +719,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsShowJavaJukebox() {
-        assertFalse(settingsService.isShowJavaJukebox());
-    }
-
-    @Test
     void testIsShowServerLog() {
         assertFalse(settingsService.isShowServerLog());
     }

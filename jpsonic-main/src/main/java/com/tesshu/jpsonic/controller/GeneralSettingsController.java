@@ -133,7 +133,6 @@ public class GeneralSettingsController {
         command.setOutputSearchQuery(settingsService.isOutputSearchQuery());
 
         // deprecated
-        command.setShowJavaJukebox(settingsService.isShowJavaJukebox());
         command.setShowServerLog(settingsService.isShowServerLog());
         command.setShowStatus(settingsService.isShowStatus());
         command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
@@ -214,7 +213,6 @@ public class GeneralSettingsController {
         settingsService.setOutputSearchQuery(command.isOutputSearchQuery());
 
         // deprecated
-        settingsService.setShowJavaJukebox(command.isShowJavaJukebox());
         settingsService.setShowServerLog(command.isShowServerLog());
         settingsService.setShowStatus(command.isShowStatus());
         settingsService.setOthersPlayingEnabled(command.isOthersPlayingEnabled());

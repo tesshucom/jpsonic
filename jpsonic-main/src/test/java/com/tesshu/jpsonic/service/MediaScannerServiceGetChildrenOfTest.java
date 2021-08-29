@@ -174,6 +174,10 @@ class MediaScannerServiceGetChildrenOfTest extends AbstractNeedsScan {
 
         // Exec scan
         TestCaseUtils.execScan(mediaScannerService);
+        // Await for Lucene to finish writing(asynchronous).
+        for (int i = 0; i < 5; i++) {
+            Thread.sleep(1000);
+        }
 
         artist = mediaFileDao.getMediaFile(this.artist.getPath());
         assertEquals(this.artist.getPath(), artist.getPath());

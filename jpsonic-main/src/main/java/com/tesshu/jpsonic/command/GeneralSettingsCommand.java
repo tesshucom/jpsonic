@@ -60,7 +60,6 @@ public class GeneralSettingsCommand {
     private boolean outputSearchQuery;
 
     // deprecated
-    private boolean showJavaJukebox;
     private boolean showServerLog;
     private boolean showStatus;
     private boolean othersPlayingEnabled;
@@ -252,14 +251,6 @@ public class GeneralSettingsCommand {
 
     public void setOutputSearchQuery(boolean outputSearchQuery) {
         this.outputSearchQuery = outputSearchQuery;
-    }
-
-    public boolean isShowJavaJukebox() {
-        return showJavaJukebox;
-    }
-
-    public void setShowJavaJukebox(boolean showJavaJukebox) {
-        this.showJavaJukebox = showJavaJukebox;
     }
 
     public boolean isShowServerLog() {

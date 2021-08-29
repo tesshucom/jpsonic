@@ -8,8 +8,10 @@
 The binaries of SNAPSHOT are available from the latest artifacts on the [master branch](https://github.com/tesshucom/jpsonic/actions?query=branch%3Amaster) .
 
 #### Enhancement
-  * Add options to control checking for update dates during scanning ([#1101](https://github.com/tesshucom/jpsonic/issues/1101))
+  * Java 16 Support
+  * Delete Jukebox ([#1107](https://github.com/tesshucom/jpsonic/issues/1107))
   * Improve setting page to make it easier to switch getNowPlaying ON/OFF ([#1048](https://github.com/tesshucom/jpsonic/issues/1048))
+  * Add options to control checking for update dates during scanning ([#1101](https://github.com/tesshucom/jpsonic/issues/1101))
   * Update libs
 
 #### Fixes

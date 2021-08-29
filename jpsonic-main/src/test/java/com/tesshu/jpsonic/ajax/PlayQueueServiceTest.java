@@ -39,7 +39,6 @@ import com.tesshu.jpsonic.domain.PodcastEpisode;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import com.tesshu.jpsonic.service.InternetRadioService;
 import com.tesshu.jpsonic.service.JWTSecurityService;
-import com.tesshu.jpsonic.service.JukeboxService;
 import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
@@ -64,8 +63,6 @@ class PlayQueueServiceTest extends AbstractNeedsScan {
 
     @Autowired
     private PlayerService playerService;
-    @Autowired
-    private JukeboxService jukeboxService;
     @Autowired
     private JpsonicComparators comparators;
     @Autowired
@@ -121,10 +118,9 @@ class PlayQueueServiceTest extends AbstractNeedsScan {
         Mockito.when(podcastService.getEpisode(Mockito.anyInt(), Mockito.anyBoolean())).thenReturn(podcastEpisode);
         Mockito.when(podcastService.getEpisodes(Mockito.anyInt())).thenReturn(Collections.emptyList());
         populateDatabaseOnlyOnce();
-        playQueueService = new PlayQueueService(musicFolderService, securityService, playerService, jukeboxService,
-                comparators, mediaFileService, lastFmService, searchService, ratingService, podcastService,
-                playlistService, mediaFileDao, playQueueDao, internetRadioDao, jwtSecurityService, internetRadioService,
-                ajaxHelper);
+        playQueueService = new PlayQueueService(musicFolderService, securityService, playerService, comparators,
+                mediaFileService, lastFmService, searchService, ratingService, podcastService, playlistService,
+                mediaFileDao, playQueueDao, internetRadioDao, jwtSecurityService, internetRadioService, ajaxHelper);
     }
 
     @Test

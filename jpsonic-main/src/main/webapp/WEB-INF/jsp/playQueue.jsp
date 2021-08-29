@@ -299,10 +299,6 @@ window.onToggleStartStop = function() {
 function onGain(gain) {
     playQueueService.setGain(gain);
 }
-function onJukeboxVolumeChanged() {
-    var value = parseInt($("#jukeboxVolume").slider("option", "value"));
-    onGain(value / 100);
-}
 function onCastVolumeChanged() {
     var value = parseInt($("#castVolume").slider("option", "value"));
     CastPlayer.setCastVolume(value / 100, false);
@@ -325,12 +321,6 @@ window.onGainAdd = function(gain) {
         if (volume > 100) volume = 100;
         if (volume < 0) volume = 0;
         $('#audioPlayer').get(0).volume = volume / 100;
-    } else {
-        var volume = parseInt($("#jukeboxVolume").slider("option", "value")) + gain;
-        if (volume > 100) volume = 100;
-        if (volume < 0) volume = 0;
-        onGain(volume / 100);
-        $("#jukeboxVolume").slider("option", "value", volume); // Need to update UI
     }
 }
 
@@ -342,9 +332,6 @@ function onSkip(index) {
     </c:when>
     <c:otherwise>
         currentStreamUrl = songs[index].streamUrl;
-        if (isJavaJukeboxPresent()) {
-            updateJavaJukeboxPlayerControlBar(songs[index]);
-        }
         playQueueService.skip(index, playQueueCallback);
     </c:otherwise>
     </c:choose>
@@ -467,10 +454,6 @@ function onSavePlaylist() {
     });
 }
 
-function isJavaJukeboxPresent() {
-    return $("#javaJukeboxPlayerControlBarContainer").length==1;
-}
-
 function playQueueCallback(playQueue) {
     songs = playQueue.entries;
     repeatEnabled = playQueue.repeatEnabled;
@@ -577,9 +560,6 @@ function playQueueCallback(playQueue) {
 
         if ($("#playingStateReceiver" + id) && song.streamUrl == currentStreamUrl) {
             $("#playingStateReceiver" + id).show();
-            if (isJavaJukeboxPresent()) {
-                updateJavaJukeboxPlayerControlBar(song);
-            }
         }
         if ($("#title" + id)) {
             $("#title" + id).text(song.title);
@@ -640,11 +620,6 @@ function playQueueCallback(playQueue) {
 
     if (playQueue.sendM3U) {
         parent.frames.main.location.href="play.m3u?";
-    }
-
-    var jukeboxVolume = $("#jukeboxVolume");
-    if (jukeboxVolume) {
-        jukeboxVolume.slider("option", "value", Math.floor(playQueue.gain * 100));
     }
 
 <c:if test="${model.player.web}">
@@ -954,67 +929,47 @@ window.onTryCloseQueue = function() {
             </c:forEach>
         </select>
     </c:if>
-    <c:if test="${model.player.jukebox}">
-        <div class="jp-volume">
-            <span title="<fmt:message key='playqueue.muteon'/>" id="castMuteOn" class="control volume"><fmt:message key="playqueue.muteon"/></span>
-            <div id="jukeboxVolume"></div>
-            <script>
-                $("#jukeboxVolume").slider({max: 100, value: 50, animate: "fast", range: "min"});
-                $("#jukeboxVolume").on("slidestop", onJukeboxVolumeChanged);
-            </script>
-        </div>
+    <c:if test="${model.player.web}">
+        <div title="<fmt:message key='more.keyboard.previous'/>" onclick="onPrevious()" class="control prev"><fmt:message key="more.keyboard.previous"/></div>
     </c:if>
-    <c:choose>
-        <c:when test="${model.player.javaJukebox}">
-            <div id="javaJukeboxPlayerControlBarContainer">
-                <%@ include file="javaJukeboxPlayerControlBar.jspf" %>
-            </div>
-        </c:when>
-        <c:otherwise>
-            <c:if test="${model.player.web}">
-                <div title="<fmt:message key='more.keyboard.previous'/>" onclick="onPrevious()" class="control prev"><fmt:message key="more.keyboard.previous"/></div>
-            </c:if>
-            <c:if test="${model.player.web}">
-                <span id="player">
-                    <audio id="audioPlayer" data-mejsoptions='{"alwaysShowControls": true, "enableKeyboard": false, "defaultAudioWidth": 400}' tabindex="-1" style="width:100%"/>
-                </span>
-                <span id="castPlayer">
-                    <span>
-                        <span title="<fmt:message key='playqueue.play'/>" id="castPlay" onclick="CastPlayer.playCast()"><fmt:message key="playqueue.play"/></span>
-                        <span title="<fmt:message key='playqueue.pause'/>" id="castPause" onclick="CastPlayer.pauseCast()"><fmt:message key="playqueue.pause"/></span>
-                        <span title="<fmt:message key='playqueue.muteon'/>" id="castMuteOn" onclick="CastPlayer.castMuteOn()" class="control volume"><fmt:message key="playqueue.muteon"/></span>
-                        <span title="<fmt:message key='playqueue.muteoff'/>" id="castMuteOff" onclick="CastPlayer.castMuteOff()"><fmt:message key="playqueue.muteoff"/></span>
-                    </span>
-                    <span>
-                        <div id="castVolume"></div>
-                        <script>
-                            $("#castVolume").slider({max: 100, value: 50, animate: "fast", range: "min"});
-                            $("#castVolume").on("slidestop", onCastVolumeChanged);
-                        </script>
-                    </span>
-                </span>
-                <%--
-                #622 Nodes that are not currently in use. Reimplement if necessary.
-                <div title="Cast on" id="castOn" onclick="CastPlayer.launchCastApp()">
-                <div title="Cast off" id="castOff" onclick="CastPlayer.stopCastApp()">
-                 --%>
-            </c:if>
-            <c:if test="${model.user.streamRole and not model.player.web}">
-                <span title="<fmt:message key='playqueue.start'/>" id="start" onclick="onStart()" class="control play"><fmt:message key="playqueue.start"/></span>
-                <span title="<fmt:message key='playqueue.stop'/>" id="stop" onclick="onStop()" class="control pause"><fmt:message key="playqueue.stop"/></span>
-            </c:if>
-            <c:if test="${model.player.web}">
-                <div title="<fmt:message key='more.keyboard.next'/>" onclick="onNext(false)" class="control forward"><fmt:message key="more.keyboard.next"/></div>
-            </c:if>
+    <c:if test="${model.player.web}">
+        <span id="player">
+            <audio id="audioPlayer" data-mejsoptions='{"alwaysShowControls": true, "enableKeyboard": false, "defaultAudioWidth": 400}' tabindex="-1" style="width:100%"/>
+        </span>
+        <span id="castPlayer">
+            <span>
+                <span title="<fmt:message key='playqueue.play'/>" id="castPlay" onclick="CastPlayer.playCast()"><fmt:message key="playqueue.play"/></span>
+                <span title="<fmt:message key='playqueue.pause'/>" id="castPause" onclick="CastPlayer.pauseCast()"><fmt:message key="playqueue.pause"/></span>
+                <span title="<fmt:message key='playqueue.muteon'/>" id="castMuteOn" onclick="CastPlayer.castMuteOn()" class="control volume"><fmt:message key="playqueue.muteon"/></span>
+                <span title="<fmt:message key='playqueue.muteoff'/>" id="castMuteOff" onclick="CastPlayer.castMuteOff()"><fmt:message key="playqueue.muteoff"/></span>
+            </span>
+            <span>
+                <div id="castVolume"></div>
+                <script>
+                    $("#castVolume").slider({max: 100, value: 50, animate: "fast", range: "min"});
+                    $("#castVolume").on("slidestop", onCastVolumeChanged);
+                </script>
+            </span>
+        </span>
+        <%--
+        #622 Nodes that are not currently in use. Reimplement if necessary.
+        <div title="Cast on" id="castOn" onclick="CastPlayer.launchCastApp()">
+        <div title="Cast off" id="castOff" onclick="CastPlayer.stopCastApp()">
+         --%>
+    </c:if>
+    <c:if test="${model.user.streamRole and not model.player.web}">
+        <span title="<fmt:message key='playqueue.start'/>" id="start" onclick="onStart()" class="control play"><fmt:message key="playqueue.start"/></span>
+        <span title="<fmt:message key='playqueue.stop'/>" id="stop" onclick="onStop()" class="control pause"><fmt:message key="playqueue.stop"/></span>
+    </c:if>
+    <c:if test="${model.player.web}">
+        <div title="<fmt:message key='more.keyboard.next'/>" onclick="onNext(false)" class="control forward"><fmt:message key="more.keyboard.next"/></div>
+    </c:if>
 
-            <a title="<fmt:message key='playqueue.maximize'/>" href="javascript:toggleElasticity()" id="elasticity"><div class="control elasticity"><fmt:message key="playqueue.maximize"/></div></a>
-            <a href="javascript:onTogglePlayQueue()">
-                <div title="<fmt:message key='playqueue.show'/>" class="control expand"/><fmt:message key="playqueue.show"/></div>
-                <div title="<fmt:message key='playqueue.hide'/>" class="control shrink"/><fmt:message key="playqueue.hide"/></div>
-            </a>
-
-        </c:otherwise>
-    </c:choose>
+    <a title="<fmt:message key='playqueue.maximize'/>" href="javascript:toggleElasticity()" id="elasticity"><div class="control elasticity"><fmt:message key="playqueue.maximize"/></div></a>
+    <a href="javascript:onTogglePlayQueue()">
+        <div title="<fmt:message key='playqueue.show'/>" class="control expand"/><fmt:message key="playqueue.show"/></div>
+        <div title="<fmt:message key='playqueue.hide'/>" class="control shrink"/><fmt:message key="playqueue.hide"/></div>
+    </a>
 </div>
 
 <%-- drawer --%>
@@ -1050,10 +1005,6 @@ window.onTryCloseQueue = function() {
             </c:if>
             <c:if test="${model.user.shareRole and model.showShare}">
                 <li><a title="<fmt:message key='main.sharealbum'/>" href="javascript:location.href = 'createShare.view?player=${model.player.id}&' + getSelectedIndexes();" target="main" class="control share"><fmt:message key="main.sharealbum"/></a></li>
-            </c:if>
-            
-            <c:if test="${model.player.web or model.player.jukebox or model.player.external}">
-                <li><a title="<fmt:message key='playlist.repeat_on'/>" href="javascript:onToggleRepeat()" id="repeatQueue" class="control repeat"><fmt:message key="playlist.repeat_on"/></a></li>
             </c:if>
         </ul>
     </div>
