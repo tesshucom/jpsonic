@@ -204,7 +204,6 @@ public class UserSettingsController {
         user.setCommentRole(command.isCommentRole());
         user.setPodcastRole(command.isPodcastRole());
         user.setStreamRole(command.isStreamRole());
-        user.setJukeboxRole(command.isJukeboxRole());
         user.setSettingsRole(command.isSettingsRole());
         user.setShareRole(command.isShareRole());
 

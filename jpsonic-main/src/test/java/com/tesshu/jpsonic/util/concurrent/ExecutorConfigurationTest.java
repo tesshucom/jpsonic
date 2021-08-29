@@ -56,8 +56,6 @@ class ExecutorConfigurationTest {
     @Autowired
     private ThreadPoolTaskExecutor shortExecutor;
     @Autowired
-    private ThreadPoolTaskExecutor jukeExecutor;
-    @Autowired
     private ThreadPoolTaskExecutor podcastDownloadExecutor;
     @Autowired
     private ThreadPoolTaskExecutor podcastRefreshExecutor;
@@ -76,13 +74,6 @@ class ExecutorConfigurationTest {
         void testShortExecutor() {
             MatcherAssert.assertThat(shortExecutor, CoreMatchers.instanceOf(ThreadPoolTaskExecutor.class));
             assertEquals("short-task-pool-", shortExecutor.getThreadNamePrefix());
-        }
-
-        @Order(2)
-        @Test
-        void testjukeExecutor() {
-            MatcherAssert.assertThat(jukeExecutor, CoreMatchers.instanceOf(ThreadPoolTaskExecutor.class));
-            assertEquals("juke-task-pool-", jukeExecutor.getThreadNamePrefix());
         }
 
         @Order(3)

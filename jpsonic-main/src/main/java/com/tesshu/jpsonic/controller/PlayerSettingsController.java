@@ -22,14 +22,11 @@
 package com.tesshu.jpsonic.controller;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.sound.sampled.Mixer;
 
-import com.github.biconou.AudioPlayer.AudioSystemUtils;
 import com.tesshu.jpsonic.command.PlayerSettingsCommand;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.PlayerTechnology;
@@ -140,19 +137,9 @@ public class PlayerSettingsController {
         command.setTranscodeDirectory(transcodingService.getTranscodeDirectory().getPath());
         command.setTranscodeSchemes(TranscodeScheme.values());
         PlayerTechnology[] technologys = PlayerTechnology.values();
-        if (!settingsService.isShowJavaJukebox()) {
-            technologys = Arrays.stream(technologys).filter(technology -> PlayerTechnology.JAVA_JUKEBOX != technology)
-                    .toArray(PlayerTechnology[]::new);
-        }
         command.setTechnologies(technologys);
         command.setPlayers(players.toArray(new Player[0]));
         command.setAdmin(user.isAdminRole());
-
-        command.setJavaJukeboxMixers(
-                Arrays.stream(AudioSystemUtils.listAllMixers()).map(Mixer.Info::getName).toArray(String[]::new));
-        if (player != null) {
-            command.setJavaJukeboxMixer(player.getJavaJukeboxMixer());
-        }
 
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
@@ -175,8 +162,7 @@ public class PlayerSettingsController {
             player.setDynamicIp(command.isDynamicIp());
             player.setName(StringUtils.trimToNull(command.getName()));
             player.setTranscodeScheme(TranscodeScheme.valueOf(command.getTranscodeSchemeName()));
-            player.setTechnology(PlayerTechnology.valueOf(command.getTechnologyName()));
-            player.setJavaJukeboxMixer(command.getJavaJukeboxMixer());
+            player.setTechnology(PlayerTechnology.of(command.getTechnologyName()));
 
             playerService.updatePlayer(player);
             transcodingService.setTranscodingsForPlayer(player, command.getActiveTranscodingIds());
