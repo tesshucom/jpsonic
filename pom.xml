@@ -438,6 +438,7 @@
                     <version>0.14.0</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
                     <version>3.3.1</version>
                     <configuration>
@@ -518,9 +519,6 @@
                         <execution>
                             <id>validate</id>
                             <phase>validate</phase>
-                            <configuration>
-                                <sourceEncoding>utf-8</sourceEncoding>
-                            </configuration>
                             <goals>
                                 <goal>check</goal>
                             </goals>
@@ -568,7 +566,6 @@
                     <version>2.22.2</version>
                     <configuration>
                         <excludes>${test.excludes}</excludes>
-                        <exclude>**/Abstract*Test.java</exclude>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -615,39 +612,43 @@
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
                 <configuration>
-                    <header>contrib/assets/template-gpl3.txt</header>
-                    <properties>
-                        <product>Jpsonic</product>
-                        <owner>tesshucom</owner>
-                        <year>${inceptionYear}</year>
-                        <useDefaultExcludes>true</useDefaultExcludes>
-                    </properties>
-                    <includes>
-                        <include>src/*/java/**/*.java</include>
-                    </includes>
-                    <excludes>
-                        <exclude>.github/**</exclude>
-                        <exclude>contrib/**</exclude>
-                        <exclude>install/**</exclude>
-                        <exclude>jpsonic-sonos-api/**</exclude>
-                        <exclude>subsonic-rest-api/**</exclude>
-                        <exclude>repo/**</exclude>
-                        <exclude>**/*.xsd</exclude>
-                        <exclude>**/*.wsdl</exclude>
-                        <exclude>**/*.txt</exclude>
-                        <exclude>**/*.xml</exclude>
-                        <exclude>**/*.html</exclude>
-                        <exclude>**/*.css</exclude>
-                        <exclude>**/*.js</exclude>
-                        <exclude>.mvn/**</exclude>
-                        <exclude>mvnw*</exclude>
-                        <exclude>**/_config.yml</exclude>
-                        <exclude>**/coverage.xml</exclude>
-                        <exclude>config/**.xml</exclude>
-                    </excludes>
-                    <mapping>
-                        <java>SLASHSTAR_STYLE</java>
-                    </mapping>
+                    <licenseSets>
+                        <licenseSet>
+                            <header>contrib/assets/template-gpl3.txt</header>
+                            <properties>
+                                <product>Jpsonic</product>
+                                <owner>tesshucom</owner>
+                                <year>${inceptionYear}</year>
+                                <useDefaultExcludes>true</useDefaultExcludes>
+                            </properties>
+                            <includes>
+                                <include>src/*/java/**/*.java</include>
+                            </includes>
+                            <excludes>
+                                <exclude>.github/**</exclude>
+                                <exclude>contrib/**</exclude>
+                                <exclude>install/**</exclude>
+                                <exclude>jpsonic-sonos-api/**</exclude>
+                                <exclude>subsonic-rest-api/**</exclude>
+                                <exclude>repo/**</exclude>
+                                <exclude>**/*.xsd</exclude>
+                                <exclude>**/*.wsdl</exclude>
+                                <exclude>**/*.txt</exclude>
+                                <exclude>**/*.xml</exclude>
+                                <exclude>**/*.html</exclude>
+                                <exclude>**/*.css</exclude>
+                                <exclude>**/*.js</exclude>
+                                <exclude>.mvn/**</exclude>
+                                <exclude>mvnw*</exclude>
+                                <exclude>**/_config.yml</exclude>
+                                <exclude>**/coverage.xml</exclude>
+                                <exclude>config/**.xml</exclude>
+                            </excludes>
+                            <mapping>
+                                <java>SLASHSTAR_STYLE</java>
+                            </mapping>
+                        </licenseSet>
+                    </licenseSets>
                 </configuration>
             </plugin>
             <plugin>
@@ -655,12 +656,9 @@
                 <artifactId>formatter-maven-plugin</artifactId>
                 <version>2.16.0</version>
                 <configuration>
-                    <configLocation>${project.basedir}/jpsonic-main/formatter.xml</configLocation>
+                    <configFile>${project.basedir}/formatter.xml</configFile>
                     <encoding>UTF-8</encoding>
                     <lineEnding>LF</lineEnding>
-                    <consoleOutput>true</consoleOutput>
-                    <failOnViolation>true</failOnViolation>
-                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
                 </configuration>
             </plugin>
             <plugin>
@@ -873,7 +871,8 @@
                     com.tesshu.jpsonic.service.MediaScannerServiceUtilsUpdateSortOfAlbumTest,
                     com.tesshu.jpsonic.service.MediaScannerServiceUtilsCompensateSortOfArtistTest,
                     com.tesshu.jpsonic.service.MediaScannerServiceUtilsCopySortOfArtistTest,
-                    com.tesshu.jpsonic.service.MediaScannerServiceUtilsMergeSortOfArtistTest
+                    com.tesshu.jpsonic.service.MediaScannerServiceUtilsMergeSortOfArtistTest,
+                    **/Abstract*Test.java
                 </test.excludes>
             </properties>
         </profile>
