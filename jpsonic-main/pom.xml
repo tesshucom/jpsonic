@@ -333,12 +333,6 @@
         </dependency>
 
         <dependency>
-            <groupId>stax</groupId>
-            <artifactId>stax-api</artifactId>
-            <version>1.0.1</version>
-        </dependency>
-
-        <dependency>
             <groupId>jakarta.mail</groupId>
             <artifactId>jakarta.mail-api</artifactId>
         </dependency>
@@ -499,6 +493,10 @@
                 <exclusion>
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>stax</groupId>
+                    <artifactId>stax-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -702,7 +700,6 @@
                     <mainClass>com.tesshu.jpsonic.Application</mainClass>
                     <layout>WAR</layout>
                     <excludeGroupIds>${boot.group.excludes}</excludeGroupIds>
-                    <excludeArtifactIds>${boot.artifact.excludes}</excludeArtifactIds>
                 </configuration>
                 <executions>
                     <execution>
@@ -834,7 +831,6 @@
             <id>tomcat-embed</id>
             <properties>
                 <boot.group.excludes>org.eclipse.jetty.toolchain,org.eclipse.jetty,org.eclipse.jetty.websocket,org.mortbay.jasper,org.eclipse.jetty.toolchain,org.ow2.asm,jakarta.websocket</boot.group.excludes>
-                <boot.artifact.excludes>spring-boot-starter-jetty,apache-jsp,jakarta.websocket-all</boot.artifact.excludes>
                 <helper.excludes>JettyApplicationHelper.class</helper.excludes>
             </properties>
         </profile>
@@ -842,7 +838,6 @@
             <id>jetty-embed</id>
             <properties>
                 <boot.group.excludes>org.apache.tomcat.embed</boot.group.excludes>
-                <boot.artifact.excludes>spring-boot-starter-tomcat</boot.artifact.excludes>
                 <helper.excludes>TomcatApplicationHelper.class</helper.excludes>
             </properties>
             <activation>
