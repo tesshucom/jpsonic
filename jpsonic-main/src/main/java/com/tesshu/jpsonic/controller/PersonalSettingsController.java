@@ -145,16 +145,14 @@ public class PersonalSettingsController {
         command.setShowAlbumActions(userSettings.isShowAlbumActions());
         command.setBreadcrumbIndex(userSettings.isBreadcrumbIndex());
         command.setPutMenuInDrawer(userSettings.isPutMenuInDrawer());
-        command.setFontSchemes(FontScheme.values());
-        command.setFontSchemeName(userSettings.getFontSchemeName());
+        command.setFontScheme(FontScheme.of(userSettings.getFontSchemeName()));
         command.setFontSize(userSettings.getFontSize());
         command.setForceBio2Eng(userSettings.isForceBio2Eng());
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         command.setVoiceInputEnabled(userSettings.isVoiceInputEnabled());
         command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
         command.setShowCurrentSongInfo(userSettings.isShowCurrentSongInfo());
-        command.setSpeechLangSchemes(SpeechToTextLangScheme.values());
-        command.setSpeechLangSchemeName(userSettings.getSpeechLangSchemeName());
+        command.setSpeechToTextLangScheme(SpeechToTextLangScheme.of(userSettings.getSpeechLangSchemeName()));
         if (isEmpty(userSettings.getLocale())) {
             command.setIetfDefault(SupportableBCP47.valueOf(settingsService.getLocale()).getValue());
             command.setIetfDisplayDefault(settingsService.getLocale().getDisplayName(settingsService.getLocale()));
@@ -272,13 +270,13 @@ public class PersonalSettingsController {
         settings.setShowAlbumActions(command.isShowAlbumActions());
         settings.setBreadcrumbIndex(command.isBreadcrumbIndex());
         settings.setPutMenuInDrawer(command.isPutMenuInDrawer());
-        settings.setFontSchemeName(command.getFontSchemeName());
+        settings.setFontSchemeName(command.getFontScheme().name());
         settings.setFontSize(command.getFontSize());
         settings.setForceBio2Eng(command.isForceBio2Eng());
         settings.setVoiceInputEnabled(command.isVoiceInputEnabled());
         settings.setShowCurrentSongInfo(command.isShowCurrentSongInfo());
-        settings.setSpeechLangSchemeName(command.getSpeechLangSchemeName());
-        if (SpeechToTextLangScheme.DEFAULT.name().equals(command.getSpeechLangSchemeName())) {
+        settings.setSpeechLangSchemeName(command.getSpeechToTextLangScheme().name());
+        if (SpeechToTextLangScheme.DEFAULT == command.getSpeechToTextLangScheme()) {
             settings.setIetf(SupportableBCP47.valueOf(locale).getValue());
         } else if (StringUtils.isNotBlank(command.getIetf()) && command.getIetf().matches("[a-zA-Z\\-\\_]+")) {
             settings.setIetf(command.getIetf());

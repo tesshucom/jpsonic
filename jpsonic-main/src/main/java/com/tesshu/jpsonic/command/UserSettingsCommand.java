@@ -60,8 +60,7 @@ public class UserSettingsCommand {
     private List<MusicFolder> allMusicFolders;
     private int[] allowedMusicFolderIds;
 
-    private String transcodeSchemeName;
-    private EnumHolder[] transcodeSchemeHolders;
+    private TranscodeScheme transcodeScheme;
     private boolean transcodingSupported;
     private String transcodeDirectory;
 
@@ -256,25 +255,12 @@ public class UserSettingsCommand {
         }
     }
 
-    public String getTranscodeSchemeName() {
-        return transcodeSchemeName;
+    public TranscodeScheme getTranscodeScheme() {
+        return transcodeScheme;
     }
 
-    public void setTranscodeSchemeName(String transcodeSchemeName) {
-        this.transcodeSchemeName = transcodeSchemeName;
-    }
-
-    public EnumHolder[] getTranscodeSchemeHolders() {
-        return transcodeSchemeHolders;
-    }
-
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (EnumHolder) Not reusable -> #832
-    public void setTranscodeSchemes(TranscodeScheme... transcodeSchemes) {
-        transcodeSchemeHolders = new EnumHolder[transcodeSchemes.length];
-        for (int i = 0; i < transcodeSchemes.length; i++) {
-            TranscodeScheme scheme = transcodeSchemes[i];
-            transcodeSchemeHolders[i] = new EnumHolder(scheme.name(), scheme.toString());
-        }
+    public void setTranscodeScheme(TranscodeScheme transcodeScheme) {
+        this.transcodeScheme = transcodeScheme;
     }
 
     public boolean isTranscodingSupported() {

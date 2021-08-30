@@ -112,8 +112,7 @@ class PersonalSettingsControllerTest {
         assertNotNull(command.getFontFamily());
         assertNotNull(command.getFontFamilyDefault());
         assertNotNull(command.getFontFamilyJpEmbedDefault());
-        assertEquals(3, command.getFontSchemeHolders().length);
-        assertEquals(FontScheme.DEFAULT.name(), command.getFontSchemeName());
+        assertEquals(FontScheme.DEFAULT, command.getFontScheme());
         assertEquals(14, command.getFontSize());
         assertEquals(14, command.getFontSizeDefault());
         assertNotNull(command.getFontSizeJpEmbedDefault());
@@ -162,8 +161,7 @@ class PersonalSettingsControllerTest {
         assertTrue(command.isSimpleDisplay());
         assertNotNull(command.getSmartphoneSettings());
         assertFalse(command.isSongNotificationEnabled());
-        assertEquals(2, command.getSpeechLangSchemeHolders().length);
-        assertEquals(SpeechToTextLangScheme.DEFAULT.name(), command.getSpeechLangSchemeName());
+        assertEquals(SpeechToTextLangScheme.DEFAULT, command.getSpeechToTextLangScheme());
         assertNotNull(command.getTabletSettings());
         assertEquals("-1", command.getThemeIndex());
         assertEquals(18, command.getThemes().length);
@@ -433,7 +431,7 @@ class PersonalSettingsControllerTest {
             PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView.getModelMap()
                     .get(Attributes.Model.Command.VALUE);
             assertNotNull(command);
-            command.setSpeechLangSchemeName(SpeechToTextLangScheme.BCP47.name());
+            command.setSpeechToTextLangScheme(SpeechToTextLangScheme.BCP47);
             command.setIetf(null);
 
             settingsService.setOthersPlayingEnabled(true);
@@ -468,7 +466,7 @@ class PersonalSettingsControllerTest {
             PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView.getModelMap()
                     .get(Attributes.Model.Command.VALUE);
             assertNotNull(command);
-            command.setSpeechLangSchemeName(SpeechToTextLangScheme.BCP47.name());
+            command.setSpeechToTextLangScheme(SpeechToTextLangScheme.BCP47);
             command.setIetf("Unknown.Unknown");
 
             settingsService.setOthersPlayingEnabled(true);

@@ -4,6 +4,7 @@
 <html><head>
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
+    <%@ page import="com.tesshu.jpsonic.domain.TranscodeScheme" %>
     <script src="<c:url value='/script/utils.js'/>"></script>
     <script>
         function init() {
@@ -118,9 +119,9 @@
             </c:if>
             <dt><fmt:message key="playersettings.maxbitrate"/></dt>
             <dd>
-                <form:select path="transcodeSchemeName">
-                    <c:forEach items="${command.transcodeSchemeHolders}" var="transcodeSchemeHolder">
-                        <form:option value="${transcodeSchemeHolder.name}" label="${transcodeSchemeHolder.description}"/>
+                <form:select path="transcodeScheme">
+                    <c:forEach items="${TranscodeScheme.values()}" var="scheme">
+                        <form:option value="${scheme}" label="${scheme.toString()}"/>
                     </c:forEach>
                 </form:select>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="transcode"/></c:import>

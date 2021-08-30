@@ -29,8 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.command.PlayerSettingsCommand;
 import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.PlayerTechnology;
-import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
@@ -118,8 +116,8 @@ public class PlayerSettingsController {
             command.setDynamicIp(player.isDynamicIp());
             command.setAutoControlEnabled(player.isAutoControlEnabled());
             command.setM3uBomEnabled(player.isM3uBomEnabled());
-            command.setTranscodeSchemeName(player.getTranscodeScheme().name());
-            command.setTechnologyName(player.getTechnology().name());
+            command.setTranscodeScheme(player.getTranscodeScheme());
+            command.setPlayerTechnology(player.getTechnology());
             command.setAllTranscodings(transcodingService.getAllTranscodings());
             List<Transcoding> activeTranscodings = transcodingService.getTranscodingsForPlayer(player);
             int[] activeTranscodingIds = new int[activeTranscodings.size()];
@@ -135,9 +133,6 @@ public class PlayerSettingsController {
 
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
         command.setTranscodeDirectory(transcodingService.getTranscodeDirectory().getPath());
-        command.setTranscodeSchemes(TranscodeScheme.values());
-        PlayerTechnology[] technologys = PlayerTechnology.values();
-        command.setTechnologies(technologys);
         command.setPlayers(players.toArray(new Player[0]));
         command.setAdmin(user.isAdminRole());
 
@@ -161,8 +156,8 @@ public class PlayerSettingsController {
             player.setM3uBomEnabled(command.isM3uBomEnabled());
             player.setDynamicIp(command.isDynamicIp());
             player.setName(StringUtils.trimToNull(command.getName()));
-            player.setTranscodeScheme(TranscodeScheme.valueOf(command.getTranscodeSchemeName()));
-            player.setTechnology(PlayerTechnology.of(command.getTechnologyName()));
+            player.setTranscodeScheme(command.getTranscodeScheme());
+            player.setTechnology(command.getPlayerTechnology());
 
             playerService.updatePlayer(player);
             transcodingService.setTranscodingsForPlayer(player, command.getActiveTranscodingIds());

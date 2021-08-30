@@ -62,7 +62,7 @@ public final class WebFontUtils {
     }
 
     public static void setToCommand(UserSettings from, PersonalSettingsCommand to) {
-        to.setFontSchemeName(from.getFontSchemeName());
+        to.setFontScheme(FontScheme.of(from.getFontSchemeName()));
         to.setFontSize(from.getFontSize());
         to.setFontFamily(from.getFontFamily());
     }
@@ -89,15 +89,15 @@ public final class WebFontUtils {
     }
 
     public static void setToSettings(PersonalSettingsCommand from, UserSettings to) {
-        if (FontScheme.DEFAULT.name().equals(from.getFontSchemeName())) {
+        if (FontScheme.DEFAULT == from.getFontScheme()) {
             to.setFontSchemeName(FontScheme.DEFAULT.name());
             to.setFontSize(DEFAULT_FONT_SIZE);
             to.setFontFamily(DEFAULT_FONT_FAMILY);
-        } else if (FontScheme.JP_EMBED.name().equals(from.getFontSchemeName())) {
+        } else if (FontScheme.JP_EMBED == from.getFontScheme()) {
             to.setFontSchemeName(FontScheme.JP_EMBED.name());
             to.setFontSize(DEFAULT_JP_FONT_SIZE);
             to.setFontFamily(JP_FONT_NAME.concat(", ").concat(DEFAULT_FONT_FAMILY));
-        } else if (FontScheme.CUSTOM.name().equals(from.getFontSchemeName())) {
+        } else if (FontScheme.CUSTOM == from.getFontScheme()) {
             to.setFontSchemeName(FontScheme.CUSTOM.name());
             to.setFontSize(from.getFontSize());
             to.setFontFamily(formatFontFamily(from.getFontFamily()));

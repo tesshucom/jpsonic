@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.command.UserSettingsCommand;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -106,7 +105,7 @@ public class UserSettingsController {
                 command.setUser(user);
                 command.setEmail(user.getEmail());
                 UserSettings userSettings = securityService.getUserSettings(user.getUsername());
-                command.setTranscodeSchemeName(userSettings.getTranscodeScheme().name());
+                command.setTranscodeScheme(userSettings.getTranscodeScheme());
                 command.setAllowedMusicFolderIds(PlayerUtils.toIntArray(getAllowedMusicFolderIds(user)));
                 command.setCurrentUser(
                         securityService.getCurrentUser(request).getUsername().equals(user.getUsername()));
@@ -116,7 +115,6 @@ public class UserSettingsController {
         command.setUsers(securityService.getAllUsers());
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
         command.setTranscodeDirectory(transcodingService.getTranscodeDirectory().getPath());
-        command.setTranscodeSchemes(TranscodeScheme.values());
         command.setLdapEnabled(settingsService.isLdapEnabled());
         command.setAllMusicFolders(musicFolderService.getAllMusicFolders());
         command.setUseRadio(settingsService.isUseRadio());
@@ -214,7 +212,7 @@ public class UserSettingsController {
         securityService.updateUser(user);
 
         UserSettings userSettings = securityService.getUserSettings(command.getUsername());
-        userSettings.setTranscodeScheme(TranscodeScheme.valueOf(command.getTranscodeSchemeName()));
+        userSettings.setTranscodeScheme(command.getTranscodeScheme());
         userSettings.setChanged(new Date());
         securityService.updateUserSettings(userSettings);
 

@@ -4,6 +4,8 @@
 <html><head>
 <%@ include file="head.jsp" %>
 <%@ include file="jquery.jsp" %>
+<%@ page import="com.tesshu.jpsonic.domain.FontScheme" %>
+<%@ page import="com.tesshu.jpsonic.domain.SpeechToTextLangScheme" %>
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script>
 
@@ -153,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('voiceInputEnabled').onchange = function (e) {
         speechEngineLangSelectEnabled(e.target.checked);
     };
-    if(${command.fontSchemeName ne 'CUSTOM'}){
+    if(${command.fontScheme ne 'CUSTOM'}){
             $("#fontSizeSlider").slider({ disabled: true });
     }
     $("#radio1-1").on('change', function(e){
@@ -258,18 +260,18 @@ document.addEventListener('DOMContentLoaded', function () {
             <dt><fmt:message key="personalsettings.font"/></dt>
             <dd>
                 <ul class="playerSettings">
-                    <c:forEach items="${command.fontSchemeHolders}" var="fontSchemeHolder" varStatus="status">
+                    <c:forEach items="${FontScheme.values()}" var="scheme" varStatus="status">
                         <c:set var="fontSchemeName">
-                            <fmt:message key="personalsettings.font.${fn:toLowerCase(fontSchemeHolder.name)}"/>
+                            <fmt:message key="personalsettings.font.${fn:toLowerCase(scheme)}"/>
                         </c:set>
                         <li>
-                            <form:radiobutton class="technologyRadio" id="radio1-${status.count}" path="fontSchemeName" value="${fontSchemeHolder.name}"
-                                checked="${fontSchemeHolder.name eq command.fontSchemeName ? 'checked' : ''}"/>
+                            <form:radiobutton class="technologyRadio" id="radio1-${status.count}" path="fontScheme" value="${scheme}"
+                                checked="${scheme eq command.fontScheme ? 'checked' : ''}"/>
                             <label for="radio1-${status.count}">${fontSchemeName}</label>
-                            <c:if test="${fontSchemeHolder.name eq 'CUSTOM'}">
-                                <form:input path="fontFamily" id="fontFamily" disabled="${command.fontSchemeName ne 'CUSTOM'}"/>
+                            <c:if test="${scheme eq 'CUSTOM'}">
+                                <form:input path="fontFamily" id="fontFamily" disabled="${command.fontScheme ne 'CUSTOM'}"/>
                             </c:if>
-                            <c:import url="helpToolTip.jsp"><c:param name="topic" value="personalsettings.font.${fn:toLowerCase(fontSchemeHolder.name)}"/></c:import>
+                            <c:import url="helpToolTip.jsp"><c:param name="topic" value="personalsettings.font.${fn:toLowerCase(scheme)}"/></c:import>
                         </li>
                     </c:forEach>
                     <li class="fontSizeSettings">
@@ -398,20 +400,20 @@ document.addEventListener('DOMContentLoaded', function () {
             <dt><fmt:message key="personalsettings.speechenginelang"/></dt>
             <dd>
                 <ul class="playerSettings">
-                    <c:forEach items="${command.speechLangSchemeHolders}" var="speechLangSchemeHolder">
+                    <c:forEach items="${SpeechToTextLangScheme.values()}" var="scheme">
                         <c:set var="speechLangSchemeName">
-                            <fmt:message key="personalsettings.speechenginelang.${fn:toLowerCase(speechLangSchemeHolder.name)}"/>
+                            <fmt:message key="personalsettings.speechenginelang.${fn:toLowerCase(scheme)}"/>
                         </c:set>
                         <li>
-                            <form:radiobutton class="technologyRadio" id="radio2-${speechLangSchemeHolder.name}" path="speechLangSchemeName" value="${speechLangSchemeHolder.name}"
-                                checked="${speechLangSchemeHolder.name eq command.speechLangSchemeName ? 'checked' : ''}"
+                            <form:radiobutton class="technologyRadio" id="radio2-${scheme}" path="speechToTextLangScheme" value="${scheme}"
+                                checked="${scheme eq command.speechToTextLangScheme ? 'checked' : ''}"
                                 disabled="${!command.voiceInputEnabled}"/>
-                            <label for="radio2-${speechLangSchemeHolder.name}">${speechLangSchemeName}</label>
-                            <c:if test="${speechLangSchemeHolder.name eq 'DEFAULT'}">
+                            <label for="radio2-${scheme}">${speechLangSchemeName}</label>
+                            <c:if test="${scheme eq 'DEFAULT'}">
                                   - ${command.ietfDisplayDefault}
                             </c:if>
-                            <c:if test="${speechLangSchemeHolder.name eq 'BCP47'}">                
-                                <form:input path="ietf" id="ietf" disabled="${command.speechLangSchemeName eq 'DEFAULT'}"/>
+                            <c:if test="${scheme eq 'BCP47'}">                
+                                <form:input path="ietf" id="ietf" disabled="${command.speechToTextLangScheme eq 'DEFAULT'}"/>
                             </c:if>
                         </li>
                     </c:forEach>

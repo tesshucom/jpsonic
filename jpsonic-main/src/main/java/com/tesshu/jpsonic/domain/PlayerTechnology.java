@@ -45,9 +45,7 @@ public enum PlayerTechnology {
     EXTERNAL_WITH_PLAYLIST;
 
     public static PlayerTechnology of(String s) {
-        if (WEB.name().equals(s)) {
-            return WEB;
-        } else if (EXTERNAL.name().equals(s)) {
+        if (EXTERNAL.name().equals(s)) {
             return EXTERNAL;
         } else if (EXTERNAL_WITH_PLAYLIST.name().equals(s)) {
             return EXTERNAL_WITH_PLAYLIST;

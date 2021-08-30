@@ -48,14 +48,12 @@ public class PlayerSettingsCommand {
     private boolean dynamicIp;
     private boolean autoControlEnabled;
     private boolean m3uBomEnabled;
-    private String technologyName;
-    private String transcodeSchemeName;
+    private PlayerTechnology playerTechnology;
+    private TranscodeScheme transcodeScheme;
     private boolean transcodingSupported;
     private String transcodeDirectory;
     private List<Transcoding> allTranscodings;
     private int[] activeTranscodingIds;
-    private EnumHolder[] technologyHolders;
-    private EnumHolder[] transcodeSchemeHolders;
     private Player[] players;
     private boolean admin;
     private boolean openDetailSetting;
@@ -153,12 +151,12 @@ public class PlayerSettingsCommand {
         this.m3uBomEnabled = m3uBomEnabled;
     }
 
-    public String getTranscodeSchemeName() {
-        return transcodeSchemeName;
+    public TranscodeScheme getTranscodeScheme() {
+        return transcodeScheme;
     }
 
-    public void setTranscodeSchemeName(String transcodeSchemeName) {
-        this.transcodeSchemeName = transcodeSchemeName;
+    public void setTranscodeScheme(TranscodeScheme transcodeScheme) {
+        this.transcodeScheme = transcodeScheme;
     }
 
     public boolean isTranscodingSupported() {
@@ -195,38 +193,12 @@ public class PlayerSettingsCommand {
         }
     }
 
-    public EnumHolder[] getTechnologyHolders() {
-        return technologyHolders;
+    public PlayerTechnology getPlayerTechnology() {
+        return playerTechnology;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (EnumHolder) Not reusable -> #832
-    public void setTechnologies(PlayerTechnology... technologies) {
-        technologyHolders = new EnumHolder[technologies.length];
-        for (int i = 0; i < technologies.length; i++) {
-            PlayerTechnology technology = technologies[i];
-            technologyHolders[i] = new EnumHolder(technology.name(), technology.toString());
-        }
-    }
-
-    public EnumHolder[] getTranscodeSchemeHolders() {
-        return transcodeSchemeHolders;
-    }
-
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (EnumHolder) Not reusable -> #832
-    public void setTranscodeSchemes(TranscodeScheme... transcodeSchemes) {
-        transcodeSchemeHolders = new EnumHolder[transcodeSchemes.length];
-        for (int i = 0; i < transcodeSchemes.length; i++) {
-            TranscodeScheme scheme = transcodeSchemes[i];
-            transcodeSchemeHolders[i] = new EnumHolder(scheme.name(), scheme.toString());
-        }
-    }
-
-    public String getTechnologyName() {
-        return technologyName;
-    }
-
-    public void setTechnologyName(String technologyName) {
-        this.technologyName = technologyName;
+    public void setPlayerTechnology(PlayerTechnology playerTechnology) {
+        this.playerTechnology = playerTechnology;
     }
 
     public Player[] getPlayers() {

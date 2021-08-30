@@ -38,6 +38,12 @@ public enum SpeechToTextLangScheme {
     /**
      * Explicit specification by code. https://cloud.google.com/speech-to-text/docs/languages
      */
-    BCP47
+    BCP47;
 
+    public static SpeechToTextLangScheme of(String s) {
+        if (BCP47.name().equals(s)) {
+            return BCP47;
+        }
+        return DEFAULT;
+    }
 }

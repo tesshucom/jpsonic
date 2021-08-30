@@ -21,9 +21,7 @@
 
 package com.tesshu.jpsonic.command;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.controller.PersonalSettingsController;
 import com.tesshu.jpsonic.domain.AlbumListType;
@@ -105,14 +103,12 @@ public class PersonalSettingsCommand {
     private boolean breadcrumbIndex;
     private boolean putMenuInDrawer;
     private boolean forceBio2Eng;
-    private EnumHolder[] fontSchemeHolders;
-    private String fontSchemeName;
+    private FontScheme fontScheme;
     private boolean showOutlineHelp;
     private boolean voiceInputEnabled;
     private boolean othersPlayingEnabled;
     private boolean showCurrentSongInfo;
-    private EnumHolder[] speechLangSchemeHolders;
-    private String speechLangSchemeName;
+    private SpeechToTextLangScheme speechToTextLangScheme;
     private String ietf;
     private String fontFamily;
     private int fontSize;
@@ -632,21 +628,12 @@ public class PersonalSettingsCommand {
         this.forceBio2Eng = forceBio2Eng;
     }
 
-    public EnumHolder[] getFontSchemeHolders() {
-        return fontSchemeHolders;
+    public FontScheme getFontScheme() {
+        return fontScheme;
     }
 
-    public void setFontSchemes(FontScheme... fontSchemes) {
-        fontSchemeHolders = Arrays.stream(fontSchemes).map(s -> new EnumHolder(s.name(), s.toString()))
-                .collect(Collectors.toList()).toArray(new EnumHolder[fontSchemes.length]);
-    }
-
-    public String getFontSchemeName() {
-        return fontSchemeName;
-    }
-
-    public void setFontSchemeName(String fontSchemeName) {
-        this.fontSchemeName = fontSchemeName;
+    public void setFontScheme(FontScheme fontScheme) {
+        this.fontScheme = fontScheme;
     }
 
     public boolean isShowOutlineHelp() {
@@ -681,21 +668,12 @@ public class PersonalSettingsCommand {
         this.showCurrentSongInfo = showCurrentSongInfo;
     }
 
-    public EnumHolder[] getSpeechLangSchemeHolders() {
-        return speechLangSchemeHolders;
+    public SpeechToTextLangScheme getSpeechToTextLangScheme() {
+        return speechToTextLangScheme;
     }
 
-    public void setSpeechLangSchemes(SpeechToTextLangScheme... speechLangSchemes) {
-        speechLangSchemeHolders = Arrays.stream(speechLangSchemes).map(s -> new EnumHolder(s.name(), s.toString()))
-                .collect(Collectors.toList()).toArray(new EnumHolder[speechLangSchemes.length]);
-    }
-
-    public String getSpeechLangSchemeName() {
-        return speechLangSchemeName;
-    }
-
-    public void setSpeechLangSchemeName(String speechLangSchemeName) {
-        this.speechLangSchemeName = speechLangSchemeName;
+    public void setSpeechToTextLangScheme(SpeechToTextLangScheme speechToTextLangScheme) {
+        this.speechToTextLangScheme = speechToTextLangScheme;
     }
 
     public String getIetf() {
