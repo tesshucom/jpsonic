@@ -60,7 +60,8 @@ class InternetRadioDaoTest {
 
     @Test
     void testCreateInternetRadio() {
-        InternetRadio radio = new InternetRadio("name", "streamUrl", "homePageUrl", true, new Date());
+        InternetRadio radio =
+                new InternetRadio("name", "streamUrl", "homePageUrl", true, new Date());
         internetRadioDao.createInternetRadio(radio);
 
         InternetRadio newRadio = internetRadioDao.getAllInternetRadios().get(0);
@@ -69,7 +70,8 @@ class InternetRadioDaoTest {
 
     @Test
     void testUpdateInternetRadio() {
-        InternetRadio radio = new InternetRadio("name", "streamUrl", "homePageUrl", true, new Date());
+        InternetRadio radio =
+                new InternetRadio("name", "streamUrl", "homePageUrl", true, new Date());
         internetRadioDao.createInternetRadio(radio);
         radio = internetRadioDao.getAllInternetRadios().get(0);
 
@@ -87,13 +89,17 @@ class InternetRadioDaoTest {
     @Test
     void testDeleteInternetRadio() {
         assertEquals(0, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
-        internetRadioDao.createInternetRadio(new InternetRadio("name", "streamUrl", "homePageUrl", true, new Date()));
+        internetRadioDao.createInternetRadio(
+                new InternetRadio("name", "streamUrl", "homePageUrl", true, new Date()));
         assertEquals(1, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
-        internetRadioDao.createInternetRadio(new InternetRadio("name", "streamUrl", "homePageUrl", true, new Date()));
+        internetRadioDao.createInternetRadio(
+                new InternetRadio("name", "streamUrl", "homePageUrl", true, new Date()));
         assertEquals(2, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
-        internetRadioDao.deleteInternetRadio(internetRadioDao.getAllInternetRadios().get(0).getId());
+        internetRadioDao
+                .deleteInternetRadio(internetRadioDao.getAllInternetRadios().get(0).getId());
         assertEquals(1, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
-        internetRadioDao.deleteInternetRadio(internetRadioDao.getAllInternetRadios().get(0).getId());
+        internetRadioDao
+                .deleteInternetRadio(internetRadioDao.getAllInternetRadios().get(0).getId());
         assertEquals(0, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
     }
 
