@@ -24,7 +24,7 @@
         <jetty.schema.version>3.1.2</jetty.schema.version>
         <jetty.version>9.4.43.v20210629</jetty.version>
         <jetty-jsp.version>9.4.43.v20210629</jetty-jsp.version>
-        <pmd.version>6.37.0</pmd.version>
+        <pmd.version>6.38.0</pmd.version>
         <log4j.version>2.14.1</log4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
     </properties>
@@ -459,7 +459,7 @@
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
                             <artifactId>checkstyle</artifactId>
-                            <version>8.45.1</version>
+                            <version>9.0</version>
                         </dependency>
                     </dependencies>
                     <configuration>
@@ -540,7 +540,7 @@
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>6.2.2</version>
+                    <version>6.3.0</version>
                     <inherited>true</inherited>
                     <configuration>
                         <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
