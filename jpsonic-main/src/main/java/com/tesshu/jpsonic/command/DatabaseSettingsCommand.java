@@ -25,7 +25,7 @@ import javax.validation.constraints.NotNull;
 
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
 
-public class DatabaseSettingsCommand {
+public class DatabaseSettingsCommand extends SettingsPageCommons {
 
     @NotNull
     private DataSourceConfigType configType;
@@ -36,10 +36,6 @@ public class DatabaseSettingsCommand {
     private String jndiName;
     private int mysqlVarcharMaxlength;
     private String usertableQuote;
-    private boolean useRadio;
-    private boolean useSonos;
-    private int shareCount;
-    private boolean showOutlineHelp;
 
     public DataSourceConfigType getConfigType() {
         return configType;
@@ -104,37 +100,4 @@ public class DatabaseSettingsCommand {
     public void setUsertableQuote(String usertableQuote) {
         this.usertableQuote = usertableQuote;
     }
-
-    public boolean isUseRadio() {
-        return useRadio;
-    }
-
-    public void setUseRadio(boolean useRadio) {
-        this.useRadio = useRadio;
-    }
-
-    public boolean isUseSonos() {
-        return useSonos;
-    }
-
-    public void setUseSonos(boolean useSonos) {
-        this.useSonos = useSonos;
-    }
-
-    public int getShareCount() {
-        return shareCount;
-    }
-
-    public void setShareCount(int shareCount) {
-        this.shareCount = shareCount;
-    }
-
-    public boolean isShowOutlineHelp() {
-        return showOutlineHelp;
-    }
-
-    public void setShowOutlineHelp(boolean showOutlineHelp) {
-        this.showOutlineHelp = showOutlineHelp;
-    }
-
 }

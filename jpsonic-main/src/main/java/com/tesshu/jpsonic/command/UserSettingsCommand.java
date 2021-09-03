@@ -33,7 +33,7 @@ import com.tesshu.jpsonic.domain.User;
  *
  * @author Sindre Mehus
  */
-public class UserSettingsCommand {
+public class UserSettingsCommand extends SettingsPageCommons {
 
     private String username;
     private boolean adminRole;
@@ -63,11 +63,6 @@ public class UserSettingsCommand {
     private TranscodeScheme transcodeScheme;
     private boolean transcodingSupported;
     private String transcodeDirectory;
-
-    private boolean useRadio;
-    private boolean useSonos;
-    private boolean showToast;
-    private int shareCount;
 
     public String getUsername() {
         return username;
@@ -279,38 +274,6 @@ public class UserSettingsCommand {
         this.transcodeDirectory = transcodeDirectory;
     }
 
-    public boolean isUseRadio() {
-        return useRadio;
-    }
-
-    public void setUseRadio(boolean useRadio) {
-        this.useRadio = useRadio;
-    }
-
-    public boolean isUseSonos() {
-        return useSonos;
-    }
-
-    public void setUseSonos(boolean useSonos) {
-        this.useSonos = useSonos;
-    }
-
-    public boolean isShowToast() {
-        return showToast;
-    }
-
-    public void setShowToast(boolean showToast) {
-        this.showToast = showToast;
-    }
-
-    public int getShareCount() {
-        return shareCount;
-    }
-
-    public void setShareCount(int shareCount) {
-        this.shareCount = shareCount;
-    }
-
     public void setUser(User user) {
         username = user == null ? null : user.getUsername();
         adminRole = user != null && user.isAdminRole();
@@ -325,5 +288,4 @@ public class UserSettingsCommand {
         ldapAuthenticated = user != null && user.isLdapAuthenticated();
         newUser = false;
     }
-
 }

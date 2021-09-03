@@ -37,7 +37,7 @@ import com.tesshu.jpsonic.domain.UserSettings;
  *
  * @author Sindre Mehus
  */
-public class PersonalSettingsCommand {
+public class PersonalSettingsCommand extends SettingsPageCommons {
 
     private User user;
     private UserSettings defaultSettings;
@@ -68,7 +68,6 @@ public class PersonalSettingsCommand {
     private boolean showIndex;
     private boolean assignAccesskeyToNumber;
     private boolean openDetailIndex;
-    private boolean openDetailSetting;
     private boolean openDetailStar;
     private boolean showArtistInfoEnabled;
     private boolean nowPlayingAllowed;
@@ -84,8 +83,6 @@ public class PersonalSettingsCommand {
     private String lastFmUsername;
     private String lastFmPassword;
     private String listenBrainzToken;
-    private boolean useRadio;
-    private boolean useSonos;
     private boolean simpleDisplay;
     private boolean showSibling;
     private boolean showRate;
@@ -98,13 +95,11 @@ public class PersonalSettingsCommand {
     private boolean showChangeCoverArt;
     private boolean showTopSongs;
     private boolean showSimilar;
-    private boolean showToast;
     private boolean showAlbumActions;
     private boolean breadcrumbIndex;
     private boolean putMenuInDrawer;
     private boolean forceBio2Eng;
     private FontScheme fontScheme;
-    private boolean showOutlineHelp;
     private boolean voiceInputEnabled;
     private boolean othersPlayingEnabled;
     private boolean showCurrentSongInfo;
@@ -112,7 +107,6 @@ public class PersonalSettingsCommand {
     private String ietf;
     private String fontFamily;
     private int fontSize;
-    private int shareCount;
 
     public User getUser() {
         return user;
@@ -348,14 +342,6 @@ public class PersonalSettingsCommand {
         this.openDetailIndex = openDetailIndex;
     }
 
-    public boolean isOpenDetailSetting() {
-        return openDetailSetting;
-    }
-
-    public void setOpenDetailSetting(boolean openDetailSetting) {
-        this.openDetailSetting = openDetailSetting;
-    }
-
     public boolean isOpenDetailStar() {
         return openDetailStar;
     }
@@ -476,22 +462,6 @@ public class PersonalSettingsCommand {
         this.paginationSize = paginationSize;
     }
 
-    public boolean isUseRadio() {
-        return useRadio;
-    }
-
-    public void setUseRadio(boolean useRadio) {
-        this.useRadio = useRadio;
-    }
-
-    public boolean isUseSonos() {
-        return useSonos;
-    }
-
-    public void setUseSonos(boolean useSonos) {
-        this.useSonos = useSonos;
-    }
-
     public boolean isSimpleDisplay() {
         return simpleDisplay;
     }
@@ -588,14 +558,6 @@ public class PersonalSettingsCommand {
         this.showSimilar = showSimilar;
     }
 
-    public boolean isShowToast() {
-        return showToast;
-    }
-
-    public void setShowToast(boolean showToast) {
-        this.showToast = showToast;
-    }
-
     public boolean isShowAlbumActions() {
         return showAlbumActions;
     }
@@ -634,14 +596,6 @@ public class PersonalSettingsCommand {
 
     public void setFontScheme(FontScheme fontScheme) {
         this.fontScheme = fontScheme;
-    }
-
-    public boolean isShowOutlineHelp() {
-        return showOutlineHelp;
-    }
-
-    public void setShowOutlineHelp(boolean showOutlineHelp) {
-        this.showOutlineHelp = showOutlineHelp;
     }
 
     public boolean isVoiceInputEnabled() {
@@ -698,13 +652,5 @@ public class PersonalSettingsCommand {
 
     public void setFontSize(int fontSize) {
         this.fontSize = fontSize;
-    }
-
-    public int getShareCount() {
-        return shareCount;
-    }
-
-    public void setShareCount(int sharesCount) {
-        this.shareCount = sharesCount;
     }
 }

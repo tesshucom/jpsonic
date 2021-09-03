@@ -29,7 +29,7 @@ import com.tesshu.jpsonic.domain.Theme;
  *
  * @author Sindre Mehus
  */
-public class GeneralSettingsCommand {
+public class GeneralSettingsCommand extends SettingsPageCommons {
 
     // theme and language
     private Theme[] themes;
@@ -65,8 +65,6 @@ public class GeneralSettingsCommand {
     private boolean othersPlayingEnabled;
     private boolean showRememberMe;
     private boolean publishPodcast;
-    private boolean useRadio;
-    private boolean useSonos;
     private boolean searchMethodLegacy;
     private boolean searchMethodChanged;
     private boolean anonymousTranscoding;
@@ -84,12 +82,6 @@ public class GeneralSettingsCommand {
     private String welcomeSubtitle;
     private String welcomeMessage;
     private String loginMessage;
-
-    // for view page control
-    private boolean showOutlineHelp;
-    private boolean openDetailSetting;
-    private boolean showToast;
-    private int shareCount;
 
     public Theme[] getThemes() {
         return themes;
@@ -293,22 +285,6 @@ public class GeneralSettingsCommand {
         this.publishPodcast = publishPodcast;
     }
 
-    public boolean isUseRadio() {
-        return useRadio;
-    }
-
-    public void setUseRadio(boolean useRadio) {
-        this.useRadio = useRadio;
-    }
-
-    public boolean isUseSonos() {
-        return useSonos;
-    }
-
-    public void setUseSonos(boolean useSono) {
-        this.useSonos = useSono;
-    }
-
     public boolean isSearchMethodLegacy() {
         return searchMethodLegacy;
     }
@@ -411,37 +387,5 @@ public class GeneralSettingsCommand {
 
     public void setLoginMessage(String loginMessage) {
         this.loginMessage = loginMessage;
-    }
-
-    public boolean isShowOutlineHelp() {
-        return showOutlineHelp;
-    }
-
-    public void setShowOutlineHelp(boolean showOutlineHelp) {
-        this.showOutlineHelp = showOutlineHelp;
-    }
-
-    public boolean isOpenDetailSetting() {
-        return openDetailSetting;
-    }
-
-    public void setOpenDetailSetting(boolean openDetailSetting) {
-        this.openDetailSetting = openDetailSetting;
-    }
-
-    public boolean isShowToast() {
-        return showToast;
-    }
-
-    public void setShowToast(boolean showToast) {
-        this.showToast = showToast;
-    }
-
-    public int getShareCount() {
-        return shareCount;
-    }
-
-    public void setShareCount(int shareCount) {
-        this.shareCount = shareCount;
     }
 }

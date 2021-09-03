@@ -35,7 +35,7 @@ import org.apache.commons.lang.StringUtils;
  *
  * @author Sindre Mehus
  */
-public class MusicFolderSettingsCommand {
+public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
     // musicFolders
     private List<MusicFolderInfo> musicFolders;
@@ -56,13 +56,6 @@ public class MusicFolderSettingsCommand {
     private boolean ignoreFileTimestamps;
     private boolean fullScanNext;
     private boolean ignoreFileTimestampsForEachAlbum;
-
-    // for view page control
-    private boolean useRadio;
-    private boolean useSonos;
-    private boolean showToast;
-    private int shareCount;
-    private boolean openDetailSetting;
 
     public List<MusicFolderInfo> getMusicFolders() {
         return musicFolders;
@@ -158,46 +151,6 @@ public class MusicFolderSettingsCommand {
 
     public void setIgnoreFileTimestampsForEachAlbum(boolean ignoreFileTimestampsForEachAlbum) {
         this.ignoreFileTimestampsForEachAlbum = ignoreFileTimestampsForEachAlbum;
-    }
-
-    public boolean isUseRadio() {
-        return useRadio;
-    }
-
-    public void setUseRadio(boolean useRadio) {
-        this.useRadio = useRadio;
-    }
-
-    public boolean isUseSonos() {
-        return useSonos;
-    }
-
-    public void setUseSonos(boolean useSonos) {
-        this.useSonos = useSonos;
-    }
-
-    public boolean isShowToast() {
-        return showToast;
-    }
-
-    public void setShowToast(boolean showToast) {
-        this.showToast = showToast;
-    }
-
-    public int getShareCount() {
-        return shareCount;
-    }
-
-    public void setShareCount(int shareCount) {
-        this.shareCount = shareCount;
-    }
-
-    public boolean isOpenDetailSetting() {
-        return openDetailSetting;
-    }
-
-    public void setOpenDetailSetting(boolean openDetailSetting) {
-        this.openDetailSetting = openDetailSetting;
     }
 
     public static class MusicFolderInfo {

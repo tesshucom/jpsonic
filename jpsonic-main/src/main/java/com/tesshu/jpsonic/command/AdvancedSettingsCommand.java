@@ -28,7 +28,7 @@ import com.tesshu.jpsonic.controller.AdvancedSettingsController;
  *
  * @author Sindre Mehus
  */
-public class AdvancedSettingsCommand {
+public class AdvancedSettingsCommand extends SettingsPageCommons {
 
     private boolean verboseLogStart;
     private boolean verboseLogScanning;
@@ -57,12 +57,6 @@ public class AdvancedSettingsCommand {
     private boolean captchaEnabled;
     private String recaptchaSiteKey;
     private String recaptchaSecretKey;
-
-    private boolean showOutlineHelp;
-    private boolean openDetailSetting;
-    private boolean useRadio;
-    private boolean useSonos;
-    private int shareCount;
 
     public boolean isVerboseLogStart() {
         return verboseLogStart;
@@ -246,45 +240,5 @@ public class AdvancedSettingsCommand {
 
     public void setRecaptchaSecretKey(String recaptchaSecretKey) {
         this.recaptchaSecretKey = recaptchaSecretKey;
-    }
-
-    public boolean isShowOutlineHelp() {
-        return showOutlineHelp;
-    }
-
-    public void setShowOutlineHelp(boolean showOutlineHelp) {
-        this.showOutlineHelp = showOutlineHelp;
-    }
-
-    public boolean isOpenDetailSetting() {
-        return openDetailSetting;
-    }
-
-    public void setOpenDetailSetting(boolean openDetailSetting) {
-        this.openDetailSetting = openDetailSetting;
-    }
-
-    public boolean isUseRadio() {
-        return useRadio;
-    }
-
-    public void setUseRadio(boolean useRadio) {
-        this.useRadio = useRadio;
-    }
-
-    public boolean isUseSonos() {
-        return useSonos;
-    }
-
-    public void setUseSonos(boolean useSonos) {
-        this.useSonos = useSonos;
-    }
-
-    public int getShareCount() {
-        return shareCount;
-    }
-
-    public void setShareCount(int shareCount) {
-        this.shareCount = shareCount;
     }
 }

@@ -35,7 +35,7 @@ import com.tesshu.jpsonic.domain.Transcoding;
  *
  * @author Sindre Mehus
  */
-public class PlayerSettingsCommand {
+public class PlayerSettingsCommand extends SettingsPageCommons {
 
     private Integer playerId;
     private boolean guest;
@@ -56,12 +56,6 @@ public class PlayerSettingsCommand {
     private int[] activeTranscodingIds;
     private Player[] players;
     private boolean admin;
-    private boolean openDetailSetting;
-    private boolean useRadio;
-    private boolean useSonos;
-    private boolean showToast;
-    private int shareCount;
-    private boolean showOutlineHelp;
 
     public Integer getPlayerId() {
         return playerId;
@@ -217,54 +211,6 @@ public class PlayerSettingsCommand {
 
     public void setAdmin(boolean admin) {
         this.admin = admin;
-    }
-
-    public boolean isOpenDetailSetting() {
-        return openDetailSetting;
-    }
-
-    public void setOpenDetailSetting(boolean openDetailSetting) {
-        this.openDetailSetting = openDetailSetting;
-    }
-
-    public boolean isUseRadio() {
-        return useRadio;
-    }
-
-    public void setUseRadio(boolean useRadio) {
-        this.useRadio = useRadio;
-    }
-
-    public boolean isUseSonos() {
-        return useSonos;
-    }
-
-    public void setUseSonos(boolean useSonos) {
-        this.useSonos = useSonos;
-    }
-
-    public boolean isShowToast() {
-        return showToast;
-    }
-
-    public void setShowToast(boolean showToast) {
-        this.showToast = showToast;
-    }
-
-    public int getShareCount() {
-        return shareCount;
-    }
-
-    public void setShareCount(int shareCount) {
-        this.shareCount = shareCount;
-    }
-
-    public boolean isShowOutlineHelp() {
-        return showOutlineHelp;
-    }
-
-    public void setShowOutlineHelp(boolean showOutlineHelp) {
-        this.showOutlineHelp = showOutlineHelp;
     }
 
     /**
