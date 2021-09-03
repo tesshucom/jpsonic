@@ -37,25 +37,25 @@ import com.tesshu.jpsonic.domain.Transcoding;
  */
 public class PlayerSettingsCommand extends SettingsPageCommons {
 
+    private Player[] players;
     private Integer playerId;
+    private boolean admin;
+    private boolean anonymousTranscoding;
+    private boolean transcodingSupported;
+
+    // Player settings
+    private String type;
+    private String name;
     private boolean guest;
     private boolean anonymous;
-    private boolean anonymousTranscoding;
-    private String name;
-    private String description;
-    private String type;
-    private Date lastSeen;
+    private PlayerTechnology playerTechnology;
+    private TranscodeScheme transcodeScheme;
+    private List<Transcoding> allTranscodings;
+    private int[] activeTranscodingIds;
     private boolean dynamicIp;
     private boolean autoControlEnabled;
     private boolean m3uBomEnabled;
-    private PlayerTechnology playerTechnology;
-    private TranscodeScheme transcodeScheme;
-    private boolean transcodingSupported;
-    private String transcodeDirectory;
-    private List<Transcoding> allTranscodings;
-    private int[] activeTranscodingIds;
-    private Player[] players;
-    private boolean admin;
+    private Date lastSeen;
 
     public Integer getPlayerId() {
         return playerId;
@@ -95,14 +95,6 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public String getType() {
@@ -159,14 +151,6 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
 
     public void setTranscodingSupported(boolean transcodingSupported) {
         this.transcodingSupported = transcodingSupported;
-    }
-
-    public String getTranscodeDirectory() {
-        return transcodeDirectory;
-    }
-
-    public void setTranscodeDirectory(String transcodeDirectory) {
-        this.transcodeDirectory = transcodeDirectory;
     }
 
     public List<Transcoding> getAllTranscodings() {

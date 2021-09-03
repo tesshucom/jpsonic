@@ -90,26 +90,26 @@ public class MusicFolderSettingsController {
             mediaScannerService.expunge();
         }
 
-        // musicFolders
+        // Specify folder
         command.setMusicFolders(wrap(musicFolderService.getAllMusicFolders(true, true)));
         command.setNewMusicFolder(new MusicFolderSettingsCommand.MusicFolderInfo());
 
-        // scan
+        // Run a scan
+        command.setFullScanNext(
+                settingsService.isIgnoreFileTimestamps() || settingsService.isIgnoreFileTimestampsNext());
         command.setScanning(mediaScannerService.isScanning());
         command.setInterval(String.valueOf(settingsService.getIndexCreationInterval()));
         command.setHour(String.valueOf(settingsService.getIndexCreationHour()));
 
-        // exclusion
+        // Exclusion settings
         command.setExcludePatternString(settingsService.getExcludePatternString());
         command.setIgnoreSymLinks(settingsService.isIgnoreSymLinks());
 
-        // others
+        // Other operations
         command.setFastCache(settingsService.isFastCacheEnabled());
         command.setFileModifiedCheckScheme(
                 FileModifiedCheckScheme.valueOf(settingsService.getFileModifiedCheckSchemeName()));
         command.setIgnoreFileTimestamps(settingsService.isIgnoreFileTimestamps());
-        command.setFullScanNext(
-                settingsService.isIgnoreFileTimestamps() || settingsService.isIgnoreFileTimestampsNext());
         command.setIgnoreFileTimestampsForEachAlbum(settingsService.isIgnoreFileTimestampsForEachAlbum());
 
         // for view page control
@@ -139,7 +139,7 @@ public class MusicFolderSettingsController {
     protected ModelAndView post(@ModelAttribute(Attributes.Model.Command.VALUE) MusicFolderSettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
-        // musicFolders
+        // Specify folder
         for (MusicFolderSettingsCommand.MusicFolderInfo musicFolderInfo : command.getMusicFolders()) {
             if (musicFolderInfo.isDelete()) {
                 musicFolderService.deleteMusicFolder(musicFolderInfo.getId());
@@ -150,21 +150,20 @@ public class MusicFolderSettingsController {
                 }
             }
         }
-
         MusicFolder newMusicFolder = command.getNewMusicFolder().toMusicFolder();
         if (newMusicFolder != null) {
             musicFolderService.createMusicFolder(newMusicFolder);
         }
 
-        // scan
+        // Run a scan
         settingsService.setIndexCreationInterval(Integer.parseInt(command.getInterval()));
         settingsService.setIndexCreationHour(Integer.parseInt(command.getHour()));
 
-        // exclusion
+        // Exclusion settings
         settingsService.setExcludePatternString(command.getExcludePatternString());
         settingsService.setIgnoreSymLinks(command.isIgnoreSymLinks());
 
-        // others
+        // Other operations
         settingsService.setFastCacheEnabled(command.isFastCache());
         settingsService.setFileModifiedCheckSchemeName(command.getFileModifiedCheckScheme().name());
         settingsService
@@ -176,7 +175,9 @@ public class MusicFolderSettingsController {
 
         settingsService.save();
 
+        // for view page control
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
+
         return new ModelAndView(new RedirectView(ViewName.MUSIC_FOLDER_SETTINGS.value()));
     }
 }

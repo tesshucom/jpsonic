@@ -68,18 +68,28 @@ public class AdvancedSettingsController {
     }
 
     @GetMapping
-    protected String formBackingObject(HttpServletRequest request, Model model) {
+    protected String get(HttpServletRequest request, Model model) {
         AdvancedSettingsCommand command = new AdvancedSettingsCommand();
 
+        // Logging control
         command.setVerboseLogStart(settingsService.isVerboseLogStart());
         command.setVerboseLogScanning(settingsService.isVerboseLogScanning());
         command.setVerboseLogPlaying(settingsService.isVerboseLogPlaying());
         command.setVerboseLogShutdown(settingsService.isVerboseLogShutdown());
 
+        // Bandwidth control
         command.setDownloadLimit(String.valueOf(settingsService.getDownloadBitrateLimit()));
         command.setUploadLimit(String.valueOf(settingsService.getUploadBitrateLimit()));
         command.setBufferSize(String.valueOf(settingsService.getBufferSize()));
 
+        // Email notification
+        command.setSmtpFrom(settingsService.getSmtpFrom());
+        command.setSmtpServer(settingsService.getSmtpServer());
+        command.setSmtpPort(settingsService.getSmtpPort());
+        command.setSmtpEncryption(settingsService.getSmtpEncryption());
+        command.setSmtpUser(settingsService.getSmtpUser());
+
+        // LDAP authentication
         command.setLdapEnabled(settingsService.isLdapEnabled());
         command.setLdapUrl(settingsService.getLdapUrl());
         command.setLdapSearchFilter(settingsService.getLdapSearchFilter());
@@ -87,18 +97,14 @@ public class AdvancedSettingsController {
         command.setLdapAutoShadowing(settingsService.isLdapAutoShadowing());
         command.setBrand(SettingsService.getBrand());
 
-        command.setSmtpServer(settingsService.getSmtpServer());
-        command.setSmtpEncryption(settingsService.getSmtpEncryption());
-        command.setSmtpPort(settingsService.getSmtpPort());
-        command.setSmtpUser(settingsService.getSmtpUser());
-        command.setSmtpFrom(settingsService.getSmtpFrom());
-
+        // Account recovery assistant
         command.setCaptchaEnabled(settingsService.isCaptchaEnabled());
         command.setRecaptchaSiteKey(settingsService.getRecaptchaSiteKey());
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
         command.setShareCount(shareService.getAllShares().size());
 
+        // for view page control
         User user = securityService.getCurrentUser(request);
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
@@ -109,18 +115,16 @@ public class AdvancedSettingsController {
     }
 
     @PostMapping
-    protected ModelAndView doSubmitAction(
-            @ModelAttribute(Attributes.Model.Command.VALUE) AdvancedSettingsCommand command,
+    protected ModelAndView post(@ModelAttribute(Attributes.Model.Command.VALUE) AdvancedSettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
-        redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), false);
-        redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
-
+        // Logging control
         settingsService.setVerboseLogStart(command.isVerboseLogStart());
         settingsService.setVerboseLogScanning(command.isVerboseLogScanning());
         settingsService.setVerboseLogPlaying(command.isVerboseLogPlaying());
         settingsService.setVerboseLogShutdown(command.isVerboseLogShutdown());
 
+        // Bandwidth control
         try {
             settingsService.setDownloadBitrateLimit(Long.parseLong(command.getDownloadLimit()));
             settingsService.setUploadBitrateLimit(Long.parseLong(command.getUploadLimit()));
@@ -130,26 +134,28 @@ public class AdvancedSettingsController {
                 LOG.error("Error in parse of bitrateLimit or bufferSize.", e);
             }
         }
-        settingsService.setLdapEnabled(command.isLdapEnabled());
-        settingsService.setLdapUrl(command.getLdapUrl());
-        settingsService.setLdapSearchFilter(command.getLdapSearchFilter());
-        settingsService.setLdapManagerDn(command.getLdapManagerDn());
-        settingsService.setLdapAutoShadowing(command.isLdapAutoShadowing());
 
-        if (StringUtils.isNotEmpty(command.getLdapManagerPassword())) {
-            settingsService.setLdapManagerPassword(command.getLdapManagerPassword());
-        }
-
-        settingsService.setSmtpServer(command.getSmtpServer());
-        settingsService.setSmtpEncryption(command.getSmtpEncryption());
-        settingsService.setSmtpPort(command.getSmtpPort());
-        settingsService.setSmtpUser(command.getSmtpUser());
+        // Email notification
         settingsService.setSmtpFrom(command.getSmtpFrom());
-
+        settingsService.setSmtpServer(command.getSmtpServer());
+        settingsService.setSmtpPort(command.getSmtpPort());
+        settingsService.setSmtpEncryption(command.getSmtpEncryption());
+        settingsService.setSmtpUser(command.getSmtpUser());
         if (StringUtils.isNotEmpty(command.getSmtpPassword())) {
             settingsService.setSmtpPassword(command.getSmtpPassword());
         }
 
+        // LDAP authentication
+        settingsService.setLdapEnabled(command.isLdapEnabled());
+        settingsService.setLdapUrl(command.getLdapUrl());
+        settingsService.setLdapSearchFilter(command.getLdapSearchFilter());
+        settingsService.setLdapManagerDn(command.getLdapManagerDn());
+        if (StringUtils.isNotEmpty(command.getLdapManagerPassword())) {
+            settingsService.setLdapManagerPassword(command.getLdapManagerPassword());
+        }
+        settingsService.setLdapAutoShadowing(command.isLdapAutoShadowing());
+
+        // Account recovery assistant
         settingsService.setCaptchaEnabled(command.isCaptchaEnabled());
         settingsService.setRecaptchaSiteKey(command.getRecaptchaSiteKey());
         if (StringUtils.isNotEmpty(command.getRecaptchaSecretKey())) {
@@ -158,7 +164,10 @@ public class AdvancedSettingsController {
 
         settingsService.save();
 
+        // for view page control
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), false);
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
+
         return new ModelAndView(new RedirectView(ViewName.ADVANCED_SETTINGS.value()));
     }
-
 }

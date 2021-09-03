@@ -31,19 +31,19 @@ import com.tesshu.jpsonic.domain.Theme;
  */
 public class GeneralSettingsCommand extends SettingsPageCommons {
 
-    // theme and language
+    // Language and theme
     private Theme[] themes;
     private String themeIndex;
     private String[] locales;
     private String localeIndex;
 
-    // index settings
+    // Index settings
     private String defaultIndexString;
     private String simpleIndexString;
     private String index;
     private String ignoredArticles;
 
-    // sort settings
+    // Sort settings
     private boolean sortAlbumsByYear;
     private boolean sortGenresByAlphabet;
     private boolean prohibitSortVarious;
@@ -55,11 +55,11 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean defaultSortAlphanum;
     private boolean defaultSortStrict;
 
-    // search settings
+    // Search settings
     private boolean searchComposer;
     private boolean outputSearchQuery;
 
-    // deprecated
+    // Suppressed legacy features
     private boolean showServerLog;
     private boolean showStatus;
     private boolean othersPlayingEnabled;
@@ -69,14 +69,14 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean searchMethodChanged;
     private boolean anonymousTranscoding;
 
-    // shortcuts
+    // Extensions and shortcuts
     private String musicFileTypes;
     private String videoFileTypes;
     private String coverArtFileTypes;
     private String playlistFolder;
     private String shortcuts;
 
-    // welcomme
+    // Welcom message
     private boolean gettingStartedEnabled;
     private String welcomeTitle;
     private String welcomeSubtitle;

@@ -66,15 +66,18 @@ public class DatabaseSettingsController {
 
     @ModelAttribute
     protected void formBackingObject(HttpServletRequest request, Model model) {
+
         DatabaseSettingsCommand command = new DatabaseSettingsCommand();
         command.setConfigType(settingsService.getDatabaseConfigType());
         command.setEmbedDriver(settingsService.getDatabaseConfigEmbedDriver());
-        command.setEmbedPassword(settingsService.getDatabaseConfigEmbedPassword());
         command.setEmbedUrl(settingsService.getDatabaseConfigEmbedUrl());
         command.setEmbedUsername(settingsService.getDatabaseConfigEmbedUsername());
+        command.setEmbedPassword(settingsService.getDatabaseConfigEmbedPassword());
         command.setJNDIName(settingsService.getDatabaseConfigJNDIName());
         command.setMysqlVarcharMaxlength(settingsService.getDatabaseMysqlVarcharMaxlength());
         command.setUsertableQuote(settingsService.getDatabaseUsertableQuote());
+
+        // for view page control
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
         command.setShareCount(shareService.getAllShares().size());
@@ -95,8 +98,8 @@ public class DatabaseSettingsController {
             switch (command.getConfigType()) {
             case EMBED:
                 settingsService.setDatabaseConfigEmbedDriver(command.getEmbedDriver());
-                settingsService.setDatabaseConfigEmbedPassword(command.getEmbedPassword());
                 settingsService.setDatabaseConfigEmbedUrl(command.getEmbedUrl());
+                settingsService.setDatabaseConfigEmbedPassword(command.getEmbedPassword());
                 settingsService.setDatabaseConfigEmbedUsername(command.getEmbedUsername());
                 break;
             case JNDI:
