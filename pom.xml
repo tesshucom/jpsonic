@@ -865,13 +865,13 @@
 
                         Or run alone.
                     -->
-                    com.tesshu.jpsonic.dao.JMediaFileDaoGuessPersonsSortsTest,
                     com.tesshu.jpsonic.domain.JpsonicComparatorsIntegrationTest,
                     com.tesshu.jpsonic.service.MediaScannerServiceUpdateAlbumTest,
                     com.tesshu.jpsonic.service.MediaScannerServiceUtilsUpdateSortOfAlbumTest,
                     com.tesshu.jpsonic.service.MediaScannerServiceUtilsCompensateSortOfArtistTest,
                     com.tesshu.jpsonic.service.MediaScannerServiceUtilsCopySortOfArtistTest,
                     com.tesshu.jpsonic.service.MediaScannerServiceUtilsMergeSortOfArtistTest,
+                    com.tesshu.jpsonic.service.MediaScannerServiceGetChildrenOfTest,
                     **/Abstract*Test.java
                 </test.excludes>
             </properties>
