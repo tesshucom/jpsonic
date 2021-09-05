@@ -22,10 +22,10 @@ package com.tesshu.jpsonic.controller;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.command.DLNASettingsCommand;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,33 +60,33 @@ class DLNASettingsControllerTest {
 
     @Test
     @WithMockUser(username = ADMIN_NAME)
-    void testHandleGet() throws Exception {
+    void testGet() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.DLNA_SETTINGS.value()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals(VIEW_NAME, modelAndView.getViewName());
 
-        @SuppressWarnings("unchecked")
-        Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get("model");
-        assertNotNull(model);
+        DLNASettingsCommand command = (DLNASettingsCommand) modelAndView.getModelMap()
+                .get(Attributes.Model.Command.VALUE);
+        assertNotNull(command);
     }
 
     @Test
     @WithMockUser(username = ADMIN_NAME)
-    void testHandlePost() throws Exception {
+    void testPost() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.DLNA_SETTINGS.value()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals(VIEW_NAME, modelAndView.getViewName());
 
-        @SuppressWarnings("unchecked")
-        Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get("model");
-        assertNotNull(model);
+        DLNASettingsCommand command = (DLNASettingsCommand) modelAndView.getModelMap()
+                .get(Attributes.Model.Command.VALUE);
+        assertNotNull(command);
 
         result = mockMvc
-                .perform(MockMvcRequestBuilders.post("/" + ViewName.DLNA_SETTINGS.value()).flashAttr("model", model))
+                .perform(MockMvcRequestBuilders.post("/" + ViewName.DLNA_SETTINGS.value()).flashAttr("model", command))
                 .andExpect(MockMvcResultMatchers.status().isFound())
                 .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.DLNA_SETTINGS.value()))
                 .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
