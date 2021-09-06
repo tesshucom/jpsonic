@@ -35,114 +35,37 @@ import com.tesshu.jpsonic.domain.User;
  */
 public class UserSettingsCommand extends SettingsPageCommons {
 
-    private String username;
-    private boolean adminRole;
-    private boolean downloadRole;
-    private boolean uploadRole;
-    private boolean coverArtRole;
-    private boolean commentRole;
-    private boolean podcastRole;
-    private boolean streamRole;
-    private boolean settingsRole;
-    private boolean shareRole;
-
     private List<User> users;
-    private boolean admin;
     private boolean currentUser;
-    private boolean passwordChange;
+    private boolean admin;
+
+    // User creation
     private boolean newUser;
-    private boolean deleteUser;
+    private boolean ldapEnabled;
+    private boolean ldapAuthenticated;
+    private String username;
     private String password;
     private String confirmPassword;
     private String email;
-    private boolean ldapAuthenticated;
-    private boolean ldapEnabled;
+    private boolean adminRole;
     private List<MusicFolder> allMusicFolders;
     private int[] allowedMusicFolderIds;
-
     private TranscodeScheme transcodeScheme;
     private boolean transcodingSupported;
-    private String transcodeDirectory;
+    private boolean settingsRole;
+    private boolean streamRole;
+    private boolean downloadRole;
+    private boolean uploadRole;
+    private boolean shareRole;
+    private boolean coverArtRole;
+    private boolean commentRole;
+    private boolean podcastRole;
 
-    public String getUsername() {
-        return username;
-    }
+    // User update
+    private boolean passwordChange;
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public boolean isAdminRole() {
-        return adminRole;
-    }
-
-    public void setAdminRole(boolean adminRole) {
-        this.adminRole = adminRole;
-    }
-
-    public boolean isDownloadRole() {
-        return downloadRole;
-    }
-
-    public void setDownloadRole(boolean downloadRole) {
-        this.downloadRole = downloadRole;
-    }
-
-    public boolean isUploadRole() {
-        return uploadRole;
-    }
-
-    public void setUploadRole(boolean uploadRole) {
-        this.uploadRole = uploadRole;
-    }
-
-    public boolean isCoverArtRole() {
-        return coverArtRole;
-    }
-
-    public void setCoverArtRole(boolean coverArtRole) {
-        this.coverArtRole = coverArtRole;
-    }
-
-    public boolean isCommentRole() {
-        return commentRole;
-    }
-
-    public void setCommentRole(boolean commentRole) {
-        this.commentRole = commentRole;
-    }
-
-    public boolean isPodcastRole() {
-        return podcastRole;
-    }
-
-    public void setPodcastRole(boolean podcastRole) {
-        this.podcastRole = podcastRole;
-    }
-
-    public boolean isStreamRole() {
-        return streamRole;
-    }
-
-    public void setStreamRole(boolean streamRole) {
-        this.streamRole = streamRole;
-    }
-
-    public boolean isSettingsRole() {
-        return settingsRole;
-    }
-
-    public void setSettingsRole(boolean settingsRole) {
-        this.settingsRole = settingsRole;
-    }
-
-    public boolean isShareRole() {
-        return shareRole;
-    }
-
-    public void setShareRole(boolean shareRole) {
-        this.shareRole = shareRole;
-    }
+    // User delete
+    private boolean deleteUser;
 
     public List<User> getUsers() {
         return users;
@@ -150,14 +73,6 @@ public class UserSettingsCommand extends SettingsPageCommons {
 
     public void setUsers(List<User> users) {
         this.users = users;
-    }
-
-    public boolean isAdmin() {
-        return admin;
-    }
-
-    public void setAdmin(boolean admin) {
-        this.admin = admin;
     }
 
     public boolean isCurrentUser() {
@@ -168,12 +83,19 @@ public class UserSettingsCommand extends SettingsPageCommons {
         this.currentUser = currentUser;
     }
 
-    public boolean isPasswordChange() {
-        return passwordChange;
-    }
-
-    public void setPasswordChange(boolean passwordChange) {
-        this.passwordChange = passwordChange;
+    public void setUser(User user) {
+        username = user == null ? null : user.getUsername();
+        adminRole = user != null && user.isAdminRole();
+        downloadRole = user != null && user.isDownloadRole();
+        uploadRole = user != null && user.isUploadRole();
+        coverArtRole = user != null && user.isCoverArtRole();
+        commentRole = user != null && user.isCommentRole();
+        podcastRole = user != null && user.isPodcastRole();
+        streamRole = user != null && user.isStreamRole();
+        settingsRole = user != null && user.isSettingsRole();
+        shareRole = user != null && user.isShareRole();
+        ldapAuthenticated = user != null && user.isLdapAuthenticated();
+        newUser = false;
     }
 
     public boolean isNewUser() {
@@ -184,12 +106,28 @@ public class UserSettingsCommand extends SettingsPageCommons {
         this.newUser = isNewUser;
     }
 
-    public boolean isDeleteUser() {
-        return deleteUser;
+    public boolean isLdapEnabled() {
+        return ldapEnabled;
     }
 
-    public void setDeleteUser(boolean deleteUser) {
-        this.deleteUser = deleteUser;
+    public void setLdapEnabled(boolean ldapEnabled) {
+        this.ldapEnabled = ldapEnabled;
+    }
+
+    public boolean isLdapAuthenticated() {
+        return ldapAuthenticated;
+    }
+
+    public void setLdapAuthenticated(boolean ldapAuthenticated) {
+        this.ldapAuthenticated = ldapAuthenticated;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
@@ -216,20 +154,12 @@ public class UserSettingsCommand extends SettingsPageCommons {
         this.email = email;
     }
 
-    public boolean isLdapAuthenticated() {
-        return ldapAuthenticated;
+    public boolean isAdminRole() {
+        return adminRole;
     }
 
-    public void setLdapAuthenticated(boolean ldapAuthenticated) {
-        this.ldapAuthenticated = ldapAuthenticated;
-    }
-
-    public boolean isLdapEnabled() {
-        return ldapEnabled;
-    }
-
-    public void setLdapEnabled(boolean ldapEnabled) {
-        this.ldapEnabled = ldapEnabled;
+    public void setAdminRole(boolean adminRole) {
+        this.adminRole = adminRole;
     }
 
     public List<MusicFolder> getAllMusicFolders() {
@@ -266,26 +196,92 @@ public class UserSettingsCommand extends SettingsPageCommons {
         this.transcodingSupported = transcodingSupported;
     }
 
-    public String getTranscodeDirectory() {
-        return transcodeDirectory;
+    public boolean isSettingsRole() {
+        return settingsRole;
     }
 
-    public void setTranscodeDirectory(String transcodeDirectory) {
-        this.transcodeDirectory = transcodeDirectory;
+    public void setSettingsRole(boolean settingsRole) {
+        this.settingsRole = settingsRole;
     }
 
-    public void setUser(User user) {
-        username = user == null ? null : user.getUsername();
-        adminRole = user != null && user.isAdminRole();
-        downloadRole = user != null && user.isDownloadRole();
-        uploadRole = user != null && user.isUploadRole();
-        coverArtRole = user != null && user.isCoverArtRole();
-        commentRole = user != null && user.isCommentRole();
-        podcastRole = user != null && user.isPodcastRole();
-        streamRole = user != null && user.isStreamRole();
-        settingsRole = user != null && user.isSettingsRole();
-        shareRole = user != null && user.isShareRole();
-        ldapAuthenticated = user != null && user.isLdapAuthenticated();
-        newUser = false;
+    public boolean isStreamRole() {
+        return streamRole;
     }
+
+    public void setStreamRole(boolean streamRole) {
+        this.streamRole = streamRole;
+    }
+
+    public boolean isDownloadRole() {
+        return downloadRole;
+    }
+
+    public void setDownloadRole(boolean downloadRole) {
+        this.downloadRole = downloadRole;
+    }
+
+    public boolean isUploadRole() {
+        return uploadRole;
+    }
+
+    public void setUploadRole(boolean uploadRole) {
+        this.uploadRole = uploadRole;
+    }
+
+    public boolean isShareRole() {
+        return shareRole;
+    }
+
+    public void setShareRole(boolean shareRole) {
+        this.shareRole = shareRole;
+    }
+
+    public boolean isCoverArtRole() {
+        return coverArtRole;
+    }
+
+    public void setCoverArtRole(boolean coverArtRole) {
+        this.coverArtRole = coverArtRole;
+    }
+
+    public boolean isCommentRole() {
+        return commentRole;
+    }
+
+    public void setCommentRole(boolean commentRole) {
+        this.commentRole = commentRole;
+    }
+
+    public boolean isPodcastRole() {
+        return podcastRole;
+    }
+
+    public void setPodcastRole(boolean podcastRole) {
+        this.podcastRole = podcastRole;
+    }
+
+    public boolean isPasswordChange() {
+        return passwordChange;
+    }
+
+    public void setPasswordChange(boolean passwordChange) {
+        this.passwordChange = passwordChange;
+    }
+
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
+    }
+
+    public boolean isDeleteUser() {
+        return deleteUser;
+    }
+
+    public void setDeleteUser(boolean deleteUser) {
+        this.deleteUser = deleteUser;
+    }
+
 }

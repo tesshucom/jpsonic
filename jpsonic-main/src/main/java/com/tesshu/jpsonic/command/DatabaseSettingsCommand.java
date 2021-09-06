@@ -29,10 +29,11 @@ public class DatabaseSettingsCommand extends SettingsPageCommons {
 
     @NotNull
     private DataSourceConfigType configType;
+
     private String embedDriver;
-    private String embedPassword;
     private String embedUrl;
     private String embedUsername;
+    private String embedPassword;
     private String jndiName;
     private int mysqlVarcharMaxlength;
     private String usertableQuote;
@@ -53,14 +54,6 @@ public class DatabaseSettingsCommand extends SettingsPageCommons {
         this.embedDriver = embedDriver;
     }
 
-    public String getEmbedPassword() {
-        return embedPassword;
-    }
-
-    public void setEmbedPassword(String embedPassword) {
-        this.embedPassword = embedPassword;
-    }
-
     public String getEmbedUrl() {
         return embedUrl;
     }
@@ -75,6 +68,14 @@ public class DatabaseSettingsCommand extends SettingsPageCommons {
 
     public void setEmbedUsername(String embedUsername) {
         this.embedUsername = embedUsername;
+    }
+
+    public String getEmbedPassword() {
+        return embedPassword;
+    }
+
+    public void setEmbedPassword(String embedPassword) {
+        this.embedPassword = embedPassword;
     }
 
     public String getJNDIName() {

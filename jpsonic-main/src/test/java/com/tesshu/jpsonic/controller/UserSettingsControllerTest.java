@@ -60,7 +60,7 @@ class UserSettingsControllerTest {
 
     @Test
     @WithMockUser(username = ADMIN_NAME)
-    void testFormBackingObject() throws Exception {
+    void testGet() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.USER_SETTINGS.value()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
@@ -74,7 +74,7 @@ class UserSettingsControllerTest {
 
     @Test
     @WithMockUser(username = ADMIN_NAME)
-    void testDoSubmitAction() throws Exception {
+    void testPost() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.USER_SETTINGS.value()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);

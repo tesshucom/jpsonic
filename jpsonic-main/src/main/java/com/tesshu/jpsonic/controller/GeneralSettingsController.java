@@ -88,35 +88,32 @@ public class GeneralSettingsController {
             @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) {
         GeneralSettingsCommand command = new GeneralSettingsCommand();
 
-        // theme and language
+        // Language and theme
         List<Theme> themes = SettingsService.getAvailableThemes();
         command.setThemes(themes.toArray(new Theme[0]));
-        String currentThemeId = settingsService.getThemeId();
         for (int i = 0; i < themes.size(); i++) {
-            if (currentThemeId.equals(themes.get(i).getId())) {
+            if (settingsService.getThemeId().equals(themes.get(i).getId())) {
                 command.setThemeIndex(String.valueOf(i));
                 break;
             }
         }
-        Locale currentLocale = settingsService.getLocale();
         Locale[] locales = settingsService.getAvailableLocales();
         String[] localeStrings = new String[locales.length];
         for (int i = 0; i < locales.length; i++) {
             localeStrings[i] = locales[i].getDisplayName(locales[i]);
-
-            if (currentLocale.equals(locales[i])) {
+            if (settingsService.getLocale().equals(locales[i])) {
                 command.setLocaleIndex(String.valueOf(i));
             }
         }
         command.setLocales(localeStrings);
 
-        // index settings
+        // Index settings
         command.setDefaultIndexString(SettingsService.getDefaultIndexString());
         command.setSimpleIndexString(SIMPLE_INDEX_STRING);
         command.setIndex(settingsService.getIndexString());
         command.setIgnoredArticles(settingsService.getIgnoredArticles());
 
-        // sort settings
+        // Sort settings
         command.setSortAlbumsByYear(settingsService.isSortAlbumsByYear());
         command.setSortGenresByAlphabet(settingsService.isSortGenresByAlphabet());
         command.setProhibitSortVarious(settingsService.isProhibitSortVarious());
@@ -128,29 +125,27 @@ public class GeneralSettingsController {
         command.setDefaultSortAlphanum(SettingsService.isDefaultSortAlphanum());
         command.setDefaultSortStrict(SettingsService.isDefaultSortStrict());
 
-        // search settings
+        // Search settings
         command.setSearchComposer(settingsService.isSearchComposer());
         command.setOutputSearchQuery(settingsService.isOutputSearchQuery());
 
-        // deprecated
+        // Suppressed legacy features
         command.setShowServerLog(settingsService.isShowServerLog());
         command.setShowStatus(settingsService.isShowStatus());
         command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
         command.setShowRememberMe(settingsService.isShowRememberMe());
         command.setPublishPodcast(settingsService.isPublishPodcast());
-        command.setUseRadio(settingsService.isUseRadio());
-        command.setUseSonos(settingsService.isUseSonos());
         command.setSearchMethodLegacy(settingsService.isSearchMethodLegacy());
         command.setAnonymousTranscoding(settingsService.isAnonymousTranscoding());
 
-        // shortcuts
+        // Extensions and shortcuts
         command.setMusicFileTypes(settingsService.getMusicFileTypes());
         command.setVideoFileTypes(settingsService.getVideoFileTypes());
         command.setCoverArtFileTypes(settingsService.getCoverArtFileTypes());
         command.setPlaylistFolder(settingsService.getPlaylistFolder());
         command.setShortcuts(settingsService.getShortcuts());
 
-        // welcomme
+        // Welcom message
         command.setGettingStartedEnabled(settingsService.isGettingStartedEnabled());
         command.setWelcomeTitle(settingsService.getWelcomeTitle());
         command.setWelcomeSubtitle(settingsService.getWelcomeSubtitle());
@@ -158,6 +153,8 @@ public class GeneralSettingsController {
         command.setLoginMessage(settingsService.getLoginMessage());
 
         // for view page control
+        command.setUseRadio(settingsService.isUseRadio());
+        command.setUseSonos(settingsService.isUseSonos());
         User user = securityService.getCurrentUser(request);
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         toast.ifPresent(command::setShowToast);
@@ -177,7 +174,7 @@ public class GeneralSettingsController {
     protected ModelAndView post(@ModelAttribute(Attributes.Model.Command.VALUE) GeneralSettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
-        // theme and language
+        // Language and theme
         int themeIndex = Integer.parseInt(command.getThemeIndex());
         Theme theme = SettingsService.getAvailableThemes().get(themeIndex);
         int localeIndex = Integer.parseInt(command.getLocaleIndex());
@@ -197,31 +194,28 @@ public class GeneralSettingsController {
         settingsService.setThemeId(theme.getId());
         settingsService.setLocale(locale);
 
-        // index settings
+        // Index settings
         settingsService.setIndexString(command.getIndex());
         settingsService.setIgnoredArticles(command.getIgnoredArticles());
 
-        // sort settings
+        // Sort settings
         settingsService.setSortAlbumsByYear(command.isSortAlbumsByYear());
         settingsService.setSortGenresByAlphabet(command.isSortGenresByAlphabet());
         settingsService.setProhibitSortVarious(command.isProhibitSortVarious());
         settingsService.setSortAlphanum(command.isSortAlphanum());
         settingsService.setSortStrict(command.isSortStrict());
 
-        // search settings
+        // Search settings
         settingsService.setSearchComposer(command.isSearchComposer());
         settingsService.setOutputSearchQuery(command.isOutputSearchQuery());
 
-        // deprecated
+        // Suppressed legacy features
         settingsService.setShowServerLog(command.isShowServerLog());
         settingsService.setShowStatus(command.isShowStatus());
         settingsService.setOthersPlayingEnabled(command.isOthersPlayingEnabled());
         settingsService.setShowRememberMe(command.isShowRememberMe());
         settingsService.setPublishPodcast(command.isPublishPodcast());
-        settingsService.setUseRadio(command.isUseRadio());
-        settingsService.setUseSonos(command.isUseSonos());
         settingsService.setSearchMethodLegacy(command.isSearchMethodLegacy());
-        settingsService.setAnonymousTranscoding(command.isAnonymousTranscoding());
 
         /*
          * If this item is changed, the search index will need to be rebuilt.
@@ -231,14 +225,16 @@ public class GeneralSettingsController {
         settingsService
                 .setSearchMethodChanged(settingsService.isSearchMethodLegacy() != command.isSearchMethodLegacy());
 
-        // shortcuts
+        settingsService.setAnonymousTranscoding(command.isAnonymousTranscoding());
+
+        // Extensions and shortcuts
         settingsService.setMusicFileTypes(command.getMusicFileTypes());
         settingsService.setVideoFileTypes(command.getVideoFileTypes());
         settingsService.setCoverArtFileTypes(command.getCoverArtFileTypes());
         settingsService.setPlaylistFolder(command.getPlaylistFolder());
         settingsService.setShortcuts(command.getShortcuts());
 
-        // welcomme
+        // Welcom message
         settingsService.setGettingStartedEnabled(command.isGettingStartedEnabled());
         settingsService.setWelcomeTitle(command.getWelcomeTitle());
         settingsService.setWelcomeSubtitle(command.getWelcomeSubtitle());
@@ -248,8 +244,8 @@ public class GeneralSettingsController {
         settingsService.save();
 
         // for view page control
-
-        // Updates that do not reload are normal transition and toast messages
+        settingsService.setUseRadio(command.isUseRadio());
+        settingsService.setUseSonos(command.isUseSonos());
         if (!isReload) {
             redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
         }

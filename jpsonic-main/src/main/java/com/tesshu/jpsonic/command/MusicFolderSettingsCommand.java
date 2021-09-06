@@ -37,24 +37,24 @@ import org.apache.commons.lang.StringUtils;
  */
 public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
-    // musicFolders
+    // Specify folder
     private List<MusicFolderInfo> musicFolders;
     private MusicFolderInfo newMusicFolder;
 
-    // scan
+    // Run a scan
+    private boolean fullScanNext;
     private boolean scanning;
     private String interval;
     private String hour;
 
-    // exclusion
+    // Exclusion settings
     private String excludePatternString;
     private boolean ignoreSymLinks;
 
-    // others
+    // Other operations
     private boolean fastCache;
     private FileModifiedCheckScheme fileModifiedCheckScheme;
     private boolean ignoreFileTimestamps;
-    private boolean fullScanNext;
     private boolean ignoreFileTimestampsForEachAlbum;
 
     public List<MusicFolderInfo> getMusicFolders() {
@@ -71,6 +71,14 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
     public void setNewMusicFolder(MusicFolderInfo newMusicFolder) {
         this.newMusicFolder = newMusicFolder;
+    }
+
+    public boolean isFullScanNext() {
+        return fullScanNext;
+    }
+
+    public void setFullScanNext(boolean fullScanNext) {
+        this.fullScanNext = fullScanNext;
     }
 
     public boolean isScanning() {
@@ -135,14 +143,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
     public void setIgnoreFileTimestamps(boolean ignoreFileTimes) {
         this.ignoreFileTimestamps = ignoreFileTimes;
-    }
-
-    public boolean isFullScanNext() {
-        return fullScanNext;
-    }
-
-    public void setFullScanNext(boolean fullScanNext) {
-        this.fullScanNext = fullScanNext;
     }
 
     public boolean isIgnoreFileTimestampsForEachAlbum() {

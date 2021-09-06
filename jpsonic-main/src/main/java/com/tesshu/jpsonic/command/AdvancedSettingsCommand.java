@@ -30,15 +30,26 @@ import com.tesshu.jpsonic.controller.AdvancedSettingsController;
  */
 public class AdvancedSettingsCommand extends SettingsPageCommons {
 
+    // Logging control
     private boolean verboseLogStart;
     private boolean verboseLogScanning;
     private boolean verboseLogPlaying;
     private boolean verboseLogShutdown;
 
+    // Bandwidth control
     private String downloadLimit;
     private String uploadLimit;
     private String bufferSize;
 
+    // Email notification
+    private String smtpFrom;
+    private String smtpServer;
+    private String smtpPort;
+    private String smtpEncryption;
+    private String smtpUser;
+    private String smtpPassword;
+
+    // LDAP authentication
     private boolean ldapEnabled;
     private String ldapUrl;
     private String ldapSearchFilter;
@@ -47,13 +58,7 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
     private boolean ldapAutoShadowing;
     private String brand;
 
-    private String smtpServer;
-    private String smtpEncryption;
-    private String smtpPort;
-    private String smtpUser;
-    private String smtpPassword;
-    private String smtpFrom;
-
+    // Account recovery assistant
     private boolean captchaEnabled;
     private String recaptchaSiteKey;
     private String recaptchaSecretKey;
@@ -114,6 +119,54 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
         this.bufferSize = bufferSize;
     }
 
+    public String getSmtpFrom() {
+        return smtpFrom;
+    }
+
+    public void setSmtpFrom(String smtpFrom) {
+        this.smtpFrom = smtpFrom;
+    }
+
+    public String getSmtpServer() {
+        return smtpServer;
+    }
+
+    public void setSmtpServer(String smtpServer) {
+        this.smtpServer = smtpServer;
+    }
+
+    public String getSmtpPort() {
+        return smtpPort;
+    }
+
+    public void setSmtpPort(String smtpPort) {
+        this.smtpPort = smtpPort;
+    }
+
+    public String getSmtpEncryption() {
+        return smtpEncryption;
+    }
+
+    public void setSmtpEncryption(String smtpEncryption) {
+        this.smtpEncryption = smtpEncryption;
+    }
+
+    public String getSmtpUser() {
+        return smtpUser;
+    }
+
+    public void setSmtpUser(String smtpUser) {
+        this.smtpUser = smtpUser;
+    }
+
+    public String getSmtpPassword() {
+        return smtpPassword;
+    }
+
+    public void setSmtpPassword(String smtpPassword) {
+        this.smtpPassword = smtpPassword;
+    }
+
     public boolean isLdapEnabled() {
         return ldapEnabled;
     }
@@ -168,54 +221,6 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
 
     public String getBrand() {
         return brand;
-    }
-
-    public String getSmtpServer() {
-        return smtpServer;
-    }
-
-    public void setSmtpServer(String smtpServer) {
-        this.smtpServer = smtpServer;
-    }
-
-    public String getSmtpEncryption() {
-        return smtpEncryption;
-    }
-
-    public void setSmtpEncryption(String smtpEncryption) {
-        this.smtpEncryption = smtpEncryption;
-    }
-
-    public String getSmtpPort() {
-        return smtpPort;
-    }
-
-    public void setSmtpPort(String smtpPort) {
-        this.smtpPort = smtpPort;
-    }
-
-    public String getSmtpUser() {
-        return smtpUser;
-    }
-
-    public void setSmtpUser(String smtpUser) {
-        this.smtpUser = smtpUser;
-    }
-
-    public String getSmtpPassword() {
-        return smtpPassword;
-    }
-
-    public void setSmtpPassword(String smtpPassword) {
-        this.smtpPassword = smtpPassword;
-    }
-
-    public String getSmtpFrom() {
-        return smtpFrom;
-    }
-
-    public void setSmtpFrom(String smtpFrom) {
-        this.smtpFrom = smtpFrom;
     }
 
     public boolean isCaptchaEnabled() {
