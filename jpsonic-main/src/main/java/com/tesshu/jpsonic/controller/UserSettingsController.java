@@ -131,7 +131,7 @@ public class UserSettingsController {
     }
 
     private User getUser(HttpServletRequest request) throws ServletRequestBindingException {
-        Integer userIndex = ServletRequestUtils.getIntParameter(request, Attributes.Request.USER_INDEX.value());
+        Integer userIndex = ServletRequestUtils.getIntParameter(request, Attributes.Redirect.USER_INDEX.value());
         if (userIndex != null) {
             List<User> allUsers = securityService.getAllUsers();
             if (userIndex >= 0 && userIndex < allUsers.size()) {
@@ -159,7 +159,6 @@ public class UserSettingsController {
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute(Attributes.Redirect.COMMAND.value(), command);
             redirectAttributes.addFlashAttribute(Attributes.Redirect.BINDING_RESULT.value(), bindingResult);
-            redirectAttributes.addFlashAttribute(Attributes.Redirect.USER_INDEX.value(), getUserIndex(command));
         } else {
             if (command.isDeleteUser()) {
                 deleteUser(command);
@@ -170,13 +169,17 @@ public class UserSettingsController {
             }
             redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
         }
+
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.USER_INDEX.value(),
+                getUserIndex(command.getUsername()));
+
         return new ModelAndView(new RedirectView(ViewName.USER_SETTINGS.value()));
     }
 
-    private Integer getUserIndex(UserSettingsCommand command) {
+    private Integer getUserIndex(String userName) {
         List<User> allUsers = securityService.getAllUsers();
         for (int i = 0; i < allUsers.size(); i++) {
-            if (StringUtils.equalsIgnoreCase(allUsers.get(i).getUsername(), command.getUsername())) {
+            if (StringUtils.equalsIgnoreCase(allUsers.get(i).getUsername(), userName)) {
                 return i;
             }
         }

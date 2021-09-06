@@ -7,11 +7,11 @@
     <%@ page import="com.tesshu.jpsonic.domain.TranscodeScheme" %>
     <script src="<c:url value='/script/utils.js'/>"></script>
     <script>
+        <c:if test="${settings_reload}">
+            window.top.reloadUpper('userSettings.view', '${userIndex}');
+        </c:if>
         function init() {
             enablePasswordChangeFields();
-            <c:if test="${settings_reload}">
-              window.top.reloadUpper("userSettings.view");
-            </c:if>
         }
         function enablePasswordChangeFields() {
             var changePasswordCheckbox = $("#passwordChange");
