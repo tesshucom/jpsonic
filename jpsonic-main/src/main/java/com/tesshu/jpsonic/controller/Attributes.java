@@ -68,7 +68,7 @@ public class Attributes {
 
         BINDING_RESULT("org.springframework.validation.BindingResult.command"), COMMAND("command"), ERROR("error"),
         MODEL("model"), NEW_TRANSCODING("newTranscoding"), RELOAD_FLAG("settings_reload"), TOAST_FLAG("settings_toast"),
-        USER_INDEX("userIndex");
+        USER_INDEX("userIndex"), PLAYER_ID("playerId");
 
         private final String v;
 

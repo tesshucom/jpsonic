@@ -91,7 +91,7 @@ public class PlayerSettingsController {
             @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast)
             throws ServletRequestBindingException {
 
-        handleRequestParameters(request);
+        deleteOrClone(request, model);
 
         PlayerSettingsCommand command = new PlayerSettingsCommand();
         List<Player> players = getPlayers(request);
@@ -165,6 +165,7 @@ public class PlayerSettingsController {
 
             // for view page control
             redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.PLAYER_ID.value(), player.getId());
             redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
 
             return new ModelAndView(new RedirectView(ViewName.PLAYER_SETTINGS.value()));
@@ -186,7 +187,7 @@ public class PlayerSettingsController {
     }
 
     @SuppressWarnings("PMD.ConfusingTernary") // false positive
-    private void handleRequestParameters(HttpServletRequest request) throws ServletRequestBindingException {
+    private void deleteOrClone(HttpServletRequest request, Model model) throws ServletRequestBindingException {
         if (request.getParameter(Attributes.Request.DELETE.value()) != null) {
             Integer delete = ServletRequestUtils.getIntParameter(request, Attributes.Request.DELETE.value());
             if (delete != null) {
@@ -195,7 +196,8 @@ public class PlayerSettingsController {
         } else if (request.getParameter(Attributes.Request.CLONE.value()) != null) {
             Integer clone = ServletRequestUtils.getIntParameter(request, Attributes.Request.CLONE.value());
             if (clone != null) {
-                playerService.clonePlayer(clone);
+                Player clonedPlayer = playerService.clonePlayer(clone);
+                model.addAttribute(Attributes.Redirect.PLAYER_ID.value(), clonedPlayer.getId());
             }
         }
     }

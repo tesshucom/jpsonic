@@ -2,11 +2,23 @@
 <%--@elvariable id="command" type="com.tesshu.jpsonic.command.PlayerSettingsCommand"--%>
 
 <html><head>
-    <%@ include file="head.jsp" %>
-    <%@ include file="jquery.jsp" %>
-    <%@ page import="com.tesshu.jpsonic.domain.PlayerTechnology" %>
-    <%@ page import="com.tesshu.jpsonic.domain.TranscodeScheme" %>
-    <script src="<c:url value='/script/utils.js'/>"></script>
+<%@ include file="head.jsp" %>
+<%@ include file="jquery.jsp" %>
+<%@ page import="com.tesshu.jpsonic.domain.PlayerTechnology" %>
+<%@ page import="com.tesshu.jpsonic.domain.TranscodeScheme" %>
+<script src="<c:url value='/script/utils.js'/>"></script>
+<script>
+    <c:choose>
+        <c:when test="${not empty playerId}">
+            window.top.reloadUpper('playerSettings.view', '${playerId}');
+            window.top.reloadPlayQueue();
+        </c:when>
+        <c:when test="${settings_reload}">
+            window.top.reloadUpper("playerSettings.view");
+            window.top.reloadPlayQueue();
+        </c:when>
+    </c:choose>
+</script>
 </head>
 <body class="mainframe settings playerSettings">
 
@@ -158,12 +170,5 @@
         </form:form>
     </c:otherwise>
 </c:choose>
-
-<c:if test="${settings_reload}">
-    <script>
-        window.top.reloadUpper("playerSettings.view");
-        window.top.reloadPlayQueue();
-    </script>
-</c:if>
 
 </body></html>

@@ -377,6 +377,9 @@ window.onOpenDialogVideoPlayer = function(videoUrl) {
                     <c:when test="${'userSettings.view' eq model.mainView}">
                         <c:set var="mainHref" value="${model.mainView}?toast=yes&userIndex=${model.selectedItem}" />
                     </c:when>
+                    <c:when test="${'playerSettings.view' eq model.mainView}">
+                        <c:set var="mainHref" value="${model.mainView}?toast=yes&id=${model.selectedItem}" />
+                    </c:when>
                     <c:otherwise>
                         <c:set var="mainHref" value="${model.mainView}?toast=yes" />
                     </c:otherwise>
