@@ -35,35 +35,27 @@ import com.tesshu.jpsonic.domain.Transcoding;
  *
  * @author Sindre Mehus
  */
-public class PlayerSettingsCommand {
+public class PlayerSettingsCommand extends SettingsPageCommons {
 
+    private Player[] players;
     private Integer playerId;
+    private boolean admin;
+    private boolean anonymousTranscoding;
+    private boolean transcodingSupported;
+
+    // Player settings
+    private String type;
+    private String name;
     private boolean guest;
     private boolean anonymous;
-    private boolean anonymousTranscoding;
-    private String name;
-    private String description;
-    private String type;
-    private Date lastSeen;
+    private PlayerTechnology playerTechnology;
+    private TranscodeScheme transcodeScheme;
+    private List<Transcoding> allTranscodings;
+    private int[] activeTranscodingIds;
     private boolean dynamicIp;
     private boolean autoControlEnabled;
     private boolean m3uBomEnabled;
-    private String technologyName;
-    private String transcodeSchemeName;
-    private boolean transcodingSupported;
-    private String transcodeDirectory;
-    private List<Transcoding> allTranscodings;
-    private int[] activeTranscodingIds;
-    private EnumHolder[] technologyHolders;
-    private EnumHolder[] transcodeSchemeHolders;
-    private Player[] players;
-    private boolean admin;
-    private boolean openDetailSetting;
-    private boolean useRadio;
-    private boolean useSonos;
-    private boolean showToast;
-    private int shareCount;
-    private boolean showOutlineHelp;
+    private Date lastSeen;
 
     public Integer getPlayerId() {
         return playerId;
@@ -103,14 +95,6 @@ public class PlayerSettingsCommand {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public String getType() {
@@ -153,12 +137,12 @@ public class PlayerSettingsCommand {
         this.m3uBomEnabled = m3uBomEnabled;
     }
 
-    public String getTranscodeSchemeName() {
-        return transcodeSchemeName;
+    public TranscodeScheme getTranscodeScheme() {
+        return transcodeScheme;
     }
 
-    public void setTranscodeSchemeName(String transcodeSchemeName) {
-        this.transcodeSchemeName = transcodeSchemeName;
+    public void setTranscodeScheme(TranscodeScheme transcodeScheme) {
+        this.transcodeScheme = transcodeScheme;
     }
 
     public boolean isTranscodingSupported() {
@@ -167,14 +151,6 @@ public class PlayerSettingsCommand {
 
     public void setTranscodingSupported(boolean transcodingSupported) {
         this.transcodingSupported = transcodingSupported;
-    }
-
-    public String getTranscodeDirectory() {
-        return transcodeDirectory;
-    }
-
-    public void setTranscodeDirectory(String transcodeDirectory) {
-        this.transcodeDirectory = transcodeDirectory;
     }
 
     public List<Transcoding> getAllTranscodings() {
@@ -195,38 +171,12 @@ public class PlayerSettingsCommand {
         }
     }
 
-    public EnumHolder[] getTechnologyHolders() {
-        return technologyHolders;
+    public PlayerTechnology getPlayerTechnology() {
+        return playerTechnology;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (EnumHolder) Not reusable -> #832
-    public void setTechnologies(PlayerTechnology... technologies) {
-        technologyHolders = new EnumHolder[technologies.length];
-        for (int i = 0; i < technologies.length; i++) {
-            PlayerTechnology technology = technologies[i];
-            technologyHolders[i] = new EnumHolder(technology.name(), technology.toString());
-        }
-    }
-
-    public EnumHolder[] getTranscodeSchemeHolders() {
-        return transcodeSchemeHolders;
-    }
-
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (EnumHolder) Not reusable -> #832
-    public void setTranscodeSchemes(TranscodeScheme... transcodeSchemes) {
-        transcodeSchemeHolders = new EnumHolder[transcodeSchemes.length];
-        for (int i = 0; i < transcodeSchemes.length; i++) {
-            TranscodeScheme scheme = transcodeSchemes[i];
-            transcodeSchemeHolders[i] = new EnumHolder(scheme.name(), scheme.toString());
-        }
-    }
-
-    public String getTechnologyName() {
-        return technologyName;
-    }
-
-    public void setTechnologyName(String technologyName) {
-        this.technologyName = technologyName;
+    public void setPlayerTechnology(PlayerTechnology playerTechnology) {
+        this.playerTechnology = playerTechnology;
     }
 
     public Player[] getPlayers() {
@@ -245,54 +195,6 @@ public class PlayerSettingsCommand {
 
     public void setAdmin(boolean admin) {
         this.admin = admin;
-    }
-
-    public boolean isOpenDetailSetting() {
-        return openDetailSetting;
-    }
-
-    public void setOpenDetailSetting(boolean openDetailSetting) {
-        this.openDetailSetting = openDetailSetting;
-    }
-
-    public boolean isUseRadio() {
-        return useRadio;
-    }
-
-    public void setUseRadio(boolean useRadio) {
-        this.useRadio = useRadio;
-    }
-
-    public boolean isUseSonos() {
-        return useSonos;
-    }
-
-    public void setUseSonos(boolean useSonos) {
-        this.useSonos = useSonos;
-    }
-
-    public boolean isShowToast() {
-        return showToast;
-    }
-
-    public void setShowToast(boolean showToast) {
-        this.showToast = showToast;
-    }
-
-    public int getShareCount() {
-        return shareCount;
-    }
-
-    public void setShareCount(int shareCount) {
-        this.shareCount = shareCount;
-    }
-
-    public boolean isShowOutlineHelp() {
-        return showOutlineHelp;
-    }
-
-    public void setShowOutlineHelp(boolean showOutlineHelp) {
-        this.showOutlineHelp = showOutlineHelp;
     }
 
     /**

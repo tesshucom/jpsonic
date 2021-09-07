@@ -86,7 +86,7 @@ class WebFontUtilsTest {
         // JP_EMBED
         PersonalSettingsCommand command = new PersonalSettingsCommand();
         WebFontUtils.setToCommand(new UserSettings(""), command);
-        command.setFontSchemeName(FontScheme.JP_EMBED.name());
+        command.setFontScheme(FontScheme.JP_EMBED);
         WebFontUtils.setToSettings(command, settings);
         WebFontUtils.setToRequest(settings, request);
         assertEquals(request.getAttribute(FONT_FACE_KEY),
@@ -113,17 +113,17 @@ class WebFontUtilsTest {
             throw new ExecutionException(e);
         }
 
-        command.setFontSchemeName(FontScheme.CUSTOM.name());
+        command.setFontScheme(FontScheme.CUSTOM);
         WebFontUtils.setToSettings(command, settings);
         WebFontUtils.setToRequest(settings, request);
         assertEquals(request.getAttribute(FONT_FACE_KEY), "");
         assertEquals(request.getAttribute(FONT_SIZE_KEY), WebFontUtils.DEFAULT_FONT_SIZE);
         assertEquals(request.getAttribute(FONT_FAMILY_KEY), WebFontUtils.DEFAULT_FONT_FAMILY);
 
-        command.setFontSchemeName(FontScheme.JP_EMBED.name());
+        command.setFontScheme(FontScheme.JP_EMBED);
         WebFontUtils.setToSettings(command, settings);
         WebFontUtils.setToCommand(settings, command);
-        command.setFontSchemeName(FontScheme.CUSTOM.name());
+        command.setFontScheme(FontScheme.CUSTOM);
         WebFontUtils.setToSettings(command, settings);
         WebFontUtils.setToRequest(settings, request);
         assertEquals(request.getAttribute(FONT_FACE_KEY), "");
@@ -161,7 +161,7 @@ class WebFontUtilsTest {
         PersonalSettingsCommand to = new PersonalSettingsCommand();
         WebFontUtils.setToCommand(from, to);
 
-        assertEquals(FontScheme.DEFAULT.name(), to.getFontSchemeName());
+        assertEquals(FontScheme.DEFAULT, to.getFontScheme());
         assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, to.getFontSize());
         assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, to.getFontFamily());
 
@@ -170,7 +170,7 @@ class WebFontUtilsTest {
         from.setFontFamily("Arial");
         WebFontUtils.setToCommand(from, to);
 
-        assertEquals(FontScheme.JP_EMBED.name(), to.getFontSchemeName());
+        assertEquals(FontScheme.JP_EMBED, to.getFontScheme());
         assertEquals(20, to.getFontSize());
         assertEquals("Arial", to.getFontFamily());
     }
@@ -224,14 +224,14 @@ class WebFontUtilsTest {
         assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, to.getFontFamily());
 
         // JP_EMBED
-        command.setFontSchemeName(FontScheme.JP_EMBED.name());
+        command.setFontScheme(FontScheme.JP_EMBED);
         WebFontUtils.setToSettings(command, to);
         assertEquals(FontScheme.JP_EMBED.name(), to.getFontSchemeName());
         assertEquals(WebFontUtils.DEFAULT_FONT_SIZE + 1, to.getFontSize());
         assertEquals(WebFontUtils.JP_FONT_NAME + ", " + WebFontUtils.DEFAULT_FONT_FAMILY, to.getFontFamily());
 
         // Return to DEFAULT
-        command.setFontSchemeName(FontScheme.DEFAULT.name());
+        command.setFontScheme(FontScheme.DEFAULT);
         WebFontUtils.setToSettings(command, to);
         assertEquals(FontScheme.DEFAULT.name(), to.getFontSchemeName());
         assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, to.getFontSize());

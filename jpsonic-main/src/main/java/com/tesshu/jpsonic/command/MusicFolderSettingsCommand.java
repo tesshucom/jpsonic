@@ -35,34 +35,27 @@ import org.apache.commons.lang.StringUtils;
  *
  * @author Sindre Mehus
  */
-public class MusicFolderSettingsCommand {
+public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
-    // musicFolders
+    // Specify folder
     private List<MusicFolderInfo> musicFolders;
     private MusicFolderInfo newMusicFolder;
 
-    // scan
+    // Run a scan
+    private boolean fullScanNext;
     private boolean scanning;
     private String interval;
     private String hour;
 
-    // exclusion
+    // Exclusion settings
     private String excludePatternString;
     private boolean ignoreSymLinks;
 
-    // others
+    // Other operations
     private boolean fastCache;
     private FileModifiedCheckScheme fileModifiedCheckScheme;
     private boolean ignoreFileTimestamps;
-    private boolean fullScanNext;
     private boolean ignoreFileTimestampsForEachAlbum;
-
-    // for view page control
-    private boolean useRadio;
-    private boolean useSonos;
-    private boolean showToast;
-    private int shareCount;
-    private boolean openDetailSetting;
 
     public List<MusicFolderInfo> getMusicFolders() {
         return musicFolders;
@@ -78,6 +71,14 @@ public class MusicFolderSettingsCommand {
 
     public void setNewMusicFolder(MusicFolderInfo newMusicFolder) {
         this.newMusicFolder = newMusicFolder;
+    }
+
+    public boolean isFullScanNext() {
+        return fullScanNext;
+    }
+
+    public void setFullScanNext(boolean fullScanNext) {
+        this.fullScanNext = fullScanNext;
     }
 
     public boolean isScanning() {
@@ -144,60 +145,12 @@ public class MusicFolderSettingsCommand {
         this.ignoreFileTimestamps = ignoreFileTimes;
     }
 
-    public boolean isFullScanNext() {
-        return fullScanNext;
-    }
-
-    public void setFullScanNext(boolean fullScanNext) {
-        this.fullScanNext = fullScanNext;
-    }
-
     public boolean isIgnoreFileTimestampsForEachAlbum() {
         return ignoreFileTimestampsForEachAlbum;
     }
 
     public void setIgnoreFileTimestampsForEachAlbum(boolean ignoreFileTimestampsForEachAlbum) {
         this.ignoreFileTimestampsForEachAlbum = ignoreFileTimestampsForEachAlbum;
-    }
-
-    public boolean isUseRadio() {
-        return useRadio;
-    }
-
-    public void setUseRadio(boolean useRadio) {
-        this.useRadio = useRadio;
-    }
-
-    public boolean isUseSonos() {
-        return useSonos;
-    }
-
-    public void setUseSonos(boolean useSonos) {
-        this.useSonos = useSonos;
-    }
-
-    public boolean isShowToast() {
-        return showToast;
-    }
-
-    public void setShowToast(boolean showToast) {
-        this.showToast = showToast;
-    }
-
-    public int getShareCount() {
-        return shareCount;
-    }
-
-    public void setShareCount(int shareCount) {
-        this.shareCount = shareCount;
-    }
-
-    public boolean isOpenDetailSetting() {
-        return openDetailSetting;
-    }
-
-    public void setOpenDetailSetting(boolean openDetailSetting) {
-        this.openDetailSetting = openDetailSetting;
     }
 
     public static class MusicFolderInfo {

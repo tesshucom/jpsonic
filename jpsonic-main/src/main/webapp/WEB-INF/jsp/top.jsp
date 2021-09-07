@@ -368,7 +368,24 @@ window.onOpenDialogVideoPlayer = function(videoUrl) {
     <%-- main --%>
     <c:set var="mainHref" value="nowPlaying.view?" />
     <c:if test="${not empty model.mainView}">
-        <c:set var="mainHref" value="${model.mainView}?toast=yes" />
+        <c:choose>
+            <c:when test="${empty model.selectedItem}">
+                <c:set var="mainHref" value="${model.mainView}?toast=yes" />
+            </c:when>
+            <c:otherwise>
+                <c:choose>
+                    <c:when test="${'userSettings.view' eq model.mainView}">
+                        <c:set var="mainHref" value="${model.mainView}?toast=yes&userIndex=${model.selectedItem}" />
+                    </c:when>
+                    <c:when test="${'playerSettings.view' eq model.mainView}">
+                        <c:set var="mainHref" value="${model.mainView}?toast=yes&id=${model.selectedItem}" />
+                    </c:when>
+                    <c:otherwise>
+                        <c:set var="mainHref" value="${model.mainView}?toast=yes" />
+                    </c:otherwise>
+                </c:choose>
+            </c:otherwise>
+        </c:choose>
     </c:if>
     <iframe name="main" id="main" src="${mainHref}" frameborder="no"></iframe>
 

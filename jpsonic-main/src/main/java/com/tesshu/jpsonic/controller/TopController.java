@@ -97,7 +97,8 @@ public class TopController {
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request,
-            @RequestParam("mainView") Optional<String> mainView) throws ServletRequestBindingException {
+            @RequestParam("mainView") Optional<String> mainView,
+            @RequestParam("selectedItem") Optional<String> selectedItem) throws ServletRequestBindingException {
 
         Map<String, Object> map = LegacyMap.of();
 
@@ -165,6 +166,8 @@ public class TopController {
                 map.put("mainView", v);
             }
         });
+        selectedItem.ifPresent(v -> map.put("selectedItem", v));
+
         return new ModelAndView("top", "model", map);
     }
 

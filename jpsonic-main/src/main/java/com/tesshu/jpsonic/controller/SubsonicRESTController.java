@@ -2232,7 +2232,7 @@ public class SubsonicRESTController {
                 ServletRequestUtils.getBooleanParameter(request, Attributes.Request.SETTINGS_ROLE.value(), true));
         command.setShareRole(
                 ServletRequestUtils.getBooleanParameter(request, Attributes.Request.SHARE_ROLE.value(), false));
-        command.setTranscodeSchemeName(TranscodeScheme.OFF.name());
+        command.setTranscodeScheme(TranscodeScheme.OFF);
 
         int[] folderIds = ServletRequestUtils.getIntParameters(request, Attributes.Request.MUSIC_FOLDER_ID.value());
         if (folderIds.length == 0) {
@@ -2299,7 +2299,7 @@ public class SubsonicRESTController {
                 s.getTranscodeScheme().getMaxBitRate());
         TranscodeScheme transcodeScheme = TranscodeScheme.fromMaxBitRate(maxBitRate);
         if (transcodeScheme != null) {
-            command.setTranscodeSchemeName(transcodeScheme.name());
+            command.setTranscodeScheme(transcodeScheme);
         }
 
         if (hasParameter(request, Attributes.Request.PASSWORD.value())) {

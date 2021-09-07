@@ -29,8 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.command.PlayerSettingsCommand;
 import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.PlayerTechnology;
-import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
@@ -93,11 +91,16 @@ public class PlayerSettingsController {
             @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast)
             throws ServletRequestBindingException {
 
-        handleRequestParameters(request);
-        List<Player> players = getPlayers(request);
+        deleteOrClone(request, model);
 
-        User user = securityService.getCurrentUser(request);
         PlayerSettingsCommand command = new PlayerSettingsCommand();
+        List<Player> players = getPlayers(request);
+        command.setPlayers(players.toArray(new Player[0]));
+        User user = securityService.getCurrentUser(request);
+        command.setAdmin(user.isAdminRole());
+        command.setAnonymousTranscoding(settingsService.isAnonymousTranscoding());
+        command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
+
         Player player = null;
         Integer playerId = ServletRequestUtils.getIntParameter(request, Attributes.Request.ID.value());
         if (playerId != null) {
@@ -107,20 +110,16 @@ public class PlayerSettingsController {
         }
 
         if (player != null) {
+            // Player settings
             command.setPlayerId(player.getId());
+            command.setType(player.getType());
+            command.setName(player.getName());
             command.setGuest(User.USERNAME_GUEST.equals(player.getUsername()));
             command.setAnonymous(JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername()));
-            command.setAnonymousTranscoding(settingsService.isAnonymousTranscoding());
-            command.setName(player.getName());
-            command.setDescription(player.toString());
-            command.setType(player.getType());
-            command.setLastSeen(player.getLastSeen());
-            command.setDynamicIp(player.isDynamicIp());
-            command.setAutoControlEnabled(player.isAutoControlEnabled());
-            command.setM3uBomEnabled(player.isM3uBomEnabled());
-            command.setTranscodeSchemeName(player.getTranscodeScheme().name());
-            command.setTechnologyName(player.getTechnology().name());
+            command.setPlayerTechnology(player.getTechnology());
+            command.setTranscodeScheme(player.getTranscodeScheme());
             command.setAllTranscodings(transcodingService.getAllTranscodings());
+
             List<Transcoding> activeTranscodings = transcodingService.getTranscodingsForPlayer(player);
             int[] activeTranscodingIds = new int[activeTranscodings.size()];
             for (int i = 0; i < activeTranscodings.size(); i++) {
@@ -128,19 +127,15 @@ public class PlayerSettingsController {
             }
             command.setActiveTranscodingIds(activeTranscodingIds);
 
-            UserSettings userSettings = securityService.getUserSettings(user.getUsername());
-            command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
-
+            command.setDynamicIp(player.isDynamicIp());
+            command.setAutoControlEnabled(player.isAutoControlEnabled());
+            command.setM3uBomEnabled(player.isM3uBomEnabled());
+            command.setLastSeen(player.getLastSeen());
         }
 
-        command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
-        command.setTranscodeDirectory(transcodingService.getTranscodeDirectory().getPath());
-        command.setTranscodeSchemes(TranscodeScheme.values());
-        PlayerTechnology[] technologys = PlayerTechnology.values();
-        command.setTechnologies(technologys);
-        command.setPlayers(players.toArray(new Player[0]));
-        command.setAdmin(user.isAdminRole());
-
+        // for view page control
+        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
+        command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
         toast.ifPresent(command::setShowToast);
@@ -157,18 +152,22 @@ public class PlayerSettingsController {
         if (player == null) {
             return new ModelAndView(new RedirectView("notFound"));
         } else {
+
+            // Player settings
+            player.setName(StringUtils.trimToNull(command.getName()));
+            player.setTechnology(command.getPlayerTechnology());
+            player.setTranscodeScheme(command.getTranscodeScheme());
+            player.setDynamicIp(command.isDynamicIp());
             player.setAutoControlEnabled(command.isAutoControlEnabled());
             player.setM3uBomEnabled(command.isM3uBomEnabled());
-            player.setDynamicIp(command.isDynamicIp());
-            player.setName(StringUtils.trimToNull(command.getName()));
-            player.setTranscodeScheme(TranscodeScheme.valueOf(command.getTranscodeSchemeName()));
-            player.setTechnology(PlayerTechnology.of(command.getTechnologyName()));
-
             playerService.updatePlayer(player);
             transcodingService.setTranscodingsForPlayer(player, command.getActiveTranscodingIds());
 
+            // for view page control
             redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.PLAYER_ID.value(), player.getId());
             redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
+
             return new ModelAndView(new RedirectView(ViewName.PLAYER_SETTINGS.value()));
         }
     }
@@ -178,7 +177,6 @@ public class PlayerSettingsController {
         String username = user.getUsername();
         List<Player> players = playerService.getAllPlayers();
         List<Player> authorizedPlayers = new ArrayList<>();
-
         for (Player player : players) {
             // Only display authorized players.
             if (user.isAdminRole() || username.equals(player.getUsername())) {
@@ -189,7 +187,7 @@ public class PlayerSettingsController {
     }
 
     @SuppressWarnings("PMD.ConfusingTernary") // false positive
-    private void handleRequestParameters(HttpServletRequest request) throws ServletRequestBindingException {
+    private void deleteOrClone(HttpServletRequest request, Model model) throws ServletRequestBindingException {
         if (request.getParameter(Attributes.Request.DELETE.value()) != null) {
             Integer delete = ServletRequestUtils.getIntParameter(request, Attributes.Request.DELETE.value());
             if (delete != null) {
@@ -198,9 +196,9 @@ public class PlayerSettingsController {
         } else if (request.getParameter(Attributes.Request.CLONE.value()) != null) {
             Integer clone = ServletRequestUtils.getIntParameter(request, Attributes.Request.CLONE.value());
             if (clone != null) {
-                playerService.clonePlayer(clone);
+                Player clonedPlayer = playerService.clonePlayer(clone);
+                model.addAttribute(Attributes.Redirect.PLAYER_ID.value(), clonedPlayer.getId());
             }
         }
     }
-
 }

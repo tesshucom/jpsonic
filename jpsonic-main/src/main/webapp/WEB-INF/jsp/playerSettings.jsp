@@ -2,9 +2,23 @@
 <%--@elvariable id="command" type="com.tesshu.jpsonic.command.PlayerSettingsCommand"--%>
 
 <html><head>
-    <%@ include file="head.jsp" %>
-    <%@ include file="jquery.jsp" %>
-    <script src="<c:url value='/script/utils.js'/>"></script>
+<%@ include file="head.jsp" %>
+<%@ include file="jquery.jsp" %>
+<%@ page import="com.tesshu.jpsonic.domain.PlayerTechnology" %>
+<%@ page import="com.tesshu.jpsonic.domain.TranscodeScheme" %>
+<script src="<c:url value='/script/utils.js'/>"></script>
+<script>
+    <c:choose>
+        <c:when test="${not empty playerId}">
+            window.top.reloadUpper('playerSettings.view', '${playerId}');
+            window.top.reloadPlayQueue();
+        </c:when>
+        <c:when test="${settings_reload}">
+            window.top.reloadUpper("playerSettings.view");
+            window.top.reloadPlayQueue();
+        </c:when>
+    </c:choose>
+</script>
 </head>
 <body class="mainframe settings playerSettings">
 
@@ -66,15 +80,15 @@
                     <dt><fmt:message key="playersettings.devices"/></dt>
                     <dd>
                         <ul class="playerSettings">
-                            <c:forEach items="${command.technologyHolders}" var="technologyHolder">
-                                <c:set var="technologyName">
-                                    <fmt:message key="playersettings.technology.${fn:toLowerCase(technologyHolder.name)}"/>
+                            <c:forEach items="${PlayerTechnology.values()}" var="scheme">
+                                <c:set var="schemeName">
+                                    <fmt:message key="playersettings.technology.${fn:toLowerCase(scheme)}"/>
                                 </c:set>
                                 <c:if test="${not (command.guest or command.anonymous) or technologyHolder.name eq 'WEB'}">
                                     <li>
-                                        <form:radiobutton class="technologyRadio" id="radio-${technologyName}" path="technologyName" value="${technologyHolder.name}"/>
-                                        <label for="radio-${technologyName}">${technologyName}</label>
-                                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="playersettings.technology.${fn:toLowerCase(technologyHolder.name)}"/></c:import>
+                                        <form:radiobutton class="technologyRadio" id="radio-${schemeName}" path="playerTechnology" value="${scheme}"/>
+                                        <label for="radio-${schemeName}">${schemeName}</label>
+                                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="playersettings.technology.${fn:toLowerCase(scheme)}"/></c:import>
                                     </li>
                                 </c:if>
                             </c:forEach>
@@ -84,9 +98,9 @@
                     <c:if test="${not command.anonymous or (command.anonymous and command.anonymousTranscoding)}">
                         <dt><fmt:message key="playersettings.maxbitrate"/></dt>
                         <dd>
-                            <form:select path="transcodeSchemeName">
-                                <c:forEach items="${command.transcodeSchemeHolders}" var="transcodeSchemeHolder">
-                                    <form:option value="${transcodeSchemeHolder.name}" label="${transcodeSchemeHolder.description}"/>
+                            <form:select path="transcodeScheme">
+                                <c:forEach items="${TranscodeScheme.values()}" var="scheme">
+                                    <form:option value="${scheme}" label="${scheme.toString()}"/>
                                 </c:forEach>
                             </form:select>
                             <c:import url="helpToolTip.jsp"><c:param name="topic" value="transcode"/></c:import>
@@ -156,12 +170,5 @@
         </form:form>
     </c:otherwise>
 </c:choose>
-
-<c:if test="${settings_reload}">
-    <script>
-        window.top.reloadUpper("playerSettings.view");
-        window.top.reloadPlayQueue();
-    </script>
-</c:if>
 
 </body></html>

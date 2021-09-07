@@ -25,21 +25,18 @@ import javax.validation.constraints.NotNull;
 
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
 
-public class DatabaseSettingsCommand {
+public class DatabaseSettingsCommand extends SettingsPageCommons {
 
     @NotNull
     private DataSourceConfigType configType;
+
     private String embedDriver;
-    private String embedPassword;
     private String embedUrl;
     private String embedUsername;
+    private String embedPassword;
     private String jndiName;
     private int mysqlVarcharMaxlength;
     private String usertableQuote;
-    private boolean useRadio;
-    private boolean useSonos;
-    private int shareCount;
-    private boolean showOutlineHelp;
 
     public DataSourceConfigType getConfigType() {
         return configType;
@@ -57,14 +54,6 @@ public class DatabaseSettingsCommand {
         this.embedDriver = embedDriver;
     }
 
-    public String getEmbedPassword() {
-        return embedPassword;
-    }
-
-    public void setEmbedPassword(String embedPassword) {
-        this.embedPassword = embedPassword;
-    }
-
     public String getEmbedUrl() {
         return embedUrl;
     }
@@ -79,6 +68,14 @@ public class DatabaseSettingsCommand {
 
     public void setEmbedUsername(String embedUsername) {
         this.embedUsername = embedUsername;
+    }
+
+    public String getEmbedPassword() {
+        return embedPassword;
+    }
+
+    public void setEmbedPassword(String embedPassword) {
+        this.embedPassword = embedPassword;
     }
 
     public String getJNDIName() {
@@ -104,37 +101,4 @@ public class DatabaseSettingsCommand {
     public void setUsertableQuote(String usertableQuote) {
         this.usertableQuote = usertableQuote;
     }
-
-    public boolean isUseRadio() {
-        return useRadio;
-    }
-
-    public void setUseRadio(boolean useRadio) {
-        this.useRadio = useRadio;
-    }
-
-    public boolean isUseSonos() {
-        return useSonos;
-    }
-
-    public void setUseSonos(boolean useSonos) {
-        this.useSonos = useSonos;
-    }
-
-    public int getShareCount() {
-        return shareCount;
-    }
-
-    public void setShareCount(int shareCount) {
-        this.shareCount = shareCount;
-    }
-
-    public boolean isShowOutlineHelp() {
-        return showOutlineHelp;
-    }
-
-    public void setShowOutlineHelp(boolean showOutlineHelp) {
-        this.showOutlineHelp = showOutlineHelp;
-    }
-
 }

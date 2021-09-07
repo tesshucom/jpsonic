@@ -35,11 +35,15 @@ function reloadAll(mainViewName) {
     location.replace("index.view?mainView=" + mainViewName);
 }
 
-function reloadUpper(...mainViewName) {
+function reloadUpper(...attributes) {
+    // attributes : mainViewName(required), k&v...
     const upper = document.getElementById("upper");
     const playQueue = document.getElementById("playQueue");
-    if (mainViewName.length == 1) {
-        document.getElementById('upper').contentWindow.location.replace("top.view?mainView=" + mainViewName[0]);
+
+    if (attributes.length == 1) {
+        document.getElementById('upper').contentWindow.location.replace("top.view?mainView=" + attributes[0]);
+    } else if (attributes.length == 2) {
+        document.getElementById('upper').contentWindow.location.replace("top.view?mainView=" + attributes[0] + "&selectedItem=" + attributes[1]);
     } else {
         document.getElementById('upper').contentWindow.location.reload(true);
     }
@@ -50,11 +54,11 @@ function reloadPlayQueue() {
 }
 
 function setDrawerOpened(isDrawerOpened) {
-	document.getElementById('isDrawerOpened').checked = isDrawerOpened;
+    document.getElementById('isDrawerOpened').checked = isDrawerOpened;
 }
 
 function setQueueOpened(isQueueOpened) {
-	document.getElementById('isQueueOpened').checked = isQueueOpened;
+    document.getElementById('isQueueOpened').checked = isQueueOpened;
 }
 
 function setQueueExpand(isQueueExpand) {
@@ -64,19 +68,19 @@ function setQueueExpand(isQueueExpand) {
 </script>
 </head>
 <body class="index">
-	<input type="checkbox" id="isDrawerOpened" value="1" autofocus="false" checked />
-	<c:choose>
-		<c:when test="${not empty model.mainView}">
-			<iframe name="upper" id="upper" src="top.view?mainView=${model.mainView}"></iframe>
-		</c:when>
-		<c:otherwise>
-			<iframe name="upper" id="upper" src="top.view?"></iframe>
-		</c:otherwise>
-	</c:choose>
-	<input type="checkbox" id="isQueueOpened" value="1" autofocus="false" tabindex="-1"/>
+    <input type="checkbox" id="isDrawerOpened" value="1" autofocus="false" checked />
+    <c:choose>
+        <c:when test="${not empty model.mainView}">
+            <iframe name="upper" id="upper" src="top.view?mainView=${model.mainView}"></iframe>
+        </c:when>
+        <c:otherwise>
+            <iframe name="upper" id="upper" src="top.view?"></iframe>
+        </c:otherwise>
+    </c:choose>
+    <input type="checkbox" id="isQueueOpened" value="1" autofocus="false" tabindex="-1"/>
     <input type="checkbox" id="isQueueExpand" value="1" autofocus="false" tabindex="-1"/>
-	<iframe name="playQueue" id="playQueue" src="playQueue.view?"></iframe>
+    <iframe name="playQueue" id="playQueue" src="playQueue.view?"></iframe>
 
-	<%@ include file="dialogs.jsp" %>
+    <%@ include file="dialogs.jsp" %>
 </body>
 </html>

@@ -21,9 +21,7 @@
 
 package com.tesshu.jpsonic.command;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.controller.PersonalSettingsController;
 import com.tesshu.jpsonic.domain.AlbumListType;
@@ -39,84 +37,93 @@ import com.tesshu.jpsonic.domain.UserSettings;
  *
  * @author Sindre Mehus
  */
-public class PersonalSettingsCommand {
+public class PersonalSettingsCommand extends SettingsPageCommons {
 
     private User user;
+
+    // Language and theme
+    // - Default language
+    private String localeIndex;
+    private String[] locales;
+    // - Theme
+    private String themeIndex;
+    private Theme[] themes;
+    // - Font
+    private FontScheme fontScheme;
+    private String fontFamily;
+    private String fontFamilyDefault;
+    private String fontFamilyJpEmbedDefault;
+    private int fontSize;
+    private int fontSizeDefault;
+    private int fontSizeJpEmbedDefault;
+
+    // Options related to display and playing control
     private UserSettings defaultSettings;
     private UserSettings tabletSettings;
     private UserSettings smartphoneSettings;
-    private String fontFamilyDefault;
-    private String fontFamilyJpEmbedDefault;
-    private int fontSizeDefault;
-    private int fontSizeJpEmbedDefault;
-    private String ietfDefault;
-    private String ietfDisplayDefault;
-    private String localeIndex;
-    private String[] locales;
-    private String themeIndex;
-    private Theme[] themes;
+    private boolean keyboardShortcutsEnabled;
     private String albumListId;
     private AlbumListType[] albumLists;
-    private int avatarId;
-    private List<Avatar> avatars;
-    private Avatar customAvatar;
+    private boolean putMenuInDrawer;
+    private boolean showIndex;
+    private boolean closeDrawer;
+    private boolean alternativeDrawer;
+    private boolean closePlayQueue;
+    private boolean autoHidePlayQueue;
+    private boolean breadcrumbIndex;
+    private boolean assignAccesskeyToNumber;
+    private boolean simpleDisplay;
+    private boolean queueFollowingSongs;
+    private boolean showCurrentSongInfo;
+    private boolean songNotificationEnabled;
+    private boolean voiceInputEnabled;
+    private SpeechToTextLangScheme speechToTextLangScheme;
+    private String ietf;
+    private String ietfDefault;
+    private String ietfDisplayDefault;
+    private boolean openDetailStar;
+    private boolean openDetailIndex;
+
+    // Column to be displayed
     private UserSettings.Visibility mainVisibility;
     private UserSettings.Visibility playlistVisibility;
-    private boolean partyModeEnabled;
-    private boolean showNowPlayingEnabled;
-    private boolean closeDrawer;
-    private boolean closePlayQueue;
-    private boolean alternativeDrawer;
-    private boolean showIndex;
-    private boolean assignAccesskeyToNumber;
-    private boolean openDetailIndex;
-    private boolean openDetailSetting;
-    private boolean openDetailStar;
-    private boolean showArtistInfoEnabled;
+
+    // Additional display features
     private boolean nowPlayingAllowed;
-    private boolean autoHidePlayQueue;
-    private boolean keyboardShortcutsEnabled;
-    private boolean finalVersionNotificationEnabled;
-    private boolean betaVersionNotificationEnabled;
-    private boolean songNotificationEnabled;
-    private boolean queueFollowingSongs;
-    private boolean lastFmEnabled;
-    private boolean listenBrainzEnabled;
-    private int paginationSize;
-    private String lastFmUsername;
-    private String lastFmPassword;
-    private String listenBrainzToken;
-    private boolean useRadio;
-    private boolean useSonos;
-    private boolean simpleDisplay;
-    private boolean showSibling;
-    private boolean showRate;
-    private boolean showAlbumSearch;
-    private boolean showLastPlay;
-    private boolean showDownload;
-    private boolean showTag;
-    private boolean showComment;
-    private boolean showShare;
-    private boolean showChangeCoverArt;
+    private boolean othersPlayingEnabled;
+    private boolean showNowPlayingEnabled;
+    private boolean showArtistInfoEnabled;
+    private boolean forceBio2Eng;
     private boolean showTopSongs;
     private boolean showSimilar;
-    private boolean showToast;
+    private boolean showComment;
+    private boolean showSibling;
+    private int paginationSize;
+    private boolean showTag;
+    private boolean showChangeCoverArt;
+    private boolean showAlbumSearch;
+    private boolean showLastPlay;
+    private boolean showRate;
     private boolean showAlbumActions;
-    private boolean breadcrumbIndex;
-    private boolean putMenuInDrawer;
-    private boolean forceBio2Eng;
-    private EnumHolder[] fontSchemeHolders;
-    private String fontSchemeName;
-    private boolean showOutlineHelp;
-    private boolean voiceInputEnabled;
-    private boolean othersPlayingEnabled;
-    private boolean showCurrentSongInfo;
-    private EnumHolder[] speechLangSchemeHolders;
-    private String speechLangSchemeName;
-    private String ietf;
-    private String fontFamily;
-    private int fontSize;
-    private int shareCount;
+    private boolean showDownload;
+    private boolean showShare;
+    private boolean partyModeEnabled;
+
+    // Personal image
+    private int avatarId;
+    private Avatar customAvatar;
+    private List<Avatar> avatars;
+
+    // Cooperation with Music SNS
+    private boolean listenBrainzEnabled;
+    private String listenBrainzToken;
+    private boolean lastFmEnabled;
+    private String lastFmUsername;
+    private String lastFmPassword;
+
+    // Update notification
+    private boolean finalVersionNotificationEnabled;
+    private boolean betaVersionNotificationEnabled;
 
     public User getUser() {
         return user;
@@ -124,78 +131,6 @@ public class PersonalSettingsCommand {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public UserSettings getDefaultSettings() {
-        return defaultSettings;
-    }
-
-    public void setDefaultSettings(UserSettings defaultSettings) {
-        this.defaultSettings = defaultSettings;
-    }
-
-    public UserSettings getTabletSettings() {
-        return tabletSettings;
-    }
-
-    public void setTabletSettings(UserSettings tabletSettings) {
-        this.tabletSettings = tabletSettings;
-    }
-
-    public UserSettings getSmartphoneSettings() {
-        return smartphoneSettings;
-    }
-
-    public void setSmartphoneSettings(UserSettings smartphoneSettings) {
-        this.smartphoneSettings = smartphoneSettings;
-    }
-
-    public String getFontFamilyDefault() {
-        return fontFamilyDefault;
-    }
-
-    public void setFontFamilyDefault(String fontFamilyDefault) {
-        this.fontFamilyDefault = fontFamilyDefault;
-    }
-
-    public String getFontFamilyJpEmbedDefault() {
-        return fontFamilyJpEmbedDefault;
-    }
-
-    public void setFontFamilyJpEmbedDefault(String fontFamilyJpEmbed) {
-        this.fontFamilyJpEmbedDefault = fontFamilyJpEmbed;
-    }
-
-    public int getFontSizeDefault() {
-        return fontSizeDefault;
-    }
-
-    public void setFontSizeDefault(int fontSizeDefault) {
-        this.fontSizeDefault = fontSizeDefault;
-    }
-
-    public int getFontSizeJpEmbedDefault() {
-        return fontSizeJpEmbedDefault;
-    }
-
-    public void setFontSizeJpEmbedDefault(int fontSizeJpEmbedDefault) {
-        this.fontSizeJpEmbedDefault = fontSizeJpEmbedDefault;
-    }
-
-    public String getIetfDefault() {
-        return ietfDefault;
-    }
-
-    public void setIetfDefault(String ietfDefault) {
-        this.ietfDefault = ietfDefault;
-    }
-
-    public String getIetfDisplayDefault() {
-        return ietfDisplayDefault;
-    }
-
-    public void setIetfDisplayDefault(String ietfDisplayDefault) {
-        this.ietfDisplayDefault = ietfDisplayDefault;
     }
 
     public String getLocaleIndex() {
@@ -232,6 +167,94 @@ public class PersonalSettingsCommand {
         }
     }
 
+    public FontScheme getFontScheme() {
+        return fontScheme;
+    }
+
+    public void setFontScheme(FontScheme fontScheme) {
+        this.fontScheme = fontScheme;
+    }
+
+    public String getFontFamily() {
+        return fontFamily;
+    }
+
+    public void setFontFamily(String font) {
+        this.fontFamily = font;
+    }
+
+    public String getFontFamilyDefault() {
+        return fontFamilyDefault;
+    }
+
+    public void setFontFamilyDefault(String fontFamilyDefault) {
+        this.fontFamilyDefault = fontFamilyDefault;
+    }
+
+    public String getFontFamilyJpEmbedDefault() {
+        return fontFamilyJpEmbedDefault;
+    }
+
+    public void setFontFamilyJpEmbedDefault(String fontFamilyJpEmbed) {
+        this.fontFamilyJpEmbedDefault = fontFamilyJpEmbed;
+    }
+
+    public int getFontSize() {
+        return fontSize;
+    }
+
+    public void setFontSize(int fontSize) {
+        this.fontSize = fontSize;
+    }
+
+    public int getFontSizeDefault() {
+        return fontSizeDefault;
+    }
+
+    public void setFontSizeDefault(int fontSizeDefault) {
+        this.fontSizeDefault = fontSizeDefault;
+    }
+
+    public int getFontSizeJpEmbedDefault() {
+        return fontSizeJpEmbedDefault;
+    }
+
+    public void setFontSizeJpEmbedDefault(int fontSizeJpEmbedDefault) {
+        this.fontSizeJpEmbedDefault = fontSizeJpEmbedDefault;
+    }
+
+    public UserSettings getDefaultSettings() {
+        return defaultSettings;
+    }
+
+    public void setDefaultSettings(UserSettings defaultSettings) {
+        this.defaultSettings = defaultSettings;
+    }
+
+    public UserSettings getTabletSettings() {
+        return tabletSettings;
+    }
+
+    public void setTabletSettings(UserSettings tabletSettings) {
+        this.tabletSettings = tabletSettings;
+    }
+
+    public UserSettings getSmartphoneSettings() {
+        return smartphoneSettings;
+    }
+
+    public void setSmartphoneSettings(UserSettings smartphoneSettings) {
+        this.smartphoneSettings = smartphoneSettings;
+    }
+
+    public boolean isKeyboardShortcutsEnabled() {
+        return keyboardShortcutsEnabled;
+    }
+
+    public void setKeyboardShortcutsEnabled(boolean keyboardShortcutsEnabled) {
+        this.keyboardShortcutsEnabled = keyboardShortcutsEnabled;
+    }
+
     public String getAlbumListId() {
         return albumListId;
     }
@@ -248,28 +271,156 @@ public class PersonalSettingsCommand {
         this.albumLists = albumLists.clone();
     }
 
-    public int getAvatarId() {
-        return avatarId;
+    public boolean isPutMenuInDrawer() {
+        return putMenuInDrawer;
     }
 
-    public void setAvatarId(int avatarId) {
-        this.avatarId = avatarId;
+    public void setPutMenuInDrawer(boolean putMenuInDrawer) {
+        this.putMenuInDrawer = putMenuInDrawer;
     }
 
-    public List<Avatar> getAvatars() {
-        return avatars;
+    public boolean isShowIndex() {
+        return showIndex;
     }
 
-    public void setAvatars(List<Avatar> avatars) {
-        this.avatars = avatars;
+    public void setShowIndex(boolean showIndex) {
+        this.showIndex = showIndex;
     }
 
-    public Avatar getCustomAvatar() {
-        return customAvatar;
+    public boolean isCloseDrawer() {
+        return closeDrawer;
     }
 
-    public void setCustomAvatar(Avatar customAvatar) {
-        this.customAvatar = customAvatar;
+    public void setCloseDrawer(boolean closeDrawer) {
+        this.closeDrawer = closeDrawer;
+    }
+
+    public boolean isAlternativeDrawer() {
+        return alternativeDrawer;
+    }
+
+    public void setAlternativeDrawer(boolean alternativeDrawer) {
+        this.alternativeDrawer = alternativeDrawer;
+    }
+
+    public boolean isClosePlayQueue() {
+        return closePlayQueue;
+    }
+
+    public void setClosePlayQueue(boolean closePlayqueue) {
+        this.closePlayQueue = closePlayqueue;
+    }
+
+    public boolean isAutoHidePlayQueue() {
+        return autoHidePlayQueue;
+    }
+
+    public void setAutoHidePlayQueue(boolean autoHidePlayQueue) {
+        this.autoHidePlayQueue = autoHidePlayQueue;
+    }
+
+    public boolean isBreadcrumbIndex() {
+        return breadcrumbIndex;
+    }
+
+    public void setBreadcrumbIndex(boolean breadcrumbIndex) {
+        this.breadcrumbIndex = breadcrumbIndex;
+    }
+
+    public boolean isAssignAccesskeyToNumber() {
+        return assignAccesskeyToNumber;
+    }
+
+    public void setAssignAccesskeyToNumber(boolean assignAccesskeyToNumber) {
+        this.assignAccesskeyToNumber = assignAccesskeyToNumber;
+    }
+
+    public boolean isSimpleDisplay() {
+        return simpleDisplay;
+    }
+
+    public void setSimpleDisplay(boolean simpleDisplay) {
+        this.simpleDisplay = simpleDisplay;
+    }
+
+    public boolean isQueueFollowingSongs() {
+        return queueFollowingSongs;
+    }
+
+    public void setQueueFollowingSongs(boolean queueFollowingSongs) {
+        this.queueFollowingSongs = queueFollowingSongs;
+    }
+
+    public boolean isShowCurrentSongInfo() {
+        return showCurrentSongInfo;
+    }
+
+    public void setShowCurrentSongInfo(boolean showCurrentSongInfo) {
+        this.showCurrentSongInfo = showCurrentSongInfo;
+    }
+
+    public void setSongNotificationEnabled(boolean songNotificationEnabled) {
+        this.songNotificationEnabled = songNotificationEnabled;
+    }
+
+    public boolean isSongNotificationEnabled() {
+        return songNotificationEnabled;
+    }
+
+    public boolean isVoiceInputEnabled() {
+        return voiceInputEnabled;
+    }
+
+    public void setVoiceInputEnabled(boolean voiceInputEnabled) {
+        this.voiceInputEnabled = voiceInputEnabled;
+    }
+
+    public SpeechToTextLangScheme getSpeechToTextLangScheme() {
+        return speechToTextLangScheme;
+    }
+
+    public void setSpeechToTextLangScheme(SpeechToTextLangScheme speechToTextLangScheme) {
+        this.speechToTextLangScheme = speechToTextLangScheme;
+    }
+
+    public String getIetf() {
+        return ietf;
+    }
+
+    public void setIetf(String ietf) {
+        this.ietf = ietf;
+    }
+
+    public String getIetfDefault() {
+        return ietfDefault;
+    }
+
+    public void setIetfDefault(String ietfDefault) {
+        this.ietfDefault = ietfDefault;
+    }
+
+    public String getIetfDisplayDefault() {
+        return ietfDisplayDefault;
+    }
+
+    public void setIetfDisplayDefault(String ietfDisplayDefault) {
+        this.ietfDisplayDefault = ietfDisplayDefault;
+    }
+
+    public boolean isOpenDetailStar() {
+        return openDetailStar;
+    }
+
+    public void setOpenDetailStar(boolean openDetailStar) {
+        this.openDetailStar = openDetailStar;
+    }
+
+    public boolean isOpenDetailIndex() {
+        return openDetailIndex;
+    }
+
+    public void setOpenDetailIndex(boolean openDetailIndex) {
+        this.openDetailIndex = openDetailIndex;
     }
 
     public UserSettings.Visibility getMainVisibility() {
@@ -288,12 +439,20 @@ public class PersonalSettingsCommand {
         this.playlistVisibility = playlistVisibility;
     }
 
-    public boolean isPartyModeEnabled() {
-        return partyModeEnabled;
+    public boolean isNowPlayingAllowed() {
+        return nowPlayingAllowed;
     }
 
-    public void setPartyModeEnabled(boolean partyModeEnabled) {
-        this.partyModeEnabled = partyModeEnabled;
+    public void setNowPlayingAllowed(boolean nowPlayingAllowed) {
+        this.nowPlayingAllowed = nowPlayingAllowed;
+    }
+
+    public boolean isOthersPlayingEnabled() {
+        return othersPlayingEnabled;
+    }
+
+    public void setOthersPlayingEnabled(boolean othersPlayingEnabled) {
+        this.othersPlayingEnabled = othersPlayingEnabled;
     }
 
     public boolean isShowNowPlayingEnabled() {
@@ -304,70 +463,6 @@ public class PersonalSettingsCommand {
         this.showNowPlayingEnabled = showNowPlayingEnabled;
     }
 
-    public boolean isCloseDrawer() {
-        return closeDrawer;
-    }
-
-    public void setCloseDrawer(boolean closeDrawer) {
-        this.closeDrawer = closeDrawer;
-    }
-
-    public boolean isClosePlayQueue() {
-        return closePlayQueue;
-    }
-
-    public void setClosePlayQueue(boolean closePlayqueue) {
-        this.closePlayQueue = closePlayqueue;
-    }
-
-    public boolean isAlternativeDrawer() {
-        return alternativeDrawer;
-    }
-
-    public void setAlternativeDrawer(boolean alternativeDrawer) {
-        this.alternativeDrawer = alternativeDrawer;
-    }
-
-    public boolean isShowIndex() {
-        return showIndex;
-    }
-
-    public void setShowIndex(boolean showIndex) {
-        this.showIndex = showIndex;
-    }
-
-    public boolean isAssignAccesskeyToNumber() {
-        return assignAccesskeyToNumber;
-    }
-
-    public void setAssignAccesskeyToNumber(boolean assignAccesskeyToNumber) {
-        this.assignAccesskeyToNumber = assignAccesskeyToNumber;
-    }
-
-    public boolean isOpenDetailIndex() {
-        return openDetailIndex;
-    }
-
-    public void setOpenDetailIndex(boolean openDetailIndex) {
-        this.openDetailIndex = openDetailIndex;
-    }
-
-    public boolean isOpenDetailSetting() {
-        return openDetailSetting;
-    }
-
-    public void setOpenDetailSetting(boolean openDetailSetting) {
-        this.openDetailSetting = openDetailSetting;
-    }
-
-    public boolean isOpenDetailStar() {
-        return openDetailStar;
-    }
-
-    public void setOpenDetailStar(boolean openDetailStar) {
-        this.openDetailStar = openDetailStar;
-    }
-
     public boolean isShowArtistInfoEnabled() {
         return showArtistInfoEnabled;
     }
@@ -376,204 +471,12 @@ public class PersonalSettingsCommand {
         this.showArtistInfoEnabled = showArtistInfoEnabled;
     }
 
-    public boolean isNowPlayingAllowed() {
-        return nowPlayingAllowed;
+    public boolean isForceBio2Eng() {
+        return forceBio2Eng;
     }
 
-    public void setNowPlayingAllowed(boolean nowPlayingAllowed) {
-        this.nowPlayingAllowed = nowPlayingAllowed;
-    }
-
-    public boolean isFinalVersionNotificationEnabled() {
-        return finalVersionNotificationEnabled;
-    }
-
-    public void setFinalVersionNotificationEnabled(boolean finalVersionNotificationEnabled) {
-        this.finalVersionNotificationEnabled = finalVersionNotificationEnabled;
-    }
-
-    public boolean isBetaVersionNotificationEnabled() {
-        return betaVersionNotificationEnabled;
-    }
-
-    public void setBetaVersionNotificationEnabled(boolean betaVersionNotificationEnabled) {
-        this.betaVersionNotificationEnabled = betaVersionNotificationEnabled;
-    }
-
-    public void setSongNotificationEnabled(boolean songNotificationEnabled) {
-        this.songNotificationEnabled = songNotificationEnabled;
-    }
-
-    public boolean isSongNotificationEnabled() {
-        return songNotificationEnabled;
-    }
-
-    public boolean isAutoHidePlayQueue() {
-        return autoHidePlayQueue;
-    }
-
-    public void setAutoHidePlayQueue(boolean autoHidePlayQueue) {
-        this.autoHidePlayQueue = autoHidePlayQueue;
-    }
-
-    public boolean isKeyboardShortcutsEnabled() {
-        return keyboardShortcutsEnabled;
-    }
-
-    public void setKeyboardShortcutsEnabled(boolean keyboardShortcutsEnabled) {
-        this.keyboardShortcutsEnabled = keyboardShortcutsEnabled;
-    }
-
-    public boolean isLastFmEnabled() {
-        return lastFmEnabled;
-    }
-
-    public void setLastFmEnabled(boolean lastFmEnabled) {
-        this.lastFmEnabled = lastFmEnabled;
-    }
-
-    public boolean isListenBrainzEnabled() {
-        return listenBrainzEnabled;
-    }
-
-    public void setListenBrainzEnabled(boolean listenBrainzEnabled) {
-        this.listenBrainzEnabled = listenBrainzEnabled;
-    }
-
-    public String getLastFmUsername() {
-        return lastFmUsername;
-    }
-
-    public void setLastFmUsername(String lastFmUsername) {
-        this.lastFmUsername = lastFmUsername;
-    }
-
-    public String getLastFmPassword() {
-        return lastFmPassword;
-    }
-
-    public void setLastFmPassword(String lastFmPassword) {
-        this.lastFmPassword = lastFmPassword;
-    }
-
-    public String getListenBrainzToken() {
-        return listenBrainzToken;
-    }
-
-    public void setListenBrainzToken(String listenBrainzToken) {
-        this.listenBrainzToken = listenBrainzToken;
-    }
-
-    public boolean isQueueFollowingSongs() {
-        return queueFollowingSongs;
-    }
-
-    public void setQueueFollowingSongs(boolean queueFollowingSongs) {
-        this.queueFollowingSongs = queueFollowingSongs;
-    }
-
-    public int getPaginationSize() {
-        return paginationSize;
-    }
-
-    public void setPaginationSize(int paginationSize) {
-        this.paginationSize = paginationSize;
-    }
-
-    public boolean isUseRadio() {
-        return useRadio;
-    }
-
-    public void setUseRadio(boolean useRadio) {
-        this.useRadio = useRadio;
-    }
-
-    public boolean isUseSonos() {
-        return useSonos;
-    }
-
-    public void setUseSonos(boolean useSonos) {
-        this.useSonos = useSonos;
-    }
-
-    public boolean isSimpleDisplay() {
-        return simpleDisplay;
-    }
-
-    public void setSimpleDisplay(boolean simpleDisplay) {
-        this.simpleDisplay = simpleDisplay;
-    }
-
-    public boolean isShowSibling() {
-        return showSibling;
-    }
-
-    public void setShowSibling(boolean siblingVisible) {
-        this.showSibling = siblingVisible;
-    }
-
-    public boolean isShowRate() {
-        return showRate;
-    }
-
-    public void setShowRate(boolean rateVisible) {
-        this.showRate = rateVisible;
-    }
-
-    public boolean isShowAlbumSearch() {
-        return showAlbumSearch;
-    }
-
-    public void setShowAlbumSearch(boolean albumSearchVisible) {
-        this.showAlbumSearch = albumSearchVisible;
-    }
-
-    public boolean isShowLastPlay() {
-        return showLastPlay;
-    }
-
-    public void setShowLastPlay(boolean lastPlayVisible) {
-        this.showLastPlay = lastPlayVisible;
-    }
-
-    public boolean isShowDownload() {
-        return showDownload;
-    }
-
-    public void setShowDownload(boolean downloadVisible) {
-        this.showDownload = downloadVisible;
-    }
-
-    public boolean isShowTag() {
-        return showTag;
-    }
-
-    public void setShowTag(boolean tagVisible) {
-        this.showTag = tagVisible;
-    }
-
-    public boolean isShowComment() {
-        return showComment;
-    }
-
-    public void setShowComment(boolean commentVisible) {
-        this.showComment = commentVisible;
-    }
-
-    public boolean isShowShare() {
-        return showShare;
-    }
-
-    public void setShowShare(boolean shareVisible) {
-        this.showShare = shareVisible;
-    }
-
-    public boolean isShowChangeCoverArt() {
-        return showChangeCoverArt;
-    }
-
-    public void setShowChangeCoverArt(boolean showChangeCoverArt) {
-        this.showChangeCoverArt = showChangeCoverArt;
+    public void setForceBio2Eng(boolean forceBio2Eng) {
+        this.forceBio2Eng = forceBio2Eng;
     }
 
     public boolean isShowTopSongs() {
@@ -592,12 +495,68 @@ public class PersonalSettingsCommand {
         this.showSimilar = showSimilar;
     }
 
-    public boolean isShowToast() {
-        return showToast;
+    public boolean isShowComment() {
+        return showComment;
     }
 
-    public void setShowToast(boolean showToast) {
-        this.showToast = showToast;
+    public void setShowComment(boolean commentVisible) {
+        this.showComment = commentVisible;
+    }
+
+    public boolean isShowSibling() {
+        return showSibling;
+    }
+
+    public void setShowSibling(boolean siblingVisible) {
+        this.showSibling = siblingVisible;
+    }
+
+    public int getPaginationSize() {
+        return paginationSize;
+    }
+
+    public void setPaginationSize(int paginationSize) {
+        this.paginationSize = paginationSize;
+    }
+
+    public boolean isShowTag() {
+        return showTag;
+    }
+
+    public void setShowTag(boolean tagVisible) {
+        this.showTag = tagVisible;
+    }
+
+    public boolean isShowChangeCoverArt() {
+        return showChangeCoverArt;
+    }
+
+    public void setShowChangeCoverArt(boolean showChangeCoverArt) {
+        this.showChangeCoverArt = showChangeCoverArt;
+    }
+
+    public boolean isShowAlbumSearch() {
+        return showAlbumSearch;
+    }
+
+    public void setShowAlbumSearch(boolean albumSearchVisible) {
+        this.showAlbumSearch = albumSearchVisible;
+    }
+
+    public boolean isShowLastPlay() {
+        return showLastPlay;
+    }
+
+    public void setShowLastPlay(boolean lastPlayVisible) {
+        this.showLastPlay = lastPlayVisible;
+    }
+
+    public boolean isShowRate() {
+        return showRate;
+    }
+
+    public void setShowRate(boolean rateVisible) {
+        this.showRate = rateVisible;
     }
 
     public boolean isShowAlbumActions() {
@@ -608,125 +567,108 @@ public class PersonalSettingsCommand {
         this.showAlbumActions = showAlbumActions;
     }
 
-    public boolean isBreadcrumbIndex() {
-        return breadcrumbIndex;
+    public boolean isShowDownload() {
+        return showDownload;
     }
 
-    public void setBreadcrumbIndex(boolean breadcrumbIndex) {
-        this.breadcrumbIndex = breadcrumbIndex;
+    public void setShowDownload(boolean downloadVisible) {
+        this.showDownload = downloadVisible;
     }
 
-    public boolean isPutMenuInDrawer() {
-        return putMenuInDrawer;
+    public boolean isShowShare() {
+        return showShare;
     }
 
-    public void setPutMenuInDrawer(boolean putMenuInDrawer) {
-        this.putMenuInDrawer = putMenuInDrawer;
+    public void setShowShare(boolean shareVisible) {
+        this.showShare = shareVisible;
     }
 
-    public boolean isForceBio2Eng() {
-        return forceBio2Eng;
+    public boolean isPartyModeEnabled() {
+        return partyModeEnabled;
     }
 
-    public void setForceBio2Eng(boolean forceBio2Eng) {
-        this.forceBio2Eng = forceBio2Eng;
+    public void setPartyModeEnabled(boolean partyModeEnabled) {
+        this.partyModeEnabled = partyModeEnabled;
     }
 
-    public EnumHolder[] getFontSchemeHolders() {
-        return fontSchemeHolders;
+    public int getAvatarId() {
+        return avatarId;
     }
 
-    public void setFontSchemes(FontScheme... fontSchemes) {
-        fontSchemeHolders = Arrays.stream(fontSchemes).map(s -> new EnumHolder(s.name(), s.toString()))
-                .collect(Collectors.toList()).toArray(new EnumHolder[fontSchemes.length]);
+    public void setAvatarId(int avatarId) {
+        this.avatarId = avatarId;
     }
 
-    public String getFontSchemeName() {
-        return fontSchemeName;
+    public Avatar getCustomAvatar() {
+        return customAvatar;
     }
 
-    public void setFontSchemeName(String fontSchemeName) {
-        this.fontSchemeName = fontSchemeName;
+    public void setCustomAvatar(Avatar customAvatar) {
+        this.customAvatar = customAvatar;
     }
 
-    public boolean isShowOutlineHelp() {
-        return showOutlineHelp;
+    public List<Avatar> getAvatars() {
+        return avatars;
     }
 
-    public void setShowOutlineHelp(boolean showOutlineHelp) {
-        this.showOutlineHelp = showOutlineHelp;
+    public void setAvatars(List<Avatar> avatars) {
+        this.avatars = avatars;
     }
 
-    public boolean isVoiceInputEnabled() {
-        return voiceInputEnabled;
+    public boolean isListenBrainzEnabled() {
+        return listenBrainzEnabled;
     }
 
-    public void setVoiceInputEnabled(boolean voiceInputEnabled) {
-        this.voiceInputEnabled = voiceInputEnabled;
+    public void setListenBrainzEnabled(boolean listenBrainzEnabled) {
+        this.listenBrainzEnabled = listenBrainzEnabled;
     }
 
-    public boolean isOthersPlayingEnabled() {
-        return othersPlayingEnabled;
+    public String getListenBrainzToken() {
+        return listenBrainzToken;
     }
 
-    public void setOthersPlayingEnabled(boolean othersPlayingEnabled) {
-        this.othersPlayingEnabled = othersPlayingEnabled;
+    public void setListenBrainzToken(String listenBrainzToken) {
+        this.listenBrainzToken = listenBrainzToken;
     }
 
-    public boolean isShowCurrentSongInfo() {
-        return showCurrentSongInfo;
+    public boolean isLastFmEnabled() {
+        return lastFmEnabled;
     }
 
-    public void setShowCurrentSongInfo(boolean showCurrentSongInfo) {
-        this.showCurrentSongInfo = showCurrentSongInfo;
+    public void setLastFmEnabled(boolean lastFmEnabled) {
+        this.lastFmEnabled = lastFmEnabled;
     }
 
-    public EnumHolder[] getSpeechLangSchemeHolders() {
-        return speechLangSchemeHolders;
+    public String getLastFmUsername() {
+        return lastFmUsername;
     }
 
-    public void setSpeechLangSchemes(SpeechToTextLangScheme... speechLangSchemes) {
-        speechLangSchemeHolders = Arrays.stream(speechLangSchemes).map(s -> new EnumHolder(s.name(), s.toString()))
-                .collect(Collectors.toList()).toArray(new EnumHolder[speechLangSchemes.length]);
+    public void setLastFmUsername(String lastFmUsername) {
+        this.lastFmUsername = lastFmUsername;
     }
 
-    public String getSpeechLangSchemeName() {
-        return speechLangSchemeName;
+    public String getLastFmPassword() {
+        return lastFmPassword;
     }
 
-    public void setSpeechLangSchemeName(String speechLangSchemeName) {
-        this.speechLangSchemeName = speechLangSchemeName;
+    public void setLastFmPassword(String lastFmPassword) {
+        this.lastFmPassword = lastFmPassword;
     }
 
-    public String getIetf() {
-        return ietf;
+    public boolean isFinalVersionNotificationEnabled() {
+        return finalVersionNotificationEnabled;
     }
 
-    public void setIetf(String ietf) {
-        this.ietf = ietf;
+    public void setFinalVersionNotificationEnabled(boolean finalVersionNotificationEnabled) {
+        this.finalVersionNotificationEnabled = finalVersionNotificationEnabled;
     }
 
-    public String getFontFamily() {
-        return fontFamily;
+    public boolean isBetaVersionNotificationEnabled() {
+        return betaVersionNotificationEnabled;
     }
 
-    public void setFontFamily(String font) {
-        this.fontFamily = font;
+    public void setBetaVersionNotificationEnabled(boolean betaVersionNotificationEnabled) {
+        this.betaVersionNotificationEnabled = betaVersionNotificationEnabled;
     }
 
-    public int getFontSize() {
-        return fontSize;
-    }
-
-    public void setFontSize(int fontSize) {
-        this.fontSize = fontSize;
-    }
-
-    public int getShareCount() {
-        return shareCount;
-    }
-
-    public void setShareCount(int sharesCount) {
-        this.shareCount = sharesCount;
-    }
 }

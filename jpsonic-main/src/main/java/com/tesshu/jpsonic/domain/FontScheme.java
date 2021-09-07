@@ -39,6 +39,15 @@ public enum FontScheme {
     /**
      * A method in which the user specifies an arbitrary font.
      */
-    CUSTOM
+    CUSTOM;
+
+    public static FontScheme of(String s) {
+        if (JP_EMBED.name().equals(s)) {
+            return JP_EMBED;
+        } else if (CUSTOM.name().equals(s)) {
+            return CUSTOM;
+        }
+        return DEFAULT;
+    }
 
 }

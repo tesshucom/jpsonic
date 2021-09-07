@@ -183,14 +183,14 @@ document.addEventListener('DOMContentLoaded', function () {
             </dt>
             <dd class="scheme">
                 <ul class="playerSettings">
-                    <c:forEach items="${FileModifiedCheckScheme.values()}" var="fileModifiedCheckScheme" varStatus="status">
+                    <c:forEach items="${FileModifiedCheckScheme.values()}" var="scheme" varStatus="status">
                         <li>
-                            <form:radiobutton class="technologyRadio" id="radio1-${status.count}" path="fileModifiedCheckScheme" value="${fileModifiedCheckScheme}"
-                                checked="${indexScheme eq command.fileModifiedCheckScheme.name() ? 'checked' : ''}"/>
-                            <label for="radio1-${status.count}"><fmt:message key="musicfoldersettings.filemodifiedcheckscheme.${fn:toLowerCase(fileModifiedCheckScheme)}"/></label>
-                            <c:import url="helpToolTip.jsp"><c:param name="topic" value="filemodifiedcheckscheme.${fn:toLowerCase(fileModifiedCheckScheme)}"/></c:import>
+                            <form:radiobutton class="technologyRadio" id="radio1-${status.count}" path="fileModifiedCheckScheme" value="${scheme}"
+                                checked="${scheme eq command.fileModifiedCheckScheme ? 'checked' : ''}"/>
+                            <label for="radio1-${status.count}"><fmt:message key="musicfoldersettings.filemodifiedcheckscheme.${fn:toLowerCase(scheme)}"/></label>
+                            <c:import url="helpToolTip.jsp"><c:param name="topic" value="filemodifiedcheckscheme.${fn:toLowerCase(scheme)}"/></c:import>
                         </li>
-                        <c:if test='${"LAST_MODIFIED" eq fileModifiedCheckScheme}'>
+                        <c:if test='${"LAST_MODIFIED" eq scheme}'>
                             <li class="subItem">
                                 <form:checkbox path="ignoreFileTimestamps" cssClass="checkbox" id="ignoreFileTimestamps"/>
                                 <form:label path="ignoreFileTimestamps"><fmt:message key="musicfoldersettings.ignorefiletimestamps"/></form:label>

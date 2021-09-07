@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.command.UserSettingsCommand;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -89,9 +88,10 @@ public class UserSettingsController {
     }
 
     @GetMapping
-    protected String displayForm(HttpServletRequest request, Model model,
+    protected String get(HttpServletRequest request, Model model,
             @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast)
             throws ServletRequestBindingException {
+
         UserSettingsCommand command;
         if (model.containsAttribute(Attributes.Model.Command.VALUE)) {
             command = (UserSettingsCommand) model.asMap().get(Attributes.Model.Command.VALUE);
@@ -99,26 +99,28 @@ public class UserSettingsController {
             command = new UserSettingsCommand();
             User user = getUser(request);
             if (user == null) {
+                // User creation
                 command.setNewUser(true);
                 command.setStreamRole(true);
                 command.setSettingsRole(true);
             } else {
+                // User update
                 command.setUser(user);
                 command.setEmail(user.getEmail());
                 UserSettings userSettings = securityService.getUserSettings(user.getUsername());
-                command.setTranscodeSchemeName(userSettings.getTranscodeScheme().name());
+                command.setTranscodeScheme(userSettings.getTranscodeScheme());
                 command.setAllowedMusicFolderIds(PlayerUtils.toIntArray(getAllowedMusicFolderIds(user)));
                 command.setCurrentUser(
                         securityService.getCurrentUser(request).getUsername().equals(user.getUsername()));
             }
-
         }
-        command.setUsers(securityService.getAllUsers());
-        command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
-        command.setTranscodeDirectory(transcodingService.getTranscodeDirectory().getPath());
-        command.setTranscodeSchemes(TranscodeScheme.values());
+
         command.setLdapEnabled(settingsService.isLdapEnabled());
+        command.setUsers(securityService.getAllUsers());
         command.setAllMusicFolders(musicFolderService.getAllMusicFolders());
+        command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
+
+        // for view page control
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
         toast.ifPresent(command::setShowToast);
@@ -129,7 +131,7 @@ public class UserSettingsController {
     }
 
     private User getUser(HttpServletRequest request) throws ServletRequestBindingException {
-        Integer userIndex = ServletRequestUtils.getIntParameter(request, Attributes.Request.USER_INDEX.value());
+        Integer userIndex = ServletRequestUtils.getIntParameter(request, Attributes.Redirect.USER_INDEX.value());
         if (userIndex != null) {
             List<User> allUsers = securityService.getAllUsers();
             if (userIndex >= 0 && userIndex < allUsers.size()) {
@@ -151,14 +153,12 @@ public class UserSettingsController {
     }
 
     @PostMapping
-    protected ModelAndView doSubmitAction(
-            @ModelAttribute(Attributes.Model.Command.VALUE) @Validated UserSettingsCommand command,
+    protected ModelAndView post(@ModelAttribute(Attributes.Model.Command.VALUE) @Validated UserSettingsCommand command,
             BindingResult bindingResult, RedirectAttributes redirectAttributes) {
 
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute(Attributes.Redirect.COMMAND.value(), command);
             redirectAttributes.addFlashAttribute(Attributes.Redirect.BINDING_RESULT.value(), bindingResult);
-            redirectAttributes.addFlashAttribute(Attributes.Redirect.USER_INDEX.value(), getUserIndex(command));
         } else {
             if (command.isDeleteUser()) {
                 deleteUser(command);
@@ -169,13 +169,17 @@ public class UserSettingsController {
             }
             redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
         }
+
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.USER_INDEX.value(),
+                getUserIndex(command.getUsername()));
+
         return new ModelAndView(new RedirectView(ViewName.USER_SETTINGS.value()));
     }
 
-    private Integer getUserIndex(UserSettingsCommand command) {
+    private Integer getUserIndex(String userName) {
         List<User> allUsers = securityService.getAllUsers();
         for (int i = 0; i < allUsers.size(); i++) {
-            if (StringUtils.equalsIgnoreCase(allUsers.get(i).getUsername(), command.getUsername())) {
+            if (StringUtils.equalsIgnoreCase(allUsers.get(i).getUsername(), userName)) {
                 return i;
             }
         }
@@ -195,31 +199,29 @@ public class UserSettingsController {
 
     public void updateUser(UserSettingsCommand command) {
         User user = securityService.getUserByName(command.getUsername());
-        user.setEmail(StringUtils.trimToNull(command.getEmail()));
         user.setLdapAuthenticated(command.isLdapAuthenticated());
-        user.setAdminRole(command.isAdminRole());
-        user.setDownloadRole(command.isDownloadRole());
-        user.setUploadRole(command.isUploadRole());
-        user.setCoverArtRole(command.isCoverArtRole());
-        user.setCommentRole(command.isCommentRole());
-        user.setPodcastRole(command.isPodcastRole());
-        user.setStreamRole(command.isStreamRole());
-        user.setSettingsRole(command.isSettingsRole());
-        user.setShareRole(command.isShareRole());
-
         if (command.isPasswordChange()) {
             user.setPassword(command.getPassword());
         }
+        user.setEmail(StringUtils.trimToNull(command.getEmail()));
+        user.setAdminRole(command.isAdminRole());
+        user.setSettingsRole(command.isSettingsRole());
+        user.setStreamRole(command.isStreamRole());
+        user.setDownloadRole(command.isDownloadRole());
+        user.setUploadRole(command.isUploadRole());
+        user.setShareRole(command.isShareRole());
+        user.setCoverArtRole(command.isCoverArtRole());
+        user.setCommentRole(command.isCommentRole());
+        user.setPodcastRole(command.isPodcastRole());
 
         securityService.updateUser(user);
 
         UserSettings userSettings = securityService.getUserSettings(command.getUsername());
-        userSettings.setTranscodeScheme(TranscodeScheme.valueOf(command.getTranscodeSchemeName()));
+        userSettings.setTranscodeScheme(command.getTranscodeScheme());
         userSettings.setChanged(new Date());
         securityService.updateUserSettings(userSettings);
 
         List<Integer> allowedMusicFolderIds = PlayerUtils.toIntegerList(command.getAllowedMusicFolderIds());
         musicFolderService.setMusicFoldersForUser(command.getUsername(), allowedMusicFolderIds);
     }
-
 }

@@ -22,24 +22,16 @@
 package com.tesshu.jpsonic.controller;
 
 import java.security.SecureRandom;
-import java.util.Date;
 import java.util.Map;
-import java.util.Properties;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.service.RecoverService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
-import de.triology.recaptchav2java.ReCaptcha;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,17 +50,18 @@ public class RecoverController {
     private static final Logger LOG = LoggerFactory.getLogger(RecoverController.class);
     private static final String SYMBOLS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
     private static final int PASSWORD_LENGTH = 32;
-    private static final String SESSION_KEY_MAIL_PREF = "mail.";
-    private static final String SESSION_VALUE_TRUE = "true";
 
     private final SettingsService settingsService;
     private final SecurityService securityService;
+    private final RecoverService recoverService;
     private final SecureRandom random;
 
-    public RecoverController(SettingsService settingsService, SecurityService securityService) {
+    public RecoverController(SettingsService settingsService, SecurityService securityService,
+            RecoverService recoverService) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
+        this.recoverService = recoverService;
         this.random = new SecureRandom();
     }
 
@@ -83,7 +76,7 @@ public class RecoverController {
         if (usernameOrEmail != null) {
 
             map.put(Attributes.Request.USERNAME_OR_EMAIL.value(), usernameOrEmail);
-            User user = getUserByUsernameOrEmail(usernameOrEmail);
+            User user = recoverService.getUserByUsernameOrEmail(usernameOrEmail);
 
             String errorMsg = validateParam(request, user);
             if (errorMsg == null) {
@@ -115,7 +108,10 @@ public class RecoverController {
     }
 
     private String validateParam(HttpServletRequest request, User user) {
-        boolean isCaptchaFailed = !validateCaptcha(request);
+
+        String captchaResponseToken = request.getParameter(Attributes.Request.G_RECAPTCHA_RESPONSE.value());
+        boolean isCaptchaFailed = !recoverService.validateCaptcha(captchaResponseToken);
+
         if (isCaptchaFailed) {
             return "recover.error.invalidcaptcha";
         } else if (user == null) {
@@ -123,26 +119,7 @@ public class RecoverController {
         } else if (user.getEmail() == null) {
             return "recover.error.noemail";
         }
-        return null;
-    }
 
-    private boolean validateCaptcha(HttpServletRequest request) {
-        if (settingsService.isCaptchaEnabled()) {
-            String recaptchaResponse = request.getParameter(Attributes.Request.G_RECAPTCHA_RESPONSE.value());
-            ReCaptcha captcha = new ReCaptcha(settingsService.getRecaptchaSecretKey());
-            return recaptchaResponse != null && captcha.isValid(recaptchaResponse);
-        }
-        return true;
-    }
-
-    private User getUserByUsernameOrEmail(String usernameOrEmail) {
-        if (usernameOrEmail != null) {
-            User user = securityService.getUserByName(usernameOrEmail);
-            if (user != null) {
-                return user;
-            }
-            return securityService.getUserByEmail(usernameOrEmail);
-        }
         return null;
     }
 
@@ -157,52 +134,7 @@ public class RecoverController {
             LOG.warn("Can not send email; no Smtp server configured.");
             return false;
         }
-
-        String prot = "smtp";
-        Properties props = new Properties();
-        if ("SSL/TLS".equals(settingsService.getSmtpEncryption())) {
-            prot = "smtps";
-            props.put(SESSION_KEY_MAIL_PREF + prot + ".ssl.enable", SESSION_VALUE_TRUE);
-        } else if ("STARTTLS".equals(settingsService.getSmtpEncryption())) {
-            prot = "smtp";
-            props.put(SESSION_KEY_MAIL_PREF + prot + ".starttls.enable", SESSION_VALUE_TRUE);
-        }
-        props.put(SESSION_KEY_MAIL_PREF + prot + ".host", settingsService.getSmtpServer());
-        props.put(SESSION_KEY_MAIL_PREF + prot + ".port", settingsService.getSmtpPort());
-        /* use authentication when SmtpUser is configured */
-        if (settingsService.getSmtpUser() != null && !settingsService.getSmtpUser().isEmpty()) {
-            props.put(SESSION_KEY_MAIL_PREF + prot + ".auth", SESSION_VALUE_TRUE);
-        }
-
-        Session session = Session.getInstance(props, null);
-
-        try {
-            Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(settingsService.getSmtpFrom()));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
-            message.setSubject("Jpsonic Password");
-            message.setText("Hi there!\n\n"
-                    + "You have requested to reset your Jpsonic password.  Please find your new login details below.\n\n"
-                    + "Username: " + username + "\n" + "Password: " + password + "\n\n" + "--\n"
-                    + "Your Jpsonic server\n" + "tesshu.com/");
-            message.setSentDate(new Date());
-
-            try (Transport trans = session.getTransport(prot)) {
-                if (props.get(SESSION_KEY_MAIL_PREF + prot + ".auth") != null
-                        && props.get(SESSION_KEY_MAIL_PREF + prot + ".auth").equals(SESSION_VALUE_TRUE)) {
-                    trans.connect(settingsService.getSmtpServer(), settingsService.getSmtpUser(),
-                            settingsService.getSmtpPassword());
-                } else {
-                    trans.connect();
-                }
-                trans.sendMessage(message, message.getAllRecipients());
-            }
-            return true;
-
-        } catch (MessagingException e) {
-            LOG.warn("Failed to send email.", e);
-            return false;
-        }
+        return recoverService.emailPassword(password, username, email);
     }
 
 }

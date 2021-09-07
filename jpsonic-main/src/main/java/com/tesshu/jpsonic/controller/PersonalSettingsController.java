@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletRequest;
 import com.tesshu.jpsonic.command.PersonalSettingsCommand;
 import com.tesshu.jpsonic.domain.AlbumListType;
 import com.tesshu.jpsonic.domain.AvatarScheme;
-import com.tesshu.jpsonic.domain.FontScheme;
 import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import com.tesshu.jpsonic.domain.SupportableBCP47;
 import com.tesshu.jpsonic.domain.Theme;
@@ -87,81 +86,62 @@ public class PersonalSettingsController {
 
         User user = securityService.getCurrentUser(request);
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
-
         command.setUser(user);
-        command.setDefaultSettings(securityService.getUserSettings(""));
-        command.setTabletSettings(securityService.createDefaultTabletUserSettings(""));
-        command.setSmartphoneSettings(securityService.createDefaultSmartphoneUserSettings(""));
+
+        // Language and theme
+
+        // - Default language
+        command.setLocaleIndex("-1");
+        Locale[] locales = settingsService.getAvailableLocales();
+        String[] localeStrings = new String[locales.length];
+        for (int i = 0; i < locales.length; i++) {
+            localeStrings[i] = locales[i].getDisplayName(locales[i]);
+            if (locales[i].equals(userSettings.getLocale())) {
+                command.setLocaleIndex(String.valueOf(i));
+            }
+        }
+        command.setLocales(localeStrings);
+
+        // - Theme
+        command.setThemeIndex("-1");
+        List<Theme> themes = SettingsService.getAvailableThemes();
+        command.setThemes(themes.toArray(new Theme[0]));
+        for (int i = 0; i < themes.size(); i++) {
+            if (themes.get(i).getId().equals(userSettings.getThemeId())) {
+                command.setThemeIndex(String.valueOf(i));
+                break;
+            }
+        }
+
+        // - Font
+        WebFontUtils.setToCommand(userSettings, command);
         command.setFontFamilyDefault(WebFontUtils.DEFAULT_FONT_FAMILY);
         command.setFontFamilyJpEmbedDefault(
                 WebFontUtils.JP_FONT_NAME.concat(", ").concat(WebFontUtils.DEFAULT_FONT_FAMILY));
         command.setFontSizeDefault(WebFontUtils.DEFAULT_FONT_SIZE);
         command.setFontSizeJpEmbedDefault(WebFontUtils.DEFAULT_JP_FONT_SIZE);
-        command.setLocaleIndex("-1");
-        command.setThemeIndex("-1");
+
+        // Options related to display and playing control
+        command.setDefaultSettings(securityService.getUserSettings(""));
+        command.setTabletSettings(securityService.createDefaultTabletUserSettings(""));
+        command.setSmartphoneSettings(securityService.createDefaultSmartphoneUserSettings(""));
+        command.setKeyboardShortcutsEnabled(userSettings.isKeyboardShortcutsEnabled());
         command.setAlbumLists(AlbumListType.values());
         command.setAlbumListId(userSettings.getDefaultAlbumList().getId());
-        command.setAvatars(avatarService.getAllSystemAvatars());
-        command.setCustomAvatar(avatarService.getCustomAvatar(user.getUsername()));
-        command.setAvatarId(getAvatarId(userSettings));
-        command.setPartyModeEnabled(userSettings.isPartyModeEnabled());
-        command.setQueueFollowingSongs(userSettings.isQueueFollowingSongs());
-        command.setCloseDrawer(userSettings.isCloseDrawer());
-        command.setClosePlayQueue(userSettings.isClosePlayQueue());
-        command.setAlternativeDrawer(userSettings.isAlternativeDrawer());
-        command.setShowIndex(userSettings.isShowIndex());
-        command.setAssignAccesskeyToNumber(userSettings.isAssignAccesskeyToNumber());
-        command.setOpenDetailIndex(userSettings.isOpenDetailIndex());
-        command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
-        command.setOpenDetailStar(userSettings.isOpenDetailStar());
-        command.setShowNowPlayingEnabled(userSettings.isShowNowPlayingEnabled());
-        command.setShowArtistInfoEnabled(userSettings.isShowArtistInfoEnabled());
-        command.setNowPlayingAllowed(userSettings.isNowPlayingAllowed());
-        command.setMainVisibility(userSettings.getMainVisibility());
-        command.setPlaylistVisibility(userSettings.getPlaylistVisibility());
-        command.setFinalVersionNotificationEnabled(userSettings.isFinalVersionNotificationEnabled());
-        command.setBetaVersionNotificationEnabled(userSettings.isBetaVersionNotificationEnabled());
-        command.setSongNotificationEnabled(userSettings.isSongNotificationEnabled());
-        command.setAutoHidePlayQueue(userSettings.isAutoHidePlayQueue());
-        command.setKeyboardShortcutsEnabled(userSettings.isKeyboardShortcutsEnabled());
-        command.setLastFmEnabled(userSettings.isLastFmEnabled());
-        command.setLastFmUsername(userSettings.getLastFmUsername());
-        command.setLastFmPassword(userSettings.getLastFmPassword());
-        command.setListenBrainzEnabled(userSettings.isListenBrainzEnabled());
-        command.setListenBrainzToken(userSettings.getListenBrainzToken());
-        command.setPaginationSize(userSettings.getPaginationSize());
-        command.setSimpleDisplay(userSettings.isSimpleDisplay());
-        command.setShowSibling(userSettings.isShowSibling());
-        command.setShowRate(userSettings.isShowRate());
-        command.setShowAlbumSearch(userSettings.isShowAlbumSearch());
-        command.setShowLastPlay(userSettings.isShowLastPlay());
-        command.setShowDownload(userSettings.isShowDownload());
-        command.setShowTag(userSettings.isShowTag());
-        command.setShowComment(userSettings.isShowComment());
-        command.setShowShare(userSettings.isShowShare());
-        command.setShowChangeCoverArt(userSettings.isShowChangeCoverArt());
-        command.setShowTopSongs(userSettings.isShowTopSongs());
-        command.setShowSimilar(userSettings.isShowSimilar());
-        command.setShowAlbumActions(userSettings.isShowAlbumActions());
-        command.setBreadcrumbIndex(userSettings.isBreadcrumbIndex());
         command.setPutMenuInDrawer(userSettings.isPutMenuInDrawer());
-        command.setFontSchemes(FontScheme.values());
-        command.setFontSchemeName(userSettings.getFontSchemeName());
-        command.setFontSize(userSettings.getFontSize());
-        command.setForceBio2Eng(userSettings.isForceBio2Eng());
-        command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
-        command.setVoiceInputEnabled(userSettings.isVoiceInputEnabled());
-        command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
+        command.setShowIndex(userSettings.isShowIndex());
+        command.setCloseDrawer(userSettings.isCloseDrawer());
+        command.setAlternativeDrawer(userSettings.isAlternativeDrawer());
+        command.setClosePlayQueue(userSettings.isClosePlayQueue());
+        command.setAutoHidePlayQueue(userSettings.isAutoHidePlayQueue());
+        command.setBreadcrumbIndex(userSettings.isBreadcrumbIndex());
+        command.setAssignAccesskeyToNumber(userSettings.isAssignAccesskeyToNumber());
+        command.setSimpleDisplay(userSettings.isSimpleDisplay());
+        command.setQueueFollowingSongs(userSettings.isQueueFollowingSongs());
         command.setShowCurrentSongInfo(userSettings.isShowCurrentSongInfo());
-        command.setSpeechLangSchemes(SpeechToTextLangScheme.values());
-        command.setSpeechLangSchemeName(userSettings.getSpeechLangSchemeName());
-        if (isEmpty(userSettings.getLocale())) {
-            command.setIetfDefault(SupportableBCP47.valueOf(settingsService.getLocale()).getValue());
-            command.setIetfDisplayDefault(settingsService.getLocale().getDisplayName(settingsService.getLocale()));
-        } else {
-            command.setIetfDefault(SupportableBCP47.valueOf(userSettings.getLocale()).getValue());
-            command.setIetfDisplayDefault(userSettings.getLocale().getDisplayName(userSettings.getLocale()));
-        }
+        command.setSongNotificationEnabled(userSettings.isSongNotificationEnabled());
+        command.setVoiceInputEnabled(userSettings.isVoiceInputEnabled());
+        command.setSpeechToTextLangScheme(SpeechToTextLangScheme.of(userSettings.getSpeechLangSchemeName()));
         if (SpeechToTextLangScheme.DEFAULT.name().equals(userSettings.getSpeechLangSchemeName())) {
             command.setIetf(SupportableBCP47
                     .valueOf(isEmpty(userSettings.getLocale()) ? settingsService.getLocale() : userSettings.getLocale())
@@ -169,32 +149,62 @@ public class PersonalSettingsController {
         } else {
             command.setIetf(userSettings.getIetf());
         }
-        WebFontUtils.setToCommand(userSettings, command);
+        if (isEmpty(userSettings.getLocale())) {
+            command.setIetfDefault(SupportableBCP47.valueOf(settingsService.getLocale()).getValue());
+            command.setIetfDisplayDefault(settingsService.getLocale().getDisplayName(settingsService.getLocale()));
+        } else {
+            command.setIetfDefault(SupportableBCP47.valueOf(userSettings.getLocale()).getValue());
+            command.setIetfDisplayDefault(userSettings.getLocale().getDisplayName(userSettings.getLocale()));
+        }
+        command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
+        command.setOpenDetailIndex(userSettings.isOpenDetailIndex());
+        command.setOpenDetailStar(userSettings.isOpenDetailStar());
+
+        // Column to be displayed
+        command.setMainVisibility(userSettings.getMainVisibility());
+        command.setPlaylistVisibility(userSettings.getPlaylistVisibility());
+
+        // Additional display features
+        command.setNowPlayingAllowed(userSettings.isNowPlayingAllowed());
+        command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
+        command.setShowNowPlayingEnabled(userSettings.isShowNowPlayingEnabled());
+        command.setShowArtistInfoEnabled(userSettings.isShowArtistInfoEnabled());
+        command.setForceBio2Eng(userSettings.isForceBio2Eng());
+        command.setShowTopSongs(userSettings.isShowTopSongs());
+        command.setShowSimilar(userSettings.isShowSimilar());
+        command.setShowComment(userSettings.isShowComment());
+        command.setShowSibling(userSettings.isShowSibling());
+        command.setPaginationSize(userSettings.getPaginationSize());
+        command.setShowTag(userSettings.isShowTag());
+        command.setShowChangeCoverArt(userSettings.isShowChangeCoverArt());
+        command.setShowAlbumSearch(userSettings.isShowAlbumSearch());
+        command.setShowLastPlay(userSettings.isShowLastPlay());
+        command.setShowRate(userSettings.isShowRate());
+        command.setShowAlbumActions(userSettings.isShowAlbumActions());
+        command.setShowDownload(userSettings.isShowDownload());
+        command.setShowShare(userSettings.isShowShare());
+        command.setPartyModeEnabled(userSettings.isPartyModeEnabled());
+
+        // Personal image
+        command.setAvatarId(getAvatarId(userSettings));
+        command.setAvatars(avatarService.getAllSystemAvatars());
+        command.setCustomAvatar(avatarService.getCustomAvatar(user.getUsername()));
+
+        // Cooperation with Music SNS
+        command.setListenBrainzEnabled(userSettings.isListenBrainzEnabled());
+        command.setListenBrainzToken(userSettings.getListenBrainzToken());
+        command.setLastFmEnabled(userSettings.isLastFmEnabled());
+        command.setLastFmUsername(userSettings.getLastFmUsername());
+        command.setLastFmPassword(userSettings.getLastFmPassword());
+
+        // Update notification
+        command.setFinalVersionNotificationEnabled(userSettings.isFinalVersionNotificationEnabled());
+        command.setBetaVersionNotificationEnabled(userSettings.isBetaVersionNotificationEnabled());
+
+        // for view page control
+        command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         toast.ifPresent(command::setShowToast);
-
-        Locale currentLocale = userSettings.getLocale();
-        Locale[] locales = settingsService.getAvailableLocales();
-        String[] localeStrings = new String[locales.length];
-        for (int i = 0; i < locales.length; i++) {
-            localeStrings[i] = locales[i].getDisplayName(locales[i]);
-            if (locales[i].equals(currentLocale)) {
-                command.setLocaleIndex(String.valueOf(i));
-            }
-        }
-        command.setLocales(localeStrings);
-
-        String currentThemeId = userSettings.getThemeId();
-        List<Theme> themes = SettingsService.getAvailableThemes();
-        command.setThemes(themes.toArray(new Theme[0]));
-        for (int i = 0; i < themes.size(); i++) {
-            if (themes.get(i).getId().equals(currentThemeId)) {
-                command.setThemeIndex(String.valueOf(i));
-                break;
-            }
-        }
-
         command.setShareCount(shareService.getAllShares().size());
-
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
 
@@ -211,86 +221,104 @@ public class PersonalSettingsController {
             @ModelAttribute(Attributes.Model.Command.VALUE) PersonalSettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
+        String username = command.getUser().getUsername();
+        UserSettings settings = securityService.getUserSettings(username);
+
+        // Language and theme
+
+        // - Default language
         int localeIndex = Integer.parseInt(command.getLocaleIndex());
         Locale locale = null;
         if (localeIndex != -1) {
             locale = settingsService.getAvailableLocales()[localeIndex];
         }
+        settings.setLocale(locale);
 
+        // - Theme
         int themeIndex = Integer.parseInt(command.getThemeIndex());
         String themeId = null;
         if (themeIndex != -1) {
             themeId = SettingsService.getAvailableThemes().get(themeIndex).getId();
         }
-
-        String username = command.getUser().getUsername();
-        UserSettings settings = securityService.getUserSettings(username);
-
-        settings.setLocale(locale);
         settings.setThemeId(themeId);
-        settings.setDefaultAlbumList(AlbumListType.fromId(command.getAlbumListId()));
-        settings.setPartyModeEnabled(command.isPartyModeEnabled());
-        settings.setQueueFollowingSongs(command.isQueueFollowingSongs());
-        settings.setNowPlayingAllowed(command.isNowPlayingAllowed());
-        settings.setShowNowPlayingEnabled(
-                settingsService.isOthersPlayingEnabled() && command.isShowNowPlayingEnabled());
-        settings.setShowArtistInfoEnabled(command.isShowArtistInfoEnabled());
-        settings.setCloseDrawer(command.isCloseDrawer());
-        settings.setClosePlayQueue(command.isClosePlayQueue());
-        settings.setAlternativeDrawer(command.isAlternativeDrawer());
-        settings.setShowIndex(command.isShowIndex());
-        settings.setAssignAccesskeyToNumber(command.isAssignAccesskeyToNumber());
-        settings.setOpenDetailIndex(command.isOpenDetailIndex());
-        settings.setOpenDetailSetting(command.isOpenDetailSetting());
-        settings.setOpenDetailStar(command.isOpenDetailStar());
-        settings.setMainVisibility(command.getMainVisibility());
-        settings.setPlaylistVisibility(command.getPlaylistVisibility());
-        settings.setFinalVersionNotificationEnabled(command.isFinalVersionNotificationEnabled());
-        settings.setBetaVersionNotificationEnabled(command.isBetaVersionNotificationEnabled());
-        settings.setSongNotificationEnabled(command.isSongNotificationEnabled());
-        settings.setAutoHidePlayQueue(command.isAutoHidePlayQueue());
+
+        // - Font
+        WebFontUtils.setToSettings(command, settings);
+
+        // Options related to display and playing control
         settings.setKeyboardShortcutsEnabled(command.isKeyboardShortcutsEnabled());
-        settings.setLastFmEnabled(command.isLastFmEnabled());
-        settings.setLastFmUsername(command.getLastFmUsername());
-        settings.setListenBrainzEnabled(command.isListenBrainzEnabled());
-        settings.setListenBrainzToken(command.getListenBrainzToken());
-        settings.setSystemAvatarId(getSystemAvatarId(command));
-        settings.setAvatarScheme(getAvatarScheme(command));
-        settings.setPaginationSize(command.getPaginationSize());
-        settings.setSimpleDisplay(command.isSimpleDisplay());
-        settings.setShowSibling(command.isShowSibling());
-        settings.setShowRate(command.isShowRate());
-        settings.setShowAlbumSearch(command.isShowAlbumSearch());
-        settings.setShowLastPlay(command.isShowLastPlay());
-        settings.setShowDownload(command.isShowDownload());
-        settings.setShowTag(command.isShowTag());
-        settings.setShowComment(command.isShowComment());
-        settings.setShowShare(command.isShowShare());
-        settings.setShowChangeCoverArt(command.isShowChangeCoverArt());
-        settings.setShowTopSongs(command.isShowTopSongs());
-        settings.setShowSimilar(command.isShowSimilar());
-        settings.setShowAlbumActions(command.isShowAlbumActions());
-        settings.setBreadcrumbIndex(command.isBreadcrumbIndex());
+        settings.setDefaultAlbumList(AlbumListType.fromId(command.getAlbumListId()));
         settings.setPutMenuInDrawer(command.isPutMenuInDrawer());
-        settings.setFontSchemeName(command.getFontSchemeName());
-        settings.setFontSize(command.getFontSize());
-        settings.setForceBio2Eng(command.isForceBio2Eng());
-        settings.setVoiceInputEnabled(command.isVoiceInputEnabled());
+        settings.setShowIndex(command.isShowIndex());
+        settings.setCloseDrawer(command.isCloseDrawer());
+        settings.setAlternativeDrawer(command.isAlternativeDrawer());
+        settings.setClosePlayQueue(command.isClosePlayQueue());
+        settings.setAutoHidePlayQueue(command.isAutoHidePlayQueue());
+
+        settings.setBreadcrumbIndex(command.isBreadcrumbIndex());
+        settings.setAssignAccesskeyToNumber(command.isAssignAccesskeyToNumber());
+        settings.setSimpleDisplay(command.isSimpleDisplay());
+        settings.setQueueFollowingSongs(command.isQueueFollowingSongs());
         settings.setShowCurrentSongInfo(command.isShowCurrentSongInfo());
-        settings.setSpeechLangSchemeName(command.getSpeechLangSchemeName());
-        if (SpeechToTextLangScheme.DEFAULT.name().equals(command.getSpeechLangSchemeName())) {
+        settings.setSongNotificationEnabled(command.isSongNotificationEnabled());
+        settings.setVoiceInputEnabled(command.isVoiceInputEnabled());
+        settings.setSpeechLangSchemeName(command.getSpeechToTextLangScheme().name());
+        if (SpeechToTextLangScheme.DEFAULT == command.getSpeechToTextLangScheme()) {
             settings.setIetf(SupportableBCP47.valueOf(locale).getValue());
         } else if (StringUtils.isNotBlank(command.getIetf()) && command.getIetf().matches("[a-zA-Z\\-\\_]+")) {
             settings.setIetf(command.getIetf());
         }
+
+        // Column to be displayed
+        settings.setMainVisibility(command.getMainVisibility());
+        settings.setPlaylistVisibility(command.getPlaylistVisibility());
+
+        // Additional display features
+        settings.setNowPlayingAllowed(command.isNowPlayingAllowed());
+        settings.setShowNowPlayingEnabled(
+                settingsService.isOthersPlayingEnabled() && command.isShowNowPlayingEnabled());
+        settings.setShowArtistInfoEnabled(command.isShowArtistInfoEnabled());
+        settings.setForceBio2Eng(command.isForceBio2Eng());
+        settings.setShowTopSongs(command.isShowTopSongs());
+        settings.setShowSimilar(command.isShowSimilar());
+        settings.setShowComment(command.isShowComment());
+        settings.setShowSibling(command.isShowSibling());
+        settings.setPaginationSize(command.getPaginationSize());
+        settings.setShowTag(command.isShowTag());
+        settings.setShowChangeCoverArt(command.isShowChangeCoverArt());
+        settings.setShowAlbumSearch(command.isShowAlbumSearch());
+        settings.setShowLastPlay(command.isShowLastPlay());
+        settings.setShowRate(command.isShowRate());
+        settings.setShowAlbumActions(command.isShowAlbumActions());
+        settings.setShowDownload(command.isShowDownload());
+        settings.setShowShare(command.isShowShare());
+        settings.setPartyModeEnabled(command.isPartyModeEnabled());
+
+        // Personal image
+        settings.setAvatarScheme(getAvatarScheme(command));
+        settings.setSystemAvatarId(getSystemAvatarId(command));
+
+        // Cooperation with Music SNS
+        settings.setListenBrainzEnabled(command.isListenBrainzEnabled());
+        settings.setListenBrainzToken(command.getListenBrainzToken());
+        settings.setLastFmEnabled(command.isLastFmEnabled());
+        settings.setLastFmUsername(command.getLastFmUsername());
         if (StringUtils.isNotBlank(command.getLastFmPassword())) {
             settings.setLastFmPassword(command.getLastFmPassword());
         }
-        WebFontUtils.setToSettings(command, settings);
-        settings.setChanged(new Date());
-        securityService.updateUserSettings(settings);
 
+        // Update notification
+        settings.setFinalVersionNotificationEnabled(command.isFinalVersionNotificationEnabled());
+        settings.setBetaVersionNotificationEnabled(command.isBetaVersionNotificationEnabled());
+
+        // for view page control
+        settings.setOpenDetailIndex(command.isOpenDetailIndex());
+        settings.setOpenDetailSetting(command.isOpenDetailSetting());
+        settings.setOpenDetailStar(command.isOpenDetailStar());
+        settings.setChanged(new Date());
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
+
+        securityService.updateUserSettings(settings);
 
         return new ModelAndView(new RedirectView(ViewName.PERSONAL_SETTINGS.value()));
     }
@@ -317,5 +345,4 @@ public class PersonalSettingsController {
         }
         return avatarId;
     }
-
 }
