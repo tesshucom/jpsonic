@@ -188,7 +188,8 @@ public class UPnPService {
             try {
                 deligate.getRegistry().addDevice(createMediaServerDevice());
                 if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
-                    LOG.info("Enabling UPnP media server");
+                    LOG.info("Enabling UPnP media server [{}]({})", settingsService.getDlnaServerName(),
+                            settingsService.getDlnaBaseLANURL());
                 }
             } catch (ExecutionException e) {
                 ConcurrentUtils.handleCauseUnchecked(e);

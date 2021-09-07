@@ -118,6 +118,12 @@ public class DLNASettingsController {
     public ModelAndView post(@ModelAttribute(Attributes.Model.Command.VALUE) DLNASettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
+        final boolean isEnabledChanged = settingsService.isDlnaEnabled() != command.isDlnaEnabled();
+        final boolean isNameOrUrlChanged = !isEmpty(command.getDlnaServerName())
+                && !command.getDlnaServerName().equals(settingsService.getDlnaServerName())
+                || !isEmpty(command.getDlnaBaseLANURL())
+                        && !command.getDlnaBaseLANURL().equals(settingsService.getDlnaBaseLANURL());
+
         // UPnP basic settings
         settingsService.setDlnaEnabled(command.isDlnaEnabled());
         settingsService
@@ -149,20 +155,16 @@ public class DLNASettingsController {
 
         settingsService.save();
 
-        if (isEnabledStateChange(command)) {
+        if (isEnabledChanged) {
             upnpService.setMediaServerEnabled(command.isDlnaEnabled());
+        } else if (isNameOrUrlChanged && settingsService.isDlnaEnabled()) {
+            upnpService.setMediaServerEnabled(false);
+            upnpService.setMediaServerEnabled(true);
         }
 
         // for view page control
         redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
 
         return new ModelAndView(new RedirectView(ViewName.DLNA_SETTINGS.value()));
-    }
-
-    private boolean isEnabledStateChange(DLNASettingsCommand command) {
-        return !(settingsService.isDlnaEnabled() == command.isDlnaEnabled() && !isEmpty(command.getDlnaServerName())
-                && command.getDlnaServerName().equals(settingsService.getDlnaServerName())
-                && !isEmpty(command.getDlnaBaseLANURL())
-                && command.getDlnaBaseLANURL().equals(settingsService.getDlnaBaseLANURL()));
     }
 }
