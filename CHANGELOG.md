@@ -12,6 +12,7 @@ The binaries of SNAPSHOT are available from the latest artifacts on the [master 
   * Delete Jukebox ([#1107](https://github.com/tesshucom/jpsonic/issues/1107))
   * Improve setting page to make it easier to switch getNowPlaying ON/OFF ([#1048](https://github.com/tesshucom/jpsonic/issues/1048))
   * Add options to control checking for update dates during scanning ([#1101](https://github.com/tesshucom/jpsonic/issues/1101))
+  * Fix to show changed user/player on reload ([#1148](https://github.com/tesshucom/jpsonic/issues/1148), [#1151](https://github.com/tesshucom/jpsonic/issues/1151))
   * Update libs
 
 #### Fixes
@@ -19,6 +20,7 @@ The binaries of SNAPSHOT are available from the latest artifacts on the [master 
   * Fix bug that some layouts are broken, in certain languages ([#1103](https://github.com/tesshucom/jpsonic/issues/1103))
   * Fix bug that database cleanup could not be started ([#1109](https://github.com/tesshucom/jpsonic/issues/1109))
   * Fix bug that the reading of the artist (directory) was not updated ([#1110](https://github.com/tesshucom/jpsonic/issues/1110))
+  * Fix bug that UPnP did not start even if the setting was enabled ([#1149](https://github.com/tesshucom/jpsonic/issues/1149))
 
 <details>
 <summary>v110.0.0</summary>
