@@ -52,16 +52,16 @@ public class StatusController {
 
     private static final long LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60L;
 
-    private final StatusService statusService;
     private final SettingsService settingsService;
     private final SecurityService securityService;
+    private final StatusService statusService;
 
-    public StatusController(StatusService statusService, SettingsService settingsService,
-            SecurityService securityService) {
+    public StatusController(SettingsService settingsService, SecurityService securityService,
+            StatusService statusService) {
         super();
-        this.statusService = statusService;
         this.settingsService = settingsService;
         this.securityService = securityService;
+        this.statusService = statusService;
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TransferStatusHolder) Not reusable

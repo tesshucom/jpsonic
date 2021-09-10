@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.reflect.InvocationTargetException;
@@ -27,36 +28,29 @@ import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.command.PersonalSettingsCommand;
 import com.tesshu.jpsonic.domain.FontScheme;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.SecurityService;
 import org.apache.catalina.connector.Request;
 import org.checkerframework.checker.signedness.qual.Unsigned;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 
-@SpringBootTest
-@SpringBootConfiguration
-@ComponentScan(basePackages = "com.tesshu.jpsonic")
-@ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 class WebFontUtilsTest {
 
     private static final String FONT_FACE_KEY = "viewhint.fontFace";
-
     private static final String FONT_FAMILY_KEY = "viewhint.fontFamily";
-
     private static final String FONT_SIZE_KEY = "viewhint.fontSize";
 
-    @Autowired
     private SecurityService securityService;
+
+    @BeforeEach
+    public void setup() {
+        securityService = mock(SecurityService.class);
+    }
 
     @Test
     @Order(1)
@@ -67,10 +61,12 @@ class WebFontUtilsTest {
         @Unsigned
         UserSettings settings;
 
+        SecurityService service = new SecurityService(null, null, null, null);
+
         try {
-            method = securityService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
+            method = service.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
             method.setAccessible(true);
-            settings = (UserSettings) method.invoke(securityService, "");
+            settings = (UserSettings) method.invoke(service, "");
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e) {
             throw new ExecutionException(e);
@@ -150,10 +146,12 @@ class WebFontUtilsTest {
         @Unsigned
         UserSettings from;
 
+        SecurityService service = new SecurityService(null, null, null, null);
+
         try {
-            method = securityService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
+            method = service.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
             method.setAccessible(true);
-            from = (UserSettings) method.invoke(securityService, "");
+            from = (UserSettings) method.invoke(service, "");
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e) {
             throw new ExecutionException(e);
@@ -209,10 +207,11 @@ class WebFontUtilsTest {
         @Unsigned
         UserSettings to;
 
+        SecurityService service = new SecurityService(null, null, null, null);
         try {
-            method = securityService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
+            method = service.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
             method.setAccessible(true);
-            to = (UserSettings) method.invoke(securityService, "");
+            to = (UserSettings) method.invoke(service, "");
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e) {
             throw new ExecutionException(e);

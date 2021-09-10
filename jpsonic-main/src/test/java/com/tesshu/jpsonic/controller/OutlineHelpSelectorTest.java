@@ -19,28 +19,28 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import com.tesshu.jpsonic.NeedsHome;
+import java.util.concurrent.ExecutionException;
+
+import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.ServiceMockUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ExtendWith(NeedsHome.class)
 class OutlineHelpSelectorTest {
 
-    @Autowired
-    private OutlineHelpSelector selector;
+    private OutlineHelpSelector outlineHelpSelector;
+
+    @BeforeEach
+    public void setup() throws ExecutionException {
+        outlineHelpSelector = new OutlineHelpSelector(mock(SecurityService.class));
+    }
 
     @Test
     void testIsShowOutlineHelp() throws Exception {
-        MockHttpServletRequest req = new MockHttpServletRequest();
-        req.addParameter(Attributes.Request.USER_NAME.value(), "admin");
-        assertFalse(selector.isShowOutlineHelp(req, null));
+        assertFalse(outlineHelpSelector.isShowOutlineHelp(new MockHttpServletRequest(), ServiceMockUtils.ADMIN_NAME));
     }
 }

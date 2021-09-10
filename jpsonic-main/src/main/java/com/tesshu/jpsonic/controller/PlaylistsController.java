@@ -46,16 +46,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping({ "/playlists", "/playlists.view", })
 public class PlaylistsController {
 
-    private final SecurityService securityService;
     private final SettingsService settingsService;
+    private final SecurityService securityService;
     private final PlaylistService playlistService;
     private final ViewAsListSelector viewSelector;
 
-    public PlaylistsController(SecurityService securityService, SettingsService settingsService,
+    public PlaylistsController(SettingsService settingsService, SecurityService securityService,
             PlaylistService playlistService, ViewAsListSelector viewSelector) {
         super();
-        this.securityService = securityService;
         this.settingsService = settingsService;
+        this.securityService = securityService;
         this.playlistService = playlistService;
         this.viewSelector = viewSelector;
     }

@@ -19,23 +19,18 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static org.junit.Assert.assertNotNull;
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
-import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -44,35 +39,20 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
-@AutoConfigureMockMvc
 class DatabaseSettingsControllerTest {
-
-    private static final String ADMIN_NAME = "admin";
-
-    @Mock
-    private SettingsService settingsService;
-    @Mock
-    private SecurityService securityService;
-    @Mock
-    private ShareService shareService;
-    @Mock
-    private OutlineHelpSelector outlineHelpSelector;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        Mockito.when(securityService.getCurrentUsername(Mockito.any())).thenReturn(ADMIN_NAME);
-        Mockito.when(securityService.getCurrentUser(Mockito.any())).thenReturn(new User(ADMIN_NAME, ADMIN_NAME, ""));
-        mockMvc = MockMvcBuilders.standaloneSetup(
-                new DatabaseSettingsController(settingsService, securityService, shareService, outlineHelpSelector))
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(new DatabaseSettingsController(mock(SettingsService.class),
+                        mock(SecurityService.class), mock(ShareService.class), mock(OutlineHelpSelector.class)))
                 .build();
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGet() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.DATABASE_SETTINGS.value()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();

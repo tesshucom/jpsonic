@@ -41,17 +41,17 @@ import org.springframework.test.web.servlet.MockMvc;
 class InternalHelpControllerTest {
 
     @Autowired
-    private MockMvc mvc;
+    private MockMvc mockMvc;
 
     @Test
     @WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
     void testOkForAdmins() throws Exception {
-        mvc.perform(get("/internalhelp").contentType(MediaType.TEXT_HTML)).andExpect(status().isOk());
+        mockMvc.perform(get("/internalhelp").contentType(MediaType.TEXT_HTML)).andExpect(status().isOk());
     }
 
     @Test
     @WithMockUser(username = "user", roles = { "USER" })
     void testNotOkForUsers() throws Exception {
-        mvc.perform(get("/internalhelp").contentType(MediaType.TEXT_HTML)).andExpect(status().isForbidden());
+        mockMvc.perform(get("/internalhelp").contentType(MediaType.TEXT_HTML)).andExpect(status().isForbidden());
     }
 }

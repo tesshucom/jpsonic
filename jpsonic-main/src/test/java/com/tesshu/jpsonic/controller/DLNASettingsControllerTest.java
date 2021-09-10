@@ -19,31 +19,26 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.lang.annotation.Documented;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.command.DLNASettingsCommand;
-import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.UPnPService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -53,44 +48,30 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ExtendWith(NeedsHome.class)
 class DLNASettingsControllerTest {
 
-    private static final String ADMIN_NAME = "admin";
-    private static final String VIEW_NAME = "dlnaSettings";
-
-    @Mock
     private SettingsService settingsService;
-    @Mock
-    private SecurityService securityService;
-    @Mock
     private UPnPService upnpService;
-    @Mock
-    private ShareService shareService;
-
     private DLNASettingsController controller;
-
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        controller = new DLNASettingsController(settingsService, securityService, upnpService, shareService);
+        settingsService = mock(SettingsService.class);
+        upnpService = mock(UPnPService.class);
+        controller = new DLNASettingsController(settingsService, mock(SecurityService.class), upnpService,
+                mock(ShareService.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
-        UserSettings settings = new UserSettings(ADMIN_NAME);
-        Mockito.when(securityService.getCurrentUser(Mockito.any())).thenReturn(new User(ADMIN_NAME, ADMIN_NAME, ""));
-        Mockito.when(securityService.getUserSettings(ADMIN_NAME)).thenReturn(settings);
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGet() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.DLNA_SETTINGS.value()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
-        assertEquals(VIEW_NAME, modelAndView.getViewName());
+        assertEquals("dlnaSettings", modelAndView.getViewName());
 
         DLNASettingsCommand command = (DLNASettingsCommand) modelAndView.getModelMap()
                 .get(Attributes.Model.Command.VALUE);
@@ -98,13 +79,13 @@ class DLNASettingsControllerTest {
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testPost() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.DLNA_SETTINGS.value()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
-        assertEquals(VIEW_NAME, modelAndView.getViewName());
+        assertEquals("dlnaSettings", modelAndView.getViewName());
 
         DLNASettingsCommand command = (DLNASettingsCommand) modelAndView.getModelMap()
                 .get(Attributes.Model.Command.VALUE);
@@ -135,7 +116,7 @@ class DLNASettingsControllerTest {
         Mockito.doNothing().when(settingsService).setDlnaGenreCountVisible(captor.capture());
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         Mockito.verify(settingsService, Mockito.times(2)).setDlnaGenreCountVisible(Mockito.any(boolean.class));
-        assertTrue(captor.getValue());
+        Assertions.assertTrue(captor.getValue());
 
         command.setDlnaGuestPublish(true);
         command.setDlnaGenreCountVisible(false);
@@ -246,7 +227,7 @@ class DLNASettingsControllerTest {
             Mockito.doNothing().when(upnpService).setMediaServerEnabled(captor.capture());
             controller.post(command, Mockito.mock(RedirectAttributes.class));
             Mockito.verify(upnpService, Mockito.times(1)).setMediaServerEnabled(Mockito.any(boolean.class));
-            assertTrue(captor.getValue());
+            Assertions.assertTrue(captor.getValue());
         }
 
         @MediaServerEnabledDecision.Conditions.Command.DlnaEnabled.False
@@ -314,7 +295,7 @@ class DLNASettingsControllerTest {
             controller.post(command, Mockito.mock(RedirectAttributes.class));
             Mockito.verify(upnpService, Mockito.times(2)).setMediaServerEnabled(Mockito.any(boolean.class));
             assertFalse(captor.getAllValues().get(0));
-            assertTrue(captor.getAllValues().get(1));
+            Assertions.assertTrue(captor.getAllValues().get(1));
         }
     }
 }

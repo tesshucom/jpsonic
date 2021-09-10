@@ -19,23 +19,23 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static org.junit.Assert.assertNotNull;
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.command.GeneralSettingsCommand;
+import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.ShareService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -45,27 +45,21 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ExtendWith(NeedsHome.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class GeneralSettingsControllerTest {
 
-    private static final String ADMIN_NAME = "admin";
-    private static final String VIEW_NAME = "generalSettings";
-
-    @Autowired
     private GeneralSettingsController controller;
-
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
+        controller = new GeneralSettingsController(mock(SettingsService.class), mock(SecurityService.class),
+                mock(ShareService.class), mock(OutlineHelpSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Order(1)
     void testGet() throws Exception {
 
@@ -74,7 +68,7 @@ class GeneralSettingsControllerTest {
         assertNotNull(result);
 
         ModelAndView modelAndView = result.getModelAndView();
-        assertEquals(VIEW_NAME, modelAndView.getViewName());
+        assertEquals("generalSettings", modelAndView.getViewName());
 
         GeneralSettingsCommand command = (GeneralSettingsCommand) modelAndView.getModelMap()
                 .get(Attributes.Model.Command.VALUE);
@@ -82,7 +76,7 @@ class GeneralSettingsControllerTest {
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Order(2)
     void testPost() throws Exception {
 
@@ -90,7 +84,7 @@ class GeneralSettingsControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
-        assertEquals(VIEW_NAME, modelAndView.getViewName());
+        assertEquals("generalSettings", modelAndView.getViewName());
 
         GeneralSettingsCommand command = (GeneralSettingsCommand) modelAndView.getModelMap()
                 .get(Attributes.Model.Command.VALUE);
@@ -112,7 +106,7 @@ class GeneralSettingsControllerTest {
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Order(3)
     void testReload() throws Exception {
 
@@ -120,7 +114,7 @@ class GeneralSettingsControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
-        assertEquals(VIEW_NAME, modelAndView.getViewName());
+        assertEquals("generalSettings", modelAndView.getViewName());
 
         GeneralSettingsCommand command = (GeneralSettingsCommand) modelAndView.getModelMap()
                 .get(Attributes.Model.Command.VALUE);

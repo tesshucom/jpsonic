@@ -19,25 +19,22 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static org.junit.Assert.assertNotNull;
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.ServiceMockUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -46,44 +43,28 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ExtendWith(NeedsHome.class)
 class MoreControllerTest {
-
-    private static final String ADMIN_NAME = "admin";
-    private static final String VIEW_NAME = "more";
-
-    @Autowired
-    private MusicFolderService musicFolderService;
-
-    @Autowired
-    private SecurityService securityService;
-
-    @Autowired
-    private PlayerService playerService;
-
-    @Mock
-    private SearchService searchService;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
+        SearchService searchService = mock(SearchService.class);
+        PlayerService playerService = mock(PlayerService.class);
+        mockMvc = MockMvcBuilders.standaloneSetup(new MoreController(mock(MusicFolderService.class),
+                mock(SecurityService.class), playerService, searchService)).build();
         Mockito.when(searchService.getGenres(false)).thenReturn(Collections.emptyList());
-        mockMvc = MockMvcBuilders
-                .standaloneSetup(new MoreController(musicFolderService, securityService, playerService, searchService))
-                .build();
+        Mockito.when(playerService.getPlayer(Mockito.any(), Mockito.any())).thenReturn(new Player());
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testHandleRequestInternal() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.MORE.value()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
 
         ModelAndView modelAndView = result.getModelAndView();
-        assertEquals(VIEW_NAME, modelAndView.getViewName());
+        assertEquals("more", modelAndView.getViewName());
     }
 }

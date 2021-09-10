@@ -19,12 +19,12 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static org.junit.Assert.assertNotNull;
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PlaylistService;
@@ -32,10 +32,6 @@ import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ShareService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -44,28 +40,17 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
-@AutoConfigureMockMvc
 class ShareManagementControllerTest {
-
-    @Mock
-    private MediaFileService mediaFileService;
-    @Mock
-    private ShareService shareService;
-    @Mock
-    private PlayerService playerService;
-    @Mock
-    private PlaylistService playlistService;
-    @Mock
-    private SecurityService securityService;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        mockMvc = MockMvcBuilders.standaloneSetup(new ShareManagementController(mediaFileService, shareService,
-                playerService, playlistService, securityService)).build();
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(
+                        new ShareManagementController(mock(MediaFileService.class), mock(SecurityService.class),
+                                mock(ShareService.class), mock(PlayerService.class), mock(PlaylistService.class)))
+                .build();
     }
 
     @Test
