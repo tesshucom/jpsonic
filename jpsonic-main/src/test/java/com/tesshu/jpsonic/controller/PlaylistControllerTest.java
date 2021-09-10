@@ -19,25 +19,21 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static org.junit.Assert.assertNotNull;
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.ServiceMockUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -46,34 +42,23 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ExtendWith(NeedsHome.class)
 class PlaylistControllerTest {
 
-    private static final String ADMIN_NAME = "admin";
-
     private int playlistId = 1;
-
-    @Mock
-    private PlaylistService playlistService;
-
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private PlayerService playerService;
-
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
+        PlaylistService playlistService = mock(PlaylistService.class);
         Mockito.when(playlistService.getPlaylist(playlistId)).thenReturn(new Playlist());
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new PlaylistController(securityService, playlistService, playerService)).build();
+                .standaloneSetup(
+                        new PlaylistController(mock(SecurityService.class), playlistService, mock(PlayerService.class)))
+                .build();
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testFormBackingObject() throws Exception {
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/playlist.view")

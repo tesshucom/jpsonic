@@ -26,23 +26,16 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.awt.Dimension;
 
-import com.tesshu.jpsonic.NeedsHome;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * @author Sindre Mehus
  */
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
 class HLSControllerTest {
 
-    @Autowired
-    private HLSController controller;
+    private HLSController controller = new HLSController(null, null, null, null);
 
     @Test
     void testParseBitRateSuccess() {

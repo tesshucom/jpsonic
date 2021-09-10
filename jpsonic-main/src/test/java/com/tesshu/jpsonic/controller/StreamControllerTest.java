@@ -27,49 +27,38 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.Dimension;
 
-import com.tesshu.jpsonic.NeedsHome;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-/**
- * @author Sindre Mehus
- */
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
-@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 class StreamControllerTest {
-
-    @Autowired
-    private StreamController controller;
 
     @Test
     void testGetRequestedVideoSize() {
 
+        StreamController controller = new StreamController(null, null, null, null, null, null, null, null, null, null);
+
         // Valid spec.
-        assertEquals(new Dimension(123, 456), controller.getRequestedVideoSize("123x456"), "Wrong size.");
-        assertEquals(new Dimension(456, 123), controller.getRequestedVideoSize("456x123"), "Wrong size.");
-        assertEquals(new Dimension(1, 1), controller.getRequestedVideoSize("1x1"), "Wrong size.");
+        assertEquals(new Dimension(123, 456), controller.getRequestedVideoSize("123x456"));
+        assertEquals(new Dimension(456, 123), controller.getRequestedVideoSize("456x123"));
+        assertEquals(new Dimension(1, 1), controller.getRequestedVideoSize("1x1"));
 
         // Missing spec.
-        assertNull(controller.getRequestedVideoSize(null), "Wrong size.");
+        assertNull(controller.getRequestedVideoSize(null));
 
         // Invalid spec.
-        assertNull(controller.getRequestedVideoSize("123"), "Wrong size.");
-        assertNull(controller.getRequestedVideoSize("123x"), "Wrong size.");
-        assertNull(controller.getRequestedVideoSize("x123"), "Wrong size.");
-        assertNull(controller.getRequestedVideoSize("x"), "Wrong size.");
-        assertNull(controller.getRequestedVideoSize("foo123x456bar"), "Wrong size.");
-        assertNull(controller.getRequestedVideoSize("foo123x456"), "Wrong size.");
-        assertNull(controller.getRequestedVideoSize("123x456bar"), "Wrong size.");
-        assertNull(controller.getRequestedVideoSize("fooxbar"), "Wrong size.");
-        assertNull(controller.getRequestedVideoSize("-1x1"), "Wrong size.");
-        assertNull(controller.getRequestedVideoSize("1x-1"), "Wrong size.");
+        assertNull(controller.getRequestedVideoSize("123"));
+        assertNull(controller.getRequestedVideoSize("123x"));
+        assertNull(controller.getRequestedVideoSize("x123"));
+        assertNull(controller.getRequestedVideoSize("x"));
+        assertNull(controller.getRequestedVideoSize("foo123x456bar"));
+        assertNull(controller.getRequestedVideoSize("foo123x456"));
+        assertNull(controller.getRequestedVideoSize("123x456bar"));
+        assertNull(controller.getRequestedVideoSize("fooxbar"));
+        assertNull(controller.getRequestedVideoSize("-1x1"));
+        assertNull(controller.getRequestedVideoSize("1x-1"));
 
         // Too large.
-        assertNull(controller.getRequestedVideoSize("3000x100"), "Wrong size.");
-        assertNull(controller.getRequestedVideoSize("100x3000"), "Wrong size.");
+        assertNull(controller.getRequestedVideoSize("3000x100"));
+        assertNull(controller.getRequestedVideoSize("100x3000"));
     }
 
     @Test
@@ -130,6 +119,7 @@ class StreamControllerTest {
 
     private boolean doTestGetSuitableVideoSize(Integer existingWidth, Integer existingHeight, Integer maxBitRate,
             int expectedWidth, int expectedHeight) {
+        StreamController controller = new StreamController(null, null, null, null, null, null, null, null, null, null);
         Dimension dimension = controller.getSuitableVideoSize(existingWidth, existingHeight, maxBitRate);
         assertEquals(expectedWidth, dimension.width, "Wrong width.");
         assertEquals(expectedHeight, dimension.height, "Wrong height.");

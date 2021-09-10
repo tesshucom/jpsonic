@@ -19,11 +19,11 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static org.junit.Assert.assertNotNull;
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
@@ -34,11 +34,6 @@ import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.metadata.JaudiotaggerParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -46,36 +41,16 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
-@AutoConfigureMockMvc
 class CoverArtControllerTest {
-
-    @Mock
-    private MediaFileService mediaFileService;
-    @Mock
-    private TranscodingService transcodingService;
-    @Mock
-    private PlaylistService playlistService;
-    @Mock
-    private PodcastService podcastService;
-    @Mock
-    private ArtistDao artistDao;
-    @Mock
-    private AlbumDao albumDao;
-    @Mock
-    private JaudiotaggerParser jaudiotaggerParser;
-    @Autowired
-    private CoverArtLogic logic;
-    @Autowired
-    private FontLoader fontLoader;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        mockMvc = MockMvcBuilders.standaloneSetup(new CoverArtController(mediaFileService, transcodingService,
-                playlistService, podcastService, artistDao, albumDao, jaudiotaggerParser, logic, fontLoader)).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(new CoverArtController(mock(MediaFileService.class),
+                mock(TranscodingService.class), mock(PlaylistService.class), mock(PodcastService.class),
+                mock(ArtistDao.class), mock(AlbumDao.class), mock(JaudiotaggerParser.class), mock(CoverArtLogic.class),
+                mock(FontLoader.class))).build();
     }
 
     @Test

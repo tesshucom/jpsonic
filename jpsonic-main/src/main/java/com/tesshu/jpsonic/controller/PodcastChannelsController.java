@@ -49,15 +49,15 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping({ "/podcastChannels", "/podcastChannels.view" })
 public class PodcastChannelsController {
 
-    private final PodcastService podcastService;
     private final SecurityService securityService;
+    private final PodcastService podcastService;
     private final ViewAsListSelector viewSelector;
 
-    public PodcastChannelsController(PodcastService podcastService, SecurityService securityService,
+    public PodcastChannelsController(SecurityService securityService, PodcastService podcastService,
             ViewAsListSelector viewSelector) {
         super();
-        this.podcastService = podcastService;
         this.securityService = securityService;
+        this.podcastService = podcastService;
         this.viewSelector = viewSelector;
     }
 
@@ -66,7 +66,7 @@ public class PodcastChannelsController {
     /*
      * LinkedHashMap used in Legacy code. Should be triaged in #831.
      */
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
+    protected ModelAndView get(HttpServletRequest request, HttpServletResponse response) {
 
         Map<PodcastChannel, List<PodcastEpisode>> channels = new LinkedHashMap<>();
         Map<Integer, PodcastChannel> channelMap = LegacyMap.of();

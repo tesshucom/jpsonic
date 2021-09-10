@@ -19,32 +19,27 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static org.junit.Assert.assertNotNull;
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
-import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.RatingService;
 import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -53,28 +48,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ExtendWith(NeedsHome.class)
 class MainControllerTest {
 
-    private static final String ADMIN_NAME = "admin";
-    private static final String VIEW_NAME_ALBUM = "albumMain";
-    private static final String VIEW_NAME_ARTIST = "artistMain";
-
-    @Mock
-    private SettingsService settingsService;
-    @Mock
     private SecurityService securityService;
-    @Mock
-    private JpsonicComparators jpsonicComparator;
-    @Mock
-    private RatingService ratingService;
-    @Mock
-    private MediaFileService mediaFileService;
-    @Mock
-    private ViewAsListSelector viewSelector;
-
     private MockMvc mockMvc;
 
     private MediaFile root;
@@ -85,10 +61,12 @@ class MainControllerTest {
     @BeforeEach
     public void setup() throws ExecutionException {
 
-        UserSettings settings = new UserSettings(ADMIN_NAME);
-        Mockito.when(securityService.getCurrentUser(Mockito.any())).thenReturn(new User(ADMIN_NAME, ADMIN_NAME, ""));
-        Mockito.when(securityService.getCurrentUsername(Mockito.any())).thenReturn(ADMIN_NAME);
-        Mockito.when(securityService.getUserSettings(ADMIN_NAME)).thenReturn(settings);
+        securityService = mock(SecurityService.class);
+        MediaFileService mediaFileService = mock(MediaFileService.class);
+        MainController controller = new MainController(mock(SettingsService.class), securityService,
+                mock(JpsonicComparators.class), mock(RatingService.class), mediaFileService,
+                mock(ViewAsListSelector.class));
+        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
         root = new MediaFile();
         int rootId = 100;
@@ -110,7 +88,7 @@ class MainControllerTest {
         Mockito.when(mediaFileService.getMediaFile(artistPath)).thenReturn(artist);
         Mockito.when(mediaFileService.getMediaFile(artistId)).thenReturn(artist);
         Mockito.when(mediaFileService.isRoot(artist)).thenReturn(false);
-        Mockito.when(securityService.isFolderAccessAllowed(artist, ADMIN_NAME)).thenReturn(true);
+        Mockito.when(securityService.isFolderAccessAllowed(artist, ServiceMockUtils.ADMIN_NAME)).thenReturn(true);
         Mockito.when(mediaFileService.getChildrenOf(artist, true, true, true)).thenReturn(Arrays.asList(album));
         Mockito.when(mediaFileService.getParentOf(artist)).thenReturn(root);
 
@@ -125,7 +103,7 @@ class MainControllerTest {
         Mockito.when(mediaFileService.getMediaFile(albumPath)).thenReturn(album);
         Mockito.when(mediaFileService.getMediaFile(albumId)).thenReturn(album);
         Mockito.when(mediaFileService.isRoot(album)).thenReturn(false);
-        Mockito.when(securityService.isFolderAccessAllowed(album, ADMIN_NAME)).thenReturn(true);
+        Mockito.when(securityService.isFolderAccessAllowed(album, ServiceMockUtils.ADMIN_NAME)).thenReturn(true);
         Mockito.when(mediaFileService.getChildrenOf(artist, true, true, true)).thenReturn(Arrays.asList(album));
 
         song = new MediaFile();
@@ -141,15 +119,11 @@ class MainControllerTest {
         Mockito.when(mediaFileService.isRoot(song)).thenReturn(false);
         Mockito.when(mediaFileService.getParentOf(song)).thenReturn(album);
         Mockito.when(mediaFileService.getChildrenOf(album, true, true, true)).thenReturn(Arrays.asList(song));
-
-        MainController controller = new MainController(settingsService, securityService, jpsonicComparator,
-                ratingService, mediaFileService, viewSelector);
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
     @SuppressWarnings("unchecked")
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGet() throws Exception {
 
         // with ID
@@ -158,7 +132,7 @@ class MainControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
-        assertEquals(VIEW_NAME_ALBUM, modelAndView.getViewName());
+        assertEquals("albumMain", modelAndView.getViewName());
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(Attributes.Model.VALUE);
         assertNotNull(model);
 
@@ -168,7 +142,7 @@ class MainControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
         modelAndView = result.getModelAndView();
-        assertEquals(VIEW_NAME_ALBUM, modelAndView.getViewName());
+        assertEquals("albumMain", modelAndView.getViewName());
         model = (Map<String, Object>) modelAndView.getModel().get(Attributes.Model.VALUE);
         assertNotNull(model);
 
@@ -177,7 +151,7 @@ class MainControllerTest {
                 Integer.toString(song.getId()))).andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
         modelAndView = result.getModelAndView();
-        assertEquals(VIEW_NAME_ALBUM, modelAndView.getViewName());
+        assertEquals("albumMain", modelAndView.getViewName());
         model = (Map<String, Object>) modelAndView.getModel().get(Attributes.Model.VALUE);
         assertNotNull(model);
     }
@@ -187,14 +161,14 @@ class MainControllerTest {
      */
     @SuppressWarnings("unchecked")
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGetForChildren() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.MAIN.value())
                 .param(Attributes.Request.ID.value(), Integer.toString(artist.getId())))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
-        assertEquals(VIEW_NAME_ARTIST, modelAndView.getViewName());
+        assertEquals("artistMain", modelAndView.getViewName());
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(Attributes.Model.VALUE);
         assertNotNull(model);
 
@@ -207,7 +181,7 @@ class MainControllerTest {
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
     void testGetFail() throws Exception {
 
@@ -215,7 +189,7 @@ class MainControllerTest {
                 Integer.toString(-1))).andExpect(MockMvcResultMatchers.status().is3xxRedirection())
                 .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.NOTFOUND.value()));
 
-        Mockito.when(securityService.isFolderAccessAllowed(album, ADMIN_NAME)).thenReturn(false);
+        Mockito.when(securityService.isFolderAccessAllowed(album, ServiceMockUtils.ADMIN_NAME)).thenReturn(false);
         mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.MAIN.value()).param(Attributes.Request.ID.value(),
                 Integer.toString(album.getId()))).andExpect(MockMvcResultMatchers.status().is3xxRedirection())
                 .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.ACCESS_DENIED.value()));

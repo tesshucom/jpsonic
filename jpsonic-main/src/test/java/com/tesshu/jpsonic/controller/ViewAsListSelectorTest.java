@@ -19,32 +19,22 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.ServiceMockUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ExtendWith(NeedsHome.class)
 class ViewAsListSelectorTest {
-
-    private static final String ADMIN_NAME = "admin";
-
-    @Autowired
-    private ViewAsListSelector selector;
 
     @Test
     void testIsShowOutlineHelp() throws Exception {
-
+        ViewAsListSelector selector = new ViewAsListSelector(mock(SecurityService.class));
         MockHttpServletRequest req = new MockHttpServletRequest();
-        req.addParameter(Attributes.Request.USER_NAME.value(), ADMIN_NAME);
+        req.addParameter(Attributes.Request.USER_NAME.value(), ServiceMockUtils.ADMIN_NAME);
         req.addParameter(Attributes.Request.VIEW_AS_LIST.value(), Boolean.TRUE.toString());
-        assertTrue(selector.isViewAsList(req, ADMIN_NAME));
+        assertTrue(selector.isViewAsList(req, ServiceMockUtils.ADMIN_NAME));
     }
 }

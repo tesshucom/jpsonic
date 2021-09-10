@@ -44,15 +44,15 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/setRating.view")
 public class SetRatingController {
 
-    private final RatingService ratingService;
     private final SecurityService securityService;
+    private final RatingService ratingService;
     private final MediaFileService mediaFileService;
 
-    public SetRatingController(RatingService ratingService, SecurityService securityService,
+    public SetRatingController(SecurityService securityService, RatingService ratingService,
             MediaFileService mediaFileService) {
         super();
-        this.ratingService = ratingService;
         this.securityService = securityService;
+        this.ratingService = ratingService;
         this.mediaFileService = mediaFileService;
     }
 
