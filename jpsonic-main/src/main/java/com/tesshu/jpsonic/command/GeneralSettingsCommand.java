@@ -33,9 +33,9 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     // Language and theme
     private Theme[] themes;
-    private String themeIndex;
+    private String themeIndex = "0";
     private String[] locales;
-    private String localeIndex;
+    private String localeIndex = "0";
 
     // Index settings
     private String defaultIndexString;
