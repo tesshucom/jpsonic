@@ -70,8 +70,12 @@ public class UpnpProcessorUtil {
         return securityService.addJWTToken(builder);
     }
 
-    public String createURIStringWithToken(UriComponentsBuilder builder) {
-        return addJWTToken(builder).toUriString();
+    public String createURIStringWithToken(UriComponentsBuilder builder, MediaFile song) {
+        String token = addJWTToken(builder).toUriString();
+        if (settingsService.isUriWithFileExtensions() && !StringUtils.isEmpty(song.getFormat())) {
+            token = token.concat(".").concat(song.getFormat());
+        }
+        return token;
     }
 
     public URI createURIWithToken(UriComponentsBuilder builder) {

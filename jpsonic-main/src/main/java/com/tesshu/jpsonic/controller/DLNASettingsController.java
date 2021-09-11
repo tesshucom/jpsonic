@@ -97,6 +97,7 @@ public class DLNASettingsController {
         command.setDlnaGenreCountVisible(settingsService.isDlnaGenreCountVisible());
         command.setDlnaRandomMax(settingsService.getDlnaRandomMax());
         command.setDlnaGuestPublish(settingsService.isDlnaGuestPublish());
+        command.setUriWithFileExtensions(settingsService.isUriWithFileExtensions());
 
         // for view page control
         User user = securityService.getCurrentUser(request);
@@ -152,6 +153,7 @@ public class DLNASettingsController {
         settingsService.setDlnaGenreCountVisible(!command.isDlnaGuestPublish() && command.isDlnaGenreCountVisible());
         settingsService.setDlnaRandomMax(command.getDlnaRandomMax());
         settingsService.setDlnaGuestPublish(command.isDlnaGuestPublish());
+        settingsService.setUriWithFileExtensions(command.isUriWithFileExtensions());
 
         settingsService.save();
 

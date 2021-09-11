@@ -21,25 +21,51 @@ package com.tesshu.jpsonic.service.upnp.processor;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
+import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.web.util.UriComponentsBuilder;
 
 class UpnpProcessorUtilTest {
 
+    private SettingsService settingsService;
+    private UpnpProcessorUtil util;
+
+    @BeforeEach
+    public void setup() {
+        settingsService = mock(SettingsService.class);
+        util = new UpnpProcessorUtil(settingsService, mock(MusicFolderService.class), mock(JpsonicComparators.class),
+                new JWTSecurityService(settingsService), mock(TranscodingService.class), mock(MusicFolderDao.class));
+    }
+
     @Test
     void testGetAllMusicFolders() {
-        SettingsService settingsService = mock(SettingsService.class);
         Mockito.when(settingsService.isDlnaGuestPublish()).thenReturn(true);
-        UpnpProcessorUtil upnpProcessorUtil = new UpnpProcessorUtil(settingsService, mock(MusicFolderService.class),
-                mock(JpsonicComparators.class), mock(JWTSecurityService.class), mock(TranscodingService.class),
-                mock(MusicFolderDao.class));
-        assertNotNull(upnpProcessorUtil.getAllMusicFolders());
+        assertNotNull(util.getAllMusicFolders());
+    }
+
+    @Test
+    void testCreateURIStringWithToken() {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("http://192.168.1.1/ext/stream")
+                .queryParam("id", 0).queryParam("player", 0);
+        MediaFile song = new MediaFile();
+        song.setFormat("flac");
+        assertFalse(settingsService.isUriWithFileExtensions());
+        assertFalse(util.createURIStringWithToken(builder, song).endsWith(".flac"));
+        Mockito.when(settingsService.isUriWithFileExtensions()).thenReturn(true);
+        assertTrue(util.createURIStringWithToken(builder, song).endsWith(".flac"));
+
+        song.setFormat(null);
+        assertFalse(util.createURIStringWithToken(builder, song).endsWith(".flac"));
     }
 }

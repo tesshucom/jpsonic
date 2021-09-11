@@ -270,7 +270,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
         if (song.isVideo()) {
             builder.queryParam("format", TranscodingService.FORMAT_RAW);
         }
-        return util.createURIStringWithToken(builder);
+        return util.createURIStringWithToken(builder, song);
     }
 
 }

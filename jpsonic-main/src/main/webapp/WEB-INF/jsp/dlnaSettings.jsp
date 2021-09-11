@@ -231,6 +231,11 @@
                 <form:checkbox path="dlnaGuestPublish" id="dlnaGuestPublish"/>
                 <label for=dlnaGuestPublish><fmt:message key="dlnasettings.guestpublish"/></label>
             </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="uriWithFileExtensions" id="uriWithFileExtensions"/>
+                <label for=uriWithFileExtensions><fmt:message key="dlnasettings.uriwithfileextensions"/></label>
+            </dd>
         </dl>
     </details>
 

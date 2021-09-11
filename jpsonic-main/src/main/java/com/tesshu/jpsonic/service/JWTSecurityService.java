@@ -29,6 +29,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
@@ -45,6 +46,7 @@ public class JWTSecurityService {
     public static final String CLAIM_PATH = "path";
     public static final int DEFAULT_DAYS_VALID_FOR = 7; // TODO make this configurable
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+    public static final int WITH_FILE_EXTENSION = 4;
 
     private final SettingsService settingsService;
 
@@ -88,6 +90,9 @@ public class JWTSecurityService {
     public static DecodedJWT verify(String jwtKey, String token) {
         Algorithm algorithm = JWTSecurityService.getAlgorithm(jwtKey);
         JWTVerifier verifier = JWT.require(algorithm).build();
+        if (token.split("\\.").length == WITH_FILE_EXTENSION) {
+            return verifier.verify(FilenameUtils.removeExtension(token));
+        }
         return verifier.verify(token);
     }
 
