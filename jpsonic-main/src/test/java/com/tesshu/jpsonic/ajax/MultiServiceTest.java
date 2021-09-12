@@ -41,10 +41,7 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SecurityService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.test.context.support.WithMockUser;
 
 class MultiServiceTest extends AbstractNeedsScan {
@@ -59,10 +56,6 @@ class MultiServiceTest extends AbstractNeedsScan {
     private SecurityService securityService;
     @Autowired
     private AirsonicLocaleResolver airsonicLocaleResolver;
-    @Mock
-    private AjaxHelper ajaxHelper;
-    @Autowired
-    private MockHttpServletRequest httpServletRequest;
     @Autowired
     private MediaFileDao mediaFileDao;
 
@@ -81,10 +74,9 @@ class MultiServiceTest extends AbstractNeedsScan {
 
     @BeforeEach
     public void setup() {
-        Mockito.when(ajaxHelper.getHttpServletRequest()).thenReturn(httpServletRequest);
         populateDatabaseOnlyOnce();
         multiService = new MultiService(musicFolderService, securityService, mediaFileService, lastFmService,
-                airsonicLocaleResolver, ajaxHelper);
+                airsonicLocaleResolver, AjaxMockUtils.mock(AjaxHelper.class));
     }
 
     @Test
