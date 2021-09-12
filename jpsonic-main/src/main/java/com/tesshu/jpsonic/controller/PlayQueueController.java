@@ -46,8 +46,8 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping({ "/playQueue", "/playQueue.view" })
 public class PlayQueueController {
 
-    private final PlayerService playerService;
     private final SecurityService securityService;
+    private final PlayerService playerService;
 
     public PlayQueueController(SecurityService securityService, PlayerService playerService) {
         super();

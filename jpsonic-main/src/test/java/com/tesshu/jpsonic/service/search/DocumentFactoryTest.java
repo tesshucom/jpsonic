@@ -21,45 +21,38 @@
 
 package com.tesshu.jpsonic.service.search;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.util.Date;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.dao.MusicFolderTestDataUtils;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
+import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.lucene.document.Document;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
+import org.mockito.Mockito;
 
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 class DocumentFactoryTest {
 
-    @Autowired
     private DocumentFactory documentFactory;
-
-    @Autowired
-    private SettingsService settingsService;
 
     @BeforeEach
     public void setup() {
-        settingsService.setSearchMethodLegacy(false);
+        SettingsService settingsService = mock(SettingsService.class);
+        Mockito.when(settingsService.isSearchMethodLegacy()).thenReturn(true);
+        documentFactory = new DocumentFactory(settingsService, new JapaneseReadingUtils(settingsService));
     }
 
     @Test
@@ -100,7 +93,7 @@ class DocumentFactoryTest {
         assertEquals("name", document.get(FieldNamesConstants.ARTIST), "FieldNamesConstants.ARTIST");
         assertEquals("name", document.get(FieldNamesConstants.ARTIST_EX), "FieldNamesConstants.ARTIST_EX");
         assertEquals("sort", document.get(FieldNamesConstants.ARTIST_READING), "FieldNamesConstants.ARTIST_READING");
-        assertNotEquals("10", document.get(FieldNamesConstants.FOLDER_ID), "FieldNamesConstants.FOLDER_ID");
+        Assertions.assertNotEquals("10", document.get(FieldNamesConstants.FOLDER_ID), "FieldNamesConstants.FOLDER_ID");
         assertEquals("100", document.get(FieldNamesConstants.FOLDER_ID), "FieldNamesConstants.FOLDER_ID");
     }
 
@@ -205,7 +198,7 @@ class DocumentFactoryTest {
         assertNull(document.get(FieldNamesConstants.ARTIST), "FieldNamesConstants.ARTIST");
         assertNull(document.get(FieldNamesConstants.ARTIST_EX), "FieldNamesConstants.ARTIST_EX");
         assertNull(document.get(FieldNamesConstants.ARTIST_READING), "FieldNamesConstants.ARTIST_READING");
-        assertNotEquals("10", document.get(FieldNamesConstants.FOLDER_ID), "FieldNamesConstants.FOLDER_ID");
+        Assertions.assertNotEquals("10", document.get(FieldNamesConstants.FOLDER_ID), "FieldNamesConstants.FOLDER_ID");
         assertEquals("100", document.get(FieldNamesConstants.FOLDER_ID), "FieldNamesConstants.FOLDER_ID");
     }
 

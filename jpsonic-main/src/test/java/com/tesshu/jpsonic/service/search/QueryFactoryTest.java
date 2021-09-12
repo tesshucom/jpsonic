@@ -21,6 +21,7 @@
 
 package com.tesshu.jpsonic.service.search;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
@@ -28,15 +29,12 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
+import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.lucene.search.Query;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
 
 /*
  * The query syntax has not changed significantly since Lucene 1.3.
@@ -44,13 +42,9 @@ import org.springframework.test.annotation.DirtiesContext;
  * If you face a problem reaping from 3.x to 7.x
  * It may be faster to look at the query than to look at the API.
  */
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 class QueryFactoryTest {
 
-    @Autowired
     private QueryFactory queryFactory;
 
     private static final String QUERY_PATTERN_INCLUDING_KATAKANA = "ネコ ABC";
@@ -73,6 +67,11 @@ class QueryFactoryTest {
 
     private static final List<MusicFolder> SINGLE_FOLDERS = Arrays.asList(MUSIC_FOLDER1);
     private static final List<MusicFolder> MULTI_FOLDERS = Arrays.asList(MUSIC_FOLDER1, MUSIC_FOLDER2);
+
+    @BeforeEach
+    public void setup() {
+        queryFactory = new QueryFactory(new AnalyzerFactory(mock(SettingsService.class)), null);
+    }
 
     @Test
     void testSearchByNameArtist() throws IOException {

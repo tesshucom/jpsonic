@@ -19,22 +19,24 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.service.AvatarService;
+import com.tesshu.jpsonic.service.SecurityService;
 import org.apache.commons.fileupload.FileUploadException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartHttpServletRequest;
 
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
 class AvatarUploadControllerTest {
 
-    @Autowired
     private AvatarUploadController controller;
+
+    @BeforeEach
+    public void setup() {
+        controller = new AvatarUploadController(mock(SecurityService.class), mock(AvatarService.class));
+    }
 
     @Test
     void testFailHandleRequest() throws Exception {

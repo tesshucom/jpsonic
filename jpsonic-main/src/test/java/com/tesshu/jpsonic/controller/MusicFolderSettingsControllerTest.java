@@ -19,10 +19,10 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.Arrays;
@@ -30,16 +30,14 @@ import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.command.MusicFolderSettingsCommand;
 import com.tesshu.jpsonic.command.MusicFolderSettingsCommand.MusicFolderInfo;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import org.junit.jupiter.api.Assertions;
@@ -48,12 +46,8 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -63,44 +57,30 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ExtendWith(NeedsHome.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MusicFolderSettingsControllerTest {
 
-    private static final String ADMIN_NAME = "admin";
     private static final String VIEW_NAME = "musicFolderSettings";
 
-    @Mock
     private SettingsService settingsService;
-    @Mock
     private MusicFolderService musicFolderService;
-    @Mock
-    private SecurityService securityService;
-    @Mock
     private MediaScannerService mediaScannerService;
-    @Mock
-    private ShareService shareService;
-
     private MusicFolderSettingsController controller;
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        UserSettings settings = new UserSettings(ADMIN_NAME);
-        Mockito.when(securityService.getCurrentUser(Mockito.any())).thenReturn(new User(ADMIN_NAME, ADMIN_NAME, ""));
-        Mockito.when(securityService.getUserSettings(ADMIN_NAME)).thenReturn(settings);
-        Mockito.when(settingsService.getFileModifiedCheckSchemeName())
-                .thenReturn(FileModifiedCheckScheme.LAST_MODIFIED.name());
-        controller = new MusicFolderSettingsController(settingsService, musicFolderService, securityService,
-                mediaScannerService, shareService);
+        settingsService = mock(SettingsService.class);
+        musicFolderService = mock(MusicFolderService.class);
+        mediaScannerService = mock(MediaScannerService.class);
+        controller = new MusicFolderSettingsController(settingsService, musicFolderService, mock(SecurityService.class),
+                mediaScannerService, mock(ShareService.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
     @Test
     @Order(1)
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGet() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.MUSIC_FOLDER_SETTINGS.value()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -114,7 +94,7 @@ class MusicFolderSettingsControllerTest {
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Order(2)
     void testDoScan() throws Exception {
 
@@ -136,7 +116,7 @@ class MusicFolderSettingsControllerTest {
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Order(3)
     void testDoExpunge() throws Exception {
 
@@ -158,7 +138,7 @@ class MusicFolderSettingsControllerTest {
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Order(4)
     void testPost() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.MUSIC_FOLDER_SETTINGS.value()))
@@ -181,7 +161,7 @@ class MusicFolderSettingsControllerTest {
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Order(5)
     void testCreateMusicFolder() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.MUSIC_FOLDER_SETTINGS.value()))
@@ -208,7 +188,7 @@ class MusicFolderSettingsControllerTest {
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Order(6)
     void testUpdateAndDelteMusicFolder() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.MUSIC_FOLDER_SETTINGS.value()))
@@ -257,7 +237,7 @@ class MusicFolderSettingsControllerTest {
 
     @Test
     @Order(10)
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testIfFullScanNext() throws Exception {
 
         @SuppressWarnings("PMD.AvoidCatchingGenericException")
@@ -279,10 +259,10 @@ class MusicFolderSettingsControllerTest {
         // Full scan if any property of IgnoreFileTimestamps* is true.
         Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
         Mockito.when(settingsService.isIgnoreFileTimestampsNext()).thenReturn(false);
-        assertTrue(supplier.get().isFullScanNext());
+        Assertions.assertTrue(supplier.get().isFullScanNext());
         Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
         Mockito.when(settingsService.isIgnoreFileTimestampsNext()).thenReturn(true);
-        assertTrue(supplier.get().isFullScanNext());
+        Assertions.assertTrue(supplier.get().isFullScanNext());
 
         /*
          * IgnoreFileTimestamps is intentionally set by the user from the web page. IgnoreFileTimestamps is a hidden
@@ -294,7 +274,7 @@ class MusicFolderSettingsControllerTest {
 
     @Test
     @Order(11)
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testIfIgnoreFileTimestamps() throws Exception {
 
         MusicFolderSettingsCommand command = (MusicFolderSettingsCommand) mockMvc
@@ -308,7 +288,7 @@ class MusicFolderSettingsControllerTest {
         ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(Boolean.class);
         Mockito.doNothing().when(settingsService).setIgnoreFileTimestamps(captor.capture());
         controller.post(command, Mockito.mock(RedirectAttributes.class));
-        assertTrue(captor.getValue());
+        Assertions.assertTrue(captor.getValue());
 
         // Disabled if LAST_SCANNED is specified.
         command.setFileModifiedCheckScheme(FileModifiedCheckScheme.LAST_SCANNED);
@@ -322,7 +302,7 @@ class MusicFolderSettingsControllerTest {
 
     @Test
     @Order(12)
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testIfIgnoreFileTimestampsForEachAlbum() throws Exception {
 
         MusicFolderSettingsCommand command = (MusicFolderSettingsCommand) mockMvc
@@ -351,7 +331,7 @@ class MusicFolderSettingsControllerTest {
         captor = ArgumentCaptor.forClass(Boolean.class);
         Mockito.doNothing().when(settingsService).setIgnoreFileTimestampsForEachAlbum(captor.capture());
         controller.post(command, Mockito.mock(RedirectAttributes.class));
-        assertTrue(captor.getValue());
+        Assertions.assertTrue(captor.getValue());
 
         /*
          * Depending on the scan check method, it is necessary to always display a button on the album page.
@@ -361,6 +341,6 @@ class MusicFolderSettingsControllerTest {
         captor = ArgumentCaptor.forClass(Boolean.class);
         Mockito.doNothing().when(settingsService).setIgnoreFileTimestampsForEachAlbum(captor.capture());
         controller.post(command, Mockito.mock(RedirectAttributes.class));
-        assertTrue(captor.getValue());
+        Assertions.assertTrue(captor.getValue());
     }
 }

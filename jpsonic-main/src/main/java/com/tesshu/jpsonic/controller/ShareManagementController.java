@@ -54,19 +54,19 @@ import org.springframework.web.servlet.ModelAndView;
 public class ShareManagementController {
 
     private final MediaFileService mediaFileService;
+    private final SecurityService securityService;
     private final ShareService shareService;
     private final PlayerService playerService;
     private final PlaylistService playlistService;
-    private final SecurityService securityService;
 
-    public ShareManagementController(MediaFileService mediaFileService, ShareService shareService,
-            PlayerService playerService, PlaylistService playlistService, SecurityService securityService) {
+    public ShareManagementController(MediaFileService mediaFileService, SecurityService securityService,
+            ShareService shareService, PlayerService playerService, PlaylistService playlistService) {
         super();
         this.mediaFileService = mediaFileService;
+        this.securityService = securityService;
         this.shareService = shareService;
         this.playerService = playerService;
         this.playlistService = playlistService;
-        this.securityService = securityService;
     }
 
     @GetMapping

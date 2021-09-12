@@ -50,18 +50,18 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping({ "/transcodingSettings", "/transcodingSettings.view" })
 public class TranscodingSettingsController {
 
-    private final TranscodingService transcodingService;
     private final SettingsService settingsService;
     private final SecurityService securityService;
+    private final TranscodingService transcodingService;
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public TranscodingSettingsController(TranscodingService transcodingService, SettingsService settingsService,
-            SecurityService securityService, ShareService shareService, OutlineHelpSelector outlineHelpSelector) {
+    public TranscodingSettingsController(SettingsService settingsService, SecurityService securityService,
+            TranscodingService transcodingService, ShareService shareService, OutlineHelpSelector outlineHelpSelector) {
         super();
-        this.transcodingService = transcodingService;
         this.settingsService = settingsService;
         this.securityService = securityService;
+        this.transcodingService = transcodingService;
         this.shareService = shareService;
         this.outlineHelpSelector = outlineHelpSelector;
     }

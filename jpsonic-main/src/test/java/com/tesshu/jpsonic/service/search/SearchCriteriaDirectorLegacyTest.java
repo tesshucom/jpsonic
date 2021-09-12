@@ -21,30 +21,22 @@
 
 package com.tesshu.jpsonic.service.search;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Documented;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
+import org.mockito.Mockito;
 
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 class SearchCriteriaDirectorLegacyTest {
 
@@ -67,14 +59,6 @@ class SearchCriteriaDirectorLegacyTest {
     private static final int COUNT = Integer.MAX_VALUE;
 
     private boolean includeComposer;
-
-    @Autowired
-    private AnalyzerFactory analyzerFactory;
-
-    @Autowired
-    private SettingsService settingsService;
-
-    @Autowired
     private SearchCriteriaDirector director;
 
     @Documented
@@ -134,17 +118,11 @@ class SearchCriteriaDirectorLegacyTest {
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        Method setSearchMethodLegacy;
-        try {
-            setSearchMethodLegacy = analyzerFactory.getClass().getDeclaredMethod("setSearchMethodLegacy",
-                    boolean.class);
-            setSearchMethodLegacy.setAccessible(true);
-            setSearchMethodLegacy.invoke(analyzerFactory, true);
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException e) {
-            throw new ExecutionException(e);
-        }
-        settingsService.setSearchMethodLegacy(true);
+        SettingsService settingsService = mock(SettingsService.class);
+        Mockito.when(settingsService.isSearchMethodLegacy()).thenReturn(true);
+        AnalyzerFactory analyzerFactory = new AnalyzerFactory(settingsService);
+        SearchServiceUtilities utilities = new SearchServiceUtilities(null, null, null, null, null, settingsService);
+        director = new SearchCriteriaDirector(new QueryFactory(analyzerFactory, utilities), settingsService);
     }
 
     @DirectorDecisions.Conditions.IncludeComposer.FALSE

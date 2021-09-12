@@ -21,38 +21,22 @@ package com.tesshu.jpsonic.ajax;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.service.ServiceMockUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithMockUser;
 
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
 class TransferServiceTest {
-
-    private static final String ADMIN_NAME = "admin";
-
-    @Mock
-    private AjaxHelper ajaxHelper;
-    @Autowired
-    private MockHttpSession session;
 
     private TransferService transferService;
 
     @BeforeEach
     public void setup() {
-        Mockito.when(ajaxHelper.getSession()).thenReturn(session);
-        transferService = new TransferService(ajaxHelper);
+        transferService = new TransferService(AjaxMockUtils.mock(AjaxHelper.class));
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGetUploadInfo() {
         UploadInfo uploadInfo = transferService.getUploadInfo();
         assertEquals(0L, uploadInfo.getBytesTotal());

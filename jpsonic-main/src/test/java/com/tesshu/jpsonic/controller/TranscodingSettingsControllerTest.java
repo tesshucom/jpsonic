@@ -19,10 +19,10 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.lang.annotation.Documented;
 import java.lang.reflect.InvocationTargetException;

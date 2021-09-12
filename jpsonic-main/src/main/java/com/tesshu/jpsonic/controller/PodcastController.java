@@ -83,7 +83,7 @@ public class PodcastController {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Podcast) Not reusable
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request) throws ExecutionException {
+    protected ModelAndView get(HttpServletRequest request) throws ExecutionException {
 
         if (!settingsService.isPublishPodcast()) {
             throw new ExecutionException(new GeneralSecurityException("Podcast not allowed to publish."));
