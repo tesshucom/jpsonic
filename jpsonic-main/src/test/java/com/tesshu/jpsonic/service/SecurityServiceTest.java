@@ -21,40 +21,39 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.controller.WebFontUtils;
 import com.tesshu.jpsonic.domain.AlbumListType;
 import com.tesshu.jpsonic.domain.FontScheme;
 import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import com.tesshu.jpsonic.domain.UserSettings;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * Unit test of {@link SecurityService}.
  *
  * @author Sindre Mehus
  */
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 class SecurityServiceTest {
 
-    @Autowired
     private SecurityService service;
-
     private UserSettings settings;
+
+    @BeforeEach
+    public void setup() {
+        service = new SecurityService(null, mock(SettingsService.class), null, null);
+    }
 
     @Test
     void testIsFileInFolder() {
@@ -127,7 +126,7 @@ class SecurityServiceTest {
         assertFalse(userSettings.isVoiceInputEnabled());
         assertTrue(userSettings.isShowCurrentSongInfo());
         assertEquals(SpeechToTextLangScheme.DEFAULT.name(), userSettings.getSpeechLangSchemeName());
-        assertNull(userSettings.getIetf());
+        Assertions.assertNull(userSettings.getIetf());
         assertEquals(FontScheme.DEFAULT.name(), userSettings.getFontSchemeName());
         assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, userSettings.getFontFamily());
         assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, userSettings.getFontSize());
@@ -156,7 +155,7 @@ class SecurityServiceTest {
         assertTrue(tabletSettings.isVoiceInputEnabled());
         assertTrue(tabletSettings.isShowCurrentSongInfo());
         assertEquals(SpeechToTextLangScheme.DEFAULT.name(), tabletSettings.getSpeechLangSchemeName());
-        assertNull(tabletSettings.getIetf());
+        Assertions.assertNull(tabletSettings.getIetf());
         assertEquals(FontScheme.DEFAULT.name(), tabletSettings.getFontSchemeName());
         assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, tabletSettings.getFontFamily());
         assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, tabletSettings.getFontSize());
@@ -185,7 +184,7 @@ class SecurityServiceTest {
         assertTrue(smartphoneSettings.isVoiceInputEnabled());
         assertTrue(smartphoneSettings.isShowCurrentSongInfo());
         assertEquals(SpeechToTextLangScheme.DEFAULT.name(), smartphoneSettings.getSpeechLangSchemeName());
-        assertNull(smartphoneSettings.getIetf());
+        Assertions.assertNull(smartphoneSettings.getIetf());
         assertEquals(FontScheme.DEFAULT.name(), smartphoneSettings.getFontSchemeName());
         assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, smartphoneSettings.getFontFamily());
         assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, smartphoneSettings.getFontSize());

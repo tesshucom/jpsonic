@@ -23,21 +23,13 @@ package com.tesshu.jpsonic.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.tesshu.jpsonic.NeedsHome;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
 class SonosServiceTest {
-
-    @Autowired
-    private SonosService sonosService;
 
     @Test
     void testParsePlaylistIndices() {
+        SonosService sonosService = new SonosService(null, null, null, null, null, null);
         assertEquals("[]", sonosService.parsePlaylistIndices("").toString());
         assertEquals("[999]", sonosService.parsePlaylistIndices("999").toString());
         assertEquals("[1, 2, 3]", sonosService.parsePlaylistIndices("1,2,3").toString());

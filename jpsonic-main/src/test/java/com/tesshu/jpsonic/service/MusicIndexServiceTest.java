@@ -21,6 +21,7 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
@@ -33,7 +34,6 @@ import java.util.Locale;
 import java.util.SortedMap;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
@@ -44,30 +44,24 @@ import com.tesshu.jpsonic.domain.MusicIndex;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * Unit test of {@link MusicIndex}.
  *
  * @author Sindre Mehus
  */
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 class MusicIndexServiceTest {
 
-    @Mock
     private SettingsService settingsService;
-    @Mock
     private MediaFileService mediaFileService;
-
     private MusicIndexService musicIndexService;
 
     @BeforeEach
     public void setup() throws ExecutionException {
+        mediaFileService = mock(MediaFileService.class);
+        settingsService = mock(SettingsService.class);
         String articles = SettingsConstants.General.Index.IGNORED_ARTICLES.defaultValue;
         Mockito.when(settingsService.getIgnoredArticles()).thenReturn(articles);
         Mockito.when(settingsService.getIgnoredArticlesAsArray()).thenReturn(articles.split("\\s+"));
@@ -81,13 +75,12 @@ class MusicIndexServiceTest {
         JpsonicComparators comparators = new JpsonicComparators(settingsService, readingUtils);
         MusicIndexServiceUtils utils = new MusicIndexServiceUtils(settingsService, mediaFileService, readingUtils,
                 comparators);
+
         musicIndexService = new MusicIndexService(settingsService, mediaFileService, utils);
     }
 
     @Test
     void testGetIndexedArtistsListOfMusicFolderBoolean() {
-        Mockito.when(settingsService.getShortcutsAsArray())
-                .thenReturn(StringUtil.split(SettingsConstants.General.Index.IGNORED_ARTICLES.defaultValue));
         Mockito.when(mediaFileService.getMediaFile(Mockito.any(File.class), Mockito.anyBoolean()))
                 .thenReturn(new MediaFile());
         MediaFile child1 = new MediaFile();
@@ -133,8 +126,6 @@ class MusicIndexServiceTest {
 
     @Test
     void testGetMusicFolderContent() {
-        Mockito.when(settingsService.getShortcutsAsArray())
-                .thenReturn(StringUtil.split(SettingsConstants.General.Index.IGNORED_ARTICLES.defaultValue));
         Mockito.when(mediaFileService.getMediaFile(Mockito.any(File.class), Mockito.anyBoolean()))
                 .thenReturn(new MediaFile());
         MediaFile child1 = new MediaFile();
@@ -182,7 +173,6 @@ class MusicIndexServiceTest {
 
         List<MediaFile> shortcuts = musicIndexService.getShortcuts(Arrays.asList(folder));
         assertEquals(1, shortcuts.size());
-
     }
 
     @Test

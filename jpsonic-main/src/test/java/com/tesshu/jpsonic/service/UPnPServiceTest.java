@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -26,18 +27,20 @@ import java.lang.reflect.Field;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.service.upnp.DispatchingContentDirectory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
 class UPnPServiceTest {
 
     @Autowired
     private UPnPService uPnPService;
+
+    @BeforeEach
+    public void setup() {
+        uPnPService = new UPnPService(mock(SettingsService.class), mock(DispatchingContentDirectory.class));
+    }
 
     @SuppressWarnings("unchecked")
     private boolean isRunning() throws ExecutionException {

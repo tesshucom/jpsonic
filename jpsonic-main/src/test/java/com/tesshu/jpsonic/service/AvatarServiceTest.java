@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -27,29 +28,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.dao.AvatarDao;
 import com.tesshu.jpsonic.domain.Avatar;
 import com.tesshu.jpsonic.domain.AvatarScheme;
 import com.tesshu.jpsonic.domain.UserSettings;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
 class AvatarServiceTest {
-
-    @Mock
-    private AvatarDao avatarDao;
 
     private AvatarService avatarService;
 
     @BeforeEach
     public void setup() {
+        AvatarDao avatarDao = mock(AvatarDao.class);
         Mockito.when(avatarDao.getCustomAvatar(Mockito.anyString()))
                 .thenReturn(new Avatar(0, null, null, null, 0, 0, null));
         avatarService = new AvatarService(avatarDao);

@@ -19,9 +19,9 @@
 
 package com.tesshu.jpsonic.service.upnp.processor;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.Assert.assertNotNull;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.service.JWTSecurityService;
@@ -29,34 +29,17 @@ import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
 class UpnpProcessorUtilTest {
-
-    @Mock
-    private SettingsService settingsService;
-    @Autowired
-    private MusicFolderService musicFolderService;
-    @Autowired
-    private JpsonicComparators comparators;
-    @Autowired
-    private JWTSecurityService securityService;
-    @Autowired
-    private TranscodingService transcodingService;
-    @Autowired
-    private MusicFolderDao musicFolderDao;
 
     @Test
     void testGetAllMusicFolders() {
+        SettingsService settingsService = mock(SettingsService.class);
         Mockito.when(settingsService.isDlnaGuestPublish()).thenReturn(true);
-        UpnpProcessorUtil upnpProcessorUtil = new UpnpProcessorUtil(settingsService, musicFolderService, comparators,
-                securityService, transcodingService, musicFolderDao);
+        UpnpProcessorUtil upnpProcessorUtil = new UpnpProcessorUtil(settingsService, mock(MusicFolderService.class),
+                mock(JpsonicComparators.class), mock(JWTSecurityService.class), mock(TranscodingService.class),
+                mock(MusicFolderDao.class));
         assertNotNull(upnpProcessorUtil.getAllMusicFolders());
     }
 }

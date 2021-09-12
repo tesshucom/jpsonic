@@ -21,28 +21,34 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.dao.AlbumDao;
+import com.tesshu.jpsonic.dao.ArtistDao;
+import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.service.search.IndexManager;
+import net.sf.ehcache.Ehcache;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-@ExtendWith(NeedsHome.class)
-@ExtendWith(MockitoExtension.class)
 class MediaScannerServiceUnitTest {
 
-    @InjectMocks
+    private IndexManager indexManager;
     private MediaScannerService mediaScannerService;
 
-    @Mock
-    private IndexManager indexManager;
+    @BeforeEach
+    public void setup() {
+        indexManager = mock(IndexManager.class);
+        mediaScannerService = new MediaScannerService(mock(SettingsService.class), mock(MusicFolderService.class),
+                indexManager, mock(PlaylistService.class), mock(MediaFileService.class), mock(MediaFileDao.class),
+                mock(ArtistDao.class), mock(AlbumDao.class), mock(Ehcache.class), mock(MediaScannerServiceUtils.class),
+                mock(ThreadPoolTaskExecutor.class));
+    }
 
     @Test
     void testNeverScanned() {
