@@ -179,6 +179,7 @@ class JMediaFileDaoTest extends AbstractNeedsScan {
     @ComparatorsDecisions.DataConditions.FieldToSetDifferentSortValue.AlbumArtist
     @ComparatorsDecisions.Actions.GetDuplicateSort
     @Test
+    @EnabledOnOs(OS.WINDOWS)
     void c05() {
         Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case05".equals(s.getName())).findFirst();
         if (candidate.isPresent()) {

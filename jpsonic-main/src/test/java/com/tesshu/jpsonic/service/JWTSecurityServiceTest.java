@@ -21,59 +21,47 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
-import java.util.Collection;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.tesshu.jpsonic.NeedsHome;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.util.UriComponentsBuilder;
 
-@SpringBootTest
-@SpringBootConfiguration
-@ComponentScan(basePackages = "com.tesshu.jpsonic")
-@ExtendWith(NeedsHome.class)
 class JWTSecurityServiceTest {
 
-    private static final String KAY = "someKey";
-    private static final Algorithm ALGORITHM = JWTSecurityService.getAlgorithm(KAY);
-    private static final JWTVerifier VERIFIER = JWT.require(ALGORITHM).build();
-
-    @Autowired
     private SettingsService settingsService;
+    private JWTSecurityService jwtSecurityService;
 
-    /*
-     * Originally Parameterized was used. If possible, it is better to rewrite to the new spring-method.
-     */
-    public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][] { { "http://localhost:8080/jpsonic/stream?id=4", "/jpsonic/stream?id=4" },
-                { "/jpsonic/stream?id=4", "/jpsonic/stream?id=4" }, });
+    @BeforeEach
+    public void setup() {
+        settingsService = mock(SettingsService.class);
+        jwtSecurityService = new JWTSecurityService(mock(SettingsService.class));
     }
 
     @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert") // false positive
     @Test
     void testAddJWTToken() {
-        data().forEach(o -> {
-            UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(o[0].toString());
-            settingsService.setJWTKey(KAY);
-            JWTSecurityService service = new JWTSecurityService(settingsService);
-            String actualUri = service.addJWTToken(builder).build().toUriString();
-            String jwtToken = UriComponentsBuilder.fromUriString(actualUri).build().getQueryParams()
-                    .getFirst(JWTSecurityService.JWT_PARAM_NAME);
-            DecodedJWT verify = VERIFIER.verify(jwtToken);
-            Claim claim = verify.getClaim(JWTSecurityService.CLAIM_PATH);
-            assertEquals(o[1], claim.asString());
-        });
+        // Originally Parameterized was used. If possible, it is better to rewrite to the new
+        // spring-method.
+        Arrays.asList(new Object[][] { { "http://localhost:8080/jpsonic/stream?id=4", "/jpsonic/stream?id=4" },
+                { "/jpsonic/stream?id=4", "/jpsonic/stream?id=4" }, }).forEach(o -> {
+                    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(o[0].toString());
+                    String actualUri = jwtSecurityService.addJWTToken(builder).build().toUriString();
+                    String jwtToken = UriComponentsBuilder.fromUriString(actualUri).build().getQueryParams()
+                            .getFirst(JWTSecurityService.JWT_PARAM_NAME);
+                    Algorithm algorithm = JWTSecurityService.getAlgorithm(settingsService.getJWTKey());
+                    JWTVerifier verifier = JWT.require(algorithm).build();
+                    DecodedJWT verify = verifier.verify(jwtToken);
+                    Claim claim = verify.getClaim(JWTSecurityService.CLAIM_PATH);
+                    assertEquals(o[1], claim.asString());
+                });
     }
 }

@@ -21,27 +21,31 @@
 
 package com.tesshu.jpsonic.service.search;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
 import java.lang.annotation.Documented;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.upnp.processor.UpnpProcessorUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.Mockito;
 
-public class UPnPSearchCriteriaDirectorTest extends AbstractNeedsScan {
+public class UPnPSearchCriteriaDirectorTest {
 
     @Documented
     private @interface DirectorDecisions {
@@ -234,13 +238,8 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractNeedsScan {
         }
     }
 
-    @Autowired
     private SettingsService settingsService;
-    @Autowired
     private MusicFolderService musicFolderService;
-    @Autowired
-    private AnalyzerFactory analyzerFactory;
-    @Autowired
     private UPnPSearchCriteriaDirector director;
 
     private String path = "";
@@ -249,19 +248,27 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractNeedsScan {
     @BeforeEach
     public void setup() throws NoSuchMethodException, SecurityException, IllegalAccessException,
             IllegalArgumentException, InvocationTargetException {
-        Method setSearchMethodLegacy = analyzerFactory.getClass().getDeclaredMethod("setSearchMethodLegacy",
-                boolean.class);
-        setSearchMethodLegacy.setAccessible(true);
-        setSearchMethodLegacy.invoke(analyzerFactory, false);
-        settingsService.setSearchMethodLegacy(false);
-        populateDatabaseOnlyOnce();
-        settingsService.setSearchComposer(true);
+        settingsService = mock(SettingsService.class);
+        Mockito.when(settingsService.isSearchMethodLegacy()).thenReturn(false);
+        Mockito.when(settingsService.isSearchComposer()).thenReturn(true);
+
+        List<MusicFolder> musicFolders = new ArrayList<>();
+        File musicDir = new File("dummy");
+        musicFolders.add(new MusicFolder(1, musicDir, "accessible", true, new Date()));
+        musicFolderService = mock(MusicFolderService.class);
+        Mockito.when(musicFolderService.getAllMusicFolders()).thenReturn(musicFolders);
+
         for (MusicFolder m : musicFolderService.getAllMusicFolders()) {
             path = path.concat("f:").concat(m.getPath().getPath()).concat(" ");
             fid = fid.concat("fId:").concat(Integer.toString(m.getId())).concat(" ");
         }
         path = path.trim();
         fid = fid.trim();
+
+        SearchServiceUtilities utilities = new SearchServiceUtilities(null, null, null, null, null, settingsService);
+        UpnpProcessorUtil util = new UpnpProcessorUtil(settingsService, musicFolderService, null, null, null, null);
+        director = new UPnPSearchCriteriaDirector(new QueryFactory(new AnalyzerFactory(settingsService), utilities),
+                settingsService, util, utilities);
     }
 
     // testClassHierarchy
@@ -747,7 +754,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractNeedsScan {
     @DirectorDecisions.Result.Criteria.includeComposer.FALSE
     @Test
     public void b06() {
-        settingsService.setSearchComposer(false);
+        Mockito.when(settingsService.isSearchComposer()).thenReturn(false);
         String searchQuery5 = "(upnp:class derivedfrom \"object.item.audioItem\" and (dc:creator contains \"日本語テスト\" or upnp:artist contains \"日本語テスト\"))";
         UPnPSearchCriteria criteria = director.construct(4, 54, searchQuery5);
         assertEquals(MediaFile.class, criteria.getAssignableClass());

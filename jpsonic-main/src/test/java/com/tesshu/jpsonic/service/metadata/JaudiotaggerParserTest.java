@@ -28,23 +28,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.io.File;
 import java.net.URISyntaxException;
 
-import com.tesshu.jpsonic.NeedsHome;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 
-@SpringBootTest
-@SpringBootConfiguration
-@ComponentScan(basePackages = "com.tesshu.jpsonic")
-@ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 class JaudiotaggerParserTest {
 
-    @Autowired
-    private JaudiotaggerParser parser;
+    private JaudiotaggerParser parser = new JaudiotaggerParser(null);
 
     private void assertITunesEN(File file, boolean isAlbumArtist) {
         MetaData metaData = parser.getRawMetaData(file);

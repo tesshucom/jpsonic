@@ -19,19 +19,15 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static org.junit.Assert.assertNotNull;
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.StatusService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -39,27 +35,18 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
-@AutoConfigureMockMvc
 class StatusChartControllerTest {
-
-    private static final String ADMIN_NAME = "admin";
-
-    @Mock
-    private StatusService statusService;
-    @Autowired
-    private FontLoader fontLoader;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        mockMvc = MockMvcBuilders.standaloneSetup(new StatusChartController(statusService, fontLoader)).build();
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(new StatusChartController(mock(StatusService.class), mock(FontLoader.class))).build();
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGet() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/statusChart.view"))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();

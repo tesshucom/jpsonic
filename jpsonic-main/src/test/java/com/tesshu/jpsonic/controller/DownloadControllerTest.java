@@ -19,7 +19,7 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.File;

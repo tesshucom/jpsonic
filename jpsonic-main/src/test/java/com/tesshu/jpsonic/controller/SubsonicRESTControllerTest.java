@@ -58,6 +58,7 @@ import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.StatusService;
 import org.junit.jupiter.api.Assertions;
@@ -92,7 +93,6 @@ import org.subsonic.restapi.ResponseStatus;
 class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
     private static final String CLIENT_NAME = "jpsonic";
-    private static final String ADMIN_NAME = "admin";
     private static final String ADMIN_PASS = "admin";
     private static final String EXPECTED_FORMAT = "json";
 
@@ -157,7 +157,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getLicense").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -166,7 +167,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getLicense.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -183,7 +185,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/ping").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -191,7 +194,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/ping.view").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -210,7 +214,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getMusicFolders")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -218,7 +223,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getMusicFolders.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -235,7 +241,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getIndexes").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -244,7 +251,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getIndexes.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -261,7 +269,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getGenres").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -270,7 +279,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getGenres.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -288,7 +298,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getSongsByGenre")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.GENRE.value(), "genre")
                     .param(Attributes.Request.MUSIC_FOLDER_ID.value(), MUSIC_FOLDERS.get(0).getId().toString())
@@ -298,7 +309,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getSongsByGenre.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.GENRE.value(), "genre")
                     .param(Attributes.Request.MUSIC_FOLDER_ID.value(), MUSIC_FOLDERS.get(0).getId().toString())
@@ -317,7 +329,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getArtists").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -326,7 +339,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getArtists.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -341,12 +355,13 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
     @Test
     void testGetSimilarSongs() throws ExecutionException {
         RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null, MUSIC_FOLDERS);
-        MediaFile song = mediaFileDao.getRandomSongs(criteria, ADMIN_NAME).get(0);
+        MediaFile song = mediaFileDao.getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME).get(0);
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getSimilarSongs")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId()))
                     .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
@@ -355,7 +370,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getSimilarSongs.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId()))
                     .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
@@ -375,7 +391,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getSimilarSongs2")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(artist.getId()))
                     .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
@@ -384,7 +401,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getSimilarSongs2.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(artist.getId()))
                     .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
@@ -403,7 +421,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getTopSongs").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ARTIST.value(), artist.getName()).contentType(MediaType.APPLICATION_JSON))
@@ -413,7 +432,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getTopSongs.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ARTIST.value(), artist.getName()).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -429,11 +449,12 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
     @Test
     void testGetArtistInfo() throws ExecutionException {
         RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null, MUSIC_FOLDERS);
-        MediaFile song = mediaFileDao.getRandomSongs(criteria, ADMIN_NAME).get(0);
+        MediaFile song = mediaFileDao.getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME).get(0);
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getArtistInfo").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId()))
@@ -443,7 +464,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getArtistInfo.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId()))
                     .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
@@ -463,7 +485,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getArtistInfo2")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(artist.getId()))
                     .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
@@ -472,7 +495,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getArtistInfo2.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(artist.getId()))
                     .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
@@ -491,7 +515,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getArtist").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(artist.getId()))
@@ -501,7 +526,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getArtist.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(artist.getId()))
                     .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
@@ -520,7 +546,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getAlbum").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(album.getId()))
@@ -529,7 +556,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getAlbum.view").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(album.getId()))
@@ -548,9 +576,10 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null, MUSIC_FOLDERS);
-            MediaFile song = mediaFileDao.getRandomSongs(criteria, ADMIN_NAME).get(0);
+            MediaFile song = mediaFileDao.getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME).get(0);
             mvc.perform(MockMvcRequestBuilders.get("/rest/getSong").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId())))
@@ -559,7 +588,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getSong.view").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId())))
@@ -579,7 +609,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getMusicDirectory")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(MUSIC_FOLDERS.get(0).getId())))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -588,7 +619,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getMusicDirectory.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(MUSIC_FOLDERS.get(0).getId())))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -605,7 +637,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
     void testSearch() throws ExecutionException {
         try {
             mvc.perform(MockMvcRequestBuilders.get("/rest/search").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -613,7 +646,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/search.view").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -631,7 +665,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/search2").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -639,7 +674,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/search2.view").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -657,7 +693,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/search3").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -665,7 +702,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/search3.view").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -683,7 +721,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getPlaylists").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -692,7 +731,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getPlaylists.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -710,13 +750,15 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/jukeboxControl")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isGone());
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/jukeboxControl.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isGone());
 
@@ -730,12 +772,13 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
     void testGetPlaylist() throws ExecutionException {
         try {
 
-            Playlist playlist = new Playlist(0, ADMIN_NAME, false, "name", "comment", 0, 0, new Date(), new Date(),
-                    null);
+            Playlist playlist = new Playlist(0, ServiceMockUtils.ADMIN_NAME, false, "name", "comment", 0, 0, new Date(),
+                    new Date(), null);
             playlistService.createPlaylist(playlist);
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getPlaylist").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(playlist.getId())))
@@ -745,7 +788,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getPlaylist.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(playlist.getId())))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -768,7 +812,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/createPlaylist")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.NAME.value(), playlistName))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -780,7 +825,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/createPlaylist.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.NAME.value(), playlistName))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -801,15 +847,16 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             String playlistName = "UpdatePlaylist";
-            Playlist playlist = new Playlist(0, ADMIN_NAME, false, playlistName, "comment", 0, 0, new Date(),
-                    new Date(), null);
+            Playlist playlist = new Playlist(0, ServiceMockUtils.ADMIN_NAME, false, playlistName, "comment", 0, 0,
+                    new Date(), new Date(), null);
             playlistService.createPlaylist(playlist);
             playlist = playlistService.getAllPlaylists().stream().filter(p -> playlistName.equals(p.getName()))
                     .findFirst().get();
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/updatePlaylist")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.PLAYLIST_ID.value(), Integer.toString(playlist.getId()))
                     .param(Attributes.Request.NAME.value(), playlistName))
@@ -819,7 +866,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/updatePlaylist.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.PLAYLIST_ID.value(), Integer.toString(playlist.getId()))
                     .param(Attributes.Request.NAME.value(), playlistName))
@@ -841,15 +889,16 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             String playlistName = "DeletePlaylist";
-            Playlist playlist = new Playlist(0, ADMIN_NAME, false, playlistName, "comment", 0, 0, new Date(),
-                    new Date(), null);
+            Playlist playlist = new Playlist(0, ServiceMockUtils.ADMIN_NAME, false, playlistName, "comment", 0, 0,
+                    new Date(), new Date(), null);
             playlistService.createPlaylist(playlist);
             playlist = playlistService.getAllPlaylists().stream().filter(p -> playlistName.equals(p.getName()))
                     .findFirst().get();
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/deletePlaylist")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(playlist.getId())))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -858,7 +907,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/deletePlaylist.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(playlist.getId())))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -878,7 +928,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
     void testGetAlbumList() throws ExecutionException {
         try {
             mvc.perform(MockMvcRequestBuilders.get("/rest/getAlbumList").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.TYPE.value(), AlbumListType.NEWEST.getId())
@@ -889,7 +940,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getAlbumList.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.TYPE.value(), AlbumListType.NEWEST.getId())
                     .param(Attributes.Request.MUSIC_FOLDER_ID.value(), Integer.toString(MUSIC_FOLDERS.get(0).getId()))
@@ -908,7 +960,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getAlbumList2").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.TYPE.value(), AlbumListType.NEWEST.getId())
@@ -919,7 +972,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getAlbumList2.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.TYPE.value(), AlbumListType.NEWEST.getId())
                     .param(Attributes.Request.MUSIC_FOLDER_ID.value(), Integer.toString(MUSIC_FOLDERS.get(0).getId()))
@@ -939,7 +993,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getRandomSongs")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -947,7 +1002,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getRandomSongs.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -964,7 +1020,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getVideos").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -973,7 +1030,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getVideos.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -990,7 +1048,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getNowPlaying").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -999,7 +1058,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getNowPlaying.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -1019,27 +1079,27 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
          * @see #1048
          */
         @Test
-        @WithMockUser(username = ADMIN_NAME)
+        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Order(1)
         void testGetNowPlayingWithoutNowPlayingAllowed() throws ServletRequestBindingException, IOException {
 
             MockHttpServletRequest req = new MockHttpServletRequest();
             req.setParameter(Attributes.Request.V.value(), apiVerion);
             req.setParameter(Attributes.Request.C.value(), CLIENT_NAME);
-            req.setParameter(Attributes.Request.U.value(), ADMIN_NAME);
+            req.setParameter(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME);
             req.setParameter(Attributes.Request.P.value(), ADMIN_PASS);
             MockHttpServletResponse res = new MockHttpServletResponse();
 
             final Player player = playerService.getPlayer(req, res, false, true);
             assertNotNull(player);
-            assertEquals(ADMIN_NAME, player.getUsername());
+            assertEquals(ServiceMockUtils.ADMIN_NAME, player.getUsername());
             assertEquals(PlayerTechnology.WEB, player.getTechnology());
             assertEquals(TranscodeScheme.OFF, player.getTranscodeScheme());
             assertEquals(0, player.getPlayQueue().getFiles().size());
 
             RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
                     musicFolderDao.getAllMusicFolders());
-            MediaFile song = mediaFileDao.getRandomSongs(criteria, ADMIN_NAME).get(0);
+            MediaFile song = mediaFileDao.getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME).get(0);
             assertNotNull(song);
             req.setParameter(Attributes.Request.PATH.value(), song.getPath());
             res = new MockHttpServletResponse();
@@ -1054,7 +1114,7 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             res = new MockHttpServletResponse();
 
-            UserSettings userSettings = securityService.getUserSettings(ADMIN_NAME);
+            UserSettings userSettings = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
             assertFalse(userSettings.isNowPlayingAllowed()); // default false
             subsonicRESTController.getNowPlaying(req, res);
 
@@ -1076,27 +1136,27 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         }
 
         @Test
-        @WithMockUser(username = ADMIN_NAME)
+        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Order(2)
         void testGetNowPlayingWithNowPlayingAllowed() throws ServletRequestBindingException, IOException {
 
             MockHttpServletRequest req = new MockHttpServletRequest();
             req.setParameter(Attributes.Request.V.value(), apiVerion);
             req.setParameter(Attributes.Request.C.value(), CLIENT_NAME);
-            req.setParameter(Attributes.Request.U.value(), ADMIN_NAME);
+            req.setParameter(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME);
             req.setParameter(Attributes.Request.P.value(), ADMIN_PASS);
             MockHttpServletResponse res = new MockHttpServletResponse();
 
             final Player player = playerService.getPlayer(req, res, false, true);
             assertNotNull(player);
-            assertEquals(ADMIN_NAME, player.getUsername());
+            assertEquals(ServiceMockUtils.ADMIN_NAME, player.getUsername());
             assertEquals(PlayerTechnology.WEB, player.getTechnology());
             assertEquals(TranscodeScheme.OFF, player.getTranscodeScheme());
             assertEquals(0, player.getPlayQueue().getFiles().size());
 
             RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null,
                     musicFolderDao.getAllMusicFolders());
-            MediaFile song = mediaFileDao.getRandomSongs(criteria, ADMIN_NAME).get(0);
+            MediaFile song = mediaFileDao.getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME).get(0);
             assertNotNull(song);
             req.setParameter(Attributes.Request.PATH.value(), song.getPath());
             res = new MockHttpServletResponse();
@@ -1111,7 +1171,7 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             res = new MockHttpServletResponse();
 
-            UserSettings userSettings = securityService.getUserSettings(ADMIN_NAME);
+            UserSettings userSettings = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
             assertFalse(userSettings.isNowPlayingAllowed()); // default false
             userSettings.setNowPlayingAllowed(true); // Change to true
             securityService.updateUserSettings(userSettings);
@@ -1139,19 +1199,21 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
     @Test
     void testDownload() throws ExecutionException {
         RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null, MUSIC_FOLDERS);
-        MediaFile song = mediaFileDao.getRandomSongs(criteria, ADMIN_NAME).get(0);
+        MediaFile song = mediaFileDao.getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME).get(0);
 
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/download").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId()))
                     .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/download.view").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId()))
@@ -1166,19 +1228,21 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
     @Test
     void testStream() throws ExecutionException {
         RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null, MUSIC_FOLDERS);
-        MediaFile song = mediaFileDao.getRandomSongs(criteria, ADMIN_NAME).get(0);
+        MediaFile song = mediaFileDao.getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME).get(0);
 
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/stream").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId()))
                     .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/stream.view").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId()))
@@ -1193,19 +1257,21 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
     @Test
     void testHls() throws ExecutionException {
         RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null, MUSIC_FOLDERS);
-        MediaFile song = mediaFileDao.getRandomSongs(criteria, ADMIN_NAME).get(0);
+        MediaFile song = mediaFileDao.getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME).get(0);
 
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/hls").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId()))
                     .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/hls.view").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId()))
@@ -1220,11 +1286,12 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
     @Test
     void testScrobble() throws ExecutionException {
         RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null, MUSIC_FOLDERS);
-        MediaFile song = mediaFileDao.getRandomSongs(criteria, ADMIN_NAME).get(0);
+        MediaFile song = mediaFileDao.getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME).get(0);
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/scrobble").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId())).param("time", "0")
@@ -1233,7 +1300,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/scrobble.view").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId())).param("time", "0")
@@ -1252,7 +1320,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/star").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1260,7 +1329,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/star.view").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1278,7 +1348,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/unstar").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1286,7 +1357,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/unstar.view").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1304,7 +1376,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getStarred").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1313,7 +1386,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getStarred.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -1330,7 +1404,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getStarred2").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1339,7 +1414,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getStarred2.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -1356,7 +1432,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getPodcasts").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1365,7 +1442,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getPodcasts.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -1383,7 +1461,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getNewestPodcasts")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -1391,7 +1470,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getNewestPodcasts.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -1409,7 +1489,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/refreshPodcasts")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -1417,7 +1498,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/refreshPodcasts.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -1469,7 +1551,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/deletePodcastChannel")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).param(Attributes.Request.ID.value(), "0")
                     .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -1477,9 +1560,10 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/deletePodcastChannel.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
-                    .param(Attributes.Request.ID.value(), "0").param(Attributes.Request.F.value(), EXPECTED_FORMAT)
-                    .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS).param(Attributes.Request.ID.value(), "0")
+                    .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
@@ -1495,7 +1579,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/deletePodcastEpisode")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).param(Attributes.Request.ID.value(), "0")
                     .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -1503,9 +1588,10 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/deletePodcastEpisode.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
-                    .param(Attributes.Request.ID.value(), "0").param(Attributes.Request.F.value(), EXPECTED_FORMAT)
-                    .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS).param(Attributes.Request.ID.value(), "0")
+                    .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
@@ -1521,7 +1607,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/downloadPodcastEpisode")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).param(Attributes.Request.ID.value(), "0")
                     .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_ERROR_CODE).value("70"))
@@ -1532,9 +1619,10 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/downloadPodcastEpisode.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
-                    .param(Attributes.Request.ID.value(), "0").param(Attributes.Request.F.value(), EXPECTED_FORMAT)
-                    .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS).param(Attributes.Request.ID.value(), "0")
+                    .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_ERROR_CODE).value("70"))
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_ERROR_MESSAGE)
                             .value("Podcast episode 0 not found."))
@@ -1553,7 +1641,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getInternetRadioStations")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -1561,7 +1650,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getInternetRadioStations.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -1578,7 +1668,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getBookmarks").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1587,7 +1678,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getBookmarks.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -1604,10 +1696,11 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null, MUSIC_FOLDERS);
-            MediaFile song = mediaFileDao.getRandomSongs(criteria, ADMIN_NAME).get(0);
+            MediaFile song = mediaFileDao.getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME).get(0);
             mvc.perform(MockMvcRequestBuilders.get("/rest/createBookmark")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId()))
                     .param(Attributes.Request.POSITION.value(), Integer.toString(0)))
@@ -1617,7 +1710,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/createBookmark.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId()))
                     .param(Attributes.Request.POSITION.value(), Integer.toString(1)))
@@ -1636,10 +1730,11 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null, MUSIC_FOLDERS);
-            MediaFile song = mediaFileDao.getRandomSongs(criteria, ADMIN_NAME).get(0);
+            MediaFile song = mediaFileDao.getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME).get(0);
             mvc.perform(MockMvcRequestBuilders.get("/rest/deleteBookmark")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId())))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1648,7 +1743,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/deleteBookmark.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId())))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1666,7 +1762,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getPlayQueue").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1675,7 +1772,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getPlayQueue.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -1691,9 +1789,10 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
     void testSavePlayQueue() throws ExecutionException {
         try {
             RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null, MUSIC_FOLDERS);
-            MediaFile song = mediaFileDao.getRandomSongs(criteria, ADMIN_NAME).get(0);
+            MediaFile song = mediaFileDao.getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME).get(0);
             mvc.perform(MockMvcRequestBuilders.get("/rest/savePlayQueue").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId()))
@@ -1704,7 +1803,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/savePlayQueue.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId()))
                     .param(Attributes.Request.CURRENT.value(), Integer.toString(song.getId())))
@@ -1723,7 +1823,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getShares").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1732,7 +1833,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getShares.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -1749,7 +1851,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/createShare").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1758,7 +1861,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/createShare.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -1771,15 +1875,16 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testDeleteShare() throws ExecutionException {
         try {
 
             RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null, MUSIC_FOLDERS);
-            MediaFile song = mediaFileDao.getRandomSongs(criteria, ADMIN_NAME).get(0);
+            MediaFile song = mediaFileDao.getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME).get(0);
             Share share = shareService.createShare(Mockito.mock(HttpServletRequest.class), Arrays.asList(song));
             mvc.perform(MockMvcRequestBuilders.get("/rest/deleteShare").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(share.getId())))
@@ -1789,7 +1894,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/deleteShare.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(share.getId())))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1804,15 +1910,16 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testUpdateShare() throws ExecutionException {
         try {
 
             RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null, MUSIC_FOLDERS);
-            MediaFile song = mediaFileDao.getRandomSongs(criteria, ADMIN_NAME).get(0);
+            MediaFile song = mediaFileDao.getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME).get(0);
             Share share = shareService.createShare(Mockito.mock(HttpServletRequest.class), Arrays.asList(song));
             mvc.perform(MockMvcRequestBuilders.get("/rest/updateShare").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(share.getId())))
@@ -1822,7 +1929,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/updateShare.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(share.getId())))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1840,10 +1948,11 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
     void testGetCoverArt() throws ExecutionException {
         try {
             RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null, MUSIC_FOLDERS);
-            MediaFile song = mediaFileDao.getRandomSongs(criteria, ADMIN_NAME).get(0);
+            MediaFile song = mediaFileDao.getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME).get(0);
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getCoverArt").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId()))
@@ -1851,7 +1960,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getCoverArt.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId()))
                     .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
@@ -1867,14 +1977,16 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getAvatar").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).param(Attributes.Request.ID.value(), "103")
                     .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getAvatar.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).param(Attributes.Request.ID.value(), "103")
                     .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
@@ -1890,9 +2002,10 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/changePassword")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
-                    .param(Attributes.Request.USER_NAME.value(), ADMIN_NAME)
+                    .param(Attributes.Request.USER_NAME.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.PASSWORD.value(), ADMIN_PASS).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -1900,9 +2013,10 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/changePassword.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
-                    .param(Attributes.Request.USER_NAME.value(), ADMIN_NAME)
+                    .param(Attributes.Request.USER_NAME.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.PASSWORD.value(), ADMIN_PASS).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -1919,20 +2033,22 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getUser").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
-                    .param(Attributes.Request.USER_NAME.value(), ADMIN_NAME).contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .param(Attributes.Request.USER_NAME.value(), ServiceMockUtils.ADMIN_NAME)
+                    .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getUser.view").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
-                    .param(Attributes.Request.USER_NAME.value(), ADMIN_NAME).contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .param(Attributes.Request.USER_NAME.value(), ServiceMockUtils.ADMIN_NAME)
+                    .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
@@ -1947,7 +2063,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getUsers").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1955,7 +2072,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getUsers.view").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -1973,7 +2091,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/createUser").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.USER_NAME.value(), "test1")
@@ -1985,7 +2104,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/createUser.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.USER_NAME.value(), "test2")
                     .param(Attributes.Request.PASSWORD.value(), "test2")
@@ -2004,7 +2124,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
     void testUpdateUser() throws ExecutionException {
         try {
             mvc.perform(MockMvcRequestBuilders.get("/rest/createUser").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.USER_NAME.value(), "updateUserName")
@@ -2015,7 +2136,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/updateUser").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.USER_NAME.value(), "updateUserName")
@@ -2025,7 +2147,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/updateUser.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.USER_NAME.value(), "updateUserName")
                     .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
@@ -2042,7 +2165,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/deleteUser").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.USER_NAME.value(), "testUser").contentType(MediaType.APPLICATION_JSON))
@@ -2054,7 +2178,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/deleteUser.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.USER_NAME.value(), "testUser").contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -2074,13 +2199,15 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getChatMessages")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isGone());
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getChatMessages.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isGone());
 
@@ -2096,13 +2223,15 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/addChatMessage")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isGone());
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/addChatMessage.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isGone());
 
@@ -2117,7 +2246,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getLyrics").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ARTIST.value(), "artist").param(Attributes.Request.TITLE.value(), "title")
@@ -2127,7 +2257,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getLyrics.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
                     .param(Attributes.Request.ARTIST.value(), "artist").param(Attributes.Request.TITLE.value(), "title")
                     .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
@@ -2146,7 +2277,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
             MediaFile album = mediaFileDao.getAlphabeticalAlbums(0, 1, false, MUSIC_FOLDERS).get(0);
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/setRating").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.RATING.value(), Integer.toString(1))
@@ -2157,7 +2289,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/setRating.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.RATING.value(), Integer.toString(1))
                     .param(Attributes.Request.ID.value(), Integer.toString(album.getId())))
@@ -2177,7 +2310,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
             MediaFile album = mediaFileDao.getAlphabeticalAlbums(0, 1, false, MUSIC_FOLDERS).get(0);
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getAlbumInfo").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(album.getId())))
@@ -2187,7 +2321,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getAlbumInfo.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(album.getId())))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -2206,7 +2341,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
             Album album = albumDao.getAlphabeticalAlbums(0, 1, false, false, MUSIC_FOLDERS).get(0);
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getAlbumInfo2").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(album.getId())))
@@ -2216,7 +2352,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getAlbumInfo2.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON)
                     .param(Attributes.Request.ID.value(), Integer.toString(album.getId())))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -2234,14 +2371,16 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getVideoInfo").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().is5xxServerError());
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getVideoInfo.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().is5xxServerError());
 
@@ -2256,14 +2395,16 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getCaptions").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().is5xxServerError());
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getCaptions.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().is5xxServerError());
 
@@ -2278,7 +2419,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/startScan").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -2287,7 +2429,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/startScan.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
@@ -2304,7 +2447,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
         try {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getScanStatus").param(Attributes.Request.V.value(), apiVerion)
-                    .param(Attributes.Request.C.value(), CLIENT_NAME).param(Attributes.Request.U.value(), ADMIN_NAME)
+                    .param(Attributes.Request.C.value(), CLIENT_NAME)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                     .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
@@ -2313,7 +2457,8 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
             mvc.perform(MockMvcRequestBuilders.get("/rest/getScanStatus.view")
                     .param(Attributes.Request.V.value(), apiVerion).param(Attributes.Request.C.value(), CLIENT_NAME)
-                    .param(Attributes.Request.U.value(), ADMIN_NAME).param(Attributes.Request.P.value(), ADMIN_PASS)
+                    .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                    .param(Attributes.Request.P.value(), ADMIN_PASS)
                     .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(MockMvcResultMatchers.status().isOk())
                     .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))

@@ -21,35 +21,29 @@
 
 package com.tesshu.jpsonic.service.search;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * Test case for Analyzer. These cases have the purpose of observing the current situation and observing the impact of
  * upgrading Lucene.
  */
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.JUnitTestsShouldIncludeAssert" })
 /*
  * [AvoidDuplicateLiterals] In the testing class, it may be less readable. [JUnitTestsShouldIncludeAssert] dalse
@@ -57,25 +51,13 @@ import org.springframework.boot.test.context.SpringBootTest;
  */
 class AnalyzerFactoryTest {
 
-    @Autowired
     private AnalyzerFactory analyzerFactory;
-
-    @Autowired
-    private SettingsService settingsService;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        Method setSearchMethodLegacy;
-        try {
-            setSearchMethodLegacy = analyzerFactory.getClass().getDeclaredMethod("setSearchMethodLegacy",
-                    boolean.class);
-            setSearchMethodLegacy.setAccessible(true);
-            setSearchMethodLegacy.invoke(analyzerFactory, false);
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException e) {
-            throw new ExecutionException(e);
-        }
-        settingsService.setSearchMethodLegacy(false);
+        SettingsService settingsService = mock(SettingsService.class);
+        Mockito.when(settingsService.isSearchMethodLegacy()).thenReturn(false);
+        analyzerFactory = new AnalyzerFactory(settingsService);
     }
 
     @Test

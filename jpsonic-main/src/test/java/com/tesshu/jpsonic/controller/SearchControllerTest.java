@@ -19,22 +19,22 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static org.junit.Assert.assertNotNull;
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.command.SearchCommand;
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.PlayerService;
+import com.tesshu.jpsonic.service.SearchService;
+import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -43,36 +43,19 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 
-@AutoConfigureMockMvc
-class SearchControllerTest extends AbstractNeedsScan {
-
-    private static final String ADMIN_NAME = "admin";
-    private static final List<MusicFolder> MUSIC_FOLDERS;
-
-    static {
-        MUSIC_FOLDERS = new ArrayList<>();
-        File musicDir = new File(resolveBaseMediaPath("Music"));
-        MUSIC_FOLDERS.add(new MusicFolder(1, musicDir, "Music", true, new Date()));
-    }
-
-    @Autowired
-    private SearchController controller;
+class SearchControllerTest {
 
     private MockMvc mockMvc;
 
-    @Override
-    public List<MusicFolder> getMusicFolders() {
-        return MUSIC_FOLDERS;
-    }
-
     @BeforeEach
     public void setup() throws ExecutionException {
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
-        populateDatabaseOnlyOnce();
+        mockMvc = MockMvcBuilders.standaloneSetup(new SearchController(mock(SettingsService.class),
+                mock(MusicFolderService.class), mock(SecurityService.class), mock(PlayerService.class),
+                mock(SearchService.class), mock(SearchCriteriaDirector.class))).build();
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testDisplayForm() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/search.view"))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
@@ -85,7 +68,7 @@ class SearchControllerTest extends AbstractNeedsScan {
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testOnSubmit() throws Exception {
 
         SearchCommand command = new SearchCommand();

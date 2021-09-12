@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -30,7 +31,6 @@ import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
@@ -42,44 +42,22 @@ import net.sf.ehcache.Ehcache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
 class MediaFileServiceTest {
 
-    @Mock
     private SettingsService settingsService;
-    @Mock
-    private MusicFolderService musicFolderService;
-    @Mock
-    private SecurityService securityService;
-    @Mock
-    private Ehcache mediaFileMemoryCache;
-    @Mock
     private MediaFileDao mediaFileDao;
-    @Mock
-    private AlbumDao albumDao;
-    @Mock
-    private JaudiotaggerParser parser;
-    @Mock
-    private MetaDataParserFactory metaDataParserFactory;
-    @Mock
-    private MediaFileServiceUtils utils;
-
     private MediaFileService mediaFileService;
-
     private File dir;
 
     @BeforeEach
     public void setup() throws URISyntaxException {
-        Mockito.when(settingsService.getFileModifiedCheckSchemeName())
-                .thenReturn(FileModifiedCheckScheme.LAST_MODIFIED.name());
-        mediaFileService = new MediaFileService(settingsService, musicFolderService, securityService,
-                mediaFileMemoryCache, mediaFileDao, albumDao, parser, metaDataParserFactory, utils);
+        settingsService = mock(SettingsService.class);
+        mediaFileDao = mock(MediaFileDao.class);
+        mediaFileService = new MediaFileService(settingsService, mock(MusicFolderService.class),
+                mock(SecurityService.class), mock(Ehcache.class), mediaFileDao, mock(AlbumDao.class),
+                mock(JaudiotaggerParser.class), mock(MetaDataParserFactory.class), mock(MediaFileServiceUtils.class));
         dir = new File(MediaFileServiceTest.class.getResource("/MEDIAS/Music").toURI());
     }
 

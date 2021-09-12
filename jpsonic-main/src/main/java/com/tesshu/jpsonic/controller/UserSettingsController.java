@@ -67,17 +67,17 @@ import org.springframework.web.servlet.view.RedirectView;
 public class UserSettingsController {
 
     private final SettingsService settingsService;
-    private final SecurityService securityService;
     private final MusicFolderService musicFolderService;
+    private final SecurityService securityService;
     private final TranscodingService transcodingService;
     private final ShareService shareService;
 
-    public UserSettingsController(SettingsService settingsService, SecurityService securityService,
-            MusicFolderService musicFolderService, TranscodingService transcodingService, ShareService shareService) {
+    public UserSettingsController(SettingsService settingsService, MusicFolderService musicFolderService,
+            SecurityService securityService, TranscodingService transcodingService, ShareService shareService) {
         super();
         this.settingsService = settingsService;
-        this.securityService = securityService;
         this.musicFolderService = musicFolderService;
+        this.securityService = securityService;
         this.transcodingService = transcodingService;
         this.shareService = shareService;
     }

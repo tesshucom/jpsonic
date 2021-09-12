@@ -19,11 +19,11 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.annotation.Documented;
 import java.util.Locale;
@@ -36,6 +36,7 @@ import com.tesshu.jpsonic.domain.FontScheme;
 import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +48,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -60,11 +60,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
-@AutoConfigureMockMvc
 @SuppressWarnings("PMD.TooManyStaticImports")
 class PersonalSettingsControllerTest {
 
-    private static final String ADMIN_NAME = "admin";
     private static final String VIEW_NAME = "personalSettings";
 
     @Autowired
@@ -83,7 +81,7 @@ class PersonalSettingsControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     @Test
     void testDisplayForm() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.PERSONAL_SETTINGS.value()))
@@ -165,7 +163,7 @@ class PersonalSettingsControllerTest {
         assertNotNull(command.getTabletSettings());
         assertEquals("-1", command.getThemeIndex());
         assertEquals(18, command.getThemes().length);
-        assertEquals(ADMIN_NAME, command.getUser().getUsername());
+        assertEquals(ServiceMockUtils.ADMIN_NAME, command.getUser().getUsername());
         assertFalse(command.isUseRadio());
         assertFalse(command.isUseSonos());
         assertFalse(command.isVoiceInputEnabled());
@@ -271,7 +269,7 @@ class PersonalSettingsControllerTest {
         @DoSubmitDecision.Conditions.Command.LastFmPassword.Blank
         @DoSubmitDecision.Conditions.Command.SpeechLangSchemeName.Default
         @DoSubmitDecision.Conditions.Command.AvatarScheme.NONE
-        @WithMockUser(username = ADMIN_NAME)
+        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
         @Order(1)
         void c1() throws Exception {
@@ -287,7 +285,7 @@ class PersonalSettingsControllerTest {
             assertNotNull(command);
             assertNotNull(command.getIetf()); // Depends on the test environment
 
-            UserSettings userSettings = securityService.getUserSettings(ADMIN_NAME);
+            UserSettings userSettings = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
             assertNull(userSettings.getLocale());
             assertEquals(SpeechToTextLangScheme.DEFAULT.name(), userSettings.getSpeechLangSchemeName());
             assertNull(userSettings.getThemeId());
@@ -304,7 +302,7 @@ class PersonalSettingsControllerTest {
 
         @DoSubmitDecision.Conditions.UserSettings.Locale.NotNull
         @DoSubmitDecision.Conditions.UserSettings.SpeechLangSchemeName.NotDefault
-        @WithMockUser(username = ADMIN_NAME)
+        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
         @Order(2)
         void c2() throws Exception {
@@ -318,7 +316,7 @@ class PersonalSettingsControllerTest {
                     .get(Attributes.Model.Command.VALUE);
             assertNotNull(command);
 
-            UserSettings userSettings = securityService.getUserSettings(ADMIN_NAME);
+            UserSettings userSettings = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
             userSettings.setLocale(Locale.JAPANESE);
             userSettings.setSpeechLangSchemeName(SpeechToTextLangScheme.BCP47.name());
             securityService.updateUserSettings(userSettings);
@@ -334,7 +332,7 @@ class PersonalSettingsControllerTest {
 
         @DoSubmitDecision.Conditions.UserSettings.Locale.NotNull
         @DoSubmitDecision.Conditions.UserSettings.SpeechLangSchemeName.Default
-        @WithMockUser(username = ADMIN_NAME)
+        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
         @Order(3)
         void c3() throws Exception {
@@ -348,7 +346,7 @@ class PersonalSettingsControllerTest {
                     .get(Attributes.Model.Command.VALUE);
             assertNotNull(command);
 
-            UserSettings userSettings = securityService.getUserSettings(ADMIN_NAME);
+            UserSettings userSettings = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
             userSettings.setLocale(StringUtil.parseLocale("ja_JP"));
             userSettings.setSpeechLangSchemeName(SpeechToTextLangScheme.DEFAULT.name());
             securityService.updateUserSettings(userSettings);
@@ -363,7 +361,7 @@ class PersonalSettingsControllerTest {
         }
 
         @DoSubmitDecision.Conditions.UserSettings.ThemeId.NotNull
-        @WithMockUser(username = ADMIN_NAME)
+        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
         @Order(4)
         void c4() throws Exception {
@@ -377,7 +375,7 @@ class PersonalSettingsControllerTest {
                     .get(Attributes.Model.Command.VALUE);
             assertNotNull(command);
 
-            UserSettings userSettings = securityService.getUserSettings(ADMIN_NAME);
+            UserSettings userSettings = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
             userSettings.setThemeId("jpsonic");
             securityService.updateUserSettings(userSettings);
 
@@ -391,7 +389,7 @@ class PersonalSettingsControllerTest {
         }
 
         @DoSubmitDecision.Conditions.SettingsService.OthersPlayingEnabled.True
-        @WithMockUser(username = ADMIN_NAME)
+        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
         @Order(5)
         void c5() throws Exception {
@@ -418,7 +416,7 @@ class PersonalSettingsControllerTest {
 
         @DoSubmitDecision.Conditions.Command.SpeechLangSchemeName.NotDefault
         @DoSubmitDecision.Conditions.Command.Ietf.Blank
-        @WithMockUser(username = ADMIN_NAME)
+        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
         @Order(6)
         void c6() throws Exception {
@@ -453,7 +451,7 @@ class PersonalSettingsControllerTest {
 
         @DoSubmitDecision.Conditions.Command.SpeechLangSchemeName.NotDefault
         @DoSubmitDecision.Conditions.Command.Ietf.NotBlank.NotFine
-        @WithMockUser(username = ADMIN_NAME)
+        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
         @Order(7)
         void c7() throws Exception {
@@ -487,7 +485,7 @@ class PersonalSettingsControllerTest {
         }
 
         @DoSubmitDecision.Conditions.Command.LastFmPassword.NotBlank
-        @WithMockUser(username = ADMIN_NAME)
+        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
         @Order(8)
         void c8() throws Exception {
@@ -518,7 +516,7 @@ class PersonalSettingsControllerTest {
         }
 
         @DoSubmitDecision.Conditions.Command.AvatarScheme.CUSTOM
-        @WithMockUser(username = ADMIN_NAME)
+        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
         @Order(9)
         void c9() throws Exception {
@@ -549,7 +547,7 @@ class PersonalSettingsControllerTest {
         }
 
         @DoSubmitDecision.Conditions.Command.AvatarScheme.SYSTEM
-        @WithMockUser(username = ADMIN_NAME)
+        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         // @Test NeedScan
         @Order(10)
         void c10() throws Exception {
@@ -658,7 +656,7 @@ class PersonalSettingsControllerTest {
         @NowPlayingDecision.Conditions.Command.ShowNowPlayingEnabled.True
         @NowPlayingDecision.Result.UserSettings.NowPlayingAllowed.True
         @NowPlayingDecision.Result.UserSettings.ShowNowPlayingEnabled.False
-        @WithMockUser(username = ADMIN_NAME)
+        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
         @Order(1)
         void c1() throws Exception {
@@ -698,7 +696,7 @@ class PersonalSettingsControllerTest {
         @NowPlayingDecision.Conditions.Command.ShowNowPlayingEnabled.True
         @NowPlayingDecision.Result.UserSettings.NowPlayingAllowed.True
         @NowPlayingDecision.Result.UserSettings.ShowNowPlayingEnabled.True
-        @WithMockUser(username = ADMIN_NAME)
+        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
         @Order(2)
         void c2() throws Exception {
@@ -739,7 +737,7 @@ class PersonalSettingsControllerTest {
         @NowPlayingDecision.Conditions.Command.ShowNowPlayingEnabled.True
         @NowPlayingDecision.Result.UserSettings.NowPlayingAllowed.True
         @NowPlayingDecision.Result.UserSettings.ShowNowPlayingEnabled.False
-        @WithMockUser(username = ADMIN_NAME)
+        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         @Test
         @Order(3)
         void c3() throws Exception {

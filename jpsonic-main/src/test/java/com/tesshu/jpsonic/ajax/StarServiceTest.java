@@ -19,65 +19,51 @@
 
 package com.tesshu.jpsonic.ajax;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.ServiceMockUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.test.context.support.WithMockUser;
 
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
 class StarServiceTest {
 
-    private static final String ADMIN_NAME = "admin";
-    private static final int MEDIA_FILE_ID = 0;
-
-    @Autowired
-    private SecurityService securityService;
-    @Mock
     private MediaFileDao mediaFileDao;
-    @Mock
-    private AjaxHelper ajaxHelper;
-    @Autowired
-    private MockHttpServletRequest httpServletRequest;
-
     private StarService starService;
 
     @BeforeEach
     public void setup() {
-        Mockito.when(ajaxHelper.getHttpServletRequest()).thenReturn(httpServletRequest);
-        starService = new StarService(securityService, mediaFileDao, ajaxHelper);
+        mediaFileDao = mock(MediaFileDao.class);
+        starService = new StarService(mock(SecurityService.class), mediaFileDao, AjaxMockUtils.mock(AjaxHelper.class));
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testStar() {
-        ArgumentCaptor<Integer> id = ArgumentCaptor.forClass(Integer.class);
-        ArgumentCaptor<String> name = ArgumentCaptor.forClass(String.class);
-        Mockito.doNothing().when(mediaFileDao).starMediaFile(id.capture(), name.capture());
-        starService.star(MEDIA_FILE_ID);
-        assertEquals(MEDIA_FILE_ID, id.getValue());
-        assertEquals(ADMIN_NAME, name.getValue());
+
+        ArgumentCaptor<Integer> idCaptor = ArgumentCaptor.forClass(int.class);
+        ArgumentCaptor<String> nameCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.doNothing().when(mediaFileDao).starMediaFile(idCaptor.capture(), nameCaptor.capture());
+        int mediaFileId = 0;
+        starService.star(mediaFileId);
+        assertEquals(mediaFileId, idCaptor.getValue());
+        assertEquals(ServiceMockUtils.ADMIN_NAME, nameCaptor.getValue());
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testUnstar() {
         ArgumentCaptor<Integer> id = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<String> name = ArgumentCaptor.forClass(String.class);
         Mockito.doNothing().when(mediaFileDao).unstarMediaFile(id.capture(), name.capture());
-        starService.unstar(MEDIA_FILE_ID);
-        assertEquals(MEDIA_FILE_ID, id.getValue());
-        assertEquals(ADMIN_NAME, name.getValue());
+        int mediaFileId = 0;
+        starService.unstar(mediaFileId);
+        assertEquals(mediaFileId, id.getValue());
+        assertEquals(ServiceMockUtils.ADMIN_NAME, name.getValue());
     }
 }

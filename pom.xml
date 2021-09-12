@@ -20,7 +20,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cxf.version>3.4.4</cxf.version>
         <jackson.version>2.12.5</jackson.version>
-        <tomcat.version>9.0.52</tomcat.version>
+        <tomcat.version>9.0.53</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
         <jetty.version>9.4.43.v20210629</jetty.version>
         <jetty-jsp.version>9.4.43.v20210629</jetty-jsp.version>
@@ -440,7 +440,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
-                    <version>3.3.1</version>
+                    <version>3.3.2</version>
                     <configuration>
                         <failOnMissingWebXml>false</failOnMissingWebXml>
                         <archive>
@@ -482,7 +482,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-pmd-plugin</artifactId>
-                    <version>3.14.0</version>
+                    <version>3.15.0</version>
                     <dependencies>
                         <dependency>
                             <groupId>net.sourceforge.pmd</groupId>
@@ -533,7 +533,7 @@
                         <dependency>
                             <groupId>com.github.spotbugs</groupId>
                             <artifactId>spotbugs</artifactId>
-                            <version>4.4.0</version>
+                            <version>4.4.1</version>
                         </dependency>
                     </dependencies>
                 </plugin>

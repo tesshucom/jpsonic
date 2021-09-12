@@ -1235,6 +1235,14 @@ public class SettingsService {
         setProperty(SettingsConstants.UPnP.Options.GUEST_PUBLISH, b);
     }
 
+    public boolean isUriWithFileExtensions() {
+        return getBoolean(SettingsConstants.UPnP.Options.URI_WITH_FILE_EXTENSIONS);
+    }
+
+    public void setUriWithFileExtensions(boolean b) {
+        setProperty(SettingsConstants.UPnP.Options.URI_WITH_FILE_EXTENSIONS, b);
+    }
+
     public boolean isSonosEnabled() {
         return getBoolean(SettingsConstants.Sonos.ENABLED);
     }

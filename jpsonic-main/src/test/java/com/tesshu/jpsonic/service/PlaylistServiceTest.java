@@ -1,7 +1,7 @@
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 
@@ -29,17 +29,14 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -48,39 +45,18 @@ class PlaylistServiceTest {
     @Nested
     class ExportTest {
 
-        private PlaylistService playlistService;
-
-        @InjectMocks
-        private DefaultPlaylistExportHandler defaultPlaylistExportHandler;
-
-        @Mock
-        private DaoHelper daoHelper;
-
-        @Mock
         private MediaFileDao mediaFileDao;
-
-        @Mock
-        private PlaylistDao playlistDao;
-
-        @Mock
-        private SettingsService settingsService;
-
-        @Mock
-        private SecurityService securityService;
-
-        // @Captor
-        // private ArgumentCaptor<Playlist> actual;
-
-        // @Captor
-        // private ArgumentCaptor<List<MediaFile>> medias;
+        private PlaylistService playlistService;
 
         @BeforeEach
         public void setup() {
-            MockitoAnnotations.openMocks(this);
+            mediaFileDao = mock(MediaFileDao.class);
+            DaoHelper daoHelper = mock(DaoHelper.class);
             JMediaFileDao jMediaFileDao = new JMediaFileDao(daoHelper, mediaFileDao);
-            JPlaylistDao jPlaylistDao = new JPlaylistDao(daoHelper, playlistDao);
-            playlistService = new PlaylistService(jMediaFileDao, jPlaylistDao, securityService, settingsService,
-                    Lists.newArrayList(defaultPlaylistExportHandler), Collections.emptyList(), null);
+            JPlaylistDao jPlaylistDao = new JPlaylistDao(daoHelper, mock(PlaylistDao.class));
+            playlistService = new PlaylistService(jMediaFileDao, jPlaylistDao, mock(SecurityService.class),
+                    mock(SettingsService.class), Lists.newArrayList(new DefaultPlaylistExportHandler(mediaFileDao)),
+                    Collections.emptyList(), null);
         }
 
         @Test
@@ -132,49 +108,35 @@ class PlaylistServiceTest {
 
         private PlaylistService playlistService;
 
-        @Mock
-        private DaoHelper daoHelper;
-
-        @Mock
-        private MediaFileDao mediaFileDao;
-
-        @Mock
         private PlaylistDao playlistDao;
-
-        @Mock
         private MediaFileService mediaFileService;
 
-        @Mock
-        private SettingsService settingsService;
-
-        @Mock
-        private SecurityService securityService;
-
-        @Captor
         private ArgumentCaptor<Playlist> actual;
-
-        @Captor
         private ArgumentCaptor<List<MediaFile>> medias;
 
         @TempDir
         public Path tempDirPath;
-
         public File tempDir;
 
+        @SuppressWarnings("unchecked")
         @BeforeEach
         public void setup() {
-            MockitoAnnotations.openMocks(this);
-            JMediaFileDao jMediaFileDao = new JMediaFileDao(daoHelper, mediaFileDao);
+            playlistDao = mock(PlaylistDao.class);
+            mediaFileService = mock(MediaFileService.class);
+            DaoHelper daoHelper = mock(DaoHelper.class);
+            JMediaFileDao jMediaFileDao = new JMediaFileDao(daoHelper, mock(MediaFileDao.class));
             JPlaylistDao jPlaylistDao = new JPlaylistDao(daoHelper, playlistDao);
             DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(mediaFileService);
-            playlistService = new PlaylistService(jMediaFileDao, jPlaylistDao, securityService, settingsService,
-                    Collections.emptyList(), Lists.newArrayList(importHandler), null);
+            playlistService = new PlaylistService(jMediaFileDao, jPlaylistDao, mock(SecurityService.class),
+                    mock(SettingsService.class), Collections.emptyList(), Lists.newArrayList(importHandler), null);
             if (tempDir != null) {
                 tempDir = tempDirPath.toFile();
                 if (!tempDir.exists()) {
                     tempDir.mkdir();
                 }
             }
+            actual = ArgumentCaptor.forClass(Playlist.class);
+            medias = ArgumentCaptor.forClass(List.class);
         }
 
         @Test
@@ -216,7 +178,7 @@ class PlaylistServiceTest {
             expected.setShared(true);
             expected.setId(23);
 
-            assertTrue(EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"),
+            Assertions.assertTrue(EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"),
                     "\n" + ToStringBuilder.reflectionToString(actual.getValue()) + "\n\n did not equal \n\n"
                             + ToStringBuilder.reflectionToString(expected));
             List<MediaFile> mediaFiles = medias.getValue();
@@ -257,7 +219,7 @@ class PlaylistServiceTest {
             expected.setShared(true);
             expected.setId(23);
 
-            assertTrue(EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"));
+            Assertions.assertTrue(EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"));
             List<MediaFile> mediaFiles = medias.getValue();
             assertEquals(3, mediaFiles.size());
         }
@@ -298,7 +260,7 @@ class PlaylistServiceTest {
             expected.setImportedFrom(path);
             expected.setShared(true);
             expected.setId(23);
-            assertTrue(EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"));
+            Assertions.assertTrue(EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"));
             List<MediaFile> mediaFiles = medias.getValue();
             assertEquals(3, mediaFiles.size());
         }

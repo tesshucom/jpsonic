@@ -19,27 +19,24 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.annotation.Documented;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.RecoverService;
 import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -49,29 +46,24 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
-@AutoConfigureMockMvc
 class RecoverControllerTest {
 
-    private static final String ADMIN_NAME = "admin";
     private static final String ADMIN_MAIL = "admin@tesshu.com";
     private static final String ATTR_MODEL = "model";
     private static final String ATTR_SITE_KEY = "recaptchaSiteKey";
+
     private String testRecaptchaSiteKey = "testRecaptchaSiteKey";
-
-    @Mock
     private SettingsService settingsService;
-    @Mock
     private SecurityService securityService;
-    @Mock
     private RecoverService recoverService;
-
     private RecoverController controller;
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
+        settingsService = mock(SettingsService.class);
+        securityService = mock(SecurityService.class);
+        recoverService = mock(RecoverService.class);
         controller = new RecoverController(settingsService, securityService, recoverService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
@@ -160,7 +152,7 @@ class RecoverControllerTest {
     @RecoverDecision.Conditions.CaptchaEnabled.False
     @RecoverDecision.Result.Success
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testR01() throws Exception {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(false);
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/recover.view"))
@@ -172,8 +164,8 @@ class RecoverControllerTest {
         @SuppressWarnings("unchecked")
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
         assertNotNull(model);
-        assertFalse(model.containsKey(Attributes.Request.USERNAME_OR_EMAIL.value()));
-        assertFalse(model.containsKey(ATTR_SITE_KEY));
+        Assertions.assertFalse(model.containsKey(Attributes.Request.USERNAME_OR_EMAIL.value()));
+        Assertions.assertFalse(model.containsKey(ATTR_SITE_KEY));
         Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
     }
 
@@ -181,7 +173,7 @@ class RecoverControllerTest {
     @RecoverDecision.Conditions.CaptchaEnabled.True
     @RecoverDecision.Result.Success
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testR02() throws Exception {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(testRecaptchaSiteKey);
@@ -195,7 +187,7 @@ class RecoverControllerTest {
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
         assertNotNull(model);
 
-        assertFalse(model.containsKey(Attributes.Request.USERNAME_OR_EMAIL.value()));
+        Assertions.assertFalse(model.containsKey(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(testRecaptchaSiteKey, model.get(ATTR_SITE_KEY));
         Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
     }
@@ -205,19 +197,19 @@ class RecoverControllerTest {
     @RecoverDecision.Conditions.ValidateCaptcha.False
     @RecoverDecision.Result.Error
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testR03() throws Exception {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(testRecaptchaSiteKey);
 
         MockHttpServletRequest req = new MockHttpServletRequest();
-        req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ADMIN_NAME);
+        req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ServiceMockUtils.ADMIN_NAME);
         ModelAndView modelAndView = controller.recover(req);
         @SuppressWarnings("unchecked")
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
 
         assertTrue(model.containsKey(Attributes.Request.USERNAME_OR_EMAIL.value()));
-        assertEquals(ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
+        assertEquals(ServiceMockUtils.ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(testRecaptchaSiteKey, model.get(ATTR_SITE_KEY));
         assertEquals("recover.error.invalidcaptcha", model.get(Attributes.Request.ERROR.value()));
         Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
@@ -229,20 +221,20 @@ class RecoverControllerTest {
     @RecoverDecision.Conditions.User.Null
     @RecoverDecision.Result.Error
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testR04() throws Exception {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(testRecaptchaSiteKey);
         Mockito.when(recoverService.validateCaptcha(Mockito.any())).thenReturn(true);
 
         MockHttpServletRequest req = new MockHttpServletRequest();
-        req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ADMIN_NAME);
+        req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ServiceMockUtils.ADMIN_NAME);
         ModelAndView modelAndView = controller.recover(req);
         @SuppressWarnings("unchecked")
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
 
         assertTrue(model.containsKey(Attributes.Request.USERNAME_OR_EMAIL.value()));
-        assertEquals(ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
+        assertEquals(ServiceMockUtils.ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(testRecaptchaSiteKey, model.get(ATTR_SITE_KEY));
         assertEquals("recover.error.usernotfound", model.get(Attributes.Request.ERROR.value()));
         Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
@@ -255,22 +247,22 @@ class RecoverControllerTest {
     @RecoverDecision.Conditions.User.Email.Null
     @RecoverDecision.Result.Error
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testR05() throws Exception {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(testRecaptchaSiteKey);
         Mockito.when(recoverService.validateCaptcha(Mockito.any())).thenReturn(true);
         Mockito.when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
-                .thenReturn(new User(ADMIN_NAME, ADMIN_NAME, null));
+                .thenReturn(new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, null));
 
         MockHttpServletRequest req = new MockHttpServletRequest();
-        req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ADMIN_NAME);
+        req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ServiceMockUtils.ADMIN_NAME);
         ModelAndView modelAndView = controller.recover(req);
         @SuppressWarnings("unchecked")
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
 
         assertTrue(model.containsKey(Attributes.Request.USERNAME_OR_EMAIL.value()));
-        assertEquals(ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
+        assertEquals(ServiceMockUtils.ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(testRecaptchaSiteKey, model.get(ATTR_SITE_KEY));
         assertEquals("recover.error.noemail", model.get(Attributes.Request.ERROR.value()));
         Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
@@ -284,23 +276,23 @@ class RecoverControllerTest {
     @RecoverDecision.Conditions.SmtpServer.Null
     @RecoverDecision.Result.Error
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testR06() throws Exception {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(testRecaptchaSiteKey);
         Mockito.when(recoverService.validateCaptcha(Mockito.any())).thenReturn(true);
         Mockito.when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
-                .thenReturn(new User(ADMIN_NAME, ADMIN_NAME, ADMIN_MAIL));
+                .thenReturn(new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, ADMIN_MAIL));
         Mockito.when(settingsService.getSmtpServer()).thenReturn(null);
 
         MockHttpServletRequest req = new MockHttpServletRequest();
-        req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ADMIN_NAME);
+        req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ServiceMockUtils.ADMIN_NAME);
         ModelAndView modelAndView = controller.recover(req);
         @SuppressWarnings("unchecked")
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
 
         assertTrue(model.containsKey(Attributes.Request.USERNAME_OR_EMAIL.value()));
-        assertEquals(ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
+        assertEquals(ServiceMockUtils.ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(testRecaptchaSiteKey, model.get(ATTR_SITE_KEY));
         assertEquals("recover.error.sendfailed", model.get(Attributes.Request.ERROR.value()));
         Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
@@ -314,23 +306,23 @@ class RecoverControllerTest {
     @RecoverDecision.Conditions.SmtpServer.Empty
     @RecoverDecision.Result.Error
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testR07() throws Exception {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(testRecaptchaSiteKey);
         Mockito.when(recoverService.validateCaptcha(Mockito.any())).thenReturn(true);
         Mockito.when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
-                .thenReturn(new User(ADMIN_NAME, ADMIN_NAME, ADMIN_MAIL));
+                .thenReturn(new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, ADMIN_MAIL));
         Mockito.when(settingsService.getSmtpServer()).thenReturn("");
 
         MockHttpServletRequest req = new MockHttpServletRequest();
-        req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ADMIN_NAME);
+        req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ServiceMockUtils.ADMIN_NAME);
         ModelAndView modelAndView = controller.recover(req);
         @SuppressWarnings("unchecked")
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
 
         assertTrue(model.containsKey(Attributes.Request.USERNAME_OR_EMAIL.value()));
-        assertEquals(ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
+        assertEquals(ServiceMockUtils.ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(testRecaptchaSiteKey, model.get(ATTR_SITE_KEY));
         assertEquals("recover.error.sendfailed", model.get(Attributes.Request.ERROR.value()));
         Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
@@ -345,24 +337,24 @@ class RecoverControllerTest {
     @RecoverDecision.Conditions.SendMail.Fail
     @RecoverDecision.Result.Error
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testR08() throws Exception {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(testRecaptchaSiteKey);
         Mockito.when(recoverService.validateCaptcha(Mockito.any())).thenReturn(true);
         Mockito.when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
-                .thenReturn(new User(ADMIN_NAME, ADMIN_NAME, ADMIN_MAIL));
+                .thenReturn(new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, ADMIN_MAIL));
         Mockito.when(settingsService.getSmtpServer()).thenReturn("dummySMTP");
         Mockito.when(recoverService.emailPassword(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(false);
 
         MockHttpServletRequest req = new MockHttpServletRequest();
-        req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ADMIN_NAME);
+        req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ServiceMockUtils.ADMIN_NAME);
         ModelAndView modelAndView = controller.recover(req);
         @SuppressWarnings("unchecked")
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
 
         assertTrue(model.containsKey(Attributes.Request.USERNAME_OR_EMAIL.value()));
-        assertEquals(ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
+        assertEquals(ServiceMockUtils.ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(testRecaptchaSiteKey, model.get(ATTR_SITE_KEY));
         assertEquals("recover.error.sendfailed", model.get(Attributes.Request.ERROR.value()));
         Mockito.verify(securityService, Mockito.never()).updateUser(Mockito.any());
@@ -377,26 +369,26 @@ class RecoverControllerTest {
     @RecoverDecision.Conditions.SendMail.Success
     @RecoverDecision.Result.UpdateUser
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testR09() throws Exception {
         Mockito.when(settingsService.isCaptchaEnabled()).thenReturn(true);
         Mockito.when(settingsService.getRecaptchaSiteKey()).thenReturn(testRecaptchaSiteKey);
         Mockito.when(recoverService.validateCaptcha(Mockito.any())).thenReturn(true);
         Mockito.when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
-                .thenReturn(new User(ADMIN_NAME, ADMIN_NAME, ADMIN_MAIL));
+                .thenReturn(new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, ADMIN_MAIL));
         Mockito.when(settingsService.getSmtpServer()).thenReturn("dummySMTP");
         Mockito.when(recoverService.emailPassword(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(true);
 
         MockHttpServletRequest req = new MockHttpServletRequest();
-        req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ADMIN_NAME);
+        req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ServiceMockUtils.ADMIN_NAME);
         ModelAndView modelAndView = controller.recover(req);
         @SuppressWarnings("unchecked")
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
 
         assertTrue(model.containsKey(Attributes.Request.USERNAME_OR_EMAIL.value()));
-        assertEquals(ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
+        assertEquals(ServiceMockUtils.ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(testRecaptchaSiteKey, model.get(ATTR_SITE_KEY));
-        assertFalse(model.containsKey(Attributes.Request.ERROR.value()));
+        Assertions.assertFalse(model.containsKey(Attributes.Request.ERROR.value()));
         Mockito.verify(securityService, Mockito.times(1)).updateUser(Mockito.any());
     }
 }

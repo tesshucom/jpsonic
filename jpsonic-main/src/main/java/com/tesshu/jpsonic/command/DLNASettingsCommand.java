@@ -48,6 +48,7 @@ public class DLNASettingsCommand extends SettingsPageCommons {
     private boolean dlnaGenreCountVisible;
     private int dlnaRandomMax;
     private boolean dlnaGuestPublish;
+    private boolean uriWithFileExtensions;
 
     public boolean isDlnaEnabled() {
         return dlnaEnabled;
@@ -223,5 +224,13 @@ public class DLNASettingsCommand extends SettingsPageCommons {
 
     public void setDlnaGuestPublish(boolean dlnaGuestPublish) {
         this.dlnaGuestPublish = dlnaGuestPublish;
+    }
+
+    public boolean isUriWithFileExtensions() {
+        return uriWithFileExtensions;
+    }
+
+    public void setUriWithFileExtensions(boolean uriWithFileExtensions) {
+        this.uriWithFileExtensions = uriWithFileExtensions;
     }
 }

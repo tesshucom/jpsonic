@@ -19,26 +19,22 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static org.junit.Assert.assertNotNull;
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.ServiceMockUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -47,46 +43,42 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ExtendWith(NeedsHome.class)
 class VideoPlayerControllerTest {
-
-    private static final String ADMIN_NAME = "admin";
-
-    @Mock
-    private MediaFileService mediaFileService;
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private SecurityService securityService;
-    @Mock
-    private SecurityService securityMock;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
+
         MediaFile file = new MediaFile();
         file.setId(0);
         MediaFile dir = new MediaFile();
         dir.setId(1);
         dir.setPath("");
-        User user = new User(ADMIN_NAME, ADMIN_NAME, ADMIN_NAME);
+
+        MediaFileService mediaFileService = mock(MediaFileService.class);
         Mockito.when(mediaFileService.getMediaFile(file.getId())).thenReturn(file);
         Mockito.when(mediaFileService.getParentOf(file)).thenReturn(dir);
-        Mockito.when(securityMock.getCurrentUsername(Mockito.any())).thenReturn(ADMIN_NAME);
-        Mockito.when(securityMock.isFolderAccessAllowed(dir, ADMIN_NAME)).thenReturn(true);
-        Mockito.when(securityMock.getUserSettings(ADMIN_NAME)).thenReturn(securityService.getUserSettings(ADMIN_NAME));
-        Mockito.when(securityMock.getCurrentUser(Mockito.any())).thenReturn(user);
         Mockito.doNothing().when(mediaFileService).populateStarredDate(Mockito.any(MediaFile.class), Mockito.any());
-        Mockito.when(securityMock.isInPodcastFolder(Mockito.any())).thenReturn(true);
+
+        SecurityService securityService = mock(SecurityService.class);
+        Mockito.when(securityService.isInPodcastFolder(Mockito.any())).thenReturn(true);
+        Mockito.when(securityService.isFolderAccessAllowed(dir, ServiceMockUtils.ADMIN_NAME)).thenReturn(true);
+
+        PlayerService playerService = Mockito.mock(PlayerService.class);
+        Player player = new Player();
+        player.setId(100);
+        player.setUsername(ServiceMockUtils.ADMIN_NAME);
+        Mockito.when(playerService.getPlayerById(player.getId())).thenReturn(player);
+        Mockito.when(playerService.getPlayerById(0)).thenReturn(player);
+        Mockito.when(playerService.getPlayer(Mockito.any(), Mockito.any())).thenReturn(player);
+
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new VideoPlayerController(securityMock, mediaFileService, playerService)).build();
+                .standaloneSetup(new VideoPlayerController(securityService, mediaFileService, playerService)).build();
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testFormBackingObject() throws Exception {
         MvcResult result = mockMvc
                 .perform(MockMvcRequestBuilders.get("/videoPlayer.view").param(Attributes.Request.ID.value(), "0"))

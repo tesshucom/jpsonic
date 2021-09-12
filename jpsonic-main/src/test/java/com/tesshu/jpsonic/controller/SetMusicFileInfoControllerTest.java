@@ -19,20 +19,16 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static org.junit.Assert.assertNotNull;
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -40,18 +36,13 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
-@AutoConfigureMockMvc
 class SetMusicFileInfoControllerTest {
-
-    @Mock
-    private MediaFileService mediaFileService;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
+        MediaFileService mediaFileService = mock(MediaFileService.class);
         Mockito.when(mediaFileService.getMediaFile(Mockito.anyInt())).thenReturn(new MediaFile());
         mockMvc = MockMvcBuilders.standaloneSetup(new SetMusicFileInfoController(mediaFileService)).build();
     }

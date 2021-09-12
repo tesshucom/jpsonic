@@ -19,24 +19,20 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static org.junit.Assert.assertNotNull;
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
-import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -45,36 +41,20 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
-@AutoConfigureMockMvc
 class PlaylistsControllerTest {
-
-    private static final String ADMIN_NAME = "admin";
-
-    @Mock
-    private SecurityService securityService;
-    @Mock
-    private SettingsService settingsService;
-    @Mock
-    private PlaylistService playlistService;
-    @Mock
-    private ViewAsListSelector viewSelector;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        Mockito.when(securityService.getCurrentUser(Mockito.any())).thenReturn(new User(ADMIN_NAME, ADMIN_NAME, ""));
+        PlaylistService playlistService = mock(PlaylistService.class);
         Mockito.when(playlistService.getReadablePlaylistsForUser(Mockito.any())).thenReturn(Collections.emptyList());
-        mockMvc = MockMvcBuilders
-                .standaloneSetup(
-                        new PlaylistsController(securityService, settingsService, playlistService, viewSelector))
-                .build();
+        mockMvc = MockMvcBuilders.standaloneSetup(new PlaylistsController(mock(SettingsService.class),
+                mock(SecurityService.class), playlistService, mock(ViewAsListSelector.class))).build();
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGet() throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/playlists.view"))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();

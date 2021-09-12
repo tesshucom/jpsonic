@@ -45,13 +45,13 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping({ "/login", "/login.view" })
 public class LoginController {
 
-    private final SecurityService securityService;
     private final SettingsService settingsService;
+    private final SecurityService securityService;
 
-    public LoginController(SecurityService securityService, SettingsService settingsService) {
+    public LoginController(SettingsService settingsService, SecurityService securityService) {
         super();
-        this.securityService = securityService;
         this.settingsService = settingsService;
+        this.securityService = securityService;
     }
 
     @GetMapping

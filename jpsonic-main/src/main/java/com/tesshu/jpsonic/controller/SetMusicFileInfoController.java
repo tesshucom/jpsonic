@@ -51,7 +51,7 @@ public class SetMusicFileInfoController {
     }
 
     @PostMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request) throws ServletRequestBindingException {
+    protected ModelAndView post(HttpServletRequest request) throws ServletRequestBindingException {
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         String action = request.getParameter(Attributes.Request.ACTION.value());
 

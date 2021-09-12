@@ -19,22 +19,26 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import com.tesshu.jpsonic.NeedsHome;
+import java.net.URISyntaxException;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
 class MediaScannerScheduleConfigurationTest {
 
-    @Autowired
     private MediaScannerScheduleConfiguration configuration;
+
+    @BeforeEach
+    public void setup() throws URISyntaxException {
+        configuration = new MediaScannerScheduleConfiguration(mock(TaskScheduler.class), mock(SettingsService.class),
+                mock(MediaScannerService.class));
+    }
 
     @Test
     void testConfigureTasks() {

@@ -19,7 +19,7 @@
 
 package com.tesshu.jpsonic.controller;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,10 +31,10 @@ import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.service.ServiceMockUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -44,10 +44,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 @SpringBootTest
-@AutoConfigureMockMvc
 class EditTagsControllerTest extends AbstractNeedsScan {
 
-    private static final String ADMIN_NAME = "admin";
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
     static {
@@ -76,7 +74,7 @@ class EditTagsControllerTest extends AbstractNeedsScan {
     }
 
     @Test
-    @WithMockUser(username = ADMIN_NAME)
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testHandleRequest() throws Exception {
 
         MediaFile album = mediaFileDao.getAlphabeticalAlbums(0, 1, false, MUSIC_FOLDERS).get(0);
