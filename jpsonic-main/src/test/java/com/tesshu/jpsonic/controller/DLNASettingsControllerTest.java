@@ -114,28 +114,12 @@ class DLNASettingsControllerTest {
         Mockito.verify(settingsService, Mockito.times(1)).setDlnaGenreCountVisible(Mockito.any(boolean.class));
         assertFalse(captor.getValue());
 
-        command.setDlnaGuestPublish(false);
-        command.setDlnaGenreCountVisible(true);
-        captor = ArgumentCaptor.forClass(boolean.class);
-        Mockito.doNothing().when(settingsService).setDlnaGenreCountVisible(captor.capture());
-        controller.post(command, Mockito.mock(RedirectAttributes.class));
-        Mockito.verify(settingsService, Mockito.times(2)).setDlnaGenreCountVisible(Mockito.any(boolean.class));
-        Assertions.assertTrue(captor.getValue());
-
         command.setDlnaGuestPublish(true);
         command.setDlnaGenreCountVisible(false);
         captor = ArgumentCaptor.forClass(boolean.class);
         Mockito.doNothing().when(settingsService).setDlnaGenreCountVisible(captor.capture());
         controller.post(command, Mockito.mock(RedirectAttributes.class));
-        Mockito.verify(settingsService, Mockito.times(3)).setDlnaGenreCountVisible(Mockito.any(boolean.class));
-        assertFalse(captor.getValue());
-
-        command.setDlnaGuestPublish(true);
-        command.setDlnaGenreCountVisible(true);
-        captor = ArgumentCaptor.forClass(boolean.class);
-        Mockito.doNothing().when(settingsService).setDlnaGenreCountVisible(captor.capture());
-        controller.post(command, Mockito.mock(RedirectAttributes.class));
-        Mockito.verify(settingsService, Mockito.times(4)).setDlnaGenreCountVisible(Mockito.any(boolean.class));
+        Mockito.verify(settingsService, Mockito.times(2)).setDlnaGenreCountVisible(Mockito.any(boolean.class));
         assertFalse(captor.getValue());
     }
 

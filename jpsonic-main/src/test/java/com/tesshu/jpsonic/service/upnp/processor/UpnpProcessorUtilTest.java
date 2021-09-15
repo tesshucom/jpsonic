@@ -24,11 +24,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,8 +44,9 @@ class UpnpProcessorUtilTest {
     @BeforeEach
     public void setup() {
         settingsService = mock(SettingsService.class);
-        util = new UpnpProcessorUtil(settingsService, mock(MusicFolderService.class), mock(JpsonicComparators.class),
-                new JWTSecurityService(settingsService), mock(TranscodingService.class), mock(MusicFolderDao.class));
+        util = new UpnpProcessorUtil(settingsService, mock(MusicFolderService.class), mock(SecurityService.class),
+                mock(JpsonicComparators.class), new JWTSecurityService(settingsService),
+                mock(TranscodingService.class));
     }
 
     @Test

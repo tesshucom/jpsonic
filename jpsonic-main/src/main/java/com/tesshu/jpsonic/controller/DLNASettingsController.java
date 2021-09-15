@@ -176,7 +176,7 @@ public class DLNASettingsController {
         settingsService.setDlnaPodcastVisible(command.isDlnaPodcastVisible());
 
         // Display options / Access control
-        settingsService.setDlnaGenreCountVisible(!command.isDlnaGuestPublish() && command.isDlnaGenreCountVisible());
+        settingsService.setDlnaGenreCountVisible(command.isDlnaGenreCountVisible());
         settingsService.setDlnaRandomMax(command.getDlnaRandomMax());
         settingsService.setDlnaGuestPublish(command.isDlnaGuestPublish());
         settingsService.setUriWithFileExtensions(command.isUriWithFileExtensions());

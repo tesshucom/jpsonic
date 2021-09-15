@@ -24,14 +24,13 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.util.StringUtil;
@@ -51,23 +50,23 @@ public class UpnpProcessorUtil {
 
     private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
-    private final JWTSecurityService securityService;
+    private final SecurityService securityService;
+    private final JWTSecurityService jwtSecurityService;
     private final TranscodingService transcodingService;
-    private final MusicFolderDao musicFolderDao;
     private final JpsonicComparators comparators;
 
-    public UpnpProcessorUtil(SettingsService ss, MusicFolderService mfs, JpsonicComparators c, JWTSecurityService jwt,
-            TranscodingService ts, MusicFolderDao md) {
+    public UpnpProcessorUtil(SettingsService ss, MusicFolderService mfs, SecurityService securityService,
+            JpsonicComparators c, JWTSecurityService jwt, TranscodingService ts) {
         settingsService = ss;
         musicFolderService = mfs;
-        securityService = jwt;
+        this.securityService = securityService;
+        jwtSecurityService = jwt;
         comparators = c;
-        musicFolderDao = md;
         transcodingService = ts;
     }
 
     public UriComponentsBuilder addJWTToken(UriComponentsBuilder builder) {
-        return securityService.addJWTToken(builder);
+        return jwtSecurityService.addJWTToken(builder);
     }
 
     public String createURIStringWithToken(UriComponentsBuilder builder, MediaFile song) {
@@ -83,10 +82,7 @@ public class UpnpProcessorUtil {
     }
 
     public List<MusicFolder> getAllMusicFolders() {
-        if (settingsService.isDlnaGuestPublish()) {
-            return musicFolderDao.getMusicFoldersForUser(User.USERNAME_GUEST);
-        }
-        return musicFolderService.getAllMusicFolders();
+        return musicFolderService.getMusicFoldersForUser(securityService.getGuestUser().getUsername());
     }
 
     public String getBaseUrl() {
