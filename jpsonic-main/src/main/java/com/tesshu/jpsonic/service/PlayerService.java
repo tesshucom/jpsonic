@@ -40,7 +40,6 @@ import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.util.StringUtil;
-import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -404,16 +403,10 @@ public class PlayerService {
      */
     public Player getGuestPlayer(HttpServletRequest request) {
 
-        // Create guest user if necessary.
-        User user = securityService.getUserByName(User.USERNAME_GUEST);
-        if (user == null) {
-            user = new User(User.USERNAME_GUEST, RandomStringUtils.randomAlphanumeric(30), null);
-            user.setStreamRole(true);
-            securityService.createUser(user);
-        }
+        User user = securityService.getGuestUser();
 
         // Look for existing player.
-        List<Player> players = getPlayersForUserAndClientId(User.USERNAME_GUEST, null);
+        List<Player> players = getPlayersForUserAndClientId(user.getUsername(), null);
         if (!players.isEmpty()) {
             return players.get(0);
         }
@@ -423,7 +416,7 @@ public class PlayerService {
         if (request != null) {
             player.setIpAddress(request.getRemoteAddr());
         }
-        player.setUsername(User.USERNAME_GUEST);
+        player.setUsername(user.getUsername());
         player.setType(GUEST_PLAYER_TYPE);
         createPlayer(player);
 
