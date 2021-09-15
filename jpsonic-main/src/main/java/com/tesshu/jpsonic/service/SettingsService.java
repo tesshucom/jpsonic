@@ -1081,6 +1081,14 @@ public class SettingsService {
         setProperty(SettingsConstants.UPnP.Basic.BASE_LAN_URL, s);
     }
 
+    public boolean isUriWithFileExtensions() {
+        return getBoolean(SettingsConstants.UPnP.Basic.URI_WITH_FILE_EXTENSIONS);
+    }
+
+    public void setUriWithFileExtensions(boolean b) {
+        setProperty(SettingsConstants.UPnP.Basic.URI_WITH_FILE_EXTENSIONS, b);
+    }
+
     public boolean isDlnaIndexVisible() {
         return getBoolean(SettingsConstants.UPnP.Processor.INDEX);
     }
@@ -1233,14 +1241,6 @@ public class SettingsService {
 
     public void setDlnaGuestPublish(boolean b) {
         setProperty(SettingsConstants.UPnP.Options.GUEST_PUBLISH, b);
-    }
-
-    public boolean isUriWithFileExtensions() {
-        return getBoolean(SettingsConstants.UPnP.Options.URI_WITH_FILE_EXTENSIONS);
-    }
-
-    public void setUriWithFileExtensions(boolean b) {
-        setProperty(SettingsConstants.UPnP.Options.URI_WITH_FILE_EXTENSIONS, b);
     }
 
     public boolean isSonosEnabled() {

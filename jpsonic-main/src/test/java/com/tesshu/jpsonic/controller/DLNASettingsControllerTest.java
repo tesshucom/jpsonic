@@ -28,10 +28,13 @@ import java.lang.annotation.Documented;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.command.DLNASettingsCommand;
+import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UPnPService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,7 +62,8 @@ class DLNASettingsControllerTest {
     public void setup() throws ExecutionException {
         settingsService = mock(SettingsService.class);
         upnpService = mock(UPnPService.class);
-        controller = new DLNASettingsController(settingsService, mock(SecurityService.class), upnpService,
+        controller = new DLNASettingsController(settingsService, mock(MusicFolderService.class),
+                mock(SecurityService.class), mock(PlayerService.class), mock(TranscodingService.class), upnpService,
                 mock(ShareService.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }

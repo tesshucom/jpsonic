@@ -23,14 +23,22 @@ package com.tesshu.jpsonic.controller;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
+import java.util.Arrays;
+import java.util.Date;
+import java.util.stream.Collectors;
+
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.command.DLNASettingsCommand;
+import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UPnPService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -53,15 +61,22 @@ import org.springframework.web.servlet.view.RedirectView;
 public class DLNASettingsController {
 
     private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
+    private final PlayerService playerService;
+    private final TranscodingService transcodingService;
     private final UPnPService upnpService;
     private final ShareService shareService;
 
-    public DLNASettingsController(SettingsService settingsService, SecurityService securityService,
+    public DLNASettingsController(SettingsService settingsService, MusicFolderService musicFolderService,
+            SecurityService securityService, PlayerService playerService, TranscodingService transcodingService,
             UPnPService upnpService, ShareService shareService) {
         super();
         this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
         this.securityService = securityService;
+        this.playerService = playerService;
+        this.transcodingService = transcodingService;
         this.upnpService = upnpService;
         this.shareService = shareService;
     }
@@ -74,6 +89,16 @@ public class DLNASettingsController {
         command.setDlnaEnabled(settingsService.isDlnaEnabled());
         command.setDlnaServerName(settingsService.getDlnaServerName());
         command.setDlnaBaseLANURL(settingsService.getDlnaBaseLANURL());
+        command.setAllMusicFolders(musicFolderService.getAllMusicFolders());
+        User guestUser = securityService.getGuestUser();
+        command.setAllowedMusicFolderIds(musicFolderService.getMusicFoldersForUser(guestUser.getUsername()).stream()
+                .mapToInt(m -> m.getId()).toArray());
+        Player guestPlayer = playerService.getGuestPlayer(null);
+        command.setTranscodeScheme(guestPlayer.getTranscodeScheme());
+        command.setAllTranscodings(transcodingService.getAllTranscodings());
+        command.setActiveTranscodingIds(
+                transcodingService.getTranscodingsForPlayer(guestPlayer).stream().mapToInt(m -> m.getId()).toArray());
+        command.setUriWithFileExtensions(settingsService.isUriWithFileExtensions());
 
         // Items to display
         command.setDlnaIndexVisible(settingsService.isDlnaIndexVisible());
@@ -97,7 +122,6 @@ public class DLNASettingsController {
         command.setDlnaGenreCountVisible(settingsService.isDlnaGenreCountVisible());
         command.setDlnaRandomMax(settingsService.getDlnaRandomMax());
         command.setDlnaGuestPublish(settingsService.isDlnaGuestPublish());
-        command.setUriWithFileExtensions(settingsService.isUriWithFileExtensions());
 
         // for view page control
         User user = securityService.getCurrentUser(request);
@@ -124,6 +148,8 @@ public class DLNASettingsController {
                 && !command.getDlnaServerName().equals(settingsService.getDlnaServerName())
                 || !isEmpty(command.getDlnaBaseLANURL())
                         && !command.getDlnaBaseLANURL().equals(settingsService.getDlnaBaseLANURL());
+
+        // # Changes to property file
 
         // UPnP basic settings
         settingsService.setDlnaEnabled(command.isDlnaEnabled());
@@ -157,6 +183,22 @@ public class DLNASettingsController {
 
         settingsService.save();
 
+        // # Changes to the database
+
+        User guestUser = securityService.getGuestUser();
+        if (command.getAllowedMusicFolderIds() != null) {
+            musicFolderService.setMusicFoldersForUser(guestUser.getUsername(),
+                    Arrays.stream(command.getAllowedMusicFolderIds()).boxed().collect(Collectors.toList()));
+        }
+        UserSettings userSettings = securityService.getUserSettings(guestUser.getUsername());
+        userSettings.setTranscodeScheme(command.getTranscodeScheme());
+        userSettings.setChanged(new Date());
+        Player guestPlayer = playerService.getGuestPlayer(null);
+        guestPlayer.setTranscodeScheme(command.getTranscodeScheme());
+        playerService.updatePlayer(guestPlayer);
+        transcodingService.setTranscodingsForPlayer(guestPlayer, command.getActiveTranscodingIds());
+
+        // If some properties are changed, UPnP will be started, stopped and restarted.
         if (isEnabledChanged) {
             upnpService.setMediaServerEnabled(command.isDlnaEnabled());
         } else if (isNameOrUrlChanged && settingsService.isDlnaEnabled()) {

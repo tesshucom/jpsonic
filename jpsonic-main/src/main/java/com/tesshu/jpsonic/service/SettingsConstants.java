@@ -257,6 +257,7 @@ class SettingsConstants {
             static final Pair<Boolean> ENABLED = Pair.of("DlnaEnabled", false);
             static final Pair<String> SERVER_NAME = Pair.of("DlnaServerName", "Jpsonic");
             static final Pair<String> BASE_LAN_URL = Pair.of("DlnaBaseLANURL", null);
+            static final Pair<Boolean> URI_WITH_FILE_EXTENSIONS = Pair.of("UriWithFileExtensions", true);
 
             private Basic() {
             }
@@ -289,7 +290,6 @@ class SettingsConstants {
             static final Pair<Boolean> GENRE_COUNT = Pair.of("DlnaGenreCountVisible", false);
             static final Pair<Integer> RANDOM_MAX = Pair.of("DlnaRandomMax", 50);
             static final Pair<Boolean> GUEST_PUBLISH = Pair.of("DlnaGuestPublish", false);
-            static final Pair<Boolean> URI_WITH_FILE_EXTENSIONS = Pair.of("UriWithFileExtensions", true);
 
             private Options() {
             }

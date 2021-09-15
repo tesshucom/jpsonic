@@ -21,6 +21,7 @@
 <html><head>
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
+    <%@ page import="com.tesshu.jpsonic.domain.TranscodeScheme" %>
     <script src="<c:url value='/script/utils.js'/>"></script>
 </head>
 
@@ -56,6 +57,37 @@
             <dd>
                 <input type="text" name="dlnaBaseLANURL" id="dlnaBaseLANURL" value="<c:out value='${command.dlnaBaseLANURL}' />" />
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnalanurl"/></c:import>
+            </dd>
+            <dt><fmt:message key="usersettings.folderaccess"/></dt>
+             <dd>
+                <c:forEach items="${command.allMusicFolders}" var="musicFolder">
+                    <form:checkbox path="allowedMusicFolderIds" id="musicFolder${musicFolder.id}" value="${musicFolder.id}" cssClass="checkbox"/>
+                    <label for="musicFolder${musicFolder.id}" style="padding-right:1.5em">${musicFolder.name}</label>
+                    <%-- <label for="musicFolder${musicFolder.id}" style="padding-right:1.5em">${musicFolder.path}</label> --%>
+                </c:forEach>
+            </dd>
+            <dt><fmt:message key="playersettings.maxbitrate"/></dt>
+            <dd>
+                <form:select path="transcodeScheme">
+                    <c:forEach items="${TranscodeScheme.values()}" var="scheme">
+                        <form:option value="${scheme}" label="${scheme.toString()}"/>
+                    </c:forEach>
+                </form:select>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="transcode"/></c:import>
+            </dd>
+            <c:if test="${not empty command.allTranscodings}">
+                <dt><fmt:message key="playersettings.transcodings"/></dt>
+                <dd>
+                    <c:forEach items="${command.allTranscodings}" var="transcoding" varStatus="loopStatus">
+                        <form:checkbox path="activeTranscodingIds" id="transcoding${transcoding.id}" value="${transcoding.id}" cssClass="checkbox"/>
+                        <label for="transcoding${transcoding.id}">${transcoding.name}</label>
+                    </c:forEach>
+                </dd>
+            </c:if>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="uriWithFileExtensions" id="uriWithFileExtensions"/>
+                <label for=uriWithFileExtensions><fmt:message key="dlnasettings.uriwithfileextensions"/></label>
             </dd>
         </dl>
     </details>
@@ -226,15 +258,11 @@
             <dd>
                 <form:input path="dlnaRandomMax" id="dlnaRandomMax" maxlength="4"/>
             </dd>
+
             <dt></dt>
             <dd>
                 <form:checkbox path="dlnaGuestPublish" id="dlnaGuestPublish"/>
                 <label for=dlnaGuestPublish><fmt:message key="dlnasettings.guestpublish"/></label>
-            </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="uriWithFileExtensions" id="uriWithFileExtensions"/>
-                <label for=uriWithFileExtensions><fmt:message key="dlnasettings.uriwithfileextensions"/></label>
             </dd>
         </dl>
     </details>
