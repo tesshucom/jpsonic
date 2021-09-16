@@ -111,8 +111,9 @@ public class UpnpProcessorUtil {
         return resourceBundle.getString(key);
     }
 
-    public boolean isDlnaGenreCountVisible() {
-        return settingsService.isDlnaGenreCountVisible();
+    public boolean isGenreCountAvailable() {
+        return settingsService.isDlnaGenreCountVisible()
+                && getGuestMusicFolders().equals(musicFolderService.getAllMusicFolders());
     }
 
     public boolean isProhibitSortVarious() {

@@ -116,8 +116,8 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor<MediaFile, M
         GenreContainer container = new GenreContainer();
         container.setParentID(getRootId());
         container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + index);
-        container.setTitle(util.isDlnaGenreCountVisible() ? item.getName().concat(SPACE).concat(item.getComment())
-                : item.getName());
+        container.setTitle(
+                util.isGenreCountAvailable() ? item.getName().concat(SPACE).concat(item.getComment()) : item.getName());
         container.setChildCount(isEmpty(item.getComment()) ? 0 : Integer.parseInt(item.getComment()));
         return container;
     }

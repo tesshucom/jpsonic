@@ -83,7 +83,7 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor<Genre, MediaF
         GenreContainer container = new GenreContainer();
         container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + index);
         container.setParentID(getRootId());
-        container.setTitle(util.isDlnaGenreCountVisible()
+        container.setTitle(util.isGenreCountAvailable()
                 ? item.getName().concat(" ").concat(Integer.toString(item.getSongCount())) : item.getName());
         container.setChildCount(item.getSongCount());
         return container;
