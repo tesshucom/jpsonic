@@ -81,7 +81,7 @@ public class UpnpProcessorUtil {
         return addJWTToken(builder).build().encode().toUri();
     }
 
-    public List<MusicFolder> getAllMusicFolders() {
+    public List<MusicFolder> getGuestMusicFolders() {
         return musicFolderService.getMusicFoldersForUser(securityService.getGuestUser().getUsername());
     }
 

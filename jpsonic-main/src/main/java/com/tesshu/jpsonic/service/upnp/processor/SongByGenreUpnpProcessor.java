@@ -111,13 +111,13 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor<Genre, MediaF
 
     @Override
     public int getChildSizeOf(Genre item) {
-        return searchService.getSongsByGenres(item.getName(), 0, Integer.MAX_VALUE, util.getAllMusicFolders()).size();
+        return searchService.getSongsByGenres(item.getName(), 0, Integer.MAX_VALUE, util.getGuestMusicFolders()).size();
     }
 
     @Override
     public List<MediaFile> getChildren(Genre item, long offset, long maxResults) {
         return searchService.getSongsByGenres(item.getName(), (int) offset, (int) maxResults,
-                util.getAllMusicFolders());
+                util.getGuestMusicFolders());
     }
 
     @Override

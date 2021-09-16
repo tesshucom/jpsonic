@@ -69,13 +69,13 @@ public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
 
     @Override
     public int getItemCount() {
-        int count = mediaFileService.getAlbumCount(util.getAllMusicFolders());
+        int count = mediaFileService.getAlbumCount(util.getGuestMusicFolders());
         return Math.min(count, RECENT_COUNT);
     }
 
     @Override
     public List<MediaFile> getItems(long first, long max) {
-        return mediaFileService.getNewestAlbums((int) first, (int) max, util.getAllMusicFolders());
+        return mediaFileService.getNewestAlbums((int) first, (int) max, util.getGuestMusicFolders());
     }
 
 }

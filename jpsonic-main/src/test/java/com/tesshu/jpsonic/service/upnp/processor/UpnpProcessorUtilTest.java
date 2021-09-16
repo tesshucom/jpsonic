@@ -52,7 +52,7 @@ class UpnpProcessorUtilTest {
     @Test
     void testGetAllMusicFolders() {
         Mockito.when(settingsService.isDlnaGuestPublish()).thenReturn(true);
-        assertNotNull(util.getAllMusicFolders());
+        assertNotNull(util.getGuestMusicFolders());
     }
 
     @Test

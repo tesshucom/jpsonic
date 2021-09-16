@@ -144,14 +144,15 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor<MediaFile, M
 
     @Override
     public int getChildSizeOf(MediaFile item) {
-        return searchService.getAlbumsByGenres(item.getName(), 0, Integer.MAX_VALUE, util.getAllMusicFolders()).size();
+        return searchService.getAlbumsByGenres(item.getName(), 0, Integer.MAX_VALUE, util.getGuestMusicFolders())
+                .size();
     }
 
     @Override
     public List<MediaFile> getChildren(MediaFile item, long offset, long maxResults) {
         if (-1 == item.getId()) {
             return searchService.getAlbumsByGenres(item.getGenre(), (int) offset, (int) maxResults,
-                    util.getAllMusicFolders());
+                    util.getGuestMusicFolders());
         }
         return mediaFileService.getSongsForAlbum(offset, maxResults, item);
     }

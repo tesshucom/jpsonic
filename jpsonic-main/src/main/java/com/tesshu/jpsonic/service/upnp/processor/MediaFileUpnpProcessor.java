@@ -134,7 +134,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
     @Override
     public int getItemCount() {
         int count;
-        List<MusicFolder> allFolders = util.getAllMusicFolders();
+        List<MusicFolder> allFolders = util.getGuestMusicFolders();
         if (allFolders.size() == SINGLE_MUSIC_FOLDER) {
             count = mediaFileService.getChildSizeOf(allFolders.get(0));
         } else {
@@ -145,7 +145,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
 
     @Override
     public List<MediaFile> getItems(long offset, long maxResults) {
-        List<MusicFolder> allFolders = util.getAllMusicFolders();
+        List<MusicFolder> allFolders = util.getGuestMusicFolders();
         List<MediaFile> returnValue = new ArrayList<>();
         if (allFolders.size() == SINGLE_MUSIC_FOLDER) {
             returnValue = getChildren(mediaFileService.getMediaFile(allFolders.get(0).getPath()), offset, maxResults);
