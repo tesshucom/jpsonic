@@ -71,7 +71,7 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
     @Override
     public int getItemCount() {
         // max to be able to return for view
-        int count = albumDao.getAlbumCount(util.getAllMusicFolders());
+        int count = albumDao.getAlbumCount(util.getGuestMusicFolders());
         count = count > 1 ? count + 1 : count;
         return Math.min(count, RECENT_COUNT);
     }
@@ -87,7 +87,7 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
         if (offset != 0 && 0 != limit && 0 < max) {
             offset = offset - 1;
         }
-        List<Album> albums = albumDao.getNewestAlbums((int) offset, (int) count, util.getAllMusicFolders());
+        List<Album> albums = albumDao.getNewestAlbums((int) offset, (int) count, util.getGuestMusicFolders());
         if (albums.size() > 1 && 0L == offset) {
             Album viewAll = new Album();
             viewAll.setName(util.getResource("dlna.element.allalbums"));

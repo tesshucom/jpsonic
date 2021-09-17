@@ -79,12 +79,12 @@ public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor<Artist
 
     @Override
     public int getItemCount() {
-        return artistDao.getArtistsCount(util.getAllMusicFolders());
+        return artistDao.getArtistsCount(util.getGuestMusicFolders());
     }
 
     @Override
     public List<Artist> getItems(long offset, long count) {
-        return artistDao.getAlphabetialArtists((int) offset, (int) count, util.getAllMusicFolders());
+        return artistDao.getAlphabetialArtists((int) offset, (int) count, util.getGuestMusicFolders());
     }
 
     @Override
@@ -102,7 +102,7 @@ public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor<Artist
         int randomMax = settingsService.getDlnaRandomMax();
         int offset = (int) first;
         int count = (offset + (int) maxResults) > randomMax ? randomMax - offset : (int) maxResults;
-        return searchService.getRandomSongsByArtist(artist, count, offset, randomMax, util.getAllMusicFolders());
+        return searchService.getRandomSongsByArtist(artist, count, offset, randomMax, util.getGuestMusicFolders());
     }
 
     @Override

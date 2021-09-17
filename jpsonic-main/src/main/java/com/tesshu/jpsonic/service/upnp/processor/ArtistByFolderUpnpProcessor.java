@@ -146,7 +146,7 @@ public class ArtistByFolderUpnpProcessor
         if (item.isArtist()) {
             return getDispatcher()
                     .getAlbumProcessor().getAlbumsForArtist(item.getName(), first, maxResults,
-                            util.isSortAlbumsByYear(item.getName()), util.getAllMusicFolders())
+                            util.isSortAlbumsByYear(item.getName()), util.getGuestMusicFolders())
                     .stream().map(FolderContent::new).collect(toList());
         } else if (item.isAlbum()) {
             return mediaFileService
@@ -179,12 +179,12 @@ public class ArtistByFolderUpnpProcessor
 
     @Override
     public int getItemCount() {
-        return util.getAllMusicFolders().size();
+        return util.getGuestMusicFolders().size();
     }
 
     @Override
     public List<FolderArtistAlbumWrapper> getItems(long offset, long maxResults) {
-        List<MusicFolder> folders = util.getAllMusicFolders();
+        List<MusicFolder> folders = util.getGuestMusicFolders();
         return folders.subList((int) offset, Math.min(folders.size(), (int) (offset + maxResults))).stream()
                 .map(FolderContent::new).collect(toList());
     }

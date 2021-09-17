@@ -172,8 +172,8 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
                     .map(Id3Content::new).collect(toList());
         } else if (item.isArtist()) {
             return albumDao.getAlbumsForArtist(offset, maxResults, item.getArtist(),
-                    util.isSortAlbumsByYear(item.getArtist()), util.getAllMusicFolders()).stream().map(Id3Content::new)
-                    .collect(toList());
+                    util.isSortAlbumsByYear(item.getArtist()), util.getGuestMusicFolders()).stream()
+                    .map(Id3Content::new).collect(toList());
         }
         return mediaFileService.getSongsForAlbum(offset, maxResults, item.getArtist(), item.getName()).stream()
                 .map(Id3Content::new).collect(toList());
@@ -245,7 +245,8 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
                     || expired) {
                 INDEX_IDS.set(Integer.MIN_VALUE);
                 content = new ArtistsID3();
-                List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, util.getAllMusicFolders());
+                List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE,
+                        util.getGuestMusicFolders());
                 SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> indexedArtists = musicIndexService
                         .getIndexedArtists(artists);
                 final Function<Artist, ArtistID3> toId3 = (a) -> {

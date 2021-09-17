@@ -25,6 +25,7 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -176,20 +177,19 @@ public class DLNASettingsController {
         settingsService.setDlnaPodcastVisible(command.isDlnaPodcastVisible());
 
         // Display options / Access control
-        settingsService.setDlnaGenreCountVisible(command.isDlnaGenreCountVisible());
-        settingsService.setDlnaRandomMax(command.getDlnaRandomMax());
+        final List<Integer> allowedIds = Arrays.stream(command.getAllowedMusicFolderIds()).boxed()
+                .collect(Collectors.toList());
+        List<Integer> allIds = musicFolderService.getAllMusicFolders().stream().map(m -> m.getId())
+                .collect(Collectors.toList());
+        settingsService.setDlnaGenreCountVisible(command.isDlnaGenreCountVisible() && allIds.equals(allowedIds));
         settingsService.setDlnaGuestPublish(command.isDlnaGuestPublish());
         settingsService.setUriWithFileExtensions(command.isUriWithFileExtensions());
 
         settingsService.save();
 
         // # Changes to the database
-
         User guestUser = securityService.getGuestUser();
-        if (command.getAllowedMusicFolderIds() != null) {
-            musicFolderService.setMusicFoldersForUser(guestUser.getUsername(),
-                    Arrays.stream(command.getAllowedMusicFolderIds()).boxed().collect(Collectors.toList()));
-        }
+        musicFolderService.setMusicFoldersForUser(guestUser.getUsername(), allowedIds);
         UserSettings userSettings = securityService.getUserSettings(guestUser.getUsername());
         userSettings.setTranscodeScheme(command.getTranscodeScheme());
         userSettings.setChanged(new Date());
