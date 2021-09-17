@@ -80,6 +80,7 @@ class PlaylistUpnpProcessorTest extends AbstractNeedsScan {
         setSortStrict(true);
         setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
+        settingsService.setDlnaGuestPublish(false);
         populateDatabaseOnlyOnce();
 
         Function<String, Playlist> toPlaylist = (title) -> {

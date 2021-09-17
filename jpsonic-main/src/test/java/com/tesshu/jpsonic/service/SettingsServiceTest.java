@@ -705,7 +705,7 @@ class SettingsServiceTest {
 
     @Test
     void testIsDlnaGuestPublish() {
-        assertFalse(settingsService.isDlnaGuestPublish());
+        assertTrue(settingsService.isDlnaGuestPublish());
     }
 
     @Test

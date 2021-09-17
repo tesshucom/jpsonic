@@ -19,10 +19,18 @@
   --%>
 
 <html><head>
-    <%@ include file="head.jsp" %>
-    <%@ include file="jquery.jsp" %>
-    <%@ page import="com.tesshu.jpsonic.domain.TranscodeScheme" %>
-    <script src="<c:url value='/script/utils.js'/>"></script>
+<%@ include file="head.jsp" %>
+<%@ include file="jquery.jsp" %>
+<%@ page import="com.tesshu.jpsonic.domain.TranscodeScheme" %>
+<script src="<c:url value='/script/utils.js'/>"></script>
+<script>
+    function resetBasicSettings() {
+        Array.from(document.getElementsByName('allowedMusicFolderIds')).forEach(a => a.checked = true);
+        $('[name="transcodeScheme"]').prop("selectedIndex", 0);
+        Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => a.checked = false);
+        document.getElementsByName('uriWithFileExtensions')[0].checked = true;
+    }
+</script>
 </head>
 
 <body class="mainframe settings dlnaSettings">
@@ -40,7 +48,14 @@
 
     <c:set var="isOpen" value='${command.openDetailSetting ? "open" : ""}' />
     <details open>
-        <summary class="legacy"><fmt:message key="dlnasettings.basic"/></summary>
+
+        <div class="actions">
+            <ul class="controls">
+                <li><a href="javascript:resetBasicSettings()" title="<fmt:message key='common.reset'/>" class="control reset"><fmt:message key="common.reset"/></a></li>
+            </ul>
+        </div>
+
+        <summary class="jpsonic"><fmt:message key="dlnasettings.basic"/></summary>
         <dl>
             <dt></dt>
             <dd>

@@ -1218,6 +1218,7 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
             settingsService.setSortAlphanum(true);
             settingsService.setSortAlbumsByYear(false);
             settingsService.setProhibitSortVarious(false);
+            settingsService.setDlnaGuestPublish(false);
 
             Function<String, Playlist> toPlaylist = (title) -> {
                 Date now = new Date();

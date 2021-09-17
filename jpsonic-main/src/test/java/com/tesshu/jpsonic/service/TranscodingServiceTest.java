@@ -1072,9 +1072,9 @@ class TranscodingServiceTest {
             Assertions.assertNull(parameters.getExpectedLength());
             assertEquals(224, parameters.getMaxBitRate());
             assertEquals(mediaFile, parameters.getMediaFile());
-            assertEquals(transNameMp3, parameters.getTranscoding().getName());
+            Assertions.assertNull(parameters.getTranscoding());
             assertEquals(videoTranscodingSettings, parameters.getVideoTranscodingSettings());
-            assertFalse(parameters.isRangeAllowed());
+            assertTrue(parameters.isRangeAllowed());
 
             playerService.removePlayerById(playerId);
         }

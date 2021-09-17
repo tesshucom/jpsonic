@@ -144,6 +144,7 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
 
     @BeforeEach
     public void setup() {
+        settingsService.setDlnaGuestPublish(false);
         populateDatabaseOnlyOnce();
     }
 

@@ -388,7 +388,15 @@ public class PlayerService {
      *            The player to create.
      */
     public void createPlayer(Player player) {
+        createPlayer(player, true);
+    }
+
+    private void createPlayer(Player player, boolean isInitTranscoding) {
         playerDao.createPlayer(player);
+
+        if (!isInitTranscoding) {
+            return;
+        }
 
         List<Transcoding> transcodings = transcodingService.getAllTranscodings();
         List<Transcoding> defaultActiveTranscodings = new ArrayList<>();
@@ -437,7 +445,7 @@ public class PlayerService {
         player.setUsername(user.getUsername());
         player.setType(GUEST_PLAYER_TYPE);
         player.setLastSeen(new Date());
-        createPlayer(player);
+        createPlayer(player, false);
 
         return player;
     }
