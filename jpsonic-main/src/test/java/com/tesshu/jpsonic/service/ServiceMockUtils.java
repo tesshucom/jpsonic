@@ -58,6 +58,7 @@ public final class ServiceMockUtils {
         } else if (PlayerService.class == classToMock) {
             PlayerService playerService = Mockito.mock(PlayerService.class);
             Player player = new Player();
+            player.setId(99);
             player.setUsername(User.USERNAME_GUEST);
             Mockito.when(playerService.getGuestPlayer(Mockito.nullable(HttpServletRequest.class))).thenReturn(player);
             mock = playerService;

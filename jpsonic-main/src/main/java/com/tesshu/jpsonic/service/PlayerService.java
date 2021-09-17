@@ -24,8 +24,10 @@ package com.tesshu.jpsonic.service;
 import static org.springframework.web.bind.ServletRequestUtils.getIntParameter;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
@@ -404,11 +406,27 @@ public class PlayerService {
     public Player getGuestPlayer(HttpServletRequest request) {
 
         User user = securityService.getGuestUser();
+        Date now = new Date();
 
         // Look for existing player.
         List<Player> players = getPlayersForUserAndClientId(user.getUsername(), null);
-        if (!players.isEmpty()) {
-            return players.get(0);
+
+        Optional<Player> oldPlayer = request == null
+                ? players.stream().filter(p -> p.getIpAddress() == null).findFirst()
+                : players.stream()
+                        .filter(p -> p.getIpAddress() != null && p.getIpAddress().equals(request.getRemoteAddr()))
+                        .findFirst();
+
+        if (oldPlayer.isPresent()) {
+            // Update date only if more than 24 hours have passed
+            Player player = oldPlayer.get();
+            Calendar lastSeen = Calendar.getInstance();
+            lastSeen.setTime(player.getLastSeen());
+            if (now.getTime() - player.getLastSeen().getTime() > 1000 * 60 * 60 * 24) {
+                player.setLastSeen(now);
+                playerDao.updatePlayer(player);
+            }
+            return player;
         }
 
         // Create player if necessary.
@@ -418,6 +436,7 @@ public class PlayerService {
         }
         player.setUsername(user.getUsername());
         player.setType(GUEST_PLAYER_TYPE);
+        player.setLastSeen(new Date());
         createPlayer(player);
 
         return player;

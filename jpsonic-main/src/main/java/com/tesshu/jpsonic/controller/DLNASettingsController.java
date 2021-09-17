@@ -157,6 +157,7 @@ public class DLNASettingsController {
         settingsService
                 .setDlnaServerName(StringUtils.defaultIfEmpty(command.getDlnaServerName(), SettingsService.getBrand()));
         settingsService.setDlnaBaseLANURL(command.getDlnaBaseLANURL());
+        settingsService.setUriWithFileExtensions(command.isUriWithFileExtensions());
 
         // Items to display
         settingsService.setDlnaIndexVisible(command.isDlnaIndexVisible());
@@ -183,7 +184,6 @@ public class DLNASettingsController {
                 .collect(Collectors.toList());
         settingsService.setDlnaGenreCountVisible(command.isDlnaGenreCountVisible() && allIds.equals(allowedIds));
         settingsService.setDlnaGuestPublish(command.isDlnaGuestPublish());
-        settingsService.setUriWithFileExtensions(command.isUriWithFileExtensions());
 
         settingsService.save();
 

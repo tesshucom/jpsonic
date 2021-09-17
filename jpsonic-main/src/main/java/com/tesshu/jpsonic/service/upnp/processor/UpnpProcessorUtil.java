@@ -30,6 +30,7 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
@@ -52,16 +53,18 @@ public class UpnpProcessorUtil {
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
     private final JWTSecurityService jwtSecurityService;
+    private final PlayerService playerService;
     private final TranscodingService transcodingService;
     private final JpsonicComparators comparators;
 
     public UpnpProcessorUtil(SettingsService ss, MusicFolderService mfs, SecurityService securityService,
-            JpsonicComparators c, JWTSecurityService jwt, TranscodingService ts) {
+            JpsonicComparators c, JWTSecurityService jwt, PlayerService playerService, TranscodingService ts) {
         settingsService = ss;
         musicFolderService = mfs;
         this.securityService = securityService;
         jwtSecurityService = jwt;
         comparators = c;
+        this.playerService = playerService;
         transcodingService = ts;
     }
 
@@ -72,7 +75,9 @@ public class UpnpProcessorUtil {
     public String createURIStringWithToken(UriComponentsBuilder builder, MediaFile song) {
         String token = addJWTToken(builder).toUriString();
         if (settingsService.isUriWithFileExtensions() && !StringUtils.isEmpty(song.getFormat())) {
-            token = token.concat(".").concat(song.getFormat());
+            Player player = playerService.getGuestPlayer(null);
+            String fmt = transcodingService.getSuffix(player, song, null);
+            token = token.concat(".").concat(fmt);
         }
         return token;
     }
