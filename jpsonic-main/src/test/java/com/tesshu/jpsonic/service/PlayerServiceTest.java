@@ -41,12 +41,14 @@ import org.springframework.mock.web.MockHttpServletRequest;
 public class PlayerServiceTest {
 
     private PlayerDao playerDao;
+    private TranscodingService transcodingService;
     private PlayerService playerService;
 
     @BeforeEach
     public void setup() throws ExecutionException {
         playerDao = mock(PlayerDao.class);
-        playerService = new PlayerService(playerDao, null, mock(SecurityService.class), mock(TranscodingService.class));
+        transcodingService = mock(TranscodingService.class);
+        playerService = new PlayerService(playerDao, null, mock(SecurityService.class), transcodingService);
     }
 
     @Documented
@@ -105,15 +107,17 @@ public class PlayerServiceTest {
 
             Mockito.clearInvocations(playerDao);
             Player player = playerService.getGuestPlayer(null);
-            Mockito.verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
-            Mockito.verify(playerDao, Mockito.times(1)).createPlayer(Mockito.any(Player.class));
             assertNotNull(player.getLastSeen());
-
             Calendar lastSeen = Calendar.getInstance();
             lastSeen.setTime(player.getLastSeen());
             assertEquals(today.get(Calendar.YEAR), lastSeen.get(Calendar.YEAR));
             assertEquals(today.get(Calendar.MONTH), lastSeen.get(Calendar.MONTH));
             assertEquals(today.get(Calendar.DATE), lastSeen.get(Calendar.DATE));
+
+            Mockito.verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
+            Mockito.verify(playerDao, Mockito.times(1)).createPlayer(Mockito.any(Player.class));
+            Mockito.verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
+                    Mockito.anyList());
         }
 
         @GetGuestPlayerLastSeenDecision.Conditions.IsExists.True.LastSeen.Today
@@ -133,15 +137,17 @@ public class PlayerServiceTest {
 
             Mockito.clearInvocations(playerDao);
             Player player = playerService.getGuestPlayer(null);
-            Mockito.verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
-            Mockito.verify(playerDao, Mockito.never()).createPlayer(Mockito.any(Player.class));
-
             assertNotNull(player.getLastSeen());
             Calendar lastSeen = Calendar.getInstance();
             lastSeen.setTime(player.getLastSeen());
             assertEquals(today.get(Calendar.YEAR), lastSeen.get(Calendar.YEAR));
             assertEquals(today.get(Calendar.MONTH), lastSeen.get(Calendar.MONTH));
             assertEquals(today.get(Calendar.DATE), lastSeen.get(Calendar.DATE));
+
+            Mockito.verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
+            Mockito.verify(playerDao, Mockito.never()).createPlayer(Mockito.any(Player.class));
+            Mockito.verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
+                    Mockito.anyList());
         }
 
         @GetGuestPlayerLastSeenDecision.Conditions.IsExists.True.LastSeen.Old
@@ -160,9 +166,6 @@ public class PlayerServiceTest {
 
             Mockito.clearInvocations(playerDao);
             Player player = playerService.getGuestPlayer(null);
-            Mockito.verify(playerDao, Mockito.times(1)).updatePlayer(Mockito.any(Player.class));
-            Mockito.verify(playerDao, Mockito.never()).createPlayer(Mockito.any(Player.class));
-
             assertNotNull(player.getLastSeen());
             Calendar lastSeen = Calendar.getInstance();
             lastSeen.setTime(player.getLastSeen());
@@ -171,6 +174,11 @@ public class PlayerServiceTest {
             assertEquals(today.get(Calendar.YEAR), lastSeen.get(Calendar.YEAR));
             assertEquals(today.get(Calendar.MONTH), lastSeen.get(Calendar.MONTH));
             assertEquals(today.get(Calendar.DATE), lastSeen.get(Calendar.DATE));
+
+            Mockito.verify(playerDao, Mockito.times(1)).updatePlayer(Mockito.any(Player.class));
+            Mockito.verify(playerDao, Mockito.never()).createPlayer(Mockito.any(Player.class));
+            Mockito.verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
+                    Mockito.anyList());
         }
 
         @GetGuestPlayerLastSeenDecision.Conditions.IsExists.False
@@ -190,9 +198,6 @@ public class PlayerServiceTest {
 
             Mockito.clearInvocations(playerDao);
             Player player = playerService.getGuestPlayer(req);
-            Mockito.verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
-            Mockito.verify(playerDao, Mockito.times(1)).createPlayer(Mockito.any(Player.class));
-
             assertEquals(playerIp, player.getIpAddress());
             assertNotNull(player.getLastSeen());
             Calendar lastSeen = Calendar.getInstance();
@@ -200,6 +205,11 @@ public class PlayerServiceTest {
             assertEquals(today.get(Calendar.YEAR), lastSeen.get(Calendar.YEAR));
             assertEquals(today.get(Calendar.MONTH), lastSeen.get(Calendar.MONTH));
             assertEquals(today.get(Calendar.DATE), lastSeen.get(Calendar.DATE));
+
+            Mockito.verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
+            Mockito.verify(playerDao, Mockito.times(1)).createPlayer(Mockito.any(Player.class));
+            Mockito.verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
+                    Mockito.anyList());
         }
 
         @GetGuestPlayerLastSeenDecision.Conditions.IsExists.True
@@ -223,9 +233,6 @@ public class PlayerServiceTest {
 
             Mockito.clearInvocations(playerDao);
             Player player = playerService.getGuestPlayer(req);
-            Mockito.verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
-            Mockito.verify(playerDao, Mockito.never()).createPlayer(Mockito.any(Player.class));
-
             assertEquals(playerIp, player.getIpAddress());
             assertNotNull(player.getLastSeen());
             Calendar lastSeen = Calendar.getInstance();
@@ -233,6 +240,11 @@ public class PlayerServiceTest {
             assertEquals(today.get(Calendar.YEAR), lastSeen.get(Calendar.YEAR));
             assertEquals(today.get(Calendar.MONTH), lastSeen.get(Calendar.MONTH));
             assertEquals(today.get(Calendar.DATE), lastSeen.get(Calendar.DATE));
+
+            Mockito.verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
+            Mockito.verify(playerDao, Mockito.never()).createPlayer(Mockito.any(Player.class));
+            Mockito.verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
+                    Mockito.anyList());
         }
     }
 }
