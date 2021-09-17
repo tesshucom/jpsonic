@@ -80,7 +80,7 @@ public class RandomSongUpnpProcessor extends MediaFileUpnpProcessor {
         int randomMax = settingsService.getDlnaRandomMax();
         int offset = (int) first;
         int count = (offset + (int) maxResults) > randomMax ? randomMax - offset : (int) maxResults;
-        return searchService.getRandomSongs(count, offset, randomMax, util.getAllMusicFolders());
+        return searchService.getRandomSongs(count, offset, randomMax, util.getGuestMusicFolders());
     }
 
 }

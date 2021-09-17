@@ -25,13 +25,20 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.lang.annotation.Documented;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.command.DLNASettingsCommand;
+import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UPnPService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,6 +58,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 class DLNASettingsControllerTest {
 
     private SettingsService settingsService;
+    private MusicFolderService musicFolderService;
     private UPnPService upnpService;
     private DLNASettingsController controller;
     private MockMvc mockMvc;
@@ -58,9 +66,10 @@ class DLNASettingsControllerTest {
     @BeforeEach
     public void setup() throws ExecutionException {
         settingsService = mock(SettingsService.class);
+        musicFolderService = mock(MusicFolderService.class);
         upnpService = mock(UPnPService.class);
-        controller = new DLNASettingsController(settingsService, mock(SecurityService.class), upnpService,
-                mock(ShareService.class));
+        controller = new DLNASettingsController(settingsService, musicFolderService, mock(SecurityService.class),
+                mock(PlayerService.class), mock(TranscodingService.class), upnpService, mock(ShareService.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -101,8 +110,8 @@ class DLNASettingsControllerTest {
 
     @Test
     void testIsDlnaGenreCountVisible() {
+
         DLNASettingsCommand command = new DLNASettingsCommand();
-        command.setDlnaGuestPublish(false);
         command.setDlnaGenreCountVisible(false);
         ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
         Mockito.doNothing().when(settingsService).setDlnaGenreCountVisible(captor.capture());
@@ -110,15 +119,20 @@ class DLNASettingsControllerTest {
         Mockito.verify(settingsService, Mockito.times(1)).setDlnaGenreCountVisible(Mockito.any(boolean.class));
         assertFalse(captor.getValue());
 
-        command.setDlnaGuestPublish(false);
         command.setDlnaGenreCountVisible(true);
-        captor = ArgumentCaptor.forClass(boolean.class);
         Mockito.doNothing().when(settingsService).setDlnaGenreCountVisible(captor.capture());
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         Mockito.verify(settingsService, Mockito.times(2)).setDlnaGenreCountVisible(Mockito.any(boolean.class));
         Assertions.assertTrue(captor.getValue());
 
-        command.setDlnaGuestPublish(true);
+        /*
+         * Always false if all folders are not allowed. Because the genre count is a statistical result for all
+         * directories.
+         */
+        List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, null, null, true, null));
+        Mockito.when(musicFolderService.getAllMusicFolders()).thenReturn(musicFolders);
+        Mockito.when(musicFolderService.getMusicFoldersForUser(User.USERNAME_GUEST)).thenReturn(musicFolders);
+
         command.setDlnaGenreCountVisible(false);
         captor = ArgumentCaptor.forClass(boolean.class);
         Mockito.doNothing().when(settingsService).setDlnaGenreCountVisible(captor.capture());
@@ -126,9 +140,7 @@ class DLNASettingsControllerTest {
         Mockito.verify(settingsService, Mockito.times(3)).setDlnaGenreCountVisible(Mockito.any(boolean.class));
         assertFalse(captor.getValue());
 
-        command.setDlnaGuestPublish(true);
         command.setDlnaGenreCountVisible(true);
-        captor = ArgumentCaptor.forClass(boolean.class);
         Mockito.doNothing().when(settingsService).setDlnaGenreCountVisible(captor.capture());
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         Mockito.verify(settingsService, Mockito.times(4)).setDlnaGenreCountVisible(Mockito.any(boolean.class));

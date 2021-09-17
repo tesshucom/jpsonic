@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -116,7 +117,8 @@ public class UserSettingsController {
         }
 
         command.setLdapEnabled(settingsService.isLdapEnabled());
-        command.setUsers(securityService.getAllUsers());
+        command.setUsers(securityService.getAllUsers().stream()
+                .filter(u -> !User.USERNAME_GUEST.equals(u.getUsername())).collect(Collectors.toList()));
         command.setAllMusicFolders(musicFolderService.getAllMusicFolders());
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
 

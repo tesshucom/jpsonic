@@ -95,7 +95,8 @@ public class PlayerSettingsController {
 
         PlayerSettingsCommand command = new PlayerSettingsCommand();
         List<Player> players = getPlayers(request);
-        command.setPlayers(players.toArray(new Player[0]));
+        command.setPlayers(
+                players.stream().filter(p -> !User.USERNAME_GUEST.equals(p.getUsername())).toArray(Player[]::new));
         User user = securityService.getCurrentUser(request);
         command.setAdmin(user.isAdminRole());
         command.setAnonymousTranscoding(settingsService.isAnonymousTranscoding());

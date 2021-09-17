@@ -80,12 +80,12 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor<Artist, Album> {
 
     @Override
     public int getItemCount() {
-        return artistDao.getArtistsCount(util.getAllMusicFolders());
+        return artistDao.getArtistsCount(util.getGuestMusicFolders());
     }
 
     @Override
     public List<Artist> getItems(long offset, long maxResults) {
-        return artistDao.getAlphabetialArtists((int) offset, (int) maxResults, util.getAllMusicFolders());
+        return artistDao.getAlphabetialArtists((int) offset, (int) maxResults, util.getGuestMusicFolders());
     }
 
     @Override
@@ -96,7 +96,7 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor<Artist, Album> {
     @Override
     public int getChildSizeOf(Artist artist) {
         int size = getDispatcher().getAlbumProcessor().getAlbumsCountForArtist(artist.getName(),
-                util.getAllMusicFolders());
+                util.getGuestMusicFolders());
         return size > 1 ? size + 1 : size;
     }
 
@@ -104,7 +104,7 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor<Artist, Album> {
     public List<Album> getChildren(Artist artist, long offset, long maxResults) {
         List<Album> albums = getDispatcher().getAlbumProcessor().getAlbumsForArtist(artist.getName(),
                 offset > 1 ? offset - 1 : offset, 0L == offset ? maxResults - 1 : maxResults,
-                util.isSortAlbumsByYear(artist.getName()), util.getAllMusicFolders());
+                util.isSortAlbumsByYear(artist.getName()), util.getGuestMusicFolders());
         if (albums.size() > 1 && 0L == offset) {
             Album firstElement = new Album();
             firstElement.setName(util.getResource("dlna.element.allalbums"));
