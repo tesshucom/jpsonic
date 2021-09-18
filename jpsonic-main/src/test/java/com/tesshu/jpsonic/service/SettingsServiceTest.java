@@ -21,6 +21,7 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -38,10 +39,13 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -53,9 +57,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
 @TestMethodOrder(MethodOrderer.MethodName.class)
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals", "PMD.AvoidInstantiatingObjectsInLoops" })
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals", "PMD.AvoidInstantiatingObjectsInLoops",
+        "PMD.AvoidUsingHardCodedIP" })
 class SettingsServiceTest {
 
+    @Autowired
+    private ApacheCommonsConfigurationService configurationService;
     @Autowired
     private SettingsService settingsService;
 
@@ -872,5 +879,30 @@ class SettingsServiceTest {
     @Test
     void testIsDefaultSortStrict() {
         assertTrue(SettingsService.isDefaultSortStrict());
+    }
+
+    @Nested
+    class TestUPnPSubnet {
+
+        private UPnPSubnet uPnPSubnet;
+        private SettingsService service;
+
+        @BeforeEach
+        public void setup() {
+            uPnPSubnet = mock(UPnPSubnet.class);
+            service = new SettingsService(configurationService, uPnPSubnet);
+        }
+
+        @Test
+        void testSetDlnaBaseLANURL() {
+            service.setDlnaBaseLANURL("http://localhost:8080/jpsonic");
+            Mockito.verify(uPnPSubnet, Mockito.times(1)).setDlnaBaseLANURL(Mockito.anyString());
+        }
+
+        @Test
+        void testIsInUPnPRange() {
+            service.isInUPnPRange("192.168.1.2");
+            Mockito.verify(uPnPSubnet, Mockito.times(1)).isInUPnPRange(Mockito.anyString());
+        }
     }
 }
