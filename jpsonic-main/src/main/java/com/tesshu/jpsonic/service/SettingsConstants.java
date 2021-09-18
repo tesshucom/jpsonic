@@ -140,7 +140,6 @@ class SettingsConstants {
             static final Pair<Boolean> SEARCH_METHOD_LEGACY = Pair.of("SearchMethodLegacy", false);
             // Flag to regenerate index when server starts. @see IndexManager#deleteOldMethodFiles
             static final Pair<Boolean> SEARCH_METHOD_CHANGED = Pair.of("SearchMethodChanged", false);
-            static final Pair<Boolean> ANONYMOUS_TRANSCODING = Pair.of("AnonymousTranscoding", false);
 
             private Legacy() {
             }

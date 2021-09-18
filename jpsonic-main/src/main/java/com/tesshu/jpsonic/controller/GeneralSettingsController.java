@@ -136,7 +136,6 @@ public class GeneralSettingsController {
         command.setShowRememberMe(settingsService.isShowRememberMe());
         command.setPublishPodcast(settingsService.isPublishPodcast());
         command.setSearchMethodLegacy(settingsService.isSearchMethodLegacy());
-        command.setAnonymousTranscoding(settingsService.isAnonymousTranscoding());
 
         // Extensions and shortcuts
         command.setMusicFileTypes(settingsService.getMusicFileTypes());
@@ -224,8 +223,6 @@ public class GeneralSettingsController {
          */
         settingsService
                 .setSearchMethodChanged(settingsService.isSearchMethodLegacy() != command.isSearchMethodLegacy());
-
-        settingsService.setAnonymousTranscoding(command.isAnonymousTranscoding());
 
         // Extensions and shortcuts
         settingsService.setMusicFileTypes(command.getMusicFileTypes());

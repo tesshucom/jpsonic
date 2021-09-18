@@ -220,12 +220,6 @@ function resetSortSettings() {
                 <label for="searchMethodLegacy"><fmt:message key="generalsettings.searchmethodlegacy"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="searchmethod"/></c:import>
             </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="anonymousTranscoding" id="anonymousTranscoding"/>
-                <label for="anonymousTranscoding"><fmt:message key="generalsettings.anonymoustranscoding"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="anonymoustranscoding"/></c:import>
-            </dd>
         </dl>
     </details>
 

@@ -504,7 +504,7 @@ public class TranscodingService {
      *
      * @param mediaFile
      *            The media file.
-     * @param p
+     * @param player
      *            The player.
      * @param maxBitRate
      *            Overrides the per-player and per-user bitrate limit. May be {@code null}.
@@ -515,18 +515,29 @@ public class TranscodingService {
      * 
      * @return Parameters to be used in the {@link #getTranscodedInputStream} method.
      */
-    public Parameters getParameters(@NonNull MediaFile mediaFile, @NonNull Player p, @Nullable final Integer maxBitRate,
-            @Nullable String preferredTargetFormat, @Nullable VideoTranscodingSettings videoTranscodingSettings) {
+    public Parameters getParameters(@NonNull MediaFile mediaFile, @NonNull Player player,
+            @Nullable final Integer maxBitRate, @Nullable String preferredTargetFormat,
+            @Nullable VideoTranscodingSettings videoTranscodingSettings) {
 
-        boolean useGuestPlayer = JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(p.getUsername())
-                && !settingsService.isAnonymousTranscoding();
-        final Player player = useGuestPlayer ? playerService.getGuestPlayer(null) : p;
-        final TranscodeScheme transcodeScheme = getTranscodeScheme(player).strictest(TranscodeScheme.fromMaxBitRate(
-                maxBitRate == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate()) : maxBitRate));
+        /*
+         * If the player is for anonymous user and is in the same segment as the server, the parameters will be
+         * generated using the player settings of the guest user. Transcoding of guest users is managed by the
+         * administrator on the UPnP settings page. Even if the connection is via Share, follow this rule if they are in
+         * the same segment. In the case of annoymous connection from the outside with different segments, the template
+         * such as format is the same as the internal network, but some settings can be made on the player's setting
+         * page.
+         */
+        boolean useGuestPlayer = JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername())
+                && settingsService.isInUPnPRange(player.getIpAddress());
+        final Player playerForTranscode = useGuestPlayer ? playerService.getGuestPlayer(null) : player;
+
+        final TranscodeScheme transcodeScheme = getTranscodeScheme(playerForTranscode)
+                .strictest(TranscodeScheme.fromMaxBitRate(
+                        maxBitRate == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate()) : maxBitRate));
         final int bitRate = createBitrate(mediaFile);
         final int mb = createMaxBitrate(transcodeScheme, mediaFile, bitRate);
         final boolean hls = videoTranscodingSettings != null && videoTranscodingSettings.isHls();
-        final Transcoding transcoding = getTranscoding(mediaFile, player, preferredTargetFormat, hls);
+        final Transcoding transcoding = getTranscoding(mediaFile, playerForTranscode, preferredTargetFormat, hls);
 
         Parameters parameters = new Parameters(mediaFile, videoTranscodingSettings);
         if (isNeedTranscoding(transcoding, mb, bitRate, preferredTargetFormat, mediaFile)) {

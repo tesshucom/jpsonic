@@ -95,7 +95,7 @@
                         </ul>
                     </dd>
 
-                    <c:if test="${not command.anonymous or (command.anonymous and command.anonymousTranscoding)}">
+                    <c:if test="${not command.anonymous or (command.anonymous and not command.sameSegment)}">
                         <dt><fmt:message key="playersettings.maxbitrate"/></dt>
                         <dd>
                             <form:select path="transcodeScheme">

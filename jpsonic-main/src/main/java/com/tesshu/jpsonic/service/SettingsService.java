@@ -94,7 +94,7 @@ public class SettingsService {
             "UrlRedirectFrom", "UrlRedirectionEnabled", "UrlRedirectType", "Port", "HttpsPort",
             "database.varchar.maxlength", "database.config.type", "database.config.embed.driver",
             "database.config.embed.url", "database.config.embed.username", "database.config.embed.password",
-            "database.config.jndi.name", "database.usertable.quote", "ShowJavaJukebox");
+            "database.config.jndi.name", "database.usertable.quote", "ShowJavaJukebox", "AnonymousTranscoding");
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
@@ -665,14 +665,6 @@ public class SettingsService {
 
     public void setSearchMethodChanged(boolean b) {
         setProperty(SettingsConstants.General.Legacy.SEARCH_METHOD_CHANGED, b);
-    }
-
-    public boolean isAnonymousTranscoding() {
-        return getBoolean(SettingsConstants.General.Legacy.ANONYMOUS_TRANSCODING);
-    }
-
-    public void setAnonymousTranscoding(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.ANONYMOUS_TRANSCODING, b);
     }
 
     public String getMusicFileTypes() {

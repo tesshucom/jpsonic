@@ -99,7 +99,6 @@ public class PlayerSettingsController {
                 players.stream().filter(p -> !User.USERNAME_GUEST.equals(p.getUsername())).toArray(Player[]::new));
         User user = securityService.getCurrentUser(request);
         command.setAdmin(user.isAdminRole());
-        command.setAnonymousTranscoding(settingsService.isAnonymousTranscoding());
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
 
         Player player = null;
@@ -117,6 +116,7 @@ public class PlayerSettingsController {
             command.setName(player.getName());
             command.setGuest(User.USERNAME_GUEST.equals(player.getUsername()));
             command.setAnonymous(JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername()));
+            command.setSameSegment(settingsService.isInUPnPRange(player.getIpAddress()));
             command.setPlayerTechnology(player.getTechnology());
             command.setTranscodeScheme(player.getTranscodeScheme());
             command.setAllTranscodings(transcodingService.getAllTranscodings());
