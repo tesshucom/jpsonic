@@ -559,11 +559,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsAnonymousTranscoding() {
-        assertFalse(settingsService.isAnonymousTranscoding());
-    }
-
-    @Test
     void testGetExcludePatternString() {
         assertNull(settingsService.getExcludePatternString());
     }
