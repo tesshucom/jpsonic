@@ -539,7 +539,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         // folder
         IndexType t = getIndexType();
         boolean isId3 = t == IndexType.ALBUM_ID3 || t == IndexType.ARTIST_ID3;
-        Query folderQuery = queryFactory.toFolderQuery.apply(isId3, upnpUtil.getAllMusicFolders());
+        Query folderQuery = queryFactory.toFolderQuery.apply(isId3, upnpUtil.getGuestMusicFolders());
         mainQuery.add(folderQuery, Occur.MUST);
 
         result = new UPnPSearchCriteria(upnpSearchQuery, offset, count, includeComposer);

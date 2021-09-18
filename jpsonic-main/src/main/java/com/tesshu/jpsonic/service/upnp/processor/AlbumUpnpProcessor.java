@@ -82,7 +82,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> {
             throws ExecutionException {
         DIDLContent didl = new DIDLContent();
         List<Album> selectedItems = albumDao.getAlphabeticalAlbums((int) firstResult, (int) maxResults, false, true,
-                util.getAllMusicFolders());
+                util.getGuestMusicFolders());
         for (Album item : selectedItems) {
             addItem(didl, item);
         }
@@ -112,12 +112,12 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> {
 
     @Override
     public int getItemCount() {
-        return albumDao.getAlbumCount(util.getAllMusicFolders());
+        return albumDao.getAlbumCount(util.getGuestMusicFolders());
     }
 
     @Override
     public List<Album> getItems(long offset, long maxResults) {
-        return albumDao.getAlphabeticalAlbums((int) offset, (int) maxResults, false, true, util.getAllMusicFolders());
+        return albumDao.getAlphabeticalAlbums((int) offset, (int) maxResults, false, true, util.getGuestMusicFolders());
     }
 
     @Override

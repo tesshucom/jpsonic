@@ -140,7 +140,6 @@ class SettingsConstants {
             static final Pair<Boolean> SEARCH_METHOD_LEGACY = Pair.of("SearchMethodLegacy", false);
             // Flag to regenerate index when server starts. @see IndexManager#deleteOldMethodFiles
             static final Pair<Boolean> SEARCH_METHOD_CHANGED = Pair.of("SearchMethodChanged", false);
-            static final Pair<Boolean> ANONYMOUS_TRANSCODING = Pair.of("AnonymousTranscoding", false);
 
             private Legacy() {
             }
@@ -257,6 +256,7 @@ class SettingsConstants {
             static final Pair<Boolean> ENABLED = Pair.of("DlnaEnabled", false);
             static final Pair<String> SERVER_NAME = Pair.of("DlnaServerName", "Jpsonic");
             static final Pair<String> BASE_LAN_URL = Pair.of("DlnaBaseLANURL", null);
+            static final Pair<Boolean> URI_WITH_FILE_EXTENSIONS = Pair.of("UriWithFileExtensions", true);
 
             private Basic() {
             }
@@ -288,8 +288,7 @@ class SettingsConstants {
         static class Options {
             static final Pair<Boolean> GENRE_COUNT = Pair.of("DlnaGenreCountVisible", false);
             static final Pair<Integer> RANDOM_MAX = Pair.of("DlnaRandomMax", 50);
-            static final Pair<Boolean> GUEST_PUBLISH = Pair.of("DlnaGuestPublish", false);
-            static final Pair<Boolean> URI_WITH_FILE_EXTENSIONS = Pair.of("UriWithFileExtensions", true);
+            static final Pair<Boolean> GUEST_PUBLISH = Pair.of("DlnaGuestPublish", true);
 
             private Options() {
             }

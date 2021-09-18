@@ -19,12 +19,24 @@
 
 package com.tesshu.jpsonic.command;
 
+import java.util.List;
+
+import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.TranscodeScheme;
+import com.tesshu.jpsonic.domain.Transcoding;
+
 public class DLNASettingsCommand extends SettingsPageCommons {
 
     // UPnP basic settings
     private boolean dlnaEnabled;
     private String dlnaServerName;
     private String dlnaBaseLANURL;
+    private List<MusicFolder> allMusicFolders;
+    private int[] allowedMusicFolderIds = new int[0];
+    private TranscodeScheme transcodeScheme;
+    private List<Transcoding> allTranscodings;
+    private int[] activeTranscodingIds = new int[0];
+    private boolean uriWithFileExtensions;
 
     // Items to display
     private boolean dlnaIndexVisible;
@@ -48,7 +60,6 @@ public class DLNASettingsCommand extends SettingsPageCommons {
     private boolean dlnaGenreCountVisible;
     private int dlnaRandomMax;
     private boolean dlnaGuestPublish;
-    private boolean uriWithFileExtensions;
 
     public boolean isDlnaEnabled() {
         return dlnaEnabled;
@@ -72,6 +83,58 @@ public class DLNASettingsCommand extends SettingsPageCommons {
 
     public void setDlnaBaseLANURL(String dlnaBaseLANURL) {
         this.dlnaBaseLANURL = dlnaBaseLANURL;
+    }
+
+    public List<MusicFolder> getAllMusicFolders() {
+        return allMusicFolders;
+    }
+
+    public void setAllMusicFolders(List<MusicFolder> allMusicFolders) {
+        this.allMusicFolders = allMusicFolders;
+    }
+
+    public int[] getAllowedMusicFolderIds() {
+        return allowedMusicFolderIds;
+    }
+
+    public void setAllowedMusicFolderIds(int... allowedMusicFolderIds) {
+        if (allowedMusicFolderIds != null) {
+            this.allowedMusicFolderIds = allowedMusicFolderIds.clone();
+        }
+    }
+
+    public TranscodeScheme getTranscodeScheme() {
+        return transcodeScheme;
+    }
+
+    public void setTranscodeScheme(TranscodeScheme transcodeScheme) {
+        this.transcodeScheme = transcodeScheme;
+    }
+
+    public List<Transcoding> getAllTranscodings() {
+        return allTranscodings;
+    }
+
+    public void setAllTranscodings(List<Transcoding> allTranscodings) {
+        this.allTranscodings = allTranscodings;
+    }
+
+    public int[] getActiveTranscodingIds() {
+        return activeTranscodingIds;
+    }
+
+    public void setActiveTranscodingIds(int... activeTranscodingIds) {
+        if (activeTranscodingIds != null) {
+            this.activeTranscodingIds = activeTranscodingIds.clone();
+        }
+    }
+
+    public boolean isUriWithFileExtensions() {
+        return uriWithFileExtensions;
+    }
+
+    public void setUriWithFileExtensions(boolean uriWithFileExtensions) {
+        this.uriWithFileExtensions = uriWithFileExtensions;
     }
 
     public boolean isDlnaIndexVisible() {
@@ -224,13 +287,5 @@ public class DLNASettingsCommand extends SettingsPageCommons {
 
     public void setDlnaGuestPublish(boolean dlnaGuestPublish) {
         this.dlnaGuestPublish = dlnaGuestPublish;
-    }
-
-    public boolean isUriWithFileExtensions() {
-        return uriWithFileExtensions;
-    }
-
-    public void setUriWithFileExtensions(boolean uriWithFileExtensions) {
-        this.uriWithFileExtensions = uriWithFileExtensions;
     }
 }

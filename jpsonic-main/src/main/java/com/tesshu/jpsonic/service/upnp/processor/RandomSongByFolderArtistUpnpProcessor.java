@@ -124,7 +124,7 @@ public class RandomSongByFolderArtistUpnpProcessor
             int randomMax = settingsService.getDlnaRandomMax();
             int count = (offset + (int) maxResults) > randomMax ? randomMax - offset : (int) maxResults;
             return searchService
-                    .getRandomSongsByArtist(item.getArtist(), count, offset, randomMax, util.getAllMusicFolders())
+                    .getRandomSongsByArtist(item.getArtist(), count, offset, randomMax, util.getGuestMusicFolders())
                     .stream().map(FolderArtist::new).collect(toList());
         } else {
             return artistDao.getAlphabetialArtists(offset, (int) maxResults, Arrays.asList(item.getFolder())).stream()
@@ -151,12 +151,12 @@ public class RandomSongByFolderArtistUpnpProcessor
 
     @Override
     public int getItemCount() {
-        return util.getAllMusicFolders().size();
+        return util.getGuestMusicFolders().size();
     }
 
     @Override
     public List<FolderArtistWrapper> getItems(long offset, long maxResults) {
-        List<MusicFolder> folders = util.getAllMusicFolders();
+        List<MusicFolder> folders = util.getGuestMusicFolders();
         return folders.subList((int) offset, Math.min(folders.size(), (int) (offset + maxResults))).stream()
                 .map(FolderArtist::new).collect(toList());
     }

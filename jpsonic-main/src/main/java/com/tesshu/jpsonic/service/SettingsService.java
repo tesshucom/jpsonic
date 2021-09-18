@@ -94,7 +94,7 @@ public class SettingsService {
             "UrlRedirectFrom", "UrlRedirectionEnabled", "UrlRedirectType", "Port", "HttpsPort",
             "database.varchar.maxlength", "database.config.type", "database.config.embed.driver",
             "database.config.embed.url", "database.config.embed.username", "database.config.embed.password",
-            "database.config.jndi.name", "database.usertable.quote", "ShowJavaJukebox");
+            "database.config.jndi.name", "database.usertable.quote", "ShowJavaJukebox", "AnonymousTranscoding");
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
@@ -105,13 +105,16 @@ public class SettingsService {
     private static String[] videoFileTypes;
 
     private final ApacheCommonsConfigurationService configurationService;
+    private final UPnPSubnet uPnPSubnet;
 
     private Pattern excludePattern;
     private Locale locale;
 
-    public SettingsService(ApacheCommonsConfigurationService configurationService) {
+    public SettingsService(ApacheCommonsConfigurationService configurationService, UPnPSubnet uPnPSubnet) {
         super();
         this.configurationService = configurationService;
+        this.uPnPSubnet = uPnPSubnet;
+        this.uPnPSubnet.setDlnaBaseLANURL(getDlnaBaseLANURL());
     }
 
     public static boolean isDevelopmentMode() {
@@ -664,14 +667,6 @@ public class SettingsService {
         setProperty(SettingsConstants.General.Legacy.SEARCH_METHOD_CHANGED, b);
     }
 
-    public boolean isAnonymousTranscoding() {
-        return getBoolean(SettingsConstants.General.Legacy.ANONYMOUS_TRANSCODING);
-    }
-
-    public void setAnonymousTranscoding(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.ANONYMOUS_TRANSCODING, b);
-    }
-
     public String getMusicFileTypes() {
         synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
             return getString(SettingsConstants.General.Extension.MUSIC_FILE_TYPES);
@@ -1073,12 +1068,25 @@ public class SettingsService {
         setProperty(SettingsConstants.UPnP.Basic.SERVER_NAME, s);
     }
 
-    public String getDlnaBaseLANURL() {
+    public final String getDlnaBaseLANURL() {
         return getString(SettingsConstants.UPnP.Basic.BASE_LAN_URL);
     }
 
     public void setDlnaBaseLANURL(String s) {
+        uPnPSubnet.setDlnaBaseLANURL(s);
         setProperty(SettingsConstants.UPnP.Basic.BASE_LAN_URL, s);
+    }
+
+    public boolean isInUPnPRange(String address) {
+        return uPnPSubnet.isInUPnPRange(address);
+    }
+
+    public boolean isUriWithFileExtensions() {
+        return getBoolean(SettingsConstants.UPnP.Basic.URI_WITH_FILE_EXTENSIONS);
+    }
+
+    public void setUriWithFileExtensions(boolean b) {
+        setProperty(SettingsConstants.UPnP.Basic.URI_WITH_FILE_EXTENSIONS, b);
     }
 
     public boolean isDlnaIndexVisible() {
@@ -1233,14 +1241,6 @@ public class SettingsService {
 
     public void setDlnaGuestPublish(boolean b) {
         setProperty(SettingsConstants.UPnP.Options.GUEST_PUBLISH, b);
-    }
-
-    public boolean isUriWithFileExtensions() {
-        return getBoolean(SettingsConstants.UPnP.Options.URI_WITH_FILE_EXTENSIONS);
-    }
-
-    public void setUriWithFileExtensions(boolean b) {
-        setProperty(SettingsConstants.UPnP.Options.URI_WITH_FILE_EXTENSIONS, b);
     }
 
     public boolean isSonosEnabled() {

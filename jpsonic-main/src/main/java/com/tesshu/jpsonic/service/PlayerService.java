@@ -24,8 +24,10 @@ package com.tesshu.jpsonic.service;
 import static org.springframework.web.bind.ServletRequestUtils.getIntParameter;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
@@ -40,7 +42,6 @@ import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.util.StringUtil;
-import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -387,7 +388,15 @@ public class PlayerService {
      *            The player to create.
      */
     public void createPlayer(Player player) {
+        createPlayer(player, true);
+    }
+
+    private void createPlayer(Player player, boolean isInitTranscoding) {
         playerDao.createPlayer(player);
+
+        if (!isInitTranscoding) {
+            return;
+        }
 
         List<Transcoding> transcodings = transcodingService.getAllTranscodings();
         List<Transcoding> defaultActiveTranscodings = new ArrayList<>();
@@ -404,18 +413,28 @@ public class PlayerService {
      */
     public Player getGuestPlayer(HttpServletRequest request) {
 
-        // Create guest user if necessary.
-        User user = securityService.getUserByName(User.USERNAME_GUEST);
-        if (user == null) {
-            user = new User(User.USERNAME_GUEST, RandomStringUtils.randomAlphanumeric(30), null);
-            user.setStreamRole(true);
-            securityService.createUser(user);
-        }
+        User user = securityService.getGuestUser();
+        Date now = new Date();
 
         // Look for existing player.
-        List<Player> players = getPlayersForUserAndClientId(User.USERNAME_GUEST, null);
-        if (!players.isEmpty()) {
-            return players.get(0);
+        List<Player> players = getPlayersForUserAndClientId(user.getUsername(), null);
+
+        Optional<Player> oldPlayer = request == null
+                ? players.stream().filter(p -> p.getIpAddress() == null).findFirst()
+                : players.stream()
+                        .filter(p -> p.getIpAddress() != null && p.getIpAddress().equals(request.getRemoteAddr()))
+                        .findFirst();
+
+        if (oldPlayer.isPresent()) {
+            // Update date only if more than 24 hours have passed
+            Player player = oldPlayer.get();
+            Calendar lastSeen = Calendar.getInstance();
+            lastSeen.setTime(player.getLastSeen());
+            if (now.getTime() - player.getLastSeen().getTime() > 1000 * 60 * 60 * 24) {
+                player.setLastSeen(now);
+                playerDao.updatePlayer(player);
+            }
+            return player;
         }
 
         // Create player if necessary.
@@ -423,9 +442,10 @@ public class PlayerService {
         if (request != null) {
             player.setIpAddress(request.getRemoteAddr());
         }
-        player.setUsername(User.USERNAME_GUEST);
+        player.setUsername(user.getUsername());
         player.setType(GUEST_PLAYER_TYPE);
-        createPlayer(player);
+        player.setLastSeen(new Date());
+        createPlayer(player, false);
 
         return player;
     }
