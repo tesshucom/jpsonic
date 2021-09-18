@@ -105,13 +105,16 @@ public class SettingsService {
     private static String[] videoFileTypes;
 
     private final ApacheCommonsConfigurationService configurationService;
+    private final UPnPSubnet uPnPSubnet;
 
     private Pattern excludePattern;
     private Locale locale;
 
-    public SettingsService(ApacheCommonsConfigurationService configurationService) {
+    public SettingsService(ApacheCommonsConfigurationService configurationService, UPnPSubnet uPnPSubnet) {
         super();
         this.configurationService = configurationService;
+        this.uPnPSubnet = uPnPSubnet;
+        this.uPnPSubnet.setDlnaBaseLANURL(getDlnaBaseLANURL());
     }
 
     public static boolean isDevelopmentMode() {
@@ -1073,12 +1076,17 @@ public class SettingsService {
         setProperty(SettingsConstants.UPnP.Basic.SERVER_NAME, s);
     }
 
-    public String getDlnaBaseLANURL() {
+    public final String getDlnaBaseLANURL() {
         return getString(SettingsConstants.UPnP.Basic.BASE_LAN_URL);
     }
 
     public void setDlnaBaseLANURL(String s) {
+        uPnPSubnet.setDlnaBaseLANURL(s);
         setProperty(SettingsConstants.UPnP.Basic.BASE_LAN_URL, s);
+    }
+
+    public boolean isInUPnPRange(String address) {
+        return uPnPSubnet.isInUPnPRange(address);
     }
 
     public boolean isUriWithFileExtensions() {

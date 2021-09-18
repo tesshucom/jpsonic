@@ -32,6 +32,7 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.command.DLNASettingsCommand;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.service.ApacheCommonsConfigurationService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -40,6 +41,7 @@ import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UPnPService;
+import com.tesshu.jpsonic.service.UPnPSubnet;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -65,7 +67,9 @@ class DLNASettingsControllerTest {
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        settingsService = mock(SettingsService.class);
+        ApacheCommonsConfigurationService configurationService = mock(ApacheCommonsConfigurationService.class);
+        UPnPSubnet uPnPSubnet = mock(UPnPSubnet.class);
+        settingsService = new SettingsService(configurationService, uPnPSubnet);
         musicFolderService = mock(MusicFolderService.class);
         upnpService = mock(UPnPService.class);
         controller = new DLNASettingsController(settingsService, musicFolderService, mock(SecurityService.class),
@@ -110,6 +114,12 @@ class DLNASettingsControllerTest {
 
     @Test
     void testIsDlnaGenreCountVisible() {
+        settingsService = mock(SettingsService.class);
+        musicFolderService = mock(MusicFolderService.class);
+        upnpService = mock(UPnPService.class);
+        controller = new DLNASettingsController(settingsService, musicFolderService, mock(SecurityService.class),
+                mock(PlayerService.class), mock(TranscodingService.class), upnpService, mock(ShareService.class));
+        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
         DLNASettingsCommand command = new DLNASettingsCommand();
         command.setDlnaGenreCountVisible(false);
