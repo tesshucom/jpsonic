@@ -60,7 +60,6 @@ import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.service.sonos.SonosHelper;
 import com.tesshu.jpsonic.spring.LoggingExceptionResolver;
 import com.tesshu.jpsonic.util.HttpRange;
 import com.tesshu.jpsonic.util.PlayerUtils;
@@ -381,8 +380,7 @@ public class StreamController {
             response.setContentType(getMimeType("ts")); // HLS is always MPEG TS.
         } else {
             String transcodedSuffix = transcodingService.getSuffix(player, file, preferredTargetFormat);
-            boolean sonos = SonosHelper.JPSONIC_CLIENT_ID.equals(player.getClientId());
-            response.setContentType(getMimeType(transcodedSuffix, sonos));
+            response.setContentType(getMimeType(transcodedSuffix));
             setContentDuration(response, file);
         }
     }

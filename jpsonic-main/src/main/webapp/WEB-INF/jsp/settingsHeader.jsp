@@ -12,7 +12,7 @@
 <c:set var="share" value="${param.existsShare ? 'share ' : ''}"/>
 <c:set var="categories" value="${param.restricted
 	? 'personal password player'.concat(share)
-	: 'musicFolder general advanced personal user player '.concat(share).concat('dlna sonos transcoding internetRadio database')}"/>
+	: 'musicFolder general advanced personal user player '.concat(share).concat('dlna transcoding internetRadio database')}"/>
 
 <section>
 	<h1 class="settings"><fmt:message key="settingsheader.title"/></h1>
@@ -24,7 +24,7 @@
 	        </c:choose>
 	        <c:url var="url" value="${cat}Settings.view?"/>
 
-	        <c:if test="${('internetRadio' != cat and 'sonos' != cat) or ('internetRadio' == cat and param.useRadio eq true) or ('sonos' == cat and param.useSonos eq true)}">
+	        <c:if test="${('internetRadio' != cat) or ('internetRadio' == cat and param.useRadio eq true)}">
 		        <c:choose>
 		            <c:when test="${param.cat eq cat}">
 		                <span class="selected"><fmt:message key="settingsheader.${cat}"/></span>

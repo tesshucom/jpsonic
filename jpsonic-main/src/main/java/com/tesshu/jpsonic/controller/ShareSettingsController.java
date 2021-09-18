@@ -78,8 +78,7 @@ public class ShareSettingsController {
     public String doGet(HttpServletRequest request, Model model) {
         model.addAttribute("model",
                 LegacyMap.of("shareInfos", getShareInfos(request), "user", securityService.getCurrentUser(request),
-                        "useRadio", settingsService.isUseRadio(), "useSonos", settingsService.isUseSonos(),
-                        "shareCount", shareService.getAllShares().size()));
+                        "useRadio", settingsService.isUseRadio(), "shareCount", shareService.getAllShares().size()));
         return "shareSettings";
     }
 

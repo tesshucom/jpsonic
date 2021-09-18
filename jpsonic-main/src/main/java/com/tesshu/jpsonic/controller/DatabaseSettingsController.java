@@ -79,7 +79,6 @@ public class DatabaseSettingsController {
 
         // for view page control
         command.setUseRadio(settingsService.isUseRadio());
-        command.setUseSonos(settingsService.isUseSonos());
         command.setShareCount(shareService.getAllShares().size());
         User user = securityService.getCurrentUser(request);
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));

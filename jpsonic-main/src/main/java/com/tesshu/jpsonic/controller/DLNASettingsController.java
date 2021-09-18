@@ -130,7 +130,6 @@ public class DLNASettingsController {
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setShareCount(shareService.getAllShares().size());
         command.setUseRadio(settingsService.isUseRadio());
-        command.setUseSonos(settingsService.isUseSonos());
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }

@@ -31,11 +31,6 @@ public class SettingsPageCommons {
     private boolean useRadio;
 
     /**
-     * Whether to display Sonos in the menu.
-     */
-    private boolean useSonos;
-
-    /**
      * Number of items in share. If 0, Share does not need to be displayed in the menu.
      */
     private int shareCount;
@@ -61,14 +56,6 @@ public class SettingsPageCommons {
 
     public final void setUseRadio(boolean useRadio) {
         this.useRadio = useRadio;
-    }
-
-    public final boolean isUseSonos() {
-        return useSonos;
-    }
-
-    public final void setUseSonos(boolean useSonos) {
-        this.useSonos = useSonos;
     }
 
     public final int getShareCount() {

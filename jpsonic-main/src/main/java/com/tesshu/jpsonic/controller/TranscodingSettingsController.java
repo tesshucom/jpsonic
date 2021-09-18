@@ -76,9 +76,9 @@ public class TranscodingSettingsController {
                 LegacyMap.of("transcodings", transcodingService.getAllTranscodings(), "transcodeDirectory",
                         transcodingService.getTranscodeDirectory(), "hlsCommand", settingsService.getHlsCommand(),
                         "brand", SettingsService.getBrand(), "isOpenDetailSetting", userSettings.isOpenDetailSetting(),
-                        "useRadio", settingsService.isUseRadio(), "useSonos", settingsService.isUseSonos(),
-                        "showOutlineHelp", outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()),
-                        "shareCount", shareService.getAllShares().size()));
+                        "useRadio", settingsService.isUseRadio(), "showOutlineHelp",
+                        outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()), "shareCount",
+                        shareService.getAllShares().size()));
         return "transcodingSettings";
     }
 

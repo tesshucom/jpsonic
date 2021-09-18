@@ -28,7 +28,6 @@ function resetSortSettings() {
     <c:param name="cat" value="general"/>
     <c:param name="toast" value="${settings_toast or command.showToast}"/>
     <c:param name="useRadio" value="${command.useRadio}"/>
-    <c:param name="useSonos" value="${command.useSonos}"/>
     <c:param name="existsShare" value="${command.shareCount ne 0}"/>
 </c:import>
 
@@ -207,12 +206,6 @@ function resetSortSettings() {
                 <form:checkbox path="useRadio" id="useRadio"/>
                 <label for="useRadio"><fmt:message key="generalsettings.useradio"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="useradio"/></c:import>
-            </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="useSonos" id="useSonos"/>
-                <label for="useSonos"><fmt:message key="generalsettings.usesonos"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="usesonos"/></c:import>
             </dd>
             <dt></dt>
             <dd>

@@ -135,8 +135,7 @@ public class Attributes {
         SHOW_OUTLINE_HELP(NameConstants.SHOW_OUTLINE_HELP), SIZE(NameConstants.SIZE), SONG(NameConstants.SONG),
         SONG_COUNT(NameConstants.SONG_COUNT), SONG_ID(NameConstants.SONG_ID),
         SONG_ID_TO_ADD(NameConstants.SONG_ID_TO_ADD), SONG_INDEX_TO_REMOVE(NameConstants.SONG_INDEX_TO_REMOVE),
-        SONG_OFFSET(NameConstants.SONG_OFFSET), SONOS_ENABLED(NameConstants.SONOS_ENABLED),
-        SONOS_SERVICE_NAME(NameConstants.SONOS_SERVICE_NAME), SOURCE_FORMATS(NameConstants.SOURCE_FORMATS),
+        SONG_OFFSET(NameConstants.SONG_OFFSET), SOURCE_FORMATS(NameConstants.SOURCE_FORMATS),
         STEP1(NameConstants.STEP1), STEP2(NameConstants.STEP2), STREAM_ROLE(NameConstants.STREAM_ROLE),
         STREAM_URL(NameConstants.STREAM_URL), SUBMISSION(NameConstants.SUBMISSION), SUFFIX(NameConstants.SUFFIX),
         T(NameConstants.T), TARGET_FORMAT(NameConstants.TARGET_FORMAT), TIME_OFFSET(NameConstants.TIME_OFFSET),
@@ -277,8 +276,6 @@ public class Attributes {
             public static final String SONG_INDEX_TO_REMOVE = "songIndexToRemove";
             public static final String SONG_OFFSET = "songOffset";
             public static final String SONG_RATING = "songRating";
-            public static final String SONOS_ENABLED = "sonosEnabled";
-            public static final String SONOS_SERVICE_NAME = "sonosServiceName";
             public static final String SOURCE_FORMATS = "sourceFormats";
             public static final String STEP1 = "step1";
             public static final String STEP2 = "step2";

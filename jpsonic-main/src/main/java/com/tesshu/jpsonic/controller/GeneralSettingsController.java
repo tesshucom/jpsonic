@@ -153,7 +153,6 @@ public class GeneralSettingsController {
 
         // for view page control
         command.setUseRadio(settingsService.isUseRadio());
-        command.setUseSonos(settingsService.isUseSonos());
         User user = securityService.getCurrentUser(request);
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         toast.ifPresent(command::setShowToast);
@@ -242,7 +241,6 @@ public class GeneralSettingsController {
 
         // for view page control
         settingsService.setUseRadio(command.isUseRadio());
-        settingsService.setUseSonos(command.isUseSonos());
         if (!isReload) {
             redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
         }

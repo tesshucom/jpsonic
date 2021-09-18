@@ -94,7 +94,8 @@ public class SettingsService {
             "UrlRedirectFrom", "UrlRedirectionEnabled", "UrlRedirectType", "Port", "HttpsPort",
             "database.varchar.maxlength", "database.config.type", "database.config.embed.driver",
             "database.config.embed.url", "database.config.embed.username", "database.config.embed.password",
-            "database.config.jndi.name", "database.usertable.quote", "ShowJavaJukebox", "AnonymousTranscoding");
+            "database.config.jndi.name", "database.usertable.quote", "ShowJavaJukebox", "AnonymousTranscoding",
+            "UseSonos");
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
@@ -641,14 +642,6 @@ public class SettingsService {
 
     public void setUseRadio(boolean b) {
         setProperty(SettingsConstants.General.Legacy.USE_RADIO, b);
-    }
-
-    public boolean isUseSonos() {
-        return getBoolean(SettingsConstants.General.Legacy.USE_SONOS);
-    }
-
-    public void setUseSonos(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.USE_SONOS, b);
     }
 
     public boolean isSearchMethodLegacy() {

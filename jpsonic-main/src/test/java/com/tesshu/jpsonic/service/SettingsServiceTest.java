@@ -766,11 +766,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsUseSonos() {
-        assertFalse(settingsService.isUseSonos());
-    }
-
-    @Test
     void testGetSmtpEncryption() {
         assertEquals("None", settingsService.getSmtpEncryption());
     }

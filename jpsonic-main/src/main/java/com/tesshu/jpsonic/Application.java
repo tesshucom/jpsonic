@@ -85,11 +85,6 @@ public class Application extends SpringBootServletInitializer
     }
 
     @Bean
-    public ServletRegistrationBean<Servlet> cxfServletBean() {
-        return new ServletRegistrationBean<>(new org.apache.cxf.transport.servlet.CXFServlet(), "/ws/*");
-    }
-
-    @Bean
     public FilterRegistrationBean<Filter> bootstrapVerificationFilterRegistration() {
         FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>();
         registration.setFilter(bootstrapVerificationFiler());

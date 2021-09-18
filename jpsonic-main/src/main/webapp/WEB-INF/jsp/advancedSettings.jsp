@@ -29,7 +29,6 @@ function resetBandwidth() {
     <c:param name="cat" value="advanced"/>
     <c:param name="toast" value="${settings_toast}"/>
     <c:param name="useRadio" value="${command.useRadio}"/>
-    <c:param name="useSonos" value="${command.useSonos}"/>
     <c:param name="existsShare" value="${command.shareCount ne 0}"/>
 </c:import>
 

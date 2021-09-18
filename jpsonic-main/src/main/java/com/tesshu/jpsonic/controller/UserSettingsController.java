@@ -124,7 +124,6 @@ public class UserSettingsController {
 
         // for view page control
         command.setUseRadio(settingsService.isUseRadio());
-        command.setUseSonos(settingsService.isUseSonos());
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
 
