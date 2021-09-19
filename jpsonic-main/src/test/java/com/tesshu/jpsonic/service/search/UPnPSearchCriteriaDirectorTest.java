@@ -38,7 +38,9 @@ import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.upnp.processor.UpnpProcessorUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -256,9 +258,9 @@ public class UPnPSearchCriteriaDirectorTest {
         File musicDir = new File("dummy");
         musicFolders.add(new MusicFolder(1, musicDir, "accessible", true, new Date()));
         musicFolderService = mock(MusicFolderService.class);
-        Mockito.when(musicFolderService.getAllMusicFolders()).thenReturn(musicFolders);
+        Mockito.when(musicFolderService.getMusicFoldersForUser(User.USERNAME_GUEST)).thenReturn(musicFolders);
 
-        for (MusicFolder m : musicFolderService.getAllMusicFolders()) {
+        for (MusicFolder m : musicFolders) {
             path = path.concat("f:").concat(m.getPath().getPath()).concat(" ");
             fid = fid.concat("fId:").concat(Integer.toString(m.getId())).concat(" ");
         }
@@ -266,7 +268,8 @@ public class UPnPSearchCriteriaDirectorTest {
         fid = fid.trim();
 
         SearchServiceUtilities utilities = new SearchServiceUtilities(null, null, null, null, null, settingsService);
-        UpnpProcessorUtil util = new UpnpProcessorUtil(settingsService, musicFolderService, null, null, null, null);
+        UpnpProcessorUtil util = new UpnpProcessorUtil(settingsService, musicFolderService, mock(SecurityService.class),
+                null, null, null, null);
         director = new UPnPSearchCriteriaDirector(new QueryFactory(new AnalyzerFactory(settingsService), utilities),
                 settingsService, util, utilities);
     }

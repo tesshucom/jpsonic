@@ -95,10 +95,10 @@ public class PlayerSettingsController {
 
         PlayerSettingsCommand command = new PlayerSettingsCommand();
         List<Player> players = getPlayers(request);
-        command.setPlayers(players.toArray(new Player[0]));
+        command.setPlayers(
+                players.stream().filter(p -> !User.USERNAME_GUEST.equals(p.getUsername())).toArray(Player[]::new));
         User user = securityService.getCurrentUser(request);
         command.setAdmin(user.isAdminRole());
-        command.setAnonymousTranscoding(settingsService.isAnonymousTranscoding());
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
 
         Player player = null;
@@ -116,6 +116,7 @@ public class PlayerSettingsController {
             command.setName(player.getName());
             command.setGuest(User.USERNAME_GUEST.equals(player.getUsername()));
             command.setAnonymous(JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername()));
+            command.setSameSegment(settingsService.isInUPnPRange(player.getIpAddress()));
             command.setPlayerTechnology(player.getTechnology());
             command.setTranscodeScheme(player.getTranscodeScheme());
             command.setAllTranscodings(transcodingService.getAllTranscodings());
@@ -137,7 +138,6 @@ public class PlayerSettingsController {
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setUseRadio(settingsService.isUseRadio());
-        command.setUseSonos(settingsService.isUseSonos());
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));

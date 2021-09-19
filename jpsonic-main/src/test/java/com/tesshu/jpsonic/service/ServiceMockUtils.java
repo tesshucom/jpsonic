@@ -48,12 +48,17 @@ public final class ServiceMockUtils {
                     .thenReturn(ADMIN_NAME);
             Mockito.when(securityService.getCurrentUser(Mockito.nullable(HttpServletRequest.class)))
                     .thenReturn(new User(ADMIN_NAME, ADMIN_NAME, ""));
-            UserSettings settings = new UserSettings(ADMIN_NAME);
-            Mockito.when(securityService.getUserSettings(ADMIN_NAME)).thenReturn(settings);
+            Mockito.when(securityService.getUserSettings(ADMIN_NAME)).thenReturn(new UserSettings(ADMIN_NAME));
+            User guestUser = new User(User.USERNAME_GUEST, User.USERNAME_GUEST, "");
+            guestUser.setStreamRole(true);
+            Mockito.when(securityService.getGuestUser()).thenReturn(guestUser);
+            Mockito.when(securityService.getUserSettings(User.USERNAME_GUEST))
+                    .thenReturn(new UserSettings(User.USERNAME_GUEST));
             mock = securityService;
         } else if (PlayerService.class == classToMock) {
             PlayerService playerService = Mockito.mock(PlayerService.class);
             Player player = new Player();
+            player.setId(99);
             player.setUsername(User.USERNAME_GUEST);
             Mockito.when(playerService.getGuestPlayer(Mockito.nullable(HttpServletRequest.class))).thenReturn(player);
             mock = playerService;

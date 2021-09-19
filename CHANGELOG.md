@@ -14,6 +14,8 @@ The binaries of SNAPSHOT are available from the latest artifacts on the [master 
   * Add options to control checking for update dates during scanning ([#1101](https://github.com/tesshucom/jpsonic/issues/1101))
   * Fix to show changed user/player on reload ([#1148](https://github.com/tesshucom/jpsonic/issues/1148), [#1151](https://github.com/tesshucom/jpsonic/issues/1151))
   * Fix to support FLAC playback with MediaMonkey for Windows ([#1157](https://github.com/tesshucom/jpsonic/issues/1157))
+  * Fix guest user specifications ([#1160](https://github.com/tesshucom/jpsonic/issues/1160))
+  * Delete Sonos ([#1159](https://github.com/tesshucom/jpsonic/issues/1159))
   * Update libs
 
 #### Fixes

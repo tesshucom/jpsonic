@@ -42,10 +42,9 @@ public enum ViewName {
     PLAYER_SETTINGS(ViewNameConstants.PLAYER_SETTINGS), PODCAST(ViewNameConstants.PODCAST),
     PODCAST_CHANNEL(ViewNameConstants.PODCAST_CHANNEL), PODCAST_CHANNELS(ViewNameConstants.PODCAST_CHANNELS),
     PODCAST_SETTINGS(ViewNameConstants.PODCAST_SETTINGS), RANDOM_PLAYQUEUE(ViewNameConstants.RANDOM_PLAYQUEUE),
-    SHARE_SETTINGS(ViewNameConstants.SHARE_SETTINGS), SONOS_SETTINGS(ViewNameConstants.SONOS_SETTINGS),
-    STATUS_CHART(ViewNameConstants.STATUS_CHART), TOP(ViewNameConstants.TOP),
-    TRANSCODING_SETTINGS(ViewNameConstants.TRANSCODING_SETTINGS), USER_CHART(ViewNameConstants.USER_CHART),
-    USER_SETTINGS(ViewNameConstants.USER_SETTINGS);
+    SHARE_SETTINGS(ViewNameConstants.SHARE_SETTINGS), STATUS_CHART(ViewNameConstants.STATUS_CHART),
+    TOP(ViewNameConstants.TOP), TRANSCODING_SETTINGS(ViewNameConstants.TRANSCODING_SETTINGS),
+    USER_CHART(ViewNameConstants.USER_CHART), USER_SETTINGS(ViewNameConstants.USER_SETTINGS);
 
     private final String v;
 
@@ -86,7 +85,6 @@ public enum ViewName {
         public static final String PODCAST_SETTINGS = "podcastSettings.view";
         public static final String RANDOM_PLAYQUEUE = "randomPlayQueue.view"; // Used from annotation
         public static final String SHARE_SETTINGS = "shareSettings.view";
-        public static final String SONOS_SETTINGS = "sonosSettings.view";
         public static final String STATUS_CHART = "statusChart.view";
         public static final String TOP = "top.view";
         public static final String TRANSCODING_SETTINGS = "transcodingSettings.view";

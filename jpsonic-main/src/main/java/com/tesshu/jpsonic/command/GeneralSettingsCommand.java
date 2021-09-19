@@ -67,7 +67,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean publishPodcast;
     private boolean searchMethodLegacy;
     private boolean searchMethodChanged;
-    private boolean anonymousTranscoding;
 
     // Extensions and shortcuts
     private String musicFileTypes;
@@ -299,14 +298,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setSearchMethodChanged(boolean searchMethodChanged) {
         this.searchMethodChanged = searchMethodChanged;
-    }
-
-    public boolean isAnonymousTranscoding() {
-        return anonymousTranscoding;
-    }
-
-    public void setAnonymousTranscoding(boolean anonymousTranscoding) {
-        this.anonymousTranscoding = anonymousTranscoding;
     }
 
     public String getMusicFileTypes() {

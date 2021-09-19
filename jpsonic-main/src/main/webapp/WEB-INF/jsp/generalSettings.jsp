@@ -28,7 +28,6 @@ function resetSortSettings() {
     <c:param name="cat" value="general"/>
     <c:param name="toast" value="${settings_toast or command.showToast}"/>
     <c:param name="useRadio" value="${command.useRadio}"/>
-    <c:param name="useSonos" value="${command.useSonos}"/>
     <c:param name="existsShare" value="${command.shareCount ne 0}"/>
 </c:import>
 
@@ -210,21 +209,9 @@ function resetSortSettings() {
             </dd>
             <dt></dt>
             <dd>
-                <form:checkbox path="useSonos" id="useSonos"/>
-                <label for="useSonos"><fmt:message key="generalsettings.usesonos"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="usesonos"/></c:import>
-            </dd>
-            <dt></dt>
-            <dd>
                 <form:checkbox path="searchMethodLegacy" id="searchMethodLegacy"/>
                 <label for="searchMethodLegacy"><fmt:message key="generalsettings.searchmethodlegacy"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="searchmethod"/></c:import>
-            </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="anonymousTranscoding" id="anonymousTranscoding"/>
-                <label for="anonymousTranscoding"><fmt:message key="generalsettings.anonymoustranscoding"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="anonymoustranscoding"/></c:import>
             </dd>
         </dl>
     </details>

@@ -72,7 +72,6 @@
 
     <modules>
         <module>subsonic-rest-api</module>
-        <module>jpsonic-sonos-api</module>
         <module>jpsonic-upnp-template</module>
         <module>jpsonic-main</module>
     </modules>
@@ -82,7 +81,7 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>5.7.2</version>
+                <version>5.8.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -140,6 +139,11 @@
                 <version>2.11.0</version>
             </dependency>
             <dependency>
+                <groupId>commons-net</groupId>
+                <artifactId>commons-net</artifactId>
+                <version>3.8.0</version>
+            </dependency>
+            <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
                 <version>${jackson.version}</version>
@@ -174,7 +178,7 @@
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
                 <artifactId>ecj</artifactId>
-                <version>3.26.0</version>
+                <version>3.27.0</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -204,21 +208,6 @@
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-runtime</artifactId>
                 <version>2.3.5</version>
-            </dependency>
-            <dependency>
-                <groupId>jakarta.xml.ws</groupId>
-                <artifactId>jakarta.xml.ws-api</artifactId>
-                <version>2.3.3</version>
-            </dependency>
-            <dependency>
-                <groupId>jakarta.xml.soap</groupId>
-                <artifactId>jakarta.xml.soap-api</artifactId>
-                <version>1.4.2</version>
-            </dependency>
-            <dependency>
-                <groupId>jakarta.jws</groupId>
-                <artifactId>jakarta.jws-api</artifactId>
-                <version>2.1.0</version>
             </dependency>
             <dependency>
                 <groupId>org.antlr</groupId>
@@ -628,7 +617,6 @@
                                 <exclude>.github/**</exclude>
                                 <exclude>contrib/**</exclude>
                                 <exclude>install/**</exclude>
-                                <exclude>jpsonic-sonos-api/**</exclude>
                                 <exclude>subsonic-rest-api/**</exclude>
                                 <exclude>repo/**</exclude>
                                 <exclude>**/*.xsd</exclude>
@@ -723,7 +711,6 @@
                                 <ignoredUnusedDeclaredDependency>org.springframework.security:*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.springframework.boot:spring-boot*</ignoredUnusedDeclaredDependency>
                                 <!-- Needed by Apache CXF -->
-                                <ignoredUnusedDeclaredDependency>jakarta.xml.ws:jakarta.xml.ws-api</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>jakarta.xml.bind:jakarta.xml.bind-api</ignoredUnusedDeclaredDependency>
                                 <!-- Needed by Jetty compile only -->
                                 <ignoredUnusedDeclaredDependency>jakarta.websocket:jakarta.websocket-all</ignoredUnusedDeclaredDependency>
@@ -849,7 +836,6 @@
             <id>unit-test</id>
             <modules>
                 <module>subsonic-rest-api</module>
-                <module>jpsonic-sonos-api</module>
                 <module>jpsonic-upnp-template</module>
                 <module>jpsonic-main</module>
             </modules>

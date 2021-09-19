@@ -254,7 +254,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
             http.csrf().requireCsrfProtectionMatcher(csrfSecurityRequestMatcher).and().headers().frameOptions()
                     .sameOrigin().and().authorizeRequests()
                     .antMatchers("/recover*", "/accessDenied*", "/style/**", "/icons/**", "/flash/**", "/script/**",
-                            "/sonos/**", "/login", "/error")
+                            "/login", "/error")
                     .permitAll()
                     .antMatchers("/personalSettings*", "/passwordSettings*", "/playerSettings*", "/shareSettings*",
                             "/passwordSettings*")

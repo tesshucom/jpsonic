@@ -40,7 +40,7 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
     private Player[] players;
     private Integer playerId;
     private boolean admin;
-    private boolean anonymousTranscoding;
+    private boolean sameSegment;
     private boolean transcodingSupported;
 
     // Player settings
@@ -79,14 +79,6 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
 
     public void setAnonymous(boolean isAnonymous) {
         this.anonymous = isAnonymous;
-    }
-
-    public boolean isAnonymousTranscoding() {
-        return anonymousTranscoding;
-    }
-
-    public void setAnonymousTranscoding(boolean anonymousTranscoding) {
-        this.anonymousTranscoding = anonymousTranscoding;
     }
 
     public String getName() {
@@ -195,6 +187,14 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
 
     public void setAdmin(boolean admin) {
         this.admin = admin;
+    }
+
+    public boolean isSameSegment() {
+        return sameSegment;
+    }
+
+    public void setSameSegment(boolean sameSegment) {
+        this.sameSegment = sameSegment;
     }
 
     /**

@@ -100,11 +100,10 @@ public class AdvancedSettingsController {
         // Account recovery assistant
         command.setCaptchaEnabled(settingsService.isCaptchaEnabled());
         command.setRecaptchaSiteKey(settingsService.getRecaptchaSiteKey());
-        command.setUseRadio(settingsService.isUseRadio());
-        command.setUseSonos(settingsService.isUseSonos());
-        command.setShareCount(shareService.getAllShares().size());
 
         // for view page control
+        command.setUseRadio(settingsService.isUseRadio());
+        command.setShareCount(shareService.getAllShares().size());
         User user = securityService.getCurrentUser(request);
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());

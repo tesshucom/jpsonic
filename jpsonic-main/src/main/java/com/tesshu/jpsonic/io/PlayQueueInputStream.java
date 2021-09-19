@@ -41,7 +41,6 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.service.sonos.SonosHelper;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -223,9 +222,8 @@ public class PlayQueueInputStream extends InputStream {
     }
 
     private void scrobble() {
-        // Don't scrobble REST players (except Sonos)
-        if (!isEmpty(currentFile)
-                && (isEmpty(player.getClientId()) || SonosHelper.JPSONIC_CLIENT_ID.equals(player.getClientId()))) {
+        // Don't scrobble REST players
+        if (!isEmpty(currentFile) && isEmpty(player.getClientId())) {
             audioScrobblerService.register(currentFile.get(), player.getUsername(), true, null);
         }
     }

@@ -165,7 +165,6 @@ class PersonalSettingsControllerTest {
         assertEquals(18, command.getThemes().length);
         assertEquals(ServiceMockUtils.ADMIN_NAME, command.getUser().getUsername());
         assertFalse(command.isUseRadio());
-        assertFalse(command.isUseSonos());
         assertFalse(command.isVoiceInputEnabled());
     }
 

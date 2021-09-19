@@ -206,7 +206,6 @@ public class PersonalSettingsController {
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
         command.setUseRadio(settingsService.isUseRadio());
-        command.setUseSonos(settingsService.isUseSonos());
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }

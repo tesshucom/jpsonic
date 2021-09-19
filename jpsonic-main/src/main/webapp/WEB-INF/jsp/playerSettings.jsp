@@ -27,7 +27,6 @@
     <c:param name="toast" value="${command.showToast}"/>
     <c:param name="restricted" value="${not command.admin}"/>
     <c:param name="useRadio" value="${command.useRadio}"/>
-    <c:param name="useSonos" value="${command.useSonos}"/>
     <c:param name="existsShare" value="${command.shareCount ne 0}"/>
 </c:import>
 
@@ -95,7 +94,7 @@
                         </ul>
                     </dd>
 
-                    <c:if test="${not command.anonymous or (command.anonymous and command.anonymousTranscoding)}">
+                    <c:if test="${not command.anonymous or (command.anonymous and not command.sameSegment)}">
                         <dt><fmt:message key="playersettings.maxbitrate"/></dt>
                         <dd>
                             <form:select path="transcodeScheme">

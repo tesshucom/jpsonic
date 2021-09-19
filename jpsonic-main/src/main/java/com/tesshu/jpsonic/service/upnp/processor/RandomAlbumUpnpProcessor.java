@@ -81,7 +81,7 @@ public class RandomAlbumUpnpProcessor extends AlbumUpnpProcessor {
         int randomMax = settingsService.getDlnaRandomMax();
         int offset = (int) first;
         int count = (offset + (int) maxResults) > randomMax ? randomMax - offset : (int) maxResults;
-        return searchService.getRandomAlbumsId3(count, offset, randomMax, util.getAllMusicFolders());
+        return searchService.getRandomAlbumsId3(count, offset, randomMax, util.getGuestMusicFolders());
     }
 
 }

@@ -42,6 +42,7 @@ import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.util.FileUtil;
 import net.sf.ehcache.Ehcache;
+import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -271,6 +272,17 @@ public class SecurityService implements UserDetailsService {
      */
     public User getUserByName(String username, boolean caseSensitive) {
         return userDao.getUserByName(username, caseSensitive);
+    }
+
+    public User getGuestUser() {
+        // Create guest user if necessary.
+        User user = getUserByName(User.USERNAME_GUEST);
+        if (user == null) {
+            user = new User(User.USERNAME_GUEST, RandomStringUtils.randomAlphanumeric(30), null);
+            user.setStreamRole(true);
+            createUser(user);
+        }
+        return user;
     }
 
     /**

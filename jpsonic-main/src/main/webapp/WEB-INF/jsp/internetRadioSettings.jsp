@@ -10,7 +10,6 @@
     <c:param name="cat" value="internetRadio"/>
     <c:param name="toast" value="${model.showToast}"/>
     <c:param name="useRadio" value="${model.useRadio}"/>
-    <c:param name="useSonos" value="${model.useSonos}"/>
 </c:import>
 
 <form method="post" action="internetRadioSettings.view">

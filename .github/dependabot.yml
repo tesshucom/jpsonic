@@ -22,16 +22,7 @@ updates:
   - dependency-name: jakarta.annotation:jakarta.annotation-api
     versions:
     - "> 2.0.0, < 2.1"
-  - dependency-name: jakarta.jws:jakarta.jws-api
-    versions:
-    - ">= 3.a, < 4"
   - dependency-name: jakarta.xml.bind:jakarta.xml.bind-api
-    versions:
-    - ">= 3.0.a, < 3.1"
-  - dependency-name: jakarta.xml.soap:jakarta.xml.soap-api
-    versions:
-    - ">= 2.a, < 3"
-  - dependency-name: jakarta.xml.ws:jakarta.xml.ws-api
     versions:
     - ">= 3.0.a, < 3.1"
   - dependency-name: org.apache.tomcat.embed:tomcat-embed-core

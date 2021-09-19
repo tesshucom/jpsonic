@@ -93,14 +93,13 @@ class TranscodingSettingsControllerTest {
         assertNotNull(mvcResult);
         @SuppressWarnings("unchecked")
         Map<String, Object> model = (Map<String, Object>) mvcResult.getModelAndView().getModel().get("model");
-        assertEquals(9, model.size());
+        assertEquals(8, model.size());
         assertEquals(settingsService.getHlsCommand(), model.get("hlsCommand"));
         assertFalse((Boolean) model.get("isOpenDetailSetting"));
         assertFalse((Boolean) model.get("showOutlineHelp"));
         assertEquals(0, model.get("shareCount"));
         assertFalse((Boolean) model.get("useRadio"));
         assertEquals(transcodingService.getTranscodeDirectory(), model.get("transcodeDirectory"));
-        assertFalse((Boolean) model.get("useSonos"));
         assertEquals(SettingsService.getBrand(), model.get("brand"));
         assertEquals(transcodingService.getAllTranscodings(), model.get("transcodings"));
     }

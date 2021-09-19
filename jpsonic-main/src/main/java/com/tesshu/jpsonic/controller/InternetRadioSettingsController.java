@@ -66,7 +66,6 @@ public class InternetRadioSettingsController {
         Map<String, Object> map = LegacyMap.of();
         map.put("internetRadios", internetRadioService.getAllInternetRadios(true));
         map.put("useRadio", settingsService.isUseRadio());
-        map.put("useSonos", settingsService.isUseSonos());
         toast.ifPresent(b -> map.put("showToast", b));
         model.addAttribute("model", map);
         return "internetRadioSettings";
