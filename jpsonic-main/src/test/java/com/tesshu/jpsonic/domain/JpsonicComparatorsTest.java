@@ -55,11 +55,17 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
 
 /**
  * JpsonicComparators unit test. Jpsonic does not change the behavior of legacy test specifications. This is because the
  * range not defined in the legacy test specification has been expanded.
  */
+@SpringBootTest
+@SpringBootConfiguration
+@ComponentScan(basePackages = "com.tesshu.jpsonic")
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 class JpsonicComparatorsTest extends AbstractNeedsScan {
 

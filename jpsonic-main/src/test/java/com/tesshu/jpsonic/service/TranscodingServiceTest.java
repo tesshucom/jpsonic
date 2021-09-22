@@ -14,15 +14,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2018 tesshucom
+ * (C) 2021 tesshucom
  */
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,24 +33,34 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.InvalidPathException;
 import java.nio.file.NoSuchFileException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.MusicFolderTestDataUtils;
-import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.dao.PlayerDao;
+import com.tesshu.jpsonic.dao.TranscodingDao;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.Transcoding;
+import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
 import com.tesshu.jpsonic.io.TranscodeInputStream;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.service.TranscodingService.Parameters;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
@@ -59,134 +69,210 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 /*
  * This test class is a white-box. The goal is to refactor logic or add new logic while ensuring
  * that the logic remains as it is.
  */
-@SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert") // false positive for lambda
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
+@SuppressWarnings({ "PMD.JUnitTestsShouldIncludeAssert", "PMD.DoNotUseThreads" })
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class TranscodingServiceTest {
 
+    private static final String DEFAULS_ACTIVES_NAME_FOR_MP3 = "mp3 audio";
+    private static final String DEFAULS_ACTIVES_NAME_FOR_FLV = "flv/h264 video";
+
+    private String fmtRaw = "raw";
     private String fmtMp3 = "mp3";
     private String fmtFlac = "flac";
     private String fmtRmf = "rmf";
     private String fmtWav = "wav";
     private String fmtMpeg = "mpeg";
+    private String fmtFlv = "flv";
+    private String fmtHls = "hls";
+    private String fmtMp4 = "mp4";
+
+    private int mockPlayerId = 10;
+    private Transcoding inactiveTranscoding = new Transcoding(10, "aac",
+            "mp3 ogg oga m4a flac wav wma aif aiff ape mpc shn", "aac", "ffmpeg -i %s -map 0:0 -b:a %bk -v 0 -f mp3 -",
+            null, null, false);
     private String fakePath = "*fake-path*";
     private String realPath = MusicFolderTestDataUtils.resolveMusicFolderPath()
             + "/_DIR_ Céline Frisch- Café Zimmermann - Bach- Goldberg Variations, Canons [Disc 1]"
             + "/01 - Bach- Goldberg Variations, BWV 988 - Aria.flac";
-    private String fmtFlv = "flv";
-    private String transNameMp3 = "mp3 audio";
-    private String transNameFlv = "flv/h264 video";
 
-    @Autowired
     private TranscodingService transcodingService;
-    @Autowired
     private PlayerService playerService;
+    private TranscodingDao transcodingDao;
+    private static ExecutorService executor;
+    private SecurityService securityService;
 
+    @BeforeAll
+    public static void beforeAll() {
+        executor = Executors.newSingleThreadExecutor();
+    }
+
+    @BeforeEach
+    public void setup() throws ExecutionException {
+        transcodingDao = mock(TranscodingDao.class);
+        securityService = mock(SecurityService.class);
+        SettingsService settingsService = mock(SettingsService.class);
+        transcodingService = new TranscodingService(settingsService, securityService, transcodingDao, playerService,
+                executor);
+        playerService = new PlayerService(mock(PlayerDao.class), null, securityService, transcodingService);
+        // for lazy
+        transcodingService = new TranscodingService(settingsService, securityService, transcodingDao, playerService,
+                executor);
+    }
+
+    @AfterAll
+    public static void afterAll() {
+        executor.shutdown();
+    }
+
+    /*
+     * Creating a regular player associates active transcoding.
+     */
+    @SuppressWarnings("unlikely-arg-type")
     @Test
-    void testgetTranscodingsForPlayer() {
-        int playerId = 9999;
+    @Order(1)
+    void testGetTranscodingsForPlayer() {
+        List<Transcoding> defaulTranscodings = transcodingDao.getAllTranscodings();
+        List<Transcoding> transcodings = new ArrayList<>(defaulTranscodings);
+        transcodings.add(inactiveTranscoding);
+        Mockito.when(transcodingDao.getAllTranscodings()).thenReturn(transcodings);
+
         Player player = new Player();
-        player.setId(playerId);
+        player.setId(mockPlayerId);
+
+        ArgumentCaptor<Integer> idCaptor = ArgumentCaptor.forClass(int.class);
+        ArgumentCaptor<int[]> transcodingCaptor = ArgumentCaptor.forClass(int[].class);
+        Mockito.doNothing().when(transcodingDao).setTranscodingsForPlayer(idCaptor.capture(),
+                transcodingCaptor.capture());
+
         playerService.createPlayer(player);
+        assertEquals(mockPlayerId, idCaptor.getValue());
 
-        assertTrue(transcodingService.getTranscodingsForPlayer(player).stream()
-                .anyMatch(t -> transNameMp3.equals(t.getName())));
+        List<int[]> registered = transcodingCaptor.getAllValues();
+        assertEquals(defaulTranscodings.stream().map(t -> t.getId()).collect(Collectors.toList()), registered);
 
-        playerService.removePlayerById(playerId);
+        assertTrue(defaulTranscodings.stream().allMatch(t -> registered.contains(t.getId())));
+        assertEquals(registered.size(), defaulTranscodings.size());
+
+        Mockito.when(transcodingDao.getTranscodingsForPlayer(player.getId())).thenReturn(defaulTranscodings);
+        assertEquals(defaulTranscodings, transcodingService.getTranscodingsForPlayer(player));
+    }
+
+    /*
+     * No transcoding is associated when the guest player is created.
+     */
+    @Test
+    @Order(2)
+    void testGetTranscodingsForGuestPlayer() {
+        ArgumentCaptor<Integer> idCaptor = ArgumentCaptor.forClass(int.class);
+        ArgumentCaptor<int[]> transcodingIdsCaptor = ArgumentCaptor.forClass(int[].class);
+        Mockito.doNothing().when(transcodingDao).setTranscodingsForPlayer(idCaptor.capture(),
+                transcodingIdsCaptor.capture());
+        playerService.getGuestPlayer(null);
+        Mockito.verify(transcodingDao, Mockito.never()).setTranscodingsForPlayer(Mockito.anyInt(),
+                Mockito.any(int[].class));
     }
 
     @Test
-    void testCRUDTranscoding() {
+    @Order(3)
+    void testCreateTranscoding() {
 
-        // create player
-        int playerId = 9999;
+        // Creating active transcoding
         Player player = new Player();
-        player.setId(playerId);
-        playerService.createPlayer(player);
+        player.setId(mockPlayerId);
+        Mockito.when(playerService.getAllPlayers()).thenReturn(Arrays.asList(player));
+        Transcoding mockActiveTranscoding = transcodingDao.getAllTranscodings().get(0);
+        ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
+        Mockito.doNothing().when(transcodingDao).createTranscoding(transcodingCaptor.capture());
+        ArgumentCaptor<Integer> idCaptor = ArgumentCaptor.forClass(int.class);
+        ArgumentCaptor<int[]> transcodingIdsCaptor = ArgumentCaptor.forClass(int[].class);
+        Mockito.doNothing().when(transcodingDao).setTranscodingsForPlayer(idCaptor.capture(),
+                transcodingIdsCaptor.capture());
+        transcodingService.createTranscoding(mockActiveTranscoding);
 
-        // create active
-        String activeName = "test-transcodingActive";
-        final Transcoding transcodingActive = new Transcoding(null, activeName, fmtMp3, fmtWav, "step1", null, null,
-                true);
-        transcodingService.createTranscoding(transcodingActive);
+        // It will be set to the existing player
+        assertEquals(mockActiveTranscoding, transcodingCaptor.getValue());
+        assertEquals(mockPlayerId, idCaptor.getValue());
+        List<int[]> registered = transcodingIdsCaptor.getAllValues();
+        assertEquals(1, registered.size());
+        assertEquals(Arrays.asList(mockActiveTranscoding.getId()), registered);
 
-        // create noActive
-        String noActiveName = "test-transcodingNoActive";
-        Transcoding noActive = new Transcoding(null, noActiveName, fmtMp3, fmtWav, "step1", null, null, false);
-        transcodingService.createTranscoding(noActive);
+        // Creating inactive transcoding
+        transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
+        Mockito.clearInvocations(transcodingDao);
+        Mockito.doNothing().when(transcodingDao).createTranscoding(transcodingCaptor.capture());
+        transcodingService.createTranscoding(inactiveTranscoding);
 
-        // active for player
-        transcodingService.getTranscodingsForPlayer(player).stream().filter(t -> activeName.equals(t.getName()))
-                .findFirst().ifPresentOrElse(t -> assertEquals(transcodingActive, t), () -> fail());
-
-        // noActive for player
-        transcodingService.getTranscodingsForPlayer(player).stream().filter(t -> noActiveName.equals(t.getName()))
-                .findFirst().ifPresent((t) -> fail());
-
-        // update and delete
-        noActive.setDefaultActive(true);
-        transcodingService.updateTranscoding(noActive);
-        transcodingService.getAllTranscodings().stream().filter(t -> noActiveName.equals(t.getName())).findFirst()
-                .ifPresentOrElse(t -> {
-                    assertTrue(t.isDefaultActive());
-                    transcodingService.deleteTranscoding(t.getId());
-                }, () -> fail());
-        transcodingService.getAllTranscodings().stream().filter(t -> noActiveName.equals(t.getName())).findFirst()
-                .ifPresent(t -> fail());
-
-        // clean
-        transcodingService.getAllTranscodings().stream().filter(t -> activeName.equals(t.getName())).findFirst()
-                .ifPresent(t -> transcodingService.deleteTranscoding(t.getId()));
-        playerService.removePlayerById(playerId);
+        // Not set for existing players
+        assertEquals(inactiveTranscoding, transcodingCaptor.getValue());
+        Mockito.verify(transcodingDao, Mockito.never()).setTranscodingsForPlayer(Mockito.anyInt(),
+                Mockito.any(int[].class));
     }
 
     @Test
+    @Order(4)
+    void testUpdateTranscoding() {
+        ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
+        Mockito.doNothing().when(transcodingDao).updateTranscoding(transcodingCaptor.capture());
+        transcodingService.updateTranscoding(inactiveTranscoding);
+        assertEquals(inactiveTranscoding, transcodingCaptor.getValue());
+    }
+
+    @Test
+    @Order(5)
+    void testDeleteTranscoding() {
+        ArgumentCaptor<Integer> idCaptor = ArgumentCaptor.forClass(int.class);
+        Mockito.doNothing().when(transcodingDao).deleteTranscoding(idCaptor.capture());
+        transcodingService.deleteTranscoding(inactiveTranscoding.getId());
+        assertEquals(inactiveTranscoding.getId(), idCaptor.getValue());
+    }
+
+    @Test
+    @Order(6)
     void testIsTranscodingRequired() {
 
-        int playerId = 9999;
         Player player = new Player();
-        player.setId(playerId);
-        playerService.createPlayer(player);
-
-        /*
-         * If you want to disable these transcodings, you need to either rewrite the default transcoding settings or
-         * turn off transcoding.
-         */
+        player.setId(mockPlayerId);
         MediaFile mediaFile = new MediaFile();
+
+        // not required (No valid transcode)
+        Mockito.when(transcodingDao.getTranscodingsForPlayer(mockPlayerId)).thenReturn(Collections.emptyList());
         mediaFile.setFormat(fmtMp3);
+        assertFalse(transcodingService.isTranscodingRequired(mediaFile, player));
+
+        // required (mp3 -> mp3)
+        List<Transcoding> defaultActives = transcodingDao.getAllTranscodings();
+        Mockito.when(transcodingDao.getTranscodingsForPlayer(mockPlayerId)).thenReturn(defaultActives);
         assertTrue(transcodingService.isTranscodingRequired(mediaFile, player));
+
+        // required (flac -> mp3)
         mediaFile.setFormat(fmtFlac);
         assertTrue(transcodingService.isTranscodingRequired(mediaFile, player));
 
-        /*
-         * Non-transcoded formats are not transcoded.
-         */
-        mediaFile.setFormat("rmf");
+        // not required (Transcoding exists but is incompatible)
+        mediaFile.setFormat(fmtRmf);
         assertFalse(transcodingService.isTranscodingRequired(mediaFile, player));
-
-        playerService.removePlayerById(playerId);
-
     }
 
     @Test
+    @Order(7)
     void testGetSuffix() {
-
-        int playerId = 9999;
         Player player = new Player();
-        player.setId(playerId);
-        playerService.createPlayer(player);
-
+        player.setId(mockPlayerId);
         MediaFile mediaFile = new MediaFile();
+        List<Transcoding> defaultActives = transcodingDao.getAllTranscodings();
+        Mockito.when(transcodingDao.getTranscodingsForPlayer(mockPlayerId)).thenReturn(defaultActives);
+
         mediaFile.setFormat(fmtMp3);
         assertEquals(fmtMp3, transcodingService.getSuffix(player, mediaFile, null));
+        assertEquals(fmtMp3, transcodingService.getSuffix(player, mediaFile, fmtRaw));
+        assertEquals(fmtMp3, transcodingService.getSuffix(player, mediaFile, fmtMp3));
 
         mediaFile.setFormat(fmtFlac);
         assertEquals(fmtMp3, transcodingService.getSuffix(player, mediaFile, fmtFlac));
@@ -194,7 +280,11 @@ class TranscodingServiceTest {
         mediaFile.setFormat(fmtRmf);
         assertEquals(fmtRmf, transcodingService.getSuffix(player, mediaFile, fmtMp3));
 
-        playerService.removePlayerById(playerId);
+        mediaFile.setMediaType(MediaType.VIDEO);
+        mediaFile.setFormat(fmtMpeg);
+        assertEquals(fmtFlv, transcodingService.getSuffix(player, mediaFile, fmtMpeg));
+        mediaFile.setFormat(fmtMp4);
+        assertEquals(fmtMp4, transcodingService.getSuffix(player, mediaFile, fmtMp4));
     }
 
     /*
@@ -204,6 +294,7 @@ class TranscodingServiceTest {
      */
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Nested
+    @Order(8)
     class GetTranscodedInputStream {
 
         private String step1 = "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f flv -";
@@ -276,6 +367,7 @@ class TranscodingServiceTest {
 
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Nested
+    @Order(9)
     class CreateTranscodedInputStream {
 
         private String step = "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -f flv -";
@@ -374,6 +466,7 @@ class TranscodingServiceTest {
 
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Nested
+    @Order(10)
     class CreateTranscodeInputStream {
 
         private Method ctisMethod;
@@ -439,6 +532,7 @@ class TranscodingServiceTest {
     }
 
     @Nested
+    @Order(9)
     class GetTranscoding {
 
         private Method getTranscodingMethod;
@@ -465,16 +559,18 @@ class TranscodingServiceTest {
         }
 
         @Test
+        @Order(1)
         void testRaw() throws ExecutionException {
             MediaFile mediaFile = null;
             Player player = null;
-            String preferredTargetFormat = "raw";
+            String preferredTargetFormat = fmtRaw;
             boolean hls = false;
 
             Assertions.assertNull(doGetTranscoding(mediaFile, player, preferredTargetFormat, hls));
         }
 
         @Test
+        @Order(2)
         void testHls() throws ExecutionException {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setFormat("format");
@@ -483,110 +579,116 @@ class TranscodingServiceTest {
             boolean hls = true;
 
             Transcoding t = doGetTranscoding(mediaFile, player, preferredTargetFormat, hls);
-            assertEquals("hls", t.getName());
+            assertEquals(fmtHls, t.getName());
         }
 
         @Test
+        @Order(3)
         void testPreferred() throws ExecutionException {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setFormat(fmtFlac);
-            int playerId = 9999;
+
             Player player = new Player();
-            player.setId(playerId);
-            playerService.createPlayer(player);
+            player.setId(mockPlayerId);
+            List<Transcoding> defaultActives = transcodingDao.getAllTranscodings();
+            Mockito.when(transcodingDao.getTranscodingsForPlayer(mockPlayerId)).thenReturn(defaultActives);
+
             String preferredTargetFormat = fmtMp3;
             boolean hls = false;
 
             Transcoding transcoding = doGetTranscoding(mediaFile, player, preferredTargetFormat, hls);
             Assertions.assertNotNull(transcoding.getId());
-            assertEquals(transNameMp3, transcoding.getName());
+            assertEquals(DEFAULS_ACTIVES_NAME_FOR_MP3, transcoding.getName());
             assertTrue(Arrays.stream(transcoding.getSourceFormatsAsArray()).anyMatch(f -> fmtFlac.equals(f)));
             assertEquals(fmtMp3, transcoding.getTargetFormat());
 
-            playerService.removePlayerById(playerId);
         }
 
         @Test
-        void testNoPreferred() throws ExecutionException {
+        @Order(4)
+        void testNotPreferred() throws ExecutionException {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setFormat(fmtFlac);
-            int playerId = 9999;
+
             Player player = new Player();
-            player.setId(playerId);
-            playerService.createPlayer(player);
+            player.setId(mockPlayerId);
+            List<Transcoding> defaultActives = transcodingDao.getAllTranscodings();
+            Mockito.when(transcodingDao.getTranscodingsForPlayer(mockPlayerId)).thenReturn(defaultActives);
+
             String preferredTargetFormat = null;
             boolean hls = false;
 
             Transcoding transcoding = doGetTranscoding(mediaFile, player, preferredTargetFormat, hls);
             Assertions.assertNotNull(transcoding.getId());
-            assertEquals(transNameMp3, transcoding.getName());
+            assertEquals(DEFAULS_ACTIVES_NAME_FOR_MP3, transcoding.getName());
             assertTrue(Arrays.stream(transcoding.getSourceFormatsAsArray()).anyMatch(f -> fmtFlac.equals(f)));
             assertEquals(fmtMp3, transcoding.getTargetFormat());
-
-            playerService.removePlayerById(playerId);
         }
 
         @Test
+        @Order(5)
         void testNotApplicable() throws ExecutionException {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setFormat("svg");
-            int playerId = 9999;
+
             Player player = new Player();
-            player.setId(playerId);
-            playerService.createPlayer(player);
+            player.setId(mockPlayerId);
+            List<Transcoding> defaultActives = transcodingDao.getAllTranscodings();
+            Mockito.when(transcodingDao.getTranscodingsForPlayer(mockPlayerId)).thenReturn(defaultActives);
+
             String preferredTargetFormat = null;
             boolean hls = false;
 
             Assertions.assertNull(doGetTranscoding(mediaFile, player, preferredTargetFormat, hls));
-
-            playerService.removePlayerById(playerId);
         }
 
         @Test
+        @Order(6)
         void testVideo() throws ExecutionException {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setMediaType(MediaType.VIDEO);
             mediaFile.setFormat(fmtMpeg);
-            int playerId = 9999;
+
             Player player = new Player();
-            player.setId(playerId);
-            playerService.createPlayer(player);
+            player.setId(mockPlayerId);
+            List<Transcoding> defaultActives = transcodingDao.getAllTranscodings();
+            Mockito.when(transcodingDao.getTranscodingsForPlayer(mockPlayerId)).thenReturn(defaultActives);
+
             String preferredTargetFormat = null;
             boolean hls = false;
 
             Transcoding transcoding = doGetTranscoding(mediaFile, player, preferredTargetFormat, hls);
             Assertions.assertNotNull(transcoding.getId());
-            assertEquals(transNameFlv, transcoding.getName());
+            assertEquals(DEFAULS_ACTIVES_NAME_FOR_FLV, transcoding.getName());
             assertTrue(Arrays.stream(transcoding.getSourceFormatsAsArray()).anyMatch(f -> fmtMpeg.equals(f)));
             assertEquals(fmtFlv, transcoding.getTargetFormat());
-
-            playerService.removePlayerById(playerId);
         }
 
         @Test
+        @Order(7)
         void testVideoTargetMatch() throws ExecutionException {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setMediaType(MediaType.VIDEO);
             mediaFile.setFormat(fmtFlv);
-            int playerId = 9999;
+
             Player player = new Player();
-            player.setId(playerId);
-            playerService.createPlayer(player);
+            player.setId(mockPlayerId);
+            List<Transcoding> defaultActives = transcodingDao.getAllTranscodings();
+            Mockito.when(transcodingDao.getTranscodingsForPlayer(mockPlayerId)).thenReturn(defaultActives);
+
             String preferredTargetFormat = fmtFlv;
             boolean hls = false;
 
             Transcoding transcoding = doGetTranscoding(mediaFile, player, preferredTargetFormat, hls);
             Assertions.assertNotNull(transcoding.getId());
-            assertEquals(transNameFlv, transcoding.getName());
+            assertEquals(DEFAULS_ACTIVES_NAME_FOR_FLV, transcoding.getName());
             assertFalse(Arrays.stream(transcoding.getSourceFormatsAsArray()).allMatch(f -> fmtFlv.equals(f)));
             assertEquals(fmtFlv, transcoding.getTargetFormat());
-
-            playerService.removePlayerById(playerId);
         }
-
     }
 
     @Test
+    @Order(10)
     void testIsTranscodingSupported() {
 
         MediaFile mediaFile = new MediaFile();
@@ -607,6 +709,7 @@ class TranscodingServiceTest {
 
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Nested
+    @Order(11)
     class TranscoderInstalled {
 
         private Method transcoderInstalledMethod;
@@ -639,7 +742,6 @@ class TranscodingServiceTest {
         @Order(1)
         void testITI1() throws ExecutionException {
             Transcoding transcoding = new Transcoding(null, null, fmtFlac, fmtMp3, lame, lame, lame, true);
-
             assertFalse(doIsTranscoderInstalled(transcoding));
         }
 
@@ -647,7 +749,6 @@ class TranscodingServiceTest {
         @Order(2)
         void testITI2() throws ExecutionException {
             Transcoding transcoding = new Transcoding(null, null, fmtFlac, fmtMp3, ffmpeg, lame, lame, true);
-
             assertFalse(doIsTranscoderInstalled(transcoding));
         }
 
@@ -655,7 +756,6 @@ class TranscodingServiceTest {
         @Order(3)
         void testITI3() throws ExecutionException {
             Transcoding transcoding = new Transcoding(null, null, fmtFlac, fmtMp3, ffmpeg, ffmpeg, lame, true);
-
             assertFalse(doIsTranscoderInstalled(transcoding));
         }
 
@@ -663,7 +763,6 @@ class TranscodingServiceTest {
         @Order(4)
         void testITI4() throws ExecutionException {
             Transcoding transcoding = new Transcoding(null, null, fmtFlac, fmtMp3, ffmpeg, ffmpeg, ffmpeg, true);
-
             assertTrue(doIsTranscoderInstalled(transcoding));
         }
 
@@ -679,7 +778,13 @@ class TranscodingServiceTest {
             transcodingService.setTranscodeDirectory(f);
         }
 
-        @Test
+        /*
+         * This test case is the operation is confirmed from the generation of transcodePath. It need @NeedsHome to run
+         * it. @NeedsHome is given for heavyweight integration tests that require access to the real directory. Since
+         * normal operation has been confirmed, the implementation of this case is omitted in order to prioritize the
+         * convenience of the entire test class itself.
+         */
+        // @Test
         @Order(6)
         void testITI6() throws ExecutionException {
             Field pathField;
@@ -900,6 +1005,9 @@ class TranscodingServiceTest {
             @interface Null {
             }
 
+            @interface Errorlog {
+            }
+
             @interface MediaFile {
                 @interface FileSize {
 
@@ -916,6 +1024,7 @@ class TranscodingServiceTest {
 
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Nested
+    @Order(12)
     class GetParameters {
 
         private final Transcoding fakeTranscoding = new Transcoding(null, "fake-instance", fmtFlac, fmtMp3, "s1", "s2",
@@ -929,6 +1038,21 @@ class TranscodingServiceTest {
 
         @BeforeEach
         public void before() throws ExecutionException {
+
+            Player player = new Player();
+            player.setId(mockPlayerId);
+            String username = "mockUsername";
+            player.setUsername(username);
+
+            Mockito.when(playerService.getAllPlayers()).thenReturn(Arrays.asList(player));
+
+            UserSettings userSettings = new UserSettings();
+            userSettings.setTranscodeScheme(TranscodeScheme.OFF);
+            Mockito.when(securityService.getUserSettings(username)).thenReturn(userSettings);
+
+            List<Transcoding> defaulTranscodings = transcodingDao.getAllTranscodings();
+            Mockito.when(transcodingDao.getTranscodingsForPlayer(player.getId())).thenReturn(defaulTranscodings);
+
             if (needTranscoding != null && createBitrate != null && createMaxBitrate != null && rangeAllowed != null
                     && getExpectedLength != null) {
                 return;
@@ -962,9 +1086,8 @@ class TranscodingServiceTest {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setPath(fakePath);
 
-            int playerId = 9999;
             Player player = new Player();
-            player.setId(playerId);
+            player.setId(mockPlayerId);
             playerService.createPlayer(player);
 
             Integer maxBitRate = null;
@@ -981,7 +1104,7 @@ class TranscodingServiceTest {
             Assertions.assertNull(parameters.getVideoTranscodingSettings());
             assertTrue(parameters.isRangeAllowed());
 
-            playerService.removePlayerById(playerId);
+            playerService.removePlayerById(mockPlayerId);
         }
 
         @GetParametersDecision.Conditions.MediaFile.Format.NotNull
@@ -993,10 +1116,10 @@ class TranscodingServiceTest {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setPath(fakePath);
             mediaFile.setFormat(fmtFlac);
+            mediaFile.setDurationSeconds(0);
 
-            int playerId = 9999;
             Player player = new Player();
-            player.setId(playerId);
+            player.setId(mockPlayerId);
             playerService.createPlayer(player);
             Integer maxBitRate = 224;
             String preferredTargetFormat = null;
@@ -1005,14 +1128,14 @@ class TranscodingServiceTest {
             Parameters parameters = transcodingService.getParameters(mediaFile, player, maxBitRate,
                     preferredTargetFormat, videoTranscodingSettings);
 
-            Assertions.assertNull(parameters.getExpectedLength());
+            assertEquals(56_000, parameters.getExpectedLength());
             assertEquals(224, parameters.getMaxBitRate());
             assertEquals(mediaFile, parameters.getMediaFile());
-            assertEquals(transNameMp3, parameters.getTranscoding().getName());
+            assertEquals(DEFAULS_ACTIVES_NAME_FOR_MP3, parameters.getTranscoding().getName());
             Assertions.assertNull(parameters.getVideoTranscodingSettings());
             assertFalse(parameters.isRangeAllowed());
 
-            playerService.removePlayerById(playerId);
+            playerService.removePlayerById(mockPlayerId);
         }
 
         @GetParametersDecision.Conditions.MediaFile.MediaType.Video
@@ -1024,10 +1147,10 @@ class TranscodingServiceTest {
             mediaFile.setPath(fakePath);
             mediaFile.setMediaType(MediaType.VIDEO);
             mediaFile.setFormat(fmtMpeg);
+            mediaFile.setDurationSeconds(0);
 
-            int playerId = 9999;
             Player player = new Player();
-            player.setId(playerId);
+            player.setId(mockPlayerId);
             playerService.createPlayer(player);
 
             Integer maxBitRate = 224;
@@ -1037,14 +1160,14 @@ class TranscodingServiceTest {
             Parameters parameters = transcodingService.getParameters(mediaFile, player, maxBitRate,
                     preferredTargetFormat, videoTranscodingSettings);
 
-            Assertions.assertNull(parameters.getExpectedLength());
+            assertEquals(500_000, parameters.getExpectedLength());
             assertEquals(2000, parameters.getMaxBitRate());
             assertEquals(mediaFile, parameters.getMediaFile());
-            assertEquals(transNameFlv, parameters.getTranscoding().getName());
+            assertEquals(DEFAULS_ACTIVES_NAME_FOR_FLV, parameters.getTranscoding().getName());
             Assertions.assertNull(parameters.getVideoTranscodingSettings());
             assertFalse(parameters.isRangeAllowed());
 
-            playerService.removePlayerById(playerId);
+            playerService.removePlayerById(mockPlayerId);
         }
 
         @GetParametersDecision.Conditions.Player.Username.Anonymous
@@ -1055,10 +1178,10 @@ class TranscodingServiceTest {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setPath(fakePath);
             mediaFile.setFormat(fmtFlac);
+            mediaFile.setDurationSeconds(0);
 
-            int playerId = 9999;
             Player player = new Player();
-            player.setId(playerId);
+            player.setId(mockPlayerId);
             player.setUsername(JWTAuthenticationToken.USERNAME_ANONYMOUS);
             playerService.createPlayer(player);
 
@@ -1069,14 +1192,13 @@ class TranscodingServiceTest {
             Parameters parameters = transcodingService.getParameters(mediaFile, player, maxBitRate,
                     preferredTargetFormat, videoTranscodingSettings);
 
-            Assertions.assertNull(parameters.getExpectedLength());
+            assertEquals(56_000, parameters.getExpectedLength());
             assertEquals(224, parameters.getMaxBitRate());
             assertEquals(mediaFile, parameters.getMediaFile());
-            assertEquals(transNameMp3, parameters.getTranscoding().getName());
+            assertEquals(DEFAULS_ACTIVES_NAME_FOR_MP3, parameters.getTranscoding().getName());
             assertEquals(videoTranscodingSettings, parameters.getVideoTranscodingSettings());
             assertFalse(parameters.isRangeAllowed());
 
-            playerService.removePlayerById(playerId);
         }
 
         @GetParametersDecision.Conditions.VideoTranscodingSettings.Hls.True
@@ -1087,10 +1209,10 @@ class TranscodingServiceTest {
             mediaFile.setPath(fakePath);
             mediaFile.setMediaType(MediaType.VIDEO);
             mediaFile.setFormat(fmtMpeg);
+            mediaFile.setDurationSeconds(0);
 
-            int playerId = 9999;
             Player player = new Player();
-            player.setId(playerId);
+            player.setId(mockPlayerId);
             playerService.createPlayer(player);
 
             Integer maxBitRate = 224;
@@ -1100,10 +1222,10 @@ class TranscodingServiceTest {
             Parameters parameters = transcodingService.getParameters(mediaFile, player, maxBitRate,
                     preferredTargetFormat, videoTranscodingSettings);
 
-            Assertions.assertNull(parameters.getExpectedLength());
+            assertEquals(500_000, parameters.getExpectedLength());
             assertEquals(2000, parameters.getMaxBitRate());
             assertEquals(mediaFile, parameters.getMediaFile());
-            assertEquals("hls", parameters.getTranscoding().getName());
+            assertEquals(fmtHls, parameters.getTranscoding().getName());
             assertEquals(640, parameters.getVideoTranscodingSettings().getWidth());
             assertEquals(480, parameters.getVideoTranscodingSettings().getHeight());
             assertEquals(0, parameters.getVideoTranscodingSettings().getTimeOffset());
@@ -1111,7 +1233,6 @@ class TranscodingServiceTest {
             assertTrue(parameters.getVideoTranscodingSettings().isHls());
             assertFalse(parameters.isRangeAllowed());
 
-            playerService.removePlayerById(playerId);
         }
 
         private boolean doIsNeedTranscoding(@Nullable Transcoding transcoding, int mb, int bitRate,
@@ -1427,6 +1548,7 @@ class TranscodingServiceTest {
         @GetExpectedLength.Conditions.Parameters.Transcode.True
         @GetExpectedLength.Conditions.Parameters.MediaFile.DurationSeconds.Null
         @GetExpectedLength.Result.Null
+        @GetExpectedLength.Result.Errorlog // Unknown duration for null
         @Test
         @Order(52)
         void testGEL2() throws ExecutionException {
@@ -1442,6 +1564,7 @@ class TranscodingServiceTest {
         @GetExpectedLength.Conditions.Parameters.MediaFile.DurationSeconds.NotNull
         @GetExpectedLength.Conditions.Parameters.MaxBitRate.Null
         @GetExpectedLength.Result.Null
+        @GetExpectedLength.Result.Errorlog // Unknown bit rate for null.
         @Test
         @Order(53)
         void testGEL3() throws ExecutionException {

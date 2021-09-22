@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.domain;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -31,7 +32,6 @@ import java.lang.reflect.Method;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -40,31 +40,18 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 
-@SpringBootTest
-@SpringBootConfiguration
-@ComponentScan(basePackages = "com.tesshu.jpsonic")
-@ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 class JapaneseReadingUtilsTest {
 
-    @Mock
     private SettingsService settingsService;
 
     private JapaneseReadingUtils utils;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
-        String articles = "The El La Las Le Les";
-        Mockito.when(settingsService.getIgnoredArticles()).thenReturn(articles);
-        Mockito.when(settingsService.getIgnoredArticlesAsArray()).thenReturn(articles.split("\\s+"));
-        Mockito.when(settingsService.isIndexEnglishPrior()).thenReturn(true);
+    public void setup() {
+        settingsService = mock(SettingsService.class);
         String language = "ja";
         String country = "jp";
         String variant = "";
@@ -73,7 +60,7 @@ class JapaneseReadingUtilsTest {
     }
 
     @AfterEach
-    public void afterAll() throws ExecutionException {
+    public void afterAll() {
         utils.clear();
     }
 
