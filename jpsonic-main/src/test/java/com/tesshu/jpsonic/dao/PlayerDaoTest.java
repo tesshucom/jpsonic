@@ -75,7 +75,7 @@ class PlayerDaoTest {
         player.setTechnology(PlayerTechnology.EXTERNAL_WITH_PLAYLIST);
         player.setClientId("android");
         player.setLastSeen(new Date());
-        player.setTranscodeScheme(TranscodeScheme.MAX_160);
+        player.setTranscodeScheme(TranscodeScheme.MAX_256);
 
         playerDao.createPlayer(player);
         Player newPlayer = playerDao.getAllPlayers().get(0);
@@ -173,7 +173,7 @@ class PlayerDaoTest {
         player.setDynamicIp(true);
         player.setAutoControlEnabled(false);
         player.setLastSeen(new Date());
-        player.setTranscodeScheme(TranscodeScheme.MAX_160);
+        player.setTranscodeScheme(TranscodeScheme.MAX_256);
 
         playerDao.updatePlayer(player);
         Player newPlayer = playerDao.getAllPlayers().get(0);

@@ -1128,8 +1128,8 @@ class TranscodingServiceTest {
             Parameters parameters = transcodingService.getParameters(mediaFile, player, maxBitRate,
                     preferredTargetFormat, videoTranscodingSettings);
 
-            assertEquals(56_000, parameters.getExpectedLength());
-            assertEquals(224, parameters.getMaxBitRate());
+            assertEquals(64_000, parameters.getExpectedLength());
+            assertEquals(256, parameters.getMaxBitRate());
             assertEquals(mediaFile, parameters.getMediaFile());
             assertEquals(DEFAULS_ACTIVES_NAME_FOR_MP3, parameters.getTranscoding().getName());
             Assertions.assertNull(parameters.getVideoTranscodingSettings());
@@ -1192,8 +1192,8 @@ class TranscodingServiceTest {
             Parameters parameters = transcodingService.getParameters(mediaFile, player, maxBitRate,
                     preferredTargetFormat, videoTranscodingSettings);
 
-            assertEquals(56_000, parameters.getExpectedLength());
-            assertEquals(224, parameters.getMaxBitRate());
+            assertEquals(64_000, parameters.getExpectedLength());
+            assertEquals(256, parameters.getMaxBitRate());
             assertEquals(mediaFile, parameters.getMediaFile());
             assertEquals(DEFAULS_ACTIVES_NAME_FOR_MP3, parameters.getTranscoding().getName());
             assertEquals(videoTranscodingSettings, parameters.getVideoTranscodingSettings());
@@ -1400,7 +1400,7 @@ class TranscodingServiceTest {
             mediaFile.setBitRate(128);
             mediaFile.setVariableBitRate(true);
 
-            assertEquals(160, doCreateBitrate(mediaFile));
+            assertEquals(256, doCreateBitrate(mediaFile));
         }
 
         private int doCreateMaxBitrate(@NonNull TranscodeScheme transcodeScheme, @NonNull MediaFile mediaFile,

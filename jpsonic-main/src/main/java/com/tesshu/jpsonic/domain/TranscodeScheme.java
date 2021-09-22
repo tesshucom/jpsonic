@@ -21,6 +21,9 @@
 
 package com.tesshu.jpsonic.domain;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 /**
  * Enumeration of transcoding schemes. Transcoding is the process of converting an audio stream to a lower bit rate.
  *
@@ -28,8 +31,7 @@ package com.tesshu.jpsonic.domain;
  */
 public enum TranscodeScheme {
 
-    OFF(0), MAX_32(32), MAX_40(40), MAX_48(48), MAX_56(56), MAX_64(64), MAX_80(80), MAX_96(96), MAX_112(112),
-    MAX_128(128), MAX_160(160), MAX_192(192), MAX_224(224), MAX_256(256), MAX_320(320);
+    OFF(0), MAX_128(128), MAX_256(256), MAX_320(320);
 
     private final int maxBitRate;
 
@@ -54,7 +56,7 @@ public enum TranscodeScheme {
      * 
      * @return The strictest scheme.
      */
-    public TranscodeScheme strictest(TranscodeScheme other) {
+    public @NonNull TranscodeScheme strictest(TranscodeScheme other) {
         if (other == null || other == TranscodeScheme.OFF) {
             return this;
         }
@@ -80,23 +82,25 @@ public enum TranscodeScheme {
     }
 
     /**
-     * Returns the enum constant which corresponds to the given max bit rate.
+     * Returns the enum constant corresponding to the specified scheme name.
      *
-     * @param maxBitRate
-     *            The max bit rate.
+     * @param schemeName
+     *            The schemeName.
      * 
-     * @return The corresponding enum, or <code>null</code> if not found.
+     * @return The corresponding enum, or default value(OFF).
      */
-    public static TranscodeScheme valueOf(int maxBitRate) {
-        for (TranscodeScheme scheme : values()) {
-            if (scheme.getMaxBitRate() == maxBitRate) {
-                return scheme;
-            }
+    public static @NonNull TranscodeScheme of(String schemeName) {
+        if (MAX_128.name().equals(schemeName)) {
+            return MAX_128;
+        } else if (MAX_256.name().equals(schemeName)) {
+            return MAX_256;
+        } else if (MAX_320.name().equals(schemeName)) {
+            return MAX_320;
         }
-        return null;
+        return OFF;
     }
 
-    public static TranscodeScheme fromMaxBitRate(int maxBitRate) {
+    public static @Nullable TranscodeScheme fromMaxBitRate(int maxBitRate) {
         for (TranscodeScheme transcodeScheme : TranscodeScheme.values()) {
             if (maxBitRate <= transcodeScheme.getMaxBitRate()) {
                 return transcodeScheme;
