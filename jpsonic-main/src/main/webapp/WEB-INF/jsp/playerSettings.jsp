@@ -27,7 +27,7 @@
 
     $(document).ready(function(){
         Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => a.onclick = checkBitrateAvailability);
-	    checkBitrateAvailability();
+        checkBitrateAvailability();
     });
 
 </script>
@@ -120,7 +120,9 @@
                         <dd>
                             <form:select path="transcodeScheme">
                                 <c:forEach items="${TranscodeScheme.values()}" var="scheme">
-                                    <form:option value="${scheme}" label="${scheme.toString()}"/>
+                                    <c:if test="${command.maxBitrate.getMaxBitRate() eq 0 or scheme.getMaxBitRate() ne 0 and scheme.getMaxBitRate() le command.maxBitrate.getMaxBitRate()}">
+                                        <form:option value="${scheme}" label="${scheme.toString()}"/>
+                                    </c:if>
                                 </c:forEach>
                             </form:select>
                             <c:import url="helpToolTip.jsp"><c:param name="topic" value="transcode"/></c:import>

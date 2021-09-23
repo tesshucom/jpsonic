@@ -23,10 +23,14 @@ import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.command.PlayerSettingsCommand;
+import com.tesshu.jpsonic.dao.TranscodingDao;
 import com.tesshu.jpsonic.domain.Player;
+import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
@@ -61,10 +65,16 @@ class PlayerSettingsControllerTest {
         Mockito.when(playerService.getPlayerById(player.getId())).thenReturn(player);
         Mockito.when(playerService.getPlayerById(0)).thenReturn(player);
         Mockito.when(playerService.getPlayer(Mockito.any(), Mockito.any())).thenReturn(player);
+        Mockito.when(playerService.getAllPlayers()).thenReturn(Arrays.asList(player));
 
-        mockMvc = MockMvcBuilders.standaloneSetup(
-                new PlayerSettingsController(mock(SettingsService.class), mock(SecurityService.class), playerService,
-                        mock(TranscodingService.class), mock(ShareService.class), mock(OutlineHelpSelector.class)))
+        TranscodingDao transcodingDao = mock(TranscodingDao.class);
+        List<Transcoding> allTranscodings = transcodingDao.getAllTranscodings();
+        TranscodingService transcodingService = mock(TranscodingService.class);
+        Mockito.when(transcodingService.getTranscodingsForPlayer(Mockito.any())).thenReturn(allTranscodings);
+
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(new PlayerSettingsController(mock(SettingsService.class), mock(SecurityService.class),
+                        playerService, transcodingService, mock(ShareService.class), mock(OutlineHelpSelector.class)))
                 .build();
     }
 

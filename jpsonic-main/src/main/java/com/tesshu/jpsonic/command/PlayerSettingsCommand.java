@@ -50,6 +50,7 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
     private boolean anonymous;
     private PlayerTechnology playerTechnology;
     private List<Transcoding> allTranscodings;
+    private TranscodeScheme maxBitrate;
     private TranscodeScheme transcodeScheme;
     private int[] activeTranscodingIds;
     private boolean dynamicIp;
@@ -145,6 +146,14 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
 
     public void setAllTranscodings(List<Transcoding> allTranscodings) {
         this.allTranscodings = allTranscodings;
+    }
+
+    public TranscodeScheme getMaxBitrate() {
+        return maxBitrate;
+    }
+
+    public void setMaxBitrate(TranscodeScheme maxBitrate) {
+        this.maxBitrate = maxBitrate;
     }
 
     public TranscodeScheme getTranscodeScheme() {
