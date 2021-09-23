@@ -117,8 +117,8 @@ public class PlayerSettingsController {
             command.setAnonymous(JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername()));
             command.setSameSegment(settingsService.isInUPnPRange(player.getIpAddress()));
             command.setPlayerTechnology(player.getTechnology());
-            command.setTranscodeScheme(player.getTranscodeScheme());
             command.setAllTranscodings(transcodingService.getAllTranscodings());
+            command.setTranscodeScheme(player.getTranscodeScheme());
 
             List<Transcoding> activeTranscodings = transcodingService.getTranscodingsForPlayer(player);
             int[] activeTranscodingIds = new int[activeTranscodings.size()];

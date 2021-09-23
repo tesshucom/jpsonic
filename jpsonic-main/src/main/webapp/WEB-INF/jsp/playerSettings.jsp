@@ -18,6 +18,18 @@
             window.top.reloadPlayQueue();
         </c:when>
     </c:choose>
+
+    function checkBitrateAvailability() {
+        var c = 0;
+        Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => {if (a.checked) {c++}});
+        $('[name="transcodeScheme"]').prop("disabled", c == 0);
+    }
+
+    $(document).ready(function(){
+        Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => a.onclick = checkBitrateAvailability);
+	    checkBitrateAvailability();
+    });
+
 </script>
 </head>
 <body class="mainframe settings playerSettings">
@@ -95,6 +107,15 @@
                     </dd>
 
                     <c:if test="${not command.anonymous or (command.anonymous and not command.sameSegment)}">
+                        <c:if test="${not empty command.allTranscodings}">
+                            <dt><fmt:message key="playersettings.transcodings"/></dt>
+                            <dd>
+                                <c:forEach items="${command.allTranscodings}" var="transcoding" varStatus="loopStatus">
+                                    <form:checkbox path="activeTranscodingIds" id="transcoding${transcoding.id}" value="${transcoding.id}" cssClass="checkbox"/>
+                                    <label for="transcoding${transcoding.id}">${transcoding.name}</label>
+                                </c:forEach>
+                            </dd>
+                        </c:if>
                         <dt><fmt:message key="playersettings.maxbitrate"/></dt>
                         <dd>
                             <form:select path="transcodeScheme">
@@ -107,15 +128,6 @@
                                 <strong><fmt:message key="playersettings.notranscoder"/></strong>
                             </c:if>
                         </dd>
-                        <c:if test="${not empty command.allTranscodings}">
-                            <dt><fmt:message key="playersettings.transcodings"/></dt>
-                            <dd>
-                                <c:forEach items="${command.allTranscodings}" var="transcoding" varStatus="loopStatus">
-                                    <form:checkbox path="activeTranscodingIds" id="transcoding${transcoding.id}" value="${transcoding.id}" cssClass="checkbox"/>
-                                    <label for="transcoding${transcoding.id}">${transcoding.name}</label>
-                                </c:forEach>
-                            </dd>
-                        </c:if>
                     </c:if>
 
                     <dt></dt>

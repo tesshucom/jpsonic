@@ -33,8 +33,8 @@ public class DLNASettingsCommand extends SettingsPageCommons {
     private String dlnaBaseLANURL;
     private List<MusicFolder> allMusicFolders;
     private int[] allowedMusicFolderIds = new int[0];
-    private TranscodeScheme transcodeScheme;
     private List<Transcoding> allTranscodings;
+    private TranscodeScheme transcodeScheme;
     private int[] activeTranscodingIds = new int[0];
     private boolean uriWithFileExtensions;
 
@@ -103,20 +103,20 @@ public class DLNASettingsCommand extends SettingsPageCommons {
         }
     }
 
-    public TranscodeScheme getTranscodeScheme() {
-        return transcodeScheme;
-    }
-
-    public void setTranscodeScheme(TranscodeScheme transcodeScheme) {
-        this.transcodeScheme = transcodeScheme;
-    }
-
     public List<Transcoding> getAllTranscodings() {
         return allTranscodings;
     }
 
     public void setAllTranscodings(List<Transcoding> allTranscodings) {
         this.allTranscodings = allTranscodings;
+    }
+
+    public TranscodeScheme getTranscodeScheme() {
+        return transcodeScheme;
+    }
+
+    public void setTranscodeScheme(TranscodeScheme transcodeScheme) {
+        this.transcodeScheme = transcodeScheme;
     }
 
     public int[] getActiveTranscodingIds() {

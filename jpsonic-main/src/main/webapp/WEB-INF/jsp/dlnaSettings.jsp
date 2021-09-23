@@ -24,12 +24,25 @@
 <%@ page import="com.tesshu.jpsonic.domain.TranscodeScheme" %>
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script>
+
+    function checkBitrateAvailability() {
+        var c = 0;
+        Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => {if (a.checked) {c++}});
+        $('[name="transcodeScheme"]').prop("disabled", c == 0);
+    }
+
     function resetBasicSettings() {
         Array.from(document.getElementsByName('allowedMusicFolderIds')).forEach(a => a.checked = true);
         $('[name="transcodeScheme"]').prop("selectedIndex", 0);
         Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => a.checked = false);
         document.getElementsByName('uriWithFileExtensions')[0].checked = true;
+	    checkBitrateAvailability();
     }
+    
+    $(document).ready(function(){
+        Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => a.onclick = checkBitrateAvailability);
+	    checkBitrateAvailability();
+    });
 </script>
 </head>
 
@@ -80,15 +93,6 @@
                     <%-- <label for="musicFolder${musicFolder.id}" style="padding-right:1.5em">${musicFolder.path}</label> --%>
                 </c:forEach>
             </dd>
-            <dt><fmt:message key="playersettings.maxbitrate"/></dt>
-            <dd>
-                <form:select path="transcodeScheme">
-                    <c:forEach items="${TranscodeScheme.values()}" var="scheme">
-                        <form:option value="${scheme}" label="${scheme.toString()}"/>
-                    </c:forEach>
-                </form:select>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="transcode"/></c:import>
-            </dd>
             <c:if test="${not empty command.allTranscodings}">
                 <dt><fmt:message key="playersettings.transcodings"/></dt>
                 <dd>
@@ -98,6 +102,15 @@
                     </c:forEach>
                 </dd>
             </c:if>
+            <dt><fmt:message key="playersettings.maxbitrate"/></dt>
+            <dd>
+                <form:select path="transcodeScheme">
+                    <c:forEach items="${TranscodeScheme.values()}" var="scheme">
+                        <form:option value="${scheme}" label="${scheme.toString()}"/>
+                    </c:forEach>
+                </form:select>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="transcode"/></c:import>
+            </dd>
             <dt></dt>
             <dd>
                 <form:checkbox path="uriWithFileExtensions" id="uriWithFileExtensions"/>
