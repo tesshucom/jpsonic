@@ -140,9 +140,11 @@ public class UserSettingsController {
     private User getUser(HttpServletRequest request) throws ServletRequestBindingException {
         Integer userIndex = ServletRequestUtils.getIntParameter(request, Attributes.Redirect.USER_INDEX.value());
         if (userIndex != null) {
-            List<User> allUsers = securityService.getAllUsers();
-            if (userIndex >= 0 && userIndex < allUsers.size()) {
-                return allUsers.get(userIndex);
+            List<User> users = securityService.getAllUsers().stream()
+                    .filter(u -> !User.USERNAME_GUEST.equals(u.getUsername()))
+                    .collect(Collectors.toList());
+            if (userIndex >= 0 && userIndex < users.size()) {
+                return users.get(userIndex);
             }
         }
         return null;
@@ -184,9 +186,11 @@ public class UserSettingsController {
     }
 
     private Integer getUserIndex(String userName) {
-        List<User> allUsers = securityService.getAllUsers();
-        for (int i = 0; i < allUsers.size(); i++) {
-            if (StringUtils.equalsIgnoreCase(allUsers.get(i).getUsername(), userName)) {
+        List<User> users = securityService.getAllUsers().stream()
+                .filter(u -> !User.USERNAME_GUEST.equals(u.getUsername()))
+                .collect(Collectors.toList());
+        for (int i = 0; i < users.size(); i++) {
+            if (StringUtils.equalsIgnoreCase(users.get(i).getUsername(), userName)) {
                 return i;
             }
         }
