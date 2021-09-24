@@ -23,11 +23,11 @@ package com.tesshu.jpsonic.service;
 
 import static org.springframework.web.bind.ServletRequestUtils.getIntParameter;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
@@ -41,6 +41,8 @@ import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -162,6 +164,7 @@ public class PlayerService {
         // If no player was found, create it.
         if (player == null) {
             player = new Player();
+            player.setUsername(username);
             createPlayer(player);
         }
         return player;
@@ -392,20 +395,15 @@ public class PlayerService {
     }
 
     private void createPlayer(Player player, boolean isInitTranscoding) {
+        UserSettings userSettings = securityService
+                .getUserSettings(JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername())
+                        ? User.USERNAME_GUEST : player.getUsername());
+        player.setTranscodeScheme(userSettings.getTranscodeScheme());
         playerDao.createPlayer(player);
-
-        if (!isInitTranscoding) {
-            return;
+        if (isInitTranscoding) {
+            transcodingService.setTranscodingsForPlayer(player, transcodingService.getAllTranscodings().stream()
+                    .filter(Transcoding::isDefaultActive).collect(Collectors.toList()));
         }
-
-        List<Transcoding> transcodings = transcodingService.getAllTranscodings();
-        List<Transcoding> defaultActiveTranscodings = new ArrayList<>();
-        for (Transcoding transcoding : transcodings) {
-            if (transcoding.isDefaultActive()) {
-                defaultActiveTranscodings.add(transcoding);
-            }
-        }
-        transcodingService.setTranscodingsForPlayer(player, defaultActiveTranscodings);
     }
 
     /**

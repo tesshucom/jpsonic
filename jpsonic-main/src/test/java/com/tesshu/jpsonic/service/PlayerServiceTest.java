@@ -21,34 +21,57 @@ package com.tesshu.jpsonic.service;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.annotation.Documented;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.dao.PlayerDao;
+import com.tesshu.jpsonic.dao.TranscodingDao;
+import com.tesshu.jpsonic.dao.UserDao;
 import com.tesshu.jpsonic.domain.Player;
+import com.tesshu.jpsonic.domain.TranscodeScheme;
+import com.tesshu.jpsonic.domain.Transcoding;
+import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 public class PlayerServiceTest {
 
     private PlayerDao playerDao;
+    private UserDao userDao;
+    private TranscodingDao transcodingDao;
     private TranscodingService transcodingService;
     private PlayerService playerService;
 
     @BeforeEach
     public void setup() throws ExecutionException {
         playerDao = mock(PlayerDao.class);
+        userDao = mock(UserDao.class);
+        transcodingDao = mock(TranscodingDao.class);
         transcodingService = mock(TranscodingService.class);
-        playerService = new PlayerService(playerDao, null, mock(SecurityService.class), transcodingService);
+        List<Transcoding> transcodings = new ArrayList<>(transcodingDao.getAllTranscodings());
+        Transcoding inactiveTranscoding = new Transcoding(10, "aac",
+                "mp3 ogg oga m4a flac wav wma aif aiff ape mpc shn", "aac",
+                "ffmpeg -i %s -map 0:0 -b:a %bk -v 0 -f mp3 -", null, null, false);
+        transcodings.add(inactiveTranscoding);
+        Mockito.when(transcodingService.getAllTranscodings()).thenReturn(transcodings);
+        MusicFolderService musicFolderService = mock(MusicFolderService.class);
+        playerService = new PlayerService(playerDao, null, new SecurityService(userDao, null, musicFolderService, null),
+                transcodingService);
     }
 
     @Documented
@@ -245,6 +268,92 @@ public class PlayerServiceTest {
             Mockito.verify(playerDao, Mockito.never()).createPlayer(Mockito.any(Player.class));
             Mockito.verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
                     Mockito.anyList());
+        }
+    }
+
+    @Nested
+    class CreatePlayerTest {
+
+        @Test
+        void testCreatePlayer() {
+            Player player = new Player();
+
+            ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
+            Mockito.doNothing().when(playerDao).createPlayer(playerCaptor.capture());
+            @SuppressWarnings("unchecked")
+            ArgumentCaptor<List<Transcoding>> transcodingsCaptor = ArgumentCaptor.forClass(List.class);
+            Mockito.doNothing().when(transcodingService).setTranscodingsForPlayer(Mockito.any(Player.class),
+                    transcodingsCaptor.capture());
+
+            playerService.createPlayer(player);
+
+            Player createdPlayer = playerCaptor.getValue();
+            assertNull(createdPlayer.getUsername());
+            assertEquals(TranscodeScheme.OFF, createdPlayer.getTranscodeScheme());
+            assertEquals(transcodingDao.getAllTranscodings(), transcodingsCaptor.getValue());
+        }
+
+        @SuppressWarnings("unchecked")
+        @Test
+        void testGuestPlayer() {
+            ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
+            Mockito.doNothing().when(playerDao).createPlayer(playerCaptor.capture());
+            ArgumentCaptor<List<Transcoding>> transcodingsCaptor = ArgumentCaptor.forClass(List.class);
+            Mockito.doNothing().when(transcodingService).setTranscodingsForPlayer(Mockito.any(Player.class),
+                    transcodingsCaptor.capture());
+
+            playerService.getGuestPlayer(null);
+
+            Player createdPlayer = playerCaptor.getValue();
+            assertEquals(User.USERNAME_GUEST, createdPlayer.getUsername());
+            assertEquals(TranscodeScheme.OFF, createdPlayer.getTranscodeScheme());
+            Mockito.verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
+                    Mockito.any(List.class));
+        }
+
+        @SuppressWarnings("unchecked")
+        @Test
+        void testAnonymousPlayer() {
+            Player player = new Player();
+            player.setUsername(JWTAuthenticationToken.USERNAME_ANONYMOUS);
+
+            ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
+            Mockito.doNothing().when(playerDao).createPlayer(playerCaptor.capture());
+            ArgumentCaptor<List<Transcoding>> transcodingsCaptor = ArgumentCaptor.forClass(List.class);
+            Mockito.doNothing().when(transcodingService).setTranscodingsForPlayer(Mockito.any(Player.class),
+                    transcodingsCaptor.capture());
+
+            playerService.createPlayer(player);
+
+            Player createdPlayer = playerCaptor.getValue();
+            assertEquals(JWTAuthenticationToken.USERNAME_ANONYMOUS, createdPlayer.getUsername());
+            assertEquals(TranscodeScheme.OFF, createdPlayer.getTranscodeScheme());
+            assertEquals(transcodingDao.getAllTranscodings(), transcodingsCaptor.getValue());
+        }
+
+        @Test
+        void testCreatePlayerForExistingUser() {
+            Player player = new Player();
+            player.setId(0);
+            player.setUsername("existingUser");
+
+            UserSettings settings = new UserSettings();
+            settings.setTranscodeScheme(TranscodeScheme.MAX_128);
+            Mockito.when(userDao.getUserSettings(player.getUsername())).thenReturn(settings);
+
+            ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
+            Mockito.doNothing().when(playerDao).createPlayer(playerCaptor.capture());
+            @SuppressWarnings("unchecked")
+            ArgumentCaptor<List<Transcoding>> transcodingsCaptor = ArgumentCaptor.forClass(List.class);
+            Mockito.doNothing().when(transcodingService).setTranscodingsForPlayer(Mockito.any(Player.class),
+                    transcodingsCaptor.capture());
+
+            playerService.createPlayer(player);
+
+            Player createdPlayer = playerCaptor.getValue();
+            assertEquals(player.getUsername(), createdPlayer.getUsername());
+            assertEquals(TranscodeScheme.MAX_128, createdPlayer.getTranscodeScheme());
+            assertEquals(transcodingDao.getAllTranscodings(), transcodingsCaptor.getValue());
         }
     }
 }

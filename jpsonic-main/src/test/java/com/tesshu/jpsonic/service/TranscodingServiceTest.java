@@ -117,6 +117,7 @@ class TranscodingServiceTest {
     public void setup() throws ExecutionException {
         transcodingDao = mock(TranscodingDao.class);
         securityService = mock(SecurityService.class);
+        Mockito.when(securityService.getUserSettings(Mockito.nullable(String.class))).thenReturn(new UserSettings());
         SettingsService settingsService = mock(SettingsService.class);
         transcodingService = new TranscodingService(settingsService, securityService, transcodingDao, playerService,
                 executor);
