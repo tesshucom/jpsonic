@@ -95,8 +95,7 @@ public class PlayerSettingsController {
 
         PlayerSettingsCommand command = new PlayerSettingsCommand();
         List<Player> players = getPlayers(request);
-        command.setPlayers(
-                players.stream().filter(p -> !User.USERNAME_GUEST.equals(p.getUsername())).toArray(Player[]::new));
+        command.setPlayers(players.stream().toArray(Player[]::new));
         User user = securityService.getCurrentUser(request);
         command.setAdmin(user.isAdminRole());
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
@@ -178,8 +177,10 @@ public class PlayerSettingsController {
         List<Player> players = playerService.getAllPlayers();
         List<Player> authorizedPlayers = new ArrayList<>();
         for (Player player : players) {
-            // Only display authorized players.
-            if (user.isAdminRole() || username.equals(player.getUsername())) {
+            // - Guest user is not displayed
+            // - Only display authorized players.
+            if (!User.USERNAME_GUEST.equals(player.getUsername())
+                    && (user.isAdminRole() || username.equals(player.getUsername()))) {
                 authorizedPlayers.add(player);
             }
         }
