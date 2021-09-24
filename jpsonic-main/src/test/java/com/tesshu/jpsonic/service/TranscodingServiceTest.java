@@ -51,6 +51,7 @@ import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.Transcoding;
+import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
 import com.tesshu.jpsonic.io.TranscodeInputStream;
@@ -103,6 +104,7 @@ class TranscodingServiceTest {
             + "/01 - Bach- Goldberg Variations, BWV 988 - Aria.flac";
 
     private TranscodingService transcodingService;
+    private PlayerDao playerDao;
     private PlayerService playerService;
     private TranscodingDao transcodingDao;
     private static ExecutorService executor;
@@ -117,10 +119,12 @@ class TranscodingServiceTest {
     public void setup() throws ExecutionException {
         transcodingDao = mock(TranscodingDao.class);
         securityService = mock(SecurityService.class);
+        Mockito.when(securityService.getUserSettings(Mockito.nullable(String.class))).thenReturn(new UserSettings());
         SettingsService settingsService = mock(SettingsService.class);
         transcodingService = new TranscodingService(settingsService, securityService, transcodingDao, playerService,
                 executor);
-        playerService = new PlayerService(mock(PlayerDao.class), null, securityService, transcodingService);
+        playerDao = mock(PlayerDao.class);
+        playerService = new PlayerService(playerDao, null, securityService, transcodingService);
         // for lazy
         transcodingService = new TranscodingService(settingsService, securityService, transcodingDao, playerService,
                 executor);
@@ -136,7 +140,7 @@ class TranscodingServiceTest {
      */
     @SuppressWarnings("unlikely-arg-type")
     @Test
-    @Order(1)
+    @Order(0)
     void testGetTranscodingsForPlayer() {
         List<Transcoding> defaulTranscodings = transcodingDao.getAllTranscodings();
         List<Transcoding> transcodings = new ArrayList<>(defaulTranscodings);
@@ -168,7 +172,7 @@ class TranscodingServiceTest {
      * No transcoding is associated when the guest player is created.
      */
     @Test
-    @Order(2)
+    @Order(1)
     void testGetTranscodingsForGuestPlayer() {
         ArgumentCaptor<Integer> idCaptor = ArgumentCaptor.forClass(int.class);
         ArgumentCaptor<int[]> transcodingIdsCaptor = ArgumentCaptor.forClass(int[].class);
@@ -177,6 +181,71 @@ class TranscodingServiceTest {
         playerService.getGuestPlayer(null);
         Mockito.verify(transcodingDao, Mockito.never()).setTranscodingsForPlayer(Mockito.anyInt(),
                 Mockito.any(int[].class));
+    }
+
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+    @Nested
+    @Order(2)
+    class SetTranscodingsForPlayer {
+
+        @Test
+        @Order(1)
+        void testsetTranscodingsForPlayer() {
+            Player player = new Player();
+            player.setId(1);
+
+            ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
+            Mockito.doNothing().when(playerDao).updatePlayer(playerCaptor.capture());
+            ArgumentCaptor<int[]> idsCaptor = ArgumentCaptor.forClass(int[].class);
+            Mockito.doNothing().when(transcodingDao).setTranscodingsForPlayer(Mockito.anyInt(), idsCaptor.capture());
+
+            transcodingService.setTranscodingsForPlayer(player, new int[] { 1, 2, 3 });
+
+            Mockito.verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
+            assertEquals(Arrays.asList(1, 2, 3), idsCaptor.getAllValues());
+        }
+
+        @Test
+        @Order(2)
+        void testsetTranscodingsForPlayerZeroParam() {
+            Player player = new Player();
+            player.setUsername("setTranscodingsTest");
+            UserSettings settings = new UserSettings();
+            settings.setTranscodeScheme(TranscodeScheme.MAX_256);
+            Mockito.when(securityService.getUserSettings(player.getUsername())).thenReturn(settings);
+
+            ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
+            Mockito.doNothing().when(playerDao).updatePlayer(playerCaptor.capture());
+            ArgumentCaptor<int[]> idsCaptor = ArgumentCaptor.forClass(int[].class);
+            Mockito.doNothing().when(transcodingDao).setTranscodingsForPlayer(Mockito.anyInt(), idsCaptor.capture());
+
+            transcodingService.setTranscodingsForPlayer(player, new int[] {});
+
+            assertEquals(player, playerCaptor.getValue());
+            assertEquals(TranscodeScheme.MAX_256, playerCaptor.getValue().getTranscodeScheme());
+            assertEquals(0, idsCaptor.getAllValues().size());
+        }
+
+        @Test
+        @Order(3)
+        void testsetTranscodingsForPlayerZeroParamForAnonymous() {
+            Player player = new Player();
+            player.setUsername(JWTAuthenticationToken.USERNAME_ANONYMOUS);
+            UserSettings settings = new UserSettings();
+            settings.setTranscodeScheme(TranscodeScheme.MAX_128);
+            Mockito.when(securityService.getUserSettings(User.USERNAME_GUEST)).thenReturn(settings);
+
+            ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
+            Mockito.doNothing().when(playerDao).updatePlayer(playerCaptor.capture());
+            ArgumentCaptor<int[]> idsCaptor = ArgumentCaptor.forClass(int[].class);
+            Mockito.doNothing().when(transcodingDao).setTranscodingsForPlayer(Mockito.anyInt(), idsCaptor.capture());
+
+            transcodingService.setTranscodingsForPlayer(player, new int[] {});
+
+            assertEquals(player, playerCaptor.getValue());
+            assertEquals(TranscodeScheme.MAX_128, playerCaptor.getValue().getTranscodeScheme());
+            assertEquals(0, idsCaptor.getAllValues().size());
+        }
     }
 
     @Test
