@@ -271,7 +271,7 @@ class UserDaoTest {
         settings.setLastFmPassword("last_pass");
         settings.setListenBrainzEnabled(true);
         settings.setListenBrainzToken("01234567-89ab-cdef-0123-456789abcdef");
-        settings.setTranscodeScheme(TranscodeScheme.MAX_192);
+        settings.setTranscodeScheme(TranscodeScheme.MAX_256);
         settings.setShowNowPlayingEnabled(false);
         settings.setSelectedMusicFolderId(3);
         settings.setPartyModeEnabled(true);
@@ -305,7 +305,7 @@ class UserDaoTest {
         assertTrue(userSettings.isListenBrainzEnabled(), "Error in getUserSettings().");
         assertEquals("01234567-89ab-cdef-0123-456789abcdef", userSettings.getListenBrainzToken(),
                 "Error in getUserSettings().");
-        Assertions.assertSame(TranscodeScheme.MAX_192, userSettings.getTranscodeScheme(),
+        Assertions.assertSame(TranscodeScheme.MAX_256, userSettings.getTranscodeScheme(),
                 "Error in getUserSettings().");
         assertFalse(userSettings.isShowNowPlayingEnabled(), "Error in getUserSettings().");
         assertEquals(3, userSettings.getSelectedMusicFolderId(), "Error in getUserSettings().");

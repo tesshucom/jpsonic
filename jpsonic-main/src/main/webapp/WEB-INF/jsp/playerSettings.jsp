@@ -18,6 +18,18 @@
             window.top.reloadPlayQueue();
         </c:when>
     </c:choose>
+
+    function checkBitrateAvailability() {
+        var c = 0;
+        Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => {if (a.checked) {c++}});
+        $('[name="transcodeScheme"]').prop("disabled", c == 0);
+    }
+
+    $(document).ready(function(){
+        Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => a.onclick = checkBitrateAvailability);
+        checkBitrateAvailability();
+    });
+
 </script>
 </head>
 <body class="mainframe settings playerSettings">
@@ -95,18 +107,6 @@
                     </dd>
 
                     <c:if test="${not command.anonymous or (command.anonymous and not command.sameSegment)}">
-                        <dt><fmt:message key="playersettings.maxbitrate"/></dt>
-                        <dd>
-                            <form:select path="transcodeScheme">
-                                <c:forEach items="${TranscodeScheme.values()}" var="scheme">
-                                    <form:option value="${scheme}" label="${scheme.toString()}"/>
-                                </c:forEach>
-                            </form:select>
-                            <c:import url="helpToolTip.jsp"><c:param name="topic" value="transcode"/></c:import>
-                            <c:if test="${not command.transcodingSupported}">
-                                <strong><fmt:message key="playersettings.notranscoder"/></strong>
-                            </c:if>
-                        </dd>
                         <c:if test="${not empty command.allTranscodings}">
                             <dt><fmt:message key="playersettings.transcodings"/></dt>
                             <dd>
@@ -116,6 +116,20 @@
                                 </c:forEach>
                             </dd>
                         </c:if>
+                        <dt><fmt:message key="playersettings.maxbitrate"/></dt>
+                        <dd>
+                            <form:select path="transcodeScheme">
+                                <c:forEach items="${TranscodeScheme.values()}" var="scheme">
+                                    <c:if test="${command.maxBitrate.getMaxBitRate() eq 0 or scheme.getMaxBitRate() ne 0 and scheme.getMaxBitRate() le command.maxBitrate.getMaxBitRate()}">
+                                        <form:option value="${scheme}" label="${scheme.toString()}"/>
+                                    </c:if>
+                                </c:forEach>
+                            </form:select>
+                            <c:import url="helpToolTip.jsp"><c:param name="topic" value="transcode"/></c:import>
+                            <c:if test="${not command.transcodingSupported}">
+                                <strong><fmt:message key="playersettings.notranscoder"/></strong>
+                            </c:if>
+                        </dd>
                     </c:if>
 
                     <dt></dt>

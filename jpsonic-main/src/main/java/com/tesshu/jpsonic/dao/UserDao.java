@@ -419,7 +419,7 @@ public class UserDao extends AbstractDao {
             settings.setListenBrainzEnabled(rs.getBoolean(col++));
             settings.setListenBrainzToken(rs.getString(col++));
 
-            settings.setTranscodeScheme(TranscodeScheme.valueOf(rs.getString(col++)));
+            settings.setTranscodeScheme(TranscodeScheme.of(rs.getString(col++)));
             settings.setShowNowPlayingEnabled(rs.getBoolean(col++));
             settings.setSelectedMusicFolderId(rs.getInt(col++));
             settings.setPartyModeEnabled(rs.getBoolean(col++));

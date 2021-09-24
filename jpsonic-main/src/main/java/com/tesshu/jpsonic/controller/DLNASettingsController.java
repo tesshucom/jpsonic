@@ -94,11 +94,11 @@ public class DLNASettingsController {
         User guestUser = securityService.getGuestUser();
         command.setAllowedMusicFolderIds(musicFolderService.getMusicFoldersForUser(guestUser.getUsername()).stream()
                 .mapToInt(m -> m.getId()).toArray());
-        Player guestPlayer = playerService.getGuestPlayer(null);
-        command.setTranscodeScheme(guestPlayer.getTranscodeScheme());
         command.setAllTranscodings(transcodingService.getAllTranscodings());
+        Player guestPlayer = playerService.getGuestPlayer(null);
         command.setActiveTranscodingIds(
                 transcodingService.getTranscodingsForPlayer(guestPlayer).stream().mapToInt(m -> m.getId()).toArray());
+        command.setTranscodeScheme(guestPlayer.getTranscodeScheme());
         command.setUriWithFileExtensions(settingsService.isUriWithFileExtensions());
 
         // Items to display
@@ -193,9 +193,9 @@ public class DLNASettingsController {
         userSettings.setTranscodeScheme(command.getTranscodeScheme());
         userSettings.setChanged(new Date());
         Player guestPlayer = playerService.getGuestPlayer(null);
+        transcodingService.setTranscodingsForPlayer(guestPlayer, command.getActiveTranscodingIds());
         guestPlayer.setTranscodeScheme(command.getTranscodeScheme());
         playerService.updatePlayer(guestPlayer);
-        transcodingService.setTranscodingsForPlayer(guestPlayer, command.getActiveTranscodingIds());
 
         // If some properties are changed, UPnP will be started, stopped and restarted.
         if (isEnabledChanged) {

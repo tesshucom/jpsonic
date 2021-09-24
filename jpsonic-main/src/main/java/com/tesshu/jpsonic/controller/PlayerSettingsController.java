@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.command.PlayerSettingsCommand;
 import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
@@ -117,16 +116,12 @@ public class PlayerSettingsController {
             command.setAnonymous(JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername()));
             command.setSameSegment(settingsService.isInUPnPRange(player.getIpAddress()));
             command.setPlayerTechnology(player.getTechnology());
-            command.setTranscodeScheme(player.getTranscodeScheme());
             command.setAllTranscodings(transcodingService.getAllTranscodings());
-
-            List<Transcoding> activeTranscodings = transcodingService.getTranscodingsForPlayer(player);
-            int[] activeTranscodingIds = new int[activeTranscodings.size()];
-            for (int i = 0; i < activeTranscodings.size(); i++) {
-                activeTranscodingIds[i] = activeTranscodings.get(i).getId();
-            }
-            command.setActiveTranscodingIds(activeTranscodingIds);
-
+            UserSettings userSettings = securityService.getUserSettings(player.getUsername());
+            command.setMaxBitrate(userSettings.getTranscodeScheme());
+            command.setTranscodeScheme(player.getTranscodeScheme());
+            command.setActiveTranscodingIds(
+                    transcodingService.getTranscodingsForPlayer(player).stream().mapToInt(t -> t.getId()).toArray());
             command.setDynamicIp(player.isDynamicIp());
             command.setAutoControlEnabled(player.isAutoControlEnabled());
             command.setM3uBomEnabled(player.isM3uBomEnabled());
