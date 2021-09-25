@@ -110,8 +110,9 @@ public class PlayerSettingsController {
         if (player != null) {
             // Player settings
             command.setPlayerId(player.getId());
-            command.setType(player.getType());
             command.setName(player.getName());
+            command.setType(player.getType());
+            command.setIpAddress(player.getIpAddress());
             command.setGuest(User.USERNAME_GUEST.equals(player.getUsername()));
             command.setAnonymous(JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername()));
             command.setSameSegment(settingsService.isInUPnPRange(player.getIpAddress()));

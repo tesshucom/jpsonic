@@ -44,8 +44,9 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
     private boolean transcodingSupported;
 
     // Player settings
-    private String type;
     private String name;
+    private String type;
+    private String ipAddress;
     private boolean guest;
     private boolean anonymous;
     private PlayerTechnology playerTechnology;
@@ -100,6 +101,14 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
         this.transcodingSupported = transcodingSupported;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getType() {
         return type;
     }
@@ -108,12 +117,12 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
         this.type = type;
     }
 
-    public String getName() {
-        return name;
+    public String getIpAddress() {
+        return ipAddress;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
     }
 
     public boolean isGuest() {

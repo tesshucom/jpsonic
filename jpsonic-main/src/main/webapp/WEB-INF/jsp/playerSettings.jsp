@@ -79,6 +79,8 @@
                     </c:if>
                 </c:if>
                 <dl>
+                    <dt><fmt:message key="playersettings.name"/></dt>
+                    <dd><form:input path="name" value="${command.name}"/><c:import url="helpToolTip.jsp"><c:param name="topic" value="playername"/></c:import></dd>
                     <dt><fmt:message key="playersettings.type"/></dt>
                     <dd>
                         <c:choose>
@@ -86,27 +88,33 @@
                             <c:otherwise>${command.type}</c:otherwise>
                         </c:choose>
                     </dd>
-                    <dt><fmt:message key="playersettings.name"/></dt>
-                    <dd><form:input path="name" value="${command.name}"/><c:import url="helpToolTip.jsp"><c:param name="topic" value="playername"/></c:import></dd>
-                    <dt><fmt:message key="playersettings.devices"/></dt>
-                    <dd>
-                        <ul class="playerSettings">
-                            <c:forEach items="${PlayerTechnology.values()}" var="scheme">
-                                <c:set var="schemeName">
-                                    <fmt:message key="playersettings.technology.${fn:toLowerCase(scheme)}"/>
-                                </c:set>
-                                <c:if test="${not (command.guest or command.anonymous) or technologyHolder.name eq 'WEB'}">
-                                    <li>
-                                        <form:radiobutton class="technologyRadio" id="radio-${schemeName}" path="playerTechnology" value="${scheme}"/>
-                                        <label for="radio-${schemeName}">${schemeName}</label>
-                                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="playersettings.technology.${fn:toLowerCase(scheme)}"/></c:import>
-                                    </li>
-                                </c:if>
-                            </c:forEach>
-                        </ul>
-                    </dd>
-
+                    <c:if test="${command.anonymous}">
+	                    <dt><fmt:message key="playersettings.ipaddress"/></dt>
+	                    <dd>
+	                        <c:choose>
+	                            <c:when test="${empty command.ipAddress}">${unknown}</c:when>
+	                            <c:otherwise>${command.ipAddress}</c:otherwise>
+	                        </c:choose>
+	                    </dd>
+                    </c:if>
                     <c:if test="${not command.anonymous or (command.anonymous and not command.sameSegment)}">
+	                    <dt><fmt:message key="playersettings.devices"/></dt>
+	                    <dd>
+	                        <ul class="playerSettings">
+	                            <c:forEach items="${PlayerTechnology.values()}" var="scheme">
+	                                <c:set var="schemeName">
+	                                    <fmt:message key="playersettings.technology.${fn:toLowerCase(scheme)}"/>
+	                                </c:set>
+	                                <c:if test="${not (command.guest or command.anonymous) or technologyHolder.name eq 'WEB'}">
+	                                    <li>
+	                                        <form:radiobutton class="technologyRadio" id="radio-${schemeName}" path="playerTechnology" value="${scheme}"/>
+	                                        <label for="radio-${schemeName}">${schemeName}</label>
+	                                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="playersettings.technology.${fn:toLowerCase(scheme)}"/></c:import>
+	                                    </li>
+	                                </c:if>
+	                            </c:forEach>
+	                        </ul>
+	                    </dd>
                         <c:if test="${not empty command.allTranscodings}">
                             <dt><fmt:message key="playersettings.transcodings"/></dt>
                             <dd>
