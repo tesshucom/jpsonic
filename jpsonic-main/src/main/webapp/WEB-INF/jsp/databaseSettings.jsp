@@ -49,15 +49,17 @@
 
 <form:form modelAttribute="command" action="databaseSettings.view" method="post">
 
-    <div class="titledSelector methods">
-        <fmt:message key="databasesettings.configtype"/>
-        <form:select path="configType" id="configType">
-            <form:option value="LEGACY" label="Legacy"/>
-            <form:option value="EMBED" label="Embedded JDBC"/>
-            <form:option value="JNDI" label="JNDI"/>
-        </form:select>
-        <c:import url="helpToolTip.jsp"><c:param name="topic" value="databaseConfigType"/></c:import>
-    </div>
+    <dl class="topSelectorContainer2">
+        <dt><fmt:message key="databasesettings.configtype"/></dt>
+        <dd>
+            <form:select path="configType" id="configType">
+	            <form:option value="LEGACY" label="Legacy"/>
+	            <form:option value="EMBED" label="Embedded JDBC"/>
+	            <form:option value="JNDI" label="JNDI"/>
+	        </form:select>
+	        <c:import url="helpToolTip.jsp"><c:param name="topic" value="databaseConfigType"/></c:import>
+        </dd>
+    </dl>
 
     <dl id="EMBEDDatabaseOptions" class="hideawayDatabaseOptions">
         <dt><fmt:message key="databasesettings.embeddriver"/></dt>

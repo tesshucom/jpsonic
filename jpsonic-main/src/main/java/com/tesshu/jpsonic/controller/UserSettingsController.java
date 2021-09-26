@@ -141,8 +141,7 @@ public class UserSettingsController {
         Integer userIndex = ServletRequestUtils.getIntParameter(request, Attributes.Redirect.USER_INDEX.value());
         if (userIndex != null) {
             List<User> users = securityService.getAllUsers().stream()
-                    .filter(u -> !User.USERNAME_GUEST.equals(u.getUsername()))
-                    .collect(Collectors.toList());
+                    .filter(u -> !User.USERNAME_GUEST.equals(u.getUsername())).collect(Collectors.toList());
             if (userIndex >= 0 && userIndex < users.size()) {
                 return users.get(userIndex);
             }
@@ -187,8 +186,7 @@ public class UserSettingsController {
 
     private Integer getUserIndex(String userName) {
         List<User> users = securityService.getAllUsers().stream()
-                .filter(u -> !User.USERNAME_GUEST.equals(u.getUsername()))
-                .collect(Collectors.toList());
+                .filter(u -> !User.USERNAME_GUEST.equals(u.getUsername())).collect(Collectors.toList());
         for (int i = 0; i < users.size(); i++) {
             if (StringUtils.equalsIgnoreCase(users.get(i).getUsername(), userName)) {
                 return i;
