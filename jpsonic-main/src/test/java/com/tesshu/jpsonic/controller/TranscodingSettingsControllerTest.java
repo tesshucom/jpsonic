@@ -19,9 +19,9 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.lang.annotation.Documented;
@@ -32,15 +32,16 @@ import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.dao.TranscodingDao;
+import com.tesshu.jpsonic.service.PlayerService;
+import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -50,19 +51,12 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class TranscodingSettingsControllerTest {
 
-    @Autowired
     private TranscodingSettingsController controller;
-
-    @Autowired
-    private SettingsService settingsService;
-
-    @Autowired
     private TranscodingService transcodingService;
+    private SettingsService settingsService;
 
     private MockMvc mockMvc;
 
@@ -70,6 +64,12 @@ class TranscodingSettingsControllerTest {
 
     @BeforeEach
     public void setup() throws ExecutionException {
+        settingsService = mock(SettingsService.class);
+        SecurityService securityService = mock(SecurityService.class);
+        transcodingService = new TranscodingService(settingsService, securityService, mock(TranscodingDao.class),
+                mock(PlayerService.class), null);
+        controller = new TranscodingSettingsController(settingsService, securityService, transcodingService,
+                mock(ShareService.class), mock(OutlineHelpSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
         if (handleParameters != null) {
@@ -90,7 +90,7 @@ class TranscodingSettingsControllerTest {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/transcodingSettings.view"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.view().name("transcodingSettings")).andReturn();
-        assertNotNull(mvcResult);
+        Assertions.assertNotNull(mvcResult);
         @SuppressWarnings("unchecked")
         Map<String, Object> model = (Map<String, Object>) mvcResult.getModelAndView().getModel().get("model");
         assertEquals(8, model.size());

@@ -40,6 +40,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.Transcoding;
+import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
 import com.tesshu.jpsonic.io.TranscodeInputStream;
@@ -150,6 +151,13 @@ public class TranscodingService {
      *            ID's of the active transcodings.
      */
     public void setTranscodingsForPlayer(@NonNull Player player, int... transcodingIds) {
+        if (transcodingIds.length == 0) {
+            UserSettings userSettings = securityService
+                    .getUserSettings(JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername())
+                            ? User.USERNAME_GUEST : player.getUsername());
+            player.setTranscodeScheme(userSettings.getTranscodeScheme());
+            playerService.updatePlayer(player);
+        }
         transcodingDao.setTranscodingsForPlayer(player.getId(), transcodingIds);
     }
 

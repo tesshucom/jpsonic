@@ -19,21 +19,39 @@
 
 package com.tesshu.jpsonic.service;
 
+import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.common.collect.ImmutableList;
+import com.tesshu.jpsonic.dao.TranscodingDao;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.Player;
+import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
+import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.mockito.Mockito;
 
 public final class ServiceMockUtils {
 
     public static final String ADMIN_NAME = "admin";
+
+    private static final List<Transcoding> DEFAULT_TRANSCODINGS = ImmutableList.of(
+            new Transcoding(0, "mp3 audio", "mp3 ogg oga aac m4a flac wav wma aif aiff ape mpc shn", "mp3",
+                    "ffmpeg -i %s -map 0:0 -b:a %bk -v 0 -f mp3 -", null, null, true),
+            new Transcoding(1, "flv/h264 video", "avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts", "flv",
+                    "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f flv -vcodec libx264 -preset superfast -threads 0 -",
+                    null, null, true),
+            new Transcoding(2, "mkv video", "avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts", "mkv",
+                    "ffmpeg -ss %o -i %s -c:v libx264 -preset superfast -b:v %bk -c:a libvorbis -f matroska -threads 0 -",
+                    null, null, true),
+            new Transcoding(3, "mp4/h264 video", "avi flv mpg mpeg m4v mkv mov wmv ogv divx m2ts", "mp4",
+                    "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f mp4 -vcodec libx264 -preset superfast -threads 0 -movflags frag_keyframe+empty_moov -",
+                    null, null, true));
 
     private ServiceMockUtils() {
 
@@ -49,11 +67,16 @@ public final class ServiceMockUtils {
             Mockito.when(securityService.getCurrentUser(Mockito.nullable(HttpServletRequest.class)))
                     .thenReturn(new User(ADMIN_NAME, ADMIN_NAME, ""));
             Mockito.when(securityService.getUserSettings(ADMIN_NAME)).thenReturn(new UserSettings(ADMIN_NAME));
+
             User guestUser = new User(User.USERNAME_GUEST, User.USERNAME_GUEST, "");
             guestUser.setStreamRole(true);
             Mockito.when(securityService.getGuestUser()).thenReturn(guestUser);
             Mockito.when(securityService.getUserSettings(User.USERNAME_GUEST))
                     .thenReturn(new UserSettings(User.USERNAME_GUEST));
+
+            Mockito.when(securityService.getUserSettings(JWTAuthenticationToken.USERNAME_ANONYMOUS))
+                    .thenReturn(new UserSettings(JWTAuthenticationToken.USERNAME_ANONYMOUS));
+
             mock = securityService;
         } else if (PlayerService.class == classToMock) {
             PlayerService playerService = Mockito.mock(PlayerService.class);
@@ -84,6 +107,7 @@ public final class ServiceMockUtils {
             Mockito.when(settingsService.getFileModifiedCheckSchemeName())
                     .thenReturn(FileModifiedCheckScheme.LAST_MODIFIED.name());
             Mockito.when(settingsService.getJWTKey()).thenReturn("SomeKey");
+            Mockito.when(settingsService.isIndexEnglishPrior()).thenReturn(true);
             mock = settingsService;
         } else if (AirsonicLocaleResolver.class == classToMock) {
             String language = SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE.defaultValue;
@@ -93,6 +117,10 @@ public final class ServiceMockUtils {
             AirsonicLocaleResolver localeResolver = Mockito.mock(AirsonicLocaleResolver.class);
             Mockito.when(localeResolver.resolveLocale(Mockito.nullable(HttpServletRequest.class))).thenReturn(locale);
             mock = localeResolver;
+        } else if (TranscodingDao.class == classToMock) {
+            TranscodingDao transcodingDao = Mockito.mock(TranscodingDao.class);
+            Mockito.when(transcodingDao.getAllTranscodings()).thenReturn(DEFAULT_TRANSCODINGS);
+            mock = transcodingDao;
         } else {
             mock = Mockito.mock(classToMock);
         }

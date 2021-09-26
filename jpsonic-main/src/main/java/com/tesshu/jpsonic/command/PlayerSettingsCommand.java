@@ -44,18 +44,30 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
     private boolean transcodingSupported;
 
     // Player settings
-    private String type;
     private String name;
+    private String type;
+    private String ipAddress;
     private boolean guest;
     private boolean anonymous;
     private PlayerTechnology playerTechnology;
-    private TranscodeScheme transcodeScheme;
     private List<Transcoding> allTranscodings;
+    private TranscodeScheme maxBitrate;
+    private TranscodeScheme transcodeScheme;
     private int[] activeTranscodingIds;
     private boolean dynamicIp;
     private boolean autoControlEnabled;
     private boolean m3uBomEnabled;
     private Date lastSeen;
+
+    public Player[] getPlayers() {
+        return players;
+    }
+
+    public void setPlayers(Player... players) {
+        if (players != null) {
+            this.players = players.clone();
+        }
+    }
 
     public Integer getPlayerId() {
         return playerId;
@@ -65,20 +77,28 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
         this.playerId = playerId;
     }
 
-    public boolean isGuest() {
-        return guest;
+    public boolean isAdmin() {
+        return admin;
     }
 
-    public void setGuest(boolean isGuest) {
-        this.guest = isGuest;
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
     }
 
-    public boolean isAnonymous() {
-        return anonymous;
+    public boolean isSameSegment() {
+        return sameSegment;
     }
 
-    public void setAnonymous(boolean isAnonymous) {
-        this.anonymous = isAnonymous;
+    public void setSameSegment(boolean sameSegment) {
+        this.sameSegment = sameSegment;
+    }
+
+    public boolean isTranscodingSupported() {
+        return transcodingSupported;
+    }
+
+    public void setTranscodingSupported(boolean transcodingSupported) {
+        this.transcodingSupported = transcodingSupported;
     }
 
     public String getName() {
@@ -97,12 +117,70 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
         this.type = type;
     }
 
-    public Date getLastSeen() {
-        return lastSeen;
+    public String getIpAddress() {
+        return ipAddress;
     }
 
-    public void setLastSeen(Date lastSeen) {
-        this.lastSeen = lastSeen;
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
+    public boolean isGuest() {
+        return guest;
+    }
+
+    public void setGuest(boolean isGuest) {
+        this.guest = isGuest;
+    }
+
+    public boolean isAnonymous() {
+        return anonymous;
+    }
+
+    public void setAnonymous(boolean isAnonymous) {
+        this.anonymous = isAnonymous;
+    }
+
+    public PlayerTechnology getPlayerTechnology() {
+        return playerTechnology;
+    }
+
+    public void setPlayerTechnology(PlayerTechnology playerTechnology) {
+        this.playerTechnology = playerTechnology;
+    }
+
+    public List<Transcoding> getAllTranscodings() {
+        return allTranscodings;
+    }
+
+    public void setAllTranscodings(List<Transcoding> allTranscodings) {
+        this.allTranscodings = allTranscodings;
+    }
+
+    public TranscodeScheme getMaxBitrate() {
+        return maxBitrate;
+    }
+
+    public void setMaxBitrate(TranscodeScheme maxBitrate) {
+        this.maxBitrate = maxBitrate;
+    }
+
+    public TranscodeScheme getTranscodeScheme() {
+        return transcodeScheme;
+    }
+
+    public void setTranscodeScheme(TranscodeScheme transcodeScheme) {
+        this.transcodeScheme = transcodeScheme;
+    }
+
+    public int[] getActiveTranscodingIds() {
+        return activeTranscodingIds;
+    }
+
+    public void setActiveTranscodingIds(int... activeTranscodingIds) {
+        if (activeTranscodingIds != null) {
+            this.activeTranscodingIds = activeTranscodingIds.clone();
+        }
     }
 
     public boolean isDynamicIp() {
@@ -129,72 +207,12 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
         this.m3uBomEnabled = m3uBomEnabled;
     }
 
-    public TranscodeScheme getTranscodeScheme() {
-        return transcodeScheme;
+    public Date getLastSeen() {
+        return lastSeen;
     }
 
-    public void setTranscodeScheme(TranscodeScheme transcodeScheme) {
-        this.transcodeScheme = transcodeScheme;
-    }
-
-    public boolean isTranscodingSupported() {
-        return transcodingSupported;
-    }
-
-    public void setTranscodingSupported(boolean transcodingSupported) {
-        this.transcodingSupported = transcodingSupported;
-    }
-
-    public List<Transcoding> getAllTranscodings() {
-        return allTranscodings;
-    }
-
-    public void setAllTranscodings(List<Transcoding> allTranscodings) {
-        this.allTranscodings = allTranscodings;
-    }
-
-    public int[] getActiveTranscodingIds() {
-        return activeTranscodingIds;
-    }
-
-    public void setActiveTranscodingIds(int... activeTranscodingIds) {
-        if (activeTranscodingIds != null) {
-            this.activeTranscodingIds = activeTranscodingIds.clone();
-        }
-    }
-
-    public PlayerTechnology getPlayerTechnology() {
-        return playerTechnology;
-    }
-
-    public void setPlayerTechnology(PlayerTechnology playerTechnology) {
-        this.playerTechnology = playerTechnology;
-    }
-
-    public Player[] getPlayers() {
-        return players;
-    }
-
-    public void setPlayers(Player... players) {
-        if (players != null) {
-            this.players = players.clone();
-        }
-    }
-
-    public boolean isAdmin() {
-        return admin;
-    }
-
-    public void setAdmin(boolean admin) {
-        this.admin = admin;
-    }
-
-    public boolean isSameSegment() {
-        return sameSegment;
-    }
-
-    public void setSameSegment(boolean sameSegment) {
-        this.sameSegment = sameSegment;
+    public void setLastSeen(Date lastSeen) {
+        this.lastSeen = lastSeen;
     }
 
     /**

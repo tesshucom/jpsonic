@@ -18,6 +18,18 @@
             window.top.reloadPlayQueue();
         </c:when>
     </c:choose>
+
+    function checkBitrateAvailability() {
+        var c = 0;
+        Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => {if (a.checked) {c++}});
+        $('[name="transcodeScheme"]').prop("disabled", c == 0);
+    }
+
+    $(document).ready(function(){
+        Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => a.onclick = checkBitrateAvailability);
+        checkBitrateAvailability();
+    });
+
 </script>
 </head>
 <body class="mainframe settings playerSettings">
@@ -45,14 +57,18 @@
     </c:when>
     <c:otherwise>
 
-        <div class="titledSelector player">
-            <fmt:message key="playersettings.title"/>
-            <select name="player" onchange="location='playerSettings.view?id=' + options[selectedIndex].value;">
-                <c:forEach items="${command.players}" var="player">
-                    <option ${player.id eq command.playerId ? "selected" : ""}
-                            value="${player.id}">${fn:escapeXml(player.description)}</option>
-                </c:forEach>
-            </select>
+        <div class="topSelectorContainer">
+            <dl>
+                <dt><fmt:message key="playersettings.title"/></dt>
+                <dd>
+                    <select name="player" onchange="location='playerSettings.view?id=' + options[selectedIndex].value;">
+                        <c:forEach items="${command.players}" var="player">
+                            <option ${player.id eq command.playerId ? "selected" : ""}
+                                    value="${player.id}">${fn:escapeXml(player.description)}</option>
+                        </c:forEach>
+                    </select>
+                </dd>
+            </dl>
         </div>
 
         <form:form modelAttribute="command" method="post" action="playerSettings.view">
@@ -67,6 +83,8 @@
                     </c:if>
                 </c:if>
                 <dl>
+                    <dt><fmt:message key="playersettings.name"/></dt>
+                    <dd><form:input path="name" value="${command.name}"/><c:import url="helpToolTip.jsp"><c:param name="topic" value="playername"/></c:import></dd>
                     <dt><fmt:message key="playersettings.type"/></dt>
                     <dd>
                         <c:choose>
@@ -74,38 +92,32 @@
                             <c:otherwise>${command.type}</c:otherwise>
                         </c:choose>
                     </dd>
-                    <dt><fmt:message key="playersettings.name"/></dt>
-                    <dd><form:input path="name" value="${command.name}"/><c:import url="helpToolTip.jsp"><c:param name="topic" value="playername"/></c:import></dd>
-                    <dt><fmt:message key="playersettings.devices"/></dt>
-                    <dd>
-                        <ul class="playerSettings">
-                            <c:forEach items="${PlayerTechnology.values()}" var="scheme">
-                                <c:set var="schemeName">
-                                    <fmt:message key="playersettings.technology.${fn:toLowerCase(scheme)}"/>
-                                </c:set>
-                                <c:if test="${not (command.guest or command.anonymous) or technologyHolder.name eq 'WEB'}">
-                                    <li>
-                                        <form:radiobutton class="technologyRadio" id="radio-${schemeName}" path="playerTechnology" value="${scheme}"/>
-                                        <label for="radio-${schemeName}">${schemeName}</label>
-                                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="playersettings.technology.${fn:toLowerCase(scheme)}"/></c:import>
-                                    </li>
-                                </c:if>
-                            </c:forEach>
-                        </ul>
-                    </dd>
-
-                    <c:if test="${not command.anonymous or (command.anonymous and not command.sameSegment)}">
-                        <dt><fmt:message key="playersettings.maxbitrate"/></dt>
+                    <c:if test="${command.anonymous}">
+                        <dt><fmt:message key="playersettings.ipaddress"/></dt>
                         <dd>
-                            <form:select path="transcodeScheme">
-                                <c:forEach items="${TranscodeScheme.values()}" var="scheme">
-                                    <form:option value="${scheme}" label="${scheme.toString()}"/>
+                            <c:choose>
+                                <c:when test="${empty command.ipAddress}">${unknown}</c:when>
+                                <c:otherwise>${command.ipAddress}</c:otherwise>
+                            </c:choose>
+                        </dd>
+                    </c:if>
+                    <c:if test="${not command.anonymous or (command.anonymous and not command.sameSegment)}">
+                        <dt><fmt:message key="playersettings.devices"/></dt>
+                        <dd>
+                            <ul class="playerSettings">
+                                <c:forEach items="${PlayerTechnology.values()}" var="scheme">
+                                    <c:set var="schemeName">
+                                        <fmt:message key="playersettings.technology.${fn:toLowerCase(scheme)}"/>
+                                    </c:set>
+                                    <c:if test="${not (command.guest or command.anonymous) or technologyHolder.name eq 'WEB'}">
+                                        <li>
+                                            <form:radiobutton class="technologyRadio" id="radio-${schemeName}" path="playerTechnology" value="${scheme}"/>
+                                            <label for="radio-${schemeName}">${schemeName}</label>
+                                            <c:import url="helpToolTip.jsp"><c:param name="topic" value="playersettings.technology.${fn:toLowerCase(scheme)}"/></c:import>
+                                        </li>
+                                    </c:if>
                                 </c:forEach>
-                            </form:select>
-                            <c:import url="helpToolTip.jsp"><c:param name="topic" value="transcode"/></c:import>
-                            <c:if test="${not command.transcodingSupported}">
-                                <strong><fmt:message key="playersettings.notranscoder"/></strong>
-                            </c:if>
+                            </ul>
                         </dd>
                         <c:if test="${not empty command.allTranscodings}">
                             <dt><fmt:message key="playersettings.transcodings"/></dt>
@@ -116,6 +128,20 @@
                                 </c:forEach>
                             </dd>
                         </c:if>
+                        <dt><fmt:message key="playersettings.maxbitrate"/></dt>
+                        <dd>
+                            <form:select path="transcodeScheme">
+                                <c:forEach items="${TranscodeScheme.values()}" var="scheme">
+                                    <c:if test="${command.maxBitrate.getMaxBitRate() eq 0 or scheme.getMaxBitRate() ne 0 and scheme.getMaxBitRate() le command.maxBitrate.getMaxBitRate()}">
+                                        <form:option value="${scheme}" label="${scheme.toString()}"/>
+                                    </c:if>
+                                </c:forEach>
+                            </form:select>
+                            <c:import url="helpToolTip.jsp"><c:param name="topic" value="transcode"/></c:import>
+                            <c:if test="${not command.transcodingSupported}">
+                                <strong><fmt:message key="playersettings.notranscoder"/></strong>
+                            </c:if>
+                        </dd>
                     </c:if>
 
                     <dt></dt>

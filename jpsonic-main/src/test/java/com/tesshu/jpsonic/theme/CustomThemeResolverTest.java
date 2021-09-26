@@ -17,29 +17,25 @@
 
 package com.tesshu.jpsonic.theme;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.SettingsService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.security.test.context.support.WithMockUser;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ExtendWith(NeedsHome.class)
 class CustomThemeResolverTest {
 
-    private static final String ADMIN_NAME = "admin";
-
-    @Autowired
     private CustomThemeResolver customThemeResolver;
 
+    @BeforeEach
+    public void setup() {
+        customThemeResolver = new CustomThemeResolver(mock(SecurityService.class), mock(SettingsService.class));
+    }
+
     @Test
-    @WithMockUser(username = ADMIN_NAME)
     void testFormBackingObject() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
         String themeId = customThemeResolver.resolveThemeName(request);

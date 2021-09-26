@@ -21,9 +21,8 @@
 
 package com.tesshu.jpsonic.domain;
 
-import static com.tesshu.jpsonic.domain.TranscodeScheme.MAX_32;
-import static com.tesshu.jpsonic.domain.TranscodeScheme.MAX_64;
-import static com.tesshu.jpsonic.domain.TranscodeScheme.OFF;
+import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.junit.jupiter.api.Test;
@@ -41,12 +40,36 @@ class TranscodeSchemeTest {
      */
     @Test
     void testStrictest() {
-        assertSame(OFF, OFF.strictest(null), "Error in strictest().");
-        assertSame(OFF, OFF.strictest(OFF), "Error in strictest().");
-        assertSame(MAX_32, OFF.strictest(MAX_32), "Error in strictest().");
-        assertSame(MAX_32, MAX_32.strictest(null), "Error in strictest().");
-        assertSame(MAX_32, MAX_32.strictest(OFF), "Error in strictest().");
-        assertSame(MAX_32, MAX_32.strictest(MAX_64), "Error in strictest().");
-        assertSame(MAX_32, MAX_64.strictest(MAX_32), "Error in strictest().");
+        assertSame(TranscodeScheme.OFF, TranscodeScheme.OFF.strictest(null));
+        assertSame(TranscodeScheme.OFF, TranscodeScheme.OFF.strictest(TranscodeScheme.OFF));
+        assertSame(TranscodeScheme.MAX_128, TranscodeScheme.OFF.strictest(TranscodeScheme.MAX_128));
+        assertSame(TranscodeScheme.MAX_128, TranscodeScheme.MAX_128.strictest(null));
+        assertSame(TranscodeScheme.MAX_128, TranscodeScheme.MAX_128.strictest(TranscodeScheme.OFF));
+        assertSame(TranscodeScheme.MAX_128, TranscodeScheme.MAX_128.strictest(TranscodeScheme.MAX_256));
+        assertSame(TranscodeScheme.MAX_128, TranscodeScheme.MAX_320.strictest(TranscodeScheme.MAX_128));
+    }
+
+    @Test
+    void testOf() {
+        assertEquals(TranscodeScheme.OFF, TranscodeScheme.of("OFF"));
+        assertEquals(TranscodeScheme.OFF, TranscodeScheme.of(""));
+        assertEquals(TranscodeScheme.OFF, TranscodeScheme.of(null));
+        assertEquals(TranscodeScheme.MAX_128, TranscodeScheme.of("MAX_128"));
+        assertEquals(TranscodeScheme.MAX_256, TranscodeScheme.of("MAX_256"));
+        assertEquals(TranscodeScheme.MAX_320, TranscodeScheme.of("MAX_320"));
+    }
+
+    @Test
+    void testFromMaxBitRate() {
+        assertEquals(TranscodeScheme.OFF, TranscodeScheme.fromMaxBitRate(-1));
+        assertEquals(TranscodeScheme.OFF, TranscodeScheme.fromMaxBitRate(0));
+        assertEquals(TranscodeScheme.MAX_128, TranscodeScheme.fromMaxBitRate(1));
+        assertEquals(TranscodeScheme.MAX_128, TranscodeScheme.fromMaxBitRate(127));
+        assertEquals(TranscodeScheme.MAX_128, TranscodeScheme.fromMaxBitRate(128));
+        assertEquals(TranscodeScheme.MAX_256, TranscodeScheme.fromMaxBitRate(129));
+        assertEquals(TranscodeScheme.MAX_256, TranscodeScheme.fromMaxBitRate(256));
+        assertEquals(TranscodeScheme.MAX_320, TranscodeScheme.fromMaxBitRate(257));
+        assertEquals(TranscodeScheme.MAX_320, TranscodeScheme.fromMaxBitRate(320));
+        assertNull(TranscodeScheme.fromMaxBitRate(321));
     }
 }

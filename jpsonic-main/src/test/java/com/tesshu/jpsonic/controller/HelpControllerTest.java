@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.domain.Version;
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
@@ -34,6 +35,7 @@ import com.tesshu.jpsonic.service.VersionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -42,15 +44,19 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 
-@ExtendWith(NeedsHome.class)
+@ExtendWith(NeedsHome.class) // For static access to log files
 class HelpControllerTest {
 
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        mockMvc = MockMvcBuilders.standaloneSetup(new HelpController(mock(VersionService.class),
-                mock(SettingsService.class), mock(SecurityService.class), mock(AirsonicLocaleResolver.class))).build();
+        SecurityService securityService = mock(SecurityService.class);
+        SettingsService settingsService = mock(SettingsService.class);
+        VersionService versionService = mock(VersionService.class);
+        Mockito.when(versionService.getLocalVersion()).thenReturn(new Version("v110.0.0"));
+        mockMvc = MockMvcBuilders.standaloneSetup(new HelpController(versionService, settingsService, securityService,
+                new AirsonicLocaleResolver(securityService, settingsService))).build();
     }
 
     @Test

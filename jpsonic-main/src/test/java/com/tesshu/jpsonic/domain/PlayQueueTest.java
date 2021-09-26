@@ -21,39 +21,40 @@
 
 package com.tesshu.jpsonic.domain;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.Objects;
 
-import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.service.SettingsService;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * Unit test of {@link PlayQueue}.
  *
  * @author Sindre Mehus
  */
-@SpringBootTest
-@ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 class PlayQueueTest {
 
-    @Autowired
     private JpsonicComparators jpsonicComparators;
+
+    @BeforeEach
+    public void setup() {
+        jpsonicComparators = new JpsonicComparators(mock(SettingsService.class), mock(JapaneseReadingUtils.class));
+    }
 
     @Test
     void testEmpty() {
         PlayQueue playQueue = new PlayQueue();
         assertEquals(0, playQueue.size());
-        assertTrue(playQueue.isEmpty());
+        Assertions.assertTrue(playQueue.isEmpty());
         assertEquals(0, playQueue.getFiles().size());
         assertNull(playQueue.getCurrentFile());
     }
@@ -151,7 +152,7 @@ class PlayQueueTest {
 
         playQueue = createPlaylist(0, "A", "B", "C");
         playQueue.setRepeatEnabled(true);
-        assertTrue(playQueue.isRepeatEnabled());
+        Assertions.assertTrue(playQueue.isRepeatEnabled());
         playQueue.next();
         assertPlaylistEquals(playQueue, 1, "A", "B", "C");
         playQueue.next();

@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.command.PlayerSettingsCommand;
 import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
@@ -95,8 +94,7 @@ public class PlayerSettingsController {
 
         PlayerSettingsCommand command = new PlayerSettingsCommand();
         List<Player> players = getPlayers(request);
-        command.setPlayers(
-                players.stream().filter(p -> !User.USERNAME_GUEST.equals(p.getUsername())).toArray(Player[]::new));
+        command.setPlayers(players.stream().toArray(Player[]::new));
         User user = securityService.getCurrentUser(request);
         command.setAdmin(user.isAdminRole());
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
@@ -112,22 +110,19 @@ public class PlayerSettingsController {
         if (player != null) {
             // Player settings
             command.setPlayerId(player.getId());
-            command.setType(player.getType());
             command.setName(player.getName());
+            command.setType(player.getType());
+            command.setIpAddress(player.getIpAddress());
             command.setGuest(User.USERNAME_GUEST.equals(player.getUsername()));
             command.setAnonymous(JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername()));
             command.setSameSegment(settingsService.isInUPnPRange(player.getIpAddress()));
             command.setPlayerTechnology(player.getTechnology());
-            command.setTranscodeScheme(player.getTranscodeScheme());
             command.setAllTranscodings(transcodingService.getAllTranscodings());
-
-            List<Transcoding> activeTranscodings = transcodingService.getTranscodingsForPlayer(player);
-            int[] activeTranscodingIds = new int[activeTranscodings.size()];
-            for (int i = 0; i < activeTranscodings.size(); i++) {
-                activeTranscodingIds[i] = activeTranscodings.get(i).getId();
-            }
-            command.setActiveTranscodingIds(activeTranscodingIds);
-
+            UserSettings userSettings = securityService.getUserSettings(player.getUsername());
+            command.setMaxBitrate(userSettings.getTranscodeScheme());
+            command.setTranscodeScheme(player.getTranscodeScheme());
+            command.setActiveTranscodingIds(
+                    transcodingService.getTranscodingsForPlayer(player).stream().mapToInt(t -> t.getId()).toArray());
             command.setDynamicIp(player.isDynamicIp());
             command.setAutoControlEnabled(player.isAutoControlEnabled());
             command.setM3uBomEnabled(player.isM3uBomEnabled());
@@ -178,8 +173,10 @@ public class PlayerSettingsController {
         List<Player> players = playerService.getAllPlayers();
         List<Player> authorizedPlayers = new ArrayList<>();
         for (Player player : players) {
-            // Only display authorized players.
-            if (user.isAdminRole() || username.equals(player.getUsername())) {
+            // - Guest user is not displayed
+            // - Only display authorized players.
+            if (!User.USERNAME_GUEST.equals(player.getUsername())
+                    && (user.isAdminRole() || username.equals(player.getUsername()))) {
                 authorizedPlayers.add(player);
             }
         }

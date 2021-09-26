@@ -31,9 +31,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.command.UserSettingsCommand;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.Player;
+import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
@@ -72,15 +75,18 @@ public class UserSettingsController {
     private final SecurityService securityService;
     private final TranscodingService transcodingService;
     private final ShareService shareService;
+    private final PlayerService playerService;
 
     public UserSettingsController(SettingsService settingsService, MusicFolderService musicFolderService,
-            SecurityService securityService, TranscodingService transcodingService, ShareService shareService) {
+            SecurityService securityService, TranscodingService transcodingService, ShareService shareService,
+            PlayerService playerService) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
         this.transcodingService = transcodingService;
         this.shareService = shareService;
+        this.playerService = playerService;
     }
 
     @InitBinder
@@ -134,9 +140,10 @@ public class UserSettingsController {
     private User getUser(HttpServletRequest request) throws ServletRequestBindingException {
         Integer userIndex = ServletRequestUtils.getIntParameter(request, Attributes.Redirect.USER_INDEX.value());
         if (userIndex != null) {
-            List<User> allUsers = securityService.getAllUsers();
-            if (userIndex >= 0 && userIndex < allUsers.size()) {
-                return allUsers.get(userIndex);
+            List<User> users = securityService.getAllUsers().stream()
+                    .filter(u -> !User.USERNAME_GUEST.equals(u.getUsername())).collect(Collectors.toList());
+            if (userIndex >= 0 && userIndex < users.size()) {
+                return users.get(userIndex);
             }
         }
         return null;
@@ -178,16 +185,17 @@ public class UserSettingsController {
     }
 
     private Integer getUserIndex(String userName) {
-        List<User> allUsers = securityService.getAllUsers();
-        for (int i = 0; i < allUsers.size(); i++) {
-            if (StringUtils.equalsIgnoreCase(allUsers.get(i).getUsername(), userName)) {
+        List<User> users = securityService.getAllUsers().stream()
+                .filter(u -> !User.USERNAME_GUEST.equals(u.getUsername())).collect(Collectors.toList());
+        for (int i = 0; i < users.size(); i++) {
+            if (StringUtils.equalsIgnoreCase(users.get(i).getUsername(), userName)) {
                 return i;
             }
         }
         return null;
     }
 
-    private void deleteUser(UserSettingsCommand command) {
+    public void deleteUser(UserSettingsCommand command) {
         securityService.deleteUser(command.getUsername());
     }
 
@@ -219,6 +227,17 @@ public class UserSettingsController {
 
         UserSettings userSettings = securityService.getUserSettings(command.getUsername());
         userSettings.setTranscodeScheme(command.getTranscodeScheme());
+        if (command.getTranscodeScheme() != TranscodeScheme.OFF) {
+            List<Player> userPlayers = playerService.getAllPlayers().stream()
+                    .filter(p -> command.getUsername().equals(p.getUsername())).collect(Collectors.toList());
+            for (Player player : userPlayers) {
+                if (player.getTranscodeScheme() == TranscodeScheme.OFF
+                        || player.getTranscodeScheme().getMaxBitRate() > command.getTranscodeScheme().getMaxBitRate()) {
+                    player.setTranscodeScheme(command.getTranscodeScheme());
+                    playerService.updatePlayer(player);
+                }
+            }
+        }
         userSettings.setChanged(new Date());
         securityService.updateUserSettings(userSettings);
 
