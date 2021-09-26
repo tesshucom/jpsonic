@@ -45,14 +45,19 @@
     <c:param name="existsShare" value="${command.shareCount ne 0}"/>
 </c:import>
 
-<div class="titledSelector username">
-    <fmt:message key="usersettings.title"/>
-    <select name="username" onchange="location='userSettings.view?userIndex=' + (selectedIndex - 1);">
-        <option value="">-- <fmt:message key="usersettings.newuser"/> --</option>
-        <c:forEach items="${command.users}" var="user">
-            <option ${user.username eq command.username ? "selected" : ""} value="${fn:escapeXml(user.username)}">${fn:escapeXml(user.username)}</option>
-        </c:forEach>
-    </select>
+
+<div class="topSelectorContainer">
+    <dl>
+        <dt><fmt:message key="usersettings.title"/></dt>
+        <dd>
+            <select name="username" onchange="location='userSettings.view' + selectedIndex == 0 ? 0 : '?userIndex=' + (selectedIndex - 1);">
+		        <option value="">-- <fmt:message key="usersettings.newuser"/> --</option>
+		        <c:forEach items="${command.users}" var="user">
+		            <option ${user.username eq command.username ? "selected" : ""} value="${fn:escapeXml(user.username)}">${fn:escapeXml(user.username)}</option>
+		        </c:forEach>
+		    </select>
+        </dd>
+    </dl>
 </div>
 
 <form:form method="post" action="userSettings.view" modelAttribute="command">

@@ -1,4 +1,19 @@
+
+.mainframe.settings.databaseSettings.notMobile,
 .mainframe.settings.databaseSettings {
+  .topSelectorContainer2 {
+    dt {
+      background-color: $jp-color-base4;
+      color: $jp-color-white;
+      font-weight: 600;
+
+      @include borderRadius(left);
+    }
+    dd {
+      @include borderRadius(right);
+    }
+  }
+
   input#embedDriver {
     @include dlInputWidth(10);
   }
