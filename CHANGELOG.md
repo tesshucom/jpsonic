@@ -3,9 +3,7 @@
 # jpsonic/jpsonic
 # -->
 
-## v110.1.0 (SNAPSHOT)
-
-The binaries of SNAPSHOT are available from the latest artifacts on the [master branch](https://github.com/tesshucom/jpsonic/actions?query=branch%3Amaster) .
+## v110.1.0
 
 #### Enhancement
   * Java 17 Support
