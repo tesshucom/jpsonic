@@ -5,6 +5,11 @@
 
 ## v110.1.0
 
+#### Fixes
+  * Fix bug that Java 17 build does not run with the correct class version ([#1183](https://github.com/tesshucom/jpsonic/issues/1183))
+
+## v110.1.0
+
 #### Enhancement
   * Java 17 Support
   * Delete Jukebox ([#1107](https://github.com/tesshucom/jpsonic/issues/1107))
