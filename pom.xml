@@ -791,42 +791,7 @@
             </activation>
         </profile>
         <profile>
-            <id>release12</id>
-            <properties>
-                <java.version>12</java.version>
-                <maven.compiler.release>${java.version}</maven.compiler.release>
-            </properties>
-        </profile>
-        <profile>
-            <id>release13</id>
-            <properties>
-                <java.version>13</java.version>
-                <maven.compiler.release>${java.version}</maven.compiler.release>
-            </properties>
-        </profile>
-        <profile>
-            <id>release14</id>
-            <properties>
-                <java.version>14</java.version>
-                <maven.compiler.release>${java.version}</maven.compiler.release>
-            </properties>
-        </profile>
-        <profile>
-            <id>release15</id>
-            <properties>
-                <java.version>15</java.version>
-                <maven.compiler.release>${java.version}</maven.compiler.release>
-            </properties>
-        </profile>
-        <profile>
-            <id>release16</id>
-            <properties>
-                <java.version>16</java.version>
-                <maven.compiler.release>${java.version}</maven.compiler.release>
-            </properties>
-        </profile>
-        <profile>
-            <id>release17-ea</id>
+            <id>release17</id>
             <properties>
                 <java.version>17</java.version>
                 <maven.compiler.release>${java.version}</maven.compiler.release>
