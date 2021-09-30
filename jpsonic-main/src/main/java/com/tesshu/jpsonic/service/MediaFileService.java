@@ -190,7 +190,7 @@ public class MediaFileService {
         return getMediaFile(mediaFile.getParentPath());
     }
 
-    private MediaFile checkLastModified(final MediaFile mediaFile, boolean useFastCache) {
+    MediaFile checkLastModified(final MediaFile mediaFile, boolean useFastCache) {
 
         // Determine if the file has not changed
         if (useFastCache) {

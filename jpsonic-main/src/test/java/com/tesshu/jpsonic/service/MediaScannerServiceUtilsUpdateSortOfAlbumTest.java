@@ -19,7 +19,6 @@
 
 package com.tesshu.jpsonic.service;
 
-import static com.tesshu.jpsonic.service.MediaScannerServiceUtilsTestUtils.invokeUtils;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
@@ -115,7 +114,7 @@ class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractNeedsScan {
         assertEquals(1L, albumId3s.stream().filter(a -> "albumC".equals(a.getNameSort())).count());
         assertEquals(1L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count());
 
-        invokeUtils(utils, "mergeSortOfAlbum");
+        utils.mergeSortOfAlbum();
 
         albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, MUSIC_FOLDERS);
         assertEquals(5, albums.size());
@@ -134,7 +133,7 @@ class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractNeedsScan {
         assertEquals(0L, albumId3s.stream().filter(a -> "albumC".equals(a.getNameSort())).count()); // merged
         assertEquals(2L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count()); // merged
 
-        invokeUtils(utils, "copySortOfAlbum");
+        utils.copySortOfAlbum();
 
         albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, MUSIC_FOLDERS);
         assertEquals(5, albums.size());
@@ -153,7 +152,7 @@ class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractNeedsScan {
         assertEquals(0L, albumId3s.stream().filter(a -> "albumC".equals(a.getNameSort())).count());
         assertEquals(2L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count());
 
-        invokeUtils(utils, "compensateSortOfAlbum");
+        utils.compensateSortOfAlbum();
 
         albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, MUSIC_FOLDERS);
         assertEquals(5, albums.size());

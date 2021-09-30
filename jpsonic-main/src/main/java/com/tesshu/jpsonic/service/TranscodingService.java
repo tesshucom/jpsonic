@@ -252,7 +252,8 @@ public class TranscodingService {
      * Returns an applicable transcoding for the given file and player, or <code>null</code> if no transcoding should be
      * done.
      */
-    private @Nullable Transcoding getTranscoding(@NonNull MediaFile mediaFile, @NonNull Player player,
+    @Nullable
+    Transcoding getTranscoding(@NonNull MediaFile mediaFile, @NonNull Player player,
             @Nullable String preferredTargetFormat, boolean hls) {
 
         if (FORMAT_RAW.equals(preferredTargetFormat)) {
@@ -345,7 +346,7 @@ public class TranscodingService {
      *             If an I/O error occurs.
      */
     @SuppressWarnings("PMD.ConfusingTernary") // false positive
-    private InputStream createTranscodedInputStream(@NonNull Parameters parameters) throws IOException {
+    InputStream createTranscodedInputStream(@NonNull Parameters parameters) throws IOException {
 
         Transcoding transcoding = parameters.getTranscoding();
         Integer maxBitRate = parameters.getMaxBitRate();
@@ -399,7 +400,7 @@ public class TranscodingService {
      *            Data to feed to the process. May be {@code null}. @return The newly created input stream.
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
-    private TranscodeInputStream createTranscodeInputStream(@NonNull String command, Integer maxBitRate,
+    TranscodeInputStream createTranscodeInputStream(@NonNull String command, Integer maxBitRate,
             VideoTranscodingSettings vts, @NonNull MediaFile mediaFile, InputStream in) throws IOException {
 
         String title = mediaFile.getTitle();
@@ -487,7 +488,7 @@ public class TranscodingService {
         return false;
     }
 
-    private boolean isTranscoderInstalled(@NonNull Transcoding transcoding) {
+    boolean isTranscoderInstalled(@NonNull Transcoding transcoding) {
         return isTranscoderInstalled(transcoding.getStep1()) && isTranscoderInstalled(transcoding.getStep2())
                 && isTranscoderInstalled(transcoding.getStep3());
     }
@@ -571,7 +572,7 @@ public class TranscodingService {
         return player.getTranscodeScheme();
     }
 
-    private int createBitrate(@NonNull MediaFile mediaFile) {
+    int createBitrate(@NonNull MediaFile mediaFile) {
         // If null assume unlimited bitrate
         int bitRate = mediaFile.getBitRate() == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate())
                 : mediaFile.getBitRate();
@@ -588,7 +589,7 @@ public class TranscodingService {
         return bitRate;
     }
 
-    private int createMaxBitrate(@NonNull TranscodeScheme transcodeScheme, @NonNull MediaFile mediaFile, int bitRate) {
+    int createMaxBitrate(@NonNull TranscodeScheme transcodeScheme, @NonNull MediaFile mediaFile, int bitRate) {
         final int mb = mediaFile.isVideo() ? VideoPlayerController.DEFAULT_BIT_RATE : transcodeScheme.getMaxBitRate();
         if (mb == 0 || bitRate != 0 && bitRate < mb) {
             return bitRate;
@@ -596,7 +597,7 @@ public class TranscodingService {
         return mb;
     }
 
-    private boolean isNeedTranscoding(@Nullable Transcoding transcoding, int mb, int bitRate,
+    boolean isNeedTranscoding(@Nullable Transcoding transcoding, int mb, int bitRate,
             @Nullable String preferredTargetFormat, @NonNull MediaFile mediaFile) {
         boolean isNeedTranscoding = false;
         if (transcoding != null && (mb != 0 && (bitRate == 0 || bitRate > mb)
@@ -606,7 +607,7 @@ public class TranscodingService {
         return isNeedTranscoding;
     }
 
-    private boolean isRangeAllowed(@NonNull Parameters parameters) {
+    boolean isRangeAllowed(@NonNull Parameters parameters) {
         Transcoding transcoding = parameters.getTranscoding();
         List<String> steps;
         if (transcoding == null) {
@@ -632,7 +633,8 @@ public class TranscodingService {
     /**
      * Returns the length (or predicted/expected length) of a (possibly padded) media stream
      */
-    private @Nullable Long getExpectedLength(@NonNull Parameters parameters) {
+    @Nullable
+    Long getExpectedLength(@NonNull Parameters parameters) {
 
         MediaFile file = parameters.getMediaFile();
         if (!parameters.isTranscode()) {
