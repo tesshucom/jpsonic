@@ -26,11 +26,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.WebFontUtils;
+import com.tesshu.jpsonic.dao.UserDao;
 import com.tesshu.jpsonic.domain.AlbumListType;
 import com.tesshu.jpsonic.domain.FontScheme;
 import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
@@ -48,11 +47,11 @@ import org.junit.jupiter.api.Test;
 class SecurityServiceTest {
 
     private SecurityService service;
-    private UserSettings settings;
 
     @BeforeEach
     public void setup() {
-        service = new SecurityService(null, mock(SettingsService.class), null, null);
+        service = new SecurityService(mock(UserDao.class), mock(SettingsService.class), mock(MusicFolderService.class),
+                null);
     }
 
     @Test
@@ -85,28 +84,14 @@ class SecurityServiceTest {
         assertFalse(service.isFileInFolder("/music/..\\bar/../foo", "/music"));
     }
 
-    private UserSettings getUserSettings() throws ExecutionException {
-        if (settings == null) {
-            try {
-                Method method = service.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
-                method.setAccessible(true);
-                settings = (UserSettings) method.invoke(service, "");
-            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-                    | InvocationTargetException e) {
-                throw new ExecutionException(e);
-            }
-        }
-        return settings;
-    }
-
     @Test
     void testLanguageAndTheme() throws ExecutionException {
-        assertEquals("DEFAULT", getUserSettings().getFontSchemeName());
+        assertEquals("DEFAULT", service.getUserSettings("").getFontSchemeName());
     }
 
     @Test
     void testSettings4DesktopPC() throws ExecutionException {
-        UserSettings userSettings = getUserSettings();
+        UserSettings userSettings = service.getUserSettings("");
         assertTrue(userSettings.isKeyboardShortcutsEnabled());
         assertEquals(AlbumListType.RANDOM, userSettings.getDefaultAlbumList());
         assertFalse(userSettings.isPutMenuInDrawer());
@@ -193,7 +178,7 @@ class SecurityServiceTest {
 
     @Test
     void testDisplay() throws Exception {
-        UserSettings userSettings = getUserSettings();
+        UserSettings userSettings = service.getUserSettings("");
         assertTrue(userSettings.getMainVisibility().isTrackNumberVisible());
         assertTrue(userSettings.getMainVisibility().isArtistVisible());
         assertFalse(userSettings.getMainVisibility().isAlbumVisible());
@@ -219,7 +204,7 @@ class SecurityServiceTest {
 
     @Test
     void testAdditionalDisplay() throws ExecutionException {
-        UserSettings userSettings = getUserSettings();
+        UserSettings userSettings = service.getUserSettings("");
         assertFalse(userSettings.isShowNowPlayingEnabled());
         assertFalse(userSettings.isNowPlayingAllowed());
         assertFalse(userSettings.isShowArtistInfoEnabled());

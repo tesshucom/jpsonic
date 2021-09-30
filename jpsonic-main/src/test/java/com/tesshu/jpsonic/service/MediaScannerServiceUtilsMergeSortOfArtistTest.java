@@ -19,7 +19,6 @@
 
 package com.tesshu.jpsonic.service;
 
-import static com.tesshu.jpsonic.service.MediaScannerServiceUtilsTestUtils.invokeUtils;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -107,7 +106,7 @@ class MediaScannerServiceUtilsMergeSortOfArtistTest extends AbstractNeedsScan {
     @Test
     void testMergeSortOfArtist() throws ExecutionException {
 
-        invokeUtils(utils, "mergeSortOfArtist");
+        utils.mergeSortOfArtist();
 
         List<MediaFile> artists = mediaFileDao.getArtistAll(MUSIC_FOLDERS);
         assertEquals(3, artists.size());
