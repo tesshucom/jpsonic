@@ -73,12 +73,12 @@ public class InternetRadioSettingsController {
 
     @PostMapping
     public ModelAndView doPost(HttpServletRequest request, RedirectAttributes redirectAttributes) {
-
         String error = handleParameters(request);
         if (error == null) {
             redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
+        } else {
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.ERROR.value(), error);
         }
-        redirectAttributes.addFlashAttribute(Attributes.Redirect.ERROR.value(), error);
         return new ModelAndView(new RedirectView(ViewName.INTERNET_RADIO_SETTINGS.value()));
     }
 

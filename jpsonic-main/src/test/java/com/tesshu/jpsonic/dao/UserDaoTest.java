@@ -26,8 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -42,6 +40,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -61,9 +60,6 @@ class UserDaoTest {
 
     @Autowired
     private UserDao userDao;
-
-    @Autowired
-    private SecurityService securityService;
 
     @BeforeEach
     public void setUp() {
@@ -198,31 +194,18 @@ class UserDaoTest {
     @Test
     void testCreateDefaultUserSettingsWithNonExist() throws ExecutionException {
         assertNull(userDao.getUserSettings("sindre"), "Error in getUserSettings.");
-        Method method;
-        try {
-            method = securityService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
-            method.setAccessible(true);
-            Assertions.assertThrows(DataIntegrityViolationException.class,
-                    () -> userDao.updateUserSettings((UserSettings) method.invoke(securityService, "sindre")));
-        } catch (NoSuchMethodException | SecurityException | IllegalArgumentException e) {
-            throw new ExecutionException(e);
-        }
+        SecurityService mockService = new SecurityService(Mockito.mock(UserDao.class), null, null, null);
+        UserSettings userSettings = mockService.getUserSettings("sindre");
+        Assertions.assertThrows(DataIntegrityViolationException.class, () -> userDao.updateUserSettings(userSettings));
     }
 
     @Test
     void testUserSettings() throws ExecutionException {
         userDao.createUser(new User("sindre", "secret", null));
-
         assertNull(userDao.getUserSettings("sindre"), "Error in getUserSettings.");
-        Method method;
-        try {
-            method = securityService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
-            method.setAccessible(true);
-            userDao.updateUserSettings((UserSettings) method.invoke(securityService, "sindre"));
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
-                | SecurityException e) {
-            throw new ExecutionException(e);
-        }
+
+        SecurityService mockService = new SecurityService(Mockito.mock(UserDao.class), null, null, null);
+        userDao.updateUserSettings(mockService.getUserSettings("sindre"));
 
         UserSettings userSettings = userDao.getUserSettings("sindre");
         Assertions.assertNotNull(userSettings, "Error in getUserSettings().");
@@ -247,12 +230,7 @@ class UserDaoTest {
         assertTrue(userSettings.isKeyboardShortcutsEnabled(), "Error in getUserSettings().");
         assertEquals(40, userSettings.getPaginationSize(), "Error in getUserSettings().");
 
-        UserSettings settings;
-        try {
-            settings = (UserSettings) method.invoke(securityService, "sindre");
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            throw new ExecutionException(e);
-        }
+        UserSettings settings = mockService.getUserSettings("sindre");
         settings.setLocale(Locale.SIMPLIFIED_CHINESE);
         settings.setThemeId("midnight");
         settings.setBetaVersionNotificationEnabled(true);

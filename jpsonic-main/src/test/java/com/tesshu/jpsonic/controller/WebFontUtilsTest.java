@@ -22,16 +22,17 @@ package com.tesshu.jpsonic.controller;
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.command.PersonalSettingsCommand;
+import com.tesshu.jpsonic.dao.UserDao;
 import com.tesshu.jpsonic.domain.FontScheme;
 import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.catalina.connector.Request;
 import org.checkerframework.checker.signedness.qual.Unsigned;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,28 +50,15 @@ class WebFontUtilsTest {
 
     @BeforeEach
     public void setup() {
-        securityService = mock(SecurityService.class);
+        securityService = new SecurityService(mock(UserDao.class), mock(SettingsService.class),
+                mock(MusicFolderService.class), null);
     }
 
     @Test
     @Order(1)
     void testSetToRequest() throws ExecutionException {
 
-        @Unsigned
-        Method method;
-        @Unsigned
-        UserSettings settings;
-
-        SecurityService service = new SecurityService(null, null, null, null);
-
-        try {
-            method = service.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
-            method.setAccessible(true);
-            settings = (UserSettings) method.invoke(service, "");
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException e) {
-            throw new ExecutionException(e);
-        }
+        UserSettings settings = securityService.getUserSettings("");
 
         // DEFAULT
         HttpServletRequest request = new Request(null);
@@ -103,11 +91,7 @@ class WebFontUtilsTest {
         // CUSTOM
         request = new Request(null);
         command = new PersonalSettingsCommand();
-        try {
-            WebFontUtils.setToCommand((UserSettings) method.invoke(securityService, ""), command);
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            throw new ExecutionException(e);
-        }
+        WebFontUtils.setToCommand(securityService.getUserSettings(""), command);
 
         command.setFontScheme(FontScheme.CUSTOM);
         WebFontUtils.setToSettings(command, settings);
@@ -140,22 +124,8 @@ class WebFontUtilsTest {
     @Order(2)
     void testSetToCommand() throws ExecutionException {
 
-        @Unsigned
-        Method method;
+        UserSettings from = securityService.getUserSettings("");
 
-        @Unsigned
-        UserSettings from;
-
-        SecurityService service = new SecurityService(null, null, null, null);
-
-        try {
-            method = service.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
-            method.setAccessible(true);
-            from = (UserSettings) method.invoke(service, "");
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException e) {
-            throw new ExecutionException(e);
-        }
         PersonalSettingsCommand to = new PersonalSettingsCommand();
         WebFontUtils.setToCommand(from, to);
 
@@ -202,20 +172,7 @@ class WebFontUtilsTest {
         WebFontUtils.setToCommand(new UserSettings(""), command);
 
         @Unsigned
-        Method method;
-
-        @Unsigned
-        UserSettings to;
-
-        SecurityService service = new SecurityService(null, null, null, null);
-        try {
-            method = service.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
-            method.setAccessible(true);
-            to = (UserSettings) method.invoke(service, "");
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException e) {
-            throw new ExecutionException(e);
-        }
+        UserSettings to = securityService.getUserSettings("");
 
         WebFontUtils.setToSettings(command, to);
         assertEquals(FontScheme.DEFAULT.name(), to.getFontSchemeName());
