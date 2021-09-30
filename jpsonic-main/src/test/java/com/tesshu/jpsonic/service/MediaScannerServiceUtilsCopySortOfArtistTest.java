@@ -19,7 +19,6 @@
 
 package com.tesshu.jpsonic.service;
 
-import static com.tesshu.jpsonic.service.MediaScannerServiceUtilsTestUtils.invokeUtils;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -81,7 +80,7 @@ class MediaScannerServiceUtilsCopySortOfArtistTest extends AbstractNeedsScan {
     @Test
     void testCopySortOfArtist() throws ExecutionException {
 
-        invokeUtils(utils, "mergeSortOfArtist");
+        utils.mergeSortOfArtist();
 
         List<MediaFile> artists = mediaFileDao.getArtistAll(MUSIC_FOLDERS);
         assertEquals(1, artists.size());
@@ -103,7 +102,7 @@ class MediaScannerServiceUtilsCopySortOfArtistTest extends AbstractNeedsScan {
         assertEquals("case1", artistID3s.get(0).getName());
         assertNull(artistID3s.get(0).getSort());
 
-        invokeUtils(utils, "copySortOfArtist");
+        utils.copySortOfArtist();
 
         files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPath(), false);
         artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, MUSIC_FOLDERS);

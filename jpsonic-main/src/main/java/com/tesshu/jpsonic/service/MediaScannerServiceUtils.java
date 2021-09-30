@@ -101,37 +101,37 @@ public class MediaScannerServiceUtils {
         albumDao.clearOrder();
     }
 
-    private FixedIds compensateSortOfAlbum() {
+    FixedIds compensateSortOfAlbum() {
         List<SortCandidate> candidates = mediaFileDao.getSortForAlbumWithoutSorts();
         candidates.forEach(utils::analyze);
         return updateSortOfAlbum(candidates);
     }
 
-    private FixedIds compensateSortOfArtist() {
+    FixedIds compensateSortOfArtist() {
         List<SortCandidate> candidates = mediaFileDao.getSortForPersonWithoutSorts();
         candidates.forEach(utils::analyze);
         return updateSortOfArtist(candidates);
     }
 
-    private FixedIds copySortOfAlbum() {
+    FixedIds copySortOfAlbum() {
         List<SortCandidate> candidates = mediaFileDao.getCopyableSortForAlbums();
         candidates.forEach(utils::analyze);
         return updateSortOfAlbum(candidates);
     }
 
-    private FixedIds copySortOfArtist() {
+    FixedIds copySortOfArtist() {
         List<SortCandidate> candidates = mediaFileDao.getCopyableSortForPersons();
         candidates.forEach(utils::analyze);
         return updateSortOfArtist(candidates);
     }
 
-    private FixedIds mergeSortOfAlbum() {
+    FixedIds mergeSortOfAlbum() {
         List<SortCandidate> candidates = mediaFileDao.guessAlbumSorts();
         candidates.forEach(utils::analyze);
         return updateSortOfAlbum(candidates);
     }
 
-    private FixedIds mergeSortOfArtist() {
+    FixedIds mergeSortOfArtist() {
         List<SortCandidate> candidates = mediaFileDao.guessPersonsSorts();
         candidates.forEach(utils::analyze);
         return updateSortOfArtist(candidates);
