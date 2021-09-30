@@ -19,7 +19,6 @@
 
 package com.tesshu.jpsonic.service;
 
-import static com.tesshu.jpsonic.service.MediaScannerServiceUtilsTestUtils.invokeUtils;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -81,8 +80,8 @@ class MediaScannerServiceUtilsCompensateSortOfArtistTest extends AbstractNeedsSc
     @Test
     void testCompensateSortOfArtist() throws ExecutionException {
 
-        invokeUtils(utils, "mergeSortOfArtist");
-        invokeUtils(utils, "copySortOfArtist");
+        utils.mergeSortOfArtist();
+        utils.copySortOfArtist();
 
         List<MediaFile> artists = mediaFileDao.getArtistAll(MUSIC_FOLDERS);
         List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(0).getPath(), false);
@@ -139,7 +138,7 @@ class MediaScannerServiceUtilsCompensateSortOfArtistTest extends AbstractNeedsSc
             }
         });
 
-        invokeUtils(utils, "compensateSortOfArtist");
+        utils.compensateSortOfArtist();
 
         artists = mediaFileDao.getArtistAll(MUSIC_FOLDERS);
         albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(0).getPath(), false);

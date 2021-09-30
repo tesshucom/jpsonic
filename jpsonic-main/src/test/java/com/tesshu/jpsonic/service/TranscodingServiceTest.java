@@ -28,16 +28,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Documented;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.file.InvalidPathException;
 import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -57,8 +53,6 @@ import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
 import com.tesshu.jpsonic.io.TranscodeInputStream;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.service.TranscodingService.Parameters;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -441,30 +435,6 @@ class TranscodingServiceTest {
 
         private String step = "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -f flv -";
 
-        private Method ctisMethod;
-
-        @BeforeEach
-        public void before() throws ExecutionException {
-            if (ctisMethod != null) {
-                return;
-            }
-            try {
-                ctisMethod = transcodingService.getClass().getDeclaredMethod("createTranscodedInputStream",
-                        Parameters.class);
-                ctisMethod.setAccessible(true);
-            } catch (NoSuchMethodException | SecurityException e) {
-                throw new ExecutionException(e);
-            }
-        }
-
-        private InputStream doCreateTranscodedInputStream(@NonNull Parameters parameters) throws ExecutionException {
-            try {
-                return (InputStream) ctisMethod.invoke(transcodingService, parameters);
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                throw new ExecutionException(e);
-            }
-        }
-
         private Parameters createParam() {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setTitle("title");
@@ -483,7 +453,7 @@ class TranscodingServiceTest {
             Transcoding transcoding = new Transcoding(null, null, fmtMp3, fmtWav, step, null, null, false);
             parameters.setTranscoding(transcoding);
 
-            try (InputStream stream = doCreateTranscodedInputStream(parameters)) {
+            try (InputStream stream = transcodingService.createTranscodedInputStream(parameters)) {
                 Assertions.assertNotNull(stream);
             } catch (IOException e) {
                 throw new ExecutionException(e);
@@ -497,7 +467,7 @@ class TranscodingServiceTest {
             Transcoding transcoding = new Transcoding(null, null, fmtMp3, fmtWav, step, null, step, false);
             parameters.setTranscoding(transcoding);
 
-            try (InputStream stream = doCreateTranscodedInputStream(parameters)) {
+            try (InputStream stream = transcodingService.createTranscodedInputStream(parameters)) {
                 Assertions.assertNotNull(stream);
             } catch (IOException e) {
                 throw new ExecutionException(e);
@@ -511,7 +481,7 @@ class TranscodingServiceTest {
             Transcoding transcoding = new Transcoding(null, null, fmtMp3, fmtWav, step, step, null, false);
             parameters.setTranscoding(transcoding);
 
-            try (InputStream stream = doCreateTranscodedInputStream(parameters)) {
+            try (InputStream stream = transcodingService.createTranscodedInputStream(parameters)) {
                 Assertions.assertNotNull(stream);
             } catch (IOException e) {
                 throw new ExecutionException(e);
@@ -525,7 +495,7 @@ class TranscodingServiceTest {
             Transcoding transcoding = new Transcoding(null, null, fmtMp3, fmtWav, step, step, step, false);
             parameters.setTranscoding(transcoding);
 
-            try (InputStream stream = doCreateTranscodedInputStream(parameters)) {
+            try (InputStream stream = transcodingService.createTranscodedInputStream(parameters)) {
                 Assertions.assertNotNull(stream);
             } catch (IOException e) {
                 throw new ExecutionException(e);
@@ -538,55 +508,27 @@ class TranscodingServiceTest {
     @Order(10)
     class CreateTranscodeInputStream {
 
-        private Method ctisMethod;
-
         private String command = "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 22050 -ac 2 -v 0 -f flv -vcodec libx264 -preset superfast -threads 0 -";
-
-        @BeforeEach
-        public void before() throws ExecutionException {
-            if (ctisMethod != null) {
-                return;
-            }
-            try {
-                ctisMethod = transcodingService.getClass().getDeclaredMethod("createTranscodeInputStream", String.class,
-                        Integer.class, VideoTranscodingSettings.class, MediaFile.class, InputStream.class);
-                ctisMethod.setAccessible(true);
-            } catch (NoSuchMethodException | SecurityException e) {
-                throw new ExecutionException(e);
-            }
-        }
-
-        private TranscodeInputStream doCreateTranscodeInputStream(@NonNull String command, Integer maxBitRate,
-                VideoTranscodingSettings videoTranscodingSettings, @NonNull MediaFile mediaFile, InputStream in)
-                throws ExecutionException {
-            try {
-                return (TranscodeInputStream) ctisMethod.invoke(transcodingService, command, maxBitRate,
-                        videoTranscodingSettings, mediaFile, in);
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                throw new ExecutionException(e);
-            }
-        }
 
         @Test
         @Order(1)
-        void testCTI1() throws ExecutionException {
+        void testCTI1() throws IOException {
             Integer maxBitRate = null;
             VideoTranscodingSettings videoTranscodingSettings = null;
             MediaFile mediaFile = new MediaFile();
             mediaFile.setPath(realPath);
             InputStream in = null;
-
-            try (TranscodeInputStream stream = doCreateTranscodeInputStream(command, maxBitRate,
-                    videoTranscodingSettings, mediaFile, in);) {
+            try (TranscodeInputStream stream = transcodingService.createTranscodeInputStream(command, maxBitRate,
+                    videoTranscodingSettings, mediaFile, in)) {
                 Assertions.assertNotNull(stream);
             }
         }
 
         @Test
         @Order(2)
-        void testCTI2() throws ExecutionException {
+        void testCTI2() throws IOException {
             Integer maxBitRate = null;
-            VideoTranscodingSettings v = new VideoTranscodingSettings(640, 480, 0, 120, false);
+            VideoTranscodingSettings videoTranscodingSettings = new VideoTranscodingSettings(640, 480, 0, 120, false);
             MediaFile mediaFile = new MediaFile();
             mediaFile.setTitle("Title");
             mediaFile.setAlbumName("Album");
@@ -594,7 +536,8 @@ class TranscodingServiceTest {
             mediaFile.setPath(realPath);
             InputStream in = null;
 
-            try (TranscodeInputStream stream = doCreateTranscodeInputStream(command, maxBitRate, v, mediaFile, in);) {
+            try (TranscodeInputStream stream = transcodingService.createTranscodeInputStream(command, maxBitRate,
+                    videoTranscodingSettings, mediaFile, in)) {
                 Assertions.assertNotNull(stream);
             }
         }
@@ -604,29 +547,6 @@ class TranscodingServiceTest {
     @Order(9)
     class GetTranscoding {
 
-        private Method getTranscodingMethod;
-
-        @BeforeEach
-        public void before() throws ExecutionException {
-            try {
-                getTranscodingMethod = transcodingService.getClass().getDeclaredMethod("getTranscoding",
-                        MediaFile.class, Player.class, String.class, boolean.class);
-                getTranscodingMethod.setAccessible(true);
-            } catch (NoSuchMethodException | SecurityException e) {
-                throw new ExecutionException(e);
-            }
-        }
-
-        private Transcoding doGetTranscoding(MediaFile mediaFile, Player player, String preferredTargetFormat,
-                boolean hls) throws ExecutionException {
-            try {
-                return (Transcoding) getTranscodingMethod.invoke(transcodingService, mediaFile, player,
-                        preferredTargetFormat, hls);
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                throw new ExecutionException(e);
-            }
-        }
-
         @Test
         @Order(1)
         void testRaw() throws ExecutionException {
@@ -635,7 +555,7 @@ class TranscodingServiceTest {
             String preferredTargetFormat = fmtRaw;
             boolean hls = false;
 
-            Assertions.assertNull(doGetTranscoding(mediaFile, player, preferredTargetFormat, hls));
+            Assertions.assertNull(transcodingService.getTranscoding(mediaFile, player, preferredTargetFormat, hls));
         }
 
         @Test
@@ -647,7 +567,7 @@ class TranscodingServiceTest {
             String preferredTargetFormat = null;
             boolean hls = true;
 
-            Transcoding t = doGetTranscoding(mediaFile, player, preferredTargetFormat, hls);
+            Transcoding t = transcodingService.getTranscoding(mediaFile, player, preferredTargetFormat, hls);
             assertEquals(fmtHls, t.getName());
         }
 
@@ -665,7 +585,7 @@ class TranscodingServiceTest {
             String preferredTargetFormat = fmtMp3;
             boolean hls = false;
 
-            Transcoding transcoding = doGetTranscoding(mediaFile, player, preferredTargetFormat, hls);
+            Transcoding transcoding = transcodingService.getTranscoding(mediaFile, player, preferredTargetFormat, hls);
             Assertions.assertNotNull(transcoding.getId());
             assertEquals(DEFAULS_ACTIVES_NAME_FOR_MP3, transcoding.getName());
             assertTrue(Arrays.stream(transcoding.getSourceFormatsAsArray()).anyMatch(f -> fmtFlac.equals(f)));
@@ -687,7 +607,7 @@ class TranscodingServiceTest {
             String preferredTargetFormat = null;
             boolean hls = false;
 
-            Transcoding transcoding = doGetTranscoding(mediaFile, player, preferredTargetFormat, hls);
+            Transcoding transcoding = transcodingService.getTranscoding(mediaFile, player, preferredTargetFormat, hls);
             Assertions.assertNotNull(transcoding.getId());
             assertEquals(DEFAULS_ACTIVES_NAME_FOR_MP3, transcoding.getName());
             assertTrue(Arrays.stream(transcoding.getSourceFormatsAsArray()).anyMatch(f -> fmtFlac.equals(f)));
@@ -708,7 +628,7 @@ class TranscodingServiceTest {
             String preferredTargetFormat = null;
             boolean hls = false;
 
-            Assertions.assertNull(doGetTranscoding(mediaFile, player, preferredTargetFormat, hls));
+            Assertions.assertNull(transcodingService.getTranscoding(mediaFile, player, preferredTargetFormat, hls));
         }
 
         @Test
@@ -726,7 +646,7 @@ class TranscodingServiceTest {
             String preferredTargetFormat = null;
             boolean hls = false;
 
-            Transcoding transcoding = doGetTranscoding(mediaFile, player, preferredTargetFormat, hls);
+            Transcoding transcoding = transcodingService.getTranscoding(mediaFile, player, preferredTargetFormat, hls);
             Assertions.assertNotNull(transcoding.getId());
             assertEquals(DEFAULS_ACTIVES_NAME_FOR_FLV, transcoding.getName());
             assertTrue(Arrays.stream(transcoding.getSourceFormatsAsArray()).anyMatch(f -> fmtMpeg.equals(f)));
@@ -748,7 +668,7 @@ class TranscodingServiceTest {
             String preferredTargetFormat = fmtFlv;
             boolean hls = false;
 
-            Transcoding transcoding = doGetTranscoding(mediaFile, player, preferredTargetFormat, hls);
+            Transcoding transcoding = transcodingService.getTranscoding(mediaFile, player, preferredTargetFormat, hls);
             Assertions.assertNotNull(transcoding.getId());
             assertEquals(DEFAULS_ACTIVES_NAME_FOR_FLV, transcoding.getName());
             assertFalse(Arrays.stream(transcoding.getSourceFormatsAsArray()).allMatch(f -> fmtFlv.equals(f)));
@@ -781,58 +701,35 @@ class TranscodingServiceTest {
     @Order(11)
     class TranscoderInstalled {
 
-        private Method transcoderInstalledMethod;
         private String ffmpeg = "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f flv -vcodec libx264 -preset superfast -threads 0 -";
         private String lame = "lame -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f flv -vcodec libx264 -preset superfast -threads 0 -";
-
-        @BeforeEach
-        public void before() throws ExecutionException {
-            if (transcoderInstalledMethod != null) {
-                return;
-            }
-            try {
-                transcoderInstalledMethod = transcodingService.getClass().getDeclaredMethod("isTranscoderInstalled",
-                        Transcoding.class);
-                transcoderInstalledMethod.setAccessible(true);
-            } catch (NoSuchMethodException | SecurityException e) {
-                throw new ExecutionException(e);
-            }
-        }
-
-        private boolean doIsTranscoderInstalled(@NonNull Transcoding transcoding) throws ExecutionException {
-            try {
-                return (Boolean) transcoderInstalledMethod.invoke(transcodingService, transcoding);
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                throw new ExecutionException(e);
-            }
-        }
 
         @Test
         @Order(1)
         void testITI1() throws ExecutionException {
             Transcoding transcoding = new Transcoding(null, null, fmtFlac, fmtMp3, lame, lame, lame, true);
-            assertFalse(doIsTranscoderInstalled(transcoding));
+            assertFalse(transcodingService.isTranscoderInstalled(transcoding));
         }
 
         @Test
         @Order(2)
         void testITI2() throws ExecutionException {
             Transcoding transcoding = new Transcoding(null, null, fmtFlac, fmtMp3, ffmpeg, lame, lame, true);
-            assertFalse(doIsTranscoderInstalled(transcoding));
+            assertFalse(transcodingService.isTranscoderInstalled(transcoding));
         }
 
         @Test
         @Order(3)
         void testITI3() throws ExecutionException {
             Transcoding transcoding = new Transcoding(null, null, fmtFlac, fmtMp3, ffmpeg, ffmpeg, lame, true);
-            assertFalse(doIsTranscoderInstalled(transcoding));
+            assertFalse(transcodingService.isTranscoderInstalled(transcoding));
         }
 
         @Test
         @Order(4)
         void testITI4() throws ExecutionException {
             Transcoding transcoding = new Transcoding(null, null, fmtFlac, fmtMp3, ffmpeg, ffmpeg, ffmpeg, true);
-            assertTrue(doIsTranscoderInstalled(transcoding));
+            assertTrue(transcodingService.isTranscoderInstalled(transcoding));
         }
 
         @Test
@@ -842,51 +739,9 @@ class TranscodingServiceTest {
             transcodingService.setTranscodeDirectory(new File(fakePath));
             Transcoding transcoding = new Transcoding(null, null, fmtFlac, fmtMp3, ffmpeg, ffmpeg, ffmpeg, true);
 
-            assertFalse(doIsTranscoderInstalled(transcoding));
+            assertFalse(transcodingService.isTranscoderInstalled(transcoding));
 
             transcodingService.setTranscodeDirectory(f);
-        }
-
-        /*
-         * This test case is the operation is confirmed from the generation of transcodePath. It need @NeedsHome to run
-         * it. @NeedsHome is given for heavyweight integration tests that require access to the real directory. Since
-         * normal operation has been confirmed, the implementation of this case is omitted in order to prioritize the
-         * convenience of the entire test class itself.
-         */
-        // @Test
-        @Order(6)
-        void testITI6() throws ExecutionException {
-            Field pathField;
-            String transcodePath;
-            try {
-                pathField = transcodingService.getClass().getDeclaredField("transcodePath");
-                pathField.setAccessible(true);
-                transcodePath = Optional.ofNullable((String) pathField.get(transcodingService)).orElse(null);
-                pathField.set(transcodingService, null);
-                transcodingService.setTranscodeDirectory(null);
-            } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-                throw new ExecutionException(e);
-            }
-
-            Transcoding transcoding = new Transcoding(null, null, fmtFlac, fmtMp3, ffmpeg, ffmpeg, ffmpeg, true);
-
-            assertFalse(doIsTranscoderInstalled(transcoding));
-
-            try {
-                pathField.set(transcodingService, null);
-                transcodingService.setTranscodeDirectory(null);
-            } catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
-                throw new ExecutionException(e);
-            }
-
-            Assertions.assertNotNull(transcodingService.getTranscodeDirectory());
-
-            try {
-                pathField.set(transcodingService, transcodePath);
-                transcodingService.setTranscodeDirectory(null);
-            } catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
-                throw new ExecutionException(e);
-            }
         }
     }
 
@@ -1099,50 +954,18 @@ class TranscodingServiceTest {
         private final Transcoding fakeTranscoding = new Transcoding(null, "fake-instance", fmtFlac, fmtMp3, "s1", "s2",
                 "s3", true);
 
-        private Method needTranscoding;
-        private Method createBitrate;
-        private Method createMaxBitrate;
-        private Method rangeAllowed;
-        private Method getExpectedLength;
-
         @BeforeEach
         public void before() throws ExecutionException {
-
             Player player = new Player();
             player.setId(mockPlayerId);
             String username = "mockUsername";
             player.setUsername(username);
-
             Mockito.when(playerService.getAllPlayers()).thenReturn(Arrays.asList(player));
-
             UserSettings userSettings = new UserSettings();
             userSettings.setTranscodeScheme(TranscodeScheme.OFF);
             Mockito.when(securityService.getUserSettings(username)).thenReturn(userSettings);
-
             List<Transcoding> defaulTranscodings = transcodingDao.getAllTranscodings();
             Mockito.when(transcodingDao.getTranscodingsForPlayer(player.getId())).thenReturn(defaulTranscodings);
-
-            if (needTranscoding != null && createBitrate != null && createMaxBitrate != null && rangeAllowed != null
-                    && getExpectedLength != null) {
-                return;
-            }
-            try {
-                needTranscoding = transcodingService.getClass().getDeclaredMethod("isNeedTranscoding",
-                        Transcoding.class, int.class, int.class, String.class, MediaFile.class);
-                needTranscoding.setAccessible(true);
-                createBitrate = transcodingService.getClass().getDeclaredMethod("createBitrate", MediaFile.class);
-                createBitrate.setAccessible(true);
-                createMaxBitrate = transcodingService.getClass().getDeclaredMethod("createMaxBitrate",
-                        TranscodeScheme.class, MediaFile.class, int.class);
-                createMaxBitrate.setAccessible(true);
-                rangeAllowed = transcodingService.getClass().getDeclaredMethod("isRangeAllowed", Parameters.class);
-                rangeAllowed.setAccessible(true);
-                getExpectedLength = transcodingService.getClass().getDeclaredMethod("getExpectedLength",
-                        Parameters.class);
-                getExpectedLength.setAccessible(true);
-            } catch (NoSuchMethodException | SecurityException e) {
-                throw new ExecutionException(e);
-            }
         }
 
         @GetParametersDecision.Conditions.MaxBitRate.Null
@@ -1304,16 +1127,6 @@ class TranscodingServiceTest {
 
         }
 
-        private boolean doIsNeedTranscoding(@Nullable Transcoding transcoding, int mb, int bitRate,
-                @Nullable String preferredTargetFormat, @NonNull MediaFile mediaFile) throws ExecutionException {
-            try {
-                return (Boolean) needTranscoding.invoke(transcodingService, transcoding, mb, bitRate,
-                        preferredTargetFormat, mediaFile);
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                throw new ExecutionException(e);
-            }
-        }
-
         @IsNeedTranscoding.Conditions.Transcoding.Null
         @IsNeedTranscoding.Result.FALSE
         @Test
@@ -1325,7 +1138,8 @@ class TranscodingServiceTest {
             String preferredTargetFormat = null;
             MediaFile mediaFile = null;
 
-            assertFalse(doIsNeedTranscoding(transcoding, mb, bitRate, preferredTargetFormat, mediaFile));
+            assertFalse(
+                    transcodingService.isNeedTranscoding(transcoding, mb, bitRate, preferredTargetFormat, mediaFile));
         }
 
         @IsNeedTranscoding.Conditions.Transcoding.NotNull
@@ -1339,7 +1153,8 @@ class TranscodingServiceTest {
             String preferredTargetFormat = null;
             MediaFile mediaFile = null;
 
-            assertFalse(doIsNeedTranscoding(fakeTranscoding, mb, bitRate, preferredTargetFormat, mediaFile));
+            assertFalse(transcodingService.isNeedTranscoding(fakeTranscoding, mb, bitRate, preferredTargetFormat,
+                    mediaFile));
         }
 
         @IsNeedTranscoding.Conditions.Transcoding.NotNull
@@ -1356,7 +1171,8 @@ class TranscodingServiceTest {
             String preferredTargetFormat = null;
             MediaFile mediaFile = null;
 
-            assertFalse(doIsNeedTranscoding(fakeTranscoding, mb, bitRate, preferredTargetFormat, mediaFile));
+            assertFalse(transcodingService.isNeedTranscoding(fakeTranscoding, mb, bitRate, preferredTargetFormat,
+                    mediaFile));
         }
 
         @IsNeedTranscoding.Conditions.Transcoding.NotNull
@@ -1375,7 +1191,8 @@ class TranscodingServiceTest {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setFormat(fmtMp3);
 
-            assertFalse(doIsNeedTranscoding(fakeTranscoding, mb, bitRate, preferredTargetFormat, mediaFile));
+            assertFalse(transcodingService.isNeedTranscoding(fakeTranscoding, mb, bitRate, preferredTargetFormat,
+                    mediaFile));
         }
 
         @IsNeedTranscoding.Conditions.Transcoding.NotNull
@@ -1392,7 +1209,8 @@ class TranscodingServiceTest {
             String preferredTargetFormat = null;
             MediaFile mediaFile = null;
 
-            assertTrue(doIsNeedTranscoding(fakeTranscoding, mb, bitRate, preferredTargetFormat, mediaFile));
+            assertTrue(transcodingService.isNeedTranscoding(fakeTranscoding, mb, bitRate, preferredTargetFormat,
+                    mediaFile));
         }
 
         @IsNeedTranscoding.Conditions.Transcoding.NotNull
@@ -1411,15 +1229,8 @@ class TranscodingServiceTest {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setFormat(fmtFlac);
 
-            assertTrue(doIsNeedTranscoding(fakeTranscoding, mb, bitRate, preferredTargetFormat, mediaFile));
-        }
-
-        private int doCreateBitrate(@NonNull MediaFile mediaFile) throws ExecutionException {
-            try {
-                return (Integer) createBitrate.invoke(transcodingService, mediaFile);
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                throw new ExecutionException(e);
-            }
+            assertTrue(transcodingService.isNeedTranscoding(fakeTranscoding, mb, bitRate, preferredTargetFormat,
+                    mediaFile));
         }
 
         @Test
@@ -1429,7 +1240,7 @@ class TranscodingServiceTest {
             mediaFile.setMediaType(MediaType.VIDEO);
             mediaFile.setBitRate(128);
 
-            assertEquals(128, doCreateBitrate(mediaFile));
+            assertEquals(128, transcodingService.createBitrate(mediaFile));
         }
 
         @Test
@@ -1439,7 +1250,7 @@ class TranscodingServiceTest {
             mediaFile.setMediaType(MediaType.VIDEO);
             mediaFile.setBitRate(1024);
 
-            assertEquals(1024, doCreateBitrate(mediaFile));
+            assertEquals(1024, transcodingService.createBitrate(mediaFile));
         }
 
         @Test
@@ -1449,7 +1260,7 @@ class TranscodingServiceTest {
             mediaFile.setBitRate(940);
             mediaFile.setVariableBitRate(false);
 
-            assertEquals(940, doCreateBitrate(mediaFile));
+            assertEquals(940, transcodingService.createBitrate(mediaFile));
         }
 
         @Test
@@ -1459,7 +1270,7 @@ class TranscodingServiceTest {
             mediaFile.setBitRate(940);
             mediaFile.setVariableBitRate(true);
 
-            assertEquals(1128, doCreateBitrate(mediaFile));
+            assertEquals(1128, transcodingService.createBitrate(mediaFile));
         }
 
         @Test
@@ -1469,16 +1280,7 @@ class TranscodingServiceTest {
             mediaFile.setBitRate(128);
             mediaFile.setVariableBitRate(true);
 
-            assertEquals(256, doCreateBitrate(mediaFile));
-        }
-
-        private int doCreateMaxBitrate(@NonNull TranscodeScheme transcodeScheme, @NonNull MediaFile mediaFile,
-                int bitRate) throws ExecutionException {
-            try {
-                return (Integer) createMaxBitrate.invoke(transcodingService, transcodeScheme, mediaFile, bitRate);
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                throw new ExecutionException(e);
-            }
+            assertEquals(256, transcodingService.createBitrate(mediaFile));
         }
 
         @CreateMaxBitrate.Conditions.Mb.Zero
@@ -1490,7 +1292,7 @@ class TranscodingServiceTest {
             MediaFile mediaFile = new MediaFile();
             int bitRate = 0;
 
-            assertEquals(0, doCreateMaxBitrate(transcodeScheme, mediaFile, bitRate));
+            assertEquals(0, transcodingService.createMaxBitrate(transcodeScheme, mediaFile, bitRate));
         }
 
         @CreateMaxBitrate.Conditions.Mb.NeZero
@@ -1504,7 +1306,7 @@ class TranscodingServiceTest {
             MediaFile mediaFile = new MediaFile();
             int bitRate = 256;
 
-            assertEquals(256, doCreateMaxBitrate(transcodeScheme, mediaFile, bitRate));
+            assertEquals(256, transcodingService.createMaxBitrate(transcodeScheme, mediaFile, bitRate));
         }
 
         @CreateMaxBitrate.Conditions.Mb.NeZero
@@ -1518,7 +1320,7 @@ class TranscodingServiceTest {
             MediaFile mediaFile = new MediaFile();
             int bitRate = 320;
 
-            assertEquals(256, doCreateMaxBitrate(transcodeScheme, mediaFile, bitRate));
+            assertEquals(256, transcodingService.createMaxBitrate(transcodeScheme, mediaFile, bitRate));
         }
 
         @CreateMaxBitrate.Conditions.Mb.NeZero
@@ -1531,15 +1333,7 @@ class TranscodingServiceTest {
             MediaFile mediaFile = new MediaFile();
             int bitRate = 0;
 
-            assertEquals(256, doCreateMaxBitrate(transcodeScheme, mediaFile, bitRate));
-        }
-
-        private boolean doIsRangeAllowed(@NonNull Parameters parameters) throws ExecutionException {
-            try {
-                return (Boolean) rangeAllowed.invoke(transcodingService, parameters);
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                throw new ExecutionException(e);
-            }
+            assertEquals(256, transcodingService.createMaxBitrate(transcodeScheme, mediaFile, bitRate));
         }
 
         @Test
@@ -1547,7 +1341,7 @@ class TranscodingServiceTest {
         void testIRA1() throws ExecutionException {
             Parameters parameters = new Parameters(null, null);
 
-            assertTrue(doIsRangeAllowed(parameters));
+            assertTrue(transcodingService.isRangeAllowed(parameters));
         }
 
         @Test
@@ -1558,7 +1352,7 @@ class TranscodingServiceTest {
             Parameters parameters = new Parameters(null, null);
             parameters.setTranscoding(transcoding);
             parameters.setExpectedLength(null);
-            assertFalse(doIsRangeAllowed(parameters));
+            assertFalse(transcodingService.isRangeAllowed(parameters));
         }
 
         @Test
@@ -1569,7 +1363,7 @@ class TranscodingServiceTest {
             Parameters parameters = new Parameters(null, null);
             parameters.setTranscoding(transcoding);
             parameters.setExpectedLength(1L);
-            assertFalse(doIsRangeAllowed(parameters));
+            assertFalse(transcodingService.isRangeAllowed(parameters));
         }
 
         @Test
@@ -1580,7 +1374,7 @@ class TranscodingServiceTest {
             Parameters parameters = new Parameters(null, null);
             parameters.setTranscoding(transcoding);
             parameters.setExpectedLength(1L);
-            assertTrue(doIsRangeAllowed(parameters));
+            assertTrue(transcodingService.isRangeAllowed(parameters));
         }
 
         @Test
@@ -1590,15 +1384,7 @@ class TranscodingServiceTest {
             Parameters parameters = new Parameters(null, null);
             parameters.setTranscoding(transcoding);
             parameters.setExpectedLength(1L);
-            assertFalse(doIsRangeAllowed(parameters));
-        }
-
-        private Long doGetExpectedLength(@NonNull Parameters parameters) throws ExecutionException {
-            try {
-                return (Long) getExpectedLength.invoke(transcodingService, parameters);
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                throw new ExecutionException(e);
-            }
+            assertFalse(transcodingService.isRangeAllowed(parameters));
         }
 
         @GetExpectedLength.Conditions.Parameters.Transcode.False
@@ -1611,7 +1397,7 @@ class TranscodingServiceTest {
             Parameters parameters = new Parameters(mediaFile, null);
             assertFalse(parameters.isTranscode());
 
-            assertEquals(123L, doGetExpectedLength(parameters));
+            assertEquals(123L, transcodingService.getExpectedLength(parameters));
         }
 
         @GetExpectedLength.Conditions.Parameters.Transcode.True
@@ -1626,7 +1412,7 @@ class TranscodingServiceTest {
             parameters.setTranscoding(fakeTranscoding);
             assertTrue(parameters.isTranscode());
 
-            Assertions.assertNull(doGetExpectedLength(parameters));
+            Assertions.assertNull(transcodingService.getExpectedLength(parameters));
         }
 
         @GetExpectedLength.Conditions.Parameters.Transcode.True
@@ -1643,7 +1429,7 @@ class TranscodingServiceTest {
             parameters.setTranscoding(fakeTranscoding);
             assertTrue(parameters.isTranscode());
 
-            Assertions.assertNull(doGetExpectedLength(parameters));
+            Assertions.assertNull(transcodingService.getExpectedLength(parameters));
         }
 
         @GetExpectedLength.Conditions.Parameters.Transcode.True
@@ -1660,7 +1446,7 @@ class TranscodingServiceTest {
             assertTrue(parameters.isTranscode());
             parameters.setMaxBitRate(256);
 
-            assertEquals(3_904_000, doGetExpectedLength(parameters));
+            assertEquals(3_904_000, transcodingService.getExpectedLength(parameters));
         }
 
     }

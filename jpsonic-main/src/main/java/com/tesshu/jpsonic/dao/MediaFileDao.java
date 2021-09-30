@@ -739,7 +739,7 @@ public class MediaFileDao extends AbstractDao {
         }
     }
 
-    private static class RandomSongsQueryBuilder {
+    static class RandomSongsQueryBuilder {
 
         private final RandomSearchCriteria criteria;
 
@@ -770,7 +770,7 @@ public class MediaFileDao extends AbstractDao {
             return query.toString();
         }
 
-        private Optional<String> getIfJoinStarred() {
+        Optional<String> getIfJoinStarred() {
             boolean joinStarred = criteria.isShowStarredSongs() ^ criteria.isShowUnstarredSongs();
             if (joinStarred) {
                 return Optional
@@ -780,7 +780,7 @@ public class MediaFileDao extends AbstractDao {
             return Optional.empty();
         }
 
-        private Optional<String> getIfJoinAlbumRating() {
+        Optional<String> getIfJoinAlbumRating() {
             boolean joinAlbumRating = criteria.getMinAlbumRating() != null || criteria.getMaxAlbumRating() != null;
             if (joinAlbumRating) {
                 return Optional.of(" left outer join media_file media_album on media_album.type = 'ALBUM'"
@@ -791,49 +791,49 @@ public class MediaFileDao extends AbstractDao {
             return Optional.empty();
         }
 
-        private Optional<String> getFolderCondition() {
+        Optional<String> getFolderCondition() {
             if (!criteria.getMusicFolders().isEmpty()) {
                 return Optional.of(" and media_file.folder in (:folders)");
             }
             return Optional.empty();
         }
 
-        private Optional<String> getGenreCondition() {
+        Optional<String> getGenreCondition() {
             if (criteria.getGenres() != null) {
                 return Optional.of(" and media_file.genre in (:genres)");
             }
             return Optional.empty();
         }
 
-        private Optional<String> getFormatCondition() {
+        Optional<String> getFormatCondition() {
             if (criteria.getFormat() != null) {
                 return Optional.of(" and media_file.format = :format");
             }
             return Optional.empty();
         }
 
-        private Optional<String> getFromYearCondition() {
+        Optional<String> getFromYearCondition() {
             if (criteria.getFromYear() != null) {
                 return Optional.of(" and media_file.year >= :fromYear");
             }
             return Optional.empty();
         }
 
-        private Optional<String> getToYearCondition() {
+        Optional<String> getToYearCondition() {
             if (criteria.getToYear() != null) {
                 return Optional.of(" and media_file.year <= :toYear");
             }
             return Optional.empty();
         }
 
-        private Optional<String> getMinLastPlayedDateCondition() {
+        Optional<String> getMinLastPlayedDateCondition() {
             if (criteria.getMinLastPlayedDate() != null) {
                 return Optional.of(" and media_file.last_played >= :minLastPlayed");
             }
             return Optional.empty();
         }
 
-        private Optional<String> getMaxLastPlayedDateCondition() {
+        Optional<String> getMaxLastPlayedDateCondition() {
             if (criteria.getMaxLastPlayedDate() != null) {
                 if (criteria.getMinLastPlayedDate() == null) {
                     return Optional
@@ -845,14 +845,14 @@ public class MediaFileDao extends AbstractDao {
             return Optional.empty();
         }
 
-        private Optional<String> getMinAlbumRatingCondition() {
+        Optional<String> getMinAlbumRatingCondition() {
             if (criteria.getMinAlbumRating() != null) {
                 return Optional.of(" and user_rating.rating >= :minAlbumRating");
             }
             return Optional.empty();
         }
 
-        private Optional<String> getMaxAlbumRatingCondition() {
+        Optional<String> getMaxAlbumRatingCondition() {
             if (criteria.getMaxAlbumRating() != null) {
                 if (criteria.getMinAlbumRating() == null) {
                     return Optional.of(" and (user_rating.rating is null or user_rating.rating <= :maxAlbumRating)");
@@ -863,14 +863,14 @@ public class MediaFileDao extends AbstractDao {
             return Optional.empty();
         }
 
-        private Optional<String> getMinPlayCountCondition() {
+        Optional<String> getMinPlayCountCondition() {
             if (criteria.getMinPlayCount() != null) {
                 return Optional.of(" and media_file.play_count >= :minPlayCount");
             }
             return Optional.empty();
         }
 
-        private Optional<String> getMaxPlayCountCondition() {
+        Optional<String> getMaxPlayCountCondition() {
             if (criteria.getMaxPlayCount() != null) {
                 if (criteria.getMinPlayCount() == null) {
                     return Optional
@@ -882,14 +882,14 @@ public class MediaFileDao extends AbstractDao {
             return Optional.empty();
         }
 
-        private Optional<String> getShowStarredSongsCondition() {
+        Optional<String> getShowStarredSongsCondition() {
             if (criteria.isShowStarredSongs() && !criteria.isShowUnstarredSongs()) {
                 return Optional.of(" and starred_media_file.id is not null");
             }
             return Optional.empty();
         }
 
-        private Optional<String> getShowUnstarredSongsCondition() {
+        Optional<String> getShowUnstarredSongsCondition() {
             if (criteria.isShowUnstarredSongs() && !criteria.isShowStarredSongs()) {
                 return Optional.of(" and starred_media_file.id is null");
             }
