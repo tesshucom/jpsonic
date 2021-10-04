@@ -1,0 +1,10 @@
+---
+engines:
+  duplication:
+    enabled: true
+    exclude_paths:
+      - "jpsonic-main/src/main/**"
+      - "jpsonic-main/src/test/**"
+exclude_paths:
+  - "**.min.js"
+  - "**/test/**"

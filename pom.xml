@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>110.1.1-RELEASE</version>
+    <version>110.2.0-SNAPSHOT</version>
     <name>Jpsonic</name>
     <packaging>pom</packaging>
     <organization>
@@ -19,12 +19,12 @@
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cxf.version>3.4.4</cxf.version>
-        <jackson.version>2.12.5</jackson.version>
+        <jackson.version>2.13.0</jackson.version>
         <tomcat.version>9.0.53</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
-        <jetty.version>9.4.43.v20210629</jetty.version>
-        <jetty-jsp.version>9.4.43.v20210629</jetty-jsp.version>
-        <pmd.version>6.38.0</pmd.version>
+        <jetty.version>9.4.44.v20210927</jetty.version>
+        <jetty-jsp.version>9.4.44.v20210927</jetty-jsp.version>
+        <pmd.version>6.39.0</pmd.version>
         <log4j.version>2.14.1</log4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
     </properties>
@@ -161,7 +161,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>30.1.1-jre</version>
+                <version>31.0.1-jre</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>org.checkerframework</artifactId>
@@ -529,7 +529,7 @@
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>6.3.1</version>
+                    <version>6.3.2</version>
                     <inherited>true</inherited>
                     <configuration>
                         <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>

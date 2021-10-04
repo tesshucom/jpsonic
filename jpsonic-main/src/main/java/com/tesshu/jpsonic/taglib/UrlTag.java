@@ -94,7 +94,7 @@ public class UrlTag extends BodyTagSupport {
         return EVAL_PAGE;
     }
 
-    private String formatUrl() throws JspException {
+    String formatUrl() throws JspException {
         String baseUrl = UrlSupport.resolveUrl(value, null, pageContext);
 
         StringBuilder result = new StringBuilder();

@@ -459,14 +459,14 @@ public class IndexManager {
         }
     }
 
-    private void deleteLegacyFiles() {
+    void deleteLegacyFiles() {
         // Delete legacy files unconditionally
         Arrays.stream(SettingsService.getJpsonicHome().listFiles(
                 (file, name) -> Pattern.compile("^lucene\\d+$").matcher(name).matches() || "index".contentEquals(name)))
                 .forEach(old -> deleteFile("legacy index file", old));
     }
 
-    private void deleteOldFiles() {
+    void deleteOldFiles() {
         // Delete if not old index version
         Arrays.stream(SettingsService.getJpsonicHome().listFiles(
                 (file, name) -> Pattern.compile("^" + INDEX_ROOT_DIR_NAME + "\\d+$").matcher(name).matches()))
@@ -474,7 +474,7 @@ public class IndexManager {
                 .forEach(old -> deleteFile("old index file", old));
     }
 
-    private void deleteOldMethodFiles() {
+    void deleteOldMethodFiles() {
         if (settingsService.isSearchMethodChanged()) {
             Arrays.stream(SettingsService.getJpsonicHome().listFiles(
                     (file, name) -> Pattern.compile("^" + INDEX_ROOT_DIR_NAME + "\\d+$").matcher(name).matches()))

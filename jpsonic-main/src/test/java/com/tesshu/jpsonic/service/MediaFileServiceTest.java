@@ -25,8 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.lang.annotation.Documented;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
@@ -131,19 +129,6 @@ class MediaFileServiceTest {
     @Nested
     class CheckLastModifiedWithSchemeOfLastModified {
 
-        private MediaFile checkLastModified(final MediaFile mediaFile, boolean useFastCache) throws ExecutionException {
-            Method method;
-            try {
-                method = mediaFileService.getClass().getDeclaredMethod("checkLastModified", MediaFile.class,
-                        boolean.class);
-                method.setAccessible(true);
-                return (MediaFile) method.invoke(mediaFileService, mediaFile, useFastCache);
-            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-                    | InvocationTargetException e) {
-                throw new ExecutionException(e);
-            }
-        }
-
         @CheckLastModifiedDecision.Conditions.UseFastCache.True
         @CheckLastModifiedDecision.Result.CreateOrUpdate.False
         @Test
@@ -152,7 +137,7 @@ class MediaFileServiceTest {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setPath(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified()));
-            assertEquals(mediaFile, checkLastModified(mediaFile, true));
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, true));
             Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
@@ -172,7 +157,7 @@ class MediaFileServiceTest {
             };
             mediaFile.setPath(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified()));
-            assertEquals(mediaFile, checkLastModified(mediaFile, false));
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
             Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
@@ -193,7 +178,7 @@ class MediaFileServiceTest {
             };
             mediaFile.setPath(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified()));
-            assertEquals(mediaFile, checkLastModified(mediaFile, false));
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
             Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
@@ -213,7 +198,7 @@ class MediaFileServiceTest {
             };
             mediaFile.setPath(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified()));
-            assertEquals(mediaFile, checkLastModified(mediaFile, false));
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
             Mockito.verify(mediaFileDao, Mockito.atLeastOnce()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
@@ -233,7 +218,7 @@ class MediaFileServiceTest {
             };
             mediaFile.setPath(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified()));
-            assertEquals(mediaFile, checkLastModified(mediaFile, false));
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
             Mockito.verify(mediaFileDao, Mockito.atLeastOnce()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
@@ -254,7 +239,7 @@ class MediaFileServiceTest {
             mediaFile.setPath(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified() + 1_000L));
             assertTrue(mediaFile.getChanged().getTime() > FileUtil.lastModified(mediaFile.getFile()));
-            assertEquals(mediaFile, checkLastModified(mediaFile, false));
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
             Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
@@ -275,7 +260,7 @@ class MediaFileServiceTest {
             mediaFile.setPath(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified() - 1_000L));
             assertTrue(mediaFile.getChanged().getTime() < FileUtil.lastModified(mediaFile.getFile()));
-            assertEquals(mediaFile, checkLastModified(mediaFile, false));
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
             Mockito.verify(mediaFileDao, Mockito.atLeastOnce()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
@@ -297,7 +282,7 @@ class MediaFileServiceTest {
             mediaFile.setPath(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified()));
             mediaFile.setLastScanned(MediaFileDao.ZERO_DATE);
-            assertEquals(mediaFile, checkLastModified(mediaFile, false));
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
             Mockito.verify(mediaFileDao, Mockito.atLeastOnce()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
     }
@@ -313,19 +298,6 @@ class MediaFileServiceTest {
      */
     @Nested
     class CheckLastModifiedWithSchemeOfLastScanned {
-
-        private MediaFile checkLastModified(final MediaFile mediaFile, boolean useFastCache) throws ExecutionException {
-            Method method;
-            try {
-                method = mediaFileService.getClass().getDeclaredMethod("checkLastModified", MediaFile.class,
-                        boolean.class);
-                method.setAccessible(true);
-                return (MediaFile) method.invoke(mediaFileService, mediaFile, useFastCache);
-            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-                    | InvocationTargetException e) {
-                throw new ExecutionException(e);
-            }
-        }
 
         /*
          * Because update-date is not checked
@@ -348,7 +320,7 @@ class MediaFileServiceTest {
             };
             mediaFile.setPath(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified()));
-            assertEquals(mediaFile, checkLastModified(mediaFile, false));
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
             Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
@@ -374,7 +346,7 @@ class MediaFileServiceTest {
             mediaFile.setPath(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified() - 1_000L));
             assertTrue(mediaFile.getChanged().getTime() < FileUtil.lastModified(mediaFile.getFile()));
-            assertEquals(mediaFile, checkLastModified(mediaFile, false));
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
             Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
     }
