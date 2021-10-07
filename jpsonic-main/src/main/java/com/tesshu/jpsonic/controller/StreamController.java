@@ -462,7 +462,7 @@ public class StreamController {
             response.setHeader("icy-genre", "Mixed");
             response.setHeader("icy-url", "https://airsonic.github.io/");
             OutputStream out = RangeOutputStream.wrap(response.getOutputStream(), range);
-            return new ShoutCastOutputStream(out, player.getPlayQueue(), settingsService);
+            return new ShoutCastOutputStream(out, player.getPlayQueue(), settingsService.getWelcomeTitle());
         }
         return RangeOutputStream.wrap(response.getOutputStream(), range);
     }
