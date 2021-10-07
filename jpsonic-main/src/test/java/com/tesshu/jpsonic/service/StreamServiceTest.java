@@ -19,7 +19,7 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.controller;
+package com.tesshu.jpsonic.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -29,36 +29,36 @@ import java.awt.Dimension;
 
 import org.junit.jupiter.api.Test;
 
-class StreamControllerTest {
+class StreamServiceTest {
 
     @Test
     void testGetRequestedVideoSize() {
 
-        StreamController controller = new StreamController(null, null, null, null, null, null, null, null, null, null);
+        StreamService streamService = new StreamService(null, null, null, null, null, null, null, null, null);
 
         // Valid spec.
-        assertEquals(new Dimension(123, 456), controller.getRequestedVideoSize("123x456"));
-        assertEquals(new Dimension(456, 123), controller.getRequestedVideoSize("456x123"));
-        assertEquals(new Dimension(1, 1), controller.getRequestedVideoSize("1x1"));
+        assertEquals(new Dimension(123, 456), streamService.getRequestedVideoSize("123x456"));
+        assertEquals(new Dimension(456, 123), streamService.getRequestedVideoSize("456x123"));
+        assertEquals(new Dimension(1, 1), streamService.getRequestedVideoSize("1x1"));
 
         // Missing spec.
-        assertNull(controller.getRequestedVideoSize(null));
+        assertNull(streamService.getRequestedVideoSize(null));
 
         // Invalid spec.
-        assertNull(controller.getRequestedVideoSize("123"));
-        assertNull(controller.getRequestedVideoSize("123x"));
-        assertNull(controller.getRequestedVideoSize("x123"));
-        assertNull(controller.getRequestedVideoSize("x"));
-        assertNull(controller.getRequestedVideoSize("foo123x456bar"));
-        assertNull(controller.getRequestedVideoSize("foo123x456"));
-        assertNull(controller.getRequestedVideoSize("123x456bar"));
-        assertNull(controller.getRequestedVideoSize("fooxbar"));
-        assertNull(controller.getRequestedVideoSize("-1x1"));
-        assertNull(controller.getRequestedVideoSize("1x-1"));
+        assertNull(streamService.getRequestedVideoSize("123"));
+        assertNull(streamService.getRequestedVideoSize("123x"));
+        assertNull(streamService.getRequestedVideoSize("x123"));
+        assertNull(streamService.getRequestedVideoSize("x"));
+        assertNull(streamService.getRequestedVideoSize("foo123x456bar"));
+        assertNull(streamService.getRequestedVideoSize("foo123x456"));
+        assertNull(streamService.getRequestedVideoSize("123x456bar"));
+        assertNull(streamService.getRequestedVideoSize("fooxbar"));
+        assertNull(streamService.getRequestedVideoSize("-1x1"));
+        assertNull(streamService.getRequestedVideoSize("1x-1"));
 
         // Too large.
-        assertNull(controller.getRequestedVideoSize("3000x100"));
-        assertNull(controller.getRequestedVideoSize("100x3000"));
+        assertNull(streamService.getRequestedVideoSize("3000x100"));
+        assertNull(streamService.getRequestedVideoSize("100x3000"));
     }
 
     @Test
@@ -119,8 +119,8 @@ class StreamControllerTest {
 
     private boolean doTestGetSuitableVideoSize(Integer existingWidth, Integer existingHeight, Integer maxBitRate,
             int expectedWidth, int expectedHeight) {
-        StreamController controller = new StreamController(null, null, null, null, null, null, null, null, null, null);
-        Dimension dimension = controller.getSuitableVideoSize(existingWidth, existingHeight, maxBitRate);
+        StreamService streamService = new StreamService(null, null, null, null, null, null, null, null, null);
+        Dimension dimension = streamService.getSuitableVideoSize(existingWidth, existingHeight, maxBitRate);
         assertEquals(expectedWidth, dimension.width, "Wrong width.");
         assertEquals(expectedHeight, dimension.height, "Wrong height.");
         return true;
