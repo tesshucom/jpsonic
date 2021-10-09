@@ -44,7 +44,6 @@ import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
 import com.tesshu.jpsonic.io.RangeOutputStream;
-import com.tesshu.jpsonic.io.ShoutCastOutputStream;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -297,29 +296,6 @@ public class StreamController {
         }
     }
 
-    /**
-     * Construct an appropriate output stream based on the request.
-     * <p>
-     * This is responsible for limiting the output to the given range (if not null) and injecting Shoutcast metadata
-     * into the stream if requested.
-     */
-    private OutputStream createOutputStream(HttpServletRequest request, HttpServletResponse response, HttpRange range,
-            boolean isSingleFile, Player player) throws IOException {
-        // Enabled SHOUTcast, if requested.
-        boolean isShoutCastRequested = "1".equals(request.getHeader("icy-metadata"));
-        if (isShoutCastRequested && !isSingleFile) {
-            response.setHeader("icy-metaint", Integer.toString(ShoutCastOutputStream.META_DATA_INTERVAL));
-            response.setHeader("icy-notice1", "This stream is served using Airsonic");
-            response.setHeader("icy-notice2", "Airsonic - Free media streamer");
-            response.setHeader("icy-name", "Airsonic");
-            response.setHeader("icy-genre", "Mixed");
-            response.setHeader("icy-url", "https://airsonic.github.io/");
-            OutputStream out = RangeOutputStream.wrap(response.getOutputStream(), range);
-            return new ShoutCastOutputStream(out, player.getPlayQueue(), settingsService.getWelcomeTitle());
-        }
-        return RangeOutputStream.wrap(response.getOutputStream(), range);
-    }
-
     @SuppressWarnings("PMD.CognitiveComplexity") // #1020
     @SuppressFBWarnings(value = "UC_USELESS_CONDITION", justification = "False positive. #1078")
     private void writeStream(Player player, InputStream in, OutputStream out, Long fileLengthExpected,
@@ -442,7 +418,7 @@ public class StreamController {
         TransferStatus status = statusService.createStreamStatus(player);
         try (InputStream in = streamService.createInputStream(player, status, maxBitRate, format,
                 result.getVideoTranscodingSettings());
-                OutputStream out = createOutputStream(req, res, result.getRange(), isSingleFile, player)) {
+                OutputStream out = RangeOutputStream.wrap(res.getOutputStream(), result.getRange())) {
             writeStream(player, in, out, result.getFileLengthExpected(), isPodcast, isSingleFile);
         } catch (IOException e) {
             writeErrorLog(e, req);
