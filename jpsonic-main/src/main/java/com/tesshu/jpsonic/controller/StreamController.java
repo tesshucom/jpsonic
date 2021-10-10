@@ -147,11 +147,11 @@ public class StreamController {
 
         final TranscodingService.Parameters parameters = transcodingService.getParameters(file, player, maxBitRate,
                 preferredTargetFormat, null);
-        HttpRange range = applyHeader(request, response, file, parameters);
+        HttpRange range = applyRange(request, response, file, parameters);
 
         // Set content type of response
         final boolean isHls = getBooleanParameter(request, Attributes.Request.HLS.value(), false);
-        applyContentType(isHls, response, player, file, preferredTargetFormat);
+        applyContentType(response, isHls, player, file, preferredTargetFormat);
 
         final VideoTranscodingSettings videoTranscodingSettings = file.isVideo() || isHls
                 ? streamService.createVideoTranscodingSettings(file, request) : null;
@@ -191,8 +191,8 @@ public class StreamController {
         }
     }
 
-    private static @Nullable HttpRange applyHeader(HttpServletRequest request, HttpServletResponse response,
-            MediaFile file, TranscodingService.Parameters parameters) {
+    private static @Nullable HttpRange applyRange(final HttpServletRequest request, final HttpServletResponse response,
+            final MediaFile file, final TranscodingService.Parameters parameters) {
         HttpRange range = null;
         Long fileLengthExpected = parameters.getExpectedLength();
         // Wrangle response length and ranges.
@@ -208,7 +208,7 @@ public class StreamController {
             // final size
             long contentLength;
             // If range was requested, respond in kind
-            range = getRange(request, file.getDurationSeconds(), fileLengthExpected);
+            range = createRange(request, file.getDurationSeconds(), fileLengthExpected);
             if (range == null) {
                 // No range was requested, give back the whole file
                 response.setStatus(HttpServletResponse.SC_OK);
@@ -232,7 +232,8 @@ public class StreamController {
         return range;
     }
 
-    private static @Nullable HttpRange getRange(HttpServletRequest request, Integer fileDuration, Long fileSize) {
+    private static @Nullable HttpRange createRange(final HttpServletRequest request, final Integer fileDuration,
+            final Long fileSize) {
 
         // First, look for "Range" HTTP header.
         HttpRange range = HttpRange.valueOf(request.getHeader("Range"));
@@ -263,7 +264,7 @@ public class StreamController {
         return new HttpRange(byteOffset, null);
     }
 
-    private void applyContentType(boolean isHls, HttpServletResponse response, Player player, MediaFile file,
+    private void applyContentType(HttpServletResponse response, boolean isHls, Player player, MediaFile file,
             String preferredTargetFormat) {
         if (isHls) {
             response.setContentType(getMimeType("ts")); // HLS is always MPEG TS.
