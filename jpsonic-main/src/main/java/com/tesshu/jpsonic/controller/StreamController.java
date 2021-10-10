@@ -122,6 +122,10 @@ public class StreamController {
         return maxBitRate;
     }
 
+    /*
+     * Enable partial download (HTTP byte range). Also, create a separate playlist (in order to support multiple
+     * parallel streams).
+     */
     private PrepareResponseResult prepareResponse(final HttpServletRequest request, final HttpServletResponse response,
             final Authentication authentication, final User user, final Player player, final MediaFile file,
             final String preferredTargetFormat, final Integer maxBitRate) throws ServletRequestBindingException {
@@ -402,48 +406,44 @@ public class StreamController {
             return;
         }
 
-        // Podcast-specific processing
-        Integer playlistId = getIntParameter(req, Attributes.Request.PLAYLIST.value());
-        final boolean isPodcast = playlistId != null;
-        if (isPodcast) {
-            // If "playlist" request parameter is set, this is a Podcast request.
-            streamService.setUpPlayQueue(req, res, player, playlistId);
-        }
-
+        // Processing for all responses
         res.setHeader("Access-Control-Allow-Origin", "*");
         String contentType = getMimeType(req.getParameter(Attributes.Request.SUFFIX.value()));
         res.setContentType(contentType);
 
-        // Is this a request for a single file (typically from the embedded Flash player)?
-        // In that case, create a separate playlist (in order to support multiple parallel streams).
-        // Also, enable partial download (HTTP byte range).
+        // Processing for Podcast response only
+        Integer playlistId = getIntParameter(req, Attributes.Request.PLAYLIST.value());
+        final boolean isPodcast = playlistId != null;
+        if (isPodcast) {
+            streamService.setUpPlayQueue(req, res, player, playlistId);
+        }
+
         MediaFile file = streamService.getSingleFile(req);
         boolean isSingleFile = file != null;
-        PrepareResponseResult result = null;
         String format = req.getParameter(Attributes.Request.FORMAT.value());
         Integer maxBitRate = getMaxBitRate(req);
+
+        // Processing for a single file
+        PrepareResponseResult result = null;
         if (isSingleFile) {
             result = prepareResponse(req, res, auth, user, player, file, format, maxBitRate);
         }
 
+        // If Header request or folder access not allowed, end here.
         boolean isHeaderRequest = HttpMethod.HEAD.name().equals(req.getMethod());
         if (result == null || result.isFolderAccessNotAllowed() || isHeaderRequest) {
-            // All headers are set, stop if that's all the client requested.
             writeVerboseLog(settingsService.isVerboseLogPlaying(), isHeaderRequest, file);
             return;
         }
 
-        Long fileLength = result.getFileLengthExpected();
         writeVerboseLog(settingsService.isVerboseLogPlaying(), res, file);
-
-        // Terminate any other streams to this player.
         streamService.closeAllStreamFor(player, isPodcast, isSingleFile);
 
         TransferStatus status = statusService.createStreamStatus(player);
         try (InputStream in = streamService.createInputStream(player, status, maxBitRate, format,
                 result.getVideoTranscodingSettings());
                 OutputStream out = createOutputStream(req, res, result.getRange(), isSingleFile, player)) {
-            writeStream(player, in, out, fileLength, isPodcast, isSingleFile);
+            writeStream(player, in, out, result.getFileLengthExpected(), isPodcast, isSingleFile);
         } catch (IOException e) {
             writeErrorLog(e, req);
         } finally {
