@@ -4,4 +4,5 @@
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="FILE" />
     </root>
+    <logger name="com.tesshu.jpsonic.controller.StreamController" level="trace"/>
 </configuration>

@@ -27,7 +27,6 @@ import java.nio.charset.StandardCharsets;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PlayQueue;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -111,6 +110,8 @@ public class ShoutCastOutputStream extends OutputStream {
      */
     private final PlayQueue playQueue;
 
+    private final String welcomeTitle;
+
     /**
      * Keeps track of the number of bytes written (excluding meta-data). Between 0 and {@link #META_DATA_INTERVAL}.
      */
@@ -121,8 +122,6 @@ public class ShoutCastOutputStream extends OutputStream {
      */
     private String previousStreamTitle;
 
-    private final SettingsService settingsService;
-
     /**
      * Creates a new SHOUTcast-decorated stream for the given output stream.
      *
@@ -131,11 +130,11 @@ public class ShoutCastOutputStream extends OutputStream {
      * @param playQueue
      *            Meta-data is fetched from this playlist.
      */
-    public ShoutCastOutputStream(OutputStream out, PlayQueue playQueue, SettingsService settingsService) {
+    public ShoutCastOutputStream(OutputStream out, PlayQueue playQueue, String welcomeTitle) {
         super();
         this.out = out;
         this.playQueue = playQueue;
-        this.settingsService = settingsService;
+        this.welcomeTitle = welcomeTitle;
     }
 
     /**
@@ -204,7 +203,7 @@ public class ShoutCastOutputStream extends OutputStream {
     }
 
     private void writeMetaData() throws IOException {
-        String streamTitle = StringUtils.trimToEmpty(settingsService.getWelcomeTitle());
+        String streamTitle = StringUtils.trimToEmpty(welcomeTitle);
 
         MediaFile result;
         synchronized (playQueue) {
