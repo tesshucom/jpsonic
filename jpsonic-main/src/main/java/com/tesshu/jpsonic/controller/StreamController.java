@@ -40,6 +40,7 @@ import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PlayQueue;
 import com.tesshu.jpsonic.domain.Player;
+import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
@@ -154,7 +155,7 @@ public class StreamController {
 
         // Set content type of response
         final boolean isHls = getBooleanParameter(request, Attributes.Request.HLS.value(), false);
-        applyContentType(response, isHls, player, file, preferredTargetFormat);
+        applyContentType(response, isHls, parameters.getTranscoding(), file);
 
         final VideoTranscodingSettings videoTranscodingSettings = file.isVideo() || isHls
                 ? streamService.createVideoTranscodingSettings(file, request) : null;
@@ -267,13 +268,12 @@ public class StreamController {
         return new HttpRange(byteOffset, null);
     }
 
-    private void applyContentType(HttpServletResponse response, boolean isHls, Player player, MediaFile file,
-            String preferredTargetFormat) {
+    private void applyContentType(HttpServletResponse response, boolean isHls, Transcoding toBeUsed, MediaFile file) {
         if (isHls) {
             response.setContentType(getMimeType("ts")); // HLS is always MPEG TS.
         } else {
-            String transcodedSuffix = transcodingService.getSuffix(player, file, preferredTargetFormat);
-            response.setContentType(getMimeType(transcodedSuffix));
+            String targetFormat = toBeUsed == null ? file.getFormat() : toBeUsed.getTargetFormat();
+            response.setContentType(getMimeType(targetFormat));
             applyContentDuration(response, file);
         }
     }

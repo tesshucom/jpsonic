@@ -832,7 +832,7 @@ class StreamControllerTest {
         @HeaderDecision.Conditions.MediaFile.BitRate955
         @HeaderDecision.Conditions.Player.ValidTranscoding.Exist
         @HeaderDecision.Conditions.Player.TranscodeScheme.OFF
-        @HeaderDecision.Result.ContentType.AudioMpeg
+        @HeaderDecision.Result.ContentType.AudioFlac
         @Test
         void c5() throws Exception {
             initMocksWithTranscoding(true, false);
@@ -842,7 +842,7 @@ class StreamControllerTest {
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.ACCEPT_RANGES))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
                     .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_LENGTH, "358406"))
-                    .andExpect(MockMvcResultMatchers.header().string("Content-Type", "audio/mpeg"))
+                    .andExpect(MockMvcResultMatchers.header().string("Content-Type", "audio/flac"))
                     .andExpect(MockMvcResultMatchers.header().string("X-Content-Duration", "3.0"));
         }
 
@@ -934,7 +934,7 @@ class StreamControllerTest {
         @HeaderDecision.Conditions.MediaFile.BitRate955
         @HeaderDecision.Conditions.Player.ValidTranscoding.Exist
         @HeaderDecision.Conditions.Player.TranscodeScheme.OFF
-        @HeaderDecision.Result.ContentType.AudioMpeg
+        @HeaderDecision.Result.ContentType.AudioFlac
         @Test
         void c5a() throws Exception {
             initMocksWithTranscoding(true, true);
@@ -944,7 +944,7 @@ class StreamControllerTest {
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.ACCEPT_RANGES))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
                     .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_LENGTH, "358406"))
-                    .andExpect(MockMvcResultMatchers.header().string("Content-Type", "audio/mpeg"))
+                    .andExpect(MockMvcResultMatchers.header().string("Content-Type", "audio/flac"))
                     .andExpect(MockMvcResultMatchers.header().string("X-Content-Duration", "3.0"));
         }
 
