@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.service;
 
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
+import com.tesshu.jpsonic.domain.PreferredFormatSheme;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
 import com.tesshu.jpsonic.util.PlayerUtils;
 
@@ -303,6 +304,9 @@ class SettingsConstants {
     }
 
     static class Transcoding {
+        static final Pair<String> PREFERRED_FORMAT_SHEME_NAME = Pair.of("PreferredFormatShemeName",
+                PreferredFormatSheme.ANNOYMOUS.name());
+        static final Pair<String> PREFERRED_FORMAT = Pair.of("PreferredFormatSheme", "mp3");
         static final Pair<String> HLS_COMMAND = Pair.of("HlsCommand3",
                 "ffmpeg -ss %o -t %d -i %s -async 1 -b:v %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f mpegts -c:v libx264 -preset superfast -c:a libmp3lame -threads 0 -");
 
