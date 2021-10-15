@@ -43,14 +43,17 @@ import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
 import com.tesshu.jpsonic.io.PlayQueueInputStream;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.Mockito;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class StreamServiceTest {
 
     private StatusService statusService;
@@ -94,6 +97,15 @@ class StreamServiceTest {
 
     @Test
     @Order(2)
+    void testGetFormat() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        assertNull(streamService.getFormat(request));
+        request.setParameter(Attributes.Request.FORMAT.value(), "mp3");
+        assertEquals("mp3", streamService.getFormat(request));
+    }
+
+    @Test
+    @Order(3)
     void testGetSingleFile() throws Exception {
 
         MediaFile song = new MediaFile();
@@ -114,7 +126,7 @@ class StreamServiceTest {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     void testCreateVideoTranscodingSettings() throws Exception {
         MediaFile video = new MediaFile();
         video.setPath("song");
@@ -172,7 +184,7 @@ class StreamServiceTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     void testGetRequestedVideoSize() {
         assertNull(streamService.getRequestedVideoSize(null));
         assertNull(streamService.getRequestedVideoSize("fooxbar"));
@@ -192,7 +204,7 @@ class StreamServiceTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     void testGetSuitableVideoSize() throws Exception {
 
         // default
@@ -252,7 +264,7 @@ class StreamServiceTest {
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     void testCloseAllStreamFor() throws Exception {
 
         TransferStatus status1 = new TransferStatus();
@@ -286,7 +298,7 @@ class StreamServiceTest {
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     void testCreateInputStream() throws Exception {
         Player player = new Player();
         PlayQueue playQueue = new PlayQueue();
@@ -301,7 +313,7 @@ class StreamServiceTest {
     }
 
     @Test
-    @Order(8)
+    @Order(9)
     @SuppressWarnings("PMD.SimplifiableTestAssertion") // For byte comparison
     void testSendDummyDelayed() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -312,7 +324,7 @@ class StreamServiceTest {
     }
 
     @Test
-    @Order(9)
+    @Order(10)
     @SuppressWarnings("PMD.SimplifiableTestAssertion") // For byte comparison
     void testSendDummy() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -323,7 +335,7 @@ class StreamServiceTest {
     }
 
     @Test
-    @Order(10)
+    @Order(11)
     void testRemoveStreamStatus() throws Exception {
         User user = new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, null);
         TransferStatus status = new TransferStatus();

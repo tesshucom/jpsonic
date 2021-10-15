@@ -101,6 +101,10 @@ public class StreamService {
         }
     }
 
+    public @Nullable String getFormat(HttpServletRequest request) {
+        return request.getParameter(Attributes.Request.FORMAT.value());
+    }
+
     @SuppressFBWarnings(value = {
             "PT_ABSOLUTE_PATH_TRAVERSAL" }, justification = "Has been verified in subsequent processing.")
     public MediaFile getSingleFile(HttpServletRequest request) throws ServletRequestBindingException {

@@ -396,7 +396,7 @@ public class StreamController {
 
         MediaFile file = streamService.getSingleFile(req);
         boolean isSingleFile = file != null;
-        String format = req.getParameter(Attributes.Request.FORMAT.value());
+        String format = streamService.getFormat(req);
         Integer maxBitRate = getMaxBitRate(req);
 
         // Processing for a single file
