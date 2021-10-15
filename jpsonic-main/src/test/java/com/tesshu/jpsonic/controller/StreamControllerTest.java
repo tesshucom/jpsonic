@@ -175,7 +175,7 @@ class StreamControllerTest {
         user.setStreamRole(false);
         HttpServletResponse response = mock(MockHttpServletResponse.class);
         Mockito.doThrow(IOException.class).when(response).sendError(Mockito.anyInt(), Mockito.anyString());
-        streamController.handleRequest(new MockHttpServletRequest(), response);
+        streamController.handleRequest(new MockHttpServletRequest(), response, null);
         assertEquals(0, response.getStatus());
         Mockito.verify(streamService, Mockito.never()).removeStreamStatus(Mockito.nullable(User.class),
                 Mockito.nullable(TransferStatus.class));

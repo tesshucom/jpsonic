@@ -1503,7 +1503,7 @@ public class SubsonicRESTController {
             return;
         }
 
-        streamController.handleRequest(request, response);
+        streamController.handleRequest(request, response, true);
     }
 
     @RequestMapping({ "/hls", "/hls.view" })

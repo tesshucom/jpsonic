@@ -371,8 +371,17 @@ public class StreamController {
         }
     }
 
+    /**
+     * @param req
+     * @param res
+     * @param isRest
+     *            True if the call is from SubsonicRESTController
+     * 
+     * @throws ServletRequestBindingException
+     */
     @GetMapping
-    public void handleRequest(HttpServletRequest req, HttpServletResponse res) throws ServletRequestBindingException {
+    public void handleRequest(HttpServletRequest req, HttpServletResponse res, Boolean isRest)
+            throws ServletRequestBindingException {
 
         final Player player = playerService.getPlayer(req, res, false, true);
         final User user = securityService.getUserByName(player.getUsername());

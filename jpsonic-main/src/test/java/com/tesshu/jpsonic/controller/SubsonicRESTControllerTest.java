@@ -1104,7 +1104,7 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
             assertNotNull(song);
             req.setParameter(Attributes.Request.PATH.value(), song.getPath());
             res = new MockHttpServletResponse();
-            streamController.handleRequest(req, res);
+            streamController.handleRequest(req, res, true);
             assertNotEquals(0, res.getContentLength());
 
             statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
@@ -1161,7 +1161,7 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
             assertNotNull(song);
             req.setParameter(Attributes.Request.PATH.value(), song.getPath());
             res = new MockHttpServletResponse();
-            streamController.handleRequest(req, res);
+            streamController.handleRequest(req, res, true);
             assertNotEquals(0, res.getContentLength());
 
             statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
