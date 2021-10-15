@@ -681,6 +681,16 @@ class StreamControllerTest {
                 @interface FormatMp3 {
                 }
             }
+
+            @interface SettingService {
+                @interface PreferredFormat {
+                    @interface Null {
+                    }
+
+                    @interface Mp3 {
+                    }
+                }
+            }
         }
 
         @interface Result {
@@ -832,9 +842,31 @@ class StreamControllerTest {
         @HeaderDecision.Conditions.MediaFile.BitRate955
         @HeaderDecision.Conditions.Player.ValidTranscoding.Exist
         @HeaderDecision.Conditions.Player.TranscodeScheme.OFF
+        @HeaderDecision.Conditions.SettingService.PreferredFormat.Null
         @HeaderDecision.Result.ContentType.AudioFlac
         @Test
         void c5() throws Exception {
+            initMocksWithTranscoding(true, false);
+            mockMvc.perform(MockMvcRequestBuilders.get("/stream").param(Attributes.Request.ID.value(),
+                    Integer.toString(song.getId())))
+                    .andExpect(MockMvcResultMatchers.header().string("Access-Control-Allow-Origin", "*"))
+                    .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.ACCEPT_RANGES))
+                    .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
+                    .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_LENGTH, "358406"))
+                    .andExpect(MockMvcResultMatchers.header().string("Content-Type", "audio/flac"))
+                    .andExpect(MockMvcResultMatchers.header().string("X-Content-Duration", "3.0"));
+        }
+
+        @HeaderDecision.Conditions.User.Anonymous
+        @HeaderDecision.Conditions.MediaFile.File.Flac
+        @HeaderDecision.Conditions.MediaFile.BitRate955
+        @HeaderDecision.Conditions.Player.ValidTranscoding.Exist
+        @HeaderDecision.Conditions.Player.TranscodeScheme.OFF
+        @HeaderDecision.Conditions.SettingService.PreferredFormat.Mp3
+        @HeaderDecision.Result.ContentType.AudioMpeg
+        @Test
+        void c6() throws Exception {
+            Mockito.when(settingsService.getPreferredFormat()).thenReturn("mp3");
             initMocksWithTranscoding(true, false);
             mockMvc.perform(MockMvcRequestBuilders.get("/stream").param(Attributes.Request.ID.value(),
                     Integer.toString(song.getId())))
@@ -934,6 +966,7 @@ class StreamControllerTest {
         @HeaderDecision.Conditions.MediaFile.BitRate955
         @HeaderDecision.Conditions.Player.ValidTranscoding.Exist
         @HeaderDecision.Conditions.Player.TranscodeScheme.OFF
+        @HeaderDecision.Conditions.SettingService.PreferredFormat.Null
         @HeaderDecision.Result.ContentType.AudioFlac
         @Test
         void c5a() throws Exception {
@@ -945,6 +978,27 @@ class StreamControllerTest {
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
                     .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_LENGTH, "358406"))
                     .andExpect(MockMvcResultMatchers.header().string("Content-Type", "audio/flac"))
+                    .andExpect(MockMvcResultMatchers.header().string("X-Content-Duration", "3.0"));
+        }
+
+        @HeaderDecision.Conditions.User.Anonymous
+        @HeaderDecision.Conditions.MediaFile.File.Flac
+        @HeaderDecision.Conditions.MediaFile.BitRate955
+        @HeaderDecision.Conditions.Player.ValidTranscoding.Exist
+        @HeaderDecision.Conditions.Player.TranscodeScheme.OFF
+        @HeaderDecision.Conditions.SettingService.PreferredFormat.Mp3
+        @HeaderDecision.Result.ContentType.AudioMpeg
+        @Test
+        void c6a() throws Exception {
+            Mockito.when(settingsService.getPreferredFormat()).thenReturn("mp3");
+            initMocksWithTranscoding(true, true);
+            mockMvc.perform(MockMvcRequestBuilders.get("/stream").param(Attributes.Request.ID.value(),
+                    Integer.toString(song.getId())))
+                    .andExpect(MockMvcResultMatchers.header().string("Access-Control-Allow-Origin", "*"))
+                    .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.ACCEPT_RANGES, "none"))
+                    .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
+                    .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_LENGTH))
+                    .andExpect(MockMvcResultMatchers.header().string("Content-Type", "audio/mpeg"))
                     .andExpect(MockMvcResultMatchers.header().string("X-Content-Duration", "3.0"));
         }
 

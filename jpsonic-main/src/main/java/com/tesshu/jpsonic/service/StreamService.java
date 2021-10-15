@@ -38,11 +38,14 @@ import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PlayQueue;
 import com.tesshu.jpsonic.domain.Player;
+import com.tesshu.jpsonic.domain.PreferredFormatSheme;
 import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
 import com.tesshu.jpsonic.io.PlayQueueInputStream;
+import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.util.PlayerUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -101,8 +104,22 @@ public class StreamService {
         }
     }
 
-    public @Nullable String getFormat(HttpServletRequest request) {
-        return request.getParameter(Attributes.Request.FORMAT.value());
+    /**
+     * Returns the 'format'. The 'format' here is equivalent to the parameter'format' of stream method on Subsonic API.
+     * This 'format' has a significant impact on the transcoding results of subsequent processing. (#1187). On legacy
+     * servers, This 'format' is always null for non-REST requests. As a result, this can be rephrased as "some
+     * transcoding specifications differ depending on the protocol used". In Jpsonic, PreferredFormatSheme allows to set
+     * the default value of 'format' for requests other than Rest (UPnP, Share, Browser etc) to other than null.
+     */
+    public @Nullable String getFormat(HttpServletRequest request, Player player, Boolean isRest) {
+        String format = request.getParameter(Attributes.Request.FORMAT.value());
+        PreferredFormatSheme sheme = PreferredFormatSheme.of(settingsService.getPreferredFormatShemeName());
+        if (sheme == PreferredFormatSheme.ANNOYMOUS
+                && JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername())
+                || sheme == PreferredFormatSheme.OTHER_THAN_REQUEST && (isRest == null || !isRest)) {
+            return StringUtils.defaultIfEmpty(format, settingsService.getPreferredFormat());
+        }
+        return format;
     }
 
     @SuppressFBWarnings(value = {
