@@ -3,12 +3,27 @@
 # jpsonic/jpsonic
 # -->
 
-## v110.1.0
+## v110.2.0 (SNAPSHOT)
+
+The binaries of SNAPSHOT are available from the latest artifacts on the [master branch](https://github.com/tesshucom/jpsonic/actions?query=branch%3Amaster) .
+
+#### Enhancement
+  * Delete shoutcast ([#1201](https://github.com/tesshucom/jpsonic/issues/1201))
+  * Fix to control the format of Stream received by other than Subsonic app ([#1187](https://github.com/tesshucom/jpsonic/issues/1187))
+
+#### Fixes
+  * Fix to reply with the appropriate content type ([#1206](https://github.com/tesshucom/jpsonic/issues/1206))
+
+<details>
+<summary>v110.1.0</summary>
 
 #### Fixes
   * Fix bug that Java 17 build does not run with the correct class version ([#1183](https://github.com/tesshucom/jpsonic/issues/1183))
 
-## v110.1.0
+</details>
+
+<details>
+<summary>v110.1.0</summary>
 
 #### Enhancement
   * Java 17 Support
@@ -29,6 +44,8 @@
   * Fix bug that database cleanup could not be started ([#1109](https://github.com/tesshucom/jpsonic/issues/1109))
   * Fix bug that the reading of the artist (directory) was not updated ([#1110](https://github.com/tesshucom/jpsonic/issues/1110))
   * Fix bug that UPnP did not start even if the setting was enabled ([#1149](https://github.com/tesshucom/jpsonic/issues/1149))
+
+</details>
 
 <details>
 <summary>v110.0.0</summary>
