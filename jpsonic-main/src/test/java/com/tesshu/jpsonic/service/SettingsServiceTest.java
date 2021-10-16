@@ -38,6 +38,7 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
+import com.tesshu.jpsonic.domain.PreferredFormatSheme;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -452,6 +453,16 @@ class SettingsServiceTest {
     @Test
     void testGetBufferSize() {
         assertEquals(4096, settingsService.getBufferSize());
+    }
+
+    @Test
+    void testPreferredFormatShemeName() {
+        assertEquals(PreferredFormatSheme.ANNOYMOUS.name(), settingsService.getPreferredFormatShemeName());
+    }
+
+    @Test
+    void testPreferredFormatSheme() {
+        assertEquals("mp3", settingsService.getPreferredFormat());
     }
 
     @Test

@@ -371,8 +371,17 @@ public class StreamController {
         }
     }
 
+    /**
+     * @param req
+     * @param res
+     * @param isRest
+     *            True if the call is from SubsonicRESTController
+     * 
+     * @throws ServletRequestBindingException
+     */
     @GetMapping
-    public void handleRequest(HttpServletRequest req, HttpServletResponse res) throws ServletRequestBindingException {
+    public void handleRequest(HttpServletRequest req, HttpServletResponse res, Boolean isRest)
+            throws ServletRequestBindingException {
 
         final Player player = playerService.getPlayer(req, res, false, true);
         final User user = securityService.getUserByName(player.getUsername());
@@ -396,7 +405,7 @@ public class StreamController {
 
         MediaFile file = streamService.getSingleFile(req);
         boolean isSingleFile = file != null;
-        String format = req.getParameter(Attributes.Request.FORMAT.value());
+        String format = streamService.getFormat(req, player, isRest);
         Integer maxBitRate = getMaxBitRate(req);
 
         // Processing for a single file

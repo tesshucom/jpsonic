@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.awt.Dimension;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.lang.annotation.Documented;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,23 +39,30 @@ import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PlayQueue;
 import com.tesshu.jpsonic.domain.Player;
+import com.tesshu.jpsonic.domain.PreferredFormatSheme;
 import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
 import com.tesshu.jpsonic.io.PlayQueueInputStream;
+import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.Mockito;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class StreamServiceTest {
 
     private StatusService statusService;
     private PlaylistService playlistService;
+    SettingsService settingsService;
     private SecurityService securityService;
     private MediaFileService mediaFileService;
     private StreamService streamService;
@@ -64,8 +72,9 @@ class StreamServiceTest {
         statusService = mock(StatusService.class);
         playlistService = mock(PlaylistService.class);
         securityService = mock(SecurityService.class);
+        settingsService = mock(SettingsService.class);
         mediaFileService = mock(MediaFileService.class);
-        streamService = new StreamService(statusService, playlistService, securityService, null,
+        streamService = new StreamService(statusService, playlistService, securityService, settingsService,
                 mock(TranscodingService.class), null, mediaFileService, null, null);
     }
 
@@ -92,8 +101,267 @@ class StreamServiceTest {
         assertEquals(response.getHeader(HttpHeaders.CONTENT_LENGTH), "2048");
     }
 
-    @Test
+    @Documented
+    private @interface GetFormatDecision {
+        @interface Conditions {
+
+            @interface Param {
+                @interface IsRest {
+                    @interface False {
+                    }
+
+                    @interface True {
+                    }
+
+                    @interface Null {
+                    }
+                }
+
+                @interface Format {
+                    @interface Null {
+                    }
+
+                    @interface Aac {
+                    }
+                }
+            }
+
+            @interface Settings {
+                @interface PreferredFormatSheme {
+                    @interface Annoymous {
+                    }
+
+                    @interface OtherThanRequest {
+                    }
+
+                    @interface RequestOnly {
+                    }
+                }
+
+                @interface PreferredFormat {
+                    @interface Null {
+                    }
+
+                    @interface Mp3 {
+                    }
+                }
+            }
+        }
+
+        @interface Results {
+            @interface Null {
+            }
+
+            @interface Aac {
+            }
+
+            @interface Mp3 {
+            }
+        }
+    }
+
+    @Nested
     @Order(2)
+    class GetFormatTest {
+
+        String fmtMp3 = "mp3";
+        String fmtAac = "aac";
+
+        @GetFormatDecision.Conditions.Param.IsRest.True
+        @GetFormatDecision.Conditions.Param.Format.Null
+        @GetFormatDecision.Results.Null
+        @Test
+        void c1() {
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            Player player = new Player();
+            assertNull(streamService.getFormat(request, player, true));
+        }
+
+        @GetFormatDecision.Conditions.Param.IsRest.True
+        @GetFormatDecision.Conditions.Param.Format.Aac
+        @GetFormatDecision.Results.Aac
+        @Test
+        void c2() {
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            request.setParameter(Attributes.Request.FORMAT.value(), fmtAac);
+            Player player = new Player();
+            assertEquals(fmtAac, streamService.getFormat(request, player, true));
+        }
+
+        @GetFormatDecision.Conditions.Param.IsRest.False
+        @GetFormatDecision.Conditions.Param.Format.Null
+        @GetFormatDecision.Conditions.Settings.PreferredFormatSheme.Annoymous
+        @GetFormatDecision.Conditions.Settings.PreferredFormat.Null
+        @GetFormatDecision.Results.Null
+        @Test
+        void c3() {
+            Mockito.when(settingsService.getPreferredFormatShemeName())
+                    .thenReturn(PreferredFormatSheme.ANNOYMOUS.name());
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            Player player = new Player();
+            player.setUsername(JWTAuthenticationToken.USERNAME_ANONYMOUS);
+            assertNull(streamService.getFormat(request, player, false));
+        }
+
+        @GetFormatDecision.Conditions.Param.IsRest.False
+        @GetFormatDecision.Conditions.Param.Format.Null
+        @GetFormatDecision.Conditions.Settings.PreferredFormatSheme.Annoymous
+        @GetFormatDecision.Conditions.Settings.PreferredFormat.Mp3
+        @GetFormatDecision.Results.Mp3
+        @Test
+        void c4() {
+            Mockito.when(settingsService.getPreferredFormatShemeName())
+                    .thenReturn(PreferredFormatSheme.ANNOYMOUS.name());
+            Mockito.when(settingsService.getPreferredFormat()).thenReturn(fmtMp3);
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            Player player = new Player();
+            player.setUsername(JWTAuthenticationToken.USERNAME_ANONYMOUS);
+            assertEquals(fmtMp3, streamService.getFormat(request, player, false));
+        }
+
+        @GetFormatDecision.Conditions.Param.IsRest.False
+        @GetFormatDecision.Conditions.Param.Format.Aac
+        @GetFormatDecision.Conditions.Settings.PreferredFormatSheme.Annoymous
+        @GetFormatDecision.Conditions.Settings.PreferredFormat.Null
+        @GetFormatDecision.Results.Aac
+        @Test
+        void c5() {
+            Mockito.when(settingsService.getPreferredFormatShemeName())
+                    .thenReturn(PreferredFormatSheme.ANNOYMOUS.name());
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            request.setParameter(Attributes.Request.FORMAT.value(), fmtAac);
+            Player player = new Player();
+            player.setUsername(JWTAuthenticationToken.USERNAME_ANONYMOUS);
+            assertEquals(fmtAac, streamService.getFormat(request, player, false));
+        }
+
+        @GetFormatDecision.Conditions.Param.IsRest.False
+        @GetFormatDecision.Conditions.Param.Format.Aac
+        @GetFormatDecision.Conditions.Settings.PreferredFormatSheme.Annoymous
+        @GetFormatDecision.Conditions.Settings.PreferredFormat.Mp3
+        @GetFormatDecision.Results.Aac
+        @Test
+        void c6() {
+            Mockito.when(settingsService.getPreferredFormatShemeName())
+                    .thenReturn(PreferredFormatSheme.ANNOYMOUS.name());
+            Mockito.when(settingsService.getPreferredFormat()).thenReturn(fmtMp3);
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            request.setParameter(Attributes.Request.FORMAT.value(), fmtAac);
+            Player player = new Player();
+            player.setUsername(JWTAuthenticationToken.USERNAME_ANONYMOUS);
+            assertEquals(fmtAac, streamService.getFormat(request, player, false));
+        }
+
+        @GetFormatDecision.Conditions.Param.IsRest.False
+        @GetFormatDecision.Conditions.Param.Format.Null
+        @GetFormatDecision.Conditions.Settings.PreferredFormatSheme.OtherThanRequest
+        @GetFormatDecision.Conditions.Settings.PreferredFormat.Null
+        @GetFormatDecision.Results.Null
+        @Test
+        void c7() {
+            Mockito.when(settingsService.getPreferredFormatShemeName())
+                    .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            Player player = new Player();
+            assertNull(streamService.getFormat(request, player, false));
+        }
+
+        @GetFormatDecision.Conditions.Param.IsRest.False
+        @GetFormatDecision.Conditions.Param.Format.Null
+        @GetFormatDecision.Conditions.Settings.PreferredFormatSheme.OtherThanRequest
+        @GetFormatDecision.Conditions.Settings.PreferredFormat.Mp3
+        @GetFormatDecision.Results.Mp3
+        @Test
+        void c8() {
+            Mockito.when(settingsService.getPreferredFormatShemeName())
+                    .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
+            Mockito.when(settingsService.getPreferredFormat()).thenReturn(fmtMp3);
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            Player player = new Player();
+            assertEquals(fmtMp3, streamService.getFormat(request, player, false));
+        }
+
+        @GetFormatDecision.Conditions.Param.IsRest.False
+        @GetFormatDecision.Conditions.Param.Format.Aac
+        @GetFormatDecision.Conditions.Settings.PreferredFormatSheme.OtherThanRequest
+        @GetFormatDecision.Conditions.Settings.PreferredFormat.Null
+        @GetFormatDecision.Results.Aac
+        @Test
+        void c9() {
+            Mockito.when(settingsService.getPreferredFormatShemeName())
+                    .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            request.setParameter(Attributes.Request.FORMAT.value(), fmtAac);
+            Player player = new Player();
+            assertEquals(fmtAac, streamService.getFormat(request, player, false));
+        }
+
+        @GetFormatDecision.Conditions.Param.IsRest.False
+        @GetFormatDecision.Conditions.Param.Format.Aac
+        @GetFormatDecision.Conditions.Settings.PreferredFormatSheme.OtherThanRequest
+        @GetFormatDecision.Conditions.Settings.PreferredFormat.Mp3
+        @GetFormatDecision.Results.Aac
+        @Test
+        void c10() {
+            Mockito.when(settingsService.getPreferredFormatShemeName())
+                    .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
+            Mockito.when(settingsService.getPreferredFormat()).thenReturn(fmtMp3);
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            request.setParameter(Attributes.Request.FORMAT.value(), fmtAac);
+            Player player = new Player();
+            assertEquals(fmtAac, streamService.getFormat(request, player, false));
+        }
+
+        //
+        @GetFormatDecision.Conditions.Param.IsRest.True
+        @GetFormatDecision.Conditions.Param.Format.Null
+        @GetFormatDecision.Conditions.Settings.PreferredFormatSheme.OtherThanRequest
+        @GetFormatDecision.Conditions.Settings.PreferredFormat.Mp3
+        @GetFormatDecision.Results.Null
+        @Test
+        void c11() {
+            Mockito.when(settingsService.getPreferredFormatShemeName())
+                    .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
+            Mockito.when(settingsService.getPreferredFormat()).thenReturn(fmtMp3);
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            Player player = new Player();
+            assertNull(streamService.getFormat(request, player, true));
+        }
+
+        //
+        @GetFormatDecision.Conditions.Param.IsRest.True
+        @GetFormatDecision.Conditions.Param.Format.Null
+        @GetFormatDecision.Conditions.Settings.PreferredFormatSheme.RequestOnly
+        @GetFormatDecision.Conditions.Settings.PreferredFormat.Mp3
+        @GetFormatDecision.Results.Null
+        @Test
+        void c12() {
+            Mockito.when(settingsService.getPreferredFormatShemeName())
+                    .thenReturn(PreferredFormatSheme.REQUEST_ONLY.name());
+            Mockito.when(settingsService.getPreferredFormat()).thenReturn(fmtMp3);
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            Player player = new Player();
+            assertNull(streamService.getFormat(request, player, true));
+        }
+
+        @GetFormatDecision.Conditions.Param.IsRest.Null
+        @GetFormatDecision.Conditions.Param.Format.Null
+        @GetFormatDecision.Conditions.Settings.PreferredFormatSheme.OtherThanRequest
+        @GetFormatDecision.Conditions.Settings.PreferredFormat.Mp3
+        @GetFormatDecision.Results.Null
+        @Test
+        void c13() {
+            Mockito.when(settingsService.getPreferredFormatShemeName())
+                    .thenReturn(PreferredFormatSheme.OTHER_THAN_REQUEST.name());
+            Mockito.when(settingsService.getPreferredFormat()).thenReturn(fmtMp3);
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            Player player = new Player();
+            assertEquals(fmtMp3, streamService.getFormat(request, player, null));
+        }
+    }
+
+    @Test
+    @Order(3)
     void testGetSingleFile() throws Exception {
 
         MediaFile song = new MediaFile();
@@ -114,7 +382,7 @@ class StreamServiceTest {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     void testCreateVideoTranscodingSettings() throws Exception {
         MediaFile video = new MediaFile();
         video.setPath("song");
@@ -172,7 +440,7 @@ class StreamServiceTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     void testGetRequestedVideoSize() {
         assertNull(streamService.getRequestedVideoSize(null));
         assertNull(streamService.getRequestedVideoSize("fooxbar"));
@@ -192,7 +460,7 @@ class StreamServiceTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     void testGetSuitableVideoSize() throws Exception {
 
         // default
@@ -252,7 +520,7 @@ class StreamServiceTest {
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     void testCloseAllStreamFor() throws Exception {
 
         TransferStatus status1 = new TransferStatus();
@@ -286,7 +554,7 @@ class StreamServiceTest {
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     void testCreateInputStream() throws Exception {
         Player player = new Player();
         PlayQueue playQueue = new PlayQueue();
@@ -301,7 +569,7 @@ class StreamServiceTest {
     }
 
     @Test
-    @Order(8)
+    @Order(9)
     @SuppressWarnings("PMD.SimplifiableTestAssertion") // For byte comparison
     void testSendDummyDelayed() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -312,7 +580,7 @@ class StreamServiceTest {
     }
 
     @Test
-    @Order(9)
+    @Order(10)
     @SuppressWarnings("PMD.SimplifiableTestAssertion") // For byte comparison
     void testSendDummy() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -323,7 +591,7 @@ class StreamServiceTest {
     }
 
     @Test
-    @Order(10)
+    @Order(11)
     void testRemoveStreamStatus() throws Exception {
         User user = new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, null);
         TransferStatus status = new TransferStatus();
