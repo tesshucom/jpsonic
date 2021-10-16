@@ -1252,6 +1252,22 @@ public class SettingsService {
         setProperty(SettingsConstants.Sonos.SERVICE_NAME, s);
     }
 
+    public String getPreferredFormatShemeName() {
+        return getString(SettingsConstants.Transcoding.PREFERRED_FORMAT_SHEME_NAME);
+    }
+
+    public void setPreferredFormatShemeName(String s) {
+        setProperty(SettingsConstants.Transcoding.PREFERRED_FORMAT_SHEME_NAME, s);
+    }
+
+    public String getPreferredFormat() {
+        return getString(SettingsConstants.Transcoding.PREFERRED_FORMAT);
+    }
+
+    public void setPreferredFormat(String s) {
+        setProperty(SettingsConstants.Transcoding.PREFERRED_FORMAT, s);
+    }
+
     public String getHlsCommand() {
         return getString(SettingsConstants.Transcoding.HLS_COMMAND);
     }

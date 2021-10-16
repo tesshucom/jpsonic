@@ -40,6 +40,7 @@ import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PlayQueue;
 import com.tesshu.jpsonic.domain.Player;
+import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
@@ -154,7 +155,7 @@ public class StreamController {
 
         // Set content type of response
         final boolean isHls = getBooleanParameter(request, Attributes.Request.HLS.value(), false);
-        applyContentType(response, isHls, player, file, preferredTargetFormat);
+        applyContentType(response, isHls, parameters.getTranscoding(), file);
 
         final VideoTranscodingSettings videoTranscodingSettings = file.isVideo() || isHls
                 ? streamService.createVideoTranscodingSettings(file, request) : null;
@@ -267,13 +268,12 @@ public class StreamController {
         return new HttpRange(byteOffset, null);
     }
 
-    private void applyContentType(HttpServletResponse response, boolean isHls, Player player, MediaFile file,
-            String preferredTargetFormat) {
+    private void applyContentType(HttpServletResponse response, boolean isHls, Transcoding toBeUsed, MediaFile file) {
         if (isHls) {
             response.setContentType(getMimeType("ts")); // HLS is always MPEG TS.
         } else {
-            String transcodedSuffix = transcodingService.getSuffix(player, file, preferredTargetFormat);
-            response.setContentType(getMimeType(transcodedSuffix));
+            String targetFormat = toBeUsed == null ? file.getFormat() : toBeUsed.getTargetFormat();
+            response.setContentType(getMimeType(targetFormat));
             applyContentDuration(response, file);
         }
     }
@@ -371,8 +371,17 @@ public class StreamController {
         }
     }
 
+    /**
+     * @param req
+     * @param res
+     * @param isRest
+     *            True if the call is from SubsonicRESTController
+     * 
+     * @throws ServletRequestBindingException
+     */
     @GetMapping
-    public void handleRequest(HttpServletRequest req, HttpServletResponse res) throws ServletRequestBindingException {
+    public void handleRequest(HttpServletRequest req, HttpServletResponse res, Boolean isRest)
+            throws ServletRequestBindingException {
 
         final Player player = playerService.getPlayer(req, res, false, true);
         final User user = securityService.getUserByName(player.getUsername());
@@ -396,7 +405,7 @@ public class StreamController {
 
         MediaFile file = streamService.getSingleFile(req);
         boolean isSingleFile = file != null;
-        String format = req.getParameter(Attributes.Request.FORMAT.value());
+        String format = streamService.getFormat(req, player, isRest);
         Integer maxBitRate = getMaxBitRate(req);
 
         // Processing for a single file
