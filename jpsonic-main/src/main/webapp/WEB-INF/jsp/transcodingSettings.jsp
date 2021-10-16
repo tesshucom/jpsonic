@@ -4,6 +4,13 @@
 <head>
 <%@ include file="head.jsp"%>
 <%@ include file="jquery.jsp"%>
+<%@ page import="com.tesshu.jpsonic.domain.PreferredFormatSheme" %>
+<script>
+function resetPreferredFormatSettings() {
+    document.getElementsByName('preferredFormat')[0].value = 'mp3';
+    $("#radio-${PreferredFormatSheme.ANNOYMOUS.name()}").prop('checked', true);
+}
+</script>
 </head>
 <body class="mainframe settings transcodingSettings">
 
@@ -19,24 +26,24 @@
     <c:param name="showOutlineHelp" value="${model.showOutlineHelp}"/>
 </c:import>
 
-<c:if test="${model.showOutlineHelp}">
-    <div class="outlineHelp">
-        <fmt:message key="transcodingsettings.info">
-            <fmt:param value="${model.transcodeDirectory}" />
-            <fmt:param value="${model.brand}" />
-        </fmt:message>
-  <p>
-      <a href="https://airsonic.github.io/docs/transcode/" target="_blank" rel="noopener noreferrer"><fmt:message key="transcodingsettings.recommended" /></a>
-  </p>
-    </div>
-</c:if>
-
 <form method="post" action="transcodingSettings.view">
     <sec:csrfInput />
 
     <c:if test="${not empty model.transcodings}">
-        <details open>
+        <details ${model.isOpenDetailSetting ? "open" : ""}>
             <summary><fmt:message key="transcodingsettings.registered"/></summary>
+
+            <c:if test="${model.showOutlineHelp}">
+                <div class="outlineHelp">
+                    <fmt:message key="transcodingsettings.info">
+                        <fmt:param value="${model.transcodeDirectory}" />
+                        <fmt:param value="${model.brand}" />
+                    </fmt:message>
+                <p>
+                  <a href="https://airsonic.github.io/docs/transcode/" target="_blank" rel="noopener noreferrer"><fmt:message key="transcodingsettings.recommended" /></a>
+                </p>
+                </div>
+            </c:if>
 
             <table class="tabular transcoding">
                 <thead>
@@ -67,6 +74,48 @@
             </table>
         </details>
     </c:if>
+
+    <details open>
+        <summary class="jpsonic"><fmt:message key="transcodingsettings.preferred"/></summary>
+
+        <div class="actions">
+            <ul class="controls">
+                <li><a href="javascript:resetPreferredFormatSettings()" title="<fmt:message key='common.reset'/>" class="control reset"><fmt:message key="common.reset"/></a></li>
+            </ul>
+        </div>
+
+        <c:if test="${model.showOutlineHelp}">
+            <div class="outlineHelp">
+                <fmt:message key="transcodingsettings.preferredoutline"/>
+            </div>
+        </c:if>
+
+        <dl>
+            <dt><fmt:message key="transcodingsettings.preferredformat"/></dt>
+            <dd>
+                <input type="text" name="preferredFormat" value="${model.preferredFormat}" />
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="preferredformat"/></c:import>
+            </dd>
+            <dt>
+                <fmt:message key="transcodingsettings.preferredformatscheme"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="preferredformatscheme"/></c:import>
+            </dt>
+            <dd>
+                <ul class="playerSettings">
+                    <c:forEach items="${PreferredFormatSheme.values()}" var="scheme">
+                        <c:set var="schemeName">
+                            <fmt:message key="transcodingsettings.preferredformat.${fn:toLowerCase(scheme)}"/>
+                        </c:set>
+                        <li>
+                            <input type="radio" id="radio-${scheme.name()}" name="preferredFormatShemeName" value="${scheme}" ${scheme eq model.preferredFormatSheme ? 'checked' : ''}/>
+                            <label for="radio-${scheme.name()}">${schemeName}</label>
+                            <c:import url="helpToolTip.jsp"><c:param name="topic" value="preferredformat${fn:toLowerCase(scheme)}"/></c:import>
+                        </li>
+                    </c:forEach>
+                </ul>
+            </dd>
+        </dl>
+    </details>
 
     <details ${model.isOpenDetailSetting or empty model.transcodings ? "open" : ""}>
         <summary><fmt:message key="transcodingsettings.add"/></summary>

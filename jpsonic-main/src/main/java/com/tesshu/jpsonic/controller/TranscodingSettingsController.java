@@ -23,6 +23,7 @@ package com.tesshu.jpsonic.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.tesshu.jpsonic.domain.PreferredFormatSheme;
 import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
@@ -74,9 +75,11 @@ public class TranscodingSettingsController {
 
         model.addAttribute("model",
                 LegacyMap.of("transcodings", transcodingService.getAllTranscodings(), "transcodeDirectory",
-                        transcodingService.getTranscodeDirectory(), "hlsCommand", settingsService.getHlsCommand(),
-                        "brand", SettingsService.getBrand(), "isOpenDetailSetting", userSettings.isOpenDetailSetting(),
-                        "useRadio", settingsService.isUseRadio(), "showOutlineHelp",
+                        transcodingService.getTranscodeDirectory(), "preferredFormat",
+                        settingsService.getPreferredFormat(), "preferredFormatSheme",
+                        PreferredFormatSheme.of(settingsService.getPreferredFormatShemeName()), "hlsCommand",
+                        settingsService.getHlsCommand(), "brand", SettingsService.getBrand(), "isOpenDetailSetting",
+                        userSettings.isOpenDetailSetting(), "useRadio", settingsService.isUseRadio(), "showOutlineHelp",
                         outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()), "shareCount",
                         shareService.getAllShares().size()));
         return "transcodingSettings";
@@ -90,6 +93,15 @@ public class TranscodingSettingsController {
         } else {
             redirectAttributes.addFlashAttribute(Attributes.Redirect.ERROR.value(), error);
         }
+
+        String preferredFormat = request.getParameter("preferredFormat");
+        if (preferredFormat != null && transcodingService.getAllTranscodings().stream()
+                .anyMatch(t -> preferredFormat.equals(t.getTargetFormat()))) {
+            settingsService.setPreferredFormat(preferredFormat);
+        }
+        settingsService.setPreferredFormatShemeName(request.getParameter("preferredFormatShemeName"));
+        settingsService.save();
+
         return new ModelAndView(new RedirectView(ViewName.TRANSCODING_SETTINGS.value()));
     }
 
