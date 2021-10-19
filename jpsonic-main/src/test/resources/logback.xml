@@ -5,4 +5,5 @@
         <appender-ref ref="FILE" />
     </root>
     <logger name="com.tesshu.jpsonic.controller.StreamController" level="trace"/>
+    <logger name="com.tesshu.jpsonic.service.MediaScannerScheduleConfiguration" level="trace"/>
 </configuration>
