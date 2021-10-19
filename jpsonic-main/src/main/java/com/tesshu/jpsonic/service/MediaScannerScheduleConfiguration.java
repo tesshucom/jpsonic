@@ -17,19 +17,17 @@
 
 package com.tesshu.jpsonic.service;
 
-import java.time.Instant;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
@@ -44,17 +42,6 @@ public class MediaScannerScheduleConfiguration implements SchedulingConfigurer {
     private final SettingsService settingsService;
     private final MediaScannerService mediaScannerService;
 
-    private final Supplier<Date> firstTime = () -> {
-        int hour = getSettingsService().getIndexCreationHour();
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime nextRun = now.withHour(hour).withMinute(0).withSecond(0);
-        if (now.compareTo(nextRun) > 0) {
-            nextRun = nextRun.plusDays(1);
-        }
-        long initialDelay = ChronoUnit.MILLIS.between(now, nextRun);
-        return Date.from(now.plus(initialDelay, ChronoUnit.MILLIS).atZone(ZoneId.systemDefault()).toInstant());
-    };
-
     public MediaScannerScheduleConfiguration(TaskScheduler taskScheduler, SettingsService settingsService,
             MediaScannerService mediaScannerService) {
         super();
@@ -63,27 +50,32 @@ public class MediaScannerScheduleConfiguration implements SchedulingConfigurer {
         this.mediaScannerService = mediaScannerService;
     }
 
+    final Date createFirstTime() {
+        int hour = getSettingsService().getIndexCreationHour();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nextRun = now.withHour(hour).withMinute(0).withSecond(0);
+        if (now.compareTo(nextRun) > 0) {
+            nextRun = nextRun.plusDays(1);
+        }
+        long initialDelay = ChronoUnit.MILLIS.between(now, nextRun);
+        return Date.from(now.plus(initialDelay, ChronoUnit.MILLIS).atZone(ZoneId.systemDefault()).toInstant());
+    }
+
     private SettingsService getSettingsService() {
         return settingsService;
     }
 
     @Override
-    public void configureTasks(ScheduledTaskRegistrar scheduledTaskRegistrar) {
-        scheduledTaskRegistrar.setScheduler(taskScheduler);
+    public void configureTasks(ScheduledTaskRegistrar registrar) {
+        registrar.setScheduler(taskScheduler);
 
-        scheduledTaskRegistrar.addTriggerTask(new ScanLibraryTask(mediaScannerService), (context) -> {
-
-            long daysBetween = settingsService.getIndexCreationInterval();
-            if (daysBetween == -1 && LOG.isInfoEnabled()) {
-                LOG.info("Automatic media scanning disabled.");
-            }
-
-            long periodMillis = TimeUnit.DAYS.toMillis(daysBetween);
-            Optional<Date> lastCompletionTime = Optional.ofNullable(context.lastCompletionTime());
-            Instant nextExecutionTime = lastCompletionTime.orElseGet(firstTime).toInstant().plusMillis(periodMillis);
+        Trigger trigger = (triggerContext) -> {
+            Date lastTime = triggerContext.lastCompletionTime();
+            Date nextTime = lastTime == null ? createFirstTime()
+                    : Date.from(lastTime.toInstant().plus(1L, ChronoUnit.DAYS));
             if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
-                LOG.info("Automatic media library scanning scheduled to run every {} day(s), starting at {}",
-                        daysBetween, firstTime.get());
+                LOG.info("Daily auto library scan was scheduled. (Next {})",
+                        new SimpleDateFormat("yyyy/MM/dd HH:mm", settingsService.getLocale()).format(nextTime));
             }
 
             // In addition, create index immediately if it doesn't exist on disk.
@@ -93,9 +85,10 @@ public class MediaScannerScheduleConfiguration implements SchedulingConfigurer {
                 }
                 mediaScannerService.scanLibrary();
             }
+            return nextTime;
+        };
 
-            return Date.from(nextExecutionTime);
-        });
+        registrar.addTriggerTask(new ScanLibraryTask(mediaScannerService), trigger);
     }
 
     private static class ScanLibraryTask implements Runnable {
@@ -109,13 +102,7 @@ public class MediaScannerScheduleConfiguration implements SchedulingConfigurer {
 
         @Override
         public void run() {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Starting scheduled Podcast refresh.");
-            }
             mediaScannerService.scanLibrary();
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Completed scheduled Podcast refresh.");
-            }
         }
     }
 }

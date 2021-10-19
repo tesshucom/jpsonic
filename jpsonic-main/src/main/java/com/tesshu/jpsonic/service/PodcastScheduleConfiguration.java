@@ -17,10 +17,10 @@
 
 package com.tesshu.jpsonic.service;
 
+import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.Optional;
-import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,11 +40,6 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
     private final SettingsService settingsService;
     private final PodcastService podcastService;
 
-    /*
-     * The first execution is 5 minutes after the server starts.
-     */
-    private final Supplier<Date> firstTime = () -> new Date(System.currentTimeMillis() + 5L * 60L * 1000L);
-
     public PodcastScheduleConfiguration(TaskScheduler taskScheduler, SettingsService settingsService,
             PodcastService podcastService) {
         super();
@@ -53,21 +48,17 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
         this.podcastService = podcastService;
     }
 
+    /*
+     * The first execution is 5 minutes after the server starts.
+     */
+    final Date createFirstTime() {
+        return Date.from(Instant.now().plus(5L, ChronoUnit.MINUTES));
+    }
+
     @Override
     public void configureTasks(ScheduledTaskRegistrar scheduledTaskRegistrar) {
         scheduledTaskRegistrar.setScheduler(taskScheduler);
-
-        scheduledTaskRegistrar.addTriggerTask(() -> {
-
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Starting scheduled Podcast refresh.");
-            }
-            podcastService.refreshAllChannels(true);
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Completed scheduled Podcast refresh.");
-            }
-
-        }, (context) -> {
+        scheduledTaskRegistrar.addTriggerTask(() -> podcastService.refreshAllChannels(true), (context) -> {
 
             int hoursBetween = settingsService.getPodcastUpdateInterval();
             if (hoursBetween == -1) {
@@ -77,15 +68,15 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
                 return null;
             }
 
-            long periodMillis = hoursBetween * 60L * 60L * 1000L;
-            Optional<Date> lastCompletionTime = Optional.ofNullable(context.lastCompletionTime());
-            Instant nextExecutionTime = lastCompletionTime.orElseGet(firstTime).toInstant().plusMillis(periodMillis);
-            if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
-                LOG.info("Automatic Podcast update scheduled to run every " + hoursBetween + " hour(s), starting at "
-                        + firstTime.get());
-            }
+            Date lastTime = context.lastCompletionTime();
+            Date nextTime = lastTime == null ? createFirstTime()
+                    : Date.from(lastTime.toInstant().plus(hoursBetween, ChronoUnit.HOURS));
 
-            return Date.from(nextExecutionTime);
+            if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+                LOG.info("Auto Podcast update every {} hours was scheduled. (Next {})", +hoursBetween,
+                        new SimpleDateFormat("yyyy/MM/dd HH:mm", settingsService.getLocale()).format(nextTime));
+            }
+            return nextTime;
         });
     }
 }
