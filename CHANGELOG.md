@@ -13,6 +13,7 @@ The binaries of SNAPSHOT are available from the latest artifacts on the [master 
 
 #### Fixes
   * Fix to reply with the appropriate content type ([#1206](https://github.com/tesshucom/jpsonic/issues/1206))
+  * Fix bug that automatic scanning did not start ([#1208](https://github.com/tesshucom/jpsonic/issues/1208))
 
 <details>
 <summary>v110.1.0</summary>
