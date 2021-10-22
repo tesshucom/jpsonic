@@ -582,8 +582,9 @@ public class TranscodingService {
                 bitRate = bitRate * 6 / 5;
             }
             // Make sure bitrate is quantized to valid values for CBR
-            if (TranscodeScheme.fromMaxBitRate(bitRate) != null) {
-                bitRate = TranscodeScheme.fromMaxBitRate(bitRate).getMaxBitRate();
+            TranscodeScheme quantized = TranscodeScheme.fromMaxBitRate(bitRate);
+            if (quantized != null) {
+                bitRate = quantized.getMaxBitRate();
             }
         }
         return bitRate;
