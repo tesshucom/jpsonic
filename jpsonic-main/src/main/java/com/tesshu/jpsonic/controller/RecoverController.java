@@ -26,7 +26,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.RecoverService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -126,7 +125,6 @@ public class RecoverController {
     /*
      * e-mail user new password via configured Smtp server
      */
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private boolean emailPassword(String password, String username, String email) {
         /* Default to protocol smtp when SmtpEncryption is set to "None" */
 

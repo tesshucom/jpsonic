@@ -32,7 +32,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
@@ -188,7 +187,6 @@ public class ListenBrainzScrobbler {
         return true;
     }
 
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private static void executeRequest(HttpUriRequest request) throws ExecutionException {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             client.execute(request);

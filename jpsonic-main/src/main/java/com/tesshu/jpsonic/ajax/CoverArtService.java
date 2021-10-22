@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.LastFmCoverArt;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.LastFmService;
@@ -101,7 +100,6 @@ public class CoverArtService {
         }
     }
 
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private void saveCoverArt(String path, String url) throws ExecutionException {
 
         // Attempt to resolve proper suffix.

@@ -29,7 +29,6 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.User;
 import de.triology.recaptchav2java.ReCaptcha;
 import org.slf4j.Logger;
@@ -75,7 +74,6 @@ public class RecoverService {
     /*
      * e-mail user new password via configured Smtp server
      */
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public boolean emailPassword(String password, String username, String email) {
         /* Default to protocol smtp when SmtpEncryption is set to "None" */
         String prot = "smtp";

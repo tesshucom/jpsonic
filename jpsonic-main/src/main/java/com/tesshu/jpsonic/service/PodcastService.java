@@ -44,7 +44,6 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.PodcastDao;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PodcastChannel;
@@ -294,7 +293,6 @@ public class PodcastService {
         }
     }
 
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private void doRefreshChannel(PodcastChannel channel, boolean downloadEpisodes) {
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {
@@ -348,7 +346,6 @@ public class PodcastService {
         }
     }
 
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private void downloadImage(PodcastChannel channel) {
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {
@@ -566,7 +563,6 @@ public class PodcastService {
         }
     }
 
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private void doDownloadEpisode(PodcastEpisode episode) {
 
         if (destroy.get()) {

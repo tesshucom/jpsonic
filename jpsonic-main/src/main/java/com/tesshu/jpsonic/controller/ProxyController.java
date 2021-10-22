@@ -30,7 +30,6 @@ import java.util.concurrent.ExecutionException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -53,7 +52,6 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/proxy")
 public class ProxyController {
 
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @GetMapping
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletRequestBindingException, ExecutionException {

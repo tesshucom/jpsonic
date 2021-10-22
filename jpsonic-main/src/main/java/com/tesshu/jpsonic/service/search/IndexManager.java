@@ -38,7 +38,6 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
@@ -291,7 +290,6 @@ public class IndexManager {
     /**
      * Close Writer of specified index and refresh SearcherManager.
      */
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private void stopIndexing(IndexType type, MediaLibraryStatistics statistics) {
 
         boolean isUpdate = false;

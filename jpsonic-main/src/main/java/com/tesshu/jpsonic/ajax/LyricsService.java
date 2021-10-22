@@ -29,7 +29,6 @@ import java.net.SocketException;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.lang.StringUtils;
@@ -128,7 +127,6 @@ public class LyricsService {
         return new LyricsInfo(lyric, artist, song);
     }
 
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private String executeGetRequest(String url) throws IOException {
         RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(15_000).setSocketTimeout(15_000).build();
         HttpGet method = new HttpGet(url);
