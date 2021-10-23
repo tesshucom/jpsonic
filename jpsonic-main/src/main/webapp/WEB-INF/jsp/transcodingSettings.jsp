@@ -5,6 +5,7 @@
 <%@ include file="head.jsp"%>
 <%@ include file="jquery.jsp"%>
 <%@ page import="com.tesshu.jpsonic.domain.PreferredFormatSheme" %>
+<%@ page import="com.tesshu.jpsonic.domain.Transcodings" %>
 <script>
 function resetPreferredFormatSettings() {
     document.getElementsByName('preferredFormat')[0].value = 'mp3';
@@ -56,7 +57,17 @@ function resetPreferredFormatSettings() {
                 <tbody>
                     <c:forEach items="${model.transcodings}" var="transcoding">
                         <tr>
-                            <td><input type="text" name="name[${transcoding.id}]" value="${fn:escapeXml(transcoding.name)}"/></td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${not empty Transcodings.of(transcoding.name)}" >
+                                        ${fn:escapeXml(transcoding.name)}
+                                        <input type="hidden" name="name[${transcoding.id}]" value="${fn:escapeXml(transcoding.name)}"/>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <input type="text" name="name[${transcoding.id}]" value="${fn:escapeXml(transcoding.name)}"/>
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
                             <td>
                                 <dl>
                                     <dt><fmt:message key="transcodingsettings.sourceformat" /> / <fmt:message key="transcodingsettings.targetformat" /></dt>
