@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.domain.PreferredFormatSheme;
 import com.tesshu.jpsonic.domain.Transcoding;
+import com.tesshu.jpsonic.domain.Transcodings;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -105,6 +106,10 @@ public class TranscodingSettingsController {
         return new ModelAndView(new RedirectView(ViewName.TRANSCODING_SETTINGS.value()));
     }
 
+    private static boolean isRevervedTranscodingName(String name) {
+        return Transcodings.of(name) != null;
+    }
+
     private String handleParameters(HttpServletRequest request, RedirectAttributes redirectAttributes) {
 
         for (Transcoding transcoding : transcodingService.getAllTranscodings()) {
@@ -127,6 +132,8 @@ public class TranscodingSettingsController {
             String error = null;
             if (name == null) {
                 error = "transcodingsettings.noname";
+            } else if (isRevervedTranscodingName(name)) {
+                return "transcodingsettings.duplicate";
             } else if (sourceFormats == null) {
                 error = "transcodingsettings.nosourceformat";
             } else if (targetFormat == null) {
