@@ -11,6 +11,19 @@ function resetPreferredFormatSettings() {
     document.getElementsByName('preferredFormat')[0].value = 'mp3';
     $("#radio-${PreferredFormatSheme.ANNOYMOUS.name()}").prop('checked', true);
 }
+
+function resetAddTag() {
+	if($("#restored${Transcodings.MP3}").prop('checked')){
+	    $("#addTag").prop('disabled', false);
+	} else {
+		$("#restored${Transcodings.MP3}").prop('checked', false);
+		$("#addTag").prop('disabled', true);
+	}
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+	$("#addTag").prop('disabled', true);	
+}, false);
 </script>
 </head>
 <body class="mainframe settings transcodingSettings">
@@ -134,7 +147,7 @@ function resetPreferredFormatSettings() {
             <dt><fmt:message key="transcodingsettings.restored"/></dt>
             <dd>
                 <c:forEach items="${Transcodings.values()}" var="transcoding" varStatus="loopStatus">
-                     <input type="checkbox" id="restored${transcoding}" name="restoredNames" value="${transcoding.getName()}" cssClass="checkbox"/>
+                     <input type="checkbox" id="restored${transcoding}" name="restoredNames" value="${transcoding.getName()}" cssClass="checkbox" onclick="resetAddTag()"/>
                     <label for="restored${transcoding}">${transcoding.getName()}</label>
                 </c:forEach>
             </dd>

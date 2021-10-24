@@ -670,7 +670,7 @@ public class TranscodingService {
      * it can be changed and consistency is not guaranteed. Delete insert is done, in this method.
      */
     @Transactional
-    public void restoreTranscoding(Transcodings transcode) {
+    public void restoreTranscoding(Transcodings transcode, boolean addTag) {
         if (transcode == null) {
             return;
         }
@@ -680,7 +680,8 @@ public class TranscodingService {
         case MP3:
             transcoding = new Transcoding(null, Transcodings.MP3.getName(),
                     "mp3 ogg oga aac m4a flac wav wma aif aiff ape mpc shn", "mp3",
-                    "ffmpeg -i %s -map 0:0 -b:a %bk -v 0 -f mp3 -", null, null, true);
+                    "ffmpeg -i %s -map 0:0 -b:a %bk ".concat(addTag ? "-id3v2_version 3 " : "").concat("-v 0 -f mp3 -"),
+                    null, null, true);
             break;
 
         case FLV:
