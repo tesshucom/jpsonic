@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.dao.TranscodingDao;
 import com.tesshu.jpsonic.domain.PreferredFormatSheme;
+import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.domain.Transcodings;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -59,6 +60,7 @@ class TranscodingSettingsControllerTest {
     private TranscodingSettingsController controller;
     private TranscodingService transcodingService;
     private SettingsService settingsService;
+    private TranscodingDao transcodingDao;
     private MockMvc mockMvc;
 
     @BeforeEach
@@ -67,7 +69,8 @@ class TranscodingSettingsControllerTest {
         Mockito.when(settingsService.getPreferredFormat()).thenReturn("mp3");
         Mockito.when(settingsService.getPreferredFormatShemeName()).thenReturn(PreferredFormatSheme.ANNOYMOUS.name());
         SecurityService securityService = mock(SecurityService.class);
-        transcodingService = new TranscodingService(settingsService, securityService, mock(TranscodingDao.class),
+        transcodingDao = mock(TranscodingDao.class);
+        transcodingService = new TranscodingService(settingsService, securityService, transcodingDao,
                 mock(PlayerService.class), null);
         controller = new TranscodingSettingsController(settingsService, securityService, transcodingService,
                 mock(ShareService.class), mock(OutlineHelpSelector.class));
@@ -113,7 +116,23 @@ class TranscodingSettingsControllerTest {
         controller.doPost(req, mock(RedirectAttributes.class));
         Mockito.verify(settingsService, Mockito.times(1)).setPreferredFormat(Mockito.anyString());
         assertEquals("mp3", formatCaptor.getValue());
+    }
 
+    @Test
+    void testRestore() {
+        MockHttpServletRequest req = new MockHttpServletRequest();
+        req.setParameter("restoredNames", new String[0]);
+        controller.doPost(req, mock(RedirectAttributes.class));
+        Mockito.verify(transcodingDao, Mockito.never()).createTranscoding(Mockito.any(Transcoding.class));
+
+        req.setParameter("restoredNames", Transcodings.MP3.getName(), Transcodings.MP4.getName());
+        ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
+        Mockito.when(transcodingDao.createTranscoding(transcodingCaptor.capture())).thenReturn(0);
+        controller.doPost(req, mock(RedirectAttributes.class));
+        Mockito.verify(transcodingDao, Mockito.times(2)).createTranscoding(Mockito.any(Transcoding.class));
+        assertEquals(2, transcodingCaptor.getAllValues().size());
+        assertEquals(Transcodings.MP3.getName(), transcodingCaptor.getAllValues().get(0).getName());
+        assertEquals(Transcodings.MP4.getName(), transcodingCaptor.getAllValues().get(1).getName());
     }
 
     @Documented

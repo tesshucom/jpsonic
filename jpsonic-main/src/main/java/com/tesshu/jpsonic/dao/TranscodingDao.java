@@ -97,14 +97,17 @@ public class TranscodingDao extends AbstractDao {
      *
      * @param transcoding
      *            The transcoding to create.
+     * 
+     * @return registered ID that is assumed to be registered
      */
     @Transactional
-    public void createTranscoding(Transcoding transcoding) {
+    public int createTranscoding(Transcoding transcoding) {
         Integer existingMax = getJdbcTemplate().queryForObject("select max(id) from transcoding2", Integer.class);
         if (existingMax == null) {
             existingMax = 0;
         }
-        transcoding.setId(existingMax + 1);
+        int registered = existingMax + 1;
+        transcoding.setId(registered);
         String sql = "insert into transcoding2 (" + QUERY_COLUMNS + ") values (" + questionMarks(QUERY_COLUMNS) + ")";
         update(sql, transcoding.getId(), transcoding.getName(), transcoding.getSourceFormats(),
                 transcoding.getTargetFormat(), transcoding.getStep1(), transcoding.getStep2(), transcoding.getStep3(),
@@ -112,6 +115,7 @@ public class TranscodingDao extends AbstractDao {
         if (LOG.isInfoEnabled()) {
             LOG.info("Created transcoding " + transcoding.getName());
         }
+        return registered;
     }
 
     /**
