@@ -47,6 +47,7 @@ import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.Transcoding;
+import com.tesshu.jpsonic.domain.Transcodings;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
@@ -74,9 +75,6 @@ import org.mockito.Mockito;
 @SuppressWarnings({ "PMD.JUnitTestsShouldIncludeAssert", "PMD.DoNotUseThreads" })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class TranscodingServiceTest {
-
-    private static final String DEFAULS_ACTIVES_NAME_FOR_MP3 = "mp3 audio";
-    private static final String DEFAULS_ACTIVES_NAME_FOR_FLV = "flv/h264 video";
 
     private String fmtRaw = "raw";
     private String fmtMp3 = "mp3";
@@ -180,7 +178,7 @@ class TranscodingServiceTest {
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Nested
     @Order(2)
-    class SetTranscodingsForPlayer {
+    class SetTranscodingsForPlayerTest {
 
         @Test
         @Order(1)
@@ -252,7 +250,7 @@ class TranscodingServiceTest {
         Mockito.when(playerService.getAllPlayers()).thenReturn(Arrays.asList(player));
         Transcoding mockActiveTranscoding = transcodingDao.getAllTranscodings().get(0);
         ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
-        Mockito.doNothing().when(transcodingDao).createTranscoding(transcodingCaptor.capture());
+        Mockito.when(transcodingDao.createTranscoding(transcodingCaptor.capture())).thenReturn(0);
         ArgumentCaptor<Integer> idCaptor = ArgumentCaptor.forClass(int.class);
         ArgumentCaptor<int[]> transcodingIdsCaptor = ArgumentCaptor.forClass(int[].class);
         Mockito.doNothing().when(transcodingDao).setTranscodingsForPlayer(idCaptor.capture(),
@@ -269,7 +267,8 @@ class TranscodingServiceTest {
         // Creating inactive transcoding
         transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
         Mockito.clearInvocations(transcodingDao);
-        Mockito.doNothing().when(transcodingDao).createTranscoding(transcodingCaptor.capture());
+        Mockito.when(transcodingDao.createTranscoding(transcodingCaptor.capture()))
+                .thenReturn(inactiveTranscoding.getId());
         transcodingService.createTranscoding(inactiveTranscoding);
 
         // Not set for existing players
@@ -358,7 +357,7 @@ class TranscodingServiceTest {
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Nested
     @Order(8)
-    class GetTranscodedInputStream {
+    class GetTranscodedInputStreamTest {
 
         private String step1 = "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f flv -";
 
@@ -431,7 +430,7 @@ class TranscodingServiceTest {
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Nested
     @Order(9)
-    class CreateTranscodedInputStream {
+    class CreateTranscodedInputStreamTest {
 
         private String step = "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -f flv -";
 
@@ -506,7 +505,7 @@ class TranscodingServiceTest {
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Nested
     @Order(10)
-    class CreateTranscodeInputStream {
+    class CreateTranscodeInputStreamTest {
 
         private String command = "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 22050 -ac 2 -v 0 -f flv -vcodec libx264 -preset superfast -threads 0 -";
 
@@ -545,7 +544,7 @@ class TranscodingServiceTest {
 
     @Nested
     @Order(9)
-    class GetTranscoding {
+    class GetTranscodingTest {
 
         @Test
         @Order(1)
@@ -587,7 +586,7 @@ class TranscodingServiceTest {
 
             Transcoding transcoding = transcodingService.getTranscoding(mediaFile, player, preferredTargetFormat, hls);
             Assertions.assertNotNull(transcoding.getId());
-            assertEquals(DEFAULS_ACTIVES_NAME_FOR_MP3, transcoding.getName());
+            assertEquals(Transcodings.MP3.getName(), transcoding.getName());
             assertTrue(Arrays.stream(transcoding.getSourceFormatsAsArray()).anyMatch(f -> fmtFlac.equals(f)));
             assertEquals(fmtMp3, transcoding.getTargetFormat());
 
@@ -609,7 +608,7 @@ class TranscodingServiceTest {
 
             Transcoding transcoding = transcodingService.getTranscoding(mediaFile, player, preferredTargetFormat, hls);
             Assertions.assertNotNull(transcoding.getId());
-            assertEquals(DEFAULS_ACTIVES_NAME_FOR_MP3, transcoding.getName());
+            assertEquals(Transcodings.MP3.getName(), transcoding.getName());
             assertTrue(Arrays.stream(transcoding.getSourceFormatsAsArray()).anyMatch(f -> fmtFlac.equals(f)));
             assertEquals(fmtMp3, transcoding.getTargetFormat());
         }
@@ -648,7 +647,7 @@ class TranscodingServiceTest {
 
             Transcoding transcoding = transcodingService.getTranscoding(mediaFile, player, preferredTargetFormat, hls);
             Assertions.assertNotNull(transcoding.getId());
-            assertEquals(DEFAULS_ACTIVES_NAME_FOR_FLV, transcoding.getName());
+            assertEquals(Transcodings.FLV.getName(), transcoding.getName());
             assertTrue(Arrays.stream(transcoding.getSourceFormatsAsArray()).anyMatch(f -> fmtMpeg.equals(f)));
             assertEquals(fmtFlv, transcoding.getTargetFormat());
         }
@@ -670,7 +669,7 @@ class TranscodingServiceTest {
 
             Transcoding transcoding = transcodingService.getTranscoding(mediaFile, player, preferredTargetFormat, hls);
             Assertions.assertNotNull(transcoding.getId());
-            assertEquals(DEFAULS_ACTIVES_NAME_FOR_FLV, transcoding.getName());
+            assertEquals(Transcodings.FLV.getName(), transcoding.getName());
             assertFalse(Arrays.stream(transcoding.getSourceFormatsAsArray()).allMatch(f -> fmtFlv.equals(f)));
             assertEquals(fmtFlv, transcoding.getTargetFormat());
         }
@@ -699,7 +698,7 @@ class TranscodingServiceTest {
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Nested
     @Order(11)
-    class TranscoderInstalled {
+    class TranscoderInstalledTest {
 
         private String ffmpeg = "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f flv -vcodec libx264 -preset superfast -threads 0 -";
         private String lame = "lame -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f flv -vcodec libx264 -preset superfast -threads 0 -";
@@ -949,7 +948,7 @@ class TranscodingServiceTest {
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Nested
     @Order(12)
-    class GetParameters {
+    class GetParametersTest {
 
         private final Transcoding fakeTranscoding = new Transcoding(null, "fake-instance", fmtFlac, fmtMp3, "s1", "s2",
                 "s3", true);
@@ -1023,7 +1022,7 @@ class TranscodingServiceTest {
             assertEquals(64_000, parameters.getExpectedLength());
             assertEquals(256, parameters.getMaxBitRate());
             assertEquals(mediaFile, parameters.getMediaFile());
-            assertEquals(DEFAULS_ACTIVES_NAME_FOR_MP3, parameters.getTranscoding().getName());
+            assertEquals(Transcodings.MP3.getName(), parameters.getTranscoding().getName());
             Assertions.assertNull(parameters.getVideoTranscodingSettings());
             assertFalse(parameters.isRangeAllowed());
 
@@ -1055,7 +1054,7 @@ class TranscodingServiceTest {
             assertEquals(500_000, parameters.getExpectedLength());
             assertEquals(2000, parameters.getMaxBitRate());
             assertEquals(mediaFile, parameters.getMediaFile());
-            assertEquals(DEFAULS_ACTIVES_NAME_FOR_FLV, parameters.getTranscoding().getName());
+            assertEquals(Transcodings.FLV.getName(), parameters.getTranscoding().getName());
             Assertions.assertNull(parameters.getVideoTranscodingSettings());
             assertFalse(parameters.isRangeAllowed());
 
@@ -1087,7 +1086,7 @@ class TranscodingServiceTest {
             assertEquals(64_000, parameters.getExpectedLength());
             assertEquals(256, parameters.getMaxBitRate());
             assertEquals(mediaFile, parameters.getMediaFile());
-            assertEquals(DEFAULS_ACTIVES_NAME_FOR_MP3, parameters.getTranscoding().getName());
+            assertEquals(Transcodings.MP3.getName(), parameters.getTranscoding().getName());
             assertEquals(videoTranscodingSettings, parameters.getVideoTranscodingSettings());
             assertFalse(parameters.isRangeAllowed());
 
@@ -1449,5 +1448,154 @@ class TranscodingServiceTest {
             assertEquals(3_904_000, transcodingService.getExpectedLength(parameters));
         }
 
+    }
+
+    @Nested
+    class RestoreTranscodingTest {
+
+        @Test
+        void testNullParam() {
+            transcodingService.restoreTranscoding(null);
+            Mockito.verify(transcodingDao, Mockito.never()).createTranscoding(Mockito.nullable(Transcoding.class));
+            Mockito.verify(transcodingDao, Mockito.never()).getAllTranscodings();
+            Mockito.verify(playerDao, Mockito.never()).getAllPlayers();
+            Mockito.verify(transcodingDao, Mockito.never()).deleteTranscoding(Mockito.anyInt());
+        }
+
+        @Test
+        void testRestoreMp3() {
+
+            int createdMp3Id = 999;
+            Mockito.when(transcodingDao.createTranscoding(Mockito.any(Transcoding.class))).thenReturn(createdMp3Id);
+
+            Transcoding created = new Transcoding(createdMp3Id, Transcodings.MP3.getName(), fmtFlv, fmtFlac, fakePath,
+                    null, null, false);
+            List<Transcoding> defaulTranscodings = transcodingDao.getAllTranscodings();
+            Mockito.clearInvocations(transcodingDao);
+            List<Transcoding> transcodings = new ArrayList<>(defaulTranscodings);
+            transcodings.add(created);
+            Mockito.when(transcodingDao.getAllTranscodings()).thenReturn(transcodings);
+
+            ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
+            transcodingService.restoreTranscoding(Transcodings.MP3);
+
+            Mockito.verify(transcodingDao, Mockito.times(1)).createTranscoding(transcodingCaptor.capture());
+            assertEquals(Transcodings.MP3.getName(), transcodingCaptor.getValue().getName());
+            Mockito.verify(transcodingDao, Mockito.times(2)).getAllTranscodings();
+            Mockito.verify(playerDao, Mockito.times(1)).getAllPlayers();
+            Mockito.verify(transcodingDao, Mockito.times(1)).deleteTranscoding(Mockito.anyInt());
+        }
+
+        @Test
+        void testRestoreFlv() {
+            ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
+            transcodingService.restoreTranscoding(Transcodings.FLV);
+
+            Mockito.verify(transcodingDao, Mockito.times(1)).createTranscoding(transcodingCaptor.capture());
+            assertEquals(Transcodings.FLV.getName(), transcodingCaptor.getValue().getName());
+            Mockito.verify(transcodingDao, Mockito.times(2)).getAllTranscodings();
+            Mockito.verify(playerDao, Mockito.times(1)).getAllPlayers();
+            Mockito.verify(transcodingDao, Mockito.times(1)).deleteTranscoding(Mockito.anyInt());
+        }
+
+        @Test
+        void testRestoreMkv() {
+            ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
+            transcodingService.restoreTranscoding(Transcodings.MKV);
+
+            Mockito.verify(transcodingDao, Mockito.times(1)).createTranscoding(transcodingCaptor.capture());
+            assertEquals(Transcodings.MKV.getName(), transcodingCaptor.getValue().getName());
+            Mockito.verify(transcodingDao, Mockito.times(2)).getAllTranscodings();
+            Mockito.verify(playerDao, Mockito.times(1)).getAllPlayers();
+            Mockito.verify(transcodingDao, Mockito.times(1)).deleteTranscoding(Mockito.anyInt());
+        }
+
+        @Test
+        void testRestoreMp4() {
+            ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
+            transcodingService.restoreTranscoding(Transcodings.MP4);
+
+            Mockito.verify(transcodingDao, Mockito.times(1)).createTranscoding(transcodingCaptor.capture());
+            assertEquals(Transcodings.MP4.getName(), transcodingCaptor.getValue().getName());
+            Mockito.verify(transcodingDao, Mockito.times(2)).getAllTranscodings();
+            Mockito.verify(playerDao, Mockito.times(1)).getAllPlayers();
+            Mockito.verify(transcodingDao, Mockito.times(1)).deleteTranscoding(Mockito.anyInt());
+        }
+
+        @Test
+        void testSwap() {
+            int player1Id = mockPlayerId;
+            Player player1 = new Player();
+            player1.setId(player1Id);
+
+            int player2Id = mockPlayerId + 1;
+            Player player2 = new Player();
+            player2.setId(player2Id);
+
+            int player3Id = mockPlayerId + 2;
+            Player player3 = new Player();
+            player3.setId(player3Id);
+
+            int mp3Id = 1;
+            Transcoding mp3 = new Transcoding(mp3Id, Transcodings.MP3.getName(), null, null, fakePath, null, null,
+                    false);
+            int flvId = 2;
+            Transcoding flv = new Transcoding(flvId, Transcodings.FLV.getName(), null, null, fakePath, null, null,
+                    false);
+
+            Mockito.when(playerService.getAllPlayers()).thenReturn(Arrays.asList(player1, player2, player3));
+            Mockito.when(transcodingDao.getTranscodingsForPlayer(player1Id)).thenReturn(Arrays.asList(mp3)); // mp3
+            Mockito.when(transcodingDao.getTranscodingsForPlayer(player2Id)).thenReturn(Arrays.asList(flv));
+            Mockito.when(transcodingDao.getTranscodingsForPlayer(player3Id)).thenReturn(Arrays.asList(mp3, flv)); // mp3
+
+            int createdMp3Id = 999;
+            Mockito.when(transcodingDao.createTranscoding(Mockito.any(Transcoding.class))).thenReturn(createdMp3Id);
+            Transcoding created = new Transcoding(createdMp3Id, Transcodings.MP3.getName(), null, null, fakePath, null,
+                    null, false);
+            List<Transcoding> defaulTranscodings = transcodingDao.getAllTranscodings();
+            Mockito.clearInvocations(transcodingDao);
+            List<Transcoding> transcodings = new ArrayList<>(defaulTranscodings);
+            transcodings.add(created);
+            Mockito.when(transcodingDao.getAllTranscodings()).thenReturn(transcodings);
+
+            transcodingService.restoreTranscoding(Transcodings.MP3);
+
+            ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
+            Mockito.verify(transcodingDao, Mockito.times(1)).createTranscoding(transcodingCaptor.capture());
+            assertEquals(Transcodings.MP3.getName(), transcodingCaptor.getValue().getName());
+            Mockito.verify(transcodingDao, Mockito.times(2)).getAllTranscodings();
+            Mockito.verify(playerDao, Mockito.times(1)).getAllPlayers();
+
+            ArgumentCaptor<Integer> playerIdCaptor = ArgumentCaptor.forClass(Integer.class);
+            ArgumentCaptor<int[]> transcodingIdsCaptor = ArgumentCaptor.forClass(int[].class);
+            Mockito.verify(transcodingDao, Mockito.times(3)).setTranscodingsForPlayer(playerIdCaptor.capture(),
+                    transcodingIdsCaptor.capture());
+
+            assertEquals(createdMp3Id, transcodingIdsCaptor.getAllValues().get(2));
+            assertEquals(5, transcodingIdsCaptor.getAllValues().size());
+
+            // player1
+            assertEquals(player1Id, playerIdCaptor.getAllValues().get(0));
+            assertEquals(createdMp3Id, transcodingIdsCaptor.getAllValues().get(0));
+
+            // player2
+            assertEquals(player2Id, playerIdCaptor.getAllValues().get(1));
+            assertEquals(flvId, transcodingIdsCaptor.getAllValues().get(1));
+            assertEquals(createdMp3Id, transcodingIdsCaptor.getAllValues().get(2));
+
+            // player3
+            assertEquals(player3Id, playerIdCaptor.getAllValues().get(2));
+            assertEquals(flvId, transcodingIdsCaptor.getAllValues().get(3));
+            assertEquals(createdMp3Id, transcodingIdsCaptor.getAllValues().get(4));
+
+            ArgumentCaptor<Integer> deletedIdCaptor = ArgumentCaptor.forClass(Integer.class);
+            Mockito.verify(transcodingDao, Mockito.times(1)).deleteTranscoding(deletedIdCaptor.capture());
+            assertEquals(1, deletedIdCaptor.getAllValues().size());
+
+            int toBeDeletedId = defaulTranscodings.stream().filter(t -> Transcodings.MP3.getName().equals(t.getName()))
+                    .collect(Collectors.toList()).get(0).getId();
+            // Delete old transcode with the same name
+            assertEquals(toBeDeletedId, deletedIdCaptor.getValue());
+        }
     }
 }

@@ -86,7 +86,7 @@ function resetPreferredFormatSettings() {
         </details>
     </c:if>
 
-    <details open>
+    <details ${empty model.transcodings ? "" : "open"}>
         <summary class="jpsonic"><fmt:message key="transcodingsettings.preferred"/></summary>
 
         <div class="actions">
@@ -128,7 +128,26 @@ function resetPreferredFormatSettings() {
         </dl>
     </details>
 
-    <details ${model.isOpenDetailSetting or empty model.transcodings ? "open" : ""}>
+   <details ${model.isOpenDetailSetting or empty model.transcodings ? "open" : ""}>
+        <summary class="jpsonic"><fmt:message key="transcodingsettings.restore"/></summary>
+        <dl>
+            <dt><fmt:message key="transcodingsettings.restored"/></dt>
+            <dd>
+                <c:forEach items="${Transcodings.values()}" var="transcoding" varStatus="loopStatus">
+                     <input type="checkbox" id="restored${transcoding}" name="restoredNames" value="${transcoding.getName()}" cssClass="checkbox"/>
+                    <label for="restored${transcoding}">${transcoding.getName()}</label>
+                </c:forEach>
+            </dd>
+            <dt><fmt:message key="transcodingsettings.restoreoption"/></dt>
+            <dd>
+                <input type="checkbox" id="addTag" name="addTag"/>
+                <label for="addTag"><fmt:message key="transcodingsettings.restoreaddtag" /></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="restoreaddtag"/></c:import>
+            </dd>
+        </dl>
+   </details>
+
+    <details ${model.isOpenDetailSetting ? "open" : ""}>
         <summary><fmt:message key="transcodingsettings.add"/></summary>
 
         <table class="tabular transcoding">
