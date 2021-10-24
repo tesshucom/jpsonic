@@ -1455,7 +1455,7 @@ class TranscodingServiceTest {
 
         @Test
         void testNullParam() {
-            transcodingService.restoreTranscoding(null);
+            transcodingService.restoreTranscoding(null, false);
             Mockito.verify(transcodingDao, Mockito.never()).createTranscoding(Mockito.nullable(Transcoding.class));
             Mockito.verify(transcodingDao, Mockito.never()).getAllTranscodings();
             Mockito.verify(playerDao, Mockito.never()).getAllPlayers();
@@ -1477,7 +1477,7 @@ class TranscodingServiceTest {
             Mockito.when(transcodingDao.getAllTranscodings()).thenReturn(transcodings);
 
             ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
-            transcodingService.restoreTranscoding(Transcodings.MP3);
+            transcodingService.restoreTranscoding(Transcodings.MP3, false);
 
             Mockito.verify(transcodingDao, Mockito.times(1)).createTranscoding(transcodingCaptor.capture());
             assertEquals(Transcodings.MP3.getName(), transcodingCaptor.getValue().getName());
@@ -1487,9 +1487,25 @@ class TranscodingServiceTest {
         }
 
         @Test
+        void testAddTag() {
+            ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
+            Mockito.when(transcodingDao.createTranscoding(transcodingCaptor.capture())).thenReturn(0);
+            transcodingService.restoreTranscoding(Transcodings.MP3, false);
+            assertEquals(Transcodings.MP3.getName(), transcodingCaptor.getValue().getName());
+            assertEquals("ffmpeg -i %s -map 0:0 -b:a %bk -v 0 -f mp3 -", transcodingCaptor.getValue().getStep1());
+
+            transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
+            Mockito.when(transcodingDao.createTranscoding(transcodingCaptor.capture())).thenReturn(0);
+            transcodingService.restoreTranscoding(Transcodings.MP3, true);
+            assertEquals(Transcodings.MP3.getName(), transcodingCaptor.getValue().getName());
+            assertEquals("ffmpeg -i %s -map 0:0 -b:a %bk -id3v2_version 3 -v 0 -f mp3 -",
+                    transcodingCaptor.getValue().getStep1());
+        }
+
+        @Test
         void testRestoreFlv() {
             ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
-            transcodingService.restoreTranscoding(Transcodings.FLV);
+            transcodingService.restoreTranscoding(Transcodings.FLV, false);
 
             Mockito.verify(transcodingDao, Mockito.times(1)).createTranscoding(transcodingCaptor.capture());
             assertEquals(Transcodings.FLV.getName(), transcodingCaptor.getValue().getName());
@@ -1501,7 +1517,7 @@ class TranscodingServiceTest {
         @Test
         void testRestoreMkv() {
             ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
-            transcodingService.restoreTranscoding(Transcodings.MKV);
+            transcodingService.restoreTranscoding(Transcodings.MKV, false);
 
             Mockito.verify(transcodingDao, Mockito.times(1)).createTranscoding(transcodingCaptor.capture());
             assertEquals(Transcodings.MKV.getName(), transcodingCaptor.getValue().getName());
@@ -1513,7 +1529,7 @@ class TranscodingServiceTest {
         @Test
         void testRestoreMp4() {
             ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
-            transcodingService.restoreTranscoding(Transcodings.MP4);
+            transcodingService.restoreTranscoding(Transcodings.MP4, false);
 
             Mockito.verify(transcodingDao, Mockito.times(1)).createTranscoding(transcodingCaptor.capture());
             assertEquals(Transcodings.MP4.getName(), transcodingCaptor.getValue().getName());
@@ -1558,7 +1574,7 @@ class TranscodingServiceTest {
             transcodings.add(created);
             Mockito.when(transcodingDao.getAllTranscodings()).thenReturn(transcodings);
 
-            transcodingService.restoreTranscoding(Transcodings.MP3);
+            transcodingService.restoreTranscoding(Transcodings.MP3, false);
 
             ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
             Mockito.verify(transcodingDao, Mockito.times(1)).createTranscoding(transcodingCaptor.capture());
