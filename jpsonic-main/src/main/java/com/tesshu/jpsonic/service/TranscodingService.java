@@ -33,6 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.controller.VideoPlayerController;
 import com.tesshu.jpsonic.dao.TranscodingDao;
@@ -40,6 +41,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.Transcoding;
+import com.tesshu.jpsonic.domain.Transcodings;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
@@ -58,6 +60,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Provides services for transcoding media. Transcoding is the process of converting a media file/stream to a different
@@ -660,6 +663,72 @@ public class TranscodingService {
 
         // Over-estimate size a bit (2 seconds) so don't cut off early in case of small calculation differences
         return (duration + 2) * (long) maxBitRate * 1000L / 8L;
+    }
+
+    /**
+     * Restore the specified transcode. The initial value of transcoding is set by the initial data of the database, but
+     * it can be changed and consistency is not guaranteed. Delete insert is done, in this method.
+     */
+    @Transactional
+    public void restoreTranscoding(Transcodings transcode, boolean addTag) {
+        if (transcode == null) {
+            return;
+        }
+        Transcoding transcoding;
+        switch (transcode) {
+
+        case MP3:
+            transcoding = new Transcoding(null, Transcodings.MP3.getName(),
+                    "mp3 ogg oga aac m4a flac wav wma aif aiff ape mpc shn", "mp3",
+                    "ffmpeg -i %s -map 0:0 -b:a %bk ".concat(addTag ? "-id3v2_version 3 " : "").concat("-v 0 -f mp3 -"),
+                    null, null, true);
+            break;
+
+        case FLV:
+            transcoding = new Transcoding(null, Transcodings.FLV.getName(),
+                    "avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts", "flv",
+                    "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f flv -vcodec libx264 -preset superfast -threads 0 -",
+                    null, null, true);
+            break;
+
+        case MKV:
+            transcoding = new Transcoding(null, Transcodings.MKV.getName(),
+                    "avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts", "mkv",
+                    "ffmpeg -ss %o -i %s -c:v libx264 -preset superfast -b:v %bk -c:a libvorbis -f matroska -threads 0 -",
+                    null, null, true);
+            break;
+
+        case MP4:
+            transcoding = new Transcoding(null, Transcodings.MP4.getName(),
+                    "avi flv mpg mpeg m4v mkv mov wmv ogv divx m2ts", "mp4",
+                    "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f mp4 -vcodec libx264 -preset superfast -threads 0 -movflags frag_keyframe+empty_moov -",
+                    null, null, true);
+            break;
+
+        default:
+            return;
+        }
+
+        // Newly created transcode
+        int registered = transcodingDao.createTranscoding(transcoding);
+        transcoding = transcodingDao.getAllTranscodings().stream().filter(t -> t.getId() == registered)
+                .collect(Collectors.toList()).get(0);
+
+        // Exclude transcodes with the same name and add new transcodes
+        for (Player player : playerService.getAllPlayers()) {
+            List<Transcoding> transcodings = getTranscodingsForPlayer(player).stream()
+                    .filter(t -> !transcode.getName().equals(t.getName())).collect(Collectors.toList());
+            transcodings.add(transcoding);
+            setTranscodingsForPlayer(player, transcodings);
+        }
+
+        // Delete old transcode with the same name
+        List<Transcoding> toBeDeleted = transcodingDao.getAllTranscodings().stream()
+                .filter(t -> t.getId() != registered).filter(t -> transcode.getName().equals(t.getName()))
+                .collect(Collectors.toList());
+        for (Transcoding old : toBeDeleted) {
+            deleteTranscoding(old.getId());
+        }
     }
 
     public static class Parameters {

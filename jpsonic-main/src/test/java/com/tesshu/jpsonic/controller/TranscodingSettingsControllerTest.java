@@ -32,6 +32,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.dao.TranscodingDao;
 import com.tesshu.jpsonic.domain.PreferredFormatSheme;
+import com.tesshu.jpsonic.domain.Transcoding;
+import com.tesshu.jpsonic.domain.Transcodings;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -58,6 +60,7 @@ class TranscodingSettingsControllerTest {
     private TranscodingSettingsController controller;
     private TranscodingService transcodingService;
     private SettingsService settingsService;
+    private TranscodingDao transcodingDao;
     private MockMvc mockMvc;
 
     @BeforeEach
@@ -66,7 +69,8 @@ class TranscodingSettingsControllerTest {
         Mockito.when(settingsService.getPreferredFormat()).thenReturn("mp3");
         Mockito.when(settingsService.getPreferredFormatShemeName()).thenReturn(PreferredFormatSheme.ANNOYMOUS.name());
         SecurityService securityService = mock(SecurityService.class);
-        transcodingService = new TranscodingService(settingsService, securityService, mock(TranscodingDao.class),
+        transcodingDao = mock(TranscodingDao.class);
+        transcodingService = new TranscodingService(settingsService, securityService, transcodingDao,
                 mock(PlayerService.class), null);
         controller = new TranscodingSettingsController(settingsService, securityService, transcodingService,
                 mock(ShareService.class), mock(OutlineHelpSelector.class));
@@ -112,7 +116,23 @@ class TranscodingSettingsControllerTest {
         controller.doPost(req, mock(RedirectAttributes.class));
         Mockito.verify(settingsService, Mockito.times(1)).setPreferredFormat(Mockito.anyString());
         assertEquals("mp3", formatCaptor.getValue());
+    }
 
+    @Test
+    void testRestore() {
+        MockHttpServletRequest req = new MockHttpServletRequest();
+        req.setParameter("restoredNames", new String[0]);
+        controller.doPost(req, mock(RedirectAttributes.class));
+        Mockito.verify(transcodingDao, Mockito.never()).createTranscoding(Mockito.any(Transcoding.class));
+
+        req.setParameter("restoredNames", Transcodings.MP3.getName(), Transcodings.MP4.getName());
+        ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
+        Mockito.when(transcodingDao.createTranscoding(transcodingCaptor.capture())).thenReturn(0);
+        controller.doPost(req, mock(RedirectAttributes.class));
+        Mockito.verify(transcodingDao, Mockito.times(2)).createTranscoding(Mockito.any(Transcoding.class));
+        assertEquals(2, transcodingCaptor.getAllValues().size());
+        assertEquals(Transcodings.MP3.getName(), transcodingCaptor.getAllValues().get(0).getName());
+        assertEquals(Transcodings.MP4.getName(), transcodingCaptor.getAllValues().get(1).getName());
     }
 
     @Documented
@@ -142,6 +162,14 @@ class TranscodingSettingsControllerTest {
                 }
 
                 @interface NotNull {
+                }
+
+                @interface DuplicateWithReserved {
+                    @interface False {
+                    }
+
+                    @interface True {
+                    }
                 }
             }
 
@@ -301,6 +329,7 @@ class TranscodingSettingsControllerTest {
 
         @RequestDecision.Actions.New
         @RequestDecision.Conditions.Name.NotNull
+        @RequestDecision.Conditions.Name.DuplicateWithReserved.False
         @RequestDecision.Conditions.SourceFormats.Null
         @Test
         void c07() throws ExecutionException {
@@ -312,6 +341,7 @@ class TranscodingSettingsControllerTest {
 
         @RequestDecision.Actions.New
         @RequestDecision.Conditions.Name.NotNull
+        @RequestDecision.Conditions.Name.DuplicateWithReserved.False
         @RequestDecision.Conditions.SourceFormats.NotNull
         @RequestDecision.Conditions.TargetFormat.Null
         @Test
@@ -325,6 +355,7 @@ class TranscodingSettingsControllerTest {
 
         @RequestDecision.Actions.New
         @RequestDecision.Conditions.Name.NotNull
+        @RequestDecision.Conditions.Name.DuplicateWithReserved.False
         @RequestDecision.Conditions.SourceFormats.NotNull
         @RequestDecision.Conditions.TargetFormat.NotNull
         @RequestDecision.Conditions.Step1.Null
@@ -340,6 +371,7 @@ class TranscodingSettingsControllerTest {
 
         @RequestDecision.Actions.New
         @RequestDecision.Conditions.Name.NotNull
+        @RequestDecision.Conditions.Name.DuplicateWithReserved.False
         @RequestDecision.Conditions.SourceFormats.NotNull
         @RequestDecision.Conditions.TargetFormat.NotNull
         @RequestDecision.Conditions.Step1.NotNull
@@ -357,6 +389,7 @@ class TranscodingSettingsControllerTest {
 
         @RequestDecision.Actions.New
         @RequestDecision.Conditions.Name.NotNull
+        @RequestDecision.Conditions.Name.DuplicateWithReserved.False
         @RequestDecision.Conditions.SourceFormats.NotNull
         @RequestDecision.Conditions.TargetFormat.NotNull
         @RequestDecision.Conditions.Step1.NotNull
@@ -375,13 +408,33 @@ class TranscodingSettingsControllerTest {
         }
 
         @RequestDecision.Actions.New
+        @RequestDecision.Conditions.Name.NotNull
+        @RequestDecision.Conditions.Name.DuplicateWithReserved.True
+        @RequestDecision.Conditions.SourceFormats.NotNull
+        @RequestDecision.Conditions.TargetFormat.NotNull
+        @RequestDecision.Conditions.Step1.NotNull
+        @RequestDecision.Conditions.Step2.NotNull
+        @RequestDecision.Conditions.DefaultActive.NotNull
+        @Test
+        void c12() throws ExecutionException {
+            MockHttpServletRequest req = createRequest();
+            req.setParameter(Attributes.Request.NAME.value(), Transcodings.MP3.getName());
+            req.setParameter(Attributes.Request.SOURCE_FORMATS.value(), "*source*");
+            req.setParameter(Attributes.Request.TARGET_FORMAT.value(), "*target*");
+            req.setParameter(Attributes.Request.STEP1.value(), "*step1*");
+            req.setParameter(Attributes.Request.STEP2.value(), "*step2*");
+            req.setParameter(Attributes.Request.DEFAULT_ACTIVE.value(), "*active*");
+            assertEquals("transcodingsettings.duplicate", getRedirectError(req));
+        }
+
+        @RequestDecision.Actions.New
         @RequestDecision.Conditions.Name.Null
         @RequestDecision.Conditions.SourceFormats.Null
         @RequestDecision.Conditions.TargetFormat.Null
         @RequestDecision.Conditions.Step1.Null
         @RequestDecision.Conditions.Step2.Null
         @Test
-        void c12() throws ExecutionException {
+        void c13() throws ExecutionException {
             MockHttpServletRequest req = createRequest();
             req.setParameter(Attributes.Request.NAME.value(), "");
             req.setParameter(Attributes.Request.SOURCE_FORMATS.value(), "");
@@ -395,7 +448,7 @@ class TranscodingSettingsControllerTest {
         @RequestDecision.Conditions.Name.Null
         @RequestDecision.Conditions.SourceFormats.NotNull
         @Test
-        void c13() throws ExecutionException {
+        void c14() throws ExecutionException {
             MockHttpServletRequest req = createRequest();
             req.setParameter(Attributes.Request.NAME.value(), "");
             req.setParameter(Attributes.Request.SOURCE_FORMATS.value(), "*source*");
@@ -406,7 +459,7 @@ class TranscodingSettingsControllerTest {
         @RequestDecision.Conditions.Name.Null
         @RequestDecision.Conditions.TargetFormat.NotNull
         @Test
-        void c14() throws ExecutionException {
+        void c15() throws ExecutionException {
             MockHttpServletRequest req = createRequest();
             req.setParameter(Attributes.Request.NAME.value(), "");
             req.setParameter(Attributes.Request.TARGET_FORMAT.value(), "*target*");
@@ -417,7 +470,7 @@ class TranscodingSettingsControllerTest {
         @RequestDecision.Conditions.Name.Null
         @RequestDecision.Conditions.Step1.NotNull
         @Test
-        void c15() throws ExecutionException {
+        void c16() throws ExecutionException {
             MockHttpServletRequest req = createRequest();
             req.setParameter(Attributes.Request.NAME.value(), "");
             req.setParameter(Attributes.Request.STEP1.value(), "*step1*");
@@ -428,7 +481,7 @@ class TranscodingSettingsControllerTest {
         @RequestDecision.Conditions.Name.Null
         @RequestDecision.Conditions.Step2.NotNull
         @Test
-        void c16() throws ExecutionException {
+        void c17() throws ExecutionException {
             MockHttpServletRequest req = createRequest();
             req.setParameter(Attributes.Request.NAME.value(), "");
             req.setParameter(Attributes.Request.STEP2.value(), "*step2*");
