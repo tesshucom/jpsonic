@@ -13,16 +13,16 @@ function resetPreferredFormatSettings() {
 }
 
 function resetAddTag() {
-	if($("#restored${Transcodings.MP3}").prop('checked')){
-	    $("#addTag").prop('disabled', false);
-	} else {
-		$("#restored${Transcodings.MP3}").prop('checked', false);
-		$("#addTag").prop('disabled', true);
-	}
+    if($("#restored${Transcodings.MP3}").prop('checked')){
+        $("#addTag").prop('disabled', false);
+    } else {
+        $("#restored${Transcodings.MP3}").prop('checked', false);
+        $("#addTag").prop('disabled', true);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-	$("#addTag").prop('disabled', true);	
+    $("#addTag").prop('disabled', true);    
 }, false);
 </script>
 </head>
@@ -184,6 +184,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         </dl>
                         <input type="checkbox" id="defaultActive" name="defaultActive" checked />
                         <label for="defaultActive"><fmt:message key="transcodingsettings.defaultactive" /></label>
+                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="defaultactive"/></c:import>
                     </td>
                 </tr>
             </tbody>
