@@ -42,7 +42,6 @@ import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.Version;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
@@ -215,7 +214,6 @@ public class VersionService {
      * 
      * @return The first line of the resource.
      */
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private String readLineFromResource(@NonNull String resourceName) {
         try (InputStream in = VersionService.class.getResourceAsStream(resourceName)) {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
@@ -231,7 +229,6 @@ public class VersionService {
     /**
      * Refreshes the latest final and beta versions.
      */
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private void refreshLatestVersion() {
         long now = System.currentTimeMillis();
         boolean isOutdated = now - lastVersionFetched > LAST_VERSION_FETCH_INTERVAL;
@@ -251,7 +248,6 @@ public class VersionService {
     /**
      * Resolves the latest available Jpsonic version by inspecting github.
      */
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private void readLatestVersion() throws IOException {
 
         synchronized (LATEST_LOCK) {

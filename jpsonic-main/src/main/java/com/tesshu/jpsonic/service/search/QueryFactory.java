@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
@@ -116,7 +115,6 @@ public class QueryFactory {
      * [AvoidInstantiatingObjectsInLoops] (ArrayList, WildcardQuery, Term, BoostQuery, BooleanQuery) Not reusable
      * [CognitiveComplexity] #1020 This is a legacy feature that has no plans for maintenance. Low priority.
      */
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public final Query createMultiFieldWildQuery(@NonNull String[] fieldNames, @NonNull String queryString,
             @NonNull IndexType indexType) throws IOException {
 
@@ -163,7 +161,6 @@ public class QueryFactory {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (PhraseQuery, Term, BoostQuery) Not reusable
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public final Query createPhraseQuery(@NonNull String[] fieldNames, @NonNull String queryString,
             @NonNull IndexType indexType) throws IOException {
 
@@ -252,7 +249,6 @@ public class QueryFactory {
      * {@link com.tesshu.jpsonic.service.SearchService#getRandomSongs(RandomSearchCriteria)}.
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term) Not reusable
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Query getRandomSongs(RandomSearchCriteria criteria) throws IOException {
 
         BooleanQuery.Builder query = new BooleanQuery.Builder();
@@ -314,7 +310,6 @@ public class QueryFactory {
      *             When parsing of QueryParser fails
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term, WildcardQuery) Not reusable
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Query searchByName(String fieldName, String name) throws IOException {
 
         BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
@@ -380,7 +375,6 @@ public class QueryFactory {
      * {@link com.tesshu.jpsonic.service.SearchService#getAlbumId3sByGenre(String, int, int, List)}
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term) Not reusable
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Query getAlbumId3sByGenres(String genres, List<MusicFolder> musicFolders) throws IOException {
 
         // main
@@ -417,7 +411,6 @@ public class QueryFactory {
      * {@link com.tesshu.jpsonic.service.SearchService#getAlbumsByGenre(int, int, String, List)}
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term) Not reusable
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Query getMediasByGenres(String genres, List<MusicFolder> musicFolders) throws IOException {
 
         // main
@@ -448,7 +441,6 @@ public class QueryFactory {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term) Not reusable
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Query toPreAnalyzedGenres(List<String> genres) throws IOException {
 
         // main

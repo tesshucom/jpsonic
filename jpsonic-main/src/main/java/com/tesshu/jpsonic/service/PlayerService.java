@@ -34,7 +34,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.dao.PlayerDao;
 import com.tesshu.jpsonic.domain.Player;
@@ -203,7 +202,6 @@ public class PlayerService {
         }
     }
 
-    @SuppressFBWarnings(value = "UC_USELESS_CONDITION", justification = "False positive. The value of isStreamRequest is not always false.")
     private boolean isToBeUpdate(HttpServletRequest request, boolean isStreamRequest, Player player) {
         boolean isToBeUpdate = false;
         String username = securityService.getCurrentUsername(request);
