@@ -46,6 +46,7 @@
         background-color: inherit;
       }
       td {
+        font-size: .86rem;
         &:nth-child(1) {
           width: 150px;
           text-align: left;
@@ -60,7 +61,11 @@
           text-align: center;
         }
         input#defaultActive {
-          margin: 0 0 0 20px;
+          margin: -.3rem 0 0 20px;
+        }
+        div#looltop-defaultactive.popup.help {
+          margin-top: .2rem;
+          margin-bottom: -.3rem;
         }
       }
     }
