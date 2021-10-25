@@ -26,8 +26,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.tesshu.jpsonic.domain.Transcoding;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +38,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class TranscodingDao extends AbstractDao {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TranscodingDao.class);
     private static final String INSERT_COLUMNS = "name, source_formats, target_format, step1, step2, step3, default_active";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
@@ -112,9 +109,6 @@ public class TranscodingDao extends AbstractDao {
         update(sql, transcoding.getId(), transcoding.getName(), transcoding.getSourceFormats(),
                 transcoding.getTargetFormat(), transcoding.getStep1(), transcoding.getStep2(), transcoding.getStep3(),
                 transcoding.isDefaultActive());
-        if (LOG.isInfoEnabled()) {
-            LOG.info("Created transcoding " + transcoding.getName());
-        }
         return registered;
     }
 
@@ -127,9 +121,6 @@ public class TranscodingDao extends AbstractDao {
     public void deleteTranscoding(Integer id) {
         String sql = "delete from transcoding2 where id=?";
         update(sql, id);
-        if (LOG.isInfoEnabled()) {
-            LOG.info("Deleted transcoding with ID " + id);
-        }
     }
 
     /**
