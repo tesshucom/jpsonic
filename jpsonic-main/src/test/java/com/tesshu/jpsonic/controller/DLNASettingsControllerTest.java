@@ -73,7 +73,8 @@ class DLNASettingsControllerTest {
         musicFolderService = mock(MusicFolderService.class);
         upnpService = mock(UPnPService.class);
         controller = new DLNASettingsController(settingsService, musicFolderService, mock(SecurityService.class),
-                mock(PlayerService.class), mock(TranscodingService.class), upnpService, mock(ShareService.class));
+                mock(PlayerService.class), mock(TranscodingService.class), upnpService, mock(ShareService.class),
+                mock(OutlineHelpSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -118,7 +119,8 @@ class DLNASettingsControllerTest {
         musicFolderService = mock(MusicFolderService.class);
         upnpService = mock(UPnPService.class);
         controller = new DLNASettingsController(settingsService, musicFolderService, mock(SecurityService.class),
-                mock(PlayerService.class), mock(TranscodingService.class), upnpService, mock(ShareService.class));
+                mock(PlayerService.class), mock(TranscodingService.class), upnpService, mock(ShareService.class),
+                mock(OutlineHelpSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
         DLNASettingsCommand command = new DLNASettingsCommand();

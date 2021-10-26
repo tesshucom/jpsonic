@@ -36,12 +36,12 @@
         $('[name="transcodeScheme"]').prop("selectedIndex", 0);
         Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => a.checked = false);
         document.getElementsByName('uriWithFileExtensions')[0].checked = true;
-	    checkBitrateAvailability();
+        checkBitrateAvailability();
     }
     
     $(document).ready(function(){
         Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => a.onclick = checkBitrateAvailability);
-	    checkBitrateAvailability();
+        checkBitrateAvailability();
     });
 </script>
 </head>
@@ -53,6 +53,11 @@
     <c:param name="toast" value='${settings_toast}'/>
     <c:param name="useRadio" value="${command.useRadio}"/>
     <c:param name="existsShare" value="${command.shareCount ne 0}"/>
+</c:import>
+
+<c:import url="outlineHelpSelector.jsp">
+    <c:param name="targetView" value="dlnaSettings.view"/>
+    <c:param name="showOutlineHelp" value="${command.showOutlineHelp}"/>
 </c:import>
 
 <form:form method="post" action="dlnaSettings.view" modelAttribute="command">
@@ -68,6 +73,11 @@
         </div>
 
         <summary class="jpsonic"><fmt:message key="dlnasettings.basic"/></summary>
+
+        <c:if test="${command.showOutlineHelp}">
+            <div class="outlineHelp"><fmt:message key="dlnasettings.basicoutline"/></div>
+        </c:if>
+
         <dl>
             <dt></dt>
             <dd>
