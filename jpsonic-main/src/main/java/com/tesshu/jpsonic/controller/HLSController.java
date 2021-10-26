@@ -32,7 +32,6 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.service.JWTSecurityService;
@@ -76,7 +75,6 @@ public class HLSController {
         this.jwtSecurityService = jwtSecurityService;
     }
 
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @GetMapping
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletRequestBindingException, IOException {

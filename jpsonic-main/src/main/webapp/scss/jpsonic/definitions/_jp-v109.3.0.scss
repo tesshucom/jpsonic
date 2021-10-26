@@ -243,6 +243,11 @@ input[type="checkbox"] {
   // <
 }
 
+input[type="checkbox"] + label + input[type="checkbox"],
+input[type="checkbox"] + input[type="hidden"] + label + input[type="checkbox"] {
+  margin-left: 8px;
+}
+
 // ******************** radio *********************************************
 
 input[type="radio"] {

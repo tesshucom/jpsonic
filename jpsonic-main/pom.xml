@@ -15,7 +15,7 @@
     <properties>
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
-        <lucene.version>8.10.0</lucene.version>
+        <lucene.version>8.10.1</lucene.version>
     </properties>
 
     <dependencies>
@@ -664,7 +664,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.5.5</version>
+                <version>2.5.6</version>
                 <configuration>
                     <mainClass>com.tesshu.jpsonic.Application</mainClass>
                     <layout>WAR</layout>

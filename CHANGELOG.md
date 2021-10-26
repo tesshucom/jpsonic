@@ -10,6 +10,7 @@ The binaries of SNAPSHOT are available from the latest artifacts on the [master 
 #### Enhancement
   * Delete shoutcast ([#1201](https://github.com/tesshucom/jpsonic/issues/1201))
   * Fix to control the format of Stream received by other than Subsonic app ([#1187](https://github.com/tesshucom/jpsonic/issues/1187))
+  * Improve transcoding settings page ([#1191](https://github.com/tesshucom/jpsonic/issues/1191))
 
 #### Fixes
   * Fix to reply with the appropriate content type ([#1206](https://github.com/tesshucom/jpsonic/issues/1206))

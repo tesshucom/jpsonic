@@ -5,11 +5,25 @@
 <%@ include file="head.jsp"%>
 <%@ include file="jquery.jsp"%>
 <%@ page import="com.tesshu.jpsonic.domain.PreferredFormatSheme" %>
+<%@ page import="com.tesshu.jpsonic.domain.Transcodings" %>
 <script>
 function resetPreferredFormatSettings() {
     document.getElementsByName('preferredFormat')[0].value = 'mp3';
     $("#radio-${PreferredFormatSheme.ANNOYMOUS.name()}").prop('checked', true);
 }
+
+function resetAddTag() {
+    if($("#restored${Transcodings.MP3}").prop('checked')){
+        $("#addTag").prop('disabled', false);
+    } else {
+        $("#restored${Transcodings.MP3}").prop('checked', false);
+        $("#addTag").prop('disabled', true);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    $("#addTag").prop('disabled', true);    
+}, false);
 </script>
 </head>
 <body class="mainframe settings transcodingSettings">
@@ -56,7 +70,17 @@ function resetPreferredFormatSettings() {
                 <tbody>
                     <c:forEach items="${model.transcodings}" var="transcoding">
                         <tr>
-                            <td><input type="text" name="name[${transcoding.id}]" value="${fn:escapeXml(transcoding.name)}"/></td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${not empty Transcodings.of(transcoding.name)}" >
+                                        ${fn:escapeXml(transcoding.name)}
+                                        <input type="hidden" name="name[${transcoding.id}]" value="${fn:escapeXml(transcoding.name)}"/>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <input type="text" name="name[${transcoding.id}]" value="${fn:escapeXml(transcoding.name)}"/>
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
                             <td>
                                 <dl>
                                     <dt><fmt:message key="transcodingsettings.sourceformat" /> / <fmt:message key="transcodingsettings.targetformat" /></dt>
@@ -75,7 +99,7 @@ function resetPreferredFormatSettings() {
         </details>
     </c:if>
 
-    <details open>
+    <details ${empty model.transcodings ? "" : "open"}>
         <summary class="jpsonic"><fmt:message key="transcodingsettings.preferred"/></summary>
 
         <div class="actions">
@@ -117,7 +141,26 @@ function resetPreferredFormatSettings() {
         </dl>
     </details>
 
-    <details ${model.isOpenDetailSetting or empty model.transcodings ? "open" : ""}>
+   <details ${model.isOpenDetailSetting or empty model.transcodings ? "open" : ""}>
+        <summary class="jpsonic"><fmt:message key="transcodingsettings.restore"/></summary>
+        <dl>
+            <dt><fmt:message key="transcodingsettings.restored"/></dt>
+            <dd>
+                <c:forEach items="${Transcodings.values()}" var="transcoding" varStatus="loopStatus">
+                     <input type="checkbox" id="restored${transcoding}" name="restoredNames" value="${transcoding.getName()}" cssClass="checkbox" onclick="resetAddTag()"/>
+                    <label for="restored${transcoding}">${transcoding.getName()}</label>
+                </c:forEach>
+            </dd>
+            <dt><fmt:message key="transcodingsettings.restoreoption"/></dt>
+            <dd>
+                <input type="checkbox" id="addTag" name="addTag"/>
+                <label for="addTag"><fmt:message key="transcodingsettings.restoreaddtag" /></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="restoreaddtag"/></c:import>
+            </dd>
+        </dl>
+   </details>
+
+    <details ${model.isOpenDetailSetting ? "open" : ""}>
         <summary><fmt:message key="transcodingsettings.add"/></summary>
 
         <table class="tabular transcoding">
@@ -141,6 +184,7 @@ function resetPreferredFormatSettings() {
                         </dl>
                         <input type="checkbox" id="defaultActive" name="defaultActive" checked />
                         <label for="defaultActive"><fmt:message key="transcodingsettings.defaultactive" /></label>
+                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="defaultactive"/></c:import>
                     </td>
                 </tr>
             </tbody>

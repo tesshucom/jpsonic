@@ -404,7 +404,6 @@ public class SettingsService {
         setProperty(SettingsConstants.MusicFolder.Others.IGNORE_FILE_TIMESTAMPS_FOR_EACH_ALBUM, b);
     }
 
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Locale[] getAvailableLocales() {
         synchronized (LOCKS.get(LocksKeys.LOCALES)) {
             if (locales == null) {
@@ -453,8 +452,7 @@ public class SettingsService {
      *
      * @return A list of available themes.
      */
-    @SuppressFBWarnings(value = { "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE",
-            "MS_EXPOSE_REP" }, justification = "False positive by try with resources. Returns an immutable list without unnecessary copying.")
+    @SuppressFBWarnings(value = "MS_EXPOSE_REP", justification = "Returns an immutable list without unnecessary copying.")
     @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.CognitiveComplexity" })
     /*
      * [AvoidInstantiatingObjectsInLoops] (Theme) Cannot be reused but is cached [CognitiveComplexity] #1020 Remove them

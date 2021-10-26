@@ -65,7 +65,7 @@ import org.springframework.stereotype.Component;
  * Exception handling is not termination, so do not include exception handling in this class.
  */
 @Component
-@SuppressFBWarnings(value = { "DMI_RANDOM_USED_ONLY_ONCE",
+@SuppressFBWarnings(value = {
         "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD" }, justification = "False positive. This class is a singleton and random objects are shared from the outer class.")
 public class SearchServiceUtilities {
 
