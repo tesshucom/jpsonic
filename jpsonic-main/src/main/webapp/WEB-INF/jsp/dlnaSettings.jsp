@@ -120,6 +120,9 @@
                     </c:forEach>
                 </form:select>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="transcode"/></c:import>
+				<c:if test="${not command.transcodingSupported}">
+                	<strong><fmt:message key="playersettings.notranscoder"/></strong>
+				</c:if>
             </dd>
             <dt></dt>
             <dd>

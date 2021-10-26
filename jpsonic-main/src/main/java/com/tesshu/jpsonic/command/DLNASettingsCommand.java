@@ -36,6 +36,7 @@ public class DLNASettingsCommand extends SettingsPageCommons {
     private List<Transcoding> allTranscodings;
     private TranscodeScheme transcodeScheme;
     private int[] activeTranscodingIds = new int[0];
+    private boolean transcodingSupported;
     private boolean uriWithFileExtensions;
 
     // Items to display
@@ -127,6 +128,14 @@ public class DLNASettingsCommand extends SettingsPageCommons {
         if (activeTranscodingIds != null) {
             this.activeTranscodingIds = activeTranscodingIds.clone();
         }
+    }
+
+    public boolean isTranscodingSupported() {
+        return transcodingSupported;
+    }
+
+    public void setTranscodingSupported(boolean transcodingSupported) {
+        this.transcodingSupported = transcodingSupported;
     }
 
     public boolean isUriWithFileExtensions() {

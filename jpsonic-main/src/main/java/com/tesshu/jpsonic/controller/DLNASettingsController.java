@@ -100,6 +100,7 @@ public class DLNASettingsController {
         Player guestPlayer = playerService.getGuestPlayer(null);
         command.setActiveTranscodingIds(
                 transcodingService.getTranscodingsForPlayer(guestPlayer).stream().mapToInt(m -> m.getId()).toArray());
+        command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
         command.setTranscodeScheme(guestPlayer.getTranscodeScheme());
         command.setUriWithFileExtensions(settingsService.isUriWithFileExtensions());
 
