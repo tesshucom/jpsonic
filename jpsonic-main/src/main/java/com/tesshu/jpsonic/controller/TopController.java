@@ -125,7 +125,8 @@ public class TopController {
             map.put("voiceInputLocale", localeResolver.resolveLocale(request).getLanguage());
         }
 
-        boolean refresh = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.REFRESH.value(), false);
+        boolean refresh = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.REFRESH.value(), false)
+                && !mediaScannerService.isScanning();
         if (refresh) {
             musicFolderService.clearMusicFolderCache();
         }
@@ -136,7 +137,6 @@ public class TopController {
         List<MusicFolder> musicFoldersToUse = selectedMusicFolder == null ? allMusicFolders
                 : Collections.singletonList(selectedMusicFolder);
 
-        map.put("scanning", mediaScannerService.isScanning());
         map.put("musicFolders", allMusicFolders);
         map.put("selectedMusicFolder", selectedMusicFolder);
         map.put("radios", internetRadioService.getAllInternetRadios());
