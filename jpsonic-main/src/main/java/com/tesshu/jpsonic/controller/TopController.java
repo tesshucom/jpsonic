@@ -112,6 +112,7 @@ public class TopController {
         map.put("showAvatar", userSettings.getAvatarScheme() != AvatarScheme.NONE);
         map.put("showIndex", userSettings.isShowIndex());
         map.put("putMenuInDrawer", userSettings.isPutMenuInDrawer());
+        map.put("showRefresh", settingsService.isShowRefresh());
         map.put("assignAccesskeyToNumber", userSettings.isAssignAccesskeyToNumber());
         map.put("voiceInputEnabled", userSettings.isVoiceInputEnabled());
         map.put("useRadio", settingsService.isUseRadio());
