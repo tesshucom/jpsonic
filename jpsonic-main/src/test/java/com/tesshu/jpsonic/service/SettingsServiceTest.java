@@ -394,6 +394,11 @@ class SettingsServiceTest {
     }
 
     @Test
+    void testIsShowRefresh() {
+        assertFalse(settingsService.isShowRefresh());
+    }
+
+    @Test
     void testIsFastCacheEnabled() {
         assertTrue(settingsService.isFastCacheEnabled());
     }
