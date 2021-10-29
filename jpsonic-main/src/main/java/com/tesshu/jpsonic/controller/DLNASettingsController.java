@@ -68,10 +68,11 @@ public class DLNASettingsController {
     private final TranscodingService transcodingService;
     private final UPnPService upnpService;
     private final ShareService shareService;
+    private final OutlineHelpSelector outlineHelpSelector;
 
     public DLNASettingsController(SettingsService settingsService, MusicFolderService musicFolderService,
             SecurityService securityService, PlayerService playerService, TranscodingService transcodingService,
-            UPnPService upnpService, ShareService shareService) {
+            UPnPService upnpService, ShareService shareService, OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
@@ -80,6 +81,7 @@ public class DLNASettingsController {
         this.transcodingService = transcodingService;
         this.upnpService = upnpService;
         this.shareService = shareService;
+        this.outlineHelpSelector = outlineHelpSelector;
     }
 
     @ModelAttribute
@@ -98,6 +100,7 @@ public class DLNASettingsController {
         Player guestPlayer = playerService.getGuestPlayer(null);
         command.setActiveTranscodingIds(
                 transcodingService.getTranscodingsForPlayer(guestPlayer).stream().mapToInt(m -> m.getId()).toArray());
+        command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
         command.setTranscodeScheme(guestPlayer.getTranscodeScheme());
         command.setUriWithFileExtensions(settingsService.isUriWithFileExtensions());
 
@@ -130,6 +133,7 @@ public class DLNASettingsController {
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setShareCount(shareService.getAllShares().size());
         command.setUseRadio(settingsService.isUseRadio());
+        command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }

@@ -1,0 +1,17 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <!-- Changes to schema25_005 -->
+    <changeSet id="delete_admin-update_role" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">select count(*) from user where username ='admin'</sqlCheck>
+        </preConditions>
+        <delete tableName="user_role">
+            <where>username='admin' and role_id = 3</where>
+        </delete>
+        <rollback></rollback>
+    </changeSet>
+
+</databaseChangeLog>

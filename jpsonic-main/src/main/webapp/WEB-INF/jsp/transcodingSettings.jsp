@@ -143,6 +143,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
    <details ${model.isOpenDetailSetting or empty model.transcodings ? "open" : ""}>
         <summary class="jpsonic"><fmt:message key="transcodingsettings.restore"/></summary>
+
+        <c:if test="${empty model.transcodings}">
+            <strong><fmt:message key="transcodingsettings.notranscoder"/></strong>
+        </c:if>
+
         <dl>
             <dt><fmt:message key="transcodingsettings.restored"/></dt>
             <dd>

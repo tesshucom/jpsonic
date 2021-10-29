@@ -116,8 +116,7 @@
                  <dd>
                     <c:forEach items="${command.allMusicFolders}" var="musicFolder">
                         <form:checkbox path="allowedMusicFolderIds" id="musicFolder${musicFolder.id}" value="${musicFolder.id}" cssClass="checkbox"/>
-                        <label for="musicFolder${musicFolder.id}" style="padding-right:1.5em">${musicFolder.name}</label>
-                        <%-- <label for="musicFolder${musicFolder.id}" style="padding-right:1.5em">${musicFolder.path}</label> --%>
+                        <label for="musicFolder${musicFolder.id}">${musicFolder.name}</label>
                     </c:forEach>
                 </dd>
             </c:if>
@@ -147,31 +146,37 @@
             <dd>
                 <form:checkbox path="downloadRole" id="download" cssClass="checkbox"/>
                 <label for="download"><fmt:message key="usersettings.download"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="usersettingsrequireuserenable"/></c:import>
             </dd>
             <dt></dt>
             <dd>
                 <form:checkbox path="uploadRole" id="upload" cssClass="checkbox"/>
                 <label for="upload"><fmt:message key="usersettings.upload"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="usersettingsbuttonondrawer"/></c:import>
             </dd>
             <dt></dt>
             <dd>
                 <form:checkbox path="shareRole" id="share" cssClass="checkbox"/>
                 <label for="share"><fmt:message key="usersettings.share"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="usersettingsrequireuserenable"/></c:import>
             </dd>
             <dt></dt>
             <dd>
                 <form:checkbox path="coverArtRole" id="coverArt" cssClass="checkbox"/>
                 <label for="coverArt"><fmt:message key="usersettings.coverart"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="usersettingsrequireuserenable"/></c:import>
             </dd>
             <dt></dt>
             <dd>
                 <form:checkbox path="commentRole" id="comment" cssClass="checkbox"/>
                 <label for="comment"><fmt:message key="usersettings.comment"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="usersettingsrequireuserenable"/></c:import>
             </dd>
             <dt></dt>
             <dd>
                 <form:checkbox path="podcastRole" id="podcast" cssClass="checkbox"/>
                 <label for="podcast"><fmt:message key="usersettings.podcast"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="usersettingspodcastenable"/></c:import>
             </dd>
         </dl>
 

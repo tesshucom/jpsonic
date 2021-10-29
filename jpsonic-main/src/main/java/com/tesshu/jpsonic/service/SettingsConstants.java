@@ -60,6 +60,7 @@ class SettingsConstants {
         static class Scan {
             static final Pair<Integer> INDEX_CREATION_INTERVAL = Pair.of("IndexCreationInterval", 1);
             static final Pair<Integer> INDEX_CREATION_HOUR = Pair.of("IndexCreationHour", 3);
+            static final Pair<Boolean> SHOW_REFRESH = Pair.of("ShowRefresh", false);
 
             private Scan() {
             }

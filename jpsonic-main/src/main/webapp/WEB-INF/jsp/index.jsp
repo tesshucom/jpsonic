@@ -17,6 +17,7 @@ function onShowKeyboardShortcuts() {document.getElementById("upper").contentWind
 function onStartScanning() {document.getElementById("upper").contentWindow.onStartScanning();};
 function callPassiveScanningStatus() {document.getElementById("upper").contentWindow.callPassiveScanningStatus();};
 function onChangeCurrentSong(song) {document.getElementById("upper").contentWindow.onChangeCurrentSong(song);};
+function onRefresh() {document.getElementById("upper").contentWindow.onRefresh();};
 function onOpenDialogVideoPlayer(videoUrl) {document.getElementById("upper").contentWindow.onOpenDialogVideoPlayer(videoUrl);};
 function setDialogVideoPlayerTitle(title) {document.getElementById("upper").contentWindow.setDialogVideoPlayerTitle(title);};
 function initCurrentSongView() {document.getElementById("playQueue").contentWindow.initCurrentSongView();}

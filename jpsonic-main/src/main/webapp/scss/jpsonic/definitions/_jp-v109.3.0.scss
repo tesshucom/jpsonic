@@ -363,6 +363,13 @@ details {
               transform: rotate(45deg);
     }
   }
+  > summary + strong {
+    margin-left: 30px;
+    font-size: .86rem;
+    line-height: 30px;
+    vertical-align: middle;
+  }
+
   > dl,
   table.tabular,
   div.coverart-container {
