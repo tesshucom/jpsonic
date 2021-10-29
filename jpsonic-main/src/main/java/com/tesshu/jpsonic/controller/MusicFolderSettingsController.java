@@ -100,6 +100,7 @@ public class MusicFolderSettingsController {
         command.setScanning(mediaScannerService.isScanning());
         command.setInterval(String.valueOf(settingsService.getIndexCreationInterval()));
         command.setHour(String.valueOf(settingsService.getIndexCreationHour()));
+        command.setShowRefresh(settingsService.isShowRefresh());
 
         // Exclusion settings
         command.setExcludePatternString(settingsService.getExcludePatternString());
@@ -157,6 +158,7 @@ public class MusicFolderSettingsController {
         // Run a scan
         settingsService.setIndexCreationInterval(Integer.parseInt(command.getInterval()));
         settingsService.setIndexCreationHour(Integer.parseInt(command.getHour()));
+        settingsService.setShowRefresh(command.isShowRefresh());
 
         // Exclusion settings
         settingsService.setExcludePatternString(command.getExcludePatternString());

@@ -320,6 +320,14 @@ public class SettingsService {
         setProperty(SettingsConstants.MusicFolder.Scan.INDEX_CREATION_HOUR, hour);
     }
 
+    public boolean isShowRefresh() {
+        return getBoolean(SettingsConstants.MusicFolder.Scan.SHOW_REFRESH);
+    }
+
+    public void setShowRefresh(boolean b) {
+        setProperty(SettingsConstants.MusicFolder.Scan.SHOW_REFRESH, b);
+    }
+
     public String getExcludePatternString() {
         return getString(SettingsConstants.MusicFolder.Exclusion.EXCLUDE_PATTERN_STRING);
     }

@@ -147,6 +147,21 @@ document.addEventListener('DOMContentLoaded', function () {
                     </c:choose>
                 </div>
             </dd>
+            <dt>
+            	<fmt:message key="musicfoldersettings.refreshcashe"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="refreshcashe"/></c:import>
+            </dt>
+            <dd>
+                <div>
+                    <input type="button" onClick="top.onRefresh();" value="<fmt:message key='common.refresh'/>"/>
+                <div>
+            </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="showRefresh" id="showRefresh"/>
+                <label for="showRefresh"><fmt:message key="musicfoldersettings.showrefresh"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="showrefresh"/></c:import>
+            </dd>
         </dl>
     </details>
 
