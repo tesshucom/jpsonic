@@ -116,8 +116,7 @@
                  <dd>
                     <c:forEach items="${command.allMusicFolders}" var="musicFolder">
                         <form:checkbox path="allowedMusicFolderIds" id="musicFolder${musicFolder.id}" value="${musicFolder.id}" cssClass="checkbox"/>
-                        <label for="musicFolder${musicFolder.id}" style="padding-right:1.5em">${musicFolder.name}</label>
-                        <%-- <label for="musicFolder${musicFolder.id}" style="padding-right:1.5em">${musicFolder.path}</label> --%>
+                        <label for="musicFolder${musicFolder.id}">${musicFolder.name}</label>
                     </c:forEach>
                 </dd>
             </c:if>
