@@ -824,6 +824,11 @@ class SettingsServiceTest {
     }
 
     @Test
+    void testIsReadGreekInJapanese() {
+        assertTrue(settingsService.isReadGreekInJapanese());
+    }
+
+    @Test
     void testGetDatabaseConfigType() {
         assertEquals(DataSourceConfigType.LEGACY, settingsService.getDatabaseConfigType());
     }

@@ -1009,6 +1009,14 @@ public class SettingsService {
         setProperty(SettingsConstants.Advanced.Index.INDEX_SCHEME_NAME, s);
     }
 
+    public boolean isReadGreekInJapanese() {
+        return getBoolean(SettingsConstants.Advanced.Index.READ_GREEK_IN_JAPANESE);
+    }
+
+    public void setReadGreekInJapanese(boolean b) {
+        setProperty(SettingsConstants.Advanced.Index.READ_GREEK_IN_JAPANESE, b);
+    }
+
     public String getPodcastFolder() {
         return getString(SettingsConstants.Podcast.FOLDER);
     }

@@ -56,6 +56,8 @@ class JapaneseReadingUtilsTest {
         String country = "jp";
         String variant = "";
         Mockito.when(settingsService.getLocale()).thenReturn(new Locale(language, country, variant));
+        Mockito.when(settingsService.isReadGreekInJapanese()).thenReturn(true);
+        Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.NATIVE_JAPANESE.name());
         utils = new JapaneseReadingUtils(settingsService);
     }
 
@@ -410,6 +412,9 @@ class JapaneseReadingUtilsTest {
             assertFalse(isJapaneseReadable("[Disc 3]"));
             assertFalse(isJapaneseReadable("B'z The Best \"ULTRA Pleasure\" -The Second RUN-"));
             assertFalse(isJapaneseReadable("Dvořák: Symphonies #7-9"));
+
+            Mockito.when(settingsService.isReadGreekInJapanese()).thenReturn(false);
+            assertFalse(isJapaneseReadable("αβγ"));
         }
     }
 
@@ -763,6 +768,44 @@ class JapaneseReadingUtilsTest {
         }
     }
 
+    @Nested
+    class Romanize {
+
+        private String romanize(@NonNull String s) throws ExecutionException {
+            Method method;
+            try {
+                method = utils.getClass().getDeclaredMethod("romanize", String.class);
+                method.setAccessible(true);
+                return (String) method.invoke(utils, s);
+            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+                    | InvocationTargetException e) {
+                throw new ExecutionException(e);
+            }
+        }
+
+        @Test
+        void testRomanize() throws ExecutionException {
+            assertEquals("hannari", romanize("han'nari"));
+            assertEquals("a~b~c", romanize("~a~b~c"));
+            assertEquals("aiueo", romanize("~a~i~u~e~o"));
+            assertEquals("attakai", romanize("a~tsutakai"));
+            assertEquals("a", romanize("~a"));
+            assertEquals("a~", romanize("a~"));
+            assertEquals("~", romanize("~"));
+            assertEquals("", romanize(""));
+            assertEquals("Aa", romanize("Ā"));
+            assertEquals("Ii", romanize("Ī"));
+            assertEquals("Uu", romanize("Ū"));
+            assertEquals("Ee", romanize("Ē"));
+            assertEquals("Oo", romanize("Ō"));
+            assertEquals("a", romanize("ā"));
+            assertEquals("i", romanize("ī"));
+            assertEquals("u", romanize("ū"));
+            assertEquals("e", romanize("ē"));
+            assertEquals("o", romanize("ō"));
+        }
+    }
+
     @Documented
     private @interface CreateReadingDecisions {
         @interface Conditions {
@@ -874,6 +917,9 @@ class JapaneseReadingUtilsTest {
         @Test
         void testCreateReading() throws ExecutionException {
 
+            Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.NATIVE_JAPANESE.name());
+            Mockito.when(settingsService.isReadGreekInJapanese()).thenReturn(true);
+
             /*
              * Kuromoji will read the full-width alphabet in Japanese. ＢＢＣ(It's not bbc but ビービーシー.) When this is done
              * in the field of Japanese music, it is often not very good. This conversion is suppressed in Jpsonic.
@@ -915,8 +961,128 @@ class JapaneseReadingUtilsTest {
             assertEquals("サシハラ莉乃", createReading("サシハラ莉乃")); // Unreadable case
             assertEquals("倖タ來ヒツジ", createReading("倖田來未")); // Unreadable case
             assertEquals("オクダ ミンセイ", createReading("奥田　民生")); // Unreadable case
+        }
 
-            assertEquals(" ｢｣()()[][];!!??##123", createReading(" 「」（）()［］[]；！!？?＃#１２３"));
+        @Test
+        void testCreateLatinReading() throws ExecutionException {
+
+            Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+            Mockito.when(settingsService.isReadGreekInJapanese()).thenReturn(false);
+
+            assertEquals("Aiueo", createReading("The あいうえお"));
+            assertEquals("Aiueo", createReading("あいうえお"));
+            assertEquals("Aiueo", createReading("アイウエオ"));
+            assertEquals("aiueo", createReading("ァィゥェォ"));
+            assertEquals("aiueo", createReading("ｧｨｩｪｫ"));
+            assertEquals("Aiueo", createReading("ｱｲｳｴｵ"));
+            assertEquals("Aiu-eo", createReading("亜伊鵜絵尾"));
+            assertEquals("ABCDE", createReading("ABCDE"));
+            assertEquals("ABCDE", createReading("ＡＢＣＤＥ"));
+            assertEquals("ΑΒΓ", createReading("αβγ"));
+            assertEquals("Tsunku♂", createReading("つんく♂"));
+            assertEquals("Bad Communication", createReading("bad communication"));
+            assertEquals("BAD COMMUNICATION", createReading("BAD COMMUNICATION"));
+            assertEquals("BAD COMMUNICATION", createReading("ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ"));
+            assertEquals("Inu to Neko", createReading("犬とネコ"));
+            assertEquals(" ｢｣()()[][];!!??##123", createReading("　「」（）()［］[]；！!？?＃#１２３"));
+            assertEquals("Cæsar", createReading("Cæsar"));
+            assertEquals("Alfee", createReading("The Alfee"));
+            assertEquals("Konpyuta", createReading("コンピューター"));
+            assertEquals("Ai～ue", createReading("あい～うえ"));
+            assertEquals("Aiue～", createReading("あいうえ～"));
+            assertEquals("～aiue", createReading("～あいうえ"));
+            assertEquals("A～i～u ～e", createReading("あ～い～う～え"));
+            assertEquals("     ", createReading("　　　　　"));
+            assertEquals("[Disc 3]", createReading("[Disc 3]"));
+            assertEquals("Best ～first Things～", createReading("Best ～first things～"));
+            assertEquals("B'z The Best \"ULTRA Pleasure\" -The Second RUN-",
+                    createReading("B'z The Best \"ULTRA Pleasure\" -The Second RUN-"));
+            // Normalized in the 'reading' field
+            assertEquals("Dvorak: Symphonies #7-9", createReading("Dvořák: Symphonies #7-9"));
+            assertEquals("[Disc 3]", createReading("[Disc 3]"));
+            assertEquals("Fukuyamamasaharu", createReading("福山雅治")); // Readable case
+
+            /*
+             * Unreadable (rare) case. Not in the dictionary. No problem. If we don't know it in advance, we won't know
+             * if even the Japanese can read it.
+             */
+            assertEquals("Sashihara莉乃", createReading("サシハラ莉乃"));
+            assertEquals("倖ta來hitsuji", createReading("倖田來未"));
+
+            /*
+             * Unreadable case. The reading of the first candidate is different from what we expected. Not 'Minsei' but
+             * 'Tamio'. This is often the case in a person's name. The names of entertainers and younger generations may
+             * not be resolved by dictionaries. No additional dictionaries are used. Because it is reasonable to quote
+             * from CDDB.
+             */
+            assertEquals("Okuda Minsei", createReading("奥田　民生"));
+
+            /*
+             * Unreadable case. The reading of the first candidate is different from what we expected. Not
+             * 'Tsuge-rasetai' but 'Koku-rasetai'. 'Koku-rasetai' is a slang.
+             */
+            assertEquals("Kagu ya Sama wa Tsuge-rasetai?", createReading("かぐや様は告らせたい?"));
+
+            /*
+             * Unreadable case. Not 'Kyaputentsubasa' but 'Captain Tsubasa'. Romaji used overseas seems to actively use
+             * English for words that can be replaced with English. This is not possible with current morphological
+             * analyzers. This case will be reasonable to quote from CDDB.
+             */
+            assertEquals("Kyaputentsubasa", createReading("キャプテン翼"));
+        }
+
+        @Test
+        void testCreateLatinReading2() throws ExecutionException {
+
+            /*
+             * Jpsonic's romanization features is an improved version of the Hepburn romanization, and the notation of
+             * MyAnimeList is used as a reference. Due to the nature of Japanese, a general dictionary alone cannot
+             * cover everything, but it can provide a relatively natural conversion than a simple exchange like ICU. The
+             * correct answer rate is expected to be 90% or more, and if the user feels uncomfortable, it can be
+             * corrected by updating the tag information.
+             */
+
+            Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+            Mockito.when(settingsService.isReadGreekInJapanese()).thenReturn(false);
+
+            assertEquals("Kimi no Na wa", createReading("君の名は"));
+
+            // INTERJECTION
+            assertEquals("Sa Utage no Hajimarida", createReading("さぁ宴の始まりだ"));
+
+            // SYMBOL:COMMA, PERIOD: Not 'Doragon' but 'Dragon'.
+            assertEquals("Doragon, Ie wo Kau.", createReading("ドラゴン、家を買う。"));
+            // SYMBOL&capitalize
+            assertEquals("Tsunoda☆Hiro", createReading("つのだ☆ひろ"));
+
+            // NOUN: SUFFIX
+            assertEquals("Tonari no Kaibutsu-kun", createReading("となりの怪物くん"));
+            assertEquals("Denki-gai no Honya-san", createReading("デンキ街の本屋さん"));
+
+            // (small tsu)
+            assertEquals("Mirai, Kaete Mitakunattayo!", createReading("みらい、変えてみたくなったよ!"));
+
+            // SENTENCE_ENDING_PARTICLE, POSTPOSITIONAL_PARTICLE, MULTI_PARTICLE
+            assertEquals("Chippokenajibun ga Doko e Tobidaserukana", createReading("ちっぽけな自分がどこへ飛び出せるかな"));
+
+            // ADVERB
+            assertEquals("(nantoka Naru-sa to ) Ah! Hajimeyou", createReading("(なんとかなるさと) Ah! はじめよう"));
+
+            // (small tsu)
+            assertEquals("Issaigassaibonyona", createReading("一切合切凡庸な"));
+
+            // ADVERBIAL_PARTICLE, SENTENCE_ENDING_PARTICLE
+            assertEquals("Anataja Wakaranaikamo Ne", createReading("あなたじゃ分からないかもね"));
+
+            // (small tsu)
+            assertEquals("Gatchaman", createReading("ガッチャマン"));
+            assertEquals("Hatchaku-eki", createReading("発着駅"));
+
+            // (small tsu) needs romanize
+            assertEquals("Minna Maruta wa Mottana!!", createReading("みんな 丸太は持ったな!!"));
+            assertEquals("Mottamotta", createReading("持った持った"));
+            assertEquals("Somosan Seppa", createReading("そもさん せっぱっ"));
+            assertEquals("Daibu Hatcha Keta", createReading("大分はっちゃけた"));
         }
     }
 
@@ -972,7 +1138,6 @@ class JapaneseReadingUtilsTest {
             assertEquals("サシハラ莉乃", normalize("サシハラ莉乃"));
             assertEquals("倖田來未", normalize("倖田來未"));
         }
-
     }
 
     @Nested

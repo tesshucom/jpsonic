@@ -240,6 +240,7 @@ class SettingsConstants {
         static class Index {
             static final Pair<String> INDEX_SCHEME_NAME = Pair.of("IndexSchemeName",
                     IndexScheme.NATIVE_JAPANESE.name());
+            static final Pair<Boolean> READ_GREEK_IN_JAPANESE = Pair.of("ReadGreekInJapanese", true);
 
             private Index() {
             }
