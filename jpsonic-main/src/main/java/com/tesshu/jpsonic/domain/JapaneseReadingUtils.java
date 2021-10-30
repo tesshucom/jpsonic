@@ -179,30 +179,28 @@ public class JapaneseReadingUtils {
         return result;
     }
 
-    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     public String createIndexableName(@NonNull Artist artist) {
-        String indexableName = artist.getName();
         if (settingsService.isIndexEnglishPrior() && isStartWithAlpha(artist.getName())) {
-            indexableName = artist.getName();
-        } else if (!isEmpty(artist.getReading())) {
-            indexableName = artist.getReading();
-        } else if (!isEmpty(artist.getSort())) {
-            indexableName = createIndexableName(createReading(artist.getSort()));
+            return createIndexableName(artist.getName());
+        } else if (isEmpty(artist.getReading())) {
+            if (isEmpty(artist.getSort())) {
+                return createIndexableName(artist.getName());
+            }
+            return createIndexableName(createReading(artist.getSort()));
         }
-        return createIndexableName(indexableName);
+        return createIndexableName(artist.getReading());
     }
 
-    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     public String createIndexableName(@NonNull MediaFile artist) {
-        String indexableName = artist.getName();
         if (settingsService.isIndexEnglishPrior() && isStartWithAlpha(artist.getName())) {
-            indexableName = artist.getName();
-        } else if (!isEmpty(artist.getArtistReading())) {
-            indexableName = artist.getArtistReading();
-        } else if (!isEmpty(artist.getArtistSort())) {
-            indexableName = createIndexableName(createReading(artist.getArtistSort()));
+            return createIndexableName(artist.getName());
+        } else if (isEmpty(artist.getArtistReading())) {
+            if (isEmpty(artist.getArtistSort())) {
+                return createIndexableName(artist.getName());
+            }
+            return createIndexableName(createReading(artist.getArtistSort()));
         }
-        return createIndexableName(indexableName);
+        return createIndexableName(artist.getArtistReading());
     }
 
     /**
@@ -455,13 +453,11 @@ public class JapaneseReadingUtils {
         StringBuilder excluded = new StringBuilder();
         int start = 0;
         int i = s.indexOf(TILDE);
-        if (-1 != i) {
-            while (-1 != i) {
-                excluded.append(Normalizer.normalize(s.substring(start, i), Normalizer.Form.NFKC));
-                excluded.append(TILDE);
-                start = i + 1;
-                i = s.indexOf(TILDE, i + 1);
-            }
+        while (-1 != i) {
+            excluded.append(Normalizer.normalize(s.substring(start, i), Normalizer.Form.NFKC));
+            excluded.append(TILDE);
+            start = i + 1;
+            i = s.indexOf(TILDE, i + 1);
         }
         excluded.append(Normalizer.normalize(s.substring(start), Normalizer.Form.NFKC));
 
