@@ -93,7 +93,7 @@ public class IndexManager {
      * of AnalyzerFactory, DocumentFactory or the class that they use.
      *
      */
-    private static final int INDEX_VERSION = 24;
+    private static final int INDEX_VERSION = 25;
 
     /**
      * Literal name of index top directory.
@@ -434,7 +434,6 @@ public class IndexManager {
     public void deleteOldIndexFiles() {
         deleteLegacyFiles();
         deleteOldFiles();
-        deleteOldMethodFiles();
     }
 
     private void deleteFile(String label, File old) {
@@ -470,17 +469,6 @@ public class IndexManager {
                 (file, name) -> Pattern.compile("^" + INDEX_ROOT_DIR_NAME + "\\d+$").matcher(name).matches()))
                 .filter(dir -> !ROOT_INDEX_DIRECTORY.get().getName().equals(dir.getName()))
                 .forEach(old -> deleteFile("old index file", old));
-    }
-
-    void deleteOldMethodFiles() {
-        if (settingsService.isSearchMethodChanged()) {
-            Arrays.stream(SettingsService.getJpsonicHome().listFiles(
-                    (file, name) -> Pattern.compile("^" + INDEX_ROOT_DIR_NAME + "\\d+$").matcher(name).matches()))
-                    .filter(dir -> ROOT_INDEX_DIRECTORY.get().getName().equals(dir.getName()))
-                    .forEach(old -> deleteFile("index with different method", old));
-            settingsService.setSearchMethodChanged(false);
-            settingsService.save();
-        }
     }
 
     /**

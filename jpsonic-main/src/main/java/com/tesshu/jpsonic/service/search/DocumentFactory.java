@@ -35,7 +35,6 @@ import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
@@ -64,8 +63,6 @@ public class DocumentFactory {
     private static final FieldType TYPE_ID_NO_STORE;
 
     private static final FieldType TYPE_KEY;
-
-    private final SettingsService settingsService;
 
     private final JapaneseReadingUtils readingUtils;
 
@@ -139,8 +136,7 @@ public class DocumentFactory {
         doc.add(new IntPoint(fieldName, value));
     };
 
-    public DocumentFactory(SettingsService settingsService, JapaneseReadingUtils readingUtils) {
-        this.settingsService = settingsService;
+    public DocumentFactory(JapaneseReadingUtils readingUtils) {
         this.readingUtils = readingUtils;
     }
 
@@ -293,8 +289,8 @@ public class DocumentFactory {
     private void acceptArtistReading(Document doc, String artist, String sort, String reading) {
         String result = defaultIfEmpty(sort, reading);
         if (!isEmpty(artist) && !artist.equals(result)) {
-            fieldWords.accept(doc, FieldNamesConstants.ARTIST_READING, settingsService.isSearchMethodLegacy() ? result
-                    : readingUtils.removePunctuationFromJapaneseReading(result));
+            fieldWords.accept(doc, FieldNamesConstants.ARTIST_READING,
+                    readingUtils.removePunctuationFromJapaneseReading(result));
         }
         fieldWords.accept(doc, FieldNamesConstants.ARTIST_EX, artist);
     }
@@ -312,12 +308,8 @@ public class DocumentFactory {
     }
 
     private void acceptComposerReading(Document doc, MediaFile mediaFile) {
-        if (settingsService.isSearchMethodLegacy()) {
+        if (!isEmpty(mediaFile.getComposer()) && !mediaFile.getComposer().equals(mediaFile.getComposerSort())) {
             fieldWords.accept(doc, FieldNamesConstants.COMPOSER_READING, mediaFile.getComposerSort());
-        } else {
-            if (!isEmpty(mediaFile.getComposer()) && !mediaFile.getComposer().equals(mediaFile.getComposerSort())) {
-                fieldWords.accept(doc, FieldNamesConstants.COMPOSER_READING, mediaFile.getComposerSort());
-            }
         }
     }
 

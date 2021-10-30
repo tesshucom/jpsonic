@@ -138,9 +138,6 @@ class SettingsConstants {
             static final Pair<Boolean> SHOW_REMEMBER_ME = Pair.of("ShowRememberMe", false);
             static final Pair<Boolean> PUBLISH_PODCAST = Pair.of("PublishPodcast", false);
             static final Pair<Boolean> USE_RADIO = Pair.of("UseRadio", false);
-            static final Pair<Boolean> SEARCH_METHOD_LEGACY = Pair.of("SearchMethodLegacy", false);
-            // Flag to regenerate index when server starts. @see IndexManager#deleteOldMethodFiles
-            static final Pair<Boolean> SEARCH_METHOD_CHANGED = Pair.of("SearchMethodChanged", false);
 
             private Legacy() {
             }

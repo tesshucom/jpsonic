@@ -29,16 +29,11 @@ import java.io.Reader;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.analysis.ComplementaryFilter;
 import com.tesshu.jpsonic.service.search.analysis.ComplementaryFilter.Mode;
-import com.tesshu.jpsonic.service.search.analysis.ComplementaryFilterFactory;
 import com.tesshu.jpsonic.service.search.analysis.GenreTokenizerFactory;
-import com.tesshu.jpsonic.service.search.analysis.Id3ArtistTokenizerFactory;
 import com.tesshu.jpsonic.service.search.analysis.PunctuationStemFilter;
-import com.tesshu.jpsonic.service.search.analysis.PunctuationStemFilterFactory;
 import com.tesshu.jpsonic.service.search.analysis.ToHiraganaFilter;
-import com.tesshu.jpsonic.service.search.analysis.ToHiraganaFilterFactory;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
@@ -78,6 +73,8 @@ import org.springframework.stereotype.Component;
 public final class AnalyzerFactory {
 
     private static final String STOP_WARDS_FOR_ARTIST = "com/tesshu/jpsonic/service/stopwords4artist.txt";
+    private static final String STOP_TAGS = "com/tesshu/jpsonic/service/stoptags4phrase.txt";
+    private static final String STOP_WORDS = "com/tesshu/jpsonic/service/stopwords4phrase.txt";
     private static final String FILTER_ATTR_PATTERN = "pattern";
     private static final String FILTER_ATTR_REPLACEMENT = "replacement";
     private static final String FILTER_ATTR_REPLACE = "replace";
@@ -85,33 +82,6 @@ public final class AnalyzerFactory {
 
     private Analyzer analyzer;
     private Analyzer queryAnalyzer;
-    private String stopTags;
-    private String stopWords;
-    private boolean isSearchMethodLegacy;
-
-    @SuppressWarnings("PMD.NullAssignment")
-    /*
-     * (analyzer, queryAnalyzer) Intentional allocation to clear cache. Dynamic analyzer changes require explicit cache
-     * clearing. (The constructor is called by Spring, so changes are always dynamic.) However, this method is usually
-     * executed only once when the server starts. The timing of initialization and dynamic changes should only be
-     * considered during testing.
-     */
-    private void setSearchMethodLegacy(boolean isSearchMethodLegacy) {
-        this.isSearchMethodLegacy = isSearchMethodLegacy;
-        if (isSearchMethodLegacy) {
-            stopWords = "com/tesshu/jpsonic/service/stopwords.txt";
-            stopTags = "org/apache/lucene/analysis/ja/stoptags.txt";
-        } else {
-            stopWords = "com/tesshu/jpsonic/service/stopwords4phrase.txt";
-            stopTags = "com/tesshu/jpsonic/service/stoptags4phrase.txt";
-        }
-        analyzer = null;
-        queryAnalyzer = null;
-    }
-
-    public AnalyzerFactory(SettingsService settingsService) {
-        setSearchMethodLegacy(settingsService.isSearchMethodLegacy());
-    }
 
     /*
      * XXX 3.x -> 8.x : Convert UAX#29 Underscore Analysis to Legacy Analysis
@@ -155,9 +125,9 @@ public final class AnalyzerFactory {
         builder.addTokenFilter(CJKWidthFilterFactory.class)
                 .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false")
                 .addTokenFilter(LowerCaseFilterFactory.class)
-                .addTokenFilter(StopFilterFactory.class, "words", isArtist ? STOP_WARDS_FOR_ARTIST : stopWords,
+                .addTokenFilter(StopFilterFactory.class, "words", isArtist ? STOP_WARDS_FOR_ARTIST : STOP_WORDS,
                         "ignoreCase", "true")
-                .addTokenFilter(JapanesePartOfSpeechStopFilterFactory.class, "tags", stopTags);
+                .addTokenFilter(JapanesePartOfSpeechStopFilterFactory.class, "tags", STOP_TAGS);
         // .addTokenFilter(EnglishPossessiveFilterFactory.class); XXX airsonic -> jpsonic : possession(issues#290)
         addTokenFilterForUnderscoreRemovalAroundToken(builder);
         return builder;
@@ -180,21 +150,7 @@ public final class AnalyzerFactory {
                 .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false").build();
     }
 
-    private Builder createExceptionalAnalyzerBuilder() throws IOException {
-        return createKeywordAnalyzerBuilder().addTokenFilter(CJKWidthFilterFactory.class)
-                .addTokenFilter(JapanesePartOfSpeechStopFilterFactory.class, "tags", stopTags)
-                .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false")
-                .addTokenFilter(LowerCaseFilterFactory.class).addTokenFilter(PunctuationStemFilterFactory.class);
-    }
-
     private Analyzer createReadingAnalyzer() throws IOException {
-        if (isSearchMethodLegacy) {
-            CustomAnalyzer.Builder builder = CustomAnalyzer.builder().withTokenizer(Id3ArtistTokenizerFactory.class);
-            builder = basicFilters(builder, true).addTokenFilter(PunctuationStemFilterFactory.class)
-                    .addTokenFilter(ToHiraganaFilterFactory.class);
-            return builder.build();
-        }
-
         CharArraySet stopWords4Artist = getWords(STOP_WARDS_FOR_ARTIST);
         Set<String> stopTagset = loadStopTags();
         return new StopwordAnalyzerBase() {
@@ -221,16 +177,8 @@ public final class AnalyzerFactory {
         };
     }
 
-    private Analyzer createExAnalyzer(boolean isArtist) throws IOException {
-        if (isSearchMethodLegacy) {
-            ComplementaryFilter.Mode mode = isArtist ? Mode.STOP_WORDS_ONLY : Mode.STOP_WORDS_ONLY_AND_HIRA_KATA_ONLY;
-            return createExceptionalAnalyzerBuilder()
-                    .addTokenFilter(ComplementaryFilterFactory.class, "mode", mode.value(), "stopwards", stopWords)
-                    .build();
-        }
-
+    private Analyzer createExAnalyzer() throws IOException {
         Set<String> stopTagset = loadStopTags();
-
         return new StopwordAnalyzerBase() {
 
             @SuppressWarnings("PMD.CloseResource") // False positive. Stream is reused by ReuseStrategy.
@@ -263,7 +211,7 @@ public final class AnalyzerFactory {
 
     private Set<String> loadStopTags() throws IOException {
         Set<String> stopTagset = new HashSet<>();
-        CharArraySet cas = getWords(stopTags);
+        CharArraySet cas = getWords(STOP_TAGS);
         if (cas != null) {
             for (Object element : cas) {
                 stopTagset.add(String.valueOf((char[]) element));
@@ -283,15 +231,14 @@ public final class AnalyzerFactory {
 
                 Analyzer artist = createDefaultAnalyzerBuilder(true).build();
                 Analyzer reading = createReadingAnalyzer();
-                Analyzer exceptional = createExAnalyzer(false);
-                Analyzer artistEx = createExAnalyzer(true);
+                Analyzer exceptional = createExAnalyzer();
 
                 this.analyzer = new PerFieldAnalyzerWrapper(createDefaultAnalyzerBuilder(false).build(),
                         LegacyMap.of(FieldNamesConstants.GENRE_KEY, createKeywordAnalyzerBuilder().build(),
                                 FieldNamesConstants.ARTIST, artist, FieldNamesConstants.COMPOSER, artist,
                                 FieldNamesConstants.ARTIST_READING, reading, FieldNamesConstants.COMPOSER_READING,
                                 reading, FieldNamesConstants.ALBUM_EX, exceptional, FieldNamesConstants.TITLE_EX,
-                                exceptional, FieldNamesConstants.ARTIST_EX, artistEx, FieldNamesConstants.GENRE,
+                                exceptional, FieldNamesConstants.ARTIST_EX, exceptional, FieldNamesConstants.GENRE,
                                 createGenreAnalyzer()));
 
             } catch (IOException e) {

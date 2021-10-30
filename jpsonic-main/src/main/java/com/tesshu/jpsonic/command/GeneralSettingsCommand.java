@@ -65,8 +65,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean othersPlayingEnabled;
     private boolean showRememberMe;
     private boolean publishPodcast;
-    private boolean searchMethodLegacy;
-    private boolean searchMethodChanged;
 
     // Extensions and shortcuts
     private String musicFileTypes;
@@ -282,22 +280,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setPublishPodcast(boolean publishPodcast) {
         this.publishPodcast = publishPodcast;
-    }
-
-    public boolean isSearchMethodLegacy() {
-        return searchMethodLegacy;
-    }
-
-    public void setSearchMethodLegacy(boolean searchMethodLegacy) {
-        this.searchMethodLegacy = searchMethodLegacy;
-    }
-
-    public boolean isSearchMethodChanged() {
-        return searchMethodChanged;
-    }
-
-    public void setSearchMethodChanged(boolean searchMethodChanged) {
-        this.searchMethodChanged = searchMethodChanged;
     }
 
     public String getMusicFileTypes() {

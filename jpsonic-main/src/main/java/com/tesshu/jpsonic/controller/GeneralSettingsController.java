@@ -135,7 +135,6 @@ public class GeneralSettingsController {
         command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
         command.setShowRememberMe(settingsService.isShowRememberMe());
         command.setPublishPodcast(settingsService.isPublishPodcast());
-        command.setSearchMethodLegacy(settingsService.isSearchMethodLegacy());
 
         // Extensions and shortcuts
         command.setMusicFileTypes(settingsService.getMusicFileTypes());
@@ -213,15 +212,6 @@ public class GeneralSettingsController {
         settingsService.setOthersPlayingEnabled(command.isOthersPlayingEnabled());
         settingsService.setShowRememberMe(command.isShowRememberMe());
         settingsService.setPublishPodcast(command.isPublishPodcast());
-        settingsService.setSearchMethodLegacy(command.isSearchMethodLegacy());
-
-        /*
-         * If this item is changed, the search index will need to be rebuilt.
-         * 
-         * @see IndexManager#deleteOldIndexFiles
-         */
-        settingsService
-                .setSearchMethodChanged(settingsService.isSearchMethodLegacy() != command.isSearchMethodLegacy());
 
         // Extensions and shortcuts
         settingsService.setMusicFileTypes(command.getMusicFileTypes());

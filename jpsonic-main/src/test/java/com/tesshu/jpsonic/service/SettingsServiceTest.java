@@ -560,16 +560,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsSearchMethodLegacy() {
-        assertFalse(settingsService.isSearchMethodLegacy());
-    }
-
-    @Test
-    void testIsSearchMethodChanged() {
-        assertFalse(settingsService.isSearchMethodChanged());
-    }
-
-    @Test
     void testIsIgnoreSymLinks() {
         assertFalse(settingsService.isIgnoreSymLinks());
     }

@@ -251,7 +251,6 @@ public class UPnPSearchCriteriaDirectorTest {
     public void setup() throws NoSuchMethodException, SecurityException, IllegalAccessException,
             IllegalArgumentException, InvocationTargetException {
         settingsService = mock(SettingsService.class);
-        Mockito.when(settingsService.isSearchMethodLegacy()).thenReturn(false);
         Mockito.when(settingsService.isSearchComposer()).thenReturn(true);
 
         List<MusicFolder> musicFolders = new ArrayList<>();
@@ -270,8 +269,8 @@ public class UPnPSearchCriteriaDirectorTest {
         SearchServiceUtilities utilities = new SearchServiceUtilities(null, null, null, null, null, settingsService);
         UpnpProcessorUtil util = new UpnpProcessorUtil(settingsService, musicFolderService, mock(SecurityService.class),
                 null, null, null, null);
-        director = new UPnPSearchCriteriaDirector(new QueryFactory(new AnalyzerFactory(settingsService), utilities),
-                settingsService, util, utilities);
+        director = new UPnPSearchCriteriaDirector(new QueryFactory(new AnalyzerFactory(), utilities), settingsService,
+                util, utilities);
     }
 
     // testClassHierarchy
