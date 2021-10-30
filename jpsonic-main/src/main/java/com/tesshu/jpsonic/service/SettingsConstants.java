@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.service;
 
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
+import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.PreferredFormatSheme;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
 import com.tesshu.jpsonic.util.PlayerUtils;
@@ -233,6 +234,14 @@ class SettingsConstants {
                     "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe");
 
             private Captcha() {
+            }
+        }
+
+        static class Index {
+            static final Pair<String> INDEX_SCHEME_NAME = Pair.of("IndexSchemeName",
+                    IndexScheme.NATIVE_JAPANESE.name());
+
+            private Index() {
             }
         }
     }

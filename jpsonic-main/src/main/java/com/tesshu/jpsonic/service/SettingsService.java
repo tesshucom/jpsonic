@@ -1001,6 +1001,14 @@ public class SettingsService {
         setProperty(SettingsConstants.Advanced.Captcha.SECRET_KEY, s);
     }
 
+    public String getIndexSchemeName() {
+        return getString(SettingsConstants.Advanced.Index.INDEX_SCHEME_NAME);
+    }
+
+    public void setIndexSchemeName(String s) {
+        setProperty(SettingsConstants.Advanced.Index.INDEX_SCHEME_NAME, s);
+    }
+
     public String getPodcastFolder() {
         return getString(SettingsConstants.Podcast.FOLDER);
     }
