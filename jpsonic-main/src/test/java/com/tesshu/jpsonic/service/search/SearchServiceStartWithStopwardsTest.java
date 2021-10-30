@@ -34,7 +34,6 @@ import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SearchResult;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,9 +55,6 @@ class SearchServiceStartWithStopwardsTest extends AbstractNeedsScan {
     @Autowired
     private SearchCriteriaDirector director;
 
-    @Autowired
-    private SettingsService settingsService;
-
     @Override
     public List<MusicFolder> getMusicFolders() {
         if (isEmpty(musicFolders)) {
@@ -71,7 +67,6 @@ class SearchServiceStartWithStopwardsTest extends AbstractNeedsScan {
 
     @BeforeEach
     public void setup() {
-        settingsService.setSearchMethodLegacy(false);
         populateDatabaseOnlyOnce();
     }
 

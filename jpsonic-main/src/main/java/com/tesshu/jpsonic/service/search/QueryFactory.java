@@ -24,7 +24,6 @@ package com.tesshu.jpsonic.service.search;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -102,64 +101,6 @@ public class QueryFactory {
         this.util = util;
     }
 
-    /*
-     * XXX 3.x -> 8.x : In order to support wildcards, MultiFieldQueryParser has been replaced by the following process.
-     * 
-     * - There is also an override of MultiFieldQueryParser, but it is known to be high cost. - MultiFieldQueryParser
-     * was created before Java API was modernized. - The spec of Parser has changed from time to time. Using parser does
-     * not reduce library update risk. - Self made parser process reduces one library dependency. - It is easy to make
-     * corrections later when changing the query to improve search accuracy.
-     */
-    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.CognitiveComplexity" })
-    /*
-     * [AvoidInstantiatingObjectsInLoops] (ArrayList, WildcardQuery, Term, BoostQuery, BooleanQuery) Not reusable
-     * [CognitiveComplexity] #1020 This is a legacy feature that has no plans for maintenance. Low priority.
-     */
-    public final Query createMultiFieldWildQuery(@NonNull String[] fieldNames, @NonNull String queryString,
-            @NonNull IndexType indexType) throws IOException {
-
-        BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
-
-        List<List<Query>> fieldsQuerys = new ArrayList<>();
-        Analyzer analyzer = analyzerFactory.getQueryAnalyzer();
-
-        /* Wildcard applies to all tokens. **/
-        for (String fieldName : fieldNames) {
-            try (TokenStream stream = analyzer.tokenStream(fieldName, queryString)) {
-                stream.reset();
-                List<Query> fieldQuerys = new ArrayList<>();
-                while (stream.incrementToken()) {
-                    String token = stream.getAttribute(CharTermAttribute.class).toString();
-                    WildcardQuery wildcardQuery = new WildcardQuery(new Term(fieldName, token.concat(ASTERISK)));
-                    if (indexType.getBoosts().containsKey(fieldName)) {
-                        fieldQuerys.add(new BoostQuery(wildcardQuery, indexType.getBoosts().get(fieldName)));
-                    } else {
-                        fieldQuerys.add(wildcardQuery);
-                    }
-                }
-                fieldsQuerys.add(fieldQuerys);
-            }
-        }
-
-        /* If Field's Tokenizer is different, token's length may not match. **/
-        int maxTermLength = fieldsQuerys.stream().map(List::size).max(Integer::compare).orElse(0);
-
-        if (0 < fieldsQuerys.size()) {
-            for (int i = 0; i < maxTermLength; i++) {
-                BooleanQuery.Builder fieldsQuery = new BooleanQuery.Builder();
-                for (List<Query> fieldQuerys : fieldsQuerys) {
-                    if (i < fieldQuerys.size()) {
-                        fieldsQuery.add(fieldQuerys.get(i), Occur.SHOULD);
-                    }
-                }
-                mainQuery.add(fieldsQuery.build(), Occur.SHOULD);
-            }
-        }
-
-        return mainQuery.build();
-
-    }
-
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (PhraseQuery, Term, BoostQuery) Not reusable
     public final Query createPhraseQuery(@NonNull String[] fieldNames, @NonNull String queryString,
             @NonNull IndexType indexType) throws IOException {
@@ -191,40 +132,6 @@ public class QueryFactory {
             }
         }
         return fieldQuerys.build();
-
-    }
-
-    /**
-     * Query generation expression extracted from
-     * {@link com.tesshu.jpsonic.service.SearchService#search(SearchCriteria, List, IndexType)}.
-     * 
-     * @param searchInput
-     *            searchInput
-     * @param includeComposer
-     *            includeComposer
-     * @param musicFolders
-     *            musicFolders
-     * @param indexType
-     *            {@link IndexType}
-     * 
-     * @return Query
-     * 
-     * @throws IOException
-     *             When parsing of MultiFieldQueryParser fails
-     */
-    public Query search(String searchInput, boolean includeComposer, List<MusicFolder> musicFolders,
-            IndexType indexType) throws IOException {
-        BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
-
-        String[] fields = util.filterComposer(indexType.getFields(), includeComposer);
-        Query multiFieldQuery = createMultiFieldWildQuery(fields, searchInput, indexType);
-        mainQuery.add(multiFieldQuery, Occur.MUST);
-
-        boolean isId3 = indexType == IndexType.ALBUM_ID3 || indexType == IndexType.ARTIST_ID3;
-        Query folderQuery = toFolderQuery.apply(isId3, musicFolders);
-        mainQuery.add(folderQuery, Occur.MUST);
-
-        return mainQuery.build();
 
     }
 

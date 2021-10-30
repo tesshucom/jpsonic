@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.service.search;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -47,8 +46,6 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 
@@ -76,9 +73,6 @@ class IndexManagerTest extends AbstractNeedsScan {
     @Autowired
     private AlbumDao albumDao;
 
-    @Autowired
-    private SettingsService settingsService;
-
     @Override
     public List<MusicFolder> getMusicFolders() {
         if (ObjectUtils.isEmpty(musicFolders)) {
@@ -91,7 +85,6 @@ class IndexManagerTest extends AbstractNeedsScan {
 
     @BeforeEach
     public void setup() {
-        settingsService.setSearchMethodLegacy(false);
         populateDatabaseOnlyOnce();
     }
 
@@ -246,26 +239,5 @@ class IndexManagerTest extends AbstractNeedsScan {
         }
         indexManager.deleteOldFiles();
         assertFalse(oldDir.exists());
-    }
-
-    @SuppressWarnings({ "PMD.CloseResource", "PMD.EmptyCatchBlock" })
-    // Because, not using the searcherManager but force a close
-    @Test
-    @Order(4)
-    void testDdeleteOldMethodFiles() throws ExecutionException, IOException {
-        // Delete the index currently in use to switch to the backward compatible (Airsonic method)
-        // index.
-        SettingsService settingsService = mock(SettingsService.class);
-        Mockito.when(settingsService.isSearchMethodChanged()).thenReturn(true);
-        IndexManager indexManager = new IndexManager(null, null, mediaFileDao, artistDao, albumDao, null, null, null,
-                settingsService);
-
-        ArgumentCaptor<Boolean> changedCaptor = ArgumentCaptor.forClass(boolean.class);
-        Mockito.doNothing().when(settingsService).setSearchMethodChanged(changedCaptor.capture());
-        indexManager.deleteOldMethodFiles();
-
-        Mockito.verify(settingsService, Mockito.times(1)).save();
-        Mockito.verify(settingsService, Mockito.times(1)).setSearchMethodChanged(Mockito.anyBoolean());
-        assertFalse(changedCaptor.getValue());
     }
 }

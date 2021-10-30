@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.service.search;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
@@ -31,7 +30,6 @@ import java.util.List;
 
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.lucene.search.Query;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,7 +68,7 @@ class QueryFactoryTest {
 
     @BeforeEach
     public void setup() {
-        queryFactory = new QueryFactory(new AnalyzerFactory(mock(SettingsService.class)), null);
+        queryFactory = new QueryFactory(new AnalyzerFactory(), null);
     }
 
     @Test

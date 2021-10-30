@@ -41,7 +41,6 @@ import org.apache.lucene.document.Document;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 class DocumentFactoryTest {
@@ -51,8 +50,7 @@ class DocumentFactoryTest {
     @BeforeEach
     public void setup() {
         SettingsService settingsService = mock(SettingsService.class);
-        Mockito.when(settingsService.isSearchMethodLegacy()).thenReturn(true);
-        documentFactory = new DocumentFactory(settingsService, new JapaneseReadingUtils(settingsService));
+        documentFactory = new DocumentFactory(new JapaneseReadingUtils(settingsService));
     }
 
     @Test

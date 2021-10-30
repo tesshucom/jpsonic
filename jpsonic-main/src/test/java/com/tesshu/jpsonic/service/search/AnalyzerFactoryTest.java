@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.service.search;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -32,12 +31,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -55,9 +52,7 @@ class AnalyzerFactoryTest {
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        SettingsService settingsService = mock(SettingsService.class);
-        Mockito.when(settingsService.isSearchMethodLegacy()).thenReturn(false);
-        analyzerFactory = new AnalyzerFactory(settingsService);
+        analyzerFactory = new AnalyzerFactory();
     }
 
     @Test
