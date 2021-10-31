@@ -255,14 +255,4 @@ public final class AnalyzerFactory {
         }
         return analyzer;
     }
-
-    /*
-     * Currently no different from analyzer
-     */
-    public Analyzer getQueryAnalyzer() {
-        if (isEmpty(analyzer)) {
-            analyzer = getAnalyzer();
-        }
-        return analyzer;
-    }
 }
