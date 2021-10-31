@@ -31,7 +31,6 @@ import java.util.function.Function;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.IntPoint;
@@ -105,13 +104,12 @@ public class QueryFactory {
     public final Query createPhraseQuery(@NonNull String[] fieldNames, @NonNull String queryString,
             @NonNull IndexType indexType) throws IOException {
 
-        Analyzer analyzer = analyzerFactory.getQueryAnalyzer();
         BooleanQuery.Builder fieldQuerys = new BooleanQuery.Builder();
 
         for (String fieldName : fieldNames) {
             PhraseQuery.Builder phrase = new PhraseQuery.Builder();
             boolean exists = false;
-            try (TokenStream stream = analyzer.tokenStream(fieldName, queryString)) {
+            try (TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(fieldName, queryString)) {
                 stream.reset();
                 while (stream.incrementToken()) {
                     String token = stream.getAttribute(CharTermAttribute.class).toString();
@@ -164,11 +162,11 @@ public class QueryFactory {
         query.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.MUST);
 
         BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
-        Analyzer queryAnalyzer = analyzerFactory.getQueryAnalyzer();
         if (!isEmpty(criteria.getGenres())) {
             for (String genre : criteria.getGenres()) {
                 if (!isEmpty(criteria.getGenres()) && !isEmpty(genre)) {
-                    try (TokenStream stream = queryAnalyzer.tokenStream(FieldNamesConstants.GENRE, genre)) {
+                    try (TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(FieldNamesConstants.GENRE,
+                            genre)) {
                         stream.reset();
                         while (stream.incrementToken()) {
                             String token = stream.getAttribute(CharTermAttribute.class).toString();
@@ -221,11 +219,9 @@ public class QueryFactory {
 
         BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
 
-        Analyzer analyzer = analyzerFactory.getQueryAnalyzer();
-
         // TODO #353
         // TODO Support for extended fields and boost
-        try (TokenStream stream = analyzer.tokenStream(fieldName, name)) {
+        try (TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(fieldName, name)) {
             stream.reset();
             stream.incrementToken();
 
@@ -290,8 +286,7 @@ public class QueryFactory {
         // sub - genre
         if (!isEmpty(genres)) {
             BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
-            try (TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNamesConstants.GENRE,
-                    genres)) {
+            try (TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(FieldNamesConstants.GENRE, genres)) {
                 stream.reset();
                 while (stream.incrementToken()) {
                     genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE,
@@ -326,8 +321,7 @@ public class QueryFactory {
         // sub - genre
         if (!isEmpty(genres)) {
             BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
-            try (TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNamesConstants.GENRE,
-                    genres)) {
+            try (TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(FieldNamesConstants.GENRE, genres)) {
                 stream.reset();
                 while (stream.incrementToken()) {
                     genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE,
@@ -358,8 +352,7 @@ public class QueryFactory {
 
         for (String genre : genres) {
             if (!isEmpty(genre)) {
-                try (TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNamesConstants.GENRE,
-                        genre)) {
+                try (TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(FieldNamesConstants.GENRE, genre)) {
                     stream.reset();
                     while (stream.incrementToken()) {
                         genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE,

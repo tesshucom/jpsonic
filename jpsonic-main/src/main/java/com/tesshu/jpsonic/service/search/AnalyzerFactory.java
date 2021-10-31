@@ -64,9 +64,8 @@ import org.apache.lucene.util.IOUtils;
 import org.springframework.stereotype.Component;
 
 /**
- * Analyzer provider. This class is a division of what was once part of SearchService and added functionality. This
- * class provides Analyzer which is used at index generation and QueryAnalyzer which analyzes the specified query at
- * search time. Analyzer can be closed but is a reuse premise. It is held in this class.
+ * Analyzer provider. This class is a division of what was once part of SearchService and added functionality. Analyzer
+ * can be closed but is a reuse premise. It is held in this class.
  */
 @Component
 public final class AnalyzerFactory {
@@ -253,16 +252,6 @@ public final class AnalyzerFactory {
                 // Usually unreachable due to classpath resources
                 throw new IllegalArgumentException("Error when initializing Analyzer.", e);
             }
-        }
-        return analyzer;
-    }
-
-    /*
-     * Currently no different from analyzer
-     */
-    public Analyzer getQueryAnalyzer() {
-        if (isEmpty(analyzer)) {
-            analyzer = getAnalyzer();
         }
         return analyzer;
     }
