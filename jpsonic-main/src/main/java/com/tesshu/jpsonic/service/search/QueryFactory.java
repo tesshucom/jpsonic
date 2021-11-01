@@ -41,7 +41,6 @@ import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.WildcardQuery;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Component;
@@ -60,8 +59,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class QueryFactory {
-
-    private static final String ASTERISK = "*";
 
     private final AnalyzerFactory analyzerFactory;
     private final SearchServiceUtilities util;
@@ -200,51 +197,6 @@ public class QueryFactory {
         return new BooleanQuery.Builder()
                 .add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.MUST)
                 .add(toFolderQuery.apply(false, musicFolders), Occur.MUST).build();
-    }
-
-    /**
-     * Query generation expression extracted from
-     * {@link com.tesshu.jpsonic.service.SearchService#searchByName( String, String, int, int, List, Class)}.
-     * 
-     * @param fieldName
-     *            {@link FieldNamesConstants}
-     * 
-     * @return Query
-     * 
-     * @throws IOException
-     *             When parsing of QueryParser fails
-     */
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term, WildcardQuery) Not reusable
-    public Query searchByName(String fieldName, String name) throws IOException {
-
-        BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
-
-        // TODO #353
-        // TODO Support for extended fields and boost
-        try (TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(fieldName, name)) {
-            stream.reset();
-            stream.incrementToken();
-
-            /*
-             * XXX 3.x -> 8.x : In order to support wildcards, QueryParser has been replaced by the following process.
-             */
-
-            /* Wildcards apply only to tail tokens **/
-            while (true) {
-                String token = stream.getAttribute(CharTermAttribute.class).toString();
-                if (stream.incrementToken()) {
-                    mainQuery.add(new TermQuery(new Term(fieldName, token)), Occur.SHOULD);
-                } else {
-                    WildcardQuery wildcardQuery = new WildcardQuery(new Term(fieldName, token.concat(ASTERISK)));
-                    mainQuery.add(wildcardQuery, Occur.SHOULD);
-                    break;
-                }
-            }
-
-        }
-
-        return mainQuery.build();
-
     }
 
     /**
