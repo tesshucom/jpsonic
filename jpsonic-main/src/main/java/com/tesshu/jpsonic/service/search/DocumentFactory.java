@@ -106,7 +106,7 @@ public class DocumentFactory {
     private final BiConsumer<@NonNull Document, @NonNull String> fieldFolderPath = (doc, value) -> fieldKey.accept(doc,
             FieldNamesConstants.FOLDER, value);
 
-    public final BiFunction<@NonNull String, @Nullable String, List<Field>> createWordsFields = (fieldName,
+    private final BiFunction<@NonNull String, @Nullable String, List<Field>> createWordsFields = (fieldName,
             value) -> Arrays.asList(new TextField(fieldName, value, Store.NO),
                     new SortedDocValuesField(fieldName, new BytesRef(value)));
 
@@ -136,24 +136,24 @@ public class DocumentFactory {
         doc.add(new IntPoint(fieldName, value));
     };
 
-    public DocumentFactory(JapaneseReadingUtils readingUtils) {
-        this.readingUtils = readingUtils;
-    }
-
-    public final Term createPrimarykey(Integer id) {
+    public static final Term createPrimarykey(Integer id) {
         return new Term(FieldNamesConstants.ID, Integer.toString(id));
     }
 
-    public final Term createPrimarykey(Album album) {
+    public static final Term createPrimarykey(Album album) {
         return createPrimarykey(album.getId());
     }
 
-    public final Term createPrimarykey(Artist artist) {
+    public static final Term createPrimarykey(Artist artist) {
         return createPrimarykey(artist.getId());
     }
 
-    public final Term createPrimarykey(MediaFile mediaFile) {
+    public static final Term createPrimarykey(MediaFile mediaFile) {
         return createPrimarykey(mediaFile.getId());
+    }
+
+    public DocumentFactory(JapaneseReadingUtils readingUtils) {
+        this.readingUtils = readingUtils;
     }
 
     @FunctionalInterface
@@ -236,14 +236,6 @@ public class DocumentFactory {
      * 
      * @since legacy
      */
-    /*
-     * XXX 3.x -> 8.x : Only null check specification of createArtistId3Document is different from legacy. (The reason
-     * is only to simplify the function.)
-     *
-     * Since the field of domain object Album is nonnull, null check was not performed.
-     *
-     * In implementation ARTIST and ALBUM became nullable, but null is not input at this point in data flow.
-     */
     public Document createArtistId3Document(Artist artist, MusicFolder musicFolder) {
         Document doc = new Document();
         fieldId.accept(doc, artist.getId());
@@ -308,9 +300,10 @@ public class DocumentFactory {
     }
 
     private void acceptComposerReading(Document doc, MediaFile mediaFile) {
-        if (!isEmpty(mediaFile.getComposer()) && !mediaFile.getComposer().equals(mediaFile.getComposerSort())) {
-            fieldWords.accept(doc, FieldNamesConstants.COMPOSER_READING, mediaFile.getComposerSort());
+        String result = defaultIfEmpty(mediaFile.getComposerSort(), mediaFile.getComposerSortRaw());
+        if (!isEmpty(mediaFile.getComposer()) && !mediaFile.getComposer().equals(result)) {
+            fieldWords.accept(doc, FieldNamesConstants.COMPOSER_READING,
+                    readingUtils.removePunctuationFromJapaneseReading(result));
         }
     }
-
 }

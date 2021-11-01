@@ -154,7 +154,7 @@ public class IndexManager {
     }
 
     public void index(Album album) {
-        Term primarykey = documentFactory.createPrimarykey(album);
+        Term primarykey = DocumentFactory.createPrimarykey(album);
         Document document = documentFactory.createAlbumId3Document(album);
         try {
             writers.get(IndexType.ALBUM_ID3).updateDocument(primarykey, document);
@@ -166,7 +166,7 @@ public class IndexManager {
     }
 
     public void index(Artist artist, MusicFolder musicFolder) {
-        Term primarykey = documentFactory.createPrimarykey(artist);
+        Term primarykey = DocumentFactory.createPrimarykey(artist);
         Document document = documentFactory.createArtistId3Document(artist, musicFolder);
         try {
             writers.get(IndexType.ARTIST_ID3).updateDocument(primarykey, document);
@@ -178,7 +178,7 @@ public class IndexManager {
     }
 
     public void index(MediaFile mediaFile) {
-        Term primarykey = documentFactory.createPrimarykey(mediaFile);
+        Term primarykey = DocumentFactory.createPrimarykey(mediaFile);
         try {
             if (mediaFile.isFile()) {
                 Document document = documentFactory.createSongDocument(mediaFile);
@@ -191,7 +191,7 @@ public class IndexManager {
                 writers.get(IndexType.ARTIST).updateDocument(primarykey, document);
             }
             if (!isEmpty(mediaFile.getGenre())) {
-                primarykey = documentFactory.createPrimarykey(mediaFile.getGenre().hashCode());
+                primarykey = DocumentFactory.createPrimarykey(mediaFile.getGenre().hashCode());
                 Document document = documentFactory.createGenreDocument(mediaFile);
                 writers.get(IndexType.GENRE).updateDocument(primarykey, document);
             }
@@ -237,7 +237,7 @@ public class IndexManager {
 
     public void expunge() {
 
-        Term[] primarykeys = mediaFileDao.getArtistExpungeCandidates().stream().map(documentFactory::createPrimarykey)
+        Term[] primarykeys = mediaFileDao.getArtistExpungeCandidates().stream().map(DocumentFactory::createPrimarykey)
                 .toArray(Term[]::new);
         try {
             writers.get(IndexType.ARTIST).deleteDocuments(primarykeys);
@@ -245,7 +245,7 @@ public class IndexManager {
             LOG.error("Failed to delete artist doc.", e);
         }
 
-        primarykeys = mediaFileDao.getAlbumExpungeCandidates().stream().map(documentFactory::createPrimarykey)
+        primarykeys = mediaFileDao.getAlbumExpungeCandidates().stream().map(DocumentFactory::createPrimarykey)
                 .toArray(Term[]::new);
         try {
             writers.get(IndexType.ALBUM).deleteDocuments(primarykeys);
@@ -253,7 +253,7 @@ public class IndexManager {
             LOG.error("Failed to delete album doc.", e);
         }
 
-        primarykeys = mediaFileDao.getSongExpungeCandidates().stream().map(documentFactory::createPrimarykey)
+        primarykeys = mediaFileDao.getSongExpungeCandidates().stream().map(DocumentFactory::createPrimarykey)
                 .toArray(Term[]::new);
         try {
             writers.get(IndexType.SONG).deleteDocuments(primarykeys);
@@ -261,7 +261,7 @@ public class IndexManager {
             LOG.error("Failed to delete song doc.", e);
         }
 
-        primarykeys = artistDao.getExpungeCandidates().stream().map(documentFactory::createPrimarykey)
+        primarykeys = artistDao.getExpungeCandidates().stream().map(DocumentFactory::createPrimarykey)
                 .toArray(Term[]::new);
         try {
             writers.get(IndexType.ARTIST_ID3).deleteDocuments(primarykeys);
@@ -269,7 +269,7 @@ public class IndexManager {
             LOG.error("Failed to delete artistId3 doc.", e);
         }
 
-        primarykeys = albumDao.getExpungeCandidates().stream().map(documentFactory::createPrimarykey)
+        primarykeys = albumDao.getExpungeCandidates().stream().map(DocumentFactory::createPrimarykey)
                 .toArray(Term[]::new);
         try {
             writers.get(IndexType.ALBUM_ID3).deleteDocuments(primarykeys);
