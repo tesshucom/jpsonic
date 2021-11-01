@@ -21,27 +21,31 @@
 
 package com.tesshu.jpsonic.service.search;
 
-import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
 /**
- * Test case for Analyzer. These cases have the purpose of observing the current situation and observing the impact of
- * upgrading Lucene.
+ * Test case for Analyzer. Lucene versions are very different between Subsonic and Airsonic/Jpsonic. There are some
+ * differences in the meta processing specifications, but the specifications have been resolved at a level where
+ * problems are unlikely to occur in daily use.
  */
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.JUnitTestsShouldIncludeAssert" })
 class AnalyzerFactoryTest {
@@ -53,139 +57,85 @@ class AnalyzerFactoryTest {
         analyzerFactory = new AnalyzerFactory();
     }
 
-    @Test
-    void testGetAnalyzer() {
-        assertNotNull(analyzerFactory.getAnalyzer());
+    @AfterEach
+    void testsGetAnalyzer() {
+        analyzerFactory.getAnalyzer().close();
     }
 
+    @Test
+    @SuppressWarnings("PMD.CloseResource") // @AfterEach
+    void testGetAnalyzer() {
+        Analyzer analyzer = analyzerFactory.getAnalyzer();
+        assertNotNull(analyzer);
+    }
+
+    /**
+     * Jpsonic's Analyzer has a different configuration than the default Analyzer (for English-speaking countries) and
+     * is configured to handle Japanese and English well. Since it is barren to cover all cases, here we list cases
+     * where results are likely to vary due to past version upgrades, Subsonic derived issues, and differences from the
+     * default analyzer.
+     */
     @Nested
     class TokenStreamTest {
 
         @Test
         void testTokenCounts() {
-
             String queryEng = "The quick brown fox jumps over the lazy dog.";
+            var tokenized = Arrays.asList("quick", "brown", "fox", "jumps", "over", "lazy", "dog");
+            assertEquals(tokenized, toTermString(FieldNamesConstants.ARTIST, queryEng));
+            assertEquals(tokenized, toTermString(FieldNamesConstants.ARTIST_READING, queryEng));
+            assertEquals(tokenized, toTermString(FieldNamesConstants.ALBUM, queryEng));
+            assertEquals(tokenized, toTermString(FieldNamesConstants.TITLE, queryEng));
+            assertTrue(toTermString(FieldNamesConstants.ARTIST_EX, queryEng).isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.ALBUM_EX, queryEng).isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.TITLE_EX, queryEng).isEmpty());
 
-            // no analyze field
-            /*
-             * FieldNamesConstants.ID, FieldNamesConstants.FOLDER_ID, FieldNamesConstants.YEAR
-             * FieldNamesConstants.GENRE, FieldNamesConstants.GENRE_KEY, FieldNamesConstants.MEDIA_TYPE,
-             * FieldNamesConstants.FOLDER
-             */
-
-            // 4
-            String[] multiTokenFields = { FieldNamesConstants.ARTIST, FieldNamesConstants.ARTIST_READING,
-                    FieldNamesConstants.ALBUM, FieldNamesConstants.TITLE };
-            Arrays.stream(multiTokenFields).forEach(n -> {
-                List<String> terms = toTermString(n, queryEng);
-                assertEquals(7, terms.size(), "multiToken : " + n);
-            });
-
-            // 2
             String queryHira = "くいっくぶらうん";
-            String[] oneTokenHiraStopOnlyFields = { FieldNamesConstants.ALBUM_EX, FieldNamesConstants.TITLE_EX };
-            Arrays.stream(oneTokenHiraStopOnlyFields).forEach(n -> {
-                List<String> terms = toTermString(n, queryEng);
-                assertEquals(0, terms.size(), "oneTokenHira(Eng) : " + n);
-            });
-            Arrays.stream(oneTokenHiraStopOnlyFields).forEach(n -> {
-                List<String> terms = toTermString(n, queryHira);
-                // Because different from legacy, which is a prefix match of tokens, and bigram is used.
-                assertEquals(7, terms.size(), "bigram(Hira) : " + n);
-            });
-            String queryStopsOnly = "La La La";
-            Arrays.stream(oneTokenHiraStopOnlyFields).forEach(n -> {
-                List<String> terms = toTermString(n, queryStopsOnly);
-                // Because the Stopward-only case is currently omitted as rare-case
-                assertEquals(0, terms.size(), "Cut off : " + n);
-            });
+            var bigramHira = Arrays.asList("くい", "いっ", "っく", "くぶ", "ぶら", "らう", "うん");
+            assertEquals(bigramHira, toTermString(FieldNamesConstants.ARTIST_EX, queryHira));
+            assertEquals(bigramHira, toTermString(FieldNamesConstants.ALBUM_EX, queryHira));
+            assertEquals(bigramHira, toTermString(FieldNamesConstants.TITLE_EX, queryHira));
 
-            // 1
-            String[] oneTokenStopOnlyFields = { FieldNamesConstants.ARTIST_EX };
-            Arrays.stream(oneTokenStopOnlyFields).forEach(n -> {
-                List<String> terms = toTermString(n, queryEng);
-                assertEquals(0, terms.size(), "oneTokenHira(Eng) : " + n);
-            });
-            Arrays.stream(oneTokenStopOnlyFields).forEach(n -> {
-                List<String> terms = toTermString(n, queryHira);
-                // Because different from legacy, which is a prefix match of tokens, and bigram is used.
-                assertEquals(7, terms.size(), "bigram(Hira) : " + n);
-            });
-            Arrays.stream(oneTokenStopOnlyFields).forEach(n -> {
-                List<String> terms = toTermString(n, queryStopsOnly);
-                // Because the Stopward-only case is currently omitted as rare-case
-                assertEquals(0, terms.size(), "Cut off :" + n);
-            });
-
+            String queryStopsOnly = "La La La"; // Currently omitted as rare-case
+            assertTrue(toTermString(FieldNamesConstants.ARTIST_EX, queryStopsOnly).isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.ALBUM_EX, queryStopsOnly).isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.TITLE_EX, queryStopsOnly).isEmpty());
         }
 
         /**
-         * Detailed tests on Punctuation. In addition to the common delimiters, there are many delimiters.
+         * In addition to the common delimiters, there are many delimiters.
          */
         @Test
         void testPunctuation1() {
 
             String query = "B︴C";
-            String expected1 = "b";
-            String expected2 = "c";
-            String expected3 = "bc";
 
-            Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
-                List<String> terms = toTermString(n, query);
-                switch (n) {
+            var tokenized = Arrays.asList("b", "c");
 
-                /*
-                 * In the legacy, these field divide input into 2. It is not necessary to delimit this field originally.
-                 */
-                case FieldNamesConstants.MEDIA_TYPE:
-                    assertEquals(2, terms.size(), "tokenized : " + n);
-                    assertEquals(expected1, terms.get(0), "tokenized : " + n);
-                    assertEquals(expected2, terms.get(1), "tokenized : " + n);
-                    break;
+            // Remains legacy specs. (It is not necessary to delimit this field originally.)
+            assertEquals(tokenized, toTermString(FieldNamesConstants.MEDIA_TYPE, query));
 
-                /*
-                 * What should the fields of this be? Generally discarded.
-                 */
-                case FieldNamesConstants.ARTIST:
-                case FieldNamesConstants.ALBUM:
-                case FieldNamesConstants.TITLE:
-                case FieldNamesConstants.COMPOSER:
-                    assertEquals(2, terms.size(), "tokenized : " + n);
-                    assertEquals(expected1, terms.get(0), "tokenized : " + n);
-                    assertEquals(expected2, terms.get(1), "tokenized : " + n);
-                    break;
+            assertEquals(tokenized, toTermString(FieldNamesConstants.ARTIST, query));
+            assertEquals(tokenized, toTermString(FieldNamesConstants.ALBUM, query));
+            assertEquals(tokenized, toTermString(FieldNamesConstants.TITLE, query));
+            assertEquals(tokenized, toTermString(FieldNamesConstants.COMPOSER, query));
+            assertEquals(tokenized, toTermString(FieldNamesConstants.FOLDER, query));
 
-                case FieldNamesConstants.TITLE_EX:
-                case FieldNamesConstants.ALBUM_EX:
-                case FieldNamesConstants.ARTIST_EX:
-                    assertEquals(0, terms.size(), "tokenized : " + n);
-                    break;
+            assertTrue(toTermString(FieldNamesConstants.TITLE_EX, query).isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.ALBUM_EX, query).isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.ARTIST_EX, query).isEmpty());
 
-                case FieldNamesConstants.ARTIST_READING:
-                case FieldNamesConstants.COMPOSER_READING:
-                    assertEquals(1, terms.size(), "tokenized : " + n);
-                    assertEquals(expected3, terms.get(0), "tokenized : " + n);
-                    break;
+            var bigram = Arrays.asList("bc");
+            assertEquals(bigram, toTermString(FieldNamesConstants.ARTIST_READING, query));
+            assertEquals(bigram, toTermString(FieldNamesConstants.COMPOSER_READING, query));
 
-                case FieldNamesConstants.FOLDER:
-                case FieldNamesConstants.GENRE:
-                case FieldNamesConstants.GENRE_KEY:
-                    assertEquals(1, terms.size(), "tokenized : " + n);
-                    assertEquals(query, terms.get(0), "tokenized : " + n);
-                    break;
-
-                /*
-                 * ID, FOLDER_ID, YEAR This is not a problem because the input value does not contain a delimiter.
-                 */
-                default:
-                    assertEquals(2, terms.size(), "tokenized : " + n);
-                    break;
-                }
-            });
+            var noChange = Arrays.asList("B︴C");
+            assertEquals(noChange, toTermString(FieldNamesConstants.GENRE, query));
+            assertEquals(noChange, toTermString(FieldNamesConstants.GENRE_KEY, query));
         }
 
-        /*
-         * Detailed tests on Punctuation. Many of the symbols are delimiters or target to be removed.
+        /**
+         * Many symbols are treated as delimiters.
          */
         @Test
         void testPunctuation2() {
@@ -194,12 +144,6 @@ class AnalyzerFactoryTest {
             Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
                 List<String> terms = toTermString(n, query);
                 switch (n) {
-                case FieldNamesConstants.MEDIA_TYPE:
-                case FieldNamesConstants.ARTIST:
-                case FieldNamesConstants.ALBUM:
-                case FieldNamesConstants.TITLE:
-                    assertEquals(0, terms.size(), "removed : " + n);
-                    break;
                 case FieldNamesConstants.FOLDER:
                 case FieldNamesConstants.GENRE:
                 case FieldNamesConstants.GENRE_KEY:
@@ -214,9 +158,7 @@ class AnalyzerFactoryTest {
         }
 
         /**
-         * Detailed tests on Stopward.
-         * 
-         * @see org.apache.lucene.analysis.StopAnalyzer#ENGLISH_STOP_WORDS_SET
+         * Japanese has a lot of Stopwards.
          */
         @Test
         void testStopward() {
@@ -226,115 +168,107 @@ class AnalyzerFactoryTest {
              */
             String queryArticle = "a an the";
 
+            var none = Collections.emptyList();
+            assertEquals(none, toTermString(FieldNamesConstants.ARTIST, queryArticle));
+            assertEquals(none, toTermString(FieldNamesConstants.MEDIA_TYPE, queryArticle));
+            assertEquals(none, toTermString(FieldNamesConstants.FOLDER, queryArticle));
+            assertEquals(none, toTermString(FieldNamesConstants.ALBUM, queryArticle));
+            assertEquals(none, toTermString(FieldNamesConstants.TITLE, queryArticle));
+            assertEquals(none, toTermString(FieldNamesConstants.ARTIST, queryArticle));
+            assertEquals(none, toTermString(FieldNamesConstants.ARTIST_READING, queryArticle));
+
+            var noChange = Arrays.asList(queryArticle);
+            assertEquals(noChange, toTermString(FieldNamesConstants.GENRE_KEY, queryArticle));
+            assertEquals(noChange, toTermString(FieldNamesConstants.GENRE, queryArticle));
+
             /*
-             * It is not included in the Java default stopword. Default set as Airsonic index stop word.
+             * It's not included in the Java default stopword. It's set as Airsonic index stopword.
              */
             String queryIndexArticle = "el la las le les";
+
+            none = Collections.emptyList();
+            assertEquals(none, toTermString(FieldNamesConstants.ARTIST, queryIndexArticle));
+            assertEquals(none, toTermString(FieldNamesConstants.MEDIA_TYPE, queryIndexArticle));
+            assertEquals(none, toTermString(FieldNamesConstants.FOLDER, queryIndexArticle));
+            assertEquals(none, toTermString(FieldNamesConstants.ALBUM, queryIndexArticle));
+            assertEquals(none, toTermString(FieldNamesConstants.TITLE, queryIndexArticle));
+            assertEquals(none, toTermString(FieldNamesConstants.ARTIST, queryIndexArticle));
+            assertEquals(none, toTermString(FieldNamesConstants.ARTIST_READING, queryIndexArticle));
+
+            noChange = Arrays.asList(queryIndexArticle);
+            assertEquals(noChange, toTermString(FieldNamesConstants.GENRE_KEY, queryIndexArticle));
+            assertEquals(noChange, toTermString(FieldNamesConstants.GENRE, queryIndexArticle));
 
             /*
              * Non-article in the default Stopward. In cases, it may be used for song names of 2 to 3 words. Stop words
              * are essential for newspapers and documents, but they are over-processed for song titles.
              */
             String queryNoStop = "and are as at be but by for if in into is it no not of on " //
-                    + "or such that their then there these they this to was will with";
+                    + "or such that their then there these they this to was will";
+            var noStop = Arrays.asList(queryNoStop.split(" "));
+            assertEquals(noStop, toTermString(FieldNamesConstants.ARTIST, queryNoStop));
+            assertEquals(noStop, toTermString(FieldNamesConstants.MEDIA_TYPE, queryNoStop));
+            assertEquals(noStop, toTermString(FieldNamesConstants.FOLDER, queryNoStop));
+            assertEquals(noStop, toTermString(FieldNamesConstants.ALBUM, queryNoStop));
+            assertEquals(noStop, toTermString(FieldNamesConstants.TITLE, queryNoStop));
+            assertEquals(noStop, toTermString(FieldNamesConstants.ARTIST, queryNoStop));
+            assertEquals(noStop, toTermString(FieldNamesConstants.ARTIST_READING, queryNoStop));
+
+            noChange = Arrays.asList(queryNoStop);
+            assertEquals(noChange, toTermString(FieldNamesConstants.GENRE_KEY, queryNoStop));
+            assertEquals(noChange, toTermString(FieldNamesConstants.GENRE, queryNoStop));
 
             /*
-             * Japanese Stopward. Like the English stopward, there may be cases of over-deletion in some cases. However,
-             * unlike the English stopward. Japanese Stopward is placed less frequently at the beginning of sentences.
+             * In newspapers and documents, it is often defined as a stop word, but in jpsonic it is not. However, in
+             * the artist field, it is defined as a stopward that represents featuring.
+             */
+            String queryLargelyNoStop = "with";
+            var largelyNoStop = Arrays.asList("with");
+            assertEquals(none, toTermString(FieldNamesConstants.ARTIST, queryLargelyNoStop));
+            assertEquals(none, toTermString(FieldNamesConstants.ARTIST_READING, queryLargelyNoStop));
+
+            assertEquals(largelyNoStop, toTermString(FieldNamesConstants.MEDIA_TYPE, queryLargelyNoStop));
+            assertEquals(largelyNoStop, toTermString(FieldNamesConstants.FOLDER, queryLargelyNoStop));
+            assertEquals(largelyNoStop, toTermString(FieldNamesConstants.ALBUM, queryLargelyNoStop));
+            assertEquals(largelyNoStop, toTermString(FieldNamesConstants.TITLE, queryLargelyNoStop));
+            assertEquals(largelyNoStop, toTermString(FieldNamesConstants.GENRE_KEY, queryLargelyNoStop));
+            assertEquals(largelyNoStop, toTermString(FieldNamesConstants.GENRE, queryLargelyNoStop));
+
+            /*
+             * Typical Japanese Stopward. These measures were necessary when using subsonic/airsonic multi-term search
+             * to avoid false searches. In the case of phrase search, it is better not to delete it. (Conversely, search
+             * omission occurs due to excessive deletion)
              */
             String queryJpStop = "の に は を た が で て と し れ さ ある いる も する から な こと として い " //
-                    + "や れる など なっ ない この ため その あっ よう また もの という あり まで " //
+                    + "や れる など なっ ない この ため その あっ よう また もの あり まで " //
                     + "られ なる へ か だ これ によって により おり より による ず なり られる において " //
-                    + "ば なかっ なく しかし について せ だっ その後 できる それ う ので なお のみ でき き " //
-                    + "つ における および いう さらに でも ら たり その他 に関する たち ます ん なら に対して " //
-                    + "特に せる 及び これら とき では にて ほか ながら うち そして とともに ただし かつて " //
-                    + "それぞれ または お ほど ものの に対する ほとんど と共に といった です とも" //
-                    + " ところ ここ"; //
+                    + "ば なかっ なく しかし について せ だっ できる それ う ので なお のみ でき き " //
+                    + "つ における および いう さらに でも ら たり たち ます ん なら";
 
-            Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
-                List<String> articleTerms = toTermString(n, queryArticle);
-                List<String> indexArticleTerms = toTermString(n, queryIndexArticle);
-                List<String> noStopTerms = toTermString(n, queryNoStop);
-                List<String> jpStopTerms = toTermString(n, queryJpStop);
-                switch (n) {
-                case FieldNamesConstants.FOLDER:
-                case FieldNamesConstants.MEDIA_TYPE:
-                case FieldNamesConstants.GENRE_KEY:
-                    assertEquals(1, articleTerms.size(), "through : " + n);
-                    assertEquals(queryArticle, articleTerms.get(0), "through : " + n);
-                    assertEquals(1, indexArticleTerms.size(), "through : " + n);
-                    assertEquals(queryIndexArticle, indexArticleTerms.get(0), "through : " + n);
-                    assertEquals(1, noStopTerms.size(), "through : " + n);
-                    assertEquals(queryNoStop, noStopTerms.get(0), "through : " + n);
-                    assertEquals(1, jpStopTerms.size(), "through : " + n);
-                    assertEquals(queryJpStop, jpStopTerms.get(0), "through : " + n);
-                    break;
-                case FieldNamesConstants.GENRE:
-                    assertEquals(1, articleTerms.size(), "through : " + n);
-                    assertEquals(queryArticle, articleTerms.get(0), "through : " + n);
-                    assertEquals(1, indexArticleTerms.size(), "through : " + n);
-                    assertEquals(queryIndexArticle, indexArticleTerms.get(0), "through : " + n);
-                    assertEquals(1, noStopTerms.size(), "through : " + n);
-                    assertEquals(queryNoStop, noStopTerms.get(0), "through : " + n);
-                    // false positives?
-                    assertEquals(2, jpStopTerms.size(), "??????? : " + n);
-                    assertEquals(
-                            "の に は を た が で て と し れ さ ある いる も する から な こと として い や れる など なっ ない この ため その あっ よう また もの という あり まで られ なる へ か だ これ によって により おり より による ず なり られる において ば なかっ なく しかし について せ だっ その後 できる それ う ので なお のみ でき き つ における および いう さらに でも ら たり その他 に関する たち ます ん なら に対して 特に せる 及び これら",
-                            jpStopTerms.get(0), "??????? : " + n);
-                    assertEquals(
-                            " とき では にて ほか ながら うち そして とともに ただし かつて それぞれ または お ほど ものの に対する ほとんど と共に といった です とも ところ ここ",
-                            jpStopTerms.get(1), "??????? : " + n);
-                    break;
-                case FieldNamesConstants.ALBUM:
-                case FieldNamesConstants.TITLE:
-                    assertEquals(0, articleTerms.size(), "apply : " + n);
-                    assertEquals(0, indexArticleTerms.size(), "apply : " + n);
-                    assertEquals(30, noStopTerms.size(), "through : " + n);
-                    assertEquals(110, jpStopTerms.size(), "apply : " + n); // XXX Legacy(0) -> Phrase(110)
-                    break;
-                case FieldNamesConstants.ARTIST:
-                    assertEquals(0, articleTerms.size(), "apply : " + n);
-                    assertEquals(0, indexArticleTerms.size(), "apply : " + n);
-                    assertEquals(29, noStopTerms.size(), "through : " + n); // with is removed
-                    assertEquals(110, jpStopTerms.size(), "apply : " + n); // XXX Legacy(53) -> Phrase(110)
-                    break;
-                case FieldNamesConstants.ARTIST_READING:
-                    assertEquals(0, articleTerms.size(), "article : " + n);
-                    assertEquals(0, indexArticleTerms.size(), "indexArticle : " + n);
-                    assertEquals(29, noStopTerms.size(), "noStop : " + n); // with is removed
-                    assertEquals(152, jpStopTerms.size(), "jpStop : " + n); // XXX Legacy(109) -> Phrase(152)
-                    break;
+            var noChange1 = Arrays.asList(queryJpStop.split(" "));
+            assertEquals(noChange1, toTermString(FieldNamesConstants.TITLE, queryJpStop));
+            assertEquals(noChange1, toTermString(FieldNamesConstants.FOLDER, queryJpStop));
+            assertEquals(noChange1, toTermString(FieldNamesConstants.ALBUM, queryJpStop));
+            assertEquals(noChange1, toTermString(FieldNamesConstants.ARTIST, queryJpStop));
+            assertEquals(noChange1, toTermString(FieldNamesConstants.MEDIA_TYPE, queryJpStop));
 
-                default:
-                    break;
-                }
-            });
-
-            Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
-                // to be affected by other filters
-                switch (n) {
-                case FieldNamesConstants.ARTIST_EX:
-                case FieldNamesConstants.ALBUM_EX:
-                case FieldNamesConstants.TITLE_EX:
-                    // #482 No longer used
-                    break;
-                default:
-                    break;
-                }
-            });
+            var noChange2 = Arrays.asList(queryJpStop);
+            assertEquals(noChange2, toTermString(FieldNamesConstants.GENRE_KEY, queryJpStop));
+            assertEquals(noChange2, toTermString(FieldNamesConstants.GENRE, queryJpStop));
         }
 
         /**
-         * Detailed tests on Artist Stopward.
+         * The Artist field has a special Stopward. When Jpsonic reads multi-artist format data, an index is created for
+         * each individual artist. Names connected by "feat" or "with" are treated as one artist in total.
          */
         @Test
         void testArtistStopward() {
-            assertEquals(0, toTermString(FieldNamesConstants.ARTIST, "CV").size());
-            assertEquals(0, toTermString(FieldNamesConstants.ARTIST, "feat").size());
-            assertEquals(0, toTermString(FieldNamesConstants.ARTIST, "with").size());
-            assertEquals(0, toTermString(FieldNamesConstants.ARTIST_READING, "CV").size());
-            assertEquals(0, toTermString(FieldNamesConstants.ARTIST_READING, "feat").size());
-            assertEquals(0, toTermString(FieldNamesConstants.ARTIST_READING, "with").size());
+            assertTrue(toTermString(FieldNamesConstants.ARTIST, "CV").isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.ARTIST, "feat").isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.ARTIST, "with").isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.ARTIST_READING, "CV").isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.ARTIST_READING, "feat").isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.ARTIST_READING, "with").isEmpty());
         }
 
         /**
@@ -343,10 +277,8 @@ class AnalyzerFactoryTest {
         @Test
         void testFullWidth() {
             String query = "ＦＵＬＬ－ＷＩＤＴＨ";
-            List<String> terms = toTermString(query);
-            assertEquals(2, terms.size());
-            assertEquals("full", terms.get(0));
-            assertEquals("width", terms.get(1));
+            var tokenized = Arrays.asList("full", "width");
+            assertEquals(tokenized, toTermString(query));
         }
 
         /**
@@ -356,36 +288,13 @@ class AnalyzerFactoryTest {
         void testStopwardAndFullWidth() {
 
             /*
-             * Stop word is removed.
+             * Stopwords are deleted in both full-width and half-width. Legacy servers had problems around here.
              */
             String queryHalfWidth = "THIS IS FULL-WIDTH SENTENCES.";
-            List<String> terms = toTermString(queryHalfWidth);
-            assertEquals(5, terms.size());
-            assertEquals("this", terms.get(0)); // removal target is ignored
-            assertEquals("is", terms.get(1));
-            assertEquals("full", terms.get(2));
-            assertEquals("width", terms.get(3));
-            assertEquals("sentences", terms.get(4));
-
-            /*
-             * Legacy can avoid Stopward if it is full width. It is unclear whether it is a specification or not.
-             * (Problems due to a defect in filter application order? or Is it popular in English speaking countries?)
-             */
             String queryFullWidth = "ＴＨＩＳ　ＩＳ　ＦＵＬＬ－ＷＩＤＴＨ　ＳＥＮＴＥＮＣＥＳ.";
-            terms = toTermString(queryFullWidth);
-            /*
-             * XXX 3.x -> 8.x :
-             * 
-             * This is not a change due to the library but an intentional change. The filter order has been changed
-             * properly as it is probably not a deliberate specification.
-             */
-            assertEquals(5, terms.size());
-            assertEquals("this", terms.get(0)); // removal target is ignored
-            assertEquals("is", terms.get(1));
-            assertEquals("full", terms.get(2));
-            assertEquals("width", terms.get(3));
-            assertEquals("sentences", terms.get(4));
-
+            var tokenized = Arrays.asList("this", "is", "full", "width", "sentences");
+            assertEquals(tokenized, toTermString(queryHalfWidth));
+            assertEquals(tokenized, toTermString(queryFullWidth));
         }
 
         /**
@@ -396,59 +305,50 @@ class AnalyzerFactoryTest {
         @Test
         void testASCIIFoldingStop() {
 
-            // Filter operation check only. Verify only some settings.
             String query = "Cæsarシーザー";
-            String expected1a = "caesar";
-            String expected1b = "シーザー";
-            String expected3 = "Caesarシーザー";
 
-            Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
-                List<String> terms = toTermString(n, query);
-                switch (n) {
-                case FieldNamesConstants.TITLE_EX:
-                case FieldNamesConstants.ALBUM_EX:
-                case FieldNamesConstants.ARTIST_EX:
-                    assertEquals(0, terms.size(), "no case : " + n);
-                    break;
-                case FieldNamesConstants.FOLDER:
-                case FieldNamesConstants.GENRE_KEY:
-                case FieldNamesConstants.MEDIA_TYPE:
-                    assertEquals(1, terms.size(), "through : " + n);
-                    assertEquals(query, terms.get(0), "through : " + n);
-                    break;
-                case FieldNamesConstants.ARTIST_READING:
-                    assertEquals(4, terms.size(), "apply : " + n);
-                    assertEquals("caesar", terms.get(0), "apply : " + n);
-                    assertEquals("しい", terms.get(1), "apply : " + n);
-                    assertEquals("ーざ", terms.get(2), "apply : " + n);
-                    assertEquals("ざあ", terms.get(3), "apply : " + n);
-                    break;
-                case FieldNamesConstants.GENRE:
-                    assertEquals(1, terms.size(), "apply : " + n);
-                    assertEquals(expected3, terms.get(0), "apply : " + n);
-                    break;
-                case FieldNamesConstants.ARTIST:
-                case FieldNamesConstants.ALBUM:
-                case FieldNamesConstants.TITLE:
-                    assertEquals(2, terms.size(), "apply : " + n);
-                    assertEquals(expected1a, terms.get(0), "apply : " + n);
-                    assertEquals(expected1b, terms.get(1), "apply : " + n);
-                    break;
-                default:
-                    break;
-                }
-            });
+            // Since it is a field for completion, the index is not created unless it is a special case.
+            var none = Collections.emptyList();
+            assertEquals(none, toTermString(FieldNamesConstants.TITLE_EX, query));
+            assertEquals(none, toTermString(FieldNamesConstants.ALBUM_EX, query));
+            assertEquals(none, toTermString(FieldNamesConstants.ARTIST_EX, query));
+
+            /*
+             * Key field. This string can be used to search for records in the database. In Jpsonic, multi-genre is
+             * reproduced on Lucene. Searches for individual genres use database records via this key
+             */
+            var noChange = Arrays.asList("Cæsarシーザー");
+            assertEquals(noChange, toTermString(FieldNamesConstants.GENRE_KEY, query));
+
+            // Treat as one word with normalization
+            var normalized = Arrays.asList("Caesarシーザー");
+            assertEquals(normalized, toTermString(FieldNamesConstants.GENRE, query));
+
+            // Fields with simple word splits
+            var tokenized = Arrays.asList("caesar", "シーザー");
+            assertEquals(tokenized, toTermString(FieldNamesConstants.FOLDER, query));
+            assertEquals(tokenized, toTermString(FieldNamesConstants.MEDIA_TYPE, query));
+            assertEquals(tokenized, toTermString(FieldNamesConstants.ARTIST, query));
+            assertEquals(tokenized, toTermString(FieldNamesConstants.ALBUM, query));
+            assertEquals(tokenized, toTermString(FieldNamesConstants.TITLE, query));
+
+            /*
+             * Fields where bigram is used. Especially in this case it contains Long vowels. In the case of Japanese,
+             * processing is insufficient in morphological analysis to support voice input.
+             */
+            var bigram = Arrays.asList("caesar", "しい", "ーざ", "ざあ");
+            assertEquals(bigram, toTermString(FieldNamesConstants.ARTIST_READING, query));
         }
 
-        /*
-         * Applies to all except FOLDER, GENRE, MEDIA_TYPE.
+        /**
+         * This applies to everything except FOLDER, GENRE and MEDIA_TYPE.
          */
         @Test
         void testJapanesePartOfSpeechStop() {
 
-            // Filter operation check only. Verify only some settings.
             String query = "{'“『【【】】[○◎@ $〒→+]";
-            String expected1 = "{'\"『【【】】[○◎@ $〒→+]";
+            String genreExpected = "{'\"『【【】】[○◎@ $〒→+]";
+
             Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
                 List<String> terms = toTermString(n, query);
                 switch (n) {
@@ -462,7 +362,7 @@ class AnalyzerFactoryTest {
                 case FieldNamesConstants.GENRE:
                     // Some character strings are replaced within the range that does not affect display
                     assertEquals(1, terms.size(), "through : " + n);
-                    assertEquals(expected1, terms.get(0), "apply : " + n);
+                    assertEquals(genreExpected, terms.get(0), "apply : " + n);
                     break;
                 default:
                     // Strings not relevant to the search are removed
@@ -472,99 +372,69 @@ class AnalyzerFactoryTest {
             });
         }
 
-        /*
-         * Applies to all except FOLDER, GENRE, MEDIA_TYPE.
+        /**
+         * Related Half-width . This applies to everything except FOLDER, GENRE, MEDIA_TYPE. Affects search accuracy
+         * when Japanese Half-width letters are included.
          */
         @Test
         void testCJKWidth() {
+
             String query = "ＡＢＣａｂｃｱｲｳ";
-            String apply1 = "ABCabcアイウ";
-            String apply1a = "abcabc";
-            String apply1b = "アイウ";
-            String query2 = "ぁぃぅ";
-            Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
-                List<String> terms = toTermString(n, query);
-                switch (n) {
-                case FieldNamesConstants.ARTIST_EX:
-                    assertEquals(0, terms.size(), "no case : " + n);
-                    break;
-                case FieldNamesConstants.FOLDER:
-                case FieldNamesConstants.MEDIA_TYPE:
-                case FieldNamesConstants.GENRE_KEY:
-                    assertEquals(1, terms.size(), "through : " + n);
-                    assertEquals(query, terms.get(0), "through : " + n);
-                    break;
-                case FieldNamesConstants.GENRE:
-                    assertEquals(1, terms.size(), "apply : " + n);
-                    assertEquals(apply1, terms.get(0), "apply : " + n);
-                    break;
-                case FieldNamesConstants.TITLE_EX:
-                case FieldNamesConstants.ALBUM_EX:
-                    terms = toTermString(n, query2);
-                    assertEquals(2, terms.size(), "no case : " + n);
-                    assertEquals("ぁぃ", terms.get(0), "bigram : " + n);
-                    assertEquals("ぃぅ", terms.get(1), "bigram : " + n);
-                    break;
-                case FieldNamesConstants.ARTIST_READING:
-                    assertEquals(3, terms.size(), "apply : " + n);
-                    assertEquals(apply1a, terms.get(0), "apply : " + n);
-                    assertEquals("あい", terms.get(1), "apply : " + n);
-                    assertEquals("いう", terms.get(2), "apply : " + n);
-                    break;
-                case FieldNamesConstants.ARTIST:
-                case FieldNamesConstants.ALBUM:
-                case FieldNamesConstants.TITLE:
-                    assertEquals(2, terms.size(), "apply : " + n);
-                    assertEquals(apply1a, terms.get(0), "apply : " + n);
-                    assertEquals(apply1b, terms.get(1), "apply : " + n);
-                    break;
-                default:
-                    break;
-                }
-            });
+
+            var noChange = Arrays.asList(query);
+            assertEquals(noChange, toTermString(FieldNamesConstants.GENRE_KEY, query));
+
+            var normalized = Arrays.asList("ABCabcアイウ");
+            assertEquals(normalized, toTermString(FieldNamesConstants.GENRE, query));
+
+            var normalizedToken = Arrays.asList("abcabc", "アイウ");
+            assertEquals(normalizedToken, toTermString(FieldNamesConstants.FOLDER, query));
+            assertEquals(normalizedToken, toTermString(FieldNamesConstants.MEDIA_TYPE, query));
+            assertEquals(normalizedToken, toTermString(FieldNamesConstants.ARTIST, query));
+            assertEquals(normalizedToken, toTermString(FieldNamesConstants.ALBUM, query));
+            assertEquals(normalizedToken, toTermString(FieldNamesConstants.TITLE, query));
+
+            var normalizedBigram = Arrays.asList("abcabc", "あい", "いう");
+            assertEquals(normalizedBigram, toTermString(FieldNamesConstants.ARTIST_READING, query));
+
+            // Since it is a field for completion, the index is not created unless it is a special case.
+            var none = Collections.emptyList();
+            assertEquals(none, toTermString(FieldNamesConstants.ARTIST_EX, query));
+            assertEquals(none, toTermString(FieldNamesConstants.TITLE_EX, query));
+            assertEquals(none, toTermString(FieldNamesConstants.ALBUM_EX, query));
+
+            // Cases where complementary fields work
+            String queryLowerHalfHiraganaOnly = "ぁぃぅ";
+            var lowerHalfHiraganaBigram = Arrays.asList("ぁぃ", "ぃぅ");
+            assertEquals(lowerHalfHiraganaBigram,
+                    toTermString(FieldNamesConstants.ARTIST_EX, queryLowerHalfHiraganaOnly));
+            assertEquals(lowerHalfHiraganaBigram,
+                    toTermString(FieldNamesConstants.TITLE_EX, queryLowerHalfHiraganaOnly));
+            assertEquals(lowerHalfHiraganaBigram,
+                    toTermString(FieldNamesConstants.ALBUM_EX, queryLowerHalfHiraganaOnly));
         }
 
-        /**
-         * Detailed tests on LowerCase.
-         */
         @Test
         void testLowerCase() {
 
-            // Filter operation check only. Verify only some settings.
             String query = "ABCDEFGふ";
-            String expected1a = "abcdefg";
-            String expected1b = "ふ";
 
-            Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
-                List<String> terms = toTermString(n, query);
-                switch (n) {
-                case FieldNamesConstants.TITLE_EX:
-                case FieldNamesConstants.ALBUM_EX:
-                case FieldNamesConstants.ARTIST_EX:
-                    assertEquals(0, terms.size(), "no case : " + n);
-                    break;
-                case FieldNamesConstants.FOLDER:
-                case FieldNamesConstants.GENRE:
-                case FieldNamesConstants.MEDIA_TYPE:
-                    assertEquals(1, terms.size(), "through : " + n);
-                    assertEquals(query, terms.get(0), "through : " + n);
-                    break;
-                case FieldNamesConstants.ARTIST_READING:
-                    assertEquals(2, terms.size(), "apply : " + n);
-                    assertEquals("abcdefg", terms.get(0), "apply : " + n);
-                    assertEquals("ふ", terms.get(1), "apply : " + n);
-                    break;
-                case FieldNamesConstants.ARTIST:
-                case FieldNamesConstants.ALBUM:
-                case FieldNamesConstants.TITLE:
-                    assertEquals(2, terms.size(), "apply : " + n);
-                    assertEquals(expected1a, terms.get(0), "apply : " + n);
-                    assertEquals(expected1b, terms.get(1), "apply : " + n);
-                    break;
-                default:
-                    break;
-                }
-            });
+            // Since it is a field for completion, the index is not created unless it is a special case.
+            var none = Collections.emptyList();
+            assertEquals(none, toTermString(FieldNamesConstants.TITLE_EX, query));
+            assertEquals(none, toTermString(FieldNamesConstants.ALBUM_EX, query));
+            assertEquals(none, toTermString(FieldNamesConstants.ARTIST_EX, query));
+
+            var noChange = Arrays.asList(query);
+            assertEquals(noChange, toTermString(FieldNamesConstants.GENRE, query));
+
+            var tokenized = Arrays.asList("abcdefg", "ふ");
+            assertEquals(tokenized, toTermString(FieldNamesConstants.FOLDER, query));
+            assertEquals(tokenized, toTermString(FieldNamesConstants.MEDIA_TYPE, query));
+            assertEquals(tokenized, toTermString(FieldNamesConstants.ARTIST_READING, query));
+            assertEquals(tokenized, toTermString(FieldNamesConstants.ARTIST, query));
+            assertEquals(tokenized, toTermString(FieldNamesConstants.ALBUM, query));
+            assertEquals(tokenized, toTermString(FieldNamesConstants.TITLE, query));
         }
 
         /**
@@ -575,35 +445,36 @@ class AnalyzerFactoryTest {
         @Test
         void testLuceneEscapeRequires() {
 
-            String escapeRequires = "+-&&||!(){}[]^\"~*?:\\/";
-            String fileUsable = "+-&&!(){}[]^~";
+            String query = "+-&&||!(){}[]^\"~*?:\\/";
 
-            Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
-                List<String> terms = toTermString(n, escapeRequires);
-                // TODO These fields handle escape strings as they are.
-                if (FieldNamesConstants.FOLDER.equals(n) || FieldNamesConstants.GENRE_KEY.equals(n)) {
-                    assertEquals(1, terms.size(), "through : " + n);
-                    assertEquals(escapeRequires, terms.get(0), "through : " + n);
-                    terms = toTermString(n, fileUsable);
-                    assertEquals(1, terms.size(), "through : " + n);
-                    assertEquals(fileUsable, terms.get(0), "through : " + n);
-                } else if (FieldNamesConstants.GENRE.equals(n)) {
-                    // XXX @see AnalyzerFactory#addTokenFilterForTokenToDomainValue
-                    assertEquals(1, terms.size(), "through : " + n);
-                    assertEquals("+-&&||! { }[ ]^\"~*?:\\/", terms.get(0), "through : " + n);
-                    terms = toTermString(n, fileUsable);
-                    assertEquals(1, terms.size(), "through : " + n);
-                    assertEquals("+-&&! { }[ ]^~", terms.get(0), "through : " + n);
-                } else {
-                    // Strings that require escape for most fields are removed during parsing.
-                    assertEquals(0, terms.size(), "trancate : " + n);
-                }
-            });
+            var noChange = Arrays.asList(query);
+            assertEquals(noChange, toTermString(FieldNamesConstants.GENRE_KEY, query));
 
+            // Special processing is applied to parentheses in the Genre field
+            var domainValue = Arrays.asList("+-&&||! { }[ ]^\"~*?:\\/");
+            assertEquals(domainValue, toTermString(FieldNamesConstants.GENRE, query));
+
+            var none = Collections.emptyList();
+            assertEquals(none, toTermString(FieldNamesConstants.ALBUM, query));
+            assertEquals(none, toTermString(FieldNamesConstants.ALBUM_EX, query));
+            assertEquals(none, toTermString(FieldNamesConstants.ARTIST, query));
+            assertEquals(none, toTermString(FieldNamesConstants.ARTIST_EX, query));
+            assertEquals(none, toTermString(FieldNamesConstants.ARTIST_READING, query));
+            assertEquals(none, toTermString(FieldNamesConstants.COMPOSER, query));
+            assertEquals(none, toTermString(FieldNamesConstants.COMPOSER_READING, query));
+            assertEquals(none, toTermString(FieldNamesConstants.FOLDER, query));
+            assertEquals(none, toTermString(FieldNamesConstants.FOLDER_ID, query));
+            assertEquals(none, toTermString(FieldNamesConstants.ID, query));
+            assertEquals(none, toTermString(FieldNamesConstants.MEDIA_TYPE, query));
+            assertEquals(none, toTermString(FieldNamesConstants.TITLE, query));
+            assertEquals(none, toTermString(FieldNamesConstants.TITLE_EX, query));
+            assertEquals(none, toTermString(FieldNamesConstants.YEAR, query));
         }
 
         /**
-         * Create an example that makes UAX 29 differences easy to understand.
+         * Create an example that makes UAX 29 differences easy to understand. The delimiter position changes depending
+         * on the version of Lucene (before and after supporting UAX). Also, in Japanese Analyzer, the before and after
+         * of the numbers are separated. Jpsonic treats underscores as delimiters.(Same as Subsonic)
          */
         @Test
         void testUax29() {
@@ -614,161 +485,80 @@ class AnalyzerFactoryTest {
 
             // Semicolon, comma and hyphen.
             String query = "Bach: Goldberg Variations, BWV 988 - Aria";
-            List<String> terms = toTermString(query);
-            assertEquals(6, terms.size());
-            assertEquals("bach", terms.get(0));
-            assertEquals("goldberg", terms.get(1));
-            assertEquals("variations", terms.get(2));
-            assertEquals("bwv", terms.get(3));
-            assertEquals("988", terms.get(4));
-            assertEquals("aria", terms.get(5));
+            var terms = Arrays.asList("bach", "goldberg", "variations", "bwv", "988", "aria");
+            assertEquals(terms, toTermString(query));
 
             // Underscores around words, ascii and semicolon.
             query = "_ID3_ARTIST_ Céline Frisch: Café Zimmermann";
-            terms = toTermString(query);
-            assertEquals(7, terms.size());
-            assertEquals("id", terms.get(0));
-            assertEquals("3", terms.get(1));
-            assertEquals("artist", terms.get(2));
-            assertEquals("celine", terms.get(3));
-            assertEquals("frisch", terms.get(4));
-            assertEquals("cafe", terms.get(5));
-            assertEquals("zimmermann", terms.get(6));
+            terms = Arrays.asList("id", "3", "artist", "celine", "frisch", "cafe", "zimmermann");
+            assertEquals(terms, toTermString(query));
 
             // Underscores around words and slashes.
             query = "_ID3_ARTIST_ Sarah Walker/Nash Ensemble";
-            terms = toTermString(query);
-            assertEquals(7, terms.size());
-            assertEquals("id", terms.get(0));
-            assertEquals("3", terms.get(1));
-            assertEquals("artist", terms.get(2));
-            assertEquals("sarah", terms.get(3));
-            assertEquals("walker", terms.get(4));
-            assertEquals("nash", terms.get(5));
-            assertEquals("ensemble", terms.get(6));
+            terms = Arrays.asList("id", "3", "artist", "sarah", "walker", "nash", "ensemble");
+            assertEquals(terms, toTermString(query));
 
             // Space
-            assertEquals(asList("abc", "def"), toTermString(" ABC DEF "));
-            assertEquals(asList("abc", "1", "def"), toTermString(" ABC1 DEF ")); // XXX standard -> jp : abc1 def -> abc
-                                                                                 // 1
-                                                                                 // def
+            query = " ABC DEF ";
+            terms = Arrays.asList("abc", "def");
+            assertEquals(terms, toTermString(query));
+            query = " ABC1 DEF ";
+            terms = Arrays.asList("abc", "1", "def");
+            assertEquals(terms, toTermString(query));
 
-            // trim and delimiter
-            assertEquals(asList("abc", "def"), toTermString("+ABC+DEF+"));
-            assertEquals(asList("abc", "def"), toTermString("|ABC|DEF|"));
-            assertEquals(asList("abc", "def"), toTermString("!ABC!DEF!"));
-            assertEquals(asList("abc", "def"), toTermString("(ABC(DEF("));
-            assertEquals(asList("abc", "def"), toTermString(")ABC)DEF)"));
-            assertEquals(asList("abc", "def"), toTermString("{ABC{DEF{"));
-            assertEquals(asList("abc", "def"), toTermString("}ABC}DEF}"));
-            assertEquals(asList("abc", "def"), toTermString("[ABC[DEF["));
-            assertEquals(asList("abc", "def"), toTermString("]ABC]DEF]"));
-            assertEquals(asList("abc", "def"), toTermString("^ABC^DEF^"));
-            assertEquals(asList("abc", "def"), toTermString("\\ABC\\DEF\\"));
-            assertEquals(asList("abc", "def"), toTermString("\"ABC\"DEF\""));
-            assertEquals(asList("abc", "def"), toTermString("~ABC~DEF~"));
-            assertEquals(asList("abc", "def"), toTermString("*ABC*DEF*"));
-            assertEquals(asList("abc", "def"), toTermString("?ABC?DEF?"));
-            assertEquals(asList("abc", "def"), toTermString(":ABC:DEF:")); // XXX 3.x -> 8.x : abc def -> abc:def // XXX
-                                                                           // standard -> jp : abc:def -> abc def
-            assertEquals(asList("abc", "def"), toTermString("-ABC-DEF-"));
-            assertEquals(asList("abc", "def"), toTermString("/ABC/DEF/"));
-            /*
-             * XXX 3.x -> 8.x : _abc_def_ in UAX#29. Since the effect is large, trim with Filter.
-             */
-            assertEquals(asList("abc", "def"), toTermString("_ABC_DEF_")); // XXX 3.x -> 8.x : abc def -> abc_def // XXX
-                                                                           // standard -> jp : abc_def -> abc def
-            assertEquals(asList("abc", "def"), toTermString(",ABC,DEF,"));
-            assertEquals(asList("abc", "def"), toTermString(".ABC.DEF.")); // XXX standard -> jp : abc.def -> abc def
-            assertEquals(asList("abc", "def"), toTermString("&ABC&DEF&")); // XXX 3.x -> 8.x : abc&def -> abc def
-            assertEquals(asList("abc", "def"), toTermString("@ABC@DEF@")); // XXX 3.x -> 8.x : abc@def -> abc def
-            assertEquals(asList("abc", "def"), toTermString("'ABC'DEF'")); // XXX standard -> jp : abc'def -> abc def
+            // Delimiter and words
+            terms = Arrays.asList("abc", "def");
+            assertEquals(terms, toTermString("+ABC+DEF+"));
+            assertEquals(terms, toTermString("|ABC|DEF|"));
+            assertEquals(terms, toTermString("!ABC!DEF!"));
+            assertEquals(terms, toTermString("(ABC(DEF("));
+            assertEquals(terms, toTermString(")ABC)DEF)"));
+            assertEquals(terms, toTermString("{ABC{DEF{"));
+            assertEquals(terms, toTermString("}ABC}DEF}"));
+            assertEquals(terms, toTermString("[ABC[DEF["));
+            assertEquals(terms, toTermString("]ABC]DEF]"));
+            assertEquals(terms, toTermString("^ABC^DEF^"));
+            assertEquals(terms, toTermString("\\ABC\\DEF\\"));
+            assertEquals(terms, toTermString("\"ABC\"DEF\""));
+            assertEquals(terms, toTermString("~ABC~DEF~"));
+            assertEquals(terms, toTermString("*ABC*DEF*"));
+            assertEquals(terms, toTermString("?ABC?DEF?"));
+            assertEquals(terms, toTermString(":ABC:DEF:"));
+            assertEquals(terms, toTermString("-ABC-DEF-"));
+            assertEquals(terms, toTermString("/ABC/DEF/"));
+            assertEquals(terms, toTermString("_ABC_DEF_"));
+            assertEquals(terms, toTermString(",ABC,DEF,"));
+            assertEquals(terms, toTermString(".ABC.DEF."));
+            assertEquals(terms, toTermString("&ABC&DEF&"));
+            assertEquals(terms, toTermString("@ABC@DEF@"));
+            assertEquals(terms, toTermString("'ABC'DEF'"));
 
-            // trim and delimiter and number
-            assertEquals(asList("abc", "1", "def"), toTermString("+ABC1+DEF+")); // XXX standard -> jp : abc1 def -> abc
-                                                                                 // 1
-                                                                                 // def
-            assertEquals(asList("abc", "1", "def"), toTermString("|ABC1|DEF|")); // XXX standard -> jp : abc1 def -> abc
-                                                                                 // 1
-                                                                                 // def
-            assertEquals(asList("abc", "1", "def"), toTermString("!ABC1!DEF!")); // XXX standard -> jp : abc1 def -> abc
-                                                                                 // 1
-                                                                                 // def
-            assertEquals(asList("abc", "1", "def"), toTermString("(ABC1(DEF(")); // XXX standard -> jp : abc1 def -> abc
-                                                                                 // 1
-                                                                                 // def
-            assertEquals(asList("abc", "1", "def"), toTermString(")ABC1)DEF)")); // XXX standard -> jp : abc1 def -> abc
-                                                                                 // 1
-                                                                                 // def
-            assertEquals(asList("abc", "1", "def"), toTermString("{ABC1{DEF{")); // XXX standard -> jp : abc1 def -> abc
-                                                                                 // 1
-                                                                                 // def
-            assertEquals(asList("abc", "1", "def"), toTermString("}ABC1}DEF}")); // XXX standard -> jp : abc1 def -> abc
-                                                                                 // 1
-                                                                                 // def
-            assertEquals(asList("abc", "1", "def"), toTermString("[ABC1[DEF[")); // XXX standard -> jp : abc1 def -> abc
-                                                                                 // 1
-                                                                                 // def
-            assertEquals(asList("abc", "1", "def"), toTermString("]ABC1]DEF]")); // XXX standard -> jp : abc1 def -> abc
-                                                                                 // 1
-                                                                                 // def
-            assertEquals(asList("abc", "1", "def"), toTermString("^ABC1^DEF^")); // XXX standard -> jp : abc1 def -> abc
-                                                                                 // 1
-                                                                                 // def
-            assertEquals(asList("abc", "1", "def"), toTermString("\\ABC1\\DEF\\")); // XXX standard -> jp : abc1 def ->
-                                                                                    // abc
-                                                                                    // 1 def
-            assertEquals(asList("abc", "1", "def"), toTermString("\"ABC1\"DEF\"")); // XXX standard -> jp : abc1 def ->
-                                                                                    // abc
-                                                                                    // 1 def
-            assertEquals(asList("abc", "1", "def"), toTermString("~ABC1~DEF~")); // XXX standard -> jp : abc1 def -> abc
-                                                                                 // 1
-                                                                                 // def
-            assertEquals(asList("abc", "1", "def"), toTermString("*ABC1*DEF*")); // XXX standard -> jp : abc1 def -> abc
-                                                                                 // 1
-                                                                                 // def
-            assertEquals(asList("abc", "1", "def"), toTermString("?ABC1?DEF?")); // XXX standard -> jp : abc1 def -> abc
-                                                                                 // 1
-                                                                                 // def
-            assertEquals(asList("abc", "1", "def"), toTermString(":ABC1:DEF:")); // XXX standard -> jp : abc1 def -> abc
-                                                                                 // 1
-                                                                                 // def
-            assertEquals(asList("abc", "1", "def"), toTermString(",ABC1,DEF,")); // XXX 3.x -> 8.x : abc1,def -> abc1
-                                                                                 // def //
-                                                                                 // XXX standard -> jp : abc1 def -> abc
-                                                                                 // 1
-                                                                                 // def
-            assertEquals(asList("abc", "1", "def"), toTermString("-ABC1-DEF-")); // XXX 3.x -> 8.x : abc1-def -> abc1
-                                                                                 // def //
-                                                                                 // XXX standard -> jp : abc1 def -> abc
-                                                                                 // 1
-                                                                                 // def
-            assertEquals(asList("abc", "1", "def"), toTermString("/ABC1/DEF/")); // XXX 3.x -> 8.x : abc1/def -> abc1
-                                                                                 // def //
-                                                                                 // XXX standard -> jp : abc1 def -> abc
-                                                                                 // 1
-                                                                                 // def
-            /*
-             * XXX 3.x -> 8.x : _abc1_def_ in UAX#29. Since the effect is large, trim with Filter.
-             */
-            assertEquals(asList("abc", "1", "def"), toTermString("_ABC1_DEF_")); // XXX standard -> jp : abc1_def -> abc
-                                                                                 // 1
-                                                                                 // def
-            assertEquals(asList("abc", "1", "def"), toTermString(".ABC1.DEF.")); // XXX 3.x -> 8.x : abc1.def -> abc1
-                                                                                 // def //
-                                                                                 // XXX standard -> jp : abc1 def -> abc
-                                                                                 // 1
-                                                                                 // def
-            assertEquals(asList("abc", "1", "def"), toTermString("&ABC1&DEF&")); // XXX standard -> jp : abc1_def -> abc
-                                                                                 // 1
-                                                                                 // def
-            assertEquals(asList("abc", "1", "def"), toTermString("@ABC1@DEF@")); // XXX standard -> jp : abc1_def -> abc
-                                                                                 // 1
-                                                                                 // def
-            assertEquals(asList("abc", "1", "def"), toTermString("'ABC1'DEF'")); // XXX standard -> jp : abc1_def -> abc
-                                                                                 // 1
-                                                                                 // def
-
+            // Delimiter, words and number
+            terms = Arrays.asList("abc", "1", "def");
+            assertEquals(terms, toTermString("+ABC1+DEF+"));
+            assertEquals(terms, toTermString("|ABC1|DEF|"));
+            assertEquals(terms, toTermString("!ABC1!DEF!"));
+            assertEquals(terms, toTermString("(ABC1(DEF("));
+            assertEquals(terms, toTermString(")ABC1)DEF)"));
+            assertEquals(terms, toTermString("{ABC1{DEF{"));
+            assertEquals(terms, toTermString("}ABC1}DEF}"));
+            assertEquals(terms, toTermString("[ABC1[DEF["));
+            assertEquals(terms, toTermString("]ABC1]DEF]"));
+            assertEquals(terms, toTermString("^ABC1^DEF^"));
+            assertEquals(terms, toTermString("\\ABC1\\DEF\\"));
+            assertEquals(terms, toTermString("\"ABC1\"DEF\""));
+            assertEquals(terms, toTermString("~ABC1~DEF~"));
+            assertEquals(terms, toTermString("*ABC1*DEF*"));
+            assertEquals(terms, toTermString("?ABC1?DEF?"));
+            assertEquals(terms, toTermString(":ABC1:DEF:"));
+            assertEquals(terms, toTermString(",ABC1,DEF,"));
+            assertEquals(terms, toTermString("-ABC1-DEF-"));
+            assertEquals(terms, toTermString("/ABC1/DEF/"));
+            assertEquals(terms, toTermString("_ABC1_DEF_"));
+            assertEquals(terms, toTermString(".ABC1.DEF."));
+            assertEquals(terms, toTermString("&ABC1&DEF&"));
+            assertEquals(terms, toTermString("@ABC1@DEF@"));
+            assertEquals(terms, toTermString("'ABC1'DEF'"));
         }
 
         /**
@@ -778,191 +568,76 @@ class AnalyzerFactoryTest {
         void testSingleQuotes() {
 
             /*
-             * A somewhat cultural that seems to be related to a specific language.
-             * 
-             * XXX Contents are different from Airsonic because the tokenyzer specifications are different.
+             * A somewhat cultural that seems to be related to a specific language. The use cases where differences are
+             * likely to occur depending on the Analyzer used by the product.
              */
-            String query = "This is Jpsonic's analysis.";
-            List<String> terms = toTermString(query);
-            assertEquals(4, terms.size());
-            assertEquals(terms.get(0), "this");
-            assertEquals(terms.get(1), "is");
-            assertEquals(terms.get(2), "jpsonic");
-            // assertEquals("s", terms.get(3)); issues#290
-            assertEquals(terms.get(3), "analysis");
 
+            // issues#290
+            // That is, the possessive case is deleted
+            String query = "This is Jpsonic's analysis.";
+            var terms = Arrays.asList("this", "is", "jpsonic", "analysis");
+            assertEquals(terms, toTermString(query));
+
+            // Other than that, there is no problem
             query = "We’ve been here before.";
-            terms = toTermString(query);
-            assertEquals(5, terms.size());
-            assertEquals(terms.get(0), "we");
-            assertEquals(terms.get(1), "ve");
-            assertEquals(terms.get(2), "been");
-            assertEquals(terms.get(3), "here");
-            assertEquals(terms.get(4), "before");
+            terms = Arrays.asList("we", "ve", "been", "here", "before");
+            assertEquals(terms, toTermString(query));
 
             query = "LʼHomme";
-            terms = toTermString(query);
-            assertEquals(2, terms.size());
-            assertEquals(terms.get(0), "l");
-            assertEquals(terms.get(1), "homme");
-
-            query = "L'Homme";
-            terms = toTermString(query);
-            assertEquals(2, terms.size());
-            assertEquals(terms.get(0), "l");
-            assertEquals(terms.get(1), "homme");
+            terms = Arrays.asList("l", "homme");
+            assertEquals(terms, toTermString(query));
 
             query = "aujourd'hui";
-            terms = toTermString(query);
-            assertEquals(2, terms.size());
-            assertEquals(terms.get(0), "aujourd");
-            assertEquals(terms.get(1), "hui");
+            terms = Arrays.asList("aujourd", "hui");
+            assertEquals(terms, toTermString(query));
 
             query = "fo'c'sle";
-            terms = toTermString(query);
-            assertEquals(3, terms.size());
-            assertEquals(terms.get(0), "fo");
-            assertEquals(terms.get(1), "c");
-            assertEquals(terms.get(2), "sle");
-
+            terms = Arrays.asList("fo", "c", "sle");
+            assertEquals(terms, toTermString(query));
         }
 
-        /*
-         * There is also a filter that converts the tense to correspond to the search by the present tense.
+        /**
+         * Present tense filters should not be used
          */
         @Test
         void testPastParticiple() {
-
-            /*
-             * Confirming no conversion to present tense.
-             */
+            // Confirming no conversion to present tense.
+            // Also note that common stopwords have not been removed.
             String query = "This is formed with a form of the verb \"have\" and a past participl.";
-            List<String> terms = toTermString(query);
-            assertEquals(11, terms.size());
-            assertEquals(terms.get(0), "this"); // currently not stopward
-            assertEquals(terms.get(1), "is"); // currently not stopward
-            assertEquals(terms.get(2), "formed"); // leave passive / not "form"
-            assertEquals(terms.get(3), "with"); // currently not stopward
-            assertEquals(terms.get(4), "form");
-            assertEquals(terms.get(5), "of"); // currently not stopward
-            assertEquals(terms.get(6), "verb");
-            assertEquals(terms.get(7), "have");
-            assertEquals(terms.get(8), "and"); // currently not stopward
-            assertEquals(terms.get(9), "past");
-            assertEquals(terms.get(10), "participl");
-
+            var terms = Arrays.asList("this", "is", "formed", "with", "form", "of", "verb", "have", "and", "past",
+                    "participl");
+            assertEquals(terms, toTermString(query));
         }
 
-        /*
-         * There are also filters that convert plurals to singular.
+        /**
+         * Filters that convert the plural to the singular should not be used.
          */
         @Test
         void testNumeral() {
-
-            /*
-             * Confirming no conversion to singular.
-             */
-
+            // Confirming no conversion to singular.
             String query = "books boxes cities leaves men glasses";
-            List<String> terms = toTermString(query);
-            assertEquals(6, terms.size());
-            assertEquals(terms.get(0), "books"); // leave numeral / not singular
-            assertEquals(terms.get(1), "boxes");
-            assertEquals(terms.get(2), "cities");
-            assertEquals(terms.get(3), "leaves");
-            assertEquals(terms.get(4), "men");
-            assertEquals(terms.get(5), "glasses");
+            var terms = Arrays.asList("books", "boxes", "cities", "leaves", "men", "glasses");
+            assertEquals(terms, toTermString(query));
         }
 
-        /*
-         * Katakana is converted to hiragana. This is primarily intended for CDDB input. (It is not decided whether to
-         * register in CDDB with Katakana/Hiragana)
+        /**
+         * Katakana is converted to hiragana. This is because it is a pattern that was often seen in CDDB before. I
+         * don't know which one now.
          */
         @Test
         void testToHiragana() {
+            String query = "THE BLUE HEARTS";
+            var terms = Arrays.asList("blue", "hearts");
+            assertEquals(terms, toTermString(FieldNamesConstants.ARTIST_READING, query));
 
-            String n = FieldNamesConstants.ARTIST_READING;
+            query = "ABC123";
+            terms = Arrays.asList("abc123");
+            assertEquals(terms, toTermString(FieldNamesConstants.ARTIST_READING, query));
 
-            List<String> terms = toTermString(n, "THE BLUE HEARTS");
-            assertEquals(2, terms.size(), "all Alpha : " + n);
-            assertEquals("blue", terms.get(0), "all Alpha : " + n);
-            assertEquals("hearts", terms.get(1), "all Alpha : " + n);
-
-            terms = toTermString(n, "ABC123");
-            assertEquals(1, terms.size(), "AlphaNum : " + n);
-
-            String passable1 = "ABC123あいう";
-            terms = toTermString(n, passable1);
-            assertEquals(3, terms.size(), "ABC123あいう : " + n);
-            assertEquals("abc123", terms.get(0), "ABC123あいう : " + n);
-            assertEquals("あい", terms.get(1), "ABC123あいう : " + n);
-            assertEquals("いう", terms.get(2), "ABC123あいう : " + n);
-
-            terms = toTermString(n, "abc123あいう");
-            assertEquals(3, terms.size(), "abc123あいう : " + n);
-            assertEquals("abc123", terms.get(0), "abc123あいう : " + n);
-            assertEquals("あい", terms.get(1), "abc123あいう : " + n);
-            assertEquals("いう", terms.get(2), "abc123あいう : " + n);
-
-            terms = toTermString(n, "ABC123アイウ");
-            assertEquals(3, terms.size(), "ABC123アイウ : " + n);
-            assertEquals("abc123", terms.get(0), "abc123アイウ : " + n);
-            assertEquals("あい", terms.get(1), "abc123アイウ: " + n);
-            assertEquals("いう", terms.get(2), "abc123アイウ : " + n);
-
-        }
-
-        /*
-         * ALBUM_EX and TITLE_EX only allow Hiragana. Because hiragana-only high-precision word analysis is difficult,
-         * the purpose is to support the full text. (Hiragana-only album names and song names may be used to give a
-         * particularly soft impression, but are generally not used very often.)
-         */
-        @Test
-        void testHiraganaTermStemOnlyHiragana() {
-            // #482 No longer used
-        }
-
-        /*
-         * Applies to all except FOLDER, GENRE, MEDIA_TYPE.
-         */
-        @Test
-        void testPunctuationStem() {
-
-            // Filter operation check only. Verify only some settings.
-            String query = "B︴C";
-            String expected2 = "bc";
-            String expected2a = "b";
-            String expected2b = "c";
-
-            Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
-                List<String> terms = toTermString(n, query);
-                switch (n) {
-                case FieldNamesConstants.FOLDER:
-                case FieldNamesConstants.GENRE:
-                case FieldNamesConstants.MEDIA_TYPE:
-                    assertEquals(1, terms.size(), "through : " + n);
-                    assertEquals(query, terms.get(0), "through : " + n);
-                    break;
-                case FieldNamesConstants.ARTIST_READING:
-                    assertEquals(1, terms.size(), "token through filtered : " + n);
-                    assertEquals(expected2, terms.get(0), "token through filtered : " + n);
-                    break;
-                case FieldNamesConstants.ARTIST:
-                case FieldNamesConstants.ALBUM:
-                case FieldNamesConstants.TITLE:
-                    assertEquals(2, terms.size(), "tokend : " + n);
-                    assertEquals(expected2a, terms.get(0), "tokend : " + n);
-                    assertEquals(expected2b, terms.get(1), "tokend : " + n);
-                    break;
-                case FieldNamesConstants.TITLE_EX:
-                case FieldNamesConstants.ALBUM_EX:
-                case FieldNamesConstants.ARTIST_EX:
-                    // #482 No longer used
-                    break;
-                default:
-                    break;
-                }
-            });
+            terms = Arrays.asList("abc123", "あい", "いう");
+            assertEquals(terms, toTermString(FieldNamesConstants.ARTIST_READING, "ABC123あいう"));
+            assertEquals(terms, toTermString(FieldNamesConstants.ARTIST_READING, "ABC123あいう"));
+            assertEquals(terms, toTermString(FieldNamesConstants.ARTIST_READING, "ABC123アイウ"));
         }
 
         private List<String> toTermString(String str) {
