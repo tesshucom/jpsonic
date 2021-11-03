@@ -65,26 +65,6 @@ public class JapaneseReadingUtils {
 
     private List<String> ignoredArticles;
 
-    /**
-     * It's a part of speech tag.
-     */
-    public enum Tag {
-        INTERJECTION("感動詞"), POSTPOSITIONAL_PARTICLE("助詞"), CONJUNCTIVE_PARTICLE("接続助詞"),
-        SENTENCE_ENDING_PARTICLE("終助詞"), ADVERBIAL_PARTICLE("副助詞"), MULTI_PARTICLE("副助詞／並立助詞／終助詞"), SYMBOL("記号"),
-        ALPHABET("アルファベット"), COMMA("読点"), PERIOD("句点"), NOUN("名詞"), SUFFIX("接尾"), ANTHROPONYM("接尾"), VERB("動詞"),
-        INDEPENDENCE("自立"), ADVERB("副詞"), UNUSED("未使用");
-
-        private final String value;
-
-        Tag(final String text) {
-            this.value = text;
-        }
-
-        public static @NonNull Tag of(String name) {
-            return Stream.of(Tag.values()).filter(t -> t.value.equals(name)).findAny().orElse(UNUSED);
-        }
-    }
-
     public static boolean isPunctuation(char ch) {
         switch (Character.getType(ch)) {
         case Character.SPACE_SEPARATOR:
@@ -117,152 +97,69 @@ public class JapaneseReadingUtils {
         truncatedReadingMap = new ConcurrentHashMap<>();
     }
 
-    public void analyze(@NonNull Genre g) {
-        g.setReading(createReading(defaultIfBlank(g.getName(), g.getReading())));
-    }
-
-    public void analyze(@NonNull MediaFile m) {
-        m.setArtistSort(normalize(m.getArtistSort()));
-        m.setArtistReading(createReading(m.getArtist(), m.getArtistSort()));
-        m.setAlbumArtistSort(normalize(m.getAlbumArtistSort()));
-        m.setAlbumArtistReading(createReading(m.getAlbumArtist(), m.getAlbumArtistSort()));
-        m.setAlbumSort(normalize(m.getAlbumSort()));
-        m.setAlbumReading(createReading(m.getAlbumName(), m.getAlbumSort()));
-    }
-
-    public void analyze(@NonNull Playlist p) {
-        p.setReading(createReading(defaultIfBlank(p.getName(), p.getReading())));
-    }
-
-    public void analyze(@NonNull SortCandidate c) {
-        c.setReading(createReading(c.getName(), c.getSort()));
-        if (isEmpty(c.getSort())) {
-            c.setSort(c.getReading());
-        }
-    }
-
     public void clear() {
         readingMap.clear();
         truncatedReadingMap.clear();
     }
 
-    private boolean isJapaneseReadable(@Nullable String str) {
-        if (isEmpty(str)) {
-            return false;
-        }
-        return Stream.of(str.split(EMPTY)).anyMatch(s -> {
-            Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
-            return Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)
-                    || Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(b)
-                    || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b)
-                    || Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION.equals(b)
-                    || settingsService.isReadGreekInJapanese() && Character.UnicodeBlock.GREEK.equals(b);
-        });
-    }
-
-    private String createIgnoredArticles(@Nullable String s) {
-        if (isEmpty(s)) {
-            return null;
-        }
-        /* @see MusicIndexService#createSortableName */
-        String lower = s.toLowerCase(settingsService.getLocale());
-        String result = s;
-        if (ObjectUtils.isEmpty(ignoredArticles)) {
-            ignoredArticles = Arrays.asList(settingsService.getIgnoredArticles().split("\\s+"));
-        }
-        for (String article : ignoredArticles) {
-            if (lower.startsWith(article.toLowerCase(settingsService.getLocale()) + SPACE)) {
-                // reading = lower.substring(article.length() + 1) + ", " + article;
-                result = result.substring(article.length() + 1);
+    /**
+     * Delete a specific Punctuation. This result value is not persisted in DB.
+     * 
+     * @param japaneseReading
+     *            string after analysis
+     */
+    public String removePunctuationFromJapaneseReading(@Nullable String japaneseReading) {
+        if (isJapaneseReading(japaneseReading)) {
+            if (truncatedReadingMap.containsKey(japaneseReading)) {
+                return truncatedReadingMap.get(japaneseReading);
             }
-        }
-        return result;
-    }
-
-    public String createIndexableName(@NonNull Artist artist) {
-        if (settingsService.isIndexEnglishPrior() && isStartWithAlpha(artist.getName())) {
-            return createIndexableName(artist.getName());
-        } else if (isEmpty(artist.getReading())) {
-            if (isEmpty(artist.getSort())) {
-                return createIndexableName(artist.getName());
+            StringBuilder b = new StringBuilder();
+            for (char c : japaneseReading.toCharArray()) {
+                if (!isPunctuation(c)) {
+                    b.append(c);
+                }
             }
-            return createIndexableName(createReading(artist.getSort()));
+            String truncatedReading = b.toString();
+            truncatedReadingMap.put(japaneseReading, truncatedReading);
+            return truncatedReading;
         }
-        return createIndexableName(artist.getReading());
-    }
-
-    public String createIndexableName(@NonNull MediaFile artist) {
-        if (settingsService.isIndexEnglishPrior() && isStartWithAlpha(artist.getName())) {
-            return createIndexableName(artist.getName());
-        } else if (isEmpty(artist.getArtistReading())) {
-            if (isEmpty(artist.getArtistSort())) {
-                return createIndexableName(artist.getName());
-            }
-            return createIndexableName(createReading(artist.getArtistSort()));
-        }
-        return createIndexableName(artist.getArtistReading());
+        return japaneseReading;
     }
 
     /**
-     * This method returns the normalized Artist name that can also be used to create the index prefix.
-     * 
-     * @param sort
-     *            artist's sort string
-     * 
-     * @return indexable Name
+     * There is no easy way to normalize Japanese words. Uses relatively natural NFKC.
      */
-    private String createIndexableName(@NonNull String sort) {
-        String indexableName = sort;
-        if (sort.charAt(0) > WAVY_LINE) {
-            indexableName = transliterate(ID.TO_HALFWIDTH, indexableName);
-            indexableName = transliterate(ID.TO_KATAKANA, indexableName);
-        }
-        // http://www.unicode.org/reports/tr15/
-        indexableName = Normalizer.normalize(indexableName, Normalizer.Form.NFD);
-        return indexableName;
-    }
-
-    /*
-     * TransliteratorID
-     */
-    private enum ID {
-        TO_HALFWIDTH("Fullwidth-Halfwidth"), TO_KATAKANA("Hiragana-Katakana"), TO_LATIN("Katakana-Latin");
-
-        private final String value;
-
-        ID(String name) {
-            this.value = name;
+    String normalize(@Nullable String s) {
+        if (isEmpty(s)) {
+            return null;
+        } else if (IndexScheme.of(settingsService.getIndexSchemeName()) == IndexScheme.WITHOUT_JP_LANG_PROCESSING) {
+            return s;
         }
 
-        public String getValue() {
-            return this.value;
+        // Normalize except for certain strings with NFKC
+        StringBuilder excluded = new StringBuilder();
+        int start = 0;
+        int i = s.indexOf(TILDE);
+        while (-1 != i) {
+            excluded.append(Normalizer.normalize(s.substring(start, i), Normalizer.Form.NFKC));
+            excluded.append(TILDE);
+            start = i + 1;
+            i = s.indexOf(TILDE, i + 1);
         }
-    }
+        excluded.append(Normalizer.normalize(s.substring(start), Normalizer.Form.NFKC));
 
-    final String transliterate(ID id, String text) {
-        return Transliterator.getInstance(id.getValue()).transliterate(text);
-    }
-
-    static class ReadingResult {
-        public final Token token;
-        public final String reading;
-
-        private ReadingResult(Token token, String reading) {
-            super();
-            this.token = token;
-            this.reading = reading;
-        }
-    }
-
-    private ReadingResult toReading(Token token) {
-        return new ReadingResult(token, analyzeReading(token));
+        // Convert certain strings additionally
+        String expanded = excluded.toString();
+        expanded = expanded.replaceAll("\u300c", "\uff62"); // Japanese braces
+        expanded = expanded.replaceAll("\u300d", "\uff63"); // Japanese braces
+        return expanded;
     }
 
     /*
      * Removes certain phoneme rules from the phoneme string and converts them to the Latin alphabet. This phoneme rule
      * is a morphological analyzer-specific specification.
      */
-    private String romanize(String pronunciation) {
+    static String romanize(@NonNull String pronunciation) {
         /*
          * Remove unnecessary single quotes. "'" is granted to "ん(N)". e.g. はんなり(ha'nnari[phoneme] -> hannari[Latin]).
          */
@@ -315,6 +212,114 @@ public class JapaneseReadingUtils {
         result = Normalizer.normalize(result, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
 
         return result;
+    }
+
+    private enum Tag {
+        INTERJECTION("感動詞"), POSTPOSITIONAL_PARTICLE("助詞"), CONJUNCTIVE_PARTICLE("接続助詞"),
+        SENTENCE_ENDING_PARTICLE("終助詞"), ADVERBIAL_PARTICLE("副助詞"), MULTI_PARTICLE("副助詞／並立助詞／終助詞"), SYMBOL("記号"),
+        ALPHABET("アルファベット"), COMMA("読点"), PERIOD("句点"), NOUN("名詞"), SUFFIX("接尾"), ANTHROPONYM("接尾"), VERB("動詞"),
+        INDEPENDENCE("自立"), ADVERB("副詞"), UNUSED("未使用");
+
+        private final String value;
+
+        Tag(final String text) {
+            this.value = text;
+        }
+
+        public static @NonNull Tag of(String name) {
+            return Stream.of(Tag.values()).filter(t -> t.value.equals(name)).findAny().orElse(UNUSED);
+        }
+    }
+
+    private static String capitalize(@NonNull List<ReadingResult> tokens) {
+        String reading;
+        StringBuffer buf = new StringBuffer(StringUtils.capitalize(tokens.get(0).reading));
+        for (int pos = 1; pos < tokens.size(); pos++) {
+            if (Tag.of(tokens.get(pos - 1).token.getPartOfSpeechLevel1()) == Tag.POSTPOSITIONAL_PARTICLE
+                    && Tag.of(tokens.get(pos - 1).token.getPartOfSpeechLevel2()) != Tag.MULTI_PARTICLE
+                    || tokens.get(pos - 1).reading.endsWith(SPACE)
+                    || Tag.of(tokens.get(pos - 1).token.getPartOfSpeechLevel1()) == Tag.SYMBOL) {
+                if (isJapaneseReading(tokens.get(pos).token.getBaseForm())) {
+                    buf.append(StringUtils.capitalize(tokens.get(pos).reading));
+                } else {
+                    buf.append(tokens.get(pos).reading);
+                }
+            } else {
+                buf.append(tokens.get(pos).reading);
+            }
+        }
+        reading = romanize(buf.toString());
+        if (!reading.isBlank()) {
+            reading = reading.replaceAll("\\s+", SPACE).replaceAll(SPACE + "$", "");
+        }
+        return reading;
+    }
+
+    private static boolean isJapaneseReading(@Nullable String str) {
+        if (isEmpty(str)) {
+            return false;
+        }
+        return Stream.of(str.split(EMPTY)).anyMatch(s -> {
+            Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
+            return Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)
+                    || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b)
+                    || Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(b)
+                            && s.chars().anyMatch(c -> 65_382 <= c && c <= 65_437);
+        });
+    }
+
+    /* AtoZ only true. */
+    private static boolean isStartWithAlpha(@Nullable String s) {
+        if (isEmpty(s)) {
+            return false;
+        }
+        return ALPHA.matcher(s.substring(0, 1)).matches();
+    }
+
+    boolean isJapaneseReadable(@Nullable String str) {
+        if (isEmpty(str)) {
+            return false;
+        }
+        return Stream.of(str.split(EMPTY)).anyMatch(s -> {
+            Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
+            return Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)
+                    || Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(b)
+                    || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b)
+                    || Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION.equals(b)
+                    || settingsService.isReadGreekInJapanese() && Character.UnicodeBlock.GREEK.equals(b);
+        });
+    }
+
+    /*
+     * TransliteratorID
+     */
+    private enum ID {
+        TO_HALFWIDTH("Fullwidth-Halfwidth"), TO_KATAKANA("Hiragana-Katakana"), TO_LATIN("Katakana-Latin");
+
+        private final String value;
+
+        ID(String name) {
+            this.value = name;
+        }
+
+        public String getValue() {
+            return this.value;
+        }
+    }
+
+    final String transliterate(ID id, String text) {
+        return Transliterator.getInstance(id.getValue()).transliterate(text);
+    }
+
+    static class ReadingResult {
+        public final Token token;
+        public final String reading;
+
+        private ReadingResult(Token token, String reading) {
+            super();
+            this.token = token;
+            this.reading = reading;
+        }
     }
 
     private String analyzeReading(Token token) {
@@ -372,123 +377,134 @@ public class JapaneseReadingUtils {
         return pron;
     }
 
-    private String createReading(@Nullable String line) {
+    private ReadingResult toReading(Token token) {
+        return new ReadingResult(token, analyzeReading(token));
+    }
+
+    private @Nullable String removeArticles(@Nullable String s) {
+        if (isEmpty(s)) {
+            return null;
+        }
+        /* @see MusicIndexService#createSortableName */
+        String lower = s.toLowerCase(settingsService.getLocale());
+        String result = s;
+        if (ObjectUtils.isEmpty(ignoredArticles)) {
+            ignoredArticles = Arrays.asList(settingsService.getIgnoredArticles().split("\\s+"));
+        }
+        for (String article : ignoredArticles) {
+            if (lower.startsWith(article.toLowerCase(settingsService.getLocale()) + SPACE)) {
+                // reading = lower.substring(article.length() + 1) + ", " + article;
+                result = result.substring(article.length() + 1);
+            }
+        }
+        return result;
+    }
+
+    String createJapaneseReading(@Nullable String line) {
         if (isEmpty(line)) {
             return null;
         } else if (readingMap.containsKey(line)) {
             return readingMap.get(line);
         }
-        List<Token> tokens = tokenizer.tokenize(createIgnoredArticles(normalize(line)));
-        List<ReadingResult> results = tokens.stream().map(this::toReading).collect(Collectors.toList());
-        String reading;
-        if (IndexScheme.of(settingsService.getIndexSchemeName()) == IndexScheme.ROMANIZED_JAPANESE) {
-            StringBuffer buf = new StringBuffer(StringUtils.capitalize(results.get(0).reading));
-            for (int pos = 1; pos < results.size(); pos++) {
-                if (Tag.of(results.get(pos - 1).token.getPartOfSpeechLevel1()) == Tag.POSTPOSITIONAL_PARTICLE
-                        && Tag.of(results.get(pos - 1).token.getPartOfSpeechLevel2()) != Tag.MULTI_PARTICLE
-                        || results.get(pos - 1).reading.endsWith(SPACE)
-                        || Tag.of(results.get(pos - 1).token.getPartOfSpeechLevel1()) == Tag.SYMBOL) {
-                    buf.append(StringUtils.capitalize(results.get(pos).reading));
-                } else {
-                    buf.append(results.get(pos).reading);
-                }
-            }
-            reading = romanize(buf.toString());
-            if (!reading.isBlank()) {
-                reading = reading.replaceAll("\\s+", SPACE).replaceAll(SPACE + "$", "");
-            }
-        } else {
-            reading = results.stream().map(r -> r.reading).collect(Collectors.joining());
-        }
+        List<ReadingResult> tokens = tokenizer.tokenize(removeArticles(normalize(line))).stream().map(this::toReading)
+                .collect(Collectors.toList());
+        String reading = IndexScheme.of(settingsService.getIndexSchemeName()) == IndexScheme.ROMANIZED_JAPANESE
+                ? capitalize(tokens) : tokens.stream().map(r -> r.reading).collect(Collectors.joining());
         readingMap.put(line, reading);
         return reading;
     }
 
-    private @NonNull String createReading(@NonNull String name, @Nullable String sort) {
-        String n = createIgnoredArticles(name);
-        String s = createIgnoredArticles(sort);
+    @NonNull
+    String createReading(@NonNull String name, @Nullable String sort) {
+        String n = removeArticles(name);
+        String s = removeArticles(sort);
         String reading;
-        if (isStartWithAlpha(n)) {
-            if (isStartWithAlpha(s) && isJapaneseReadable(s)) {
-                reading = createReading(s);
-            } else {
-                reading = createReading(n);
-            }
+        IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
+        if (scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING) {
+            reading = defaultIfBlank(s, n);
+        } else if (scheme == IndexScheme.ROMANIZED_JAPANESE) {
+            reading = createJapaneseReading(defaultIfBlank(s, n));
         } else {
-            reading = createReading(defaultIfBlank(s, n));
+            reading = createJapaneseReading(
+                    isStartWithAlpha(n) ? isStartWithAlpha(s) && isJapaneseReadable(s) ? s : n : defaultIfBlank(s, n));
         }
         return reading;
     }
 
-    private boolean isJapaneseReading(@Nullable String str) {
-        if (isEmpty(str)) {
-            return false;
-        }
-        return Stream.of(str.split(EMPTY)).anyMatch(s -> {
-            Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
-            return Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)
-                    || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b)
-                    || Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(b)
-                            && s.chars().anyMatch(c -> 65_382 <= c && c <= 65_437);
-        });
-    }
-
-    /* AtoZ only true. */
-    private boolean isStartWithAlpha(@Nullable String s) {
-        if (isEmpty(s)) {
-            return false;
-        }
-        return ALPHA.matcher(s.substring(0, 1)).matches();
+    public void analyze(@NonNull Genre g) {
+        String reading = defaultIfBlank(g.getName(), g.getReading());
+        IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
+        g.setReading(scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING ? reading : createJapaneseReading(reading));
     }
 
     /**
-     * There is no easy way to normalize Japanese words. Uses relatively natural NFKC, eliminates over-processing and
-     * adds under-processing.
+     * Parse MediaFile and set sort and read to appropriate values. This analyze is the initial analysis of the meta
+     * processing performed in the entire system. "Reading" is used for sorting and indexing in later processing. "Sort"
+     * is originally a string derived from a sort tag and is used as a search index. If there is no "Sort" tag,
+     * "Reading" is created based on the name, and that value is also used in the search index.
      */
-    private String normalize(@Nullable String s) {
-        if (isEmpty(s)) {
-            return null;
-        }
-        // Normalize except for certain strings with NFKC
-        StringBuilder excluded = new StringBuilder();
-        int start = 0;
-        int i = s.indexOf(TILDE);
-        while (-1 != i) {
-            excluded.append(Normalizer.normalize(s.substring(start, i), Normalizer.Form.NFKC));
-            excluded.append(TILDE);
-            start = i + 1;
-            i = s.indexOf(TILDE, i + 1);
-        }
-        excluded.append(Normalizer.normalize(s.substring(start), Normalizer.Form.NFKC));
+    public void analyze(@NonNull MediaFile m) {
+        m.setArtistSort(normalize(m.getArtistSort()));
+        m.setArtistReading(createReading(m.getArtist(), m.getArtistSort()));
+        m.setAlbumArtistSort(normalize(m.getAlbumArtistSort()));
+        m.setAlbumArtistReading(createReading(m.getAlbumArtist(), m.getAlbumArtistSort()));
+        m.setAlbumSort(normalize(m.getAlbumSort()));
+        m.setAlbumReading(createReading(m.getAlbumName(), m.getAlbumSort()));
+    }
 
-        // Convert certain strings additionally
-        String expanded = excluded.toString();
-        expanded = expanded.replaceAll("\u300c", "\uff62"); // Japanese braces
-        expanded = expanded.replaceAll("\u300d", "\uff63"); // Japanese braces
-        return expanded;
+    public void analyze(@NonNull Playlist p) {
+        String reading = defaultIfBlank(p.getName(), p.getReading());
+        IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
+        p.setReading(scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING ? reading : createJapaneseReading(reading));
+    }
+
+    public void analyze(@NonNull SortCandidate c) {
+        c.setReading(createReading(c.getName(), c.getSort()));
+        if (isEmpty(c.getSort())) {
+            c.setSort(c.getReading());
+        }
     }
 
     /**
-     * Delete a specific Punctuation. This result value is not persisted in DB.
+     * This method returns the normalized Artist name that can also be used to create the index prefix.
      * 
-     * @param japaneseReading
-     *            string after analysis
+     * @param sort
+     *            artist's sort string
+     * 
+     * @return indexable Name
      */
-    public String removePunctuationFromJapaneseReading(@Nullable String japaneseReading) {
-        if (isJapaneseReading(japaneseReading)) {
-            if (truncatedReadingMap.containsKey(japaneseReading)) {
-                return truncatedReadingMap.get(japaneseReading);
-            }
-            StringBuilder b = new StringBuilder();
-            for (char c : japaneseReading.toCharArray()) {
-                if (!isPunctuation(c)) {
-                    b.append(c);
-                }
-            }
-            String truncatedReading = b.toString();
-            truncatedReadingMap.put(japaneseReading, truncatedReading);
-            return truncatedReading;
+    private String createIndexableName(@NonNull String sort) {
+        String indexableName = sort;
+        if (sort.charAt(0) > WAVY_LINE) {
+            indexableName = transliterate(ID.TO_HALFWIDTH, indexableName);
+            indexableName = transliterate(ID.TO_KATAKANA, indexableName);
         }
-        return japaneseReading;
+        // http://www.unicode.org/reports/tr15/
+        indexableName = Normalizer.normalize(indexableName, Normalizer.Form.NFD);
+        return indexableName;
+    }
+
+    public String createIndexableName(@NonNull Artist artist) {
+        if (settingsService.isIndexEnglishPrior() && isStartWithAlpha(artist.getName())) {
+            return createIndexableName(artist.getName());
+        } else if (isEmpty(artist.getReading())) {
+            if (isEmpty(artist.getSort())) {
+                return createIndexableName(artist.getName());
+            }
+            return createIndexableName(createJapaneseReading(artist.getSort()));
+        }
+        return createIndexableName(artist.getReading());
+    }
+
+    public String createIndexableName(@NonNull MediaFile artist) {
+        if (settingsService.isIndexEnglishPrior() && isStartWithAlpha(artist.getName())) {
+            return createIndexableName(artist.getName());
+        } else if (isEmpty(artist.getArtistReading())) {
+            if (isEmpty(artist.getArtistSort())) {
+                return createIndexableName(artist.getName());
+            }
+            return createIndexableName(createJapaneseReading(artist.getArtistSort()));
+        }
+        return createIndexableName(artist.getArtistReading());
     }
 }
