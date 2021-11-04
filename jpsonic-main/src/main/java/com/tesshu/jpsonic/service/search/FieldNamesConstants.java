@@ -109,6 +109,16 @@ public final class FieldNamesConstants {
 
     public static final String COMPOSER_READING = "cmpR";
 
+    /**
+     * Jpsonic specific assistance field. Phonological fields where syllable breaks are not always guaranteed.
+     */
+    public static final String ARTIST_READING_ROMANIZED = "artRR";
+
+    /**
+     * Jpsonic specific assistance field. Phonological fields where syllable breaks are not always guaranteed.
+     */
+    public static final String COMPOSER_READING_ROMANIZED = "cmpRR";
+
     private FieldNamesConstants() {
     }
 }

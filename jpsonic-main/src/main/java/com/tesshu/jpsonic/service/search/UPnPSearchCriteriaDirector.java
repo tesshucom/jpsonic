@@ -367,21 +367,21 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
         if ("dc:title".equals(subject)) {
             if (Album.class == assignableClass) {
-                fieldName.add(FieldNamesConstants.ALBUM_READING);
                 fieldName.add(FieldNamesConstants.ALBUM);
+                fieldName.add(FieldNamesConstants.ALBUM_READING);
             } else if (Artist.class == assignableClass) {
-                fieldName.add(FieldNamesConstants.ARTIST_READING);
                 fieldName.add(FieldNamesConstants.ARTIST);
+                fieldName.add(FieldNamesConstants.ARTIST_READING);
             } else {
-                fieldName.add(FieldNamesConstants.TITLE_READING);
                 fieldName.add(FieldNamesConstants.TITLE);
+                fieldName.add(FieldNamesConstants.TITLE_READING);
             }
-        } else if ("dc:creator".equals(subject)) {
-            fieldName.add(FieldNamesConstants.COMPOSER_READING);
-            fieldName.add(FieldNamesConstants.COMPOSER);
         } else if ("upnp:artist".equals(subject)) {
-            fieldName.add(FieldNamesConstants.ARTIST_READING);
             fieldName.add(FieldNamesConstants.ARTIST);
+            fieldName.add(FieldNamesConstants.ARTIST_READING);
+        } else if ("dc:creator".equals(subject)) {
+            fieldName.add(FieldNamesConstants.COMPOSER);
+            fieldName.add(FieldNamesConstants.COMPOSER_READING);
         }
         notice.accept(0 == fieldName.size(), "Unexpected PropertyExpContext. -> " + subject);
 
