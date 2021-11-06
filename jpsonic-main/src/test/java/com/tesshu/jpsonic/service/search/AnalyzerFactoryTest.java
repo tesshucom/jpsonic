@@ -79,12 +79,14 @@ class AnalyzerFactoryTest {
     class TokenStreamTest {
 
         @Test
-        void testTokenCounts() {
+        void helloWorld() {
             String queryEng = "The quick brown fox jumps over the lazy dog.";
             var tokenized = Arrays.asList("quick", "brown", "fox", "jumps", "over", "lazy", "dog");
             assertEquals(tokenized, toTermString(FieldNamesConstants.ARTIST, queryEng));
             assertEquals(tokenized, toTermString(FieldNamesConstants.ALBUM, queryEng));
             assertEquals(tokenized, toTermString(FieldNamesConstants.TITLE, queryEng));
+            assertEquals(tokenized, toTermString(FieldNamesConstants.ARTIST_READING, queryEng));
+            assertEquals(tokenized, toTermString(FieldNamesConstants.COMPOSER_READING, queryEng));
             assertEquals(tokenized, toTermString(FieldNamesConstants.ARTIST_READING, queryEng));
             assertTrue(toTermString(FieldNamesConstants.ALBUM_READING, queryEng).isEmpty());
             assertTrue(toTermString(FieldNamesConstants.TITLE_READING, queryEng).isEmpty());
@@ -96,6 +98,17 @@ class AnalyzerFactoryTest {
             assertEquals(bigramHira, toTermString(FieldNamesConstants.TITLE_READING, queryHira));
 
             String queryEngAndHira = "quick　ぶらうん";
+            tokenized = Arrays.asList("quick", "ぶら", "うん");
+            assertEquals(tokenized, toTermString(FieldNamesConstants.TITLE, queryEngAndHira));
+            assertEquals(tokenized, toTermString(FieldNamesConstants.ALBUM, queryEngAndHira));
+            assertEquals(tokenized, toTermString(FieldNamesConstants.ARTIST, queryEngAndHira));
+            assertEquals(Arrays.asList("quick", "ぶら", "らう", "うん"),
+                    toTermString(FieldNamesConstants.ARTIST_READING, queryEngAndHira));
+            /*
+             * In the case of Japanese-English hybrid, the accuracy drops a little in ALBUM and TITLE. (Depending on the
+             * end position of the entered character) This issue is a trade-off with index size. If READING for this
+             * field is later supported, it will resolve itself.
+             */
             assertTrue(toTermString(FieldNamesConstants.ALBUM_READING, queryEngAndHira).isEmpty());
             assertTrue(toTermString(FieldNamesConstants.TITLE_READING, queryEngAndHira).isEmpty());
 
@@ -103,6 +116,11 @@ class AnalyzerFactoryTest {
             assertTrue(toTermString(FieldNamesConstants.ARTIST_READING, queryStopsOnly).isEmpty());
             assertTrue(toTermString(FieldNamesConstants.ALBUM_READING, queryStopsOnly).isEmpty());
             assertTrue(toTermString(FieldNamesConstants.TITLE_READING, queryStopsOnly).isEmpty());
+
+            var bigramRoman = Arrays.asList("qui", "quic", "quick", "bro", "brow", "brown", "fox");
+            String queryRoman = "The quick brown fox";
+            assertEquals(bigramRoman, toTermString(FieldNamesConstants.ARTIST_READING_ROMANIZED, queryRoman));
+            assertEquals(bigramRoman, toTermString(FieldNamesConstants.COMPOSER_READING_ROMANIZED, queryRoman));
         }
 
         /**
@@ -111,9 +129,9 @@ class AnalyzerFactoryTest {
         @Test
         void testPunctuation1() {
 
-            String query = "B︴C";
+            String query = "BBB︴CCC";
 
-            var tokenized = Arrays.asList("b", "c");
+            var tokenized = Arrays.asList("bbb", "ccc");
 
             // Remains legacy specs. (It is not necessary to delimit this field originally.)
             assertEquals(tokenized, toTermString(FieldNamesConstants.MEDIA_TYPE, query));
@@ -127,11 +145,15 @@ class AnalyzerFactoryTest {
             assertTrue(toTermString(FieldNamesConstants.ALBUM_READING, query).isEmpty());
             assertTrue(toTermString(FieldNamesConstants.TITLE_READING, query).isEmpty());
 
-            var bigram = Arrays.asList("bc");
-            assertEquals(bigram, toTermString(FieldNamesConstants.ARTIST_READING, query));
-            assertEquals(bigram, toTermString(FieldNamesConstants.COMPOSER_READING, query));
+            var stem = Arrays.asList("bbbccc");
+            assertEquals(stem, toTermString(FieldNamesConstants.ARTIST_READING, query));
+            assertEquals(stem, toTermString(FieldNamesConstants.COMPOSER_READING, query));
 
-            var noChange = Arrays.asList("B︴C");
+            var bigram = Arrays.asList("bbb", "bbbc", "bbbcc", "bbbccc");
+            assertEquals(bigram, toTermString(FieldNamesConstants.ARTIST_READING_ROMANIZED, query));
+            assertEquals(bigram, toTermString(FieldNamesConstants.COMPOSER_READING_ROMANIZED, query));
+
+            var noChange = Arrays.asList("BBB︴CCC");
             assertEquals(noChange, toTermString(FieldNamesConstants.GENRE, query));
             assertEquals(noChange, toTermString(FieldNamesConstants.GENRE_KEY, query));
         }
@@ -178,6 +200,9 @@ class AnalyzerFactoryTest {
             assertEquals(none, toTermString(FieldNamesConstants.TITLE, queryArticle));
             assertEquals(none, toTermString(FieldNamesConstants.ARTIST, queryArticle));
             assertEquals(none, toTermString(FieldNamesConstants.ARTIST_READING, queryArticle));
+            assertEquals(none, toTermString(FieldNamesConstants.COMPOSER_READING, queryArticle));
+            assertEquals(none, toTermString(FieldNamesConstants.ARTIST_READING_ROMANIZED, queryArticle));
+            assertEquals(none, toTermString(FieldNamesConstants.COMPOSER_READING_ROMANIZED, queryArticle));
 
             var noChange = Arrays.asList(queryArticle);
             assertEquals(noChange, toTermString(FieldNamesConstants.GENRE_KEY, queryArticle));
@@ -196,6 +221,9 @@ class AnalyzerFactoryTest {
             assertEquals(none, toTermString(FieldNamesConstants.TITLE, queryIndexArticle));
             assertEquals(none, toTermString(FieldNamesConstants.ARTIST, queryIndexArticle));
             assertEquals(none, toTermString(FieldNamesConstants.ARTIST_READING, queryIndexArticle));
+            assertEquals(none, toTermString(FieldNamesConstants.COMPOSER_READING, queryIndexArticle));
+            assertEquals(none, toTermString(FieldNamesConstants.ARTIST_READING_ROMANIZED, queryIndexArticle));
+            assertEquals(none, toTermString(FieldNamesConstants.COMPOSER_READING_ROMANIZED, queryIndexArticle));
 
             noChange = Arrays.asList(queryIndexArticle);
             assertEquals(noChange, toTermString(FieldNamesConstants.GENRE_KEY, queryIndexArticle));
@@ -215,6 +243,13 @@ class AnalyzerFactoryTest {
             assertEquals(noStop, toTermString(FieldNamesConstants.TITLE, queryNoStop));
             assertEquals(noStop, toTermString(FieldNamesConstants.ARTIST, queryNoStop));
             assertEquals(noStop, toTermString(FieldNamesConstants.ARTIST_READING, queryNoStop));
+            assertEquals(noStop, toTermString(FieldNamesConstants.COMPOSER_READING, queryNoStop));
+
+            var ngramNoStop = Arrays.asList("and", "are", "but", "for", "int", "into", "not", "suc", "such", "tha",
+                    "that", "the", "thei", "their", "the", "then", "the", "ther", "there", "the", "thes", "these",
+                    "the", "they", "thi", "this", "was", "wil", "will");
+            assertEquals(ngramNoStop, toTermString(FieldNamesConstants.ARTIST_READING_ROMANIZED, queryNoStop));
+            assertEquals(ngramNoStop, toTermString(FieldNamesConstants.COMPOSER_READING_ROMANIZED, queryNoStop));
 
             noChange = Arrays.asList(queryNoStop);
             assertEquals(noChange, toTermString(FieldNamesConstants.GENRE_KEY, queryNoStop));
@@ -225,10 +260,16 @@ class AnalyzerFactoryTest {
              * the artist field, it is defined as a stopward that represents featuring.
              */
             String queryLargelyNoStop = "with";
-            var largelyNoStop = Arrays.asList("with");
+
+            // Stopward for artist
             assertEquals(none, toTermString(FieldNamesConstants.ARTIST, queryLargelyNoStop));
             assertEquals(none, toTermString(FieldNamesConstants.ARTIST_READING, queryLargelyNoStop));
+            assertEquals(none, toTermString(FieldNamesConstants.COMPOSER_READING, queryLargelyNoStop));
+            assertEquals(none, toTermString(FieldNamesConstants.ARTIST_READING_ROMANIZED, queryLargelyNoStop));
+            assertEquals(none, toTermString(FieldNamesConstants.COMPOSER_READING_ROMANIZED, queryLargelyNoStop));
 
+            // Should not be a Stopword
+            var largelyNoStop = Arrays.asList("with");
             assertEquals(largelyNoStop, toTermString(FieldNamesConstants.MEDIA_TYPE, queryLargelyNoStop));
             assertEquals(largelyNoStop, toTermString(FieldNamesConstants.FOLDER, queryLargelyNoStop));
             assertEquals(largelyNoStop, toTermString(FieldNamesConstants.ALBUM, queryLargelyNoStop));
@@ -257,6 +298,16 @@ class AnalyzerFactoryTest {
             var noChange2 = Arrays.asList(queryJpStop);
             assertEquals(noChange2, toTermString(FieldNamesConstants.GENRE_KEY, queryJpStop));
             assertEquals(noChange2, toTermString(FieldNamesConstants.GENRE, queryJpStop));
+
+            var noChange3 = Arrays.asList("の", "に", "は", "を", "た", "が", "で", "て", "と", "し", "れ", "さ", "ある", "いる", "も",
+                    "する", "から", "な", "こと", "とし", "して", "い", "や", "れる", "など", "なっ", "ない", "この", "ため", "その", "あっ", "よう",
+                    "また", "もの", "あり", "まで", "られ", "なる", "へ", "か", "だ", "これ", "によ", "よっ", "って", "によ", "より", "おり", "より",
+                    "によ", "よる", "ず", "なり", "られ", "れる", "にお", "おい", "いて", "ば", "なか", "かっ", "なく", "しか", "かし", "につ", "つい",
+                    "いて", "せ", "だっ", "でき", "きる", "それ", "う", "ので", "なお", "のみ", "でき", "き", "つ", "にお", "おけ", "ける", "およ",
+                    "よび", "いう", "さら", "らに", "でも", "ら", "たり", "たち", "ます", "ん", "なら");
+            assertEquals(noChange3, toTermString(FieldNamesConstants.ARTIST_READING, queryJpStop));
+            assertEquals(noChange3, toTermString(FieldNamesConstants.COMPOSER_READING, queryJpStop));
+
         }
 
         /**
@@ -268,9 +319,21 @@ class AnalyzerFactoryTest {
             assertTrue(toTermString(FieldNamesConstants.ARTIST, "CV").isEmpty());
             assertTrue(toTermString(FieldNamesConstants.ARTIST, "feat").isEmpty());
             assertTrue(toTermString(FieldNamesConstants.ARTIST, "with").isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.COMPOSER, "CV").isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.COMPOSER, "feat").isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.COMPOSER, "with").isEmpty());
             assertTrue(toTermString(FieldNamesConstants.ARTIST_READING, "CV").isEmpty());
             assertTrue(toTermString(FieldNamesConstants.ARTIST_READING, "feat").isEmpty());
             assertTrue(toTermString(FieldNamesConstants.ARTIST_READING, "with").isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.COMPOSER_READING, "CV").isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.COMPOSER_READING, "feat").isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.COMPOSER_READING, "with").isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.ARTIST_READING_ROMANIZED, "CV").isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.ARTIST_READING_ROMANIZED, "feat").isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.ARTIST_READING_ROMANIZED, "with").isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.COMPOSER_READING_ROMANIZED, "CV").isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.COMPOSER_READING_ROMANIZED, "feat").isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.COMPOSER_READING_ROMANIZED, "with").isEmpty());
         }
 
         /**
@@ -458,9 +521,10 @@ class AnalyzerFactoryTest {
             assertEquals(none, toTermString(FieldNamesConstants.ALBUM_READING, query));
             assertEquals(none, toTermString(FieldNamesConstants.ARTIST, query));
             assertEquals(none, toTermString(FieldNamesConstants.ARTIST_READING, query));
-            assertEquals(none, toTermString(FieldNamesConstants.ARTIST_READING, query));
+            assertEquals(none, toTermString(FieldNamesConstants.ARTIST_READING_ROMANIZED, query));
             assertEquals(none, toTermString(FieldNamesConstants.COMPOSER, query));
             assertEquals(none, toTermString(FieldNamesConstants.COMPOSER_READING, query));
+            assertEquals(none, toTermString(FieldNamesConstants.COMPOSER_READING_ROMANIZED, query));
             assertEquals(none, toTermString(FieldNamesConstants.FOLDER, query));
             assertEquals(none, toTermString(FieldNamesConstants.FOLDER_ID, query));
             assertEquals(none, toTermString(FieldNamesConstants.ID, query));
