@@ -367,14 +367,13 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
         if ("dc:title".equals(subject)) {
             if (Album.class == assignableClass) {
-                fieldName.add(FieldNamesConstants.ALBUM_EX);
+                fieldName.add(FieldNamesConstants.ALBUM_READING);
                 fieldName.add(FieldNamesConstants.ALBUM);
             } else if (Artist.class == assignableClass) {
                 fieldName.add(FieldNamesConstants.ARTIST_READING);
-                fieldName.add(FieldNamesConstants.ARTIST_EX);
                 fieldName.add(FieldNamesConstants.ARTIST);
             } else {
-                fieldName.add(FieldNamesConstants.TITLE_EX);
+                fieldName.add(FieldNamesConstants.TITLE_READING);
                 fieldName.add(FieldNamesConstants.TITLE);
             }
         } else if ("dc:creator".equals(subject)) {
@@ -382,7 +381,6 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
             fieldName.add(FieldNamesConstants.COMPOSER);
         } else if ("upnp:artist".equals(subject)) {
             fieldName.add(FieldNamesConstants.ARTIST_READING);
-            fieldName.add(FieldNamesConstants.ARTIST_EX);
             fieldName.add(FieldNamesConstants.ARTIST);
         }
         notice.accept(0 == fieldName.size(), "Unexpected PropertyExpContext. -> " + subject);

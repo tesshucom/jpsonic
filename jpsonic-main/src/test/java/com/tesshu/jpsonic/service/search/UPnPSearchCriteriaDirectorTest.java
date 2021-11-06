@@ -662,7 +662,7 @@ public class UPnPSearchCriteriaDirectorTest {
         assertEquals(50, criteria.getCount());
         assertFalse(criteria.isIncludeComposer()); // MediaFile.class only
         assertEquals(searchQuery1, criteria.getQuery());
-        assertEquals("+(((albEX:\"にほ ほん んご ごは はむ むず ずか かし しい\"~1)^4.6 (alb:\"に ほん ご は むずかしい\"~1)^4.6)) +(" + fid + ")",
+        assertEquals("+(((albR:\"にほ ほん んご ごは はむ むず ずか かし しい\"~1)^4.6 (alb:\"に ほん ご は むずかしい\"~1)^4.6)) +(" + fid + ")",
                 criteria.getParsedQuery().toString());
     }
 
@@ -679,8 +679,8 @@ public class UPnPSearchCriteriaDirectorTest {
         assertEquals(51, criteria.getCount());
         assertFalse(criteria.isIncludeComposer()); // MediaFile.class only
         assertEquals(searchQuery2, criteria.getQuery());
-        assertEquals("+(((artR:\"いき きも もの のが がか かり\"~1)^2.2 artEX:\"いき きも もの のが がか かり\"~1 art:\"いき もの が かり\"~1)) +("
-                + fid + ")", criteria.getParsedQuery().toString());
+        assertEquals("+(((artR:\"いき きも もの のが がか かり\"~1)^2.2 art:\"いき もの が かり\"~1)) +(" + fid + ")",
+                criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerAlbumMusicAlbum
@@ -717,7 +717,7 @@ public class UPnPSearchCriteriaDirectorTest {
         assertEquals(53, criteria.getCount());
         assertTrue(criteria.isIncludeComposer());
         assertEquals(searchQuery4, criteria.getQuery());
-        assertEquals("+(((titEX:\"なく くも もん んか\"~1)^4.6 (tit:\"なく もん か\"~1)^4.4)) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +("
+        assertEquals("+(((titR:\"なく くも もん んか\"~1)^4.6 (tit:\"なく もん か\"~1)^4.4)) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +("
                 + path + ")", criteria.getParsedQuery().toString());
     }
 
@@ -740,7 +740,7 @@ public class UPnPSearchCriteriaDirectorTest {
         assertTrue(criteria.isIncludeComposer());
         assertEquals(searchQuery5, criteria.getQuery());
         assertEquals(
-                "+(((cmpR:\"日本 本語 語て てす すと\"~1)^2.2 cmp:\"日本語 テスト\"~1) ((artR:\"日本 本語 語て てす すと\"~1)^2.8 (art:\"日本語 テスト\"~1)^2.4)) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +("
+                "+(((cmpR:\"日本 本語 語て てす すと\"~1)^2.2 cmp:\"日本語 テスト\"~1) ((artR:\"日本 本語 語て てす すと\"~1)^2.6 (art:\"日本語 テスト\"~1)^2.4)) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +("
                         + path + ")",
                 criteria.getParsedQuery().toString());
     }
@@ -765,7 +765,7 @@ public class UPnPSearchCriteriaDirectorTest {
         assertFalse(criteria.isIncludeComposer());
         assertEquals(searchQuery5, criteria.getQuery());
         assertEquals(
-                "+(() ((artR:\"日本 本語 語て てす すと\"~1)^2.8 (art:\"日本語 テスト\"~1)^2.4)) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +("
+                "+(() ((artR:\"日本 本語 語て てす すと\"~1)^2.6 (art:\"日本語 テスト\"~1)^2.4)) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +("
                         + path + ")",
                 criteria.getParsedQuery().toString());
     }

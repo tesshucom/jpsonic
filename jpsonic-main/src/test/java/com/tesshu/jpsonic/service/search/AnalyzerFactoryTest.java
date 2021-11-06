@@ -83,23 +83,26 @@ class AnalyzerFactoryTest {
             String queryEng = "The quick brown fox jumps over the lazy dog.";
             var tokenized = Arrays.asList("quick", "brown", "fox", "jumps", "over", "lazy", "dog");
             assertEquals(tokenized, toTermString(FieldNamesConstants.ARTIST, queryEng));
-            assertEquals(tokenized, toTermString(FieldNamesConstants.ARTIST_READING, queryEng));
             assertEquals(tokenized, toTermString(FieldNamesConstants.ALBUM, queryEng));
             assertEquals(tokenized, toTermString(FieldNamesConstants.TITLE, queryEng));
-            assertTrue(toTermString(FieldNamesConstants.ARTIST_EX, queryEng).isEmpty());
-            assertTrue(toTermString(FieldNamesConstants.ALBUM_EX, queryEng).isEmpty());
-            assertTrue(toTermString(FieldNamesConstants.TITLE_EX, queryEng).isEmpty());
+            assertEquals(tokenized, toTermString(FieldNamesConstants.ARTIST_READING, queryEng));
+            assertTrue(toTermString(FieldNamesConstants.ALBUM_READING, queryEng).isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.TITLE_READING, queryEng).isEmpty());
 
             String queryHira = "くいっくぶらうん";
             var bigramHira = Arrays.asList("くい", "いっ", "っく", "くぶ", "ぶら", "らう", "うん");
-            assertEquals(bigramHira, toTermString(FieldNamesConstants.ARTIST_EX, queryHira));
-            assertEquals(bigramHira, toTermString(FieldNamesConstants.ALBUM_EX, queryHira));
-            assertEquals(bigramHira, toTermString(FieldNamesConstants.TITLE_EX, queryHira));
+            assertEquals(bigramHira, toTermString(FieldNamesConstants.ARTIST_READING, queryHira));
+            assertEquals(bigramHira, toTermString(FieldNamesConstants.ALBUM_READING, queryHira));
+            assertEquals(bigramHira, toTermString(FieldNamesConstants.TITLE_READING, queryHira));
+
+            String queryEngAndHira = "quick　ぶらうん";
+            assertTrue(toTermString(FieldNamesConstants.ALBUM_READING, queryEngAndHira).isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.TITLE_READING, queryEngAndHira).isEmpty());
 
             String queryStopsOnly = "La La La"; // Currently omitted as rare-case
-            assertTrue(toTermString(FieldNamesConstants.ARTIST_EX, queryStopsOnly).isEmpty());
-            assertTrue(toTermString(FieldNamesConstants.ALBUM_EX, queryStopsOnly).isEmpty());
-            assertTrue(toTermString(FieldNamesConstants.TITLE_EX, queryStopsOnly).isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.ARTIST_READING, queryStopsOnly).isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.ALBUM_READING, queryStopsOnly).isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.TITLE_READING, queryStopsOnly).isEmpty());
         }
 
         /**
@@ -121,9 +124,8 @@ class AnalyzerFactoryTest {
             assertEquals(tokenized, toTermString(FieldNamesConstants.COMPOSER, query));
             assertEquals(tokenized, toTermString(FieldNamesConstants.FOLDER, query));
 
-            assertTrue(toTermString(FieldNamesConstants.TITLE_EX, query).isEmpty());
-            assertTrue(toTermString(FieldNamesConstants.ALBUM_EX, query).isEmpty());
-            assertTrue(toTermString(FieldNamesConstants.ARTIST_EX, query).isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.ALBUM_READING, query).isEmpty());
+            assertTrue(toTermString(FieldNamesConstants.TITLE_READING, query).isEmpty());
 
             var bigram = Arrays.asList("bc");
             assertEquals(bigram, toTermString(FieldNamesConstants.ARTIST_READING, query));
@@ -309,9 +311,8 @@ class AnalyzerFactoryTest {
 
             // Since it is a field for completion, the index is not created unless it is a special case.
             var none = Collections.emptyList();
-            assertEquals(none, toTermString(FieldNamesConstants.TITLE_EX, query));
-            assertEquals(none, toTermString(FieldNamesConstants.ALBUM_EX, query));
-            assertEquals(none, toTermString(FieldNamesConstants.ARTIST_EX, query));
+            assertEquals(none, toTermString(FieldNamesConstants.TITLE_READING, query));
+            assertEquals(none, toTermString(FieldNamesConstants.ALBUM_READING, query));
 
             /*
              * Key field. This string can be used to search for records in the database. In Jpsonic, multi-genre is
@@ -336,7 +337,7 @@ class AnalyzerFactoryTest {
              * Fields where bigram is used. Especially in this case it contains Long vowels. In the case of Japanese,
              * processing is insufficient in morphological analysis to support voice input.
              */
-            var bigram = Arrays.asList("caesar", "しい", "ーざ", "ざあ");
+            var bigram = Arrays.asList("caesar", "しい", "いざ", "ざあ");
             assertEquals(bigram, toTermString(FieldNamesConstants.ARTIST_READING, query));
         }
 
@@ -399,19 +400,18 @@ class AnalyzerFactoryTest {
 
             // Since it is a field for completion, the index is not created unless it is a special case.
             var none = Collections.emptyList();
-            assertEquals(none, toTermString(FieldNamesConstants.ARTIST_EX, query));
-            assertEquals(none, toTermString(FieldNamesConstants.TITLE_EX, query));
-            assertEquals(none, toTermString(FieldNamesConstants.ALBUM_EX, query));
+            assertEquals(none, toTermString(FieldNamesConstants.TITLE_READING, query));
+            assertEquals(none, toTermString(FieldNamesConstants.ALBUM_READING, query));
 
             // Cases where complementary fields work
             String queryLowerHalfHiraganaOnly = "ぁぃぅ";
             var lowerHalfHiraganaBigram = Arrays.asList("ぁぃ", "ぃぅ");
             assertEquals(lowerHalfHiraganaBigram,
-                    toTermString(FieldNamesConstants.ARTIST_EX, queryLowerHalfHiraganaOnly));
+                    toTermString(FieldNamesConstants.ARTIST_READING, queryLowerHalfHiraganaOnly));
             assertEquals(lowerHalfHiraganaBigram,
-                    toTermString(FieldNamesConstants.TITLE_EX, queryLowerHalfHiraganaOnly));
+                    toTermString(FieldNamesConstants.TITLE_READING, queryLowerHalfHiraganaOnly));
             assertEquals(lowerHalfHiraganaBigram,
-                    toTermString(FieldNamesConstants.ALBUM_EX, queryLowerHalfHiraganaOnly));
+                    toTermString(FieldNamesConstants.ALBUM_READING, queryLowerHalfHiraganaOnly));
         }
 
         @Test
@@ -421,9 +421,8 @@ class AnalyzerFactoryTest {
 
             // Since it is a field for completion, the index is not created unless it is a special case.
             var none = Collections.emptyList();
-            assertEquals(none, toTermString(FieldNamesConstants.TITLE_EX, query));
-            assertEquals(none, toTermString(FieldNamesConstants.ALBUM_EX, query));
-            assertEquals(none, toTermString(FieldNamesConstants.ARTIST_EX, query));
+            assertEquals(none, toTermString(FieldNamesConstants.TITLE_READING, query));
+            assertEquals(none, toTermString(FieldNamesConstants.ALBUM_READING, query));
 
             var noChange = Arrays.asList(query);
             assertEquals(noChange, toTermString(FieldNamesConstants.GENRE, query));
@@ -456,9 +455,9 @@ class AnalyzerFactoryTest {
 
             var none = Collections.emptyList();
             assertEquals(none, toTermString(FieldNamesConstants.ALBUM, query));
-            assertEquals(none, toTermString(FieldNamesConstants.ALBUM_EX, query));
+            assertEquals(none, toTermString(FieldNamesConstants.ALBUM_READING, query));
             assertEquals(none, toTermString(FieldNamesConstants.ARTIST, query));
-            assertEquals(none, toTermString(FieldNamesConstants.ARTIST_EX, query));
+            assertEquals(none, toTermString(FieldNamesConstants.ARTIST_READING, query));
             assertEquals(none, toTermString(FieldNamesConstants.ARTIST_READING, query));
             assertEquals(none, toTermString(FieldNamesConstants.COMPOSER, query));
             assertEquals(none, toTermString(FieldNamesConstants.COMPOSER_READING, query));
@@ -467,7 +466,7 @@ class AnalyzerFactoryTest {
             assertEquals(none, toTermString(FieldNamesConstants.ID, query));
             assertEquals(none, toTermString(FieldNamesConstants.MEDIA_TYPE, query));
             assertEquals(none, toTermString(FieldNamesConstants.TITLE, query));
-            assertEquals(none, toTermString(FieldNamesConstants.TITLE_EX, query));
+            assertEquals(none, toTermString(FieldNamesConstants.TITLE_READING, query));
             assertEquals(none, toTermString(FieldNamesConstants.YEAR, query));
         }
 
