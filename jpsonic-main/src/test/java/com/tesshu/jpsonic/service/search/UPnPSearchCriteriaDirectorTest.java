@@ -269,8 +269,8 @@ public class UPnPSearchCriteriaDirectorTest {
         SearchServiceUtilities utilities = new SearchServiceUtilities(null, null, null, null, null, settingsService);
         UpnpProcessorUtil util = new UpnpProcessorUtil(settingsService, musicFolderService, mock(SecurityService.class),
                 null, null, null, null);
-        director = new UPnPSearchCriteriaDirector(new QueryFactory(new AnalyzerFactory(), utilities), settingsService,
-                util, utilities);
+        director = new UPnPSearchCriteriaDirector(new QueryFactory(new AnalyzerFactory(settingsService), utilities),
+                settingsService, util, utilities);
     }
 
     // testClassHierarchy

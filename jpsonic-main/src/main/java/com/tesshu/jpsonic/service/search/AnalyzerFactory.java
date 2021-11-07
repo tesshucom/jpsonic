@@ -30,6 +30,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.tesshu.jpsonic.domain.IndexScheme;
+import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.analysis.ComplementaryFilter;
 import com.tesshu.jpsonic.service.search.analysis.ComplementaryFilter.Mode;
 import com.tesshu.jpsonic.service.search.analysis.GenreTokenizerFactory;
@@ -61,6 +63,7 @@ import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.apache.lucene.analysis.ngram.EdgeNGramTokenFilter;
 import org.apache.lucene.analysis.pattern.PatternReplaceFilterFactory;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
+import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
 import org.apache.lucene.util.IOUtils;
 import org.springframework.stereotype.Component;
 
@@ -79,7 +82,13 @@ public final class AnalyzerFactory {
     private static final String FILTER_ATTR_REPLACE = "replace";
     private static final String FILTER_ATTR_ALL = "all";
 
+    private final SettingsService settingsService;
+
     private Analyzer analyzer;
+
+    public AnalyzerFactory(SettingsService settingsService) {
+        this.settingsService = settingsService;
+    }
 
     private static CharArraySet loadWords(String wordsFile) {
         try (Reader reader = IOUtils.getDecodingReader(AnalyzerFactory.class.getResourceAsStream("/".concat(wordsFile)),
@@ -106,7 +115,10 @@ public final class AnalyzerFactory {
      * the specifications of legacy servers is applied.
      */
     private Analyzer createDefaultAnalyzer(boolean isArtist) throws IOException {
-        CustomAnalyzer.Builder builder = CustomAnalyzer.builder().withTokenizer(JapaneseTokenizerFactory.class)
+        IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
+        CustomAnalyzer.Builder builder = CustomAnalyzer.builder()
+                .withTokenizer(scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING ? StandardTokenizerFactory.class
+                        : JapaneseTokenizerFactory.class)
                 .addTokenFilter(CJKWidthFilterFactory.class)
                 .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false")
                 .addTokenFilter(LowerCaseFilterFactory.class) //

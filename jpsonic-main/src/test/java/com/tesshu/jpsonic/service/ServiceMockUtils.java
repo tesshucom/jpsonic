@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.google.common.collect.ImmutableList;
 import com.tesshu.jpsonic.dao.TranscodingDao;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
+import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.domain.User;
@@ -108,6 +109,7 @@ public final class ServiceMockUtils {
                     .thenReturn(FileModifiedCheckScheme.LAST_MODIFIED.name());
             Mockito.when(settingsService.getJWTKey()).thenReturn("SomeKey");
             Mockito.when(settingsService.isIndexEnglishPrior()).thenReturn(true);
+            Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.NATIVE_JAPANESE.name());
             mock = settingsService;
         } else if (AirsonicLocaleResolver.class == classToMock) {
             String language = SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE.defaultValue;
