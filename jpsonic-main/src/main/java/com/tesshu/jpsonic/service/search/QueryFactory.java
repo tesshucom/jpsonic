@@ -73,10 +73,6 @@ public class QueryFactory {
         return new TermQuery(new Term(FieldNamesConstants.FOLDER, folder.getPath().getPath()));
     };
 
-    /*
-     * XXX 3.x -> 8.x : "SpanOr" has been changed to "Or". - Path comparison is more appropriate with "Or". - If
-     * "SpanOr" is maintained, the DOC design needs to be changed.
-     */
     public final BiFunction<@NonNull Boolean, @NonNull List<MusicFolder>, @NonNull Query> toFolderQuery = (isId3,
             folders) -> {
         BooleanQuery.Builder mfQuery = new BooleanQuery.Builder();
@@ -84,9 +80,6 @@ public class QueryFactory {
         return mfQuery.build();
     };
 
-    /*
-     * XXX 3.x -> 8.x : RangeQuery has been changed to not allow null.
-     */
     private final BiFunction<@Nullable Integer, @Nullable Integer, @NonNull Query> toYearRangeQuery = (from,
             to) -> IntPoint.newRangeQuery(FieldNamesConstants.YEAR, isEmpty(from) ? Integer.MIN_VALUE : from,
                     isEmpty(to) ? Integer.MAX_VALUE : to);
@@ -110,10 +103,8 @@ public class QueryFactory {
                 stream.reset();
                 while (stream.incrementToken()) {
                     String token = stream.getAttribute(CharTermAttribute.class).toString();
-                    if (!isEmpty(token)) {
-                        phrase.add(new Term(fieldName, token));
-                        exists = true;
-                    }
+                    phrase.add(new Term(fieldName, token));
+                    exists = true;
                 }
             }
             if (exists) {
@@ -127,11 +118,10 @@ public class QueryFactory {
             }
         }
         return fieldQuerys.build();
-
     }
 
-    public Query searchByPhrase(String searchInput, boolean includeComposer, List<MusicFolder> musicFolders,
-            IndexType indexType) throws IOException {
+    public Query searchByPhrase(@NonNull String searchInput, boolean includeComposer,
+            @NonNull List<MusicFolder> musicFolders, @NonNull IndexType indexType) throws IOException {
         BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
 
         String[] fields = util.filterComposer(indexType.getFields(), includeComposer);
@@ -143,7 +133,6 @@ public class QueryFactory {
         mainQuery.add(folderQuery, Occur.MUST);
 
         return mainQuery.build();
-
     }
 
     /**
@@ -151,7 +140,7 @@ public class QueryFactory {
      * {@link com.tesshu.jpsonic.service.SearchService#getRandomSongs(RandomSearchCriteria)}.
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term) Not reusable
-    public Query getRandomSongs(RandomSearchCriteria criteria) throws IOException {
+    public Query getRandomSongs(@NonNull RandomSearchCriteria criteria) throws IOException {
 
         BooleanQuery.Builder query = new BooleanQuery.Builder();
 
@@ -161,14 +150,11 @@ public class QueryFactory {
         BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
         if (!isEmpty(criteria.getGenres())) {
             for (String genre : criteria.getGenres()) {
-                if (!isEmpty(criteria.getGenres()) && !isEmpty(genre)) {
-                    try (TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(FieldNamesConstants.GENRE,
-                            genre)) {
-                        stream.reset();
-                        while (stream.incrementToken()) {
-                            String token = stream.getAttribute(CharTermAttribute.class).toString();
-                            genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE, token)), Occur.SHOULD);
-                        }
+                try (TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(FieldNamesConstants.GENRE, genre)) {
+                    stream.reset();
+                    while (stream.incrementToken()) {
+                        String token = stream.getAttribute(CharTermAttribute.class).toString();
+                        genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE, token)), Occur.SHOULD);
                     }
                 }
             }
@@ -193,7 +179,7 @@ public class QueryFactory {
      * 
      * @return Query
      */
-    public Query getRandomSongs(List<MusicFolder> musicFolders) {
+    public Query getRandomSongs(@NonNull List<MusicFolder> musicFolders) {
         return new BooleanQuery.Builder()
                 .add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.MUST)
                 .add(toFolderQuery.apply(false, musicFolders), Occur.MUST).build();
@@ -208,7 +194,7 @@ public class QueryFactory {
      * 
      * @return Query
      */
-    public Query getRandomAlbums(List<MusicFolder> musicFolders) {
+    public Query getRandomAlbums(@NonNull List<MusicFolder> musicFolders) {
         return new BooleanQuery.Builder().add(toFolderQuery.apply(false, musicFolders), Occur.SHOULD).build();
     }
 
@@ -221,7 +207,7 @@ public class QueryFactory {
      * 
      * @return Query
      */
-    public Query getRandomAlbumsId3(List<MusicFolder> musicFolders) {
+    public Query getRandomAlbumsId3(@NonNull List<MusicFolder> musicFolders) {
         return new BooleanQuery.Builder().add(toFolderQuery.apply(true, musicFolders), Occur.SHOULD).build();
     }
 
@@ -230,7 +216,8 @@ public class QueryFactory {
      * {@link com.tesshu.jpsonic.service.SearchService#getAlbumId3sByGenre(String, int, int, List)}
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term) Not reusable
-    public Query getAlbumId3sByGenres(String genres, List<MusicFolder> musicFolders) throws IOException {
+    public Query getAlbumId3sByGenres(@Nullable String genres, @NonNull List<MusicFolder> musicFolders)
+            throws IOException {
 
         // main
         BooleanQuery.Builder query = new BooleanQuery.Builder();
@@ -265,7 +252,8 @@ public class QueryFactory {
      * {@link com.tesshu.jpsonic.service.SearchService#getAlbumsByGenre(int, int, String, List)}
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term) Not reusable
-    public Query getMediasByGenres(String genres, List<MusicFolder> musicFolders) throws IOException {
+    public Query getMediasByGenres(@Nullable String genres, @NonNull List<MusicFolder> musicFolders)
+            throws IOException {
 
         // main
         BooleanQuery.Builder query = new BooleanQuery.Builder();
@@ -294,7 +282,7 @@ public class QueryFactory {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term) Not reusable
-    public Query toPreAnalyzedGenres(List<String> genres) throws IOException {
+    public Query toPreAnalyzedGenres(@NonNull List<String> genres) throws IOException {
 
         // main
         BooleanQuery.Builder query = new BooleanQuery.Builder();
@@ -318,9 +306,8 @@ public class QueryFactory {
         return query.build();
     }
 
-    public Query getGenre(String genre) throws IOException {
+    public Query getGenre(@NonNull String genre) {
         return new BooleanQuery.Builder().add(new TermQuery(new Term(FieldNamesConstants.GENRE, genre)), Occur.SHOULD)
                 .build();
     }
-
 }
