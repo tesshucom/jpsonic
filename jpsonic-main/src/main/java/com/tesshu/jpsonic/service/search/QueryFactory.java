@@ -24,6 +24,7 @@ package com.tesshu.jpsonic.service.search;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -31,6 +32,7 @@ import java.util.function.Function;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
+import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.IntPoint;
@@ -60,8 +62,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class QueryFactory {
 
+    private final SettingsService settingsService;
     private final AnalyzerFactory analyzerFactory;
-    private final SearchServiceUtilities util;
 
     private final Function<MusicFolder, Query> toFolderIdQuery = (folder) -> {
         // Unanalyzed field
@@ -84,19 +86,41 @@ public class QueryFactory {
             to) -> IntPoint.newRangeQuery(FieldNamesConstants.YEAR, isEmpty(from) ? Integer.MIN_VALUE : from,
                     isEmpty(to) ? Integer.MAX_VALUE : to);
 
-    public QueryFactory(AnalyzerFactory analyzerFactory, SearchServiceUtilities util) {
+    public QueryFactory(SettingsService settingsService, AnalyzerFactory analyzerFactory) {
         super();
+        this.settingsService = settingsService;
         this.analyzerFactory = analyzerFactory;
-        this.util = util;
+    }
+
+    /**
+     * If necessary, exclude fields related to Composer from the fields to be searched
+     * 
+     * @param fields
+     *            Field to search
+     * @param includeComposer
+     *            Whether to include fields related to Composer in the search. The judgment method may differ depending
+     *            on the protocol. In the case of HTTP, personal settings are also considered. For UPnP, follow server
+     *            settings.
+     * 
+     * @return Final search target field
+     */
+    String[] filterComposer(String[] fields, boolean includeComposer) {
+        return Arrays.stream(fields)
+                .filter(f -> includeComposer
+                        || !(FieldNamesConstants.COMPOSER.equals(f) || FieldNamesConstants.COMPOSER_READING.equals(f)
+                                || FieldNamesConstants.COMPOSER_READING_ROMANIZED.equals(f)))
+                .toArray(String[]::new);
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (PhraseQuery, Term, BoostQuery) Not reusable
-    public final Query createPhraseQuery(@NonNull String[] fieldNames, @NonNull String queryString,
+    private Query createPhraseQuery(@NonNull String[] fieldNames, boolean includeComposer, @NonNull String queryString,
             @NonNull IndexType indexType) throws IOException {
+
+        String[] targetFields = filterComposer(fieldNames, includeComposer);
 
         BooleanQuery.Builder fieldQuerys = new BooleanQuery.Builder();
 
-        for (String fieldName : fieldNames) {
+        for (String fieldName : targetFields) {
             PhraseQuery.Builder phrase = new PhraseQuery.Builder();
             boolean exists = false;
             try (TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(fieldName, queryString)) {
@@ -120,12 +144,18 @@ public class QueryFactory {
         return fieldQuerys.build();
     }
 
+    // Called by UPnP
+    public Query createPhraseQuery(@NonNull String[] targetFields, @NonNull String queryString,
+            @NonNull IndexType indexType) throws IOException {
+        return createPhraseQuery(targetFields, settingsService.isSearchComposer(), queryString, indexType);
+    }
+
+    // Called by HTTP
     public Query searchByPhrase(@NonNull String searchInput, boolean includeComposer,
             @NonNull List<MusicFolder> musicFolders, @NonNull IndexType indexType) throws IOException {
         BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
 
-        String[] fields = util.filterComposer(indexType.getFields(), includeComposer);
-        Query multiFieldQuery = createPhraseQuery(fields, searchInput, indexType);
+        Query multiFieldQuery = createPhraseQuery(indexType.getFields(), searchInput, indexType);
         mainQuery.add(multiFieldQuery, Occur.MUST);
 
         boolean isId3 = indexType == IndexType.ALBUM_ID3 || indexType == IndexType.ARTIST_ID3;

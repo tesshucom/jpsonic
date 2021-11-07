@@ -22,6 +22,7 @@
 package com.tesshu.jpsonic.service.search;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
@@ -38,6 +39,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.mockito.Mockito;
 
 /*
  * The query syntax has not changed significantly since Lucene 1.3.
@@ -67,9 +69,27 @@ class QueryFactoryTest {
     private static final List<MusicFolder> SINGLE_FOLDERS = Arrays.asList(MUSIC_FOLDER1);
     private static final List<MusicFolder> MULTI_FOLDERS = Arrays.asList(MUSIC_FOLDER1, MUSIC_FOLDER2);
 
+    private SettingsService settingsService;
+
     @BeforeEach
     public void setup() {
-        queryFactory = new QueryFactory(new AnalyzerFactory(mock(SettingsService.class)), null);
+        settingsService = mock(SettingsService.class);
+        queryFactory = new QueryFactory(settingsService, new AnalyzerFactory(settingsService));
+    }
+
+    @Test
+    @Order(1)
+    void testFilterComposer() {
+        String[] filtered = { FieldNamesConstants.TITLE, //
+                FieldNamesConstants.TITLE_READING, //
+                FieldNamesConstants.ARTIST, //
+                FieldNamesConstants.ARTIST_READING, //
+                FieldNamesConstants.ARTIST_READING_ROMANIZED };
+        assertArrayEquals(filtered, queryFactory.filterComposer(IndexType.SONG.getFields(), false));
+
+        Mockito.when(settingsService.isSearchComposer()).thenReturn(true);
+        String[] all = IndexType.SONG.getFields();
+        assertArrayEquals(all, queryFactory.filterComposer(IndexType.SONG.getFields(), true));
     }
 
     @Test

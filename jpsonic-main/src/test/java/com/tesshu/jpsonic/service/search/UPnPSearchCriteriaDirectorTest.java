@@ -23,9 +23,7 @@ package com.tesshu.jpsonic.service.search;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.lang.annotation.Documented;
@@ -225,14 +223,6 @@ public class UPnPSearchCriteriaDirectorTest {
                         }
                     }
                 }
-
-                @interface includeComposer {
-                    @interface FALSE {
-                    }
-
-                    @interface TRUE {
-                    }
-                }
             }
 
             @interface IllegalArgument {
@@ -266,11 +256,10 @@ public class UPnPSearchCriteriaDirectorTest {
         path = path.trim();
         fid = fid.trim();
 
-        SearchServiceUtilities utilities = new SearchServiceUtilities(null, null, null, null, null, settingsService);
         UpnpProcessorUtil util = new UpnpProcessorUtil(settingsService, musicFolderService, mock(SecurityService.class),
                 null, null, null, null);
-        director = new UPnPSearchCriteriaDirector(new QueryFactory(new AnalyzerFactory(settingsService), utilities),
-                settingsService, util, utilities);
+        director = new UPnPSearchCriteriaDirector(
+                new QueryFactory(settingsService, new AnalyzerFactory(settingsService)), util);
     }
 
     // testClassHierarchy
@@ -652,7 +641,6 @@ public class UPnPSearchCriteriaDirectorTest {
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerAlbumMusicAlbum
     @DirectorDecisions.Actions.construct
     @DirectorDecisions.Result.Criteria.AssignableClass.Album
-    @DirectorDecisions.Result.Criteria.includeComposer.FALSE
     @Test
     public void b01() {
         String searchQuery1 = "(upnp:class = \"object.container.album.musicAlbum\" and dc:title contains \"にほんごはむずかしい\")";
@@ -660,7 +648,6 @@ public class UPnPSearchCriteriaDirectorTest {
         assertEquals(Album.class, criteria.getAssignableClass());
         assertEquals(0, criteria.getOffset());
         assertEquals(50, criteria.getCount());
-        assertFalse(criteria.isIncludeComposer()); // MediaFile.class only
         assertEquals(searchQuery1, criteria.getQuery());
         assertEquals("+(((alb:\"に ほん ご は むずかしい\"~1)^4.0 (albR:\"にほ ほん んご ごは はむ むず ずか かし しい\"~1)^4.2)) +(" + fid + ")",
                 criteria.getParsedQuery().toString());
@@ -669,7 +656,6 @@ public class UPnPSearchCriteriaDirectorTest {
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerPersonMusicArtist
     @DirectorDecisions.Actions.construct
     @DirectorDecisions.Result.Criteria.AssignableClass.Artist
-    @DirectorDecisions.Result.Criteria.includeComposer.FALSE
     @Test
     public void b02() {
         String searchQuery2 = "(upnp:class = \"object.container.person.musicArtist\" and dc:title contains \"いきものがかり\")";
@@ -677,7 +663,6 @@ public class UPnPSearchCriteriaDirectorTest {
         assertEquals(Artist.class, criteria.getAssignableClass());
         assertEquals(1, criteria.getOffset());
         assertEquals(51, criteria.getCount());
-        assertFalse(criteria.isIncludeComposer()); // MediaFile.class only
         assertEquals(searchQuery2, criteria.getQuery());
         assertEquals("+((art:\"いき もの が かり\"~1 (artR:\"いき きも もの のが がか かり\"~1)^2.2)) +(" + fid + ")",
                 criteria.getParsedQuery().toString());
@@ -686,7 +671,6 @@ public class UPnPSearchCriteriaDirectorTest {
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerAlbumMusicAlbum
     @DirectorDecisions.Actions.construct
     @DirectorDecisions.Result.Criteria.AssignableClass.Album
-    @DirectorDecisions.Result.Criteria.includeComposer.FALSE
     @Test
     public void b03() {
         String searchQuery3 = "(upnp:class = \"object.container.album.musicAlbum\" and upnp:artist contains \"日本語テスト\")";
@@ -694,7 +678,6 @@ public class UPnPSearchCriteriaDirectorTest {
         assertEquals(Album.class, criteria.getAssignableClass());
         assertEquals(2, criteria.getOffset());
         assertEquals(52, criteria.getCount());
-        assertFalse(criteria.isIncludeComposer()); // MediaFile.class only
         assertEquals(searchQuery3, criteria.getQuery());
         assertEquals("+((art:\"日本語 テスト\"~1 (artR:\"日本 本語 語て てす すと\"~1)^2.2)) +(" + fid + ")",
                 criteria.getParsedQuery().toString());
@@ -707,7 +690,6 @@ public class UPnPSearchCriteriaDirectorTest {
     @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.MUSIC
     @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.PODCAST
     @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.AUDIOBOOK
-    @DirectorDecisions.Result.Criteria.includeComposer.TRUE
     @Test
     public void b04() {
         String searchQuery4 = "(upnp:class derivedfrom \"object.item.audioItem\" and dc:title contains \"なくもんか\")";
@@ -715,7 +697,6 @@ public class UPnPSearchCriteriaDirectorTest {
         assertEquals(MediaFile.class, criteria.getAssignableClass());
         assertEquals(3, criteria.getOffset());
         assertEquals(53, criteria.getCount());
-        assertTrue(criteria.isIncludeComposer());
         assertEquals(searchQuery4, criteria.getQuery());
         assertEquals("+(((tit:\"なく もん か\"~1)^6.0 (titR:\"なく くも もん んか\"~1)^6.2)) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +("
                 + path + ")", criteria.getParsedQuery().toString());
@@ -729,7 +710,6 @@ public class UPnPSearchCriteriaDirectorTest {
     @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.MUSIC
     @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.PODCAST
     @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.AUDIOBOOK
-    @DirectorDecisions.Result.Criteria.includeComposer.TRUE
     @Test
     public void b05() {
         String searchQuery5 = "(upnp:class derivedfrom \"object.item.audioItem\" and (dc:creator contains \"日本語テスト\" or upnp:artist contains \"日本語テスト\"))";
@@ -737,7 +717,6 @@ public class UPnPSearchCriteriaDirectorTest {
         assertEquals(MediaFile.class, criteria.getAssignableClass());
         assertEquals(4, criteria.getOffset());
         assertEquals(54, criteria.getCount());
-        assertTrue(criteria.isIncludeComposer());
         assertEquals(searchQuery5, criteria.getQuery());
         assertEquals(
                 "+((cmp:\"日本語 テスト\"~1 (cmpR:\"日本 本語 語て てす すと\"~1)^2.2) ((art:\"日本語 テスト\"~1)^4.0 (artR:\"日本 本語 語て てす すと\"~1)^4.2)) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +("
@@ -753,7 +732,6 @@ public class UPnPSearchCriteriaDirectorTest {
     @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.MUSIC
     @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.PODCAST
     @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.AUDIOBOOK
-    @DirectorDecisions.Result.Criteria.includeComposer.FALSE
     @Test
     public void b06() {
         Mockito.when(settingsService.isSearchComposer()).thenReturn(false);
@@ -762,7 +740,6 @@ public class UPnPSearchCriteriaDirectorTest {
         assertEquals(MediaFile.class, criteria.getAssignableClass());
         assertEquals(4, criteria.getOffset());
         assertEquals(54, criteria.getCount());
-        assertFalse(criteria.isIncludeComposer());
         assertEquals(searchQuery5, criteria.getQuery());
         assertEquals(
                 "+(() ((art:\"日本語 テスト\"~1)^4.0 (artR:\"日本 本語 語て てす すと\"~1)^4.2)) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +("
@@ -774,7 +751,6 @@ public class UPnPSearchCriteriaDirectorTest {
     @DirectorDecisions.Actions.construct
     @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
     @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.VIDEO
-    @DirectorDecisions.Result.Criteria.includeComposer.TRUE
     @Test
     public void b07() {
         String searchQuery6 = "(upnp:class derivedfrom \"object.item.videoItem\" and dc:title contains \"日本語テスト\")";
@@ -782,9 +758,7 @@ public class UPnPSearchCriteriaDirectorTest {
         assertEquals(MediaFile.class, criteria.getAssignableClass());
         assertEquals(5, criteria.getOffset());
         assertEquals(55, criteria.getCount());
-        assertTrue(criteria.isIncludeComposer());
         assertEquals(searchQuery6, criteria.getQuery());
         assertEquals("+(((tit:\"日本語 テスト\"~1)^6.0)) +(+m:VIDEO) +(" + path + ")", criteria.getParsedQuery().toString());
     }
-
 }
