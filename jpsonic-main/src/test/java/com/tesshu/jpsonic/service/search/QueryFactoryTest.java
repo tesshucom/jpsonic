@@ -30,22 +30,23 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.lucene.search.Query;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.Mockito;
 
 /*
- * The query syntax has not changed significantly since Lucene 1.3.
- * (A slight difference)
- * If you face a problem reaping from 3.x to 7.x
- * It may be faster to look at the query than to look at the API.
+ * The query syntax has not changed significantly since Lucene 1.3. (A slight difference) If you
+ * face a problem reaping from 3.x to 7.x It may be faster to look at the query than to look at the
+ * API.
  */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -77,19 +78,131 @@ class QueryFactoryTest {
         queryFactory = new QueryFactory(settingsService, new AnalyzerFactory(settingsService));
     }
 
-    @Test
+    @Nested
     @Order(1)
-    void testFilterComposer() {
-        String[] filtered = { FieldNamesConstants.TITLE, //
-                FieldNamesConstants.TITLE_READING, //
-                FieldNamesConstants.ARTIST, //
-                FieldNamesConstants.ARTIST_READING, //
-                FieldNamesConstants.ARTIST_READING_ROMANIZED };
-        assertArrayEquals(filtered, queryFactory.filterComposer(IndexType.SONG.getFields(), false));
+    class FilterFieldsTest {
 
-        Mockito.when(settingsService.isSearchComposer()).thenReturn(true);
-        String[] all = IndexType.SONG.getFields();
-        assertArrayEquals(all, queryFactory.filterComposer(IndexType.SONG.getFields(), true));
+        @Test
+        void testComposer() {
+            String[] notContainsComposer = { FieldNamesConstants.TITLE, //
+                    FieldNamesConstants.TITLE_READING, //
+                    FieldNamesConstants.ARTIST, //
+                    FieldNamesConstants.ARTIST_READING };
+            assertArrayEquals(notContainsComposer, queryFactory.filterFields(IndexType.SONG.getFields(), false));
+
+            Mockito.when(settingsService.isSearchComposer()).thenReturn(true);
+            String[] containsComposer = { FieldNamesConstants.TITLE, //
+                    FieldNamesConstants.TITLE_READING, //
+                    FieldNamesConstants.ARTIST, //
+                    FieldNamesConstants.ARTIST_READING, //
+                    FieldNamesConstants.COMPOSER, //
+                    FieldNamesConstants.COMPOSER_READING };
+            assertArrayEquals(containsComposer, queryFactory.filterFields(IndexType.SONG.getFields(), true));
+        }
+
+        @Test
+        void testScheme() {
+
+            Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.NATIVE_JAPANESE.name());
+            String[] notRomanize = { FieldNamesConstants.TITLE, //
+                    FieldNamesConstants.TITLE_READING, //
+                    FieldNamesConstants.ARTIST, //
+                    FieldNamesConstants.ARTIST_READING };
+            assertArrayEquals(notRomanize, queryFactory.filterFields(IndexType.SONG.getFields(), false));
+
+            Mockito.when(settingsService.getIndexSchemeName())
+                    .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            assertArrayEquals(notRomanize, queryFactory.filterFields(IndexType.SONG.getFields(), false));
+
+            Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+            String[] romanize = { FieldNamesConstants.TITLE, //
+                    FieldNamesConstants.TITLE_READING, //
+                    FieldNamesConstants.ARTIST, //
+                    FieldNamesConstants.ARTIST_READING, FieldNamesConstants.ARTIST_READING_ROMANIZED };
+            assertArrayEquals(romanize, queryFactory.filterFields(IndexType.SONG.getFields(), false));
+
+            // and Composer
+            Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.NATIVE_JAPANESE.name());
+            String[] notRomanizeAndCmp = { FieldNamesConstants.TITLE, //
+                    FieldNamesConstants.TITLE_READING, //
+                    FieldNamesConstants.ARTIST, //
+                    FieldNamesConstants.ARTIST_READING, //
+                    FieldNamesConstants.COMPOSER, //
+                    FieldNamesConstants.COMPOSER_READING };
+            assertArrayEquals(notRomanizeAndCmp, queryFactory.filterFields(IndexType.SONG.getFields(), true));
+
+            Mockito.when(settingsService.getIndexSchemeName())
+                    .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            assertArrayEquals(notRomanizeAndCmp, queryFactory.filterFields(IndexType.SONG.getFields(), true));
+
+            Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+            String[] romanizeAndCmp = { FieldNamesConstants.TITLE, //
+                    FieldNamesConstants.TITLE_READING, //
+                    FieldNamesConstants.ARTIST, //
+                    FieldNamesConstants.ARTIST_READING, //
+                    FieldNamesConstants.ARTIST_READING_ROMANIZED, //
+                    FieldNamesConstants.COMPOSER, //
+                    FieldNamesConstants.COMPOSER_READING, //
+                    FieldNamesConstants.COMPOSER_READING_ROMANIZED };
+            assertArrayEquals(romanizeAndCmp, queryFactory.filterFields(IndexType.SONG.getFields(), true));
+        }
+    }
+
+    /**
+     * Related {@link UPnPSearchCriteriaDirectorTest}
+     */
+    @Test
+    @Order(2)
+    void testCreatePhraseQuery() throws IOException {
+        assertEquals("(tit:\"cats and dogs\"~1)^6.0 (art:\"cats and dogs\"~1)^4.0 (artR:\"cats and dogs\"~1)^4.2",
+                queryFactory.createPhraseQuery(IndexType.SONG.getFields(), "Cats and Dogs", IndexType.SONG).toString());
+
+        // XXX Yes! Comment out because PMD causes an error!
+
+        // assertEquals(
+        // "(tit:\"いぬ と ねこ\"~1)^6.0 (titR:\"いぬ ぬと とね ねこ\"~1)^6.2 (art:\"いぬ と ねこ\"~1)^4.0 (artR:\"いぬ ぬと とね ねこ\"~1)^4.2",
+        // queryFactory.createPhraseQuery(IndexType.SONG.getFields(), "いぬとねこ", IndexType.SONG).toString());
+    }
+
+    @Test
+    @Order(3)
+    void testSearchByPhrase() throws IOException {
+        assertEquals(
+                "+((tit:\"cats and dogs\"~1)^6.0 (art:\"cats and dogs\"~1)^4.0 (artR:\"cats and dogs\"~1)^4.2) +(f:"
+                        + PATH1 + ")",
+                queryFactory.searchByPhrase("Cats and Dogs", false, SINGLE_FOLDERS, IndexType.SONG).toString());
+        assertEquals(
+                "+((alb:\"cats and dogs\"~1)^4.0 art:\"cats and dogs\"~1 (artR:\"cats and dogs\"~1)^2.2) +(fId:" + FID1
+                        + ")",
+                queryFactory.searchByPhrase("Cats and Dogs", false, SINGLE_FOLDERS, IndexType.ALBUM_ID3).toString());
+        assertEquals("+(art:\"cats and dogs\"~1 (artR:\"cats and dogs\"~1)^2.2) +(fId:" + FID1 + ")",
+                queryFactory.searchByPhrase("Cats and Dogs", false, SINGLE_FOLDERS, IndexType.ARTIST_ID3).toString());
+
+        // XXX Yes! Comment out because PMD causes an error!
+
+        // assertEquals(
+        // "+((tit:\"いぬ と ねこ\"~1)^6.0 (titR:\"いぬ ぬと とね ねこ\"~1)^6.2 (art:\"いぬ と ねこ\"~1)^4.0 (artR:\"いぬ ぬと とね ねこ\"~1)^4.2)
+        // +(f:"
+        // + PATH1 + ")",
+        // queryFactory.searchByPhrase("いぬとねこ", false, SINGLE_FOLDERS, IndexType.SONG).toString());
+
+        Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+        queryFactory = new QueryFactory(settingsService, new AnalyzerFactory(settingsService));
+
+        // XXX Yes! Comment out because PMD causes an error!
+
+        // assertEquals(
+        // "+((tit:\"い ぬ と ね こ\"~1)^6.0 (titR:\"いぬ ぬと とね ねこ\"~1)^6.2 (art:\"い ぬ と ね こ\"~1)^4.0 (artR:\"いぬ ぬと とね
+        // ねこ\"~1)^4.2) +(f:"
+        // + PATH1 + ")",
+        // queryFactory.searchByPhrase("いぬとねこ", false, SINGLE_FOLDERS, IndexType.SONG).toString());
+
+        Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+        queryFactory = new QueryFactory(settingsService, new AnalyzerFactory(settingsService));
+        assertEquals(
+                "+((tit:\"inu to neko\"~1)^6.0 (art:\"inu to neko\"~1)^4.0 (artR:\"inu to neko\"~1)^4.2 (artRR:\"inu nek neko\"~1)^4.2) +(f:"
+                        + PATH1 + ")",
+                queryFactory.searchByPhrase("Inu to Neko", false, SINGLE_FOLDERS, IndexType.SONG).toString());
     }
 
     @Test

@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
@@ -93,7 +94,9 @@ public class QueryFactory {
     }
 
     /**
-     * If necessary, exclude fields related to Composer from the fields to be searched
+     * Exclude the search field from the specified field depending on the condition. If necessary, exclude fields
+     * related to Composer from the fields to be searched. Also, unnecessary fields are excluded according to the value
+     * of Index Scheme.
      * 
      * @param fields
      *            Field to search
@@ -104,11 +107,16 @@ public class QueryFactory {
      * 
      * @return Final search target field
      */
-    String[] filterComposer(String[] fields, boolean includeComposer) {
-        return Arrays.stream(fields)
-                .filter(f -> includeComposer
-                        || !(FieldNamesConstants.COMPOSER.equals(f) || FieldNamesConstants.COMPOSER_READING.equals(f)
-                                || FieldNamesConstants.COMPOSER_READING_ROMANIZED.equals(f)))
+    String[] filterFields(String[] fields, boolean includeComposer) {
+        IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
+        return Arrays.stream(fields) //
+                .filter(field -> includeComposer || !(FieldNamesConstants.COMPOSER.equals(field) //
+                        || FieldNamesConstants.COMPOSER_READING.equals(field) //
+                        || FieldNamesConstants.COMPOSER_READING_ROMANIZED.equals(field)))
+                .filter(field -> scheme != IndexScheme.ROMANIZED_JAPANESE
+                        && !(FieldNamesConstants.ARTIST_READING_ROMANIZED.equals(field) //
+                                || FieldNamesConstants.COMPOSER_READING_ROMANIZED.equals(field))
+                        || scheme == IndexScheme.ROMANIZED_JAPANESE)
                 .toArray(String[]::new);
     }
 
@@ -116,7 +124,7 @@ public class QueryFactory {
     private Query createPhraseQuery(@NonNull String[] fieldNames, boolean includeComposer, @NonNull String queryString,
             @NonNull IndexType indexType) throws IOException {
 
-        String[] targetFields = filterComposer(fieldNames, includeComposer);
+        String[] targetFields = filterFields(fieldNames, includeComposer);
 
         BooleanQuery.Builder fieldQuerys = new BooleanQuery.Builder();
 
