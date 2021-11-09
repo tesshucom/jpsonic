@@ -35,7 +35,6 @@ import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
@@ -64,8 +63,6 @@ public class DocumentFactory {
     private static final FieldType TYPE_ID_NO_STORE;
 
     private static final FieldType TYPE_KEY;
-
-    private final SettingsService settingsService;
 
     private final JapaneseReadingUtils readingUtils;
 
@@ -109,7 +106,7 @@ public class DocumentFactory {
     private final BiConsumer<@NonNull Document, @NonNull String> fieldFolderPath = (doc, value) -> fieldKey.accept(doc,
             FieldNamesConstants.FOLDER, value);
 
-    public final BiFunction<@NonNull String, @Nullable String, List<Field>> createWordsFields = (fieldName,
+    private final BiFunction<@NonNull String, @Nullable String, List<Field>> createWordsFields = (fieldName,
             value) -> Arrays.asList(new TextField(fieldName, value, Store.NO),
                     new SortedDocValuesField(fieldName, new BytesRef(value)));
 
@@ -139,25 +136,24 @@ public class DocumentFactory {
         doc.add(new IntPoint(fieldName, value));
     };
 
-    public DocumentFactory(SettingsService settingsService, JapaneseReadingUtils readingUtils) {
-        this.settingsService = settingsService;
-        this.readingUtils = readingUtils;
-    }
-
-    public final Term createPrimarykey(Integer id) {
+    public static final Term createPrimarykey(Integer id) {
         return new Term(FieldNamesConstants.ID, Integer.toString(id));
     }
 
-    public final Term createPrimarykey(Album album) {
+    public static final Term createPrimarykey(Album album) {
         return createPrimarykey(album.getId());
     }
 
-    public final Term createPrimarykey(Artist artist) {
+    public static final Term createPrimarykey(Artist artist) {
         return createPrimarykey(artist.getId());
     }
 
-    public final Term createPrimarykey(MediaFile mediaFile) {
+    public static final Term createPrimarykey(MediaFile mediaFile) {
         return createPrimarykey(mediaFile.getId());
+    }
+
+    public DocumentFactory(JapaneseReadingUtils readingUtils) {
+        this.readingUtils = readingUtils;
     }
 
     @FunctionalInterface
@@ -240,14 +236,6 @@ public class DocumentFactory {
      * 
      * @since legacy
      */
-    /*
-     * XXX 3.x -> 8.x : Only null check specification of createArtistId3Document is different from legacy. (The reason
-     * is only to simplify the function.)
-     *
-     * Since the field of domain object Album is nonnull, null check was not performed.
-     *
-     * In implementation ARTIST and ALBUM became nullable, but null is not input at this point in data flow.
-     */
     public Document createArtistId3Document(Artist artist, MusicFolder musicFolder) {
         Document doc = new Document();
         fieldId.accept(doc, artist.getId());
@@ -293,8 +281,8 @@ public class DocumentFactory {
     private void acceptArtistReading(Document doc, String artist, String sort, String reading) {
         String result = defaultIfEmpty(sort, reading);
         if (!isEmpty(artist) && !artist.equals(result)) {
-            fieldWords.accept(doc, FieldNamesConstants.ARTIST_READING, settingsService.isSearchMethodLegacy() ? result
-                    : readingUtils.removePunctuationFromJapaneseReading(result));
+            fieldWords.accept(doc, FieldNamesConstants.ARTIST_READING,
+                    readingUtils.removePunctuationFromJapaneseReading(result));
         }
         fieldWords.accept(doc, FieldNamesConstants.ARTIST_EX, artist);
     }
@@ -312,13 +300,10 @@ public class DocumentFactory {
     }
 
     private void acceptComposerReading(Document doc, MediaFile mediaFile) {
-        if (settingsService.isSearchMethodLegacy()) {
-            fieldWords.accept(doc, FieldNamesConstants.COMPOSER_READING, mediaFile.getComposerSort());
-        } else {
-            if (!isEmpty(mediaFile.getComposer()) && !mediaFile.getComposer().equals(mediaFile.getComposerSort())) {
-                fieldWords.accept(doc, FieldNamesConstants.COMPOSER_READING, mediaFile.getComposerSort());
-            }
+        String result = defaultIfEmpty(mediaFile.getComposerSort(), mediaFile.getComposerSortRaw());
+        if (!isEmpty(mediaFile.getComposer()) && !mediaFile.getComposer().equals(result)) {
+            fieldWords.accept(doc, FieldNamesConstants.COMPOSER_READING,
+                    readingUtils.removePunctuationFromJapaneseReading(result));
         }
     }
-
 }

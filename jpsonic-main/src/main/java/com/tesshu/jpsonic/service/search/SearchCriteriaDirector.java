@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.List;
 
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
@@ -32,24 +31,17 @@ import org.springframework.stereotype.Component;
 public class SearchCriteriaDirector {
 
     private final QueryFactory queryFactory;
-    private final SettingsService settingsService;
 
-    public SearchCriteriaDirector(QueryFactory queryFactory, SettingsService settingsService) {
+    public SearchCriteriaDirector(QueryFactory queryFactory) {
         super();
         this.queryFactory = queryFactory;
-        this.settingsService = settingsService;
     }
 
     public SearchCriteria construct(String searchInput, int offset, int count, boolean includeComposer,
             List<MusicFolder> musicFolders, IndexType indexType) throws IOException {
         SearchCriteria criteria = new SearchCriteria(searchInput, offset, count, includeComposer, musicFolders,
                 indexType);
-        if (settingsService.isSearchMethodLegacy()) {
-            criteria.setParsedQuery(queryFactory.search(searchInput, includeComposer, musicFolders, indexType));
-        } else {
-            criteria.setParsedQuery(queryFactory.searchByPhrase(searchInput, includeComposer, musicFolders, indexType));
-        }
+        criteria.setParsedQuery(queryFactory.searchByPhrase(searchInput, includeComposer, musicFolders, indexType));
         return criteria;
     }
-
 }

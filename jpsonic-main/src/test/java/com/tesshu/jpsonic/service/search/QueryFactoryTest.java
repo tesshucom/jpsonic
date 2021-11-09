@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.service.search;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
@@ -31,7 +30,6 @@ import java.util.List;
 
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.lucene.search.Query;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,11 +44,6 @@ import org.junit.jupiter.api.Test;
 class QueryFactoryTest {
 
     private QueryFactory queryFactory;
-
-    private static final String QUERY_PATTERN_INCLUDING_KATAKANA = "ネコ ABC";
-    private static final String QUERY_PATTERN_ALPHANUMERIC_ONLY = "ABC 123";
-    private static final String QUERY_PATTERN_HIRAGANA_ONLY = "ねこ いぬ";
-    private static final String QUERY_PATTERN_OTHERS = "ABC ねこ";
 
     private static final String SEPA = System.getProperty("file.separator");
 
@@ -70,43 +63,7 @@ class QueryFactoryTest {
 
     @BeforeEach
     public void setup() {
-        queryFactory = new QueryFactory(new AnalyzerFactory(mock(SettingsService.class)), null);
-    }
-
-    @Test
-    void testSearchByNameArtist() throws IOException {
-        Query query = queryFactory.searchByName(FieldNamesConstants.ARTIST, QUERY_PATTERN_INCLUDING_KATAKANA);
-        assertEquals("art:ネコ art:abc*", query.toString(), QUERY_PATTERN_INCLUDING_KATAKANA);
-        query = queryFactory.searchByName(FieldNamesConstants.ARTIST, QUERY_PATTERN_ALPHANUMERIC_ONLY);
-        assertEquals("art:abc art:123*", query.toString(), QUERY_PATTERN_ALPHANUMERIC_ONLY);
-        query = queryFactory.searchByName(FieldNamesConstants.ARTIST, QUERY_PATTERN_HIRAGANA_ONLY);
-        assertEquals("art:ねこ art:いぬ*", query.toString(), QUERY_PATTERN_HIRAGANA_ONLY);
-        query = queryFactory.searchByName(FieldNamesConstants.ARTIST, QUERY_PATTERN_OTHERS);
-        assertEquals("art:abc art:ねこ*", query.toString(), QUERY_PATTERN_OTHERS);
-    }
-
-    @Test
-    void testSearchByNameAlbum() throws IOException {
-        Query query = queryFactory.searchByName(FieldNamesConstants.ALBUM, QUERY_PATTERN_INCLUDING_KATAKANA);
-        assertEquals("alb:ネコ alb:abc*", query.toString(), QUERY_PATTERN_INCLUDING_KATAKANA);
-        query = queryFactory.searchByName(FieldNamesConstants.ALBUM, QUERY_PATTERN_ALPHANUMERIC_ONLY);
-        assertEquals("alb:abc alb:123*", query.toString(), QUERY_PATTERN_ALPHANUMERIC_ONLY);
-        query = queryFactory.searchByName(FieldNamesConstants.ALBUM, QUERY_PATTERN_HIRAGANA_ONLY);
-        assertEquals("alb:ねこ alb:いぬ*", query.toString(), QUERY_PATTERN_HIRAGANA_ONLY);
-        query = queryFactory.searchByName(FieldNamesConstants.ALBUM, QUERY_PATTERN_OTHERS);
-        assertEquals("alb:abc alb:ねこ*", query.toString(), QUERY_PATTERN_OTHERS);
-    }
-
-    @Test
-    void testSearchByNameTitle() throws IOException {
-        Query query = queryFactory.searchByName(FieldNamesConstants.TITLE, QUERY_PATTERN_INCLUDING_KATAKANA);
-        assertEquals("tit:ネコ tit:abc*", query.toString(), QUERY_PATTERN_INCLUDING_KATAKANA);
-        query = queryFactory.searchByName(FieldNamesConstants.TITLE, QUERY_PATTERN_ALPHANUMERIC_ONLY);
-        assertEquals("tit:abc tit:123*", query.toString(), QUERY_PATTERN_ALPHANUMERIC_ONLY);
-        query = queryFactory.searchByName(FieldNamesConstants.TITLE, QUERY_PATTERN_HIRAGANA_ONLY);
-        assertEquals("tit:ねこ tit:いぬ*", query.toString(), QUERY_PATTERN_HIRAGANA_ONLY);
-        query = queryFactory.searchByName(FieldNamesConstants.TITLE, QUERY_PATTERN_OTHERS);
-        assertEquals("tit:abc tit:ねこ*", query.toString(), QUERY_PATTERN_OTHERS);
+        queryFactory = new QueryFactory(new AnalyzerFactory(), null);
     }
 
     @Test

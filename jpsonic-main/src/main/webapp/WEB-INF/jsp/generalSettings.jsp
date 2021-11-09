@@ -207,12 +207,6 @@ function resetSortSettings() {
                 <label for="useRadio"><fmt:message key="generalsettings.useradio"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="useradio"/></c:import>
             </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="searchMethodLegacy" id="searchMethodLegacy"/>
-                <label for="searchMethodLegacy"><fmt:message key="generalsettings.searchmethodlegacy"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="searchmethod"/></c:import>
-            </dd>
         </dl>
     </details>
 

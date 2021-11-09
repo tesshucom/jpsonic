@@ -24,7 +24,6 @@ package com.tesshu.jpsonic.service.search;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -32,7 +31,6 @@ import java.util.function.Function;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.IntPoint;
@@ -43,7 +41,6 @@ import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.WildcardQuery;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Component;
@@ -62,8 +59,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class QueryFactory {
-
-    private static final String ASTERISK = "*";
 
     private final AnalyzerFactory analyzerFactory;
     private final SearchServiceUtilities util;
@@ -102,75 +97,16 @@ public class QueryFactory {
         this.util = util;
     }
 
-    /*
-     * XXX 3.x -> 8.x : In order to support wildcards, MultiFieldQueryParser has been replaced by the following process.
-     * 
-     * - There is also an override of MultiFieldQueryParser, but it is known to be high cost. - MultiFieldQueryParser
-     * was created before Java API was modernized. - The spec of Parser has changed from time to time. Using parser does
-     * not reduce library update risk. - Self made parser process reduces one library dependency. - It is easy to make
-     * corrections later when changing the query to improve search accuracy.
-     */
-    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.CognitiveComplexity" })
-    /*
-     * [AvoidInstantiatingObjectsInLoops] (ArrayList, WildcardQuery, Term, BoostQuery, BooleanQuery) Not reusable
-     * [CognitiveComplexity] #1020 This is a legacy feature that has no plans for maintenance. Low priority.
-     */
-    public final Query createMultiFieldWildQuery(@NonNull String[] fieldNames, @NonNull String queryString,
-            @NonNull IndexType indexType) throws IOException {
-
-        BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
-
-        List<List<Query>> fieldsQuerys = new ArrayList<>();
-        Analyzer analyzer = analyzerFactory.getQueryAnalyzer();
-
-        /* Wildcard applies to all tokens. **/
-        for (String fieldName : fieldNames) {
-            try (TokenStream stream = analyzer.tokenStream(fieldName, queryString)) {
-                stream.reset();
-                List<Query> fieldQuerys = new ArrayList<>();
-                while (stream.incrementToken()) {
-                    String token = stream.getAttribute(CharTermAttribute.class).toString();
-                    WildcardQuery wildcardQuery = new WildcardQuery(new Term(fieldName, token.concat(ASTERISK)));
-                    if (indexType.getBoosts().containsKey(fieldName)) {
-                        fieldQuerys.add(new BoostQuery(wildcardQuery, indexType.getBoosts().get(fieldName)));
-                    } else {
-                        fieldQuerys.add(wildcardQuery);
-                    }
-                }
-                fieldsQuerys.add(fieldQuerys);
-            }
-        }
-
-        /* If Field's Tokenizer is different, token's length may not match. **/
-        int maxTermLength = fieldsQuerys.stream().map(List::size).max(Integer::compare).orElse(0);
-
-        if (0 < fieldsQuerys.size()) {
-            for (int i = 0; i < maxTermLength; i++) {
-                BooleanQuery.Builder fieldsQuery = new BooleanQuery.Builder();
-                for (List<Query> fieldQuerys : fieldsQuerys) {
-                    if (i < fieldQuerys.size()) {
-                        fieldsQuery.add(fieldQuerys.get(i), Occur.SHOULD);
-                    }
-                }
-                mainQuery.add(fieldsQuery.build(), Occur.SHOULD);
-            }
-        }
-
-        return mainQuery.build();
-
-    }
-
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (PhraseQuery, Term, BoostQuery) Not reusable
     public final Query createPhraseQuery(@NonNull String[] fieldNames, @NonNull String queryString,
             @NonNull IndexType indexType) throws IOException {
 
-        Analyzer analyzer = analyzerFactory.getQueryAnalyzer();
         BooleanQuery.Builder fieldQuerys = new BooleanQuery.Builder();
 
         for (String fieldName : fieldNames) {
             PhraseQuery.Builder phrase = new PhraseQuery.Builder();
             boolean exists = false;
-            try (TokenStream stream = analyzer.tokenStream(fieldName, queryString)) {
+            try (TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(fieldName, queryString)) {
                 stream.reset();
                 while (stream.incrementToken()) {
                     String token = stream.getAttribute(CharTermAttribute.class).toString();
@@ -191,40 +127,6 @@ public class QueryFactory {
             }
         }
         return fieldQuerys.build();
-
-    }
-
-    /**
-     * Query generation expression extracted from
-     * {@link com.tesshu.jpsonic.service.SearchService#search(SearchCriteria, List, IndexType)}.
-     * 
-     * @param searchInput
-     *            searchInput
-     * @param includeComposer
-     *            includeComposer
-     * @param musicFolders
-     *            musicFolders
-     * @param indexType
-     *            {@link IndexType}
-     * 
-     * @return Query
-     * 
-     * @throws IOException
-     *             When parsing of MultiFieldQueryParser fails
-     */
-    public Query search(String searchInput, boolean includeComposer, List<MusicFolder> musicFolders,
-            IndexType indexType) throws IOException {
-        BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
-
-        String[] fields = util.filterComposer(indexType.getFields(), includeComposer);
-        Query multiFieldQuery = createMultiFieldWildQuery(fields, searchInput, indexType);
-        mainQuery.add(multiFieldQuery, Occur.MUST);
-
-        boolean isId3 = indexType == IndexType.ALBUM_ID3 || indexType == IndexType.ARTIST_ID3;
-        Query folderQuery = toFolderQuery.apply(isId3, musicFolders);
-        mainQuery.add(folderQuery, Occur.MUST);
-
-        return mainQuery.build();
 
     }
 
@@ -257,11 +159,11 @@ public class QueryFactory {
         query.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.MUST);
 
         BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
-        Analyzer queryAnalyzer = analyzerFactory.getQueryAnalyzer();
         if (!isEmpty(criteria.getGenres())) {
             for (String genre : criteria.getGenres()) {
                 if (!isEmpty(criteria.getGenres()) && !isEmpty(genre)) {
-                    try (TokenStream stream = queryAnalyzer.tokenStream(FieldNamesConstants.GENRE, genre)) {
+                    try (TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(FieldNamesConstants.GENRE,
+                            genre)) {
                         stream.reset();
                         while (stream.incrementToken()) {
                             String token = stream.getAttribute(CharTermAttribute.class).toString();
@@ -295,53 +197,6 @@ public class QueryFactory {
         return new BooleanQuery.Builder()
                 .add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.MUST)
                 .add(toFolderQuery.apply(false, musicFolders), Occur.MUST).build();
-    }
-
-    /**
-     * Query generation expression extracted from
-     * {@link com.tesshu.jpsonic.service.SearchService#searchByName( String, String, int, int, List, Class)}.
-     * 
-     * @param fieldName
-     *            {@link FieldNamesConstants}
-     * 
-     * @return Query
-     * 
-     * @throws IOException
-     *             When parsing of QueryParser fails
-     */
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term, WildcardQuery) Not reusable
-    public Query searchByName(String fieldName, String name) throws IOException {
-
-        BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
-
-        Analyzer analyzer = analyzerFactory.getQueryAnalyzer();
-
-        // TODO #353
-        // TODO Support for extended fields and boost
-        try (TokenStream stream = analyzer.tokenStream(fieldName, name)) {
-            stream.reset();
-            stream.incrementToken();
-
-            /*
-             * XXX 3.x -> 8.x : In order to support wildcards, QueryParser has been replaced by the following process.
-             */
-
-            /* Wildcards apply only to tail tokens **/
-            while (true) {
-                String token = stream.getAttribute(CharTermAttribute.class).toString();
-                if (stream.incrementToken()) {
-                    mainQuery.add(new TermQuery(new Term(fieldName, token)), Occur.SHOULD);
-                } else {
-                    WildcardQuery wildcardQuery = new WildcardQuery(new Term(fieldName, token.concat(ASTERISK)));
-                    mainQuery.add(wildcardQuery, Occur.SHOULD);
-                    break;
-                }
-            }
-
-        }
-
-        return mainQuery.build();
-
     }
 
     /**
@@ -383,8 +238,7 @@ public class QueryFactory {
         // sub - genre
         if (!isEmpty(genres)) {
             BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
-            try (TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNamesConstants.GENRE,
-                    genres)) {
+            try (TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(FieldNamesConstants.GENRE, genres)) {
                 stream.reset();
                 while (stream.incrementToken()) {
                     genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE,
@@ -419,8 +273,7 @@ public class QueryFactory {
         // sub - genre
         if (!isEmpty(genres)) {
             BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
-            try (TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNamesConstants.GENRE,
-                    genres)) {
+            try (TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(FieldNamesConstants.GENRE, genres)) {
                 stream.reset();
                 while (stream.incrementToken()) {
                     genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE,
@@ -451,8 +304,7 @@ public class QueryFactory {
 
         for (String genre : genres) {
             if (!isEmpty(genre)) {
-                try (TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNamesConstants.GENRE,
-                        genre)) {
+                try (TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(FieldNamesConstants.GENRE, genre)) {
                     stream.reset();
                     while (stream.incrementToken()) {
                         genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE,

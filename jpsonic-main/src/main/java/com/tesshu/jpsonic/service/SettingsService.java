@@ -95,7 +95,7 @@ public class SettingsService {
             "database.varchar.maxlength", "database.config.type", "database.config.embed.driver",
             "database.config.embed.url", "database.config.embed.username", "database.config.embed.password",
             "database.config.jndi.name", "database.usertable.quote", "ShowJavaJukebox", "AnonymousTranscoding",
-            "UseSonos");
+            "UseSonos", "SearchMethodLegacy", "SearchMethodChanged");
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
@@ -648,22 +648,6 @@ public class SettingsService {
 
     public void setUseRadio(boolean b) {
         setProperty(SettingsConstants.General.Legacy.USE_RADIO, b);
-    }
-
-    public boolean isSearchMethodLegacy() {
-        return getBoolean(SettingsConstants.General.Legacy.SEARCH_METHOD_LEGACY);
-    }
-
-    public void setSearchMethodLegacy(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.SEARCH_METHOD_LEGACY, b);
-    }
-
-    public boolean isSearchMethodChanged() {
-        return getBoolean(SettingsConstants.General.Legacy.SEARCH_METHOD_CHANGED);
-    }
-
-    public void setSearchMethodChanged(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.SEARCH_METHOD_CHANGED, b);
     }
 
     public String getMusicFileTypes() {
