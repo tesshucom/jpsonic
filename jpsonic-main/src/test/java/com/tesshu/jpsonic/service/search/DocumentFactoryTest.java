@@ -27,11 +27,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
+import java.lang.annotation.Documented;
 import java.util.Date;
 
 import com.tesshu.jpsonic.dao.MusicFolderTestDataUtils;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
+import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
@@ -40,17 +42,20 @@ import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.lucene.document.Document;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 class DocumentFactoryTest {
 
+    private SettingsService settingsService;
     private DocumentFactory documentFactory;
 
     @BeforeEach
     public void setup() {
-        SettingsService settingsService = mock(SettingsService.class);
-        documentFactory = new DocumentFactory(new JapaneseReadingUtils(settingsService));
+        settingsService = mock(SettingsService.class);
+        documentFactory = new DocumentFactory(settingsService, new JapaneseReadingUtils(settingsService));
     }
 
     @Test
@@ -186,7 +191,7 @@ class DocumentFactoryTest {
         song.setYear(2000);
         song.setFolder("folder");
         song.setComposer("composer");
-        song.setComposerSort("composerSort");
+        song.setComposerSortRaw("composerSort");
 
         Document document = documentFactory.createSongDocument(song);
         assertEquals(18, document.getFields().size(), "fields.size");
@@ -238,5 +243,211 @@ class DocumentFactoryTest {
         assertEquals(3, document.getFields().size(), "fields.size");
         assertEquals("genre", document.get(FieldNamesConstants.GENRE_KEY));
         assertEquals("genre", document.get(FieldNamesConstants.GENRE));
+    }
+
+    @Documented
+    private @interface ReadingDecisions {
+        @interface Conditions {
+            @interface IndexScheme {
+                @interface NativeJapanese {
+                }
+
+                @interface RomanizedJapanese {
+                }
+
+                @interface WithoutJpLangProcessing {
+                }
+            }
+
+            @interface Value {
+                @interface Null {
+                }
+
+                @interface NotNull {
+                    @interface EqSort {
+                    }
+
+                    @interface Japanese {
+
+                    }
+
+                    @interface NotJapanese {
+
+                    }
+                }
+            }
+        }
+    }
+
+    @Nested
+    class AcceptReadingTest {
+
+        private MediaFile createSong() {
+            MediaFile song = new MediaFile();
+            song.setId(1);
+            song.setArtist("artist");
+            song.setArtistSort("artistSort");
+            song.setTitle("title");
+            song.setTitleSort("titleSort");
+            song.setMediaType(MediaType.MUSIC);
+            song.setGenre("genre");
+            song.setYear(2000);
+            song.setFolder("folder");
+            song.setComposer("composer");
+            song.setComposerSortRaw("composerSort");
+            return song;
+        }
+
+        @ReadingDecisions.Conditions.Value.Null
+        @Test
+        void c01() {
+            MediaFile song = createSong();
+            song.setArtist(null);
+            song.setComposer(null);
+            Document document = documentFactory.createSongDocument(song);
+            documentFactory.acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                    song.getArtistReading());
+            documentFactory.acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                    song.getComposerSort());
+            assertNull(document.get(FieldNamesConstants.ARTIST));
+            assertNull(document.get(FieldNamesConstants.ARTIST_READING));
+            assertNull(document.get(FieldNamesConstants.COMPOSER));
+            assertNull(document.get(FieldNamesConstants.COMPOSER_READING));
+        }
+
+        @ReadingDecisions.Conditions.Value.NotNull.EqSort
+        @Test
+        void c02() {
+            MediaFile song = createSong();
+            song.setArtist("Artist");
+            song.setArtistSort("Artist");
+            song.setComposer("Composer");
+            song.setComposerSortRaw("Composer");
+            Document document = documentFactory.createSongDocument(song);
+            documentFactory.acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                    song.getArtistReading());
+            documentFactory.acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                    song.getComposerSort());
+            assertEquals("Artist", document.get(FieldNamesConstants.ARTIST));
+            assertNull(document.get(FieldNamesConstants.ARTIST_READING));
+            assertEquals("Composer", document.get(FieldNamesConstants.COMPOSER));
+            assertNull(document.get(FieldNamesConstants.COMPOSER_READING));
+        }
+
+        @ReadingDecisions.Conditions.IndexScheme.NativeJapanese
+        @ReadingDecisions.Conditions.Value.NotNull.NotJapanese
+        @Test
+        void c03() {
+            MediaFile song = createSong();
+            Document document = documentFactory.createSongDocument(song);
+            documentFactory.acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                    song.getArtistReading());
+            documentFactory.acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                    song.getComposerSort());
+            assertEquals("artist", document.get(FieldNamesConstants.ARTIST));
+            assertEquals("artistSort", document.get(FieldNamesConstants.ARTIST_READING));
+            assertEquals("composer", document.get(FieldNamesConstants.COMPOSER));
+            assertEquals("composerSort", document.get(FieldNamesConstants.COMPOSER_READING));
+        }
+
+        @ReadingDecisions.Conditions.IndexScheme.NativeJapanese
+        @ReadingDecisions.Conditions.Value.NotNull.Japanese
+        @Test
+        void c04() {
+            MediaFile song = createSong();
+            song.setArtist("アーティスト");
+            song.setArtistSort("あーてぃすと");
+            song.setComposer("作曲者");
+            song.setComposerSortRaw("さっきょくしゃ");
+            Document document = documentFactory.createSongDocument(song);
+            documentFactory.acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                    song.getArtistReading());
+            documentFactory.acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                    song.getComposerSort());
+            assertEquals("アーティスト", document.get(FieldNamesConstants.ARTIST));
+            assertEquals("あーてぃすと", document.get(FieldNamesConstants.ARTIST_READING));
+            assertEquals("作曲者", document.get(FieldNamesConstants.COMPOSER));
+            assertEquals("さっきょくしゃ", document.get(FieldNamesConstants.COMPOSER_READING));
+        }
+
+        @ReadingDecisions.Conditions.IndexScheme.RomanizedJapanese
+        @ReadingDecisions.Conditions.Value.NotNull.NotJapanese
+        @Test
+        void c05() {
+            Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+            MediaFile song = createSong();
+            Document document = documentFactory.createSongDocument(song);
+            documentFactory.acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                    song.getArtistReading());
+            documentFactory.acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                    song.getComposerSort());
+            assertEquals("artist", document.get(FieldNamesConstants.ARTIST));
+            assertEquals("artistSort", document.get(FieldNamesConstants.ARTIST_READING));
+            assertEquals("composer", document.get(FieldNamesConstants.COMPOSER));
+            assertEquals("composerSort", document.get(FieldNamesConstants.COMPOSER_READING));
+        }
+
+        @ReadingDecisions.Conditions.IndexScheme.RomanizedJapanese
+        @ReadingDecisions.Conditions.Value.NotNull.Japanese
+        @Test
+        void c06() {
+            Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+            MediaFile song = createSong();
+            song.setArtist("アーティスト");
+            song.setArtistSort("あーてぃすと");
+            song.setComposer("作曲者");
+            song.setComposerSortRaw("さっきょくしゃ");
+            Document document = documentFactory.createSongDocument(song);
+            documentFactory.acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                    song.getArtistReading());
+            documentFactory.acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                    song.getComposerSort());
+            assertEquals("アーティスト", document.get(FieldNamesConstants.ARTIST));
+            assertEquals("あーてぃすと", document.get(FieldNamesConstants.ARTIST_READING));
+            assertEquals("あーてぃすと", document.get(FieldNamesConstants.ARTIST_READING_ROMANIZED));
+            assertEquals("作曲者", document.get(FieldNamesConstants.COMPOSER));
+            assertEquals("さっきょくしゃ", document.get(FieldNamesConstants.COMPOSER_READING));
+            assertEquals("さっきょくしゃ", document.get(FieldNamesConstants.COMPOSER_READING_ROMANIZED));
+        }
+
+        @ReadingDecisions.Conditions.IndexScheme.WithoutJpLangProcessing
+        @ReadingDecisions.Conditions.Value.NotNull.NotJapanese
+        @Test
+        void c07() {
+            Mockito.when(settingsService.getIndexSchemeName())
+                    .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            MediaFile song = createSong();
+            Document document = documentFactory.createSongDocument(song);
+            documentFactory.acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                    song.getArtistReading());
+            documentFactory.acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                    song.getComposerSort());
+            assertEquals("artist", document.get(FieldNamesConstants.ARTIST));
+            assertEquals("artistSort", document.get(FieldNamesConstants.ARTIST_READING));
+            assertEquals("composer", document.get(FieldNamesConstants.COMPOSER));
+            assertEquals("composerSort", document.get(FieldNamesConstants.COMPOSER_READING));
+        }
+
+        @ReadingDecisions.Conditions.IndexScheme.WithoutJpLangProcessing
+        @ReadingDecisions.Conditions.Value.NotNull.Japanese
+        @Test
+        void c08() {
+            Mockito.when(settingsService.getIndexSchemeName())
+                    .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            MediaFile song = createSong();
+            song.setArtist("アーティスト");
+            song.setArtistSort("あーてぃすと");
+            song.setComposer("さっきょくしゃ");
+            song.setComposerSortRaw("サッキョクシャ");
+            Document document = documentFactory.createSongDocument(song);
+            documentFactory.acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                    song.getArtistReading());
+            documentFactory.acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                    song.getComposerSort());
+            assertEquals("アーティスト", document.get(FieldNamesConstants.ARTIST));
+            assertEquals("あーてぃすと", document.get(FieldNamesConstants.ARTIST_READING));
+            assertEquals("さっきょくしゃ", document.get(FieldNamesConstants.COMPOSER));
+            assertEquals("サッキョクシャ", document.get(FieldNamesConstants.COMPOSER_READING));
+        }
     }
 }

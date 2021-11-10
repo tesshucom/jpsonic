@@ -21,7 +21,21 @@
 
 package com.tesshu.jpsonic.service.search;
 
+import static com.tesshu.jpsonic.service.search.FieldNamesConstants.ALBUM;
+import static com.tesshu.jpsonic.service.search.FieldNamesConstants.ALBUM_READING;
+import static com.tesshu.jpsonic.service.search.FieldNamesConstants.ARTIST;
+import static com.tesshu.jpsonic.service.search.FieldNamesConstants.ARTIST_READING;
+import static com.tesshu.jpsonic.service.search.FieldNamesConstants.ARTIST_READING_ROMANIZED;
+import static com.tesshu.jpsonic.service.search.FieldNamesConstants.COMPOSER;
+import static com.tesshu.jpsonic.service.search.FieldNamesConstants.COMPOSER_READING;
+import static com.tesshu.jpsonic.service.search.FieldNamesConstants.COMPOSER_READING_ROMANIZED;
+import static com.tesshu.jpsonic.service.search.FieldNamesConstants.GENRE;
+import static com.tesshu.jpsonic.service.search.FieldNamesConstants.GENRE_KEY;
+import static com.tesshu.jpsonic.service.search.FieldNamesConstants.TITLE;
+import static com.tesshu.jpsonic.service.search.FieldNamesConstants.TITLE_READING;
+import static com.tesshu.jpsonic.service.search.FieldNamesConstants.YEAR;
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -29,12 +43,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
+import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
@@ -56,6 +73,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @DependsOn({ "settingsService", "japaneseReadingUtils" })
+@SuppressWarnings("PMD.TooManyStaticImports")
 public class DocumentFactory {
 
     private static final FieldType TYPE_ID;
@@ -64,6 +82,7 @@ public class DocumentFactory {
 
     private static final FieldType TYPE_KEY;
 
+    private final SettingsService settingsService;
     private final JapaneseReadingUtils readingUtils;
 
     static {
@@ -122,7 +141,7 @@ public class DocumentFactory {
         if (isEmpty(value)) {
             return;
         }
-        fieldWords.accept(doc, FieldNamesConstants.GENRE, value);
+        fieldWords.accept(doc, GENRE, value);
     };
 
     private final Consumer<Document, String, String> fieldGenreKey = (doc, fieldName, value) -> doc
@@ -152,7 +171,8 @@ public class DocumentFactory {
         return createPrimarykey(mediaFile.getId());
     }
 
-    public DocumentFactory(JapaneseReadingUtils readingUtils) {
+    public DocumentFactory(SettingsService settingsService, JapaneseReadingUtils readingUtils) {
+        this.settingsService = settingsService;
         this.readingUtils = readingUtils;
     }
 
@@ -174,13 +194,11 @@ public class DocumentFactory {
     public Document createAlbumDocument(MediaFile mediaFile) {
         Document doc = new Document();
         fieldId.accept(doc, mediaFile.getId());
-        fieldWords.accept(doc, FieldNamesConstants.ARTIST, mediaFile.getArtist());
-        acceptReading(doc, FieldNamesConstants.ARTIST_READING, mediaFile.getArtist(), mediaFile.getArtistSort(),
-                mediaFile.getArtistReading());
+        fieldWords.accept(doc, ARTIST, mediaFile.getArtist());
+        acceptArtistReading(doc, mediaFile.getArtist(), mediaFile.getArtistSort(), mediaFile.getArtistReading());
         fieldGenre.accept(doc, mediaFile.getGenre());
-        fieldWords.accept(doc, FieldNamesConstants.ALBUM, mediaFile.getAlbumName());
-        fieldWords.accept(doc, FieldNamesConstants.ALBUM_READING,
-                defaultIfEmpty(mediaFile.getAlbumSort(), mediaFile.getAlbumReading()));
+        fieldWords.accept(doc, ALBUM, mediaFile.getAlbumName());
+        fieldWords.accept(doc, ALBUM_READING, defaultIfEmpty(mediaFile.getAlbumSort(), mediaFile.getAlbumReading()));
         fieldFolderPath.accept(doc, mediaFile.getFolder());
         return doc;
     }
@@ -198,9 +216,8 @@ public class DocumentFactory {
     public Document createArtistDocument(MediaFile mediaFile) {
         Document doc = new Document();
         fieldId.accept(doc, mediaFile.getId());
-        fieldWords.accept(doc, FieldNamesConstants.ARTIST, mediaFile.getArtist());
-        acceptReading(doc, FieldNamesConstants.ARTIST_READING, mediaFile.getArtist(), mediaFile.getArtistSort(),
-                mediaFile.getArtistReading());
+        fieldWords.accept(doc, ARTIST, mediaFile.getArtist());
+        acceptArtistReading(doc, mediaFile.getArtist(), mediaFile.getArtistSort(), mediaFile.getArtistReading());
         fieldFolderPath.accept(doc, mediaFile.getFolder());
         return doc;
     }
@@ -218,13 +235,11 @@ public class DocumentFactory {
     public Document createAlbumId3Document(Album album) {
         Document doc = new Document();
         fieldId.accept(doc, album.getId());
-        fieldWords.accept(doc, FieldNamesConstants.ARTIST, album.getArtist());
-        acceptReading(doc, FieldNamesConstants.ARTIST_READING, album.getArtist(), album.getArtistSort(),
-                album.getArtistReading());
+        fieldWords.accept(doc, ARTIST, album.getArtist());
+        acceptArtistReading(doc, album.getArtist(), album.getArtistSort(), album.getArtistReading());
         fieldGenre.accept(doc, album.getGenre());
-        fieldWords.accept(doc, FieldNamesConstants.ALBUM, album.getName());
-        fieldWords.accept(doc, FieldNamesConstants.ALBUM_READING,
-                defaultIfEmpty(album.getNameSort(), album.getNameReading()));
+        fieldWords.accept(doc, ALBUM, album.getName());
+        fieldWords.accept(doc, ALBUM_READING, defaultIfEmpty(album.getNameSort(), album.getNameReading()));
         fieldFolderId.accept(doc, album.getFolderId());
         return doc;
     }
@@ -244,8 +259,8 @@ public class DocumentFactory {
     public Document createArtistId3Document(Artist artist, MusicFolder musicFolder) {
         Document doc = new Document();
         fieldId.accept(doc, artist.getId());
-        fieldWords.accept(doc, FieldNamesConstants.ARTIST, artist.getName());
-        acceptReading(doc, FieldNamesConstants.ARTIST_READING, artist.getName(), artist.getSort(), artist.getReading());
+        fieldWords.accept(doc, ARTIST, artist.getName());
+        acceptArtistReading(doc, artist.getName(), artist.getSort(), artist.getReading());
         fieldFolderId.accept(doc, musicFolder.getId());
         return doc;
     }
@@ -264,31 +279,59 @@ public class DocumentFactory {
         Document doc = new Document();
         fieldId.accept(doc, mediaFile.getId());
         fieldMediatype.accept(doc, mediaFile.getMediaType().name());
-        fieldWords.accept(doc, FieldNamesConstants.TITLE, mediaFile.getTitle());
-        fieldWords.accept(doc, FieldNamesConstants.TITLE_READING, mediaFile.getTitle());
-        fieldWords.accept(doc, FieldNamesConstants.ARTIST, mediaFile.getArtist());
-        acceptReading(doc, FieldNamesConstants.ARTIST_READING, mediaFile.getArtist(), mediaFile.getArtistSort(),
-                mediaFile.getArtistReading());
-        fieldWords.accept(doc, FieldNamesConstants.COMPOSER, mediaFile.getComposer());
-        acceptReading(doc, FieldNamesConstants.COMPOSER_READING, mediaFile.getComposer(), mediaFile.getComposerSortRaw(),
+        fieldWords.accept(doc, TITLE, mediaFile.getTitle());
+        fieldWords.accept(doc, TITLE_READING, mediaFile.getTitle());
+        fieldWords.accept(doc, ARTIST, mediaFile.getArtist());
+        acceptArtistReading(doc, mediaFile.getArtist(), mediaFile.getArtistSort(), mediaFile.getArtistReading());
+        fieldWords.accept(doc, COMPOSER, mediaFile.getComposer());
+        acceptComposerReading(doc, mediaFile.getComposer(), mediaFile.getComposerSortRaw(),
                 mediaFile.getComposerSort());
         fieldGenre.accept(doc, mediaFile.getGenre());
-        fieldYear.accept(doc, FieldNamesConstants.YEAR, mediaFile.getYear());
+        fieldYear.accept(doc, YEAR, mediaFile.getYear());
         fieldFolderPath.accept(doc, mediaFile.getFolder());
         return doc;
     }
 
     public Document createGenreDocument(MediaFile mediaFile) {
         Document doc = new Document();
-        fieldGenreKey.accept(doc, FieldNamesConstants.GENRE_KEY, mediaFile.getGenre());
+        fieldGenreKey.accept(doc, GENRE_KEY, mediaFile.getGenre());
         fieldGenre.accept(doc, mediaFile.getGenre());
         return doc;
     }
 
-    private void acceptReading(Document doc, String field, String fieldValue, String sort, String reading) {
-        String result = defaultIfEmpty(sort, reading);
-        if (!isEmpty(fieldValue) && !fieldValue.equals(result)) {
-            fieldWords.accept(doc, field, readingUtils.removePunctuationFromJapaneseReading(result));
+    void acceptReading(Document doc, String field, String romanizedfield, String value, String sort, String reading) {
+        if (isEmpty(value)) {
+            return;
         }
+
+        String result = defaultIfEmpty(sort, reading);
+        if (!value.equals(result)) {
+
+            IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
+            boolean isJapaneseName = Stream.of(value.split(EMPTY)).anyMatch(s -> {
+                Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
+                return Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)
+                        || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b);
+            });
+
+            if (scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING) {
+                fieldWords.accept(doc, field, result);
+            } else if (scheme == IndexScheme.ROMANIZED_JAPANESE) {
+                fieldWords.accept(doc, field, result);
+                if (isJapaneseName) {
+                    fieldWords.accept(doc, romanizedfield, readingUtils.removePunctuationFromJapaneseReading(result));
+                }
+            } else {
+                fieldWords.accept(doc, field, readingUtils.removePunctuationFromJapaneseReading(result));
+            }
+        }
+    }
+
+    void acceptArtistReading(Document doc, String value, String sort, String reading) {
+        acceptReading(doc, ARTIST_READING, ARTIST_READING_ROMANIZED, value, sort, reading);
+    }
+
+    void acceptComposerReading(Document doc, String value, String sort, String reading) {
+        acceptReading(doc, COMPOSER_READING, COMPOSER_READING_ROMANIZED, value, sort, reading);
     }
 }
