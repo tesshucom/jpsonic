@@ -26,6 +26,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -120,35 +121,51 @@ public class QueryFactory {
                 .toArray(String[]::new);
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (PhraseQuery, Term, BoostQuery) Not reusable
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (PhraseQuery, Term) Not reusable
+    private Optional<Query> createFieldQuery(@NonNull String fieldName, @NonNull String queryString)
+            throws IOException {
+        PhraseQuery.Builder phrase = new PhraseQuery.Builder();
+        BooleanQuery.Builder ngram = new BooleanQuery.Builder();
+        boolean isRomanizedField = FieldNamesConstants.ARTIST_READING_ROMANIZED.equals(fieldName)
+                || FieldNamesConstants.COMPOSER_READING_ROMANIZED.equals(fieldName);
+
+        try (TokenStream stream = analyzerFactory.getAnalyzer()
+                .tokenStream(isRomanizedField ? FieldNamesConstants.ARTIST_READING : fieldName, queryString)) {
+            stream.reset();
+            while (stream.incrementToken()) {
+                String token = stream.getAttribute(CharTermAttribute.class).toString();
+                if (isRomanizedField) {
+                    ngram.add(new TermQuery(new Term(fieldName, token)), Occur.SHOULD);
+                } else {
+                    phrase.add(new Term(fieldName, token));
+                    phrase.setSlop(1);
+                }
+            }
+        }
+
+        Query query = isRomanizedField ? ngram.build() : phrase.build();
+        boolean isEmptyQuery = "\"\"".equals(query.toString());
+        if (isEmptyQuery) {
+            return Optional.empty();
+        }
+        return Optional.of(query);
+    }
+
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (BoostQuery) Not reusable
     private Query createPhraseQuery(@NonNull String[] fieldNames, boolean includeComposer, @NonNull String queryString,
             @NonNull IndexType indexType) throws IOException {
 
         String[] targetFields = filterFields(fieldNames, includeComposer);
-
         BooleanQuery.Builder fieldQuerys = new BooleanQuery.Builder();
 
         for (String fieldName : targetFields) {
-            PhraseQuery.Builder phrase = new PhraseQuery.Builder();
-            boolean exists = false;
-            try (TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(fieldName, queryString)) {
-                stream.reset();
-                while (stream.incrementToken()) {
-                    String token = stream.getAttribute(CharTermAttribute.class).toString();
-                    phrase.add(new Term(fieldName, token));
-                    exists = true;
-                }
-            }
-            if (exists) {
-                phrase.setSlop(1);
-                if (indexType.getBoosts().containsKey(fieldName)) {
-                    fieldQuerys.add(new BoostQuery(phrase.build(), indexType.getBoosts().get(fieldName) * 2),
-                            Occur.SHOULD);
-                } else {
-                    fieldQuerys.add(phrase.build(), Occur.SHOULD);
-                }
-            }
+            Optional<Query> query = createFieldQuery(fieldName, queryString);
+            query.ifPresent(q -> {
+                fieldQuerys.add(indexType.getBoosts().containsKey(fieldName)
+                        ? new BoostQuery(q, indexType.getBoosts().get(fieldName) * 2) : q, Occur.SHOULD);
+            });
         }
+
         return fieldQuerys.build();
     }
 

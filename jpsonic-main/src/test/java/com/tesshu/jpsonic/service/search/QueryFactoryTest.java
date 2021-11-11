@@ -167,6 +167,7 @@ class QueryFactoryTest {
     @Test
     @Order(3)
     void testSearchByPhrase() throws IOException {
+
         assertEquals(
                 "+((tit:\"cats and dogs\"~1)^6.0 (art:\"cats and dogs\"~1)^4.0 (artR:\"cats and dogs\"~1)^4.2) +(f:"
                         + PATH1 + ")",
@@ -199,10 +200,25 @@ class QueryFactoryTest {
 
         Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
         queryFactory = new QueryFactory(settingsService, new AnalyzerFactory(settingsService));
-        assertEquals(
-                "+((tit:\"inu to neko\"~1)^6.0 (art:\"inu to neko\"~1)^4.0 (artR:\"inu to neko\"~1)^4.2 (artRR:\"inu nek neko\"~1)^4.2) +(f:"
-                        + PATH1 + ")",
-                queryFactory.searchByPhrase("Inu to Neko", false, SINGLE_FOLDERS, IndexType.SONG).toString());
+        String query = "Inu to Neko";
+
+        assertEquals("+((tit:\"inu to neko\"~1)^6.0 " //
+                + "(art:\"inu to neko\"~1)^4.0 " //
+                + "(artR:\"inu to neko\"~1)^4.2 " //
+                + "(artRR:inu artRR:to artRR:neko)^4.2) " //
+                + "+(f:" + PATH1 + ")",
+                queryFactory.searchByPhrase(query, false, SINGLE_FOLDERS, IndexType.SONG).toString());
+
+        Mockito.when(settingsService.isSearchComposer()).thenReturn(true);
+        assertEquals("+((tit:\"inu to neko\"~1)^6.0 " //
+                + "(art:\"inu to neko\"~1)^4.0 " //
+                + "(artR:\"inu to neko\"~1)^4.2 " //
+                + "(artRR:inu artRR:to artRR:neko)^4.2 " //
+                + "cmp:\"inu to neko\"~1 " //
+                + "(cmpR:\"inu to neko\"~1)^2.2 " //
+                + "(cmpRR:inu cmpRR:to cmpRR:neko)^2.2) " //
+                + "+(f:" + PATH1 + ")",
+                queryFactory.searchByPhrase(query, false, SINGLE_FOLDERS, IndexType.SONG).toString());
     }
 
     @Test
