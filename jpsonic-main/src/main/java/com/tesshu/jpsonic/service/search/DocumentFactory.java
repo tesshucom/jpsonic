@@ -319,7 +319,8 @@ public class DocumentFactory {
             } else if (scheme == IndexScheme.ROMANIZED_JAPANESE) {
                 fieldWords.accept(doc, field, result);
                 if (isJapaneseName) {
-                    fieldWords.accept(doc, romanizedfield, readingUtils.removePunctuationFromJapaneseReading(result));
+                    fieldWords.accept(doc, romanizedfield, readingUtils.removePunctuationFromJapaneseReading(
+                            settingsService.isForceInternalValueInsteadOfTags() ? reading : result));
                 }
             } else {
                 fieldWords.accept(doc, field, readingUtils.removePunctuationFromJapaneseReading(result));

@@ -259,6 +259,14 @@ class DocumentFactoryTest {
                 }
             }
 
+            @interface ForceInternalValueInsteadOfTags {
+                @interface False {
+                }
+
+                @interface True {
+                }
+            }
+
             @interface Value {
                 @interface Null {
                 }
@@ -388,14 +396,17 @@ class DocumentFactoryTest {
         }
 
         @ReadingDecisions.Conditions.IndexScheme.RomanizedJapanese
+        @ReadingDecisions.Conditions.ForceInternalValueInsteadOfTags.False
         @ReadingDecisions.Conditions.Value.NotNull.Japanese
         @Test
         void c06() {
             Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
             MediaFile song = createSong();
             song.setArtist("アーティスト");
+            song.setArtistReading("analyzed artist-reading-value");
             song.setArtistSort("あーてぃすと");
             song.setComposer("作曲者");
+            song.setComposerSort("analyzed composer-reading-value");
             song.setComposerSortRaw("さっきょくしゃ");
             Document document = documentFactory.createSongDocument(song);
             documentFactory.acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
@@ -410,10 +421,38 @@ class DocumentFactoryTest {
             assertEquals("さっきょくしゃ", document.get(FieldNamesConstants.COMPOSER_READING_ROMANIZED));
         }
 
+        @ReadingDecisions.Conditions.IndexScheme.RomanizedJapanese
+        @ReadingDecisions.Conditions.ForceInternalValueInsteadOfTags.True
+        @ReadingDecisions.Conditions.Value.NotNull.Japanese
+        @Test
+        void c07() {
+            Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+            Mockito.when(settingsService.isForceInternalValueInsteadOfTags()).thenReturn(true);
+            MediaFile song = createSong();
+            song.setArtist("アーティスト");
+            song.setArtistSort("あーてぃすと");
+            song.setArtistReading("analyzed artist-reading-value");
+            song.setComposer("作曲者");
+            song.setComposerSort("analyzed composer-reading-value");
+            song.setComposerSortRaw("さっきょくしゃ");
+            Document document = documentFactory.createSongDocument(song);
+            documentFactory.acceptArtistReading(document, song.getArtist(), song.getArtistSort(),
+                    song.getArtistReading());
+            documentFactory.acceptComposerReading(document, song.getComposer(), song.getComposerSortRaw(),
+                    song.getComposerSort());
+            assertEquals("アーティスト", document.get(FieldNamesConstants.ARTIST));
+            assertEquals("あーてぃすと", document.get(FieldNamesConstants.ARTIST_READING));
+            assertEquals("analyzed artist-reading-value", document.get(FieldNamesConstants.ARTIST_READING_ROMANIZED));
+            assertEquals("作曲者", document.get(FieldNamesConstants.COMPOSER));
+            assertEquals("さっきょくしゃ", document.get(FieldNamesConstants.COMPOSER_READING));
+            assertEquals("analyzed composer-reading-value",
+                    document.get(FieldNamesConstants.COMPOSER_READING_ROMANIZED));
+        }
+
         @ReadingDecisions.Conditions.IndexScheme.WithoutJpLangProcessing
         @ReadingDecisions.Conditions.Value.NotNull.NotJapanese
         @Test
-        void c07() {
+        void c08() {
             Mockito.when(settingsService.getIndexSchemeName())
                     .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
             MediaFile song = createSong();
@@ -431,7 +470,7 @@ class DocumentFactoryTest {
         @ReadingDecisions.Conditions.IndexScheme.WithoutJpLangProcessing
         @ReadingDecisions.Conditions.Value.NotNull.Japanese
         @Test
-        void c08() {
+        void c09() {
             Mockito.when(settingsService.getIndexSchemeName())
                     .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
             MediaFile song = createSong();

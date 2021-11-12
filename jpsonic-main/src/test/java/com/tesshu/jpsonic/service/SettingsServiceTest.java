@@ -819,6 +819,11 @@ class SettingsServiceTest {
     }
 
     @Test
+    void testisForceInternalValueInsteadOfTags() {
+        assertFalse(settingsService.isForceInternalValueInsteadOfTags());
+    }
+
+    @Test
     void testGetDatabaseConfigType() {
         assertEquals(DataSourceConfigType.LEGACY, settingsService.getDatabaseConfigType());
     }
