@@ -380,14 +380,6 @@ public class SettingsService {
         setProperty(SettingsConstants.MusicFolder.Others.FILE_MODIFIED_CHECK_SCHEME_NAME, s);
     }
 
-    public boolean isIndexEnglishPrior() {
-        return getBoolean(SettingsConstants.MusicFolder.Others.INDEX_ENGLISH_PRIOR);
-    }
-
-    public void setIndexEnglishPrior(boolean b) {
-        setProperty(SettingsConstants.MusicFolder.Others.INDEX_ENGLISH_PRIOR, b);
-    }
-
     public boolean isIgnoreFileTimestamps() {
         return getBoolean(SettingsConstants.MusicFolder.Others.IGNORE_FILE_TIMESTAMPS);
     }

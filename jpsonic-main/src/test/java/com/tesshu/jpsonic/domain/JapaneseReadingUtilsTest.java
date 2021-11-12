@@ -1259,11 +1259,6 @@ class JapaneseReadingUtilsTest {
     @Documented
     private @interface CreateIndexableNameArtistDecisions {
         @interface Conditions {
-            @interface isIndexEnglishPrior {
-                // Currently always true
-                @interface True {
-                }
-            }
 
             @interface Artist {
                 @interface Name {
@@ -1322,7 +1317,6 @@ class JapaneseReadingUtilsTest {
             return artist;
         }
 
-        @CreateIndexableNameArtistDecisions.Conditions.isIndexEnglishPrior.True
         @CreateIndexableNameArtistDecisions.Conditions.Artist.Name.isStartWithAlpha.True
         @CreateIndexableNameArtistDecisions.Result.IndexableName.NameDerived
         @Test
@@ -1336,7 +1330,6 @@ class JapaneseReadingUtilsTest {
             assertEquals("abcde", indexableNameString);
         }
 
-        @CreateIndexableNameArtistDecisions.Conditions.isIndexEnglishPrior.True
         @CreateIndexableNameArtistDecisions.Conditions.Artist.Name.isStartWithAlpha.False
         @CreateIndexableNameArtistDecisions.Conditions.Artist.ArtistReading.Empty.False
         @CreateIndexableNameArtistDecisions.Result.IndexableName.NormalizedReading
@@ -1351,7 +1344,6 @@ class JapaneseReadingUtilsTest {
             assertEquals("ニホンゴメイ", indexableNameString);
         }
 
-        @CreateIndexableNameArtistDecisions.Conditions.isIndexEnglishPrior.True
         @CreateIndexableNameArtistDecisions.Conditions.Artist.Name.isStartWithAlpha.False
         @CreateIndexableNameArtistDecisions.Conditions.Artist.ArtistReading.Empty.True
         @CreateIndexableNameArtistDecisions.Conditions.Artist.ArtistSort.Empty.False
@@ -1371,7 +1363,6 @@ class JapaneseReadingUtilsTest {
             assertEquals("ニホンゴメイ", indexableNameString);
         }
 
-        @CreateIndexableNameArtistDecisions.Conditions.isIndexEnglishPrior.True
         @CreateIndexableNameArtistDecisions.Conditions.Artist.Name.isStartWithAlpha.False
         @CreateIndexableNameArtistDecisions.Conditions.Artist.ArtistReading.Empty.True
         @CreateIndexableNameArtistDecisions.Conditions.Artist.ArtistSort.Empty.True
@@ -1395,11 +1386,6 @@ class JapaneseReadingUtilsTest {
     @Documented
     private @interface CreateIndexableNameMediaFileDecisions {
         @interface Conditions {
-            @interface isIndexEnglishPrior {
-                // Currently always true
-                @interface True {
-                }
-            }
 
             @interface MediaFile {
                 @interface Name {
@@ -1464,7 +1450,6 @@ class JapaneseReadingUtilsTest {
             return mediaFile;
         }
 
-        @CreateIndexableNameMediaFileDecisions.Conditions.isIndexEnglishPrior.True
         @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.Name.isStartWithAlpha.True
         @CreateIndexableNameMediaFileDecisions.Result.IndexableName.PathDerived
         @Test
@@ -1482,7 +1467,6 @@ class JapaneseReadingUtilsTest {
             assertEquals("abcde-path", indexableNameString);
         }
 
-        @CreateIndexableNameMediaFileDecisions.Conditions.isIndexEnglishPrior.True
         @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.Name.isStartWithAlpha.False
         @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.ArtistReading.Empty.False
         @CreateIndexableNameMediaFileDecisions.Result.IndexableName.NormalizedReading
@@ -1501,7 +1485,6 @@ class JapaneseReadingUtilsTest {
             assertEquals("ニホンゴメイ", indexableNameString);
         }
 
-        @CreateIndexableNameMediaFileDecisions.Conditions.isIndexEnglishPrior.True
         @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.Name.isStartWithAlpha.False
         @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.ArtistReading.Empty.True
         @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.ArtistSort.Empty.False
@@ -1528,7 +1511,6 @@ class JapaneseReadingUtilsTest {
             assertEquals("ニホンゴメイ", indexableNameString); // Normalized reading, not path
         }
 
-        @CreateIndexableNameMediaFileDecisions.Conditions.isIndexEnglishPrior.True
         @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.Name.isStartWithAlpha.False
         @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.ArtistReading.Empty.True
         @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.ArtistSort.Empty.True

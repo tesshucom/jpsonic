@@ -521,11 +521,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsIndexEnglishPrior() {
-        assertTrue(settingsService.isIndexEnglishPrior());
-    }
-
-    @Test
     void testIsSortAlbumsByYear() {
         assertTrue(settingsService.isSortAlbumsByYear());
     }

@@ -485,7 +485,7 @@ public class JapaneseReadingUtils {
     }
 
     public String createIndexableName(@NonNull Artist artist) {
-        if (settingsService.isIndexEnglishPrior() && isStartWithAlpha(artist.getName())) {
+        if (isStartWithAlpha(artist.getName())) {
             return createIndexableName(artist.getName());
         } else if (isEmpty(artist.getReading())) {
             if (isEmpty(artist.getSort())) {
@@ -497,7 +497,7 @@ public class JapaneseReadingUtils {
     }
 
     public String createIndexableName(@NonNull MediaFile artist) {
-        if (settingsService.isIndexEnglishPrior() && isStartWithAlpha(artist.getName())) {
+        if (isStartWithAlpha(artist.getName())) {
             return createIndexableName(artist.getName());
         } else if (isEmpty(artist.getArtistReading())) {
             if (isEmpty(artist.getArtistSort())) {
