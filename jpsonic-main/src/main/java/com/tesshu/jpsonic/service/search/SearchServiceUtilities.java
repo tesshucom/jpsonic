@@ -222,13 +222,6 @@ public class SearchServiceUtilities {
         }
     }
 
-    public final String[] filterComposer(String[] fields, boolean includeComposer) {
-        return Arrays.stream(fields)
-                .filter(f -> includeComposer
-                        || !(FieldNamesConstants.COMPOSER.equals(f) || FieldNamesConstants.COMPOSER_READING.equals(f)))
-                .toArray(String[]::new);
-    }
-
     private String createCacheKey(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
         StringBuilder b = new StringBuilder();
         b.append(genres).append('[');

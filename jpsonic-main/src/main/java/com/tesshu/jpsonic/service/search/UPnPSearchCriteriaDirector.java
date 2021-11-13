@@ -34,7 +34,6 @@ import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaLexer;
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaListener;
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser;
@@ -100,13 +99,10 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
     private final QueryFactory queryFactory;
     private final UpnpProcessorUtil upnpUtil;
-    private final SettingsService settingsService;
-    private final SearchServiceUtilities searchUtil;
 
     private BooleanQuery.Builder mediaTypeQueryBuilder;
     private BooleanQuery.Builder propExpQueryBuilder;
     private Occur lastLogOp;
-    private boolean includeComposer;
     private Class<?> assignableClass;
     private int offset;
     private int count;
@@ -124,12 +120,9 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
             "object.container.genre.movieGenre", "object.container.storageSystem", "object.container.storageVolume",
             "object.container.storageFolder");
 
-    public UPnPSearchCriteriaDirector(QueryFactory queryFactory, SettingsService settingsService,
-            UpnpProcessorUtil util, SearchServiceUtilities searchUtil) {
+    public UPnPSearchCriteriaDirector(QueryFactory queryFactory, UpnpProcessorUtil util) {
         this.queryFactory = queryFactory;
-        this.settingsService = settingsService;
         this.upnpUtil = util;
-        this.searchUtil = searchUtil;
     }
 
     public UPnPSearchCriteria construct(int offset, int count, String upnpSearchQuery) {
@@ -200,7 +193,6 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         } else if ("=".equals(verb)) {
             purseClass(subject, verb, complement);
         }
-        includeComposer = settingsService.isSearchComposer() && MediaFile.class == assignableClass;
     }
 
     private void purseDerivedfrom(String subject, String verb, String complement) {
@@ -367,23 +359,21 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
         if ("dc:title".equals(subject)) {
             if (Album.class == assignableClass) {
-                fieldName.add(FieldNamesConstants.ALBUM_EX);
                 fieldName.add(FieldNamesConstants.ALBUM);
+                fieldName.add(FieldNamesConstants.ALBUM_READING);
             } else if (Artist.class == assignableClass) {
-                fieldName.add(FieldNamesConstants.ARTIST_READING);
-                fieldName.add(FieldNamesConstants.ARTIST_EX);
                 fieldName.add(FieldNamesConstants.ARTIST);
+                fieldName.add(FieldNamesConstants.ARTIST_READING);
             } else {
-                fieldName.add(FieldNamesConstants.TITLE_EX);
                 fieldName.add(FieldNamesConstants.TITLE);
+                fieldName.add(FieldNamesConstants.TITLE_READING);
             }
-        } else if ("dc:creator".equals(subject)) {
-            fieldName.add(FieldNamesConstants.COMPOSER_READING);
-            fieldName.add(FieldNamesConstants.COMPOSER);
         } else if ("upnp:artist".equals(subject)) {
-            fieldName.add(FieldNamesConstants.ARTIST_READING);
-            fieldName.add(FieldNamesConstants.ARTIST_EX);
             fieldName.add(FieldNamesConstants.ARTIST);
+            fieldName.add(FieldNamesConstants.ARTIST_READING);
+        } else if ("dc:creator".equals(subject)) {
+            fieldName.add(FieldNamesConstants.COMPOSER);
+            fieldName.add(FieldNamesConstants.COMPOSER_READING);
         }
         notice.accept(0 == fieldName.size(), "Unexpected PropertyExpContext. -> " + subject);
 
@@ -542,7 +532,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         Query folderQuery = queryFactory.toFolderQuery.apply(isId3, upnpUtil.getGuestMusicFolders());
         mainQuery.add(folderQuery, Occur.MUST);
 
-        result = new UPnPSearchCriteria(upnpSearchQuery, offset, count, includeComposer);
+        result = new UPnPSearchCriteria(upnpSearchQuery, offset, count);
         result.setAssignableClass(assignableClass);
         result.setParsedQuery(mainQuery.build());
 
@@ -629,8 +619,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
     }
 
     private Query createMultiFieldQuery(final String[] fields, final String query) throws IOException {
-        String[] targetFields = searchUtil.filterComposer(fields, includeComposer);
-        return queryFactory.createPhraseQuery(targetFields, query, getIndexType());
+        return queryFactory.createPhraseQuery(fields, query, getIndexType());
     }
 
     private IndexType getIndexType() {

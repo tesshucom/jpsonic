@@ -1001,6 +1001,14 @@ public class SettingsService {
         setProperty(SettingsConstants.Advanced.Index.READ_GREEK_IN_JAPANESE, b);
     }
 
+    public boolean isForceInternalValueInsteadOfTags() {
+        return getBoolean(SettingsConstants.Advanced.Index.FORCE_INTERNAL_VALUE_INSTEAD_OF_TAGS);
+    }
+
+    public void setForceInternalValueInsteadOfTags(boolean b) {
+        setProperty(SettingsConstants.Advanced.Index.FORCE_INTERNAL_VALUE_INSTEAD_OF_TAGS, b);
+    }
+
     public String getPodcastFolder() {
         return getString(SettingsConstants.Podcast.FOLDER);
     }

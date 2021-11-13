@@ -30,6 +30,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.tesshu.jpsonic.domain.IndexScheme;
+import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.analysis.ComplementaryFilter;
 import com.tesshu.jpsonic.service.search.analysis.ComplementaryFilter.Mode;
 import com.tesshu.jpsonic.service.search.analysis.GenreTokenizerFactory;
@@ -58,8 +60,10 @@ import org.apache.lucene.analysis.ja.JapaneseTokenizerFactory;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilterFactory;
 import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
+import org.apache.lucene.analysis.ngram.EdgeNGramTokenFilter;
 import org.apache.lucene.analysis.pattern.PatternReplaceFilterFactory;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
+import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
 import org.apache.lucene.util.IOUtils;
 import org.springframework.stereotype.Component;
 
@@ -78,7 +82,13 @@ public final class AnalyzerFactory {
     private static final String FILTER_ATTR_REPLACE = "replace";
     private static final String FILTER_ATTR_ALL = "all";
 
+    private final SettingsService settingsService;
+
     private Analyzer analyzer;
+
+    public AnalyzerFactory(SettingsService settingsService) {
+        this.settingsService = settingsService;
+    }
 
     private static CharArraySet loadWords(String wordsFile) {
         try (Reader reader = IOUtils.getDecodingReader(AnalyzerFactory.class.getResourceAsStream("/".concat(wordsFile)),
@@ -105,7 +115,10 @@ public final class AnalyzerFactory {
      * the specifications of legacy servers is applied.
      */
     private Analyzer createDefaultAnalyzer(boolean isArtist) throws IOException {
-        CustomAnalyzer.Builder builder = CustomAnalyzer.builder().withTokenizer(JapaneseTokenizerFactory.class)
+        IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
+        CustomAnalyzer.Builder builder = CustomAnalyzer.builder()
+                .withTokenizer(scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING ? StandardTokenizerFactory.class
+                        : JapaneseTokenizerFactory.class)
                 .addTokenFilter(CJKWidthFilterFactory.class)
                 .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false")
                 .addTokenFilter(LowerCaseFilterFactory.class) //
@@ -125,14 +138,42 @@ public final class AnalyzerFactory {
     }
 
     /**
+     * Create an Analyzer for general reading. Applies only to ALBUM and TITLE readings. Currently, support is limited
+     * and only if the input consists only of hiragana or katakana. Full support will be considered as an option later
+     * as it is a trade-off between practicality and index size.
+     */
+    private Analyzer createReadingAnalyzer() throws IOException {
+        CharArraySet stopWords = loadWords(STOP_WORDS);
+        Set<String> stopTagset = loadStopTags();
+        return new StopwordAnalyzerBase() {
+            @SuppressWarnings("PMD.CloseResource") // False positive. Stream is reused by ReuseStrategy.
+            @Override
+            protected TokenStreamComponents createComponents(String fieldName) {
+                final Tokenizer source = new StandardTokenizer();
+                TokenStream result = new CJKWidthFilter(source);
+                result = new ASCIIFoldingFilter(result, false);
+                result = new LowerCaseFilter(result);
+                result = new StopFilter(result, stopWords);
+                result = new JapanesePartOfSpeechStopFilter(result, stopTagset);
+                result = new PunctuationStemFilter(result);
+                result = new ComplementaryFilter(result, Mode.HIRA_KATA_ONLY, null);
+                result = new ToHiraganaFilter(result);
+                result = new CJKBigramFilter(result);
+                return new TokenStreamComponents(source, result);
+            }
+        };
+    }
+
+    /**
      * Create an Analyzer dedicated to Artist Reading. This analyzer is highly dependent on the characteristics of the
      * language of interest. Consideration should also be given to how the voice input engine used handles foreign
      * words, especially when supporting voice input searches.
      */
     private Analyzer createArtistReadingAnalyzer() throws IOException {
-        CharArraySet stopWords4Artist = loadWords(STOP_WARDS_FOR_ARTIST);
-        Set<String> stopTagset = loadStopTags();
         return new StopwordAnalyzerBase() {
+            CharArraySet stopWords4Artist = loadWords(STOP_WARDS_FOR_ARTIST);
+            Set<String> stopTagset = loadStopTags();
+
             @SuppressWarnings("PMD.CloseResource") // False positive. Stream is reused by ReuseStrategy.
             @Override
             protected TokenStreamComponents createComponents(String fieldName) {
@@ -143,14 +184,37 @@ public final class AnalyzerFactory {
                 result = new StopFilter(result, stopWords4Artist);
                 result = new JapanesePartOfSpeechStopFilter(result, stopTagset);
                 result = new PunctuationStemFilter(result);
-                result = new CJKBigramFilter(result);
                 result = new ToHiraganaFilter(result);
+                result = new CJKBigramFilter(result);
                 return new TokenStreamComponents(source, result);
             }
+        };
+    }
 
+    /**
+     * Create an Analyzer dedicated to Romanized Japanese Reading. Originally, the specifications of this field are
+     * theoretically the same as when processing English. However, since the original word is Japanese, the delimiter is
+     * very vague for some words. (For example, in Japanese there is no space between the name and the middle name. When
+     * such words are romanized, they become one word.) Therefore, it does not depend only on space-separated
+     * tokenization and is processed by ngram.
+     */
+    private Analyzer createRomanizedAnalyzer() throws IOException {
+        return new StopwordAnalyzerBase() {
+            Set<String> stopTagset = loadStopTags();
+            CharArraySet stopWords4Artist = loadWords(STOP_WARDS_FOR_ARTIST);
+
+            @SuppressWarnings("PMD.CloseResource") // False positive. Stream is reused by ReuseStrategy.
             @Override
-            protected TokenStream normalize(String fieldName, TokenStream in) {
-                return new LowerCaseFilter(new CJKWidthFilter(in));
+            protected TokenStreamComponents createComponents(String fieldName) {
+                final Tokenizer source = new StandardTokenizer();
+                TokenStream result = new CJKWidthFilter(source);
+                result = new ASCIIFoldingFilter(result, false);
+                result = new LowerCaseFilter(result);
+                result = new StopFilter(result, stopWords4Artist);
+                result = new JapanesePartOfSpeechStopFilter(result, stopTagset);
+                result = new PunctuationStemFilter(result);
+                result = new EdgeNGramTokenFilter(result, 3, 20, false);
+                return new TokenStreamComponents(source, result);
             }
         };
     }
@@ -196,33 +260,6 @@ public final class AnalyzerFactory {
     }
 
     /**
-     * Create an analyzer to complement the analysis that is difficult to deal with with a normal analyzer. This
-     * analyzer is highly dependent on the characteristics of the language of interest.As a result of normal
-     * morphological analysis and Stopward analysis, the case of a special pattern in which the index is completely
-     * missing is extracted and processed by Bigram.
-     */
-    private Analyzer createExAnalyzer() throws IOException {
-        Set<String> stopTagset = loadStopTags();
-        return new StopwordAnalyzerBase() {
-
-            @SuppressWarnings("PMD.CloseResource") // False positive. Stream is reused by ReuseStrategy.
-            @Override
-            protected TokenStreamComponents createComponents(String fieldName) {
-                final Tokenizer source = new StandardTokenizer();
-                TokenStream result = new CJKWidthFilter(source);
-                result = new ASCIIFoldingFilter(result, false);
-                result = new LowerCaseFilter(result);
-                result = new PunctuationStemFilter(result);
-                result = new JapanesePartOfSpeechStopFilter(result, stopTagset);
-                result = new ComplementaryFilter(result, Mode.HIRA_KATA_ONLY, null);
-                result = new ToHiraganaFilter(result);
-                result = new CJKBigramFilter(result);
-                return new TokenStreamComponents(source, result);
-            }
-        };
-    }
-
-    /**
      * Analysers are the factory class for TokenStreams and thread-safe. Loaded only once at startup and used for
      * scanning and searching.
      */
@@ -232,19 +269,22 @@ public final class AnalyzerFactory {
             try {
 
                 Analyzer defaultAnalyzer = createDefaultAnalyzer(false);
-
                 Analyzer artistAnalyzer = createDefaultAnalyzer(true);
+                Analyzer readingAnalyzer = createReadingAnalyzer();
                 Analyzer artistReadingAnalyzer = createArtistReadingAnalyzer();
-                Analyzer exceptionalAnalyzer = createExAnalyzer();
-                Map<String, Analyzer> fieldAnalyzers = LegacyMap.of(FieldNamesConstants.ARTIST, artistAnalyzer,
-                        FieldNamesConstants.COMPOSER, artistAnalyzer, //
-                        FieldNamesConstants.ARTIST_READING, artistReadingAnalyzer, //
-                        FieldNamesConstants.COMPOSER_READING, artistReadingAnalyzer, //
-                        FieldNamesConstants.ALBUM_EX, exceptionalAnalyzer, //
-                        FieldNamesConstants.TITLE_EX, exceptionalAnalyzer, //
-                        FieldNamesConstants.ARTIST_EX, exceptionalAnalyzer, //
-                        FieldNamesConstants.GENRE_KEY, createGenreKeyAnalyzer(), //
-                        FieldNamesConstants.GENRE, createGenreAnalyzer());
+                Analyzer romanizedAnalyzer = createRomanizedAnalyzer();
+
+                Map<String, Analyzer> fieldAnalyzers = //
+                        LegacyMap.of(FieldNamesConstants.ARTIST, artistAnalyzer, //
+                                FieldNamesConstants.ARTIST_READING, artistReadingAnalyzer, //
+                                FieldNamesConstants.ARTIST_READING_ROMANIZED, romanizedAnalyzer, //
+                                FieldNamesConstants.COMPOSER, artistAnalyzer, //
+                                FieldNamesConstants.COMPOSER_READING, artistReadingAnalyzer, //
+                                FieldNamesConstants.COMPOSER_READING_ROMANIZED, romanizedAnalyzer, //
+                                FieldNamesConstants.ALBUM_READING, readingAnalyzer, //
+                                FieldNamesConstants.TITLE_READING, readingAnalyzer, //
+                                FieldNamesConstants.GENRE_KEY, createGenreKeyAnalyzer(), //
+                                FieldNamesConstants.GENRE, createGenreAnalyzer());
 
                 this.analyzer = new PerFieldAnalyzerWrapper(defaultAnalyzer, fieldAnalyzers);
 
