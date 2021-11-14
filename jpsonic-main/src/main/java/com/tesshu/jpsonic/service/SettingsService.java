@@ -1009,6 +1009,22 @@ public class SettingsService {
         setProperty(SettingsConstants.Advanced.Index.READ_GREEK_IN_JAPANESE, b);
     }
 
+    public boolean isIgnoreFullWidth() {
+        return getBoolean(SettingsConstants.Advanced.Index.IGNORE_FULL_WIDTH);
+    }
+
+    public void setIgnoreFullWidth(boolean b) {
+        setProperty(SettingsConstants.Advanced.Index.IGNORE_FULL_WIDTH, b);
+    }
+
+    public boolean isDeleteDiacritic() {
+        return getBoolean(SettingsConstants.Advanced.Index.DELETE_DIACRITIC);
+    }
+
+    public void setDeleteDiacritic(boolean b) {
+        setProperty(SettingsConstants.Advanced.Index.DELETE_DIACRITIC, b);
+    }
+
     public String getPodcastFolder() {
         return getString(SettingsConstants.Podcast.FOLDER);
     }

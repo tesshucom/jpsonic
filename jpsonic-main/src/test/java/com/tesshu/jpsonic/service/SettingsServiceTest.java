@@ -824,6 +824,16 @@ class SettingsServiceTest {
     }
 
     @Test
+    void testIsIgnoreFullWidth() {
+        assertTrue(settingsService.isIgnoreFullWidth());
+    }
+
+    @Test
+    void testIsDeleteDiacritic() {
+        assertTrue(settingsService.isDeleteDiacritic());
+    }
+
+    @Test
     void testGetDatabaseConfigType() {
         assertEquals(DataSourceConfigType.LEGACY, settingsService.getDatabaseConfigType());
     }

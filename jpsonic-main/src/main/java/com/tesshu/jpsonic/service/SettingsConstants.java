@@ -241,6 +241,9 @@ class SettingsConstants {
                     IndexScheme.NATIVE_JAPANESE.name());
             static final Pair<Boolean> READ_GREEK_IN_JAPANESE = Pair.of("ReadGreekInJapanese", true);
 
+            static final Pair<Boolean> IGNORE_FULL_WIDTH = Pair.of("IgnoreFullWidth", true);
+            static final Pair<Boolean> DELETE_DIACRITIC = Pair.of("DeleteDiacritic", true);
+
             private Index() {
             }
         }
