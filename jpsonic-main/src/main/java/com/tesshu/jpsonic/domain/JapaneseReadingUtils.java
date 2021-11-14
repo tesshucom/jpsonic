@@ -468,19 +468,23 @@ public class JapaneseReadingUtils {
     /**
      * This method returns the normalized Artist name that can also be used to create the index prefix.
      * 
-     * @param sort
-     *            artist's sort string
-     * 
      * @return indexable Name
      */
-    private String createIndexableName(@NonNull String sort) {
-        String indexableName = sort;
-        if (sort.charAt(0) > WAVY_LINE) {
+    String createIndexableName(@NonNull String value) {
+        String indexableName = value;
+        IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
+
+        if (scheme == IndexScheme.NATIVE_JAPANESE && value.charAt(0) > WAVY_LINE) {
             indexableName = transliterate(ID.TO_HALFWIDTH, indexableName);
             indexableName = transliterate(ID.TO_KATAKANA, indexableName);
+        } else if (scheme == IndexScheme.ROMANIZED_JAPANESE || settingsService.isIgnoreFullWidth()) {
+            indexableName = transliterate(ID.TO_HALFWIDTH, indexableName);
         }
-        // http://www.unicode.org/reports/tr15/
-        indexableName = Normalizer.normalize(indexableName, Normalizer.Form.NFD);
+
+        if (scheme == IndexScheme.NATIVE_JAPANESE || settingsService.isDeleteDiacritic()) {
+            indexableName = Normalizer.normalize(indexableName, Normalizer.Form.NFD)
+                    .replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+        }
         return indexableName;
     }
 

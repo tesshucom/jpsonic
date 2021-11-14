@@ -27,13 +27,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.annotation.Documented;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.service.SettingsService;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -1538,41 +1535,142 @@ class JapaneseReadingUtilsTest {
         }
     }
 
+    @Documented
+    private @interface CreateIndexableNameDecisions {
+        @interface Conditions {
+            @interface IndexScheme {
+                @interface NativeJapanese {
+                }
+
+                @interface RomanizedJapanese {
+                }
+
+                @interface WithoutJp {
+                }
+            }
+        }
+    }
+
     @Nested
     @Order(14)
     class CreateIndexableName {
 
-        private String createIndexableName(@NonNull String s) throws ExecutionException {
-            Method method;
-            try {
-                method = utils.getClass().getDeclaredMethod("createIndexableName", String.class);
-                method.setAccessible(true);
-                return (String) method.invoke(utils, s);
-            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-                    | InvocationTargetException e) {
-                throw new ExecutionException(e);
-            }
+        void assertDeleteDiacritic() {
+            assertEquals("ABCDEFGHIJKLMNOPQRSTUVWXYZ", utils.createIndexableName("ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+            assertEquals("ACEGIKLMNOPRSUWYZ", utils.createIndexableName("ÁĆÉǴÍḰĹḾŃÓṔŔŚÚẂÝŹ"));
+            assertEquals("AEINOUWY", utils.createIndexableName("ÀÈÌǸÒÙẀỲ"));
+            assertEquals("ACEGHIJNOSUWYZ", utils.createIndexableName("ÂĈÊĜĤÎĴN̂ÔŜÛŴŶẐ"));
+            assertEquals("AEHIOTUWXY", utils.createIndexableName("ÄËḦÏÖT̈ÜẄẌŸ"));
+            assertEquals("AUWY", utils.createIndexableName("ÅŮW̊Y̊"));
+            assertEquals("ACDEGHIKLNORSTUZ", utils.createIndexableName("ǍČĎĚǦȞǏǨĽŇǑŘŠŤǓŽ"));
+            assertEquals("AEINOUVY", utils.createIndexableName("ÃẼĨÑÕŨṼỸ"));
+            assertEquals("CDEGHKLNRST", utils.createIndexableName("ÇḐȨĢḨĶĻŅŖŞŢ"));
+            assertEquals("ST", utils.createIndexableName("ȘȚ"));
+            assertEquals("AEGIOU", utils.createIndexableName("ĂĔĞĬŎŬ"));
+            assertEquals("AEGINOUY", utils.createIndexableName("ĀĒḠĪN̄ŌŪȲ"));
+            assertEquals("AEIOU", utils.createIndexableName("ĄĘĮǪŲ"));
+            assertEquals("OU", utils.createIndexableName("ŐŰ"));
+            assertEquals("ABCDEFGHIĿMNOPRSTWXYZ", utils.createIndexableName("ȦḂĊḊĖḞĠḢİĿṀṄȮṖṘṠṪẆẊẎŻ"));
+            assertEquals("OU", utils.createIndexableName("ƠƯ"));
+
+            // Currently does not support stroke deletion
+            assertEquals("ɃĐǤĦƗɈŁØⱣɌŦɄɎƵ", utils.createIndexableName("ɃĐǤĦƗɈŁØⱣɌŦɄɎƵ"));
         }
 
+        void assertRemainDiacritic() {
+            assertEquals("ABCDEFGHIJKLMNOPQRSTUVWXYZ", utils.createIndexableName("ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+            assertEquals("ÁĆÉǴÍḰĹḾŃÓṔŔŚÚẂÝŹ", utils.createIndexableName("ÁĆÉǴÍḰĹḾŃÓṔŔŚÚẂÝŹ"));
+            assertEquals("ÀÈÌǸÒÙẀỲ", utils.createIndexableName("ÀÈÌǸÒÙẀỲ"));
+            assertEquals("ÂĈÊĜĤÎĴN̂ÔŜÛŴŶẐ", utils.createIndexableName("ÂĈÊĜĤÎĴN̂ÔŜÛŴŶẐ"));
+            assertEquals("ÄËḦÏÖT̈ÜẄẌŸ", utils.createIndexableName("ÄËḦÏÖT̈ÜẄẌŸ"));
+            assertEquals("ÅŮW̊Y̊", utils.createIndexableName("ÅŮW̊Y̊"));
+            assertEquals("ǍČĎĚǦȞǏǨĽŇǑŘŠŤǓŽ", utils.createIndexableName("ǍČĎĚǦȞǏǨĽŇǑŘŠŤǓŽ"));
+            assertEquals("ÃẼĨÑÕŨṼỸ", utils.createIndexableName("ÃẼĨÑÕŨṼỸ"));
+            assertEquals("ÇḐȨĢḨĶĻŅŖŞŢ", utils.createIndexableName("ÇḐȨĢḨĶĻŅŖŞŢ"));
+            assertEquals("ȘȚ", utils.createIndexableName("ȘȚ"));
+            assertEquals("ĂĔĞĬŎŬ", utils.createIndexableName("ĂĔĞĬŎŬ"));
+            assertEquals("ĀĒḠĪN̄ŌŪȲ", utils.createIndexableName("ĀĒḠĪN̄ŌŪȲ"));
+            assertEquals("ĄĘĮǪŲ", utils.createIndexableName("ĄĘĮǪŲ"));
+            assertEquals("ŐŰ", utils.createIndexableName("ŐŰ"));
+            assertEquals("ȦḂĊḊĖḞĠḢİĿṀṄȮṖṘṠṪẆẊẎŻ", utils.createIndexableName("ȦḂĊḊĖḞĠḢİĿṀṄȮṖṘṠṪẆẊẎŻ"));
+            assertEquals("ƠƯ", utils.createIndexableName("ƠƯ"));
+
+            // Currently does not support stroke deletion
+            assertEquals("ɃĐǤĦƗɈŁØⱣɌŦɄɎƵ", utils.createIndexableName("ɃĐǤĦƗɈŁØⱣɌŦɄɎƵ"));
+        }
+
+        @CreateIndexableNameDecisions.Conditions.IndexScheme.NativeJapanese
         @Test
-        void testCreateIndexableName() throws ExecutionException {
-            assertEquals("アイウエオ", createIndexableName("アイウエオ"));
-            assertEquals("ァィゥェォ", createIndexableName("ァィゥェォ"));
-            assertEquals("ァィゥェォ", createIndexableName("ｧｨｩｪｫ"));
-            assertEquals("アイウエオ", createIndexableName("ｱｲｳｴｵ"));
-            assertEquals("ツンク♂", createIndexableName("つんく♂"));
-            assertEquals("DJ FUMI★YEAH!", createIndexableName("DJ FUMI★YEAH!"));
-            assertEquals("ABCDE", createIndexableName("ABCDE"));
+        void c01() throws ExecutionException {
 
-            // Halfwidth and Katakana
-            assertEquals("ABCDE", createIndexableName("ＡＢＣＤＥ")); // Fullwidth-Halfwidth
-            assertEquals("BAD COMMUNICATION", createIndexableName("ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ"));
-            assertEquals("アイウエオ", createIndexableName("あいうえお")); // Hiragana-Katakana
+            Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.NATIVE_JAPANESE.name());
 
-            // Normalization specifications vary by language
-            assertEquals("ゴウヒロミ", createIndexableName("ゴウヒロミ")); // NFD
-            assertEquals("パミュパミュ", createIndexableName("ぱみゅぱみゅ")); // NFD
-            assertEquals("コウダクミ", createIndexableName("コウダクミ")); // NFD
+            assertEquals("ABCDE", utils.createIndexableName("ABCDE")); // no change
+            assertEquals("アイウエオ", utils.createIndexableName("アイウエオ")); // no change
+            assertEquals("ァィゥェォ", utils.createIndexableName("ァィゥェォ")); // no change
+            assertEquals("ァィゥェォ", utils.createIndexableName("ｧｨｩｪｫ")); // to ** Fullwidth **
+            assertEquals("アイウエオ", utils.createIndexableName("ｱｲｳｴｵ")); // to ** Fullwidth **
+            assertEquals("ツンク♂", utils.createIndexableName("つんく♂")); // to Katakana
+            assertEquals("アイウエオ", utils.createIndexableName("あいうえお")); // to Katakana
+            assertEquals("ゴウヒロミ", utils.createIndexableName("ゴウヒロミ")); // NFD
+            assertEquals("パミュパミュ", utils.createIndexableName("ぱみゅぱみゅ")); // NFD
+            assertEquals("コウダクミ", utils.createIndexableName("コウダクミ")); // NFD
+
+            // Half-width conversion is forcibly executed in this schema.
+            assertEquals("ABCDE", utils.createIndexableName("ＡＢＣＤＥ")); // to Halfwidth
+
+            // Diacritic removed is forcibly executed in this schema.
+            assertDeleteDiacritic();
+        }
+
+        @CreateIndexableNameDecisions.Conditions.IndexScheme.RomanizedJapanese
+        @Test
+        void c02() throws ExecutionException {
+
+            Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+            Mockito.when(settingsService.isDeleteDiacritic()).thenReturn(true);
+
+            assertEquals("ABCDE", utils.createIndexableName("ABCDE"));
+
+            // Half-width conversion is forcibly executed in this schema.
+            assertEquals("ABCDE", utils.createIndexableName("ＡＢＣＤＥ")); // to Halfwidth
+
+            // Diacritic
+            assertDeleteDiacritic();
+            Mockito.when(settingsService.isDeleteDiacritic()).thenReturn(false);
+            assertRemainDiacritic();
+        }
+
+        @CreateIndexableNameDecisions.Conditions.IndexScheme.WithoutJp
+        @Test
+        void c03() throws ExecutionException {
+
+            Mockito.when(settingsService.getIndexSchemeName())
+                    .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            Mockito.when(settingsService.isIgnoreFullWidth()).thenReturn(true);
+            Mockito.when(settingsService.isDeleteDiacritic()).thenReturn(true);
+
+            assertEquals("DJ FUMI★YEAH!", utils.createIndexableName("DJ FUMI★YEAH!")); // no change
+            assertEquals("ABCDE", utils.createIndexableName("ABCDE")); // no change
+            assertEquals("ｱｲｳｴｵ", utils.createIndexableName("アイウエオ")); // to Halfwidth
+            assertEquals("ｧｨｩｪｫ", utils.createIndexableName("ァィゥェォ")); // to Halfwidth
+            assertEquals("ｧｨｩｪｫ", utils.createIndexableName("ｧｨｩｪｫ")); // no change
+            assertEquals("ｱｲｳｴｵ", utils.createIndexableName("ｱｲｳｴｵ")); // no change
+            assertEquals("つんく♂", utils.createIndexableName("つんく♂")); // no change
+            assertEquals("あいうえお", utils.createIndexableName("あいうえお")); // no change
+            assertEquals("ｺﾞｳﾋﾛﾐ", utils.createIndexableName("ゴウヒロミ")); // to Halfwidth
+            assertEquals("ぱみゅぱみゅ", utils.createIndexableName("ぱみゅぱみゅ")); // NFD
+            assertEquals("ｺｳﾀﾞｸﾐ", utils.createIndexableName("コウダクミ")); // to Halfwidth
+
+            // Halfwidth
+            assertEquals("ABCDE", utils.createIndexableName("ＡＢＣＤＥ")); // to Halfwidth
+            Mockito.when(settingsService.isIgnoreFullWidth()).thenReturn(false);
+            assertEquals("ＡＢＣＤＥ", utils.createIndexableName("ＡＢＣＤＥ")); // no change
+
+            // Diacritic
+            assertDeleteDiacritic();
+            Mockito.when(settingsService.isDeleteDiacritic()).thenReturn(false);
+            assertRemainDiacritic();
         }
     }
 }

@@ -107,6 +107,8 @@ public final class ServiceMockUtils {
             Mockito.when(settingsService.getFileModifiedCheckSchemeName())
                     .thenReturn(FileModifiedCheckScheme.LAST_MODIFIED.name());
             Mockito.when(settingsService.getJWTKey()).thenReturn("SomeKey");
+            Mockito.when(settingsService.isIgnoreFullWidth()).thenReturn(true);
+            Mockito.when(settingsService.isDeleteDiacritic()).thenReturn(true);
             mock = settingsService;
         } else if (AirsonicLocaleResolver.class == classToMock) {
             String language = SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE.defaultValue;
