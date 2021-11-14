@@ -43,7 +43,6 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import com.tesshu.jpsonic.domain.SearchResult;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -72,12 +71,8 @@ class SearchServiceTest extends AbstractNeedsScan {
     @Autowired
     private SearchCriteriaDirector director;
 
-    @Autowired
-    private SettingsService settingsService;
-
     @BeforeEach
     public void setup() {
-        settingsService.setSearchMethodLegacy(false);
         populateDatabaseOnlyOnce();
     }
 

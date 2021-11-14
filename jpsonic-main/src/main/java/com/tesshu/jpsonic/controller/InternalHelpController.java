@@ -194,10 +194,6 @@ public class InternalHelpController {
 
         try (Analyzer analyzer = analyzerFactory.getAnalyzer()) {
             map.put("indexLuceneVersion", analyzer.getVersion().toString());
-        } catch (IOException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Unable to gather information", e);
-            }
         }
     }
 

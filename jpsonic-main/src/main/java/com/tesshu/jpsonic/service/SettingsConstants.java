@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.service;
 
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
+import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.PreferredFormatSheme;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
 import com.tesshu.jpsonic.util.PlayerUtils;
@@ -78,7 +79,6 @@ class SettingsConstants {
             static final Pair<Boolean> FAST_CACHE_ENABLED = Pair.of("FastCacheEnabled", true);
             static final Pair<String> FILE_MODIFIED_CHECK_SCHEME_NAME = Pair.of("FileModifiedCheckSchemeName",
                     FileModifiedCheckScheme.LAST_MODIFIED.name());
-            static final Pair<Boolean> INDEX_ENGLISH_PRIOR = Pair.of("IndexEnglishPrior", true);
             static final Pair<Boolean> IGNORE_FILE_TIMESTAMPS = Pair.of("IgnoreFileTimestamps", false);
             static final Pair<Boolean> IGNORE_FILE_TIMESTAMPS_NEXT = Pair.of("IgnoreFileTimestampsNext", false);
             static final Pair<Boolean> IGNORE_FILE_TIMESTAMPS_FOR_EACH_ALBUM = Pair
@@ -138,9 +138,6 @@ class SettingsConstants {
             static final Pair<Boolean> SHOW_REMEMBER_ME = Pair.of("ShowRememberMe", false);
             static final Pair<Boolean> PUBLISH_PODCAST = Pair.of("PublishPodcast", false);
             static final Pair<Boolean> USE_RADIO = Pair.of("UseRadio", false);
-            static final Pair<Boolean> SEARCH_METHOD_LEGACY = Pair.of("SearchMethodLegacy", false);
-            // Flag to regenerate index when server starts. @see IndexManager#deleteOldMethodFiles
-            static final Pair<Boolean> SEARCH_METHOD_CHANGED = Pair.of("SearchMethodChanged", false);
 
             private Legacy() {
             }
@@ -233,6 +230,20 @@ class SettingsConstants {
                     "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe");
 
             private Captcha() {
+            }
+        }
+
+        static class Index {
+            static final Pair<String> INDEX_SCHEME_NAME = Pair.of("IndexSchemeName",
+                    IndexScheme.NATIVE_JAPANESE.name());
+            static final Pair<Boolean> READ_GREEK_IN_JAPANESE = Pair.of("ReadGreekInJapanese", true);
+            static final Pair<Boolean> FORCE_INTERNAL_VALUE_INSTEAD_OF_TAGS = Pair.of("ForceInternalValueInsteadOfTags",
+                    false);
+
+            static final Pair<Boolean> IGNORE_FULL_WIDTH = Pair.of("IgnoreFullWidth", true);
+            static final Pair<Boolean> DELETE_DIACRITIC = Pair.of("DeleteDiacritic", true);
+
+            private Index() {
             }
         }
     }
