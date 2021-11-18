@@ -22,10 +22,12 @@ package com.tesshu.jpsonic.controller;
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.command.GeneralSettingsCommand;
+import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -35,6 +37,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -48,12 +51,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class GeneralSettingsControllerTest {
 
+    private static final String VIEW_NAME = "generalSettings";
+
+    private SettingsService settingsService;
     private GeneralSettingsController controller;
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        controller = new GeneralSettingsController(mock(SettingsService.class), mock(SecurityService.class),
+        settingsService = mock(SettingsService.class);
+        controller = new GeneralSettingsController(settingsService, mock(SecurityService.class),
                 mock(ShareService.class), mock(OutlineHelpSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
@@ -68,7 +75,7 @@ class GeneralSettingsControllerTest {
         assertNotNull(result);
 
         ModelAndView modelAndView = result.getModelAndView();
-        assertEquals("generalSettings", modelAndView.getViewName());
+        assertEquals(VIEW_NAME, modelAndView.getViewName());
 
         GeneralSettingsCommand command = (GeneralSettingsCommand) modelAndView.getModelMap()
                 .get(Attributes.Model.Command.VALUE);
@@ -84,7 +91,7 @@ class GeneralSettingsControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
-        assertEquals("generalSettings", modelAndView.getViewName());
+        assertEquals(VIEW_NAME, modelAndView.getViewName());
 
         GeneralSettingsCommand command = (GeneralSettingsCommand) modelAndView.getModelMap()
                 .get(Attributes.Model.Command.VALUE);
@@ -114,7 +121,7 @@ class GeneralSettingsControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
-        assertEquals("generalSettings", modelAndView.getViewName());
+        assertEquals(VIEW_NAME, modelAndView.getViewName());
 
         GeneralSettingsCommand command = (GeneralSettingsCommand) modelAndView.getModelMap()
                 .get(Attributes.Model.Command.VALUE);
@@ -124,5 +131,56 @@ class GeneralSettingsControllerTest {
         command.setThemeIndex("1");
 
         controller.post(command, Mockito.mock(RedirectAttributes.class));
+    }
+
+    @Test
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    @Order(3)
+    void testPostWithIndexOptions() throws Exception {
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.GENERAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        assertNotNull(result);
+        ModelAndView modelAndView = result.getModelAndView();
+        assertEquals(VIEW_NAME, modelAndView.getViewName());
+
+        GeneralSettingsCommand command = (GeneralSettingsCommand) modelAndView.getModelMap()
+                .get(Attributes.Model.Command.VALUE);
+        assertNotNull(command);
+
+        assertEquals(IndexScheme.NATIVE_JAPANESE, command.getIndexScheme());
+        assertTrue(command.isIgnoreFullWidth());
+        assertTrue(command.isDeleteDiacritic());
+        command.setDeleteDiacritic(false);
+        command.setIgnoreFullWidth(false);
+        ArgumentCaptor<Boolean> deleteDiacritic = ArgumentCaptor.forClass(Boolean.class);
+        ArgumentCaptor<Boolean> ignoreFullWidth = ArgumentCaptor.forClass(Boolean.class);
+        Mockito.doNothing().when(settingsService).setDeleteDiacritic(deleteDiacritic.capture());
+        Mockito.doNothing().when(settingsService).setIgnoreFullWidth(ignoreFullWidth.capture());
+        controller.post(command, Mockito.mock(RedirectAttributes.class));
+        assertTrue(deleteDiacritic.getValue());
+        assertTrue(ignoreFullWidth.getValue());
+
+        command.setIndexScheme(IndexScheme.ROMANIZED_JAPANESE);
+        command.setDeleteDiacritic(true);
+        command.setIgnoreFullWidth(false);
+        deleteDiacritic = ArgumentCaptor.forClass(Boolean.class);
+        ignoreFullWidth = ArgumentCaptor.forClass(Boolean.class);
+        Mockito.doNothing().when(settingsService).setDeleteDiacritic(deleteDiacritic.capture());
+        Mockito.doNothing().when(settingsService).setIgnoreFullWidth(ignoreFullWidth.capture());
+        controller.post(command, Mockito.mock(RedirectAttributes.class));
+        assertTrue(deleteDiacritic.getValue());
+        assertTrue(ignoreFullWidth.getValue());
+
+        command.setIndexScheme(IndexScheme.WITHOUT_JP_LANG_PROCESSING);
+        command.setDeleteDiacritic(true);
+        command.setIgnoreFullWidth(true);
+        deleteDiacritic = ArgumentCaptor.forClass(Boolean.class);
+        ignoreFullWidth = ArgumentCaptor.forClass(Boolean.class);
+        Mockito.doNothing().when(settingsService).setDeleteDiacritic(deleteDiacritic.capture());
+        Mockito.doNothing().when(settingsService).setIgnoreFullWidth(ignoreFullWidth.capture());
+        controller.post(command, Mockito.mock(RedirectAttributes.class));
+        assertTrue(deleteDiacritic.getValue());
+        assertTrue(ignoreFullWidth.getValue());
     }
 }

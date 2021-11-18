@@ -22,6 +22,7 @@
 package com.tesshu.jpsonic.command;
 
 import com.tesshu.jpsonic.controller.AdvancedSettingsController;
+import com.tesshu.jpsonic.domain.IndexScheme;
 
 /**
  * Command used in {@link AdvancedSettingsController}.
@@ -62,6 +63,11 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
     private boolean captchaEnabled;
     private String recaptchaSiteKey;
     private String recaptchaSecretKey;
+
+    // Danger Zone
+    private IndexScheme indexScheme;
+    private boolean readGreekInJapanese;
+    private boolean forceInternalValueInsteadOfTags;
 
     public boolean isVerboseLogStart() {
         return verboseLogStart;
@@ -245,5 +251,29 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
 
     public void setRecaptchaSecretKey(String recaptchaSecretKey) {
         this.recaptchaSecretKey = recaptchaSecretKey;
+    }
+
+    public IndexScheme getIndexScheme() {
+        return indexScheme;
+    }
+
+    public void setIndexScheme(IndexScheme indexScheme) {
+        this.indexScheme = indexScheme;
+    }
+
+    public boolean isReadGreekInJapanese() {
+        return readGreekInJapanese;
+    }
+
+    public void setReadGreekInJapanese(boolean readGreekInJapanese) {
+        this.readGreekInJapanese = readGreekInJapanese;
+    }
+
+    public boolean isForceInternalValueInsteadOfTags() {
+        return forceInternalValueInsteadOfTags;
+    }
+
+    public void setForceInternalValueInsteadOfTags(boolean forceInternalValueInsteadOfTags) {
+        this.forceInternalValueInsteadOfTags = forceInternalValueInsteadOfTags;
     }
 }

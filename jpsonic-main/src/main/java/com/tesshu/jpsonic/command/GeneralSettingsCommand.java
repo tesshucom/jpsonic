@@ -22,6 +22,7 @@
 package com.tesshu.jpsonic.command;
 
 import com.tesshu.jpsonic.controller.GeneralSettingsController;
+import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.Theme;
 
 /**
@@ -36,12 +37,15 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private String themeIndex = "0";
     private String[] locales;
     private String localeIndex = "0";
+    private IndexScheme indexScheme;
 
     // Index settings
     private String defaultIndexString;
     private String simpleIndexString;
     private String index;
     private String ignoredArticles;
+    private boolean ignoreFullWidth;
+    private boolean deleteDiacritic;
 
     // Sort settings
     private boolean sortAlbumsByYear;
@@ -114,6 +118,14 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
         this.localeIndex = localeIndex;
     }
 
+    public IndexScheme getIndexScheme() {
+        return indexScheme;
+    }
+
+    public void setIndexScheme(IndexScheme indexScheme) {
+        this.indexScheme = indexScheme;
+    }
+
     public String getDefaultIndexString() {
         return defaultIndexString;
     }
@@ -144,6 +156,22 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setIgnoredArticles(String ignoredArticles) {
         this.ignoredArticles = ignoredArticles;
+    }
+
+    public boolean isIgnoreFullWidth() {
+        return ignoreFullWidth;
+    }
+
+    public void setIgnoreFullWidth(boolean ignoreFullWidth) {
+        this.ignoreFullWidth = ignoreFullWidth;
+    }
+
+    public boolean isDeleteDiacritic() {
+        return deleteDiacritic;
+    }
+
+    public void setDeleteDiacritic(boolean deleteDiacritic) {
+        this.deleteDiacritic = deleteDiacritic;
     }
 
     public boolean isSortAlbumsByYear() {
