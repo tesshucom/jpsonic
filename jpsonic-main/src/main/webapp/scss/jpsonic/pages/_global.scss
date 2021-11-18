@@ -490,7 +490,8 @@ div.albumThumb > div.coverart > div > a {
 .mainframe.settings.musicFolderSettings details dl dd ul,
 .mainframe.settings.playerSettings details ul,
 .mainframe.settings.personalSettings details dl dd ul,
-.mainframe.settings.transcodingSettings details dl dd ul {
+.mainframe.settings.transcodingSettings details dl dd ul,
+.mainframe.settings.advancedSettings details dl dd:nth-of-type(1) ul {
   li {
     display: flex;
     align-items: center;

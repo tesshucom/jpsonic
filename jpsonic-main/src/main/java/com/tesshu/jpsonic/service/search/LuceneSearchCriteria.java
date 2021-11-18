@@ -30,15 +30,13 @@ public class LuceneSearchCriteria {
     private final String query;
     private final int offset;
     private final int count;
-    private final boolean includeComposer;
 
     private Query parsedQuery;
 
-    protected LuceneSearchCriteria(String query, int offset, int count, boolean includeComposer) {
+    protected LuceneSearchCriteria(String query, int offset, int count) {
         this.query = query;
         this.offset = offset;
         this.count = count;
-        this.includeComposer = includeComposer;
     }
 
     public final int getCount() {
@@ -57,12 +55,7 @@ public class LuceneSearchCriteria {
         return query;
     }
 
-    public boolean isIncludeComposer() {
-        return includeComposer;
-    }
-
     protected final void setParsedQuery(Query parsedQuery) {
         this.parsedQuery = parsedQuery;
     }
-
 }

@@ -28,6 +28,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.command.GeneralSettingsCommand;
+import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.Theme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
@@ -106,12 +107,15 @@ public class GeneralSettingsController {
             }
         }
         command.setLocales(localeStrings);
+        command.setIndexScheme(IndexScheme.of(settingsService.getIndexSchemeName()));
 
         // Index settings
         command.setDefaultIndexString(SettingsService.getDefaultIndexString());
         command.setSimpleIndexString(SIMPLE_INDEX_STRING);
         command.setIndex(settingsService.getIndexString());
         command.setIgnoredArticles(settingsService.getIgnoredArticles());
+        command.setDeleteDiacritic(settingsService.isDeleteDiacritic());
+        command.setIgnoreFullWidth(settingsService.isIgnoreFullWidth());
 
         // Sort settings
         command.setSortAlbumsByYear(settingsService.isSortAlbumsByYear());
@@ -135,7 +139,6 @@ public class GeneralSettingsController {
         command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
         command.setShowRememberMe(settingsService.isShowRememberMe());
         command.setPublishPodcast(settingsService.isPublishPodcast());
-        command.setSearchMethodLegacy(settingsService.isSearchMethodLegacy());
 
         // Extensions and shortcuts
         command.setMusicFileTypes(settingsService.getMusicFileTypes());
@@ -196,6 +199,17 @@ public class GeneralSettingsController {
         settingsService.setIndexString(command.getIndex());
         settingsService.setIgnoredArticles(command.getIgnoredArticles());
 
+        if (command.getIndexScheme() == IndexScheme.NATIVE_JAPANESE) {
+            settingsService.setDeleteDiacritic(true);
+            settingsService.setIgnoreFullWidth(true);
+        } else if (command.getIndexScheme() == IndexScheme.ROMANIZED_JAPANESE) {
+            settingsService.setDeleteDiacritic(command.isDeleteDiacritic());
+            settingsService.setIgnoreFullWidth(true);
+        } else if (command.getIndexScheme() == IndexScheme.WITHOUT_JP_LANG_PROCESSING) {
+            settingsService.setDeleteDiacritic(command.isDeleteDiacritic());
+            settingsService.setIgnoreFullWidth(command.isIgnoreFullWidth());
+        }
+
         // Sort settings
         settingsService.setSortAlbumsByYear(command.isSortAlbumsByYear());
         settingsService.setSortGenresByAlphabet(command.isSortGenresByAlphabet());
@@ -213,15 +227,6 @@ public class GeneralSettingsController {
         settingsService.setOthersPlayingEnabled(command.isOthersPlayingEnabled());
         settingsService.setShowRememberMe(command.isShowRememberMe());
         settingsService.setPublishPodcast(command.isPublishPodcast());
-        settingsService.setSearchMethodLegacy(command.isSearchMethodLegacy());
-
-        /*
-         * If this item is changed, the search index will need to be rebuilt.
-         * 
-         * @see IndexManager#deleteOldIndexFiles
-         */
-        settingsService
-                .setSearchMethodChanged(settingsService.isSearchMethodLegacy() != command.isSearchMethodLegacy());
 
         // Extensions and shortcuts
         settingsService.setMusicFileTypes(command.getMusicFileTypes());

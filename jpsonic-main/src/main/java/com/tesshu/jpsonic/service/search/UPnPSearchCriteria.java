@@ -32,8 +32,8 @@ public class UPnPSearchCriteria extends LuceneSearchCriteria {
 
     private Class<?> assignableClass;
 
-    UPnPSearchCriteria(String upnpSearchQuery, int offset, int count, boolean includeComposer) {
-        super(upnpSearchQuery, offset, count, includeComposer);
+    UPnPSearchCriteria(String upnpSearchQuery, int offset, int count) {
+        super(upnpSearchQuery, offset, count);
     }
 
     /**
