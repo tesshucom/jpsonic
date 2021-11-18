@@ -181,26 +181,31 @@ public class AdvancedSettingsController {
 
     private void setDangerZone(AdvancedSettingsCommand command) {
         IndexScheme scheme = command.getIndexScheme();
-        if (!settingsService.isIgnoreFileTimestampsNext()) {
-            IndexScheme old = IndexScheme.valueOf(settingsService.getIndexSchemeName());
-            if (old != scheme) {
-                settingsService.setIgnoreFileTimestampsNext(true);
-            }
+        boolean changed = scheme != IndexScheme.valueOf(settingsService.getIndexSchemeName())
+                || scheme == IndexScheme.NATIVE_JAPANESE
+                        && settingsService.isReadGreekInJapanese() != command.isReadGreekInJapanese();
+        if (!changed) {
+            return;
         }
+
+        settingsService.setIgnoreFileTimestampsNext(true);
         settingsService.setIndexSchemeName(scheme.name());
+
         if (scheme == IndexScheme.NATIVE_JAPANESE) {
-            if (settingsService.isReadGreekInJapanese() != command.isReadGreekInJapanese()) {
-                settingsService.setIgnoreFileTimestampsNext(true);
-            }
             settingsService.setReadGreekInJapanese(command.isReadGreekInJapanese());
             settingsService.setForceInternalValueInsteadOfTags(false);
+            settingsService.setDeleteDiacritic(true);
+            settingsService.setIgnoreFullWidth(true);
         } else if (scheme == IndexScheme.ROMANIZED_JAPANESE) {
             settingsService.setReadGreekInJapanese(false);
             settingsService.setForceInternalValueInsteadOfTags(command.isForceInternalValueInsteadOfTags());
+            settingsService.setDeleteDiacritic(false);
+            settingsService.setIgnoreFullWidth(true);
         } else {
             settingsService.setReadGreekInJapanese(false);
             settingsService.setForceInternalValueInsteadOfTags(false);
+            settingsService.setDeleteDiacritic(false);
+            settingsService.setIgnoreFullWidth(false);
         }
     }
-
 }
