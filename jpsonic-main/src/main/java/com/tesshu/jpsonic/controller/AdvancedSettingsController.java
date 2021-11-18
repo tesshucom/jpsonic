@@ -24,6 +24,7 @@ package com.tesshu.jpsonic.controller;
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.command.AdvancedSettingsCommand;
+import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -101,6 +102,11 @@ public class AdvancedSettingsController {
         command.setCaptchaEnabled(settingsService.isCaptchaEnabled());
         command.setRecaptchaSiteKey(settingsService.getRecaptchaSiteKey());
 
+        // Danger Zone
+        command.setIndexScheme(IndexScheme.valueOf(settingsService.getIndexSchemeName()));
+        command.setReadGreekInJapanese(settingsService.isReadGreekInJapanese());
+        command.setForceInternalValueInsteadOfTags(settingsService.isForceInternalValueInsteadOfTags());
+
         // for view page control
         command.setUseRadio(settingsService.isUseRadio());
         command.setShareCount(shareService.getAllShares().size());
@@ -161,6 +167,9 @@ public class AdvancedSettingsController {
             settingsService.setRecaptchaSecretKey(command.getRecaptchaSecretKey());
         }
 
+        // Danger Zone
+        setDangerZone(command);
+
         settingsService.save();
 
         // for view page control
@@ -169,4 +178,29 @@ public class AdvancedSettingsController {
 
         return new ModelAndView(new RedirectView(ViewName.ADVANCED_SETTINGS.value()));
     }
+
+    private void setDangerZone(AdvancedSettingsCommand command) {
+        IndexScheme scheme = command.getIndexScheme();
+        if (!settingsService.isIgnoreFileTimestampsNext()) {
+            IndexScheme old = IndexScheme.valueOf(settingsService.getIndexSchemeName());
+            if (old != scheme) {
+                settingsService.setIgnoreFileTimestampsNext(true);
+            }
+        }
+        settingsService.setIndexSchemeName(scheme.name());
+        if (scheme == IndexScheme.NATIVE_JAPANESE) {
+            if (settingsService.isReadGreekInJapanese() != command.isReadGreekInJapanese()) {
+                settingsService.setIgnoreFileTimestampsNext(true);
+            }
+            settingsService.setReadGreekInJapanese(command.isReadGreekInJapanese());
+            settingsService.setForceInternalValueInsteadOfTags(false);
+        } else if (scheme == IndexScheme.ROMANIZED_JAPANESE) {
+            settingsService.setReadGreekInJapanese(false);
+            settingsService.setForceInternalValueInsteadOfTags(command.isForceInternalValueInsteadOfTags());
+        } else {
+            settingsService.setReadGreekInJapanese(false);
+            settingsService.setForceInternalValueInsteadOfTags(false);
+        }
+    }
+
 }

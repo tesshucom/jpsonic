@@ -4,6 +4,7 @@
 <html><head>
 <%@ include file="head.jsp" %>
 <%@ include file="jquery.jsp" %>
+<%@ page import="com.tesshu.jpsonic.domain.IndexScheme" %>
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script>
 
@@ -19,6 +20,21 @@ function resetBandwidth() {
     $('[name="uploadLimit"]').val(0);
     $('[name="bufferSize"]').prop("selectedIndex", 1);
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    $("#radio1-1").on('change', function(e){
+        $("#readGreekInJapanese").prop({'disabled': false, 'checked': true});
+        $("#forceInternalValueInsteadOfTags").prop({'disabled': true, 'checked': false});
+    });
+    $("#radio1-2").on('change', function(e){
+        $("#readGreekInJapanese").prop({'disabled': true, 'checked': false});
+        $("#forceInternalValueInsteadOfTags").prop({'disabled': false, 'checked': true});
+    });
+    $("#radio1-3").on('change', function(e){
+        $("#readGreekInJapanese").prop({'disabled': true, 'checked': false});
+        $("#forceInternalValueInsteadOfTags").prop({'disabled': true, 'checked': false});
+    });
+}, false);
 
 </script>
 </head>
@@ -209,6 +225,46 @@ function resetBandwidth() {
             <dd>
                 <form:input path="recaptchaSecretKey"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="recaptchaSecretKey"/></c:import>
+            </dd>
+        </dl>
+    </details>
+
+    <details ${isOpen}>
+
+        <c:if test="${command.showOutlineHelp}">
+            <div class="outlineHelp">
+                <fmt:message key="helppopup.indexschemeoutline"/>
+            </div>
+        </c:if>
+
+        <summary class="jpsonic"><strong>Danger Zone</strong></summary>
+        <dl class="single">
+            <dt><strong><fmt:message key="advancedsettings.indexscheme"/></strong></dt>
+            <dd class="scheme">
+                <ul class="playerSettings">
+                    <c:forEach items="${IndexScheme.values()}" var="indexScheme" varStatus="status">
+                        <li>
+                            <form:radiobutton class="technologyRadio" id="radio1-${status.count}" path="indexScheme" value="${indexScheme}"
+                                checked="${indexScheme eq command.indexScheme.name() ? 'checked' : ''}"/>
+                            <label for="radio1-${status.count}"><fmt:message key="advancedsettings.indexscheme.${fn:toLowerCase(indexScheme)}"/></label>
+                            <c:import url="helpToolTip.jsp"><c:param name="topic" value="${fn:toLowerCase(indexScheme)}" /></c:import>
+                            <c:if test='${"NATIVE_JAPANESE" eq indexScheme}'>
+                                <li class="subItem">
+                                    <form:checkbox path="readGreekInJapanese" id="readGreekInJapanese" cssClass="checkbox"/>
+                                    <label for="readGreekInJapanese"><fmt:message key="advancedsettings.readgreekinjapanese"/></label>
+                                    <c:import url="helpToolTip.jsp"><c:param name="topic" value="readgreekinjapanese"/></c:import>
+                                </li>
+                            </c:if>
+                            <c:if test='${"ROMANIZED_JAPANESE" eq indexScheme}'>
+                                <li class="subItem">
+                                    <form:checkbox path="forceInternalValueInsteadOfTags" id="forceInternalValueInsteadOfTags" cssClass="checkbox"/>
+                                    <label for="forceInternalValueInsteadOfTags"><fmt:message key="advancedsettings.forceinternalvalueinsteadoftags"/></label>
+                                    <c:import url="helpToolTip.jsp"><c:param name="topic" value="forceinternalvalueinsteadoftags"/></c:import>
+                                </li>
+                            </c:if>                      
+                        </li>
+                    </c:forEach>
+                </ul>
             </dd>
         </dl>
     </details>
