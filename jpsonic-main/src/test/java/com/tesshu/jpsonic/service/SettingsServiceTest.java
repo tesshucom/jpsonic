@@ -809,11 +809,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsReadGreekInJapanese() {
-        assertTrue(settingsService.isReadGreekInJapanese());
-    }
-
-    @Test
     void testisForceInternalValueInsteadOfTags() {
         assertFalse(settingsService.isForceInternalValueInsteadOfTags());
     }

@@ -280,13 +280,14 @@ public class JapaneseReadingUtils {
         if (isEmpty(str)) {
             return false;
         }
+        IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
         return Stream.of(str.split(EMPTY)).anyMatch(s -> {
             Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
             return Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)
                     || Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(b)
                     || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b)
                     || Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION.equals(b)
-                    || settingsService.isReadGreekInJapanese() && Character.UnicodeBlock.GREEK.equals(b);
+                    || scheme == IndexScheme.NATIVE_JAPANESE && Character.UnicodeBlock.GREEK.equals(b);
         });
     }
 
@@ -323,8 +324,9 @@ public class JapaneseReadingUtils {
     }
 
     private String analyzeReading(Token token) {
+        IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
 
-        if (!settingsService.isReadGreekInJapanese() && Tag.of(token.getPartOfSpeechLevel1()) == Tag.SYMBOL
+        if (scheme != IndexScheme.NATIVE_JAPANESE && Tag.of(token.getPartOfSpeechLevel1()) == Tag.SYMBOL
                 && Tag.of(token.getPartOfSpeechLevel2()) == Tag.ALPHABET) {
             return token.getSurface();
         } else if (KATAKANA.matcher(token.getSurface()).matches() || ALPHA.matcher(token.getSurface()).matches()

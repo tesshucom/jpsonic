@@ -985,14 +985,6 @@ public class SettingsService {
         setProperty(SettingsConstants.Advanced.Index.INDEX_SCHEME_NAME, s);
     }
 
-    public boolean isReadGreekInJapanese() {
-        return getBoolean(SettingsConstants.Advanced.Index.READ_GREEK_IN_JAPANESE);
-    }
-
-    public void setReadGreekInJapanese(boolean b) {
-        setProperty(SettingsConstants.Advanced.Index.READ_GREEK_IN_JAPANESE, b);
-    }
-
     public boolean isForceInternalValueInsteadOfTags() {
         return getBoolean(SettingsConstants.Advanced.Index.FORCE_INTERNAL_VALUE_INSTEAD_OF_TAGS);
     }

@@ -55,7 +55,6 @@ class JapaneseReadingUtilsTest {
         String country = "jp";
         String variant = "";
         Mockito.when(settingsService.getLocale()).thenReturn(new Locale(language, country, variant));
-        Mockito.when(settingsService.isReadGreekInJapanese()).thenReturn(true);
         Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.NATIVE_JAPANESE.name());
         utils = new JapaneseReadingUtils(settingsService);
     }
@@ -225,7 +224,11 @@ class JapaneseReadingUtilsTest {
         assertFalse(utils.isJapaneseReadable("B'z The Best \"ULTRA Pleasure\" -The Second RUN-"));
         assertFalse(utils.isJapaneseReadable("Dvořák: Symphonies #7-9"));
 
-        Mockito.when(settingsService.isReadGreekInJapanese()).thenReturn(false);
+        Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.NATIVE_JAPANESE.name());
+        assertTrue(utils.isJapaneseReadable("αβγ"));
+        Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+        assertFalse(utils.isJapaneseReadable("αβγ"));
+        Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
         assertFalse(utils.isJapaneseReadable("αβγ"));
     }
 
@@ -245,7 +248,6 @@ class JapaneseReadingUtilsTest {
             void testCreateReading() throws ExecutionException {
 
                 Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.NATIVE_JAPANESE.name());
-                Mockito.when(settingsService.isReadGreekInJapanese()).thenReturn(true);
 
                 /*
                  * Kuromoji will read the full-width alphabet in Japanese. ＢＢＣ(It's not bbc but ビービーシー.) When this is
@@ -299,7 +301,6 @@ class JapaneseReadingUtilsTest {
             void testReading1() throws ExecutionException {
 
                 Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
-                Mockito.when(settingsService.isReadGreekInJapanese()).thenReturn(false);
 
                 assertEquals("Aiueo", utils.createJapaneseReading("The あいうえお"));
                 assertEquals("Aiueo", utils.createJapaneseReading("あいうえお"));
@@ -375,7 +376,6 @@ class JapaneseReadingUtilsTest {
                  */
 
                 Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
-                Mockito.when(settingsService.isReadGreekInJapanese()).thenReturn(false);
 
                 assertEquals("Kimi no Na wa", utils.createJapaneseReading("君の名は"));
 
