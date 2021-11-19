@@ -632,7 +632,10 @@ class JapaneseReadingUtilsTest {
                 @interface Null {
                 }
 
-                @interface NotNull {
+                @interface Japanese {
+                }
+
+                @interface Latin {
                 }
             }
 
@@ -645,7 +648,10 @@ class JapaneseReadingUtilsTest {
                 @interface Null {
                 }
 
-                @interface NotNull {
+                @interface Japanese {
+                }
+
+                @interface Latin {
                 }
             }
         }
@@ -664,11 +670,26 @@ class JapaneseReadingUtilsTest {
                 }
 
                 @interface NotNull {
-                    @interface ReadingExpected {
+                    @interface FromNameJp {
                     }
 
-                    @interface ReadingAnalyzed {
+                    @interface FromSortJp {
                     }
+
+                    @interface FromSortLatin {
+                    }
+
+                    @interface FromNameLatin {
+                    }
+
+                    @interface SortRaw {
+
+                    }
+
+                    @interface RemoveArticlesOnly {
+
+                    }
+
                 }
             }
 
@@ -677,7 +698,11 @@ class JapaneseReadingUtilsTest {
                 }
 
                 @interface NotNull {
-                    @interface SortExpected {
+                    @interface SortJp {
+
+                    }
+
+                    @interface SortLatin {
 
                     }
                 }
@@ -690,332 +715,364 @@ class JapaneseReadingUtilsTest {
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     class AnalyzeMediaFileTest {
 
+        private final String nameJp = "The 「あいｱｲ・愛」";
+        private final String sortJp = "あいあい・愛";
+        private final String nameLatin = "The AiAi Ai!";
+        private final String sortLatin = "sortLatinRaw";
+        private final String ReadingFromSortJp2Jp = "アイアイ・アイ";
+        private final String ReadingFromNameJp2Jp = "｢アイアイ・アイ｣";
+        private final String readingFromNameLatin = "AiAi Ai!";
+        private final String readingFromSortLatin = "SortLatinRaw";
+        private final String readingFromNameJp2Latin = "｢aiai・-ai｣";
+        private final String readingFromSortJp2Latin = "Aiai・Ai";
+        private final String removeArticlesOnlyJp = "「あいｱｲ・愛」";
+        private final String removeArticlesOnlyLatin = "AiAi Ai!";
+
+        private MediaFile toMediaFile(String artist, String artistSort) {
+            MediaFile mediaFile = new MediaFile();
+            mediaFile.setArtist(artist);
+            mediaFile.setArtistSort(artistSort);
+            return mediaFile;
+        }
+
+        @AnalyzeMediaFileDecisions.Conditions.Name.Null
+        @AnalyzeMediaFileDecisions.Conditions.Reading.Null
+        @AnalyzeMediaFileDecisions.Conditions.Sort.Null
+        @AnalyzeMediaFileDecisions.Result.Name.Null
+        @AnalyzeMediaFileDecisions.Result.Reading.Null
+        @AnalyzeMediaFileDecisions.Result.Sort.Null
+        @Test
+        @Order(1)
+        void c01() {
+            MediaFile mediaFile = toMediaFile(null, null);
+            utils.analyze(mediaFile);
+            assertNull(mediaFile.getArtist());
+            assertNull(mediaFile.getArtistReading());
+            assertNull(mediaFile.getArtistSort());
+        }
+
         @Nested
         class NativeJapaneseTest {
 
-            // name
-            private final String nameRaw = "The 「あいｱｲ・愛」";
-            // So-called sort tag
-            private final String sortRaw = "あいあい・愛";
-
-            private final String readingExpected = "アイアイ・アイ";
-            private final String sortExpected = "あいあい・愛";
-
-            /*
-             * Character string when parsed. Search system analysis and filter specifications exist separately. Note
-             * that the analysis at this point does not over-cleanse so as not to affect the morphological analysis
-             * specifications when creating the search index.
-             */
-            private final String readingAnalyzed = "｢アイアイ・アイ｣";
-
-            private MediaFile toMediaFile(String artist, String artistSort) {
-                MediaFile mediaFile = new MediaFile();
-                mediaFile.setArtist(artist);
-                mediaFile.setArtistSort(artistSort);
-                return mediaFile;
-            }
-
             @AnalyzeMediaFileDecisions.Conditions.Name.Null
             @AnalyzeMediaFileDecisions.Conditions.Reading.Null
-            @AnalyzeMediaFileDecisions.Conditions.Sort.Null
-            @AnalyzeMediaFileDecisions.Result.Name.Null
-            @AnalyzeMediaFileDecisions.Result.Reading.Null
-            @AnalyzeMediaFileDecisions.Result.Sort.Null
-            @Test
-            /*
-             * If there is no tag.
-             */
-            @Order(1)
-            void a01() {
-                MediaFile mediaFile = toMediaFile(null, null);
-                utils.analyze(mediaFile);
-                assertNull(mediaFile.getArtist());
-                assertNull(mediaFile.getArtistReading());
-                assertNull(mediaFile.getArtistSort());
-            }
-
-            @AnalyzeMediaFileDecisions.Conditions.Name.Null
-            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
-            @AnalyzeMediaFileDecisions.Conditions.Sort.NotNull
+            @AnalyzeMediaFileDecisions.Conditions.Sort.Japanese
             @AnalyzeMediaFileDecisions.Result.Name.NotNull
-            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.ReadingExpected
-            @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortExpected
+            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.FromSortJp
+            @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortJp
             @Test
-            /*
-             * If it is rare but only the sort tag is registered. Even if the name is not registered, the name will not
-             * be created from the sort tag. The user should not overlook that the tags are in an irregular state.
-             */
             @Order(2)
-            void a02() {
-                MediaFile mediaFile = toMediaFile(null, sortRaw);
+            void j02() {
+                MediaFile mediaFile = toMediaFile(null, sortJp);
                 utils.analyze(mediaFile);
                 assertNull(mediaFile.getArtist());
-                assertNotNull(mediaFile.getArtistReading());
-                assertEquals(readingExpected, mediaFile.getArtistReading());
-                assertNotNull(mediaFile.getArtistSort());
-                assertEquals(sortExpected, mediaFile.getArtistSort());
+                assertEquals(ReadingFromSortJp2Jp, mediaFile.getArtistReading());
+                assertEquals(sortJp, mediaFile.getArtistSort());
             }
 
-            @AnalyzeMediaFileDecisions.Conditions.Name.NotNull
-            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
-            @AnalyzeMediaFileDecisions.Conditions.Sort.NotNull
-            @AnalyzeMediaFileDecisions.Result.Name.NotNull
-            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.ReadingAnalyzed
-            @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortExpected
-            @Test
-            /*
-             * For Japanese, it is desirable that both name/sort-tag are entered.
-             */
-            @Order(3)
-            void a03() {
-                MediaFile mediaFile = toMediaFile(nameRaw, sortRaw);
-                utils.analyze(mediaFile);
-                assertNotNull(mediaFile.getArtist());
-                assertNotNull(mediaFile.getArtistReading());
-                assertEquals(readingExpected, mediaFile.getArtistReading());
-                assertNotNull(mediaFile.getArtistSort());
-                assertEquals(sortExpected, mediaFile.getArtistSort());
-            }
-
-            @AnalyzeMediaFileDecisions.Conditions.Name.NotNull
+            @AnalyzeMediaFileDecisions.Conditions.Name.Japanese
             @AnalyzeMediaFileDecisions.Conditions.Reading.Null
             @AnalyzeMediaFileDecisions.Conditions.Sort.Null
             @AnalyzeMediaFileDecisions.Result.Name.NotNull
-            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.ReadingAnalyzed
+            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.FromNameJp
             @AnalyzeMediaFileDecisions.Result.Sort.Null
             @Test
-            /*
-             * For names only.Tentatively analyze readings. (In the case of Japanese, 100% correct answer is impossible,
-             * so comparison and correction merging are performed after all data scans.) Sort is null, but may be
-             * complemented later.
-             */
-            @Order(4)
-            void a04() {
-                MediaFile mediaFile = toMediaFile(nameRaw, null);
+            void j03() {
+                MediaFile mediaFile = toMediaFile(nameJp, null);
+                utils.analyze(mediaFile);
+                assertNotNull(mediaFile.getArtist());
+                assertEquals(ReadingFromNameJp2Jp, mediaFile.getArtistReading());
+                assertNull(mediaFile.getArtistSort());
+            }
+
+            @AnalyzeMediaFileDecisions.Conditions.Name.Japanese
+            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
+            @AnalyzeMediaFileDecisions.Conditions.Sort.Japanese
+            @AnalyzeMediaFileDecisions.Result.Name.NotNull
+            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.FromSortJp
+            @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortJp
+            @Test
+            void j04() {
+                MediaFile mediaFile = toMediaFile(nameJp, sortJp);
+                utils.analyze(mediaFile);
+                assertNotNull(mediaFile.getArtist());
+                assertEquals(ReadingFromSortJp2Jp, mediaFile.getArtistReading());
+                assertEquals(sortJp, mediaFile.getArtistSort());
+            }
+
+            @AnalyzeMediaFileDecisions.Conditions.Name.Japanese
+            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
+            @AnalyzeMediaFileDecisions.Conditions.Sort.Latin
+            @AnalyzeMediaFileDecisions.Result.Name.NotNull
+            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.FromSortLatin
+            @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortLatin
+            @Test
+            void j05() {
+                MediaFile mediaFile = toMediaFile(nameJp, sortLatin);
+                utils.analyze(mediaFile);
+                assertNotNull(mediaFile.getArtist());
+                assertEquals(sortLatin, mediaFile.getArtistReading());
+                assertEquals(sortLatin, mediaFile.getArtistSort());
+            }
+
+            @AnalyzeMediaFileDecisions.Conditions.Name.Latin
+            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
+            @AnalyzeMediaFileDecisions.Conditions.Sort.Null
+            @AnalyzeMediaFileDecisions.Result.Name.NotNull
+            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.FromNameLatin
+            @AnalyzeMediaFileDecisions.Result.Sort.Null
+            @Test
+            void j06() {
+                MediaFile mediaFile = toMediaFile(nameLatin, null);
                 utils.analyze(mediaFile);
                 assertNotNull(mediaFile.getArtist());
                 assertNotNull(mediaFile.getArtistReading());
-                assertEquals(readingAnalyzed, mediaFile.getArtistReading());
+                assertEquals(readingFromNameLatin, mediaFile.getArtistReading());
                 assertNull(mediaFile.getArtistSort());
+            }
+
+            @AnalyzeMediaFileDecisions.Conditions.Name.Latin
+            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
+            @AnalyzeMediaFileDecisions.Conditions.Sort.Japanese
+            @AnalyzeMediaFileDecisions.Result.Name.NotNull
+            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.FromNameLatin
+            @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortJp
+            @Test
+            void j07() {
+                MediaFile mediaFile = toMediaFile(nameLatin, sortJp);
+                utils.analyze(mediaFile);
+                assertNotNull(mediaFile.getArtist());
+                assertEquals(readingFromNameLatin, mediaFile.getArtistReading());
+                assertEquals(sortJp, mediaFile.getArtistSort());
+            }
+
+            @AnalyzeMediaFileDecisions.Conditions.Name.Latin
+            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
+            @AnalyzeMediaFileDecisions.Conditions.Sort.Latin
+            @AnalyzeMediaFileDecisions.Result.Name.NotNull
+            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.FromNameLatin
+            @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortLatin
+            @Test
+            void j08() {
+                MediaFile mediaFile = toMediaFile(nameLatin, sortLatin);
+                utils.analyze(mediaFile);
+                assertNotNull(mediaFile.getArtist());
+                assertNotNull(mediaFile.getArtistReading());
+                assertEquals(readingFromNameLatin, mediaFile.getArtistReading());
+                assertNotNull(mediaFile.getArtistSort());
+                assertEquals(sortLatin, mediaFile.getArtistSort());
             }
         }
 
         /*
          * Even if Japanese is used for the Sort tag, the reading will be set to the Romanized string. If nothing is set
-         * in the Sort tag, the reading value will be set to the Roman alphabet string created from the name. Reading is
-         * used for most subsequent processing.
+         * in the Sort tag, the reading value will be set to the Roman alphabet string created from the name.
          */
         @Nested
         @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
         class RomanizedJapaneseTest {
 
-            // name
-            private final String nameRaw = "The 「あいｱｲ・愛」";
-            /*
-             * So-called sort tag(This test assuming that Japanese is also used for the tag.) The result should have
-             * been converted to romaji.
-             */
-            private final String sortRaw = "あいあい・愛";
-
-            private final String readingExpected = "Aiai・Ai";
-            private final String sortExpected = "あいあい・愛";
-            private final String readingAnalyzed = "｢aiai・-ai｣";
-
-            private MediaFile toMediaFile(String artist, String artistSort) {
-                MediaFile mediaFile = new MediaFile();
-                mediaFile.setArtist(artist);
-                mediaFile.setArtistSort(artistSort);
-                return mediaFile;
-            }
-
-            @AnalyzeMediaFileDecisions.Conditions.Name.Null
-            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
-            @AnalyzeMediaFileDecisions.Conditions.Sort.NotNull
-            @AnalyzeMediaFileDecisions.Result.Name.NotNull
-            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.ReadingExpected
-            @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortExpected
-            @Test
-            @Order(1)
-            void a02() {
-                Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
-                MediaFile mediaFile = toMediaFile(null, sortRaw);
-                utils.analyze(mediaFile);
-                assertNull(mediaFile.getArtist());
-                assertNotNull(mediaFile.getArtistReading());
-                assertEquals(readingExpected, mediaFile.getArtistReading());
-                assertNotNull(mediaFile.getArtistSort());
-                assertEquals(sortExpected, mediaFile.getArtistSort());
-            }
-
-            @AnalyzeMediaFileDecisions.Conditions.Name.NotNull
-            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
-            @AnalyzeMediaFileDecisions.Conditions.Sort.NotNull
-            @AnalyzeMediaFileDecisions.Result.Name.NotNull
-            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.ReadingAnalyzed
-            @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortExpected
-            @Test
-            @Order(2)
-            void a03a() {
-                Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
-                MediaFile mediaFile = toMediaFile(nameRaw, sortRaw);
-                utils.analyze(mediaFile);
-                assertNotNull(mediaFile.getArtist());
-                assertNotNull(mediaFile.getArtistReading());
-                assertEquals(readingExpected, mediaFile.getArtistReading());
-                assertNotNull(mediaFile.getArtistSort());
-                assertEquals(sortExpected, mediaFile.getArtistSort());
-            }
-
-            @AnalyzeMediaFileDecisions.Conditions.Name.NotNull
-            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
-            @AnalyzeMediaFileDecisions.Conditions.Sort.NotNull
-            @AnalyzeMediaFileDecisions.Result.Name.NotNull
-            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.ReadingAnalyzed
-            @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortExpected
-            @Test
-            @Order(3)
-            void a03b() {
-                Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
-                // If the sort tag uses romaji. (Nothing is done.)
-                MediaFile mediaFile = toMediaFile(nameRaw, "Aiai・Ai");
-                utils.analyze(mediaFile);
-                assertNotNull(mediaFile.getArtist());
-                assertNotNull(mediaFile.getArtistReading());
-                assertEquals(readingExpected, mediaFile.getArtistReading());
-                assertNotNull(mediaFile.getArtistSort());
-                assertEquals("Aiai・Ai", mediaFile.getArtistSort());
-            }
-
-            @AnalyzeMediaFileDecisions.Conditions.Name.NotNull
+            @AnalyzeMediaFileDecisions.Conditions.Name.Japanese
             @AnalyzeMediaFileDecisions.Conditions.Reading.Null
             @AnalyzeMediaFileDecisions.Conditions.Sort.Null
             @AnalyzeMediaFileDecisions.Result.Name.NotNull
-            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.ReadingAnalyzed
+            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.FromNameJp
             @AnalyzeMediaFileDecisions.Result.Sort.Null
             @Test
-            @Order(4)
-            void a04() {
+            void r03() {
                 Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
-                MediaFile mediaFile = toMediaFile(nameRaw, null);
+                MediaFile mediaFile = toMediaFile(nameJp, null);
                 utils.analyze(mediaFile);
                 assertNotNull(mediaFile.getArtist());
-                assertNotNull(mediaFile.getArtistReading());
-                assertEquals(readingAnalyzed, mediaFile.getArtistReading());
+                assertEquals(readingFromNameJp2Latin, mediaFile.getArtistReading());
                 assertNull(mediaFile.getArtistSort());
+            }
+
+            @AnalyzeMediaFileDecisions.Conditions.Name.Japanese
+            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
+            @AnalyzeMediaFileDecisions.Conditions.Sort.Japanese
+            @AnalyzeMediaFileDecisions.Result.Name.NotNull
+            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.FromSortJp
+            @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortJp
+            @Test
+            void r04() {
+                Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+                MediaFile mediaFile = toMediaFile(nameJp, sortJp);
+                utils.analyze(mediaFile);
+                assertNotNull(mediaFile.getArtist());
+                assertEquals(readingFromSortJp2Latin, mediaFile.getArtistReading());
+                assertEquals(sortJp, mediaFile.getArtistSort());
+            }
+
+            @AnalyzeMediaFileDecisions.Conditions.Name.Japanese
+            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
+            @AnalyzeMediaFileDecisions.Conditions.Sort.Latin
+            @AnalyzeMediaFileDecisions.Result.Name.NotNull
+            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.FromSortLatin
+            @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortLatin
+            @Test
+            void r05() {
+                Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+                MediaFile mediaFile = toMediaFile(nameJp, sortLatin);
+                utils.analyze(mediaFile);
+                assertNotNull(mediaFile.getArtist());
+                assertEquals(readingFromSortLatin, mediaFile.getArtistReading());
+                assertEquals(sortLatin, mediaFile.getArtistSort());
+            }
+
+            @AnalyzeMediaFileDecisions.Conditions.Name.Latin
+            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
+            @AnalyzeMediaFileDecisions.Conditions.Sort.Null
+            @AnalyzeMediaFileDecisions.Result.Name.NotNull
+            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.FromNameLatin
+            @AnalyzeMediaFileDecisions.Result.Sort.Null
+            @Test
+            void r06() {
+                Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+                MediaFile mediaFile = toMediaFile(nameLatin, null);
+                utils.analyze(mediaFile);
+                assertNotNull(mediaFile.getArtist());
+                assertEquals(readingFromNameLatin, mediaFile.getArtistReading());
+                assertNull(mediaFile.getArtistSort());
+            }
+
+            @AnalyzeMediaFileDecisions.Conditions.Name.Latin
+            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
+            @AnalyzeMediaFileDecisions.Conditions.Sort.Japanese
+            @AnalyzeMediaFileDecisions.Result.Name.NotNull
+            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.FromSortJp
+            @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortJp
+            @Test
+            void r07() {
+                Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+                MediaFile mediaFile = toMediaFile(nameLatin, sortJp);
+                utils.analyze(mediaFile);
+                assertNotNull(mediaFile.getArtist());
+                assertEquals(readingFromSortJp2Latin, mediaFile.getArtistReading());
+                assertEquals(sortJp, mediaFile.getArtistSort());
+            }
+
+            @AnalyzeMediaFileDecisions.Conditions.Name.Latin
+            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
+            @AnalyzeMediaFileDecisions.Conditions.Sort.Latin
+            @AnalyzeMediaFileDecisions.Result.Name.NotNull
+            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.FromSortLatin
+            @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortLatin
+            @Test
+            void r08() {
+                Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
+                MediaFile mediaFile = toMediaFile(nameLatin, sortLatin);
+                utils.analyze(mediaFile);
+                assertNotNull(mediaFile.getArtist());
+                assertEquals(readingFromSortLatin, mediaFile.getArtistReading());
+                assertEquals(sortLatin, mediaFile.getArtistSort());
             }
         }
 
-        /*
-         * do nothing.
-         */
         @Nested
         @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
         class WithoutJpTest {
 
-            // name
-            private final String nameRaw = "The 「あいｱｲ・愛」";
-
-            /*
-             * So-called sort tag(This test assuming that Japanese is also used for the tag.) Japanese-specific
-             * conversions should not be done.
-             */
-            private final String sortRaw = "あいあい・愛";
-            private final String readingExpected = sortRaw;
-
-            private MediaFile toMediaFile(String artist, String artistSort) {
-                MediaFile mediaFile = new MediaFile();
-                mediaFile.setArtist(artist);
-                mediaFile.setArtistSort(artistSort);
-                return mediaFile;
-            }
-
-            @AnalyzeMediaFileDecisions.Conditions.Name.Null
-            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
-            @AnalyzeMediaFileDecisions.Conditions.Sort.NotNull
-            @AnalyzeMediaFileDecisions.Result.Name.NotNull
-            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.ReadingExpected
-            @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortExpected
-            @Test
-            @Order(1)
-            void a02() {
-                Mockito.when(settingsService.getIndexSchemeName())
-                        .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
-                MediaFile mediaFile = toMediaFile(null, sortRaw);
-                utils.analyze(mediaFile);
-                assertNull(mediaFile.getArtist());
-                assertNotNull(mediaFile.getArtistReading());
-                // The value of the sort tag is used as it is
-                assertEquals(readingExpected, mediaFile.getArtistReading());
-                assertNotNull(mediaFile.getArtistSort());
-                assertEquals(sortRaw, mediaFile.getArtistSort());
-            }
-
-            @AnalyzeMediaFileDecisions.Conditions.Name.NotNull
-            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
-            @AnalyzeMediaFileDecisions.Conditions.Sort.NotNull
-            @AnalyzeMediaFileDecisions.Result.Name.NotNull
-            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.ReadingAnalyzed
-            @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortExpected
-            @Test
-            @Order(2)
-            void a03a() {
-                Mockito.when(settingsService.getIndexSchemeName())
-                        .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
-                MediaFile mediaFile = toMediaFile(nameRaw, sortRaw);
-                utils.analyze(mediaFile);
-                assertNotNull(mediaFile.getArtist());
-                assertNotNull(mediaFile.getArtistReading());
-                // The value of the sort tag is used as it is
-                assertEquals(readingExpected, mediaFile.getArtistReading());
-                assertNotNull(mediaFile.getArtistSort());
-                assertEquals(sortRaw, mediaFile.getArtistSort());
-            }
-
-            @AnalyzeMediaFileDecisions.Conditions.Name.NotNull
-            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
-            @AnalyzeMediaFileDecisions.Conditions.Sort.NotNull
-            @AnalyzeMediaFileDecisions.Result.Name.NotNull
-            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.ReadingAnalyzed
-            @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortExpected
-            @Test
-            @Order(3)
-            void a03b() {
-                Mockito.when(settingsService.getIndexSchemeName())
-                        .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
-                // If the sort tag uses romaji. (Nothing is done.)
-                MediaFile mediaFile = toMediaFile(nameRaw, "Aiai・Ai");
-                utils.analyze(mediaFile);
-                assertNotNull(mediaFile.getArtist());
-                assertNotNull(mediaFile.getArtistReading());
-                // Sort tag is used as it is
-                assertEquals("Aiai・Ai", mediaFile.getArtistReading());
-                assertNotNull(mediaFile.getArtistSort());
-                // Sort tag is used as it is
-                assertEquals("Aiai・Ai", mediaFile.getArtistSort());
-            }
-
-            @AnalyzeMediaFileDecisions.Conditions.Name.NotNull
+            @AnalyzeMediaFileDecisions.Conditions.Name.Japanese
             @AnalyzeMediaFileDecisions.Conditions.Reading.Null
             @AnalyzeMediaFileDecisions.Conditions.Sort.Null
             @AnalyzeMediaFileDecisions.Result.Name.NotNull
-            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.ReadingAnalyzed
+            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.RemoveArticlesOnly
             @AnalyzeMediaFileDecisions.Result.Sort.Null
             @Test
-            @Order(4)
-            void a04() {
-                /*
-                 * If there is no sort tag in Japanese processing, the name will be parsed and the reading will be
-                 * created. In case of WITHOUT_JP_LANG_PROCESSING, the name is used as it is.
-                 */
+            void w03() {
                 Mockito.when(settingsService.getIndexSchemeName())
                         .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
-                MediaFile mediaFile = toMediaFile(nameRaw, null);
+                MediaFile mediaFile = toMediaFile(nameJp, null);
                 utils.analyze(mediaFile);
                 assertNotNull(mediaFile.getArtist());
-                assertNotNull(mediaFile.getArtistReading());
-                // However, the article is removed.
-                assertEquals("「あいｱｲ・愛」", mediaFile.getArtistReading());
+                assertEquals(removeArticlesOnlyJp, mediaFile.getArtistReading());
                 assertNull(mediaFile.getArtistSort());
+            }
+
+            @AnalyzeMediaFileDecisions.Conditions.Name.Japanese
+            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
+            @AnalyzeMediaFileDecisions.Conditions.Sort.Japanese
+            @AnalyzeMediaFileDecisions.Result.Name.NotNull
+            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.SortRaw
+            @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortJp
+            @Test
+            void w04() {
+                Mockito.when(settingsService.getIndexSchemeName())
+                        .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+                MediaFile mediaFile = toMediaFile(nameJp, sortJp);
+                utils.analyze(mediaFile);
+                assertNotNull(mediaFile.getArtist());
+                assertEquals(sortJp, mediaFile.getArtistReading());
+                assertEquals(sortJp, mediaFile.getArtistSort());
+            }
+
+            @AnalyzeMediaFileDecisions.Conditions.Name.Japanese
+            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
+            @AnalyzeMediaFileDecisions.Conditions.Sort.Latin
+            @AnalyzeMediaFileDecisions.Result.Name.NotNull
+            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.SortRaw
+            @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortLatin
+            @Test
+            void w05() {
+                Mockito.when(settingsService.getIndexSchemeName())
+                        .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+                MediaFile mediaFile = toMediaFile(nameJp, sortLatin);
+                utils.analyze(mediaFile);
+                assertNotNull(mediaFile.getArtist());
+                assertEquals(sortLatin, mediaFile.getArtistReading());
+                assertEquals(sortLatin, mediaFile.getArtistSort());
+            }
+
+            @AnalyzeMediaFileDecisions.Conditions.Name.Latin
+            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
+            @AnalyzeMediaFileDecisions.Conditions.Sort.Null
+            @AnalyzeMediaFileDecisions.Result.Name.NotNull
+            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.RemoveArticlesOnly
+            @AnalyzeMediaFileDecisions.Result.Sort.Null
+            @Test
+            void w06() {
+                Mockito.when(settingsService.getIndexSchemeName())
+                        .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+                MediaFile mediaFile = toMediaFile(nameLatin, null);
+                utils.analyze(mediaFile);
+                assertNotNull(mediaFile.getArtist());
+                assertEquals(removeArticlesOnlyLatin, mediaFile.getArtistReading());
+                assertNull(mediaFile.getArtistSort());
+            }
+
+            @AnalyzeMediaFileDecisions.Conditions.Name.Latin
+            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
+            @AnalyzeMediaFileDecisions.Conditions.Sort.Japanese
+            @AnalyzeMediaFileDecisions.Result.Name.NotNull
+            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.SortRaw
+            @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortJp
+            @Test
+            void w07() {
+                Mockito.when(settingsService.getIndexSchemeName())
+                        .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+                MediaFile mediaFile = toMediaFile(nameLatin, sortJp);
+                utils.analyze(mediaFile);
+                assertNotNull(mediaFile.getArtist());
+                assertEquals(sortJp, mediaFile.getArtistReading());
+                assertEquals(sortJp, mediaFile.getArtistSort());
+            }
+
+            @AnalyzeMediaFileDecisions.Conditions.Name.Latin
+            @AnalyzeMediaFileDecisions.Conditions.Reading.Null
+            @AnalyzeMediaFileDecisions.Conditions.Sort.Latin
+            @AnalyzeMediaFileDecisions.Result.Name.NotNull
+            @AnalyzeMediaFileDecisions.Result.Reading.NotNull.SortRaw
+            @AnalyzeMediaFileDecisions.Result.Sort.NotNull.SortLatin
+            @Test
+            void w08() {
+                Mockito.when(settingsService.getIndexSchemeName())
+                        .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+                MediaFile mediaFile = toMediaFile(nameLatin, sortLatin);
+                utils.analyze(mediaFile);
+                assertNotNull(mediaFile.getArtist());
+                assertEquals(sortLatin, mediaFile.getArtistReading());
+                assertEquals(sortLatin, mediaFile.getArtistSort());
             }
         }
     }
@@ -1051,205 +1108,31 @@ class JapaneseReadingUtilsTest {
         assertEquals(playlistName, playlist.getReading());
     }
 
-    @Documented
-    private @interface AnalyzeSortCandidateDecisions {
-        @interface Conditions {
-            @interface SortCandidate {
-                @interface Name {
-                    @interface NotNull {
-                    }
-                }
-
-                @interface Sort {
-                    @interface Null {
-                    }
-
-                    @interface NotNull {
-                    }
-                }
-            }
-        }
-
-        @interface Result {
-            @interface SortCandidate {
-                @interface Reading {
-                    @interface NotNull {
-                        @interface ReadingExpected {
-                        }
-
-                        @interface ReadingAnalyzed {
-                        }
-                    }
-                }
-
-                @interface Sort {
-                    @interface NotNull {
-                        @interface ReadingAnalyzed {
-                        }
-
-                        @interface SortExpected {
-                        }
-
-                    }
-                }
-            }
-        }
-    }
-
     @Nested
     @Order(11)
     class AnalyzeSortCandidate {
 
-        @Nested
-        class NativeJapaneseTest {
+        private final String nameRaw = "The 「あいｱｲ・愛」";
+        private final String sortRaw = "あいあい・あい";
+        private final String readingAnalyzedFromSort = "アイアイ・アイ";
+        private final String readingAnalyzedFromName = "｢アイアイ・アイ｣";
 
-            private final String nameRaw = "The 「あいｱｲ・愛」";
-            private final String sortRaw = "あいあい・あい";
-            private final String readingExpected = "アイアイ・アイ";
-            private final String sortExpected = "あいあい・あい";
-            private final String readingAnalyzed = "｢アイアイ・アイ｣";
-
-            @AnalyzeSortCandidateDecisions.Conditions.SortCandidate.Name.NotNull
-            @AnalyzeSortCandidateDecisions.Conditions.SortCandidate.Sort.Null
-            @AnalyzeSortCandidateDecisions.Result.SortCandidate.Reading.NotNull.ReadingAnalyzed
-            @AnalyzeSortCandidateDecisions.Result.SortCandidate.Sort.NotNull.ReadingAnalyzed
-            @Test
-            void a01() {
-                SortCandidate candidate = new SortCandidate(nameRaw, null);
-                utils.analyze(candidate);
-                assertEquals(nameRaw, candidate.getName());
-                assertEquals(readingAnalyzed, candidate.getReading());
-                assertEquals(readingAnalyzed, candidate.getSort());
-            }
-
-            @AnalyzeSortCandidateDecisions.Conditions.SortCandidate.Name.NotNull
-            @AnalyzeSortCandidateDecisions.Conditions.SortCandidate.Sort.NotNull
-            @AnalyzeSortCandidateDecisions.Result.SortCandidate.Reading.NotNull.ReadingExpected
-            @AnalyzeSortCandidateDecisions.Result.SortCandidate.Sort.NotNull.SortExpected
-            @Test
-            void a02() {
-                SortCandidate candidate = new SortCandidate(nameRaw, sortRaw);
-                utils.analyze(candidate);
-                assertEquals(nameRaw, candidate.getName());
-                assertEquals(readingExpected, candidate.getReading());
-                assertEquals(sortExpected, candidate.getSort());
-            }
-
+        @Test
+        void testNullSort() {
+            SortCandidate candidate = new SortCandidate(nameRaw, null);
+            utils.analyze(candidate);
+            assertEquals(nameRaw, candidate.getName());
+            assertEquals(readingAnalyzedFromName, candidate.getReading());
+            assertEquals(readingAnalyzedFromName, candidate.getSort());
         }
 
-        @Nested
-        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-        class RomanizedJapaneseTest {
-
-            private final String nameRaw = "The 「あいｱｲ・愛」";
-            private final String sortRaw = "あいあい・あい";
-            private final String readingExpected = "Aiai・Ai";
-            private final String sortExpected = "あいあい・あい";
-            private final String readingAnalyzed = "｢aiai・-ai｣";
-
-            @AnalyzeSortCandidateDecisions.Conditions.SortCandidate.Name.NotNull
-            @AnalyzeSortCandidateDecisions.Conditions.SortCandidate.Sort.Null
-            @AnalyzeSortCandidateDecisions.Result.SortCandidate.Reading.NotNull.ReadingAnalyzed
-            @AnalyzeSortCandidateDecisions.Result.SortCandidate.Sort.NotNull.ReadingAnalyzed
-            @Test
-            @Order(1)
-            void a01() {
-                Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
-                SortCandidate candidate = new SortCandidate(nameRaw, null);
-                utils.analyze(candidate);
-                assertEquals(nameRaw, candidate.getName());
-                assertEquals(readingAnalyzed, candidate.getReading());
-                assertEquals(readingAnalyzed, candidate.getSort());
-            }
-
-            @AnalyzeSortCandidateDecisions.Conditions.SortCandidate.Name.NotNull
-            @AnalyzeSortCandidateDecisions.Conditions.SortCandidate.Sort.NotNull
-            @AnalyzeSortCandidateDecisions.Result.SortCandidate.Reading.NotNull.ReadingExpected
-            @AnalyzeSortCandidateDecisions.Result.SortCandidate.Sort.NotNull.SortExpected
-            @Test
-            @Order(2)
-            void a02a() {
-                Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
-                SortCandidate candidate = new SortCandidate(nameRaw, sortRaw);
-                utils.analyze(candidate);
-                assertEquals(nameRaw, candidate.getName());
-                assertEquals(readingExpected, candidate.getReading());
-                assertEquals(sortExpected, candidate.getSort());
-            }
-
-            @AnalyzeSortCandidateDecisions.Conditions.SortCandidate.Name.NotNull
-            @AnalyzeSortCandidateDecisions.Conditions.SortCandidate.Sort.NotNull
-            @AnalyzeSortCandidateDecisions.Result.SortCandidate.Reading.NotNull.ReadingExpected
-            @AnalyzeSortCandidateDecisions.Result.SortCandidate.Sort.NotNull.SortExpected
-            @Test
-            @Order(3)
-            void a02b() {
-                Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
-                SortCandidate candidate = new SortCandidate(nameRaw, "Aiai・Ai");
-                utils.analyze(candidate);
-                assertEquals(nameRaw, candidate.getName());
-                assertEquals(readingExpected, candidate.getReading());
-                assertEquals("Aiai・Ai", candidate.getSort());
-            }
-        }
-
-        @Nested
-        @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-        class WithoutJpTest {
-
-            private final String nameRaw = "The 「あいｱｲ・愛」";
-            private final String sortRaw = "あいあい・あい";
-            private final String readingExpected = sortRaw;
-            private final String sortExpected = "あいあい・あい";
-            private final String readingAnalyzed = "「あいｱｲ・愛」";
-
-            @AnalyzeSortCandidateDecisions.Conditions.SortCandidate.Name.NotNull
-            @AnalyzeSortCandidateDecisions.Conditions.SortCandidate.Sort.Null
-            @AnalyzeSortCandidateDecisions.Result.SortCandidate.Reading.NotNull.ReadingAnalyzed
-            @AnalyzeSortCandidateDecisions.Result.SortCandidate.Sort.NotNull.ReadingAnalyzed
-            @Test
-            @Order(1)
-            void a01() {
-                Mockito.when(settingsService.getIndexSchemeName())
-                        .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
-                SortCandidate candidate = new SortCandidate(nameRaw, null);
-                utils.analyze(candidate);
-                assertEquals(nameRaw, candidate.getName());
-                assertEquals(readingAnalyzed, candidate.getReading());
-                assertEquals(readingAnalyzed, candidate.getSort());
-            }
-
-            @AnalyzeSortCandidateDecisions.Conditions.SortCandidate.Name.NotNull
-            @AnalyzeSortCandidateDecisions.Conditions.SortCandidate.Sort.NotNull
-            @AnalyzeSortCandidateDecisions.Result.SortCandidate.Reading.NotNull.ReadingExpected
-            @AnalyzeSortCandidateDecisions.Result.SortCandidate.Sort.NotNull.SortExpected
-            @Test
-            @Order(2)
-            void a02a() {
-                Mockito.when(settingsService.getIndexSchemeName())
-                        .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
-                SortCandidate candidate = new SortCandidate(nameRaw, sortRaw);
-                utils.analyze(candidate);
-                assertEquals(nameRaw, candidate.getName());
-                assertEquals(readingExpected, candidate.getReading());
-                assertEquals(sortExpected, candidate.getSort());
-            }
-
-            @AnalyzeSortCandidateDecisions.Conditions.SortCandidate.Name.NotNull
-            @AnalyzeSortCandidateDecisions.Conditions.SortCandidate.Sort.NotNull
-            @AnalyzeSortCandidateDecisions.Result.SortCandidate.Reading.NotNull.ReadingExpected
-            @AnalyzeSortCandidateDecisions.Result.SortCandidate.Sort.NotNull.SortExpected
-            @Test
-            @Order(3)
-            void a02b() {
-                Mockito.when(settingsService.getIndexSchemeName())
-                        .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
-                SortCandidate candidate = new SortCandidate(nameRaw, "Aiai・Ai");
-                utils.analyze(candidate);
-                assertEquals(nameRaw, candidate.getName());
-                assertEquals("Aiai・Ai", candidate.getReading());
-                assertEquals("Aiai・Ai", candidate.getSort());
-            }
+        @Test
+        void testNotNullSort() {
+            SortCandidate candidate = new SortCandidate(nameRaw, sortRaw);
+            utils.analyze(candidate);
+            assertEquals(nameRaw, candidate.getName());
+            assertEquals(readingAnalyzedFromSort, candidate.getReading());
+            assertEquals(sortRaw, candidate.getSort());
         }
     }
 
