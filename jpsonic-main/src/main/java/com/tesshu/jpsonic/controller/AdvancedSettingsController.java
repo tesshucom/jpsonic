@@ -24,6 +24,7 @@ package com.tesshu.jpsonic.controller;
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.command.AdvancedSettingsCommand;
+import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -101,6 +102,10 @@ public class AdvancedSettingsController {
         command.setCaptchaEnabled(settingsService.isCaptchaEnabled());
         command.setRecaptchaSiteKey(settingsService.getRecaptchaSiteKey());
 
+        // Danger Zone
+        command.setIndexScheme(IndexScheme.valueOf(settingsService.getIndexSchemeName()));
+        command.setForceInternalValueInsteadOfTags(settingsService.isForceInternalValueInsteadOfTags());
+
         // for view page control
         command.setUseRadio(settingsService.isUseRadio());
         command.setShareCount(shareService.getAllShares().size());
@@ -161,6 +166,9 @@ public class AdvancedSettingsController {
             settingsService.setRecaptchaSecretKey(command.getRecaptchaSecretKey());
         }
 
+        // Danger Zone
+        setDangerZone(command);
+
         settingsService.save();
 
         // for view page control
@@ -168,5 +176,32 @@ public class AdvancedSettingsController {
         redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
 
         return new ModelAndView(new RedirectView(ViewName.ADVANCED_SETTINGS.value()));
+    }
+
+    private void setDangerZone(AdvancedSettingsCommand command) {
+
+        IndexScheme scheme = command.getIndexScheme();
+        boolean changed = scheme != IndexScheme.valueOf(settingsService.getIndexSchemeName());
+
+        if (!changed) {
+            return;
+        }
+
+        settingsService.setIgnoreFileTimestampsNext(true);
+        settingsService.setIndexSchemeName(scheme.name());
+
+        if (scheme == IndexScheme.NATIVE_JAPANESE) {
+            settingsService.setForceInternalValueInsteadOfTags(false);
+            settingsService.setDeleteDiacritic(true);
+            settingsService.setIgnoreFullWidth(true);
+        } else if (scheme == IndexScheme.ROMANIZED_JAPANESE) {
+            settingsService.setForceInternalValueInsteadOfTags(command.isForceInternalValueInsteadOfTags());
+            settingsService.setDeleteDiacritic(false);
+            settingsService.setIgnoreFullWidth(true);
+        } else {
+            settingsService.setForceInternalValueInsteadOfTags(false);
+            settingsService.setDeleteDiacritic(false);
+            settingsService.setIgnoreFullWidth(false);
+        }
     }
 }

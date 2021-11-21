@@ -21,17 +21,22 @@ package com.tesshu.jpsonic.controller;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.command.AdvancedSettingsCommand;
+import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -39,17 +44,23 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 class AdvancedSettingsControllerTest {
 
+    private static final String VIEW_NAME = "advancedSettings";
+
+    private SettingsService settingsService;
+    private AdvancedSettingsController controller;
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        mockMvc = MockMvcBuilders
-                .standaloneSetup(new AdvancedSettingsController(mock(SettingsService.class),
-                        mock(SecurityService.class), mock(ShareService.class), mock(OutlineHelpSelector.class)))
-                .build();
+        settingsService = mock(SettingsService.class);
+        controller = new AdvancedSettingsController(settingsService, mock(SecurityService.class),
+                mock(ShareService.class), mock(OutlineHelpSelector.class));
+        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
     @Test
@@ -59,7 +70,7 @@ class AdvancedSettingsControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
-        assertEquals("advancedSettings", modelAndView.getViewName());
+        assertEquals(VIEW_NAME, modelAndView.getViewName());
 
         AdvancedSettingsCommand command = (AdvancedSettingsCommand) modelAndView.getModelMap()
                 .get(Attributes.Model.Command.VALUE);
@@ -73,7 +84,7 @@ class AdvancedSettingsControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
-        assertEquals("advancedSettings", modelAndView.getViewName());
+        assertEquals(VIEW_NAME, modelAndView.getViewName());
 
         AdvancedSettingsCommand command = (AdvancedSettingsCommand) modelAndView.getModelMap()
                 .get(Attributes.Model.Command.VALUE);
@@ -88,4 +99,88 @@ class AdvancedSettingsControllerTest {
         assertNotNull(result);
     }
 
+    /*
+     * Full scan required if schema changes (Compare before reflecting settings)
+     */
+    @Test
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    void testChangeIndexScheme() throws Exception {
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.ADVANCED_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        assertNotNull(result);
+        ModelAndView modelAndView = result.getModelAndView();
+        assertEquals(VIEW_NAME, modelAndView.getViewName());
+
+        AdvancedSettingsCommand command = (AdvancedSettingsCommand) modelAndView.getModelMap()
+                .get(Attributes.Model.Command.VALUE);
+        assertNotNull(command);
+
+        assertFalse(command.isForceInternalValueInsteadOfTags());
+        command.setForceInternalValueInsteadOfTags(true);
+
+        assertEquals(IndexScheme.NATIVE_JAPANESE, command.getIndexScheme());
+        assertFalse(settingsService.isIgnoreFileTimestamps());
+        assertFalse(settingsService.isIgnoreFileTimestampsNext());
+
+        ArgumentCaptor<Boolean> ignoreFileTimestampsNext = ArgumentCaptor.forClass(Boolean.class);
+        ArgumentCaptor<Boolean> forceInternalValueInsteadOfTags = ArgumentCaptor.forClass(Boolean.class);
+        Mockito.doNothing().when(settingsService).setIgnoreFileTimestampsNext(ignoreFileTimestampsNext.capture());
+        Mockito.doNothing().when(settingsService)
+                .setForceInternalValueInsteadOfTags(forceInternalValueInsteadOfTags.capture());
+
+        Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+        command.setIndexScheme(IndexScheme.NATIVE_JAPANESE);
+        controller.post(command, Mockito.mock(RedirectAttributes.class));
+        Mockito.verify(settingsService, Mockito.times(1)).setIgnoreFileTimestampsNext(Mockito.anyBoolean());
+        assertFalse(forceInternalValueInsteadOfTags.getValue());
+
+        Mockito.clearInvocations(settingsService);
+        ignoreFileTimestampsNext = ArgumentCaptor.forClass(Boolean.class);
+        forceInternalValueInsteadOfTags = ArgumentCaptor.forClass(Boolean.class);
+        Mockito.doNothing().when(settingsService).setIgnoreFileTimestampsNext(ignoreFileTimestampsNext.capture());
+        Mockito.doNothing().when(settingsService)
+                .setForceInternalValueInsteadOfTags(forceInternalValueInsteadOfTags.capture());
+        command.setIndexScheme(IndexScheme.ROMANIZED_JAPANESE);
+        controller.post(command, Mockito.mock(RedirectAttributes.class));
+        Mockito.verify(settingsService, Mockito.times(1)).setIgnoreFileTimestampsNext(Mockito.anyBoolean());
+        assertTrue(ignoreFileTimestampsNext.getValue());
+        assertTrue(forceInternalValueInsteadOfTags.getValue());
+
+        Mockito.clearInvocations(settingsService);
+        ignoreFileTimestampsNext = ArgumentCaptor.forClass(Boolean.class);
+        forceInternalValueInsteadOfTags = ArgumentCaptor.forClass(Boolean.class);
+        Mockito.doNothing().when(settingsService).setIgnoreFileTimestampsNext(ignoreFileTimestampsNext.capture());
+        Mockito.doNothing().when(settingsService)
+                .setForceInternalValueInsteadOfTags(forceInternalValueInsteadOfTags.capture());
+        Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.NATIVE_JAPANESE.name());
+        command.setIndexScheme(IndexScheme.WITHOUT_JP_LANG_PROCESSING);
+        controller.post(command, Mockito.mock(RedirectAttributes.class));
+        Mockito.verify(settingsService, Mockito.times(1)).setIgnoreFileTimestampsNext(Mockito.anyBoolean());
+        Mockito.verify(settingsService, Mockito.times(1)).setForceInternalValueInsteadOfTags(Mockito.anyBoolean());
+        assertTrue(ignoreFileTimestampsNext.getValue());
+
+        ignoreFileTimestampsNext = ArgumentCaptor.forClass(Boolean.class);
+        Mockito.doNothing().when(settingsService).setIgnoreFileTimestampsNext(ignoreFileTimestampsNext.capture());
+        command.setIndexScheme(IndexScheme.WITHOUT_JP_LANG_PROCESSING);
+        controller.post(command, Mockito.mock(RedirectAttributes.class));
+
+        ignoreFileTimestampsNext = ArgumentCaptor.forClass(Boolean.class);
+        Mockito.clearInvocations(settingsService);
+        Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.NATIVE_JAPANESE.name());
+        Mockito.when(settingsService.isIgnoreFileTimestampsNext()).thenReturn(false);
+        assertEquals(IndexScheme.NATIVE_JAPANESE.name(), settingsService.getIndexSchemeName());
+        command.setIndexScheme(IndexScheme.WITHOUT_JP_LANG_PROCESSING);
+        controller.post(command, Mockito.mock(RedirectAttributes.class));
+        Mockito.verify(settingsService, Mockito.times(1))
+                .setIgnoreFileTimestampsNext(ignoreFileTimestampsNext.capture());
+        assertTrue(ignoreFileTimestampsNext.getValue());
+
+        Mockito.clearInvocations(settingsService);
+        Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.NATIVE_JAPANESE.name());
+        Mockito.when(settingsService.isIgnoreFileTimestampsNext()).thenReturn(true);
+        command.setIndexScheme(IndexScheme.NATIVE_JAPANESE);
+        controller.post(command, Mockito.mock(RedirectAttributes.class));
+        Mockito.verify(settingsService, Mockito.never()).setIgnoreFileTimestampsNext(Mockito.anyBoolean());
+    }
 }

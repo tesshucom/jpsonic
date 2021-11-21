@@ -38,6 +38,7 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
+import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.PreferredFormatSheme;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
 import org.junit.jupiter.api.BeforeEach;
@@ -520,11 +521,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsIndexEnglishPrior() {
-        assertTrue(settingsService.isIndexEnglishPrior());
-    }
-
-    @Test
     void testIsSortAlbumsByYear() {
         assertTrue(settingsService.isSortAlbumsByYear());
     }
@@ -557,16 +553,6 @@ class SettingsServiceTest {
     @Test
     void testIsOutputSearchQuery() {
         assertFalse(settingsService.isOutputSearchQuery());
-    }
-
-    @Test
-    void testIsSearchMethodLegacy() {
-        assertFalse(settingsService.isSearchMethodLegacy());
-    }
-
-    @Test
-    void testIsSearchMethodChanged() {
-        assertFalse(settingsService.isSearchMethodChanged());
     }
 
     @Test
@@ -815,6 +801,26 @@ class SettingsServiceTest {
     @Test
     void testGetRecaptchaSecretKey() {
         assertNotNull(settingsService.getRecaptchaSecretKey());
+    }
+
+    @Test
+    void testGetIndexSchemeName() {
+        assertEquals(IndexScheme.NATIVE_JAPANESE.name(), settingsService.getIndexSchemeName());
+    }
+
+    @Test
+    void testisForceInternalValueInsteadOfTags() {
+        assertFalse(settingsService.isForceInternalValueInsteadOfTags());
+    }
+
+    @Test
+    void testIsIgnoreFullWidth() {
+        assertTrue(settingsService.isIgnoreFullWidth());
+    }
+
+    @Test
+    void testIsDeleteDiacritic() {
+        assertTrue(settingsService.isDeleteDiacritic());
     }
 
     @Test

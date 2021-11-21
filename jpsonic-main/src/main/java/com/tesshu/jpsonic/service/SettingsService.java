@@ -95,7 +95,7 @@ public class SettingsService {
             "database.varchar.maxlength", "database.config.type", "database.config.embed.driver",
             "database.config.embed.url", "database.config.embed.username", "database.config.embed.password",
             "database.config.jndi.name", "database.usertable.quote", "ShowJavaJukebox", "AnonymousTranscoding",
-            "UseSonos");
+            "UseSonos", "SearchMethodLegacy", "SearchMethodChanged");
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
@@ -380,14 +380,6 @@ public class SettingsService {
         setProperty(SettingsConstants.MusicFolder.Others.FILE_MODIFIED_CHECK_SCHEME_NAME, s);
     }
 
-    public boolean isIndexEnglishPrior() {
-        return getBoolean(SettingsConstants.MusicFolder.Others.INDEX_ENGLISH_PRIOR);
-    }
-
-    public void setIndexEnglishPrior(boolean b) {
-        setProperty(SettingsConstants.MusicFolder.Others.INDEX_ENGLISH_PRIOR, b);
-    }
-
     public boolean isIgnoreFileTimestamps() {
         return getBoolean(SettingsConstants.MusicFolder.Others.IGNORE_FILE_TIMESTAMPS);
     }
@@ -648,22 +640,6 @@ public class SettingsService {
 
     public void setUseRadio(boolean b) {
         setProperty(SettingsConstants.General.Legacy.USE_RADIO, b);
-    }
-
-    public boolean isSearchMethodLegacy() {
-        return getBoolean(SettingsConstants.General.Legacy.SEARCH_METHOD_LEGACY);
-    }
-
-    public void setSearchMethodLegacy(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.SEARCH_METHOD_LEGACY, b);
-    }
-
-    public boolean isSearchMethodChanged() {
-        return getBoolean(SettingsConstants.General.Legacy.SEARCH_METHOD_CHANGED);
-    }
-
-    public void setSearchMethodChanged(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.SEARCH_METHOD_CHANGED, b);
     }
 
     public String getMusicFileTypes() {
@@ -999,6 +975,38 @@ public class SettingsService {
 
     public void setRecaptchaSecretKey(String s) {
         setProperty(SettingsConstants.Advanced.Captcha.SECRET_KEY, s);
+    }
+
+    public String getIndexSchemeName() {
+        return getString(SettingsConstants.Advanced.Index.INDEX_SCHEME_NAME);
+    }
+
+    public void setIndexSchemeName(String s) {
+        setProperty(SettingsConstants.Advanced.Index.INDEX_SCHEME_NAME, s);
+    }
+
+    public boolean isForceInternalValueInsteadOfTags() {
+        return getBoolean(SettingsConstants.Advanced.Index.FORCE_INTERNAL_VALUE_INSTEAD_OF_TAGS);
+    }
+
+    public void setForceInternalValueInsteadOfTags(boolean b) {
+        setProperty(SettingsConstants.Advanced.Index.FORCE_INTERNAL_VALUE_INSTEAD_OF_TAGS, b);
+    }
+
+    public boolean isIgnoreFullWidth() {
+        return getBoolean(SettingsConstants.Advanced.Index.IGNORE_FULL_WIDTH);
+    }
+
+    public void setIgnoreFullWidth(boolean b) {
+        setProperty(SettingsConstants.Advanced.Index.IGNORE_FULL_WIDTH, b);
+    }
+
+    public boolean isDeleteDiacritic() {
+        return getBoolean(SettingsConstants.Advanced.Index.DELETE_DIACRITIC);
+    }
+
+    public void setDeleteDiacritic(boolean b) {
+        setProperty(SettingsConstants.Advanced.Index.DELETE_DIACRITIC, b);
     }
 
     public String getPodcastFolder() {

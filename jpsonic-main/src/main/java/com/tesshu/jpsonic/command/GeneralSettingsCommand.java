@@ -22,6 +22,7 @@
 package com.tesshu.jpsonic.command;
 
 import com.tesshu.jpsonic.controller.GeneralSettingsController;
+import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.Theme;
 
 /**
@@ -36,12 +37,15 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private String themeIndex = "0";
     private String[] locales;
     private String localeIndex = "0";
+    private IndexScheme indexScheme;
 
     // Index settings
     private String defaultIndexString;
     private String simpleIndexString;
     private String index;
     private String ignoredArticles;
+    private boolean ignoreFullWidth;
+    private boolean deleteDiacritic;
 
     // Sort settings
     private boolean sortAlbumsByYear;
@@ -65,8 +69,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean othersPlayingEnabled;
     private boolean showRememberMe;
     private boolean publishPodcast;
-    private boolean searchMethodLegacy;
-    private boolean searchMethodChanged;
 
     // Extensions and shortcuts
     private String musicFileTypes;
@@ -116,6 +118,14 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
         this.localeIndex = localeIndex;
     }
 
+    public IndexScheme getIndexScheme() {
+        return indexScheme;
+    }
+
+    public void setIndexScheme(IndexScheme indexScheme) {
+        this.indexScheme = indexScheme;
+    }
+
     public String getDefaultIndexString() {
         return defaultIndexString;
     }
@@ -146,6 +156,22 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setIgnoredArticles(String ignoredArticles) {
         this.ignoredArticles = ignoredArticles;
+    }
+
+    public boolean isIgnoreFullWidth() {
+        return ignoreFullWidth;
+    }
+
+    public void setIgnoreFullWidth(boolean ignoreFullWidth) {
+        this.ignoreFullWidth = ignoreFullWidth;
+    }
+
+    public boolean isDeleteDiacritic() {
+        return deleteDiacritic;
+    }
+
+    public void setDeleteDiacritic(boolean deleteDiacritic) {
+        this.deleteDiacritic = deleteDiacritic;
     }
 
     public boolean isSortAlbumsByYear() {
@@ -282,22 +308,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setPublishPodcast(boolean publishPodcast) {
         this.publishPodcast = publishPodcast;
-    }
-
-    public boolean isSearchMethodLegacy() {
-        return searchMethodLegacy;
-    }
-
-    public void setSearchMethodLegacy(boolean searchMethodLegacy) {
-        this.searchMethodLegacy = searchMethodLegacy;
-    }
-
-    public boolean isSearchMethodChanged() {
-        return searchMethodChanged;
-    }
-
-    public void setSearchMethodChanged(boolean searchMethodChanged) {
-        this.searchMethodChanged = searchMethodChanged;
     }
 
     public String getMusicFileTypes() {

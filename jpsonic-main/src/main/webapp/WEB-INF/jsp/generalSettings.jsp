@@ -4,6 +4,7 @@
 <html><head>
 <%@ include file="head.jsp" %>
 <%@ include file="jquery.jsp" %>
+<%@ page import="com.tesshu.jpsonic.domain.IndexScheme" %>
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script>
 function setDefaultIndexString() {
@@ -39,7 +40,7 @@ function resetSortSettings() {
 <form:form method="post" action="generalSettings.view" modelAttribute="command">
 
     <c:set var="isOpen" value='${command.openDetailSetting ? "open" : ""}' />
-    <details ${isOpen}>
+    <details open>
         <summary class="jpsonic"><fmt:message key="generalsettings.themeandlanguage"/></summary>
         <dl>
             <dt><fmt:message key="generalsettings.language"/></dt>
@@ -59,6 +60,11 @@ function resetSortSettings() {
                     </c:forEach>
                 </form:select>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="theme"/></c:import>
+            </dd>
+            <dt><fmt:message key="advancedsettings.indexscheme"/></dt>
+            <dd>
+                <input type="text" value="<fmt:message key='advancedsettings.indexscheme.${fn:toLowerCase(command.indexScheme)}'/>" disabled/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="indexscheme"/></c:import>
             </dd>
         </dl>
     </details>
@@ -85,6 +91,21 @@ function resetSortSettings() {
                 <form:input path="ignoredArticles"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="ignoredarticles"/></c:import>
             </dd>
+            <c:if test='${"WITHOUT_JP_LANG_PROCESSING" eq command.indexScheme}'>
+	            <dt></dt>
+	            <dd>
+	                <form:checkbox path="ignoreFullWidth" id="ignoreFullWidth"/>
+	                <label for="ignoreFullWidth"><fmt:message key="generalsettings.ignorefullwidth"/></label>
+	            </dd>
+	        </c:if>
+            <c:if test='${"ROMANIZED_JAPANESE" eq command.indexScheme or "WITHOUT_JP_LANG_PROCESSING" eq command.indexScheme}'>
+	            <dt></dt>
+	            <dd>
+	                <form:checkbox path="deleteDiacritic" id="deleteDiacritic"/>
+	                <label for="deleteDiacritic"><fmt:message key="generalsettings.deletediacritic"/></label>
+	                <c:import url="helpToolTip.jsp"><c:param name="topic" value="deletediacritic"/></c:import>
+	            </dd>
+	        </c:if>
         </dl>
     </details>
 
@@ -137,7 +158,7 @@ function resetSortSettings() {
         </dl>
     </details>
 
-    <details open>
+    <details ${isOpen}>
         <summary class="jpsonic"><fmt:message key="generalsettings.searchsettings"/></summary>
 
         <c:if test="${command.showOutlineHelp}">
@@ -206,12 +227,6 @@ function resetSortSettings() {
                 <form:checkbox path="useRadio" id="useRadio"/>
                 <label for="useRadio"><fmt:message key="generalsettings.useradio"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="useradio"/></c:import>
-            </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="searchMethodLegacy" id="searchMethodLegacy"/>
-                <label for="searchMethodLegacy"><fmt:message key="generalsettings.searchmethodlegacy"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="searchmethod"/></c:import>
             </dd>
         </dl>
     </details>

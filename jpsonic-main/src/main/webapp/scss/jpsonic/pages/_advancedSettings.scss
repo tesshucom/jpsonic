@@ -40,4 +40,8 @@
   input#recaptchaSecretKey {
     @include dlInputWidth(13);
   }
+  .scheme .subItem {
+    height: 30px;
+    margin-left: 22px;
+  }
 }

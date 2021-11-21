@@ -20,11 +20,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cxf.version>3.4.5</cxf.version>
         <jackson.version>2.13.0</jackson.version>
-        <tomcat.version>9.0.54</tomcat.version>
+        <tomcat.version>9.0.55</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
         <jetty.version>9.4.44.v20210927</jetty.version>
         <jetty-jsp.version>9.4.44.v20210927</jetty-jsp.version>
-        <pmd.version>6.39.0</pmd.version>
+        <pmd.version>6.40.0</pmd.version>
         <log4j.version>2.14.1</log4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
     </properties>
@@ -93,14 +93,14 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-junit-jupiter</artifactId>
-                <version>4.0.0</version>
+                <version>4.1.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <!-- Import dependency management from Spring Boot -->
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>2.5.6</version>
+                <version>2.5.7</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -173,7 +173,7 @@
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
                 <scope>compile</scope>
-                <version>3.18.1</version>
+                <version>3.19.0</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
@@ -212,7 +212,7 @@
             <dependency>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-runtime</artifactId>
-                <version>4.9.2</version>
+                <version>4.9.3</version>
             </dependency>
 
             <!-- Tomcat dependencies are normally managed by Spring Boot, but we handle
@@ -448,7 +448,7 @@
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
                             <artifactId>checkstyle</artifactId>
-                            <version>9.0.1</version>
+                            <version>9.1</version>
                         </dependency>
                     </dependencies>
                     <configuration>
@@ -517,19 +517,19 @@
                 <plugin>
                     <groupId>com.github.spotbugs</groupId>
                     <artifactId>spotbugs-maven-plugin</artifactId>
-                    <version>4.4.2.2</version>
+                    <version>4.5.0.0</version>
                     <dependencies>
                         <dependency>
                             <groupId>com.github.spotbugs</groupId>
                             <artifactId>spotbugs</artifactId>
-                            <version>4.4.2</version>
+                            <version>4.5.0</version>
                         </dependency>
                     </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>6.4.1</version>
+                    <version>6.5.0</version>
                     <inherited>true</inherited>
                     <configuration>
                         <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
@@ -642,7 +642,7 @@
             <plugin>
                 <groupId>net.revelc.code.formatter</groupId>
                 <artifactId>formatter-maven-plugin</artifactId>
-                <version>2.16.0</version>
+                <version>2.17.0</version>
                 <configuration>
                     <configXmlFile>${project.basedir}/jpsonic-main/formatter.xml</configXmlFile>
                     <encoding>UTF-8</encoding>
