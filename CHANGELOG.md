@@ -13,6 +13,7 @@ The binaries of SNAPSHOT are available from the latest artifacts on the [master 
   * Improve transcoding settings page ([#1191](https://github.com/tesshucom/jpsonic/issues/1191))
   * Fix not to show update button by default ([#1223](https://github.com/tesshucom/jpsonic/issues/1223))
   * Change the initial value of Upload permission ([#1224](https://github.com/tesshucom/jpsonic/issues/1224))
+  * Romaized Japanese language support ([#319](https://github.com/tesshucom/jpsonic/issues/319))
 
 #### Fixes
   * Fix to reply with the appropriate content type ([#1206](https://github.com/tesshucom/jpsonic/issues/1206))
