@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 import com.atilika.kuromoji.ipadic.Token;
 import com.atilika.kuromoji.ipadic.Tokenizer;
 import com.ibm.icu.text.Transliterator;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -493,25 +494,24 @@ public class JapaneseReadingUtils {
     }
 
     public String createIndexableName(@NonNull Artist artist) {
-        if (isStartWithAlpha(artist.getName())) {
-            return createIndexableName(artist.getName());
-        } else if (isEmpty(artist.getReading())) {
-            if (isEmpty(artist.getSort())) {
-                return createIndexableName(artist.getName());
-            }
-            return createIndexableName(createJapaneseReading(artist.getSort()));
+        IndexScheme scheme = getIndexScheme();
+        @NonNull
+        String name = artist.getName();
+        if (scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING || isEmpty(artist.getReading())
+                || name.equals(artist.getReading()) || !isJapaneseReadable(name)) {
+            return createIndexableName(name);
         }
         return createIndexableName(artist.getReading());
     }
 
     public String createIndexableName(@NonNull MediaFile artist) {
-        if (isStartWithAlpha(artist.getName())) {
-            return createIndexableName(artist.getName());
-        } else if (isEmpty(artist.getArtistReading())) {
-            if (isEmpty(artist.getArtistSort())) {
-                return createIndexableName(artist.getName());
-            }
-            return createIndexableName(createJapaneseReading(artist.getArtistSort()));
+        IndexScheme scheme = getIndexScheme();
+        @NonNull
+        String name = artist.getName();
+        if (scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING || artist.getMediaType() != MediaType.DIRECTORY
+                || isEmpty(artist.getArtistReading()) || name.equals(artist.getArtistReading())
+                || !isJapaneseReadable(name)) {
+            return createIndexableName(name);
         }
         return createIndexableName(artist.getArtistReading());
     }

@@ -30,6 +30,7 @@ import java.lang.annotation.Documented;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -1137,288 +1138,6 @@ class JapaneseReadingUtilsTest {
     }
 
     @Documented
-    private @interface CreateIndexableNameArtistDecisions {
-        @interface Conditions {
-
-            @interface Artist {
-                @interface Name {
-                    @interface isStartWithAlpha {
-                        @interface True {
-                        }
-
-                        @interface False {
-                        }
-                    }
-                }
-
-                @interface ArtistReading {
-                    @interface Empty {
-                        @interface True {
-                        }
-
-                        @interface False {
-                        }
-                    }
-                }
-
-                @interface ArtistSort {
-                    @interface Empty {
-                        @interface True {
-                        }
-
-                        @interface False {
-                        }
-                    }
-                }
-            }
-        }
-
-        @interface Result {
-            @interface IndexableName {
-                @interface NameDerived {
-                }
-
-                @interface NormalizedReading {
-                }
-
-            }
-        }
-    }
-
-    @Nested
-    @Order(12)
-    class CreateIndexableNameArtistTest {
-
-        private Artist createArtist(String name, String sort) throws ExecutionException {
-            Artist artist = new Artist();
-            artist.setName(name);
-            artist.setReading(utils.createReading(name, sort));
-            artist.setSort(sort);
-            return artist;
-        }
-
-        @CreateIndexableNameArtistDecisions.Conditions.Artist.Name.isStartWithAlpha.True
-        @CreateIndexableNameArtistDecisions.Result.IndexableName.NameDerived
-        @Test
-        void c01() throws ExecutionException {
-            Artist artist = createArtist("abcde", null);
-            assertEquals("abcde", artist.getName());
-            assertEquals("abcde", artist.getReading());
-            assertNull(artist.getSort());
-            String indexableNameString = utils.createIndexableName(artist);
-
-            assertEquals("abcde", indexableNameString);
-        }
-
-        @CreateIndexableNameArtistDecisions.Conditions.Artist.Name.isStartWithAlpha.False
-        @CreateIndexableNameArtistDecisions.Conditions.Artist.ArtistReading.Empty.False
-        @CreateIndexableNameArtistDecisions.Result.IndexableName.NormalizedReading
-        @Test
-        void c02() throws ExecutionException {
-            Artist artist = createArtist("日本語名", null);
-            assertEquals("日本語名", artist.getName());
-            assertEquals("ニホンゴメイ", artist.getReading());
-            assertNull(artist.getSort());
-            String indexableNameString = utils.createIndexableName(artist);
-
-            assertEquals("ニホンゴメイ", indexableNameString);
-        }
-
-        @CreateIndexableNameArtistDecisions.Conditions.Artist.Name.isStartWithAlpha.False
-        @CreateIndexableNameArtistDecisions.Conditions.Artist.ArtistReading.Empty.True
-        @CreateIndexableNameArtistDecisions.Conditions.Artist.ArtistSort.Empty.False
-        @CreateIndexableNameArtistDecisions.Result.IndexableName.NormalizedReading
-        @Test
-        void c03() throws ExecutionException {
-            Artist artist = createArtist("日本語名", "にほんごめい");
-            assertEquals("日本語名", artist.getName());
-            assertEquals("ニホンゴメイ", artist.getReading());
-
-            artist.setReading(null);
-            assertNull(artist.getReading());
-
-            assertEquals("にほんごめい", artist.getSort());
-            String indexableNameString = utils.createIndexableName(artist);
-
-            assertEquals("ニホンゴメイ", indexableNameString);
-        }
-
-        @CreateIndexableNameArtistDecisions.Conditions.Artist.Name.isStartWithAlpha.False
-        @CreateIndexableNameArtistDecisions.Conditions.Artist.ArtistReading.Empty.True
-        @CreateIndexableNameArtistDecisions.Conditions.Artist.ArtistSort.Empty.True
-        @CreateIndexableNameArtistDecisions.Result.IndexableName.NameDerived
-        @Test
-        void c04() throws ExecutionException {
-            Artist artist = createArtist("日本語名", null);
-            assertEquals("日本語名", artist.getName());
-            assertEquals("ニホンゴメイ", artist.getReading());
-
-            artist.setReading(null);
-            assertNull(artist.getReading());
-
-            assertNull(artist.getSort());
-            String indexableNameString = utils.createIndexableName(artist);
-
-            assertEquals("日本語名", indexableNameString);
-        }
-    }
-
-    @Documented
-    private @interface CreateIndexableNameMediaFileDecisions {
-        @interface Conditions {
-
-            @interface MediaFile {
-                @interface Name {
-                    @interface isStartWithAlpha {
-                        @interface True {
-                        }
-
-                        @interface False {
-                        }
-                    }
-                }
-
-                @interface ArtistReading {
-                    @interface Empty {
-                        @interface True {
-                        }
-
-                        @interface False {
-                        }
-                    }
-                }
-
-                @interface ArtistSort {
-                    @interface Empty {
-                        @interface True {
-                        }
-
-                        @interface False {
-                        }
-                    }
-                }
-            }
-        }
-
-        @interface Result {
-            @interface IndexableName {
-                @interface PathDerived {
-                }
-
-                @interface NormalizedReading {
-                }
-
-            }
-        }
-    }
-
-    /**
-     * Since it is backward compatible, there are many cases, but in reality it is c02 in the case of Japanese. In most
-     * cases, the scan is finished when the index is created. That is, the readings have been resolved and there are no
-     * null cases.
-     */
-    @Nested
-    @Order(13)
-    class CreateIndexableNameMediaFile {
-
-        private MediaFile createAnalyzedMediaFile(String name, String sort, String path) {
-            MediaFile mediaFile = new MediaFile();
-            mediaFile.setArtist(name);
-            mediaFile.setArtistSort(sort);
-            mediaFile.setPath(path);
-            utils.analyze(mediaFile);
-            return mediaFile;
-        }
-
-        @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.Name.isStartWithAlpha.True
-        @CreateIndexableNameMediaFileDecisions.Result.IndexableName.PathDerived
-        @Test
-        void c01() {
-            MediaFile file = createAnalyzedMediaFile("abcde", null, "abcde-path");
-            assertEquals("abcde", file.getArtist());
-            assertEquals("abcde", file.getArtistReading());
-            assertNull(file.getArtistSort());
-            assertNull(file.getAlbumArtist());
-            assertNull(file.getAlbumArtistReading());
-            assertNull(file.getAlbumArtistSort());
-            String indexableNameString = utils.createIndexableName(file);
-
-            // path. (All legacy servers have this specification)
-            assertEquals("abcde-path", indexableNameString);
-        }
-
-        @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.Name.isStartWithAlpha.False
-        @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.ArtistReading.Empty.False
-        @CreateIndexableNameMediaFileDecisions.Result.IndexableName.NormalizedReading
-        @Test
-        void c02() {
-            MediaFile file = createAnalyzedMediaFile("日本語名", null, "日本語名-path");
-            assertEquals("日本語名", file.getArtist());
-            assertEquals("ニホンゴメイ", file.getArtistReading());
-            assertNull(file.getArtistSort());
-            assertNull(file.getAlbumArtist());
-            assertNull(file.getAlbumArtistReading());
-            assertNull(file.getAlbumArtistSort());
-            String indexableNameString = utils.createIndexableName(file);
-
-            // Normalized reading, not path. Most phonological index languages require this
-            assertEquals("ニホンゴメイ", indexableNameString);
-        }
-
-        @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.Name.isStartWithAlpha.False
-        @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.ArtistReading.Empty.True
-        @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.ArtistSort.Empty.False
-        @CreateIndexableNameMediaFileDecisions.Result.IndexableName.NormalizedReading
-        @Test
-        void c03() {
-            MediaFile file = createAnalyzedMediaFile("日本語名", "にほんごめい", "日本語名-path");
-            assertEquals("日本語名", file.getArtist());
-            assertEquals("ニホンゴメイ", file.getArtistReading());
-
-            /*
-             * Now, This case rarely occurs when normal processing is performed. (For example, older versions of the
-             * data. Or if the index was created while the scan was in progress)
-             */
-            file.setArtistReading(null);
-            assertNull(file.getArtistReading());
-
-            assertEquals("にほんごめい", file.getArtistSort());
-            assertNull(file.getAlbumArtist());
-            assertNull(file.getAlbumArtistReading());
-            assertNull(file.getAlbumArtistSort());
-            String indexableNameString = utils.createIndexableName(file);
-
-            assertEquals("ニホンゴメイ", indexableNameString); // Normalized reading, not path
-        }
-
-        @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.Name.isStartWithAlpha.False
-        @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.ArtistReading.Empty.True
-        @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.ArtistSort.Empty.True
-        @CreateIndexableNameMediaFileDecisions.Result.IndexableName.PathDerived
-        @Test
-        void c04() {
-            MediaFile file = createAnalyzedMediaFile("日本語名", null, "日本語名-path");
-            assertEquals("日本語名", file.getArtist());
-            assertEquals("ニホンゴメイ", file.getArtistReading());
-
-            /*
-             * Now, This case rarely occurs when normal processing is performed. (For example, older versions of the
-             * data. Or if the index was created while the scan was in progress)
-             */
-            file.setArtistReading(null);
-            assertNull(file.getArtistReading());
-
-            assertNull(file.getArtistSort());
-            assertNull(file.getAlbumArtist());
-            assertNull(file.getAlbumArtistReading());
-            assertNull(file.getAlbumArtistSort());
-            String indexableNameString = utils.createIndexableName(file);
-
-            assertEquals("日本語名-path", indexableNameString); // Normalized reading, not path
-        }
-    }
-
-    @Documented
     private @interface CreateIndexableNameDecisions {
         @interface Conditions {
             @interface IndexScheme {
@@ -1435,7 +1154,7 @@ class JapaneseReadingUtilsTest {
     }
 
     @Nested
-    @Order(14)
+    @Order(12)
     class CreateIndexableName {
 
         void assertDeleteDiacritic() {
@@ -1554,6 +1273,278 @@ class JapaneseReadingUtilsTest {
             assertDeleteDiacritic();
             Mockito.when(settingsService.isDeleteDiacritic()).thenReturn(false);
             assertRemainDiacritic();
+        }
+    }
+
+    @Documented
+    private @interface CreateIndexableNameArtistDecisions {
+        @interface Conditions {
+
+            @interface IndexScheme {
+                @interface NativeJapanese {
+                }
+
+                @interface WithoutJp {
+                }
+            }
+
+            @interface Artist {
+                @interface Reading {
+                    @interface Empty {
+                        @interface True {
+                        }
+
+                        @interface False {
+                            @interface EqName {
+
+                            }
+
+                            @interface NeName {
+
+                            }
+                        }
+                    }
+                }
+
+                @interface Name {
+                    @interface NotJapanese {
+
+                    }
+
+                    @interface Japanese {
+
+                    }
+                }
+            }
+        }
+
+        @interface Result {
+            @interface IndexableName {
+                @interface NameDerived {
+                }
+
+                @interface ReadingDerived {
+                }
+            }
+        }
+    }
+
+    @Nested
+    @Order(12)
+    class CreateIndexableNameArtistTest {
+
+        private Artist createArtist(String name, String sort) {
+            Artist artist = new Artist();
+            artist.setName(name);
+            artist.setSort(sort);
+            return artist;
+        }
+
+        String name = "nameDerived";
+        String reading = "reagingDerived";
+
+        @CreateIndexableNameArtistDecisions.Conditions.IndexScheme.WithoutJp
+        @CreateIndexableNameArtistDecisions.Result.IndexableName.NameDerived
+        @Test
+        void c01() {
+            Mockito.when(settingsService.getIndexSchemeName())
+                    .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            Artist artist = createArtist(name, null);
+            assertEquals(name, utils.createIndexableName(artist));
+        }
+
+        @CreateIndexableNameArtistDecisions.Conditions.IndexScheme.NativeJapanese
+        @CreateIndexableNameArtistDecisions.Conditions.Artist.Reading.Empty.True
+        @CreateIndexableNameArtistDecisions.Result.IndexableName.NameDerived
+        @Test
+        void c02() {
+            Artist artist = createArtist(name, null);
+            assertEquals(name, utils.createIndexableName(artist));
+        }
+
+        @CreateIndexableNameArtistDecisions.Conditions.IndexScheme.NativeJapanese
+        @CreateIndexableNameArtistDecisions.Conditions.Artist.Reading.Empty.False.EqName
+        @CreateIndexableNameArtistDecisions.Result.IndexableName.NameDerived
+        @Test
+        void c03() {
+            Artist artist = createArtist(name, null);
+            artist.setReading(name);
+            assertEquals(name, utils.createIndexableName(artist));
+        }
+
+        @CreateIndexableNameArtistDecisions.Conditions.IndexScheme.NativeJapanese
+        @CreateIndexableNameArtistDecisions.Conditions.Artist.Reading.Empty.False.NeName
+        @CreateIndexableNameArtistDecisions.Conditions.Artist.Name.NotJapanese
+        @CreateIndexableNameArtistDecisions.Result.IndexableName.NameDerived
+        @Test
+        void c04() {
+            Artist artist = createArtist(name, null);
+            artist.setReading(reading);
+            assertEquals(name, utils.createIndexableName(artist));
+        }
+
+        @CreateIndexableNameArtistDecisions.Conditions.IndexScheme.NativeJapanese
+        @CreateIndexableNameArtistDecisions.Conditions.Artist.Reading.Empty.False.NeName
+        @CreateIndexableNameArtistDecisions.Conditions.Artist.Name.Japanese
+        @CreateIndexableNameArtistDecisions.Result.IndexableName.ReadingDerived
+        @Test
+        void c05() {
+            Artist artist = createArtist("ニホンゴメイ", null);
+            artist.setReading(reading);
+            assertEquals(reading, utils.createIndexableName(artist));
+        }
+    }
+
+    @Documented
+    private @interface CreateIndexableNameMediaFileDecisions {
+        @interface Conditions {
+
+            @interface IndexScheme {
+                @interface NativeJapanese {
+                }
+
+                @interface WithoutJp {
+                }
+            }
+
+            @interface MediaFile {
+                @interface MediaType {
+                    @interface NeDirectory {
+
+                    }
+
+                    @interface EqDirectory {
+
+                    }
+                }
+
+                @interface ArtistReading {
+                    @interface Empty {
+                        @interface True {
+                        }
+
+                        @interface False {
+                            @interface EqName {
+
+                            }
+
+                            @interface NeName {
+
+                            }
+                        }
+                    }
+                }
+
+                @interface Name {
+                    @interface NotJapanese {
+
+                    }
+
+                    @interface Japanese {
+
+                    }
+                }
+
+            }
+        }
+
+        @interface Result {
+            @interface IndexableName {
+                @interface PathDerived {
+                }
+
+                @interface SortTagDerived {
+                }
+            }
+        }
+    }
+
+    @Nested
+    @Order(13)
+    class CreateIndexableNameMediaFile {
+
+        private MediaFile createMediaFile(String name, String sort, String path) {
+            MediaFile mediaFile = new MediaFile();
+            mediaFile.setArtist(name);
+            mediaFile.setArtistSort(sort);
+            mediaFile.setPath(path);
+            return mediaFile;
+        }
+
+        String name = "name";
+        String pathDerived = "root/pathDerived";
+
+        @CreateIndexableNameMediaFileDecisions.Conditions.IndexScheme.WithoutJp
+        @CreateIndexableNameMediaFileDecisions.Result.IndexableName.PathDerived
+        @Test
+        void c01() {
+            Mockito.when(settingsService.getIndexSchemeName())
+                    .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
+            MediaFile mediaFile = createMediaFile(name, null, pathDerived);
+            utils.analyze(mediaFile);
+            assertEquals("pathDerived", utils.createIndexableName(mediaFile));
+        }
+
+        @CreateIndexableNameMediaFileDecisions.Conditions.IndexScheme.NativeJapanese
+        @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.MediaType.NeDirectory
+        @CreateIndexableNameMediaFileDecisions.Result.IndexableName.PathDerived
+        @Test
+        void c02() {
+            MediaFile mediaFile = createMediaFile(name, null, pathDerived);
+            assertEquals("pathDerived", utils.createIndexableName(mediaFile));
+        }
+
+        @CreateIndexableNameMediaFileDecisions.Conditions.IndexScheme.NativeJapanese
+        @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.MediaType.EqDirectory
+        @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.ArtistReading.Empty.True
+        @CreateIndexableNameMediaFileDecisions.Result.IndexableName.PathDerived
+        @Test
+        void c03() {
+            MediaFile mediaFile = createMediaFile(name, null, pathDerived);
+            mediaFile.setMediaType(MediaType.DIRECTORY);
+            assertNull(mediaFile.getArtistReading());
+            assertEquals("pathDerived", utils.createIndexableName(mediaFile));
+        }
+
+        @CreateIndexableNameMediaFileDecisions.Conditions.IndexScheme.NativeJapanese
+        @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.MediaType.EqDirectory
+        @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.ArtistReading.Empty.False.EqName
+        @CreateIndexableNameMediaFileDecisions.Result.IndexableName.PathDerived
+        @Test
+        void c04() {
+            MediaFile mediaFile = createMediaFile("pathDerived", null, pathDerived);
+            mediaFile.setMediaType(MediaType.DIRECTORY);
+            utils.analyze(mediaFile);
+            assertEquals("pathDerived", mediaFile.getArtistReading());
+            assertEquals("pathDerived", utils.createIndexableName(mediaFile));
+        }
+
+        @CreateIndexableNameMediaFileDecisions.Conditions.IndexScheme.NativeJapanese
+        @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.MediaType.EqDirectory
+        @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.ArtistReading.Empty.False.NeName
+        @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.Name.NotJapanese
+        @CreateIndexableNameMediaFileDecisions.Result.IndexableName.PathDerived
+        @Test
+        void c05() {
+            MediaFile mediaFile = createMediaFile(name, "sortTagDerived", pathDerived);
+            mediaFile.setMediaType(MediaType.DIRECTORY);
+            utils.analyze(mediaFile);
+            // assertEquals("sortTagDerived", mediaFile.getArtistReading());
+            assertEquals("pathDerived", utils.createIndexableName(mediaFile));
+        }
+
+        @CreateIndexableNameMediaFileDecisions.Conditions.IndexScheme.NativeJapanese
+        @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.MediaType.EqDirectory
+        @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.ArtistReading.Empty.False.NeName
+        @CreateIndexableNameMediaFileDecisions.Conditions.MediaFile.Name.Japanese
+        @CreateIndexableNameMediaFileDecisions.Result.IndexableName.SortTagDerived
+        @Test
+        void c06() {
+            MediaFile mediaFile = createMediaFile("日本語名", "sortTagDerived", "root/日本語名");
+            mediaFile.setMediaType(MediaType.DIRECTORY);
+            utils.analyze(mediaFile);
+            assertEquals("sortTagDerived", mediaFile.getArtistReading());
+            assertEquals("sortTagDerived", utils.createIndexableName(mediaFile));
         }
     }
 }
