@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 import com.atilika.kuromoji.ipadic.Token;
 import com.atilika.kuromoji.ipadic.Tokenizer;
 import com.ibm.icu.text.Transliterator;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -126,13 +127,17 @@ public class JapaneseReadingUtils {
         return japaneseReading;
     }
 
+    private IndexScheme getIndexScheme() {
+        return IndexScheme.of(settingsService.getIndexSchemeName());
+    }
+
     /**
      * There is no easy way to normalize Japanese words. Uses relatively natural NFKC.
      */
     String normalize(@Nullable String s) {
         if (isEmpty(s)) {
             return null;
-        } else if (IndexScheme.of(settingsService.getIndexSchemeName()) == IndexScheme.WITHOUT_JP_LANG_PROCESSING) {
+        } else if (getIndexScheme() == IndexScheme.WITHOUT_JP_LANG_PROCESSING) {
             return s;
         }
 
@@ -280,13 +285,14 @@ public class JapaneseReadingUtils {
         if (isEmpty(str)) {
             return false;
         }
+        IndexScheme scheme = getIndexScheme();
         return Stream.of(str.split(EMPTY)).anyMatch(s -> {
             Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
             return Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)
                     || Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(b)
                     || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b)
                     || Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION.equals(b)
-                    || settingsService.isReadGreekInJapanese() && Character.UnicodeBlock.GREEK.equals(b);
+                    || scheme == IndexScheme.NATIVE_JAPANESE && Character.UnicodeBlock.GREEK.equals(b);
         });
     }
 
@@ -323,15 +329,15 @@ public class JapaneseReadingUtils {
     }
 
     private String analyzeReading(Token token) {
-
-        if (!settingsService.isReadGreekInJapanese() && Tag.of(token.getPartOfSpeechLevel1()) == Tag.SYMBOL
+        IndexScheme scheme = getIndexScheme();
+        if (scheme != IndexScheme.NATIVE_JAPANESE && Tag.of(token.getPartOfSpeechLevel1()) == Tag.SYMBOL
                 && Tag.of(token.getPartOfSpeechLevel2()) == Tag.ALPHABET) {
             return token.getSurface();
         } else if (KATAKANA.matcher(token.getSurface()).matches() || ALPHA.matcher(token.getSurface()).matches()
                 || ASTER.equals(token.getReading())) {
-            return IndexScheme.of(settingsService.getIndexSchemeName()) == IndexScheme.ROMANIZED_JAPANESE
-                    ? transliterate(ID.TO_LATIN, token.getSurface()) : token.getSurface();
-        } else if (IndexScheme.of(settingsService.getIndexSchemeName()) != IndexScheme.ROMANIZED_JAPANESE) {
+            return scheme == IndexScheme.ROMANIZED_JAPANESE ? transliterate(ID.TO_LATIN, token.getSurface())
+                    : token.getSurface();
+        } else if (scheme != IndexScheme.ROMANIZED_JAPANESE) {
             return token.getReading();
         }
 
@@ -408,8 +414,8 @@ public class JapaneseReadingUtils {
         }
         List<ReadingResult> tokens = tokenizer.tokenize(removeArticles(normalize(line))).stream().map(this::toReading)
                 .collect(Collectors.toList());
-        String reading = IndexScheme.of(settingsService.getIndexSchemeName()) == IndexScheme.ROMANIZED_JAPANESE
-                ? capitalize(tokens) : tokens.stream().map(r -> r.reading).collect(Collectors.joining());
+        String reading = getIndexScheme() == IndexScheme.ROMANIZED_JAPANESE ? capitalize(tokens)
+                : tokens.stream().map(r -> r.reading).collect(Collectors.joining());
         readingMap.put(line, reading);
         return reading;
     }
@@ -419,7 +425,7 @@ public class JapaneseReadingUtils {
         String n = removeArticles(name);
         String s = removeArticles(sort);
         String reading;
-        IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
+        IndexScheme scheme = getIndexScheme();
         if (scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING) {
             reading = defaultIfBlank(s, n);
         } else if (scheme == IndexScheme.ROMANIZED_JAPANESE) {
@@ -433,8 +439,8 @@ public class JapaneseReadingUtils {
 
     public void analyze(@NonNull Genre g) {
         String reading = defaultIfBlank(g.getName(), g.getReading());
-        IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
-        g.setReading(scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING ? reading : createJapaneseReading(reading));
+        g.setReading(
+                getIndexScheme() == IndexScheme.WITHOUT_JP_LANG_PROCESSING ? reading : createJapaneseReading(reading));
     }
 
     /**
@@ -454,8 +460,8 @@ public class JapaneseReadingUtils {
 
     public void analyze(@NonNull Playlist p) {
         String reading = defaultIfBlank(p.getName(), p.getReading());
-        IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
-        p.setReading(scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING ? reading : createJapaneseReading(reading));
+        p.setReading(
+                getIndexScheme() == IndexScheme.WITHOUT_JP_LANG_PROCESSING ? reading : createJapaneseReading(reading));
     }
 
     public void analyze(@NonNull SortCandidate c) {
@@ -472,8 +478,7 @@ public class JapaneseReadingUtils {
      */
     String createIndexableName(@NonNull String value) {
         String indexableName = value;
-        IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
-
+        IndexScheme scheme = getIndexScheme();
         if (scheme == IndexScheme.NATIVE_JAPANESE && value.charAt(0) > WAVY_LINE) {
             indexableName = transliterate(ID.TO_HALFWIDTH, indexableName);
             indexableName = transliterate(ID.TO_KATAKANA, indexableName);
@@ -489,25 +494,24 @@ public class JapaneseReadingUtils {
     }
 
     public String createIndexableName(@NonNull Artist artist) {
-        if (isStartWithAlpha(artist.getName())) {
-            return createIndexableName(artist.getName());
-        } else if (isEmpty(artist.getReading())) {
-            if (isEmpty(artist.getSort())) {
-                return createIndexableName(artist.getName());
-            }
-            return createIndexableName(createJapaneseReading(artist.getSort()));
+        IndexScheme scheme = getIndexScheme();
+        @NonNull
+        String name = artist.getName();
+        if (scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING || isEmpty(artist.getReading())
+                || name.equals(artist.getReading()) || !isJapaneseReadable(name)) {
+            return createIndexableName(name);
         }
         return createIndexableName(artist.getReading());
     }
 
     public String createIndexableName(@NonNull MediaFile artist) {
-        if (isStartWithAlpha(artist.getName())) {
-            return createIndexableName(artist.getName());
-        } else if (isEmpty(artist.getArtistReading())) {
-            if (isEmpty(artist.getArtistSort())) {
-                return createIndexableName(artist.getName());
-            }
-            return createIndexableName(createJapaneseReading(artist.getArtistSort()));
+        IndexScheme scheme = getIndexScheme();
+        @NonNull
+        String name = artist.getName();
+        if (scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING || artist.getMediaType() != MediaType.DIRECTORY
+                || isEmpty(artist.getArtistReading()) || name.equals(artist.getArtistReading())
+                || !isJapaneseReadable(name)) {
+            return createIndexableName(name);
         }
         return createIndexableName(artist.getArtistReading());
     }

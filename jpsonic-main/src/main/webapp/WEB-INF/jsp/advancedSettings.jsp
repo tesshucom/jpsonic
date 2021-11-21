@@ -248,13 +248,6 @@ document.addEventListener('DOMContentLoaded', function () {
                                 checked="${indexScheme eq command.indexScheme.name() ? 'checked' : ''}"/>
                             <label for="radio1-${status.count}"><fmt:message key="advancedsettings.indexscheme.${fn:toLowerCase(indexScheme)}"/></label>
                             <c:import url="helpToolTip.jsp"><c:param name="topic" value="${fn:toLowerCase(indexScheme)}" /></c:import>
-                            <c:if test='${"NATIVE_JAPANESE" eq indexScheme}'>
-                                <li class="subItem">
-                                    <form:checkbox path="readGreekInJapanese" id="readGreekInJapanese" cssClass="checkbox"/>
-                                    <label for="readGreekInJapanese"><fmt:message key="advancedsettings.readgreekinjapanese"/></label>
-                                    <c:import url="helpToolTip.jsp"><c:param name="topic" value="readgreekinjapanese"/></c:import>
-                                </li>
-                            </c:if>
                             <c:if test='${"ROMANIZED_JAPANESE" eq indexScheme}'>
                                 <li class="subItem">
                                     <form:checkbox path="forceInternalValueInsteadOfTags" id="forceInternalValueInsteadOfTags" cssClass="checkbox"/>

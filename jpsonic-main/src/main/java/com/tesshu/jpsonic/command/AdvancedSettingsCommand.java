@@ -66,7 +66,6 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
 
     // Danger Zone
     private IndexScheme indexScheme;
-    private boolean readGreekInJapanese;
     private boolean forceInternalValueInsteadOfTags;
 
     public boolean isVerboseLogStart() {
@@ -259,14 +258,6 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
 
     public void setIndexScheme(IndexScheme indexScheme) {
         this.indexScheme = indexScheme;
-    }
-
-    public boolean isReadGreekInJapanese() {
-        return readGreekInJapanese;
-    }
-
-    public void setReadGreekInJapanese(boolean readGreekInJapanese) {
-        this.readGreekInJapanese = readGreekInJapanese;
     }
 
     public boolean isForceInternalValueInsteadOfTags() {

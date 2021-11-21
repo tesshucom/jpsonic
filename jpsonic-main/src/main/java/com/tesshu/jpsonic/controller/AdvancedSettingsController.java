@@ -104,7 +104,6 @@ public class AdvancedSettingsController {
 
         // Danger Zone
         command.setIndexScheme(IndexScheme.valueOf(settingsService.getIndexSchemeName()));
-        command.setReadGreekInJapanese(settingsService.isReadGreekInJapanese());
         command.setForceInternalValueInsteadOfTags(settingsService.isForceInternalValueInsteadOfTags());
 
         // for view page control
@@ -180,10 +179,10 @@ public class AdvancedSettingsController {
     }
 
     private void setDangerZone(AdvancedSettingsCommand command) {
+
         IndexScheme scheme = command.getIndexScheme();
-        boolean changed = scheme != IndexScheme.valueOf(settingsService.getIndexSchemeName())
-                || scheme == IndexScheme.NATIVE_JAPANESE
-                        && settingsService.isReadGreekInJapanese() != command.isReadGreekInJapanese();
+        boolean changed = scheme != IndexScheme.valueOf(settingsService.getIndexSchemeName());
+
         if (!changed) {
             return;
         }
@@ -192,17 +191,14 @@ public class AdvancedSettingsController {
         settingsService.setIndexSchemeName(scheme.name());
 
         if (scheme == IndexScheme.NATIVE_JAPANESE) {
-            settingsService.setReadGreekInJapanese(command.isReadGreekInJapanese());
             settingsService.setForceInternalValueInsteadOfTags(false);
             settingsService.setDeleteDiacritic(true);
             settingsService.setIgnoreFullWidth(true);
         } else if (scheme == IndexScheme.ROMANIZED_JAPANESE) {
-            settingsService.setReadGreekInJapanese(false);
             settingsService.setForceInternalValueInsteadOfTags(command.isForceInternalValueInsteadOfTags());
             settingsService.setDeleteDiacritic(false);
             settingsService.setIgnoreFullWidth(true);
         } else {
-            settingsService.setReadGreekInJapanese(false);
             settingsService.setForceInternalValueInsteadOfTags(false);
             settingsService.setDeleteDiacritic(false);
             settingsService.setIgnoreFullWidth(false);
