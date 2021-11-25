@@ -1256,20 +1256,20 @@ class TranscodingServiceTest {
         @Order(23)
         void testCB3() throws ExecutionException {
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setBitRate(940);
+            mediaFile.setBitRate(5000);
             mediaFile.setVariableBitRate(false);
 
-            assertEquals(940, transcodingService.createBitrate(mediaFile));
+            assertEquals(5000, transcodingService.createBitrate(mediaFile));
         }
 
         @Test
         @Order(24)
         void testCB4() throws ExecutionException {
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setBitRate(940);
+            mediaFile.setBitRate(950);
             mediaFile.setVariableBitRate(true);
 
-            assertEquals(1128, transcodingService.createBitrate(mediaFile));
+            assertEquals(1411, transcodingService.createBitrate(mediaFile));
         }
 
         @Test

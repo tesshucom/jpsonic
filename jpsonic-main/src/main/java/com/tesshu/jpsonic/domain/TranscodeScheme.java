@@ -21,6 +21,10 @@
 
 package com.tesshu.jpsonic.domain;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -31,7 +35,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 public enum TranscodeScheme {
 
-    OFF(0), MAX_128(128), MAX_256(256), MAX_320(320);
+    MAX_128(128), MAX_256(256), MAX_320(320), MAX_1411(1_411), OFF(0);
 
     private final int maxBitRate;
 
@@ -77,6 +81,14 @@ public enum TranscodeScheme {
     public String toString() {
         if (this == OFF) {
             return "No limit";
+        } else if (this == MAX_128) {
+            return getMaxBitRate() + " Kbps";
+        } else if (this == MAX_256) {
+            return getMaxBitRate() + " Kbps";
+        } else if (this == MAX_320) {
+            return getMaxBitRate() + " Kbps (Maximum for MP3)";
+        } else if (this == MAX_1411) {
+            return getMaxBitRate() + " Kbps (Uncompressed CD)";
         }
         return getMaxBitRate() + " Kbps";
     }
@@ -96,12 +108,17 @@ public enum TranscodeScheme {
             return MAX_256;
         } else if (MAX_320.name().equals(schemeName)) {
             return MAX_320;
+        } else if (MAX_1411.name().equals(schemeName)) {
+            return MAX_1411;
         }
         return OFF;
     }
 
     public static @Nullable TranscodeScheme fromMaxBitRate(int maxBitRate) {
-        for (TranscodeScheme transcodeScheme : TranscodeScheme.values()) {
+        List<TranscodeScheme> sorted = Arrays.stream(TranscodeScheme.values()).sorted((a, b) -> {
+            return Integer.compare(a.getMaxBitRate(), b.getMaxBitRate());
+        }).collect(Collectors.toList());
+        for (TranscodeScheme transcodeScheme : sorted) {
             if (maxBitRate <= transcodeScheme.getMaxBitRate()) {
                 return transcodeScheme;
             }
