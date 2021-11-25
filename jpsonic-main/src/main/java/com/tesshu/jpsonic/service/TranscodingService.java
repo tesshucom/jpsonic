@@ -546,10 +546,10 @@ public class TranscodingService {
         final TranscodeScheme transcodeScheme = getTranscodeScheme(playerForTranscode)
                 .strictest(TranscodeScheme.fromMaxBitRate(
                         maxBitRate == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate()) : maxBitRate));
-        final int bitRate = createBitrate(mediaFile);
-        final int mb = createMaxBitrate(transcodeScheme, mediaFile, bitRate);
         final boolean hls = videoTranscodingSettings != null && videoTranscodingSettings.isHls();
         final Transcoding transcoding = getTranscoding(mediaFile, playerForTranscode, preferredTargetFormat, hls);
+        final int bitRate = createBitrate(mediaFile, transcoding);
+        final int mb = createMaxBitrate(transcodeScheme, mediaFile, bitRate);
 
         Parameters parameters = new Parameters(mediaFile, videoTranscodingSettings);
         if (isNeedTranscoding(transcoding, mb, bitRate, preferredTargetFormat, mediaFile)) {
@@ -575,12 +575,13 @@ public class TranscodingService {
         return player.getTranscodeScheme();
     }
 
-    int createBitrate(@NonNull MediaFile mediaFile) {
+    int createBitrate(@NonNull MediaFile mediaFile, @Nullable Transcoding transcoding) {
         // If null assume unlimited bitrate
         int bitRate = mediaFile.getBitRate() == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate())
                 : mediaFile.getBitRate();
         if (!mediaFile.isVideo()) {
-            if (mediaFile.isVariableBitRate()) {
+            if (mediaFile.isVariableBitRate() && transcoding == null
+                    || transcoding != null && !"flac".equalsIgnoreCase(transcoding.getTargetFormat())) {
                 // Assume VBR needs approx 20% more bandwidth to maintain equivalent quality in CBR
                 bitRate = bitRate * 6 / 5;
             }

@@ -1239,7 +1239,7 @@ class TranscodingServiceTest {
             mediaFile.setMediaType(MediaType.VIDEO);
             mediaFile.setBitRate(128);
 
-            assertEquals(128, transcodingService.createBitrate(mediaFile));
+            assertEquals(128, transcodingService.createBitrate(mediaFile, null));
         }
 
         @Test
@@ -1249,7 +1249,7 @@ class TranscodingServiceTest {
             mediaFile.setMediaType(MediaType.VIDEO);
             mediaFile.setBitRate(1024);
 
-            assertEquals(1024, transcodingService.createBitrate(mediaFile));
+            assertEquals(1024, transcodingService.createBitrate(mediaFile, null));
         }
 
         @Test
@@ -1259,7 +1259,7 @@ class TranscodingServiceTest {
             mediaFile.setBitRate(5000);
             mediaFile.setVariableBitRate(false);
 
-            assertEquals(5000, transcodingService.createBitrate(mediaFile));
+            assertEquals(5000, transcodingService.createBitrate(mediaFile, null));
         }
 
         @Test
@@ -1269,7 +1269,7 @@ class TranscodingServiceTest {
             mediaFile.setBitRate(950);
             mediaFile.setVariableBitRate(true);
 
-            assertEquals(1411, transcodingService.createBitrate(mediaFile));
+            assertEquals(1411, transcodingService.createBitrate(mediaFile, null));
         }
 
         @Test
@@ -1279,7 +1279,17 @@ class TranscodingServiceTest {
             mediaFile.setBitRate(128);
             mediaFile.setVariableBitRate(true);
 
-            assertEquals(256, transcodingService.createBitrate(mediaFile));
+            assertEquals(256, transcodingService.createBitrate(mediaFile, null));
+        }
+
+        @Test
+        @Order(26)
+        void testCB6() throws ExecutionException {
+            MediaFile mediaFile = new MediaFile();
+            mediaFile.setBitRate(128);
+            mediaFile.setVariableBitRate(true);
+            Transcoding t = new Transcoding(0, fmtFlac, fmtMp3, fmtFlac, fmtFlac, "", null, false);
+            assertEquals(128, transcodingService.createBitrate(mediaFile, t));
         }
 
         @CreateMaxBitrate.Conditions.Mb.Zero
