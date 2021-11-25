@@ -684,6 +684,12 @@ public class TranscodingService {
                     null, null, true);
             break;
 
+        case FLAC:
+            transcoding = new Transcoding(null, Transcodings.FLAC.getName(), "flac", "flac",
+                    "ffmpeg -i %s -map 0:0 -v 0 -sample_fmt s16 -vn -ar 44100 -ac 2 -acodec flac -f flac -", null, null,
+                    false);
+            break;
+
         case FLV:
             transcoding = new Transcoding(null, Transcodings.FLV.getName(),
                     "avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts", "flv",
@@ -718,7 +724,9 @@ public class TranscodingService {
         for (Player player : playerService.getAllPlayers()) {
             List<Transcoding> transcodings = getTranscodingsForPlayer(player).stream()
                     .filter(t -> !transcode.getName().equals(t.getName())).collect(Collectors.toList());
-            transcodings.add(transcoding);
+            if (transcoding.isDefaultActive()) {
+                transcodings.add(transcoding);
+            }
             setTranscodingsForPlayer(player, transcodings);
         }
 
