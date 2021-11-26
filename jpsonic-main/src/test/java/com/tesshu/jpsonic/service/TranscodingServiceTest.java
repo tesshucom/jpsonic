@@ -1239,7 +1239,7 @@ class TranscodingServiceTest {
             mediaFile.setMediaType(MediaType.VIDEO);
             mediaFile.setBitRate(128);
 
-            assertEquals(128, transcodingService.createBitrate(mediaFile));
+            assertEquals(128, transcodingService.createBitrate(mediaFile, null));
         }
 
         @Test
@@ -1249,27 +1249,27 @@ class TranscodingServiceTest {
             mediaFile.setMediaType(MediaType.VIDEO);
             mediaFile.setBitRate(1024);
 
-            assertEquals(1024, transcodingService.createBitrate(mediaFile));
+            assertEquals(1024, transcodingService.createBitrate(mediaFile, null));
         }
 
         @Test
         @Order(23)
         void testCB3() throws ExecutionException {
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setBitRate(940);
+            mediaFile.setBitRate(5000);
             mediaFile.setVariableBitRate(false);
 
-            assertEquals(940, transcodingService.createBitrate(mediaFile));
+            assertEquals(5000, transcodingService.createBitrate(mediaFile, null));
         }
 
         @Test
         @Order(24)
         void testCB4() throws ExecutionException {
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setBitRate(940);
+            mediaFile.setBitRate(950);
             mediaFile.setVariableBitRate(true);
 
-            assertEquals(1128, transcodingService.createBitrate(mediaFile));
+            assertEquals(1411, transcodingService.createBitrate(mediaFile, null));
         }
 
         @Test
@@ -1279,7 +1279,17 @@ class TranscodingServiceTest {
             mediaFile.setBitRate(128);
             mediaFile.setVariableBitRate(true);
 
-            assertEquals(256, transcodingService.createBitrate(mediaFile));
+            assertEquals(256, transcodingService.createBitrate(mediaFile, null));
+        }
+
+        @Test
+        @Order(26)
+        void testCB6() throws ExecutionException {
+            MediaFile mediaFile = new MediaFile();
+            mediaFile.setBitRate(128);
+            mediaFile.setVariableBitRate(true);
+            Transcoding t = new Transcoding(0, fmtFlac, fmtMp3, fmtFlac, fmtFlac, "", null, false);
+            assertEquals(128, transcodingService.createBitrate(mediaFile, t));
         }
 
         @CreateMaxBitrate.Conditions.Mb.Zero
@@ -1451,9 +1461,11 @@ class TranscodingServiceTest {
     }
 
     @Nested
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     class RestoreTranscodingTest {
 
         @Test
+        @Order(1)
         void testNullParam() {
             transcodingService.restoreTranscoding(null, false);
             Mockito.verify(transcodingDao, Mockito.never()).createTranscoding(Mockito.nullable(Transcoding.class));
@@ -1463,6 +1475,7 @@ class TranscodingServiceTest {
         }
 
         @Test
+        @Order(2)
         void testRestoreMp3() {
 
             int createdMp3Id = 999;
@@ -1487,6 +1500,7 @@ class TranscodingServiceTest {
         }
 
         @Test
+        @Order(3)
         void testAddTag() {
             ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
             Mockito.when(transcodingDao.createTranscoding(transcodingCaptor.capture())).thenReturn(0);
@@ -1503,6 +1517,7 @@ class TranscodingServiceTest {
         }
 
         @Test
+        @Order(4)
         void testRestoreFlv() {
             ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
             transcodingService.restoreTranscoding(Transcodings.FLV, false);
@@ -1515,6 +1530,7 @@ class TranscodingServiceTest {
         }
 
         @Test
+        @Order(5)
         void testRestoreMkv() {
             ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
             transcodingService.restoreTranscoding(Transcodings.MKV, false);
@@ -1527,6 +1543,7 @@ class TranscodingServiceTest {
         }
 
         @Test
+        @Order(6)
         void testRestoreMp4() {
             ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
             transcodingService.restoreTranscoding(Transcodings.MP4, false);
@@ -1539,6 +1556,7 @@ class TranscodingServiceTest {
         }
 
         @Test
+        @Order(7)
         void testSwap() {
             int player1Id = mockPlayerId;
             Player player1 = new Player();
@@ -1554,10 +1572,10 @@ class TranscodingServiceTest {
 
             int mp3Id = 1;
             Transcoding mp3 = new Transcoding(mp3Id, Transcodings.MP3.getName(), null, null, fakePath, null, null,
-                    false);
+                    true);
             int flvId = 2;
             Transcoding flv = new Transcoding(flvId, Transcodings.FLV.getName(), null, null, fakePath, null, null,
-                    false);
+                    true);
 
             Mockito.when(playerService.getAllPlayers()).thenReturn(Arrays.asList(player1, player2, player3));
             Mockito.when(transcodingDao.getTranscodingsForPlayer(player1Id)).thenReturn(Arrays.asList(mp3)); // mp3
@@ -1567,7 +1585,7 @@ class TranscodingServiceTest {
             int createdMp3Id = 999;
             Mockito.when(transcodingDao.createTranscoding(Mockito.any(Transcoding.class))).thenReturn(createdMp3Id);
             Transcoding created = new Transcoding(createdMp3Id, Transcodings.MP3.getName(), null, null, fakePath, null,
-                    null, false);
+                    null, true);
             List<Transcoding> defaulTranscodings = transcodingDao.getAllTranscodings();
             Mockito.clearInvocations(transcodingDao);
             List<Transcoding> transcodings = new ArrayList<>(defaulTranscodings);
@@ -1613,5 +1631,35 @@ class TranscodingServiceTest {
             // Delete old transcode with the same name
             assertEquals(toBeDeletedId, deletedIdCaptor.getValue());
         }
+
+        @Test
+        @Order(6)
+        void testRestoreFlac() {
+
+            int player1Id = mockPlayerId;
+            Player player1 = new Player();
+            player1.setId(player1Id);
+            Mockito.when(playerService.getAllPlayers()).thenReturn(Arrays.asList(player1));
+
+            ArgumentCaptor<Transcoding> transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
+            transcodingService.restoreTranscoding(Transcodings.FLAC, false);
+
+            Mockito.verify(transcodingDao, Mockito.times(1)).createTranscoding(transcodingCaptor.capture());
+            assertEquals(Transcodings.FLAC.getName(), transcodingCaptor.getValue().getName());
+            Mockito.verify(transcodingDao, Mockito.times(2)).getAllTranscodings();
+            Mockito.verify(playerDao, Mockito.times(1)).getAllPlayers();
+
+            // This transcoding is rewstore only. Not registered in DB at the time of installation.
+            Mockito.verify(transcodingDao, Mockito.never()).deleteTranscoding(Mockito.anyInt());
+
+            // This transcoding is registered in the DB at restore, but is not enabled for existing players.
+            // (Not active by default)
+            ArgumentCaptor<int[]> transcodingIdsCaptor = ArgumentCaptor.forClass(int[].class);
+            Mockito.verify(transcodingDao, Mockito.times(1)).setTranscodingsForPlayer(Mockito.any(Integer.class),
+                    transcodingIdsCaptor.capture());
+            assertEquals(1, transcodingIdsCaptor.getAllValues().size());
+            Assertions.assertNotEquals(transcodingCaptor.getValue().getId(), transcodingIdsCaptor.getValue());
+        }
+
     }
 }
