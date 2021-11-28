@@ -16,7 +16,7 @@ Jpsonic
 What is Jpsonic?
 -----------------
 
-Jpsonic is a free, web-based media streamer, an [Airsonic](https://github.com/airsonic/airsonic) Clone.
+Jpsonic is a free, web-based media streamer, an [Airsonic](https://github.com/airsonic/airsonic) Clone. Most media servers have difficulty managing Japanese songs. To solve this, Development of Jpsonic has started.
 
 <table>
 <tr>
@@ -35,65 +35,67 @@ Jpsonic is a free, web-based media streamer, an [Airsonic](https://github.com/ai
 </tr>
 </table>
 
+Since v110.2.0, conversion for Romanized Japanese has been supported to make it easier for non-native Japanese people to handle Japanese. And it is also possible to bypass Japanese processing and use it like a general Subdonic server.
+
 Features
 -----------------
 
-<details>
-<summary>Enhanced meta processing</summary>
+#### Evolved meta processing
 
-To process Japanese well on a machine requires quite complicated mechanism.
-The index, sort, and search features of Jpsonic have been replaced with more accurate and reliable processing than Subsonic and Airsonic.
-It's not just a fix that is useful only to Japanese people.
-It will be further improved in the future, and Japanese index feature for overseas users will be added.
+It supports standard tags, and the SONY/APPLE specifications that take into account global multilingual support are used as a reference.
+To process Japanese well on a machine requires quite complicated mechanism. The index, sort, and search features of Jpsonic have been replaced with more accurate and reliable processing than Subsonic and Airsonic. Some distinctive features have been added.
 
-</details>
+ - Advanced sort tag support. In particular, artist names are automatically merged and copied, ensuring that the name and the reading correspondence is the only pair in the server. If the sort tag corresponding to Japanese is not registered, the analysis engine performs complementary processing. This guarantees the accuracy of sorting and can handle some dirty data. Regardless of Japanese, it is very advantageous for managing songs using sort tags.
+ - In the case of Chinese character competitors such as Chinese, coexistence is expected by using pinyin, etc.
+ - Jpsonic search covers the artist name sort-tag in addition to the regular fields. You can use apps that support server side search and use speech recognition, such as [Subsonic Music Streamer](https://play.google.com/store/apps/details?id=net.sourceforge.subsonic.androidapp&hl=ja&gl=US) and [BubbleUPnP](https://play.google.com/store/apps/details?id=com.bubblesoft.android.bubbleupnp&hl=en) .
 
-<details>
-<summary>General ID3 tags are supported</summary>
+#### Reimplemented DLNA features
 
-It supports standard tags, and the SONY/APPLE specifications are used as a reference.
-The reason Jpsonic refers to the SONY/APPLE specification is that their specifications take into account global multilingual support.
-Also supports multiple genres.
+DLNA (UPnP) and OpenHome is mainstream technology in Japanese typical household. For this reason, many new features have been added to Jpsonic. And stream and transcoding bug fixes have been made to make it easier to control performance in the high resolution band.
 
-|tag name |tag id|Subsonic/Airsonic |Jpsonic |Music Center (SONY) |itunes (APPLE)
-|:---|:---|:---:|:---:|:---:|:---:|
-|title |TIT2 |● |● |● |●
-|title sort|TSOT | |● |● |●
-|artist|TPE1 |● |● |● |●
-|artist sort|TSOP | |● |● |●
-|album |TALB |● |● |● |●
-|album sort|TSOA | |● |● |●
-|album artist|TPE2 |● |● |● |●
-|album artist sort|TSO2 | |● |● |●
-|genre|TCON |● |● |● |●
-|Release year|TYER |● |● |● |●
-|composer|TCOM | |● |● |●
-|composer sort|TSOC | |● | |●
-|track no|TRCK |● |● |● |●
-|disk no|TPOS |● |● |● |●
+#### The client apps had used for the operation check
 
-</details>
+Indicates whether the feature is available when using a typical traditional application. Applications other than those listed here can also be used.
 
-<details>
-<summary>Reimplemented DLNA features</summary>
+[Apps]
+No | App Name | Platform | Protocol
+-- | -- | -- | -- 
+A | [Subsonic Music Streamer](https://play.google.com/store/apps/details?id=net.sourceforge.subsonic.androidapp) | Android | Subsonic API
+B | [BubbleUPnP for DLNA / Chromecast / Smart TV](https://play.google.com/store/apps/details?id=com.bubblesoft.android.bubbleupnp) | Android | UPnP
+C | [MediaMonkey](https://play.google.com/store/apps/details?id=com.ventismedia.android.mediamonkey) | Android | UPnP
+D | [foobar2000](https://play.google.com/store/apps/details?id=com.foobar2000.foobar2000) | Android | UPnP
+E | [MediaMonkey 5](https://www.mediamonkey.com/) | Windows10 | UPnP
+F | [foobar2000](https://www.foobar2000.org/) | Windows10 | UPnP
 
-DLNA (UPnP) and OpenHome is mainstream technology in Japanese typical household.
-For this reason, many new features have been added to Jpsonic.
-Many display variations can be selected as options.
-You can specify the Music Folder to be published.
-It also runs faster than Subsonic and Airsonic.
+[Main cooperation features]
+No | Features | Perspective
+-- | -- | --
+1 | FLAC playback | Whether it can be played including high-res
+2 | Transcode (to MP3) | Whether stream transcoded from FLAC to MP3 can be played
+3 | Transcode (to CD qual) | Whether resampled stream from high-res FLAC to CD qual can be played
+4 | Sort | Whether client does not destroy the element order by the server by default
+5 | Server-side search | Whether it supports server-side search
+6 | Voice input | Whether it supports server-side search with voice input
+7 | Lazy loading | Whether partial content acquisition is used in UPnP requests
 
-</details>
+[Correspondence situation]
+  | 1 | 2 | 3 | 4 | 5 | 6 | 7
+-- | -- | -- | -- | -- | -- | -- | --
+A | ★ | ★ |   | ★ | ★ | ★ | N
+B | ★ | ★ | ★ | ★ | ★ | ★ | ☆1
+C | ★ | ★ | ★ | ★ |   |   | ☆1
+D | ★ | ☆2 | ★ | ★ |   |   | ☆1
+E | ★ |   |   | ★ |   |   | ☆1
+F | ★ | ★ | ★ |   | ☆3 |   | ☆1
 
-<details>
-<summary>Support for speech recognition</summary>
+☆1 The specified value is different for each client. 
+ - BubbleUPnP/MediaMonkey(Android) : Get the rest after getting the data for view area.
+ - MediaMonkey(Win) : Get data for a specific quantity.
+ - foobar2000 : Get for each fixed number of items, but it may be difficult to obtain benefits due to the large number of items acquired at one time.
 
-The point of Japanese meta processing is the handling of syllables.
-The search feature by speech recognition from applications and browsers is inevitably enhanced.
-Even in languages other than Japanese where syllable processing is difficult, there is a possibility that it can be processed in the same way as Japanese by using sort tags well. You can use apps that support server side search and use speech recognition, such as [Subsonic Music Streamer](https://play.google.com/store/apps/details?id=net.sourceforge.subsonic.androidapp&hl=ja&gl=US) and [BubbleUPnP](https://play.google.com/store/apps/details?id=com.bubblesoft.android.bubbleupnp&hl=en) .
-With a specific browser, voice recognition is possible from a headset connected to a PC.
+☆2 Playback may not be possible if resampling takes a very long time, such as high-resolution classical songs.
 
-</details>
+☆3 Implemented, but Jpsonic doesn't support that query. (Like WMP, a greedy query that searches less common fields)
 
 Usage
 -----

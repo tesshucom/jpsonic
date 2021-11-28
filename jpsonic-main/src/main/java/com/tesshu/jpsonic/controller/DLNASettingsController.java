@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.command.DLNASettingsCommand;
 import com.tesshu.jpsonic.domain.Player;
+import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -198,7 +199,11 @@ public class DLNASettingsController {
         userSettings.setChanged(new Date());
         Player guestPlayer = playerService.getGuestPlayer(null);
         transcodingService.setTranscodingsForPlayer(guestPlayer, command.getActiveTranscodingIds());
-        guestPlayer.setTranscodeScheme(command.getTranscodeScheme());
+        if (command.getActiveTranscodingIds().length == 0) {
+            guestPlayer.setTranscodeScheme(TranscodeScheme.OFF);
+        } else {
+            guestPlayer.setTranscodeScheme(command.getTranscodeScheme());
+        }
         playerService.updatePlayer(guestPlayer);
 
         // If some properties are changed, UPnP will be started, stopped and restarted.

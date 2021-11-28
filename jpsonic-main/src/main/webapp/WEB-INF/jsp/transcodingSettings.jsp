@@ -148,6 +148,12 @@ document.addEventListener('DOMContentLoaded', function () {
             <strong><fmt:message key="transcodingsettings.notranscoder"/></strong>
         </c:if>
 
+        <c:if test="${model.showOutlineHelp}">
+            <div class="outlineHelp">
+                <fmt:message key="transcodingsettings.restoreoutline"/>
+            </div>
+        </c:if>
+
         <dl>
             <dt><fmt:message key="transcodingsettings.restored"/></dt>
             <dd>
