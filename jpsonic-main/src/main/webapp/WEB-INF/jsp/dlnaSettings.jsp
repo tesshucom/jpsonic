@@ -33,7 +33,7 @@
 
     function resetBasicSettings() {
         Array.from(document.getElementsByName('allowedMusicFolderIds')).forEach(a => a.checked = true);
-        $('[name="transcodeScheme"]').prop("selectedIndex", 0);
+        $('[name="transcodeScheme"]').prop("selectedIndex", 4);
         Array.from(document.getElementsByName('activeTranscodingIds')).forEach(a => a.checked = false);
         document.getElementsByName('uriWithFileExtensions')[0].checked = true;
         checkBitrateAvailability();

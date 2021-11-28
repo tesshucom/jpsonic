@@ -31,6 +31,8 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.command.DLNASettingsCommand;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.Player;
+import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.ApacheCommonsConfigurationService;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -61,6 +63,7 @@ class DLNASettingsControllerTest {
 
     private SettingsService settingsService;
     private MusicFolderService musicFolderService;
+    private PlayerService playerService;
     private UPnPService upnpService;
     private DLNASettingsController controller;
     private MockMvc mockMvc;
@@ -71,9 +74,10 @@ class DLNASettingsControllerTest {
         UPnPSubnet uPnPSubnet = mock(UPnPSubnet.class);
         settingsService = new SettingsService(configurationService, uPnPSubnet);
         musicFolderService = mock(MusicFolderService.class);
+        playerService = mock(PlayerService.class);
         upnpService = mock(UPnPService.class);
         controller = new DLNASettingsController(settingsService, musicFolderService, mock(SecurityService.class),
-                mock(PlayerService.class), mock(TranscodingService.class), upnpService, mock(ShareService.class),
+                playerService, mock(TranscodingService.class), upnpService, mock(ShareService.class),
                 mock(OutlineHelpSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
@@ -111,6 +115,20 @@ class DLNASettingsControllerTest {
                 .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.DLNA_SETTINGS.value()))
                 .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
         assertNotNull(result);
+    }
+
+    /*
+     * Register OFF to scheme if all Transcoding is disabled. If not, register the input value.
+     */
+    @Test
+    void testTranscoding() throws Exception {
+        DLNASettingsCommand command = new DLNASettingsCommand();
+        command.setActiveTranscodingIds(0);
+        command.setTranscodeScheme(TranscodeScheme.MAX_1411);
+        ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
+        controller.post(command, Mockito.mock(RedirectAttributes.class));
+        Mockito.verify(playerService, Mockito.times(1)).updatePlayer(playerCaptor.capture());
+        assertEquals(TranscodeScheme.MAX_1411, playerCaptor.getValue().getTranscodeScheme());
     }
 
     @Test
