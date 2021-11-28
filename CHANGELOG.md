@@ -3,9 +3,7 @@
 # jpsonic/jpsonic
 # -->
 
-## v110.2.0 (SNAPSHOT)
-
-The binaries of SNAPSHOT are available from the latest artifacts on the [master branch](https://github.com/tesshucom/jpsonic/actions?query=branch%3Amaster) .
+## v110.2.0
 
 #### Enhancement
   * Delete shoutcast ([#1201](https://github.com/tesshucom/jpsonic/issues/1201))
