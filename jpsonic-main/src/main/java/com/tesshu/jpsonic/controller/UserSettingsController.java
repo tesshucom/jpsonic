@@ -110,6 +110,7 @@ public class UserSettingsController {
                 command.setNewUser(true);
                 command.setStreamRole(true);
                 command.setSettingsRole(true);
+                command.setTranscodeScheme(TranscodeScheme.OFF);
             } else {
                 // User update
                 command.setUser(user);
