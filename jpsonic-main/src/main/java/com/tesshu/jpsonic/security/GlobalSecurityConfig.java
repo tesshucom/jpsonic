@@ -23,9 +23,12 @@ package com.tesshu.jpsonic.security;
 
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
+
+import javax.servlet.SessionTrackingMode;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.service.JWTSecurityService;
@@ -37,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -138,6 +142,11 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
         passworEncoder.setDefaultPasswordEncoderForMatches(defaultEncoder);
 
         return passworEncoder;
+    }
+
+    @Bean
+    public ServletContextInitializer servletContextInitializer() {
+        return context -> context.setSessionTrackingModes(EnumSet.of(SessionTrackingMode.COOKIE));
     }
 
     @Configuration
