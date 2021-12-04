@@ -3,7 +3,15 @@
 # jpsonic/jpsonic
 # -->
 
-## v110.2.0
+## v110.2.0 (SNAPSHOT)
+
+The binaries of SNAPSHOT are available from the latest artifacts on the [master branch](https://github.com/tesshucom/jpsonic/actions?query=branch%3Amaster) .
+
+#### Enhancement
+  * Bump Spring Boot from 2.5.7 to 2.6.1 ([#1274](https://github.com/tesshucom/jpsonic/issues/1274))
+
+<details>
+<summary>v110.2.0</summary>
 
 #### Enhancement
   * Delete shoutcast ([#1201](https://github.com/tesshucom/jpsonic/issues/1201))
@@ -18,6 +26,7 @@
   * Fix to reply with the appropriate content type ([#1206](https://github.com/tesshucom/jpsonic/issues/1206))
   * Fix bug that automatic scanning did not start ([#1208](https://github.com/tesshucom/jpsonic/issues/1208))
 
+</details>
 <details>
 <summary>v110.1.0</summary>
 
