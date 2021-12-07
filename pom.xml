@@ -374,7 +374,11 @@
                 <artifactId>apache-jsp</artifactId>
                 <version>${jetty-jsp.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.hsqldb</groupId>
+                <artifactId>hsqldb</artifactId>
+                <version>2.6.1</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
