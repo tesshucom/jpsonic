@@ -738,6 +738,11 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.gavinmogan</groupId>
+                <artifactId>codacy-maven-plugin</artifactId>
+                <version>1.2.0</version>
+            </plugin>
         </plugins>
     </build>
 
@@ -852,7 +857,6 @@
                     <plugin>
                         <groupId>com.gavinmogan</groupId>
                         <artifactId>codacy-maven-plugin</artifactId>
-                        <version>1.2.0</version>
                         <configuration>
                             <apiToken>${env.CODACY_PROJECT_TOKEN}</apiToken>
                             <projectToken>${env.CODACY_PROJECT_TOKEN}</projectToken>
