@@ -154,6 +154,17 @@
             <dropTable tableName="custom_avatar" />
         </rollback>
     </changeSet>
+    <changeSet id="schema35_006_alter_binary_size" author="tesshucom" dbms="hsqldb">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="custom_avatar" />
+        </preConditions>
+        <!-- For hsqldb 2.6.1 and above. Insert is now rejected if data size is not specified. in jpsonic/#1145 -->
+        <modifyDataType
+            tableName="system_avatar"
+            columnName="data"
+            newDataType="binary(5930)"/>
+        <rollback></rollback>
+    </changeSet>
     <changeSet id="schema35_007" author="muff1nman">
         <validCheckSum>8:653b5e40160877def2fe855b03f8ed42</validCheckSum>
         <preConditions onFail="MARK_RAN">
