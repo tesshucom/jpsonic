@@ -206,11 +206,10 @@ public class Application extends SpringBootServletInitializer
     }
 
     private static SpringApplicationBuilder doConfigure(SpringApplicationBuilder application) {
-        // Handle HSQLDB database upgrades from 1.8 to 2.x before any beans are started.
         application.application().addListeners((ApplicationListener<ApplicationPreparedEvent>) event -> {
             if (event.getApplicationContext().getEnvironment()
                     .acceptsProfiles(Profiles.of(ProfileNameConstants.LEGACY))) {
-                LegacyHsqlUtil.upgradeHsqldbDatabaseSafely();
+                LegacyHsqlUtil.checkHsqldbDatabaseVersion();
             }
         });
 

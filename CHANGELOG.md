@@ -3,12 +3,13 @@
 # jpsonic/jpsonic
 # -->
 
-## v110.2.0 (SNAPSHOT)
+## v111.0.0 (SNAPSHOT)
 
 The binaries of SNAPSHOT are available from the latest artifacts on the [master branch](https://github.com/tesshucom/jpsonic/actions?query=branch%3Amaster) .
 
 #### Enhancement
   * Bump Spring Boot from 2.5.7 to 2.6.1 ([#1274](https://github.com/tesshucom/jpsonic/issues/1274))
+  * Bump HSQLDB from 2.5.0 to 2.6.1 ([#1145](https://github.com/tesshucom/jpsonic/issues/1145))
 
 <details>
 <summary>v110.2.0</summary>
