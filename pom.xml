@@ -20,12 +20,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cxf.version>3.4.5</cxf.version>
         <jackson.version>2.13.0</jackson.version>
-        <tomcat.version>9.0.55</tomcat.version>
+        <tomcat.version>9.0.56</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
         <jetty.version>9.4.44.v20210927</jetty.version>
         <jetty-jsp.version>9.4.44.v20210927</jetty-jsp.version>
         <pmd.version>6.41.0</pmd.version>
-        <log4j.version>2.14.1</log4j.version>
+        <log4j.version>2.15.0</log4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
     </properties>
 
@@ -178,7 +178,7 @@
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
                 <artifactId>ecj</artifactId>
-                <version>3.27.0</version>
+                <version>3.28.0</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -526,7 +526,7 @@
                         <dependency>
                             <groupId>com.github.spotbugs</groupId>
                             <artifactId>spotbugs</artifactId>
-                            <version>4.5.0</version>
+                            <version>4.5.1</version>
                         </dependency>
                     </dependencies>
                 </plugin>

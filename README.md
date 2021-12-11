@@ -55,7 +55,7 @@ DLNA (UPnP) and OpenHome is mainstream technology in Japanese typical household.
 
 #### The client apps had used for the operation check
 
-Indicates whether the feature is available when using a typical traditional application. Applications other than those listed here can also be used.
+Indicates whether the feature is available when using a typical traditional application. Applications other than those listed here can be used, but the realization of comfortable usability also depends on the client implementation.
 
 [Apps]
 No | App Name | Platform | Protocol
@@ -64,8 +64,9 @@ A | [Subsonic Music Streamer](https://play.google.com/store/apps/details?id=net.
 B | [BubbleUPnP for DLNA / Chromecast / Smart TV](https://play.google.com/store/apps/details?id=com.bubblesoft.android.bubbleupnp) | Android | UPnP
 C | [MediaMonkey](https://play.google.com/store/apps/details?id=com.ventismedia.android.mediamonkey) | Android | UPnP
 D | [foobar2000](https://play.google.com/store/apps/details?id=com.foobar2000.foobar2000) | Android | UPnP
-E | [MediaMonkey 5](https://www.mediamonkey.com/) | Windows10 | UPnP
-F | [foobar2000](https://www.foobar2000.org/) | Windows10 | UPnP
+E | [AK Connect 2.0](https://play.google.com/store/apps/details?id=com.iriver.akconnect) | Android | UPnP
+F | [MediaMonkey 5](https://www.mediamonkey.com/) | Windows10 | UPnP
+G | [foobar2000](https://www.foobar2000.org/) | Windows10 | UPnP
 
 [Main cooperation features]
 No | Features | Perspective
@@ -85,17 +86,18 @@ A | ★ | ★ |   | ★ | ★ | ★ | N
 B | ★ | ★ | ★ | ★ | ★ | ★ | ☆1
 C | ★ | ★ | ★ | ★ |   |   | ☆1
 D | ★ | ☆2 | ★ | ★ |   |   | ☆1
-E | ★ |   |   | ★ |   |   | ☆1
-F | ★ | ★ | ★ |   | ☆3 |   | ☆1
+E | ☆3 | ★ | ★ | ★ | ☆4 |   | N
+F | ★ |   |   | ★ |   |   | ☆1
+G | ★ | ★ | ★ |   | ☆5 |   | ☆1
 
-☆1 The specified value is different for each client. 
- - BubbleUPnP/MediaMonkey(Android) : Get the rest after getting the data for view area.
- - MediaMonkey(Win) : Get data for a specific quantity.
- - foobar2000 : Get for each fixed number of items, but it may be difficult to obtain benefits due to the large number of items acquired at one time.
-
-☆2 Playback may not be possible if resampling takes a very long time, such as high-resolution classical songs.
-
-☆3 Implemented, but Jpsonic doesn't support that query. (Like WMP, a greedy query that searches less common fields)
+ - ☆1 The specified value is different for each client. 
+     - BubbleUPnP/MediaMonkey(Android) : Get the rest after getting the data for view area.
+     - MediaMonkey(Win) : Get data for a specific quantity.
+     - foobar2000 : Get for each fixed number of items, but it may be difficult to obtain benefits due to the large number of items acquired at one time.
+ - ☆2 Playback may not be possible if resampling takes a very long time, such as high-resolution classical songs.
+ - ☆3 High resolution may be difficult.
+ - ☆4 Implemented, but there may be a problem with the client app.
+ - ☆5 Implemented, but Jpsonic doesn't support that query yet.
 
 Usage
 -----
