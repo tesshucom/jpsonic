@@ -188,6 +188,29 @@ public class JMediaFileDao extends AbstractDao {
         return deligate.getMediaFile(path);
     }
 
+    public long countSongs(List<MusicFolder> folders) {
+        if (folders.isEmpty()) {
+            return 0;
+        }
+        Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.MUSIC.name(), "folders",
+                MusicFolder.toPathList(folders));
+        long defaultValue = 0;
+        String sql = "select count(*) from media_file where present and type= :type and folder in(:folders)";
+        List<Long> list = getNamedParameterJdbcTemplate().queryForList(sql, args, Long.class);
+        return list.isEmpty() ? defaultValue : list.get(0) == null ? defaultValue : list.get(0);
+    }
+
+    public List<MediaFile> getSongs(long count, long offset, List<MusicFolder> folders) {
+        if (folders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.MUSIC.name(), "count", count, "offset",
+                offset, "folders", MusicFolder.toPathList(folders));
+        return namedQuery("select " + getQueryColoms()
+                + " from media_file where present and type= :type and folder in(:folders)　order by media_file_order limit :count offset :offset",
+                rowMapper, args);
+    }
+
     public List<MediaFile> getRandomSongsForAlbumArtist(int limit, String albumArtist, List<MusicFolder> musicFolders,
             BiFunction<Integer, Integer, List<Integer>> randomCallback) {
         String type = MediaFile.MediaType.MUSIC.name();

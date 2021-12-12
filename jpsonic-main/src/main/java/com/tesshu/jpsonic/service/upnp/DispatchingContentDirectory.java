@@ -49,6 +49,7 @@ import com.tesshu.jpsonic.service.upnp.processor.RecentAlbumUpnpProcessor;
 import com.tesshu.jpsonic.service.upnp.processor.RootUpnpProcessor;
 import com.tesshu.jpsonic.service.upnp.processor.SongByGenreUpnpProcessor;
 import com.tesshu.jpsonic.service.upnp.processor.UpnpContentProcessor;
+import com.tesshu.jpsonic.service.upnp.processor.WMPProcessor;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.fourthline.cling.support.contentdirectory.ContentDirectoryErrorCode;
@@ -56,6 +57,8 @@ import org.fourthline.cling.support.contentdirectory.ContentDirectoryException;
 import org.fourthline.cling.support.model.BrowseFlag;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.SortCriterion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
@@ -64,6 +67,8 @@ import org.springframework.stereotype.Service;
 @Service
 @DependsOn({ "rootUpnpProcessor", "mediaFileUpnpProcessor" })
 public class DispatchingContentDirectory extends CustomContentDirectory implements UpnpProcessDispatcher {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DispatchingContentDirectory.class);
 
     private static final int COUNT_MAX = 50;
 
@@ -85,6 +90,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     private final RandomSongByArtistUpnpProcessor randomSongByArtistProcessor;
     private final RandomSongByFolderArtistUpnpProcessor randomSongByFolderArtistProcessor;
     private final UPnPSearchCriteriaDirector director;
+    private final WMPProcessor wmpProcessor;
     private final SearchService searchService;
 
     public DispatchingContentDirectory(RootUpnpProcessor rp,
@@ -98,7 +104,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
             @Lazy @Qualifier("randomAlbumUpnpProcessor") RandomAlbumUpnpProcessor randomap,
             @Lazy @Qualifier("randomSongUpnpProcessor") RandomSongUpnpProcessor randomsp,
             @Lazy RandomSongByArtistUpnpProcessor randomsbap, @Lazy RandomSongByFolderArtistUpnpProcessor randomsbfap,
-            UPnPSearchCriteriaDirector cd, SearchService ss) {
+            UPnPSearchCriteriaDirector cd, WMPProcessor wmpp, SearchService ss) {
         super();
         rootProcessor = rp;
         mediaFileProcessor = mfp;
@@ -118,6 +124,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         randomSongByArtistProcessor = randomsbap;
         randomSongByFolderArtistProcessor = randomsbfap;
         director = cd;
+        this.wmpProcessor = wmpp;
         searchService = ss;
     }
 
@@ -166,6 +173,14 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     public BrowseResult search(String containerId, String upnpSearchQuery, String filter, long firstResult,
             long maxResults, SortCriterion[] orderBy) throws ContentDirectoryException {
 
+        // For known filters, delegation processing
+        if (wmpProcessor.isAvailable(filter)) {
+            return wmpProcessor.getBrowseResult(upnpSearchQuery, filter, maxResults, firstResult);
+        } else if (!isEmpty(filter) && LOG.isInfoEnabled()) {
+            LOG.info("An unknown filter was specified. Jpsonic does nothing :{}", filter);
+        }
+
+        // General UPnP search
         int offset = (int) firstResult;
         int count = (int) maxResults;
         if ((offset + count) > COUNT_MAX) {

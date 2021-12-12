@@ -84,6 +84,14 @@ public class JMediaFileService {
         return deligate.getMediaFile(pathName);
     }
 
+    public long countSongs(List<MusicFolder> folders) {
+        return mediaFileDao.countSongs(folders);
+    }
+
+    public List<MediaFile> getSongs(long count, long offset, List<MusicFolder> folders) {
+        return mediaFileDao.getSongs(count, offset, folders);
+    }
+
     public List<MediaFile> getNewestAlbums(int offset, int count, List<MusicFolder> musicFolders) {
         return deligate.getNewestAlbums(offset, count, musicFolders);
     }
