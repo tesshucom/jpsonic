@@ -150,7 +150,7 @@ class WMPProcessorTest {
             int parentId = 200;
             MediaFile parent = new MediaFile();
             parent.setId(parentId);
-            parent.setPath("parentPath");
+            parent.setPath("parentPath2");
             Mockito.when(mediaFileService.getParentOf(m)).thenReturn(parent);
             Mockito.when(mediaFileService.countSongs(Mockito.anyList())).thenReturn(20L);
 
@@ -171,8 +171,46 @@ class WMPProcessorTest {
 
         @Test
         void testVideo() {
-            assertEmpty(wmpProcessor.getBrowseResult(
-                    "upnp:class derivedfrom \"object.item.videoItem\" and @refID exists false", "*", 0, 0));
+            BrowseResult result = wmpProcessor.getBrowseResult(
+                    "upnp:class derivedfrom \"object.item.videoItem\" and @refID exists false", "*", 0, 0);
+            assertEquals("<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\" "
+                    + "xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:sec=\"http://www.sec.co.kr/\" "
+                    + "xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\"/>", result.getResult());
+            assertEquals(0, result.getCount().getValue());
+            assertEquals(0, result.getTotalMatches().getValue());
+
+            Mockito.when(util.getGuestMusicFolders()).thenReturn(Collections.emptyList());
+
+            MediaFile m = new MediaFile();
+            m.setPath("path5");
+            m.setTitle("dummy title");
+            List<MediaFile> songs = Arrays.asList(m);
+            MusicFolder mf = new MusicFolder(0, new File("path6"), "dummy", true, null);
+            List<MusicFolder> folders = Arrays.asList(mf);
+            Mockito.when(util.getGuestMusicFolders()).thenReturn(folders);
+            Mockito.when(mediaFileService.getVideos(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyList()))
+                    .thenReturn(songs);
+            Mockito.when(mediaFileUpnpProcessor.createResourceForSong(m)).thenReturn(null);
+            Mockito.when(mediaFileUpnpProcessor.createAlbumArtURI(m)).thenReturn(null);
+            int parentId = 200;
+            MediaFile parent = new MediaFile();
+            parent.setId(parentId);
+            parent.setPath("parentPath1");
+            Mockito.when(mediaFileService.getParentOf(m)).thenReturn(parent);
+            Mockito.when(mediaFileService.countVideos(Mockito.anyList())).thenReturn(20L);
+
+            result = wmpProcessor.getBrowseResult(
+                    "upnp:class derivedfrom \"object.item.videoItem\" and @refID exists false", "*", 1, 1);
+
+            assertEquals(
+                    "<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" "
+                            + "xmlns:sec=\"http://www.sec.co.kr/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">"
+                            + "<item id=\"0\" parentID=\"200\" restricted=\"1\"><dc:title>dummy title</dc:title>"
+                            + "<upnp:class>object.item.videoItem</upnp:class>" + "<upnp:albumArtURI/>"
+                            + "<dc:description/></item></DIDL-Lite>",
+                    result.getResult());
+            assertEquals(1, result.getCount().getValue());
+            assertEquals(20, result.getTotalMatches().getValue());
         }
 
         @Test
@@ -195,7 +233,7 @@ class WMPProcessorTest {
             int parentId = 200;
             MediaFile parent = new MediaFile();
             parent.setId(parentId);
-            parent.setPath("parentPath");
+            parent.setPath("parentPath4");
             Mockito.when(mediaFileService.getParentOf(m)).thenReturn(parent);
             BrowseResult result = wmpProcessor.getBrowseResult("dc:title = \"99\"", "*", 0, 0);
             assertEquals(

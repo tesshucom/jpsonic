@@ -38,6 +38,7 @@ import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI
 import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.AUTHOR;
 import org.fourthline.cling.support.model.PersonWithRole;
 import org.fourthline.cling.support.model.item.MusicTrack;
+import org.fourthline.cling.support.model.item.VideoItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -138,6 +139,31 @@ public class WMPProcessor {
         return item;
     }
 
+    /*
+     * These specifications depend on the WMP view and UPnP model spec.
+     */
+    VideoItem createVideoItem(MediaFile video) {
+        VideoItem item = new VideoItem();
+        item.setId(String.valueOf(video.getId()));
+        item.setTitle(video.getTitle());
+        item.setResources(Arrays.asList(mediaFileUpnpProcessor.createResourceForSong(video)));
+        item.setDescription(video.getComment());
+
+        MediaFile parent = mediaFileService.getParentOf(video);
+        if (!ObjectUtils.isEmpty(parent)) {
+            item.setParentID(String.valueOf(parent.getId()));
+        }
+        item.addProperty(new ALBUM_ART_URI(mediaFileUpnpProcessor.createAlbumArtURI(parent)));
+        if (video.getGenre() != null) {
+            item.setGenres(new String[] { video.getGenre() });
+        }
+        item.setCreator(video.getArtist());
+        if (video.getComposer() != null) {
+            item.addProperty(new AUTHOR(new PersonWithRole(video.getComposer(), "composer")));
+        }
+        return item;
+    }
+
     @SuppressWarnings("PMD.AvoidCatchingGenericException") // DIDLParser#generate
     private BrowseResult createBrowseResult(DIDLContent didl, int count, int totalMatches) throws ExecutionException {
         String result;
@@ -159,8 +185,29 @@ public class WMPProcessor {
         songs.forEach(song -> didl.addItem(createMusicTrack(song)));
         long total = mediaFileService.countSongs(folders);
         if (LOG.isInfoEnabled() && offset % 1000 == 0 || count != songs.size() || offset + songs.size() == total) {
-            LOG.info(offset + "-" + (offset + songs.size()) + "/" + total + "("
+            LOG.info("[audio] " + offset + "-" + (offset + songs.size()) + "/" + total + "("
                     + Math.round((float) (offset + songs.size()) / (float) total * 100) + "%)");
+        }
+        try {
+            return createBrowseResult(didl, (int) didl.getCount(), (int) total);
+        } catch (ExecutionException e) {
+            ConcurrentUtils.handleCauseUnchecked(e);
+            return EMPTY;
+        }
+    }
+
+    private BrowseResult createVideoItemBrowseResult(long count, long offset) {
+        if (offset == 0) {
+            LOG.info("object.item.videoItem data crawling started.");
+        }
+        List<MusicFolder> folders = util.getGuestMusicFolders();
+        List<MediaFile> videos = mediaFileService.getVideos(count, offset, folders);
+        DIDLContent didl = new DIDLContent();
+        videos.forEach(video -> didl.addItem(createVideoItem(video)));
+        long total = mediaFileService.countVideos(folders);
+        if (LOG.isInfoEnabled() && offset % 1000 == 0 || count != videos.size() || offset + videos.size() == total) {
+            LOG.info("[video] " + offset + "-" + (offset + videos.size()) + "/" + total + "("
+                    + Math.round((float) (offset + videos.size()) / (float) total * 100) + "%)");
         }
         try {
             return createBrowseResult(didl, (int) didl.getCount(), (int) total);
@@ -192,7 +239,7 @@ public class WMPProcessor {
         if (MS_QUERY_AUDIO_ITEM_ALL.equals(query)) {
             return createAudioItemBrowseResult(count, offset);
         } else if (MS_QUERY_VIDEO_ITEM_ALL.equals(query)) {
-            return EMPTY; // object.item.videoItem has not been implemented yet.
+            return createVideoItemBrowseResult(count, offset);
         } else if (MS_QUERY_IMAGE_ITEM_ALL.equals(query)) {
             return EMPTY; // no spport
         } else if (MS_QUERY_AUDIO_ITEM_SINGLE.matcher(query).matches()) {
