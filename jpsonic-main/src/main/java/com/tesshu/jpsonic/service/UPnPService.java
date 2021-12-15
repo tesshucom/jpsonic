@@ -23,6 +23,8 @@ package com.tesshu.jpsonic.service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -78,15 +80,17 @@ public class UPnPService {
     private static final Object LOCK = new Object();
 
     private final SettingsService settingsService;
+    private final VersionService versionService;
     private final CustomContentDirectory dispatchingContentDirectory;
     private final AtomicReference<Boolean> running;
 
     private UpnpService deligate;
 
-    public UPnPService(SettingsService settingsService,
+    public UPnPService(SettingsService settingsService, VersionService versionService,
             @Qualifier("dispatchingContentDirectory") CustomContentDirectory dispatchingContentDirectory) {
         super();
         this.settingsService = settingsService;
+        this.versionService = versionService;
         this.dispatchingContentDirectory = dispatchingContentDirectory;
         running = new AtomicReference<>(false);
     }
@@ -256,8 +260,22 @@ public class UPnPService {
         }
 
         String serverName = settingsService.getDlnaServerName();
-        DeviceDetails details = new DeviceDetails(serverName, new ManufacturerDetails(serverName),
-                new ModelDetails(serverName), new DLNADoc[] { new DLNADoc("DMS", DLNADoc.Version.V1_5) }, null);
+        String serialNumber = versionService.getLocalBuildNumber();
+        DLNADoc[] dlnaDocs = { new DLNADoc("DMS", DLNADoc.Version.V1_5) };
+        DeviceDetails details = null;
+        try {
+            URI modelURI = new URI("https://tesshu.com");
+            URI manufacturerURI = new URI("https://github.com/jpsonic/jpsonic");
+            URI presentationURI = manufacturerURI;
+            ManufacturerDetails manufacturerDetails = new ManufacturerDetails(serverName, modelURI);
+            ModelDetails modelDetails = new ModelDetails(serverName, null, versionService.getLocalVersion().toString(),
+                    manufacturerURI);
+            details = new DeviceDetails(serverName, manufacturerDetails, modelDetails, serialNumber, null,
+                    presentationURI, dlnaDocs, null);
+        } catch (URISyntaxException e) {
+            throw new ExecutionException("URI syntax error.", e);
+        }
+
         DeviceIdentity identity = new DeviceIdentity(UDN.uniqueSystemIdentifier(serverName));
         DeviceType type = new UDADeviceType("MediaServer", 1);
         try {

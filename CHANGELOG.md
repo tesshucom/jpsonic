@@ -10,6 +10,7 @@ The binaries of SNAPSHOT are available from the latest artifacts on the [master 
 #### Enhancement
   * Bump Spring Boot from 2.5.7 to 2.6.1 ([#1274](https://github.com/tesshucom/jpsonic/issues/1274))
   * Bump HSQLDB from 2.5.0 to 2.6.1 ([#1145](https://github.com/tesshucom/jpsonic/issues/1145))
+  * Add build number to UPnP device details　and About page
 
 <details>
 <summary>v110.2.0</summary>
