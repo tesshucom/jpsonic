@@ -64,9 +64,10 @@ A | [Subsonic Music Streamer](https://play.google.com/store/apps/details?id=net.
 B | [BubbleUPnP for DLNA / Chromecast / Smart TV](https://play.google.com/store/apps/details?id=com.bubblesoft.android.bubbleupnp) | Android | UPnP
 C | [MediaMonkey](https://play.google.com/store/apps/details?id=com.ventismedia.android.mediamonkey) | Android | UPnP
 D | [foobar2000](https://play.google.com/store/apps/details?id=com.foobar2000.foobar2000) | Android | UPnP
-E | [AK Connect 2.0](https://play.google.com/store/apps/details?id=com.iriver.akconnect) | Android | UPnP
-F | [MediaMonkey 5](https://www.mediamonkey.com/) | Windows10 | UPnP
-G | [foobar2000](https://www.foobar2000.org/) | Windows10 | UPnP
+E | [Hi-Fi Cast - Music Player](https://play.google.com/store/apps/details?id=com.findhdmusic.app.upnpcast) | Android | UPnP
+F | [AK Connect 2.0](https://play.google.com/store/apps/details?id=com.iriver.akconnect) | Android | UPnP
+G | [MediaMonkey 5](https://www.mediamonkey.com/) | Windows10 | UPnP
+H | [foobar2000](https://www.foobar2000.org/) | Windows10 | UPnP
 
 [Main cooperation features]
 No | Features | Perspective
@@ -78,26 +79,27 @@ No | Features | Perspective
 5 | Server-side search | Whether it supports server-side search
 6 | Voice input | Whether it supports server-side search with voice input
 7 | Lazy loading | Whether partial content acquisition is used in UPnP requests
+8 | Downloader | Whether to have a practical downloader
 
 [Correspondence situation]
-  | 1 | 2 | 3 | 4 | 5 | 6 | 7
--- | -- | -- | -- | -- | -- | -- | --
-A | ★ | ★ |   | ★ | ★ | ★ | N
-B | ★ | ★ | ★ | ★ | ★ | ★ | ☆1
-C | ★ | ★ | ★ | ★ |   |   | ☆1
-D | ★ | ☆2 | ★ | ★ |   |   | ☆1
-E | ☆3 | ★ | ★ | ★ | ☆4 |   | N
-F | ★ |   |   | ★ |   |   | ☆1
-G | ★ | ★ | ★ |   | ☆5 |   | ☆1
+  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+-- | -- | -- | -- | -- | -- | -- | -- | --
+A | ★ | ★ |   | ★ | ★ | ★ | N | 
+B | ★ | ★ | ★ | ★ | ★ | ★ | ☆1 | ★
+C | ★ | ★ | ★ | ★ | N | N | ☆1 |
+D | ★ | ☆2 | ★ | ★ | N | N | ☆1 | ★
+E | ★ | ★ | ★ | ★ | ☆4 | N | ☆1 |
+F | ☆3 | ★ | ★ | ★ | ☆4 | N | N |
+G | ★ |   |   | ★ | N |   | ☆1 |
+H | ★ | ★ | ★ |   | ☆4 |   | ☆1 |
 
  - ☆1 The specified value is different for each client. 
-     - BubbleUPnP/MediaMonkey(Android) : Get the rest after getting the data for view area.
+     - BubbleUPnP/MediaMonkey(Android)/Hi-Fi Cast : Get the rest after getting the data for view area.
      - MediaMonkey(Win) : Get data for a specific quantity.
      - foobar2000 : Get for each fixed number of items, but it may be difficult to obtain benefits due to the large number of items acquired at one time.
  - ☆2 Playback may not be possible if resampling takes a very long time, such as high-resolution classical songs.
  - ☆3 High resolution may be difficult.
- - ☆4 Implemented, but there may be a problem with the client app.
- - ☆5 Implemented, but Jpsonic doesn't support that query yet.
+ - ☆4 Jpsonic doesn't support that query yet.
 
 Usage
 -----
