@@ -68,6 +68,7 @@ E | [Hi-Fi Cast - Music Player](https://play.google.com/store/apps/details?id=co
 F | [AK Connect 2.0](https://play.google.com/store/apps/details?id=com.iriver.akconnect) | Android | UPnP
 G | [MediaMonkey 5](https://www.mediamonkey.com/) | Windows10 | UPnP
 H | [foobar2000](https://www.foobar2000.org/) | Windows10 | UPnP
+I | [Windows MediaPlayer 12](https://support.microsoft.com/en-us/windows/get-windows-media-player-81718e0d-cfce-25b1-aee3-94596b658287) ([v111 higher](https://github.com/jpsonic/jpsonic/blob/master/CHANGELOG.md)) | Windows10 | UPnP
 
 [Main cooperation features]
 No | Features | Perspective
@@ -92,6 +93,7 @@ E | ★ | ★ | ★ | ★ | ☆4 | N | ☆1 |
 F | ☆3 | ★ | ★ | ★ | ☆4 | N | N |
 G | ★ |   |   | ★ | N |   | ☆1 |
 H | ★ | ★ | ★ |   | ☆4 |   | ☆1 |
+I | ★ | ★ | ★ |   | N |   | ☆5 |
 
  - ☆1 The specified value is different for each client. 
      - BubbleUPnP/MediaMonkey(Android)/Hi-Fi Cast : Get the rest after getting the data for view area.
@@ -99,7 +101,8 @@ H | ★ | ★ | ★ |   | ☆4 |   | ☆1 |
      - foobar2000 : Get for each fixed number of items, but it may be difficult to obtain benefits due to the large number of items acquired at one time.
  - ☆2 Playback may not be possible if resampling takes a very long time, such as high-resolution classical songs.
  - ☆3 High resolution may be difficult.
- - ☆4 Jpsonic doesn't support that query yet.
+ - ☆4 Jpsonic doesn't support that query yet　(Sequentially considered).
+ - ☆5 Special process. Crawl all resources at startup.
 
 Usage
 -----

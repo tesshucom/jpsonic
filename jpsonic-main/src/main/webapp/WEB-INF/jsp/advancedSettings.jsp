@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <dd>
                 <form:checkbox path="verboseLogScanning" id="verboseLogScanning"/>
                 <label for="verboseLogScanning"><fmt:message key="advancedsettings.verboselogscanning"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="verboselogscanning"/></c:import>
             </dd>
             <dt></dt>
             <dd>

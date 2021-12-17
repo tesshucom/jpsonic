@@ -196,7 +196,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
         }
     }
 
-    public final Item createItem(MediaFile song) {
+    public Item createItem(MediaFile song) {
 
         MusicTrack item = new MusicTrack();
 
@@ -226,7 +226,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
         return item;
     }
 
-    public final BrowseResult toBrowseResult(ParamSearchResult<MediaFile> result) {
+    public BrowseResult toBrowseResult(ParamSearchResult<MediaFile> result) {
         DIDLContent didl = new DIDLContent();
         try {
             result.getItems().forEach(i -> addItem(didl, i));
@@ -237,7 +237,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
         }
     }
 
-    public final Res createResourceForSong(MediaFile song) {
+    public Res createResourceForSong(MediaFile song) {
         Player player = playerService.getGuestPlayer(null);
         MimeType mimeType = util.getMimeType(song, player);
         Res res = new Res(mimeType, null, createStreamURI(song, player));
@@ -252,13 +252,13 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
         return StringUtil.formatDurationHMMSS(seconds) + ".0";
     }
 
-    public final URI createArtistArtURI(MediaFile artist) {
+    public URI createArtistArtURI(MediaFile artist) {
         return util.createURIWithToken(
                 UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
                         .queryParam("id", artist.getId()).queryParam("size", CoverArtScheme.LARGE.getSize()));
     }
 
-    public final URI createAlbumArtURI(MediaFile album) {
+    public URI createAlbumArtURI(MediaFile album) {
         return util.createURIWithToken(
                 UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
                         .queryParam("id", album.getId()).queryParam("size", CoverArtScheme.LARGE.getSize()));

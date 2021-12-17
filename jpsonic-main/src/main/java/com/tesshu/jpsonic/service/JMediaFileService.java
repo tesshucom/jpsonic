@@ -24,6 +24,7 @@ import java.util.List;
 
 import com.tesshu.jpsonic.dao.JMediaFileDao;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
@@ -82,6 +83,22 @@ public class JMediaFileService {
 
     public MediaFile getMediaFile(String pathName) {
         return deligate.getMediaFile(pathName);
+    }
+
+    public long countSongs(List<MusicFolder> folders) {
+        return mediaFileDao.countMediaFile(MediaType.MUSIC, folders);
+    }
+
+    public List<MediaFile> getSongs(long count, long offset, List<MusicFolder> folders) {
+        return mediaFileDao.getMediaFile(MediaType.MUSIC, count, offset, folders);
+    }
+
+    public long countVideos(List<MusicFolder> folders) {
+        return mediaFileDao.countMediaFile(MediaType.VIDEO, folders);
+    }
+
+    public List<MediaFile> getVideos(long count, long offset, List<MusicFolder> folders) {
+        return mediaFileDao.getMediaFile(MediaType.VIDEO, count, offset, folders);
     }
 
     public List<MediaFile> getNewestAlbums(int offset, int count, List<MusicFolder> musicFolders) {
