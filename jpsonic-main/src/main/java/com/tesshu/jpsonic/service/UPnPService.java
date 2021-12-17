@@ -76,6 +76,10 @@ import org.springframework.stereotype.Service;
 @DependsOn("shutdownHook")
 public class UPnPService {
 
+    // WMP handles this value rigorously.
+    // If you adopt the Cling default, the device will disconnect in 30 minutes
+    private static final int MIN_ADVERTISEMENT_AGE_SECONDS = 60 * 60 * 24;
+
     private static final Logger LOG = LoggerFactory.getLogger(UPnPService.class);
     private static final Object LOCK = new Object();
 
@@ -276,7 +280,8 @@ public class UPnPService {
             throw new ExecutionException("URI syntax error.", e);
         }
 
-        DeviceIdentity identity = new DeviceIdentity(UDN.uniqueSystemIdentifier(serverName));
+        DeviceIdentity identity = new DeviceIdentity(UDN.uniqueSystemIdentifier(serverName),
+                MIN_ADVERTISEMENT_AGE_SECONDS);
         DeviceType type = new UDADeviceType("MediaServer", 1);
         try {
             return new LocalDevice(identity, type, details, new Icon[] { icon },
