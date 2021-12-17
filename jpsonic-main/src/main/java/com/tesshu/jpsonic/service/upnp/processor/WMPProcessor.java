@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -70,13 +71,15 @@ public class WMPProcessor {
     private static final Pattern MS_QUERY_AUDIO_ITEM_SINGLE = Pattern.compile("dc:title = \"[0-9]+\"");
 
     private final JMediaFileService mediaFileService;
+    private final SettingsService settingsService;
     private final MediaFileUpnpProcessor mediaFileUpnpProcessor;
     private final UpnpProcessorUtil util;
 
-    public WMPProcessor(JMediaFileService mediaFileService, MediaFileUpnpProcessor mediaFileUpnpProcessor,
-            UpnpProcessorUtil util) {
+    public WMPProcessor(JMediaFileService mediaFileService, SettingsService settingsService,
+            MediaFileUpnpProcessor mediaFileUpnpProcessor, UpnpProcessorUtil util) {
         super();
         this.mediaFileService = mediaFileService;
+        this.settingsService = settingsService;
         this.mediaFileUpnpProcessor = mediaFileUpnpProcessor;
         this.util = util;
     }
@@ -184,7 +187,8 @@ public class WMPProcessor {
         DIDLContent didl = new DIDLContent();
         songs.forEach(song -> didl.addItem(createMusicTrack(song)));
         long total = mediaFileService.countSongs(folders);
-        if (LOG.isInfoEnabled() && offset % 1000 == 0 || count != songs.size() || offset + songs.size() == total) {
+        if (settingsService.isVerboseLogScanning() && LOG.isInfoEnabled()
+                && (offset % 1000 == 0 || count != songs.size() || offset + songs.size() == total)) {
             LOG.info("[audio] " + offset + "-" + (offset + songs.size()) + "/" + total + "("
                     + Math.round((float) (offset + songs.size()) / (float) total * 100) + "%)");
         }
@@ -205,7 +209,8 @@ public class WMPProcessor {
         DIDLContent didl = new DIDLContent();
         videos.forEach(video -> didl.addItem(createVideoItem(video)));
         long total = mediaFileService.countVideos(folders);
-        if (LOG.isInfoEnabled() && offset % 1000 == 0 || count != videos.size() || offset + videos.size() == total) {
+        if (settingsService.isVerboseLogScanning() && LOG.isInfoEnabled()
+                && (offset % 1000 == 0 || count != videos.size() || offset + videos.size() == total)) {
             LOG.info("[video] " + offset + "-" + (offset + videos.size()) + "/" + total + "("
                     + Math.round((float) (offset + videos.size()) / (float) total * 100) + "%)");
         }
