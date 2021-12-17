@@ -36,6 +36,7 @@ import java.util.function.BiFunction;
 
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SortCandidate;
 import com.tesshu.jpsonic.util.LegacyMap;
@@ -67,7 +68,7 @@ public class JMediaFileDao extends AbstractDao {
 
     public void clearArtistReadingOfDirectory() {
         update("update media_file set artist_reading = null, artist_sort = null where present and type=?",
-                MediaFile.MediaType.DIRECTORY.name());
+                MediaType.DIRECTORY.name());
     }
 
     public void createOrUpdateMediaFile(MediaFile file) {
@@ -80,7 +81,7 @@ public class JMediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty() || genres.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.ALBUM.name(), "genres", genres, "folders",
+        Map<String, Object> args = LegacyMap.of("type", MediaType.ALBUM.name(), "genres", genres, "folders",
                 MusicFolder.toPathList(musicFolders), "count", count, "offset", offset);
         return namedQuery("select " + getQueryColoms() + " from media_file "
                 + "where type = :type and folder in (:folders) and present and genre in (:genres) "
@@ -96,7 +97,7 @@ public class JMediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.DIRECTORY.name(), "folders",
+        Map<String, Object> args = LegacyMap.of("type", MediaType.DIRECTORY.name(), "folders",
                 MusicFolder.toPathList(musicFolders));
         return namedQuery(
                 "select " + getQueryColoms() + " from media_file "
@@ -188,9 +189,31 @@ public class JMediaFileDao extends AbstractDao {
         return deligate.getMediaFile(path);
     }
 
+    public List<MediaFile> getMediaFile(MediaType mediaType, long count, long offset, List<MusicFolder> folders) {
+        if (folders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = LegacyMap.of("type", mediaType.name(), "count", count, "offset", offset, "folders",
+                MusicFolder.toPathList(folders));
+        return namedQuery("select " + getQueryColoms()
+                + " from media_file where present and type= :type and folder in(:folders)　order by media_file_order limit :count offset :offset",
+                rowMapper, args);
+    }
+
+    public long countMediaFile(MediaType mediaType, List<MusicFolder> folders) {
+        if (folders.isEmpty()) {
+            return 0;
+        }
+        Map<String, Object> args = LegacyMap.of("type", mediaType.name(), "folders", MusicFolder.toPathList(folders));
+        long defaultValue = 0;
+        String sql = "select count(*) from media_file where present and type= :type and folder in(:folders)";
+        List<Long> list = getNamedParameterJdbcTemplate().queryForList(sql, args, Long.class);
+        return list.isEmpty() ? defaultValue : list.get(0) == null ? defaultValue : list.get(0);
+    }
+
     public List<MediaFile> getRandomSongsForAlbumArtist(int limit, String albumArtist, List<MusicFolder> musicFolders,
             BiFunction<Integer, Integer, List<Integer>> randomCallback) {
-        String type = MediaFile.MediaType.MUSIC.name();
+        String type = MediaType.MUSIC.name();
 
         /* Run the query twice. */
 
@@ -251,9 +274,8 @@ public class JMediaFileDao extends AbstractDao {
             return Collections.emptyList();
         }
         Map<String, Object> args = LegacyMap.of("types",
-                Arrays.asList(MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.PODCAST.name(),
-                        MediaFile.MediaType.AUDIOBOOK.name()),
-                "genres", genres, "count", count, "offset", offset, "folders", MusicFolder.toPathList(musicFolders));
+                Arrays.asList(MediaType.MUSIC.name(), MediaType.PODCAST.name(), MediaType.AUDIOBOOK.name()), "genres",
+                genres, "count", count, "offset", offset, "folders", MusicFolder.toPathList(musicFolders));
         return namedQuery("select " + prefix(getQueryColoms(), "s") + " from media_file s "
                 + "join media_file al on s.parent_path = al.path " + "join media_file ar on al.parent_path = ar.path "
                 + "where s.type in (:types) and s.genre in (:genres) " + "and s.present and s.folder in (:folders) "
@@ -265,23 +287,22 @@ public class JMediaFileDao extends AbstractDao {
         return queryForInt(
                 "select count(id) from media_file "
                         + "where album_artist=? and album=? and present and type in (?,?,?)",
-                0, artist, album, MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.AUDIOBOOK.name(),
-                MediaFile.MediaType.PODCAST.name());
+                0, artist, album, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name(), MediaType.PODCAST.name());
     }
 
     public List<MediaFile> getSongsForAlbum(final long offset, final long count, MediaFile album) {
         return query(
                 "select " + getQueryColoms() + " from media_file "
                         + "where parent_path=? and present and type in (?,?,?) order by track_number limit ? offset ?",
-                rowMapper, album.getPath(), MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.AUDIOBOOK.name(),
-                MediaFile.MediaType.PODCAST.name(), count, offset);
+                rowMapper, album.getPath(), MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name(),
+                MediaType.PODCAST.name(), count, offset);
     }
 
     public List<MediaFile> getSongsForAlbum(final long offset, final long count, String albumArtist, String album) {
         return query("select " + getQueryColoms() + " from media_file "
                 + "where album_artist=? and album=? and present and type in (?,?,?) order by track_number limit ? offset ?",
-                rowMapper, albumArtist, album, MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.AUDIOBOOK.name(),
-                MediaFile.MediaType.PODCAST.name(), count, offset);
+                rowMapper, albumArtist, album, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name(),
+                MediaType.PODCAST.name(), count, offset);
     }
 
     public List<SortCandidate> getSortForPersonWithoutSorts() {

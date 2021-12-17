@@ -24,7 +24,6 @@ package com.tesshu.jpsonic.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +74,10 @@ import org.springframework.stereotype.Service;
 @Service
 @DependsOn("shutdownHook")
 public class UPnPService {
+
+    // WMP handles this value rigorously.
+    // If you adopt the Cling default, the device will disconnect in 30 minutes
+    private static final int MIN_ADVERTISEMENT_AGE_SECONDS = 60 * 60 * 24;
 
     private static final Logger LOG = LoggerFactory.getLogger(UPnPService.class);
     private static final Object LOCK = new Object();
@@ -263,20 +266,16 @@ public class UPnPService {
         String serialNumber = versionService.getLocalBuildNumber();
         DLNADoc[] dlnaDocs = { new DLNADoc("DMS", DLNADoc.Version.V1_5) };
         DeviceDetails details = null;
-        try {
-            URI modelURI = new URI("https://tesshu.com");
-            URI manufacturerURI = new URI("https://github.com/jpsonic/jpsonic");
-            URI presentationURI = manufacturerURI;
-            ManufacturerDetails manufacturerDetails = new ManufacturerDetails(serverName, modelURI);
-            ModelDetails modelDetails = new ModelDetails(serverName, null, versionService.getLocalVersion().toString(),
-                    manufacturerURI);
-            details = new DeviceDetails(serverName, manufacturerDetails, modelDetails, serialNumber, null,
-                    presentationURI, dlnaDocs, null);
-        } catch (URISyntaxException e) {
-            throw new ExecutionException("URI syntax error.", e);
-        }
-
-        DeviceIdentity identity = new DeviceIdentity(UDN.uniqueSystemIdentifier(serverName));
+        URI modelURI = URI.create("https://tesshu.com");
+        URI manufacturerURI = URI.create("https://github.com/jpsonic/jpsonic");
+        URI presentationURI = URI.create(settingsService.getDlnaBaseLANURL());
+        ManufacturerDetails manufacturerDetails = new ManufacturerDetails(serverName, modelURI);
+        ModelDetails modelDetails = new ModelDetails(serverName, null, versionService.getLocalVersion().toString(),
+                manufacturerURI);
+        details = new DeviceDetails(serverName, manufacturerDetails, modelDetails, serialNumber, null, presentationURI,
+                dlnaDocs, null);
+        DeviceIdentity identity = new DeviceIdentity(UDN.uniqueSystemIdentifier(serverName),
+                MIN_ADVERTISEMENT_AGE_SECONDS);
         DeviceType type = new UDADeviceType("MediaServer", 1);
         try {
             return new LocalDevice(identity, type, details, new Icon[] { icon },
