@@ -41,6 +41,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.domain.MusicIndex;
+import com.tesshu.jpsonic.domain.MusicIndex.SortableArtistWithArtist;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,6 +58,7 @@ class MusicIndexServiceTest {
     private SettingsService settingsService;
     private MediaFileService mediaFileService;
     private MusicIndexService musicIndexService;
+    private JpsonicComparators comparators;
 
     @BeforeEach
     public void setup() throws ExecutionException {
@@ -72,7 +74,7 @@ class MusicIndexServiceTest {
         String variant = SettingsConstants.General.ThemeAndLang.LOCALE_VARIANT.defaultValue;
         Mockito.when(settingsService.getLocale()).thenReturn(new Locale(language, country, variant));
         JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsService);
-        JpsonicComparators comparators = new JpsonicComparators(settingsService, readingUtils);
+        comparators = new JpsonicComparators(settingsService, readingUtils);
         MusicIndexServiceUtils utils = new MusicIndexServiceUtils(settingsService, mediaFileService, readingUtils,
                 comparators);
 
@@ -104,6 +106,42 @@ class MusicIndexServiceTest {
         musicIndex = iterator.next();
         assertEquals("F", musicIndex.getIndex());
         assertEquals("The Flipper's Guitar", indexedArtists.get(musicIndex).get(0).getName());
+    }
+
+    /*
+     * #852. https://wiki.sei.cmu.edu/confluence/display/java/STR02-J.+Specify+an+appropriate+locale+when+
+     * comparing+locale-dependent+data
+     */
+    @Test
+    void testGetIndexSTR02J() {
+        Mockito.when(settingsService.getLocale()).thenReturn(Locale.ENGLISH);
+        MusicIndex mi1 = new MusicIndex("A");
+        mi1.addPrefix("a");
+        MusicIndex mi2 = new MusicIndex("\u0069"); // i
+        mi2.addPrefix("\u0130"); // İ
+        MusicIndex mi3 = new MusicIndex("\u0131"); // ı
+        mi3.addPrefix("\u0049"); // I
+        List<MusicIndex> indexes = Arrays.asList(mi1, mi2, mi3);
+
+        SortableArtistWithArtist sa1 = new SortableArtistWithArtist("abcde", "abcde", null,
+                comparators.sortableArtistOrder());
+        assertEquals("A", musicIndexService.getIndex(sa1, indexes).getIndex());
+
+        SortableArtistWithArtist sa2 = new SortableArtistWithArtist("\u0130", "\u0130", // İ İ
+                null, comparators.sortableArtistOrder());
+        assertEquals("\u0069", musicIndexService.getIndex(sa2, indexes).getIndex()); // i
+
+        SortableArtistWithArtist sa3 = new SortableArtistWithArtist("\u0069", "\u0069", // i i
+                null, comparators.sortableArtistOrder());
+        assertEquals("\u0069", musicIndexService.getIndex(sa3, indexes).getIndex()); // i
+
+        SortableArtistWithArtist sa4 = new SortableArtistWithArtist("\u0049", "\u0049", // I I
+                null, comparators.sortableArtistOrder());
+        assertEquals("\u0069", musicIndexService.getIndex(sa4, indexes).getIndex()); // i
+
+        SortableArtistWithArtist sa5 = new SortableArtistWithArtist("\u0131", "\u0131", // ı ı
+                null, comparators.sortableArtistOrder());
+        assertEquals("\u0069", musicIndexService.getIndex(sa5, indexes).getIndex()); // i
     }
 
     @Test

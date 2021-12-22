@@ -88,13 +88,17 @@ public class WMPProcessor {
         return MS_FILTER_FOLDER_PATH.equals(filter) || MS_FILTER_ALL.equals(filter);
     }
 
-    public BrowseResult getBrowseResult(@NonNull String query, @Nullable String filter, long count, long offset) {
+    public @Nullable BrowseResult getBrowseResult(@NonNull String query, @Nullable String filter, long count,
+            long offset) {
         if (MS_FILTER_FOLDER_PATH.equals(filter)) {
             return getFolderPaths(query, filter, count, offset);
         } else if (MS_FILTER_ALL.equals(filter)) {
-            return getSomthing(query, count, offset);
+            BrowseResult result = getSomthing(query, count, offset);
+            if (result != null) {
+                return result;
+            }
         }
-        return EMPTY;
+        return null;
     }
 
     final BrowseResult getFolderPaths(String query, String filter, long count, long offset) {
@@ -240,7 +244,7 @@ public class WMPProcessor {
         return EMPTY;
     }
 
-    final BrowseResult getSomthing(String query, long count, long offset) {
+    final @Nullable BrowseResult getSomthing(String query, long count, long offset) {
         if (MS_QUERY_AUDIO_ITEM_ALL.equals(query)) {
             return createAudioItemBrowseResult(count, offset);
         } else if (MS_QUERY_VIDEO_ITEM_ALL.equals(query)) {
@@ -250,9 +254,6 @@ public class WMPProcessor {
         } else if (MS_QUERY_AUDIO_ITEM_SINGLE.matcher(query).matches()) {
             return createSingleObjectBrowseResult(query);
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Unexpected query: filter={}, query={}", MS_FILTER_ALL, query);
-        }
-        return EMPTY;
+        return null;
     }
 }

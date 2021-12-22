@@ -53,6 +53,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 /**
  * Provides security-related services for authentication and authorization.
@@ -536,7 +537,6 @@ public class SecurityService implements UserDetailsService {
         }
 
         // Convert slashes.
-        return file.replace('\\', '/').toUpperCase(settingsService.getLocale())
-                .startsWith(folder.replace('\\', '/').toUpperCase(settingsService.getLocale()));
+        return StringUtils.startsWithIgnoreCase(file.replace('\\', '/'), folder.replace('\\', '/'));
     }
 }

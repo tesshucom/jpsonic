@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.WebFontUtils;
@@ -37,6 +38,7 @@ import com.tesshu.jpsonic.domain.UserSettings;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 /**
  * Unit test of {@link SecurityService}.
@@ -47,11 +49,12 @@ import org.junit.jupiter.api.Test;
 class SecurityServiceTest {
 
     private SecurityService service;
+    private SettingsService settingsService;
 
     @BeforeEach
     public void setup() {
-        service = new SecurityService(mock(UserDao.class), mock(SettingsService.class), mock(MusicFolderService.class),
-                null);
+        settingsService = mock(SettingsService.class);
+        service = new SecurityService(mock(UserDao.class), settingsService, mock(MusicFolderService.class), null);
     }
 
     @Test
@@ -82,6 +85,18 @@ class SecurityServiceTest {
         assertFalse(service.isFileInFolder("..\\music/foo", "/music"));
         assertFalse(service.isFileInFolder("/music\\../foo", "/music"));
         assertFalse(service.isFileInFolder("/music/..\\bar/../foo", "/music"));
+    }
+
+    /*
+     * #852. https://wiki.sei.cmu.edu/confluence/display/java/STR02-J.+Specify+an+appropriate+locale+when+
+     * comparing+locale-dependent+data
+     */
+    @Test
+    void testIsFileInFolderSTR02J() {
+        Mockito.when(settingsService.getLocale()).thenReturn(Locale.ENGLISH);
+        assertTrue(service.isFileInFolder("/music/foo.mp3", "/Music"));
+        assertTrue(service.isFileInFolder("/\u0130\u0049/foo.mp3", // İI
+                "/\u0069\u0131")); // iı
     }
 
     @Test

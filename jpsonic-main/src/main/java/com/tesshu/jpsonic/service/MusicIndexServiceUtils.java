@@ -37,6 +37,7 @@ import com.tesshu.jpsonic.domain.MusicIndex;
 import com.tesshu.jpsonic.domain.MusicIndex.SortableArtist;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 /**
  * Utility class for injecting into legacy MusicIndexService. Supplement processing that is lacking in legacy services.
@@ -108,14 +109,12 @@ public class MusicIndexServiceUtils {
         return new ArrayList<>(artistMap.values());
     }
 
-    private String createSortableName(String name, String... ignoredArticles) {
-        String uppercaseName = name.toUpperCase(settingsService.getLocale());
+    String createSortableName(String name, String... ignoredArticles) {
         for (String article : ignoredArticles) {
-            if (uppercaseName.startsWith(article.toUpperCase(settingsService.getLocale()) + " ")) {
+            if (StringUtils.startsWithIgnoreCase(name, article + " ")) {
                 return name.substring(article.length() + 1) + ", " + article;
             }
         }
         return name;
     }
-
 }
