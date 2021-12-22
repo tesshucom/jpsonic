@@ -133,15 +133,15 @@ class MusicIndexServiceTest {
 
         SortableArtistWithArtist sa3 = new SortableArtistWithArtist("\u0069", "\u0069", // i i
                 null, comparators.sortableArtistOrder());
-        assertEquals("\u0131", musicIndexService.getIndex(sa3, indexes).getIndex()); // ı
+        assertEquals("\u0069", musicIndexService.getIndex(sa3, indexes).getIndex()); // i
 
         SortableArtistWithArtist sa4 = new SortableArtistWithArtist("\u0049", "\u0049", // I I
                 null, comparators.sortableArtistOrder());
-        assertEquals("\u0131", musicIndexService.getIndex(sa4, indexes).getIndex()); // ı
+        assertEquals("\u0069", musicIndexService.getIndex(sa4, indexes).getIndex()); // i
 
         SortableArtistWithArtist sa5 = new SortableArtistWithArtist("\u0131", "\u0131", // ı ı
                 null, comparators.sortableArtistOrder());
-        assertEquals("\u0131", musicIndexService.getIndex(sa5, indexes).getIndex()); // ı
+        assertEquals("\u0069", musicIndexService.getIndex(sa5, indexes).getIndex()); // i
     }
 
     @Test

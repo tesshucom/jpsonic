@@ -54,7 +54,7 @@ class MusicIndexServiceUtilsTest {
     void testCreateSortableNameSTR02J() {
         Mockito.when(settingsService.getLocale()).thenReturn(Locale.ENGLISH);
 
-        assertEquals("\u0130 abcde", // İ
+        assertEquals("abcde, \u0069", // i
                 musicIndexServiceUtils.createSortableName("\u0130 abcde", // İ
                         "\u0069", // i
                         "\u0131")); // ı
@@ -69,7 +69,7 @@ class MusicIndexServiceUtilsTest {
                         "\u0069", // i
                         "\u0131")); // ı
 
-        assertEquals("abcde, \u0049", // I
+        assertEquals("abcde, \u0130", // İ
                 musicIndexServiceUtils.createSortableName("\u0049 abcde", // I
                         "\u0130", // İ
                         "\u0049")); // I

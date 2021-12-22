@@ -95,7 +95,7 @@ class SecurityServiceTest {
     void testIsFileInFolderSTR02J() {
         Mockito.when(settingsService.getLocale()).thenReturn(Locale.ENGLISH);
         assertTrue(service.isFileInFolder("/music/foo.mp3", "/Music"));
-        assertFalse(service.isFileInFolder("/\u0130\u0049/foo.mp3", // İI
+        assertTrue(service.isFileInFolder("/\u0130\u0049/foo.mp3", // İI
                 "/\u0069\u0131")); // iı
     }
 

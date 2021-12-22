@@ -39,6 +39,7 @@ import com.tesshu.jpsonic.domain.MusicIndex;
 import com.tesshu.jpsonic.domain.MusicIndex.SortableArtist;
 import com.tesshu.jpsonic.util.FileUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 /**
  * Provides services for grouping artists by index.
@@ -212,10 +213,9 @@ public class MusicIndexService {
      * rule to work properly in the future.
      */
     MusicIndex getIndex(SortableArtist artist, List<MusicIndex> indexes) {
-        String sortableName = artist.getSortableName().toUpperCase(settingsService.getLocale());
         for (MusicIndex index : indexes) {
             for (String prefix : index.getPrefixes()) {
-                if (sortableName.startsWith(prefix.toUpperCase(settingsService.getLocale()))) {
+                if (StringUtils.startsWithIgnoreCase(artist.getSortableName(), prefix)) {
                     return index;
                 }
             }
