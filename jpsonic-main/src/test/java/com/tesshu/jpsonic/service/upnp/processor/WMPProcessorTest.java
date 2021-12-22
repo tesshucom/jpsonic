@@ -252,14 +252,14 @@ class WMPProcessorTest {
 
         @Test
         void testUnknownQuery() {
-            assertEmpty(wmpProcessor.getBrowseResult("upnp:class derivedfrom \"object.container.playlistContainer\"",
+            assertNull(wmpProcessor.getBrowseResult("upnp:class derivedfrom \"object.container.playlistContainer\"",
                     "*", 0, 0));
         }
     }
 
     @Test
     void testUnknownFilter() {
-        assertEmpty(wmpProcessor.getBrowseResult("upnp:class derivedfrom \"object.container.playlistContainer\"",
+        assertNull(wmpProcessor.getBrowseResult("upnp:class derivedfrom \"object.container.playlistContainer\"",
                 "dc:title,apple:folderPath", 0, 0));
     }
 }

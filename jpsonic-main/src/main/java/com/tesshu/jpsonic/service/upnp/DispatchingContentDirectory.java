@@ -175,7 +175,10 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
 
         // For known filters, delegation processing
         if (wmpProcessor.isAvailable(filter)) {
-            return wmpProcessor.getBrowseResult(upnpSearchQuery, filter, maxResults, firstResult);
+            BrowseResult wmpResult = wmpProcessor.getBrowseResult(upnpSearchQuery, filter, maxResults, firstResult);
+            if (!isEmpty(wmpResult)) {
+                return wmpResult;
+            }
         } else if (!isEmpty(filter) && LOG.isInfoEnabled()) {
             LOG.info("An unknown filter was specified. Jpsonic does nothing :{}", filter);
         }
