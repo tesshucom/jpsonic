@@ -417,9 +417,14 @@ public class IndexManager {
                 searchers.remove(indexType);
             }
         } else {
-            // irregular case
             try {
-                indexSearcher.getIndexReader().close();
+                /*
+                 * #1280 This method is called automatically from various finally clauses. If you have never scanned,
+                 * Searcher is null.
+                 */
+                if (indexSearcher != null) {
+                    indexSearcher.getIndexReader().close();
+                }
             } catch (IOException e) {
                 LOG.warn("Failed to release. IndexSearcher has been closed.", e);
             }
