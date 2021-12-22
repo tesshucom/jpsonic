@@ -26,6 +26,8 @@
         <jetty-jsp.version>9.4.44.v20210927</jetty-jsp.version>
         <pmd.version>6.41.0</pmd.version>
         <log4j.version>2.17.0</log4j.version>
+        <logback.version>1.2.9</logback.version>
+        <slf4j.version>1.7.32</slf4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
     </properties>
 
@@ -104,18 +106,34 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <!-- Spring Boot is slow to fix CVE, so some libraries will be overridden. -->
             <dependency>
-                <!-- Spring Boot 2.2.6 doesn't update log4j yet, fixes CVE -->
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-api</artifactId>
                 <version>${log4j.version}</version>
             </dependency>
             <dependency>
-                <!-- Spring Boot 2.2.6 doesn't update log4j yet, fixes CVE -->
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-to-slf4j</artifactId>
                 <version>${log4j.version}</version>
             </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-core</artifactId>
