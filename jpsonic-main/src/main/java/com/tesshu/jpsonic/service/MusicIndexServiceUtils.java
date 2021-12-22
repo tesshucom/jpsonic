@@ -108,7 +108,7 @@ public class MusicIndexServiceUtils {
         return new ArrayList<>(artistMap.values());
     }
 
-    private String createSortableName(String name, String... ignoredArticles) {
+    String createSortableName(String name, String... ignoredArticles) {
         String uppercaseName = name.toUpperCase(settingsService.getLocale());
         for (String article : ignoredArticles) {
             if (uppercaseName.startsWith(article.toUpperCase(settingsService.getLocale()) + " ")) {

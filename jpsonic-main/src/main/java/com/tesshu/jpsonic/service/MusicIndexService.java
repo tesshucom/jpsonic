@@ -211,7 +211,7 @@ public class MusicIndexService {
      * Fals positive. It has been confirmed to occur on Ubuntu. This constraint will be removed if it is confirmed the
      * rule to work properly in the future.
      */
-    private MusicIndex getIndex(SortableArtist artist, List<MusicIndex> indexes) {
+    MusicIndex getIndex(SortableArtist artist, List<MusicIndex> indexes) {
         String sortableName = artist.getSortableName().toUpperCase(settingsService.getLocale());
         for (MusicIndex index : indexes) {
             for (String prefix : index.getPrefixes()) {
