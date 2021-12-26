@@ -29,6 +29,7 @@ import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.SearchService;
+import com.tesshu.jpsonic.service.search.QueryFactory;
 import com.tesshu.jpsonic.service.search.UPnPSearchCriteria;
 import com.tesshu.jpsonic.service.search.UPnPSearchCriteriaDirector;
 import com.tesshu.jpsonic.service.upnp.processor.AlbumByGenreUpnpProcessor;
@@ -49,6 +50,7 @@ import com.tesshu.jpsonic.service.upnp.processor.RecentAlbumUpnpProcessor;
 import com.tesshu.jpsonic.service.upnp.processor.RootUpnpProcessor;
 import com.tesshu.jpsonic.service.upnp.processor.SongByGenreUpnpProcessor;
 import com.tesshu.jpsonic.service.upnp.processor.UpnpContentProcessor;
+import com.tesshu.jpsonic.service.upnp.processor.UpnpProcessorUtil;
 import com.tesshu.jpsonic.service.upnp.processor.WMPProcessor;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -89,7 +91,8 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     private final RandomSongUpnpProcessor randomSongProcessor;
     private final RandomSongByArtistUpnpProcessor randomSongByArtistProcessor;
     private final RandomSongByFolderArtistUpnpProcessor randomSongByFolderArtistProcessor;
-    private final UPnPSearchCriteriaDirector director;
+    private final QueryFactory queryFactory;
+    private final UpnpProcessorUtil util;
     private final WMPProcessor wmpProcessor;
     private final SearchService searchService;
 
@@ -104,7 +107,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
             @Lazy @Qualifier("randomAlbumUpnpProcessor") RandomAlbumUpnpProcessor randomap,
             @Lazy @Qualifier("randomSongUpnpProcessor") RandomSongUpnpProcessor randomsp,
             @Lazy RandomSongByArtistUpnpProcessor randomsbap, @Lazy RandomSongByFolderArtistUpnpProcessor randomsbfap,
-            UPnPSearchCriteriaDirector cd, WMPProcessor wmpp, SearchService ss) {
+            QueryFactory queryFactory, UpnpProcessorUtil util, WMPProcessor wmpp, SearchService ss) {
         super();
         rootProcessor = rp;
         mediaFileProcessor = mfp;
@@ -123,7 +126,8 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         randomSongProcessor = randomsp;
         randomSongByArtistProcessor = randomsbap;
         randomSongByFolderArtistProcessor = randomsbfap;
-        director = cd;
+        this.queryFactory = queryFactory;
+        this.util = util;
         this.wmpProcessor = wmpp;
         searchService = ss;
     }
@@ -189,7 +193,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         if ((offset + count) > COUNT_MAX) {
             count = COUNT_MAX - offset;
         }
-
+        UPnPSearchCriteriaDirector director = new UPnPSearchCriteriaDirector(queryFactory, util);
         UPnPSearchCriteria criteria = director.construct(offset, count, upnpSearchQuery);
 
         if (Artist.class == criteria.getAssignableClass()) {

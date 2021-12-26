@@ -81,8 +81,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 /**
  * Director class for use Lucene's QueryBuilder at the same time as UPnP message parsing.
@@ -91,8 +89,6 @@ import org.springframework.stereotype.Component;
  * Anltl4 syntax analysis class is automatically generated with reference to Service Template Version 1.01 (For UPnP
  * Version 1.0). Therefore, at this stage, this class has many redundant skeleton methods.
  */
-@Component
-@Scope("prototype")
 public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(UPnPSearchCriteriaDirector.class);
