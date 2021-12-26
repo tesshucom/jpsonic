@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiConsumer;
+import java.util.Optional;
 
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
@@ -54,10 +54,8 @@ import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser.LinksToContainer
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser.LogOpContext;
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser.ParseContext;
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser.PeopleInvolvedContext;
-import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser.PropertyBooleanValueContext;
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser.PropertyContext;
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser.PropertyExpContext;
-import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser.PropertyStringValueContext;
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser.RelOpContext;
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser.SearchCritContext;
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser.SearchExpContext;
@@ -93,8 +91,20 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(UPnPSearchCriteriaDirector.class);
 
+    private static final List<String> UNSUPPORTED_CLASS = Arrays.asList("object.container.album.photoAlbum",
+            "object.container.playlistContainer", "object.container.genre", "object.container.genre.musicGenre",
+            "object.container.genre.movieGenre", "object.container.storageSystem", "object.container.storageVolume",
+            "object.container.storageFolder");
+
+    // Outside UPnP specifications. Some older products also have bugs ported to Android apps
+    private static final String UPNP_PROP_ILLEGAL_ALBUM_ARTIST = "upnp:albumArtist";
+    private static final String UPNP_PROP_ALBUM = "upnp:album";
+    private static final String UPNP_CLASS_OP = "upnp:class";
+    private static final String UPNP_STRING_OP_DERIVED = "derivedfrom";
+
     private final QueryFactory queryFactory;
     private final UpnpProcessorUtil upnpUtil;
+    private final List<String[]> enteredSearchFields = new ArrayList<>();
 
     private BooleanQuery.Builder mediaTypeQueryBuilder;
     private BooleanQuery.Builder propExpQueryBuilder;
@@ -105,16 +115,17 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
     private String upnpSearchQuery;
     private UPnPSearchCriteria result;
 
-    private final BiConsumer<Boolean, String> notice = (b, message) -> {
-        if (b) {
-            LOG.warn("The entered query may have a grammatical error. Reason:{}", message);
+    private static void notice(Boolean noticeCondition, String reason) {
+        if (noticeCondition) {
+            LOG.warn("The entered query may have a grammatical error. Reason:{}", reason);
         }
-    };
+    }
 
-    private static final List<String> UNSUPPORTED_CLASS = Arrays.asList("object.container.album.photoAlbum",
-            "object.container.playlistContainer", "object.container.genre", "object.container.genre.musicGenre",
-            "object.container.genre.movieGenre", "object.container.storageSystem", "object.container.storageVolume",
-            "object.container.storageFolder");
+    private static IllegalArgumentException createIllegal(String message, String subject, String verb,
+            String complement) {
+        return new IllegalArgumentException(
+                message.concat(" : ").concat(subject).concat(SPACE).concat(verb).concat(SPACE).concat(complement));
+    }
 
     public UPnPSearchCriteriaDirector(QueryFactory queryFactory, UpnpProcessorUtil util) {
         this.queryFactory = queryFactory;
@@ -169,52 +180,98 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
      */
     @Override
     public void enterClassRelExp(ClassRelExpContext ctx) {
-        List<ParseTree> children = ctx.children.stream().filter(p -> !isBlank(p.getText())).collect(toList());
-        notice.accept(3 != children.size(), "The number of child elements of ClassRelExp is incorrect.");
-        final String subject = children.get(0).getText();
-        final String verb = children.get(1).getText();
-        final String complement = children.get(2).getText();
+
+        int compoundSentenceLenOfMM = 7;
+
+        List<ParseTree> trees = ctx.children.stream().filter(p -> !"(".equals(p.getText()))
+                .filter(p -> !")".equals(p.getText())).filter(p -> !isBlank(p.getText())).collect(toList());
+        notice(0 != trees.size() % 3 && trees.size() != compoundSentenceLenOfMM,
+                "The number of child elements of ClassRelExp is incorrect.");
+
+        // *** compound of sentence of MM
+        if (trees.size() == compoundSentenceLenOfMM) {
+            enterMMClassRelExp(trees);
+            return;
+        }
+
+        // *** other than MM
+        final String subject = trees.get(0).getText();
+        final String verb = trees.get(1).getText();
+        final String complement = trees.get(2).getText();
 
         if (UNSUPPORTED_CLASS.contains(complement)) {
             throw createIllegal("The current version does not support searching for this class.", subject, verb,
-                    complement);
+                    "> " + complement);
+        } else if (!UPNP_CLASS_OP.equals(subject)) {
+            throw createIllegal("Unknown class operator.", "> " + subject, verb, complement);
         }
 
         if (complement.startsWith("object.item.audioItem") || complement.startsWith("object.item.videoItem")) {
             mediaTypeQueryBuilder = new BooleanQuery.Builder();
         }
 
-        if ("derivedfrom".equals(verb)) {
-            purseDerivedfrom(subject, verb, complement);
+        if (UPNP_STRING_OP_DERIVED.equals(verb)) {
+            assignableClass = purseDerivedfrom(subject, verb, complement);
         } else if ("=".equals(verb)) {
-            purseClass(subject, verb, complement);
+            assignableClass = purseClass(subject, verb, complement);
+        } else {
+            throw createIllegal("Unknown string operator.", subject, "> " + verb, complement);
         }
     }
 
-    private void purseDerivedfrom(String subject, String verb, String complement) {
+    /*
+     * Class designation by compound sentence is rarely done in music search. (Issuing simple queries multiple times is
+     * the mainstream) This is because the compound search results are difficult for the client to handle. Currently,
+     * only MediaMonkey has been confirmed. Therefore, avoiding complicated implementation, it is divided into two
+     * patterns, a pattern assuming MM and a pattern assuming other than MM, and processed. It's hard to imagine, but if
+     * a complex implementation is needed int the future, it will of course be supported.
+     */
+    private void enterMMClassRelExp(List<ParseTree> trees) {
+        String logOp = trees.get(3).getText();
+        if ("and".equals(logOp)) {
+            throw createIllegal("Unknown class logOp of MM.", "Only or is assumed. ", "> ", trees.get(3).getText());
+        } else if (!UPNP_STRING_OP_DERIVED.equals(trees.get(1).getText())
+                || UPNP_STRING_OP_DERIVED.equals(trees.get(4).getText())) {
+            throw createIllegal("Unknown class stringOp of MM.", "> ", trees.get(1).getText(), trees.get(4).getText());
+        }
+        mediaTypeQueryBuilder = new BooleanQuery.Builder();
+        Class<?> clazz1 = purseDerivedfrom(trees.get(0).getText(), trees.get(1).getText(), trees.get(2).getText());
+        Class<?> clazz2 = purseDerivedfrom(trees.get(4).getText(), trees.get(5).getText(),
+                trees.get(6).getText().trim());
+        if (clazz1 != MediaFile.class || clazz2 != MediaFile.class) {
+            throw createIllegal("Unknown class classRelExp of MM.", "Only audio and video is assumed.",
+                    clazz1.toString(), clazz2.toString());
+        }
+        assignableClass = MediaFile.class;
+    }
+
+    private Class<?> purseDerivedfrom(String subject, String verb, String complement) {
+
+        Class<?> clazz = null;
+
         switch (complement) {
 
         // artist
         case "object.container.person":
         case "object.container.person.musicArtist":
-            assignableClass = Artist.class;
+            clazz = Artist.class;
             break;
 
         // album
         case "object.container.album":
         case "object.container.album.musicAlbum":
-            assignableClass = Album.class;
+            clazz = Album.class;
             break;
 
         // song
         case "object.item.audioItem.musicTrack":
-            assignableClass = MediaFile.class;
+            clazz = MediaFile.class;
             addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
             break;
 
         // audio
         case "object.item.audioItem":
-            assignableClass = MediaFile.class;
+            clazz = MediaFile.class;
             addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
             addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name(), Occur.SHOULD);
             addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name(), Occur.SHOULD);
@@ -222,39 +279,48 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
         // video
         case "object.item.videoItem":
-            assignableClass = MediaFile.class;
-            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name(), Occur.MUST);
+            clazz = MediaFile.class;
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name(), Occur.SHOULD);
             break;
 
         default:
+            break;
+        }
+
+        if (isEmpty(clazz)) {
             throw createIllegal("An unknown class was specified.", subject, verb, complement);
         }
+
+        return clazz;
     }
 
-    private void purseClass(String subject, String verb, String complement) {
+    private Class<?> purseClass(String subject, String verb, String complement) {
+
+        Class<?> clazz = null;
+
         switch (complement) {
 
         // artist
         case "object.container.person.musicArtist":
-            assignableClass = Artist.class;
+            clazz = Artist.class;
             break;
 
         // album
         case "object.container.album.musicAlbum":
-            assignableClass = Album.class;
+            clazz = Album.class;
             break;
 
         // audio
         case "object.item.audioItem.musicTrack":
-            assignableClass = MediaFile.class;
+            clazz = MediaFile.class;
             addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
             break;
         case "object.item.audioItem.audioBroadcast":
-            assignableClass = MediaFile.class;
+            clazz = MediaFile.class;
             addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name(), Occur.SHOULD);
             break;
         case "object.item.audioItem.audioBook":
-            assignableClass = MediaFile.class;
+            clazz = MediaFile.class;
             addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name(), Occur.SHOULD);
             break;
 
@@ -262,15 +328,21 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         case "object.item.videoItem.movie":
         case "object.item.videoItem.videoBroadcast":
         case "object.item.videoItem.musicVideoClip":
-            assignableClass = MediaFile.class;
+            clazz = MediaFile.class;
             addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name(), Occur.MUST);
             break;
 
         default:
+            break;
+        }
+
+        if (isEmpty(clazz)) {
             throw createIllegal(
                     "An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified.",
                     subject, verb, complement);
         }
+
+        return clazz;
     }
 
     @Override
@@ -345,21 +417,11 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         // Nothing is currently done.
     }
 
-    @Override
-    public void enterPropertyBooleanValue(PropertyBooleanValueContext ctx) {
-        // Nothing is currently done.
-    }
-
-    @Override
-    public void enterPropertyExp(PropertyExpContext ctx) {
-
-        List<ParseTree> children = ctx.children.stream().filter(p -> !isBlank(p.getText())).collect(toList());
-        notice.accept(3 != children.size(), "The number of child elements of ClassRelExp is incorrect.");
-        final String subject = children.get(0).getText();
-        final String complement = children.get(2).getText();
+    private String[] purseSearchFields(String upnpProp) {
         List<String> fieldName = new ArrayList<>();
+        switch (upnpProp) {
 
-        if ("dc:title".equals(subject)) {
+        case "dc:title":
             if (Album.class == assignableClass) {
                 fieldName.add(FieldNamesConstants.ALBUM);
                 fieldName.add(FieldNamesConstants.ALBUM_READING);
@@ -370,29 +432,69 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
                 fieldName.add(FieldNamesConstants.TITLE);
                 fieldName.add(FieldNamesConstants.TITLE_READING);
             }
-        } else if ("upnp:artist".equals(subject)) {
+            break;
+
+        case "upnp:artist":
+        case UPNP_PROP_ILLEGAL_ALBUM_ARTIST:
             fieldName.add(FieldNamesConstants.ARTIST);
             fieldName.add(FieldNamesConstants.ARTIST_READING);
-        } else if ("dc:creator".equals(subject)) {
+            break;
+
+        case "dc:creator":
+        case "upnp:author":
             fieldName.add(FieldNamesConstants.COMPOSER);
             fieldName.add(FieldNamesConstants.COMPOSER_READING);
+            break;
+
+        case "upnp:genre":
+            fieldName.add(FieldNamesConstants.GENRE);
+            break;
+
+        case UPNP_PROP_ALBUM:
+            if (Album.class == assignableClass) {
+                // Currently unreachable.
+                // This property is only used by MM.
+                // (Searching the Album field of an AudioItem is not common.
+                // Because it is common to search for the container title of an album or musicAlbum.)
+                // Therefore, Jpsonic does not have an "album" field for "song" search.
+                // (Increasing the number of fields leads to an increase in false searches)
+                fieldName.add(FieldNamesConstants.ALBUM);
+                fieldName.add(FieldNamesConstants.ALBUM_READING);
+            }
+            break;
+
+        default:
+            break;
         }
-        notice.accept(0 == fieldName.size(), "Unexpected PropertyExpContext. -> " + subject);
+
+        return fieldName.toArray(String[]::new);
+    }
+
+    @Override
+    public void enterPropertyExp(PropertyExpContext ctx) {
+
+        List<ParseTree> children = ctx.children.stream().filter(p -> !isBlank(p.getText())).collect(toList());
+        notice(3 != children.size(), "The number of child elements of ClassRelExp is incorrect.");
+
+        final String subject = children.get(0).getText();
+        String[] searchFields = purseSearchFields(subject);
+        if (enteredSearchFields.stream().anyMatch(s -> Arrays.equals(searchFields, s))) {
+            return;
+        }
+        enteredSearchFields.add(searchFields);
+
+        final String complement = children.get(2).getText();
+
+        notice(0 == searchFields.length && !UPNP_PROP_ALBUM.equals(subject),
+                "Unexpected PropertyExpContext. -> " + subject);
 
         try {
-            Query query = createMultiFieldQuery(fieldName.toArray(new String[0]), complement);
-            if (!isEmpty(query)) {
-                propExpQueryBuilder.add(query, isEmpty(lastLogOp) ? Occur.SHOULD : lastLogOp);
-            }
+            Optional<Query> query = createMultiFieldQuery(searchFields, complement);
+            query.ifPresent(q -> propExpQueryBuilder.add(q, isEmpty(lastLogOp) ? Occur.SHOULD : lastLogOp));
         } catch (IOException e) {
             LOG.error("Failure when generating MultiFieldQuery : ", e);
         }
 
-    }
-
-    @Override
-    public void enterPropertyStringValue(PropertyStringValueContext ctx) {
-        // Nothing is currently done.
     }
 
     @Override
@@ -551,17 +653,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
     }
 
     @Override
-    public void exitPropertyBooleanValue(PropertyBooleanValueContext ctx) {
-        // Nothing is currently done.
-    }
-
-    @Override
     public void exitPropertyExp(PropertyExpContext ctx) {
-        // Nothing is currently done.
-    }
-
-    @Override
-    public void exitPropertyStringValue(PropertyStringValueContext ctx) {
         // Nothing is currently done.
     }
 
@@ -615,12 +707,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         // Nothing is currently done.
     }
 
-    private IllegalArgumentException createIllegal(String message, String subject, String verb, String complement) {
-        return new IllegalArgumentException(
-                message.concat(" : ").concat(subject).concat(SPACE).concat(verb).concat(SPACE).concat(complement));
-    }
-
-    private Query createMultiFieldQuery(final String[] fields, final String query) throws IOException {
+    private Optional<Query> createMultiFieldQuery(final String[] fields, final String query) throws IOException {
         return queryFactory.createPhraseQuery(fields, query, getIndexType());
     }
 

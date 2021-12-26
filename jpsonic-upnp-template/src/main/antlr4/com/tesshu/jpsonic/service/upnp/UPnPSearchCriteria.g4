@@ -38,9 +38,11 @@ baseProperties
 	| 'dc:creator'
 	| 'upnp:class' ;
 
+// upnp:albumArtist is non-standard. Used internally in some products such as MediaMonkey and Twonky.
 peopleInvolved
 	: 'upnp:artist'
 	| 'upnp:artist@role'
+	| 'upnp:albumArtist'
 	| 'upnp:actor'
 	| 'upnp:actor@role'
 	| 'upnp:author'
@@ -53,7 +55,9 @@ peopleInvolved
 
 linksToContainers
 	: 'dc:genre'
+	| 'upnp:genre'
 	| 'dc:album'
+    | 'upnp:album'
 	| 'upnp:playlist' ;
 
 searchCrit
@@ -62,7 +66,7 @@ searchCrit
 	| asterisk ;
 
 searchExp
-	: classRelExp wChar+ 'and' wChar+ ( '(' propertyExp  (wChar+ logOp wChar+ propertyExp)* ')' | propertyExp ) ;
+	: classRelExp wChar+ 'and' wChar+ ( '(' ( propertyExp wChar* logOp* wChar* )* wChar* ')' | propertyExp ) ;
 
 logOp
 	: 'and'
@@ -70,11 +74,12 @@ logOp
 
 classRelExp
 	: 'upnp:class' wChar+ binOp wChar+ STRING
+	| '(' ( 'upnp:class' wChar+ binOp wChar+ STRING wChar* logOp* wChar* )* ')'
 	| propertyExp ;
 
 propertyExp
-	: property wChar+ binOp wChar+ propertyStringValue
-	| property wChar+ existsOp wChar+ propertyBooleanValue ;
+	: property wChar+ binOp wChar+ STRING
+	| property wChar+ existsOp wChar+ BOOLEAN ;
 
 binOp
 	: relOp
@@ -108,12 +113,6 @@ property
 	: baseProperties
 	| peopleInvolved
 	| linksToContainers ;
-
-propertyStringValue
-	: STRING ;
-
-propertyBooleanValue
-	: BOOLEAN ;
 
 hTab
 	: '\\u0x09' ;

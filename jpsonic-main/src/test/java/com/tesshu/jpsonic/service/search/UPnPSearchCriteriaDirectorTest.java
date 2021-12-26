@@ -339,7 +339,7 @@ public class UPnPSearchCriteriaDirectorTest {
                 UPnPSearchCriteria criteria = director.construct(0, 50,
                         "(upnp:class derivedfrom \"object.item.videoItem\" and dc:title contains \"test\")");
                 assertEquals(com.tesshu.jpsonic.domain.MediaFile.class, criteria.getAssignableClass());
-                assertEquals("+(((tit:\"test\"~1)^6.0)) +(+m:VIDEO) +(" + path + ")",
+                assertEquals("+(((tit:\"test\"~1)^6.0)) +(m:VIDEO) +(" + path + ")",
                         criteria.getParsedQuery().toString());
             }
 
@@ -769,7 +769,7 @@ public class UPnPSearchCriteriaDirectorTest {
             assertEquals(54, criteria.getCount());
             assertEquals(searchQuery5, criteria.getQuery());
             assertEquals(
-                    "+(() ((art:\"日本語 テスト\"~1)^4.0 (artR:\"日本 本語 語て てす すと\"~1)^4.2)) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +("
+                    "+(((art:\"日本語 テスト\"~1)^4.0 (artR:\"日本 本語 語て てす すと\"~1)^4.2)) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +("
                             + path + ")",
                     criteria.getParsedQuery().toString());
         }
@@ -786,7 +786,7 @@ public class UPnPSearchCriteriaDirectorTest {
             assertEquals(5, criteria.getOffset());
             assertEquals(55, criteria.getCount());
             assertEquals(searchQuery6, criteria.getQuery());
-            assertEquals("+(((tit:\"日本語 テスト\"~1)^6.0)) +(+m:VIDEO) +(" + path + ")",
+            assertEquals("+(((tit:\"日本語 テスト\"~1)^6.0)) +(m:VIDEO) +(" + path + ")",
                     criteria.getParsedQuery().toString());
         }
     }
@@ -803,6 +803,104 @@ public class UPnPSearchCriteriaDirectorTest {
                     "upnp:class derivedfrom \"object.item.audioItem.musicTrack\" and dc:title contains \"test\"");
             assertEquals(com.tesshu.jpsonic.domain.MediaFile.class, criteria.getAssignableClass());
             assertEquals("+(((tit:\"test\"~1)^6.0)) +(m:MUSIC) +(f:dummy)", criteria.getParsedQuery().toString());
+        }
+    }
+
+    @Nested
+    class MediaMonkey4AndroidTest {
+
+        @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerPersonMusicArtist
+        @DirectorDecisions.Actions.construct
+        @DirectorDecisions.Result.Criteria.AssignableClass.Artist
+        @Test
+        public void m01() {
+            UPnPSearchCriteria criteria = director.construct(0, 50,
+                    "(upnp:class = \"object.container.person.musicArtist\") and (dc:title contains \"test\" or upnp:genre contains \"test\" )");
+            assertEquals(com.tesshu.jpsonic.domain.Artist.class, criteria.getAssignableClass());
+            assertEquals("+((art:\"test\"~1 (artR:\"test\"~1)^2.2) (g:\"test\"~1)) +(fId:1)",
+                    criteria.getParsedQuery().toString());
+        }
+
+        @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerAlbumMusicAlbum
+        @DirectorDecisions.Conditions.Params.upnpSearchQuery.creator
+        @DirectorDecisions.Conditions.Settings.searchComposer.TRUE
+        @DirectorDecisions.Actions.construct
+        @DirectorDecisions.Result.Criteria.AssignableClass.Album
+        @Test
+        public void m02() {
+            UPnPSearchCriteria criteria = director.construct(0, 50,
+                    "(upnp:class = \"object.container.album.musicAlbum\") "
+                            + "and (dc:title contains \"test\" or dc:creator contains \"test\" or upnp:artist contains \"test\" )");
+            assertEquals(com.tesshu.jpsonic.domain.Album.class, criteria.getAssignableClass());
+            assertEquals(
+                    "+(((alb:\"test\"~1)^4.0) (cmp:\"test\"~1 cmpR:\"test\"~1) (art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(fId:1)",
+                    criteria.getParsedQuery().toString());
+        }
+
+        @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerAlbumMusicAlbum
+        @DirectorDecisions.Conditions.Params.upnpSearchQuery.creator
+        @DirectorDecisions.Conditions.Settings.searchComposer.FALSE
+        @DirectorDecisions.Actions.construct
+        @DirectorDecisions.Result.Criteria.AssignableClass.Album
+        @Test
+        public void m03() {
+            Mockito.when(settingsService.isSearchComposer()).thenReturn(false);
+            UPnPSearchCriteria criteria = director.construct(0, 50,
+                    "(upnp:class = \"object.container.album.musicAlbum\") "
+                            + "and (dc:title contains \"test\" or dc:creator contains \"test\" or upnp:artist contains \"test\" )");
+            assertEquals(com.tesshu.jpsonic.domain.Album.class, criteria.getAssignableClass());
+            assertEquals("+(((alb:\"test\"~1)^4.0) (art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(fId:1)",
+                    criteria.getParsedQuery().toString());
+        }
+
+        @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
+        @DirectorDecisions.Conditions.Params.upnpSearchQuery.creator
+        @DirectorDecisions.Conditions.Settings.searchComposer.TRUE
+        @DirectorDecisions.Actions.construct
+        @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+        @Test
+        public void m04() {
+            UPnPSearchCriteria criteria = director.construct(0, 50,
+                    "(upnp:class derivedfrom \"object.item.audioItem\" or upnp:class derivedfrom \"object.item.videoItem \") " //
+                            + "and (dc:title contains \"test\" " //
+                            + "or dc:creator contains \"test\" " //
+                            + "or upnp:artist contains \"test\" " //
+                            + "or upnp:albumArtist contains \"test\" " //
+                            + "or upnp:album contains \"test\" " //
+                            + "or upnp:author contains \"test\" " //
+                            + "or upnp:genre contains \"test\" )");
+            assertEquals(com.tesshu.jpsonic.domain.MediaFile.class, criteria.getAssignableClass());
+            assertEquals("+(((tit:\"test\"~1)^6.0) " //
+                    + "(cmp:\"test\"~1 (cmpR:\"test\"~1)^2.2) " //
+                    + "((art:\"test\"~1)^4.0 (artR:\"test\"~1)^4.2) " //
+                    + "(g:\"test\"~1)) " //
+                    + "+(m:MUSIC m:PODCAST m:AUDIOBOOK m:VIDEO) " // audio or video
+                    + "+(f:dummy)", criteria.getParsedQuery().toString());
+        }
+
+        @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
+        @DirectorDecisions.Conditions.Params.upnpSearchQuery.creator
+        @DirectorDecisions.Conditions.Settings.searchComposer.FALSE
+        @DirectorDecisions.Actions.construct
+        @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+        @Test
+        public void m05() {
+            Mockito.when(settingsService.isSearchComposer()).thenReturn(false);
+            UPnPSearchCriteria criteria = director.construct(0, 50,
+                    "(upnp:class derivedfrom \"object.item.audioItem\" or upnp:class derivedfrom \"object.item.videoItem \") " //
+                            + "and (dc:title contains \"test\" " //
+                            + "or dc:creator contains \"test\" " //
+                            + "or upnp:artist contains \"test\" " //
+                            + "or upnp:albumArtist contains \"test\" " //
+                            + "or upnp:album contains \"test\" " //
+                            + "or upnp:author contains \"test\" " //
+                            + "or upnp:genre contains \"test\" )");
+            assertEquals(com.tesshu.jpsonic.domain.MediaFile.class, criteria.getAssignableClass());
+            assertEquals("+(((tit:\"test\"~1)^6.0) " //
+                    + "((art:\"test\"~1)^4.0 (artR:\"test\"~1)^4.2) " //
+                    + "(g:\"test\"~1)) " //
+                    + "+(m:MUSIC m:PODCAST m:AUDIOBOOK m:VIDEO) " // audio or video
+                    + "+(f:dummy)", criteria.getParsedQuery().toString());
         }
     }
 }
