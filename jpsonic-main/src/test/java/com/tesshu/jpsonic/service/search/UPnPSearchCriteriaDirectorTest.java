@@ -903,4 +903,42 @@ public class UPnPSearchCriteriaDirectorTest {
                     + "+(f:dummy)", criteria.getParsedQuery().toString());
         }
     }
+
+    @Nested
+    class AKConnectTest {
+
+        @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemAudioItemMusicTrack
+        @DirectorDecisions.Actions.construct
+        @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+        @Test
+        public void ak01() {
+            UPnPSearchCriteria criteria = director.construct(0, 50,
+                    "upnp:class = \"object.item.audioItem.musicTrack\" and dc:title contains \"test\"");
+            assertEquals(com.tesshu.jpsonic.domain.MediaFile.class, criteria.getAssignableClass());
+            assertEquals("+(((tit:\"test\"~1)^6.0)) +(m:MUSIC) +(f:dummy)", // music only
+                    criteria.getParsedQuery().toString());
+        }
+
+        @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerAlbumMusicAlbum
+        @DirectorDecisions.Actions.construct
+        @DirectorDecisions.Result.Criteria.AssignableClass.Album
+        @Test
+        public void ak02() {
+            UPnPSearchCriteria criteria = director.construct(0, 50,
+                    "upnp:class = \"object.container.album.musicAlbum\" and dc:title contains \"test\"");
+            assertEquals(com.tesshu.jpsonic.domain.Album.class, criteria.getAssignableClass());
+            assertEquals("+(((alb:\"test\"~1)^4.0)) +(fId:1)", criteria.getParsedQuery().toString());
+        }
+
+        @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerPersonMusicArtist
+        @DirectorDecisions.Actions.construct
+        @DirectorDecisions.Result.Criteria.AssignableClass.Artist
+        @Test
+        public void ak03() {
+            UPnPSearchCriteria criteria = director.construct(0, 50,
+                    "upnp:class = \"object.container.person.musicArtist\" and dc:title contains \"test\"");
+            assertEquals(com.tesshu.jpsonic.domain.Artist.class, criteria.getAssignableClass());
+            assertEquals("+((art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(fId:1)", criteria.getParsedQuery().toString());
+        }
+    }
 }
