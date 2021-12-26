@@ -49,6 +49,7 @@ import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser.DerivedNameConte
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser.ExistsOpContext;
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser.FormFeedContext;
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser.HTabContext;
+import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser.IllegalPropContext;
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser.LineFeedContext;
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser.LinksToContainersContext;
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser.LogOpContext;
@@ -453,7 +454,6 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         case UPNP_PROP_ALBUM:
             if (Album.class == assignableClass) {
                 // Currently unreachable.
-                // This property is only used by MM.
                 // (Searching the Album field of an AudioItem is not common.
                 // Because it is common to search for the container title of an album or musicAlbum.)
                 // Therefore, Jpsonic does not have an "album" field for "song" search.
@@ -464,6 +464,11 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
             break;
 
         default:
+            /*
+             * Only the properties corresponding to the client application to be tested are added sequentially along
+             * with the operation check. Therefore, properties that have not been used will not be mapped and will be
+             * ignored. And non-standard properties(illegalProp) will be ignored.
+             */
             break;
         }
 
@@ -609,6 +614,16 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
     @Override
     public void exitLinksToContainers(LinksToContainersContext ctx) {
+        // Nothing is currently done.
+    }
+
+    @Override
+    public void enterIllegalProp(IllegalPropContext ctx) {
+        // Nothing is currently done.
+    }
+
+    @Override
+    public void exitIllegalProp(IllegalPropContext ctx) {
         // Nothing is currently done.
     }
 

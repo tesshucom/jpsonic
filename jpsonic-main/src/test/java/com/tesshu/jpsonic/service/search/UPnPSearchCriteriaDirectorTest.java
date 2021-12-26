@@ -941,4 +941,43 @@ public class UPnPSearchCriteriaDirectorTest {
             assertEquals("+((art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(fId:1)", criteria.getParsedQuery().toString());
         }
     }
+
+    @Nested
+    class Foobar2k4WinTest {
+
+        @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
+        @DirectorDecisions.Actions.construct
+        @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+        @Test
+        public void f01() {
+            UPnPSearchCriteria criteria = director.construct(0, 50, //
+                    "upnp:class derivedfrom \"object.item.audioItem\" " //
+                            + "and (dc:title contains \"test\" " //
+                            + "or upnp:genre contains \"test\" " //
+                            + "or upnp:album contains \"test\" " //
+                            + "or upnp:artist contains \"test\" " //
+                            + "or dc:creator contains \"test\" " //
+                            + "or dc:publisher contains \"test\" " //
+                            + "or dc:language contains \"test\" " //
+                            + "or upnp:producer contains \"test\" " //
+                            + "or upnp:actor contains \"test\" " //
+                            + "or upnp:director contains \"test\" " //
+                            + "or dc:description contains \"test\" " //
+                            + "or microsoft:artistAlbumArtist contains \"test\" " //
+                            + "or microsoft:artistPerformer contains \"test\" " //
+                            + "or microsoft:artistConductor contains \"test\" " //
+                            + "or microsoft:authorComposer contains \"test\" " //
+                            + "or microsoft:authorOriginalLyricist contains \"test\" " //
+                            + "or microsoft:authorWriter contains \"test\" " //
+                            + "or upnp:userAnnotation contains \"test\" " //
+                            + "or upnp:longDescription contains \"test\")");
+            assertEquals(com.tesshu.jpsonic.domain.MediaFile.class, criteria.getAssignableClass());
+            assertEquals("+(((tit:\"test\"~1)^6.0) " //
+                    + "(g:\"test\"~1) " //
+                    + "((art:\"test\"~1)^4.0 (artR:\"test\"~1)^4.2) " //
+                    + "(cmp:\"test\"~1 (cmpR:\"test\"~1)^2.2)) " //
+                    + "+(m:MUSIC m:PODCAST m:AUDIOBOOK) +(f:dummy)",
+                    criteria.getParsedQuery().toString());
+        }
+    }
 }

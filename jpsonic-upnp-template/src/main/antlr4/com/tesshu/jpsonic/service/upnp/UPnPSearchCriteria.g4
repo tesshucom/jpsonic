@@ -38,11 +38,9 @@ baseProperties
 	| 'dc:creator'
 	| 'upnp:class' ;
 
-// upnp:albumArtist is non-standard. Used internally in some products such as MediaMonkey and Twonky.
 peopleInvolved
 	: 'upnp:artist'
 	| 'upnp:artist@role'
-	| 'upnp:albumArtist'
 	| 'upnp:actor'
 	| 'upnp:actor@role'
 	| 'upnp:author'
@@ -59,6 +57,20 @@ linksToContainers
 	| 'dc:album'
     | 'upnp:album'
 	| 'upnp:playlist' ;
+
+// Non-standard properties. It will be parsed, but the query will be ignored.
+illegalProp
+	: 'upnp:albumArtist'
+	| 'dc:language'
+	| 'dc:description'
+	| 'microsoft:artistAlbumArtist'
+	| 'microsoft:artistPerformer'
+	| 'microsoft:artistConductor'
+	| 'microsoft:authorComposer'
+	| 'microsoft:authorOriginalLyricist'
+	| 'microsoft:authorWriter'
+	| 'upnp:userAnnotation'
+	| 'upnp:longDescription' ;
 
 searchCrit
 	: searchExp
@@ -112,7 +124,8 @@ wChar
 property
 	: baseProperties
 	| peopleInvolved
-	| linksToContainers ;
+	| linksToContainers
+	| illegalProp ;
 
 hTab
 	: '\\u0x09' ;
