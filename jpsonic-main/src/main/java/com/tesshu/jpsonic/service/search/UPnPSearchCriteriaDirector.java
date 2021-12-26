@@ -206,6 +206,12 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
             assignableClass = Album.class;
             break;
 
+        // song
+        case "object.item.audioItem.musicTrack":
+            assignableClass = MediaFile.class;
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
+            break;
+
         // audio
         case "object.item.audioItem":
             assignableClass = MediaFile.class;

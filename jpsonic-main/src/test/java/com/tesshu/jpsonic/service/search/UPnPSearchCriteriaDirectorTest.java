@@ -790,4 +790,19 @@ public class UPnPSearchCriteriaDirectorTest {
                     criteria.getParsedQuery().toString());
         }
     }
+
+    @Nested
+    class HiFiCastTest {
+
+        @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
+        @DirectorDecisions.Actions.construct
+        @DirectorDecisions.Result.Criteria.AssignableClass.MediaFile
+        @Test
+        public void h01() {
+            UPnPSearchCriteria criteria = director.construct(0, 50,
+                    "upnp:class derivedfrom \"object.item.audioItem.musicTrack\" and dc:title contains \"test\"");
+            assertEquals(com.tesshu.jpsonic.domain.MediaFile.class, criteria.getAssignableClass());
+            assertEquals("+(((tit:\"test\"~1)^6.0)) +(m:MUSIC) +(f:dummy)", criteria.getParsedQuery().toString());
+        }
+    }
 }
