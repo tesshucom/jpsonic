@@ -78,7 +78,7 @@ searchCrit
 	| asterisk ;
 
 searchExp
-	: classRelExp wChar+ 'and' wChar+ ( '(' ( propertyExp wChar* logOp* wChar* )* wChar* ')' | propertyExp ) ;
+	: classRelExp wChar+ 'and' wChar+ ( '(' ( wChar* propertyExp wChar* logOp* wChar* )* wChar* ')' | propertyExp ) ;
 
 logOp
 	: 'and'
