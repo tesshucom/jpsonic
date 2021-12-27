@@ -152,12 +152,15 @@ public class QueryFactory {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (BoostQuery) Not reusable
-    private Query createPhraseQuery(@NonNull String[] fieldNames, boolean includeComposer, @NonNull String queryString,
-            @NonNull IndexType indexType) throws IOException {
+    private Optional<Query> createPhraseQuery(@NonNull String[] fieldNames, boolean includeComposer,
+            @NonNull String queryString, @NonNull IndexType indexType) throws IOException {
 
         String[] targetFields = filterFields(fieldNames, includeComposer);
-        BooleanQuery.Builder fieldQuerys = new BooleanQuery.Builder();
+        if (targetFields.length == 0) {
+            return Optional.empty();
+        }
 
+        BooleanQuery.Builder fieldQuerys = new BooleanQuery.Builder();
         for (String fieldName : targetFields) {
             Optional<Query> query = createFieldQuery(fieldName, queryString);
             query.ifPresent(q -> {
@@ -166,11 +169,11 @@ public class QueryFactory {
             });
         }
 
-        return fieldQuerys.build();
+        return Optional.of(fieldQuerys.build());
     }
 
     // Called by UPnP
-    public Query createPhraseQuery(@NonNull String[] targetFields, @NonNull String queryString,
+    public Optional<Query> createPhraseQuery(@NonNull String[] targetFields, @NonNull String queryString,
             @NonNull IndexType indexType) throws IOException {
         return createPhraseQuery(targetFields, settingsService.isSearchComposer(), queryString, indexType);
     }
@@ -180,8 +183,8 @@ public class QueryFactory {
             @NonNull List<MusicFolder> musicFolders, @NonNull IndexType indexType) throws IOException {
         BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
 
-        Query multiFieldQuery = createPhraseQuery(indexType.getFields(), searchInput, indexType);
-        mainQuery.add(multiFieldQuery, Occur.MUST);
+        Optional<Query> multiFieldQuery = createPhraseQuery(indexType.getFields(), searchInput, indexType);
+        multiFieldQuery.ifPresent(q -> mainQuery.add(q, Occur.MUST));
 
         boolean isId3 = indexType == IndexType.ALBUM_ID3 || indexType == IndexType.ARTIST_ID3;
         Query folderQuery = toFolderQuery.apply(isId3, musicFolders);

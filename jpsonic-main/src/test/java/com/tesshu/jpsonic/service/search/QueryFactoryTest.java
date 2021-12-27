@@ -155,7 +155,8 @@ class QueryFactoryTest {
     @Order(2)
     void testCreatePhraseQuery() throws IOException {
         assertEquals("(tit:\"cats and dogs\"~1)^6.0 (art:\"cats and dogs\"~1)^4.0 (artR:\"cats and dogs\"~1)^4.2",
-                queryFactory.createPhraseQuery(IndexType.SONG.getFields(), "Cats and Dogs", IndexType.SONG).toString());
+                queryFactory.createPhraseQuery(IndexType.SONG.getFields(), "Cats and Dogs", IndexType.SONG).get()
+                        .toString());
 
         // XXX Yes! Comment out because PMD causes an error!
 
