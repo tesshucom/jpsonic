@@ -53,8 +53,24 @@ peopleInvolved
 
 linksToContainers
 	: 'dc:genre'
+	| 'upnp:genre'
 	| 'dc:album'
+    | 'upnp:album'
 	| 'upnp:playlist' ;
+
+// Non-standard properties. It will be parsed, but the query will be ignored.
+illegalProp
+	: 'upnp:albumArtist'
+	| 'dc:language'
+	| 'dc:description'
+	| 'microsoft:artistAlbumArtist'
+	| 'microsoft:artistPerformer'
+	| 'microsoft:artistConductor'
+	| 'microsoft:authorComposer'
+	| 'microsoft:authorOriginalLyricist'
+	| 'microsoft:authorWriter'
+	| 'upnp:userAnnotation'
+	| 'upnp:longDescription' ;
 
 searchCrit
 	: searchExp
@@ -62,7 +78,7 @@ searchCrit
 	| asterisk ;
 
 searchExp
-	: classRelExp wChar+ 'and' wChar+ ( '(' propertyExp  (wChar+ logOp wChar+ propertyExp)* ')' | propertyExp ) ;
+	: classRelExp wChar+ 'and' wChar+ ( '(' ( wChar* propertyExp wChar* logOp* wChar* )* wChar* ')' | propertyExp ) ;
 
 logOp
 	: 'and'
@@ -70,11 +86,12 @@ logOp
 
 classRelExp
 	: 'upnp:class' wChar+ binOp wChar+ STRING
+	| '(' ( 'upnp:class' wChar+ binOp wChar+ STRING wChar* logOp* wChar* )* ')'
 	| propertyExp ;
 
 propertyExp
-	: property wChar+ binOp wChar+ propertyStringValue
-	| property wChar+ existsOp wChar+ propertyBooleanValue ;
+	: property wChar+ binOp wChar+ STRING
+	| property wChar+ existsOp wChar+ BOOLEAN ;
 
 binOp
 	: relOp
@@ -107,13 +124,8 @@ wChar
 property
 	: baseProperties
 	| peopleInvolved
-	| linksToContainers ;
-
-propertyStringValue
-	: STRING ;
-
-propertyBooleanValue
-	: BOOLEAN ;
+	| linksToContainers
+	| illegalProp ;
 
 hTab
 	: '\\u0x09' ;

@@ -3,9 +3,7 @@
 # jpsonic/jpsonic
 # -->
 
-## v111.0.0 (SNAPSHOT)
-
-The binaries of SNAPSHOT are available from the latest artifacts on the [master branch](https://github.com/tesshucom/jpsonic/actions?query=branch%3Amaster) .
+## v111.0.0
 
 #### Enhancement
   * Update libs. Includes fixes for CVE-2021-44228, CVE-2021-45046, CVE-2021-45105, CVE-2021-33813, CVE-2021-42550
@@ -13,10 +11,12 @@ The binaries of SNAPSHOT are available from the latest artifacts on the [master 
   * Bump HSQLDB from 2.5.0 to 2.6.1 ([#1145](https://github.com/tesshucom/jpsonic/issues/1145))
   * Add build number to UPnP device details and About page
   * Add support for Windows Media Player ([#381](https://github.com/tesshucom/jpsonic/issues/381))
+  * Add UPnP search for MediaMonkey, Hi-Fi Cast Music Player, AK Connect 2.0, foobar2000 and Kazoo ([#1304](https://github.com/tesshucom/jpsonic/issues/1304))
 
 #### Fixes
   * Fix bug that string comparison was not appropriate in some languages ([#852](https://github.com/tesshucom/jpsonic/issues/852))
   * Minor fixes for NPE during the first scan ([#1280](https://github.com/tesshucom/jpsonic/issues/1280))
+  * Fix for Artist/Album UPnP search degradation ([#1304](https://github.com/tesshucom/jpsonic/issues/1304))
 
 <details>
 <summary>v110.2.0</summary>
