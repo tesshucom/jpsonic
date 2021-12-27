@@ -3,9 +3,7 @@
 # jpsonic/jpsonic
 # -->
 
-## v111.0.0 (SNAPSHOT)
-
-The binaries of SNAPSHOT are available from the latest artifacts on the [master branch](https://github.com/tesshucom/jpsonic/actions?query=branch%3Amaster) .
+## v111.0.0
 
 #### Enhancement
   * Update libs. Includes fixes for CVE-2021-44228, CVE-2021-45046, CVE-2021-45105, CVE-2021-33813, CVE-2021-42550
