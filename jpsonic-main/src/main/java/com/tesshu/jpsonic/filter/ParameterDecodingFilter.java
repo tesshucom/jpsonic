@@ -142,7 +142,7 @@ public class ParameterDecodingFilter implements Filter {
 
         private String[] decode(String... values) {
             if (values == null) {
-                return null;
+                return new String[0];
             }
 
             String[] result = new String[values.length];

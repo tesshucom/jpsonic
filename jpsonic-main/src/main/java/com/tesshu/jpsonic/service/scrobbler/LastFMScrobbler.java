@@ -124,7 +124,7 @@ public class LastFMScrobbler {
         }
 
         String[] lines = authenticate(registrationData);
-        if (lines == null) {
+        if (lines.length == 0) {
             return;
         }
 
@@ -178,28 +178,28 @@ public class LastFMScrobbler {
 
         if (lines[0].startsWith("BANNED")) {
             writeWarn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm. Client version is banned.");
-            return null;
+            return new String[0];
         }
 
         if (lines[0].startsWith("BADAUTH")) {
             writeWarn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm. Wrong username or password.");
-            return null;
+            return new String[0];
         }
 
         if (lines[0].startsWith("BADTIME")) {
             writeWarn(MSG_PREF_ON_FAIL + registrationData.getTitle()
                     + "' at Last.fm. Bad timestamp, please check local clock.");
-            return null;
+            return new String[0];
         }
 
         if (lines[0].startsWith("FAILED")) {
             writeWarn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm: " + lines[0]);
-            return null;
+            return new String[0];
         }
 
         if (!lines[0].startsWith("OK")) {
             writeWarn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm.  Unknown response: " + lines[0]);
-            return null;
+            return new String[0];
         }
 
         return lines;
