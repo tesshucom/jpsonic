@@ -976,8 +976,7 @@ public class UPnPSearchCriteriaDirectorTest {
                     + "(g:\"test\"~1) " //
                     + "((art:\"test\"~1)^4.0 (artR:\"test\"~1)^4.2) " //
                     + "(cmp:\"test\"~1 (cmpR:\"test\"~1)^2.2)) " //
-                    + "+(m:MUSIC m:PODCAST m:AUDIOBOOK) +(f:dummy)",
-                    criteria.getParsedQuery().toString());
+                    + "+(m:MUSIC m:PODCAST m:AUDIOBOOK) +(f:dummy)", criteria.getParsedQuery().toString());
         }
     }
 
