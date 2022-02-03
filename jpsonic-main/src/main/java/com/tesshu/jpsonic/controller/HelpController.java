@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -125,7 +126,7 @@ public class HelpController {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Could not open log file " + logFile, e);
             }
-            return null;
+            return Collections.emptyList();
         }
     }
 
