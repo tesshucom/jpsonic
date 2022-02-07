@@ -23,7 +23,7 @@
         <tomcat.version>9.0.58</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
         <jetty.version>9.4.44.v20210927</jetty.version>
-        <jetty-jsp.version>9.4.44.v20210927</jetty-jsp.version>
+        <jetty-jsp.version>9.4.45.v20220203</jetty-jsp.version>
         <pmd.version>6.42.0</pmd.version>
         <log4j.version>2.17.1</log4j.version>
         <logback.version>1.2.10</logback.version>
