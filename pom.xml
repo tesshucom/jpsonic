@@ -27,7 +27,7 @@
         <pmd.version>6.42.0</pmd.version>
         <log4j.version>2.17.1</log4j.version>
         <logback.version>1.2.10</logback.version>
-        <slf4j.version>1.7.35</slf4j.version>
+        <slf4j.version>1.7.36</slf4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
     </properties>
 
