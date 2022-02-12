@@ -146,7 +146,7 @@ public class FFmpegParser extends MetaDataParser {
      * @return Always false.
      */
     @Override
-    public boolean isEditingSupported() {
+    public boolean isEditingSupported(File file) {
         return false;
     }
 

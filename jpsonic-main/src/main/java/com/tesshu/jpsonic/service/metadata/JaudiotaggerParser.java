@@ -277,7 +277,7 @@ public class JaudiotaggerParser extends MetaDataParser {
      * @return Always true.
      */
     @Override
-    public boolean isEditingSupported() {
+    public boolean isEditingSupported(File file) {
         return true;
     }
 
