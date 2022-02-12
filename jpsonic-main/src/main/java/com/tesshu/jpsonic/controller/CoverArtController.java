@@ -64,7 +64,8 @@ import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.service.metadata.JaudiotaggerParser;
+import com.tesshu.jpsonic.service.metadata.Jaudiotagger3Parser;
+import com.tesshu.jpsonic.service.metadata.JaudiotaggerParserUtils;
 import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -102,7 +103,7 @@ public class CoverArtController {
     private final PodcastService podcastService;
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
-    private final JaudiotaggerParser jaudiotaggerParser;
+    private final Jaudiotagger3Parser jaudiotaggerParser;
     private final CoverArtLogic logic;
     private final FontLoader fontLoader;
 
@@ -110,7 +111,7 @@ public class CoverArtController {
 
     public CoverArtController(MediaFileService mediaFileService, TranscodingService transcodingService,
             PlaylistService playlistService, PodcastService podcastService, ArtistDao artistDao, AlbumDao albumDao,
-            JaudiotaggerParser jaudiotaggerParser, CoverArtLogic logic, FontLoader fontLoader) {
+            Jaudiotagger3Parser jaudiotaggerParser, CoverArtLogic logic, FontLoader fontLoader) {
         super();
         this.mediaFileService = mediaFileService;
         this.transcodingService = transcodingService;
@@ -330,7 +331,7 @@ public class CoverArtController {
             MediaFile mediaFile = mediaFileService.getMediaFile(file);
             Artwork artwork;
             LOG.trace("Reading artwork from file {}", mediaFile);
-            artwork = JaudiotaggerParser.getArtwork(mediaFile);
+            artwork = JaudiotaggerParserUtils.getArtwork(mediaFile);
             if (artwork == null) {
                 throw new ExecutionException(new NullPointerException("Image cannot be read: " + file.getPath()));
             }

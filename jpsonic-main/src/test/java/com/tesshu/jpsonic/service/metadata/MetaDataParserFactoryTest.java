@@ -77,7 +77,7 @@ class MetaDataParserFactoryTest {
         settingsService.setVideoFileTypes("mp3 flv");
 
         parser = metaDataParserFactory.getParser(someMp3);
-        assertThat(parser, instanceOf(JaudiotaggerParser.class));
+        assertThat(parser, instanceOf(Jaudiotagger3Parser.class));
 
         parser = metaDataParserFactory.getParser(someFlv);
         assertThat(parser, instanceOf(FFmpegParser.class));
