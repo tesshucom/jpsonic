@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,10 +33,13 @@ import java.net.URISyntaxException;
 import java.util.function.Function;
 
 import org.apache.commons.io.FilenameUtils;
+import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
@@ -52,6 +56,17 @@ class Jaudiotagger3ParserTest {
 
     @Nested
     class GetRawMetaDataTest {
+
+        boolean isEmptyMetaData(MetaData metaData) {
+            return isEmpty(metaData.getAlbumArtist()) && isEmpty(metaData.getAlbumName())
+                    && isEmpty(metaData.getArtist()) && isEmpty(metaData.getDiscNumber())
+                    && isEmpty(metaData.getGenre()) && isEmpty(metaData.getMusicBrainzRecordingId())
+                    && isEmpty(metaData.getMusicBrainzReleaseId()) && isEmpty(metaData.getTitle())
+                    && isEmpty(metaData.getTrackNumber()) && isEmpty(metaData.getYear())
+                    && isEmpty(metaData.getArtistSort()) && isEmpty(metaData.getAlbumSort())
+                    && isEmpty(metaData.getTitleSort()) && isEmpty(metaData.getAlbumArtistSort())
+                    && isEmpty(metaData.getComposer()) && isEmpty(metaData.getComposerSort());
+        }
 
         /*
          * Diverted Jaudiotagger test data (/MEDIAS/Metadata/tagger3/testdata). Case omitted to avoid size bloat.
@@ -336,6 +351,173 @@ class Jaudiotagger3ParserTest {
             void testDff() throws URISyntaxException {
                 assertNotNull(parser.getRawMetaData(createFile("/MEDIAS/Metadata/tagger3/testdata/test229.dff")));
             }
+
+            /*
+             * Add tags to Jaudiotagger test data(/MEDIAS/Metadata/tagger3/tagged). Due to its reliability, Music Center
+             * for PC and Mp3tag were used to edit the tags. These software use different Wav tag formats by default.
+             */
+            @Nested
+            class TaggedTest {
+
+                void assertTagsWrittenByMp3tag(MetaData metaData) {
+                    assertEquals("Mp3tag:AlbumArtist", metaData.getAlbumArtist());
+                    assertEquals("Mp3tag:Album", metaData.getAlbumName());
+                    assertEquals("Mp3tag:Artist", metaData.getArtist());
+                    assertEquals(Integer.valueOf(98), metaData.getDiscNumber());
+                    assertEquals("Mp3tag:Genre", metaData.getGenre());
+                    assertEquals("Mp3tag:MusicBrainzTrackId", metaData.getMusicBrainzRecordingId());
+                    assertEquals("Mp3tag:MusicBrainzReleaseId", metaData.getMusicBrainzReleaseId());
+                    assertEquals("Mp3tag:Title", metaData.getTitle());
+                    assertEquals(Integer.valueOf(96), metaData.getTrackNumber());
+                    assertEquals(Integer.valueOf(2022), metaData.getYear());
+                    assertEquals("Mp3tag:ArtistReading", metaData.getArtistSort());
+                    assertEquals("Mp3tag:AlbumReading", metaData.getAlbumSort());
+                    assertEquals("Mp3tag:TitleReading", metaData.getTitleSort());
+                    assertEquals("Mp3tag:AlbumArtistReading", metaData.getAlbumArtistSort());
+                    assertEquals("Mp3tag:Composer", metaData.getComposer());
+                    assertEquals("Mp3tag:ComposerReading", metaData.getComposerSort());
+                }
+
+                void assertTagsWrittenByMC4PCAndMp3tag(MetaData metaData) {
+                    assertEquals("MC4PC:AlbumArtist", metaData.getAlbumArtist());
+                    assertEquals("MC4PC:Album", metaData.getAlbumName());
+                    assertEquals("MC4PC:Artist", metaData.getArtist());
+                    assertEquals(Integer.valueOf(98), metaData.getDiscNumber());
+                    assertEquals("MC4PC:Genre", metaData.getGenre());
+                    assertEquals("Mp3tag:MusicBrainzTrackId", metaData.getMusicBrainzRecordingId());
+                    assertEquals("Mp3tag:MusicBrainzReleaseId", metaData.getMusicBrainzReleaseId());
+                    assertEquals("MC4PC:Title", metaData.getTitle());
+                    assertEquals(Integer.valueOf(96), metaData.getTrackNumber());
+                    assertEquals(Integer.valueOf(2022), metaData.getYear());
+                    assertEquals("MC4PC:ArtistReading", metaData.getArtistSort());
+                    assertEquals("MC4PC:AlbumReading", metaData.getAlbumSort());
+                    assertEquals("MC4PC:TitleReading", metaData.getTitleSort());
+                    assertEquals("MC4PC:AlbumArtistReading", metaData.getAlbumArtistSort());
+                    assertEquals("MC4PC:Composer", metaData.getComposer());
+                    assertEquals("Mp3tag:ComposerReading", metaData.getComposerSort());
+                }
+
+                @Test
+                void testOgg() throws URISyntaxException, CannotReadException, IOException, TagException,
+                        ReadOnlyFileException, InvalidAudioFrameException {
+                    MetaData metaData = parser.getRawMetaData(createFile("/MEDIAS/Metadata/tagger3/tagged/test.ogg"));
+                    assertNotNull(metaData);
+                    assertTagsWrittenByMp3tag(metaData);
+                    assertTrue(metaData.isVariableBitRate());
+                    assertEquals(Integer.valueOf(192), metaData.getBitRate());
+                    assertEquals(Integer.valueOf(1), metaData.getDurationSeconds());
+                }
+
+                @Test
+                void testFlac() throws URISyntaxException, CannotReadException, IOException, TagException,
+                        ReadOnlyFileException, InvalidAudioFrameException {
+                    MetaData metaData = parser.getRawMetaData(createFile("/MEDIAS/Metadata/tagger3/tagged/test.flac"));
+                    assertNotNull(metaData);
+                    assertTagsWrittenByMC4PCAndMp3tag(metaData);
+                    assertTrue(metaData.isVariableBitRate());
+                    assertEquals(Integer.valueOf(192), metaData.getBitRate());
+                    assertEquals(Integer.valueOf(5), metaData.getDurationSeconds());
+                }
+
+                @Test
+                void testMp3() throws URISyntaxException, CannotReadException, IOException, TagException,
+                        ReadOnlyFileException, InvalidAudioFrameException {
+                    MetaData metaData = parser.getRawMetaData(createFile("/MEDIAS/Metadata/tagger3/tagged/01.mp3"));
+                    assertNotNull(metaData);
+                    assertTagsWrittenByMp3tag(metaData);
+                    assertFalse(metaData.isVariableBitRate());
+                    assertEquals(Integer.valueOf(64), metaData.getBitRate());
+                    assertEquals(Integer.valueOf(14), metaData.getDurationSeconds());
+                }
+
+                @Test
+                void testM4a() throws URISyntaxException, CannotReadException, IOException, TagException,
+                        ReadOnlyFileException, InvalidAudioFrameException {
+                    MetaData metaData = parser.getRawMetaData(createFile("/MEDIAS/Metadata/tagger3/tagged/test.m4a"));
+                    assertNotNull(metaData);
+                    assertTagsWrittenByMp3tag(metaData);
+                    assertTrue(metaData.isVariableBitRate());
+                    assertEquals(Integer.valueOf(128), metaData.getBitRate());
+                    assertEquals(Integer.valueOf(242), metaData.getDurationSeconds());
+                }
+
+                /*
+                 * Wav files that are not ID3 chunks are treated as empty. (The process of reloading the tag is not
+                 * implemented). In other words, it works the same as Unsupported Formats. This is because tag
+                 * management with Wav is not common anyway.
+                 */
+                @Test
+                void testWavMC4PCTag() throws CannotReadException, IOException, TagException, ReadOnlyFileException,
+                        InvalidAudioFrameException, URISyntaxException {
+                    MetaData metaData = parser.getRawMetaData(createFile("/MEDIAS/Metadata/tagger3/tagged/mc4pc.wav"));
+                    assertNotNull(metaData);
+                    // Tags are not loaded.
+                    assertTrue(isEmptyMetaData(metaData));
+                    // Only audio headers will be used.
+                    assertFalse(metaData.isVariableBitRate());
+                    assertEquals(Integer.valueOf(176), metaData.getBitRate());
+                    assertEquals(Integer.valueOf(14), metaData.getDurationSeconds());
+                }
+
+                @Test
+                void testWavTag() throws URISyntaxException {
+                    MetaData metaData = parser.getRawMetaData(createFile("/MEDIAS/Metadata/tagger3/tagged/test.wav"));
+                    assertNotNull(metaData);
+                    assertFalse(isEmptyMetaData(metaData));
+                    assertFalse(metaData.isVariableBitRate());
+                    assertEquals(Integer.valueOf(176), metaData.getBitRate());
+                    assertEquals(Integer.valueOf(14), metaData.getDurationSeconds());
+                }
+
+                @Test
+                void testWma() throws CannotReadException, IOException, TagException, ReadOnlyFileException,
+                        InvalidAudioFrameException, URISyntaxException {
+                    MetaData metaData = parser.getRawMetaData(createFile("/MEDIAS/Metadata/tagger3/tagged/test1.wma"));
+                    assertNotNull(metaData);
+                    assertTagsWrittenByMC4PCAndMp3tag(metaData);
+                    assertFalse(metaData.isVariableBitRate());
+                    assertEquals(Integer.valueOf(32), metaData.getBitRate());
+                    assertEquals(Integer.valueOf(220), metaData.getDurationSeconds());
+                }
+
+                @Test
+                void testAif() throws CannotReadException, IOException, TagException, ReadOnlyFileException,
+                        InvalidAudioFrameException, URISyntaxException {
+                    MetaData metaData = parser
+                            .getRawMetaData(createFile("/MEDIAS/Metadata/tagger3/tagged/test119.aif"));
+                    assertNotNull(metaData);
+                    assertFalse(isEmptyMetaData(metaData));
+                    assertFalse(metaData.isVariableBitRate());
+                    assertEquals(Integer.valueOf(128), metaData.getBitRate());
+                    assertEquals(Integer.valueOf(3), metaData.getDurationSeconds());
+                }
+
+                @Test
+                void testDsf() throws URISyntaxException, CannotReadException, IOException, TagException,
+                        ReadOnlyFileException, InvalidAudioFrameException {
+                    MetaData metaData = parser
+                            .getRawMetaData(createFile("/MEDIAS/Metadata/tagger3/tagged/test122.dsf"));
+                    assertNotNull(metaData);
+                    assertTagsWrittenByMC4PCAndMp3tag(metaData);
+                    assertFalse(metaData.isVariableBitRate());
+                    assertEquals(Integer.valueOf(5_644_800), metaData.getBitRate());
+                    assertEquals(Integer.valueOf(5), metaData.getDurationSeconds());
+                }
+
+                @Test
+                void testDff() throws URISyntaxException, CannotReadException, IOException, TagException,
+                        ReadOnlyFileException, InvalidAudioFrameException {
+                    MetaData metaData = parser
+                            .getRawMetaData(createFile("/MEDIAS/Metadata/tagger3/tagged/test229.dff"));
+                    // Tags are not loaded.
+                    assertNotNull(metaData);
+                    assertTrue(isEmptyMetaData(metaData));
+                    // Only audio headers will be used.
+                    assertFalse(metaData.isVariableBitRate());
+                    assertEquals(Integer.valueOf(5_644_800), metaData.getBitRate());
+                    assertEquals(Integer.valueOf(5), metaData.getDurationSeconds());
+                }
+            }
         }
 
         @Nested
@@ -343,14 +525,24 @@ class Jaudiotagger3ParserTest {
 
             @Test
             void testMp4() throws URISyntaxException {
-                assertNotNull(parser.getRawMetaData(createFile("/MEDIAS/Metadata/tagger3/testdata/test.stem.mp4")));
+                MetaData metaData = parser
+                        .getRawMetaData(createFile("/MEDIAS/Metadata/tagger3/testdata/test.stem.mp4"));
+                assertNotNull(metaData);
+                assertTrue(isEmptyMetaData(metaData));
                 // assertNotNull(
                 // parser.getRawMetaData(createFile("/MEDIAS/Metadata/tagger3/testdata/test218.mp4")));
             }
 
+            /*
+             * RealAudio has a hierarchical tag specification like Wav. Jpaonic has no plans to implement a parser at
+             * this time (because Jaudiotagger has not officially announced support). If you do support, you will need
+             * to pay attention to the tag specifications.
+             */
             @Test
             void testRm() throws URISyntaxException {
-                assertNotNull(parser.getRawMetaData(createFile("/MEDIAS/Metadata/tagger3/testdata/test05.rm")));
+                MetaData metaData = parser.getRawMetaData(createFile("/MEDIAS/Metadata/tagger3/testdata/test05.rm"));
+                assertNotNull(metaData);
+                assertTrue(isEmptyMetaData(metaData));
                 // assertNotNull(
                 // parser.getRawMetaData(createFile("/MEDIAS/Metadata/tagger3/testdata/test06.rm")));
                 // assertNotNull(
@@ -541,6 +733,140 @@ class Jaudiotagger3ParserTest {
             File shn = createFile("/MEDIAS/Metadata/tagger3/dummy/empty.shn");
             e = assertThrows(CannotReadException.class, () -> AudioFileIO.read(shn));
             assertEquals(notsupportedMsg.apply(shn), e.getMessage());
+        }
+
+        @Nested
+        class TaggedTest {
+
+            void assertTagsWrittenByMp3tag(Tag tag) {
+                assertEquals("Mp3tag:AlbumArtist", tag.getFirst(FieldKey.ALBUM_ARTIST));
+                assertEquals("Mp3tag:Album", tag.getFirst(FieldKey.ALBUM));
+                assertEquals("Mp3tag:Artist", tag.getFirst(FieldKey.ARTIST));
+                assertEquals("98", tag.getFirst(FieldKey.DISC_NO));
+                assertEquals("Mp3tag:Genre", tag.getFirst(FieldKey.GENRE));
+                assertEquals("Mp3tag:MusicBrainzTrackId", tag.getFirst(FieldKey.MUSICBRAINZ_TRACK_ID));
+                assertEquals("Mp3tag:MusicBrainzReleaseId", tag.getFirst(FieldKey.MUSICBRAINZ_RELEASEID));
+                assertEquals("Mp3tag:Title", tag.getFirst(FieldKey.TITLE));
+                assertEquals("96", tag.getFirst(FieldKey.TRACK));
+                assertEquals("2022", tag.getFirst(FieldKey.YEAR));
+                assertEquals("Mp3tag:ArtistReading", tag.getFirst(FieldKey.ARTIST_SORT));
+                assertEquals("Mp3tag:AlbumReading", tag.getFirst(FieldKey.ALBUM_SORT));
+                assertEquals("Mp3tag:TitleReading", tag.getFirst(FieldKey.TITLE_SORT));
+                assertEquals("Mp3tag:AlbumArtistReading", tag.getFirst(FieldKey.ALBUM_ARTIST_SORT));
+                assertEquals("Mp3tag:Composer", tag.getFirst(FieldKey.COMPOSER));
+                assertEquals("Mp3tag:ComposerReading", tag.getFirst(FieldKey.COMPOSER_SORT));
+            }
+
+            void assertTagsWrittenByMC4PCAndMp3tag(Tag tag) {
+                assertEquals("MC4PC:AlbumArtist", tag.getFirst(FieldKey.ALBUM_ARTIST));
+                assertEquals("MC4PC:Album", tag.getFirst(FieldKey.ALBUM));
+                assertEquals("MC4PC:Artist", tag.getFirst(FieldKey.ARTIST));
+                assertEquals("98", tag.getFirst(FieldKey.DISC_NO));
+                assertEquals("MC4PC:Genre", tag.getFirst(FieldKey.GENRE));
+                assertEquals("Mp3tag:MusicBrainzTrackId", tag.getFirst(FieldKey.MUSICBRAINZ_TRACK_ID));
+                assertEquals("Mp3tag:MusicBrainzReleaseId", tag.getFirst(FieldKey.MUSICBRAINZ_RELEASEID));
+                assertEquals("MC4PC:Title", tag.getFirst(FieldKey.TITLE));
+                assertEquals("96", tag.getFirst(FieldKey.TRACK));
+                assertEquals("2022-01-01", tag.getFirst(FieldKey.YEAR));
+                assertEquals("MC4PC:ArtistReading", tag.getFirst(FieldKey.ARTIST_SORT));
+                assertEquals("MC4PC:AlbumReading", tag.getFirst(FieldKey.ALBUM_SORT));
+                assertEquals("MC4PC:TitleReading", tag.getFirst(FieldKey.TITLE_SORT));
+                assertEquals("MC4PC:AlbumArtistReading", tag.getFirst(FieldKey.ALBUM_ARTIST_SORT));
+                assertEquals("MC4PC:Composer", tag.getFirst(FieldKey.COMPOSER));
+                assertEquals("Mp3tag:ComposerReading", tag.getFirst(FieldKey.COMPOSER_SORT));
+            }
+
+            @Test
+            void testOgg() throws URISyntaxException, CannotReadException, IOException, TagException,
+                    ReadOnlyFileException, InvalidAudioFrameException {
+                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/tagger3/tagged/test.ogg"));
+                Tag tag = af.getTag();
+                assertNotNull(tag);
+                assertTagsWrittenByMp3tag(tag);
+            }
+
+            @Test
+            void testFlac() throws URISyntaxException, CannotReadException, IOException, TagException,
+                    ReadOnlyFileException, InvalidAudioFrameException {
+                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/tagger3/tagged/test.flac"));
+                Tag tag = af.getTag();
+                assertNotNull(tag);
+                assertTagsWrittenByMC4PCAndMp3tag(tag);
+            }
+
+            @Test
+            void testMp3() throws URISyntaxException, CannotReadException, IOException, TagException,
+                    ReadOnlyFileException, InvalidAudioFrameException {
+                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/tagger3/tagged/01.mp3"));
+                Tag tag = af.getTag();
+                assertNotNull(tag);
+                assertTagsWrittenByMp3tag(tag);
+
+            }
+
+            @Test
+            void testM4a() throws URISyntaxException, CannotReadException, IOException, TagException,
+                    ReadOnlyFileException, InvalidAudioFrameException {
+                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/tagger3/tagged/test.m4a"));
+                Tag tag = af.getTag();
+                assertNotNull(tag);
+                assertTagsWrittenByMp3tag(tag);
+            }
+
+            @Test
+            void testWavMC4PC() throws CannotReadException, IOException, TagException, ReadOnlyFileException,
+                    InvalidAudioFrameException, URISyntaxException {
+                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/tagger3/tagged/mc4pc.wav"));
+                Tag tag = af.getTag();
+                assertEquals("", tag.getFirst(FieldKey.ALBUM_ARTIST));
+            }
+
+            @Test
+            void testWav() throws CannotReadException, IOException, TagException, ReadOnlyFileException,
+                    InvalidAudioFrameException, URISyntaxException {
+                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/tagger3/tagged/test.wav"));
+                Tag tag = af.getTag();
+                assertNotNull(tag);
+                assertTagsWrittenByMp3tag(tag);
+            }
+
+            /*
+             * COMPOSER_SORT(WM/ComposerSortOrder) is different from the published document.
+             */
+            @Test
+            void testWma() throws CannotReadException, IOException, TagException, ReadOnlyFileException,
+                    InvalidAudioFrameException, URISyntaxException {
+                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/tagger3/tagged/test1.wma"));
+                Tag tag = af.getTag();
+                assertNotNull(tag);
+                assertTagsWrittenByMC4PCAndMp3tag(tag);
+            }
+
+            @Test
+            void testAif() throws CannotReadException, IOException, TagException, ReadOnlyFileException,
+                    InvalidAudioFrameException, URISyntaxException {
+                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/tagger3/tagged/test119.aif"));
+                Tag tag = af.getTag();
+                assertNotNull(tag);
+                assertTagsWrittenByMp3tag(tag);
+            }
+
+            @Test
+            void testDsf() throws URISyntaxException, CannotReadException, IOException, TagException,
+                    ReadOnlyFileException, InvalidAudioFrameException {
+                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/tagger3/tagged/test122.dsf"));
+                Tag tag = af.getTag();
+                assertNotNull(tag);
+                assertTagsWrittenByMC4PCAndMp3tag(tag);
+            }
+
+            @Test
+            void testDff() throws URISyntaxException, CannotReadException, IOException, TagException,
+                    ReadOnlyFileException, InvalidAudioFrameException {
+                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/tagger3/tagged/test229.dff"));
+                // Tags are not loaded. Only audio headers will be used.
+                assertNull(af.getTag());
+            }
         }
     }
 
