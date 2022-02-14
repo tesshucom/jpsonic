@@ -22,9 +22,13 @@
 package com.tesshu.jpsonic.service.metadata;
 
 import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.LogManager;
@@ -32,9 +36,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.tesshu.jpsonic.domain.MediaFile;
+import org.apache.commons.io.FilenameUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.SupportedFileFormat;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
@@ -42,6 +48,7 @@ import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
 import org.jaudiotagger.tag.images.Artwork;
 import org.jaudiotagger.tag.reference.GenreTypes;
+import org.jaudiotagger.tag.wav.WavTag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +63,25 @@ public final class JaudiotaggerParserUtils {
     private static final Pattern TRACK_NO_PATTERN = Pattern.compile("(\\d+)/\\d+");
     private static final Pattern YEAR_NO_PATTERN = Pattern.compile("(\\d{4}).*");
     private static final Logger LOG = LoggerFactory.getLogger(JaudiotaggerParserUtils.class);
+
+    // @see AudioFileIO#prepareReadersAndWriters
+    // MP4: with FFmpegParser
+    // M4P: Not supported by ffmpeg
+    // RA: Not published in document
+    // RM: Not published in document
+    // DFF: Headers can be read, but tags cannot be read
+    private static final List<String> IMG_APPLICABLES = Arrays.asList(SupportedFileFormat.OGG.getFilesuffix(), //
+            SupportedFileFormat.OGA.getFilesuffix(), //
+            SupportedFileFormat.FLAC.getFilesuffix(), //
+            SupportedFileFormat.MP3.getFilesuffix(), //
+            SupportedFileFormat.M4A.getFilesuffix(), //
+            SupportedFileFormat.M4B.getFilesuffix(), //
+            SupportedFileFormat.WAV.getFilesuffix(), // Depends on chunk format
+            SupportedFileFormat.WMA.getFilesuffix(), //
+            SupportedFileFormat.AIF.getFilesuffix(), //
+            SupportedFileFormat.AIFC.getFilesuffix(), //
+            SupportedFileFormat.AIFF.getFilesuffix(), //
+            SupportedFileFormat.DSF.getFilesuffix()); //
 
     static {
         try {
@@ -140,18 +166,42 @@ public final class JaudiotaggerParserUtils {
         return file.getParentFile().getName().concat("/").concat(file.getName());
     }
 
-    public static @Nullable Artwork getArtwork(MediaFile file) {
-        AudioFile audioFile;
+    @SuppressWarnings("PMD.GuardLogStatement")
+    public static @Nullable Artwork getArtwork(MediaFile mediaFile) {
+
+        File file = mediaFile.getFile();
+
+        if (!file.isFile()) {
+            return null;
+        }
+
+        String ext = FilenameUtils.getExtension(file.getName()).toLowerCase(Locale.getDefault());
+        if (!IMG_APPLICABLES.contains(ext)) {
+            return null;
+        }
+
+        AudioFile af;
         try {
-            audioFile = AudioFileIO.read(file.getFile());
+            af = AudioFileIO.read(file);
         } catch (CannotReadException | IOException | TagException | ReadOnlyFileException
                 | InvalidAudioFrameException e) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to find cover art tag in " + file, e);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Unable to read cover art: ".concat(createSimplePath(file)), e);
+            } else {
+                LOG.warn("Unable to read cover art in ".concat(createSimplePath(file)).concat(": [{}]"),
+                        e.getMessage().trim());
             }
             return null;
         }
-        Tag tag = audioFile.getTag();
-        return tag == null ? null : tag.getFirstArtwork();
+
+        Tag tag = af.getTag();
+        if (isEmpty(tag)) {
+            return null;
+        } else if (tag instanceof WavTag && !((WavTag) tag).isExistingId3Tag()) {
+            LOG.info("Cover art is only supported in ID3 chunks: {}", createSimplePath(file));
+            return null;
+        }
+
+        return tag.getFirstArtwork();
     }
 }
