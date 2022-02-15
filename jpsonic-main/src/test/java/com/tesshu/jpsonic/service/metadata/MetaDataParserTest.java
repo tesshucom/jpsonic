@@ -52,7 +52,7 @@ class MetaDataParserTest {
             }
 
             @Override
-            public boolean isEditingSupported() {
+            public boolean isEditingSupported(File file) {
                 return false;
             }
 

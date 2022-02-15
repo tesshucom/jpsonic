@@ -40,7 +40,8 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
-import com.tesshu.jpsonic.service.metadata.JaudiotaggerParser;
+import com.tesshu.jpsonic.service.metadata.Jaudiotagger3Parser;
+import com.tesshu.jpsonic.service.metadata.JaudiotaggerParserUtils;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
@@ -70,7 +71,7 @@ public class MediaFileService {
     private final Ehcache mediaFileMemoryCache;
     private final MediaFileDao mediaFileDao;
     private final AlbumDao albumDao;
-    private final JaudiotaggerParser parser;
+    private final Jaudiotagger3Parser parser;
     private final MetaDataParserFactory metaDataParserFactory;
     private final MediaFileServiceUtils utils;
 
@@ -78,7 +79,7 @@ public class MediaFileService {
 
     public MediaFileService(SettingsService settingsService, MusicFolderService musicFolderService,
             SecurityService securityService, Ehcache mediaFileMemoryCache, MediaFileDao mediaFileDao, AlbumDao albumDao,
-            JaudiotaggerParser parser, MetaDataParserFactory metaDataParserFactory, MediaFileServiceUtils utils) {
+            Jaudiotagger3Parser parser, MetaDataParserFactory metaDataParserFactory, MediaFileServiceUtils utils) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
@@ -784,7 +785,7 @@ public class MediaFileService {
         // Look for embedded images in audiofiles. (Only check first audio file encountered).
         for (File candidate : candidates) {
             if (parser.isApplicable(candidate)) {
-                return JaudiotaggerParser.getArtwork(getMediaFile(candidate)) == null ? null : candidate;
+                return JaudiotaggerParserUtils.getArtwork(getMediaFile(candidate)) == null ? null : candidate;
             }
         }
         return null;

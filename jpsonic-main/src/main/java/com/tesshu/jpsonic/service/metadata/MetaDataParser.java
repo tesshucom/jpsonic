@@ -111,7 +111,7 @@ public abstract class MetaDataParser {
      *
      * @return Whether tag editing is supported.
      */
-    public abstract boolean isEditingSupported();
+    public abstract boolean isEditingSupported(File file);
 
     /**
      * Guesses the artist for the given file.
