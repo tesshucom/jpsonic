@@ -32,7 +32,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.metadata.JaudiotaggerParser;
+import com.tesshu.jpsonic.service.metadata.JaudiotaggerParserUtils;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.util.LegacyMap;
@@ -79,7 +79,7 @@ public class EditTagsController {
             map.put("defaultYear", files.get(0).getYear());
             map.put("defaultGenre", files.get(0).getGenre());
         }
-        map.put("allGenres", JaudiotaggerParser.getID3V1Genres());
+        map.put("allGenres", JaudiotaggerParserUtils.getID3V1Genres());
 
         List<ParsedSong> parsedSongs = new ArrayList<>();
         for (int i = 0; i < files.size(); i++) {
