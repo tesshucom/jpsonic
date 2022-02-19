@@ -431,6 +431,34 @@ class Jaudiotagger3ParserTest {
                 }
 
                 @Test
+                void testMp3v1() throws URISyntaxException, CannotReadException, IOException, TagException,
+                        ReadOnlyFileException, InvalidAudioFrameException {
+                    MetaData metaData = parser.getRawMetaData(createFile("/MEDIAS/Metadata/v1/Mp3tag3.12.mp3"));
+                    assertNotNull(metaData);
+
+                    assertEquals("Mp3tag:Artist", metaData.getAlbumArtist()); // Because the value is copied
+                    assertEquals("Mp3tag:Album", metaData.getAlbumName());
+                    assertEquals("Mp3tag:Artist", metaData.getArtist());
+                    assertNull(metaData.getDiscNumber());
+                    assertEquals("Acoustic", metaData.getGenre());
+                    assertNull(metaData.getMusicBrainzRecordingId());
+                    assertNull(metaData.getMusicBrainzReleaseId());
+                    assertEquals("Mp3tag:Title", metaData.getTitle());
+                    assertEquals(Integer.valueOf(96), metaData.getTrackNumber());
+                    assertEquals(Integer.valueOf(2022), metaData.getYear());
+                    assertNull(metaData.getArtistSort());
+                    assertNull(metaData.getAlbumSort());
+                    assertNull(metaData.getTitleSort());
+                    assertNull(metaData.getAlbumArtistSort());
+                    assertNull(metaData.getComposer());
+                    assertNull(metaData.getComposerSort());
+
+                    assertFalse(metaData.isVariableBitRate());
+                    assertEquals(Integer.valueOf(320), metaData.getBitRate());
+                    assertEquals(Integer.valueOf(0), metaData.getDurationSeconds());
+                }
+
+                @Test
                 void testM4a() throws URISyntaxException, CannotReadException, IOException, TagException,
                         ReadOnlyFileException, InvalidAudioFrameException {
                     MetaData metaData = parser.getRawMetaData(createFile("/MEDIAS/Metadata/tagger3/tagged/test.m4a"));
@@ -801,7 +829,35 @@ class Jaudiotagger3ParserTest {
                 Tag tag = af.getTag();
                 assertNotNull(tag);
                 assertTagsWrittenByMp3tag(tag);
+            }
 
+            @Test
+            void testMp3v1() throws URISyntaxException, CannotReadException, IOException, TagException,
+                    ReadOnlyFileException, InvalidAudioFrameException {
+                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/v1/Mp3tag3.12.mp3"));
+                Tag tag = af.getTag();
+                assertNotNull(tag);
+
+                /*
+                 * Earlier versions of Jaudiotagger threw NotFound when using incompatible keys. Currently blank are
+                 * returned.
+                 */
+                assertEquals("", tag.getFirst(FieldKey.ALBUM_ARTIST));
+                assertEquals("Mp3tag:Album", tag.getFirst(FieldKey.ALBUM));
+                assertEquals("Mp3tag:Artist", tag.getFirst(FieldKey.ARTIST));
+                assertEquals("", tag.getFirst(FieldKey.DISC_NO));
+                assertEquals("Acoustic", tag.getFirst(FieldKey.GENRE));
+                assertEquals("", tag.getFirst(FieldKey.MUSICBRAINZ_TRACK_ID));
+                assertEquals("", tag.getFirst(FieldKey.MUSICBRAINZ_RELEASEID));
+                assertEquals("Mp3tag:Title", tag.getFirst(FieldKey.TITLE));
+                assertEquals("96", tag.getFirst(FieldKey.TRACK));
+                assertEquals("2022", tag.getFirst(FieldKey.YEAR));
+                assertEquals("", tag.getFirst(FieldKey.ARTIST_SORT));
+                assertEquals("", tag.getFirst(FieldKey.ALBUM_SORT));
+                assertEquals("", tag.getFirst(FieldKey.TITLE_SORT));
+                assertEquals("", tag.getFirst(FieldKey.ALBUM_ARTIST_SORT));
+                assertEquals("", tag.getFirst(FieldKey.COMPOSER));
+                assertEquals("", tag.getFirst(FieldKey.COMPOSER_SORT));
             }
 
             @Test
