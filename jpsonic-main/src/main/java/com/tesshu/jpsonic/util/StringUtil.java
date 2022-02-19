@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -61,6 +62,9 @@ public final class StringUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(StringUtil.class);
 
+    private static final Pair<String> ENV_MIME_DSF = Pair.of("jpsonic.mime.dsf", "audio/x-dsd");
+    private static final Pair<String> ENV_MIME_DFF = Pair.of("jpsonic.mime.dff", "audio/x-dsd");
+
     public static final String ENCODING_UTF8 = "UTF-8";
     private static final Pattern SPLIT_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
     private static final String MP4 = "audio/mp4";
@@ -73,6 +77,8 @@ public final class StringUtil {
             { "m4a", MP4 }, { "m4b", MP4 }, { "flac", "audio/flac" }, { "wav", "audio/x-wav" },
             { "wma", "audio/x-ms-wma" }, { "ape", "audio/x-monkeys-audio" }, { "mpc", "audio/x-musepack" },
             { "shn", "audio/x-shn" },
+            { "dsf", Optional.ofNullable(System.getProperty(ENV_MIME_DSF.key)).orElse(ENV_MIME_DSF.defaultValue) },
+            { "dff", Optional.ofNullable(System.getProperty(ENV_MIME_DFF.key)).orElse(ENV_MIME_DFF.defaultValue) },
 
             { "flv", "video/x-flv" }, { "avi", "video/avi" }, { "mpg", "video/mpeg" }, { "mpeg", "video/mpeg" },
             { "mp4", "video/mp4" }, { "m4v", "video/x-m4v" }, { "mkv", "video/x-matroska" },
@@ -413,5 +419,21 @@ public final class StringUtil {
             return null;
         }
         return s.replaceAll("<.*?>", "");
+    }
+
+    @SuppressWarnings("PMD.ShortClassName")
+    static class Pair<V> {
+        final String key;
+        final V defaultValue;
+
+        private Pair(String key, V defaultValue) {
+            super();
+            this.key = key;
+            this.defaultValue = defaultValue;
+        }
+
+        public static <V> Pair<V> of(String key, V defaultValue) {
+            return new Pair<>(key, defaultValue);
+        }
     }
 }
