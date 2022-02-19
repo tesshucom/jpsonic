@@ -20,7 +20,6 @@
 package com.tesshu.jpsonic.service;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -55,6 +54,7 @@ import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
 import com.tesshu.jpsonic.io.TranscodeInputStream;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.service.TranscodingService.Parameters;
+import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -507,9 +507,9 @@ class TranscodingServiceTest {
     @Test
     @Order(10)
     void testSplitCommand() throws IOException {
-        assertThat(transcodingService.splitCommand("key1 value1 key2 value2"),
+        MatcherAssert.assertThat(transcodingService.splitCommand("key1 value1 key2 value2"),
                 Matchers.arrayContaining("key1", "value1", "key2", "value2"));
-        assertThat(transcodingService.splitCommand("key1 value1 key2 \"value2-1 value2-2\""),
+        MatcherAssert.assertThat(transcodingService.splitCommand("key1 value1 key2 \"value2-1 value2-2\""),
                 Matchers.arrayContaining("key1", "value1", "key2", "\"value2-1 value2-2\""));
     }
 

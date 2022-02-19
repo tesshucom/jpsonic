@@ -79,6 +79,7 @@ public class TranscodingService {
 
     private static final Logger LOG = LoggerFactory.getLogger(TranscodingService.class);
     public static final String FORMAT_RAW = "raw";
+    public static final String FORMAT_FLAC = "flac";
     private static final Pattern SPLIT_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
 
     private final SettingsService settingsService;
@@ -604,7 +605,7 @@ public class TranscodingService {
                 : mediaFile.getBitRate();
         if (!mediaFile.isVideo()) {
             if (mediaFile.isVariableBitRate() && transcoding == null
-                    || transcoding != null && !"flac".equalsIgnoreCase(transcoding.getTargetFormat())) {
+                    || transcoding != null && !FORMAT_FLAC.equalsIgnoreCase(transcoding.getTargetFormat())) {
                 // Assume VBR needs approx 20% more bandwidth to maintain equivalent quality in CBR
                 bitRate = bitRate * 6 / 5;
             }
@@ -709,9 +710,15 @@ public class TranscodingService {
             break;
 
         case FLAC:
-            transcoding = new Transcoding(null, Transcodings.FLAC.getName(), "flac", "flac",
+            transcoding = new Transcoding(null, Transcodings.FLAC.getName(), FORMAT_FLAC, FORMAT_FLAC,
                     "ffmpeg -i %s -map 0:0 -v 0 -sample_fmt s16 -vn -ar 44100 -ac 2 -acodec flac -f flac -", null, null,
                     false);
+            break;
+
+        case DSF:
+            transcoding = new Transcoding(null, Transcodings.DSF.getName(), "dsf", FORMAT_FLAC,
+                    "ffmpeg -i %s -map 0:0 -v 0 -sample_fmt s16 -vn -ar 44100 -ac 2 -acodec flac -f flac -af \"lowpass=24000, volume=6dB\" -",
+                    null, null, true);
             break;
 
         case FLV:
