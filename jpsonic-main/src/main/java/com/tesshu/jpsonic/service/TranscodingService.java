@@ -28,11 +28,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.controller.VideoPlayerController;
@@ -76,6 +79,7 @@ public class TranscodingService {
 
     private static final Logger LOG = LoggerFactory.getLogger(TranscodingService.class);
     public static final String FORMAT_RAW = "raw";
+    private static final Pattern SPLIT_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
 
     private final SettingsService settingsService;
     private final SecurityService securityService;
@@ -375,6 +379,25 @@ public class TranscodingService {
                 null);
     }
 
+    @NonNull
+    String[] splitCommand(String command) {
+        if (command == null) {
+            return new String[0];
+        }
+
+        List<String> result = new ArrayList<>();
+        Matcher m = SPLIT_PATTERN.matcher(command);
+        while (m.find()) {
+            if (m.group(1) == null) {
+                result.add(m.group(2)); // unquoted string
+            } else {
+                result.add("\"".concat(m.group(1).concat("\""))); // quoted string
+            }
+        }
+
+        return result.toArray(new String[0]);
+    }
+
     /**
      * Creates a transcoded input stream by interpreting the given command line string. This includes the following:
      * <ul>
@@ -420,7 +443,7 @@ public class TranscodingService {
             artist = "Unknown Artist";
         }
 
-        List<String> result = new LinkedList<>(Arrays.asList(StringUtil.split(command)));
+        List<String> result = new LinkedList<>(Arrays.asList(splitCommand(command)));
         result.set(0, getTranscodeDirectory().getPath() + File.separatorChar + result.get(0));
 
         File tmpFile = null;
