@@ -43,6 +43,7 @@ Features
 <details>
 <summary>Evolved meta processing</summary>
 
+
 It supports standard tags, and the SONY/APPLE specifications that take into account global multilingual support are used as a reference.
 To process Japanese well on a machine requires quite complicated mechanism. The index, sort, and search features of Jpsonic have been replaced with more accurate and reliable processing than Subsonic and Airsonic. Some distinctive features have been added.
 
@@ -53,10 +54,12 @@ To process Japanese well on a machine requires quite complicated mechanism. The 
 <details>
 <summary>Reimplemented DLNA features</summary>
 
+
 DLNA (UPnP) and OpenHome is mainstream technology in Japanese typical household. For this reason, many new features have been added to Jpsonic. And stream and transcoding bug fixes have been made to make it easier to control performance in the high resolution band.
 </details>
+<details>
+<summary>HighRes FLAC and DSD support, Cooperation with various mobile apps</summary>
 
-#### The client apps had used for the operation check
 
 Indicates whether the feature is available when using a typical traditional application. Applications other than those listed here can be used, but the realization of comfortable usability also depends on the client implementation.
 
@@ -64,18 +67,22 @@ Indicates whether the feature is available when using a typical traditional appl
 No | App Name | Platform | Protocol | Other cloud features by the app
 -- | -- | -- | -- | -- 
 A | [Subsonic Music Streamer](https://play.google.com/store/apps/details?id=net.sourceforge.subsonic.androidapp) | Android | Subsonic API | 
-B | [BubbleUPnP](https://play.google.com/store/apps/details?id=com.bubblesoft.android.bubbleupnp) | Android | UPnP | 
-C | [MediaMonkey](https://play.google.com/store/apps/details?id=com.ventismedia.android.mediamonkey) | Android | UPnP | 
-D | [foobar2000](https://play.google.com/store/apps/details?id=com.foobar2000.foobar2000) | Android | UPnP | 
-E | [Hi-Fi Cast - Music Player](https://play.google.com/store/apps/details?id=com.findhdmusic.app.upnpcast) | Android | UPnP | 
-F | [AK Connect 2.0](https://play.google.com/store/apps/details?id=com.iriver.akconnect) | Android | UPnP | TIDAL
-G | [MediaMonkey 5](https://www.mediamonkey.com/) | Windows10 | UPnP | Youtube
-H | [foobar2000](https://www.foobar2000.org/) | Windows10 | UPnP | 
-I | [Windows MediaPlayer 12](https://support.microsoft.com/en-us/windows/get-windows-media-player-81718e0d-cfce-25b1-aee3-94596b658287) | Windows10 | UPnP | 
-J | [BubbleDS](https://play.google.com/store/apps/details?id=com.bubblesoft.android.bubbleds2) with [BubbleUPnP](https://play.google.com/store/apps/details?id=com.bubblesoft.android.bubbleupnp) | Android | OpenHome | Qobuz/TIDAL/Dropbox/Box/OneDrive
-K | [Kazoo](https://play.google.com/store/apps/details?id=uk.co.linn.kazoo2) with [BubbleUPnP](https://play.google.com/store/apps/details?id=com.bubblesoft.android.bubbleupnp) | Android | OpenHome | Qobuz/TIDAL
+B | [MusicBee](https://www.getmusicbee.com/) | Windows10 | Subsonic API | 
+C | [BubbleUPnP](https://play.google.com/store/apps/details?id=com.bubblesoft.android.bubbleupnp) | Android | UPnP | Qobuz/TIDAL/Google Drive/Dropbox/Box/OneDrive
+D | [MediaMonkey](https://play.google.com/store/apps/details?id=com.ventismedia.android.mediamonkey) | Android | UPnP | 
+E | [foobar2000](https://play.google.com/store/apps/details?id=com.foobar2000.foobar2000) | Android | UPnP | 
+F | [Hi-Fi Cast - Music Player](https://play.google.com/store/apps/details?id=com.findhdmusic.app.upnpcast) | Android | UPnP | 
+G | [AK Connect 2.0](https://play.google.com/store/apps/details?id=com.iriver.akconnect) | Android | UPnP | TIDAL
+H | [MediaMonkey 5](https://www.mediamonkey.com/) | Windows10 | UPnP | Youtube
+I | [foobar2000](https://www.foobar2000.org/) | Windows10 | UPnP | 
+J | [Windows MediaPlayer 12](https://support.microsoft.com/en-us/windows/get-windows-media-player-81718e0d-cfce-25b1-aee3-94596b658287) | Windows10 | UPnP | 
+K | [BubbleDS](https://play.google.com/store/apps/details?id=com.bubblesoft.android.bubbleds2) with [BubbleUPnP](https://play.google.com/store/apps/details?id=com.bubblesoft.android.bubbleupnp) | Android | OpenHome | Qobuz/TIDAL/Dropbox/Box/OneDrive
+L | [Kazoo](https://play.google.com/store/apps/details?id=uk.co.linn.kazoo2) with [BubbleUPnP](https://play.google.com/store/apps/details?id=com.bubblesoft.android.bubbleupnp) | Android | OpenHome | Qobuz/TIDAL
 
 [Main cooperation features]
+
+In the case of BubbleUPnP, you will be able to receive DSD and pass it to your local renderer without any special settings.　The dsd/dsf MIME can be changed by [boot options](https://tesshu.com/jpsonic/start-arg-spec).
+
 No | Features | Perspective
 -- | -- | --
 1 | FLAC playback | Whether it can be played including high-res
@@ -90,17 +97,18 @@ No | Features | Perspective
 [Correspondence situation]
   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 -- | -- | -- | -- | -- | -- | -- | -- | --
-A | ★ | ★ |   | ★ | ★ | ★ | N | N
-B | ★ | ★ | ★ | ★ | ★1 | ☆2 | ★3 | ★
-C | ★ | ★ | ★ | ★ | ★1 | N | ★3 |
-D | ★ | ★4 | ★ | ★ | N | N | ★3 | ★
-E | ★ | ★ | ★ | ★ | ★1 | N | ★3 |
-F | ☆5 | ★ | ★ | ★ | ★1 | N | N |
-G | ★ |   |   | ★ | N |   | ★3 |
-H | ★ | ★ | ★ |   | ★1 |   | ★3 |
-I | ★ | ★ | ★ |   | N |   | ★6 |
-J | ★ | ★ | ★ | ★ | ★1 | N | ★3 | ★
-K | ★ | ★ | ★ | ★ | ★1 | N | ★3 |
+A | ★ | ★ |   | ★ | ★ | ★ |   |  
+B | ★ | ★ |   |   |   |   |   |  
+C | ★ | ★ | ★ | ★ | ★1 | ☆2 | ★3 | ★
+D | ★ | ★ | ★ | ★ | ★1 |   | ★3 |
+E | ★ | ★4 | ★ | ★ |   |   | ★3 | ★
+F | ★ | ★ | ★ | ★ | ★1 |   | ★3 |
+G | ☆5 | ★ | ★ | ★ | ★1 |   |   |
+H | ★ |   |   | ★ |   |   | ★3 |
+I | ★ | ★ | ★ |   | ★1 |   | ★3 |
+J | ★ | ★ | ★ |   |   |   | ★6 |
+K | ★ | ★ | ★ | ★ | ★1 |   | ★3 | ★
+L | ★ | ★ | ★ | ★ | ★1 |   | ★3 |
 
  - ★1 The client app's search query is respected and it maps to the Jpsonic model. Therefore, the usability depends on the spec of client app. Clauses containing non-standard properties are partially ignored.
  - ☆2 Previously supported, but no longer seems to be available.
@@ -111,6 +119,8 @@ K | ★ | ★ | ★ | ★ | ★1 | N | ★3 |
  - ★4 Playback may not be possible if resampling takes a very long time, such as high-resolution classical songs. (There is a clear timeout process)
  - ☆5 High resolution may be difficult.
  - ★6 Special process. Crawl all resources at startup.
+
+</details>
 
 Usage
 -----
