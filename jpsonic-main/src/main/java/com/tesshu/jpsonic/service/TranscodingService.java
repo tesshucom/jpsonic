@@ -444,7 +444,7 @@ public class TranscodingService {
             artist = "Unknown Artist";
         }
 
-        List<String> result = new LinkedList<>(Arrays.asList(splitCommand(command)));
+        List<String> result = Arrays.asList(splitCommand(command));
         result.set(0, getTranscodeDirectory().getPath() + File.separatorChar + result.get(0));
 
         File tmpFile = null;
@@ -626,6 +626,7 @@ public class TranscodingService {
         return mb;
     }
 
+    @SuppressWarnings("OperatorPrecedence")
     boolean isNeedTranscoding(@Nullable Transcoding transcoding, int mb, int bitRate,
             @Nullable String preferredTargetFormat, @NonNull MediaFile mediaFile) {
         boolean isNeedTranscoding = false;
