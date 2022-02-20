@@ -599,6 +599,7 @@ public class TranscodingService {
         return player.getTranscodeScheme();
     }
 
+    @SuppressWarnings("OperatorPrecedence") // (sonatype-lift) Compete with PMD:UselessParentheses.
     int createBitrate(@NonNull MediaFile mediaFile, @Nullable Transcoding transcoding) {
         // If null assume unlimited bitrate
         int bitRate = mediaFile.getBitRate() == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate())
@@ -626,7 +627,7 @@ public class TranscodingService {
         return mb;
     }
 
-    @SuppressWarnings("OperatorPrecedence")
+    @SuppressWarnings("OperatorPrecedence") // (sonatype-lift) Compete with PMD:UselessParentheses.
     boolean isNeedTranscoding(@Nullable Transcoding transcoding, int mb, int bitRate,
             @Nullable String preferredTargetFormat, @NonNull MediaFile mediaFile) {
         boolean isNeedTranscoding = false;
