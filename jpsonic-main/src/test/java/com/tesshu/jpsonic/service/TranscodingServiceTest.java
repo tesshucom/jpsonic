@@ -54,6 +54,8 @@ import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
 import com.tesshu.jpsonic.io.TranscodeInputStream;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.service.TranscodingService.Parameters;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -502,9 +504,18 @@ class TranscodingServiceTest {
         }
     }
 
+    @Test
+    @Order(10)
+    void testSplitCommand() throws IOException {
+        MatcherAssert.assertThat(transcodingService.splitCommand("key1 value1 key2 value2"),
+                Matchers.arrayContaining("key1", "value1", "key2", "value2"));
+        MatcherAssert.assertThat(transcodingService.splitCommand("key1 value1 key2 \"value2-1 value2-2\""),
+                Matchers.arrayContaining("key1", "value1", "key2", "\"value2-1 value2-2\""));
+    }
+
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Nested
-    @Order(10)
+    @Order(11)
     class CreateTranscodeInputStreamTest {
 
         private String command = "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 22050 -ac 2 -v 0 -f flv -vcodec libx264 -preset superfast -threads 0 -";
@@ -543,7 +554,7 @@ class TranscodingServiceTest {
     }
 
     @Nested
-    @Order(9)
+    @Order(12)
     class GetTranscodingTest {
 
         @Test
@@ -676,7 +687,7 @@ class TranscodingServiceTest {
     }
 
     @Test
-    @Order(10)
+    @Order(13)
     void testIsTranscodingSupported() {
 
         MediaFile mediaFile = new MediaFile();
@@ -697,7 +708,7 @@ class TranscodingServiceTest {
 
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Nested
-    @Order(11)
+    @Order(14)
     class TranscoderInstalledTest {
 
         private String ffmpeg = "ffmpeg -ss %o -i %s -async 1 -b %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f flv -vcodec libx264 -preset superfast -threads 0 -";
@@ -947,7 +958,7 @@ class TranscodingServiceTest {
 
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Nested
-    @Order(12)
+    @Order(15)
     class GetParametersTest {
 
         private final Transcoding fakeTranscoding = new Transcoding(null, "fake-instance", fmtFlac, fmtMp3, "s1", "s2",

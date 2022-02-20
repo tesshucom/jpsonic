@@ -3,7 +3,27 @@
 # jpsonic/jpsonic
 # -->
 
-## v111.0.0
+## v111.1.0 (SNAPSHOT)
+
+The binaries of SNAPSHOT are available from the latest artifacts on the [master branch](https://github.com/tesshucom/jpsonic/actions?query=branch%3Amaster) .
+
+#### Enhancement
+  * Update libs. Includes fixes for CVE-2021-44832, CVE-2021-41182, CVE-2021-41183, CVE-2021-41184
+  * Reimplementation of JaudiotaggerParser ([#1333](https://github.com/tesshucom/jpsonic/issues/1333))
+    * Bump Jaudiotagger to 3.0.1. Includes all [3.0.0 and 3.0.1 fixes](https://bitbucket.org/ijabz/jaudiotagger/src/master/CHANGES.txt) 
+    * Improve logging process
+  * Add DSD Support ([#1349](https://github.com/tesshucom/jpsonic/issues/1349))
+    * Add launch argument to override MIME for dsf/dff
+    * Add the transcoding command for PCM convertion for DSD to FLAC 
+  * Add button to initialize the extension settings ([#1353](https://github.com/tesshucom/jpsonic/issues/1353))
+
+#### Fixes
+  * Bug fixes and exception handling redesign of JaudiotaggerParser
+    * Fix improper exception bubbling design
+    * Fix bug that caused misjudgment in certain file formats
+  * Fixed a bug in the transcoding commands containing double quotes would not be executed correctly
+
+<summary>v111.0.0</summary>
 
 #### Enhancement
   * Update libs. Includes fixes for CVE-2021-44228, CVE-2021-45046, CVE-2021-45105, CVE-2021-33813, CVE-2021-42550
@@ -18,6 +38,7 @@
   * Minor fixes for NPE during the first scan ([#1280](https://github.com/tesshucom/jpsonic/issues/1280))
   * Fix for Artist/Album UPnP search degradation ([#1304](https://github.com/tesshucom/jpsonic/issues/1304))
 
+</details>
 <details>
 <summary>v110.2.0</summary>
 

@@ -24,7 +24,8 @@ package com.tesshu.jpsonic.domain;
  */
 public enum Transcodings {
 
-    MP3("mp3 audio"), FLAC("flac resampling"), FLV("flv/h264 video"), MKV("mkv video"), MP4("mp4/h264 video");
+    MP3("mp3 audio"), FLAC("flac resampling"), DSF("dsf2flac"), FLV("flv/h264 video"), MKV("mkv video"),
+    MP4("mp4/h264 video");
 
     private final String name;
 

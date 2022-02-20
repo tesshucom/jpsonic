@@ -86,9 +86,9 @@ document.addEventListener('DOMContentLoaded', function () {
                                     <dt><fmt:message key="transcodingsettings.sourceformat" /> / <fmt:message key="transcodingsettings.targetformat" /></dt>
                                     <dd><input type="text" name="sourceFormats[${transcoding.id}]" value="${transcoding.sourceFormats}" /> / <input type="text" name="targetFormat[${transcoding.id}]" value="${transcoding.targetFormat}" /></dd>
                                     <dt><fmt:message key="transcodingsettings.step1" /></dt>
-                                    <dd><input type="text" name="step1[${transcoding.id}]" value="${transcoding.step1}" /></dd>
+                                    <dd><input type="text" name="step1[${transcoding.id}]" value="${fn:escapeXml(transcoding.step1)}" /></dd>
                                     <dt><fmt:message key="transcodingsettings.step2" /></dt>
-                                    <dd><input type="text" name="step2[${transcoding.id}]" value="${transcoding.step2}" /></dd>
+                                    <dd><input type="text" name="step2[${transcoding.id}]" value="${fn:escapeXml(transcoding.step2)}" /></dd>
                                 </dl>
                             </td>
                             <td><input type="checkbox" name="delete[${transcoding.id}]" /></td>
@@ -189,9 +189,9 @@ document.addEventListener('DOMContentLoaded', function () {
                             <dt><fmt:message key="transcodingsettings.sourceformat" /> / <fmt:message key="transcodingsettings.targetformat" /></dt>
                             <dd><input type="text" name="sourceFormats" value="${newTranscoding.sourceFormats}" /> / <input name="targetFormat" value="${newTranscoding.targetFormat}" /></dd>
                             <dt><fmt:message key="transcodingsettings.step1" /></dt>
-                            <dd><input type="text" name="step1" value="${newTranscoding.step1}" /></dd>
+                            <dd><input type="text" name="step1" value="${fn:escapeXml(newTranscoding.step1)}" /></dd>
                             <dt><fmt:message key="transcodingsettings.step2" /></dt>
-                            <dd><input type="text" name="step2" value="${newTranscoding.step2}" /></dd>
+                            <dd><input type="text" name="step2" value="${fn:escapeXml(newTranscoding.step2)}" /></dd>
                         </dl>
                         <input type="checkbox" id="defaultActive" name="defaultActive" checked />
                         <label for="defaultActive"><fmt:message key="transcodingsettings.defaultactive" /></label>

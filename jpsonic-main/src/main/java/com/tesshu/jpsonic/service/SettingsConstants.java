@@ -145,14 +145,14 @@ class SettingsConstants {
 
         static class Extension {
             static final Pair<String> MUSIC_FILE_TYPES = Pair.of("MusicFileTypes",
-                    "mp3 ogg oga aac m4a m4b flac wav wma aif aiff ape mpc shn mka opus");
+                    "mp3 ogg oga aac m4a m4b flac wav wma aif aiff aifc ape mpc shn mka opus dsf dsd");
             static final Pair<String> VIDEO_FILE_TYPES = Pair.of("VideoFileTypes",
                     "flv avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts webm");
             static final Pair<String> COVER_ART_FILE_TYPES = Pair.of("CoverArtFileTypes2",
                     "cover.jpg cover.png cover.gif folder.jpg jpg jpeg gif png");
             static final Pair<String> PLAYLIST_FOLDER = Pair.of("PlaylistFolder", System.getProperty(
                     "jpsonic.defaultPlaylistFolder", PlayerUtils.isWindows() ? "c:\\playlists" : "/var/playlists"));
-            static final Pair<String> SHORTCUTS = Pair.of("Shortcuts", "New Incoming Podcast");
+            static final Pair<String> SHORTCUTS = Pair.of("Shortcuts", "\"New Incoming\" Podcast");
 
             private Extension() {
             }
