@@ -316,12 +316,12 @@ class SettingsServiceTest {
 
     @Test
     void testGetShortcuts() {
-        assertEquals("New Incoming Podcast", settingsService.getShortcuts());
+        assertEquals("\"New Incoming\" Podcast", settingsService.getShortcuts());
     }
 
     @Test
     void testGetShortcutsAsArray() {
-        assertEquals(3, settingsService.getShortcutsAsArray().length);
+        assertEquals(2, settingsService.getShortcutsAsArray().length);
     }
 
     @Test
@@ -331,14 +331,14 @@ class SettingsServiceTest {
 
     @Test
     void testGetMusicFileTypes() {
-        assertEquals("mp3 ogg oga aac m4a m4b flac wav wma aif aiff ape mpc shn mka opus",
+        assertEquals("mp3 ogg oga aac m4a m4b flac wav wma aif aiff aifc ape mpc shn mka opus dsf dsd",
                 settingsService.getMusicFileTypes());
     }
 
     @Test
     void testGetMusicFileTypesAsArray() {
-        assertEquals(16, settingsService.getMusicFileTypesAsArray().length);
-        assertEquals(16, settingsService.getMusicFileTypesAsArray().length); // Cashed path
+        assertEquals(19, settingsService.getMusicFileTypesAsArray().length);
+        assertEquals(19, settingsService.getMusicFileTypesAsArray().length); // Cashed path
     }
 
     @Test
