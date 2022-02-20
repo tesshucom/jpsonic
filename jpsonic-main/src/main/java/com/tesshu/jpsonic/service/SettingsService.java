@@ -648,6 +648,10 @@ public class SettingsService {
         }
     }
 
+    public String getDefaultMusicFileTypes() {
+        return SettingsConstants.General.Extension.MUSIC_FILE_TYPES.defaultValue;
+    }
+
     @SuppressWarnings("PMD.NullAssignment") // (musicFileTypes) Intentional allocation to clear cache
     public void setMusicFileTypes(String s) {
         synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
@@ -669,6 +673,10 @@ public class SettingsService {
         synchronized (LOCKS.get(LocksKeys.VIDEO_FILE)) {
             return getString(SettingsConstants.General.Extension.VIDEO_FILE_TYPES);
         }
+    }
+
+    public String getDefaultVideoFileTypes() {
+        return SettingsConstants.General.Extension.VIDEO_FILE_TYPES.defaultValue;
     }
 
     @SuppressWarnings("PMD.NullAssignment") // (videoFileTypes) Intentional allocation to clear cache
@@ -694,6 +702,10 @@ public class SettingsService {
         }
     }
 
+    public String getDefaultCoverArtFileTypes() {
+        return SettingsConstants.General.Extension.COVER_ART_FILE_TYPES.defaultValue;
+    }
+
     @SuppressWarnings("PMD.NullAssignment") // (coverArtFileTypes) Intentional allocation to clear cache
     public void setCoverArtFileTypes(String s) {
         synchronized (LOCKS.get(LocksKeys.COVER_ART)) {
@@ -715,12 +727,20 @@ public class SettingsService {
         return getString(SettingsConstants.General.Extension.PLAYLIST_FOLDER);
     }
 
+    public String getDefaultPlaylistFolder() {
+        return SettingsConstants.General.Extension.PLAYLIST_FOLDER.defaultValue;
+    }
+
     public void setPlaylistFolder(String s) {
         setProperty(SettingsConstants.General.Extension.PLAYLIST_FOLDER, s);
     }
 
     public String getShortcuts() {
         return getString(SettingsConstants.General.Extension.SHORTCUTS);
+    }
+
+    public String getDefaultShortcuts() {
+        return SettingsConstants.General.Extension.SHORTCUTS.defaultValue;
     }
 
     public void setShortcuts(String s) {

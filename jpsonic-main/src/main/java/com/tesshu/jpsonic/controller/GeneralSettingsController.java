@@ -146,6 +146,11 @@ public class GeneralSettingsController {
         command.setCoverArtFileTypes(settingsService.getCoverArtFileTypes());
         command.setPlaylistFolder(settingsService.getPlaylistFolder());
         command.setShortcuts(settingsService.getShortcuts());
+        command.setDefaultMusicFileTypes(settingsService.getDefaultMusicFileTypes());
+        command.setDefaultVideoFileTypes(settingsService.getDefaultVideoFileTypes());
+        command.setDefaultCoverArtFileTypes(settingsService.getDefaultCoverArtFileTypes());
+        command.setDefaultPlaylistFolder(settingsService.getDefaultPlaylistFolder().replaceAll("\\\\", "\\\\\\\\"));
+        command.setDefaultShortcuts(settingsService.getDefaultShortcuts());
 
         // Welcom message
         command.setGettingStartedEnabled(settingsService.isGettingStartedEnabled());

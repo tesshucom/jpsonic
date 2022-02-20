@@ -76,6 +76,11 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private String coverArtFileTypes;
     private String playlistFolder;
     private String shortcuts;
+    private String defaultMusicFileTypes;
+    private String defaultVideoFileTypes;
+    private String defaultCoverArtFileTypes;
+    private String defaultPlaylistFolder;
+    private String defaultShortcuts;
 
     // Welcom message
     private boolean gettingStartedEnabled;
@@ -348,6 +353,46 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setShortcuts(String shortcuts) {
         this.shortcuts = shortcuts;
+    }
+
+    public String getDefaultMusicFileTypes() {
+        return defaultMusicFileTypes;
+    }
+
+    public void setDefaultMusicFileTypes(String defaultMusicFileTypes) {
+        this.defaultMusicFileTypes = defaultMusicFileTypes;
+    }
+
+    public String getDefaultVideoFileTypes() {
+        return defaultVideoFileTypes;
+    }
+
+    public void setDefaultVideoFileTypes(String defaultVideoFileTypes) {
+        this.defaultVideoFileTypes = defaultVideoFileTypes;
+    }
+
+    public String getDefaultCoverArtFileTypes() {
+        return defaultCoverArtFileTypes;
+    }
+
+    public void setDefaultCoverArtFileTypes(String defaultCoverArtFileTypes) {
+        this.defaultCoverArtFileTypes = defaultCoverArtFileTypes;
+    }
+
+    public String getDefaultPlaylistFolder() {
+        return defaultPlaylistFolder;
+    }
+
+    public void setDefaultPlaylistFolder(String defaultPlaylistFolder) {
+        this.defaultPlaylistFolder = defaultPlaylistFolder;
+    }
+
+    public String getDefaultShortcuts() {
+        return defaultShortcuts;
+    }
+
+    public void setDefaultShortcuts(String defaultShortcuts) {
+        this.defaultShortcuts = defaultShortcuts;
     }
 
     public boolean isGettingStartedEnabled() {

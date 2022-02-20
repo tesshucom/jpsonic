@@ -18,8 +18,15 @@ function resetSortSettings() {
     $('[name="sortGenresByAlphabet"]').prop('checked', ${command.defaultSortGenresByAlphabet});
     $('[name="prohibitSortVarious"]').prop('checked', ${command.defaultProhibitSortVarious});
     $('[name="sortAlphanum"]').prop('checked', ${command.defaultSortAlphanum});
-	$('[name="sortStrict"]').prop('checked', ${command.defaultSortStrict});
-} 
+    $('[name="sortStrict"]').prop('checked', ${command.defaultSortStrict});
+}
+function resetExtension() {
+    $("#musicFileTypes").val('${command.defaultMusicFileTypes}');
+    $("#videoFileTypes").val('${command.defaultVideoFileTypes}');
+    $("#coverArtFileTypes").val('${command.defaultCoverArtFileTypes}');
+    $("#playlistFolder").val('${command.defaultPlaylistFolder}');
+    $("#shortcuts").val('${command.defaultShortcuts}');
+}
 </script>
 </head>
 
@@ -92,20 +99,20 @@ function resetSortSettings() {
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="ignoredarticles"/></c:import>
             </dd>
             <c:if test='${"WITHOUT_JP_LANG_PROCESSING" eq command.indexScheme}'>
-	            <dt></dt>
-	            <dd>
-	                <form:checkbox path="ignoreFullWidth" id="ignoreFullWidth"/>
-	                <label for="ignoreFullWidth"><fmt:message key="generalsettings.ignorefullwidth"/></label>
-	            </dd>
-	        </c:if>
+                <dt></dt>
+                <dd>
+                    <form:checkbox path="ignoreFullWidth" id="ignoreFullWidth"/>
+                    <label for="ignoreFullWidth"><fmt:message key="generalsettings.ignorefullwidth"/></label>
+                </dd>
+            </c:if>
             <c:if test='${"ROMANIZED_JAPANESE" eq command.indexScheme or "WITHOUT_JP_LANG_PROCESSING" eq command.indexScheme}'>
-	            <dt></dt>
-	            <dd>
-	                <form:checkbox path="deleteDiacritic" id="deleteDiacritic"/>
-	                <label for="deleteDiacritic"><fmt:message key="generalsettings.deletediacritic"/></label>
-	                <c:import url="helpToolTip.jsp"><c:param name="topic" value="deletediacritic"/></c:import>
-	            </dd>
-	        </c:if>
+                <dt></dt>
+                <dd>
+                    <form:checkbox path="deleteDiacritic" id="deleteDiacritic"/>
+                    <label for="deleteDiacritic"><fmt:message key="generalsettings.deletediacritic"/></label>
+                    <c:import url="helpToolTip.jsp"><c:param name="topic" value="deletediacritic"/></c:import>
+                </dd>
+            </c:if>
         </dl>
     </details>
 
@@ -232,7 +239,14 @@ function resetSortSettings() {
     </details>
 
     <details ${isOpen}>
-        <summary><fmt:message key="generalsettings.extandshortcuts"/></summary>
+        <summary class="jpsonic"><fmt:message key="generalsettings.extandshortcuts"/></summary>
+
+        <div class="actions">
+            <ul class="controls">
+                <li><a href="javascript:resetExtension()" title="<fmt:message key='common.reset'/>" class="control reset"><fmt:message key="common.reset"/></a></li>
+            </ul>
+        </div>
+
         <dl>
             <dt><fmt:message key="generalsettings.musicmask"/></dt>
             <dd>

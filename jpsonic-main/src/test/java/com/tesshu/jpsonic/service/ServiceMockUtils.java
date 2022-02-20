@@ -111,6 +111,8 @@ public final class ServiceMockUtils {
             Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.NATIVE_JAPANESE.name());
             Mockito.when(settingsService.isIgnoreFullWidth()).thenReturn(true);
             Mockito.when(settingsService.isDeleteDiacritic()).thenReturn(true);
+            Mockito.when(settingsService.getDefaultPlaylistFolder())
+                    .thenReturn(SettingsConstants.General.Extension.PLAYLIST_FOLDER.defaultValue);
             mock = settingsService;
         } else if (AirsonicLocaleResolver.class == classToMock) {
             String language = SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE.defaultValue;
