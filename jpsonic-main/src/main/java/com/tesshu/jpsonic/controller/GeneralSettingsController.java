@@ -32,6 +32,7 @@ import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.Theme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
@@ -73,14 +74,16 @@ public class GeneralSettingsController {
     private final SettingsService settingsService;
     private final SecurityService securityService;
     private final ShareService shareService;
+    private final PlayerService playerService;
     private final OutlineHelpSelector outlineHelpSelector;
 
     public GeneralSettingsController(SettingsService settingsService, SecurityService securityService,
-            ShareService shareService, OutlineHelpSelector outlineHelpSelector) {
+            ShareService shareService, PlayerService playerService, OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.shareService = shareService;
+        this.playerService = playerService;
         this.outlineHelpSelector = outlineHelpSelector;
     }
 
@@ -234,6 +237,9 @@ public class GeneralSettingsController {
         settingsService.setShowRememberMe(command.isShowRememberMe());
         settingsService.setPublishPodcast(command.isPublishPodcast());
         settingsService.setUseExternalPlayer(command.isUseExternalPlayer());
+        if (!command.isUseExternalPlayer()) {
+            playerService.resetExternalPlayer();
+        }
 
         // Extensions and shortcuts
         settingsService.setMusicFileTypes(command.getMusicFileTypes());

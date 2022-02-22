@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.command.GeneralSettingsCommand;
 import com.tesshu.jpsonic.domain.IndexScheme;
+import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -54,14 +55,16 @@ class GeneralSettingsControllerTest {
     private static final String VIEW_NAME = "generalSettings";
 
     private SettingsService settingsService;
+    private PlayerService playerService;
     private GeneralSettingsController controller;
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
         settingsService = mock(SettingsService.class);
+        playerService = mock(PlayerService.class);
         controller = new GeneralSettingsController(settingsService, mock(SecurityService.class),
-                mock(ShareService.class), mock(OutlineHelpSelector.class));
+                mock(ShareService.class), playerService, mock(OutlineHelpSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -182,5 +185,28 @@ class GeneralSettingsControllerTest {
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         assertTrue(deleteDiacritic.getValue());
         assertTrue(ignoreFullWidth.getValue());
+    }
+
+    /**
+     * Do nothing if ExternalPlayer is enabled. Reset existing player if disabled.
+     */
+    @Test
+    void testExternalPlayerDisabled() throws Exception {
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.GENERAL_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        assertNotNull(result);
+        ModelAndView modelAndView = result.getModelAndView();
+        assertEquals(VIEW_NAME, modelAndView.getViewName());
+        GeneralSettingsCommand command = (GeneralSettingsCommand) modelAndView.getModelMap()
+                .get(Attributes.Model.Command.VALUE);
+        assertNotNull(command);
+
+        command.setUseExternalPlayer(true);
+        Mockito.verify(playerService, Mockito.never()).resetExternalPlayer();
+        controller.post(command, Mockito.mock(RedirectAttributes.class));
+
+        command.setUseExternalPlayer(false);
+        controller.post(command, Mockito.mock(RedirectAttributes.class));
+        Mockito.verify(playerService, Mockito.times(1)).resetExternalPlayer();
     }
 }
