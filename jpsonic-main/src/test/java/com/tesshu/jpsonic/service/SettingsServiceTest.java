@@ -768,6 +768,11 @@ class SettingsServiceTest {
     }
 
     @Test
+    void testIsUseExternalPlayer() {
+        assertFalse(settingsService.isUseExternalPlayer());
+    }
+
+    @Test
     void testGetSmtpEncryption() {
         assertEquals("None", settingsService.getSmtpEncryption());
     }
