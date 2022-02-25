@@ -3,7 +3,7 @@
 # jpsonic/jpsonic
 # -->
 
-## v111.1.0 (SNAPSHOT)
+## v111.1.0
 
 #### Enhancement
   * Update libs. Includes fixes for CVE-2021-44832, CVE-2021-41182, CVE-2021-41183, CVE-2021-41184
