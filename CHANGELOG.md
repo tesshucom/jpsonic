@@ -3,9 +3,7 @@
 # jpsonic/jpsonic
 # -->
 
-## v111.1.0 (SNAPSHOT)
-
-The binaries of SNAPSHOT are available from the latest artifacts on the [master branch](https://github.com/tesshucom/jpsonic/actions?query=branch%3Amaster) .
+## v111.1.0
 
 #### Enhancement
   * Update libs. Includes fixes for CVE-2021-44832, CVE-2021-41182, CVE-2021-41183, CVE-2021-41184
@@ -16,6 +14,7 @@ The binaries of SNAPSHOT are available from the latest artifacts on the [master 
     * Add launch argument to override MIME for dsf/dff
     * Add the transcoding command for PCM convertion for DSD to FLAC 
   * Add button to initialize the extension settings ([#1353](https://github.com/tesshucom/jpsonic/issues/1353))
+  * Add external player to Suppressed legacy features ([#1350](https://github.com/tesshucom/jpsonic/issues/1350))
 
 #### Fixes
   * Bug fixes and exception handling redesign of JaudiotaggerParser
@@ -23,6 +22,7 @@ The binaries of SNAPSHOT are available from the latest artifacts on the [master 
     * Fix bug that caused misjudgment in certain file formats
   * Fixed a bug in the transcoding commands containing double quotes would not be executed correctly
 
+<details>
 <summary>v111.0.0</summary>
 
 #### Enhancement

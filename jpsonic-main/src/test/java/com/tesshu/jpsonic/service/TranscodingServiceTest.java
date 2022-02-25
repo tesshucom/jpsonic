@@ -118,7 +118,7 @@ class TranscodingServiceTest {
         transcodingService = new TranscodingService(settingsService, securityService, transcodingDao, playerService,
                 executor);
         playerDao = mock(PlayerDao.class);
-        playerService = new PlayerService(playerDao, null, securityService, transcodingService);
+        playerService = new PlayerService(playerDao, null, settingsService, securityService, transcodingService);
         // for lazy
         transcodingService = new TranscodingService(settingsService, securityService, transcodingDao, playerService,
                 executor);

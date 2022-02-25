@@ -20,9 +20,10 @@
 package com.tesshu.jpsonic.service;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.annotation.Documented;
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ import com.tesshu.jpsonic.dao.PlayerDao;
 import com.tesshu.jpsonic.dao.TranscodingDao;
 import com.tesshu.jpsonic.dao.UserDao;
 import com.tesshu.jpsonic.domain.Player;
+import com.tesshu.jpsonic.domain.PlayerTechnology;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.domain.User;
@@ -49,11 +51,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-public class PlayerServiceTest {
+@SuppressWarnings("PMD.TooManyStaticImports")
+class PlayerServiceTest {
 
     private PlayerDao playerDao;
     private UserDao userDao;
     private TranscodingDao transcodingDao;
+    private SettingsService settingsService;
     private TranscodingService transcodingService;
     private PlayerService playerService;
 
@@ -62,6 +66,7 @@ public class PlayerServiceTest {
         playerDao = mock(PlayerDao.class);
         userDao = mock(UserDao.class);
         transcodingDao = mock(TranscodingDao.class);
+        settingsService = mock(SettingsService.class);
         transcodingService = mock(TranscodingService.class);
         List<Transcoding> transcodings = new ArrayList<>(transcodingDao.getAllTranscodings());
         Transcoding inactiveTranscoding = new Transcoding(10, "aac",
@@ -70,8 +75,45 @@ public class PlayerServiceTest {
         transcodings.add(inactiveTranscoding);
         Mockito.when(transcodingService.getAllTranscodings()).thenReturn(transcodings);
         MusicFolderService musicFolderService = mock(MusicFolderService.class);
-        playerService = new PlayerService(playerDao, null, new SecurityService(userDao, null, musicFolderService, null),
-                transcodingService);
+        playerService = new PlayerService(playerDao, null, settingsService,
+                new SecurityService(userDao, null, musicFolderService, null), transcodingService);
+    }
+
+    @Test
+    void testInit() {
+        Player player1 = new Player();
+        player1.setName("player1");
+        player1.setTechnology(PlayerTechnology.WEB);
+        Player player2 = new Player();
+        player2.setName("player2");
+        player2.setTechnology(PlayerTechnology.EXTERNAL);
+        Player player3 = new Player();
+        player3.setName("player3");
+        player3.setTechnology(PlayerTechnology.EXTERNAL_WITH_PLAYLIST);
+
+        Mockito.when(playerDao.getAllPlayers()).thenReturn(Arrays.asList(player1, player2, player3));
+        ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
+        Mockito.doNothing().when(playerDao).updatePlayer(playerCaptor.capture());
+
+        // Do nothing if UseExternalPlayer is enabled.
+        Mockito.when(settingsService.isUseExternalPlayer()).thenReturn(true);
+        playerService.init();
+        Mockito.verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
+
+        // Do reset if UseExternalPlayer is disbled.
+        Mockito.when(settingsService.isUseExternalPlayer()).thenReturn(false);
+        playerService.init();
+        Mockito.verify(playerDao, Mockito.times(2)).updatePlayer(Mockito.any(Player.class));
+
+        List<Player> results = playerCaptor.getAllValues();
+        assertEquals("player2", results.get(0).getName());
+        assertEquals(PlayerTechnology.WEB, results.get(0).getTechnology());
+        assertTrue(results.get(0).isAutoControlEnabled());
+        assertTrue(results.get(0).isM3uBomEnabled());
+        assertEquals("player3", results.get(1).getName());
+        assertEquals(PlayerTechnology.WEB, results.get(1).getTechnology());
+        assertTrue(results.get(1).isAutoControlEnabled());
+        assertTrue(results.get(1).isM3uBomEnabled());
     }
 
     @Documented
