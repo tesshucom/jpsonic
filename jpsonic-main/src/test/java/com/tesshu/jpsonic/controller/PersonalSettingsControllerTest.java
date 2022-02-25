@@ -162,7 +162,7 @@ class PersonalSettingsControllerTest {
         assertEquals(SpeechToTextLangScheme.DEFAULT, command.getSpeechToTextLangScheme());
         assertNotNull(command.getTabletSettings());
         assertEquals("-1", command.getThemeIndex());
-        assertEquals(18, command.getThemes().length);
+        assertEquals(20, command.getThemes().length);
         assertEquals(ServiceMockUtils.ADMIN_NAME, command.getUser().getUsername());
         assertFalse(command.isUseRadio());
         assertFalse(command.isVoiceInputEnabled());

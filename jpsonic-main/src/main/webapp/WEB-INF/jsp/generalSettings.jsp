@@ -235,6 +235,12 @@ function resetExtension() {
                 <label for="useRadio"><fmt:message key="generalsettings.useradio"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="useradio"/></c:import>
             </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="useExternalPlayer" id="useExternalPlayer"/>
+                <label for="useExternalPlayer"><fmt:message key="generalsettings.useexternalplayer"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="useexternalplayer"/></c:import>
+            </dd>
         </dl>
     </details>
 
