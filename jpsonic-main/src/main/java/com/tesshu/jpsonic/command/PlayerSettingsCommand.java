@@ -59,9 +59,6 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
     private boolean m3uBomEnabled;
     private Date lastSeen;
 
-    // for view page control
-    private boolean useExternalPlayer;
-
     public Player[] getPlayers() {
         return players;
     }
@@ -216,14 +213,6 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
 
     public void setLastSeen(Date lastSeen) {
         this.lastSeen = lastSeen;
-    }
-
-    public boolean isUseExternalPlayer() {
-        return useExternalPlayer;
-    }
-
-    public void setUseExternalPlayer(boolean useExternalPlayer) {
-        this.useExternalPlayer = useExternalPlayer;
     }
 
     /**

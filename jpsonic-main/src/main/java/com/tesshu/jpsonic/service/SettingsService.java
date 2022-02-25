@@ -642,14 +642,6 @@ public class SettingsService {
         setProperty(SettingsConstants.General.Legacy.USE_RADIO, b);
     }
 
-    public boolean isUseExternalPlayer() {
-        return getBoolean(SettingsConstants.General.Legacy.USE_EXTERNAL_PLAYER);
-    }
-
-    public void setUseExternalPlayer(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.USE_EXTERNAL_PLAYER, b);
-    }
-
     public String getMusicFileTypes() {
         synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
             return getString(SettingsConstants.General.Extension.MUSIC_FILE_TYPES);

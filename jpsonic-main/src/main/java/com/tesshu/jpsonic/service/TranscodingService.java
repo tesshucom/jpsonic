@@ -720,7 +720,7 @@ public class TranscodingService {
         case DSF:
             transcoding = new Transcoding(null, Transcodings.DSF.getName(), "dsf", FORMAT_FLAC,
                     "ffmpeg -i %s -map 0:0 -v 0 -sample_fmt s16 -vn -ar 44100 -ac 2 -acodec flac -f flac -af \"lowpass=24000, volume=6dB\" -",
-                    null, null, false);
+                    null, null, true);
             break;
 
         case FLV:

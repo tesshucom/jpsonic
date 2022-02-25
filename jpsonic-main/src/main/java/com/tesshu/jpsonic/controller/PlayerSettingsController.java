@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.command.PlayerSettingsCommand;
 import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.domain.PlayerTechnology;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
@@ -137,7 +136,6 @@ public class PlayerSettingsController {
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
-        command.setUseExternalPlayer(settingsService.isUseExternalPlayer());
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
@@ -152,19 +150,11 @@ public class PlayerSettingsController {
 
             // Player settings
             player.setName(StringUtils.trimToNull(command.getName()));
+            player.setTechnology(command.getPlayerTechnology());
             player.setTranscodeScheme(command.getTranscodeScheme());
             player.setDynamicIp(command.isDynamicIp());
-
-            if (settingsService.isUseExternalPlayer()) {
-                player.setTechnology(command.getPlayerTechnology());
-                player.setAutoControlEnabled(command.isAutoControlEnabled());
-                player.setM3uBomEnabled(command.isM3uBomEnabled());
-            } else {
-                player.setTechnology(PlayerTechnology.WEB);
-                player.setAutoControlEnabled(true);
-                player.setM3uBomEnabled(true);
-            }
-
+            player.setAutoControlEnabled(command.isAutoControlEnabled());
+            player.setM3uBomEnabled(command.isM3uBomEnabled());
             playerService.updatePlayer(player);
             transcodingService.setTranscodingsForPlayer(player, command.getActiveTranscodingIds());
 

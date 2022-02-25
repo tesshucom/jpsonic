@@ -592,8 +592,8 @@ class SettingsServiceTest {
 
     @Test
     void testGetAvailableThemes() {
-        assertEquals(20, SettingsService.getAvailableThemes().size());
-        assertEquals(20, SettingsService.getAvailableThemes().size()); // Cashed path
+        assertEquals(18, SettingsService.getAvailableThemes().size());
+        assertEquals(18, SettingsService.getAvailableThemes().size()); // Cashed path
     }
 
     @Test
@@ -765,11 +765,6 @@ class SettingsServiceTest {
     @Test
     void testIsUseRadio() {
         assertFalse(settingsService.isUseRadio());
-    }
-
-    @Test
-    void testIsUseExternalPlayer() {
-        assertFalse(settingsService.isUseExternalPlayer());
     }
 
     @Test

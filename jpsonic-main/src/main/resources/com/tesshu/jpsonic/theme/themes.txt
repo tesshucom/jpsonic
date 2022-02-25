@@ -7,10 +7,9 @@
 
 # The Jpsonic theme.
 jpsonic "Jpsonic"
+
 jpsonic_gray "Gray"
 jpsonic_dark "Dark"
-jpsonic_veryperi "Very Peri"
-jpsonic_illuminating "Illuminating"
 jpsonic_ponder "Classic Blue"
 jpsonic_coral "Living Coral"
 jpsonic_violet "Ultra Violet"
