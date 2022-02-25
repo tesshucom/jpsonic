@@ -619,7 +619,7 @@ function playQueueCallback(playQueue) {
     }
 
     if (playQueue.sendM3U) {
-        parent.frames.main.location.href="play.m3u?";
+        parent.location.href="play.m3u?";
     }
 
 <c:if test="${model.player.web}">

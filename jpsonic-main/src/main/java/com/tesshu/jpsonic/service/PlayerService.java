@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.dao.PlayerDao;
 import com.tesshu.jpsonic.domain.Player;
+import com.tesshu.jpsonic.domain.PlayerTechnology;
 import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.domain.User;
@@ -72,14 +73,16 @@ public class PlayerService {
 
     private final PlayerDao playerDao;
     private final StatusService statusService;
+    private final SettingsService settingsService;
     private final SecurityService securityService;
     private final TranscodingService transcodingService;
 
-    public PlayerService(PlayerDao playerDao, StatusService statusService, SecurityService securityService,
-            TranscodingService transcodingService) {
+    public PlayerService(PlayerDao playerDao, StatusService statusService, SettingsService settingsService,
+            SecurityService securityService, TranscodingService transcodingService) {
         super();
         this.playerDao = playerDao;
         this.statusService = statusService;
+        this.settingsService = settingsService;
         this.securityService = securityService;
         this.transcodingService = transcodingService;
     }
@@ -87,6 +90,9 @@ public class PlayerService {
     @PostConstruct
     public void init() {
         playerDao.deleteOldPlayers(60);
+        if (!settingsService.isUseExternalPlayer()) {
+            resetExternalPlayer();
+        }
     }
 
     /**
@@ -444,5 +450,20 @@ public class PlayerService {
         createPlayer(player, false);
 
         return player;
+    }
+
+    /**
+     * Initializes the properties of a player that has a setting to use external player.
+     */
+    public void resetExternalPlayer() {
+        for (Player player : playerDao.getAllPlayers()) {
+            if (PlayerTechnology.EXTERNAL == player.getTechnology()
+                    || PlayerTechnology.EXTERNAL_WITH_PLAYLIST == player.getTechnology()) {
+                player.setTechnology(PlayerTechnology.WEB);
+                player.setAutoControlEnabled(true);
+                player.setM3uBomEnabled(true);
+                playerDao.updatePlayer(player);
+            }
+        }
     }
 }
