@@ -18,7 +18,6 @@
         <project.inceptionYear>2018</project.inceptionYear>
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cxf.version>3.5.0</cxf.version>
         <jackson.version>2.13.1</jackson.version>
         <tomcat.version>9.0.59</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
@@ -444,11 +443,6 @@
                     <version>3.0.0</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.apache.cxf</groupId>
-                    <artifactId>cxf-codegen-plugin</artifactId>
-                    <version>${cxf.version}</version>
-                </plugin>
-                <plugin>
                     <groupId>org.jvnet.jaxb2.maven2</groupId>
                     <artifactId>maven-jaxb2-plugin</artifactId>
                     <version>0.14.0</version>
@@ -725,9 +719,6 @@
                                 <ignoredUsedUndeclaredDependency>org.apache.tomcat.embed:tomcat-embed-core*</ignoredUsedUndeclaredDependency>
                                 <ignoredUsedUndeclaredDependency>org.apache.tomcat:tomcat-annotations-api:*</ignoredUsedUndeclaredDependency>
                                 <ignoredUsedUndeclaredDependency>org.apache.tomcat.embed:tomcat-embed-el*</ignoredUsedUndeclaredDependency>
-                                <!-- Needed by Apache CXF -->
-                                <ignoredUsedUndeclaredDependency>javax.annotation:javax.annotation-api:*</ignoredUsedUndeclaredDependency>
-                                <ignoredUsedUndeclaredDependency>javax.xml.ws:jaxws-api:*</ignoredUsedUndeclaredDependency>
                             </ignoredUsedUndeclaredDependencies>
                             <ignoredUnusedDeclaredDependencies>
                                 <ignoredUnusedDeclaredDependency>com.sun.mail:jakarta.mail*</ignoredUnusedDeclaredDependency>
@@ -737,8 +728,6 @@
                                 <!-- Needed for jpsonic-booter to load Jpsonic correctly -->
                                 <ignoredUnusedDeclaredDependency>org.springframework.security:*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.springframework.boot:spring-boot*</ignoredUnusedDeclaredDependency>
-                                <!-- Needed by Apache CXF -->
-                                <ignoredUnusedDeclaredDependency>jakarta.xml.bind:jakarta.xml.bind-api</ignoredUnusedDeclaredDependency>
                                 <!-- Needed by Jetty compile only -->
                                 <ignoredUnusedDeclaredDependency>jakarta.websocket:jakarta.websocket-all</ignoredUnusedDeclaredDependency>
                             </ignoredUnusedDeclaredDependencies>
