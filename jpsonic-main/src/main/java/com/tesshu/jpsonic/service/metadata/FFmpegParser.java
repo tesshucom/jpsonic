@@ -73,7 +73,7 @@ public class FFmpegParser extends MetaDataParser {
      *
      * @param file
      *            The music file to parse.
-     * 
+     *
      * @return Meta data for the file.
      */
     @Override
@@ -160,7 +160,7 @@ public class FFmpegParser extends MetaDataParser {
      *
      * @param file
      *            The file in question.
-     * 
+     *
      * @return Whether this parser is applicable to the given file.
      */
     @SuppressWarnings("PMD.UseLocaleWithCaseConversions")

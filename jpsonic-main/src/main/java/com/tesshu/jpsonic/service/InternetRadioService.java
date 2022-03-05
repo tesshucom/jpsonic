@@ -90,7 +90,7 @@ public class InternetRadioService {
      *
      * @param includeAll
      *            Whether disabled stations should be included.
-     * 
+     *
      * @return Possibly empty list of all internet radio stations.
      */
     public List<InternetRadio> getAllInternetRadios(boolean includeAll) {
@@ -188,7 +188,7 @@ public class InternetRadioService {
 
     /**
      * Clear the radio source cache for the given radio id
-     * 
+     *
      * @param internetRadioId
      *            a radio id
      */
@@ -206,7 +206,7 @@ public class InternetRadioService {
      *
      * @param radio
      *            an internet radio
-     * 
+     *
      * @return a list of internet radio sources
      */
     public List<InternetRadioSource> getInternetRadioSources(InternetRadio radio) {
@@ -235,7 +235,7 @@ public class InternetRadioService {
      *
      * @param radio
      *            an internet radio
-     * 
+     *
      * @return a list of internet radio sources
      */
     private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio) throws ExecutionException {
@@ -265,7 +265,7 @@ public class InternetRadioService {
      *            maximum size of the response, in bytes, or 0 if unlimited
      * @param maxRedirects
      *            maximum number of redirects, or 0 if unlimited
-     * 
+     *
      * @return a list of internet radio sources
      */
     @SuppressWarnings({ "PMD.AvoidCatchingGenericException", "PMD.InvalidLogMessageFormat" })
@@ -389,7 +389,7 @@ public class InternetRadioService {
      *            maximum size of the response, in bytes, or 0 if unlimited
      * @param maxRedirects
      *            maximum number of redirects, or 0 if unlimited
-     * 
+     *
      * @return the remote playlist data
      */
     protected SpecificPlaylist retrievePlaylist(URL url, long maxByteSize, int maxRedirects) throws ExecutionException {
@@ -425,7 +425,7 @@ public class InternetRadioService {
      *            the remote URL
      * @param maxRedirects
      *            maximum number of redirects, or 0 if unlimited
-     * 
+     *
      * @return an open connection
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (URL) Not reusable
@@ -468,7 +468,7 @@ public class InternetRadioService {
      *
      * @param url
      *            the remote URL
-     * 
+     *
      * @return an open connection
      */
     protected HttpURLConnection connectToURL(URL url) throws IOException {

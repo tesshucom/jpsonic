@@ -30,7 +30,7 @@ import com.tesshu.jpsonic.service.SearchService;
  * Defines criteria used when generating random playlists.
  *
  * @author Sindre Mehus
- * 
+ *
  * @see SearchService#getRandomSongs
  */
 public class RandomSearchCriteria {

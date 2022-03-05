@@ -98,14 +98,14 @@ public class QueryFactory {
      * Exclude the search field from the specified field depending on the condition. If necessary, exclude fields
      * related to Composer from the fields to be searched. Also, unnecessary fields are excluded according to the value
      * of Index Scheme.
-     * 
+     *
      * @param fields
      *            Field to search
      * @param includeComposer
      *            Whether to include fields related to Composer in the search. The judgment method may differ depending
      *            on the protocol. In the case of HTTP, personal settings are also considered. For UPnP, follow server
      *            settings.
-     * 
+     *
      * @return Final search target field
      */
     String[] filterFields(String[] fields, boolean includeComposer) {
@@ -231,10 +231,10 @@ public class QueryFactory {
 
     /**
      * {@link com.tesshu.jpsonic.service.SearchService#getRandomSongs(int, int, int, List)}.
-     * 
+     *
      * @param musicFolders
      *            musicFolders
-     * 
+     *
      * @return Query
      */
     public Query getRandomSongs(@NonNull List<MusicFolder> musicFolders) {
@@ -246,10 +246,10 @@ public class QueryFactory {
     /**
      * Query generation expression extracted from
      * {@link com.tesshu.jpsonic.service.SearchService#getRandomAlbums(int, List)}.
-     * 
+     *
      * @param musicFolders
      *            musicFolders
-     * 
+     *
      * @return Query
      */
     public Query getRandomAlbums(@NonNull List<MusicFolder> musicFolders) {
@@ -259,10 +259,10 @@ public class QueryFactory {
     /**
      * Query generation expression extracted from
      * {@link com.tesshu.jpsonic.service.SearchService#getRandomAlbumsId3(int, List)}.
-     * 
+     *
      * @param musicFolders
      *            musicFolders
-     * 
+     *
      * @return Query
      */
     public Query getRandomAlbumsId3(@NonNull List<MusicFolder> musicFolders) {

@@ -70,7 +70,7 @@ public class AvatarService {
      *
      * @param id
      *            The system avatar ID.
-     * 
+     *
      * @return The avatar or <code>null</code> if not found.
      */
     public Avatar getSystemAvatar(int id) {
@@ -82,7 +82,7 @@ public class AvatarService {
      *
      * @param username
      *            The username.
-     * 
+     *
      * @return The avatar or <code>null</code> if not found.
      */
     public Avatar getCustomAvatar(String username) {

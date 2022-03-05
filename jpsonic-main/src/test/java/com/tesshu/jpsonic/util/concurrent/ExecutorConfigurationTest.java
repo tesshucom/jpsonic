@@ -169,7 +169,7 @@ class ExecutorConfigurationTest {
              * In other words, there are 3 cases of success/failure/runtime(Yes, it depends on Spring and is different
              * from regular Future.). If we're investigating a bug and don't know this behavior, may be confusing. For
              * batches, coding like ShortExecutor#testThrowable() is less misleading.
-             * 
+             *
              * It may be not bad to use on Contloller methods. (ExceptionHandler of Spring is used as the error handler
              * when Future#get. Processing may not be passed to Callback.)
              */
@@ -285,7 +285,7 @@ class ExecutorConfigurationTest {
          * In the case of CallerRunsPolicy, if the queue is exceeded, it will be transferred to the parent thread.
          * Therefore, the log does not use the subthread's UncaughtExceptionHandler and depends on the thread
          * specification of the parent thread.(Probably Spring's ExceptionHandler in most cases.)
-         * 
+         *
          * This will not happen unless it is used by a very large number of people, but it suggests that tuning should
          * be done if this happens.
          */

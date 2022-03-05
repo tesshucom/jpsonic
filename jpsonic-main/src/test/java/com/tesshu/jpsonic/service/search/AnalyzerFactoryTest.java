@@ -758,7 +758,7 @@ class AnalyzerFactoryTest {
     /**
      * Only the parts that operate differently are extracted between the analyzer with Japanese processing and the
      * analyzer without Japanese processing.
-     * 
+     *
      * The difference in these operations is not a defect, but a specification that is recognized as a characteristic of
      * the analyzer.
      */
@@ -785,7 +785,7 @@ class AnalyzerFactoryTest {
         /**
          * Whether or not some delimiters are judged as delimiters is different. It will not be a big problem in actual
          * use.
-         * 
+         *
          * If anything, Japanese Tokenizer enthusiastically separates words. This is because it is a language that is
          * highly dictionary-dependent.
          */
@@ -834,7 +834,7 @@ class AnalyzerFactoryTest {
         /**
          * The word boundaries are different. There is almost no problem in actual use, but you may be worried when
          * searching for artists who use underscores in the file path.
-         * 
+         *
          * The current behavior of StandardTokenizerFactory is Unicode loyal. The specifications for this behavior are
          * different from the old Lucene. It may behave differently from systems that use older libraries such as
          * Subsonic, or Japanese tokenizers.
@@ -881,7 +881,7 @@ class AnalyzerFactoryTest {
 
         /**
          * Whether single quotes are delimiters is different from JapaneseTokenizer. This is normal behavior.
-         * 
+         *
          * If anything, Japanese Tokenizer enthusiastically separates words. The Japanese probably don't care much about
          * these issues. But as shown in the example here, this is a very important issue for some particular languages.
          */

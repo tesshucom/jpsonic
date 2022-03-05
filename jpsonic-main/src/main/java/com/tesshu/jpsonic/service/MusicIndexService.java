@@ -68,7 +68,7 @@ public class MusicIndexService {
      *            The music folders.
      * @param refresh
      *            Whether to look for updates by checking the last-modified timestamp of the music folders.
-     * 
+     *
      * @return A map from music indexes to sets of artists that are direct children of this music file.
      */
     public SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> getIndexedArtists(
@@ -145,7 +145,7 @@ public class MusicIndexService {
      *
      * @param expr
      *            The expression to parse.
-     * 
+     *
      * @return A new instance.
      */
     protected MusicIndex createIndexFromExpression(String expr) {
@@ -171,7 +171,7 @@ public class MusicIndexService {
      *
      * @param expr
      *            The expression to parse.
-     * 
+     *
      * @return A list of music indexes.
      */
     protected List<MusicIndex> createIndexesFromExpression(String expr) {
@@ -204,7 +204,7 @@ public class MusicIndexService {
      *            The artist in question.
      * @param indexes
      *            List of available indexes.
-     * 
+     *
      * @return The music index to which this music file belongs, or {@link MusicIndex#OTHER} if no index applies.
      */
     @SuppressWarnings("PMD.UnusedPrivateMethod")

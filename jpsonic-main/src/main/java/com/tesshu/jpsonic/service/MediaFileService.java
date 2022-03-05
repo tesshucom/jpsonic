@@ -98,9 +98,9 @@ public class MediaFileService {
      *
      * @param file
      *            A file on the local file system.
-     * 
+     *
      * @return A media file instance, or null if not found.
-     * 
+     *
      * @throws SecurityException
      *             If access is denied to the given file.
      */
@@ -113,9 +113,9 @@ public class MediaFileService {
      *
      * @param file
      *            A file on the local file system.
-     * 
+     *
      * @return A media file instance, or null if not found.
-     * 
+     *
      * @throws SecurityException
      *             If access is denied to the given file.
      */
@@ -157,9 +157,9 @@ public class MediaFileService {
      *
      * @param pathName
      *            A path name for a file on the local file system.
-     * 
+     *
      * @return A media file instance.
-     * 
+     *
      * @throws SecurityException
      *             If access is denied to the given file.
      */
@@ -232,7 +232,7 @@ public class MediaFileService {
      *            Whether directories should be included in the result.
      * @param sort
      *            Whether to sort files in the same directory.
-     * 
+     *
      * @return All children media files.
      */
     public List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories,
@@ -249,7 +249,7 @@ public class MediaFileService {
      *            Whether directories should be included in the result.
      * @param sort
      *            Whether to sort files in the same directory.
-     * 
+     *
      * @return All children media files.
      */
     public List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories,
@@ -301,9 +301,9 @@ public class MediaFileService {
      *
      * @param sortByAlbum
      *            Whether to sort by album count, rather than song count.
-     * 
+     *
      * @return Sorted list of genres.
-     * 
+     *
      * @Deprecated Use {@link SearchService} {@link #getGenres(boolean)}.
      */
     @Deprecated
@@ -320,7 +320,7 @@ public class MediaFileService {
      *            Maximum number of albums to return.
      * @param musicFolders
      *            Only return albums in these folders.
-     * 
+     *
      * @return The most frequently played albums.
      */
     public List<MediaFile> getMostFrequentlyPlayedAlbums(int offset, int count, List<MusicFolder> musicFolders) {
@@ -336,7 +336,7 @@ public class MediaFileService {
      *            Maximum number of albums to return.
      * @param musicFolders
      *            Only return albums in these folders.
-     * 
+     *
      * @return The most recently played albums.
      */
     public List<MediaFile> getMostRecentlyPlayedAlbums(int offset, int count, List<MusicFolder> musicFolders) {
@@ -352,7 +352,7 @@ public class MediaFileService {
      *            Maximum number of albums to return.
      * @param musicFolders
      *            Only return albums in these folders.
-     * 
+     *
      * @return The most recently added albums.
      */
     public List<MediaFile> getNewestAlbums(int offset, int count, List<MusicFolder> musicFolders) {
@@ -370,7 +370,7 @@ public class MediaFileService {
      *            Returns albums starred by this user.
      * @param musicFolders
      *            Only return albums from these folders.
-     * 
+     *
      * @return The most recently starred albums for this user.
      */
     public List<MediaFile> getStarredAlbums(int offset, int count, String username, List<MusicFolder> musicFolders) {
@@ -388,7 +388,7 @@ public class MediaFileService {
      *            Whether to sort by artist name
      * @param musicFolders
      *            Only return albums in these folders.
-     * 
+     *
      * @return Albums in alphabetical order.
      */
     public List<MediaFile> getAlphabeticalAlbums(int offset, int count, boolean byArtist,
@@ -409,7 +409,7 @@ public class MediaFileService {
      *            The last year in the range.
      * @param musicFolders
      *            Only return albums in these folders.
-     * 
+     *
      * @return Albums in the year range.
      */
     public List<MediaFile> getAlbumsByYear(int offset, int count, int fromYear, int toYear,
@@ -428,9 +428,9 @@ public class MediaFileService {
      *            The genre name.
      * @param musicFolders
      *            Only return albums in these folders.
-     * 
+     *
      * @return Albums in the genre.
-     * 
+     *
      * @Deprecated Use {@link SearchService}{@link #getAlbumsByGenre(int, int, String, List)}
      */
     @Deprecated
@@ -445,7 +445,7 @@ public class MediaFileService {
      *            The parent.
      * @param count
      *            Max number of songs to return.
-     * 
+     *
      * @return Random songs.
      */
     public List<MediaFile> getRandomSongsForParent(MediaFile parent, int count) {
@@ -578,7 +578,7 @@ public class MediaFileService {
      *
      * @param file
      *            The child file in question.
-     * 
+     *
      * @return Whether the child file is excluded.
      */
     private boolean isExcluded(File file) {
@@ -797,7 +797,7 @@ public class MediaFileService {
      *
      * @param sort
      *            Whether to sort files in the same directory.
-     * 
+     *
      * @return All descendant music files.
      */
     public List<MediaFile> getDescendantsOf(MediaFile ancestor, boolean sort) {

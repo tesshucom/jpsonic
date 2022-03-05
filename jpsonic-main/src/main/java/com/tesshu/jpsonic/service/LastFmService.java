@@ -98,7 +98,7 @@ public class LastFmService {
      *            Whether to include artists that are not present in the media library.
      * @param musicFolders
      *            Only return artists present in these folders.
-     * 
+     *
      * @return Similar artists, ordered by presence then similarity.
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (MediaFile) Not reusable
@@ -160,7 +160,7 @@ public class LastFmService {
      *            Whether to include artists that are not present in the media library.
      * @param musicFolders
      *            Only return songs from artists in these folders.
-     * 
+     *
      * @return Similar artists, ordered by presence then similarity.
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Artist) Not reusable
@@ -216,7 +216,7 @@ public class LastFmService {
      *            Max number of songs to return.
      * @param musicFolders
      *            Only return songs from artists in these folders.
-     * 
+     *
      * @return Songs from similar artists;
      */
     public List<MediaFile> getSimilarSongs(com.tesshu.jpsonic.domain.Artist artist, int count,
@@ -239,7 +239,7 @@ public class LastFmService {
      *            Max number of songs to return.
      * @param musicFolders
      *            Only return songs from artists present in these folders.
-     * 
+     *
      * @return Songs from similar artists;
      */
     public List<MediaFile> getSimilarSongs(MediaFile mediaFile, int count, List<MusicFolder> musicFolders) {
@@ -263,7 +263,7 @@ public class LastFmService {
      *
      * @param mediaFile
      *            The media file (song, album or artist).
-     * 
+     *
      * @return Artist bio.
      */
     public ArtistBio getArtistBio(MediaFile mediaFile, Locale locale) {
@@ -275,7 +275,7 @@ public class LastFmService {
      *
      * @param artist
      *            The artist.
-     * 
+     *
      * @return Artist bio.
      */
     public ArtistBio getArtistBio(com.tesshu.jpsonic.domain.Artist artist, Locale locale) {
@@ -315,7 +315,7 @@ public class LastFmService {
      *            Max number of songs to return.
      * @param musicFolders
      *            Only return songs present in these folders.
-     * 
+     *
      * @return Top songs for artist.
      */
     public List<MediaFile> getTopSongs(MediaFile artist, int count, List<MusicFolder> musicFolders) {
@@ -331,7 +331,7 @@ public class LastFmService {
      *            Max number of songs to return.
      * @param musicFolders
      *            Only return songs present in these folders.
-     * 
+     *
      * @return Top songs for artist.
      */
     public List<MediaFile> getTopSongs(String artistName, int count, List<MusicFolder> musicFolders) {
@@ -358,7 +358,7 @@ public class LastFmService {
      *
      * @param mediaFile
      *            The media file (song or album).
-     * 
+     *
      * @return Album notes.
      */
     public AlbumNotes getAlbumNotes(MediaFile mediaFile) {
@@ -370,7 +370,7 @@ public class LastFmService {
      *
      * @param album
      *            The album.
-     * 
+     *
      * @return Album notes.
      */
     public AlbumNotes getAlbumNotes(com.tesshu.jpsonic.domain.Album album) {
@@ -384,7 +384,7 @@ public class LastFmService {
      *            The artist name.
      * @param album
      *            The album name.
-     * 
+     *
      * @return Album notes.
      */
     private AlbumNotes getAlbumNotes(String artist, String album) {
@@ -477,9 +477,9 @@ public class LastFmService {
          * This is mistagged for <a target='_blank' href="http://www.last.fm/music/The+Boomtown+Rats"
          * class="bbcode_artist">The Boomtown Rats</a>; it would help Last.fm if you could correct your tags. <a
          * target='_blank' href="http://www.last.fm/music/+noredirect/Boomtown+Rats">Boomtown Rats on Last.fm</a>.
-         * 
+         *
          * -- or --
-         * 
+         *
          * Fix your tags to <a target='_blank' href="http://www.last.fm/music/The+Chemical+Brothers"
          * class="bbcode_artist">The Chemical Brothers</a> <a target='_blank'
          * href="http://www.last.fm/music/+noredirect/Chemical+Brothers">Chemical Brothers on Last.fm</a>.

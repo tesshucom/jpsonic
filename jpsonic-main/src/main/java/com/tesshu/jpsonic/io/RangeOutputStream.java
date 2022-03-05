@@ -54,7 +54,7 @@ public class RangeOutputStream extends FilterOutputStream {
      *            The output stream to wrap in a RangeOutputStream.
      * @param range
      *            The range, may be <code>null</code>.
-     * 
+     *
      * @return The possibly wrapped output stream.
      */
     public static OutputStream wrap(OutputStream out, HttpRange range) {
@@ -70,7 +70,7 @@ public class RangeOutputStream extends FilterOutputStream {
      *
      * @param b
      *            The byte to write.
-     * 
+     *
      * @throws IOException
      *             Thrown if there was a problem writing to the stream.
      */
@@ -91,7 +91,7 @@ public class RangeOutputStream extends FilterOutputStream {
      *            The offset to start at.
      * @param len
      *            The number of bytes to write.
-     * 
+     *
      * @throws IOException
      *             Thrown if there was a problem writing to the stream.
      */

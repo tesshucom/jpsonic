@@ -339,7 +339,7 @@ public class Player {
      * Returns a string representation of the player.
      *
      * @return A string representation of the player.
-     * 
+     *
      * @see #getDescription()
      */
     @Override

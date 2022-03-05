@@ -76,7 +76,7 @@ public class NowPlayingService {
      * Returns details about what the current player is playing.
      *
      * @return Details about what the current player is playing, or <code>null</code> if not playing anything.
-     * 
+     *
      * @throws ServletRequestBindingException
      */
     public NowPlayingInfo getNowPlayingForCurrentPlayer() throws ServletRequestBindingException {

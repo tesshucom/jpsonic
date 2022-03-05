@@ -56,7 +56,7 @@ import org.springframework.stereotype.Service;
  * Provides services for loading and saving playlists to and from persistent storage.
  *
  * @author Sindre Mehus
- * 
+ *
  * @see PlayQueue
  */
 @Service

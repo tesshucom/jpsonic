@@ -49,7 +49,7 @@ public final class TestCaseUtils {
      * Returns the path of the JPSONIC_HOME directory to use for tests. This will create a temporary directory.
      *
      * @return JPSONIC_HOME directory path.
-     * 
+     *
      * @throws RuntimeException
      *             if it fails to create the temp directory.
      */
@@ -101,7 +101,7 @@ public final class TestCaseUtils {
      *
      * @param daoHelper
      *            DaoHelper object
-     * 
+     *
      * @return Map table name -> records count
      */
     public static Map<String, Integer> recordsInAllTables(DaoHelper daoHelper) {

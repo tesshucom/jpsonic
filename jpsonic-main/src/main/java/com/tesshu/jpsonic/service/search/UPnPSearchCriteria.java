@@ -39,7 +39,7 @@ public class UPnPSearchCriteria extends LuceneSearchCriteria {
     /**
      * Returns a class that represents the search target and return value. For UPnP searches, this value can only be
      * determined after parsing UPnP.
-     * 
+     *
      * @return T that represents search target and return value
      */
     public Class<?> getAssignableClass() {

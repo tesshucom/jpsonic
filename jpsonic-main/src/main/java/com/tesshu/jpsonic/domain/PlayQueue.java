@@ -129,9 +129,9 @@ public class PlayQueue {
      *
      * @param index
      *            The index.
-     * 
+     *
      * @return The music file at the given index.
-     * 
+     *
      * @throws IndexOutOfBoundsException
      *             If the index is out of range.
      */
