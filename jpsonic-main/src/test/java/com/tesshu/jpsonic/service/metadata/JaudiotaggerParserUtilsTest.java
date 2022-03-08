@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.service.metadata;
 
 import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.lang.annotation.Documented;
@@ -211,4 +212,12 @@ class JaudiotaggerParserUtilsTest {
             assertNotNull(artwork);
         }
     }
+
+    @Test
+    void testParseDoubleToInt() {
+        assertEquals(12, JaudiotaggerParserUtils.parseDoubleToInt("12"));
+        assertEquals(12, JaudiotaggerParserUtils.parseDoubleToInt("12.34"));
+        assertNull(JaudiotaggerParserUtils.parseDoubleToInt("12L"));
+    }
+
 }
