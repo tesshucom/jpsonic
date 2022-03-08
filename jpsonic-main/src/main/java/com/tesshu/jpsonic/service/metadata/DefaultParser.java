@@ -35,11 +35,11 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Order(200)
-public class DefaultMetaDataParser extends MetaDataParser {
+public class DefaultParser extends MetaDataParser {
 
     private final MusicFolderService musicFolderService;
 
-    public DefaultMetaDataParser(MusicFolderService musicFolderService) {
+    public DefaultParser(MusicFolderService musicFolderService) {
         super();
         this.musicFolderService = musicFolderService;
     }
