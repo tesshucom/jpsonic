@@ -63,9 +63,9 @@ import org.springframework.stereotype.Service;
 @Service
 @Order(0)
 @SuppressWarnings("PMD.TooManyStaticImports")
-public class Jaudiotagger3Parser extends MetaDataParser {
+public class MusicParser extends MetaDataParser {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Jaudiotagger3Parser.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MusicParser.class);
 
     // @see AudioFileIO#prepareReadersAndWriters
     // MP4: with FFmpegParser
@@ -90,7 +90,7 @@ public class Jaudiotagger3Parser extends MetaDataParser {
 
     private final MusicFolderService musicFolderService;
 
-    public Jaudiotagger3Parser(MusicFolderService musicFolderService) {
+    public MusicParser(MusicFolderService musicFolderService) {
         super();
         this.musicFolderService = musicFolderService;
         try {

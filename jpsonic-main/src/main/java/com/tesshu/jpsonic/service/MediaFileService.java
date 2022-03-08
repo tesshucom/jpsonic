@@ -40,11 +40,11 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
-import com.tesshu.jpsonic.service.metadata.Jaudiotagger3Parser;
 import com.tesshu.jpsonic.service.metadata.JaudiotaggerParserUtils;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
+import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.util.FileUtil;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -71,7 +71,7 @@ public class MediaFileService {
     private final Ehcache mediaFileMemoryCache;
     private final MediaFileDao mediaFileDao;
     private final AlbumDao albumDao;
-    private final Jaudiotagger3Parser parser;
+    private final MusicParser parser;
     private final MetaDataParserFactory metaDataParserFactory;
     private final MediaFileServiceUtils utils;
 
@@ -79,7 +79,7 @@ public class MediaFileService {
 
     public MediaFileService(SettingsService settingsService, MusicFolderService musicFolderService,
             SecurityService securityService, Ehcache mediaFileMemoryCache, MediaFileDao mediaFileDao, AlbumDao albumDao,
-            Jaudiotagger3Parser parser, MetaDataParserFactory metaDataParserFactory, MediaFileServiceUtils utils) {
+            MusicParser parser, MetaDataParserFactory metaDataParserFactory, MediaFileServiceUtils utils) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;

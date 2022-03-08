@@ -31,7 +31,7 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.service.metadata.Jaudiotagger3Parser;
+import com.tesshu.jpsonic.service.metadata.MusicParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -49,7 +49,7 @@ class CoverArtControllerTest {
     public void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders.standaloneSetup(new CoverArtController(mock(MediaFileService.class),
                 mock(TranscodingService.class), mock(PlaylistService.class), mock(PodcastService.class),
-                mock(ArtistDao.class), mock(AlbumDao.class), mock(Jaudiotagger3Parser.class), mock(CoverArtLogic.class),
+                mock(ArtistDao.class), mock(AlbumDao.class), mock(MusicParser.class), mock(CoverArtLogic.class),
                 mock(FontLoader.class))).build();
     }
 

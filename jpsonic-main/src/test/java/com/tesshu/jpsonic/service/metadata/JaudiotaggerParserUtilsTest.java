@@ -34,8 +34,7 @@ class JaudiotaggerParserUtilsTest {
 
     private MediaFile createMediaFile(String resourcePath) throws URISyntaxException {
         MediaFile mediaFile = new MediaFile();
-        mediaFile.setPath(
-                Jaudiotagger3ParserTest.class.getResource(resourcePath).toURI().toString().replace("file:", ""));
+        mediaFile.setPath(MusicParserTest.class.getResource(resourcePath).toURI().toString().replace("file:", ""));
         return mediaFile;
     }
 

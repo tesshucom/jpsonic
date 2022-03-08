@@ -46,12 +46,12 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
-class Jaudiotagger3ParserTest {
+class MusicParserTest {
 
-    private Jaudiotagger3Parser parser = new Jaudiotagger3Parser(null);
+    private MusicParser parser = new MusicParser(null);
 
     private static File createFile(String resourcePath) throws URISyntaxException {
-        return new File(Jaudiotagger3ParserTest.class.getResource(resourcePath).toURI());
+        return new File(MusicParserTest.class.getResource(resourcePath).toURI());
     }
 
     @Nested
@@ -933,7 +933,7 @@ class Jaudiotagger3ParserTest {
     @Nested
     class ITunesMP3Test {
 
-        private Jaudiotagger3Parser parser = new Jaudiotagger3Parser(null);
+        private MusicParser parser = new MusicParser(null);
 
         private void assertITunesEN(File file, boolean isAlbumArtist) {
             MetaData metaData = parser.getRawMetaData(file);
