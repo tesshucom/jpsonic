@@ -46,11 +46,11 @@ import org.springframework.stereotype.Service;
  *
  * @author Sindre Mehus
  */
-@Service("ffmpegParser")
+@Service("videoParser")
 @Order(100)
-public class FFmpegParser extends MetaDataParser {
+public class VideoParser extends MetaDataParser {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FFmpegParser.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VideoParser.class);
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String[] FFPROBE_OPTIONS = { "-v", "quiet", "-print_format", "json", "-show_format",
             "-show_streams" };
@@ -59,7 +59,7 @@ public class FFmpegParser extends MetaDataParser {
     private final MusicFolderService musicFolderService;
     private final TranscodingService transcodingService;
 
-    public FFmpegParser(SettingsService settingsService, MusicFolderService musicFolderService,
+    public VideoParser(SettingsService settingsService, MusicFolderService musicFolderService,
             TranscodingService transcodingService) {
         super();
         this.settingsService = settingsService;

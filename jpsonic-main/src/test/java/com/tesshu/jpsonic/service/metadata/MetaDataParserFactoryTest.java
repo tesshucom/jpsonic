@@ -80,7 +80,7 @@ class MetaDataParserFactoryTest {
         assertThat(parser, instanceOf(Jaudiotagger3Parser.class));
 
         parser = metaDataParserFactory.getParser(someFlv);
-        assertThat(parser, instanceOf(FFmpegParser.class));
+        assertThat(parser, instanceOf(VideoParser.class));
 
         parser = metaDataParserFactory.getParser(someJunk);
         assertThat(parser, instanceOf(DefaultParser.class));
