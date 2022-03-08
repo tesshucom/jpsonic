@@ -162,6 +162,16 @@ public final class JaudiotaggerParserUtils {
         return parseInt(trimToNull(s), YEAR_NO_PATTERN);
     }
 
+    static Integer parseDoubleToInt(String s) {
+        Double result;
+        try {
+            result = Double.valueOf(s);
+        } catch (NumberFormatException e) {
+            return parseInt(s);
+        }
+        return (int) Math.floor(result);
+    }
+
     static String createSimplePath(File file) {
         return file.getParentFile().getName().concat("/").concat(file.getName());
     }
