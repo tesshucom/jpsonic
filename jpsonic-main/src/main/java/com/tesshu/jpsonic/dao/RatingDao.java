@@ -52,7 +52,7 @@ public class RatingDao extends AbstractDao {
      *            Maximum number of albums to return.
      * @param musicFolders
      *            Only return albums in these folders.
-     * 
+     *
      * @return Paths for the highest rated albums.
      */
     public List<String> getHighestRatedAlbums(final int offset, final int count, final List<MusicFolder> musicFolders) {
@@ -95,7 +95,7 @@ public class RatingDao extends AbstractDao {
      *
      * @param mediaFile
      *            The media file.
-     * 
+     *
      * @return The average rating, or <code>null</code> if no ratings are set.
      */
     public Double getAverageRating(MediaFile mediaFile) {
@@ -114,7 +114,7 @@ public class RatingDao extends AbstractDao {
      *            The user name.
      * @param mediaFile
      *            The media file.
-     * 
+     *
      * @return The rating, or <code>null</code> if no rating is set.
      */
     public Integer getRatingForUser(String username, MediaFile mediaFile) {

@@ -55,7 +55,7 @@ public class InternetRadioDao extends AbstractDao {
      *
      * @param id
      *            The unique internet radio station ID.
-     * 
+     *
      * @return The internet radio station with the given ID, or <code>null</code> if no such internet radio exists.
      */
     public InternetRadio getInternetRadioById(int id) {

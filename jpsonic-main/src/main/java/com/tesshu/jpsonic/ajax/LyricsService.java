@@ -71,7 +71,7 @@ public class LyricsService {
      *            The artist.
      * @param song
      *            The song.
-     * 
+     *
      * @return The lyrics, never <code>null</code> .
      */
     public LyricsInfo getLyrics(final String artist, final String song) {

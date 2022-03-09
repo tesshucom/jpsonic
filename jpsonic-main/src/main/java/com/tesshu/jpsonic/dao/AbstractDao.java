@@ -52,7 +52,7 @@ public class AbstractDao {
 
     /**
      * Returns a JDBC template for performing database operations.
-     * 
+     *
      * @return A JDBC template.
      */
     public JdbcTemplate getJdbcTemplate() {

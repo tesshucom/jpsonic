@@ -61,7 +61,7 @@ public class ArtistDao extends AbstractDao {
      *
      * @param artistName
      *            The artist name.
-     * 
+     *
      * @return The artist or null.
      */
     public Artist getArtist(String artistName) {
@@ -75,7 +75,7 @@ public class ArtistDao extends AbstractDao {
      *            The artist name.
      * @param musicFolders
      *            Only return artists that have at least one album in these folders.
-     * 
+     *
      * @return The artist or null.
      */
     public Artist getArtist(final String artistName, final List<MusicFolder> musicFolders) {
@@ -93,7 +93,7 @@ public class ArtistDao extends AbstractDao {
      *
      * @param id
      *            The artist ID.
-     * 
+     *
      * @return The artist or null.
      */
     public Artist getArtist(int id) {
@@ -141,7 +141,7 @@ public class ArtistDao extends AbstractDao {
      *            Maximum number of artists to return.
      * @param musicFolders
      *            Only return artists that have at least one album in these folders.
-     * 
+     *
      * @return Artists in alphabetical order.
      */
     public List<Artist> getAlphabetialArtists(final int offset, final int count, final List<MusicFolder> musicFolders) {
@@ -166,7 +166,7 @@ public class ArtistDao extends AbstractDao {
      *            Returns artists starred by this user.
      * @param musicFolders
      *            Only return artists that have at least one album in these folders.
-     * 
+     *
      * @return The most recently starred artists for this user.
      */
     public List<Artist> getStarredArtists(final int offset, final int count, final String username,

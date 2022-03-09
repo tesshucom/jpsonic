@@ -30,7 +30,7 @@ import com.tesshu.jpsonic.service.SearchService;
  * The outcome of a search.
  *
  * @author Sindre Mehus
- * 
+ *
  * @see SearchService#search
  */
 public class SearchResult {

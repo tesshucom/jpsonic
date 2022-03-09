@@ -60,7 +60,7 @@ public class CustomThemeResolver implements ThemeResolver {
      *
      * @param request
      *            Request to be used for resolution
-     * 
+     *
      * @return The current theme name
      */
     @Override
@@ -100,10 +100,10 @@ public class CustomThemeResolver implements ThemeResolver {
 
     /**
      * Returns whether the theme with the given ID exists.
-     * 
+     *
      * @param themeId
      *            The theme ID.
-     * 
+     *
      * @return Whether the theme with the given ID exists.
      */
     private boolean themeExists(String themeId) {
@@ -124,7 +124,7 @@ public class CustomThemeResolver implements ThemeResolver {
      *            Response to be used for theme name modification
      * @param themeName
      *            The new theme name
-     * 
+     *
      * @throws UnsupportedOperationException
      *             If the ThemeResolver implementation does not support dynamic changing of the theme
      */

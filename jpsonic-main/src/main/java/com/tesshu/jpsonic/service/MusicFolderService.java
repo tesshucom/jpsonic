@@ -62,7 +62,7 @@ public class MusicFolderService {
      *            Whether to include disabled folders.
      * @param includeNonExisting
      *            Whether to include non-existing folders.
-     * 
+     *
      * @return Possibly empty list of all music folders.
      */
     public List<MusicFolder> getAllMusicFolders(boolean includeDisabled, boolean includeNonExisting) {
@@ -100,7 +100,7 @@ public class MusicFolderService {
      * @param selectedMusicFolderId
      *            If non-null and included in the list of allowed music folders, this methods returns a list of only
      *            this music folder.
-     * 
+     *
      * @return Possibly empty list of music folders.
      */
     public List<MusicFolder> getMusicFoldersForUser(String username, Integer selectedMusicFolderId) {
@@ -123,7 +123,7 @@ public class MusicFolderService {
      *
      * @param id
      *            The ID.
-     * 
+     *
      * @return The music folder with the given ID, or <code>null</code> if not found.
      */
     public MusicFolder getMusicFolderById(Integer id) {

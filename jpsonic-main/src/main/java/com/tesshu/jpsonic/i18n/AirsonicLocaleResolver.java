@@ -61,7 +61,7 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
      *
      * @param request
      *            Request to be used for resolution.
-     * 
+     *
      * @return The current locale.
      */
     @Override
@@ -101,10 +101,10 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
 
     /**
      * Returns whether the given locale exists.
-     * 
+     *
      * @param locale
      *            The locale.
-     * 
+     *
      * @return Whether the locale exists.
      */
     private boolean localeExists(Locale locale) {

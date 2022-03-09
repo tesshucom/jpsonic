@@ -99,7 +99,7 @@ public final class StringUtil {
      *
      * @param suffix
      *            The suffix, e.g., "mp3" or ".mp3".
-     * 
+     *
      * @return The corresponding MIME type, e.g., "audio/mpeg". If no MIME type is found,
      *         <code>application/octet-stream</code> is returned.
      */
@@ -141,7 +141,7 @@ public final class StringUtil {
      *            The number of bytes.
      * @param locale
      *            The locale used for formatting.
-     * 
+     *
      * @return The formatted string.
      */
     public static String formatBytes(long byteCount, Locale locale) {
@@ -212,7 +212,7 @@ public final class StringUtil {
      *
      * @param input
      *            The input string.
-     * 
+     *
      * @return Array of elements.
      */
     public static @NonNull String[] split(String input) {
@@ -239,9 +239,9 @@ public final class StringUtil {
      *
      * @param in
      *            The input stream to read from.
-     * 
+     *
      * @return Array of lines.
-     * 
+     *
      * @throws IOException
      *             If an I/O error occurs.
      */
@@ -274,9 +274,9 @@ public final class StringUtil {
      *
      * @param s
      *            String consisting of integers separated by whitespace.
-     * 
+     *
      * @return The corresponding array of ints.
-     * 
+     *
      * @throws NumberFormatException
      *             If string contains non-parseable text.
      */
@@ -293,7 +293,7 @@ public final class StringUtil {
      *
      * @param s
      *            The locale string. Should be formatted as per the documentation in {@link Locale#toString()}.
-     * 
+     *
      * @return The locale.
      */
     public static @Nullable Locale parseLocale(String s) {
@@ -335,7 +335,7 @@ public final class StringUtil {
      *
      * @param s
      *            The string to encode.
-     * 
+     *
      * @return The encoded string.
      */
     public static @Nullable String utf8HexEncode(String s) {
@@ -352,9 +352,9 @@ public final class StringUtil {
      *
      * @param s
      *            The string to decode.
-     * 
+     *
      * @return The decoded string.
-     * 
+     *
      * @throws DecoderException
      *             If an error occurs.
      */
@@ -376,7 +376,7 @@ public final class StringUtil {
      *
      * @param url
      *            The URL in question.
-     * 
+     *
      * @return The file part, or <code>null</code> if no file can be resolved.
      */
     public static @Nullable String getUrlFile(String url) {
@@ -403,7 +403,7 @@ public final class StringUtil {
      *
      * @param filename
      *            The filename in question.
-     * 
+     *
      * @return The filename with special characters replaced by underscores.
      */
     public static String fileSystemSafe(final String filename) {

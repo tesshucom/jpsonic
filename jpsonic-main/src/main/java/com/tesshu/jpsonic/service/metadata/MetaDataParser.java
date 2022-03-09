@@ -42,7 +42,7 @@ public abstract class MetaDataParser {
      *
      * @param file
      *            The file to parse.
-     * 
+     *
      * @return Meta data for the file, never null.
      */
     public MetaData getMetaData(File file) {
@@ -81,7 +81,7 @@ public abstract class MetaDataParser {
      *
      * @param file
      *            The file to parse.
-     * 
+     *
      * @return Meta data for the file.
      */
     public abstract MetaData getRawMetaData(File file);
@@ -101,7 +101,7 @@ public abstract class MetaDataParser {
      *
      * @param file
      *            The file in question.
-     * 
+     *
      * @return Whether this parser is applicable to the given file.
      */
     public abstract boolean isApplicable(File file);
@@ -163,7 +163,7 @@ public abstract class MetaDataParser {
      *            The title with or without a prefixed track number, e.g., "02 - Back In Black".
      * @param trackNumber
      *            If specified, this is the "true" track number.
-     * 
+     *
      * @return The title with the track number removed, e.g., "Back In Black".
      */
     protected String removeTrackNumberFromTitle(final String title, Integer trackNumber) {

@@ -497,15 +497,15 @@ public class IndexManager {
 
     /**
      * Get pre-parsed genre string from parsed genre string.
-     * 
+     *
      * The genre analysis includes tokenize processing. Therefore, the parsed genre string and the cardinal of the
      * unedited genre string are n: n.
-     * 
+     *
      * @param genres
      *            list of analyzed genres
-     * 
+     *
      * @return pre-analyzed genres
-     * 
+     *
      * @since 101.2.0
      */
     public List<String> toPreAnalyzedGenres(List<String> genres) {

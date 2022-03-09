@@ -129,7 +129,7 @@ class SearchServiceSpecialGenreTest extends AbstractNeedsScan {
          *
          * @see AnalyzerFactory <<<<<<<
          * HEAD:jpsonic-main/src/test/java/org/airsonic/player/service/search/SearchServiceSpecialGenreTestCase.java
-         * 
+         *
          *
          * =======
          *

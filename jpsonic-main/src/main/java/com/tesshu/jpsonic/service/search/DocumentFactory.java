@@ -186,9 +186,9 @@ public class DocumentFactory {
      *
      * @param mediaFile
      *            target of document
-     * 
+     *
      * @return document
-     * 
+     *
      * @since legacy
      */
     public Document createAlbumDocument(MediaFile mediaFile) {
@@ -208,9 +208,9 @@ public class DocumentFactory {
      *
      * @param mediaFile
      *            target of document
-     * 
+     *
      * @return document
-     * 
+     *
      * @since legacy
      */
     public Document createArtistDocument(MediaFile mediaFile) {
@@ -227,9 +227,9 @@ public class DocumentFactory {
      *
      * @param album
      *            target of document
-     * 
+     *
      * @return document
-     * 
+     *
      * @since legacy
      */
     public Document createAlbumId3Document(Album album) {
@@ -251,9 +251,9 @@ public class DocumentFactory {
      *            target of document
      * @param musicFolder
      *            target folder exists
-     * 
+     *
      * @return document
-     * 
+     *
      * @since legacy
      */
     public Document createArtistId3Document(Artist artist, MusicFolder musicFolder) {
@@ -270,9 +270,9 @@ public class DocumentFactory {
      *
      * @param mediaFile
      *            target of document
-     * 
+     *
      * @return document
-     * 
+     *
      * @since legacy
      */
     public Document createSongDocument(MediaFile mediaFile) {

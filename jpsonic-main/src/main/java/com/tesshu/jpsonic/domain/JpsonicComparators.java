@@ -59,7 +59,7 @@ public class JpsonicComparators {
 
     /**
      * Returns a comparator that sorts in dictionary order.
-     * 
+     *
      * @return Comparator
      */
     public Comparator<Album> albumOrderByAlpha() {
@@ -73,7 +73,7 @@ public class JpsonicComparators {
 
     /**
      * Returns a comparator that sorts in dictionary order.
-     * 
+     *
      * @return Comparator
      */
     public Comparator<Artist> artistOrderByAlpha() {

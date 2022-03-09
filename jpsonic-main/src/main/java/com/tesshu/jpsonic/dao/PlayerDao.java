@@ -80,7 +80,7 @@ public class PlayerDao extends AbstractDao {
      * @param clientId
      *            The third-party client ID (used if this player is managed over the Airsonic REST API). May be
      *            <code>null</code>.
-     * 
+     *
      * @return All relevant players.
      */
     public List<Player> getPlayersForUserAndClientId(String username, String clientId) {
@@ -98,7 +98,7 @@ public class PlayerDao extends AbstractDao {
      *
      * @param id
      *            The unique player ID.
-     * 
+     *
      * @return The player with the given ID, or <code>null</code> if no such player exists.
      */
     public Player getPlayerById(int id) {

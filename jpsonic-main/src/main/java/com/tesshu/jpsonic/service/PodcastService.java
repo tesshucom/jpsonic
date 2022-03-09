@@ -190,7 +190,7 @@ public class PodcastService {
      *
      * @param channelId
      *            The Podcast channel ID.
-     * 
+     *
      * @return Possibly empty list of all Podcast episodes for the given channel, sorted in reverse chronological order
      *         (newest episode first).
      */

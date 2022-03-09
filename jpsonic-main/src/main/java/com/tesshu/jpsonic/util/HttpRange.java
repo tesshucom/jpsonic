@@ -44,7 +44,7 @@ public class HttpRange {
      *
      * @param range
      *            The range from the HTTP header, for instance "bytes=0-499" or "bytes=500-"
-     * 
+     *
      * @return A range object (using inclusive values). If the last-byte-pos is not given, the end of the returned range
      *         is {@code null}. The method returns <code>null</code> if the syntax of the given range is not supported.
      */

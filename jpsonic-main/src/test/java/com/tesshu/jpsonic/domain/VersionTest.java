@@ -71,7 +71,7 @@ class VersionTest {
 
     /**
      * Tests that equals(), hashCode(), toString() and compareTo() works.
-     * 
+     *
      * @param v1
      *            A lower version.
      * @param v2

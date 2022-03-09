@@ -27,7 +27,7 @@ import java.util.Date;
  * A Podcast episode belonging to a channel.
  *
  * @author Sindre Mehus
- * 
+ *
  * @see PodcastChannel
  */
 public class PodcastEpisode {

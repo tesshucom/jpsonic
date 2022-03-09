@@ -56,7 +56,7 @@ public class JMediaFileService {
 
     /**
      * Returns the number of child elements of the specified mediaFile.
-     * 
+     *
      * @return the number of child elements
      */
     public int getChildSizeOf(MediaFile mediaFile) {
@@ -65,7 +65,7 @@ public class JMediaFileService {
 
     /**
      * Returns the number of child elements of the specified musicFolder.
-     * 
+     *
      * @return the number of child elements
      */
     public int getChildSizeOf(MusicFolder musicFolder) {
@@ -111,12 +111,12 @@ public class JMediaFileService {
 
     /**
      * Returns the song count of the specified album name and album-artist.
-     * 
+     *
      * @param albumArtist
      *            album-artist
      * @param album
      *            name of album
-     * 
+     *
      * @return song count
      */
     public int getSongsCountForAlbum(String albumArtist, String album) {
@@ -125,14 +125,14 @@ public class JMediaFileService {
 
     /**
      * Returns the song of the specified album.
-     * 
+     *
      * @param offset
      *            Number of songs to skip.
      * @param count
      *            Maximum number of songs to return.
      * @param album
      *            album
-     * 
+     *
      * @return Enumerating songs considering paging
      */
     public List<MediaFile> getSongsForAlbum(final long offset, final long count, MediaFile album) {
@@ -141,7 +141,7 @@ public class JMediaFileService {
 
     /**
      * Returns the song of the specified album name and album-artist.
-     * 
+     *
      * @param offset
      *            Number of songs to skip.
      * @param count
@@ -150,7 +150,7 @@ public class JMediaFileService {
      *            album-artist
      * @param album
      *            name of album
-     * 
+     *
      * @return Enumerating songs considering paging
      */
     public List<MediaFile> getSongsForAlbum(final long offset, final long count, String albumArtist, String album) {

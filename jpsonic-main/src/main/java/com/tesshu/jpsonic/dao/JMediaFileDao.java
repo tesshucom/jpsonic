@@ -107,10 +107,10 @@ public class JMediaFileDao extends AbstractDao {
 
     /**
      * Returns the media file that are direct children of the given path.
-     * 
+     *
      * @param path
      *            The path.
-     * 
+     *
      * @return The list of children.
      */
     public List<MediaFile> getChildrenOf(final long offset, final long count, String path, boolean byYear) {
@@ -236,15 +236,15 @@ public class JMediaFileDao extends AbstractDao {
         /*
          * Perform a conditional search and add a row number. Returns the result whose row number is included in the
          * random number set.
-         * 
+         *
          * There are some technical barriers to this query.
-         * 
+         *
          * (1) It must be a row number acquisition method that can be executed in all DBs. (2) It is simpler to join
          * using UNNEST. However, hsqldb traditionally has a problem with UNNEST, and the operation specification
          * differs depending on the version. In addition, compatibility of each DB may be affected.
-         * 
+         *
          * Therefore, we use a very primitive query that combines COUNT and IN here.
-         * 
+         *
          * IN allows you to get the smallest song subset corresponding to random numbers, but unlike JOIN&UNNEST, the
          * order of random numbers is destroyed.
          */

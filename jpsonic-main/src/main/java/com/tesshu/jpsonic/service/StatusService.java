@@ -45,7 +45,7 @@ import org.springframework.stereotype.Service;
  * Note that for stream statuses, the last inactive status is also stored.
  *
  * @author Sindre Mehus
- * 
+ *
  * @see TransferStatus
  */
 @SuppressWarnings("PMD.UseConcurrentHashMap")

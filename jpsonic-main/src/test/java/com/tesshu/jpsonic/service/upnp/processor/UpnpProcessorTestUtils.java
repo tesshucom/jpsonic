@@ -27,13 +27,13 @@ import java.util.List;
 
 /**
  * Class that defines the sort order corresponding to test data for Upnp service.
- * 
+ *
  * The same has been verified in {@link JpsonicComparatorsIntegrationTest}. This package mainly uses
  * resources/MEDIAS/Sort/Pagination.
- * 
+ *
  * UPnP validation mainly focuses on whether pagination is broken by improper implementation of sorting. Strict sorting
  * validation can be done with {@link JpsonicComparatorsTest}.
- * 
+ *
  * Some famous UPnP client applications have a default pagination size of 30. (It may be possible depending on the
  * setting, but it may be silent) Therefore, it is desirable that UPnP verification has 30 or more hierarchy elements.
  * By scanning under resources/MEDIAS/Sort/Pagination in the real environment, it is also possible to confirm with the

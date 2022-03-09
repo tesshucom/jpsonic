@@ -65,7 +65,7 @@ public final class TranscodeInputStream extends InputStream {
      *            Data to feed to the process. May be {@code null}.
      * @param tmpFile
      *            Temporary file to delete when this stream is closed. May be {@code null}.
-     * 
+     *
      * @throws IOException
      *             If an I/O error occurs.
      */

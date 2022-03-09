@@ -39,9 +39,9 @@ import org.springframework.stereotype.Component;
 
 /**
  * Utility class for injecting into legacy MediaScannerService.
- * 
+ *
  * Supplement processing that is lacking in legacy services.
- * 
+ *
  * - Unify Sort tags for names. - Determines the order of all media from the sort key.
  *
  * There are three steps to integrating sort-tags:

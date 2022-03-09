@@ -63,7 +63,7 @@ public class TranscodingDao extends AbstractDao {
      *
      * @param playerId
      *            The player ID.
-     * 
+     *
      * @return All active transcodings for the player.
      */
     public List<Transcoding> getTranscodingsForPlayer(Integer playerId) {
@@ -94,7 +94,7 @@ public class TranscodingDao extends AbstractDao {
      *
      * @param transcoding
      *            The transcoding to create.
-     * 
+     *
      * @return registered ID that is assumed to be registered
      */
     @Transactional

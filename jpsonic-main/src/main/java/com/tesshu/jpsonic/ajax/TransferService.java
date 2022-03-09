@@ -43,7 +43,7 @@ public class TransferService {
 
     /**
      * Returns info about any ongoing upload within the current session.
-     * 
+     *
      * @return Info about ongoing upload.
      */
     public UploadInfo getUploadInfo() {

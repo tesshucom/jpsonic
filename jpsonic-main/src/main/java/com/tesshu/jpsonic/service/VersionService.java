@@ -211,7 +211,7 @@ public class VersionService {
      *
      * @param resourceName
      *            The resource name.
-     * 
+     *
      * @return The first line of the resource.
      */
     private String readLineFromResource(@NonNull String resourceName) {

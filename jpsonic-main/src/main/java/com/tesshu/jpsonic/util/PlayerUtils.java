@@ -148,7 +148,7 @@ public final class PlayerUtils {
      *
      * @param request
      *            An HTTP request instance
-     * 
+     *
      * @return The associated URL
      */
     public static String getURLForRequest(HttpServletRequest request) {
@@ -165,7 +165,7 @@ public final class PlayerUtils {
      *
      * @param request
      *            An HTTP request instance
-     * 
+     *
      * @return The associated anonymized URL
      */
     public static String getAnonymizedURLForRequest(HttpServletRequest request) {

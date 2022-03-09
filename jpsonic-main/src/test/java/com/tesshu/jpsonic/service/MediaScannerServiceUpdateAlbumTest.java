@@ -72,9 +72,9 @@ class MediaScannerServiceUpdateAlbumTest extends AbstractNeedsScan {
      * File structured albums are only affected by the first child of the system file path. FIFO. Only the last
      * registration is valid if the same name exists in the case of Id3 album. LIFO. Depending on the data pattern,
      * different album data of Genre can be created in File structure / Id3.
-     * 
+     *
      * Jpsonic changes DB registration logic of Id3 album to eliminate data inconsistency.
-     * 
+     *
      */
     @Test
     void testUpdateAlbum() {

@@ -123,7 +123,7 @@ public class ShareDao extends AbstractDao {
      *
      * @param shareId
      *            The ID of the share.
-     * 
+     *
      * @return The paths of the shared files.
      */
     public List<String> getSharedFiles(final int shareId, final List<MusicFolder> musicFolders) {

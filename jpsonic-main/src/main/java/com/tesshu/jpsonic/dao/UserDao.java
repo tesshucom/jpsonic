@@ -99,7 +99,7 @@ public class UserDao extends AbstractDao {
      *            The username used when logging in.
      * @param caseSensitive
      *            If false, perform a case-insensitive search
-     * 
+     *
      * @return The user, or <code>null</code> if not found.
      */
     public User getUserByName(String username, boolean caseSensitive) {
@@ -127,7 +127,7 @@ public class UserDao extends AbstractDao {
      *
      * @param email
      *            The email address.
-     * 
+     *
      * @return The user, or <code>null</code> if not found.
      */
     public User getUserByEmail(String email) {
@@ -197,7 +197,7 @@ public class UserDao extends AbstractDao {
      *
      * @param username
      *            The user name.
-     * 
+     *
      * @return Roles the user is granted.
      */
     public String[] getRolesForUser(String username) {
@@ -215,7 +215,7 @@ public class UserDao extends AbstractDao {
      *
      * @param username
      *            The username.
-     * 
+     *
      * @return User-specific settings, or <code>null</code> if no such settings exist.
      */
     public UserSettings getUserSettings(String username) {
