@@ -97,7 +97,7 @@ public class SecurityService implements UserDetailsService {
      *
      * @param username
      *            The username.
-     * 
+     *
      * @return User-specific settings. Never <code>null</code>.
      */
     public UserSettings getUserSettings(String username) {
@@ -187,9 +187,9 @@ public class SecurityService implements UserDetailsService {
      *
      * @param username
      *            The username
-     * 
+     *
      * @return A fully populated user record (never <code>null</code>)
-     * 
+     *
      * @throws UsernameNotFoundException
      *             if the user could not be found or the user has no GrantedAuthority.
      * @throws DataAccessException
@@ -229,7 +229,7 @@ public class SecurityService implements UserDetailsService {
      *
      * @param request
      *            The HTTP request.
-     * 
+     *
      * @return The logged-in user, or <code>null</code>.
      */
     public User getCurrentUser(HttpServletRequest request) {
@@ -242,7 +242,7 @@ public class SecurityService implements UserDetailsService {
      *
      * @param request
      *            The HTTP request.
-     * 
+     *
      * @return The name of the logged-in user, or <code>null</code>.
      */
     public String getCurrentUsername(HttpServletRequest request) {
@@ -254,7 +254,7 @@ public class SecurityService implements UserDetailsService {
      *
      * @param username
      *            The username used when logging in.
-     * 
+     *
      * @return The user, or <code>null</code> if not found.
      */
     public User getUserByName(String username) {
@@ -263,12 +263,12 @@ public class SecurityService implements UserDetailsService {
 
     /**
      * Returns the user with the given username
-     * 
+     *
      * @param username
      *            The username to look for
      * @param caseSensitive
      *            If false, will do a case insensitive search
-     * 
+     *
      * @return The corresponding User
      */
     public User getUserByName(String username, boolean caseSensitive) {
@@ -291,7 +291,7 @@ public class SecurityService implements UserDetailsService {
      *
      * @param email
      *            The email address.
-     * 
+     *
      * @return The user, or <code>null</code> if not found.
      */
     public User getUserByEmail(String email) {
@@ -440,7 +440,7 @@ public class SecurityService implements UserDetailsService {
      *
      * @param file
      *            The file in question.
-     * 
+     *
      * @return Whether the given file is located in one of the music folders.
      */
     private boolean isInMusicFolder(File file) {
@@ -477,7 +477,7 @@ public class SecurityService implements UserDetailsService {
      *
      * @param file
      *            The file in question.
-     * 
+     *
      * @return Whether the given file is located in the Podcast folder.
      */
     public boolean isInPodcastFolder(File file) {
@@ -524,7 +524,7 @@ public class SecurityService implements UserDetailsService {
      *            The file in question.
      * @param folder
      *            The folder in question.
-     * 
+     *
      * @return Whether the given file is located in the given folder.
      */
     protected boolean isFileInFolder(final String file, final String folder) {

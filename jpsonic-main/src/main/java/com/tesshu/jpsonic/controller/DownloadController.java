@@ -206,7 +206,7 @@ public class DownloadController {
      *            The file to download.
      * @param range
      *            The byte range, may be <code>null</code>.
-     * 
+     *
      * @throws IOException
      *             If an I/O error occurs.
      */
@@ -325,7 +325,7 @@ public class DownloadController {
      *            The download status.
      * @param range
      *            The byte range, may be <code>null</code>.
-     * 
+     *
      * @throws IOException
      *             If an I/O error occurs.
      */
@@ -400,7 +400,7 @@ public class DownloadController {
      *            The download status.
      * @param range
      *            The byte range, may be <code>null</code>.
-     * 
+     *
      * @throws IOException
      *             If an I/O error occurs.
      */
@@ -447,9 +447,9 @@ public class DownloadController {
      *
      * @param file
      *            The file to compute checksum for.
-     * 
+     *
      * @return A CRC32 checksum.
-     * 
+     *
      * @throws IOException
      *             If an I/O error occurs.
      */

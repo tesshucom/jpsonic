@@ -33,7 +33,7 @@ import org.apache.lucene.search.BoostQuery;
 /**
  * Enum that symbolizes the each lucene index entity. This class is a division of what was once part of SearchService
  * and added functionality.
- * 
+ *
  * @since legacy
  */
 public enum IndexType {
@@ -98,10 +98,10 @@ public enum IndexType {
 
     /**
      * Define the field's applied boost value when searching IndexType.
-     * 
+     *
      * @param entry
      *            {@link #entry(String, float)}. When specifying multiple values, enumerate entries.
-     * 
+     *
      * @return Map of boost values ​​to be applied to the field
      */
     @SafeVarargs
@@ -113,7 +113,7 @@ public enum IndexType {
 
     /**
      * Create an entry representing the boost value for the field.
-     * 
+     *
      * @param k
      *            Field name defined by FieldNames
      * @param v
@@ -138,11 +138,11 @@ public enum IndexType {
 
     /**
      * Returns a map of fields and boost values.
-     * 
+     *
      * @return Map of fields and boost values
-     * 
+     *
      * @since legacy
-     * 
+     *
      * @see BoostQuery
      */
     public Map<String, Float> getBoosts() {
@@ -151,9 +151,9 @@ public enum IndexType {
 
     /**
      * Return some of the fields defined in the index.
-     * 
+     *
      * @return Fields mainly used in multi-field search
-     * 
+     *
      * @since legacy
      */
     public String[] getFields() {

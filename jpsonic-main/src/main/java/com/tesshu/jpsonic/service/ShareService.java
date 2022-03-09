@@ -44,7 +44,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * Provides services for sharing media.
  *
  * @author Sindre Mehus
- * 
+ *
  * @see Share
  */
 @Service

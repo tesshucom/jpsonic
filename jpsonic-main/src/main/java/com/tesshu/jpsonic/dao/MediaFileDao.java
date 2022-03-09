@@ -85,7 +85,7 @@ public class MediaFileDao extends AbstractDao {
      *
      * @param path
      *            The path.
-     * 
+     *
      * @return The media file or null.
      */
     public MediaFile getMediaFile(String path) {
@@ -97,7 +97,7 @@ public class MediaFileDao extends AbstractDao {
      *
      * @param id
      *            The ID.
-     * 
+     *
      * @return The media file or null.
      */
     public MediaFile getMediaFile(int id) {
@@ -109,7 +109,7 @@ public class MediaFileDao extends AbstractDao {
      *
      * @param path
      *            The path.
-     * 
+     *
      * @return The list of children.
      */
     public List<MediaFile> getChildrenOf(String path) {
@@ -253,7 +253,7 @@ public class MediaFileDao extends AbstractDao {
      *            Maximum number of albums to return.
      * @param musicFolders
      *            Only return albums in these folders.
-     * 
+     *
      * @return The most frequently played albums.
      */
     public List<MediaFile> getMostFrequentlyPlayedAlbums(final int offset, final int count,
@@ -278,7 +278,7 @@ public class MediaFileDao extends AbstractDao {
      *            Maximum number of albums to return.
      * @param musicFolders
      *            Only return albums in these folders.
-     * 
+     *
      * @return The most recently played albums.
      */
     public List<MediaFile> getMostRecentlyPlayedAlbums(final int offset, final int count,
@@ -304,7 +304,7 @@ public class MediaFileDao extends AbstractDao {
      *            Maximum number of albums to return.
      * @param musicFolders
      *            Only return albums in these folders.
-     * 
+     *
      * @return The most recently added albums.
      */
     public List<MediaFile> getNewestAlbums(final int offset, final int count, final List<MusicFolder> musicFolders) {
@@ -331,7 +331,7 @@ public class MediaFileDao extends AbstractDao {
      *            Whether to sort by artist name
      * @param musicFolders
      *            Only return albums in these folders.
-     * 
+     *
      * @return Albums in alphabetical order.
      */
     public List<MediaFile> getAlphabeticalAlbums(final int offset, final int count, boolean byArtist,
@@ -368,7 +368,7 @@ public class MediaFileDao extends AbstractDao {
      *            The last year in the range.
      * @param musicFolders
      *            Only return albums in these folders.
-     * 
+     *
      * @return Albums in the year range.
      */
     public List<MediaFile> getAlbumsByYear(final int offset, final int count, final int fromYear, final int toYear,
@@ -406,7 +406,7 @@ public class MediaFileDao extends AbstractDao {
      *            The genre name.
      * @param musicFolders
      *            Only return albums in these folders.
-     * 
+     *
      * @return Albums in the genre.
      */
     public List<MediaFile> getAlbumsByGenre(final int offset, final int count, final String genre,
@@ -463,7 +463,7 @@ public class MediaFileDao extends AbstractDao {
      *            Returns albums starred by this user.
      * @param musicFolders
      *            Only return albums in these folders.
-     * 
+     *
      * @return The most recently starred albums for this user.
      */
     public List<MediaFile> getStarredAlbums(final int offset, final int count, final String username,
@@ -490,7 +490,7 @@ public class MediaFileDao extends AbstractDao {
      *            Returns directories starred by this user.
      * @param musicFolders
      *            Only return albums in these folders.
-     * 
+     *
      * @return The most recently starred directories for this user.
      */
     public List<MediaFile> getStarredDirectories(final int offset, final int count, final String username,
@@ -518,7 +518,7 @@ public class MediaFileDao extends AbstractDao {
      *            Returns files starred by this user.
      * @param musicFolders
      *            Only return albums in these folders.
-     * 
+     *
      * @return The most recently starred files for this user.
      */
     public List<MediaFile> getStarredFiles(final int offset, final int count, final String username,
@@ -560,12 +560,12 @@ public class MediaFileDao extends AbstractDao {
 
     /**
      * Return a list of media file objects that don't belong to an existing music folder
-     * 
+     *
      * @param count
      *            maximum number of media file objects to return
      * @param excludeFolders
      *            music folder paths excluded from the results
-     * 
+     *
      * @return a list of media files, sorted by id
      */
     public List<MediaFile> getFilesInNonPresentMusicFolders(final int count, List<String> excludeFolders) {
@@ -578,10 +578,10 @@ public class MediaFileDao extends AbstractDao {
 
     /**
      * Count the number of media files that don't belong to an existing music folder
-     * 
+     *
      * @param excludeFolders
      *            music folder paths excluded from the results
-     * 
+     *
      * @return a number of media file rows in the database
      */
     public int getFilesInNonPresentMusicFoldersCount(List<String> excludeFolders) {
@@ -595,10 +595,10 @@ public class MediaFileDao extends AbstractDao {
 
     /**
      * Return a list of media file objects whose path don't math their music folder
-     * 
+     *
      * @param count
      *            maximum number of media file objects to return
-     * 
+     *
      * @return a list of media files, sorted by id
      */
     public List<MediaFile> getFilesWithMusicFolderMismatch(final int count) {
@@ -610,7 +610,7 @@ public class MediaFileDao extends AbstractDao {
 
     /**
      * Count the number of media files whose path don't math their music folder
-     * 
+     *
      * @return a number of media file rows in the database
      */
     public int getFilesWithMusicFolderMismatchCount() {

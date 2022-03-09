@@ -59,7 +59,7 @@ public class RatingService {
      *            Maximum number of albums to return.
      * @param musicFolders
      *            Only return albums in these folders.
-     * 
+     *
      * @return The highest rated albums.
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
@@ -94,7 +94,7 @@ public class RatingService {
      *
      * @param mediaFile
      *            The music file.
-     * 
+     *
      * @return The average rating, or <code>null</code> if no ratings are set.
      */
     public Double getAverageRating(MediaFile mediaFile) {
@@ -108,7 +108,7 @@ public class RatingService {
      *            The user name.
      * @param mediaFile
      *            The music file.
-     * 
+     *
      * @return The rating, or <code>null</code> if no rating is set.
      */
     public Integer getRatingForUser(String username, MediaFile mediaFile) {

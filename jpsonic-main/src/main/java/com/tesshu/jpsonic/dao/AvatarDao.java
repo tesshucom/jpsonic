@@ -62,7 +62,7 @@ public class AvatarDao extends AbstractDao {
      *
      * @param id
      *            The system avatar ID.
-     * 
+     *
      * @return The avatar or <code>null</code> if not found.
      */
     public Avatar getSystemAvatar(int id) {
@@ -75,7 +75,7 @@ public class AvatarDao extends AbstractDao {
      *
      * @param username
      *            The username.
-     * 
+     *
      * @return The avatar or <code>null</code> if not found.
      */
     public Avatar getCustomAvatar(String username) {

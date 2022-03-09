@@ -80,12 +80,12 @@ public class MediaFile {
     /*
      * Sort corresponds to the sort of ID3 tag, and mainly functions as a field that holds a value to be passed to
      * Lucene.
-     * 
+     *
      * Unlike the original value, cleansing is performed. If the original tag does not exist, the value is generated
      * using a Japanese parsing engine. After these processes, merging is performed if there are multiple sort-values
      * for one word. These process are necessary to remove dirty data, prevent search dropouts, and reduce the size of
      * the search index.
-     * 
+     *
      * This field will be the input to Lucene, but will not be used in normal SQL searches.
      */
     private String artistSort;
@@ -113,7 +113,7 @@ public class MediaFile {
 
     /*
      * Transcription of ID3 tag data.
-     * 
+     *
      */
     private String artistSortRaw;
     private String albumSortRaw;

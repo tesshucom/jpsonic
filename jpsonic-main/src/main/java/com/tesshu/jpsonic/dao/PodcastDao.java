@@ -61,7 +61,7 @@ public class PodcastDao extends AbstractDao {
      *
      * @param channel
      *            The Podcast channel to create.
-     * 
+     *
      * @return The ID of the newly created channel.
      */
     @Transactional
@@ -162,7 +162,7 @@ public class PodcastDao extends AbstractDao {
      *
      * @param episodeId
      *            The Podcast episode ID.
-     * 
+     *
      * @return The episode or <code>null</code> if not found.
      */
     public PodcastEpisode getEpisode(int episodeId) {
@@ -180,7 +180,7 @@ public class PodcastDao extends AbstractDao {
      *
      * @param episode
      *            The Podcast episode to update.
-     * 
+     *
      * @return The number of episodes updated (zero or one).
      */
     public int updateEpisode(PodcastEpisode episode) {

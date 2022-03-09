@@ -41,7 +41,7 @@ import org.apache.commons.lang.StringEscapeUtils;
  * escaped.
  * <p/>
  * Example:
- * 
+ *
  * <pre>
  * input string: He didn't say, "Stop!"
  * output string: He didn\'t say, \"Stop!\"

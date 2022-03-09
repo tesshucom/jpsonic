@@ -25,7 +25,7 @@ package com.tesshu.jpsonic.domain;
  * A Podcast channel. Each channel contain several episodes.
  *
  * @author Sindre Mehus
- * 
+ *
  * @see PodcastEpisode
  */
 public class PodcastChannel {

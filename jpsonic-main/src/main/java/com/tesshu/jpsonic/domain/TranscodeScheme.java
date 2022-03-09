@@ -57,7 +57,7 @@ public enum TranscodeScheme {
      *
      * @param other
      *            The other transcode scheme. May be <code>null</code>, in which case 'this' is returned.
-     * 
+     *
      * @return The strictest scheme.
      */
     public @NonNull TranscodeScheme strictest(TranscodeScheme other) {
@@ -98,7 +98,7 @@ public enum TranscodeScheme {
      *
      * @param schemeName
      *            The schemeName.
-     * 
+     *
      * @return The corresponding enum, or default value(OFF).
      */
     public static @NonNull TranscodeScheme of(String schemeName) {

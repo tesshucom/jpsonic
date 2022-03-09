@@ -70,7 +70,7 @@ import org.springframework.transaction.annotation.Transactional;
  * format and/or bit rate. The latter is also called downsampling.
  *
  * @author Sindre Mehus
- * 
+ *
  * @see TranscodeInputStream
  */
 @Service
@@ -142,7 +142,7 @@ public class TranscodingService {
      *
      * @param player
      *            The player.
-     * 
+     *
      * @return All active transcodings for the player.
      */
     public List<Transcoding> getTranscodingsForPlayer(@NonNull Player player) {
@@ -231,7 +231,7 @@ public class TranscodingService {
      *            The media file.
      * @param player
      *            The player.
-     * 
+     *
      * @return Whether transcoding will be performed if invoking the {@link #getTranscodedInputStream} method with the
      *         same arguments.
      */
@@ -248,7 +248,7 @@ public class TranscodingService {
      *            The media file.
      * @param preferredTargetFormat
      *            Used to select among multiple applicable transcodings. May be {@code null}.
-     * 
+     *
      * @return The file suffix, e.g., "mp3".
      */
     public String getSuffix(@NonNull Player player, @NonNull MediaFile file, @Nullable String preferredTargetFormat) {
@@ -323,9 +323,9 @@ public class TranscodingService {
      *
      * @param parameters
      *            As returned by {@link #getParameters}.
-     * 
+     *
      * @return A possible transcoded or downsampled input stream.
-     * 
+     *
      * @throws IOException
      *             If an I/O error occurs.
      */
@@ -347,9 +347,9 @@ public class TranscodingService {
      *
      * @param parameters
      *            Transcoding parameters.
-     * 
+     *
      * @return The transcoded input stream.
-     * 
+     *
      * @throws IOException
      *             If an I/O error occurs.
      */
@@ -497,7 +497,7 @@ public class TranscodingService {
      *
      * @param mediaFile
      *            If not null, returns whether transcoding is supported for this file.
-     * 
+     *
      * @return Whether transcoding is supported.
      */
     public boolean isTranscodingSupported(@Nullable MediaFile mediaFile) {
@@ -548,7 +548,7 @@ public class TranscodingService {
      *            Used to select among multiple applicable transcodings. May be {@code null}.
      * @param videoTranscodingSettings
      *            Parameters used when transcoding video. May be {@code null}.
-     * 
+     *
      * @return Parameters to be used in the {@link #getTranscodedInputStream} method.
      */
     public Parameters getParameters(@NonNull MediaFile mediaFile, @NonNull Player player,

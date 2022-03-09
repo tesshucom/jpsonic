@@ -38,7 +38,7 @@ public final class ToHiraganaFilter extends TokenFilter {
 
     /**
      * Create a Filter that transforms text on the given stream.
-     * 
+     *
      * @param input
      *            {@link TokenStream} to filter.
      */

@@ -49,7 +49,7 @@ public class DefaultMetaDataParser extends MetaDataParser {
      *
      * @param file
      *            The file to parse.
-     * 
+     *
      * @return Meta data for the file.
      */
     @Override
@@ -96,7 +96,7 @@ public class DefaultMetaDataParser extends MetaDataParser {
      *
      * @param file
      *            The file in question.
-     * 
+     *
      * @return Whether this parser is applicable to the given file.
      */
     @Override

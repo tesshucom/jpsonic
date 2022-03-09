@@ -36,7 +36,7 @@ public class Version implements Comparable<Version> {
 
     /**
      * Creates a new version instance by parsing the given string.
-     * 
+     *
      * @param version
      *            A string of the format "1.27", "1.27.2" or "1.27.beta3".
      */
@@ -54,10 +54,10 @@ public class Version implements Comparable<Version> {
 
     /**
      * Return whether this object is equal to another.
-     * 
+     *
      * @param o
      *            Object to compare to.
-     * 
+     *
      * @return Whether this object is equals to another.
      */
     @Override
@@ -71,7 +71,7 @@ public class Version implements Comparable<Version> {
 
     /**
      * Returns a hash code for this object.
-     * 
+     *
      * @return A hash code for this object.
      */
     @Override
@@ -81,7 +81,7 @@ public class Version implements Comparable<Version> {
 
     /**
      * Returns a string representation of the form "1.27", "1.27.2" or "1.27.beta3".
-     * 
+     *
      * @return A string representation of the form "1.27", "1.27.2" or "1.27.beta3".
      */
     @Override
@@ -91,10 +91,10 @@ public class Version implements Comparable<Version> {
 
     /**
      * Compares this object with the specified object for order.
-     * 
+     *
      * @param version
      *            The object to compare to.
-     * 
+     *
      * @return A negative integer, zero, or a positive integer as this object is less than, equal to, or greater than
      *         the specified object.
      */

@@ -83,7 +83,7 @@ public class CoverArtService {
      *            ID of the album in question.
      * @param url
      *            The image URL.
-     * 
+     *
      * @return The error string if something goes wrong, <code>null</code> otherwise.
      */
     public String saveCoverArtImage(int albumId, String url) {

@@ -21,6 +21,8 @@
 
 package com.tesshu.jpsonic.spring;
 
+import static org.apache.commons.lang.StringUtils.trimToNull;
+
 import java.sql.Connection;
 import java.util.List;
 
@@ -32,7 +34,6 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ResourceAccessor;
-import liquibase.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +72,7 @@ public class AirsonicSpringLiquibase extends liquibase.integration.spring.Spring
         DatabaseFactory factory = DatabaseFactory.getInstance();
         overrideHsqlDbImplementation(factory);
         Database database = factory.findCorrectDatabaseImplementation(liquibaseConnection);
-        if (StringUtils.trimToNull(this.defaultSchema) != null) {
+        if (trimToNull(this.defaultSchema) != null) {
             database.setDefaultSchemaName(this.defaultSchema);
         }
         return database;

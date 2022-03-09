@@ -56,7 +56,7 @@ import org.springframework.web.bind.ServletRequestBindingException;
  * Provides services for maintaining the set of players.
  *
  * @author Sindre Mehus
- * 
+ *
  * @see Player
  */
 @Service
@@ -113,7 +113,7 @@ public class PlayerService {
      *            Whether this method should return a remote-controlled player.
      * @param isStreamRequest
      *            Whether the HTTP request is a request for streaming data.
-     * 
+     *
      * @return The player associated with the given HTTP request.
      */
     public Player getPlayer(HttpServletRequest request, HttpServletResponse response, boolean remoteControlEnabled,
@@ -252,7 +252,7 @@ public class PlayerService {
      *
      * @param id
      *            The unique player ID.
-     * 
+     *
      * @return The player with the given ID, or <code>null</code> if no such player exists.
      */
     public Player getPlayerById(Integer id) {
@@ -268,7 +268,7 @@ public class PlayerService {
      *
      * @param player
      *            The player in question.
-     * 
+     *
      * @return Whether the player is connected.
      */
     private boolean isPlayerConnected(Player player) {
@@ -288,7 +288,7 @@ public class PlayerService {
      *            The IP address.
      * @param username
      *            The remote user.
-     * 
+     *
      * @return The player with the given IP address, or <code>null</code> if no such player exists.
      */
     private Player getNonRestPlayerByIpAddressAndUsername(final String ipAddress, final String username) {
@@ -313,7 +313,7 @@ public class PlayerService {
      *            The HTTP request.
      * @param username
      *            The name of the current user.
-     * 
+     *
      * @return The player ID embedded in the cookie, or <code>null</code> if cookie is not present.
      */
     private Integer getPlayerIdFromCookie(HttpServletRequest request, String username) {
@@ -342,7 +342,7 @@ public class PlayerService {
      * @param clientId
      *            The third-party client ID (used if this player is managed over the Airsonic REST API). May be
      *            <code>null</code>.
-     * 
+     *
      * @return All relevant players.
      */
     public List<Player> getPlayersForUserAndClientId(String username, String clientId) {
@@ -375,7 +375,7 @@ public class PlayerService {
      *
      * @param playerId
      *            The ID of the player to clone.
-     * 
+     *
      * @return The cloned player.
      */
     public Player clonePlayer(int playerId) {

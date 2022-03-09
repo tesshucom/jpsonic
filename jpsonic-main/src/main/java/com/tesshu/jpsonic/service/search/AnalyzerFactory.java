@@ -225,7 +225,7 @@ public final class AnalyzerFactory {
      * conversion under special conditions (the square brackets in the Gener string have a unique meaning). Therefore,
      * the parsed value may differ from the original value. Some filter will be applied to suppress this issue when
      * searching.
-     * 
+     *
      * @see org.jaudiotagger.tag.id3.framebody.FrameBodyTCON#convertID3v23GenreToGeneric
      */
     private Analyzer createGenreAnalyzer() throws IOException {

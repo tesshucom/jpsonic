@@ -105,7 +105,7 @@ public class JapaneseReadingUtils {
 
     /**
      * Delete a specific Punctuation. This result value is not persisted in DB.
-     * 
+     *
      * @param japaneseReading
      *            string after analysis
      */
@@ -473,7 +473,7 @@ public class JapaneseReadingUtils {
 
     /**
      * This method returns the normalized Artist name that can also be used to create the index prefix.
-     * 
+     *
      * @return indexable Name
      */
     String createIndexableName(@NonNull String value) {

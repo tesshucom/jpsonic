@@ -41,11 +41,11 @@ import org.springframework.util.StringUtils;
 
 /**
  * Utility class for injecting into legacy MusicIndexService. Supplement processing that is lacking in legacy services.
- * 
+ *
  * Delegate the entire method, because the processing difference from the legacy code is large. The legacy index sort is
  * a "private", basic specification and cannot be changed. In practice, there is an inconsistency in the sorting
  * process, which makes people in languages ​​that are sensitive to sorting feel uncomfortable.
- * 
+ *
  * Jpsonic will change these and make the processing as common as possible so that they can be used naturally.
  */
 @Component

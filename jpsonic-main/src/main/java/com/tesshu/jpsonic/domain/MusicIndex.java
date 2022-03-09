@@ -94,7 +94,7 @@ public class MusicIndex implements Serializable {
      *
      * @param o
      *            Object to compare to.
-     * 
+     *
      * @return <code>true</code> if, and only if, the other object is a <code>MusicIndex</code> with the same index name
      *         as this one.
      */

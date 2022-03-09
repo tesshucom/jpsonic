@@ -376,7 +376,7 @@ public class StreamController {
      * @param res
      * @param isRest
      *            True if the call is from SubsonicRESTController
-     * 
+     *
      * @throws ServletRequestBindingException
      */
     @GetMapping

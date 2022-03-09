@@ -73,7 +73,7 @@ public class AlbumDao extends AbstractDao {
      *            The artist name.
      * @param albumName
      *            The album name.
-     * 
+     *
      * @return The album or null.
      */
     public Album getAlbum(String artistName, String albumName) {
@@ -86,7 +86,7 @@ public class AlbumDao extends AbstractDao {
      *
      * @param file
      *            The media file.
-     * 
+     *
      * @return The album or null.
      */
     public Album getAlbumForFile(MediaFile file) {
@@ -181,7 +181,7 @@ public class AlbumDao extends AbstractDao {
      *            Only return albums from these folders.
      * @param ignoreCase
      *            Use case insensitive sorting
-     * 
+     *
      * @return Albums in alphabetical order.
      */
     public List<Album> getAlphabeticalAlbums(final int offset, final int count, boolean byArtist, boolean ignoreCase,
@@ -208,7 +208,7 @@ public class AlbumDao extends AbstractDao {
      *
      * @param musicFolders
      *            Only return albums from these folders.
-     * 
+     *
      * @return the count of present albums
      */
     public int getAlbumCount(final List<MusicFolder> musicFolders) {
@@ -234,7 +234,7 @@ public class AlbumDao extends AbstractDao {
      *            Maximum number of albums to return.
      * @param musicFolders
      *            Only return albums from these folders.
-     * 
+     *
      * @return The most frequently played albums.
      */
     public List<Album> getMostFrequentlyPlayedAlbums(final int offset, final int count,
@@ -259,7 +259,7 @@ public class AlbumDao extends AbstractDao {
      *            Maximum number of albums to return.
      * @param musicFolders
      *            Only return albums from these folders.
-     * 
+     *
      * @return The most recently played albums.
      */
     public List<Album> getMostRecentlyPlayedAlbums(final int offset, final int count,
@@ -283,7 +283,7 @@ public class AlbumDao extends AbstractDao {
      *            Maximum number of albums to return.
      * @param musicFolders
      *            Only return albums from these folders.
-     * 
+     *
      * @return The most recently added albums.
      */
     public List<Album> getNewestAlbums(final int offset, final int count, final List<MusicFolder> musicFolders) {
@@ -307,7 +307,7 @@ public class AlbumDao extends AbstractDao {
      *            Returns albums starred by this user.
      * @param musicFolders
      *            Only return albums from these folders.
-     * 
+     *
      * @return The most recently starred albums for this user.
      */
     public List<Album> getStarredAlbums(final int offset, final int count, final String username,
@@ -334,7 +334,7 @@ public class AlbumDao extends AbstractDao {
      *            The genre name.
      * @param musicFolders
      *            Only return albums from these folders.
-     * 
+     *
      * @return Albums in the genre.
      */
     public List<Album> getAlbumsByGenre(final int offset, final int count, final String genre,
@@ -361,7 +361,7 @@ public class AlbumDao extends AbstractDao {
      *            The last year in the range.
      * @param musicFolders
      *            Only return albums from these folders.
-     * 
+     *
      * @return Albums in the year range.
      */
     public List<Album> getAlbumsByYear(final int offset, final int count, final int fromYear, final int toYear,
