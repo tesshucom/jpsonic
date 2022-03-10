@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -170,6 +171,10 @@ public final class JaudiotaggerParserUtils {
             return parseInt(s);
         }
         return (int) Math.floor(result);
+    }
+
+    static String getFolder(MediaFile mediaFile) {
+        return StringUtils.defaultIfBlank(mediaFile.getFolder(), "root");
     }
 
     static String createSimplePath(File file) {
