@@ -36,6 +36,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -151,7 +153,8 @@ public class FFProbe {
         return result;
     }
 
-    MetaData parse(@NonNull MediaFile mediaFile, @Nullable Map<String, MP4ParseStatistics> statistics) {
+    @SafeVarargs
+    final MetaData parse(@NonNull File file, Consumer<Long>... startTimeCallback) {
 
         MetaData result = new MetaData();
         String cmdPath = getCommandPath();
@@ -162,38 +165,38 @@ public class FFProbe {
         List<String> command = new ArrayList<>();
         command.add(cmdPath);
         command.addAll(Arrays.asList(FFPROBE_OPTIONS));
-        command.add(mediaFile.getFile().getAbsolutePath());
+        command.add(file.getAbsolutePath());
 
-        long current;
-        Process process;
+        long start;
+        JsonNode node;
         try {
-            current = System.currentTimeMillis();
-            process = Runtime.getRuntime().exec(command.toArray(new String[0]));
+            start = System.currentTimeMillis();
+            Process process = new ProcessBuilder(command).start();
+            try (InputStream is = process.getInputStream(); BufferedInputStream bis = new BufferedInputStream(is);) {
+                node = MAPPER.readTree(bis);
+            } finally {
+                process.destroy();
+            }
         } catch (IOException e) {
             // Exceptions to this class are self-explanatory, avoiding redundant trace output
-            String simplePath = createSimplePath(mediaFile.getFile());
+            String simplePath = createSimplePath(file);
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to execute ffprobe({}): {}", simplePath, e.getMessage());
             }
             return result;
         }
 
-        JsonNode node;
-        try (InputStream is = process.getInputStream(); BufferedInputStream bis = new BufferedInputStream(is);) {
-            node = MAPPER.readTree(bis);
-        } catch (IOException e) {
-            String simplePath = createSimplePath(mediaFile.getFile());
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to parse the tag({}): {}", simplePath, e.getMessage());
-            }
-            return result;
-        }
-
-        if (!isEmpty(statistics) && statistics.containsKey(getFolder(mediaFile))) {
-            long readtime = System.currentTimeMillis() - current;
-            statistics.get(getFolder(mediaFile)).addCmdLeadTime(readtime);
-        }
+        Stream.of(startTimeCallback).forEach(c -> c.accept(start));
 
         return parse(node, result);
+    }
+
+    MetaData parse(@NonNull MediaFile mediaFile, @Nullable Map<String, MP4ParseStatistics> statistics) {
+        return parse(mediaFile.getFile(), (start) -> {
+            if (!isEmpty(statistics) && statistics.containsKey(getFolder(mediaFile))) {
+                long readtime = System.currentTimeMillis() - start;
+                statistics.get(getFolder(mediaFile)).addCmdLeadTime(readtime);
+            }
+        });
     }
 }
