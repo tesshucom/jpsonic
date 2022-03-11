@@ -174,6 +174,7 @@ public class FFProbe {
             Process process = new ProcessBuilder(command).start();
             try (InputStream is = process.getInputStream(); BufferedInputStream bis = new BufferedInputStream(is);) {
                 node = MAPPER.readTree(bis);
+            } finally {
                 process.destroy();
             }
         } catch (IOException e) {
