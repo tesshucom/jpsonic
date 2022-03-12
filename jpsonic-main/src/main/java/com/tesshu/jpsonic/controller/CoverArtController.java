@@ -64,8 +64,8 @@ import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.service.metadata.JaudiotaggerParserUtils;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
+import com.tesshu.jpsonic.service.metadata.ParserUtils;
 import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -331,7 +331,7 @@ public class CoverArtController {
             MediaFile mediaFile = mediaFileService.getMediaFile(file);
             Artwork artwork;
             LOG.trace("Reading artwork from file {}", mediaFile);
-            artwork = JaudiotaggerParserUtils.getArtwork(mediaFile);
+            artwork = ParserUtils.getArtwork(mediaFile);
             if (artwork == null) {
                 throw new ExecutionException(new NullPointerException("Image cannot be read: " + file.getPath()));
             }

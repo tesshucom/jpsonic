@@ -19,11 +19,11 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import static com.tesshu.jpsonic.service.metadata.JaudiotaggerParserUtils.createSimplePath;
-import static com.tesshu.jpsonic.service.metadata.JaudiotaggerParserUtils.mapGenre;
-import static com.tesshu.jpsonic.service.metadata.JaudiotaggerParserUtils.parseInt;
-import static com.tesshu.jpsonic.service.metadata.JaudiotaggerParserUtils.parseTrackNumber;
-import static com.tesshu.jpsonic.service.metadata.JaudiotaggerParserUtils.parseYear;
+import static com.tesshu.jpsonic.service.metadata.ParserUtils.createSimplePath;
+import static com.tesshu.jpsonic.service.metadata.ParserUtils.mapGenre;
+import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseInt;
+import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseTrackNumber;
+import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseYear;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.trimToEmpty;
 import static org.apache.commons.lang.StringUtils.trimToNull;

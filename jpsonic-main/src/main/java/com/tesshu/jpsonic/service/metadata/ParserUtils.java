@@ -58,12 +58,12 @@ import org.slf4j.LoggerFactory;
  *
  * @author Sindre Mehus
  */
-public final class JaudiotaggerParserUtils {
+public final class ParserUtils {
 
     private static final Pattern GENRE_PATTERN = Pattern.compile("\\((\\d+)\\).*");
     private static final Pattern TRACK_NO_PATTERN = Pattern.compile("(\\d+)/\\d+");
     private static final Pattern YEAR_NO_PATTERN = Pattern.compile("(\\d{4}).*");
-    private static final Logger LOG = LoggerFactory.getLogger(JaudiotaggerParserUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ParserUtils.class);
 
     // @see AudioFileIO#prepareReadersAndWriters
     // MP4: with FFmpegParser
@@ -94,7 +94,7 @@ public final class JaudiotaggerParserUtils {
         }
     }
 
-    private JaudiotaggerParserUtils() {
+    private ParserUtils() {
     }
 
     /**
