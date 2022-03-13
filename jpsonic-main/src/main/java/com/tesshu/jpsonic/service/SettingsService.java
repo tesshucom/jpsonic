@@ -57,7 +57,8 @@ import org.springframework.stereotype.Service;
  *
  * @author Sindre Mehus
  */
-@SuppressFBWarnings(value = "DMI_HARDCODED_ABSOLUTE_FILENAME", justification = "Literal value for which OS is assumed.")
+@SuppressFBWarnings(value = { "DMI_HARDCODED_ABSOLUTE_FILENAME",
+        "SSD_DO_NOT_USE_INSTANCE_LOCK_ON_SHARED_STATIC_DATA" }, justification = "Literal value for which OS is assumed. / False positives for objects stored in immutable maps")
 @SuppressWarnings("PMD.DefaultPackage")
 @Service
 /*
