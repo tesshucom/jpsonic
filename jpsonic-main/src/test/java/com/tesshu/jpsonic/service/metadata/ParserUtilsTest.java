@@ -19,10 +19,13 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.io.File;
 import java.lang.annotation.Documented;
 import java.net.URISyntaxException;
 
@@ -31,11 +34,16 @@ import org.jaudiotagger.tag.images.Artwork;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 class ParserUtilsTest {
+
+    private File createFile(String resourcePath) throws URISyntaxException {
+        return new File(MusicParserTest.class.getResource(resourcePath).toURI());
+    }
 
     private MediaFile createMediaFile(String resourcePath) throws URISyntaxException {
         MediaFile mediaFile = new MediaFile();
-        mediaFile.setPath(MusicParserTest.class.getResource(resourcePath).toURI().toString().replace("file:", ""));
+        mediaFile.setPath(createFile(resourcePath).toString().replace("file:", ""));
         return mediaFile;
     }
 
@@ -97,6 +105,28 @@ class ParserUtilsTest {
             @interface NotNull {
             }
         }
+    }
+
+    @Test
+    void isArtworkApplicableTest() throws URISyntaxException {
+
+        assertFalse(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata")));
+
+        // (Data formats for which no test resources currently exist are omitted)
+        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test.ogg")));
+        // oga
+        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test.flac")));
+        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/01.mp3")));
+        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test.m4a")));
+        // m4b
+        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test123.wav")));
+        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test1.wma")));
+        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test138.aiff")));
+        // aifc
+        // aiff
+        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test122.dsf")));
+
+        assertFalse(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/dummy/empty.opus")));
     }
 
     @Nested
@@ -213,5 +243,4 @@ class ParserUtilsTest {
         assertEquals(12, ParserUtils.parseDoubleToInt("12.34"));
         assertNull(ParserUtils.parseDoubleToInt("12L"));
     }
-
 }

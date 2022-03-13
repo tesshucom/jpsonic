@@ -64,7 +64,6 @@ import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
 import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
@@ -103,7 +102,6 @@ public class CoverArtController {
     private final PodcastService podcastService;
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
-    private final MusicParser musicParser;
     private final CoverArtLogic logic;
     private final FontLoader fontLoader;
 
@@ -111,7 +109,7 @@ public class CoverArtController {
 
     public CoverArtController(MediaFileService mediaFileService, TranscodingService transcodingService,
             PlaylistService playlistService, PodcastService podcastService, ArtistDao artistDao, AlbumDao albumDao,
-            MusicParser musicParser, CoverArtLogic logic, FontLoader fontLoader) {
+            CoverArtLogic logic, FontLoader fontLoader) {
         super();
         this.mediaFileService = mediaFileService;
         this.transcodingService = transcodingService;
@@ -119,7 +117,6 @@ public class CoverArtController {
         this.podcastService = podcastService;
         this.artistDao = artistDao;
         this.albumDao = albumDao;
-        this.musicParser = musicParser;
         this.logic = logic;
         this.fontLoader = fontLoader;
     }
@@ -326,7 +323,7 @@ public class CoverArtController {
     private Pair<InputStream, String> getImageInputStreamWithType(File file) throws ExecutionException {
         InputStream is;
         String mimeType;
-        if (musicParser.isApplicable(file)) {
+        if (ParserUtils.isArtworkApplicable(file)) {
             LOG.trace("Using Jaudio Tagger for reading artwork from {}", file);
             MediaFile mediaFile = mediaFileService.getMediaFile(file);
             Artwork artwork;

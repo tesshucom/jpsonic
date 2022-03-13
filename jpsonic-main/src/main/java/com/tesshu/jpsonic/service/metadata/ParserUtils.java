@@ -181,17 +181,23 @@ public final class ParserUtils {
         return file.getParentFile().getName().concat("/").concat(file.getName());
     }
 
+    /**
+     * Returns whether the embedded artwork is in an available format. There is no guarantee that the artwork is
+     * actually embedded.
+     */
+    public static boolean isArtworkApplicable(File file) {
+        if (!file.isFile()) {
+            return false;
+        }
+        return IMG_APPLICABLES.contains(FilenameUtils.getExtension(file.getName()).toLowerCase(Locale.getDefault()));
+    }
+
     @SuppressWarnings("PMD.GuardLogStatement")
     public static @Nullable Artwork getArtwork(MediaFile mediaFile) {
 
         File file = mediaFile.getFile();
 
-        if (!file.isFile()) {
-            return null;
-        }
-
-        String ext = FilenameUtils.getExtension(file.getName()).toLowerCase(Locale.getDefault());
-        if (!IMG_APPLICABLES.contains(ext)) {
+        if (!isArtworkApplicable(file)) {
             return null;
         }
 

@@ -43,7 +43,6 @@ import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
-import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
 import com.tesshu.jpsonic.util.FileUtil;
 import net.sf.ehcache.Ehcache;
@@ -71,7 +70,6 @@ public class MediaFileService {
     private final Ehcache mediaFileMemoryCache;
     private final MediaFileDao mediaFileDao;
     private final AlbumDao albumDao;
-    private final MusicParser parser;
     private final MetaDataParserFactory metaDataParserFactory;
     private final MediaFileServiceUtils utils;
 
@@ -79,7 +77,7 @@ public class MediaFileService {
 
     public MediaFileService(SettingsService settingsService, MusicFolderService musicFolderService,
             SecurityService securityService, Ehcache mediaFileMemoryCache, MediaFileDao mediaFileDao, AlbumDao albumDao,
-            MusicParser parser, MetaDataParserFactory metaDataParserFactory, MediaFileServiceUtils utils) {
+            MetaDataParserFactory metaDataParserFactory, MediaFileServiceUtils utils) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
@@ -87,7 +85,6 @@ public class MediaFileService {
         this.mediaFileMemoryCache = mediaFileMemoryCache;
         this.mediaFileDao = mediaFileDao;
         this.albumDao = albumDao;
-        this.parser = parser;
         this.metaDataParserFactory = metaDataParserFactory;
         this.utils = utils;
         memoryCacheEnabled = true;
@@ -692,9 +689,9 @@ public class MediaFileService {
                 }
 
                 // Look for cover art.
-                File coverArt = findCoverArt(children);
-                if (coverArt != null) {
-                    to.setCoverArtPath(coverArt.getPath());
+                File coverArtOEmbedded = findCoverArt(children);
+                if (coverArtOEmbedded != null) {
+                    to.setCoverArtPath(coverArtOEmbedded.getPath());
                 }
             }
             utils.analyze(to);
@@ -768,11 +765,10 @@ public class MediaFileService {
         return parent == null ? null : parent.getCoverArtFile();
     }
 
-    /**
-     * Finds a cover art image for the given directory, by looking for it on the disk.
-     */
     @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
-    private @Nullable File findCoverArt(File... candidates) {
+    @Nullable
+    File findCoverArt(File... candidates) {
+
         for (String mask : settingsService.getCoverArtFileTypesAsArray()) {
             for (File candidate : candidates) {
                 if (candidate.isFile() && candidate.getName().toUpperCase().endsWith(mask.toUpperCase())
@@ -784,7 +780,7 @@ public class MediaFileService {
 
         // Look for embedded images in audiofiles. (Only check first audio file encountered).
         for (File candidate : candidates) {
-            if (parser.isApplicable(candidate)) {
+            if (ParserUtils.isArtworkApplicable(candidate)) {
                 return ParserUtils.getArtwork(getMediaFile(candidate)) == null ? null : candidate;
             }
         }
