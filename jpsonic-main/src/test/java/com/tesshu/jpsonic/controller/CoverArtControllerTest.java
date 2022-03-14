@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -132,7 +133,7 @@ class CoverArtControllerTest {
                     () -> mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.COVER_ART.value())
                             .param(Attributes.Request.ID.value(), "99").param(Attributes.Request.SIZE.value(), "150"))
                             .andExpect(MockMvcResultMatchers.status().isOk()));
-            assertTrue(e.getCause() instanceof NullPointerException);
+            assertTrue(e.getCause() instanceof NoSuchElementException);
         }
 
         @Test
@@ -212,7 +213,7 @@ class CoverArtControllerTest {
             MediaFile mediaFile = mediaFileService.getMediaFile(file);
             MediaFileCoverArtRequest req = controller.new MediaFileCoverArtRequest(mediaFile);
             HttpServletResponse res = new MockHttpServletResponse();
-            assertThrows(ExecutionException.class, () -> controller.sendUnscaled(req, res));
+            assertThrows(NoSuchElementException.class, () -> controller.sendUnscaled(req, res));
         }
 
         @Test
@@ -259,7 +260,7 @@ class CoverArtControllerTest {
         @Test
         void testWithoutEmbededImage() throws Exception {
             File file = mediaFileStub.apply(createFile("/MEDIAS/Metadata/tagger3/testdata/01.mp3"));
-            assertThrows(ExecutionException.class, () -> controller.getImageInputStream(file));
+            assertThrows(NoSuchElementException.class, () -> controller.getImageInputStream(file));
         }
 
         @Test
@@ -307,7 +308,7 @@ class CoverArtControllerTest {
         @Test
         void testWithoutEmbededImage() throws Exception {
             File file = mediaFileStub.apply(createFile("/MEDIAS/Metadata/tagger3/testdata/01.mp3"));
-            assertThrows(ExecutionException.class, () -> controller.getImageInputStreamWithType(file));
+            assertThrows(NoSuchElementException.class, () -> controller.getImageInputStreamWithType(file));
         }
 
         @Test
