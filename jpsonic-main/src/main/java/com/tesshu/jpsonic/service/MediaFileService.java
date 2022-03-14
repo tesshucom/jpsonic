@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
@@ -689,10 +690,7 @@ public class MediaFileService {
                 }
 
                 // Look for cover art.
-                File coverArtOEmbedded = findCoverArt(children);
-                if (coverArtOEmbedded != null) {
-                    to.setCoverArtPath(coverArtOEmbedded.getPath());
-                }
+                findCoverArt(children).ifPresent(coverArtOEmbedded -> to.setCoverArtPath(coverArtOEmbedded.getPath()));
             }
             utils.analyze(to);
         }
@@ -767,13 +765,13 @@ public class MediaFileService {
 
     @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     @Nullable
-    File findCoverArt(File... candidates) {
+    Optional<File> findCoverArt(File... candidates) {
 
         for (String mask : settingsService.getCoverArtFileTypesAsArray()) {
             for (File candidate : candidates) {
                 if (candidate.isFile() && candidate.getName().toUpperCase().endsWith(mask.toUpperCase())
                         && candidate.getName().charAt(0) != '.') {
-                    return candidate;
+                    return Optional.ofNullable(candidate);
                 }
             }
         }
@@ -781,10 +779,11 @@ public class MediaFileService {
         // Look for embedded images in audiofiles. (Only check first audio file encountered).
         for (File candidate : candidates) {
             if (ParserUtils.isArtworkApplicable(candidate)) {
-                return ParserUtils.getArtwork(getMediaFile(candidate)) == null ? null : candidate;
+                return ParserUtils.getArtwork(getMediaFile(candidate)).isEmpty() ? Optional.empty()
+                        : Optional.of(candidate);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     /**

@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.io.File;
 import java.lang.annotation.Documented;
 import java.net.URISyntaxException;
+import java.util.Optional;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import org.jaudiotagger.tag.images.Artwork;
@@ -136,8 +137,8 @@ class ParserUtilsTest {
         @GetArtworkDecision.Results.Null
         @Test
         void testc01() throws URISyntaxException {
-            Artwork artwork = ParserUtils.getArtwork(createMediaFile("/MEDIAS/Metadata/tagger3/testdata"));
-            assertNull(artwork);
+            Optional<Artwork> artwork = ParserUtils.getArtwork(createMediaFile("/MEDIAS/Metadata/tagger3/testdata"));
+            assertTrue(artwork.isEmpty());
         }
 
         @GetArtworkDecision.Conditions.File.IsFile
@@ -145,9 +146,9 @@ class ParserUtilsTest {
         @GetArtworkDecision.Results.Null
         @Test
         void testc02() throws URISyntaxException {
-            Artwork artwork = ParserUtils
+            Optional<Artwork> artwork = ParserUtils
                     .getArtwork(createMediaFile("/MEDIAS/Metadata/tagger3/testdata/test.stem.mp4"));
-            assertNull(artwork);
+            assertTrue(artwork.isEmpty());
         }
 
         @GetArtworkDecision.Conditions.File.IsFile
@@ -156,8 +157,9 @@ class ParserUtilsTest {
         @GetArtworkDecision.Results.Null
         @Test
         void testc03() throws URISyntaxException {
-            Artwork artwork = ParserUtils.getArtwork(createMediaFile("/MEDIAS/Metadata/tagger3/testdata/testV25.wav"));
-            assertNull(artwork);
+            Optional<Artwork> artwork = ParserUtils
+                    .getArtwork(createMediaFile("/MEDIAS/Metadata/tagger3/testdata/testV25.wav"));
+            assertTrue(artwork.isEmpty());
         }
 
         @GetArtworkDecision.Conditions.File.IsFile
@@ -167,8 +169,9 @@ class ParserUtilsTest {
         @GetArtworkDecision.Results.Null
         @Test
         void testc04() throws URISyntaxException {
-            Artwork artwork = ParserUtils.getArtwork(createMediaFile("/MEDIAS/Metadata/tagger3/testdata/01.mp3"));
-            assertNull(artwork);
+            Optional<Artwork> artwork = ParserUtils
+                    .getArtwork(createMediaFile("/MEDIAS/Metadata/tagger3/testdata/01.mp3"));
+            assertTrue(artwork.isEmpty());
         }
 
         @GetArtworkDecision.Conditions.File.IsFile
@@ -179,8 +182,9 @@ class ParserUtilsTest {
         @GetArtworkDecision.Results.Null
         @Test
         void testc05() throws URISyntaxException {
-            Artwork artwork = ParserUtils.getArtwork(createMediaFile("/MEDIAS/Metadata/tagger3/tagged/mc4pc.wav"));
-            assertNull(artwork);
+            Optional<Artwork> artwork = ParserUtils
+                    .getArtwork(createMediaFile("/MEDIAS/Metadata/tagger3/tagged/mc4pc.wav"));
+            assertTrue(artwork.isEmpty());
         }
 
         @GetArtworkDecision.Conditions.File.IsFile
@@ -192,8 +196,9 @@ class ParserUtilsTest {
         @GetArtworkDecision.Results.Null
         @Test
         void testc06() throws URISyntaxException {
-            Artwork artwork = ParserUtils.getArtwork(createMediaFile("/MEDIAS/Metadata/tagger3/tagged/test.wav"));
-            assertNull(artwork);
+            Optional<Artwork> artwork = ParserUtils
+                    .getArtwork(createMediaFile("/MEDIAS/Metadata/tagger3/tagged/test.wav"));
+            assertTrue(artwork.isEmpty());
         }
 
         @GetArtworkDecision.Conditions.File.IsFile
@@ -205,9 +210,9 @@ class ParserUtilsTest {
         @GetArtworkDecision.Results.NotNull
         @Test
         void testc07() throws URISyntaxException {
-            Artwork artwork = ParserUtils
+            Optional<Artwork> artwork = ParserUtils
                     .getArtwork(createMediaFile("/MEDIAS/Metadata/tagger3/tagged/test-with-coverart.wav"));
-            assertNotNull(artwork);
+            assertFalse(artwork.isEmpty());
         }
 
         @GetArtworkDecision.Conditions.File.IsFile
@@ -219,8 +224,9 @@ class ParserUtilsTest {
         @GetArtworkDecision.Results.Null
         @Test
         void testc08() throws URISyntaxException {
-            Artwork artwork = ParserUtils.getArtwork(createMediaFile("/MEDIAS/Metadata/tagger3/tagged/01.mp3"));
-            assertNull(artwork);
+            Optional<Artwork> artwork = ParserUtils
+                    .getArtwork(createMediaFile("/MEDIAS/Metadata/tagger3/tagged/01.mp3"));
+            assertTrue(artwork.isEmpty());
         }
 
         @GetArtworkDecision.Conditions.File.IsFile
@@ -232,7 +238,8 @@ class ParserUtilsTest {
         @GetArtworkDecision.Results.NotNull
         @Test
         void testc09() throws URISyntaxException {
-            Artwork artwork = ParserUtils.getArtwork(createMediaFile("/MEDIAS/Metadata/tagger3/testdata/test122.dsf"));
+            Optional<Artwork> artwork = ParserUtils
+                    .getArtwork(createMediaFile("/MEDIAS/Metadata/tagger3/testdata/test122.dsf"));
             assertNotNull(artwork);
         }
     }

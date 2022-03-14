@@ -328,7 +328,7 @@ public class CoverArtController {
             MediaFile mediaFile = mediaFileService.getMediaFile(file);
             Artwork artwork;
             LOG.trace("Reading artwork from file {}", mediaFile);
-            artwork = ParserUtils.getArtwork(mediaFile);
+            artwork = ParserUtils.getArtwork(mediaFile).get();
             if (artwork == null) {
                 throw new ExecutionException(new NullPointerException("Image cannot be read: " + file.getPath()));
             }

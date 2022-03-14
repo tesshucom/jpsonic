@@ -21,7 +21,6 @@ package com.tesshu.jpsonic.service;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -366,37 +365,37 @@ class MediaFileServiceTest {
         void coverArtFileTypesTest() throws ExecutionException, URISyntaxException, IOException {
             // fileNames
             File file = createFile("/MEDIAS/Metadata/coverart/cover.jpg");
-            assertEquals(file, mediaFileService.findCoverArt(file));
+            assertEquals(file, mediaFileService.findCoverArt(file).get());
             file = createFile("/MEDIAS/Metadata/coverart/cover.png");
-            assertEquals(file, mediaFileService.findCoverArt(file));
+            assertEquals(file, mediaFileService.findCoverArt(file).get());
             file = createFile("/MEDIAS/Metadata/coverart/cover.gif");
-            assertEquals(file, mediaFileService.findCoverArt(file));
+            assertEquals(file, mediaFileService.findCoverArt(file).get());
             file = createFile("/MEDIAS/Metadata/coverart/folder.gif");
-            assertEquals(file, mediaFileService.findCoverArt(file));
+            assertEquals(file, mediaFileService.findCoverArt(file).get());
 
             // extensions
             file = createFile("/MEDIAS/Metadata/coverart/album.gif");
-            assertEquals(file, mediaFileService.findCoverArt(file));
+            assertEquals(file, mediaFileService.findCoverArt(file).get());
             file = createFile("/MEDIAS/Metadata/coverart/album.jpeg");
-            assertEquals(file, mediaFileService.findCoverArt(file));
+            assertEquals(file, mediaFileService.findCoverArt(file).get());
             file = createFile("/MEDIAS/Metadata/coverart/album.gif");
-            assertEquals(file, mediaFileService.findCoverArt(file));
+            assertEquals(file, mediaFileService.findCoverArt(file).get());
             file = createFile("/MEDIAS/Metadata/coverart/album.png");
-            assertEquals(file, mediaFileService.findCoverArt(file));
+            assertEquals(file, mediaFileService.findCoverArt(file).get());
 
             // letter case
             file = createFile("/MEDIAS/Metadata/coverart/coveratrt.GIF");
-            assertEquals(file, mediaFileService.findCoverArt(file));
+            assertEquals(file, mediaFileService.findCoverArt(file).get());
 
             // hidden
             file = createFile("/MEDIAS/Metadata/coverart/.hidden");
             assertTrue(file.exists());
-            assertNull(mediaFileService.findCoverArt(file));
+            assertTrue(mediaFileService.findCoverArt(file).isEmpty());
 
             // dir
             file = createFile("/MEDIAS/Metadata/coverart/coveratrt.jpg");
             assertTrue(file.exists());
-            assertNull(mediaFileService.findCoverArt(file));
+            assertTrue(mediaFileService.findCoverArt(file).isEmpty());
         }
 
         @Test
@@ -421,14 +420,14 @@ class MediaFileServiceTest {
             // File in a format that does not support the acquisition of Artwork
             File noSupport = stub.apply(createFile("/MEDIAS/Metadata/tagger3/blank/blank.shn"));
 
-            assertEquals(embedded, mediaFileService.findCoverArt(embedded));
-            assertNull(mediaFileService.findCoverArt(without));
-            assertNull(mediaFileService.findCoverArt(noSupport));
+            assertEquals(embedded, mediaFileService.findCoverArt(embedded).get());
+            assertTrue(mediaFileService.findCoverArt(without).isEmpty());
+            assertTrue(mediaFileService.findCoverArt(noSupport).isEmpty());
 
             // Of the files in the target format, only the first file is evaluated.
-            assertEquals(embedded, mediaFileService.findCoverArt(embedded, without));
-            assertEquals(embedded, mediaFileService.findCoverArt(noSupport, embedded));
-            assertNull(mediaFileService.findCoverArt(without, embedded));
+            assertEquals(embedded, mediaFileService.findCoverArt(embedded, without).get());
+            assertEquals(embedded, mediaFileService.findCoverArt(noSupport, embedded).get());
+            assertTrue(mediaFileService.findCoverArt(without, embedded).isEmpty());
         }
     }
 }
