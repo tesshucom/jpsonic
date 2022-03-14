@@ -30,7 +30,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
-import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -60,7 +59,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.util.NestedServletException;
 
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 @ExtendWith(NeedsHome.class)
@@ -128,12 +126,11 @@ class CoverArtControllerTest {
         void testWithoutEmbededImage() throws Exception {
             final String mediaFileId = "99";
             mediaFileStub.accept(createFile("/MEDIAS/Metadata/tagger3/testdata/01.mp3"), mediaFileId);
-
-            NestedServletException e = assertThrows(NestedServletException.class,
-                    () -> mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.COVER_ART.value())
+            MvcResult result = mockMvc
+                    .perform(MockMvcRequestBuilders.get("/" + ViewName.COVER_ART.value())
                             .param(Attributes.Request.ID.value(), "99").param(Attributes.Request.SIZE.value(), "150"))
-                            .andExpect(MockMvcResultMatchers.status().isOk()));
-            assertTrue(e.getCause() instanceof NoSuchElementException);
+                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            assertNotNull(result);
         }
 
         @Test
@@ -151,12 +148,11 @@ class CoverArtControllerTest {
         void testWithEmptyImage() throws Exception {
             final String mediaFileId = "99";
             mediaFileStub.accept(createFile("/MEDIAS/Metadata/coverart/album.jpg"), mediaFileId);
-
-            NestedServletException e = assertThrows(NestedServletException.class,
-                    () -> mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.COVER_ART.value())
+            MvcResult result = mockMvc
+                    .perform(MockMvcRequestBuilders.get("/" + ViewName.COVER_ART.value())
                             .param(Attributes.Request.ID.value(), "99").param(Attributes.Request.SIZE.value(), "150"))
-                            .andExpect(MockMvcResultMatchers.status().isOk()));
-            assertTrue(e.getCause() instanceof NullPointerException);
+                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            assertNotNull(result);
         }
 
         @Test
@@ -213,7 +209,7 @@ class CoverArtControllerTest {
             MediaFile mediaFile = mediaFileService.getMediaFile(file);
             MediaFileCoverArtRequest req = controller.new MediaFileCoverArtRequest(mediaFile);
             HttpServletResponse res = new MockHttpServletResponse();
-            assertThrows(NoSuchElementException.class, () -> controller.sendUnscaled(req, res));
+            assertThrows(ExecutionException.class, () -> controller.sendUnscaled(req, res));
         }
 
         @Test
@@ -260,7 +256,7 @@ class CoverArtControllerTest {
         @Test
         void testWithoutEmbededImage() throws Exception {
             File file = mediaFileStub.apply(createFile("/MEDIAS/Metadata/tagger3/testdata/01.mp3"));
-            assertThrows(NoSuchElementException.class, () -> controller.getImageInputStream(file));
+            assertThrows(ExecutionException.class, () -> controller.getImageInputStream(file));
         }
 
         @Test
@@ -308,7 +304,7 @@ class CoverArtControllerTest {
         @Test
         void testWithoutEmbededImage() throws Exception {
             File file = mediaFileStub.apply(createFile("/MEDIAS/Metadata/tagger3/testdata/01.mp3"));
-            assertThrows(NoSuchElementException.class, () -> controller.getImageInputStreamWithType(file));
+            assertThrows(ExecutionException.class, () -> controller.getImageInputStreamWithType(file));
         }
 
         @Test
