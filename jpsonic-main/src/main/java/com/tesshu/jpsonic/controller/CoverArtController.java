@@ -259,7 +259,7 @@ public class CoverArtController {
         }
     }
 
-    private void sendUnscaled(CoverArtRequest coverArtRequest, HttpServletResponse response) throws ExecutionException {
+    void sendUnscaled(CoverArtRequest coverArtRequest, HttpServletResponse response) throws ExecutionException {
         File file = coverArtRequest.getCoverArt();
         Pair<InputStream, String> imageInputStreamWithType = getImageInputStreamWithType(file);
         response.setContentType(imageInputStreamWithType.getRight());
@@ -307,7 +307,7 @@ public class CoverArtController {
      * Returns an input stream to the image in the given file. If the file is an audio file, the embedded album art is
      * returned.
      */
-    private InputStream getImageInputStream(File file) throws ExecutionException {
+    InputStream getImageInputStream(File file) throws ExecutionException {
         return getImageInputStreamWithType(file).getLeft();
     }
 
@@ -320,7 +320,7 @@ public class CoverArtController {
      * False positive. This method is an intermediate function used internally by createImage, sendUnscaled. The methods
      * calling this method auto-closes the resource after this method completes.
      */
-    private Pair<InputStream, String> getImageInputStreamWithType(File file) throws ExecutionException {
+    Pair<InputStream, String> getImageInputStreamWithType(File file) throws ExecutionException {
         InputStream is;
         String mimeType;
         if (ParserUtils.isArtworkApplicable(file)) {
@@ -611,7 +611,7 @@ public class CoverArtController {
         }
     }
 
-    private class MediaFileCoverArtRequest extends CoverArtRequest {
+    class MediaFileCoverArtRequest extends CoverArtRequest {
 
         private final MediaFile dir;
 
