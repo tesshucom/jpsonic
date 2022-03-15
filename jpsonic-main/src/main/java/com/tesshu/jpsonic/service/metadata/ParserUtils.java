@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.LogManager;
@@ -38,7 +39,6 @@ import java.util.regex.Pattern;
 import com.tesshu.jpsonic.domain.MediaFile;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.SupportedFileFormat;
@@ -181,18 +181,24 @@ public final class ParserUtils {
         return file.getParentFile().getName().concat("/").concat(file.getName());
     }
 
+    /**
+     * Returns whether the embedded artwork is in an available format. There is no guarantee that the artwork is
+     * actually embedded.
+     */
+    public static boolean isArtworkApplicable(File file) {
+        if (!file.isFile()) {
+            return false;
+        }
+        return IMG_APPLICABLES.contains(FilenameUtils.getExtension(file.getName()).toLowerCase(Locale.getDefault()));
+    }
+
     @SuppressWarnings("PMD.GuardLogStatement")
-    public static @Nullable Artwork getArtwork(MediaFile mediaFile) {
+    public static Optional<Artwork> getArtwork(MediaFile mediaFile) {
 
         File file = mediaFile.getFile();
 
-        if (!file.isFile()) {
-            return null;
-        }
-
-        String ext = FilenameUtils.getExtension(file.getName()).toLowerCase(Locale.getDefault());
-        if (!IMG_APPLICABLES.contains(ext)) {
-            return null;
+        if (!isArtworkApplicable(file)) {
+            return Optional.empty();
         }
 
         AudioFile af;
@@ -206,17 +212,17 @@ public final class ParserUtils {
                 LOG.warn("Unable to read cover art in ".concat(createSimplePath(file)).concat(": [{}]"),
                         e.getMessage().trim());
             }
-            return null;
+            return Optional.empty();
         }
 
         Tag tag = af.getTag();
         if (isEmpty(tag)) {
-            return null;
+            return Optional.empty();
         } else if (tag instanceof WavTag && !((WavTag) tag).isExistingId3Tag()) {
             LOG.info("Cover art is only supported in ID3 chunks: {}", createSimplePath(file));
-            return null;
+            return Optional.empty();
         }
 
-        return tag.getFirstArtwork();
+        return Optional.ofNullable(tag.getFirstArtwork());
     }
 }

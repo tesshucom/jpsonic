@@ -24,17 +24,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
-import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.util.FileUtil;
 import net.sf.ehcache.Ehcache;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +46,7 @@ import org.mockito.Mockito;
 class MediaFileServiceTest {
 
     private SettingsService settingsService;
+    private SecurityService securityService;
     private MediaFileDao mediaFileDao;
     private MediaFileService mediaFileService;
     private File dir;
@@ -52,10 +54,11 @@ class MediaFileServiceTest {
     @BeforeEach
     public void setup() throws URISyntaxException {
         settingsService = mock(SettingsService.class);
+        securityService = mock(SecurityService.class);
         mediaFileDao = mock(MediaFileDao.class);
-        mediaFileService = new MediaFileService(settingsService, mock(MusicFolderService.class),
-                mock(SecurityService.class), mock(Ehcache.class), mediaFileDao, mock(AlbumDao.class),
-                mock(MusicParser.class), mock(MetaDataParserFactory.class), mock(MediaFileServiceUtils.class));
+        mediaFileService = new MediaFileService(settingsService, mock(MusicFolderService.class), securityService,
+                mock(Ehcache.class), mediaFileDao, mock(AlbumDao.class), mock(MetaDataParserFactory.class),
+                mock(MediaFileServiceUtils.class));
         dir = new File(MediaFileServiceTest.class.getResource("/MEDIAS/Music").toURI());
     }
 
@@ -348,6 +351,83 @@ class MediaFileServiceTest {
             assertTrue(mediaFile.getChanged().getTime() < FileUtil.lastModified(mediaFile.getFile()));
             assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
             Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+        }
+    }
+
+    @Nested
+    class FindCoverArtTest {
+
+        private File createFile(String path) throws URISyntaxException, IOException {
+            return new File(MediaFileServiceTest.class.getResource(path).toURI());
+        }
+
+        @Test
+        void coverArtFileTypesTest() throws ExecutionException, URISyntaxException, IOException {
+            // fileNames
+            File file = createFile("/MEDIAS/Metadata/coverart/cover.jpg");
+            assertEquals(file, mediaFileService.findCoverArt(file).get());
+            file = createFile("/MEDIAS/Metadata/coverart/cover.png");
+            assertEquals(file, mediaFileService.findCoverArt(file).get());
+            file = createFile("/MEDIAS/Metadata/coverart/cover.gif");
+            assertEquals(file, mediaFileService.findCoverArt(file).get());
+            file = createFile("/MEDIAS/Metadata/coverart/folder.gif");
+            assertEquals(file, mediaFileService.findCoverArt(file).get());
+
+            // extensions
+            file = createFile("/MEDIAS/Metadata/coverart/album.gif");
+            assertEquals(file, mediaFileService.findCoverArt(file).get());
+            file = createFile("/MEDIAS/Metadata/coverart/album.jpeg");
+            assertEquals(file, mediaFileService.findCoverArt(file).get());
+            file = createFile("/MEDIAS/Metadata/coverart/album.gif");
+            assertEquals(file, mediaFileService.findCoverArt(file).get());
+            file = createFile("/MEDIAS/Metadata/coverart/album.png");
+            assertEquals(file, mediaFileService.findCoverArt(file).get());
+
+            // letter case
+            file = createFile("/MEDIAS/Metadata/coverart/coveratrt.GIF");
+            assertEquals(file, mediaFileService.findCoverArt(file).get());
+
+            // hidden
+            file = createFile("/MEDIAS/Metadata/coverart/.hidden");
+            assertTrue(file.exists());
+            assertTrue(mediaFileService.findCoverArt(file).isEmpty());
+
+            // dir
+            file = createFile("/MEDIAS/Metadata/coverart/coveratrt.jpg");
+            assertTrue(file.exists());
+            assertTrue(mediaFileService.findCoverArt(file).isEmpty());
+        }
+
+        @Test
+        void artworkApplicableTest() throws ExecutionException, URISyntaxException, IOException {
+
+            Mockito.when(securityService.isReadAllowed(Mockito.any(File.class))).thenReturn(true);
+            Mockito.when(settingsService.isFastCacheEnabled()).thenReturn(true);
+
+            Function<File, File> stub = (file) -> {
+                MediaFile mediaFile = new MediaFile();
+                mediaFile.setPath(file.getPath());
+                Mockito.when(mediaFileDao.getMediaFile(file.getPath())).thenReturn(mediaFile);
+                return file;
+            };
+
+            // with embedded coverArt
+            File embedded = stub.apply(createFile("/MEDIAS/Metadata/tagger3/tagged/test.flac"));
+
+            // without embedded coverArt
+            File without = stub.apply(createFile("/MEDIAS/Metadata/tagger3/testdata/test.ogg"));
+
+            // File in a format that does not support the acquisition of Artwork
+            File noSupport = stub.apply(createFile("/MEDIAS/Metadata/tagger3/blank/blank.shn"));
+
+            assertEquals(embedded, mediaFileService.findCoverArt(embedded).get());
+            assertTrue(mediaFileService.findCoverArt(without).isEmpty());
+            assertTrue(mediaFileService.findCoverArt(noSupport).isEmpty());
+
+            // Of the files in the target format, only the first file is evaluated.
+            assertEquals(embedded, mediaFileService.findCoverArt(embedded, without).get());
+            assertEquals(embedded, mediaFileService.findCoverArt(noSupport, embedded).get());
+            assertTrue(mediaFileService.findCoverArt(without, embedded).isEmpty());
         }
     }
 }

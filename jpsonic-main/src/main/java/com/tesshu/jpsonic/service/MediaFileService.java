@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
@@ -43,7 +44,6 @@ import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
-import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
 import com.tesshu.jpsonic.util.FileUtil;
 import net.sf.ehcache.Ehcache;
@@ -71,7 +71,6 @@ public class MediaFileService {
     private final Ehcache mediaFileMemoryCache;
     private final MediaFileDao mediaFileDao;
     private final AlbumDao albumDao;
-    private final MusicParser parser;
     private final MetaDataParserFactory metaDataParserFactory;
     private final MediaFileServiceUtils utils;
 
@@ -79,7 +78,7 @@ public class MediaFileService {
 
     public MediaFileService(SettingsService settingsService, MusicFolderService musicFolderService,
             SecurityService securityService, Ehcache mediaFileMemoryCache, MediaFileDao mediaFileDao, AlbumDao albumDao,
-            MusicParser parser, MetaDataParserFactory metaDataParserFactory, MediaFileServiceUtils utils) {
+            MetaDataParserFactory metaDataParserFactory, MediaFileServiceUtils utils) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
@@ -87,7 +86,6 @@ public class MediaFileService {
         this.mediaFileMemoryCache = mediaFileMemoryCache;
         this.mediaFileDao = mediaFileDao;
         this.albumDao = albumDao;
-        this.parser = parser;
         this.metaDataParserFactory = metaDataParserFactory;
         this.utils = utils;
         memoryCacheEnabled = true;
@@ -104,7 +102,7 @@ public class MediaFileService {
      * @throws SecurityException
      *             If access is denied to the given file.
      */
-    public MediaFile getMediaFile(File file) {
+    public @Nullable MediaFile getMediaFile(File file) {
         return getMediaFile(file, settingsService.isFastCacheEnabled());
     }
 
@@ -119,7 +117,7 @@ public class MediaFileService {
      * @throws SecurityException
      *             If access is denied to the given file.
      */
-    public MediaFile getMediaFile(File file, boolean useFastCache) {
+    public @Nullable MediaFile getMediaFile(File file, boolean useFastCache) {
 
         // Look in fast memory cache first.
         MediaFile result = getFromMemoryCache(file);
@@ -555,8 +553,8 @@ public class MediaFileService {
 
     @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     private boolean isAudioFile(String suffix) {
-        for (String s : settingsService.getMusicFileTypesAsArray()) {
-            if (suffix.equalsIgnoreCase(s)) {
+        for (String type : settingsService.getMusicFileTypesAsArray()) {
+            if (type.equalsIgnoreCase(suffix)) {
                 return true;
             }
         }
@@ -565,8 +563,8 @@ public class MediaFileService {
 
     @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     private boolean isVideoFile(String suffix) {
-        for (String s : settingsService.getVideoFileTypesAsArray()) {
-            if (suffix.equalsIgnoreCase(s)) {
+        for (String type : settingsService.getVideoFileTypesAsArray()) {
+            if (type.equalsIgnoreCase(suffix)) {
                 return true;
             }
         }
@@ -692,10 +690,7 @@ public class MediaFileService {
                 }
 
                 // Look for cover art.
-                File coverArt = findCoverArt(children);
-                if (coverArt != null) {
-                    to.setCoverArtPath(coverArt.getPath());
-                }
+                findCoverArt(children).ifPresent(coverArtOEmbedded -> to.setCoverArtPath(coverArtOEmbedded.getPath()));
             }
             utils.analyze(to);
         }
@@ -768,27 +763,28 @@ public class MediaFileService {
         return parent == null ? null : parent.getCoverArtFile();
     }
 
-    /**
-     * Finds a cover art image for the given directory, by looking for it on the disk.
-     */
     @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
-    private @Nullable File findCoverArt(File... candidates) {
+    @Nullable
+    Optional<File> findCoverArt(File... candidates) {
+
         for (String mask : settingsService.getCoverArtFileTypesAsArray()) {
             for (File candidate : candidates) {
                 if (candidate.isFile() && candidate.getName().toUpperCase().endsWith(mask.toUpperCase())
                         && candidate.getName().charAt(0) != '.') {
-                    return candidate;
+                    return Optional.ofNullable(candidate);
                 }
             }
         }
 
         // Look for embedded images in audiofiles. (Only check first audio file encountered).
         for (File candidate : candidates) {
-            if (parser.isApplicable(candidate)) {
-                return ParserUtils.getArtwork(getMediaFile(candidate)) == null ? null : candidate;
+            if (ParserUtils.isArtworkApplicable(candidate)) {
+                MediaFile mediaFile = getMediaFile(candidate);
+                return mediaFile == null || ParserUtils.getArtwork(mediaFile).isEmpty() ? Optional.empty()
+                        : Optional.of(candidate);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
