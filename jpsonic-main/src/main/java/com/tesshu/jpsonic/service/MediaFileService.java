@@ -102,7 +102,7 @@ public class MediaFileService {
      * @throws SecurityException
      *             If access is denied to the given file.
      */
-    public MediaFile getMediaFile(File file) {
+    public @Nullable MediaFile getMediaFile(File file) {
         return getMediaFile(file, settingsService.isFastCacheEnabled());
     }
 
@@ -117,7 +117,7 @@ public class MediaFileService {
      * @throws SecurityException
      *             If access is denied to the given file.
      */
-    public MediaFile getMediaFile(File file, boolean useFastCache) {
+    public @Nullable MediaFile getMediaFile(File file, boolean useFastCache) {
 
         // Look in fast memory cache first.
         MediaFile result = getFromMemoryCache(file);
@@ -553,8 +553,8 @@ public class MediaFileService {
 
     @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     private boolean isAudioFile(String suffix) {
-        for (String s : settingsService.getMusicFileTypesAsArray()) {
-            if (suffix.equalsIgnoreCase(s)) {
+        for (String type : settingsService.getMusicFileTypesAsArray()) {
+            if (type.equalsIgnoreCase(suffix)) {
                 return true;
             }
         }
@@ -563,8 +563,8 @@ public class MediaFileService {
 
     @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     private boolean isVideoFile(String suffix) {
-        for (String s : settingsService.getVideoFileTypesAsArray()) {
-            if (suffix.equalsIgnoreCase(s)) {
+        for (String type : settingsService.getVideoFileTypesAsArray()) {
+            if (type.equalsIgnoreCase(suffix)) {
                 return true;
             }
         }
@@ -779,7 +779,8 @@ public class MediaFileService {
         // Look for embedded images in audiofiles. (Only check first audio file encountered).
         for (File candidate : candidates) {
             if (ParserUtils.isArtworkApplicable(candidate)) {
-                return ParserUtils.getArtwork(getMediaFile(candidate)).isEmpty() ? Optional.empty()
+                MediaFile mediaFile = getMediaFile(candidate);
+                return mediaFile == null || ParserUtils.getArtwork(mediaFile).isEmpty() ? Optional.empty()
                         : Optional.of(candidate);
             }
         }
