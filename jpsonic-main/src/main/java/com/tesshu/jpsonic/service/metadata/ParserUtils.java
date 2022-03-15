@@ -193,9 +193,7 @@ public final class ParserUtils {
     }
 
     @SuppressWarnings("PMD.GuardLogStatement")
-    public static Optional<Artwork> getArtwork(MediaFile mediaFile) {
-
-        File file = mediaFile.getFile();
+    public static Optional<Artwork> getEmbeddedArtwork(File file) {
 
         if (!isArtworkApplicable(file)) {
             return Optional.empty();
