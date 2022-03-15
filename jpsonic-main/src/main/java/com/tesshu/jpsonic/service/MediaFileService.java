@@ -779,9 +779,7 @@ public class MediaFileService {
         // Look for embedded images in audiofiles. (Only check first audio file encountered).
         for (File candidate : candidates) {
             if (ParserUtils.isArtworkApplicable(candidate)) {
-                MediaFile mediaFile = getMediaFile(candidate);
-                return mediaFile == null || ParserUtils.getArtwork(mediaFile).isEmpty() ? Optional.empty()
-                        : Optional.of(candidate);
+                return ParserUtils.getEmbeddedArtwork(candidate).isEmpty() ? Optional.empty() : Optional.of(candidate);
             }
         }
         return Optional.empty();

@@ -329,8 +329,7 @@ public class CoverArtController {
             return Pair.of(is, mimeType);
         }
 
-        MediaFile mediaFile = mediaFileService.getMediaFile(file);
-        Optional<Artwork> op = ParserUtils.getArtwork(mediaFile);
+        Optional<Artwork> op = ParserUtils.getEmbeddedArtwork(file);
         if (op.isEmpty()) {
             throw new ExecutionException(new IOException("Embeded image cannot be read: " + file.getPath()));
         }
