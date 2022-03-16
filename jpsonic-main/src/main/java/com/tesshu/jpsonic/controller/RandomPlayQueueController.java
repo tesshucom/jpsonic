@@ -42,7 +42,7 @@ import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.util.LegacyMap;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;

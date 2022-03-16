@@ -21,6 +21,7 @@
 
 package com.tesshu.jpsonic.ajax;
 
+import java.util.Objects;
 import java.util.concurrent.CompletionException;
 
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -29,8 +30,7 @@ import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -95,9 +95,8 @@ public class TagService {
         String year = StringUtils.trimToNull(yearStr);
         Integer yearNumber = getYearNumber(year);
         if (StringUtils.equals(artist, file.getArtist()) && StringUtils.equals(album, file.getAlbumName())
-                && StringUtils.equals(title, file.getTitle()) && ObjectUtils.equals(yearNumber, file.getYear())
-                && StringUtils.equals(genre, file.getGenre())
-                && ObjectUtils.equals(trackNumber, file.getTrackNumber())) {
+                && StringUtils.equals(title, file.getTitle()) && Objects.equals(yearNumber, file.getYear())
+                && StringUtils.equals(genre, file.getGenre()) && Objects.equals(trackNumber, file.getTrackNumber())) {
             return "SKIPPED";
         }
 

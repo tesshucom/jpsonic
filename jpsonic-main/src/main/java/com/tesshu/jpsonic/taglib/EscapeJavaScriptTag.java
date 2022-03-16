@@ -27,7 +27,7 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 /**
  * Escapes the characters in a <code>String</code> using JavaScript String rules.
@@ -62,7 +62,7 @@ public class EscapeJavaScriptTag extends BodyTagSupport {
     @Override
     public int doEndTag() throws JspException {
         try {
-            pageContext.getOut().print(StringEscapeUtils.escapeJavaScript(string));
+            pageContext.getOut().print(StringEscapeUtils.escapeEcmaScript(string));
         } catch (IOException x) {
             throw new JspTagException(x);
         }

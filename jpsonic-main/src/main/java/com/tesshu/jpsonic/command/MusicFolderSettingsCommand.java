@@ -28,7 +28,7 @@ import java.util.List;
 import com.tesshu.jpsonic.controller.MusicFolderSettingsController;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Command used in {@link MusicFolderSettingsController}.

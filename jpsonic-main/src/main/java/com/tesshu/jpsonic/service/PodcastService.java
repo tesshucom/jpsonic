@@ -55,7 +55,7 @@ import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.CookieSpecs;

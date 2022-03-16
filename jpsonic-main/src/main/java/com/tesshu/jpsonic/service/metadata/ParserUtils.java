@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.File;

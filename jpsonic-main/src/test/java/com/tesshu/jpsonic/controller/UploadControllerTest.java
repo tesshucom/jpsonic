@@ -35,7 +35,7 @@ import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;

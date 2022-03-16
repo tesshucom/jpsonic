@@ -40,7 +40,7 @@ import java.util.jar.JarFile;
 import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

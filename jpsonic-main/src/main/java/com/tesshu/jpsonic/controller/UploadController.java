@@ -54,8 +54,8 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -237,7 +237,7 @@ public class UploadController {
     private void addUploadedFile(FileItem targetItem, File targetFile, List<File> to) throws ExecutionException {
         if (!securityService.isUploadAllowed(targetFile)) {
             throw new ExecutionException(new GeneralSecurityException(
-                    "Permission denied: " + StringEscapeUtils.escapeHtml(targetFile.getPath())));
+                    "Permission denied: " + StringEscapeUtils.escapeHtml4(targetFile.getPath())));
         }
         try {
             targetItem.write(targetFile);
@@ -262,7 +262,7 @@ public class UploadController {
                 File entryFile = new File(file.getParentFile(), entry.getName());
                 if (!entryFile.toPath().normalize().startsWith(file.getParentFile().toPath())) {
                     throw new ExecutionException(
-                            new IOException("Bad zip filename: " + StringEscapeUtils.escapeHtml(entryFile.getPath())));
+                            new IOException("Bad zip filename: " + StringEscapeUtils.escapeHtml4(entryFile.getPath())));
                 }
                 if (!entry.isDirectory()) {
                     unzippedFiles = unzip(zipFile, entry, entryFile);
@@ -284,7 +284,7 @@ public class UploadController {
 
         if (!securityService.isUploadAllowed(entryFile)) {
             throw new ExecutionException(new GeneralSecurityException(
-                    "Permission denied: " + StringEscapeUtils.escapeHtml(entryFile.getPath())));
+                    "Permission denied: " + StringEscapeUtils.escapeHtml4(entryFile.getPath())));
         }
 
         if (!entryFile.getParentFile().mkdirs() && LOG.isWarnEnabled()) {

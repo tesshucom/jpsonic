@@ -28,7 +28,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Parses meta data from media files.

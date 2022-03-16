@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -58,8 +58,8 @@ public class SetMusicFileInfoController {
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
 
         if ("comment".equals(action)) {
-            mediaFile
-                    .setComment(StringEscapeUtils.escapeHtml(request.getParameter(Attributes.Request.COMMENT.value())));
+            mediaFile.setComment(
+                    StringEscapeUtils.escapeHtml4(request.getParameter(Attributes.Request.COMMENT.value())));
             mediaFileService.updateMediaFile(mediaFile);
         } else if ("resetLastScanned".equals(action)) {
             mediaFileService.resetLastScanned(mediaFile);

@@ -32,7 +32,7 @@ import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.util.LegacyMap;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;

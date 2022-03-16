@@ -91,7 +91,7 @@ import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.codec.DecoderException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

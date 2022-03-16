@@ -31,7 +31,7 @@ import com.tesshu.jpsonic.service.RecoverService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;

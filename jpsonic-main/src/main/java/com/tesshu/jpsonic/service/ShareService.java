@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -33,8 +34,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.Share;
 import com.tesshu.jpsonic.domain.User;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -73,7 +73,7 @@ public class ShareService {
     public List<Share> getSharesForUser(User user) {
         List<Share> result = new ArrayList<>();
         for (Share share : getAllShares()) {
-            if (user.isAdminRole() || ObjectUtils.equals(user.getUsername(), share.getUsername())) {
+            if (user.isAdminRole() || Objects.equals(user.getUsername(), share.getUsername())) {
                 result.add(share);
             }
         }

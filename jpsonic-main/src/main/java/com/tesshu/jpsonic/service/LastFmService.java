@@ -50,7 +50,7 @@ import de.umass.lastfm.CallException;
 import de.umass.lastfm.Caller;
 import de.umass.lastfm.ImageSize;
 import de.umass.lastfm.Track;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

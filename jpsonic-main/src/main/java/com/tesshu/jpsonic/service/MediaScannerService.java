@@ -21,12 +21,13 @@
 
 package com.tesshu.jpsonic.service;
 
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -47,7 +48,6 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import net.sf.ehcache.Ehcache;
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -373,7 +373,7 @@ public class MediaScannerService {
         }
 
         // Update the file's album artist, if necessary.
-        if (!ObjectUtils.equals(album.getArtist(), file.getAlbumArtist())) {
+        if (!Objects.equals(album.getArtist(), file.getAlbumArtist())) {
             file.setAlbumArtist(album.getArtist());
             file.setAlbumArtistReading(album.getArtistReading());
             file.setAlbumArtistSort(album.getArtistSort());

@@ -39,7 +39,7 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -109,7 +109,7 @@ public class CoverArtService {
         File newCoverFile = new File(path, "cover." + suffix);
         if (!securityService.isWriteAllowed(newCoverFile)) {
             throw new ExecutionException(new GeneralSecurityException(
-                    "Permission denied: " + StringEscapeUtils.escapeHtml(newCoverFile.getPath())));
+                    "Permission denied: " + StringEscapeUtils.escapeHtml4(newCoverFile.getPath())));
         }
 
         // If file exists, create a backup.

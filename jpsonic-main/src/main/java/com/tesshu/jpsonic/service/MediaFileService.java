@@ -49,7 +49,7 @@ import com.tesshu.jpsonic.util.FileUtil;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

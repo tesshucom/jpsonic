@@ -23,7 +23,7 @@ package com.tesshu.jpsonic.domain;
 
 import java.util.Date;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represens a remote player. A player has a unique ID, a user-defined name, a logged-on user, miscellaneous

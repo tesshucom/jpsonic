@@ -30,7 +30,7 @@ import java.util.Arrays;
 import java.util.Locale;
 
 import org.apache.commons.codec.DecoderException;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -43,11 +43,11 @@ class StringUtilTest {
 
     @Test
     void testToHtml() {
-        assertNull(StringEscapeUtils.escapeHtml(null));
-        assertEquals(StringEscapeUtils.escapeHtml(""), "");
-        assertEquals(StringEscapeUtils.escapeHtml(" "), " ");
-        assertEquals(StringEscapeUtils.escapeHtml("q & a"), "q &amp; a");
-        assertEquals(StringEscapeUtils.escapeHtml("q & a <> b"), "q &amp; a &lt;&gt; b");
+        assertNull(StringEscapeUtils.escapeHtml4(null));
+        assertEquals(StringEscapeUtils.escapeHtml4(""), "");
+        assertEquals(StringEscapeUtils.escapeHtml4(" "), " ");
+        assertEquals(StringEscapeUtils.escapeHtml4("q & a"), "q &amp; a");
+        assertEquals(StringEscapeUtils.escapeHtml4("q & a <> b"), "q &amp; a &lt;&gt; b");
     }
 
     @Test

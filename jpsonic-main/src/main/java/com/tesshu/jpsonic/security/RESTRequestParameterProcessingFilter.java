@@ -41,7 +41,7 @@ import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;

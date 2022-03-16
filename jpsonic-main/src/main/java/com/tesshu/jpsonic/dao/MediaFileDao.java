@@ -37,7 +37,7 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.PlayerUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;

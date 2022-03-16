@@ -42,7 +42,7 @@ import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.util.FileUtil;
 import net.sf.ehcache.Ehcache;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;

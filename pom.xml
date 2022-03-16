@@ -151,6 +151,11 @@
                 <version>3.12.0</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>1.9</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>2.11.0</version>
@@ -708,7 +713,6 @@
                                 <ignoredUsedUndeclaredDependency>org.apache.tomcat.embed:tomcat-embed-core*</ignoredUsedUndeclaredDependency>
                                 <ignoredUsedUndeclaredDependency>org.apache.tomcat:tomcat-annotations-api:*</ignoredUsedUndeclaredDependency>
                                 <ignoredUsedUndeclaredDependency>org.apache.tomcat.embed:tomcat-embed-el*</ignoredUsedUndeclaredDependency>
-                                <!-- Temporarily suppression. Implicitly used in spring, but can be removed from Jpsonic sources -->
                                 <ignoredUnusedDeclaredDependency>commons-lang:commons-lang</ignoredUnusedDeclaredDependency>
                             </ignoredUsedUndeclaredDependencies>
                             <ignoredUnusedDeclaredDependencies>

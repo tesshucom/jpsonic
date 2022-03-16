@@ -21,7 +21,7 @@ package com.tesshu.jpsonic.domain;
 
 import static java.util.Collections.reverse;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;

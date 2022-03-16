@@ -44,7 +44,7 @@ import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.util.StringUtil;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

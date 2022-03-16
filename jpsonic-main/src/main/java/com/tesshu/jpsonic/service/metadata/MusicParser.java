@@ -24,9 +24,9 @@ import static com.tesshu.jpsonic.service.metadata.ParserUtils.mapGenre;
 import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseInt;
 import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseTrackNumber;
 import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseYear;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.StringUtils.trimToEmpty;
-import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.File;
