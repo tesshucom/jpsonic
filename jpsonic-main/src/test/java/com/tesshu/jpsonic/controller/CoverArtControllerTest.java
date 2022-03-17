@@ -238,16 +238,9 @@ class CoverArtControllerTest {
     @Nested
     class GetImageInputStreamTest {
 
-        private final Function<File, File> mediaFileStub = (file) -> {
-            MediaFile mediaFile = new MediaFile();
-            mediaFile.setPath(file.getPath());
-            Mockito.when(mediaFileService.getMediaFile(file)).thenReturn(mediaFile);
-            return file;
-        };
-
         @Test
         void testWithEmbededImage() throws Exception {
-            File file = mediaFileStub.apply(createFile("/MEDIAS/Metadata/tagger3/tagged/test.flac"));
+            File file = createFile("/MEDIAS/Metadata/tagger3/tagged/test.flac");
             try (InputStream s = controller.getImageInputStream(file)) {
                 assertNotNull(s);
             }
@@ -255,7 +248,7 @@ class CoverArtControllerTest {
 
         @Test
         void testWithoutEmbededImage() throws Exception {
-            File file = mediaFileStub.apply(createFile("/MEDIAS/Metadata/tagger3/testdata/01.mp3"));
+            File file = createFile("/MEDIAS/Metadata/tagger3/testdata/01.mp3");
             assertThrows(ExecutionException.class, () -> controller.getImageInputStream(file));
         }
 
@@ -265,7 +258,7 @@ class CoverArtControllerTest {
              * There is no check that the current resource is an image. (Only the image resource URI is registered in
              * the database)
              */
-            File file = mediaFileStub.apply(createFile("/MEDIAS/Metadata/coverart/album.gif"));
+            File file = createFile("/MEDIAS/Metadata/coverart/album.gif");
             assertTrue(file.exists());
             assertTrue(file.isFile());
             try (InputStream s = controller.getImageInputStream(file)) {
@@ -275,7 +268,7 @@ class CoverArtControllerTest {
 
         @Test
         void testWithImageCannotRead() throws Exception {
-            File file = mediaFileStub.apply(new File("/MEDIAS/Metadata/coverart/unknown.gif"));
+            File file = new File("/MEDIAS/Metadata/coverart/unknown.gif");
             assertFalse(file.exists());
             assertFalse(file.isFile());
             assertThrows(ExecutionException.class, () -> controller.getImageInputStream(file));
@@ -285,16 +278,9 @@ class CoverArtControllerTest {
     @Nested
     class GetImageInputStreamWithTypeTest {
 
-        private final Function<File, File> mediaFileStub = (file) -> {
-            MediaFile mediaFile = new MediaFile();
-            mediaFile.setPath(file.getPath());
-            Mockito.when(mediaFileService.getMediaFile(file)).thenReturn(mediaFile);
-            return file;
-        };
-
         @Test
         void testWithEmbededImage() throws Exception {
-            File file = mediaFileStub.apply(createFile("/MEDIAS/Metadata/tagger3/tagged/test.flac"));
+            File file = createFile("/MEDIAS/Metadata/tagger3/tagged/test.flac");
             Pair<InputStream, String> pair = controller.getImageInputStreamWithType(file);
             assertNotNull(pair.getLeft());
             assertEquals("image/png", pair.getRight());
@@ -303,13 +289,13 @@ class CoverArtControllerTest {
 
         @Test
         void testWithoutEmbededImage() throws Exception {
-            File file = mediaFileStub.apply(createFile("/MEDIAS/Metadata/tagger3/testdata/01.mp3"));
+            File file = createFile("/MEDIAS/Metadata/tagger3/testdata/01.mp3");
             assertThrows(ExecutionException.class, () -> controller.getImageInputStreamWithType(file));
         }
 
         @Test
         void testWithImage() throws Exception {
-            File file = mediaFileStub.apply(createFile("/MEDIAS/Metadata/coverart/album.gif"));
+            File file = createFile("/MEDIAS/Metadata/coverart/album.gif");
             assertTrue(file.exists());
             assertTrue(file.isFile());
             Pair<InputStream, String> pair = controller.getImageInputStreamWithType(file);
@@ -320,7 +306,7 @@ class CoverArtControllerTest {
 
         @Test
         void testWithImageCannotRead() throws Exception {
-            File file = mediaFileStub.apply(new File("/MEDIAS/Metadata/coverart/unknown.gif"));
+            File file = new File("/MEDIAS/Metadata/coverart/unknown.gif");
             assertFalse(file.exists());
             assertFalse(file.isFile());
             assertThrows(ExecutionException.class, () -> controller.getImageInputStreamWithType(file));
