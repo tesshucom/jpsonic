@@ -163,7 +163,7 @@ class MP4ParserTest {
         MediaFile mediaFile = createTestMediafile();
         parser.getRawMetaData(mediaFile);
         // If the argument is only mediaFile, FFProbe is used
-        Mockito.verify(transcodingService, Mockito.times(2)).getTranscodeDirectory();
+        Mockito.verify(transcodingService, Mockito.times(1)).getTranscodeDirectory();
         Mockito.clearInvocations(transcodingService);
 
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
@@ -180,6 +180,6 @@ class MP4ParserTest {
         assertThat(mediaFile.getFileSize(), greaterThan(parser.getThreshold(mediaFile, statistics)));
         parser.getRawMetaData(mediaFile, statistics);
         // With statistics : FFProbe is used for big files
-        Mockito.verify(transcodingService, Mockito.times(2)).getTranscodeDirectory();
+        Mockito.verify(transcodingService, Mockito.times(1)).getTranscodeDirectory();
     }
 }

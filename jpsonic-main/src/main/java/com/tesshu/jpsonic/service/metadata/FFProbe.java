@@ -44,6 +44,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.util.PlayerUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -92,18 +93,13 @@ public class FFProbe {
         return Optional.ofNullable(trimToNull(tags.get(fieldKey.value).asText()));
     }
 
-    private String getCommandPath() {
-        String cmdPath = null;
-        File cmdFile = new File(transcodingService.getTranscodeDirectory(), "ffprobe");
+    private @Nullable String getCommandPath() {
+        File cmdFile = new File(transcodingService.getTranscodeDirectory(),
+                PlayerUtils.isWindows() ? "ffprobe.exe" : "ffprobe");
         if (cmdFile.exists()) {
-            cmdPath = cmdFile.getAbsolutePath();
-        } else {
-            File winffprobe = new File(transcodingService.getTranscodeDirectory(), "ffprobe.exe");
-            if (winffprobe.exists()) {
-                cmdPath = winffprobe.getAbsolutePath();
-            }
+            return cmdFile.getAbsolutePath();
         }
-        return cmdPath;
+        return null;
     }
 
     private MetaData parse(@NonNull JsonNode node, @NonNull MetaData result) {
