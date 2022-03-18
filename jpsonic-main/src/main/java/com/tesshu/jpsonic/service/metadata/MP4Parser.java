@@ -54,13 +54,13 @@ public class MP4Parser {
 
     private static final Logger LOG = LoggerFactory.getLogger(MP4Parser.class);
 
-    private final FFProbe ffProbe;
+    private final FFprobe ffprobe;
 
     private final org.apache.tika.parser.mp4.MP4Parser tikaParser;
 
-    public MP4Parser(FFProbe ffProbe) {
+    public MP4Parser(FFprobe ffprobe) {
         super();
-        this.ffProbe = ffProbe;
+        this.ffprobe = ffprobe;
         tikaParser = new org.apache.tika.parser.mp4.MP4Parser();
     }
 
@@ -77,7 +77,7 @@ public class MP4Parser {
     }
 
     MetaData parseWithFFProbe(@NonNull MediaFile mediaFile, @Nullable Map<String, MP4ParseStatistics> statistics) {
-        return ffProbe.parse(mediaFile, statistics);
+        return ffprobe.parse(mediaFile, statistics);
     }
 
     MetaData parseWithTika(MediaFile mediaFile, Map<String, MP4ParseStatistics> statistics) {

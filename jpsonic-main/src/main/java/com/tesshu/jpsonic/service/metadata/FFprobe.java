@@ -53,9 +53,9 @@ import org.springframework.stereotype.Component;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
 @Component
-public class FFProbe {
+public class FFprobe {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FFProbe.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FFprobe.class);
 
     private static final String[] FFPROBE_OPTIONS = { "-v", "quiet", "-show_format", "-show_streams", "-print_format",
             "json" };
@@ -66,7 +66,7 @@ public class FFProbe {
 
     private final TranscodingService transcodingService;
 
-    public FFProbe(TranscodingService transcodingService) {
+    public FFprobe(TranscodingService transcodingService) {
         super();
         this.transcodingService = transcodingService;
     }

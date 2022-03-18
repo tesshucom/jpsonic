@@ -41,13 +41,13 @@ public class VideoParser extends MetaDataParser {
 
     private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
-    private final FFProbe ffProbe;
+    private final FFprobe ffprobe;
 
-    public VideoParser(SettingsService settingsService, MusicFolderService musicFolderService, FFProbe ffProbe) {
+    public VideoParser(SettingsService settingsService, MusicFolderService musicFolderService, FFprobe ffprobe) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
-        this.ffProbe = ffProbe;
+        this.ffprobe = ffprobe;
     }
 
     /**
@@ -61,7 +61,7 @@ public class VideoParser extends MetaDataParser {
      */
     @Override
     public MetaData getRawMetaData(File file) {
-        return ffProbe.parse(file);
+        return ffprobe.parse(file);
     }
 
     /**

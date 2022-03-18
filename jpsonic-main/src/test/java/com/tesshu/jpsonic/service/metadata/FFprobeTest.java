@@ -43,15 +43,15 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class FFProbeTest {
+class FFprobeTest {
 
-    private FFProbe ffProbe;
+    private FFprobe ffprobe;
 
     @BeforeEach
     void setUp() {
         TranscodingService transcodingService = new TranscodingService(mock(SettingsService.class), null, null, null,
                 null);
-        ffProbe = new FFProbe(transcodingService);
+        ffprobe = new FFprobe(transcodingService);
     }
 
     private MediaFile createTestMediafile(String path) throws URISyntaxException, IOException {
@@ -111,9 +111,9 @@ class FFProbeTest {
     @Test
     @Order(1)
     void testParseWithoutCmd() throws URISyntaxException, IOException {
-        ffProbe = new FFProbe(mock(TranscodingService.class));
+        ffprobe = new FFprobe(mock(TranscodingService.class));
         MediaFile mediaFile = createTestMediafile("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
-        MetaData metaData = ffProbe.parse(mediaFile, null);
+        MetaData metaData = ffprobe.parse(mediaFile, null);
         assertEmpty(metaData);
     }
 
@@ -122,7 +122,7 @@ class FFProbeTest {
     void testBlank() throws URISyntaxException, IOException {
         MediaFile mediaFile = createTestMediafile("/MEDIAS/Metadata/tagger3/blank/blank.mp4");
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
-        MetaData metaData = ffProbe.parse(mediaFile, statistics);
+        MetaData metaData = ffprobe.parse(mediaFile, statistics);
         assertEmpty(metaData);
     }
 
@@ -131,7 +131,7 @@ class FFProbeTest {
     void testNoHeader() throws URISyntaxException, IOException {
         MediaFile mediaFile = createTestMediafile("/MEDIAS/Metadata/tagger3/noheader/empty.mp3");
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
-        MetaData metaData = ffProbe.parse(mediaFile, statistics);
+        MetaData metaData = ffprobe.parse(mediaFile, statistics);
         assertEmpty(metaData);
     }
 
@@ -142,7 +142,7 @@ class FFProbeTest {
         File file = new File("fake");
         mediaFile.setPath(file.getAbsolutePath());
         mediaFile.setFileSize(Long.valueOf(5_000));
-        MetaData metaData = ffProbe.parse(mediaFile, null);
+        MetaData metaData = ffprobe.parse(mediaFile, null);
         assertEmpty(metaData);
     }
 
@@ -151,7 +151,7 @@ class FFProbeTest {
     void testTagged() throws URISyntaxException, IOException {
         MediaFile mediaFile = createTestMediafile("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
-        MetaData metaData = ffProbe.parse(mediaFile, statistics);
+        MetaData metaData = ffprobe.parse(mediaFile, statistics);
         assertTagsWrittenByMp3tag(metaData);
     }
 
@@ -168,7 +168,7 @@ class FFProbeTest {
         MP4ParseStatistics s = new MP4ParseStatistics();
         statistics.put(folder, s);
 
-        MetaData metaData = ffProbe.parse(mediaFile, statistics);
+        MetaData metaData = ffprobe.parse(mediaFile, statistics);
         assertTagsWrittenByMp3tag(metaData);
 
         assertEquals(1, statistics.get(folder).leadTimeCmd.size());

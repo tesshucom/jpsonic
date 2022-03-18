@@ -52,7 +52,7 @@ class MP4ParserTest {
     @BeforeEach
     void setUp() {
         transcodingService = new TranscodingService(mock(SettingsService.class), null, null, null, null);
-        parser = new MP4Parser(new FFProbe(transcodingService));
+        parser = new MP4Parser(new FFprobe(transcodingService));
     }
 
     private MediaFile createTestMediafile() throws URISyntaxException, IOException {
@@ -105,7 +105,7 @@ class MP4ParserTest {
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
         parser.getThreshold(mediaFile, statistics);
 
-        parser = new MP4Parser(new FFProbe(mock(TranscodingService.class)));
+        parser = new MP4Parser(new FFprobe(mock(TranscodingService.class)));
 
         MetaData metaData = parser.parseWithFFProbe(mediaFile, statistics);
         assertNull(metaData.getWidth());
@@ -159,7 +159,7 @@ class MP4ParserTest {
     void testGetRawMetaData() throws URISyntaxException, IOException {
 
         transcodingService = mock(TranscodingService.class);
-        parser = new MP4Parser(new FFProbe(transcodingService));
+        parser = new MP4Parser(new FFprobe(transcodingService));
         MediaFile mediaFile = createTestMediafile();
         parser.getRawMetaData(mediaFile);
         // If the argument is only mediaFile, FFProbe is used
