@@ -31,6 +31,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -172,7 +173,8 @@ public class FFProbe {
         try {
             start = System.currentTimeMillis();
             Process process = new ProcessBuilder(command).start();
-            try (InputStream is = process.getInputStream(); BufferedInputStream bis = new BufferedInputStream(is);) {
+            try (InputStream is = process.getInputStream(); OutputStream os = process.getOutputStream();
+                    InputStream es = process.getErrorStream(); BufferedInputStream bis = new BufferedInputStream(is);) {
                 node = MAPPER.readTree(bis);
             } finally {
                 process.destroy();
