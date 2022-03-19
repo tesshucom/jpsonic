@@ -20,13 +20,16 @@
 package com.tesshu.jpsonic.controller;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
@@ -41,11 +44,13 @@ import com.tesshu.jpsonic.controller.CoverArtController.MediaFileCoverArtRequest
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.metadata.FFmpeg;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -75,9 +80,11 @@ class CoverArtControllerTest {
     @BeforeEach
     public void setup() throws ExecutionException {
         mediaFileService = mock(MediaFileService.class);
-        controller = new CoverArtController(mediaFileService, mock(TranscodingService.class),
-                mock(PlaylistService.class), mock(PodcastService.class), mock(ArtistDao.class), mock(AlbumDao.class),
-                mock(CoverArtLogic.class), mock(FontLoader.class));
+        TranscodingService transcodingService = new TranscodingService(null, null, null, null, null);
+        FFmpeg ffmpeg = new FFmpeg(transcodingService);
+        controller = new CoverArtController(mediaFileService, ffmpeg, mock(PlaylistService.class),
+                mock(PodcastService.class), mock(ArtistDao.class), mock(AlbumDao.class), mock(CoverArtLogic.class),
+                mock(FontLoader.class));
         controller.init();
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
@@ -88,6 +95,19 @@ class CoverArtControllerTest {
         private final BiConsumer<File, String> mediaFileStub = (file, id) -> {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setPath(file.getPath());
+            Mockito.when(mediaFileService.getMediaFile(file)).thenReturn(mediaFile);
+            Mockito.when(mediaFileService.getCoverArt(mediaFile)).thenReturn(mediaFile.getFile());
+            Mockito.when(mediaFileService.getMediaFile(Integer.parseInt(id))).thenReturn(mediaFile);
+            MediaFile parent = new MediaFile();
+            parent.setPath(file.getParent());
+            parent.setArtist("CoverArtControllerTest#GetTest");
+            Mockito.when(mediaFileService.getParentOf(mediaFile)).thenReturn(parent);
+        };
+
+        private final BiConsumer<File, String> videoStub = (file, id) -> {
+            MediaFile mediaFile = new MediaFile();
+            mediaFile.setPath(file.getPath());
+            mediaFile.setMediaType(MediaType.VIDEO);
             Mockito.when(mediaFileService.getMediaFile(file)).thenReturn(mediaFile);
             Mockito.when(mediaFileService.getCoverArt(mediaFile)).thenReturn(mediaFile.getFile());
             Mockito.when(mediaFileService.getMediaFile(Integer.parseInt(id))).thenReturn(mediaFile);
@@ -171,6 +191,17 @@ class CoverArtControllerTest {
             parent.setArtist("CoverArtControllerTest#GetTest");
             Mockito.when(mediaFileService.getParentOf(mediaFile)).thenReturn(parent);
 
+            MvcResult result = mockMvc
+                    .perform(MockMvcRequestBuilders.get("/" + ViewName.COVER_ART.value())
+                            .param(Attributes.Request.ID.value(), "99").param(Attributes.Request.SIZE.value(), "150"))
+                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+            assertNotNull(result);
+        }
+
+        @Test
+        void testVideoThumbnail() throws Exception {
+            final String mediaFileId = "99";
+            videoStub.accept(createFile("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4"), mediaFileId);
             MvcResult result = mockMvc
                     .perform(MockMvcRequestBuilders.get("/" + ViewName.COVER_ART.value())
                             .param(Attributes.Request.ID.value(), "99").param(Attributes.Request.SIZE.value(), "150"))
@@ -310,6 +341,31 @@ class CoverArtControllerTest {
             assertFalse(file.exists());
             assertFalse(file.isFile());
             assertThrows(ExecutionException.class, () -> controller.getImageInputStreamWithType(file));
+        }
+    }
+
+    @Nested
+    class GetImageInputStreamForVideoTest {
+
+        @Test
+        void testValidFile() throws URISyntaxException, IOException {
+            File file = createFile("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
+            assertTrue(file.exists());
+            MediaFile mediaFile = new MediaFile();
+            mediaFile.setPath(file.getPath());
+            BufferedImage bi = controller.getImageInputStreamForVideo(mediaFile, 200, 160, 0);
+            assertEquals(BufferedImage.TYPE_3BYTE_BGR, bi.getType());
+            assertEquals(200, bi.getWidth());
+            assertEquals(160, bi.getHeight());
+        }
+
+        @Test
+        void testInValidFile() throws URISyntaxException, IOException {
+            File file = new File("/MEDIAS/Metadata/tagger3/tagged/test.unknown.mp4");
+            assertFalse(file.exists());
+            MediaFile mediaFile = new MediaFile();
+            mediaFile.setPath(file.getPath());
+            assertNull(controller.getImageInputStreamForVideo(mediaFile, 200, 160, 0));
         }
     }
 }

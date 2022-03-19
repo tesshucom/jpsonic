@@ -57,14 +57,12 @@ import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.domain.PodcastChannel;
-import com.tesshu.jpsonic.domain.Transcoding;
-import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
 import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.metadata.FFmpeg;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
 import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
@@ -73,6 +71,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jaudiotagger.tag.images.Artwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,13 +92,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class CoverArtController {
 
     private static final Logger LOG = LoggerFactory.getLogger(CoverArtController.class);
-    private static final String VIDEO_IMAGE_COMMAND = "ffmpeg -r 1 -ss %o -t 1 -i %s -s %wx%h -v 0 -f mjpeg -";
     private static final int COVER_ART_CONCURRENCY = 4;
     private static final Object DIRS_LOCK = new Object();
     private static final Map<String, Object> IMG_LOCKS = new ConcurrentHashMap<>();
 
     private final MediaFileService mediaFileService;
-    private final TranscodingService transcodingService;
+    private final FFmpeg ffmpeg;
     private final PlaylistService playlistService;
     private final PodcastService podcastService;
     private final ArtistDao artistDao;
@@ -109,12 +107,12 @@ public class CoverArtController {
 
     private Semaphore semaphore;
 
-    public CoverArtController(MediaFileService mediaFileService, TranscodingService transcodingService,
-            PlaylistService playlistService, PodcastService podcastService, ArtistDao artistDao, AlbumDao albumDao,
-            CoverArtLogic logic, FontLoader fontLoader) {
+    public CoverArtController(MediaFileService mediaFileService, FFmpeg ffmpeg, PlaylistService playlistService,
+            PodcastService podcastService, ArtistDao artistDao, AlbumDao albumDao, CoverArtLogic logic,
+            FontLoader fontLoader) {
         super();
         this.mediaFileService = mediaFileService;
-        this.transcodingService = transcodingService;
+        this.ffmpeg = ffmpeg;
         this.playlistService = playlistService;
         this.podcastService = podcastService;
         this.artistDao = artistDao;
@@ -224,7 +222,7 @@ public class CoverArtController {
             return null;
         }
         if (mediaFile.isVideo()) {
-            int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.OFFSET.value(), 60);
+            int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
             return new VideoCoverArtRequest(mediaFile, offset);
         }
         return new MediaFileCoverArtRequest(mediaFile);
@@ -338,12 +336,9 @@ public class CoverArtController {
         return Pair.of(new ByteArrayInputStream(artwork.getBinaryData()), artwork.getMimeType());
     }
 
-    private InputStream getImageInputStreamForVideo(MediaFile mediaFile, int width, int height, int offset)
-            throws IOException {
-        VideoTranscodingSettings videoSettings = new VideoTranscodingSettings(width, height, offset, 0, false);
-        TranscodingService.Parameters parameters = new TranscodingService.Parameters(mediaFile, videoSettings);
-        parameters.setTranscoding(new Transcoding(null, null, null, null, VIDEO_IMAGE_COMMAND, null, null, false));
-        return transcodingService.getTranscodedInputStream(parameters);
+    @Nullable
+    BufferedImage getImageInputStreamForVideo(MediaFile mediaFile, int width, int height, int offset) {
+        return ffmpeg.createImage(mediaFile.getFile(), width, height, offset);
     }
 
     private File getImageCacheDirectory(int size) {
@@ -655,18 +650,16 @@ public class CoverArtController {
 
         @Override
         public BufferedImage createImage(int size) {
-            int height;
-            height = size;
+            int height = size;
             int width = height * 16 / 9;
-            try (InputStream in = getImageInputStreamForVideo(mediaFile, width, height, offset)) {
-                BufferedImage result = ImageIO.read(in);
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to process cover art for " + mediaFile + ": {}", result);
-                }
-            } catch (IOException e) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to process cover art for " + mediaFile + ": ", e);
-                }
+
+            BufferedImage result = getImageInputStreamForVideo(mediaFile, width, height, offset);
+            if (result != null) {
+                return result;
+            }
+
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Unable to create video thumbnails : " + mediaFile);
             }
             return createAutoCover(width, height);
         }
