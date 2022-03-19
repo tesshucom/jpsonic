@@ -256,7 +256,7 @@ public class UPnPService {
         receiverService.setManager(new DefaultServiceManager<>(receiverService, MSMediaReceiverRegistrarService.class));
 
         Icon icon = null;
-        try (InputStream in = getClass().getResourceAsStream("logo-512.png")) {
+        try (InputStream in = UPnPService.class.getResourceAsStream("logo-512.png")) {
             icon = new Icon("image/png", 512, 512, 32, "logo-512", in);
         } catch (IOException e) {
             throw new ExecutionException("Icon cannot be generated", e);

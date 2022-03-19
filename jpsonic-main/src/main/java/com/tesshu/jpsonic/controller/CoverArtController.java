@@ -241,7 +241,7 @@ public class CoverArtController {
         if (response.getContentType() == null) {
             response.setContentType(StringUtil.getMimeType("jpeg"));
         }
-        try (InputStream in = getClass().getResourceAsStream("default_cover.jpg")) {
+        try (InputStream in = CoverArtController.class.getResourceAsStream("default_cover.jpg")) {
             BufferedImage image = ImageIO.read(in);
             if (size != null) {
                 image = scale(image, size, size);
