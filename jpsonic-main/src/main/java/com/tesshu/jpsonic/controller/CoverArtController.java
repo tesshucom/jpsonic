@@ -46,6 +46,7 @@ import java.util.concurrent.Semaphore;
 
 import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -241,12 +242,16 @@ public class CoverArtController {
         if (response.getContentType() == null) {
             response.setContentType(StringUtil.getMimeType("jpeg"));
         }
-        try (InputStream in = CoverArtController.class.getResourceAsStream("default_cover.jpg")) {
+        try (InputStream in = CoverArtController.class.getResourceAsStream("default_cover.jpg");
+                ServletOutputStream sos = response.getOutputStream()) {
+            if (!sos.isReady()) {
+                return;
+            }
             BufferedImage image = ImageIO.read(in);
             if (size != null) {
                 image = scale(image, size, size);
             }
-            ImageIO.write(image, "jpeg", response.getOutputStream());
+            ImageIO.write(image, "jpeg", sos);
         } catch (IOException e) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Error reading default_cover.jpg", e);
