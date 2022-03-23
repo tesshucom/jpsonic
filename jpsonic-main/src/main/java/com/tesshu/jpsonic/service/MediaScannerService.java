@@ -49,6 +49,7 @@ import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import net.sf.ehcache.Ehcache;
 import org.apache.commons.lang3.time.DateUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.DependsOn;
@@ -329,8 +330,8 @@ public class MediaScannerService {
         }
     }
 
-    private void updateAlbum(MediaFile file, MusicFolder musicFolder, Date lastScanned,
-            Map<String, Integer> albumCount) {
+    void updateAlbum(@NonNull MediaFile file, @NonNull MusicFolder musicFolder, @NonNull Date lastScanned,
+            @NonNull Map<String, Integer> albumCount) {
 
         if (isNotAlbumUpdatable(file)) {
             return;
@@ -426,7 +427,7 @@ public class MediaScannerService {
         return album;
     }
 
-    private void updateArtist(MediaFile file, MusicFolder musicFolder, Date lastScanned,
+    void updateArtist(MediaFile file, MusicFolder musicFolder, Date lastScanned,
             Map<String, Integer> albumCount) {
         if (file.getAlbumArtist() == null || !file.isAudio()) {
             return;
