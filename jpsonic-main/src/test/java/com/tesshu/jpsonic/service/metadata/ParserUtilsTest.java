@@ -23,7 +23,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 import java.lang.annotation.Documented;
@@ -70,15 +69,16 @@ class ParserUtilsTest {
                     }
 
                     @interface NotNull {
-                    }
 
-                    @interface IsWavAndNotExistingId3Tag {
-                    }
+                        @interface IsWavAndNotExistingId3Tag {
+                        }
 
-                    @interface IsWavAndExistingId3Tag {
-                    }
+                        @interface IsWavAndExistingId3Tag {
+                        }
 
-                    @interface IsNotWav {
+                        @interface IsNotWav {
+                        }
+
                     }
 
                     @interface APIC {
@@ -87,58 +87,69 @@ class ParserUtilsTest {
 
                         @interface Exist {
                         }
+
+                        @interface Binary {
+                            @interface NotExist {
+                            }
+
+                            @interface Exist {
+                            }
+                        }
                     }
                 }
             }
         }
 
         @interface Results {
-            @interface Null {
+            @interface Empty {
             }
 
-            @interface NotNull {
+            @interface NotEmpty {
             }
         }
     }
 
     @Test
-    void isArtworkApplicableTest() throws URISyntaxException {
+    void isEmbeddedArtworkApplicableTest() throws URISyntaxException {
 
-        assertFalse(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata")));
+        assertFalse(ParserUtils.isEmbeddedArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata")));
 
         // (Data formats for which no test resources currently exist are omitted)
-        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test.ogg")));
+        assertTrue(ParserUtils.isEmbeddedArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test.ogg")));
         // oga
-        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test.flac")));
-        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/01.mp3")));
-        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test.m4a")));
+        assertTrue(ParserUtils.isEmbeddedArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test.flac")));
+        assertTrue(ParserUtils.isEmbeddedArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/01.mp3")));
+        assertTrue(ParserUtils.isEmbeddedArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test.m4a")));
         // m4b
-        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test123.wav")));
-        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test1.wma")));
-        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test138.aiff")));
+        assertTrue(
+                ParserUtils.isEmbeddedArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test123.wav")));
+        assertTrue(ParserUtils.isEmbeddedArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test1.wma")));
+        assertTrue(
+                ParserUtils.isEmbeddedArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test138.aiff")));
         // aifc
         // aiff
-        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test122.dsf")));
+        assertTrue(
+                ParserUtils.isEmbeddedArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test122.dsf")));
 
-        assertFalse(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/dummy/empty.opus")));
+        assertFalse(ParserUtils.isEmbeddedArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/dummy/empty.opus")));
     }
 
     @Nested
     class GetArtworkTest {
 
         @GetArtworkDecision.Conditions.File.IsDir
-        @GetArtworkDecision.Results.Null
+        @GetArtworkDecision.Results.Empty
         @Test
-        void testc01() throws URISyntaxException {
+        void c01() throws URISyntaxException {
             Optional<Artwork> artwork = ParserUtils.getEmbeddedArtwork(createFile("/MEDIAS/Metadata/tagger3/testdata"));
             assertTrue(artwork.isEmpty());
         }
 
         @GetArtworkDecision.Conditions.File.IsFile
         @GetArtworkDecision.Conditions.File.IsNotApplicable
-        @GetArtworkDecision.Results.Null
+        @GetArtworkDecision.Results.Empty
         @Test
-        void testc02() throws URISyntaxException {
+        void c02() throws URISyntaxException {
             Optional<Artwork> artwork = ParserUtils
                     .getEmbeddedArtwork(createFile("/MEDIAS/Metadata/tagger3/testdata/test.stem.mp4"));
             assertTrue(artwork.isEmpty());
@@ -147,9 +158,9 @@ class ParserUtilsTest {
         @GetArtworkDecision.Conditions.File.IsFile
         @GetArtworkDecision.Conditions.File.IsApplicable
         @GetArtworkDecision.Conditions.AudioFile.NotReadable
-        @GetArtworkDecision.Results.Null
+        @GetArtworkDecision.Results.Empty
         @Test
-        void testc03() throws URISyntaxException {
+        void c03() throws URISyntaxException {
             Optional<Artwork> artwork = ParserUtils
                     .getEmbeddedArtwork(createFile("/MEDIAS/Metadata/tagger3/testdata/testV25.wav"));
             assertTrue(artwork.isEmpty());
@@ -159,9 +170,9 @@ class ParserUtilsTest {
         @GetArtworkDecision.Conditions.File.IsApplicable
         @GetArtworkDecision.Conditions.AudioFile.Readable
         @GetArtworkDecision.Conditions.AudioFile.Tag.Null
-        @GetArtworkDecision.Results.Null
+        @GetArtworkDecision.Results.Empty
         @Test
-        void testc04() throws URISyntaxException {
+        void c04() throws URISyntaxException {
             Optional<Artwork> artwork = ParserUtils
                     .getEmbeddedArtwork(createFile("/MEDIAS/Metadata/tagger3/testdata/01.mp3"));
             assertTrue(artwork.isEmpty());
@@ -170,11 +181,10 @@ class ParserUtilsTest {
         @GetArtworkDecision.Conditions.File.IsFile
         @GetArtworkDecision.Conditions.File.IsApplicable
         @GetArtworkDecision.Conditions.AudioFile.Readable
-        @GetArtworkDecision.Conditions.AudioFile.Tag.NotNull
-        @GetArtworkDecision.Conditions.AudioFile.Tag.IsWavAndNotExistingId3Tag
-        @GetArtworkDecision.Results.Null
+        @GetArtworkDecision.Conditions.AudioFile.Tag.NotNull.IsWavAndNotExistingId3Tag
+        @GetArtworkDecision.Results.Empty
         @Test
-        void testc05() throws URISyntaxException {
+        void c05() throws URISyntaxException {
             Optional<Artwork> artwork = ParserUtils
                     .getEmbeddedArtwork(createFile("/MEDIAS/Metadata/tagger3/tagged/mc4pc.wav"));
             assertTrue(artwork.isEmpty());
@@ -183,12 +193,11 @@ class ParserUtilsTest {
         @GetArtworkDecision.Conditions.File.IsFile
         @GetArtworkDecision.Conditions.File.IsApplicable
         @GetArtworkDecision.Conditions.AudioFile.Readable
-        @GetArtworkDecision.Conditions.AudioFile.Tag.NotNull
-        @GetArtworkDecision.Conditions.AudioFile.Tag.IsWavAndExistingId3Tag
+        @GetArtworkDecision.Conditions.AudioFile.Tag.NotNull.IsWavAndExistingId3Tag
         @GetArtworkDecision.Conditions.AudioFile.Tag.APIC.NotExist
-        @GetArtworkDecision.Results.Null
+        @GetArtworkDecision.Results.Empty
         @Test
-        void testc06() throws URISyntaxException {
+        void c06() throws URISyntaxException {
             Optional<Artwork> artwork = ParserUtils
                     .getEmbeddedArtwork(createFile("/MEDIAS/Metadata/tagger3/tagged/test.wav"));
             assertTrue(artwork.isEmpty());
@@ -197,12 +206,12 @@ class ParserUtilsTest {
         @GetArtworkDecision.Conditions.File.IsFile
         @GetArtworkDecision.Conditions.File.IsApplicable
         @GetArtworkDecision.Conditions.AudioFile.Readable
-        @GetArtworkDecision.Conditions.AudioFile.Tag.NotNull
-        @GetArtworkDecision.Conditions.AudioFile.Tag.IsWavAndExistingId3Tag
+        @GetArtworkDecision.Conditions.AudioFile.Tag.NotNull.IsWavAndExistingId3Tag
         @GetArtworkDecision.Conditions.AudioFile.Tag.APIC.Exist
-        @GetArtworkDecision.Results.NotNull
+        @GetArtworkDecision.Conditions.AudioFile.Tag.APIC.Binary.Exist
+        @GetArtworkDecision.Results.NotEmpty
         @Test
-        void testc07() throws URISyntaxException {
+        void c07() throws URISyntaxException {
             Optional<Artwork> artwork = ParserUtils
                     .getEmbeddedArtwork(createFile("/MEDIAS/Metadata/tagger3/tagged/test-with-coverart.wav"));
             assertFalse(artwork.isEmpty());
@@ -211,12 +220,11 @@ class ParserUtilsTest {
         @GetArtworkDecision.Conditions.File.IsFile
         @GetArtworkDecision.Conditions.File.IsApplicable
         @GetArtworkDecision.Conditions.AudioFile.Readable
-        @GetArtworkDecision.Conditions.AudioFile.Tag.NotNull
-        @GetArtworkDecision.Conditions.AudioFile.Tag.IsNotWav
+        @GetArtworkDecision.Conditions.AudioFile.Tag.NotNull.IsNotWav
         @GetArtworkDecision.Conditions.AudioFile.Tag.APIC.NotExist
-        @GetArtworkDecision.Results.Null
+        @GetArtworkDecision.Results.Empty
         @Test
-        void testc08() throws URISyntaxException {
+        void c08() throws URISyntaxException {
             Optional<Artwork> artwork = ParserUtils
                     .getEmbeddedArtwork(createFile("/MEDIAS/Metadata/tagger3/tagged/01.mp3"));
             assertTrue(artwork.isEmpty());
@@ -225,15 +233,29 @@ class ParserUtilsTest {
         @GetArtworkDecision.Conditions.File.IsFile
         @GetArtworkDecision.Conditions.File.IsApplicable
         @GetArtworkDecision.Conditions.AudioFile.Readable
-        @GetArtworkDecision.Conditions.AudioFile.Tag.NotNull
-        @GetArtworkDecision.Conditions.AudioFile.Tag.IsNotWav
+        @GetArtworkDecision.Conditions.AudioFile.Tag.NotNull.IsNotWav
         @GetArtworkDecision.Conditions.AudioFile.Tag.APIC.Exist
-        @GetArtworkDecision.Results.NotNull
+        @GetArtworkDecision.Conditions.AudioFile.Tag.APIC.Binary.NotExist
+        @GetArtworkDecision.Results.Empty
         @Test
-        void testc09() throws URISyntaxException {
+        void c09() throws URISyntaxException {
             Optional<Artwork> artwork = ParserUtils
-                    .getEmbeddedArtwork(createFile("/MEDIAS/Metadata/tagger3/testdata/test122.dsf"));
-            assertNotNull(artwork);
+                    .getEmbeddedArtwork(createFile("/MEDIAS/Metadata/tagger3/tagged/test_rm_img.flac"));
+            assertTrue(artwork.isEmpty());
+        }
+
+        @GetArtworkDecision.Conditions.File.IsFile
+        @GetArtworkDecision.Conditions.File.IsApplicable
+        @GetArtworkDecision.Conditions.AudioFile.Readable
+        @GetArtworkDecision.Conditions.AudioFile.Tag.NotNull.IsNotWav
+        @GetArtworkDecision.Conditions.AudioFile.Tag.APIC.Exist
+        @GetArtworkDecision.Conditions.AudioFile.Tag.APIC.Binary.Exist
+        @GetArtworkDecision.Results.NotEmpty
+        @Test
+        void c10() throws URISyntaxException {
+            Optional<Artwork> artwork = ParserUtils
+                    .getEmbeddedArtwork(createFile("/MEDIAS/Metadata/tagger3/tagged/test.flac"));
+            assertFalse(artwork.isEmpty());
         }
     }
 
