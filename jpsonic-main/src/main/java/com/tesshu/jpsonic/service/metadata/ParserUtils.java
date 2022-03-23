@@ -221,6 +221,13 @@ public final class ParserUtils {
             return Optional.empty();
         }
 
-        return Optional.ofNullable(tag.getFirstArtwork());
+        Artwork artwork = tag.getFirstArtwork();
+        if (isEmpty(artwork)) {
+            return Optional.empty();
+        } else if (isEmpty(artwork.getBinaryData())) {
+            return Optional.empty();
+        }
+
+        return Optional.of(artwork);
     }
 }
