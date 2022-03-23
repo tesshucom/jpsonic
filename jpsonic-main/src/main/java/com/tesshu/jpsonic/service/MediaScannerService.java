@@ -21,6 +21,7 @@
 
 package com.tesshu.jpsonic.service;
 
+import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.io.File;
@@ -351,29 +352,21 @@ public class MediaScannerService {
         }
 
         Album album = getMergedAlbum(file, artist, artistReading, artistSort);
-
         boolean firstEncounter = !lastScanned.equals(album.getLastScanned());
         if (firstEncounter) {
-            Integer n = albumCount.get(artist);
-            albumCount.put(artist, n == null ? 1 : n + 1);
+            albumCount.put(artist, (int) defaultIfNull(albumCount.get(artist), 0) + 1);
             mergeOnFirstEncount(album, file, musicFolder);
         }
-
-        if (file.getDurationSeconds() != null) {
-            album.setDurationSeconds(album.getDurationSeconds() + file.getDurationSeconds());
-        }
-        if (file.isAudio()) {
-            album.setSongCount(album.getSongCount() + 1);
-        }
+        album.setDurationSeconds(album.getDurationSeconds() + (int) defaultIfNull(file.getDurationSeconds(), 0));
+        album.setSongCount(album.getSongCount() + 1);
         album.setLastScanned(lastScanned);
         album.setPresent(true);
-
         albumDao.createOrUpdateAlbum(album);
+
         if (firstEncounter) {
             indexManager.index(album);
         }
 
-        // Update the file's album artist, if necessary.
         if (!Objects.equals(album.getArtist(), file.getAlbumArtist())) {
             file.setAlbumArtist(album.getArtist());
             file.setAlbumArtistReading(album.getArtistReading());
@@ -396,12 +389,8 @@ public class MediaScannerService {
     }
 
     private boolean isNotAlbumUpdatable(MediaFile file) {
-        boolean isNotAlbumUpdatable = false;
-        if (file.getAlbumName() == null || file.getParentPath() == null || !file.isAudio()
-                || file.getArtist() == null && file.getAlbumArtist() == null) {
-            isNotAlbumUpdatable = true;
-        }
-        return isNotAlbumUpdatable;
+        return file.getAlbumName() == null || file.getParentPath() == null || !file.isAudio()
+                || file.getArtist() == null && file.getAlbumArtist() == null;
     }
 
     private Album getMergedAlbum(MediaFile file, String artist, String artistReading, String artistSort) {
@@ -427,8 +416,7 @@ public class MediaScannerService {
         return album;
     }
 
-    void updateArtist(MediaFile file, MusicFolder musicFolder, Date lastScanned,
-            Map<String, Integer> albumCount) {
+    void updateArtist(MediaFile file, MusicFolder musicFolder, Date lastScanned, Map<String, Integer> albumCount) {
         if (file.getAlbumArtist() == null || !file.isAudio()) {
             return;
         }
@@ -446,14 +434,9 @@ public class MediaScannerService {
                 artist.setCoverArtPath(parent.getCoverArtPath());
             }
         }
-        boolean firstEncounter = !lastScanned.equals(artist.getLastScanned());
-
-        if (firstEncounter) {
-            artist.setFolderId(musicFolder.getId());
-        }
-        Integer n = albumCount.get(artist.getName());
-        artist.setAlbumCount(n == null ? 0 : n);
-
+        final boolean firstEncounter = !lastScanned.equals(artist.getLastScanned());
+        artist.setFolderId(musicFolder.getId());
+        artist.setAlbumCount((int) defaultIfNull(albumCount.get(artist.getName()), 0));
         artist.setLastScanned(lastScanned);
         artist.setPresent(true);
         artistDao.createOrUpdateArtist(artist);
