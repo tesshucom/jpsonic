@@ -110,25 +110,28 @@ class ParserUtilsTest {
     }
 
     @Test
-    void isArtworkApplicableTest() throws URISyntaxException {
+    void isEmbeddedArtworkApplicableTest() throws URISyntaxException {
 
-        assertFalse(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata")));
+        assertFalse(ParserUtils.isEmbeddedArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata")));
 
         // (Data formats for which no test resources currently exist are omitted)
-        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test.ogg")));
+        assertTrue(ParserUtils.isEmbeddedArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test.ogg")));
         // oga
-        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test.flac")));
-        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/01.mp3")));
-        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test.m4a")));
+        assertTrue(ParserUtils.isEmbeddedArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test.flac")));
+        assertTrue(ParserUtils.isEmbeddedArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/01.mp3")));
+        assertTrue(ParserUtils.isEmbeddedArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test.m4a")));
         // m4b
-        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test123.wav")));
-        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test1.wma")));
-        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test138.aiff")));
+        assertTrue(
+                ParserUtils.isEmbeddedArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test123.wav")));
+        assertTrue(ParserUtils.isEmbeddedArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test1.wma")));
+        assertTrue(
+                ParserUtils.isEmbeddedArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test138.aiff")));
         // aifc
         // aiff
-        assertTrue(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test122.dsf")));
+        assertTrue(
+                ParserUtils.isEmbeddedArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/testdata/test122.dsf")));
 
-        assertFalse(ParserUtils.isArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/dummy/empty.opus")));
+        assertFalse(ParserUtils.isEmbeddedArtworkApplicable(createFile("/MEDIAS/Metadata/tagger3/dummy/empty.opus")));
     }
 
     @Nested

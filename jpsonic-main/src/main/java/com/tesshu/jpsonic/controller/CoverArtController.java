@@ -316,7 +316,7 @@ public class CoverArtController {
     @NonNull
     Pair<InputStream, String> getImageInputStreamWithType(File file) throws ExecutionException {
 
-        if (!ParserUtils.isArtworkApplicable(file)) {
+        if (!ParserUtils.isEmbeddedArtworkApplicable(file)) {
             InputStream is;
             try {
                 is = Files.newInputStream(Paths.get(file.toURI()));

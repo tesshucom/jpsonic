@@ -185,7 +185,7 @@ public final class ParserUtils {
      * Returns whether the embedded artwork is in an available format. There is no guarantee that the artwork is
      * actually embedded.
      */
-    public static boolean isArtworkApplicable(File file) {
+    public static boolean isEmbeddedArtworkApplicable(File file) {
         if (!file.isFile()) {
             return false;
         }
@@ -195,7 +195,7 @@ public final class ParserUtils {
     @SuppressWarnings("PMD.GuardLogStatement")
     public static Optional<Artwork> getEmbeddedArtwork(File file) {
 
-        if (!isArtworkApplicable(file)) {
+        if (!isEmbeddedArtworkApplicable(file)) {
             return Optional.empty();
         }
 
