@@ -64,6 +64,7 @@ import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.metadata.FFmpeg;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
+import com.tesshu.jpsonic.spring.LoggingExceptionResolver;
 import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -248,7 +249,9 @@ public class CoverArtController {
             }
             ImageIO.write(image, "jpeg", response.getOutputStream());
         } catch (IOException e) {
-            if (LOG.isErrorEnabled()) {
+            if (LoggingExceptionResolver.isSuppressedException(e) && LOG.isInfoEnabled()) {
+                LOG.info("Connection was closed by the client while writing coverart");
+            } else {
                 LOG.error("Error reading default_cover.jpg", e);
             }
         }
