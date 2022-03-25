@@ -202,7 +202,7 @@ class MediaFileServiceTest {
             mediaFile.setPath(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified()));
             assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
-            Mockito.verify(mediaFileDao, Mockito.atLeastOnce()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
         @CheckLastModifiedDecision.Conditions.UseFastCache.False
@@ -222,7 +222,7 @@ class MediaFileServiceTest {
             mediaFile.setPath(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified()));
             assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
-            Mockito.verify(mediaFileDao, Mockito.atLeastOnce()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
         @CheckLastModifiedDecision.Conditions.UseFastCache.False
@@ -264,7 +264,7 @@ class MediaFileServiceTest {
             mediaFile.setChanged(new Date(dir.lastModified() - 1_000L));
             assertTrue(mediaFile.getChanged().getTime() < FileUtil.lastModified(mediaFile.getFile()));
             assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
-            Mockito.verify(mediaFileDao, Mockito.atLeastOnce()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
         @CheckLastModifiedDecision.Conditions.UseFastCache.False
@@ -286,7 +286,7 @@ class MediaFileServiceTest {
             mediaFile.setChanged(new Date(dir.lastModified()));
             mediaFile.setLastScanned(MediaFileDao.ZERO_DATE);
             assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
-            Mockito.verify(mediaFileDao, Mockito.atLeastOnce()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
     }
 
