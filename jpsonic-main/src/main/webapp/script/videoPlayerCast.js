@@ -1,6 +1,21 @@
 (function () {
     'use strict';
 
+    const escape = (str) => {
+    if (!str) return;
+        return str.replace(/[<>&"'`]/g, (match) => {
+            const escape = {
+                '<': '&lt;',
+                '>': '&gt;',
+                '&': '&amp;',
+                '"': '&quot;',
+                "'": '&#39;',
+                '`': '&#x60;'
+            };
+            return escape[match];
+        });
+    };
+
     /**
      * Constants of states for Chromecast device
      **/
@@ -446,7 +461,7 @@
             this.currentMediaOffset = offset;
             this.currentMediaTime = 0;
 
-            var url = model.streamUrl + "&maxBitRate=" + this.getBitRate() + "&timeOffset=" + offset;
+            var url = model.streamUrl + "&maxBitRate=" + escape(this.getBitRate()) + "&timeOffset=" + offset;
             console.log("playing local: " + url);
 
             this.localPlayer.src = url;
