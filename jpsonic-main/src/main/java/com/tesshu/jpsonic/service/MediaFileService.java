@@ -22,8 +22,6 @@
 package com.tesshu.jpsonic.service;
 
 import static com.tesshu.jpsonic.dao.MediaFileDao.ZERO_DATE;
-import static com.tesshu.jpsonic.domain.FileModifiedCheckScheme.LAST_MODIFIED;
-import static com.tesshu.jpsonic.domain.FileModifiedCheckScheme.LAST_SCANNED;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -158,6 +156,16 @@ public class MediaFileService {
             return null;
         }
         return getMediaFile(mediaFile.getParentPath());
+    }
+
+    private boolean isSchemeLastModified() {
+        return FileModifiedCheckScheme.LAST_MODIFIED == FileModifiedCheckScheme
+                .valueOf(settingsService.getFileModifiedCheckSchemeName());
+    }
+
+    private boolean isSchemeLastScaned() {
+        return FileModifiedCheckScheme.LAST_SCANNED == FileModifiedCheckScheme
+                .valueOf(settingsService.getFileModifiedCheckSchemeName());
     }
 
     MediaFile checkLastModified(final MediaFile mediaFile, boolean useFastCache) {
@@ -308,19 +316,11 @@ public class MediaFileService {
 
     private void updateChildren(MediaFile parent) {
 
-        FileModifiedCheckScheme checkScheme = FileModifiedCheckScheme
-                .valueOf(settingsService.getFileModifiedCheckSchemeName());
-
-        /*
-         * LAST_MODIFIED : Check timestamps. LAST_SCANNED : Albums other than those specified by the user or newly added
-         * are considered unchanged and skipped. Others (DIRECTORY) do not access the update date and are all subject to
-         * update check.
-         */
-        if (LAST_MODIFIED == checkScheme
+        if (isSchemeLastModified() //
                 && parent.getChildrenLastUpdated().getTime() >= parent.getChanged().getTime()) {
             return;
-        } else if (LAST_SCANNED == checkScheme && parent.getMediaType() == MediaType.ALBUM
-                && !ZERO_DATE.equals(parent.getLastScanned())) {
+        } else if (isSchemeLastScaned() //
+                && parent.getMediaType() == MediaType.ALBUM && !ZERO_DATE.equals(parent.getLastScanned())) {
             return;
         }
 
