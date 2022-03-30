@@ -21,6 +21,10 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.dao.MediaFileDao.ZERO_DATE;
+import static com.tesshu.jpsonic.domain.FileModifiedCheckScheme.LAST_MODIFIED;
+import static com.tesshu.jpsonic.domain.FileModifiedCheckScheme.LAST_SCANNED;
+
 import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -168,12 +172,12 @@ public class MediaFileService {
             case LAST_MODIFIED:
                 if (!settingsService.isIgnoreFileTimestamps()
                         && mediaFile.getChanged().getTime() >= FileUtil.lastModified(mediaFile.getFile())
-                        && !MediaFileDao.ZERO_DATE.equals(mediaFile.getLastScanned())) {
+                        && !ZERO_DATE.equals(mediaFile.getLastScanned())) {
                     return mediaFile;
                 }
                 break;
             case LAST_SCANNED:
-                if (!MediaFileDao.ZERO_DATE.equals(mediaFile.getLastScanned())) {
+                if (!ZERO_DATE.equals(mediaFile.getLastScanned())) {
                     return mediaFile;
                 }
                 break;
@@ -312,11 +316,11 @@ public class MediaFileService {
          * are considered unchanged and skipped. Others (DIRECTORY) do not access the update date and are all subject to
          * update check.
          */
-        if (FileModifiedCheckScheme.LAST_MODIFIED == checkScheme
+        if (LAST_MODIFIED == checkScheme
                 && parent.getChildrenLastUpdated().getTime() >= parent.getChanged().getTime()) {
             return;
-        } else if (FileModifiedCheckScheme.LAST_SCANNED == checkScheme && parent.getMediaType() == MediaType.ALBUM
-                && !MediaFileDao.ZERO_DATE.equals(parent.getLastScanned())) {
+        } else if (LAST_SCANNED == checkScheme && parent.getMediaType() == MediaType.ALBUM
+                && !ZERO_DATE.equals(parent.getLastScanned())) {
             return;
         }
 
@@ -417,11 +421,11 @@ public class MediaFileService {
         mediaFile.setFolder(securityService.getRootFolderForFile(file));
         mediaFile.setParentPath(file.getParent());
         mediaFile.setChanged(lastModified);
-        mediaFile.setLastScanned(existingFile == null ? MediaFileDao.ZERO_DATE : existingFile.getLastScanned());
+        mediaFile.setLastScanned(existingFile == null ? ZERO_DATE : existingFile.getLastScanned());
         mediaFile.setPlayCount(existingFile == null ? 0 : existingFile.getPlayCount());
         mediaFile.setLastPlayed(existingFile == null ? null : existingFile.getLastPlayed());
         mediaFile.setComment(existingFile == null ? null : existingFile.getComment());
-        mediaFile.setChildrenLastUpdated(new Date(0));
+        mediaFile.setChildrenLastUpdated(ZERO_DATE);
         mediaFile.setCreated(lastModified);
         mediaFile.setMediaType(MediaFile.MediaType.DIRECTORY);
         mediaFile.setPresent(true);
