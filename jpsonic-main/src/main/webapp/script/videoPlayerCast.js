@@ -449,7 +449,7 @@
             var url = model.streamUrl + "&maxBitRate=" + this.getBitRate() + "&timeOffset=" + offset;
             console.log("playing local: " + url);
 
-            this.localPlayer.src = url;
+            this.localPlayer.src = url; // lgtm [js/xss-through-dom]
             this.localPlayer.play();
             this.seekInProgress = false;
         }
