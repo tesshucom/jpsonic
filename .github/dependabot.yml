@@ -70,15 +70,6 @@ updates:
   - dependency-name: org.jvnet.staxex:stax-ex
     versions:
     - ">= 2.0.a, < 2.1"
-  - dependency-name: org.liquibase:liquibase-core
-    versions:
-    - ">= 4.1.a, < 4.2"
-  - dependency-name: org.liquibase:liquibase-core
-    versions:
-    - ">= 4.2.a, < 4.3"
-  - dependency-name: org.liquibase:liquibase-core
-    versions:
-    - ">= 4.a, < 5"
   - dependency-name: org.springframework.boot:spring-boot-dependencies
     versions:
     - "> 2.3.5.RELEASE, < 2.4"
