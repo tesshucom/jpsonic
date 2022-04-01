@@ -37,7 +37,6 @@ import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.util.FileUtil;
-import net.sf.ehcache.Ehcache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -57,7 +56,7 @@ class MediaFileServiceTest {
         securityService = mock(SecurityService.class);
         mediaFileDao = mock(MediaFileDao.class);
         mediaFileService = new MediaFileService(settingsService, mock(MusicFolderService.class), securityService,
-                mock(Ehcache.class), mediaFileDao, mock(AlbumDao.class), mock(MetaDataParserFactory.class),
+                mock(MediaFileCache.class), mediaFileDao, mock(AlbumDao.class), mock(MetaDataParserFactory.class),
                 mock(MediaFileServiceUtils.class));
         dir = new File(MediaFileServiceTest.class.getResource("/MEDIAS/Music").toURI());
     }

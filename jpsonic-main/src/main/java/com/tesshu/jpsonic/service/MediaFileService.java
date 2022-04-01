@@ -48,8 +48,6 @@ import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
 import com.tesshu.jpsonic.util.FileUtil;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -70,27 +68,24 @@ public class MediaFileService {
     private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
-    private final Ehcache mediaFileMemoryCache;
+    private final MediaFileCache mediaFileCache;
     private final MediaFileDao mediaFileDao;
     private final AlbumDao albumDao;
     private final MetaDataParserFactory metaDataParserFactory;
     private final MediaFileServiceUtils utils;
 
-    private boolean memoryCacheEnabled;
-
     public MediaFileService(SettingsService settingsService, MusicFolderService musicFolderService,
-            SecurityService securityService, Ehcache mediaFileMemoryCache, MediaFileDao mediaFileDao, AlbumDao albumDao,
-            MetaDataParserFactory metaDataParserFactory, MediaFileServiceUtils utils) {
+            SecurityService securityService, MediaFileCache mediaFileCache, MediaFileDao mediaFileDao,
+            AlbumDao albumDao, MetaDataParserFactory metaDataParserFactory, MediaFileServiceUtils utils) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
-        this.mediaFileMemoryCache = mediaFileMemoryCache;
+        this.mediaFileCache = mediaFileCache;
         this.mediaFileDao = mediaFileDao;
         this.albumDao = albumDao;
         this.metaDataParserFactory = metaDataParserFactory;
         this.utils = utils;
-        memoryCacheEnabled = true;
     }
 
     public @Nullable MediaFile getMediaFile(File file) {
@@ -100,7 +95,7 @@ public class MediaFileService {
     public @Nullable MediaFile getMediaFile(File file, boolean useFastCache) {
 
         // Look in fast memory cache first.
-        MediaFile result = getFromMemoryCache(file);
+        MediaFile result = mediaFileCache.get(file);
         if (result != null) {
             return result;
         }
@@ -113,7 +108,7 @@ public class MediaFileService {
         result = mediaFileDao.getMediaFile(file.getPath());
         if (result != null) {
             result = checkLastModified(result, useFastCache);
-            putInMemoryCache(file, result);
+            mediaFileCache.put(file, result);
             return result;
         }
 
@@ -124,7 +119,7 @@ public class MediaFileService {
         result = createMediaFile(file);
 
         // Put in cache and database.
-        putInMemoryCache(file, result);
+        mediaFileCache.put(file, result);
         mediaFileDao.createOrUpdateMediaFile(result);
 
         return result;
@@ -536,28 +531,7 @@ public class MediaFileService {
     public void refreshMediaFile(final MediaFile mediaFile) {
         MediaFile mf = createMediaFile(mediaFile.getFile());
         mediaFileDao.createOrUpdateMediaFile(mf);
-        mediaFileMemoryCache.remove(mf.getFile());
-    }
-
-    private void putInMemoryCache(File file, MediaFile mediaFile) {
-        if (memoryCacheEnabled) {
-            mediaFileMemoryCache.put(new Element(file, mediaFile));
-        }
-    }
-
-    private MediaFile getFromMemoryCache(File file) {
-        if (!memoryCacheEnabled) {
-            return null;
-        }
-        Element element = mediaFileMemoryCache.get(file);
-        return element == null ? null : (MediaFile) element.getObjectValue();
-    }
-
-    public void setMemoryCacheEnabled(boolean memoryCacheEnabled) {
-        this.memoryCacheEnabled = memoryCacheEnabled;
-        if (!memoryCacheEnabled) {
-            mediaFileMemoryCache.removeAll();
-        }
+        mediaFileCache.remove(mf.getFile());
     }
 
     public File getCoverArt(MediaFile mediaFile) {
@@ -646,10 +620,6 @@ public class MediaFileService {
 
     public int getStarredAlbumCount(String username, List<MusicFolder> musicFolders) {
         return mediaFileDao.getStarredAlbumCount(username, musicFolders);
-    }
-
-    public void clearMemoryCache() {
-        mediaFileMemoryCache.removeAll();
     }
 
     public void resetLastScanned(MediaFile album) {

@@ -75,6 +75,7 @@ public class MediaScannerService {
     private final MusicFolderService musicFolderService;
     private final IndexManager indexManager;
     private final PlaylistService playlistService;
+    private final MediaFileCache mediaFileCache;
     private final MediaFileService mediaFileService;
     private final MediaFileDao mediaFileDao;
     private final ArtistDao artistDao;
@@ -88,14 +89,15 @@ public class MediaScannerService {
     private AtomicBoolean destroy = new AtomicBoolean();
 
     public MediaScannerService(SettingsService settingsService, MusicFolderService musicFolderService,
-            IndexManager indexManager, PlaylistService playlistService, MediaFileService mediaFileService,
-            MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao, Ehcache indexCache,
-            MediaScannerServiceUtils utils, ThreadPoolTaskExecutor scanExecutor) {
+            IndexManager indexManager, PlaylistService playlistService, MediaFileCache mediaFileCache,
+            MediaFileService mediaFileService, MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao,
+            Ehcache indexCache, MediaScannerServiceUtils utils, ThreadPoolTaskExecutor scanExecutor) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
         this.indexManager = indexManager;
         this.playlistService = playlistService;
+        this.mediaFileCache = mediaFileCache;
         this.mediaFileService = mediaFileService;
         this.mediaFileDao = mediaFileDao;
         this.artistDao = artistDao;
@@ -181,9 +183,9 @@ public class MediaScannerService {
             scanCount.set(0);
             utils.clearOrder();
             indexCache.removeAll();
-            mediaFileService.setMemoryCacheEnabled(false);
+            mediaFileCache.setEnabled(false);
             indexManager.startIndexing();
-            mediaFileService.clearMemoryCache();
+            mediaFileCache.removeAll();
 
             // Recurse through all files on disk.
             for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders()) {
@@ -227,7 +229,7 @@ public class MediaScannerService {
                 LOG.debug("Failed to scan media library.", e);
             }
         } finally {
-            mediaFileService.setMemoryCacheEnabled(true);
+            mediaFileCache.setEnabled(true);
             indexManager.stopIndexing(statistics);
             IS_SCANNING.set(false);
             utils.clearMemoryCache();

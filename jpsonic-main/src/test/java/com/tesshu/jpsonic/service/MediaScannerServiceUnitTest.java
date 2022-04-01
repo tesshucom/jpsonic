@@ -70,8 +70,9 @@ class MediaScannerServiceUnitTest {
         artistDao = mock(ArtistDao.class);
         albumDao = mock(AlbumDao.class);
         mediaScannerService = new MediaScannerService(mock(SettingsService.class), mock(MusicFolderService.class),
-                indexManager, mock(PlaylistService.class), mediaFileService, mediaFileDao, artistDao, albumDao,
-                mock(Ehcache.class), mock(MediaScannerServiceUtils.class), mock(ThreadPoolTaskExecutor.class));
+                indexManager, mock(PlaylistService.class), mock(MediaFileCache.class), mediaFileService, mediaFileDao,
+                artistDao, albumDao, mock(Ehcache.class), mock(MediaScannerServiceUtils.class),
+                mock(ThreadPoolTaskExecutor.class));
     }
 
     @Test
