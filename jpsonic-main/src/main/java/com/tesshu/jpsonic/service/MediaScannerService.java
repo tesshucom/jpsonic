@@ -161,6 +161,8 @@ public class MediaScannerService {
             mediaFileDao.resetLastScanned();
             settingsService.setIgnoreFileTimestampsNext(false);
             settingsService.save();
+        } else if (settingsService.isIgnoreFileTimestamps()) {
+            mediaFileDao.resetLastScanned();
         }
     }
 

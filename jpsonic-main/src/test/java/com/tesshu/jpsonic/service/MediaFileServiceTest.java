@@ -217,7 +217,7 @@ class MediaFileServiceTest {
         @CheckLastModifiedDecision.Conditions.Scheme.LastModified.IgnoreFileTimestamps.True
         @CheckLastModifiedDecision.Conditions.MediaFile.Changed.GtEqLastModified
         @CheckLastModifiedDecision.Conditions.MediaFile.LastScanned.NeZeroDate
-        @CheckLastModifiedDecision.Result.CreateOrUpdate.True
+        @CheckLastModifiedDecision.Result.CreateOrUpdate.False
         @Test
         void c04() throws ExecutionException {
             final boolean useFastCache = false;
@@ -230,15 +230,14 @@ class MediaFileServiceTest {
             assertEquals(mediaFile.getChanged().getTime(), mediaFile.getFile().lastModified());
             assertNotEquals(ZERO_DATE, mediaFile.getLastScanned());
             assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
-            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
-            Mockito.clearInvocations(mediaFileDao);
+            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
 
             mediaFile.setChanged(new Date(dir.lastModified() + 1L));
             assertThat("Changed Gt LastModified", mediaFile.getChanged().getTime(),
                     greaterThan(mediaFile.getFile().lastModified()));
             assertNotEquals(ZERO_DATE, mediaFile.getLastScanned());
             assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
-            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
         @CheckLastModifiedDecision.Conditions.UseFastCache.False
@@ -270,7 +269,7 @@ class MediaFileServiceTest {
         @CheckLastModifiedDecision.Conditions.Scheme.LastModified.IgnoreFileTimestamps.True
         @CheckLastModifiedDecision.Conditions.MediaFile.Changed.LtLastModified
         @CheckLastModifiedDecision.Conditions.MediaFile.LastScanned.NeZeroDate
-        @CheckLastModifiedDecision.Result.CreateOrUpdate.True
+        @CheckLastModifiedDecision.Result.CreateOrUpdate.False
         @Test
         void c06() throws ExecutionException {
             final boolean useFastCache = false;
@@ -284,7 +283,7 @@ class MediaFileServiceTest {
                     lessThan(mediaFile.getFile().lastModified()));
             assertNotEquals(ZERO_DATE, mediaFile.getLastScanned());
             assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
-            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
         @CheckLastModifiedDecision.Conditions.UseFastCache.False
