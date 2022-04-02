@@ -177,6 +177,8 @@ public class MediaFileService {
                         && mediaFile.getChanged().getTime() >= FileUtil.lastModified(mediaFile.getFile())
                         && !ZERO_DATE.equals(mediaFile.getLastScanned())) {
                     return mediaFile;
+                } else if (settingsService.isIgnoreFileTimestamps() && !ZERO_DATE.equals(mediaFile.getLastScanned())) {
+                    return mediaFile;
                 }
                 break;
             case LAST_SCANNED:

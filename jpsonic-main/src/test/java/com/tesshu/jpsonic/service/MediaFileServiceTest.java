@@ -19,8 +19,13 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.dao.MediaFileDao.ZERO_DATE;
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.lessThan;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -42,6 +47,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 class MediaFileServiceTest {
 
     private SettingsService settingsService;
@@ -73,21 +79,27 @@ class MediaFileServiceTest {
                 }
             }
 
-            @interface IgnoreFileTimestamps {
-                @interface True {
+            @interface Scheme {
+                @interface LastModified {
+                    @interface IgnoreFileTimestamps {
+                        @interface True {
+                        }
+
+                        @interface False {
+
+                        }
+                    }
                 }
 
-                @interface False {
+                @interface LastScanned {
 
                 }
+
             }
 
             @interface MediaFile {
                 @interface Version {
-                    @interface GtDaoVersion {
-                    }
-
-                    @interface EqDaoVersion {
+                    @interface GtEqDaoVersion {
                     }
 
                     @interface LtDaoVersion {
@@ -95,10 +107,7 @@ class MediaFileServiceTest {
                 }
 
                 @interface Changed {
-                    @interface GtLastModified {
-                    }
-
-                    @interface EqLastModified {
+                    @interface GtEqLastModified {
                     }
 
                     @interface LtLastModified {
@@ -128,227 +137,359 @@ class MediaFileServiceTest {
 
     }
 
+    @SuppressWarnings("PMD.AvoidDuplicateLiterals")
     @Nested
-    class CheckLastModifiedWithSchemeOfLastModified {
+    class CheckLastModifiedTest {
+
+        private MediaFile createMediaFile(int version) {
+            return new MediaFile() {
+                @Override
+                public int getVersion() {
+                    return version;
+                }
+            };
+        }
 
         @CheckLastModifiedDecision.Conditions.UseFastCache.True
         @CheckLastModifiedDecision.Result.CreateOrUpdate.False
         @Test
         void c01() throws ExecutionException {
+            final boolean useFastCache = true;
             Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
-            MediaFile mediaFile = new MediaFile();
+            MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
             mediaFile.setPath(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified()));
-            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, true));
-            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
-        }
 
-        @CheckLastModifiedDecision.Conditions.UseFastCache.False
-        @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtDaoVersion
-        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.EqLastModified
-        @CheckLastModifiedDecision.Conditions.IgnoreFileTimestamps.False
-        @CheckLastModifiedDecision.Result.CreateOrUpdate.False
-        @Test
-        void c02() throws ExecutionException {
-            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
-            MediaFile mediaFile = new MediaFile() {
-                @Override
-                public int getVersion() {
-                    return MediaFileDao.VERSION + 1;
-                }
-            };
-            mediaFile.setPath(dir.getPath());
-            mediaFile.setChanged(new Date(dir.lastModified()));
-            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
-            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
-        }
-
-        @CheckLastModifiedDecision.Conditions.UseFastCache.False
-        @CheckLastModifiedDecision.Conditions.MediaFile.Version.EqDaoVersion
-        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.EqLastModified
-        @CheckLastModifiedDecision.Conditions.MediaFile.LastScanned.NeZeroDate
-        @CheckLastModifiedDecision.Conditions.IgnoreFileTimestamps.False
-        @CheckLastModifiedDecision.Result.CreateOrUpdate.False
-        @Test
-        void c03() throws ExecutionException {
-            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
-            MediaFile mediaFile = new MediaFile() {
-                @Override
-                public int getVersion() {
-                    return MediaFileDao.VERSION;
-                }
-            };
-            mediaFile.setPath(dir.getPath());
-            mediaFile.setChanged(new Date(dir.lastModified()));
-            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
             Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
         @CheckLastModifiedDecision.Conditions.UseFastCache.False
         @CheckLastModifiedDecision.Conditions.MediaFile.Version.LtDaoVersion
-        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.EqLastModified
-        @CheckLastModifiedDecision.Conditions.IgnoreFileTimestamps.False
         @CheckLastModifiedDecision.Result.CreateOrUpdate.True
         @Test
-        void c04() throws ExecutionException {
+        void c02() throws ExecutionException {
+            final boolean useFastCache = false;
             Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
-            MediaFile mediaFile = new MediaFile() {
-                @Override
-                public int getVersion() {
-                    return MediaFileDao.VERSION - 1;
-                }
-            };
+            MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION - 1);
             mediaFile.setPath(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified()));
-            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
+
+            assertThat("mediaFile#version Lt MediaFileDao.VERSION", mediaFile.getVersion(),
+                    lessThan(MediaFileDao.VERSION));
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
             Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
         @CheckLastModifiedDecision.Conditions.UseFastCache.False
-        @CheckLastModifiedDecision.Conditions.MediaFile.Version.EqDaoVersion
-        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.EqLastModified
-        @CheckLastModifiedDecision.Conditions.IgnoreFileTimestamps.True
+        @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
+        @CheckLastModifiedDecision.Conditions.Scheme.LastModified
+        @CheckLastModifiedDecision.Conditions.Scheme.LastModified.IgnoreFileTimestamps.True
+        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.GtEqLastModified
+        @CheckLastModifiedDecision.Conditions.MediaFile.LastScanned.EqZeroDate
+        @CheckLastModifiedDecision.Result.CreateOrUpdate.True
+        @Test
+        void c03() throws ExecutionException {
+            final boolean useFastCache = false;
+            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
+            MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
+            mediaFile.setPath(dir.getPath());
+            mediaFile.setChanged(new Date(dir.lastModified()));
+            mediaFile.setLastScanned(ZERO_DATE);
+
+            assertEquals(mediaFile.getChanged().getTime(), mediaFile.getFile().lastModified());
+            assertEquals(ZERO_DATE, mediaFile.getLastScanned());
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
+            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.clearInvocations(mediaFileDao);
+
+            mediaFile.setChanged(new Date(dir.lastModified() + 1L));
+            assertThat("Changed Gt LastModified", mediaFile.getChanged().getTime(),
+                    greaterThan(mediaFile.getFile().lastModified()));
+            assertEquals(ZERO_DATE, mediaFile.getLastScanned());
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
+            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+        }
+
+        @CheckLastModifiedDecision.Conditions.UseFastCache.False
+        @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
+        @CheckLastModifiedDecision.Conditions.Scheme.LastModified
+        @CheckLastModifiedDecision.Conditions.Scheme.LastModified.IgnoreFileTimestamps.True
+        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.GtEqLastModified
+        @CheckLastModifiedDecision.Conditions.MediaFile.LastScanned.NeZeroDate
+        @CheckLastModifiedDecision.Result.CreateOrUpdate.False
+        @Test
+        void c04() throws ExecutionException {
+            final boolean useFastCache = false;
+            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
+            MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
+            mediaFile.setPath(dir.getPath());
+            mediaFile.setChanged(new Date(dir.lastModified()));
+            mediaFile.setLastScanned(new Date(mediaFile.getChanged().getTime() + 1));
+
+            assertEquals(mediaFile.getChanged().getTime(), mediaFile.getFile().lastModified());
+            assertNotEquals(ZERO_DATE, mediaFile.getLastScanned());
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
+            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+
+            mediaFile.setChanged(new Date(dir.lastModified() + 1L));
+            assertThat("Changed Gt LastModified", mediaFile.getChanged().getTime(),
+                    greaterThan(mediaFile.getFile().lastModified()));
+            assertNotEquals(ZERO_DATE, mediaFile.getLastScanned());
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
+            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+        }
+
+        @CheckLastModifiedDecision.Conditions.UseFastCache.False
+        @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
+        @CheckLastModifiedDecision.Conditions.Scheme.LastModified
+        @CheckLastModifiedDecision.Conditions.Scheme.LastModified.IgnoreFileTimestamps.True
+        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.LtLastModified
+        @CheckLastModifiedDecision.Conditions.MediaFile.LastScanned.EqZeroDate
         @CheckLastModifiedDecision.Result.CreateOrUpdate.True
         @Test
         void c05() throws ExecutionException {
+            final boolean useFastCache = false;
             Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
-            MediaFile mediaFile = new MediaFile() {
-                @Override
-                public int getVersion() {
-                    return MediaFileDao.VERSION;
-                }
-            };
+            MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
             mediaFile.setPath(dir.getPath());
-            mediaFile.setChanged(new Date(dir.lastModified()));
-            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
+            mediaFile.setChanged(new Date(dir.lastModified() - 1L));
+            mediaFile.setLastScanned(ZERO_DATE);
+
+            assertThat("Changed Lt LastModified", mediaFile.getChanged().getTime(),
+                    lessThan(mediaFile.getFile().lastModified()));
+            assertEquals(ZERO_DATE, mediaFile.getLastScanned());
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
             Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
         @CheckLastModifiedDecision.Conditions.UseFastCache.False
-        @CheckLastModifiedDecision.Conditions.MediaFile.Version.EqDaoVersion
-        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.GtLastModified
-        @CheckLastModifiedDecision.Conditions.IgnoreFileTimestamps.False
+        @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
+        @CheckLastModifiedDecision.Conditions.Scheme.LastModified
+        @CheckLastModifiedDecision.Conditions.Scheme.LastModified.IgnoreFileTimestamps.True
+        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.LtLastModified
+        @CheckLastModifiedDecision.Conditions.MediaFile.LastScanned.NeZeroDate
         @CheckLastModifiedDecision.Result.CreateOrUpdate.False
         @Test
         void c06() throws ExecutionException {
-            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
-            MediaFile mediaFile = new MediaFile() {
-                @Override
-                public int getVersion() {
-                    return MediaFileDao.VERSION;
-                }
-            };
+            final boolean useFastCache = false;
+            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
+            MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
             mediaFile.setPath(dir.getPath());
-            mediaFile.setChanged(new Date(dir.lastModified() + 1_000L));
-            assertTrue(mediaFile.getChanged().getTime() > FileUtil.lastModified(mediaFile.getFile()));
-            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
+            mediaFile.setChanged(new Date(dir.lastModified() - 1L));
+            mediaFile.setLastScanned(mediaFile.getChanged());
+
+            assertThat("Changed Lt LastModified", mediaFile.getChanged().getTime(),
+                    lessThan(mediaFile.getFile().lastModified()));
+            assertNotEquals(ZERO_DATE, mediaFile.getLastScanned());
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
             Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
         @CheckLastModifiedDecision.Conditions.UseFastCache.False
-        @CheckLastModifiedDecision.Conditions.MediaFile.Version.EqDaoVersion
-        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.LtLastModified
-        @CheckLastModifiedDecision.Conditions.IgnoreFileTimestamps.False
+        @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
+        @CheckLastModifiedDecision.Conditions.Scheme.LastModified
+        @CheckLastModifiedDecision.Conditions.Scheme.LastModified.IgnoreFileTimestamps.False
+        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.GtEqLastModified
+        @CheckLastModifiedDecision.Conditions.MediaFile.LastScanned.EqZeroDate
         @CheckLastModifiedDecision.Result.CreateOrUpdate.True
         @Test
         void c07() throws ExecutionException {
-            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
-            MediaFile mediaFile = new MediaFile() {
-                @Override
-                public int getVersion() {
-                    return MediaFileDao.VERSION;
-                }
-            };
+            final boolean useFastCache = false;
+            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
+            MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
             mediaFile.setPath(dir.getPath());
-            mediaFile.setChanged(new Date(dir.lastModified() - 1_000L));
-            assertTrue(mediaFile.getChanged().getTime() < FileUtil.lastModified(mediaFile.getFile()));
-            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
+            mediaFile.setChanged(new Date(dir.lastModified()));
+            mediaFile.setLastScanned(ZERO_DATE);
+
+            assertEquals(mediaFile.getChanged().getTime(), mediaFile.getFile().lastModified());
+            assertEquals(ZERO_DATE, mediaFile.getLastScanned());
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
+            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.clearInvocations(mediaFileDao);
+
+            mediaFile.setChanged(new Date(dir.lastModified() + 1L));
+            assertThat("Changed Gt LastModified", mediaFile.getChanged().getTime(),
+                    greaterThan(mediaFile.getFile().lastModified()));
+            assertEquals(ZERO_DATE, mediaFile.getLastScanned());
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
             Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
         @CheckLastModifiedDecision.Conditions.UseFastCache.False
-        @CheckLastModifiedDecision.Conditions.MediaFile.Version.EqDaoVersion
-        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.EqLastModified
-        @CheckLastModifiedDecision.Conditions.MediaFile.LastScanned.EqZeroDate
-        @CheckLastModifiedDecision.Conditions.IgnoreFileTimestamps.False
-        @CheckLastModifiedDecision.Result.CreateOrUpdate.True
+        @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
+        @CheckLastModifiedDecision.Conditions.Scheme.LastModified
+        @CheckLastModifiedDecision.Conditions.Scheme.LastModified.IgnoreFileTimestamps.False
+        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.GtEqLastModified
+        @CheckLastModifiedDecision.Conditions.MediaFile.LastScanned.NeZeroDate
+        @CheckLastModifiedDecision.Result.CreateOrUpdate.False
         @Test
         void c08() throws ExecutionException {
+            final boolean useFastCache = false;
             Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
-            MediaFile mediaFile = new MediaFile() {
-                @Override
-                public int getVersion() {
-                    return MediaFileDao.VERSION;
-                }
-            };
+            MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
             mediaFile.setPath(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified()));
-            mediaFile.setLastScanned(MediaFileDao.ZERO_DATE);
-            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
+            mediaFile.setLastScanned(mediaFile.getChanged());
+
+            assertEquals(mediaFile.getChanged().getTime(), mediaFile.getFile().lastModified());
+            assertNotEquals(ZERO_DATE, mediaFile.getLastScanned());
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
+            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+
+            mediaFile.setChanged(new Date(dir.lastModified() + 1L));
+            assertThat("Changed Gt LastModified", mediaFile.getChanged().getTime(),
+                    greaterThan(mediaFile.getFile().lastModified()));
+            assertNotEquals(ZERO_DATE, mediaFile.getLastScanned());
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
+            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+
+        }
+
+        @CheckLastModifiedDecision.Conditions.UseFastCache.False
+        @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
+        @CheckLastModifiedDecision.Conditions.Scheme.LastModified
+        @CheckLastModifiedDecision.Conditions.Scheme.LastModified.IgnoreFileTimestamps.False
+        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.LtLastModified
+        @CheckLastModifiedDecision.Conditions.MediaFile.LastScanned.EqZeroDate
+        @CheckLastModifiedDecision.Result.CreateOrUpdate.True
+        @Test
+        void c09() throws ExecutionException {
+            final boolean useFastCache = false;
+            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
+            MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
+            mediaFile.setPath(dir.getPath());
+            mediaFile.setChanged(new Date(dir.lastModified() - 1L));
+            mediaFile.setLastScanned(ZERO_DATE);
+
+            assertThat("Changed Lt LastModified", mediaFile.getChanged().getTime(),
+                    lessThan(mediaFile.getFile().lastModified()));
+            assertEquals(ZERO_DATE, mediaFile.getLastScanned());
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
             Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
-    }
 
-    /*
-     * @see #1101. For HDD rather than SSD, accessing file modification dates can be the biggest bottleneck. And even
-     * with SSD, there is the same risk when going through an external network. Furthermore, since the spec of the
-     * update date of the directory depends on the OS, the check itself that relies on the update date may not be
-     * effective in the first place. Therefore, Jpsonic provides a method for the user to explicitly specify the scan
-     * target so that the update date check can be avoided. CheckLastModifiedWithSchemeOfLastModified test cases are
-     * based on traditional scanning specifications. On the other hand, the following test cases are extracted only from
-     * cases where the expected results differ due to the change in the check method.
-     */
-    @Nested
-    class CheckLastModifiedWithSchemeOfLastScanned {
-
-        /*
-         * Because update-date is not checked
-         */
         @CheckLastModifiedDecision.Conditions.UseFastCache.False
-        @CheckLastModifiedDecision.Conditions.MediaFile.Version.EqDaoVersion
-        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.EqLastModified
-        @CheckLastModifiedDecision.Conditions.IgnoreFileTimestamps.True
-        @CheckLastModifiedDecision.Result.CreateOrUpdate.False
+        @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
+        @CheckLastModifiedDecision.Conditions.Scheme.LastModified
+        @CheckLastModifiedDecision.Conditions.Scheme.LastModified.IgnoreFileTimestamps.False
+        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.LtLastModified
+        @CheckLastModifiedDecision.Conditions.MediaFile.LastScanned.NeZeroDate
+        @CheckLastModifiedDecision.Result.CreateOrUpdate.True
         @Test
-        void c05() throws ExecutionException {
+        void c10() throws ExecutionException {
+            final boolean useFastCache = false;
+            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
+            MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
+            mediaFile.setPath(dir.getPath());
+            mediaFile.setChanged(new Date(dir.lastModified() - 1L));
+            mediaFile.setLastScanned(mediaFile.getChanged());
+
+            assertThat("Changed Lt LastModified", mediaFile.getChanged().getTime(),
+                    lessThan(FileUtil.lastModified(mediaFile.getFile())));
+            assertNotEquals(ZERO_DATE, mediaFile.getLastScanned());
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
+            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+        }
+
+        @CheckLastModifiedDecision.Conditions.UseFastCache.False
+        @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
+        @CheckLastModifiedDecision.Conditions.Scheme.LastScanned
+        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.GtEqLastModified
+        @CheckLastModifiedDecision.Conditions.MediaFile.LastScanned.EqZeroDate
+        @CheckLastModifiedDecision.Result.CreateOrUpdate.True
+        @Test
+        void c11() throws ExecutionException {
+            final boolean useFastCache = false;
             Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
             Mockito.when(settingsService.getFileModifiedCheckSchemeName())
                     .thenReturn(FileModifiedCheckScheme.LAST_SCANNED.name());
-            MediaFile mediaFile = new MediaFile() {
-                @Override
-                public int getVersion() {
-                    return MediaFileDao.VERSION;
-                }
-            };
+            MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
             mediaFile.setPath(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified()));
-            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
+            mediaFile.setLastScanned(ZERO_DATE);
+
+            assertEquals(ZERO_DATE, mediaFile.getLastScanned());
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
+            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+        }
+
+        @CheckLastModifiedDecision.Conditions.UseFastCache.False
+        @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
+        @CheckLastModifiedDecision.Conditions.Scheme.LastScanned
+        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.GtEqLastModified
+        @CheckLastModifiedDecision.Conditions.MediaFile.LastScanned.NeZeroDate
+        @CheckLastModifiedDecision.Result.CreateOrUpdate.False
+        @Test
+        void c12() throws ExecutionException {
+            final boolean useFastCache = false;
+            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
+            Mockito.when(settingsService.getFileModifiedCheckSchemeName())
+                    .thenReturn(FileModifiedCheckScheme.LAST_SCANNED.name());
+            MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
+            mediaFile.setPath(dir.getPath());
+            mediaFile.setChanged(new Date(dir.lastModified()));
+            mediaFile.setLastScanned(mediaFile.getChanged());
+
+            assertEquals(mediaFile.getChanged().getTime(), mediaFile.getFile().lastModified());
+            assertNotEquals(ZERO_DATE, mediaFile.getLastScanned());
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
+            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.clearInvocations(mediaFileDao);
+
+            mediaFile.setChanged(new Date(dir.lastModified() + 1L));
+            assertThat("Changed Gt LastModified", mediaFile.getChanged().getTime(),
+                    greaterThan(mediaFile.getFile().lastModified()));
+            assertNotEquals(ZERO_DATE, mediaFile.getLastScanned());
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
             Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
-        /*
-         * Because update-date is not checked
-         */
         @CheckLastModifiedDecision.Conditions.UseFastCache.False
-        @CheckLastModifiedDecision.Conditions.MediaFile.Version.EqDaoVersion
+        @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
+        @CheckLastModifiedDecision.Conditions.Scheme.LastScanned
         @CheckLastModifiedDecision.Conditions.MediaFile.Changed.LtLastModified
-        @CheckLastModifiedDecision.Conditions.IgnoreFileTimestamps.False
-        @CheckLastModifiedDecision.Result.CreateOrUpdate.False
+        @CheckLastModifiedDecision.Conditions.MediaFile.LastScanned.EqZeroDate
+        @CheckLastModifiedDecision.Result.CreateOrUpdate.True
         @Test
-        void c07() throws ExecutionException {
+        void c13() throws ExecutionException {
+            final boolean useFastCache = false;
             Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
             Mockito.when(settingsService.getFileModifiedCheckSchemeName())
                     .thenReturn(FileModifiedCheckScheme.LAST_SCANNED.name());
-            MediaFile mediaFile = new MediaFile() {
-                @Override
-                public int getVersion() {
-                    return MediaFileDao.VERSION;
-                }
-            };
+            MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
             mediaFile.setPath(dir.getPath());
-            mediaFile.setChanged(new Date(dir.lastModified() - 1_000L));
-            assertTrue(mediaFile.getChanged().getTime() < FileUtil.lastModified(mediaFile.getFile()));
-            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, false));
+            mediaFile.setChanged(new Date(dir.lastModified() - 1L));
+            mediaFile.setLastScanned(ZERO_DATE);
+
+            assertThat("Changed Lt LastModified", mediaFile.getChanged().getTime(),
+                    lessThan(FileUtil.lastModified(mediaFile.getFile())));
+            assertEquals(ZERO_DATE, mediaFile.getLastScanned());
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
+            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+        }
+
+        @CheckLastModifiedDecision.Conditions.UseFastCache.False
+        @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
+        @CheckLastModifiedDecision.Conditions.Scheme.LastScanned
+        @CheckLastModifiedDecision.Conditions.MediaFile.Changed.LtLastModified
+        @CheckLastModifiedDecision.Conditions.MediaFile.LastScanned.NeZeroDate
+        @CheckLastModifiedDecision.Result.CreateOrUpdate.False
+        @Test
+        void c14() throws ExecutionException {
+            final boolean useFastCache = false;
+            Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
+            Mockito.when(settingsService.getFileModifiedCheckSchemeName())
+                    .thenReturn(FileModifiedCheckScheme.LAST_SCANNED.name());
+            MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
+            mediaFile.setPath(dir.getPath());
+            mediaFile.setChanged(new Date(dir.lastModified() - 1L));
+            mediaFile.setLastScanned(mediaFile.getChanged());
+
+            assertThat("Changed Lt LastModified", mediaFile.getChanged().getTime(),
+                    lessThan(FileUtil.lastModified(mediaFile.getFile())));
+            assertNotEquals(ZERO_DATE, mediaFile.getLastScanned());
+            assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
             Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
     }
@@ -398,7 +539,7 @@ class MediaFileServiceTest {
         }
 
         @Test
-        void artworkApplicableTest() throws ExecutionException, URISyntaxException, IOException {
+        void testIsEmbeddedArtworkApplicable() throws ExecutionException, URISyntaxException, IOException {
 
             Mockito.when(securityService.isReadAllowed(Mockito.any(File.class))).thenReturn(true);
             Mockito.when(settingsService.isFastCacheEnabled()).thenReturn(true);
