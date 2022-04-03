@@ -153,7 +153,7 @@ public class MediaFileService {
         return getMediaFile(mediaFile.getParentPath());
     }
 
-    private boolean isSchemeLastModified() {
+    boolean isSchemeLastModified() {
         return FileModifiedCheckScheme.LAST_MODIFIED == FileModifiedCheckScheme
                 .valueOf(settingsService.getFileModifiedCheckSchemeName());
     }
@@ -311,7 +311,7 @@ public class MediaFileService {
         mediaFile.setStarredDate(starredDate);
     }
 
-    private void updateChildren(MediaFile parent) {
+    void updateChildren(MediaFile parent) {
 
         if (isSchemeLastModified() //
                 && parent.getChildrenLastUpdated().getTime() >= parent.getChanged().getTime()) {
@@ -408,7 +408,7 @@ public class MediaFileService {
                 || "Thumbs.db".equals(name);
     }
 
-    private MediaFile createMediaFile(File file) {
+    MediaFile createMediaFile(File file) {
 
         MediaFile existingFile = mediaFileDao.getMediaFile(file.getPath());
 

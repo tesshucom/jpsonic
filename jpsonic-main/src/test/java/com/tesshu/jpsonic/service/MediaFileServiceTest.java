@@ -24,12 +24,13 @@ import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.net.URISyntaxException;
 import java.util.Date;
@@ -40,11 +41,14 @@ import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
+import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.util.FileUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
@@ -53,6 +57,7 @@ class MediaFileServiceTest {
     private SettingsService settingsService;
     private SecurityService securityService;
     private MediaFileDao mediaFileDao;
+    private MetaDataParserFactory metaDataParserFactory;
     private MediaFileService mediaFileService;
     private File dir;
 
@@ -61,10 +66,15 @@ class MediaFileServiceTest {
         settingsService = mock(SettingsService.class);
         securityService = mock(SecurityService.class);
         mediaFileDao = mock(MediaFileDao.class);
+        metaDataParserFactory = mock(MetaDataParserFactory.class);
         mediaFileService = new MediaFileService(settingsService, mock(MusicFolderService.class), securityService,
-                mock(MediaFileCache.class), mediaFileDao, mock(AlbumDao.class), mock(MetaDataParserFactory.class),
+                mock(MediaFileCache.class), mediaFileDao, mock(AlbumDao.class), metaDataParserFactory,
                 mock(MediaFileServiceUtils.class));
         dir = new File(MediaFileServiceTest.class.getResource("/MEDIAS/Music").toURI());
+    }
+
+    private File createFile(String path) throws URISyntaxException {
+        return new File(MediaFileServiceTest.class.getResource(path).toURI());
     }
 
     @Documented
@@ -495,14 +505,166 @@ class MediaFileServiceTest {
     }
 
     @Nested
-    class FindCoverArtTest {
+    class UpdateChildrenTest {
 
-        private File createFile(String path) throws URISyntaxException, IOException {
-            return new File(MediaFileServiceTest.class.getResource(path).toURI());
+        @Test
+        void testUpdateChildren() throws URISyntaxException {
+
+            assertTrue(mediaFileService.isSchemeLastModified());
+
+            Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(new String[0]);
+            Mockito.when(settingsService.getMusicFileTypesAsArray()).thenReturn(new String[] { "mp3" });
+            Mockito.when(securityService.isReadAllowed(Mockito.any(File.class))).thenReturn(true);
+            File dir = createFile("/MEDIAS/Music2/_DIR_ chrome hoof - 2004");
+            assertTrue(dir.isDirectory());
+
+            MediaFile album = mediaFileService.createMediaFile(dir);
+            assertEquals(ZERO_DATE, album.getChildrenLastUpdated());
+            assertThat("Initial value had been assigned to 'changed'.", album.getChanged().getTime(),
+                    greaterThan(album.getChildrenLastUpdated().getTime()));
+            Mockito.clearInvocations(mediaFileDao);
+
+            // Typical case where an update is performed
+            mediaFileService.updateChildren(album);
+            Mockito.verify(mediaFileDao, Mockito.times(1)).getChildrenOf(Mockito.anyString());
+            Mockito.verify(mediaFileDao, Mockito.times(3)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.never()).deleteMediaFile(Mockito.anyString());
+            Mockito.clearInvocations(mediaFileDao);
+
+            // Typical case where an update isn't performed
+            album.setChildrenLastUpdated(new Date()); // If it has already been executed, etc.
+            mediaFileService.updateChildren(album);
+            Mockito.verify(mediaFileDao, Mockito.never()).getChildrenOf(Mockito.anyString());
+            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.never()).deleteMediaFile(Mockito.anyString());
+        }
+    }
+
+    @Nested
+    class CreateMediaFileTest {
+
+        @Test
+        void testCreateMediaFile() throws URISyntaxException {
+            File file = createFile("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
+            assertTrue(file.isFile());
+            assertTrue(mediaFileService.isSchemeLastModified());
+
+            // Newly created case
+            Mockito.when(metaDataParserFactory.getParser(file)).thenReturn(null);
+            Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(new String[0]);
+
+            MediaFile mediaFile = mediaFileService.createMediaFile(file);
+            assertEquals(file.lastModified(), mediaFile.getChanged().getTime());
+            assertEquals(file.lastModified(), mediaFile.getCreated().getTime());
+            assertEquals(ZERO_DATE.getTime(), mediaFile.getLastScanned().getTime());
+            assertEquals(ZERO_DATE.getTime(), mediaFile.getChildrenLastUpdated().getTime());
+            assertEquals(0, mediaFile.getPlayCount());
+            assertNull(mediaFile.getLastPlayed());
+            assertNull(mediaFile.getComment());
+
+            // Update case
+            mediaFile.setPlayCount(100);
+            Date lastPlayed = new Date();
+            mediaFile.setLastPlayed(lastPlayed);
+            mediaFile.setComment("comment");
+            Mockito.when(mediaFileDao.getMediaFile(file.getPath())).thenReturn(mediaFile);
+            mediaFile = mediaFileService.createMediaFile(file);
+            assertEquals(file.lastModified(), mediaFile.getChanged().getTime());
+            assertEquals(file.lastModified(), mediaFile.getCreated().getTime());
+            assertEquals(ZERO_DATE.getTime(), mediaFile.getLastScanned().getTime());
+            assertEquals(ZERO_DATE.getTime(), mediaFile.getChildrenLastUpdated().getTime());
+            assertEquals(100, mediaFile.getPlayCount());
+            assertEquals(lastPlayed.getTime(), mediaFile.getLastPlayed().getTime());
+            assertEquals("comment", mediaFile.getComment());
+
+            Mockito.when(settingsService.getFileModifiedCheckSchemeName())
+                    .thenReturn(FileModifiedCheckScheme.LAST_SCANNED.name());
+            assertFalse(mediaFileService.isSchemeLastModified());
+
+            mediaFile = mediaFileService.createMediaFile(file);
+            assertEquals(file.lastModified(), mediaFile.getChanged().getTime());
+            assertEquals(file.lastModified(), mediaFile.getCreated().getTime());
+            assertEquals(ZERO_DATE.getTime(), mediaFile.getLastScanned().getTime());
+            assertEquals(ZERO_DATE.getTime(), mediaFile.getChildrenLastUpdated().getTime());
         }
 
         @Test
-        void coverArtFileTypesTest() throws ExecutionException, URISyntaxException, IOException {
+        void testApplyFile() throws URISyntaxException {
+            File file = createFile("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
+            assertTrue(file.isFile());
+            assertTrue(mediaFileService.isSchemeLastModified());
+
+            // Newly created case
+            MusicParser musicParser = new MusicParser(null);
+            Mockito.when(metaDataParserFactory.getParser(file)).thenReturn(musicParser);
+            Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(new String[0]);
+
+            MediaFile mediaFile = mediaFileService.createMediaFile(file);
+            assertEquals(ZERO_DATE.getTime(), mediaFile.getLastScanned().getTime());
+            assertEquals(ZERO_DATE.getTime(), mediaFile.getChildrenLastUpdated().getTime());
+
+            // Update case
+            Mockito.when(mediaFileDao.getMediaFile(file.getPath())).thenReturn(mediaFile);
+            mediaFile = mediaFileService.createMediaFile(file);
+            assertEquals(ZERO_DATE.getTime(), mediaFile.getLastScanned().getTime());
+            assertEquals(ZERO_DATE.getTime(), mediaFile.getChildrenLastUpdated().getTime());
+        }
+
+        @Test
+        void testApplyDirWithoutChild() throws URISyntaxException {
+            File file = createFile("/MEDIAS/Music2");
+            assertTrue(file.isDirectory());
+            assertTrue(mediaFileService.isSchemeLastModified());
+
+            // Newly created case
+            MusicParser musicParser = new MusicParser(null);
+            Mockito.when(metaDataParserFactory.getParser(file)).thenReturn(musicParser);
+            Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(new String[0]);
+
+            MediaFile mediaFile = mediaFileService.createMediaFile(file);
+            assertEquals(ZERO_DATE.getTime(), mediaFile.getLastScanned().getTime());
+            assertEquals(ZERO_DATE.getTime(), mediaFile.getChildrenLastUpdated().getTime());
+
+            // Update case
+            Mockito.when(mediaFileDao.getMediaFile(file.getPath())).thenReturn(mediaFile);
+            mediaFile = mediaFileService.createMediaFile(file);
+            assertEquals(ZERO_DATE.getTime(), mediaFile.getLastScanned().getTime());
+            assertEquals(ZERO_DATE.getTime(), mediaFile.getChildrenLastUpdated().getTime());
+        }
+
+        @Test
+        void testApplyDirWithChild() throws URISyntaxException {
+            MusicParser musicParser = mock(MusicParser.class);
+            Mockito.when(musicParser.getMetaData(Mockito.any(File.class))).thenReturn(new MetaData());
+            Mockito.when(metaDataParserFactory.getParser(Mockito.any(File.class))).thenReturn(musicParser);
+            Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(new String[0]);
+            Mockito.when(settingsService.getMusicFileTypesAsArray()).thenReturn(new String[] { "mp3" });
+            Mockito.when(securityService.isReadAllowed(Mockito.any(File.class))).thenReturn(true);
+
+            File dir = createFile("/MEDIAS/Music2/_DIR_ chrome hoof - 2004");
+            assertTrue(dir.isDirectory());
+            assertTrue(mediaFileService.isSchemeLastModified());
+
+            final ArgumentCaptor<String> pathsCaptor = ArgumentCaptor.forClass(String.class);
+            final ArgumentCaptor<MediaFile> mediaFileCaptor = ArgumentCaptor.forClass(MediaFile.class);
+
+            mediaFileService.createMediaFile(dir);
+
+            // Because firstChild is parsed
+            Mockito.verify(musicParser, Mockito.times(1)).getMetaData(Mockito.any(File.class));
+
+            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(mediaFileCaptor.capture());
+
+            // 3times [parent, firstChild(before create), firstChild(after create)]
+            Mockito.verify(mediaFileDao, Mockito.times(1)).getMediaFile(pathsCaptor.capture());
+        }
+    }
+
+    @Nested
+    class FindCoverArtTest {
+
+        @Test
+        void coverArtFileTypesTest() throws ExecutionException, URISyntaxException {
             // fileNames
             File file = createFile("/MEDIAS/Metadata/coverart/cover.jpg");
             assertEquals(file, mediaFileService.findCoverArt(file).get());
@@ -539,7 +701,7 @@ class MediaFileServiceTest {
         }
 
         @Test
-        void testIsEmbeddedArtworkApplicable() throws ExecutionException, URISyntaxException, IOException {
+        void testIsEmbeddedArtworkApplicable() throws ExecutionException, URISyntaxException {
 
             Mockito.when(securityService.isReadAllowed(Mockito.any(File.class))).thenReturn(true);
             Mockito.when(settingsService.isFastCacheEnabled()).thenReturn(true);
