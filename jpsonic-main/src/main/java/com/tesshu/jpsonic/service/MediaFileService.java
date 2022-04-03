@@ -327,7 +327,7 @@ public class MediaFileService {
                 && parent.getChildrenLastUpdated().getTime() >= parent.getChanged().getTime()) {
             return;
         } else if (isSchemeLastScaned() //
-                && parent.getMediaType() == MediaType.ALBUM && !ZERO_DATE.equals(parent.getLastScanned())) {
+                && parent.getMediaType() == MediaType.ALBUM && !ZERO_DATE.equals(parent.getChildrenLastUpdated())) {
             return;
         }
 

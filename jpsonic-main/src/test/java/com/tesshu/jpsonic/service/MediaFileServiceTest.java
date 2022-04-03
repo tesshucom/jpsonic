@@ -580,6 +580,25 @@ class MediaFileServiceTest {
             Mockito.verify(mediaFileDao, Mockito.never()).getChildrenOf(Mockito.anyString());
             Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
             Mockito.verify(mediaFileDao, Mockito.never()).deleteMediaFile(Mockito.anyString());
+
+            Mockito.when(settingsService.getFileModifiedCheckSchemeName())
+                    .thenReturn(FileModifiedCheckScheme.LAST_SCANNED.name());
+            assertFalse(mediaFileService.isSchemeLastModified());
+
+            /*
+             * If Scheme is set to Last Scaned, Only updated if childrenLastUpdated is zero (zero = initial value or
+             * immediately after reset)
+             */
+            mediaFileService.updateChildren(album);
+            Mockito.verify(mediaFileDao, Mockito.never()).getChildrenOf(Mockito.anyString());
+            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.never()).deleteMediaFile(Mockito.anyString());
+
+            album.setChildrenLastUpdated(ZERO_DATE);
+            mediaFileService.updateChildren(album);
+            Mockito.verify(mediaFileDao, Mockito.times(1)).getChildrenOf(Mockito.anyString());
+            Mockito.verify(mediaFileDao, Mockito.times(3)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.never()).deleteMediaFile(Mockito.anyString());
         }
     }
 
