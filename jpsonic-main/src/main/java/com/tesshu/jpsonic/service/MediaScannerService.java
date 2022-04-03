@@ -283,10 +283,10 @@ public class MediaScannerService {
         indexManager.index(file);
 
         if (file.isDirectory()) {
-            for (MediaFile child : mediaFileService.getChildrenOf(file, true, false, false, false)) {
+            for (MediaFile child : mediaFileService.getChildrenOf(file, true, false, false, false, statistics)) {
                 scanFile(child, musicFolder, statistics, albumCount, genres, isPodcast);
             }
-            for (MediaFile child : mediaFileService.getChildrenOf(file, false, true, false, false)) {
+            for (MediaFile child : mediaFileService.getChildrenOf(file, false, true, false, false, statistics)) {
                 scanFile(child, musicFolder, statistics, albumCount, genres, isPodcast);
             }
         } else {
