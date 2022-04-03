@@ -750,10 +750,16 @@ class MediaFileServiceTest {
             // Because firstChild is parsed
             Mockito.verify(musicParser, Mockito.times(1)).getMetaData(Mockito.any(File.class));
 
-            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(mediaFileCaptor.capture());
+            /*
+             * Because firstChild is registered. Since firstChild is registered at this time, firstChild will not be
+             * parsed when updateChildren is executed.
+             */
+            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(mediaFileCaptor.capture());
+            // [Windows] assertEquals("02 eyes like dull hazlenuts", mediaFileCaptor.getValue().getName());
+            // [Linux] assertEquals("10 telegraph hill", mediaFileCaptor.getValue().getName());
 
             // 3times [parent, firstChild(before create), firstChild(after create)]
-            Mockito.verify(mediaFileDao, Mockito.times(1)).getMediaFile(pathsCaptor.capture());
+            Mockito.verify(mediaFileDao, Mockito.times(3)).getMediaFile(pathsCaptor.capture());
         }
     }
 

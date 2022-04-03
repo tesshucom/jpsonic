@@ -444,7 +444,7 @@ public class MediaFileService {
         if (file.isFile()) {
             applyFile(file, mediaFile, statistics);
         } else {
-            applyDirectory(file, mediaFile);
+            applyDirectory(file, mediaFile, statistics);
         }
         return mediaFile;
     }
@@ -487,7 +487,7 @@ public class MediaFileService {
         to.setMediaType(getMediaType(to));
     }
 
-    private void applyDirectory(File file, MediaFile to) {
+    private void applyDirectory(File file, MediaFile to, MediaLibraryStatistics... statistics) {
         // Is this an album?
         if (!isRoot(to)) {
             File[] children = FileUtil.listFiles(file);
@@ -499,17 +499,16 @@ public class MediaFileService {
                 to.setMediaType(MediaFile.MediaType.ALBUM);
 
                 // Guess artist/album name, year and genre.
-                MetaDataParser parser = metaDataParserFactory.getParser(firstChildMediaFile);
-                if (parser != null) {
-                    MetaData metaData = parser.getMetaData(firstChildMediaFile);
-                    to.setArtist(metaData.getAlbumArtist());
-                    to.setArtistSort(metaData.getAlbumArtistSort());
-                    to.setArtistSortRaw(metaData.getAlbumArtistSort());
-                    to.setAlbumName(metaData.getAlbumName());
-                    to.setAlbumSort(metaData.getAlbumSort());
-                    to.setAlbumSortRaw(metaData.getAlbumSort());
-                    to.setYear(metaData.getYear());
-                    to.setGenre(metaData.getGenre());
+                MediaFile firstChild = getMediaFile(firstChildMediaFile, false, statistics);
+                if (firstChild != null) {
+                    to.setArtist(firstChild.getAlbumArtist());
+                    to.setArtistSort(firstChild.getAlbumArtistSort());
+                    to.setArtistSortRaw(firstChild.getAlbumArtistSort());
+                    to.setAlbumName(firstChild.getAlbumName());
+                    to.setAlbumSort(firstChild.getAlbumSort());
+                    to.setAlbumSortRaw(firstChild.getAlbumSort());
+                    to.setYear(firstChild.getYear());
+                    to.setGenre(firstChild.getGenre());
                 }
 
                 // Look for cover art.
