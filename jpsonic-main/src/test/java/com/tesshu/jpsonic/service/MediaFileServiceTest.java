@@ -33,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.lang.annotation.Documented;
 import java.net.URISyntaxException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
@@ -41,10 +42,12 @@ import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.util.FileUtil;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -75,6 +78,46 @@ class MediaFileServiceTest {
 
     private File createFile(String path) throws URISyntaxException {
         return new File(MediaFileServiceTest.class.getResource(path).toURI());
+    }
+
+    @Test
+    void testGetLastModified() throws URISyntaxException {
+
+        // Defaulte (Same as legacy). File modification date.
+        Mockito.when(settingsService.getFileModifiedCheckSchemeName())
+                .thenReturn(FileModifiedCheckScheme.LAST_MODIFIED.name());
+        assertTrue(mediaFileService.isSchemeLastModified());
+
+        File file = createFile("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
+        assertEquals(file.lastModified(), mediaFileService.getLastModified(file));
+
+        // File modification date independent method (scan execution time is used)
+        Mockito.when(settingsService.getFileModifiedCheckSchemeName())
+                .thenReturn(FileModifiedCheckScheme.LAST_SCANNED.name());
+        assertFalse(mediaFileService.isSchemeLastModified());
+
+        /*
+         * When requested by a flow other than scanning(Not usually, but when browsing before the first scan, etc.) In
+         * this case, the last modified date is used
+         */
+        assertEquals(file.lastModified(), mediaFileService.getLastModified(file));
+
+        /*
+         * For scan flows in Scheme.LAST_SCANNED, scan execution time is used.
+         *
+         * @see MediaScannerService
+         */
+        Date scanStart = DateUtils.truncate(new Date(), Calendar.SECOND);
+        MediaLibraryStatistics statistics = new MediaLibraryStatistics(scanStart);
+        assertEquals(scanStart.getTime(), mediaFileService.getLastModified(file, statistics));
+
+        /*
+         * For scan flows in Scheme.LAST_MODIFIED, , the last modified date is used.
+         */
+        Mockito.when(settingsService.getFileModifiedCheckSchemeName())
+                .thenReturn(FileModifiedCheckScheme.LAST_MODIFIED.name());
+        assertTrue(mediaFileService.isSchemeLastModified());
+        assertEquals(file.lastModified(), mediaFileService.getLastModified(file, statistics));
     }
 
     @Documented
@@ -586,6 +629,20 @@ class MediaFileServiceTest {
             assertEquals(file.lastModified(), mediaFile.getCreated().getTime());
             assertEquals(ZERO_DATE.getTime(), mediaFile.getLastScanned().getTime());
             assertEquals(ZERO_DATE.getTime(), mediaFile.getChildrenLastUpdated().getTime());
+
+            // With statistics
+            Date now = DateUtils.truncate(new Date(), Calendar.SECOND);
+            MediaLibraryStatistics statistics = new MediaLibraryStatistics(now);
+            mediaFile = mediaFileService.createMediaFile(file, statistics);
+            assertEquals(now.getTime(), mediaFile.getChanged().getTime());
+            assertEquals(now.getTime(), mediaFile.getCreated().getTime());
+            assertEquals(ZERO_DATE.getTime(), mediaFile.getLastScanned().getTime());
+            assertEquals(ZERO_DATE.getTime(), mediaFile.getChildrenLastUpdated().getTime());
+
+            Mockito.when(settingsService.getFileModifiedCheckSchemeName())
+                    .thenReturn(FileModifiedCheckScheme.LAST_MODIFIED.name());
+            assertTrue(mediaFileService.isSchemeLastModified());
+            assertEquals(file.lastModified(), mediaFileService.getLastModified(file, statistics));
         }
 
         @Test
@@ -593,6 +650,8 @@ class MediaFileServiceTest {
             File file = createFile("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
             assertTrue(file.isFile());
             assertTrue(mediaFileService.isSchemeLastModified());
+            final Date scanStart = DateUtils.truncate(new Date(), Calendar.SECOND);
+            final MediaLibraryStatistics statistics = new MediaLibraryStatistics(scanStart);
 
             // Newly created case
             MusicParser musicParser = new MusicParser(null);
@@ -600,13 +659,22 @@ class MediaFileServiceTest {
             Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(new String[0]);
 
             MediaFile mediaFile = mediaFileService.createMediaFile(file);
-            assertEquals(ZERO_DATE.getTime(), mediaFile.getLastScanned().getTime());
+
+            assertThat("Because the parsed time is recorded.", mediaFile.getLastScanned().getTime(),
+                    greaterThan(scanStart.getTime()));
             assertEquals(ZERO_DATE.getTime(), mediaFile.getChildrenLastUpdated().getTime());
 
             // Update case
             Mockito.when(mediaFileDao.getMediaFile(file.getPath())).thenReturn(mediaFile);
             mediaFile = mediaFileService.createMediaFile(file);
-            assertEquals(ZERO_DATE.getTime(), mediaFile.getLastScanned().getTime());
+            assertThat("Because the parsed time is set.", mediaFile.getLastScanned().getTime(),
+                    greaterThan(scanStart.getTime()));
+            assertEquals(ZERO_DATE.getTime(), mediaFile.getChildrenLastUpdated().getTime());
+
+            // With statistics
+            mediaFile = mediaFileService.createMediaFile(file, statistics);
+            assertEquals(mediaFile.getLastScanned().getTime(), scanStart.getTime(),
+                    "Because the scanStart-time is set.");
             assertEquals(ZERO_DATE.getTime(), mediaFile.getChildrenLastUpdated().getTime());
         }
 
@@ -615,6 +683,8 @@ class MediaFileServiceTest {
             File file = createFile("/MEDIAS/Music2");
             assertTrue(file.isDirectory());
             assertTrue(mediaFileService.isSchemeLastModified());
+            final Date scanStart = DateUtils.truncate(new Date(), Calendar.SECOND);
+            final MediaLibraryStatistics statistics = new MediaLibraryStatistics(scanStart);
 
             // Newly created case
             MusicParser musicParser = new MusicParser(null);
@@ -628,6 +698,11 @@ class MediaFileServiceTest {
             // Update case
             Mockito.when(mediaFileDao.getMediaFile(file.getPath())).thenReturn(mediaFile);
             mediaFile = mediaFileService.createMediaFile(file);
+            assertEquals(ZERO_DATE.getTime(), mediaFile.getLastScanned().getTime());
+            assertEquals(ZERO_DATE.getTime(), mediaFile.getChildrenLastUpdated().getTime());
+
+            // With statistics
+            mediaFile = mediaFileService.createMediaFile(file, statistics);
             assertEquals(ZERO_DATE.getTime(), mediaFile.getLastScanned().getTime());
             assertEquals(ZERO_DATE.getTime(), mediaFile.getChildrenLastUpdated().getTime());
         }
@@ -645,10 +720,13 @@ class MediaFileServiceTest {
             assertTrue(dir.isDirectory());
             assertTrue(mediaFileService.isSchemeLastModified());
 
+            final Date scanStart = DateUtils.truncate(new Date(), Calendar.SECOND);
+            final MediaLibraryStatistics statistics = new MediaLibraryStatistics(scanStart);
+
             final ArgumentCaptor<String> pathsCaptor = ArgumentCaptor.forClass(String.class);
             final ArgumentCaptor<MediaFile> mediaFileCaptor = ArgumentCaptor.forClass(MediaFile.class);
 
-            mediaFileService.createMediaFile(dir);
+            mediaFileService.createMediaFile(dir, statistics);
 
             // Because firstChild is parsed
             Mockito.verify(musicParser, Mockito.times(1)).getMetaData(Mockito.any(File.class));
