@@ -267,7 +267,7 @@ public class MediaScannerService {
         }
     }
 
-    private void scanFile(MediaFile file, MusicFolder musicFolder, MediaLibraryStatistics statistics,
+    void scanFile(MediaFile file, MusicFolder musicFolder, MediaLibraryStatistics statistics,
             Map<String, Integer> albumCount, Genres genres, boolean isPodcast) throws ExecutionException {
 
         interruptIfDestroyed();

@@ -226,7 +226,7 @@ public class MediaFileService {
 
         List<MediaFile> result = new ArrayList<>();
         for (MediaFile child : mediaFileDao.getChildrenOf(parent.getPath())) {
-            MediaFile checked = checkLastModified(child, useFastCache);
+            MediaFile checked = checkLastModified(child, useFastCache, statistics);
             if (checked.isDirectory() && includeDirectories && includeMediaFile(checked)) {
                 result.add(checked);
             }
