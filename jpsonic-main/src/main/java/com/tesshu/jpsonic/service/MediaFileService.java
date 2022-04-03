@@ -251,76 +251,6 @@ public class MediaFileService {
         return false;
     }
 
-    @Deprecated
-    public List<Genre> getGenres(boolean sortByAlbum) {
-        return mediaFileDao.getGenres(sortByAlbum);
-    }
-
-    public List<MediaFile> getMostFrequentlyPlayedAlbums(int offset, int count, List<MusicFolder> musicFolders) {
-        return mediaFileDao.getMostFrequentlyPlayedAlbums(offset, count, musicFolders);
-    }
-
-    public List<MediaFile> getMostRecentlyPlayedAlbums(int offset, int count, List<MusicFolder> musicFolders) {
-        return mediaFileDao.getMostRecentlyPlayedAlbums(offset, count, musicFolders);
-    }
-
-    public List<MediaFile> getNewestAlbums(int offset, int count, List<MusicFolder> musicFolders) {
-        return mediaFileDao.getNewestAlbums(offset, count, musicFolders);
-    }
-
-    public List<MediaFile> getStarredAlbums(int offset, int count, String username, List<MusicFolder> musicFolders) {
-        return mediaFileDao.getStarredAlbums(offset, count, username, musicFolders);
-    }
-
-    public List<MediaFile> getAlphabeticalAlbums(int offset, int count, boolean byArtist,
-            List<MusicFolder> musicFolders) {
-        return mediaFileDao.getAlphabeticalAlbums(offset, count, byArtist, musicFolders);
-    }
-
-    public List<MediaFile> getAlbumsByYear(int offset, int count, int fromYear, int toYear,
-            List<MusicFolder> musicFolders) {
-        return mediaFileDao.getAlbumsByYear(offset, count, fromYear, toYear, musicFolders);
-    }
-
-    @Deprecated
-    public List<MediaFile> getAlbumsByGenre(int offset, int count, String genre, List<MusicFolder> musicFolders) {
-        return mediaFileDao.getAlbumsByGenre(offset, count, genre, musicFolders);
-    }
-
-    public List<MediaFile> getRandomSongsForParent(MediaFile parent, int count) {
-        List<MediaFile> children = getDescendantsOf(parent, false);
-        removeVideoFiles(children);
-
-        if (children.isEmpty()) {
-            return children;
-        }
-        Collections.shuffle(children);
-        return children.subList(0, Math.min(count, children.size()));
-    }
-
-    public List<MediaFile> getRandomSongs(RandomSearchCriteria criteria, String username) {
-        return mediaFileDao.getRandomSongs(criteria, username);
-    }
-
-    public void removeVideoFiles(List<MediaFile> files) {
-        files.removeIf(MediaFile::isVideo);
-    }
-
-    public Date getMediaFileStarredDate(int id, String username) {
-        return mediaFileDao.getMediaFileStarredDate(id, username);
-    }
-
-    public void populateStarredDate(List<MediaFile> mediaFiles, String username) {
-        for (MediaFile mediaFile : mediaFiles) {
-            populateStarredDate(mediaFile, username);
-        }
-    }
-
-    public void populateStarredDate(MediaFile mediaFile, String username) {
-        Date starredDate = mediaFileDao.getMediaFileStarredDate(mediaFile.getId(), username);
-        mediaFile.setStarredDate(starredDate);
-    }
-
     void updateChildren(MediaFile parent, MediaLibraryStatistics... statistics) {
 
         if (isSchemeLastModified() //
@@ -601,10 +531,6 @@ public class MediaFileService {
         return result;
     }
 
-    public void updateMediaFile(MediaFile mediaFile) {
-        mediaFileDao.createOrUpdateMediaFile(mediaFile);
-    }
-
     public void incrementPlayCount(MediaFile file) {
         Date now = new Date();
         file.setLastPlayed(now);
@@ -626,6 +552,70 @@ public class MediaFileService {
         }
     }
 
+    public List<MediaFile> getMostFrequentlyPlayedAlbums(int offset, int count, List<MusicFolder> musicFolders) {
+        return mediaFileDao.getMostFrequentlyPlayedAlbums(offset, count, musicFolders);
+    }
+
+    public List<MediaFile> getMostRecentlyPlayedAlbums(int offset, int count, List<MusicFolder> musicFolders) {
+        return mediaFileDao.getMostRecentlyPlayedAlbums(offset, count, musicFolders);
+    }
+
+    public List<MediaFile> getNewestAlbums(int offset, int count, List<MusicFolder> musicFolders) {
+        return mediaFileDao.getNewestAlbums(offset, count, musicFolders);
+    }
+
+    public List<MediaFile> getStarredAlbums(int offset, int count, String username, List<MusicFolder> musicFolders) {
+        return mediaFileDao.getStarredAlbums(offset, count, username, musicFolders);
+    }
+
+    public List<MediaFile> getAlphabeticalAlbums(int offset, int count, boolean byArtist,
+            List<MusicFolder> musicFolders) {
+        return mediaFileDao.getAlphabeticalAlbums(offset, count, byArtist, musicFolders);
+    }
+
+    public List<MediaFile> getAlbumsByYear(int offset, int count, int fromYear, int toYear,
+            List<MusicFolder> musicFolders) {
+        return mediaFileDao.getAlbumsByYear(offset, count, fromYear, toYear, musicFolders);
+    }
+
+    public List<MediaFile> getRandomSongsForParent(MediaFile parent, int count) {
+        List<MediaFile> children = getDescendantsOf(parent, false);
+        removeVideoFiles(children);
+
+        if (children.isEmpty()) {
+            return children;
+        }
+        Collections.shuffle(children);
+        return children.subList(0, Math.min(count, children.size()));
+    }
+
+    public List<MediaFile> getRandomSongs(RandomSearchCriteria criteria, String username) {
+        return mediaFileDao.getRandomSongs(criteria, username);
+    }
+
+    public void removeVideoFiles(List<MediaFile> files) {
+        files.removeIf(MediaFile::isVideo);
+    }
+
+    public Date getMediaFileStarredDate(int id, String username) {
+        return mediaFileDao.getMediaFileStarredDate(id, username);
+    }
+
+    public void populateStarredDate(List<MediaFile> mediaFiles, String username) {
+        for (MediaFile mediaFile : mediaFiles) {
+            populateStarredDate(mediaFile, username);
+        }
+    }
+
+    public void populateStarredDate(MediaFile mediaFile, String username) {
+        Date starredDate = mediaFileDao.getMediaFileStarredDate(mediaFile.getId(), username);
+        mediaFile.setStarredDate(starredDate);
+    }
+
+    public void updateMediaFile(MediaFile mediaFile) {
+        mediaFileDao.createOrUpdateMediaFile(mediaFile);
+    }
+
     public int getAlbumCount(List<MusicFolder> musicFolders) {
         return mediaFileDao.getAlbumCount(musicFolders);
     }
@@ -643,5 +633,15 @@ public class MediaFileService {
         for (MediaFile child : mediaFileDao.getChildrenOf(album.getPath())) {
             mediaFileDao.resetLastScanned(child.getId());
         }
+    }
+
+    @Deprecated
+    public List<Genre> getGenres(boolean sortByAlbum) {
+        return mediaFileDao.getGenres(sortByAlbum);
+    }
+
+    @Deprecated
+    public List<MediaFile> getAlbumsByGenre(int offset, int count, String genre, List<MusicFolder> musicFolders) {
+        return mediaFileDao.getAlbumsByGenre(offset, count, genre, musicFolders);
     }
 }
