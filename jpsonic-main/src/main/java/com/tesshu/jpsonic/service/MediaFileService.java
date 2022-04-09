@@ -41,6 +41,7 @@ import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
+import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import com.tesshu.jpsonic.service.metadata.MetaData;
@@ -50,6 +51,7 @@ import com.tesshu.jpsonic.service.metadata.ParserUtils;
 import com.tesshu.jpsonic.util.FileUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +94,7 @@ public class MediaFileService {
         return getMediaFile(file, settingsService.isFastCacheEnabled());
     }
 
-    public @Nullable MediaFile getMediaFile(File file, boolean useFastCache) {
+    public @Nullable MediaFile getMediaFile(File file, boolean useFastCache, MediaLibraryStatistics... statistics) {
 
         // Look in fast memory cache first.
         MediaFile result = mediaFileCache.get(file);
@@ -116,7 +118,7 @@ public class MediaFileService {
             return null;
         }
         // Not found in database, must read from disk.
-        result = createMediaFile(file);
+        result = createMediaFile(file, statistics);
 
         // Put in cache and database.
         mediaFileCache.put(file, result);
@@ -153,7 +155,7 @@ public class MediaFileService {
         return getMediaFile(mediaFile.getParentPath());
     }
 
-    private boolean isSchemeLastModified() {
+    boolean isSchemeLastModified() {
         return FileModifiedCheckScheme.LAST_MODIFIED == FileModifiedCheckScheme
                 .valueOf(settingsService.getFileModifiedCheckSchemeName());
     }
@@ -163,7 +165,14 @@ public class MediaFileService {
                 .valueOf(settingsService.getFileModifiedCheckSchemeName());
     }
 
-    MediaFile checkLastModified(final MediaFile mediaFile, boolean useFastCache) {
+    long getLastModified(@NonNull File file, MediaLibraryStatistics... statistics) {
+        if (statistics.length == 0 || isSchemeLastModified()) {
+            return FileUtil.lastModified(file);
+        }
+        return statistics[0].getScanDate().getTime();
+    }
+
+    MediaFile checkLastModified(final MediaFile mediaFile, boolean useFastCache, MediaLibraryStatistics... statistics) {
 
         // Determine if the file has not changed
         if (useFastCache) {
@@ -174,7 +183,7 @@ public class MediaFileService {
             switch (scheme) {
             case LAST_MODIFIED:
                 if (!settingsService.isIgnoreFileTimestamps()
-                        && mediaFile.getChanged().getTime() >= FileUtil.lastModified(mediaFile.getFile())
+                        && mediaFile.getChanged().getTime() >= getLastModified(mediaFile.getFile(), statistics)
                         && !ZERO_DATE.equals(mediaFile.getLastScanned())) {
                     return mediaFile;
                 } else if (settingsService.isIgnoreFileTimestamps() && !ZERO_DATE.equals(mediaFile.getLastScanned())) {
@@ -192,18 +201,19 @@ public class MediaFileService {
         }
 
         // Updating database file from disk
-        MediaFile mf = createMediaFile(mediaFile.getFile());
+        MediaFile mf = createMediaFile(mediaFile.getFile(), statistics);
         mediaFileDao.createOrUpdateMediaFile(mf);
         return mf;
     }
 
     public List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories,
-            boolean sort) {
-        return getChildrenOf(parent, includeFiles, includeDirectories, sort, settingsService.isFastCacheEnabled());
+            boolean sort, MediaLibraryStatistics... statistics) {
+        return getChildrenOf(parent, includeFiles, includeDirectories, sort, settingsService.isFastCacheEnabled(),
+                statistics);
     }
 
     public List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories,
-            boolean sort, boolean useFastCache) {
+            boolean sort, boolean useFastCache, MediaLibraryStatistics... statistics) {
 
         if (!parent.isDirectory()) {
             return Collections.emptyList();
@@ -211,7 +221,7 @@ public class MediaFileService {
 
         // Make sure children are stored and up-to-date in the database.
         if (!useFastCache) {
-            updateChildren(parent);
+            updateChildren(parent, statistics);
         }
 
         List<MediaFile> result = new ArrayList<>();
@@ -311,13 +321,13 @@ public class MediaFileService {
         mediaFile.setStarredDate(starredDate);
     }
 
-    private void updateChildren(MediaFile parent) {
+    void updateChildren(MediaFile parent, MediaLibraryStatistics... statistics) {
 
         if (isSchemeLastModified() //
                 && parent.getChildrenLastUpdated().getTime() >= parent.getChanged().getTime()) {
             return;
         } else if (isSchemeLastScaned() //
-                && parent.getMediaType() == MediaType.ALBUM && !ZERO_DATE.equals(parent.getLastScanned())) {
+                && parent.getMediaType() == MediaType.ALBUM && !ZERO_DATE.equals(parent.getChildrenLastUpdated())) {
             return;
         }
 
@@ -331,7 +341,7 @@ public class MediaFileService {
         for (File child : children) {
             if (storedChildrenMap.remove(child.getPath()) == null) {
                 // Add children that are not already stored.
-                mediaFileDao.createOrUpdateMediaFile(createMediaFile(child));
+                mediaFileDao.createOrUpdateMediaFile(createMediaFile(child, statistics));
             }
         }
 
@@ -408,34 +418,38 @@ public class MediaFileService {
                 || "Thumbs.db".equals(name);
     }
 
-    private MediaFile createMediaFile(File file) {
+    MediaFile createMediaFile(File file, MediaLibraryStatistics... statistics) {
 
         MediaFile existingFile = mediaFileDao.getMediaFile(file.getPath());
 
         MediaFile mediaFile = new MediaFile();
-        Date lastModified = new Date(FileUtil.lastModified(file));
+
+        // Variable initial value
+        Date lastModified = new Date(getLastModified(file, statistics));
+        mediaFile.setChanged(lastModified);
+        mediaFile.setCreated(lastModified);
+
+        mediaFile.setLastScanned(existingFile == null ? ZERO_DATE : existingFile.getLastScanned());
+        mediaFile.setChildrenLastUpdated(ZERO_DATE);
+
         mediaFile.setPath(file.getPath());
         mediaFile.setFolder(securityService.getRootFolderForFile(file));
         mediaFile.setParentPath(file.getParent());
-        mediaFile.setChanged(lastModified);
-        mediaFile.setLastScanned(existingFile == null ? ZERO_DATE : existingFile.getLastScanned());
         mediaFile.setPlayCount(existingFile == null ? 0 : existingFile.getPlayCount());
         mediaFile.setLastPlayed(existingFile == null ? null : existingFile.getLastPlayed());
         mediaFile.setComment(existingFile == null ? null : existingFile.getComment());
-        mediaFile.setChildrenLastUpdated(ZERO_DATE);
-        mediaFile.setCreated(lastModified);
         mediaFile.setMediaType(MediaFile.MediaType.DIRECTORY);
         mediaFile.setPresent(true);
 
         if (file.isFile()) {
-            applyFile(file, mediaFile);
+            applyFile(file, mediaFile, statistics);
         } else {
-            applyDirectory(file, mediaFile);
+            applyDirectory(file, mediaFile, statistics);
         }
         return mediaFile;
     }
 
-    private void applyFile(File file, MediaFile to) {
+    private void applyFile(File file, MediaFile to, MediaLibraryStatistics... statistics) {
         MetaDataParser parser = metaDataParserFactory.getParser(file);
         if (parser != null) {
             MetaData metaData = parser.getMetaData(file);
@@ -465,6 +479,7 @@ public class MediaFileService {
             to.setComposerSort(metaData.getComposerSort());
             to.setComposerSortRaw(metaData.getComposerSort());
             utils.analyze(to);
+            to.setLastScanned(statistics.length == 0 ? new Date() : statistics[0].getScanDate());
         }
         String format = StringUtils.trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(to.getPath())));
         to.setFormat(format);
@@ -472,7 +487,7 @@ public class MediaFileService {
         to.setMediaType(getMediaType(to));
     }
 
-    private void applyDirectory(File file, MediaFile to) {
+    private void applyDirectory(File file, MediaFile to, MediaLibraryStatistics... statistics) {
         // Is this an album?
         if (!isRoot(to)) {
             File[] children = FileUtil.listFiles(file);
@@ -484,17 +499,16 @@ public class MediaFileService {
                 to.setMediaType(MediaFile.MediaType.ALBUM);
 
                 // Guess artist/album name, year and genre.
-                MetaDataParser parser = metaDataParserFactory.getParser(firstChildMediaFile);
-                if (parser != null) {
-                    MetaData metaData = parser.getMetaData(firstChildMediaFile);
-                    to.setArtist(metaData.getAlbumArtist());
-                    to.setArtistSort(metaData.getAlbumArtistSort());
-                    to.setArtistSortRaw(metaData.getAlbumArtistSort());
-                    to.setAlbumName(metaData.getAlbumName());
-                    to.setAlbumSort(metaData.getAlbumSort());
-                    to.setAlbumSortRaw(metaData.getAlbumSort());
-                    to.setYear(metaData.getYear());
-                    to.setGenre(metaData.getGenre());
+                MediaFile firstChild = getMediaFile(firstChildMediaFile, false, statistics);
+                if (firstChild != null) {
+                    to.setArtist(firstChild.getAlbumArtist());
+                    to.setArtistSort(firstChild.getAlbumArtistSort());
+                    to.setArtistSortRaw(firstChild.getAlbumArtistSort());
+                    to.setAlbumName(firstChild.getAlbumName());
+                    to.setAlbumSort(firstChild.getAlbumSort());
+                    to.setAlbumSortRaw(firstChild.getAlbumSort());
+                    to.setYear(firstChild.getYear());
+                    to.setGenre(firstChild.getGenre());
                 }
 
                 // Look for cover art.
