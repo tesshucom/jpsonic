@@ -28,20 +28,26 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
+import com.tesshu.jpsonic.domain.Genres;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import net.sf.ehcache.Ehcache;
 import org.apache.commons.lang3.time.DateUtils;
@@ -55,6 +61,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @SuppressWarnings("PMD.TooManyStaticImports")
 class MediaScannerServiceUnitTest {
 
+    private SettingsService settingsService;
     private IndexManager indexManager;
     private ArtistDao artistDao;
     private AlbumDao albumDao;
@@ -64,14 +71,16 @@ class MediaScannerServiceUnitTest {
 
     @BeforeEach
     public void setup() {
+        settingsService = mock(SettingsService.class);
         indexManager = mock(IndexManager.class);
         mediaFileService = mock(MediaFileService.class);
         mediaFileDao = mock(MediaFileDao.class);
         artistDao = mock(ArtistDao.class);
         albumDao = mock(AlbumDao.class);
-        mediaScannerService = new MediaScannerService(mock(SettingsService.class), mock(MusicFolderService.class),
-                indexManager, mock(PlaylistService.class), mediaFileService, mediaFileDao, artistDao, albumDao,
-                mock(Ehcache.class), mock(MediaScannerServiceUtils.class), mock(ThreadPoolTaskExecutor.class));
+        mediaScannerService = new MediaScannerService(settingsService, mock(MusicFolderService.class), indexManager,
+                mock(PlaylistService.class), mock(MediaFileCache.class), mediaFileService, mediaFileDao, artistDao,
+                albumDao, mock(Ehcache.class), mock(MediaScannerServiceUtils.class),
+                mock(ThreadPoolTaskExecutor.class));
     }
 
     @Test
@@ -81,6 +90,54 @@ class MediaScannerServiceUnitTest {
 
         Mockito.when(indexManager.getStatistics()).thenReturn(new MediaLibraryStatistics());
         assertFalse(mediaScannerService.neverScanned());
+    }
+
+    @Nested
+    class ScanFileTest {
+
+        private File createFile(String path) throws URISyntaxException {
+            return new File(MediaFileServiceTest.class.getResource(path).toURI());
+        }
+
+        @Test
+        void testScanFile() throws URISyntaxException, ExecutionException {
+
+            SecurityService securityService = mock(SecurityService.class);
+            MetaDataParserFactory metaDataParserFactory = mock(MetaDataParserFactory.class);
+            mediaFileService = new MediaFileService(settingsService, mock(MusicFolderService.class), securityService,
+                    mock(MediaFileCache.class), mediaFileDao, mock(AlbumDao.class), metaDataParserFactory,
+                    mock(MediaFileServiceUtils.class));
+            mediaScannerService = new MediaScannerService(settingsService, mock(MusicFolderService.class), indexManager,
+                    mock(PlaylistService.class), mock(MediaFileCache.class), mediaFileService, mediaFileDao, artistDao,
+                    albumDao, mock(Ehcache.class), mock(MediaScannerServiceUtils.class),
+                    mock(ThreadPoolTaskExecutor.class));
+
+            assertTrue(mediaFileService.isSchemeLastModified());
+
+            Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(new String[0]);
+            Mockito.when(settingsService.getMusicFileTypesAsArray()).thenReturn(new String[] { "mp3" });
+            Mockito.when(securityService.isReadAllowed(Mockito.any(File.class))).thenReturn(true);
+
+            File dir = createFile("/MEDIAS/Music2/_DIR_ chrome hoof - 2004");
+            assertTrue(dir.isDirectory());
+            MediaFile album = mediaFileService.createMediaFile(dir);
+
+            File file = createFile("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
+            assertTrue(file.isFile());
+            MediaFile child = mediaFileService.createMediaFile(file);
+            child.setLastScanned(MediaFileDao.ZERO_DATE);
+
+            MusicFolder musicFolder = new MusicFolder(createFile("/MEDIAS/Music2"), "name", false, new Date());
+            Date scanStart = DateUtils.truncate(new Date(), Calendar.SECOND);
+            MediaLibraryStatistics statistics = new MediaLibraryStatistics(scanStart);
+            Map<String, Integer> albumCount = new ConcurrentHashMap<>();
+            Genres genres = new Genres();
+
+            List<MediaFile> children = Arrays.asList(child);
+            Mockito.when(mediaFileDao.getChildrenOf(album.getPath())).thenReturn(children);
+
+            mediaScannerService.scanFile(album, musicFolder, statistics, albumCount, genres, false);
+        }
     }
 
     @Nested
