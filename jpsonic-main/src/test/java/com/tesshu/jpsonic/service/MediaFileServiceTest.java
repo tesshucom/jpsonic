@@ -21,6 +21,7 @@ package com.tesshu.jpsonic.service;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -412,22 +413,28 @@ class MediaFileServiceTest {
             };
 
             // with embedded coverArt
-            File embedded = stub.apply(createFile("/MEDIAS/Metadata/tagger3/tagged/test.flac"));
+            final File embedded = stub.apply(createFile("/MEDIAS/Metadata/tagger3/tagged/test.flac"));
 
             // without embedded coverArt
-            File without = stub.apply(createFile("/MEDIAS/Metadata/tagger3/testdata/test.ogg"));
+            /*
+             * #1453 In Jpsonic, even if the actual file does not have an embedded image, it is considered as a target
+             * if the extension matches.
+             */
+            final File without = stub.apply(createFile("/MEDIAS/Metadata/tagger3/testdata/test.ogg"));
 
             // File in a format that does not support the acquisition of Artwork
-            File noSupport = stub.apply(createFile("/MEDIAS/Metadata/tagger3/blank/blank.shn"));
+            final File noSupport = stub.apply(createFile("/MEDIAS/Metadata/tagger3/blank/blank.shn"));
 
             assertEquals(embedded, mediaFileService.findCoverArt(embedded).get());
-            assertTrue(mediaFileService.findCoverArt(without).isEmpty());
+            assertFalse(mediaFileService.findCoverArt(without).isEmpty());
+            assertEquals(without, mediaFileService.findCoverArt(without).get());
             assertTrue(mediaFileService.findCoverArt(noSupport).isEmpty());
 
             // Of the files in the target format, only the first file is evaluated.
             assertEquals(embedded, mediaFileService.findCoverArt(embedded, without).get());
             assertEquals(embedded, mediaFileService.findCoverArt(noSupport, embedded).get());
-            assertTrue(mediaFileService.findCoverArt(without, embedded).isEmpty());
+            assertFalse(mediaFileService.findCoverArt(without, embedded).isEmpty());
+            assertEquals(without, mediaFileService.findCoverArt(without, embedded).get());
         }
     }
 }
