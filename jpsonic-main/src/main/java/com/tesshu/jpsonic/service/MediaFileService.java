@@ -91,7 +91,7 @@ public class MediaFileService {
     }
 
     public @Nullable MediaFile getMediaFile(File file) {
-        return getMediaFile(file, settingsService.isFastCacheEnabled());
+        return getMediaFile(file, true);
     }
 
     public @Nullable MediaFile getMediaFile(File file, boolean useFastCache, MediaLibraryStatistics... statistics) {
@@ -145,7 +145,7 @@ public class MediaFileService {
             throw new SecurityException("Access denied to file " + mediaFile);
         }
 
-        return checkLastModified(mediaFile, settingsService.isFastCacheEnabled());
+        return mediaFile;
     }
 
     public MediaFile getParentOf(MediaFile mediaFile) {
@@ -207,9 +207,8 @@ public class MediaFileService {
     }
 
     public List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories,
-            boolean sort, MediaLibraryStatistics... statistics) {
-        return getChildrenOf(parent, includeFiles, includeDirectories, sort, settingsService.isFastCacheEnabled(),
-                statistics);
+            boolean sort) {
+        return getChildrenOf(parent, includeFiles, includeDirectories, sort, true);
     }
 
     public List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories,

@@ -76,7 +76,6 @@ final class SettingsConstants {
         }
 
         static class Others {
-            static final Pair<Boolean> FAST_CACHE_ENABLED = Pair.of("FastCacheEnabled", true);
             static final Pair<String> FILE_MODIFIED_CHECK_SCHEME_NAME = Pair.of("FileModifiedCheckSchemeName",
                     FileModifiedCheckScheme.LAST_MODIFIED.name());
             static final Pair<Boolean> IGNORE_FILE_TIMESTAMPS = Pair.of("IgnoreFileTimestamps", false);

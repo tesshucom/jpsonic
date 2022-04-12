@@ -53,7 +53,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
     private boolean ignoreSymLinks;
 
     // Other operations
-    private boolean fastCache;
     private FileModifiedCheckScheme fileModifiedCheckScheme;
     private boolean ignoreFileTimestamps;
     private boolean ignoreFileTimestampsForEachAlbum;
@@ -128,14 +127,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
     public void setIgnoreSymLinks(boolean ignoreSymLinks) {
         this.ignoreSymLinks = ignoreSymLinks;
-    }
-
-    public boolean isFastCache() {
-        return fastCache;
-    }
-
-    public void setFastCache(boolean fastCache) {
-        this.fastCache = fastCache;
     }
 
     public FileModifiedCheckScheme getFileModifiedCheckScheme() {
