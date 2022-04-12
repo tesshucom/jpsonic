@@ -71,72 +71,31 @@ public class MediaFile {
     private int version;
     private String musicBrainzReleaseId;
     private String musicBrainzRecordingId;
-
-    // JP >>>> (May be renameColumn in later version)
-
-    /* Tags newly supported by Jpsonic. */
     private String composer;
-
-    /*
-     * Sort corresponds to the sort of ID3 tag, and mainly functions as a field that holds a value to be passed to
-     * Lucene.
-     *
-     * Unlike the original value, cleansing is performed. If the original tag does not exist, the value is generated
-     * using a Japanese parsing engine. After these processes, merging is performed if there are multiple sort-values
-     * for one word. These process are necessary to remove dirty data, prevent search dropouts, and reduce the size of
-     * the search index.
-     *
-     * This field will be the input to Lucene, but will not be used in normal SQL searches.
-     */
     private String artistSort;
     private String albumSort;
     private String titleSort;
     private String albumArtistSort;
     private String composerSort;
-
-    /*
-     * A sort key created using either Sort/Name. The Japanese sorting rule is
-     * "English depends on notation, Japanese depends on phonemes". Therefore, it is impossible to sort by referring to
-     * only one existing field. Based on this rule, sort keys are created from mixed English-Japanese words, English
-     * words and Japanese words.
-     */
     private String artistReading;
     private String albumReading;
     private String albumArtistReading;
-
-    /*
-     * In the case of DB, string of the reading comparison depends on its sorting implementation . To do it strictly, do
-     * it in Java. This field holds the result of Java sorting and reproduces the same sort in all DBs. It also
-     * contributes to speeding up.
-     */
     private int order;
-
-    /*
-     * Transcription of ID3 tag data.
-     *
-     */
     private String artistSortRaw;
     private String albumSortRaw;
     private String albumArtistSortRaw;
     private String composerSortRaw;
-
-    // Row number used internally during processing.
     private transient int rownum;
-
-    // <<<< JP
 
     public MediaFile(int id, String path, String folder, MediaType mediaType, String format, String title,
             String albumName, String artist, String albumArtist, Integer discNumber, Integer trackNumber, Integer year,
             String genre, Integer bitRate, boolean variableBitRate, Integer durationSeconds, Long fileSize,
             Integer width, Integer height, String coverArtPath, String parentPath, int playCount, Date lastPlayed,
             String comment, Date created, Date changed, Date lastScanned, Date childrenLastUpdated, boolean present,
-            int version, String musicBrainzReleaseId, String musicBrainzRecordingId,
-            // JP >>>>
-            String composer, String artistSort, String albumSort, String titleSort, String albumArtistSort,
-            String composerSort, String artistReading, String albumReading, String albumArtistReading,
-            String artistSortRaw, String albumSortRaw, String albumArtistSortRaw, String composerSortRaw, int order // <<<<
-                                                                                                                    // JP
-    ) {
+            int version, String musicBrainzReleaseId, String musicBrainzRecordingId, String composer, String artistSort,
+            String albumSort, String titleSort, String albumArtistSort, String composerSort, String artistReading,
+            String albumReading, String albumArtistReading, String artistSortRaw, String albumSortRaw,
+            String albumArtistSortRaw, String composerSortRaw, int order) {
         this.id = id;
         this.path = path;
         this.folder = folder;
@@ -169,7 +128,6 @@ public class MediaFile {
         this.version = version;
         this.musicBrainzReleaseId = musicBrainzReleaseId;
         this.musicBrainzRecordingId = musicBrainzRecordingId;
-        // JP >>>>
         this.composer = composer;
         this.artistSort = artistSort;
         this.albumSort = albumSort;
@@ -184,7 +142,6 @@ public class MediaFile {
         this.albumArtistSortRaw = albumArtistSortRaw;
         this.composerSortRaw = composerSortRaw;
         this.order = order;
-        // <<<< JP
     }
 
     public MediaFile() {
@@ -516,8 +473,6 @@ public class MediaFile {
         return coverArtPath == null ? null : new File(coverArtPath);
     }
 
-    // JP >>>>
-
     public String getComposer() {
         return composer;
     }
@@ -637,8 +592,6 @@ public class MediaFile {
     public void setRownum(int rownum) {
         this.rownum = rownum;
     }
-
-    // <<<< JP
 
     @Override
     public String toString() {
