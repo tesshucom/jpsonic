@@ -807,7 +807,6 @@ class MediaFileServiceTest {
         void testIsEmbeddedArtworkApplicable() throws ExecutionException, URISyntaxException {
 
             Mockito.when(securityService.isReadAllowed(Mockito.any(File.class))).thenReturn(true);
-            Mockito.when(settingsService.isFastCacheEnabled()).thenReturn(true);
 
             Function<File, File> stub = (file) -> {
                 MediaFile mediaFile = new MediaFile();

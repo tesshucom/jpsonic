@@ -96,7 +96,7 @@ public class SettingsService {
             "database.varchar.maxlength", "database.config.type", "database.config.embed.driver",
             "database.config.embed.url", "database.config.embed.username", "database.config.embed.password",
             "database.config.jndi.name", "database.usertable.quote", "ShowJavaJukebox", "AnonymousTranscoding",
-            "UseSonos", "SearchMethodLegacy", "SearchMethodChanged");
+            "UseSonos", "SearchMethodLegacy", "SearchMethodChanged", "FastCacheEnabled");
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
@@ -363,14 +363,6 @@ public class SettingsService {
 
     public void setIgnoreSymLinks(boolean b) {
         setProperty(SettingsConstants.MusicFolder.Exclusion.IGNORE_SYMLINKS, b);
-    }
-
-    public boolean isFastCacheEnabled() {
-        return getBoolean(SettingsConstants.MusicFolder.Others.FAST_CACHE_ENABLED);
-    }
-
-    public void setFastCacheEnabled(boolean b) {
-        setProperty(SettingsConstants.MusicFolder.Others.FAST_CACHE_ENABLED, b);
     }
 
     public String getFileModifiedCheckSchemeName() {
