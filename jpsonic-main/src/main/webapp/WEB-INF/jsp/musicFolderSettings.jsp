@@ -183,14 +183,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     <details ${isOpen}>
         <summary class="jpsonic"><fmt:message key="musicfoldersettings.other"/></summary>
-        <dl>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="fastCache" cssClass="checkbox" id="fastCache"/>
-                <form:label path="fastCache"><fmt:message key="musicfoldersettings.fastcache"/></form:label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="fastcache"/></c:import>
-            </dd>
-            
+        <dl class="single">
             <dt class="scheme">
                 <fmt:message key="musicfoldersettings.filemodifiedcheckscheme"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="filemodifiedcheckscheme"/></c:import>
