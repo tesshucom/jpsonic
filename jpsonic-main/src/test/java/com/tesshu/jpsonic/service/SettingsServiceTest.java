@@ -400,11 +400,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsFastCacheEnabled() {
-        assertTrue(settingsService.isFastCacheEnabled());
-    }
-
-    @Test
     void testGetFileModifiedCheckSchemeName() {
         assertEquals(FileModifiedCheckScheme.LAST_MODIFIED.name(), settingsService.getFileModifiedCheckSchemeName());
     }

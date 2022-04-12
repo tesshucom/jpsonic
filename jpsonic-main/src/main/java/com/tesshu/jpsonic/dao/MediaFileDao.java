@@ -668,11 +668,12 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public void resetLastScanned() {
-        update("update media_file set last_scanned = ? where present", ZERO_DATE);
+        update("update media_file set last_scanned = ?, children_last_updated = ? where present", ZERO_DATE, ZERO_DATE);
     }
 
     public void resetLastScanned(int id) {
-        update("update media_file set last_scanned = ? where present and id = ?", ZERO_DATE, id);
+        update("update media_file set last_scanned = ?, children_last_updated = ? where present and id = ?", ZERO_DATE,
+                ZERO_DATE, id);
     }
 
     public void markPresent(String path, Date lastScanned) {

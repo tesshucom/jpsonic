@@ -658,7 +658,7 @@ public class PodcastService {
         MediaFile mediaFile = mediaFileService.getMediaFile(file, false);
         if (StringUtils.isNotBlank(episode.getTitle())) {
             MetaDataParser parser = metaDataParserFactory.getParser(file);
-            if (!parser.isEditingSupported(file)) {
+            if (parser == null || !parser.isEditingSupported(file)) {
                 return;
             }
             MetaData metaData = parser.getRawMetaData(file);
