@@ -24,9 +24,6 @@ package com.tesshu.jpsonic.util;
 import java.io.File;
 import java.nio.file.Path;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Miscellaneous file utility methods.
  *
@@ -34,89 +31,10 @@ import org.slf4j.LoggerFactory;
  */
 public final class FileUtil {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
-
     /**
      * Disallow external instantiation.
      */
     private FileUtil() {
-    }
-
-    @Deprecated
-    public static boolean isFile(final File file) {
-        return timed(new FileTask<Boolean>("isFile", file) {
-            @Override
-            public Boolean execute() {
-                return file.isFile();
-            }
-        });
-    }
-
-    @Deprecated
-    public static boolean isDirectory(final File file) {
-        return timed(new FileTask<Boolean>("isDirectory", file) {
-            @Override
-            public Boolean execute() {
-                return file.isDirectory();
-            }
-        });
-    }
-
-    @Deprecated
-    public static boolean exists(final File file) {
-        return timed(new FileTask<Boolean>("exists", file) {
-            @Override
-            public Boolean execute() {
-                return file.exists();
-            }
-        });
-    }
-
-    @Deprecated
-    public static boolean exists(String path) {
-        return exists(new File(path));
-    }
-
-    @Deprecated
-    public static long lastModified(final File file) {
-        return timed(new FileTask<Long>("lastModified", file) {
-            @Override
-            public Long execute() {
-                return file.lastModified();
-            }
-        });
-    }
-
-    @Deprecated
-    public static long length(final File file) {
-        return timed(new FileTask<Long>("length", file) {
-            @Override
-            public Long execute() {
-                return file.length();
-            }
-        });
-    }
-
-    /**
-     * Similar to {@link File#listFiles()}, but never returns null. Instead a warning is logged, and an empty array is
-     * returned.
-     */
-    @Deprecated
-    public static File[] listFiles(final File dir) {
-        File[] files = timed(new FileTask<File[]>("listFiles", dir) {
-            @Override
-            public File[] execute() {
-                return dir.listFiles();
-            }
-        });
-
-        if (files == null) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to list children for " + dir.getPath());
-            }
-            return new File[0];
-        }
-        return files;
     }
 
     /**
@@ -132,27 +50,5 @@ public final class FileUtil {
             return path.getFileName().toString();
         }
         return parent.getFileName().toString() + File.separator + path.getFileName().toString();
-    }
-
-    private static <T> T timed(FileTask<T> task) {
-        return task.execute();
-    }
-
-    private abstract static class FileTask<T> {
-
-        private final String name;
-        private final File file;
-
-        public FileTask(String name, File file) {
-            this.name = name;
-            this.file = file;
-        }
-
-        public abstract T execute();
-
-        @Override
-        public String toString() {
-            return name + ", " + file;
-        }
     }
 }
