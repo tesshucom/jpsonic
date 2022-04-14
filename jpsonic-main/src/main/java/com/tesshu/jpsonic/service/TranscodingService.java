@@ -27,7 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -336,10 +336,10 @@ public class TranscodingService {
             }
         } catch (IOException e) {
             // IOException : Process failure or Windows limited process(createTempFile, File copy)
-            throw new IOException("Transcoder failed: " + parameters.getMediaFile().getFile().getAbsolutePath(), e);
+            throw new IOException("Transcoder failed: " + parameters.getMediaFile().toPath(), e);
         }
         // IOException : InvalidPathException
-        return Files.newInputStream(Paths.get(parameters.getMediaFile().getFile().toURI()));
+        return Files.newInputStream(Path.of(parameters.getMediaFile().getPathString()));
     }
 
     /**
@@ -454,7 +454,7 @@ public class TranscodingService {
             if (cmd.contains("%s")) {
                 // Work-around for filename character encoding problem on Windows.
                 // Create temporary file, and feed this to the transcoder.
-                String path = mediaFile.getFile().getAbsolutePath();
+                String path = mediaFile.getPathString();
                 if (PlayerUtils.isWindows() && !mediaFile.isVideo() && !StringUtils.isAsciiPrintable(path)) {
                     tmpFile = File.createTempFile("jpsonic", "." + FilenameUtils.getExtension(path));
                     tmpFile.deleteOnExit();

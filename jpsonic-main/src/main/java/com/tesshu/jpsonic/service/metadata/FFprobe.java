@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -151,7 +152,7 @@ public class FFprobe {
     }
 
     @SafeVarargs
-    final MetaData parse(@NonNull File file, Consumer<Long>... startTimeCallback) {
+    final MetaData parse(@NonNull Path path, Consumer<Long>... startTimeCallback) {
 
         MetaData result = new MetaData();
         String cmdPath = getCommandPath();
@@ -162,7 +163,7 @@ public class FFprobe {
         List<String> command = new ArrayList<>();
         command.add(cmdPath);
         command.addAll(Arrays.asList(FFPROBE_OPTIONS));
-        command.add(file.getAbsolutePath());
+        command.add(path.toString());
 
         long start;
         JsonNode node;
@@ -177,7 +178,7 @@ public class FFprobe {
             }
         } catch (IOException e) {
             // Exceptions to this class are self-explanatory, avoiding redundant trace output
-            String simplePath = createSimplePath(file);
+            String simplePath = createSimplePath(path);
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to execute ffprobe({}): {}", simplePath, e.getMessage());
             }
@@ -190,7 +191,7 @@ public class FFprobe {
     }
 
     MetaData parse(@NonNull MediaFile mediaFile, @Nullable Map<String, MP4ParseStatistics> statistics) {
-        return parse(mediaFile.getFile(), (start) -> {
+        return parse(mediaFile.toPath(), (start) -> {
             if (!isEmpty(statistics) && statistics.containsKey(getFolder(mediaFile))) {
                 long readtime = System.currentTimeMillis() - start;
                 statistics.get(getFolder(mediaFile)).addCmdLeadTime(readtime);

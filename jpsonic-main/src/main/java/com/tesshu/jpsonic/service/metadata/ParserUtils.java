@@ -24,8 +24,9 @@ package com.tesshu.jpsonic.service.metadata;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -177,37 +178,38 @@ public final class ParserUtils {
         return StringUtils.defaultIfBlank(mediaFile.getFolder(), "root");
     }
 
-    static String createSimplePath(File file) {
-        return file.getParentFile().getName().concat("/").concat(file.getName());
+    static String createSimplePath(Path path) {
+        return path.getParent().getFileName().toString().concat("/").concat(path.getFileName().toString());
     }
 
     /**
      * Returns whether the embedded artwork is in an available format. There is no guarantee that the artwork is
      * actually embedded.
      */
-    public static boolean isEmbeddedArtworkApplicable(File file) {
-        if (!file.isFile()) {
+    public static boolean isEmbeddedArtworkApplicable(Path path) {
+        if (Files.isDirectory(path)) {
             return false;
         }
-        return IMG_APPLICABLES.contains(FilenameUtils.getExtension(file.getName()).toLowerCase(Locale.getDefault()));
+        return IMG_APPLICABLES
+                .contains(FilenameUtils.getExtension(path.getFileName().toString()).toLowerCase(Locale.getDefault()));
     }
 
     @SuppressWarnings("PMD.GuardLogStatement")
-    public static Optional<Artwork> getEmbeddedArtwork(File file) {
+    public static Optional<Artwork> getEmbeddedArtwork(Path path) {
 
-        if (!isEmbeddedArtworkApplicable(file)) {
+        if (!isEmbeddedArtworkApplicable(path)) {
             return Optional.empty();
         }
 
         AudioFile af;
         try {
-            af = AudioFileIO.read(file);
+            af = AudioFileIO.read(path.toFile());
         } catch (CannotReadException | IOException | TagException | ReadOnlyFileException
                 | InvalidAudioFrameException e) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Unable to read cover art: ".concat(createSimplePath(file)), e);
+                LOG.debug("Unable to read cover art: ".concat(createSimplePath(path)), e);
             } else {
-                LOG.warn("Unable to read cover art in ".concat(createSimplePath(file)).concat(": [{}]"),
+                LOG.warn("Unable to read cover art in ".concat(createSimplePath(path)).concat(": [{}]"),
                         e.getMessage().trim());
             }
             return Optional.empty();
@@ -217,7 +219,7 @@ public final class ParserUtils {
         if (isEmpty(tag)) {
             return Optional.empty();
         } else if (tag instanceof WavTag && !((WavTag) tag).isExistingId3Tag()) {
-            LOG.info("Cover art is only supported in ID3 chunks: {}", createSimplePath(file));
+            LOG.info("Cover art is only supported in ID3 chunks: {}", createSimplePath(path));
             return Optional.empty();
         }
 

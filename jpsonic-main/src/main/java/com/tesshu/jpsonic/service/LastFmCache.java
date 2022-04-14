@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Properties;
 
 import de.umass.lastfm.cache.Cache;
@@ -63,7 +63,7 @@ public class LastFmCache extends Cache {
 
     @Override
     public InputStream load(String cacheEntryName) {
-        try (InputStream in = Files.newInputStream(Paths.get(getXmlFile(cacheEntryName).toURI()))) {
+        try (InputStream in = Files.newInputStream(Path.of(getXmlFile(cacheEntryName).toURI()))) {
             return new ByteArrayInputStream(IOUtils.toByteArray(in));
         } catch (IOException e) {
             return null;
@@ -87,7 +87,7 @@ public class LastFmCache extends Cache {
         createCache();
 
         File xmlFile = getXmlFile(cacheEntryName);
-        try (OutputStream xmlOut = Files.newOutputStream(Paths.get(xmlFile.toURI()))) {
+        try (OutputStream xmlOut = Files.newOutputStream(Path.of(xmlFile.toURI()))) {
 
             IOUtils.copy(inputStream, xmlOut);
 
@@ -97,7 +97,7 @@ public class LastFmCache extends Cache {
             // Note: Ignore the given expirationDate, since Last.fm sets it to just one day ahead.
             properties.setProperty("expiration-date", Long.toString(getExpirationDate()));
 
-            try (OutputStream metaOut = Files.newOutputStream(Paths.get(metaFile.toURI()))) {
+            try (OutputStream metaOut = Files.newOutputStream(Path.of(metaFile.toURI()))) {
                 properties.store(metaOut, null);
             }
 
@@ -124,7 +124,7 @@ public class LastFmCache extends Cache {
         if (!f.exists()) {
             return false;
         }
-        try (InputStream in = Files.newInputStream(Paths.get(f.toURI()))) {
+        try (InputStream in = Files.newInputStream(Path.of(f.toURI()))) {
             Properties p = new Properties();
             p.load(in);
             long expirationDate = Long.parseLong(p.getProperty("expiration-date"));

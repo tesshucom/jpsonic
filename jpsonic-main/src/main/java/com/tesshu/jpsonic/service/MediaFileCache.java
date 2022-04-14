@@ -19,7 +19,7 @@
 
 package com.tesshu.jpsonic.service;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -51,18 +51,18 @@ public class MediaFileCache {
         }
     }
 
-    void put(File file, MediaFile mediaFile) {
+    void put(Path path, MediaFile mediaFile) {
         if (isEnabled()) {
-            mediaFileMemoryCache.put(new Element(file, mediaFile));
+            mediaFileMemoryCache.put(new Element(path, mediaFile));
         }
     }
 
     @Nullable
-    MediaFile get(File file) {
+    MediaFile get(Path path) {
         if (!isEnabled()) {
             return null;
         }
-        Element element = mediaFileMemoryCache.get(file);
+        Element element = mediaFileMemoryCache.get(path);
         return element == null ? null : (MediaFile) element.getObjectValue();
     }
 
@@ -70,7 +70,7 @@ public class MediaFileCache {
         mediaFileMemoryCache.removeAll();
     }
 
-    boolean remove(File file) {
-        return mediaFileMemoryCache.remove(file);
+    boolean remove(Path path) {
+        return mediaFileMemoryCache.remove(path);
     }
 }

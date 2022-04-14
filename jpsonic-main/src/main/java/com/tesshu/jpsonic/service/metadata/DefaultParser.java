@@ -21,7 +21,8 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -47,19 +48,19 @@ public class DefaultParser extends MetaDataParser {
     /**
      * Parses meta data for the given file.
      *
-     * @param file
+     * @param path
      *            The file to parse.
      *
      * @return Meta data for the file.
      */
     @Override
-    public MetaData getRawMetaData(File file) {
+    public MetaData getRawMetaData(Path path) {
         MetaData metaData = new MetaData();
-        String artist = guessArtist(file);
+        String artist = guessArtist(path);
         metaData.setArtist(artist);
         metaData.setAlbumArtist(artist);
-        metaData.setAlbumName(guessAlbum(file, artist));
-        metaData.setTitle(guessTitle(file));
+        metaData.setAlbumName(guessAlbum(path, artist));
+        metaData.setTitle(guessTitle(path));
         return metaData;
     }
 
@@ -82,7 +83,7 @@ public class DefaultParser extends MetaDataParser {
      * @return Always false.
      */
     @Override
-    public boolean isEditingSupported(File file) {
+    public boolean isEditingSupported(Path path) {
         return false;
     }
 
@@ -100,7 +101,7 @@ public class DefaultParser extends MetaDataParser {
      * @return Whether this parser is applicable to the given file.
      */
     @Override
-    public boolean isApplicable(File file) {
-        return file.isFile();
+    public boolean isApplicable(Path path) {
+        return Files.isRegularFile(path);
     }
 }

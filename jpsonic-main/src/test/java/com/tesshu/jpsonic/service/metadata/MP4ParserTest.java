@@ -57,8 +57,7 @@ class MP4ParserTest {
 
     private MediaFile createTestMediafile() throws URISyntaxException, IOException {
         MediaFile mediaFile = new MediaFile();
-        File file = new File(
-                MusicParserTest.class.getResource("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4").toURI());
+        File file = new File(MP4ParserTest.class.getResource("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4").toURI());
         mediaFile.setPathString(file.getAbsolutePath());
         mediaFile.setFileSize(Files.size(file.toPath()));
         return mediaFile;

@@ -28,11 +28,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -73,8 +74,8 @@ class CoverArtControllerTest {
     private CoverArtController controller;
     private MockMvc mockMvc;
 
-    private static File createFile(String resourcePath) throws URISyntaxException {
-        return new File(CoverArtControllerTest.class.getResource(resourcePath).toURI());
+    private static Path createPath(String resourcePath) throws URISyntaxException {
+        return Path.of(CoverArtControllerTest.class.getResource(resourcePath).toURI());
     }
 
     @BeforeEach
@@ -92,27 +93,27 @@ class CoverArtControllerTest {
     @Nested
     class GetTest {
 
-        private final BiConsumer<File, String> mediaFileStub = (file, id) -> {
+        private final BiConsumer<Path, String> mediaFileStub = (path, id) -> {
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPathString(file.getPath());
-            Mockito.when(mediaFileService.getMediaFile(file)).thenReturn(mediaFile);
-            Mockito.when(mediaFileService.getCoverArt(mediaFile)).thenReturn(mediaFile.getFile());
+            mediaFile.setPathString(path.toString());
+            Mockito.when(mediaFileService.getMediaFile(path.toString())).thenReturn(mediaFile);
+            Mockito.when(mediaFileService.getCoverArt(mediaFile)).thenReturn(path);
             Mockito.when(mediaFileService.getMediaFile(Integer.parseInt(id))).thenReturn(mediaFile);
             MediaFile parent = new MediaFile();
-            parent.setPathString(file.getParent());
+            parent.setPathString(path.getParent().toString());
             parent.setArtist("CoverArtControllerTest#GetTest");
             Mockito.when(mediaFileService.getParentOf(mediaFile)).thenReturn(parent);
         };
 
-        private final BiConsumer<File, String> videoStub = (file, id) -> {
+        private final BiConsumer<Path, String> videoStub = (path, id) -> {
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPathString(file.getPath());
+            mediaFile.setPathString(path.toString());
             mediaFile.setMediaType(MediaType.VIDEO);
-            Mockito.when(mediaFileService.getMediaFile(file)).thenReturn(mediaFile);
-            Mockito.when(mediaFileService.getCoverArt(mediaFile)).thenReturn(mediaFile.getFile());
+            Mockito.when(mediaFileService.getMediaFile(path)).thenReturn(mediaFile);
+            Mockito.when(mediaFileService.getCoverArt(mediaFile)).thenReturn(path);
             Mockito.when(mediaFileService.getMediaFile(Integer.parseInt(id))).thenReturn(mediaFile);
             MediaFile parent = new MediaFile();
-            parent.setPathString(file.getParent());
+            parent.setPathString(path.getParent().toString());
             parent.setArtist("CoverArtControllerTest#GetTest");
             Mockito.when(mediaFileService.getParentOf(mediaFile)).thenReturn(parent);
         };
@@ -134,7 +135,7 @@ class CoverArtControllerTest {
         @WithMockUser(username = "admin")
         void testWithEmbededImage() throws Exception {
             final String mediaFileId = "99";
-            mediaFileStub.accept(createFile("/MEDIAS/Metadata/tagger3/tagged/test.flac"), mediaFileId);
+            mediaFileStub.accept(createPath("/MEDIAS/Metadata/tagger3/tagged/test.flac"), mediaFileId);
             MvcResult result = mockMvc
                     .perform(MockMvcRequestBuilders.get("/" + ViewName.COVER_ART.value())
                             .param(Attributes.Request.ID.value(), "99").param(Attributes.Request.SIZE.value(), "150"))
@@ -145,7 +146,7 @@ class CoverArtControllerTest {
         @Test
         void testWithoutEmbededImage() throws Exception {
             final String mediaFileId = "99";
-            mediaFileStub.accept(createFile("/MEDIAS/Metadata/tagger3/testdata/01.mp3"), mediaFileId);
+            mediaFileStub.accept(createPath("/MEDIAS/Metadata/tagger3/testdata/01.mp3"), mediaFileId);
             MvcResult result = mockMvc
                     .perform(MockMvcRequestBuilders.get("/" + ViewName.COVER_ART.value())
                             .param(Attributes.Request.ID.value(), "99").param(Attributes.Request.SIZE.value(), "150"))
@@ -156,7 +157,7 @@ class CoverArtControllerTest {
         @Test
         void testWithImage() throws Exception {
             final String mediaFileId = "99";
-            mediaFileStub.accept(createFile("/MEDIAS/Metadata/coverart/album.jpeg"), mediaFileId);
+            mediaFileStub.accept(createPath("/MEDIAS/Metadata/coverart/album.jpeg"), mediaFileId);
             MvcResult result = mockMvc
                     .perform(MockMvcRequestBuilders.get("/" + ViewName.COVER_ART.value())
                             .param(Attributes.Request.ID.value(), "99").param(Attributes.Request.SIZE.value(), "150"))
@@ -167,7 +168,7 @@ class CoverArtControllerTest {
         @Test
         void testWithEmptyImage() throws Exception {
             final String mediaFileId = "99";
-            mediaFileStub.accept(createFile("/MEDIAS/Metadata/coverart/album.jpg"), mediaFileId);
+            mediaFileStub.accept(createPath("/MEDIAS/Metadata/coverart/album.jpg"), mediaFileId);
             MvcResult result = mockMvc
                     .perform(MockMvcRequestBuilders.get("/" + ViewName.COVER_ART.value())
                             .param(Attributes.Request.ID.value(), "99").param(Attributes.Request.SIZE.value(), "150"))
@@ -179,15 +180,15 @@ class CoverArtControllerTest {
         void testWithImageCannotRead() throws Exception {
 
             final String id = "99";
-            File file = new File("/MEDIAS/Metadata/coverart/unknown.gif");
+            Path path = Path.of("/MEDIAS/Metadata/coverart/unknown.gif");
 
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPathString(file.getPath());
-            Mockito.when(mediaFileService.getMediaFile(file)).thenReturn(mediaFile);
-            Mockito.when(mediaFileService.getCoverArt(mediaFile)).thenReturn(mediaFile.getFile());
+            mediaFile.setPathString(path.toString());
+            Mockito.when(mediaFileService.getMediaFile(path)).thenReturn(mediaFile);
+            Mockito.when(mediaFileService.getCoverArt(mediaFile)).thenReturn(path);
             Mockito.when(mediaFileService.getMediaFile(Integer.parseInt(id))).thenReturn(mediaFile);
             MediaFile parent = new MediaFile();
-            parent.setPathString(file.getParent());
+            parent.setPathString(path.getParent().toString());
             parent.setArtist("CoverArtControllerTest#GetTest");
             Mockito.when(mediaFileService.getParentOf(mediaFile)).thenReturn(parent);
 
@@ -201,7 +202,7 @@ class CoverArtControllerTest {
         @Test
         void testVideoThumbnail() throws Exception {
             final String mediaFileId = "99";
-            videoStub.accept(createFile("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4"), mediaFileId);
+            videoStub.accept(createPath("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4"), mediaFileId);
             MvcResult result = mockMvc
                     .perform(MockMvcRequestBuilders.get("/" + ViewName.COVER_ART.value())
                             .param(Attributes.Request.ID.value(), "99").param(Attributes.Request.SIZE.value(), "150"))
@@ -213,18 +214,18 @@ class CoverArtControllerTest {
     @Nested
     class SendUnscaledTest {
 
-        private final Function<File, File> mediaFileStub = (file) -> {
+        private final Function<Path, Path> mediaFileStub = (path) -> {
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPathString(file.getPath());
-            Mockito.when(mediaFileService.getMediaFile(file)).thenReturn(mediaFile);
-            Mockito.when(mediaFileService.getCoverArt(mediaFile)).thenReturn(mediaFile.getFile());
-            return file;
+            mediaFile.setPathString(path.toString());
+            Mockito.when(mediaFileService.getMediaFile(path)).thenReturn(mediaFile);
+            Mockito.when(mediaFileService.getCoverArt(mediaFile)).thenReturn(path);
+            return path;
         };
 
         @Test
         void testWithEmbededImage() throws Exception {
-            File file = mediaFileStub.apply(createFile("/MEDIAS/Metadata/tagger3/tagged/test.flac"));
-            MediaFile mediaFile = mediaFileService.getMediaFile(file);
+            Path path = mediaFileStub.apply(createPath("/MEDIAS/Metadata/tagger3/tagged/test.flac"));
+            MediaFile mediaFile = mediaFileService.getMediaFile(path);
             MediaFileCoverArtRequest req = controller.new MediaFileCoverArtRequest(mediaFile);
             HttpServletResponse res = new MockHttpServletResponse();
             controller.sendUnscaled(req, res);
@@ -236,8 +237,8 @@ class CoverArtControllerTest {
 
         @Test
         void testWithoutEmbededImage() throws Exception {
-            File file = mediaFileStub.apply(createFile("/MEDIAS/Metadata/tagger3/testdata/01.mp3"));
-            MediaFile mediaFile = mediaFileService.getMediaFile(file);
+            Path path = mediaFileStub.apply(createPath("/MEDIAS/Metadata/tagger3/testdata/01.mp3"));
+            MediaFile mediaFile = mediaFileService.getMediaFile(path);
             MediaFileCoverArtRequest req = controller.new MediaFileCoverArtRequest(mediaFile);
             HttpServletResponse res = new MockHttpServletResponse();
             assertThrows(ExecutionException.class, () -> controller.sendUnscaled(req, res));
@@ -245,8 +246,8 @@ class CoverArtControllerTest {
 
         @Test
         void testWithImage() throws Exception {
-            File file = mediaFileStub.apply(createFile("/MEDIAS/Metadata/coverart/album.gif"));
-            MediaFile mediaFile = mediaFileService.getMediaFile(file);
+            Path path = mediaFileStub.apply(createPath("/MEDIAS/Metadata/coverart/album.gif"));
+            MediaFile mediaFile = mediaFileService.getMediaFile(path);
             MediaFileCoverArtRequest req = controller.new MediaFileCoverArtRequest(mediaFile);
             HttpServletResponse res = new MockHttpServletResponse();
             controller.sendUnscaled(req, res);
@@ -258,8 +259,8 @@ class CoverArtControllerTest {
 
         @Test
         void testWithImageCannotRead() throws Exception {
-            File file = mediaFileStub.apply(new File("/MEDIAS/Metadata/coverart/unknown.gif"));
-            MediaFile mediaFile = mediaFileService.getMediaFile(file);
+            Path path = mediaFileStub.apply(Path.of("/MEDIAS/Metadata/coverart/unknown.gif"));
+            MediaFile mediaFile = mediaFileService.getMediaFile(path);
             MediaFileCoverArtRequest req = controller.new MediaFileCoverArtRequest(mediaFile);
             HttpServletResponse res = new MockHttpServletResponse();
             assertThrows(ExecutionException.class, () -> controller.sendUnscaled(req, res));
@@ -271,16 +272,16 @@ class CoverArtControllerTest {
 
         @Test
         void testWithEmbededImage() throws Exception {
-            File file = createFile("/MEDIAS/Metadata/tagger3/tagged/test.flac");
-            try (InputStream s = controller.getImageInputStream(file)) {
+            Path path = createPath("/MEDIAS/Metadata/tagger3/tagged/test.flac");
+            try (InputStream s = controller.getImageInputStream(path)) {
                 assertNotNull(s);
             }
         }
 
         @Test
         void testWithoutEmbededImage() throws Exception {
-            File file = createFile("/MEDIAS/Metadata/tagger3/testdata/01.mp3");
-            assertThrows(ExecutionException.class, () -> controller.getImageInputStream(file));
+            Path path = createPath("/MEDIAS/Metadata/tagger3/testdata/01.mp3");
+            assertThrows(ExecutionException.class, () -> controller.getImageInputStream(path));
         }
 
         @Test
@@ -289,20 +290,20 @@ class CoverArtControllerTest {
              * There is no check that the current resource is an image. (Only the image resource URI is registered in
              * the database)
              */
-            File file = createFile("/MEDIAS/Metadata/coverart/album.gif");
-            assertTrue(file.exists());
-            assertTrue(file.isFile());
-            try (InputStream s = controller.getImageInputStream(file)) {
+            Path path = createPath("/MEDIAS/Metadata/coverart/album.gif");
+            assertTrue(Files.exists(path));
+            assertFalse(Files.isDirectory(path));
+            try (InputStream s = controller.getImageInputStream(path)) {
                 assertNotNull(s);
             }
         }
 
         @Test
         void testWithImageCannotRead() throws Exception {
-            File file = new File("/MEDIAS/Metadata/coverart/unknown.gif");
-            assertFalse(file.exists());
-            assertFalse(file.isFile());
-            assertThrows(ExecutionException.class, () -> controller.getImageInputStream(file));
+            Path path = Path.of("/MEDIAS/Metadata/coverart/unknown.gif");
+            assertFalse(Files.exists(path));
+            assertFalse(Files.isDirectory(path));
+            assertThrows(ExecutionException.class, () -> controller.getImageInputStream(path));
         }
     }
 
@@ -311,8 +312,8 @@ class CoverArtControllerTest {
 
         @Test
         void testWithEmbededImage() throws Exception {
-            File file = createFile("/MEDIAS/Metadata/tagger3/tagged/test.flac");
-            Pair<InputStream, String> pair = controller.getImageInputStreamWithType(file);
+            Path path = createPath("/MEDIAS/Metadata/tagger3/tagged/test.flac");
+            Pair<InputStream, String> pair = controller.getImageInputStreamWithType(path);
             assertNotNull(pair.getLeft());
             assertEquals("image/png", pair.getRight());
             pair.getLeft().close();
@@ -320,16 +321,16 @@ class CoverArtControllerTest {
 
         @Test
         void testWithoutEmbededImage() throws Exception {
-            File file = createFile("/MEDIAS/Metadata/tagger3/testdata/01.mp3");
-            assertThrows(ExecutionException.class, () -> controller.getImageInputStreamWithType(file));
+            Path path = createPath("/MEDIAS/Metadata/tagger3/testdata/01.mp3");
+            assertThrows(ExecutionException.class, () -> controller.getImageInputStreamWithType(path));
         }
 
         @Test
         void testWithImage() throws Exception {
-            File file = createFile("/MEDIAS/Metadata/coverart/album.gif");
-            assertTrue(file.exists());
-            assertTrue(file.isFile());
-            Pair<InputStream, String> pair = controller.getImageInputStreamWithType(file);
+            Path path = createPath("/MEDIAS/Metadata/coverart/album.gif");
+            assertTrue(Files.exists(path));
+            assertFalse(Files.isDirectory(path));
+            Pair<InputStream, String> pair = controller.getImageInputStreamWithType(path);
             assertNotNull(pair.getLeft());
             assertEquals("image/gif", pair.getRight());
             pair.getLeft().close();
@@ -337,10 +338,10 @@ class CoverArtControllerTest {
 
         @Test
         void testWithImageCannotRead() throws Exception {
-            File file = new File("/MEDIAS/Metadata/coverart/unknown.gif");
-            assertFalse(file.exists());
-            assertFalse(file.isFile());
-            assertThrows(ExecutionException.class, () -> controller.getImageInputStreamWithType(file));
+            Path path = Path.of("/MEDIAS/Metadata/coverart/unknown.gif");
+            assertFalse(Files.exists(path));
+            assertFalse(Files.isDirectory(path));
+            assertThrows(ExecutionException.class, () -> controller.getImageInputStreamWithType(path));
         }
     }
 
@@ -349,10 +350,10 @@ class CoverArtControllerTest {
 
         @Test
         void testValidFile() throws URISyntaxException, IOException {
-            File file = createFile("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
-            assertTrue(file.exists());
+            Path path = createPath("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
+            assertTrue(Files.exists(path));
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPathString(file.getPath());
+            mediaFile.setPathString(path.toString());
             BufferedImage bi = controller.getImageInputStreamForVideo(mediaFile, 200, 160, 0);
             assertEquals(BufferedImage.TYPE_3BYTE_BGR, bi.getType());
             assertEquals(200, bi.getWidth());
@@ -361,10 +362,10 @@ class CoverArtControllerTest {
 
         @Test
         void testInValidFile() throws URISyntaxException, IOException {
-            File file = new File("/MEDIAS/Metadata/tagger3/tagged/test.unknown.mp4");
-            assertFalse(file.exists());
+            Path path = Path.of("/MEDIAS/Metadata/tagger3/tagged/test.unknown.mp4");
+            assertFalse(Files.exists(path));
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPathString(file.getPath());
+            mediaFile.setPathString(path.toString());
             assertNull(controller.getImageInputStreamForVideo(mediaFile, 200, 160, 0));
         }
     }

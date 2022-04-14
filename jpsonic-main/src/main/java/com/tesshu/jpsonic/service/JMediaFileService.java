@@ -73,7 +73,7 @@ public class JMediaFileService {
     }
 
     public MediaFile getMediaFile(File file) {
-        return deligate.getMediaFile(file);
+        return deligate.getMediaFile(file.toPath());
 
     }
 

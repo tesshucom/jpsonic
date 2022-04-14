@@ -21,8 +21,9 @@
 
 package com.tesshu.jpsonic.service;
 
-import java.io.File;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,7 +38,6 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.domain.MusicIndex;
 import com.tesshu.jpsonic.domain.MusicIndex.SortableArtist;
-import com.tesshu.jpsonic.util.FileUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -92,7 +92,7 @@ public class MusicIndexService {
     private List<MediaFile> getSingleSongs(List<MusicFolder> folders, boolean refresh) {
         List<MediaFile> result = new ArrayList<>();
         for (MusicFolder folder : folders) {
-            MediaFile parent = mediaFileService.getMediaFile(folder.getPath(), !refresh);
+            MediaFile parent = mediaFileService.getMediaFile(folder.getPath().toPath(), !refresh);
             result.addAll(mediaFileService.getChildrenOf(parent, true, false, true, !refresh));
         }
         return result;
@@ -103,9 +103,9 @@ public class MusicIndexService {
         List<MediaFile> result = new ArrayList<>();
         for (String shortcut : settingsService.getShortcutsAsArray()) {
             for (MusicFolder musicFolder : musicFoldersToUse) {
-                File file = new File(musicFolder.getPath(), shortcut);
-                if (FileUtil.exists(file)) {
-                    result.add(mediaFileService.getMediaFile(file, true));
+                Path shortcutPath = Path.of(musicFolder.getPath().toString(), shortcut);
+                if (Files.exists(shortcutPath)) {
+                    result.add(mediaFileService.getMediaFile(shortcutPath, true));
                 }
             }
         }

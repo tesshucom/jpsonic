@@ -23,7 +23,8 @@ package com.tesshu.jpsonic.service;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -40,7 +41,6 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
-import com.tesshu.jpsonic.util.FileUtil;
 import net.sf.ehcache.Ehcache;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
@@ -399,14 +399,9 @@ public class SecurityService implements UserDetailsService {
      *
      * @return Whether the given file may be read.
      */
-    public boolean isReadAllowed(File file) {
+    public boolean isReadAllowed(Path path) {
         // Allowed to read from both music folder and podcast folder.
-        return isInMusicFolder(file) || isInPodcastFolder(file);
-    }
-
-    public boolean isReadAllowed(String path) {
-        // Allowed to read from both music folder and podcast folder.
-        return isInMusicFolder(path) || isInPodcastFolder(path);
+        return isInMusicFolder(path.toString()) || isInPodcastFolder(path);
     }
 
     public boolean isNoTraversal(String path) {
@@ -418,10 +413,10 @@ public class SecurityService implements UserDetailsService {
      *
      * @return Whether the given file may be written, created or deleted.
      */
-    public boolean isWriteAllowed(File file) {
+    public boolean isWriteAllowed(Path path) {
         // Only allowed to write podcasts or cover art.
-        boolean isPodcast = isInPodcastFolder(file);
-        boolean isCoverArt = isInMusicFolder(file) && file.getName().startsWith("cover.");
+        boolean isPodcast = isInPodcastFolder(path);
+        boolean isCoverArt = isInMusicFolder(path.toString()) && path.getFileName().toString().startsWith("cover.");
 
         return isPodcast || isCoverArt;
     }
@@ -431,8 +426,8 @@ public class SecurityService implements UserDetailsService {
      *
      * @return Whether the given file may be uploaded.
      */
-    public boolean isUploadAllowed(File file) {
-        return isInMusicFolder(file) && !FileUtil.exists(file);
+    public boolean isUploadAllowed(Path path) {
+        return isInMusicFolder(path.toString()) && !Files.exists(path);
     }
 
     /**
@@ -443,10 +438,6 @@ public class SecurityService implements UserDetailsService {
      *
      * @return Whether the given file is located in one of the music folders.
      */
-    private boolean isInMusicFolder(File file) {
-        return getMusicFolderForFile(file) != null;
-    }
-
     private boolean isInMusicFolder(String path) {
         return getMusicFolderForFile(path) != null;
     }
@@ -461,28 +452,17 @@ public class SecurityService implements UserDetailsService {
         return null;
     }
 
-    private MusicFolder getMusicFolderForFile(File file) {
-        List<MusicFolder> folders = musicFolderService.getAllMusicFolders(false, true);
-        String path = file.getPath();
-        for (MusicFolder folder : folders) {
-            if (isFileInFolder(path, folder.getPath().getPath())) {
-                return folder;
-            }
-        }
-        return null;
-    }
-
     /**
      * Returns whether the given file is located in the Podcast folder (or any of its sub-folders).
      *
-     * @param file
+     * @param path
      *            The file in question.
      *
      * @return Whether the given file is located in the Podcast folder.
      */
-    public boolean isInPodcastFolder(File file) {
+    public boolean isInPodcastFolder(Path path) {
         String podcastFolder = settingsService.getPodcastFolder();
-        return isFileInFolder(file.getPath(), podcastFolder);
+        return isFileInFolder(path.toString(), podcastFolder);
     }
 
     private boolean isInPodcastFolder(String path) {
@@ -490,20 +470,32 @@ public class SecurityService implements UserDetailsService {
         return isFileInFolder(path, podcastFolder);
     }
 
-    public String getRootFolderForFile(File file) {
-        MusicFolder folder = getMusicFolderForFile(file);
+    public String getRootFolderForFile(String path) {
+        MusicFolder folder = getMusicFolderForFile(path);
         if (folder != null) {
             return folder.getPath().getPath();
         }
 
-        if (isInPodcastFolder(file)) {
+        if (isInPodcastFolder(path)) {
+            return settingsService.getPodcastFolder();
+        }
+        return null;
+    }
+
+    public String getRootFolderForFile(Path path) {
+        MusicFolder folder = getMusicFolderForFile(path.toString());
+        if (folder != null) {
+            return folder.getPath().getPath();
+        }
+
+        if (isInPodcastFolder(path)) {
             return settingsService.getPodcastFolder();
         }
         return null;
     }
 
     public boolean isFolderAccessAllowed(MediaFile file, String username) {
-        if (isInPodcastFolder(file.getFile())) {
+        if (isInPodcastFolder(file.toPath())) {
             return true;
         }
 

@@ -25,9 +25,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
@@ -50,34 +51,34 @@ class FFmpegTest {
         ffmpeg = new FFmpeg(transcodingService);
     }
 
-    private File createFile(String path) throws URISyntaxException, IOException {
-        return new File(FFmpegTest.class.getResource(path).toURI());
+    private Path createPath(String path) throws URISyntaxException, IOException {
+        return Path.of(FFmpegTest.class.getResource(path).toURI());
     }
 
     @Test
     @Order(1)
     void testBlank() throws URISyntaxException, IOException {
-        File file = createFile("/MEDIAS/Metadata/tagger3/blank/blank.mp4");
-        assertTrue(file.exists());
-        BufferedImage bi = ffmpeg.createImage(file, 200, 160, 0);
+        Path path = createPath("/MEDIAS/Metadata/tagger3/blank/blank.mp4");
+        assertTrue(Files.exists(path));
+        BufferedImage bi = ffmpeg.createImage(path, 200, 160, 0);
         assertNull(bi);
     }
 
     @Test
     @Order(2)
     void testInvalidFile() throws URISyntaxException, IOException {
-        File file = createFile("/MEDIAS/Metadata/tagger3/testdata/test.stem.mp4");
-        assertTrue(file.exists());
-        BufferedImage bi = ffmpeg.createImage(file, 200, 160, 0);
+        Path path = createPath("/MEDIAS/Metadata/tagger3/testdata/test.stem.mp4");
+        assertTrue(Files.exists(path));
+        BufferedImage bi = ffmpeg.createImage(path, 200, 160, 0);
         assertNull(bi);
     }
 
     @Test
     @Order(3)
     void testThumbnailWithValidFile() throws URISyntaxException, IOException {
-        File file = createFile("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
-        assertTrue(file.exists());
-        BufferedImage bi = ffmpeg.createImage(file, 200, 160, 0);
+        Path path = createPath("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
+        assertTrue(Files.exists(path));
+        BufferedImage bi = ffmpeg.createImage(path, 200, 160, 0);
         assertEquals(BufferedImage.TYPE_3BYTE_BGR, bi.getType());
         assertEquals(200, bi.getWidth());
         assertEquals(160, bi.getHeight());
@@ -86,9 +87,9 @@ class FFmpegTest {
     @Test
     @Order(4)
     void testSeekedFrameWithValidFile() throws URISyntaxException, IOException {
-        File file = createFile("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
-        assertTrue(file.exists());
-        BufferedImage bi = ffmpeg.createImage(file, 200, 160, 1);
+        Path path = createPath("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
+        assertTrue(Files.exists(path));
+        BufferedImage bi = ffmpeg.createImage(path, 200, 160, 1);
         assertEquals(BufferedImage.TYPE_3BYTE_BGR, bi.getType());
         assertEquals(200, bi.getWidth());
         assertEquals(160, bi.getHeight());
@@ -97,18 +98,18 @@ class FFmpegTest {
     @Test
     @Order(5)
     void testOverFrameWithValidFile() throws URISyntaxException, IOException {
-        File file = createFile("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
-        assertTrue(file.exists());
-        BufferedImage bi = ffmpeg.createImage(file, 200, 160, Integer.MAX_VALUE);
+        Path path = createPath("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
+        assertTrue(Files.exists(path));
+        BufferedImage bi = ffmpeg.createImage(path, 200, 160, Integer.MAX_VALUE);
         assertNull(bi);
     }
 
     @Test
     @Order(6)
     void testZeroSizeWithValidFile() throws URISyntaxException, IOException {
-        File file = createFile("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
-        assertTrue(file.exists());
-        BufferedImage bi = ffmpeg.createImage(file, 0, 0, 0);
+        Path path = createPath("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
+        assertTrue(Files.exists(path));
+        BufferedImage bi = ffmpeg.createImage(path, 0, 0, 0);
         assertEquals(BufferedImage.TYPE_3BYTE_BGR, bi.getType());
         assertEquals(1920, bi.getWidth()); // original
         assertEquals(1080, bi.getHeight()); // original
@@ -117,9 +118,9 @@ class FFmpegTest {
     @Test
     @Order(6)
     void testNegativeWithValidFile() throws URISyntaxException, IOException {
-        File file = createFile("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
-        assertTrue(file.exists());
-        BufferedImage bi = ffmpeg.createImage(file, -1, -1, -1);
+        Path path = createPath("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
+        assertTrue(Files.exists(path));
+        BufferedImage bi = ffmpeg.createImage(path, -1, -1, -1);
         assertEquals(BufferedImage.TYPE_3BYTE_BGR, bi.getType());
         assertEquals(1920, bi.getWidth()); // original
         assertEquals(1080, bi.getHeight()); // original

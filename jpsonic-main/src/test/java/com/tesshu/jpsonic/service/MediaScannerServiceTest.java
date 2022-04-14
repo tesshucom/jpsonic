@@ -29,7 +29,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -202,32 +201,26 @@ class MediaScannerServiceTest {
     @Test
     void testSpecialCharactersInFilename(@TempDir Path tempDirPath) throws Exception {
 
-        File tempDir = tempDirPath.toFile();
-        tempDir.mkdir();
-
-        File musicFile;
+        Path musicPath;
         try (InputStream resource = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("MEDIAS/piano.mp3")) {
             assert resource != null;
             String directoryName = "Muff1nman\u2019s \uFF0FMusic"; // Muff1nman’s ／Music
             String fileName = "Muff1nman\u2019s\uFF0FPiano.mp3"; // Muff1nman’s／Piano.mp3
 
-            File artistDir = new File(tempDir, directoryName);
-            artistDir.mkdir();
+            Path artistDir = Path.of(tempDirPath.toString(), directoryName);
+            Files.createDirectory(artistDir);
 
-            musicFile = artistDir.toPath().resolve(fileName).toFile();
-            IOUtils.copy(resource, Files.newOutputStream(Paths.get(musicFile.toURI())));
+            musicPath = Path.of(artistDir.toString(), fileName);
+            IOUtils.copy(resource, Files.newOutputStream(musicPath));
         }
 
-        MusicFolder musicFolder = new MusicFolder(1, tempDir, "Music", true, new Date());
+        MusicFolder musicFolder = new MusicFolder(1, tempDirPath.toFile(), "Music", true, new Date());
         musicFolderDao.createMusicFolder(musicFolder);
         musicFolderService.clearMusicFolderCache();
         TestCaseUtils.execScan(mediaScannerService);
-        MediaFile mediaFile = mediaFileService.getMediaFile(musicFile);
-        assertEquals(mediaFile.getFile().toString(), musicFile.toString());
-        if (LOG.isInfoEnabled()) {
-            LOG.info(mediaFile.getFile().getPath());
-        }
+        MediaFile mediaFile = mediaFileService.getMediaFile(musicPath);
+        assertEquals(mediaFile.toPath(), musicPath);
         assertNotNull(mediaFile);
     }
 
@@ -282,7 +275,7 @@ class MediaScannerServiceTest {
         assertEquals(1, (long) file.getTrackNumber());
         assertEquals(2001, (long) file.getYear());
         assertEquals(album.getPath(), file.getParentPathString());
-        assertEquals(new File(album.getPath()).toPath().resolve("01 - Aria.flac").toString(), file.getPathString());
+        assertEquals(Path.of(album.getPath()).resolve("01 - Aria.flac"), file.toPath());
         assertEquals("0820752d-1043-4572-ab36-2df3b5cc15fa", file.getMusicBrainzReleaseId());
         assertEquals("831586f4-56f9-4785-ac91-447ae20af633", file.getMusicBrainzRecordingId());
     }

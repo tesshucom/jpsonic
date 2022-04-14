@@ -21,9 +21,7 @@
 
 package com.tesshu.jpsonic.service.playlist;
 
-import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -84,13 +82,10 @@ public class XspfPlaylistImportHandler implements PlaylistImportHandler {
         if (sc instanceof Location) {
             Location location = (Location) sc;
             try {
-                File file = new File(new URI(location.getText()));
-                MediaFile mediaFile = mediaFileService.getMediaFile(file);
+                MediaFile mediaFile = mediaFileService.getMediaFile(Path.of(location.getText()));
                 if (mediaFile == null && sc.getText() != null) {
-                    return mediaFileService.getMediaFile(new File(sc.getText()));
+                    return mediaFileService.getMediaFile(Path.of(sc.getText()));
                 }
-            } catch (URISyntaxException e) {
-                LOG.error("Unable to generate URI.", e);
             } catch (SecurityException e) {
                 if (LOG.isTraceEnabled()) {
                     LOG.error("SecurityException will be ignored.", e);

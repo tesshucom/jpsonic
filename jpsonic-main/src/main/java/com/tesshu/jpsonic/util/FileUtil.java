@@ -22,6 +22,7 @@
 package com.tesshu.jpsonic.util;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,15 +116,15 @@ public final class FileUtil {
      * Returns a short path for the given file. The path consists of the name of the parent directory and the given
      * file.
      */
-    public static String getShortPath(File file) {
-        if (file == null) {
+    public static String getShortPath(Path path) {
+        if (path == null) {
             return null;
         }
-        File parent = file.getParentFile();
+        Path parent = path.getParent();
         if (parent == null) {
-            return file.getName();
+            return path.getFileName().toString();
         }
-        return parent.getName() + File.separator + file.getName();
+        return parent.getFileName().toString() + File.separator + path.getFileName().toString();
     }
 
     private static <T> T timed(FileTask<T> task) {

@@ -207,7 +207,7 @@ public class StatusService {
                     if (file == null) {
                         continue;
                     }
-                    MediaFile mediaFile = mediaFileService.getMediaFile(file);
+                    MediaFile mediaFile = mediaFileService.getMediaFile(file.toPath());
                     if (player == null || mediaFile == null) {
                         continue;
                     }

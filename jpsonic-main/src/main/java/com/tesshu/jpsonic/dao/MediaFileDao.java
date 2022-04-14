@@ -203,8 +203,8 @@ public class MediaFileDao extends AbstractDao {
             }
 
             update("insert into media_file (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
-                    file.getPathString(), file.getFolder(), file.getMediaType().name(), file.getFormat(), file.getTitle(),
-                    file.getAlbumName(), file.getArtist(), file.getAlbumArtist(), file.getDiscNumber(),
+                    file.getPathString(), file.getFolder(), file.getMediaType().name(), file.getFormat(),
+                    file.getTitle(), file.getAlbumName(), file.getArtist(), file.getAlbumArtist(), file.getDiscNumber(),
                     file.getTrackNumber(), file.getYear(), file.getGenre(), file.getBitRate(), file.isVariableBitRate(),
                     file.getDurationSeconds(), file.getFileSize(), file.getWidth(), file.getHeight(),
                     file.getCoverArtPathString(), file.getParentPathString(), file.getPlayCount(), file.getLastPlayed(),

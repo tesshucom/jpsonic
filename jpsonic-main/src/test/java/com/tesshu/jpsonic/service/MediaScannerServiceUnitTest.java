@@ -29,6 +29,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -99,6 +101,10 @@ class MediaScannerServiceUnitTest {
             return new File(MediaFileServiceTest.class.getResource(path).toURI());
         }
 
+        private Path createPath(String path) throws URISyntaxException {
+            return Path.of(MediaFileServiceTest.class.getResource(path).toURI());
+        }
+
         @Test
         void testScanFile() throws URISyntaxException, ExecutionException {
 
@@ -116,14 +122,14 @@ class MediaScannerServiceUnitTest {
 
             Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(new String[0]);
             Mockito.when(settingsService.getMusicFileTypesAsArray()).thenReturn(new String[] { "mp3" });
-            Mockito.when(securityService.isReadAllowed(Mockito.any(File.class))).thenReturn(true);
+            Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
 
-            File dir = createFile("/MEDIAS/Music2/_DIR_ chrome hoof - 2004");
-            assertTrue(dir.isDirectory());
+            Path dir = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004");
+            assertTrue(Files.isDirectory(dir));
             MediaFile album = mediaFileService.createMediaFile(dir);
 
-            File file = createFile("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
-            assertTrue(file.isFile());
+            Path file = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
+            assertFalse(Files.isDirectory(file));
             MediaFile child = mediaFileService.createMediaFile(file);
             child.setLastScanned(MediaFileDao.ZERO_DATE);
 

@@ -28,8 +28,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Documented;
+import java.net.URISyntaxException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,7 +41,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.MusicFolderTestDataUtils;
 import com.tesshu.jpsonic.dao.PlayerDao;
 import com.tesshu.jpsonic.dao.TranscodingDao;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -93,9 +94,7 @@ class TranscodingServiceTest {
             "mp3 ogg oga m4a flac wav wma aif aiff ape mpc shn", "aac", "ffmpeg -i %s -map 0:0 -b:a %bk -v 0 -f mp3 -",
             null, null, false);
     private String fakePath = "*fake-path*";
-    private String realPath = MusicFolderTestDataUtils.resolveMusicFolderPath()
-            + "/_DIR_ Céline Frisch- Café Zimmermann - Bach- Goldberg Variations, Canons [Disc 1]"
-            + "/01 - Bach- Goldberg Variations, BWV 988 - Aria.flac";
+    private String realPath;
 
     private TranscodingService transcodingService;
     private PlayerDao playerDao;
@@ -110,7 +109,11 @@ class TranscodingServiceTest {
     }
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    public void setup() throws ExecutionException, URISyntaxException {
+        realPath = Path.of(MediaFileServiceTest.class.getResource(
+                "/MEDIAS/Music/_DIR_ Céline Frisch- Café Zimmermann - Bach- Goldberg Variations, Canons [Disc 1]"
+                        + "/01 - Bach- Goldberg Variations, BWV 988 - Aria.flac")
+                .toURI()).toString();
         transcodingDao = mock(TranscodingDao.class);
         securityService = mock(SecurityService.class);
         Mockito.when(securityService.getUserSettings(Mockito.nullable(String.class))).thenReturn(new UserSettings());

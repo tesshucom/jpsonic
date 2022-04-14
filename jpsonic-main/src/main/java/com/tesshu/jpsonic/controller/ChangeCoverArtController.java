@@ -21,6 +21,7 @@
 
 package com.tesshu.jpsonic.controller;
 
+import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -84,7 +85,7 @@ public class ChangeCoverArtController {
 
     private List<MediaFile> getAncestors(MediaFile dir) {
         LinkedList<MediaFile> result = new LinkedList<>();
-        if (securityService.isInPodcastFolder(dir.getFile())) {
+        if (securityService.isInPodcastFolder(Path.of(dir.getPathString()))) {
             // For podcasts, don't use ancestors
             return result;
         }

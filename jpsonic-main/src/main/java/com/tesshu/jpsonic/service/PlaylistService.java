@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -317,7 +317,7 @@ public class PlaylistService {
                 }
             }
         }
-        try (InputStream in = Files.newInputStream(Paths.get(file.toURI()))) {
+        try (InputStream in = Files.newInputStream(Path.of(file.toURI()))) {
             // With the transition away from a hardcoded admin account to Admin Roles, there is no longer
             // a specific account to use for auto-imported playlists, so use the first admin account
             importPlaylist(securityService.getAdminUsername(), FilenameUtils.getBaseName(fileName), fileName, in,

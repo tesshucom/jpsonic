@@ -97,10 +97,10 @@ class MediaScannerServiceGetChildrenOfTest extends AbstractNeedsScan {
     void testSpecialCharactersInDirName() throws URISyntaxException, IOException, InterruptedException {
 
         MediaFile artist = mediaFileDao.getMediaFile(this.artist.getPath());
-        assertEquals(this.artist.getPath(), artist.getPathString());
+        assertEquals(this.artist.toPath(), artist.toPath());
         assertEquals("ARTIST", artist.getName());
         MediaFile album = mediaFileDao.getMediaFile(this.album.getPath());
-        assertEquals(this.album.getPath(), album.getPathString());
+        assertEquals(this.album.toPath(), album.toPath());
         assertEquals("ALBUM", album.getName());
         MediaFile song = mediaFileDao.getMediaFile(this.song.getPath());
         assertEquals(this.song.getPath(), song.getPathString());

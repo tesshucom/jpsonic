@@ -24,7 +24,8 @@ package com.tesshu.jpsonic.service;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
@@ -191,15 +192,16 @@ public class MediaScannerService {
 
             // Recurse through all files on disk.
             for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders()) {
-                MediaFile root = mediaFileService.getMediaFile(musicFolder.getPath(), false);
+                MediaFile root = mediaFileService.getMediaFile(musicFolder.getPath().toPath(), false);
                 scanFile(root, musicFolder, statistics, albumCount, genres, false);
             }
 
             // Scan podcast folder.
-            File podcastFolder = new File(settingsService.getPodcastFolder());
-            if (podcastFolder.exists()) {
-                scanFile(mediaFileService.getMediaFile(podcastFolder), new MusicFolder(podcastFolder, null, true, null),
-                        statistics, albumCount, genres, true);
+            Path podcastFolder = Path.of(settingsService.getPodcastFolder());
+            if (Files.exists(podcastFolder)) {
+                scanFile(mediaFileService.getMediaFile(podcastFolder),
+                        new MusicFolder(podcastFolder.toFile(), null, true, null), statistics, albumCount, genres,
+                        true);
             }
 
             writeInfo("Scanned media library with " + scanCount + " entries.");
@@ -319,7 +321,7 @@ public class MediaScannerService {
         if (LOG.isInfoEnabled() && scanCount.get() % 250 == 0) {
             writeInfo("Scanned media library with " + scanCount + " entries.");
         } else if (LOG.isTraceEnabled()) {
-            LOG.trace("Scanning file {}", file.getPathString());
+            LOG.trace("Scanning file {}", file.toPath());
         }
     }
 

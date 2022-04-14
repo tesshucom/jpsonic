@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
@@ -83,7 +84,7 @@ class MusicIndexServiceTest {
 
     @Test
     void testGetIndexedArtistsListOfMusicFolderBoolean() {
-        Mockito.when(mediaFileService.getMediaFile(Mockito.any(File.class), Mockito.anyBoolean()))
+        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class), Mockito.anyBoolean()))
                 .thenReturn(new MediaFile());
         MediaFile child1 = new MediaFile();
         child1.setTitle("The Flipper's Guitar");
@@ -164,7 +165,7 @@ class MusicIndexServiceTest {
 
     @Test
     void testGetMusicFolderContent() {
-        Mockito.when(mediaFileService.getMediaFile(Mockito.any(File.class), Mockito.anyBoolean()))
+        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class), Mockito.anyBoolean()))
                 .thenReturn(new MediaFile());
         MediaFile child1 = new MediaFile();
         child1.setTitle("The Flipper's Guitar");
@@ -180,7 +181,7 @@ class MusicIndexServiceTest {
         Mockito.when(mediaFileService.getChildrenOf(Mockito.any(MediaFile.class), Mockito.anyBoolean(),
                 Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(children)
                 .thenReturn(songs).thenThrow(new RuntimeException("Fail"));
-        Mockito.when(mediaFileService.getMediaFile(Mockito.any(File.class), Mockito.anyBoolean()))
+        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class), Mockito.anyBoolean()))
                 .thenReturn(new MediaFile());
         MusicFolder folder = new MusicFolder(0, new File("path"), "name", true, new Date());
 
@@ -205,7 +206,7 @@ class MusicIndexServiceTest {
         MediaFile song = new MediaFile();
         song.setTitle("Files directly under the shortcut directory");
         song.setPathString("path");
-        Mockito.when(mediaFileService.getMediaFile(Mockito.any(File.class), Mockito.anyBoolean())).thenReturn(song);
+        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class), Mockito.anyBoolean())).thenReturn(song);
         File dummy = new File(MusicIndexServiceTest.class.getResource("/MEDIAS").toURI());
         MusicFolder folder = new MusicFolder(dummy, "Music", true, new Date());
 

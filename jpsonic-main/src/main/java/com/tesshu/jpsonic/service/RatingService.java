@@ -21,14 +21,14 @@
 
 package com.tesshu.jpsonic.service;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.tesshu.jpsonic.dao.RatingDao;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.util.FileUtil;
 import org.springframework.stereotype.Service;
 
 /**
@@ -64,11 +64,11 @@ public class RatingService {
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     public List<MediaFile> getHighestRatedAlbums(int offset, int count, List<MusicFolder> musicFolders) {
-        List<String> highestRated = ratingDao.getHighestRatedAlbums(offset, count, musicFolders);
+        List<String> highestRateds = ratingDao.getHighestRatedAlbums(offset, count, musicFolders);
         List<MediaFile> result = new ArrayList<>();
-        for (String path : highestRated) {
-            File file = new File(path);
-            if (FileUtil.exists(file) && securityService.isReadAllowed(file)) {
+        for (String highestRated : highestRateds) {
+            Path path = Path.of(highestRated);
+            if (Files.exists(path) && securityService.isReadAllowed(path)) {
                 result.add(mediaFileService.getMediaFile(path));
             }
         }

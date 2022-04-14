@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -235,7 +235,7 @@ public class UploadController {
      * [AvoidCatchingGenericException] Wrap&Throw due to constraints of 'apache commons' {@link FileItem#write(File)}
      */
     private void addUploadedFile(FileItem targetItem, File targetFile, List<File> to) throws ExecutionException {
-        if (!securityService.isUploadAllowed(targetFile)) {
+        if (!securityService.isUploadAllowed(targetFile.toPath())) {
             throw new ExecutionException(new GeneralSecurityException(
                     "Permission denied: " + StringEscapeUtils.escapeHtml4(targetFile.getPath())));
         }
@@ -282,7 +282,7 @@ public class UploadController {
 
     private List<File> unzip(ZipFile zipFile, ZipEntry entry, File entryFile) throws ExecutionException {
 
-        if (!securityService.isUploadAllowed(entryFile)) {
+        if (!securityService.isUploadAllowed(entryFile.toPath())) {
             throw new ExecutionException(new GeneralSecurityException(
                     "Permission denied: " + StringEscapeUtils.escapeHtml4(entryFile.getPath())));
         }
@@ -292,7 +292,7 @@ public class UploadController {
         }
 
         List<File> unzippedFiles = new ArrayList<>();
-        try (OutputStream outputStream = Files.newOutputStream(Paths.get(entryFile.toURI()));
+        try (OutputStream outputStream = Files.newOutputStream(Path.of(entryFile.toURI()));
                 InputStream inputStream = zipFile.getInputStream(entry)) {
             byte[] buf = new byte[8192];
             while (true) {

@@ -88,12 +88,12 @@ public class MP4Parser {
         BodyContentHandler handler = new BodyContentHandler();
         Metadata metadata = new Metadata();
         ParseContext ps = new ParseContext();
-        try (InputStream is = Files.newInputStream(mediaFile.getFile().toPath());
+        try (InputStream is = Files.newInputStream(mediaFile.toPath());
                 BufferedInputStream bid = new BufferedInputStream(is, 1_000_000);) {
             current = System.currentTimeMillis();
             tikaParser.parse(bid, handler, metadata, ps);
         } catch (IOException | SAXException | TikaException e) {
-            String simplePath = createSimplePath(mediaFile.getFile());
+            String simplePath = createSimplePath(mediaFile.toPath());
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to parse the tag({}): {}", simplePath, e.getMessage());
             }
