@@ -22,12 +22,14 @@
 package com.tesshu.jpsonic.domain;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.io.FilenameUtils;
 
@@ -176,8 +178,12 @@ public class MediaFile {
         return new File(path);
     }
 
+    public Path toPath() {
+        return Path.of(path);
+    }
+
     public boolean exists() {
-        return FileUtil.exists(getFile());
+        return Files.exists(toPath());
     }
 
     public MediaType getMediaType() {
@@ -364,6 +370,10 @@ public class MediaFile {
         return getFile().getParentFile();
     }
 
+    public Path getParent() {
+        return toPath().getParent();
+    }
+
     public int getPlayCount() {
         return playCount;
     }
@@ -472,6 +482,10 @@ public class MediaFile {
     @Deprecated
     public File getCoverArtFile() {
         return coverArtPath == null ? null : new File(coverArtPath);
+    }
+
+    public Optional<Path> getCoverArtPath() {
+        return coverArtPath == null ? Optional.empty() : Optional.of(Path.of(coverArtPath));
     }
 
     public String getComposer() {
