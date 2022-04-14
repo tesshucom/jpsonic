@@ -210,7 +210,7 @@ class MediaFileServiceTest {
             final boolean useFastCache = true;
             Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
-            mediaFile.setPath(dir.getPath());
+            mediaFile.setPathString(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified()));
 
             assertEquals(mediaFile, mediaFileService.checkLastModified(mediaFile, useFastCache));
@@ -225,7 +225,7 @@ class MediaFileServiceTest {
             final boolean useFastCache = false;
             Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION - 1);
-            mediaFile.setPath(dir.getPath());
+            mediaFile.setPathString(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified()));
 
             assertThat("mediaFile#version Lt MediaFileDao.VERSION", mediaFile.getVersion(),
@@ -246,7 +246,7 @@ class MediaFileServiceTest {
             final boolean useFastCache = false;
             Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
-            mediaFile.setPath(dir.getPath());
+            mediaFile.setPathString(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified()));
             mediaFile.setLastScanned(ZERO_DATE);
 
@@ -276,7 +276,7 @@ class MediaFileServiceTest {
             final boolean useFastCache = false;
             Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
-            mediaFile.setPath(dir.getPath());
+            mediaFile.setPathString(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified()));
             mediaFile.setLastScanned(new Date(mediaFile.getChanged().getTime() + 1));
 
@@ -305,7 +305,7 @@ class MediaFileServiceTest {
             final boolean useFastCache = false;
             Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
-            mediaFile.setPath(dir.getPath());
+            mediaFile.setPathString(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified() - 1L));
             mediaFile.setLastScanned(ZERO_DATE);
 
@@ -328,7 +328,7 @@ class MediaFileServiceTest {
             final boolean useFastCache = false;
             Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
-            mediaFile.setPath(dir.getPath());
+            mediaFile.setPathString(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified() - 1L));
             mediaFile.setLastScanned(mediaFile.getChanged());
 
@@ -351,7 +351,7 @@ class MediaFileServiceTest {
             final boolean useFastCache = false;
             Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
-            mediaFile.setPath(dir.getPath());
+            mediaFile.setPathString(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified()));
             mediaFile.setLastScanned(ZERO_DATE);
 
@@ -381,7 +381,7 @@ class MediaFileServiceTest {
             final boolean useFastCache = false;
             Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
-            mediaFile.setPath(dir.getPath());
+            mediaFile.setPathString(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified()));
             mediaFile.setLastScanned(mediaFile.getChanged());
 
@@ -411,7 +411,7 @@ class MediaFileServiceTest {
             final boolean useFastCache = false;
             Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
-            mediaFile.setPath(dir.getPath());
+            mediaFile.setPathString(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified() - 1L));
             mediaFile.setLastScanned(ZERO_DATE);
 
@@ -434,7 +434,7 @@ class MediaFileServiceTest {
             final boolean useFastCache = false;
             Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
-            mediaFile.setPath(dir.getPath());
+            mediaFile.setPathString(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified() - 1L));
             mediaFile.setLastScanned(mediaFile.getChanged());
 
@@ -458,7 +458,7 @@ class MediaFileServiceTest {
             Mockito.when(settingsService.getFileModifiedCheckSchemeName())
                     .thenReturn(FileModifiedCheckScheme.LAST_SCANNED.name());
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
-            mediaFile.setPath(dir.getPath());
+            mediaFile.setPathString(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified()));
             mediaFile.setLastScanned(ZERO_DATE);
 
@@ -480,7 +480,7 @@ class MediaFileServiceTest {
             Mockito.when(settingsService.getFileModifiedCheckSchemeName())
                     .thenReturn(FileModifiedCheckScheme.LAST_SCANNED.name());
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
-            mediaFile.setPath(dir.getPath());
+            mediaFile.setPathString(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified()));
             mediaFile.setLastScanned(mediaFile.getChanged());
 
@@ -511,7 +511,7 @@ class MediaFileServiceTest {
             Mockito.when(settingsService.getFileModifiedCheckSchemeName())
                     .thenReturn(FileModifiedCheckScheme.LAST_SCANNED.name());
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
-            mediaFile.setPath(dir.getPath());
+            mediaFile.setPathString(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified() - 1L));
             mediaFile.setLastScanned(ZERO_DATE);
 
@@ -535,7 +535,7 @@ class MediaFileServiceTest {
             Mockito.when(settingsService.getFileModifiedCheckSchemeName())
                     .thenReturn(FileModifiedCheckScheme.LAST_SCANNED.name());
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION);
-            mediaFile.setPath(dir.getPath());
+            mediaFile.setPathString(dir.getPath());
             mediaFile.setChanged(new Date(dir.lastModified() - 1L));
             mediaFile.setLastScanned(mediaFile.getChanged());
 
@@ -810,7 +810,7 @@ class MediaFileServiceTest {
 
             Function<File, File> stub = (file) -> {
                 MediaFile mediaFile = new MediaFile();
-                mediaFile.setPath(file.getPath());
+                mediaFile.setPathString(file.getPath());
                 Mockito.when(mediaFileDao.getMediaFile(file.getPath())).thenReturn(mediaFile);
                 return file;
             };

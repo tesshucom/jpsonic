@@ -51,7 +51,7 @@ public class JMediaFileService {
     }
 
     public List<MediaFile> getChildrenOf(MediaFile parent, long offset, long count, boolean byYear) {
-        return mediaFileDao.getChildrenOf(offset, count, parent.getPath(), byYear);
+        return mediaFileDao.getChildrenOf(offset, count, parent.getPathString(), byYear);
     }
 
     /**
@@ -60,7 +60,7 @@ public class JMediaFileService {
      * @return the number of child elements
      */
     public int getChildSizeOf(MediaFile mediaFile) {
-        return mediaFileDao.getChildSizeOf(mediaFile.getPath());
+        return mediaFileDao.getChildSizeOf(mediaFile.getPathString());
     }
 
     /**

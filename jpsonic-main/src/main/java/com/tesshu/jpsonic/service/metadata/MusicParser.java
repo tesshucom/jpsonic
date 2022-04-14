@@ -216,7 +216,7 @@ public class MusicParser extends MetaDataParser {
 
         } catch (IOException | CannotWriteException | KeyNotFoundException | TagException | CannotReadException
                 | ReadOnlyFileException | InvalidAudioFrameException e) {
-            throw new CompletionException("Failed to update tags for file: " + file.getPath(), e);
+            throw new CompletionException("Failed to update tags for file: " + file.getPathString(), e);
         }
     }
 

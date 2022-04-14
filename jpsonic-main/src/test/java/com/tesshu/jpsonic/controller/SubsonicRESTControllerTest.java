@@ -1102,7 +1102,7 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
                     musicFolderDao.getAllMusicFolders());
             MediaFile song = mediaFileDao.getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME).get(0);
             assertNotNull(song);
-            req.setParameter(Attributes.Request.PATH.value(), song.getPath());
+            req.setParameter(Attributes.Request.PATH.value(), song.getPathString());
             res = new MockHttpServletResponse();
             streamController.handleRequest(req, res, true);
             assertNotEquals(0, res.getContentLength());
@@ -1159,7 +1159,7 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
                     musicFolderDao.getAllMusicFolders());
             MediaFile song = mediaFileDao.getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME).get(0);
             assertNotNull(song);
-            req.setParameter(Attributes.Request.PATH.value(), song.getPath());
+            req.setParameter(Attributes.Request.PATH.value(), song.getPathString());
             res = new MockHttpServletResponse();
             streamController.handleRequest(req, res, true);
             assertNotEquals(0, res.getContentLength());

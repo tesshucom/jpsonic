@@ -39,7 +39,7 @@ import org.apache.commons.io.FilenameUtils;
 public class MediaFile {
 
     private int id;
-    private String path;
+    private String pathString;
     private String folder;
     private MediaType mediaType;
     private String format;
@@ -57,8 +57,8 @@ public class MediaFile {
     private Long fileSize;
     private Integer width;
     private Integer height;
-    private String coverArtPath;
-    private String parentPath;
+    private String coverArtPathString;
+    private String parentPathString;
     private int playCount;
     private Date lastPlayed;
     private String comment;
@@ -97,7 +97,7 @@ public class MediaFile {
             String albumReading, String albumArtistReading, String artistSortRaw, String albumSortRaw,
             String albumArtistSortRaw, String composerSortRaw, int order) {
         this.id = id;
-        this.path = path;
+        this.pathString = path;
         this.folder = folder;
         this.mediaType = mediaType;
         this.format = format;
@@ -115,8 +115,8 @@ public class MediaFile {
         this.fileSize = fileSize;
         this.width = width;
         this.height = height;
-        this.coverArtPath = coverArtPath;
-        this.parentPath = parentPath;
+        this.coverArtPathString = coverArtPath;
+        this.parentPathString = parentPath;
         this.playCount = playCount;
         this.lastPlayed = lastPlayed;
         this.comment = comment;
@@ -155,12 +155,12 @@ public class MediaFile {
         this.id = id;
     }
 
-    public String getPath() {
-        return path;
+    public String getPathString() {
+        return pathString;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setPathString(String path) {
+        this.pathString = path;
     }
 
     public String getFolder() {
@@ -173,7 +173,7 @@ public class MediaFile {
 
     @Deprecated
     public File getFile() {
-        return new File(path);
+        return new File(pathString);
     }
 
     public boolean exists() {
@@ -250,9 +250,9 @@ public class MediaFile {
 
     public String getName() {
         if (isFile()) {
-            return title == null ? FilenameUtils.getBaseName(path) : title;
+            return title == null ? FilenameUtils.getBaseName(pathString) : title;
         }
-        return FilenameUtils.getName(path);
+        return FilenameUtils.getName(pathString);
     }
 
     public Integer getDiscNumber() {
@@ -343,20 +343,20 @@ public class MediaFile {
         this.height = height;
     }
 
-    public String getCoverArtPath() {
-        return coverArtPath;
+    public String getCoverArtPathString() {
+        return coverArtPathString;
     }
 
-    public void setCoverArtPath(String coverArtPath) {
-        this.coverArtPath = coverArtPath;
+    public void setCoverArtPathString(String coverArtPath) {
+        this.coverArtPathString = coverArtPath;
     }
 
-    public String getParentPath() {
-        return parentPath;
+    public String getParentPathString() {
+        return parentPathString;
     }
 
-    public void setParentPath(String parentPath) {
-        this.parentPath = parentPath;
+    public void setParentPathString(String parentPath) {
+        this.parentPathString = parentPath;
     }
 
     @Deprecated
@@ -461,17 +461,17 @@ public class MediaFile {
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof MediaFile && ((MediaFile) o).path.equals(path);
+        return o instanceof MediaFile && ((MediaFile) o).pathString.equals(pathString);
     }
 
     @Override
     public int hashCode() {
-        return path.hashCode();
+        return pathString.hashCode();
     }
 
     @Deprecated
     public File getCoverArtFile() {
-        return coverArtPath == null ? null : new File(coverArtPath);
+        return coverArtPathString == null ? null : new File(coverArtPathString);
     }
 
     public String getComposer() {

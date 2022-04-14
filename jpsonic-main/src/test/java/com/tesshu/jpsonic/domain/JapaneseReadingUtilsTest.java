@@ -1467,7 +1467,7 @@ class JapaneseReadingUtilsTest {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setArtist(name);
             mediaFile.setArtistSort(sort);
-            mediaFile.setPath(path);
+            mediaFile.setPathString(path);
             return mediaFile;
         }
 

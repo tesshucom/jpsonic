@@ -280,10 +280,10 @@ public class HomeController {
     private Album createAlbum(MediaFile file) {
         Album album = new Album();
         album.setId(file.getId());
-        album.setPath(file.getPath());
+        album.setPath(file.getPathString());
         album.setArtist(file.getArtist());
         album.setAlbumTitle(file.getAlbumName());
-        album.setCoverArtPath(file.getCoverArtPath());
+        album.setCoverArtPath(file.getCoverArtPathString());
         return album;
     }
 

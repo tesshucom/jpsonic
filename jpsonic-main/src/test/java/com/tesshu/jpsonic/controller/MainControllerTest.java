@@ -72,7 +72,7 @@ class MainControllerTest {
         int rootId = 100;
         String rootPath = MainControllerTest.class.getResource("/MEDIAS").getPath();
         root.setId(rootId);
-        root.setPath(rootPath);
+        root.setPathString(rootPath);
         root.setMediaType(MediaType.DIRECTORY);
         Mockito.when(mediaFileService.getMediaFile(rootPath)).thenReturn(root);
         Mockito.when(mediaFileService.getMediaFile(rootId)).thenReturn(root);
@@ -82,7 +82,7 @@ class MainControllerTest {
         int artistId = 200;
         String artistPath = MainControllerTest.class.getResource("/MEDIAS/Music").getPath();
         artist.setId(artistId);
-        artist.setPath(artistPath);
+        artist.setPathString(artistPath);
         artist.setMediaType(MediaType.DIRECTORY);
 
         Mockito.when(mediaFileService.getMediaFile(artistPath)).thenReturn(artist);
@@ -97,7 +97,7 @@ class MainControllerTest {
         String albumPath = MainControllerTest.class
                 .getResource("/MEDIAS/Music/_DIR_ Ravel/_DIR_ Ravel - Chamber Music With Voice").getPath();
         album.setId(albumId);
-        album.setPath(albumPath);
+        album.setPathString(albumPath);
         album.setMediaType(MediaType.ALBUM);
 
         Mockito.when(mediaFileService.getMediaFile(albumPath)).thenReturn(album);
@@ -112,7 +112,7 @@ class MainControllerTest {
                 "/MEDIAS/Music/_DIR_ Ravel/_DIR_ Ravel - Chamber Music With Voice/01 - Sonata Violin & Cello I. Allegro.ogg")
                 .getPath();
         song.setId(songId);
-        song.setPath(songPath);
+        song.setPathString(songPath);
         song.setMediaType(MediaType.MUSIC);
         Mockito.when(mediaFileService.getMediaFile(songPath)).thenReturn(song);
         Mockito.when(mediaFileService.getMediaFile(songId)).thenReturn(song);
@@ -138,7 +138,7 @@ class MainControllerTest {
 
         // ... or path
         result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.MAIN.value())
-                .param(Attributes.Request.PATH.value(), album.getPath()))
+                .param(Attributes.Request.PATH.value(), album.getPathString()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
         modelAndView = result.getModelAndView();

@@ -378,7 +378,7 @@ class TranscodingServiceTest {
         @Order(2)
         void testGTI2() throws IOException {
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPath(fakePath);
+            mediaFile.setPathString(fakePath);
 
             Parameters parameters = new Parameters(mediaFile, null);
             Transcoding transcoding = new Transcoding(null, null, fmtMp3, fmtWav, step1, null, null, false);
@@ -394,7 +394,7 @@ class TranscodingServiceTest {
         @EnabledOnOs(OS.WINDOWS)
         void testGTI3Win() throws IOException {
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPath(fakePath);
+            mediaFile.setPathString(fakePath);
 
             Parameters parameters = new Parameters(mediaFile, null);
 
@@ -408,7 +408,7 @@ class TranscodingServiceTest {
         @EnabledOnOs(OS.LINUX)
         void testGTI3Linux() throws IOException {
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPath(fakePath);
+            mediaFile.setPathString(fakePath);
 
             Parameters parameters = new Parameters(mediaFile, null);
 
@@ -420,7 +420,7 @@ class TranscodingServiceTest {
         @Order(4)
         void testGTI4() throws IOException {
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPath(realPath);
+            mediaFile.setPathString(realPath);
             Parameters parameters = new Parameters(mediaFile, null);
 
             try (InputStream stream = transcodingService.getTranscodedInputStream(parameters)) {
@@ -441,7 +441,7 @@ class TranscodingServiceTest {
             mediaFile.setTitle("title");
             mediaFile.setAlbumName("album");
             mediaFile.setArtist("artist");
-            mediaFile.setPath(fakePath);
+            mediaFile.setPathString(fakePath);
             Parameters parameters = new Parameters(mediaFile, new VideoTranscodingSettings(640, 480, 0, 120, false));
             parameters.setExpectedLength(null);
             return parameters;
@@ -526,7 +526,7 @@ class TranscodingServiceTest {
             Integer maxBitRate = null;
             VideoTranscodingSettings videoTranscodingSettings = null;
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPath(realPath);
+            mediaFile.setPathString(realPath);
             InputStream in = null;
             try (TranscodeInputStream stream = transcodingService.createTranscodeInputStream(command, maxBitRate,
                     videoTranscodingSettings, mediaFile, in)) {
@@ -543,7 +543,7 @@ class TranscodingServiceTest {
             mediaFile.setTitle("Title");
             mediaFile.setAlbumName("Album");
             mediaFile.setArtist("Artist");
-            mediaFile.setPath(realPath);
+            mediaFile.setPathString(realPath);
             InputStream in = null;
 
             try (TranscodeInputStream stream = transcodingService.createTranscodeInputStream(command, maxBitRate,
@@ -986,7 +986,7 @@ class TranscodingServiceTest {
         void testGP1() {
 
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPath(fakePath);
+            mediaFile.setPathString(fakePath);
 
             Player player = new Player();
             player.setId(mockPlayerId);
@@ -1016,7 +1016,7 @@ class TranscodingServiceTest {
         void testGP2() {
 
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPath(fakePath);
+            mediaFile.setPathString(fakePath);
             mediaFile.setFormat(fmtFlac);
             mediaFile.setDurationSeconds(0);
 
@@ -1046,7 +1046,7 @@ class TranscodingServiceTest {
         @Order(3)
         void testGP3() {
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPath(fakePath);
+            mediaFile.setPathString(fakePath);
             mediaFile.setMediaType(MediaType.VIDEO);
             mediaFile.setFormat(fmtMpeg);
             mediaFile.setDurationSeconds(0);
@@ -1078,7 +1078,7 @@ class TranscodingServiceTest {
         @Order(4)
         void testGP4() {
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPath(fakePath);
+            mediaFile.setPathString(fakePath);
             mediaFile.setFormat(fmtFlac);
             mediaFile.setDurationSeconds(0);
 
@@ -1108,7 +1108,7 @@ class TranscodingServiceTest {
         @Order(5)
         void testGP5() {
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPath(fakePath);
+            mediaFile.setPathString(fakePath);
             mediaFile.setMediaType(MediaType.VIDEO);
             mediaFile.setFormat(fmtMpeg);
             mediaFile.setDurationSeconds(0);

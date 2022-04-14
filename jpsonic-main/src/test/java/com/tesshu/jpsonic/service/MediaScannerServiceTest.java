@@ -281,8 +281,8 @@ class MediaScannerServiceTest {
         assertEquals("TestArtist", file.getAlbumArtist());
         assertEquals(1, (long) file.getTrackNumber());
         assertEquals(2001, (long) file.getYear());
-        assertEquals(album.getPath(), file.getParentPath());
-        assertEquals(new File(album.getPath()).toPath().resolve("01 - Aria.flac").toString(), file.getPath());
+        assertEquals(album.getPath(), file.getParentPathString());
+        assertEquals(new File(album.getPath()).toPath().resolve("01 - Aria.flac").toString(), file.getPathString());
         assertEquals("0820752d-1043-4572-ab36-2df3b5cc15fa", file.getMusicBrainzReleaseId());
         assertEquals("831586f4-56f9-4785-ac91-447ae20af633", file.getMusicBrainzRecordingId());
     }

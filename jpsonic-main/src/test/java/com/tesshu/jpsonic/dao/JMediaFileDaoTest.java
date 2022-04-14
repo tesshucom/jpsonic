@@ -307,7 +307,7 @@ class JMediaFileDaoTest extends AbstractNeedsScan {
         populateDatabaseOnlyOnce(null, () -> {
             List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, MUSIC_FOLDERS);
             albums.forEach(a -> {
-                List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, a.getPath(), false);
+                List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, a.getPathString(), false);
                 files.stream().filter(m -> "file10".equals(m.getName()) || "file12".equals(m.getName())
                         || "file14".equals(m.getName()) || "file17".equals(m.getName())).forEach(m -> {
                             m.setChanged(now);

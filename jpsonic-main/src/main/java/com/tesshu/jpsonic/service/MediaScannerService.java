@@ -298,7 +298,7 @@ public class MediaScannerService {
         }
 
         updateGenres(file, genres);
-        mediaFileDao.markPresent(file.getPath(), statistics.getScanDate());
+        mediaFileDao.markPresent(file.getPathString(), statistics.getScanDate());
         artistDao.markPresent(file.getAlbumArtist(), statistics.getScanDate());
 
         if (file.getDurationSeconds() != null) {
@@ -319,7 +319,7 @@ public class MediaScannerService {
         if (LOG.isInfoEnabled() && scanCount.get() % 250 == 0) {
             writeInfo("Scanned media library with " + scanCount + " entries.");
         } else if (LOG.isTraceEnabled()) {
-            LOG.trace("Scanning file {}", file.getPath());
+            LOG.trace("Scanning file {}", file.getPathString());
         }
     }
 
@@ -393,7 +393,7 @@ public class MediaScannerService {
     }
 
     private boolean isNotAlbumUpdatable(MediaFile file) {
-        return file.getAlbumName() == null || file.getParentPath() == null || !file.isAudio()
+        return file.getAlbumName() == null || file.getParentPathString() == null || !file.isAudio()
                 || file.getArtist() == null && file.getAlbumArtist() == null;
     }
 
@@ -401,7 +401,7 @@ public class MediaScannerService {
         Album album = albumDao.getAlbumForFile(file);
         if (album == null) {
             album = new Album();
-            album.setPath(file.getParentPath());
+            album.setPath(file.getParentPathString());
             album.setName(file.getAlbumName());
             album.setNameReading(file.getAlbumReading());
             album.setNameSort(file.getAlbumSort());
@@ -414,8 +414,8 @@ public class MediaScannerService {
             album.setMusicBrainzReleaseId(file.getMusicBrainzReleaseId());
         }
         MediaFile parent = mediaFileService.getParentOf(file);
-        if (parent != null && parent.getCoverArtPath() != null) {
-            album.setCoverArtPath(parent.getCoverArtPath());
+        if (parent != null && parent.getCoverArtPathString() != null) {
+            album.setCoverArtPath(parent.getCoverArtPathString());
         }
         return album;
     }
@@ -435,7 +435,7 @@ public class MediaScannerService {
         if (artist.getCoverArtPath() == null) {
             MediaFile parent = mediaFileService.getParentOf(file);
             if (parent != null) {
-                artist.setCoverArtPath(parent.getCoverArtPath());
+                artist.setCoverArtPath(parent.getCoverArtPathString());
             }
         }
         final boolean firstEncounter = !lastScanned.equals(artist.getLastScanned());

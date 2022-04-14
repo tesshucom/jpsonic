@@ -69,7 +69,7 @@ $(document).ready(function(){
             <tbody>
                 <c:forEach items="${command.artists}" var="match" varStatus="loopStatus">
                     <sub:url value="/main.view" var="mainUrl">
-                        <sub:param name="path" value="${match.path}"/>
+                        <sub:param name="path" value="${match.pathString}"/>
                     </sub:url>
                     <tr class="artistRow" ${loopStatus.count > 5 ? "style='display:none'" : ""}>
                         <c:import url="playButtons.jsp">
@@ -110,7 +110,7 @@ $(document).ready(function(){
             </thead>
             <c:forEach items="${command.albums}" var="match" varStatus="loopStatus">
                 <sub:url value="/main.view" var="mainUrl">
-                    <sub:param name="path" value="${match.path}"/>
+                    <sub:param name="path" value="${match.pathString}"/>
                 </sub:url>
                 <tr class="albumRow" ${loopStatus.count > 5 ? "style='display:none'" : ""}>
                     <c:import url="playButtons.jsp">
@@ -157,7 +157,7 @@ $(document).ready(function(){
 		<tbody>
 	        <c:forEach items="${command.songs}" var="match" varStatus="loopStatus">
 	            <sub:url value="/main.view" var="mainUrl">
-	            <sub:param name="path" value="${match.parentPath}"/>
+	            <sub:param name="path" value="${match.parentPathString}"/>
 	            </sub:url>
 	            <tr class="songRow" ${loopStatus.count > 15 ? "style='display:none'" : ""}>
 	                <c:import url="playButtons.jsp">

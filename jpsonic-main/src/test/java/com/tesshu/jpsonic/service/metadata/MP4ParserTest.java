@@ -59,7 +59,7 @@ class MP4ParserTest {
         MediaFile mediaFile = new MediaFile();
         File file = new File(
                 MusicParserTest.class.getResource("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4").toURI());
-        mediaFile.setPath(file.getAbsolutePath());
+        mediaFile.setPathString(file.getAbsolutePath());
         mediaFile.setFileSize(Files.size(file.toPath()));
         return mediaFile;
     }

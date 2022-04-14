@@ -149,10 +149,10 @@ public class MediaFileService {
     }
 
     public MediaFile getParentOf(MediaFile mediaFile) {
-        if (mediaFile.getParentPath() == null) {
+        if (mediaFile.getParentPathString() == null) {
             return null;
         }
-        return getMediaFile(mediaFile.getParentPath());
+        return getMediaFile(mediaFile.getParentPathString());
     }
 
     boolean isSchemeLastModified() {
@@ -224,7 +224,7 @@ public class MediaFileService {
         }
 
         List<MediaFile> result = new ArrayList<>();
-        for (MediaFile child : mediaFileDao.getChildrenOf(parent.getPath())) {
+        for (MediaFile child : mediaFileDao.getChildrenOf(parent.getPathString())) {
             MediaFile checked = checkLastModified(child, useFastCache, statistics);
             if (checked.isDirectory() && includeDirectories && includeMediaFile(checked)) {
                 result.add(checked);
@@ -243,7 +243,7 @@ public class MediaFileService {
 
     public boolean isRoot(MediaFile mediaFile) {
         for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders(false, true)) {
-            if (mediaFile.getPath().equals(musicFolder.getPath().getPath())) {
+            if (mediaFile.getPathString().equals(musicFolder.getPath().getPath())) {
                 return true;
             }
         }
@@ -260,10 +260,10 @@ public class MediaFileService {
             return;
         }
 
-        List<MediaFile> storedChildren = mediaFileDao.getChildrenOf(parent.getPath());
+        List<MediaFile> storedChildren = mediaFileDao.getChildrenOf(parent.getPathString());
         Map<String, MediaFile> storedChildrenMap = new ConcurrentHashMap<>();
         for (MediaFile child : storedChildren) {
-            storedChildrenMap.put(child.getPath(), child);
+            storedChildrenMap.put(child.getPathString(), child);
         }
 
         List<File> children = filterMediaFiles(FileUtil.listFiles(parent.getFile()));
@@ -361,9 +361,9 @@ public class MediaFileService {
         mediaFile.setLastScanned(existingFile == null ? ZERO_DATE : existingFile.getLastScanned());
         mediaFile.setChildrenLastUpdated(ZERO_DATE);
 
-        mediaFile.setPath(file.getPath());
+        mediaFile.setPathString(file.getPath());
         mediaFile.setFolder(securityService.getRootFolderForFile(file));
-        mediaFile.setParentPath(file.getParent());
+        mediaFile.setParentPathString(file.getParent());
         mediaFile.setPlayCount(existingFile == null ? 0 : existingFile.getPlayCount());
         mediaFile.setLastPlayed(existingFile == null ? null : existingFile.getLastPlayed());
         mediaFile.setComment(existingFile == null ? null : existingFile.getComment());
@@ -410,7 +410,7 @@ public class MediaFileService {
             utils.analyze(to);
             to.setLastScanned(statistics.length == 0 ? new Date() : statistics[0].getScanDate());
         }
-        String format = StringUtils.trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(to.getPath())));
+        String format = StringUtils.trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(to.getPathString())));
         to.setFormat(format);
         to.setFileSize(FileUtil.length(file));
         to.setMediaType(getMediaType(to));
@@ -441,7 +441,7 @@ public class MediaFileService {
                 }
 
                 // Look for cover art.
-                findCoverArt(children).ifPresent(coverArtOEmbedded -> to.setCoverArtPath(coverArtOEmbedded.getPath()));
+                findCoverArt(children).ifPresent(coverArtOEmbedded -> to.setCoverArtPathString(coverArtOEmbedded.getPath()));
             }
             utils.analyze(to);
         }
@@ -461,7 +461,7 @@ public class MediaFileService {
         if (isVideoFile(mediaFile.getFormat())) {
             return MediaFile.MediaType.VIDEO;
         }
-        String path = mediaFile.getPath().toLowerCase();
+        String path = mediaFile.getPathString().toLowerCase();
         String genre = StringUtils.trimToEmpty(mediaFile.getGenre()).toLowerCase();
         if (path.contains("podcast") || genre.contains("podcast")) {
             return MediaFile.MediaType.PODCAST;
@@ -483,7 +483,7 @@ public class MediaFileService {
         if (mediaFile.getCoverArtFile() != null) {
             return mediaFile.getCoverArtFile();
         }
-        if (!securityService.isReadAllowed(mediaFile.getParentPath())) {
+        if (!securityService.isReadAllowed(mediaFile.getParentPathString())) {
             return null;
         }
         MediaFile parent = getParentOf(mediaFile);
@@ -629,7 +629,7 @@ public class MediaFileService {
 
     public void resetLastScanned(MediaFile album) {
         mediaFileDao.resetLastScanned(album.getId());
-        for (MediaFile child : mediaFileDao.getChildrenOf(album.getPath())) {
+        for (MediaFile child : mediaFileDao.getChildrenOf(album.getPathString())) {
             mediaFileDao.resetLastScanned(child.getId());
         }
     }
