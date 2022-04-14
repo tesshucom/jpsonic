@@ -171,8 +171,8 @@ public class MediaFile {
         this.folder = folder;
     }
 
+    @Deprecated
     public File getFile() {
-        // TODO: Optimize
         return new File(path);
     }
 
@@ -359,6 +359,7 @@ public class MediaFile {
         this.parentPath = parentPath;
     }
 
+    @Deprecated
     public File getParentFile() {
         return getFile().getParentFile();
     }
@@ -468,8 +469,8 @@ public class MediaFile {
         return path.hashCode();
     }
 
+    @Deprecated
     public File getCoverArtFile() {
-        // TODO: Optimize
         return coverArtPath == null ? null : new File(coverArtPath);
     }
 

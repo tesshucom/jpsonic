@@ -70,6 +70,7 @@ public class MediaFileWithUrlInfo {
         file.setFolder(folder);
     }
 
+    @Deprecated
     public File getFile() {
         return file.getFile();
     }
@@ -250,6 +251,7 @@ public class MediaFileWithUrlInfo {
         file.setParentPath(parentPath);
     }
 
+    @Deprecated
     public File getParentFile() {
         return file.getParentFile();
     }
@@ -330,6 +332,7 @@ public class MediaFileWithUrlInfo {
         return file.getVersion();
     }
 
+    @Deprecated
     public File getCoverArtFile() {
         return file.getCoverArtFile();
     }
