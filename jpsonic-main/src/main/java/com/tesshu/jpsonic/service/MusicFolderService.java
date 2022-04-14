@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.service;
 
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +28,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.util.FileUtil;
 import net.sf.ehcache.Ehcache;
 import org.springframework.stereotype.Service;
 
@@ -72,7 +72,8 @@ public class MusicFolderService {
 
         List<MusicFolder> result = new ArrayList<>(cachedMusicFolders.size());
         for (MusicFolder folder : cachedMusicFolders) {
-            if ((includeDisabled || folder.isEnabled()) && (includeNonExisting || FileUtil.exists(folder.getPath()))) {
+            if ((includeDisabled || folder.isEnabled())
+                    && (includeNonExisting || Files.exists(folder.getPath().toPath()))) {
                 result.add(folder);
             }
         }
