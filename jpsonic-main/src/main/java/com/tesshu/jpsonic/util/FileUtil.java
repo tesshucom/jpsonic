@@ -42,6 +42,7 @@ public final class FileUtil {
     private FileUtil() {
     }
 
+    @Deprecated
     public static boolean isFile(final File file) {
         return timed(new FileTask<Boolean>("isFile", file) {
             @Override
@@ -51,6 +52,7 @@ public final class FileUtil {
         });
     }
 
+    @Deprecated
     public static boolean isDirectory(final File file) {
         return timed(new FileTask<Boolean>("isDirectory", file) {
             @Override
@@ -60,6 +62,7 @@ public final class FileUtil {
         });
     }
 
+    @Deprecated
     public static boolean exists(final File file) {
         return timed(new FileTask<Boolean>("exists", file) {
             @Override
@@ -69,10 +72,12 @@ public final class FileUtil {
         });
     }
 
+    @Deprecated
     public static boolean exists(String path) {
         return exists(new File(path));
     }
 
+    @Deprecated
     public static long lastModified(final File file) {
         return timed(new FileTask<Long>("lastModified", file) {
             @Override
@@ -82,6 +87,7 @@ public final class FileUtil {
         });
     }
 
+    @Deprecated
     public static long length(final File file) {
         return timed(new FileTask<Long>("length", file) {
             @Override
@@ -95,6 +101,7 @@ public final class FileUtil {
      * Similar to {@link File#listFiles()}, but never returns null. Instead a warning is logged, and an empty array is
      * returned.
      */
+    @Deprecated
     public static File[] listFiles(final File dir) {
         File[] files = timed(new FileTask<File[]>("listFiles", dir) {
             @Override
