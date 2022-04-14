@@ -159,11 +159,12 @@ class PlaylistServiceTest {
                     .append(mf3.toURI().toString()).append('\n');
 
             doAnswer(new PersistPlayList(23)).when(playlistDao).createPlaylist(ArgumentMatchers.any());
-            doAnswer(new MediaFileHasEverything()).when(mediaFileService)
-                    .getMediaFile(ArgumentMatchers.any(File.class));
+            String path = Path.of("/path/to/" + playlistName + ".m3u").toString();
+            MediaFile mediaFile = new MediaFile();
+            mediaFile.setPathString(path);
+            Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(new MediaFile());
 
             InputStream inputStream = new ByteArrayInputStream(builder.toString().getBytes(StandardCharsets.UTF_8));
-            String path = new File("/path/to/" + playlistName + ".m3u").toURI().toString();
 
             playlistService.importPlaylist(username, playlistName, path, inputStream, null);
 
@@ -200,11 +201,13 @@ class PlaylistServiceTest {
                     .append(mf2.toURI().toString()).append("\nFile3=").append(mf3.toURI().toString()).append('\n');
 
             doAnswer(new PersistPlayList(23)).when(playlistDao).createPlaylist(ArgumentMatchers.any());
-            doAnswer(new MediaFileHasEverything()).when(mediaFileService)
-                    .getMediaFile(ArgumentMatchers.any(File.class));
+
+            String path = Path.of("/path/to/" + playlistName + ".pls").toString();
+            MediaFile mediaFile = new MediaFile();
+            mediaFile.setPathString(path);
+            Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(mediaFile);
 
             InputStream inputStream = new ByteArrayInputStream(builder.toString().getBytes(StandardCharsets.UTF_8));
-            String path = new File("/path/to/" + playlistName + ".pls").toURI().toString();
 
             playlistService.importPlaylist(username, playlistName, path, inputStream, null);
 
@@ -242,11 +245,12 @@ class PlaylistServiceTest {
                     .append(mf3.toURI().toString()).append("</location></track>\n</trackList>\n</playlist>\n");
 
             doAnswer(new PersistPlayList(23)).when(playlistDao).createPlaylist(ArgumentMatchers.any());
-            doAnswer(new MediaFileHasEverything()).when(mediaFileService)
-                    .getMediaFile(ArgumentMatchers.any(File.class));
+            String path = Path.of("/path/to/" + playlistName + ".xspf").toString();
+            MediaFile mediaFile = new MediaFile();
+            mediaFile.setPathString(path);
+            Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(mediaFile);
 
             InputStream inputStream = new ByteArrayInputStream(builder.toString().getBytes(StandardCharsets.UTF_8));
-            String path = new File("/path/to/" + playlistName + ".xspf").toURI().toString();
 
             playlistService.importPlaylist(username, playlistName, path, inputStream, null);
 
@@ -281,16 +285,4 @@ class PlaylistServiceTest {
             return null;
         }
     }
-
-    private static class MediaFileHasEverything implements Answer<Object> {
-
-        @Override
-        public Object answer(InvocationOnMock invocationOnMock) {
-            File file = invocationOnMock.getArgument(0);
-            MediaFile mediaFile = new MediaFile();
-            mediaFile.setPathString(file.getPath());
-            return mediaFile;
-        }
-    }
-
 }

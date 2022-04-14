@@ -107,7 +107,7 @@ class JpMediaFileComparator implements MediaFileComparator {
             n = comparator.compare(a.getName(), b.getName());
         }
         return n == 0 ? comparator.compare(a.getPathString(), b.getPathString()) : n; // To make it consistent to
-                                                                          // MediaFile.equals()
+        // MediaFile.equals()
     }
 
     private <T extends Comparable<T>> int nullSafeCompare(T a, T b, boolean nullIsSmaller) {

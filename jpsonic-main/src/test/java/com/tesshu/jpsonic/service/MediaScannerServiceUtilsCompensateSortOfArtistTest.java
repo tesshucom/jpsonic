@@ -84,7 +84,8 @@ class MediaScannerServiceUtilsCompensateSortOfArtistTest extends AbstractNeedsSc
         utils.copySortOfArtist();
 
         List<MediaFile> artists = mediaFileDao.getArtistAll(MUSIC_FOLDERS);
-        List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(0).getPathString(), false);
+        List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(0).getPathString(),
+                false);
         List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, albums.get(0).getPathString(), false);
         assertEquals(3, files.size());
 

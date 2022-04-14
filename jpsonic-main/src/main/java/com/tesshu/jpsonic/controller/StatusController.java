@@ -143,7 +143,7 @@ public class StatusController {
         }
 
         public String getPath() {
-            return FileUtil.getShortPath(transferStatus.getFile());
+            return FileUtil.getShortPath(transferStatus.getFile().toPath());
         }
 
         public String getBytes() {

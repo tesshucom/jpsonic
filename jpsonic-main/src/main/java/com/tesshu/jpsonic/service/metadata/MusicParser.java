@@ -29,8 +29,9 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -117,23 +118,23 @@ public class MusicParser extends MetaDataParser {
 
     @Override
     @SuppressWarnings("PMD.GuardLogStatement")
-    public @NonNull MetaData getRawMetaData(File file) {
+    public @NonNull MetaData getRawMetaData(Path path) {
 
         MetaData metaData = new MetaData();
 
-        if (!isApplicable(file)) {
+        if (!isApplicable(path)) {
             return metaData;
         }
 
         AudioFile af;
         try {
-            af = AudioFileIO.read(file);
+            af = AudioFileIO.read(path.toFile());
         } catch (CannotReadException | IOException | TagException | ReadOnlyFileException
                 | InvalidAudioFrameException e) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Unable to read file: ".concat(createSimplePath(file)), e);
+                LOG.debug("Unable to read file: ".concat(createSimplePath(path)), e);
             } else {
-                LOG.warn("Unable to read ".concat(createSimplePath(file)).concat(": [{}]"), e.getMessage().trim());
+                LOG.warn("Unable to read ".concat(createSimplePath(path)).concat(": [{}]"), e.getMessage().trim());
             }
             return metaData;
         }
@@ -147,7 +148,7 @@ public class MusicParser extends MetaDataParser {
         if (isEmpty(tag)) {
             return metaData;
         } else if (tag instanceof WavTag && !((WavTag) tag).isExistingId3Tag()) {
-            LOG.info("Only ID3 chunk is supported: {}", createSimplePath(file));
+            LOG.info("Only ID3 chunk is supported: {}", createSimplePath(path));
             return metaData;
         }
 
@@ -184,7 +185,7 @@ public class MusicParser extends MetaDataParser {
     public void setMetaData(MediaFile file, MetaData metaData) {
 
         try {
-            AudioFile audioFile = AudioFileIO.read(file.getFile());
+            AudioFile audioFile = AudioFileIO.read(file.toPath().toFile());
             Tag tag = audioFile.getTagOrCreateAndSetDefault();
 
             tag.setField(FieldKey.ARTIST, trimToEmpty(metaData.getArtist()));
@@ -221,20 +222,20 @@ public class MusicParser extends MetaDataParser {
     }
 
     @Override
-    public boolean isApplicable(File file) {
-        if (!file.isFile()) {
+    public boolean isApplicable(Path path) {
+        if (Files.isDirectory(path)) {
             return false;
         }
-        String ext = FilenameUtils.getExtension(file.getName()).toLowerCase(Locale.getDefault());
+        String ext = FilenameUtils.getExtension(path.getFileName().toString()).toLowerCase(Locale.getDefault());
         return APPLICABLES.contains(ext);
     }
 
     @Override
-    public boolean isEditingSupported(File file) {
-        if (!file.isFile()) {
+    public boolean isEditingSupported(Path path) {
+        if (Files.isDirectory(path)) {
             return false;
         }
-        String ext = FilenameUtils.getExtension(file.getName()).toLowerCase(Locale.getDefault());
+        String ext = FilenameUtils.getExtension(path.getFileName().toString()).toLowerCase(Locale.getDefault());
         if (NOT_EDITABLES.contains(ext)) {
             return false;
         } else if (APPLICABLES.contains(ext)) {

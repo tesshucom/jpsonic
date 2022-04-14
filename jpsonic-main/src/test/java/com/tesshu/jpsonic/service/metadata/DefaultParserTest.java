@@ -41,7 +41,7 @@ class DefaultParserTest {
     void testGetRawMetaData() {
         Path path = Path.of(
                 "/MEDIAS/Music/_DIR_ Céline Frisch- Café Zimmermann - Bach- Goldberg Variations, Canons [Disc 1]/01 - Bach- Goldberg Variations, BWV 988 - Aria.flac");
-        MetaData metaData = defaultParser.getRawMetaData(path.toFile());
+        MetaData metaData = defaultParser.getRawMetaData(path);
         assertEquals("Music", metaData.getArtist());
         assertEquals("Music", metaData.getAlbumArtist());
         assertEquals("_DIR_ Céline Frisch- Café Zimmermann - Bach- Goldberg Variations, Canons [Disc 1]",

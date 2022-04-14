@@ -1110,7 +1110,7 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
             statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
                     .findFirst().ifPresentOrElse((status) -> {
                         assertNotNull(status.getFile());
-                        assertEquals(song.getFile(), status.getFile());
+                        assertEquals(song.toPath(), status.getFile().toPath());
                     }, () -> Assertions.fail());
 
             res = new MockHttpServletResponse();
@@ -1130,7 +1130,7 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
             statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
                     .findFirst().ifPresentOrElse((status) -> {
                         assertNotNull(status.getFile());
-                        assertEquals(song.getFile(), status.getFile());
+                        assertEquals(song.toPath(), status.getFile().toPath());
                     }, () -> Assertions.fail());
 
             res.getOutputStream().close();
@@ -1167,7 +1167,7 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
             statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
                     .findFirst().ifPresentOrElse((status) -> {
                         assertNotNull(status.getFile());
-                        assertEquals(song.getFile(), status.getFile());
+                        assertEquals(song.toPath(), status.getFile().toPath());
                     }, () -> Assertions.fail());
 
             res = new MockHttpServletResponse();
@@ -1189,7 +1189,7 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
             statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
                     .findFirst().ifPresentOrElse((status) -> {
                         assertNotNull(status.getFile());
-                        assertEquals(song.getFile(), status.getFile());
+                        assertEquals(song.toPath(), status.getFile().toPath());
                     }, () -> Assertions.fail());
 
             res.getOutputStream().close();

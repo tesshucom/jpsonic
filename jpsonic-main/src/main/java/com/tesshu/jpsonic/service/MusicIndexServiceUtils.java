@@ -89,7 +89,7 @@ public class MusicIndexServiceUtils {
         Comparator<SortableArtist> c = comparators.sortableArtistOrder();
         for (MusicFolder folder : folders) {
 
-            MediaFile root = mediaFileService.getMediaFile(folder.getPath(), !refresh);
+            MediaFile root = mediaFileService.getMediaFile(folder.getPath().toPath(), !refresh);
             List<MediaFile> children = mediaFileService.getChildrenOf(root, false, true, true, !refresh);
             for (MediaFile child : children) {
                 if (shortcutSet.contains(child.getName())) {

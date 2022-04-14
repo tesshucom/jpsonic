@@ -22,7 +22,6 @@ package com.tesshu.jpsonic.service;
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -57,10 +56,10 @@ class RatingServiceTest {
         Path albumPath = Path.of(RatingServiceTest.class.getResource("/MEDIAS/Music/_DIR_ Sixteen Horsepower").toURI());
         Mockito.when(ratingDao.getHighestRatedAlbums(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyList()))
                 .thenReturn(Arrays.asList(albumPath.toString()));
-        Mockito.when(securityService.isReadAllowed(Mockito.any(File.class))).thenReturn(true);
+        Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
         MediaFile album = new MediaFile();
         album.setPathString(albumPath.toString());
-        Mockito.when(mediaFileService.getMediaFile(albumPath.toString())).thenReturn(album);
+        Mockito.when(mediaFileService.getMediaFile(albumPath)).thenReturn(album);
 
         MusicFolder musicFolder = new MusicFolder(0, Path.of("path").toFile(), "Music", true, new Date());
         List<MusicFolder> musicFolders = Arrays.asList(musicFolder);

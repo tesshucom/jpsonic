@@ -23,7 +23,7 @@ package com.tesshu.jpsonic.service.metadata;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -42,7 +42,7 @@ class MetaDataParserTest {
 
         MetaDataParser parser = new MetaDataParser() {
             @Override
-            public MetaData getRawMetaData(File file) {
+            public MetaData getRawMetaData(Path path) {
                 return null;
             }
 
@@ -52,7 +52,7 @@ class MetaDataParserTest {
             }
 
             @Override
-            public boolean isEditingSupported(File file) {
+            public boolean isEditingSupported(Path path) {
                 return false;
             }
 
@@ -62,7 +62,7 @@ class MetaDataParserTest {
             }
 
             @Override
-            public boolean isApplicable(File file) {
+            public boolean isApplicable(Path path) {
                 return false;
             }
         };

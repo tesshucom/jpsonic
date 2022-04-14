@@ -73,6 +73,6 @@ class StatusControllerTest {
                 .toURI());
         status.setFile(path.toFile());
         TransferStatusHolder holder = new TransferStatusHolder(status, false, false, false, 0, null);
-        assertEquals(FileUtil.getShortPath(path.toFile()), holder.getPath());
+        assertEquals(FileUtil.getShortPath(path), holder.getPath());
     }
 }

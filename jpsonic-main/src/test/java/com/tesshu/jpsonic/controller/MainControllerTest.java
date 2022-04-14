@@ -24,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +61,7 @@ class MainControllerTest {
     private MediaFile song;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    public void setup() throws ExecutionException, URISyntaxException {
 
         securityService = mock(SecurityService.class);
         MediaFileService mediaFileService = mock(MediaFileService.class);
@@ -70,9 +72,9 @@ class MainControllerTest {
 
         root = new MediaFile();
         int rootId = 100;
-        String rootPath = MainControllerTest.class.getResource("/MEDIAS").getPath();
+        Path rootPath = Path.of(MainControllerTest.class.getResource("/MEDIAS").toURI());
         root.setId(rootId);
-        root.setPathString(rootPath);
+        root.setPathString(rootPath.toString());
         root.setMediaType(MediaType.DIRECTORY);
         Mockito.when(mediaFileService.getMediaFile(rootPath)).thenReturn(root);
         Mockito.when(mediaFileService.getMediaFile(rootId)).thenReturn(root);
@@ -80,7 +82,7 @@ class MainControllerTest {
 
         artist = new MediaFile();
         int artistId = 200;
-        String artistPath = MainControllerTest.class.getResource("/MEDIAS/Music").getPath();
+        String artistPath = Path.of(MainControllerTest.class.getResource("/MEDIAS/Music").toURI()).toString();
         artist.setId(artistId);
         artist.setPathString(artistPath);
         artist.setMediaType(MediaType.DIRECTORY);
@@ -94,8 +96,10 @@ class MainControllerTest {
 
         album = new MediaFile();
         int albumId = 300;
-        String albumPath = MainControllerTest.class
-                .getResource("/MEDIAS/Music/_DIR_ Ravel/_DIR_ Ravel - Chamber Music With Voice").getPath();
+        String albumPath = Path
+                .of(MainControllerTest.class
+                        .getResource("/MEDIAS/Music/_DIR_ Ravel/_DIR_ Ravel - Chamber Music With Voice").toURI())
+                .toString();
         album.setId(albumId);
         album.setPathString(albumPath);
         album.setMediaType(MediaType.ALBUM);
@@ -108,9 +112,9 @@ class MainControllerTest {
 
         song = new MediaFile();
         int songId = 400;
-        String songPath = MainControllerTest.class.getResource(
+        String songPath = Path.of(MainControllerTest.class.getResource(
                 "/MEDIAS/Music/_DIR_ Ravel/_DIR_ Ravel - Chamber Music With Voice/01 - Sonata Violin & Cello I. Allegro.ogg")
-                .getPath();
+                .toURI()).toString();
         song.setId(songId);
         song.setPathString(songPath);
         song.setMediaType(MediaType.MUSIC);

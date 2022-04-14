@@ -22,13 +22,13 @@
 package com.tesshu.jpsonic.controller;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -175,12 +175,13 @@ public class DownloadController {
     private void doDownload(HttpServletResponse response, TransferStatus status, MediaFile mediaFile, HttpRange range,
             int... indexes) throws IOException {
         if (mediaFile.isFile()) {
-            downloadFile(response, status, mediaFile.getFile(), range);
+            downloadFile(response, status, mediaFile.toPath(), range);
         } else {
             List<MediaFile> children = mediaFileService.getChildrenOf(mediaFile, true, false, true);
             String zipFileName = FilenameUtils.getBaseName(mediaFile.getPathString()) + ".zip";
-            File coverArtFile = indexes == null ? mediaFile.getCoverArtFile() : null;
-            downloadFiles(response, status, children, indexes, coverArtFile, range, zipFileName);
+            Path coverArtPath = indexes == null && mediaFile.getCoverArtPathString() != null
+                    ? Path.of(mediaFile.getCoverArtPathString()) : null;
+            downloadFiles(response, status, children, indexes, coverArtPath, range, zipFileName);
         }
     }
 
@@ -202,7 +203,7 @@ public class DownloadController {
      *            The HTTP response.
      * @param status
      *            The download status.
-     * @param file
+     * @param path
      *            The file to download.
      * @param range
      *            The byte range, may be <code>null</code>.
@@ -210,19 +211,20 @@ public class DownloadController {
      * @throws IOException
      *             If an I/O error occurs.
      */
-    private void downloadFile(HttpServletResponse response, TransferStatus status, File file, HttpRange range)
+    private void downloadFile(HttpServletResponse response, TransferStatus status, Path path, HttpRange range)
             throws IOException {
-        writeLog("Starting to download", FileUtil.getShortPath(file), status.getPlayer());
-        status.setFile(file);
+        writeLog("Starting to download", FileUtil.getShortPath(path), status.getPlayer());
+        status.setFile(path.toFile());
 
         response.setContentType("application/x-download");
-        response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + encodeAsRFC5987(file.getName()));
+        response.setHeader("Content-Disposition",
+                "attachment; filename*=UTF-8''" + encodeAsRFC5987(path.getFileName().toString()));
         if (range == null) {
-            PlayerUtils.setContentLength(response, file.length());
+            PlayerUtils.setContentLength(response, Files.size(path));
         }
 
-        copyFileToStream(file, RangeOutputStream.wrap(response.getOutputStream(), range), status, range);
-        writeLog("Downloaded", FileUtil.getShortPath(file), status.getPlayer());
+        copyFileToStream(path, RangeOutputStream.wrap(response.getOutputStream(), range), status, range);
+        writeLog("Downloaded", FileUtil.getShortPath(path), status.getPlayer());
     }
 
     private String encodeAsRFC5987(String string) {
@@ -256,7 +258,7 @@ public class DownloadController {
      *            The files to download.
      * @param indexes
      *            Only download songs at these indexes. May be <code>null</code>.
-     * @param coverArtFile
+     * @param coverArtPath
      *            The cover art file to include, may be {@code null}.
      * @param range
      *            The byte range, may be <code>null</code>.
@@ -264,9 +266,9 @@ public class DownloadController {
      *            The name of the resulting zip file. @throws IOException If an I/O error occurs.
      */
     private void downloadFiles(HttpServletResponse response, TransferStatus status, List<MediaFile> files,
-            int[] indexes, File coverArtFile, HttpRange range, String zipFileName) throws IOException {
+            int[] indexes, Path coverArtPath, HttpRange range, String zipFileName) throws IOException {
         if (indexes != null && indexes.length == 1) {
-            downloadFile(response, status, files.get(indexes[0]).getFile(), range);
+            downloadFile(response, status, Path.of(files.get(indexes[0]).getPathString()), range);
             return;
         }
 
@@ -282,14 +284,14 @@ public class DownloadController {
 
             Set<MediaFile> filesToDownload = createFilesToDownload(indexes, files);
             for (MediaFile mediaFile : filesToDownload) {
-                zip(out, mediaFile.getParentFile(), mediaFile.getFile(), status, range);
-                if (coverArtFile != null && coverArtFile.exists()
-                        && mediaFile.getFile().getCanonicalPath().equals(coverArtFile.getCanonicalPath())) {
+                zip(out, Path.of(mediaFile.getParentPathString()), mediaFile.toPath(), status, range);
+                if (coverArtPath != null && Files.exists(coverArtPath)
+                        && mediaFile.toPath().toRealPath().equals(coverArtPath.toRealPath())) {
                     coverEmbedded = true;
                 }
             }
-            if (coverArtFile != null && coverArtFile.exists() && !coverEmbedded) {
-                zip(out, coverArtFile.getParentFile(), coverArtFile, status, range);
+            if (coverArtPath != null && Files.exists(coverArtPath) && !coverEmbedded) {
+                zip(out, coverArtPath.getParent(), coverArtPath, status, range);
             }
 
         }
@@ -317,7 +319,7 @@ public class DownloadController {
     /**
      * Utility method for writing the content of a given file to a given output stream.
      *
-     * @param file
+     * @param path
      *            The file to copy.
      * @param out
      *            The output stream to write to.
@@ -329,13 +331,13 @@ public class DownloadController {
      * @throws IOException
      *             If an I/O error occurs.
      */
-    private void copyFileToStream(File file, OutputStream out, TransferStatus status, HttpRange range)
+    private void copyFileToStream(Path path, OutputStream out, TransferStatus status, HttpRange range)
             throws IOException {
-        writeLog("Downloading", FileUtil.getShortPath(file), status.getPlayer());
+        writeLog("Downloading", FileUtil.getShortPath(path), status.getPlayer());
 
         final int bufferSize = 16 * 1024; // 16 Kbit
 
-        try (InputStream in = new BufferedInputStream(Files.newInputStream(Paths.get(file.toURI())), bufferSize)) {
+        try (InputStream in = new BufferedInputStream(Files.newInputStream(path), bufferSize)) {
             byte[] buf = new byte[bufferSize];
             long bitrateLimit = 0;
             long lastLimitCheck = 0;
@@ -394,7 +396,7 @@ public class DownloadController {
      *            The zip output stream.
      * @param root
      *            The root of the directory structure. Used to create path information in the zip file.
-     * @param file
+     * @param path
      *            The file or directory to zip.
      * @param status
      *            The download status.
@@ -404,26 +406,26 @@ public class DownloadController {
      * @throws IOException
      *             If an I/O error occurs.
      */
-    private void zip(ZipOutputStream out, File root, File file, TransferStatus status, HttpRange range)
+    private void zip(ZipOutputStream out, Path root, Path path, TransferStatus status, HttpRange range)
             throws IOException {
 
         // Exclude all hidden files starting with a "."
-        if (!file.getName().isEmpty() && file.getName().charAt(0) == '.') {
+        if (!path.getFileName().toString().isEmpty() && path.getFileName().toString().charAt(0) == '.') {
             return;
         }
 
-        String zipName = file.getCanonicalPath().substring(root.getCanonicalPath().length() + 1);
+        String zipName = path.toRealPath().toString().substring(root.toRealPath().toString().length() + 1);
 
-        if (file.isFile()) {
-            status.setFile(file);
+        if (Files.isRegularFile(path)) {
+            status.setFile(path.toFile());
 
             ZipEntry zipEntry = new ZipEntry(zipName);
-            zipEntry.setSize(file.length());
-            zipEntry.setCompressedSize(file.length());
-            zipEntry.setCrc(computeCrc(file));
+            zipEntry.setSize(Files.size(path));
+            zipEntry.setCompressedSize(Files.size(path));
+            zipEntry.setCrc(computeCrc(path));
 
             out.putNextEntry(zipEntry);
-            copyFileToStream(file, out, status, range);
+            copyFileToStream(path, out, status, range);
             out.closeEntry();
 
         } else {
@@ -435,9 +437,10 @@ public class DownloadController {
             out.putNextEntry(zipEntry);
             out.closeEntry();
 
-            File[] children = FileUtil.listFiles(file);
-            for (File child : children) {
-                zip(out, root, child, status, range);
+            try (DirectoryStream<Path> children = Files.newDirectoryStream(path)) {
+                for (Path childPath : children) {
+                    zip(out, root, childPath, status, range);
+                }
             }
         }
     }
@@ -445,7 +448,7 @@ public class DownloadController {
     /**
      * Computes the CRC checksum for the given file.
      *
-     * @param file
+     * @param path
      *            The file to compute checksum for.
      *
      * @return A CRC32 checksum.
@@ -453,9 +456,9 @@ public class DownloadController {
      * @throws IOException
      *             If an I/O error occurs.
      */
-    private long computeCrc(File file) throws IOException {
+    private long computeCrc(Path path) throws IOException {
         CRC32 crc = new CRC32();
-        try (InputStream in = Files.newInputStream(Paths.get(file.toURI()))) {
+        try (InputStream in = Files.newInputStream(path)) {
 
             byte[] buf = new byte[8192];
             int n = in.read(buf);

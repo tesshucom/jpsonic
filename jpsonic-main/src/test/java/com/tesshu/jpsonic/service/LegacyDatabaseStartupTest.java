@@ -31,7 +31,7 @@ import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Enumeration;
 import java.util.Objects;
 import java.util.jar.JarEntry;
@@ -77,8 +77,8 @@ class LegacyDatabaseStartupTest {
     }
 
     private static boolean copyFile(final File toCopy, final File destFile) {
-        try (OutputStream os = Files.newOutputStream(Paths.get(destFile.toURI()));
-                InputStream is = Files.newInputStream(Paths.get(toCopy.toURI()))) {
+        try (OutputStream os = Files.newOutputStream(Path.of(destFile.toURI()));
+                InputStream is = Files.newInputStream(Path.of(toCopy.toURI()))) {
             return copyStream(is, os);
         } catch (IOException e) {
             LOG.error("Exception occurred while copying file.", e);
@@ -148,7 +148,7 @@ class LegacyDatabaseStartupTest {
     }
 
     private static boolean copyStream(final InputStream is, final File f) {
-        try (OutputStream os = Files.newOutputStream(Paths.get(f.toURI()))) {
+        try (OutputStream os = Files.newOutputStream(Path.of(f.toURI()))) {
             return copyStream(is, os);
         } catch (IOException e) {
             LOG.error("Exception occurred while copying stream.", e);
