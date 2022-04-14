@@ -107,7 +107,7 @@ public class AlbumDao extends AbstractDao {
 
         // Look for album with the same path as the file.
         for (Album candidate : candidates) {
-            if (Objects.equals(candidate.getPath(), file.getParentPath())) {
+            if (Objects.equals(candidate.getPath(), file.getParentPathString())) {
                 return candidate;
             }
         }

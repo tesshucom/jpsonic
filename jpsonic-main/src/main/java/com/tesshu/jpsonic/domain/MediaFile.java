@@ -155,11 +155,11 @@ public class MediaFile {
         this.id = id;
     }
 
-    public String getPath() {
+    public String getPathString() {
         return path;
     }
 
-    public void setPath(String path) {
+    public void setPathString(String path) {
         this.path = path;
     }
 
@@ -343,19 +343,19 @@ public class MediaFile {
         this.height = height;
     }
 
-    public String getCoverArtPath() {
+    public String getCoverArtPathString() {
         return coverArtPath;
     }
 
-    public void setCoverArtPath(String coverArtPath) {
+    public void setCoverArtPathString(String coverArtPath) {
         this.coverArtPath = coverArtPath;
     }
 
-    public String getParentPath() {
+    public String getParentPathString() {
         return parentPath;
     }
 
-    public void setParentPath(String parentPath) {
+    public void setParentPathString(String parentPath) {
         this.parentPath = parentPath;
     }
 

@@ -294,7 +294,7 @@ public class JMediaFileDao extends AbstractDao {
         return query(
                 "select " + getQueryColoms() + " from media_file "
                         + "where parent_path=? and present and type in (?,?,?) order by track_number limit ? offset ?",
-                rowMapper, album.getPath(), MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name(),
+                rowMapper, album.getPathString(), MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name(),
                 MediaType.PODCAST.name(), count, offset);
     }
 

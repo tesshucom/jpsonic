@@ -97,13 +97,13 @@ class MediaScannerServiceGetChildrenOfTest extends AbstractNeedsScan {
     void testSpecialCharactersInDirName() throws URISyntaxException, IOException, InterruptedException {
 
         MediaFile artist = mediaFileDao.getMediaFile(this.artist.getPath());
-        assertEquals(this.artist.getPath(), artist.getPath());
+        assertEquals(this.artist.getPath(), artist.getPathString());
         assertEquals("ARTIST", artist.getName());
         MediaFile album = mediaFileDao.getMediaFile(this.album.getPath());
-        assertEquals(this.album.getPath(), album.getPath());
+        assertEquals(this.album.getPath(), album.getPathString());
         assertEquals("ALBUM", album.getName());
         MediaFile song = mediaFileDao.getMediaFile(this.song.getPath());
-        assertEquals(this.song.getPath(), song.getPath());
+        assertEquals(this.song.getPath(), song.getPathString());
         assertEquals("ARTIST", song.getArtist());
         assertEquals("ALBUM", song.getAlbumName());
 
@@ -123,7 +123,7 @@ class MediaScannerServiceGetChildrenOfTest extends AbstractNeedsScan {
         List<MediaFile> songs = mediaFileDao.getChildrenOf(this.album.getPath());
         assertEquals(1, songs.size());
         song = songs.get(0);
-        assertEquals(this.song.getPath(), song.getPath());
+        assertEquals(this.song.getPath(), song.getPathString());
         assertEquals("ARTIST", song.getArtist());
         assertEquals("ALBUM", song.getAlbumName());
 
@@ -143,15 +143,15 @@ class MediaScannerServiceGetChildrenOfTest extends AbstractNeedsScan {
 
         // Artist and Album are not subject to the update process
         artist = mediaFileDao.getMediaFile(this.artist.getPath());
-        assertEquals(this.artist.getPath(), artist.getPath());
+        assertEquals(this.artist.getPath(), artist.getPathString());
         assertEquals("ARTIST", artist.getName());
         album = mediaFileDao.getMediaFile(this.album.getPath());
-        assertEquals(this.album.getPath(), album.getPath());
+        assertEquals(this.album.getPath(), album.getPathString());
         assertEquals("ALBUM", album.getName());
 
         // Only songs are updated
         song = mediaFileDao.getMediaFile(this.song.getPath());
-        assertEquals(this.song.getPath(), song.getPath());
+        assertEquals(this.song.getPath(), song.getPathString());
         assertEquals("Edited artist!", song.getArtist());
         assertEquals("Edited album!", song.getAlbumName());
 
@@ -180,18 +180,18 @@ class MediaScannerServiceGetChildrenOfTest extends AbstractNeedsScan {
         }
 
         artist = mediaFileDao.getMediaFile(this.artist.getPath());
-        assertEquals(this.artist.getPath(), artist.getPath());
+        assertEquals(this.artist.getPath(), artist.getPathString());
         assertNull(artist.getTitle());
         assertEquals("ARTIST", artist.getName());
         assertEquals("ARTIST", artist.getArtist());
         album = mediaFileDao.getMediaFile(this.album.getPath());
-        assertEquals(this.album.getPath(), album.getPath());
+        assertEquals(this.album.getPath(), album.getPathString());
         assertNull(album.getTitle());
         assertEquals("ALBUM", album.getName());
         assertEquals("Edited album!", album.getAlbumName());
 
         song = mediaFileDao.getMediaFile(this.song.getPath());
-        assertEquals(this.song.getPath(), song.getPath());
+        assertEquals(this.song.getPath(), song.getPathString());
         assertEquals("Edited song!", song.getTitle());
         assertEquals("Edited song!", song.getName());
         assertEquals("Edited artist!", song.getArtist());

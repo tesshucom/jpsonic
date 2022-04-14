@@ -134,7 +134,7 @@ class MediaScannerServiceUnitTest {
             Genres genres = new Genres();
 
             List<MediaFile> children = Arrays.asList(child);
-            Mockito.when(mediaFileDao.getChildrenOf(album.getPath())).thenReturn(children);
+            Mockito.when(mediaFileDao.getChildrenOf(album.getPathString())).thenReturn(children);
 
             mediaScannerService.scanFile(album, musicFolder, statistics, albumCount, genres, false);
         }
@@ -147,7 +147,7 @@ class MediaScannerServiceUnitTest {
             // nonull
             MediaFile song = new MediaFile();
             song.setAlbumName("albumName");
-            song.setParentPath("parentPath");
+            song.setParentPathString("parentPath");
             song.setMediaType(MediaType.MUSIC);
             song.setArtist("artist");
 
@@ -177,7 +177,7 @@ class MediaScannerServiceUnitTest {
             Mockito.verify(albumDao, Mockito.never()).createOrUpdateAlbum(Mockito.any(Album.class));
 
             song = createSong();
-            song.setParentPath(null);
+            song.setParentPathString(null);
             mediaScannerService.updateAlbum(song, musicFolder, statistics.getScanDate(), albumCount);
             Mockito.verify(albumDao, Mockito.never()).createOrUpdateAlbum(Mockito.any(Album.class));
 
@@ -301,7 +301,7 @@ class MediaScannerServiceUnitTest {
         void testGetMergedAlbum() {
 
             final MediaFile song1 = createSong();
-            song1.setCoverArtPath("coverArtPath1");
+            song1.setCoverArtPathString("coverArtPath1");
 
             song1.setMusicBrainzReleaseId("musicBrainzReleaseId1");
             MusicFolder musicFolder = createMusicFolder();
@@ -310,7 +310,7 @@ class MediaScannerServiceUnitTest {
 
             final MediaFile parent = createSong();
             Mockito.when(mediaFileService.getParentOf(Mockito.any(MediaFile.class))).thenReturn(parent);
-            parent.setCoverArtPath("parentCoverArtPath");
+            parent.setCoverArtPathString("parentCoverArtPath");
 
             // ## First run
             ArgumentCaptor<Album> albumCap = ArgumentCaptor.forClass(Album.class);
@@ -322,7 +322,7 @@ class MediaScannerServiceUnitTest {
             assertEquals("parentCoverArtPath", registeredAlbum.getCoverArtPath());
 
             final MediaFile song2 = createSong();
-            song2.setCoverArtPath("coverArtPath2");
+            song2.setCoverArtPathString("coverArtPath2");
 
             song2.setMusicBrainzReleaseId("musicBrainzReleaseId2");
             Mockito.when(albumDao.getAlbumForFile(song2)).thenReturn(registeredAlbum);

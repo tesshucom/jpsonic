@@ -117,7 +117,7 @@ public class EditTagsController {
     private ParsedSong createParsedSong(MediaFile file, int index) {
         ParsedSong parsedSong = new ParsedSong();
         parsedSong.setId(file.getId());
-        parsedSong.setFileName(FilenameUtils.getBaseName(file.getPath()));
+        parsedSong.setFileName(FilenameUtils.getBaseName(file.getPathString()));
         parsedSong.setTrack(file.getTrackNumber());
         parsedSong.setSuggestedTrack(index + 1);
         parsedSong.setTitle(file.getTitle());

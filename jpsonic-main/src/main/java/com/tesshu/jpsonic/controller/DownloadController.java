@@ -178,7 +178,7 @@ public class DownloadController {
             downloadFile(response, status, mediaFile.getFile(), range);
         } else {
             List<MediaFile> children = mediaFileService.getChildrenOf(mediaFile, true, false, true);
-            String zipFileName = FilenameUtils.getBaseName(mediaFile.getPath()) + ".zip";
+            String zipFileName = FilenameUtils.getBaseName(mediaFile.getPathString()) + ".zip";
             File coverArtFile = indexes == null ? mediaFile.getCoverArtFile() : null;
             downloadFiles(response, status, children, indexes, coverArtFile, range, zipFileName);
         }

@@ -83,7 +83,7 @@ public class TagService {
         MediaFile file = mediaFileService.getMediaFile(id);
         MetaDataParser parser = metaDataParserFactory.getParser(file.getFile());
         if (parser == null || !parser.isEditingSupported(file.getFile())) {
-            return "Tag editing of " + FilenameUtils.getExtension(file.getPath()) + " files is not supported.";
+            return "Tag editing of " + FilenameUtils.getExtension(file.getPathString()) + " files is not supported.";
         }
 
         String artist = StringUtils.trimToNull(artistStr);

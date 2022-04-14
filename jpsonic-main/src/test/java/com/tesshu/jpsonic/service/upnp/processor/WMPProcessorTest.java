@@ -84,7 +84,7 @@ class WMPProcessorTest {
     void testCreateMusicTrack() {
 
         MediaFile m = new MediaFile();
-        m.setPath("path1");
+        m.setPathString("path1");
         Mockito.when(mediaFileUpnpProcessor.createResourceForSong(m)).thenReturn(null);
         Mockito.when(mediaFileUpnpProcessor.createAlbumArtURI(m)).thenReturn(null);
 
@@ -98,7 +98,7 @@ class WMPProcessorTest {
         int parentId = 200;
         MediaFile parent = new MediaFile();
         parent.setId(parentId);
-        parent.setPath("parentPath");
+        parent.setPathString("parentPath");
         Mockito.when(mediaFileService.getParentOf(m)).thenReturn(parent);
         m.setAlbumArtist("albumArtist");
         m.setGenre("genre");
@@ -140,7 +140,7 @@ class WMPProcessorTest {
             Mockito.when(util.getGuestMusicFolders()).thenReturn(Collections.emptyList());
 
             MediaFile m = new MediaFile();
-            m.setPath("path2");
+            m.setPathString("path2");
             m.setTitle("dummy title");
             List<MediaFile> songs = Arrays.asList(m);
             MusicFolder mf = new MusicFolder(0, new File("path3"), "dummy", true, null);
@@ -153,7 +153,7 @@ class WMPProcessorTest {
             int parentId = 200;
             MediaFile parent = new MediaFile();
             parent.setId(parentId);
-            parent.setPath("parentPath2");
+            parent.setPathString("parentPath2");
             Mockito.when(mediaFileService.getParentOf(m)).thenReturn(parent);
             Mockito.when(mediaFileService.countSongs(Mockito.anyList())).thenReturn(20L);
 
@@ -185,7 +185,7 @@ class WMPProcessorTest {
             Mockito.when(util.getGuestMusicFolders()).thenReturn(Collections.emptyList());
 
             MediaFile m = new MediaFile();
-            m.setPath("path5");
+            m.setPathString("path5");
             m.setTitle("dummy title");
             List<MediaFile> songs = Arrays.asList(m);
             MusicFolder mf = new MusicFolder(0, new File("path6"), "dummy", true, null);
@@ -198,7 +198,7 @@ class WMPProcessorTest {
             int parentId = 200;
             MediaFile parent = new MediaFile();
             parent.setId(parentId);
-            parent.setPath("parentPath1");
+            parent.setPathString("parentPath1");
             Mockito.when(mediaFileService.getParentOf(m)).thenReturn(parent);
             Mockito.when(mediaFileService.countVideos(Mockito.anyList())).thenReturn(20L);
 
@@ -227,7 +227,7 @@ class WMPProcessorTest {
             int id = 99;
             MediaFile m = new MediaFile();
             m.setId(id);
-            m.setPath("path4");
+            m.setPathString("path4");
             m.setTitle("dummy title");
             Mockito.when(mediaFileService.getMediaFile(id)).thenReturn(m);
             assertEmpty(wmpProcessor.getBrowseResult("dc:title = \"99\"", "*", 0, 0));
@@ -236,7 +236,7 @@ class WMPProcessorTest {
             int parentId = 200;
             MediaFile parent = new MediaFile();
             parent.setId(parentId);
-            parent.setPath("parentPath4");
+            parent.setPathString("parentPath4");
             Mockito.when(mediaFileService.getParentOf(m)).thenReturn(parent);
             BrowseResult result = wmpProcessor.getBrowseResult("dc:title = \"99\"", "*", 0, 0);
             assertEquals(

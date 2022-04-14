@@ -88,7 +88,7 @@ class DownloadControllerTest extends AbstractNeedsScan {
         playerService.createPlayer(player);
 
         MediaFile album = mediaFileDao.getNewestAlbums(0, 1, musicFolders).get(0);
-        MediaFile song = mediaFileDao.getChildrenOf(album.getPath()).get(0);
+        MediaFile song = mediaFileDao.getChildrenOf(album.getPathString()).get(0);
 
         MockHttpServletRequest req = new MockHttpServletRequest();
         req.addHeader("Range", "bytes=0-1023");

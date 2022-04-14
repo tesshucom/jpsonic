@@ -1021,22 +1021,22 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
 
         MediaFile albumA2012 = new MediaFile();
         albumA2012.setMediaType(MediaFile.MediaType.ALBUM);
-        albumA2012.setPath("a");
+        albumA2012.setPathString("a");
         albumA2012.setYear(2012);
 
         MediaFile albumB2012 = new MediaFile();
         albumB2012.setMediaType(MediaFile.MediaType.ALBUM);
-        albumB2012.setPath("b");
+        albumB2012.setPathString("b");
         albumB2012.setYear(2012);
 
         MediaFile album2013 = new MediaFile();
         album2013.setMediaType(MediaFile.MediaType.ALBUM);
-        album2013.setPath("c");
+        album2013.setPathString("c");
         album2013.setYear(2013);
 
         MediaFile albumWithoutYear = new MediaFile();
         albumWithoutYear.setMediaType(MediaFile.MediaType.ALBUM);
-        albumWithoutYear.setPath("c");
+        albumWithoutYear.setPathString("c");
 
         assertEquals(0, comparator.compare(albumWithoutYear, albumWithoutYear));
         assertEquals(0, comparator.compare(albumA2012, albumA2012));
@@ -1066,35 +1066,35 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
 
         MediaFile discXtrack1 = new MediaFile();
         discXtrack1.setMediaType(MediaFile.MediaType.MUSIC);
-        discXtrack1.setPath("a");
+        discXtrack1.setPathString("a");
         discXtrack1.setTrackNumber(1);
 
         MediaFile discXtrack2 = new MediaFile();
         discXtrack2.setMediaType(MediaFile.MediaType.MUSIC);
-        discXtrack2.setPath("a");
+        discXtrack2.setPathString("a");
         discXtrack2.setTrackNumber(2);
 
         MediaFile disc5track1 = new MediaFile();
         disc5track1.setMediaType(MediaFile.MediaType.MUSIC);
-        disc5track1.setPath("a");
+        disc5track1.setPathString("a");
         disc5track1.setDiscNumber(5);
         disc5track1.setTrackNumber(1);
 
         MediaFile disc5track2 = new MediaFile();
         disc5track2.setMediaType(MediaFile.MediaType.MUSIC);
-        disc5track2.setPath("a");
+        disc5track2.setPathString("a");
         disc5track2.setDiscNumber(5);
         disc5track2.setTrackNumber(2);
 
         MediaFile disc6track1 = new MediaFile();
         disc6track1.setMediaType(MediaFile.MediaType.MUSIC);
-        disc6track1.setPath("a");
+        disc6track1.setPathString("a");
         disc6track1.setDiscNumber(6);
         disc6track1.setTrackNumber(1);
 
         MediaFile disc6track2 = new MediaFile();
         disc6track2.setMediaType(MediaFile.MediaType.MUSIC);
-        disc6track2.setPath("a");
+        disc6track2.setPathString("a");
         disc6track2.setDiscNumber(6);
         disc6track2.setTrackNumber(2);
 

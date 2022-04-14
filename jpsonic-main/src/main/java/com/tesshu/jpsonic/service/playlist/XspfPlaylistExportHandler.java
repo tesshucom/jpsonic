@@ -72,9 +72,9 @@ public class XspfPlaylistExportHandler implements PlaylistExportHandler {
             track.setTitle(mediaFile.getTitle());
             track.setAlbum(mediaFile.getAlbumName());
             track.setDuration(mediaFile.getDurationSeconds());
-            track.setImage(mediaFile.getCoverArtPath());
+            track.setImage(mediaFile.getCoverArtPathString());
             Location location = new Location();
-            location.setText(mediaFile.getPath());
+            location.setText(mediaFile.getPathString());
             track.getStringContainers().add(location);
             return track;
         }).forEach(newPlaylist::addTrack);

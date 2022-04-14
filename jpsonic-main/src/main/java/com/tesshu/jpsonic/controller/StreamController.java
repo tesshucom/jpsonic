@@ -286,13 +286,13 @@ public class StreamController {
 
     private static void writeVerboseLog(boolean verbose, boolean isHeaderRequest, MediaFile file) {
         if (verbose && isHeaderRequest && LOG.isInfoEnabled()) {
-            LOG.info("Header request for [{}]", file.getPath());
+            LOG.info("Header request for [{}]", file.getPathString());
         }
     }
 
     private static void writeVerboseLog(boolean verbose, HttpServletResponse response, MediaFile file) {
         if (verbose && LOG.isInfoEnabled()) {
-            LOG.info("Streaming request for [{}] with range [{}]", file.getPath(), response.getHeader("Content-Range"));
+            LOG.info("Streaming request for [{}] with range [{}]", file.getPathString(), response.getHeader("Content-Range"));
         }
     }
 

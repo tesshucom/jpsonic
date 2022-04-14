@@ -89,7 +89,7 @@ public class CoverArtService {
     public String saveCoverArtImage(int albumId, String url) {
         try {
             MediaFile mediaFile = mediaFileService.getMediaFile(albumId);
-            saveCoverArt(mediaFile.getPath(), url);
+            saveCoverArt(mediaFile.getPathString(), url);
             return null;
         } catch (ExecutionException e) {
             ConcurrentUtils.handleCauseUnchecked(e);

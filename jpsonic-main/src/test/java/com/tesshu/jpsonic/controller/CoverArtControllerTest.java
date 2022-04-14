@@ -94,25 +94,25 @@ class CoverArtControllerTest {
 
         private final BiConsumer<File, String> mediaFileStub = (file, id) -> {
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPath(file.getPath());
+            mediaFile.setPathString(file.getPath());
             Mockito.when(mediaFileService.getMediaFile(file)).thenReturn(mediaFile);
             Mockito.when(mediaFileService.getCoverArt(mediaFile)).thenReturn(mediaFile.getFile());
             Mockito.when(mediaFileService.getMediaFile(Integer.parseInt(id))).thenReturn(mediaFile);
             MediaFile parent = new MediaFile();
-            parent.setPath(file.getParent());
+            parent.setPathString(file.getParent());
             parent.setArtist("CoverArtControllerTest#GetTest");
             Mockito.when(mediaFileService.getParentOf(mediaFile)).thenReturn(parent);
         };
 
         private final BiConsumer<File, String> videoStub = (file, id) -> {
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPath(file.getPath());
+            mediaFile.setPathString(file.getPath());
             mediaFile.setMediaType(MediaType.VIDEO);
             Mockito.when(mediaFileService.getMediaFile(file)).thenReturn(mediaFile);
             Mockito.when(mediaFileService.getCoverArt(mediaFile)).thenReturn(mediaFile.getFile());
             Mockito.when(mediaFileService.getMediaFile(Integer.parseInt(id))).thenReturn(mediaFile);
             MediaFile parent = new MediaFile();
-            parent.setPath(file.getParent());
+            parent.setPathString(file.getParent());
             parent.setArtist("CoverArtControllerTest#GetTest");
             Mockito.when(mediaFileService.getParentOf(mediaFile)).thenReturn(parent);
         };
@@ -182,12 +182,12 @@ class CoverArtControllerTest {
             File file = new File("/MEDIAS/Metadata/coverart/unknown.gif");
 
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPath(file.getPath());
+            mediaFile.setPathString(file.getPath());
             Mockito.when(mediaFileService.getMediaFile(file)).thenReturn(mediaFile);
             Mockito.when(mediaFileService.getCoverArt(mediaFile)).thenReturn(mediaFile.getFile());
             Mockito.when(mediaFileService.getMediaFile(Integer.parseInt(id))).thenReturn(mediaFile);
             MediaFile parent = new MediaFile();
-            parent.setPath(file.getParent());
+            parent.setPathString(file.getParent());
             parent.setArtist("CoverArtControllerTest#GetTest");
             Mockito.when(mediaFileService.getParentOf(mediaFile)).thenReturn(parent);
 
@@ -215,7 +215,7 @@ class CoverArtControllerTest {
 
         private final Function<File, File> mediaFileStub = (file) -> {
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPath(file.getPath());
+            mediaFile.setPathString(file.getPath());
             Mockito.when(mediaFileService.getMediaFile(file)).thenReturn(mediaFile);
             Mockito.when(mediaFileService.getCoverArt(mediaFile)).thenReturn(mediaFile.getFile());
             return file;
@@ -352,7 +352,7 @@ class CoverArtControllerTest {
             File file = createFile("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
             assertTrue(file.exists());
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPath(file.getPath());
+            mediaFile.setPathString(file.getPath());
             BufferedImage bi = controller.getImageInputStreamForVideo(mediaFile, 200, 160, 0);
             assertEquals(BufferedImage.TYPE_3BYTE_BGR, bi.getType());
             assertEquals(200, bi.getWidth());
@@ -364,7 +364,7 @@ class CoverArtControllerTest {
             File file = new File("/MEDIAS/Metadata/tagger3/tagged/test.unknown.mp4");
             assertFalse(file.exists());
             MediaFile mediaFile = new MediaFile();
-            mediaFile.setPath(file.getPath());
+            mediaFile.setPathString(file.getPath());
             assertNull(controller.getImageInputStreamForVideo(mediaFile, 200, 160, 0));
         }
     }

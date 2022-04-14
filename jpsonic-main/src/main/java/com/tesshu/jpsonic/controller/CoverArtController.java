@@ -614,14 +614,14 @@ public class CoverArtController {
         private final MediaFile dir;
 
         MediaFileCoverArtRequest(MediaFile mediaFile) {
-            super(mediaFile.getCoverArtPath());
+            super(mediaFile.getCoverArtPathString());
             dir = mediaFile.isDirectory() ? mediaFile : mediaFileService.getParentOf(mediaFile);
             coverArt = mediaFileService.getCoverArt(mediaFile);
         }
 
         @Override
         public String getKey() {
-            return coverArt == null ? dir.getPath() : coverArt.getPath();
+            return coverArt == null ? dir.getPathString() : coverArt.getPath();
         }
 
         @Override
@@ -646,7 +646,7 @@ public class CoverArtController {
         private final int offset;
 
         VideoCoverArtRequest(MediaFile mediaFile, int offset) {
-            super(mediaFile.getCoverArtPath());
+            super(mediaFile.getCoverArtPathString());
             this.mediaFile = mediaFile;
             this.offset = offset;
         }
@@ -669,7 +669,7 @@ public class CoverArtController {
 
         @Override
         public String getKey() {
-            return mediaFile.getPath() + "/" + offset;
+            return mediaFile.getPathString() + "/" + offset;
         }
 
         @Override
