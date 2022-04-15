@@ -22,8 +22,18 @@ package com.tesshu.jpsonic.controller;
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.Share;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -31,26 +41,63 @@ import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.ShareService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 class ExternalPlayerControllerTest {
 
+    private MusicFolderService musicFolderService;
+    private ShareService shareService;
+    private JWTSecurityService jwtSecurityService;
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        mockMvc = MockMvcBuilders
-                .standaloneSetup(new ExternalPlayerController(mock(MusicFolderService.class), mock(PlayerService.class),
-                        mock(ShareService.class), mock(MediaFileService.class), mock(JWTSecurityService.class)))
-                .build();
+        musicFolderService = mock(MusicFolderService.class);
+        shareService = mock(ShareService.class);
+        jwtSecurityService = mock(JWTSecurityService.class);
+        mockMvc = MockMvcBuilders.standaloneSetup(new ExternalPlayerController(musicFolderService,
+                mock(PlayerService.class), shareService, mock(MediaFileService.class), jwtSecurityService)).build();
     }
 
     @Test
     void testHandleRequest() throws Exception {
+
+        final int shareId = 1;
+        Share share = new Share();
+        share.setId(shareId);
+        LocalDateTime localDateTime = LocalDateTime.now();
+        Date current = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        share.setCreated(current);
+        Date expires = Date.from(localDateTime.plusDays(10).atZone(ZoneId.systemDefault()).toInstant());
+        share.setExpires(expires);
+        Mockito.when(shareService.getShareByName(Mockito.anyString())).thenReturn(share);
+
+        MediaFile mediaFile = new MediaFile();
+        Path path = Path.of(ExternalPlayerControllerTest.class.getResource(
+                "/MEDIAS/Music/_DIR_ Céline Frisch- Café Zimmermann - Bach- Goldberg Variations, Canons [Disc 1]/01 - Bach- Goldberg Variations, BWV 988 - Aria.flac")
+                .toURI());
+        mediaFile.setPathString(path.toString());
+        List<MediaFile> mediaFiles = Arrays.asList(mediaFile);
+
+        MusicFolder folder = new MusicFolder(0, new File(""), "", true, expires);
+        List<MusicFolder> folders = Arrays.asList(folder);
+        Mockito.when(musicFolderService.getMusicFoldersForUser(Mockito.anyString())).thenReturn(folders);
+        Mockito.when(shareService.getSharedFiles(shareId, folders)).thenReturn(mediaFiles);
+
+        UriComponentsBuilder builder = mock(UriComponentsBuilder.class);
+        UriComponents components = mock(UriComponents.class);
+        Mockito.when(builder.build()).thenReturn(components);
+        Mockito.when(
+                jwtSecurityService.addJWTToken(Mockito.any(UriComponentsBuilder.class), Mockito.nullable(Date.class)))
+                .thenReturn(builder);
+
         MvcResult result = mockMvc
                 .perform(MockMvcRequestBuilders.get("/ext/share/AAaaA")
                         .param(Attributes.Request.USER_NAME.value(), "admin")

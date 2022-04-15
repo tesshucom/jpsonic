@@ -33,6 +33,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -40,11 +43,20 @@ import java.util.function.Function;
 import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.controller.CoverArtController.AlbumCoverArtRequest;
+import com.tesshu.jpsonic.controller.CoverArtController.ArtistCoverArtRequest;
 import com.tesshu.jpsonic.controller.CoverArtController.MediaFileCoverArtRequest;
+import com.tesshu.jpsonic.controller.CoverArtController.PlaylistCoverArtRequest;
+import com.tesshu.jpsonic.controller.CoverArtController.PodcastCoverArtRequest;
+import com.tesshu.jpsonic.controller.CoverArtController.VideoCoverArtRequest;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
+import com.tesshu.jpsonic.domain.Album;
+import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
+import com.tesshu.jpsonic.domain.Playlist;
+import com.tesshu.jpsonic.domain.PodcastChannel;
 import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlaylistService;
@@ -75,6 +87,10 @@ class CoverArtControllerTest {
 
     private static File createFile(String resourcePath) throws URISyntaxException {
         return new File(CoverArtControllerTest.class.getResource(resourcePath).toURI());
+    }
+
+    private static Path createPath(String resourcePath) throws URISyntaxException {
+        return Path.of(CoverArtControllerTest.class.getResource(resourcePath).toURI());
     }
 
     @BeforeEach
@@ -366,6 +382,110 @@ class CoverArtControllerTest {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setPathString(file.getPath());
             assertNull(controller.getImageInputStreamForVideo(mediaFile, 200, 160, 0));
+        }
+    }
+
+    @Nested
+    class ArtistCoverArtRequestTest {
+
+        @Test
+        void testLastModified() throws URISyntaxException, IOException {
+
+            Artist artist = new Artist();
+            Date lastScanned = new Date();
+            artist.setLastScanned(lastScanned);
+
+            ArtistCoverArtRequest request = controller.new ArtistCoverArtRequest(artist);
+            assertEquals(lastScanned.getTime(), request.lastModified());
+
+            Path path = createPath("/MEDIAS/Metadata/coverart/album.gif");
+            artist.setCoverArtPath(path.toString());
+            request = controller.new ArtistCoverArtRequest(artist);
+            assertEquals(Files.getLastModifiedTime(path).toMillis(), request.lastModified());
+        }
+    }
+
+    @Nested
+    class AlbumCoverArtRequestTest {
+
+        @Test
+        void testLastModified() throws URISyntaxException, IOException {
+
+            Album album = new Album();
+            Date lastScanned = new Date();
+            album.setLastScanned(lastScanned);
+
+            AlbumCoverArtRequest request = controller.new AlbumCoverArtRequest(album);
+            assertEquals(lastScanned.getTime(), request.lastModified());
+
+            Path path = createPath("/MEDIAS/Metadata/coverart/album.gif");
+            album.setCoverArtPath(path.toString());
+            request = controller.new AlbumCoverArtRequest(album);
+            assertEquals(Files.getLastModifiedTime(path).toMillis(), request.lastModified());
+        }
+    }
+
+    @Nested
+    class PlaylistCoverArtRequestTest {
+
+        @Test
+        void testLastModified() throws URISyntaxException, IOException {
+
+            Playlist playlist = new Playlist();
+            Date changed = new Date();
+            playlist.setChanged(changed);
+
+            PlaylistCoverArtRequest request = controller.new PlaylistCoverArtRequest(playlist);
+            assertEquals(changed.getTime(), request.lastModified());
+        }
+    }
+
+    @Nested
+    class PodcastCoverArtRequestTest {
+
+        @Test
+        void testLastModified() throws URISyntaxException, IOException {
+
+            PodcastChannel channel = new PodcastChannel("");
+            PodcastCoverArtRequest request = controller.new PodcastCoverArtRequest(channel);
+            assertEquals(-1, request.lastModified());
+        }
+    }
+
+    @Nested
+    class MediaFileCoverArtRequestTest {
+
+        @Test
+        void testLastModified() throws URISyntaxException, IOException {
+            MediaFile album = new MediaFile();
+            album.setMediaType(MediaType.ALBUM);
+            assertTrue(album.isDirectory());
+            Date changed = new Date();
+            album.setChanged(changed);
+            MediaFileCoverArtRequest request = controller.new MediaFileCoverArtRequest(album);
+            assertEquals(changed.getTime(), request.lastModified());
+
+            MediaFile song = new MediaFile();
+            song.setMediaType(MediaType.MUSIC);
+            Path songCoverArtPath = createPath("/MEDIAS/Metadata/coverart/cover.gif");
+            Mockito.when(mediaFileService.getCoverArt(song)).thenReturn(songCoverArtPath.toFile());
+            request = controller.new MediaFileCoverArtRequest(song);
+            assertEquals(Files.getLastModifiedTime(songCoverArtPath).toMillis(), request.lastModified());
+        }
+    }
+
+    @Nested
+    class VideoCoverArtRequestTest {
+
+        @Test
+        void testLastModified() throws URISyntaxException, IOException {
+            MediaFile video = new MediaFile();
+            video.setMediaType(MediaType.ALBUM);
+            assertTrue(video.isDirectory());
+            Date changed = new Date();
+            video.setChanged(changed);
+            VideoCoverArtRequest request = controller.new VideoCoverArtRequest(video, 0);
+            assertEquals(changed.getTime(), request.lastModified());
         }
     }
 }

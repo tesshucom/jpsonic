@@ -454,7 +454,7 @@ public class CoverArtController {
         public abstract String getArtist();
     }
 
-    private class ArtistCoverArtRequest extends CoverArtRequest {
+    class ArtistCoverArtRequest extends CoverArtRequest {
 
         private final Artist artist;
 
@@ -484,7 +484,7 @@ public class CoverArtController {
         }
     }
 
-    private class AlbumCoverArtRequest extends CoverArtRequest {
+    class AlbumCoverArtRequest extends CoverArtRequest {
 
         private final Album album;
 
@@ -514,7 +514,7 @@ public class CoverArtController {
         }
     }
 
-    private class PlaylistCoverArtRequest extends CoverArtRequest {
+    class PlaylistCoverArtRequest extends CoverArtRequest {
 
         private static final int IMAGE_COMPOSITES_THRESHOLD = 4;
 
@@ -579,7 +579,7 @@ public class CoverArtController {
         }
     }
 
-    private class PodcastCoverArtRequest extends CoverArtRequest {
+    class PodcastCoverArtRequest extends CoverArtRequest {
 
         private final PodcastChannel channel;
 
@@ -640,7 +640,7 @@ public class CoverArtController {
         }
     }
 
-    private class VideoCoverArtRequest extends CoverArtRequest {
+    class VideoCoverArtRequest extends CoverArtRequest {
 
         private final MediaFile mediaFile;
         private final int offset;

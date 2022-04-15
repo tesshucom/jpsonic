@@ -143,7 +143,7 @@ public class CoverArtService {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
-    private void renameWithoutReplacement(MediaFile mediaFile, File newCoverFile) throws IOException {
+    void renameWithoutReplacement(MediaFile mediaFile, File newCoverFile) throws IOException {
         MediaFile dir = mediaFile;
         while (true) {
             File coverFile = mediaFileService.getCoverArt(dir);

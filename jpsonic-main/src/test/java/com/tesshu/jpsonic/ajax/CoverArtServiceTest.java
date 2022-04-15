@@ -19,10 +19,16 @@
 
 package com.tesshu.jpsonic.ajax;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,6 +39,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 
 class CoverArtServiceTest extends AbstractNeedsScan {
@@ -72,5 +79,25 @@ class CoverArtServiceTest extends AbstractNeedsScan {
         msg = coverArtService.saveCoverArtImage(album.getId(), TEST_IMAGE_URL);
         assertNull(msg);
         // Failed to create image file backup....
+    }
+
+    @Test
+    void testRenameWithoutReplacement(@TempDir Path tmpDir) throws IOException, URISyntaxException {
+
+        Path res = Path.of(CoverArtServiceTest.class.getResource("/MEDIAS/Metadata/coverart/cover.jpg").toURI());
+        Path coverArt = Path.of(tmpDir.toString(), "cover.jpg");
+        Files.copy(res, coverArt);
+
+        MediaFile mediaFile = new MediaFile();
+        mediaFile.setPathString(tmpDir.toString());
+        mediaFile.setCoverArtPathString(coverArt.toString());
+
+        assertTrue(Files.exists(coverArt));
+        coverArtService.renameWithoutReplacement(mediaFile, Path.of(tmpDir.toString(), "dummy.jpg").toFile());
+        Path moved = Path.of(tmpDir.toString(), "cover.jpg.old");
+        assertFalse(Files.exists(coverArt));
+        assertTrue(Files.exists(moved));
+
+        Files.delete(moved);
     }
 }
