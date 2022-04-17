@@ -22,6 +22,7 @@
 package com.tesshu.jpsonic.command;
 
 import com.tesshu.jpsonic.controller.PodcastSettingsController;
+import com.tesshu.jpsonic.service.SecurityService;
 
 /**
  * Command used in {@link PodcastSettingsController}.
@@ -48,7 +49,9 @@ public class PodcastSettingsCommand {
     }
 
     public void setFolder(String folder) {
-        this.folder = folder;
+        if (folder == null || SecurityService.isNoTraversal(folder)) {
+            this.folder = folder;
+        }
     }
 
     public String getEpisodeRetentionCount() {

@@ -404,7 +404,7 @@ public class SecurityService implements UserDetailsService {
         return isInMusicFolder(path.toString()) || isInPodcastFolder(path);
     }
 
-    public boolean isNoTraversal(String path) {
+    public static boolean isNoTraversal(String path) {
         return NO_TRAVERSAL.matcher(path).matches();
     }
 

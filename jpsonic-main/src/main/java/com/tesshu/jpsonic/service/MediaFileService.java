@@ -133,7 +133,7 @@ public class MediaFileService {
     }
 
     public MediaFile getMediaFile(String path) {
-        if (!securityService.isNoTraversal(path)) {
+        if (!SecurityService.isNoTraversal(path)) {
             throw new SecurityException("Access denied to file : " + path);
         }
         return getMediaFile(Path.of(path));
