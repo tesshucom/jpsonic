@@ -211,7 +211,7 @@ function onPlayAll() {
             <tbody>
                 <c:forEach items="${model.songs}" var="song">
                     <sub:url value="/main.view" var="mainUrl">
-                        <sub:param name="path" value="${song.parentPath}"/>
+                        <sub:param name="path" value="${song.parentPathString}"/>
                     </sub:url>
                     <tr>
                         <c:import url="playButtons.jsp">

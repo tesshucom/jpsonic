@@ -22,8 +22,8 @@ package com.tesshu.jpsonic.domain;
 import java.text.CollationKey;
 import java.text.Collator;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Class to perform Collaror sort considering serial number.

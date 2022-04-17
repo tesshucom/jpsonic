@@ -21,9 +21,8 @@
 
 package com.tesshu.jpsonic.service.playlist;
 
-import java.io.File;
-import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,11 +100,10 @@ public class DefaultPlaylistImportHandler implements PlaylistImportHandler {
                 @Override
                 public void beginVisitMedia(Media media) {
                     try {
-                        URI uri = media.getSource().getURI();
-                        File file = new File(uri);
-                        MediaFile mediaFile = mediaFileService.getMediaFile(file);
+                        Path path = Path.of(media.getSource().getURI());
+                        MediaFile mediaFile = mediaFileService.getMediaFile(path);
                         if (mediaFile == null) {
-                            errors.add("Cannot find media file " + file);
+                            errors.add("Cannot find media file " + path);
                         } else {
                             mediaFiles.add(mediaFile);
                         }

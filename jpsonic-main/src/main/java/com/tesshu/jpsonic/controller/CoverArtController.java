@@ -32,12 +32,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -56,22 +58,22 @@ import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.domain.PodcastChannel;
-import com.tesshu.jpsonic.domain.Transcoding;
-import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
 import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.service.metadata.Jaudiotagger3Parser;
-import com.tesshu.jpsonic.service.metadata.JaudiotaggerParserUtils;
+import com.tesshu.jpsonic.service.metadata.FFmpeg;
+import com.tesshu.jpsonic.service.metadata.ParserUtils;
+import com.tesshu.jpsonic.spring.LoggingExceptionResolver;
 import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jaudiotagger.tag.images.Artwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,34 +94,31 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class CoverArtController {
 
     private static final Logger LOG = LoggerFactory.getLogger(CoverArtController.class);
-    private static final String VIDEO_IMAGE_COMMAND = "ffmpeg -r 1 -ss %o -t 1 -i %s -s %wx%h -v 0 -f mjpeg -";
     private static final int COVER_ART_CONCURRENCY = 4;
     private static final Object DIRS_LOCK = new Object();
     private static final Map<String, Object> IMG_LOCKS = new ConcurrentHashMap<>();
 
     private final MediaFileService mediaFileService;
-    private final TranscodingService transcodingService;
+    private final FFmpeg ffmpeg;
     private final PlaylistService playlistService;
     private final PodcastService podcastService;
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
-    private final Jaudiotagger3Parser jaudiotaggerParser;
     private final CoverArtLogic logic;
     private final FontLoader fontLoader;
 
     private Semaphore semaphore;
 
-    public CoverArtController(MediaFileService mediaFileService, TranscodingService transcodingService,
-            PlaylistService playlistService, PodcastService podcastService, ArtistDao artistDao, AlbumDao albumDao,
-            Jaudiotagger3Parser jaudiotaggerParser, CoverArtLogic logic, FontLoader fontLoader) {
+    public CoverArtController(MediaFileService mediaFileService, FFmpeg ffmpeg, PlaylistService playlistService,
+            PodcastService podcastService, ArtistDao artistDao, AlbumDao albumDao, CoverArtLogic logic,
+            FontLoader fontLoader) {
         super();
         this.mediaFileService = mediaFileService;
-        this.transcodingService = transcodingService;
+        this.ffmpeg = ffmpeg;
         this.playlistService = playlistService;
         this.podcastService = podcastService;
         this.artistDao = artistDao;
         this.albumDao = albumDao;
-        this.jaudiotaggerParser = jaudiotaggerParser;
         this.logic = logic;
         this.fontLoader = fontLoader;
     }
@@ -145,12 +144,7 @@ public class CoverArtController {
             throws ServletRequestBindingException {
 
         CoverArtRequest coverArtRequest = createCoverArtRequest(request);
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("handleRequest - " + coverArtRequest);
-        }
         Integer size = ServletRequestUtils.getIntParameter(request, Attributes.Request.SIZE.value());
-
-        // Send fallback image if no ID is given. (No need to cache it, since it will be cached in browser.)
         if (coverArtRequest == null) {
             sendFallback(size, response);
             return;
@@ -230,7 +224,7 @@ public class CoverArtController {
             return null;
         }
         if (mediaFile.isVideo()) {
-            int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.OFFSET.value(), 60);
+            int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
             return new VideoCoverArtRequest(mediaFile, offset);
         }
         return new MediaFileCoverArtRequest(mediaFile);
@@ -238,7 +232,7 @@ public class CoverArtController {
 
     private void sendImage(File file, HttpServletResponse response) throws ExecutionException {
         response.setContentType(StringUtil.getMimeType(FilenameUtils.getExtension(file.getName())));
-        try (InputStream in = Files.newInputStream(Paths.get(file.toURI()))) {
+        try (InputStream in = Files.newInputStream(file.toPath())) {
             IOUtils.copy(in, response.getOutputStream());
         } catch (IOException e) {
             throw new ExecutionException("Cannot copy image: " + file.getPath(), e);
@@ -249,27 +243,29 @@ public class CoverArtController {
         if (response.getContentType() == null) {
             response.setContentType(StringUtil.getMimeType("jpeg"));
         }
-        try (InputStream in = getClass().getResourceAsStream("default_cover.jpg")) {
+        try (InputStream in = CoverArtController.class.getResourceAsStream("default_cover.jpg")) {
             BufferedImage image = ImageIO.read(in);
             if (size != null) {
                 image = scale(image, size, size);
             }
             ImageIO.write(image, "jpeg", response.getOutputStream());
         } catch (IOException e) {
-            if (LOG.isErrorEnabled()) {
+            if (LoggingExceptionResolver.isSuppressedException(e) && LOG.isInfoEnabled()) {
+                LOG.info("Connection was closed by the client while writing coverart");
+            } else {
                 LOG.error("Error reading default_cover.jpg", e);
             }
         }
     }
 
-    private void sendUnscaled(CoverArtRequest coverArtRequest, HttpServletResponse response) throws ExecutionException {
-        File file = coverArtRequest.getCoverArt();
-        Pair<InputStream, String> imageInputStreamWithType = getImageInputStreamWithType(file);
+    void sendUnscaled(CoverArtRequest coverArtRequest, HttpServletResponse response) throws ExecutionException {
+        Path path = coverArtRequest.getCoverArt();
+        Pair<InputStream, String> imageInputStreamWithType = getImageInputStreamWithType(path);
         response.setContentType(imageInputStreamWithType.getRight());
         try (InputStream in = imageInputStreamWithType.getLeft()) {
             IOUtils.copy(in, response.getOutputStream());
         } catch (IOException e) {
-            throw new ExecutionException("Cannot copy image: " + file.getPath(), e);
+            throw new ExecutionException("Cannot copy image: " + path, e);
         }
     }
 
@@ -285,12 +281,9 @@ public class CoverArtController {
         synchronized (IMG_LOCKS.get(lockKey)) {
             if (IMG_LOCKS.get(lockKey) != null && IMG_LOCKS.get(lockKey).equals(lock)
                     && (!cachedImage.exists() || request.lastModified() > cachedImage.lastModified())) {
-                try (OutputStream out = Files.newOutputStream(Paths.get(cachedImage.toURI()))) {
+                try (OutputStream out = Files.newOutputStream(cachedImage.toPath())) {
                     semaphore.acquire();
                     BufferedImage image = request.createImage(size);
-                    if (image == null) {
-                        throw new ExecutionException(new IOException("Unable to decode image."));
-                    }
                     ImageIO.write(image, encoding, out);
                 } catch (InterruptedException | IOException e) {
                     if (!cachedImage.delete() && LOG.isWarnEnabled()) {
@@ -310,8 +303,9 @@ public class CoverArtController {
      * Returns an input stream to the image in the given file. If the file is an audio file, the embedded album art is
      * returned.
      */
-    private InputStream getImageInputStream(File file) throws ExecutionException {
-        return getImageInputStreamWithType(file).getLeft();
+    @NonNull
+    InputStream getImageInputStream(Path path) throws ExecutionException {
+        return getImageInputStreamWithType(path).getLeft();
     }
 
     /**
@@ -323,39 +317,32 @@ public class CoverArtController {
      * False positive. This method is an intermediate function used internally by createImage, sendUnscaled. The methods
      * calling this method auto-closes the resource after this method completes.
      */
-    private Pair<InputStream, String> getImageInputStreamWithType(File file) throws ExecutionException {
-        InputStream is;
-        String mimeType;
-        if (jaudiotaggerParser.isApplicable(file)) {
-            LOG.trace("Using Jaudio Tagger for reading artwork from {}", file);
-            MediaFile mediaFile = mediaFileService.getMediaFile(file);
-            Artwork artwork;
-            LOG.trace("Reading artwork from file {}", mediaFile);
-            artwork = JaudiotaggerParserUtils.getArtwork(mediaFile);
-            if (artwork == null) {
-                throw new ExecutionException(new NullPointerException("Image cannot be read: " + file.getPath()));
-            }
-            mimeType = artwork.getMimeType();
+    @NonNull
+    Pair<InputStream, String> getImageInputStreamWithType(Path path) throws ExecutionException {
 
-            is = new ByteArrayInputStream(artwork.getBinaryData());
-        } else {
-            mimeType = StringUtil.getMimeType(FilenameUtils.getExtension(file.getName()));
-
+        if (!ParserUtils.isEmbeddedArtworkApplicable(path)) {
+            InputStream is;
             try {
-                is = Files.newInputStream(Paths.get(file.toURI()));
+                is = Files.newInputStream(path);
             } catch (IOException e) {
-                throw new ExecutionException("Image cannot be read: " + file.getPath(), e);
+                throw new ExecutionException("Image cannot be read: " + path, e);
             }
+            String mimeType = StringUtil.getMimeType(FilenameUtils.getExtension(path.getFileName().toString()));
+            return Pair.of(is, mimeType);
         }
-        return Pair.of(is, mimeType);
+
+        Optional<Artwork> op = ParserUtils.getEmbeddedArtwork(path);
+        if (op.isEmpty()) {
+            throw new ExecutionException(new IOException("Embeded image cannot be read: " + path));
+        }
+
+        Artwork artwork = op.get();
+        return Pair.of(new ByteArrayInputStream(artwork.getBinaryData()), artwork.getMimeType());
     }
 
-    private InputStream getImageInputStreamForVideo(MediaFile mediaFile, int width, int height, int offset)
-            throws IOException {
-        VideoTranscodingSettings videoSettings = new VideoTranscodingSettings(width, height, offset, 0, false);
-        TranscodingService.Parameters parameters = new TranscodingService.Parameters(mediaFile, videoSettings);
-        parameters.setTranscoding(new Transcoding(null, null, null, null, VIDEO_IMAGE_COMMAND, null, null, false));
-        return transcodingService.getTranscodedInputStream(parameters);
+    @Nullable
+    BufferedImage getImageInputStreamForVideo(MediaFile mediaFile, int width, int height, int offset) {
+        return ffmpeg.createImage(mediaFile.toPath(), width, height, offset);
     }
 
     private File getImageCacheDirectory(int size) {
@@ -379,6 +366,7 @@ public class CoverArtController {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (BufferedImage) Not reusable
     public static BufferedImage scale(BufferedImage image, int width, int height) {
+
         int w = image.getWidth();
         int h = image.getHeight();
         BufferedImage thumb = image;
@@ -408,35 +396,51 @@ public class CoverArtController {
 
     private abstract class CoverArtRequest {
 
-        protected File coverArt;
+        protected Path coverArt;
 
         private CoverArtRequest() {
         }
 
         private CoverArtRequest(String coverArtPath) {
-            this.coverArt = coverArtPath == null ? null : new File(coverArtPath);
+            this.coverArt = coverArtPath == null ? null : Path.of(coverArtPath);
         }
 
-        private File getCoverArt() {
+        private Path getCoverArt() {
             return coverArt;
         }
 
         public abstract String getKey();
 
+        long getLastModified(Path path) {
+            try {
+                return Files.getLastModifiedTime(path).toMillis();
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+
         public abstract long lastModified();
 
+        @SuppressWarnings("PMD.GuardLogStatement")
         public BufferedImage createImage(int size) {
             if (coverArt != null) {
                 try (InputStream in = getImageInputStream(coverArt)) {
-                    return scale(ImageIO.read(in), size, size);
-                } catch (IOException e) {
-                    if (LOG.isWarnEnabled()) {
-                        LOG.warn("Failed to process cover art " + coverArt + ": ", e);
+
+                    BufferedImage image = ImageIO.read(in);
+                    if (image == null) {
+                        LOG.warn("Empty Image? :" + coverArt);
+                    } else {
+                        return scale(image, size, size);
                     }
+                } catch (IOException e) {
+                    LOG.warn("Failed to process cover art " + coverArt + ": ", e);
                 } catch (ExecutionException e) {
-                    ConcurrentUtils.handleCauseUnchecked(e);
-                    if (LOG.isWarnEnabled()) {
-                        LOG.warn("Failed to process cover art " + coverArt + ": ", e);
+                    Throwable cause = e.getCause();
+                    if (cause instanceof IOException) {
+                        LOG.warn("Empty embeded image or Non-existent file? :" + coverArt + " ", e.getMessage());
+                    } else {
+                        LOG.warn("Failed to process cover art " + coverArt + ": ");
+                        ConcurrentUtils.handleCauseUnchecked(e);
                     }
                 }
             }
@@ -459,7 +463,7 @@ public class CoverArtController {
         public abstract String getArtist();
     }
 
-    private class ArtistCoverArtRequest extends CoverArtRequest {
+    class ArtistCoverArtRequest extends CoverArtRequest {
 
         private final Artist artist;
 
@@ -475,7 +479,7 @@ public class CoverArtController {
 
         @Override
         public long lastModified() {
-            return coverArt == null ? artist.getLastScanned().getTime() : coverArt.lastModified();
+            return coverArt == null ? artist.getLastScanned().getTime() : getLastModified(coverArt);
         }
 
         @Override
@@ -489,7 +493,7 @@ public class CoverArtController {
         }
     }
 
-    private class AlbumCoverArtRequest extends CoverArtRequest {
+    class AlbumCoverArtRequest extends CoverArtRequest {
 
         private final Album album;
 
@@ -505,7 +509,7 @@ public class CoverArtController {
 
         @Override
         public long lastModified() {
-            return coverArt == null ? album.getLastScanned().getTime() : coverArt.lastModified();
+            return coverArt == null ? album.getLastScanned().getTime() : getLastModified(coverArt);
         }
 
         @Override
@@ -519,7 +523,7 @@ public class CoverArtController {
         }
     }
 
-    private class PlaylistCoverArtRequest extends CoverArtRequest {
+    class PlaylistCoverArtRequest extends CoverArtRequest {
 
         private static final int IMAGE_COMPOSITES_THRESHOLD = 4;
 
@@ -584,7 +588,7 @@ public class CoverArtController {
         }
     }
 
-    private class PodcastCoverArtRequest extends CoverArtRequest {
+    class PodcastCoverArtRequest extends CoverArtRequest {
 
         private final PodcastChannel channel;
 
@@ -614,24 +618,24 @@ public class CoverArtController {
         }
     }
 
-    private class MediaFileCoverArtRequest extends CoverArtRequest {
+    class MediaFileCoverArtRequest extends CoverArtRequest {
 
         private final MediaFile dir;
 
         MediaFileCoverArtRequest(MediaFile mediaFile) {
-            super(mediaFile.getCoverArtPath());
+            super(mediaFile.getCoverArtPathString());
             dir = mediaFile.isDirectory() ? mediaFile : mediaFileService.getParentOf(mediaFile);
             coverArt = mediaFileService.getCoverArt(mediaFile);
         }
 
         @Override
         public String getKey() {
-            return coverArt == null ? dir.getPath() : coverArt.getPath();
+            return coverArt == null ? dir.getPathString() : coverArt.toString();
         }
 
         @Override
         public long lastModified() {
-            return coverArt == null ? dir.getChanged().getTime() : coverArt.lastModified();
+            return coverArt == null ? dir.getChanged().getTime() : getLastModified(coverArt);
         }
 
         @Override
@@ -645,38 +649,36 @@ public class CoverArtController {
         }
     }
 
-    private class VideoCoverArtRequest extends CoverArtRequest {
+    class VideoCoverArtRequest extends CoverArtRequest {
 
         private final MediaFile mediaFile;
         private final int offset;
 
         VideoCoverArtRequest(MediaFile mediaFile, int offset) {
-            super(mediaFile.getCoverArtPath());
+            super(mediaFile.getCoverArtPathString());
             this.mediaFile = mediaFile;
             this.offset = offset;
         }
 
         @Override
         public BufferedImage createImage(int size) {
-            int height;
-            height = size;
+            int height = size;
             int width = height * 16 / 9;
-            try (InputStream in = getImageInputStreamForVideo(mediaFile, width, height, offset)) {
-                BufferedImage result = ImageIO.read(in);
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to process cover art for " + mediaFile + ": {}", result);
-                }
-            } catch (IOException e) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to process cover art for " + mediaFile + ": ", e);
-                }
+
+            BufferedImage result = getImageInputStreamForVideo(mediaFile, width, height, offset);
+            if (result != null) {
+                return result;
+            }
+
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Unable to create video thumbnails : " + mediaFile);
             }
             return createAutoCover(width, height);
         }
 
         @Override
         public String getKey() {
-            return mediaFile.getPath() + "/" + offset;
+            return mediaFile.getPathString() + "/" + offset;
         }
 
         @Override

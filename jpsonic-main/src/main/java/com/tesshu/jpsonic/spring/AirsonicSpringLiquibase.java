@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.spring;
 
-import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 import java.sql.Connection;
 import java.util.List;

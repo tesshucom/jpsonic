@@ -113,6 +113,8 @@ public final class ServiceMockUtils {
             Mockito.when(settingsService.isDeleteDiacritic()).thenReturn(true);
             Mockito.when(settingsService.getDefaultPlaylistFolder())
                     .thenReturn(SettingsConstants.General.Extension.PLAYLIST_FOLDER.defaultValue);
+            Mockito.when(settingsService.getCoverArtFileTypesAsArray())
+                    .thenReturn(SettingsConstants.General.Extension.COVER_ART_FILE_TYPES.defaultValue.split(" "));
             mock = settingsService;
         } else if (AirsonicLocaleResolver.class == classToMock) {
             String language = SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE.defaultValue;

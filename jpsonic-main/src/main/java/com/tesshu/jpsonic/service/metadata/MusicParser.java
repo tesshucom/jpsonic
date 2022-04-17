@@ -19,18 +19,19 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import static com.tesshu.jpsonic.service.metadata.JaudiotaggerParserUtils.createSimplePath;
-import static com.tesshu.jpsonic.service.metadata.JaudiotaggerParserUtils.mapGenre;
-import static com.tesshu.jpsonic.service.metadata.JaudiotaggerParserUtils.parseInt;
-import static com.tesshu.jpsonic.service.metadata.JaudiotaggerParserUtils.parseTrackNumber;
-import static com.tesshu.jpsonic.service.metadata.JaudiotaggerParserUtils.parseYear;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.StringUtils.trimToEmpty;
-import static org.apache.commons.lang.StringUtils.trimToNull;
+import static com.tesshu.jpsonic.service.metadata.ParserUtils.createSimplePath;
+import static com.tesshu.jpsonic.service.metadata.ParserUtils.mapGenre;
+import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseInt;
+import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseTrackNumber;
+import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseYear;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -63,9 +64,9 @@ import org.springframework.stereotype.Service;
 @Service
 @Order(0)
 @SuppressWarnings("PMD.TooManyStaticImports")
-public class Jaudiotagger3Parser extends MetaDataParser {
+public class MusicParser extends MetaDataParser {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Jaudiotagger3Parser.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MusicParser.class);
 
     // @see AudioFileIO#prepareReadersAndWriters
     // MP4: with FFmpegParser
@@ -90,7 +91,7 @@ public class Jaudiotagger3Parser extends MetaDataParser {
 
     private final MusicFolderService musicFolderService;
 
-    public Jaudiotagger3Parser(MusicFolderService musicFolderService) {
+    public MusicParser(MusicFolderService musicFolderService) {
         super();
         this.musicFolderService = musicFolderService;
         try {
@@ -117,23 +118,23 @@ public class Jaudiotagger3Parser extends MetaDataParser {
 
     @Override
     @SuppressWarnings("PMD.GuardLogStatement")
-    public @NonNull MetaData getRawMetaData(File file) {
+    public @NonNull MetaData getRawMetaData(Path path) {
 
         MetaData metaData = new MetaData();
 
-        if (!isApplicable(file)) {
+        if (!isApplicable(path)) {
             return metaData;
         }
 
         AudioFile af;
         try {
-            af = AudioFileIO.read(file);
+            af = AudioFileIO.read(path.toFile());
         } catch (CannotReadException | IOException | TagException | ReadOnlyFileException
                 | InvalidAudioFrameException e) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Unable to read file: ".concat(createSimplePath(file)), e);
+                LOG.debug("Unable to read file: ".concat(createSimplePath(path)), e);
             } else {
-                LOG.warn("Unable to read ".concat(createSimplePath(file)).concat(": [{}]"), e.getMessage().trim());
+                LOG.warn("Unable to read ".concat(createSimplePath(path)).concat(": [{}]"), e.getMessage().trim());
             }
             return metaData;
         }
@@ -147,7 +148,7 @@ public class Jaudiotagger3Parser extends MetaDataParser {
         if (isEmpty(tag)) {
             return metaData;
         } else if (tag instanceof WavTag && !((WavTag) tag).isExistingId3Tag()) {
-            LOG.info("Only ID3 chunk is supported: {}", createSimplePath(file));
+            LOG.info("Only ID3 chunk is supported: {}", createSimplePath(path));
             return metaData;
         }
 
@@ -184,7 +185,7 @@ public class Jaudiotagger3Parser extends MetaDataParser {
     public void setMetaData(MediaFile file, MetaData metaData) {
 
         try {
-            AudioFile audioFile = AudioFileIO.read(file.getFile());
+            AudioFile audioFile = AudioFileIO.read(file.toPath().toFile());
             Tag tag = audioFile.getTagOrCreateAndSetDefault();
 
             tag.setField(FieldKey.ARTIST, trimToEmpty(metaData.getArtist()));
@@ -216,25 +217,25 @@ public class Jaudiotagger3Parser extends MetaDataParser {
 
         } catch (IOException | CannotWriteException | KeyNotFoundException | TagException | CannotReadException
                 | ReadOnlyFileException | InvalidAudioFrameException e) {
-            throw new CompletionException("Failed to update tags for file: " + file.getPath(), e);
+            throw new CompletionException("Failed to update tags for file: " + file.getPathString(), e);
         }
     }
 
     @Override
-    public boolean isApplicable(File file) {
-        if (!file.isFile()) {
+    public boolean isApplicable(Path path) {
+        if (Files.isDirectory(path)) {
             return false;
         }
-        String ext = FilenameUtils.getExtension(file.getName()).toLowerCase(Locale.getDefault());
+        String ext = FilenameUtils.getExtension(path.getFileName().toString()).toLowerCase(Locale.getDefault());
         return APPLICABLES.contains(ext);
     }
 
     @Override
-    public boolean isEditingSupported(File file) {
-        if (!file.isFile()) {
+    public boolean isEditingSupported(Path path) {
+        if (Files.isDirectory(path)) {
             return false;
         }
-        String ext = FilenameUtils.getExtension(file.getName()).toLowerCase(Locale.getDefault());
+        String ext = FilenameUtils.getExtension(path.getFileName().toString()).toLowerCase(Locale.getDefault());
         if (NOT_EDITABLES.contains(ext)) {
             return false;
         } else if (APPLICABLES.contains(ext)) {

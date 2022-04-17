@@ -3,7 +3,29 @@
 # jpsonic/jpsonic
 # -->
 
-## v111.1.0
+
+## v111.2.0 (SNAPSHOT)
+
+Scan parallelization is planned for v111.x. v111.2.0 will have bug fixes and improvements that underlie parallelization. Parallelization is not provided in v111.2.0, but it will be a bit faster than Subsonic's or Airsonic's scans.
+
+The binaries of SNAPSHOT are available from the latest artifacts on the [master branch](https://github.com/tesshucom/jpsonic/actions?query=branch%3Amaster) .
+
+#### Enhancement
+  * Update libs. Includes fixes for CVE-2022-0839, CVE-2020-36518
+  * Improve cover art processing ([#1376](https://github.com/tesshucom/jpsonic/issues/1376))
+    * Verbose log by NPE will be improved and simple message will be displayed
+    * Improve spec of creating video thumbnails. Avoid black images and produce the better image ([#1398](https://github.com/tesshucom/jpsonic/issues/1398))
+  * Improved scanning process
+    * Improve design to prevent duplicate analysis
+    * Delete Fast access mode ([#1452](https://github.com/tesshucom/jpsonic/issues/1452))
+    * Embedded images check during scan will be simplified. Full check will be done when a request for image
+
+#### Fixes
+  * Fix bug that the cover art of Video is not displayed on Windows
+  * Fix bug that video tags were not parsed on Windows
+
+<details>
+<summary>v111.1.0</summary>
 
 #### Enhancement
   * Update libs. Includes fixes for CVE-2021-44832, CVE-2021-41182, CVE-2021-41183, CVE-2021-41184
@@ -22,6 +44,7 @@
     * Fix bug that caused misjudgment in certain file formats
   * Fixed a bug in the transcoding commands containing double quotes would not be executed correctly
 
+</details>
 <details>
 <summary>v111.0.0</summary>
 

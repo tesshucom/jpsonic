@@ -21,14 +21,16 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.logging.LogManager;
@@ -37,7 +39,7 @@ import java.util.regex.Pattern;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import org.apache.commons.io.FilenameUtils;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.apache.commons.lang3.StringUtils;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.SupportedFileFormat;
@@ -57,12 +59,12 @@ import org.slf4j.LoggerFactory;
  *
  * @author Sindre Mehus
  */
-public final class JaudiotaggerParserUtils {
+public final class ParserUtils {
 
     private static final Pattern GENRE_PATTERN = Pattern.compile("\\((\\d+)\\).*");
     private static final Pattern TRACK_NO_PATTERN = Pattern.compile("(\\d+)/\\d+");
     private static final Pattern YEAR_NO_PATTERN = Pattern.compile("(\\d{4}).*");
-    private static final Logger LOG = LoggerFactory.getLogger(JaudiotaggerParserUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ParserUtils.class);
 
     // @see AudioFileIO#prepareReadersAndWriters
     // MP4: with FFmpegParser
@@ -93,7 +95,7 @@ public final class JaudiotaggerParserUtils {
         }
     }
 
-    private JaudiotaggerParserUtils() {
+    private ParserUtils() {
     }
 
     /**
@@ -162,46 +164,72 @@ public final class JaudiotaggerParserUtils {
         return parseInt(trimToNull(s), YEAR_NO_PATTERN);
     }
 
-    static String createSimplePath(File file) {
-        return file.getParentFile().getName().concat("/").concat(file.getName());
+    static Integer parseDoubleToInt(String s) {
+        Double result;
+        try {
+            result = Double.valueOf(s);
+        } catch (NumberFormatException e) {
+            return parseInt(s);
+        }
+        return (int) Math.floor(result);
+    }
+
+    static String getFolder(MediaFile mediaFile) {
+        return StringUtils.defaultIfBlank(mediaFile.getFolder(), "root");
+    }
+
+    static String createSimplePath(Path path) {
+        return path.getParent().getFileName().toString().concat("/").concat(path.getFileName().toString());
+    }
+
+    /**
+     * Returns whether the embedded artwork is in an available format. There is no guarantee that the artwork is
+     * actually embedded.
+     */
+    public static boolean isEmbeddedArtworkApplicable(Path path) {
+        if (Files.isDirectory(path)) {
+            return false;
+        }
+        return IMG_APPLICABLES
+                .contains(FilenameUtils.getExtension(path.getFileName().toString()).toLowerCase(Locale.getDefault()));
     }
 
     @SuppressWarnings("PMD.GuardLogStatement")
-    public static @Nullable Artwork getArtwork(MediaFile mediaFile) {
+    public static Optional<Artwork> getEmbeddedArtwork(Path path) {
 
-        File file = mediaFile.getFile();
-
-        if (!file.isFile()) {
-            return null;
-        }
-
-        String ext = FilenameUtils.getExtension(file.getName()).toLowerCase(Locale.getDefault());
-        if (!IMG_APPLICABLES.contains(ext)) {
-            return null;
+        if (!isEmbeddedArtworkApplicable(path)) {
+            return Optional.empty();
         }
 
         AudioFile af;
         try {
-            af = AudioFileIO.read(file);
+            af = AudioFileIO.read(path.toFile());
         } catch (CannotReadException | IOException | TagException | ReadOnlyFileException
                 | InvalidAudioFrameException e) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Unable to read cover art: ".concat(createSimplePath(file)), e);
+                LOG.debug("Unable to read cover art: ".concat(createSimplePath(path)), e);
             } else {
-                LOG.warn("Unable to read cover art in ".concat(createSimplePath(file)).concat(": [{}]"),
+                LOG.warn("Unable to read cover art in ".concat(createSimplePath(path)).concat(": [{}]"),
                         e.getMessage().trim());
             }
-            return null;
+            return Optional.empty();
         }
 
         Tag tag = af.getTag();
         if (isEmpty(tag)) {
-            return null;
+            return Optional.empty();
         } else if (tag instanceof WavTag && !((WavTag) tag).isExistingId3Tag()) {
-            LOG.info("Cover art is only supported in ID3 chunks: {}", createSimplePath(file));
-            return null;
+            LOG.info("Cover art is only supported in ID3 chunks: {}", createSimplePath(path));
+            return Optional.empty();
         }
 
-        return tag.getFirstArtwork();
+        Artwork artwork = tag.getFirstArtwork();
+        if (isEmpty(artwork)) {
+            return Optional.empty();
+        } else if (isEmpty(artwork.getBinaryData())) {
+            return Optional.empty();
+        }
+
+        return Optional.of(artwork);
     }
 }

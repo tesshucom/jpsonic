@@ -24,8 +24,9 @@ package com.tesshu.jpsonic.service.metadata;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -45,9 +46,9 @@ import org.springframework.test.annotation.DirtiesContext;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class MetaDataParserFactoryTest {
 
-    private static File someMp3;
-    private static File someFlv;
-    private static File someJunk;
+    private static Path someMp3;
+    private static Path someFlv;
+    private static Path someJunk;
 
     @Autowired
     private MetaDataParserFactory metaDataParserFactory;
@@ -57,17 +58,14 @@ class MetaDataParserFactoryTest {
 
     @BeforeAll
     public static void beforeAll() throws IOException {
-        String homePath = System.getProperty("jpsonic.home");
-        File home = new File(homePath);
-        if (!home.exists()) {
-            home.mkdir();
-        }
-        someMp3 = new File(homePath, "some.mp3");
-        someFlv = new File(homePath, "some.flv");
-        someJunk = new File(homePath, "some.junk");
-        someMp3.createNewFile();
-        someFlv.createNewFile();
-        someJunk.createNewFile();
+        Path homePath = Path.of(System.getProperty("jpsonic.home"));
+        Files.createDirectory(homePath);
+        someMp3 = Path.of(homePath.toString(), "some.mp3");
+        someFlv = Path.of(homePath.toString(), "some.flv");
+        someJunk = Path.of(homePath.toString(), "some.junk");
+        Files.createFile(someMp3);
+        Files.createFile(someFlv);
+        Files.createFile(someJunk);
     }
 
     @Test
@@ -77,12 +75,12 @@ class MetaDataParserFactoryTest {
         settingsService.setVideoFileTypes("mp3 flv");
 
         parser = metaDataParserFactory.getParser(someMp3);
-        assertThat(parser, instanceOf(Jaudiotagger3Parser.class));
+        assertThat(parser, instanceOf(MusicParser.class));
 
         parser = metaDataParserFactory.getParser(someFlv);
-        assertThat(parser, instanceOf(FFmpegParser.class));
+        assertThat(parser, instanceOf(VideoParser.class));
 
         parser = metaDataParserFactory.getParser(someJunk);
-        assertThat(parser, instanceOf(DefaultMetaDataParser.class));
+        assertThat(parser, instanceOf(DefaultParser.class));
     }
 }

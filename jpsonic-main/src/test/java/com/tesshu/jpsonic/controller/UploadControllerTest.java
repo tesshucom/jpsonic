@@ -26,7 +26,6 @@ import java.io.File;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +34,7 @@ import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -82,7 +81,7 @@ class UploadControllerTest {
 
         MockMultipartHttpServletRequest req = new MockMultipartHttpServletRequest();
 
-        byte[] data = IOUtils.toByteArray(Files.newInputStream(Paths.get(url.toURI())));
+        byte[] data = IOUtils.toByteArray(Files.newInputStream(Path.of(url.toURI())));
         req.setContent(createFileContent(tempDirPath.toString(), FILE_NAME, FILE_CONTENT_TYPE, data));
         req.setContentType("multipart/form-data; boundary=" + BOUNDARY);
 
@@ -110,7 +109,7 @@ class UploadControllerTest {
 
         MockMultipartHttpServletRequest req = new MockMultipartHttpServletRequest();
 
-        byte[] data = IOUtils.toByteArray(Files.newInputStream(Paths.get(url.toURI())));
+        byte[] data = IOUtils.toByteArray(Files.newInputStream(Path.of(url.toURI())));
         byte[] fileContent = createFileContent(tempDirPath.toString(), ZIP_NAME, ZIP_CONTENT_TYPE, data);
 
         String zipField = "--" + BOUNDARY + SEPA + " Content-Disposition: form-data; name=\""

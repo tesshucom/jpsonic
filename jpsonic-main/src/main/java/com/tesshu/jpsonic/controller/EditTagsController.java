@@ -21,6 +21,7 @@
 
 package com.tesshu.jpsonic.controller;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,9 +33,9 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SecurityService;
-import com.tesshu.jpsonic.service.metadata.JaudiotaggerParserUtils;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
+import com.tesshu.jpsonic.service.metadata.ParserUtils;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Controller;
@@ -79,7 +80,7 @@ public class EditTagsController {
             map.put("defaultYear", files.get(0).getYear());
             map.put("defaultGenre", files.get(0).getGenre());
         }
-        map.put("allGenres", JaudiotaggerParserUtils.getID3V1Genres());
+        map.put("allGenres", ParserUtils.getID3V1Genres());
 
         List<ParsedSong> parsedSongs = new ArrayList<>();
         for (int i = 0; i < files.size(); i++) {
@@ -100,7 +101,7 @@ public class EditTagsController {
 
     private List<MediaFile> getAncestors(MediaFile dir) {
         LinkedList<MediaFile> result = new LinkedList<>();
-        if (securityService.isInPodcastFolder(dir.getFile())) {
+        if (securityService.isInPodcastFolder(dir.toPath())) {
             // For podcasts, don't use ancestors
             return result;
         }
@@ -115,14 +116,17 @@ public class EditTagsController {
     }
 
     private ParsedSong createParsedSong(MediaFile file, int index) {
-        MetaDataParser parser = metaDataParserFactory.getParser(file.getFile());
         ParsedSong parsedSong = new ParsedSong();
         parsedSong.setId(file.getId());
-        parsedSong.setFileName(FilenameUtils.getBaseName(file.getPath()));
+        parsedSong.setFileName(FilenameUtils.getBaseName(file.getPathString()));
         parsedSong.setTrack(file.getTrackNumber());
         parsedSong.setSuggestedTrack(index + 1);
         parsedSong.setTitle(file.getTitle());
-        parsedSong.setSuggestedTitle(parser.guessTitle(file.getFile()));
+        Path path = file.toPath();
+        MetaDataParser parser = metaDataParserFactory.getParser(path);
+        if (parser != null) {
+            parsedSong.setSuggestedTitle(parser.guessTitle(path));
+        }
         parsedSong.setArtist(file.getArtist());
         parsedSong.setAlbum(file.getAlbumName());
         parsedSong.setYear(file.getYear());

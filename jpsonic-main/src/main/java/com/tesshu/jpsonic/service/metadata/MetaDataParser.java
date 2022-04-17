@@ -21,14 +21,14 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Parses meta data from media files.
@@ -40,30 +40,30 @@ public abstract class MetaDataParser {
     /**
      * Parses meta data for the given file.
      *
-     * @param file
+     * @param path
      *            The file to parse.
      *
      * @return Meta data for the file, never null.
      */
-    public MetaData getMetaData(File file) {
+    public MetaData getMetaData(Path path) {
 
-        MetaData metaData = getRawMetaData(file);
+        MetaData metaData = getRawMetaData(path);
 
         String artist = metaData.getArtist();
         if (artist == null) {
-            artist = guessArtist(file);
+            artist = guessArtist(path);
         }
         String albumArtist = metaData.getAlbumArtist();
         if (albumArtist == null) {
-            albumArtist = guessArtist(file);
+            albumArtist = guessArtist(path);
         }
         String album = metaData.getAlbumName();
         if (album == null) {
-            album = guessAlbum(file, artist);
+            album = guessAlbum(path, artist);
         }
         String title = metaData.getTitle();
         if (title == null) {
-            title = guessTitle(file);
+            title = guessTitle(path);
         }
 
         title = removeTrackNumberFromTitle(title, metaData.getTrackNumber());
@@ -79,12 +79,12 @@ public abstract class MetaDataParser {
      * Parses meta data for the given file. No guessing or reformatting is done.
      *
      *
-     * @param file
+     * @param path
      *            The file to parse.
      *
      * @return Meta data for the file.
      */
-    public abstract MetaData getRawMetaData(File file);
+    public abstract MetaData getRawMetaData(Path path);
 
     /**
      * Updates the given file with the given meta data.
@@ -99,38 +99,38 @@ public abstract class MetaDataParser {
     /**
      * Returns whether this parser is applicable to the given file.
      *
-     * @param file
+     * @param path
      *            The file in question.
      *
      * @return Whether this parser is applicable to the given file.
      */
-    public abstract boolean isApplicable(File file);
+    public abstract boolean isApplicable(Path path);
 
     /**
      * Returns whether this parser supports tag editing (using the {@link #setMetaData} method).
      *
      * @return Whether tag editing is supported.
      */
-    public abstract boolean isEditingSupported(File file);
+    public abstract boolean isEditingSupported(Path path);
 
     /**
      * Guesses the artist for the given file.
      */
-    protected final String guessArtist(File file) {
-        File parent = file.getParentFile();
+    protected final String guessArtist(Path path) {
+        Path parent = path.getParent();
         if (isRoot(parent)) {
             return null;
         }
-        File grandParent = parent.getParentFile();
-        return isRoot(grandParent) ? null : grandParent.getName();
+        Path grandParent = parent.getParent();
+        return isRoot(grandParent) ? null : grandParent.getFileName().toString();
     }
 
     /**
      * Guesses the album for the given file.
      */
-    protected final String guessAlbum(File file, String artist) {
-        File parent = file.getParentFile();
-        String album = isRoot(parent) ? null : parent.getName();
+    protected final String guessAlbum(Path path, String artist) {
+        Path parent = path.getParent();
+        String album = isRoot(parent) ? null : parent.getFileName().toString();
         if (artist != null && album != null) {
             album = album.replace(artist + " - ", "");
         }
@@ -140,14 +140,14 @@ public abstract class MetaDataParser {
     /**
      * Guesses the title for the given file.
      */
-    public String guessTitle(File file) {
-        return StringUtils.trim(FilenameUtils.getBaseName(file.getPath()));
+    public String guessTitle(Path path) {
+        return StringUtils.trim(FilenameUtils.getBaseName(path.toString()));
     }
 
-    private boolean isRoot(File file) {
+    private boolean isRoot(Path path) {
         List<MusicFolder> folders = getMusicFolderService().getAllMusicFolders(false, true);
         for (MusicFolder folder : folders) {
-            if (file.equals(folder.getPath())) {
+            if (path.toString().equals(folder.getPath().getAbsolutePath())) {
                 return true;
             }
         }

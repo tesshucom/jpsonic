@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,8 +53,8 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -235,9 +234,9 @@ public class UploadController {
      * [AvoidCatchingGenericException] Wrap&Throw due to constraints of 'apache commons' {@link FileItem#write(File)}
      */
     private void addUploadedFile(FileItem targetItem, File targetFile, List<File> to) throws ExecutionException {
-        if (!securityService.isUploadAllowed(targetFile)) {
+        if (!securityService.isUploadAllowed(targetFile.toPath())) {
             throw new ExecutionException(new GeneralSecurityException(
-                    "Permission denied: " + StringEscapeUtils.escapeHtml(targetFile.getPath())));
+                    "Permission denied: " + StringEscapeUtils.escapeHtml4(targetFile.getPath())));
         }
         try {
             targetItem.write(targetFile);
@@ -262,7 +261,7 @@ public class UploadController {
                 File entryFile = new File(file.getParentFile(), entry.getName());
                 if (!entryFile.toPath().normalize().startsWith(file.getParentFile().toPath())) {
                     throw new ExecutionException(
-                            new IOException("Bad zip filename: " + StringEscapeUtils.escapeHtml(entryFile.getPath())));
+                            new IOException("Bad zip filename: " + StringEscapeUtils.escapeHtml4(entryFile.getPath())));
                 }
                 if (!entry.isDirectory()) {
                     unzippedFiles = unzip(zipFile, entry, entryFile);
@@ -282,9 +281,9 @@ public class UploadController {
 
     private List<File> unzip(ZipFile zipFile, ZipEntry entry, File entryFile) throws ExecutionException {
 
-        if (!securityService.isUploadAllowed(entryFile)) {
+        if (!securityService.isUploadAllowed(entryFile.toPath())) {
             throw new ExecutionException(new GeneralSecurityException(
-                    "Permission denied: " + StringEscapeUtils.escapeHtml(entryFile.getPath())));
+                    "Permission denied: " + StringEscapeUtils.escapeHtml4(entryFile.getPath())));
         }
 
         if (!entryFile.getParentFile().mkdirs() && LOG.isWarnEnabled()) {
@@ -292,7 +291,7 @@ public class UploadController {
         }
 
         List<File> unzippedFiles = new ArrayList<>();
-        try (OutputStream outputStream = Files.newOutputStream(Paths.get(entryFile.toURI()));
+        try (OutputStream outputStream = Files.newOutputStream(entryFile.toPath());
                 InputStream inputStream = zipFile.getInputStream(entry)) {
             byte[] buf = new byte[8192];
             while (true) {

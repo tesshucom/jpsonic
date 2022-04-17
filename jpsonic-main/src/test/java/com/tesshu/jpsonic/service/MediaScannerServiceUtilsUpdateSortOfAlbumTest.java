@@ -81,7 +81,7 @@ class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractNeedsScan {
             List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, MUSIC_FOLDERS);
             Date now = new Date();
             albums.forEach(a -> {
-                List<MediaFile> songs = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, a.getPath(), false);
+                List<MediaFile> songs = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, a.getPathString(), false);
                 songs.forEach(m -> {
                     if (latestMediaFileTitle1.equals(m.getTitle()) || latestMediaFileTitle2.equals(m.getTitle())) {
                         m.setChanged(now);

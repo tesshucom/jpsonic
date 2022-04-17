@@ -34,8 +34,8 @@ import static com.tesshu.jpsonic.service.search.FieldNamesConstants.GENRE_KEY;
 import static com.tesshu.jpsonic.service.search.FieldNamesConstants.TITLE;
 import static com.tesshu.jpsonic.service.search.FieldNamesConstants.TITLE_READING;
 import static com.tesshu.jpsonic.service.search.FieldNamesConstants.YEAR;
-import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.springframework.util.ObjectUtils.isEmpty;
 

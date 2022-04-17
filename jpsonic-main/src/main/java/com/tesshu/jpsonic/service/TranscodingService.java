@@ -27,7 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -336,10 +336,10 @@ public class TranscodingService {
             }
         } catch (IOException e) {
             // IOException : Process failure or Windows limited process(createTempFile, File copy)
-            throw new IOException("Transcoder failed: " + parameters.getMediaFile().getFile().getAbsolutePath(), e);
+            throw new IOException("Transcoder failed: " + parameters.getMediaFile().toPath(), e);
         }
         // IOException : InvalidPathException
-        return Files.newInputStream(Paths.get(parameters.getMediaFile().getFile().toURI()));
+        return Files.newInputStream(parameters.getMediaFile().toPath());
     }
 
     /**
@@ -426,7 +426,6 @@ public class TranscodingService {
      * @param in
      *            Data to feed to the process. May be {@code null}. @return The newly created input stream.
      */
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     TranscodeInputStream createTranscodeInputStream(@NonNull String command, Integer maxBitRate,
             VideoTranscodingSettings vts, @NonNull MediaFile mediaFile, InputStream in) throws IOException {
 
@@ -454,14 +453,14 @@ public class TranscodingService {
             if (cmd.contains("%s")) {
                 // Work-around for filename character encoding problem on Windows.
                 // Create temporary file, and feed this to the transcoder.
-                String path = mediaFile.getFile().getAbsolutePath();
-                if (PlayerUtils.isWindows() && !mediaFile.isVideo() && !StringUtils.isAsciiPrintable(path)) {
-                    tmpFile = File.createTempFile("jpsonic", "." + FilenameUtils.getExtension(path));
+                Path path = mediaFile.toPath();
+                if (PlayerUtils.isWindows() && !mediaFile.isVideo() && !StringUtils.isAsciiPrintable(path.toString())) {
+                    tmpFile = File.createTempFile("jpsonic", "." + FilenameUtils.getExtension(path.toString()));
                     tmpFile.deleteOnExit();
-                    FileUtils.copyFile(new File(path), tmpFile);
+                    FileUtils.copyFile(path.toFile(), tmpFile);
                     cmd = cmd.replace("%s", tmpFile.getPath());
                 } else {
-                    cmd = cmd.replace("%s", path);
+                    cmd = cmd.replace("%s", path.toString());
                 }
             }
             result.set(i, cmd);

@@ -19,7 +19,7 @@
 
 package com.tesshu.jpsonic.domain;
 
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.text.Collator;
 import java.util.Comparator;
@@ -73,7 +73,7 @@ class JpMediaFileComparator implements MediaFileComparator {
             return i;
         }
 
-        return comparator.compare(a.getPath(), b.getPath());
+        return comparator.compare(a.getPathString(), b.getPathString());
     }
 
     private int compareDirectoryAndFile(MediaFile a, MediaFile b) {
@@ -106,8 +106,8 @@ class JpMediaFileComparator implements MediaFileComparator {
         } else {
             n = comparator.compare(a.getName(), b.getName());
         }
-        return n == 0 ? comparator.compare(a.getPath(), b.getPath()) : n; // To make it consistent to
-                                                                          // MediaFile.equals()
+        return n == 0 ? comparator.compare(a.getPathString(), b.getPathString()) : n; // To make it consistent to
+        // MediaFile.equals()
     }
 
     private <T extends Comparable<T>> int nullSafeCompare(T a, T b, boolean nullIsSmaller) {

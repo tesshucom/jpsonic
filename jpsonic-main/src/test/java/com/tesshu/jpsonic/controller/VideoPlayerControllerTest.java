@@ -54,7 +54,7 @@ class VideoPlayerControllerTest {
         file.setId(0);
         MediaFile dir = new MediaFile();
         dir.setId(1);
-        dir.setPath("");
+        dir.setPathString("");
 
         MediaFileService mediaFileService = mock(MediaFileService.class);
         Mockito.when(mediaFileService.getMediaFile(file.getId())).thenReturn(file);

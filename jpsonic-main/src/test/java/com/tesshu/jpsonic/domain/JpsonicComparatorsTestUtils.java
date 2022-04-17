@@ -21,7 +21,7 @@ package com.tesshu.jpsonic.domain;
 
 import static java.util.Collections.reverse;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
@@ -85,7 +85,7 @@ public class JpsonicComparatorsTestUtils {
             file.setAlbumArtistSort("abcいうえおあ");
         }
         file.setTitle(name);
-        file.setPath(name);
+        file.setPathString(name);
         file.setMediaType(MediaType.DIRECTORY);
         utils.analyze(file);
         return file;
@@ -139,7 +139,7 @@ public class JpsonicComparatorsTestUtils {
             file.setTitleSort("abcいうえおあ");
         }
         file.setTrackNumber(trackNumber);
-        file.setPath(name);
+        file.setPathString(name);
         file.setMediaType(MediaType.MUSIC);
 
         utils.analyze(file);
@@ -173,7 +173,7 @@ public class JpsonicComparatorsTestUtils {
         }
 
         file.setTitle(name);
-        file.setPath(name);
+        file.setPathString(name);
         file.setMediaType(MediaType.ALBUM);
 
         utils.analyze(file);

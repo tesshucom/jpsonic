@@ -21,20 +21,21 @@
 
 package com.tesshu.jpsonic.dao;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
-import org.apache.commons.lang.ObjectUtils;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,14 +101,14 @@ public class AlbumDao extends AbstractDao {
 
         // Look for album with the correct artist.
         for (Album candidate : candidates) {
-            if (ObjectUtils.equals(candidate.getArtist(), file.getArtist()) && FileUtil.exists(candidate.getPath())) {
+            if (Objects.equals(candidate.getArtist(), file.getArtist()) && Files.exists(Path.of(candidate.getPath()))) {
                 return candidate;
             }
         }
 
         // Look for album with the same path as the file.
         for (Album candidate : candidates) {
-            if (ObjectUtils.equals(candidate.getPath(), file.getParentPath())) {
+            if (Objects.equals(candidate.getPath(), file.getParentPathString())) {
                 return candidate;
             }
         }

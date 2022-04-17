@@ -54,12 +54,12 @@ public class MediaFileWithUrlInfo {
         file.setId(id);
     }
 
-    public String getPath() {
-        return file.getPath();
+    public String getPathString() {
+        return file.getPathString();
     }
 
-    public void setPath(String path) {
-        file.setPath(path);
+    public void setPathString(String path) {
+        file.setPathString(path);
     }
 
     public String getFolder() {
@@ -70,6 +70,7 @@ public class MediaFileWithUrlInfo {
         file.setFolder(folder);
     }
 
+    @Deprecated
     public File getFile() {
         return file.getFile();
     }
@@ -234,22 +235,23 @@ public class MediaFileWithUrlInfo {
         file.setHeight(height);
     }
 
-    public String getCoverArtPath() {
-        return file.getCoverArtPath();
+    public String getCoverArtPathString() {
+        return file.getCoverArtPathString();
     }
 
-    public void setCoverArtPath(String coverArtPath) {
-        file.setCoverArtPath(coverArtPath);
+    public void setCoverArtPathString(String coverArtPath) {
+        file.setCoverArtPathString(coverArtPath);
     }
 
-    public String getParentPath() {
-        return file.getParentPath();
+    public String getParentPathString() {
+        return file.getParentPathString();
     }
 
-    public void setParentPath(String parentPath) {
-        file.setParentPath(parentPath);
+    public void setParentPathString(String parentPath) {
+        file.setParentPathString(parentPath);
     }
 
+    @Deprecated
     public File getParentFile() {
         return file.getParentFile();
     }
@@ -330,6 +332,7 @@ public class MediaFileWithUrlInfo {
         return file.getVersion();
     }
 
+    @Deprecated
     public File getCoverArtFile() {
         return file.getCoverArtFile();
     }

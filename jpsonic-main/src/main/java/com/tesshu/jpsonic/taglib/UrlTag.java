@@ -34,7 +34,7 @@ import javax.servlet.jsp.tagext.BodyTagSupport;
 
 import com.tesshu.jpsonic.filter.ParameterDecodingFilter;
 import com.tesshu.jpsonic.util.StringUtil;
-import org.apache.commons.lang.CharUtils;
+import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.taglibs.standard.tag.common.core.UrlSupport;
 

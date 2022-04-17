@@ -138,7 +138,7 @@ public class ExternalPlayerController {
 
         if (share != null) {
             for (MediaFile file : shareService.getSharedFiles(share.getId(), musicFolders)) {
-                if (file.getFile().exists()) {
+                if (file.exists()) {
                     if (file.isDirectory()) {
                         List<MediaFile> childrenOf = mediaFileService.getChildrenOf(file, true, false, true);
                         result.addAll(childrenOf.stream().map(mf -> addUrlInfo(request, player, mf, finalExpires))

@@ -25,6 +25,9 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,6 +40,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
@@ -49,7 +53,6 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.document.Document;
@@ -441,21 +444,21 @@ public class IndexManager {
         deleteOldFiles();
     }
 
-    private void deleteFile(String label, File old) {
-        if (FileUtil.exists(old)) {
+    private void deleteFile(String label, Path old) {
+        if (Files.exists(old)) {
             if (LOG.isInfoEnabled()) {
-                LOG.info("Found " + label + ". Try to delete : {}", old.getAbsolutePath());
+                LOG.info("Found " + label + ". Try to delete : {}", old);
             }
             try {
-                if (old.isFile()) {
-                    FileUtils.deleteQuietly(old);
+                if (Files.isRegularFile(old)) {
+                    FileUtils.deleteQuietly(old.toFile());
                 } else {
-                    FileUtils.deleteDirectory(old);
+                    FileUtils.deleteDirectory(old.toFile());
                 }
             } catch (IOException e) {
                 // Log only if failed
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to delete " + label + " : ".concat(old.getAbsolutePath()), e);
+                    LOG.warn("Failed to delete " + label + " : " + old, e);
                 }
             }
         }
@@ -463,17 +466,31 @@ public class IndexManager {
 
     void deleteLegacyFiles() {
         // Delete legacy files unconditionally
-        Arrays.stream(SettingsService.getJpsonicHome().listFiles(
-                (file, name) -> Pattern.compile("^lucene\\d+$").matcher(name).matches() || "index".contentEquals(name)))
-                .forEach(old -> deleteFile("legacy index file", old));
+        Pattern legacyPattern1 = Pattern.compile("^lucene\\d+$");
+        String legacyName2 = "index";
+
+        try (Stream<Path> children = Files.list(SettingsService.getJpsonicHome().toPath())) {
+            children.filter(childPath -> {
+                String name = childPath.getFileName().toString();
+                return legacyPattern1.matcher(name).matches() || legacyName2.contentEquals(name);
+            }).forEach(childPath -> deleteFile("legacy index file", childPath));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     void deleteOldFiles() {
         // Delete if not old index version
-        Arrays.stream(SettingsService.getJpsonicHome().listFiles(
-                (file, name) -> Pattern.compile("^" + INDEX_ROOT_DIR_NAME + "\\d+$").matcher(name).matches()))
-                .filter(dir -> !ROOT_INDEX_DIRECTORY.get().getName().equals(dir.getName()))
-                .forEach(old -> deleteFile("old index file", old));
+        Pattern indexPattern = Pattern.compile("^" + INDEX_ROOT_DIR_NAME + "\\d+$");
+
+        try (Stream<Path> children = Files.list(SettingsService.getJpsonicHome().toPath())) {
+            children.filter(childPath -> {
+                String name = childPath.getFileName().toString();
+                return indexPattern.matcher(name).matches() && !ROOT_INDEX_DIRECTORY.get().getName().equals(name);
+            }).forEach(childPath -> deleteFile("old index file", childPath));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     /**

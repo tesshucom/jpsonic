@@ -23,12 +23,17 @@ import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.controller.StatusController.TransferStatusHolder;
+import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.StatusService;
+import com.tesshu.jpsonic.util.FileUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -58,5 +63,16 @@ class StatusControllerTest {
 
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("status", modelAndView.getViewName());
+    }
+
+    @Test
+    void testTransferStatusHolderGetPath() throws URISyntaxException {
+        TransferStatus status = new TransferStatus();
+        Path path = Path.of(StatusControllerTest.class.getResource(
+                "/MEDIAS/Music/_DIR_ Céline Frisch- Café Zimmermann - Bach- Goldberg Variations, Canons [Disc 1]/01 - Bach- Goldberg Variations, BWV 988 - Aria.flac")
+                .toURI());
+        status.setFile(path.toFile());
+        TransferStatusHolder holder = new TransferStatusHolder(status, false, false, false, 0, null);
+        assertEquals(FileUtil.getShortPath(path), holder.getPath());
     }
 }

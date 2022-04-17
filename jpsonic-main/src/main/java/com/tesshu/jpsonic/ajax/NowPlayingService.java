@@ -38,8 +38,8 @@ import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.util.StringUtil;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.ServletRequestBindingException;
 
@@ -138,15 +138,15 @@ public class NowPlayingService {
 
             String coverArtUrl = url + ViewName.COVER_ART.value() + "?size=60&id=" + mediaFile.getId();
             String avatarUrl = avatarService.createAvatarUrl(url, userSettings);
-            String tooltip = StringEscapeUtils.escapeHtml(artist) + " &ndash; " + StringEscapeUtils.escapeHtml(title);
-            artist = StringEscapeUtils.escapeHtml(StringUtils.abbreviate(artist, 25));
-            title = StringEscapeUtils.escapeHtml(StringUtils.abbreviate(title, 25));
+            String tooltip = StringEscapeUtils.escapeHtml4(artist) + " &ndash; " + StringEscapeUtils.escapeHtml4(title);
+            artist = StringEscapeUtils.escapeHtml4(StringUtils.abbreviate(artist, 25));
+            title = StringEscapeUtils.escapeHtml4(StringUtils.abbreviate(title, 25));
 
             if (StringUtils.isNotBlank(player.getName())) {
                 builder.setLength(0);
                 username = builder.append(username).append('@').append(player.getName()).toString();
             }
-            username = StringEscapeUtils.escapeHtml(StringUtils.abbreviate(username, 25));
+            username = StringEscapeUtils.escapeHtml4(StringUtils.abbreviate(username, 25));
 
             long minutesAgo = status.getMinutesAgo();
             if (minutesAgo < LIMIT_OF_HISTORY_TO_BE_PRESENTED) {

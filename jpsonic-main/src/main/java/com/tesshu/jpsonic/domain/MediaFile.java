@@ -22,12 +22,14 @@
 package com.tesshu.jpsonic.domain;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.io.FilenameUtils;
 
@@ -39,7 +41,7 @@ import org.apache.commons.io.FilenameUtils;
 public class MediaFile {
 
     private int id;
-    private String path;
+    private String pathString;
     private String folder;
     private MediaType mediaType;
     private String format;
@@ -57,8 +59,8 @@ public class MediaFile {
     private Long fileSize;
     private Integer width;
     private Integer height;
-    private String coverArtPath;
-    private String parentPath;
+    private String coverArtPathString;
+    private String parentPathString;
     private int playCount;
     private Date lastPlayed;
     private String comment;
@@ -71,74 +73,33 @@ public class MediaFile {
     private int version;
     private String musicBrainzReleaseId;
     private String musicBrainzRecordingId;
-
-    // JP >>>> (May be renameColumn in later version)
-
-    /* Tags newly supported by Jpsonic. */
     private String composer;
-
-    /*
-     * Sort corresponds to the sort of ID3 tag, and mainly functions as a field that holds a value to be passed to
-     * Lucene.
-     *
-     * Unlike the original value, cleansing is performed. If the original tag does not exist, the value is generated
-     * using a Japanese parsing engine. After these processes, merging is performed if there are multiple sort-values
-     * for one word. These process are necessary to remove dirty data, prevent search dropouts, and reduce the size of
-     * the search index.
-     *
-     * This field will be the input to Lucene, but will not be used in normal SQL searches.
-     */
     private String artistSort;
     private String albumSort;
     private String titleSort;
     private String albumArtistSort;
     private String composerSort;
-
-    /*
-     * A sort key created using either Sort/Name. The Japanese sorting rule is
-     * "English depends on notation, Japanese depends on phonemes". Therefore, it is impossible to sort by referring to
-     * only one existing field. Based on this rule, sort keys are created from mixed English-Japanese words, English
-     * words and Japanese words.
-     */
     private String artistReading;
     private String albumReading;
     private String albumArtistReading;
-
-    /*
-     * In the case of DB, string of the reading comparison depends on its sorting implementation . To do it strictly, do
-     * it in Java. This field holds the result of Java sorting and reproduces the same sort in all DBs. It also
-     * contributes to speeding up.
-     */
     private int order;
-
-    /*
-     * Transcription of ID3 tag data.
-     *
-     */
     private String artistSortRaw;
     private String albumSortRaw;
     private String albumArtistSortRaw;
     private String composerSortRaw;
-
-    // Row number used internally during processing.
     private transient int rownum;
-
-    // <<<< JP
 
     public MediaFile(int id, String path, String folder, MediaType mediaType, String format, String title,
             String albumName, String artist, String albumArtist, Integer discNumber, Integer trackNumber, Integer year,
             String genre, Integer bitRate, boolean variableBitRate, Integer durationSeconds, Long fileSize,
             Integer width, Integer height, String coverArtPath, String parentPath, int playCount, Date lastPlayed,
             String comment, Date created, Date changed, Date lastScanned, Date childrenLastUpdated, boolean present,
-            int version, String musicBrainzReleaseId, String musicBrainzRecordingId,
-            // JP >>>>
-            String composer, String artistSort, String albumSort, String titleSort, String albumArtistSort,
-            String composerSort, String artistReading, String albumReading, String albumArtistReading,
-            String artistSortRaw, String albumSortRaw, String albumArtistSortRaw, String composerSortRaw, int order // <<<<
-                                                                                                                    // JP
-    ) {
+            int version, String musicBrainzReleaseId, String musicBrainzRecordingId, String composer, String artistSort,
+            String albumSort, String titleSort, String albumArtistSort, String composerSort, String artistReading,
+            String albumReading, String albumArtistReading, String artistSortRaw, String albumSortRaw,
+            String albumArtistSortRaw, String composerSortRaw, int order) {
         this.id = id;
-        this.path = path;
+        this.pathString = path;
         this.folder = folder;
         this.mediaType = mediaType;
         this.format = format;
@@ -156,8 +117,8 @@ public class MediaFile {
         this.fileSize = fileSize;
         this.width = width;
         this.height = height;
-        this.coverArtPath = coverArtPath;
-        this.parentPath = parentPath;
+        this.coverArtPathString = coverArtPath;
+        this.parentPathString = parentPath;
         this.playCount = playCount;
         this.lastPlayed = lastPlayed;
         this.comment = comment;
@@ -169,7 +130,6 @@ public class MediaFile {
         this.version = version;
         this.musicBrainzReleaseId = musicBrainzReleaseId;
         this.musicBrainzRecordingId = musicBrainzRecordingId;
-        // JP >>>>
         this.composer = composer;
         this.artistSort = artistSort;
         this.albumSort = albumSort;
@@ -184,7 +144,6 @@ public class MediaFile {
         this.albumArtistSortRaw = albumArtistSortRaw;
         this.composerSortRaw = composerSortRaw;
         this.order = order;
-        // <<<< JP
     }
 
     public MediaFile() {
@@ -198,12 +157,12 @@ public class MediaFile {
         this.id = id;
     }
 
-    public String getPath() {
-        return path;
+    public String getPathString() {
+        return pathString;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setPathString(String path) {
+        this.pathString = path;
     }
 
     public String getFolder() {
@@ -214,13 +173,17 @@ public class MediaFile {
         this.folder = folder;
     }
 
+    @Deprecated
     public File getFile() {
-        // TODO: Optimize
-        return new File(path);
+        return new File(pathString);
+    }
+
+    public Path toPath() {
+        return Path.of(pathString);
     }
 
     public boolean exists() {
-        return FileUtil.exists(getFile());
+        return Files.exists(toPath());
     }
 
     public MediaType getMediaType() {
@@ -293,9 +256,9 @@ public class MediaFile {
 
     public String getName() {
         if (isFile()) {
-            return title == null ? FilenameUtils.getBaseName(path) : title;
+            return title == null ? FilenameUtils.getBaseName(pathString) : title;
         }
-        return FilenameUtils.getName(path);
+        return FilenameUtils.getName(pathString);
     }
 
     public Integer getDiscNumber() {
@@ -386,24 +349,29 @@ public class MediaFile {
         this.height = height;
     }
 
-    public String getCoverArtPath() {
-        return coverArtPath;
+    public String getCoverArtPathString() {
+        return coverArtPathString;
     }
 
-    public void setCoverArtPath(String coverArtPath) {
-        this.coverArtPath = coverArtPath;
+    public void setCoverArtPathString(String coverArtPath) {
+        this.coverArtPathString = coverArtPath;
     }
 
-    public String getParentPath() {
-        return parentPath;
+    public String getParentPathString() {
+        return parentPathString;
     }
 
-    public void setParentPath(String parentPath) {
-        this.parentPath = parentPath;
+    public void setParentPathString(String parentPath) {
+        this.parentPathString = parentPath;
     }
 
+    @Deprecated
     public File getParentFile() {
         return getFile().getParentFile();
+    }
+
+    public Path getParent() {
+        return toPath().getParent();
     }
 
     public int getPlayCount() {
@@ -503,20 +471,22 @@ public class MediaFile {
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof MediaFile && ((MediaFile) o).path.equals(path);
+        return o instanceof MediaFile && ((MediaFile) o).pathString.equals(pathString);
     }
 
     @Override
     public int hashCode() {
-        return path.hashCode();
+        return pathString.hashCode();
     }
 
+    @Deprecated
     public File getCoverArtFile() {
-        // TODO: Optimize
-        return coverArtPath == null ? null : new File(coverArtPath);
+        return coverArtPathString == null ? null : new File(coverArtPathString);
     }
 
-    // JP >>>>
+    public Optional<Path> getCoverArtPath() {
+        return coverArtPathString == null ? Optional.empty() : Optional.of(Path.of(coverArtPathString));
+    }
 
     public String getComposer() {
         return composer;
@@ -637,8 +607,6 @@ public class MediaFile {
     public void setRownum(int rownum) {
         this.rownum = rownum;
     }
-
-    // <<<< JP
 
     @Override
     public String toString() {

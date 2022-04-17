@@ -158,7 +158,7 @@ public class PlayQueueInputStream extends InputStream {
                     delegate = new AtomicReference<>(transcodingService.getTranscodedInputStream(transParam));
                     if (!isEmpty(delegate) || player.getPlayQueue().getStatus() != PlayQueue.Status.STOPPED) {
                         currentFile = new AtomicReference<>(file);
-                        status.setFile(currentFile.get().getFile());
+                        status.setFile(currentFile.get().toPath().toFile());
                         return true;
                     }
                 } catch (IOException e) {

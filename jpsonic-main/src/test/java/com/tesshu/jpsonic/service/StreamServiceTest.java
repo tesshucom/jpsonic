@@ -86,10 +86,10 @@ class StreamServiceTest {
         final int playlistId = 10;
 
         MediaFile song1 = new MediaFile();
-        song1.setPath("song1");
+        song1.setPathString("song1");
         song1.setFileSize(1024L);
         MediaFile song2 = new MediaFile();
-        song2.setPath("song2");
+        song2.setPathString("song2");
         song2.setFileSize(1024L);
         List<MediaFile> songs = Arrays.asList(song1, song2);
         Mockito.when(playlistService.getFilesInPlaylist(playlistId)).thenReturn(songs);
@@ -365,15 +365,15 @@ class StreamServiceTest {
     void testGetSingleFile() throws Exception {
 
         MediaFile song = new MediaFile();
-        song.setPath("song");
+        song.setPathString("song");
 
         Mockito.when(mediaFileService.getMediaFile(song.getId())).thenReturn(song);
-        Mockito.when(mediaFileService.getMediaFile(song.getPath())).thenReturn(song);
+        Mockito.when(mediaFileService.getMediaFile(song.toPath().toString())).thenReturn(song);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         assertNull(streamService.getSingleFile(request));
 
-        request.setParameter(Attributes.Request.PATH.value(), song.getPath());
+        request.setParameter(Attributes.Request.PATH.value(), song.getPathString());
         assertEquals(song, streamService.getSingleFile(request));
 
         request.removeAllParameters();
@@ -385,7 +385,7 @@ class StreamServiceTest {
     @Order(4)
     void testCreateVideoTranscodingSettings() throws Exception {
         MediaFile video = new MediaFile();
-        video.setPath("song");
+        video.setPathString("song");
         video.setWidth(300);
         video.setHeight(200);
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -559,7 +559,7 @@ class StreamServiceTest {
         Player player = new Player();
         PlayQueue playQueue = new PlayQueue();
         MediaFile song = new MediaFile();
-        song.setPath("path");
+        song.setPathString("path");
         playQueue.addFiles(false, song);
         player.setPlayQueue(playQueue);
         try (InputStream inputStream = streamService.createInputStream(player, null, null, null, null)) {

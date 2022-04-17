@@ -68,7 +68,7 @@ public class DefaultPlaylistExportHandler implements PlaylistExportHandler {
         List<MediaFile> files = mediaFileDao.getFilesInPlaylist(id);
         files.forEach(file -> {
             Media component = new Media();
-            Content content = new Content(file.getPath());
+            Content content = new Content(file.getPathString());
             component.setSource(content);
             newPlaylist.getRootSequence().addComponent(component);
         });

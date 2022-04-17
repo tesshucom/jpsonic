@@ -112,7 +112,7 @@ public class MainController {
         map.put("userRating", getUserRating(username, dir));
         map.put("averageRating", getAverageRating(dir));
         map.put("starred", mediaFileService.getMediaFileStarredDate(dir.getId(), username) != null);
-        if (!securityService.isInPodcastFolder(dir.getFile())) {
+        if (!securityService.isInPodcastFolder(dir.toPath())) {
             MediaFile parent = mediaFileService.getParentOf(dir);
             map.put("parent", parent);
             map.put("navigateUpAllowed", !mediaFileService.isRoot(parent));
@@ -293,7 +293,7 @@ public class MainController {
 
     private List<MediaFile> getAncestors(MediaFile dir) {
         LinkedList<MediaFile> result = new LinkedList<>();
-        if (securityService.isInPodcastFolder(dir.getFile())) {
+        if (securityService.isInPodcastFolder(dir.toPath())) {
             // For podcasts, don't use ancestors
             return result;
         }

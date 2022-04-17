@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Locale;
@@ -39,7 +39,7 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -89,7 +89,7 @@ public class CoverArtService {
     public String saveCoverArtImage(int albumId, String url) {
         try {
             MediaFile mediaFile = mediaFileService.getMediaFile(albumId);
-            saveCoverArt(mediaFile.getPath(), url);
+            saveCoverArt(mediaFile.getPathString(), url);
             return null;
         } catch (ExecutionException e) {
             ConcurrentUtils.handleCauseUnchecked(e);
@@ -107,9 +107,9 @@ public class CoverArtService {
 
         // Check permissions.
         File newCoverFile = new File(path, "cover." + suffix);
-        if (!securityService.isWriteAllowed(newCoverFile)) {
+        if (!securityService.isWriteAllowed(newCoverFile.toPath())) {
             throw new ExecutionException(new GeneralSecurityException(
-                    "Permission denied: " + StringEscapeUtils.escapeHtml(newCoverFile.getPath())));
+                    "Permission denied: " + StringEscapeUtils.escapeHtml4(newCoverFile.getPath())));
         }
 
         // If file exists, create a backup.
@@ -123,7 +123,7 @@ public class CoverArtService {
             try (InputStream input = client.execute(method).getEntity().getContent()) {
 
                 // Write file.
-                try (OutputStream output = Files.newOutputStream(Paths.get(newCoverFile.toURI()))) {
+                try (OutputStream output = Files.newOutputStream(Path.of(newCoverFile.toURI()))) {
                     IOUtils.copy(input, output);
                     input.close();
                 }
@@ -142,21 +142,24 @@ public class CoverArtService {
         }
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
-    private void renameWithoutReplacement(MediaFile mediaFile, File newCoverFile) throws IOException {
+    void renameWithoutReplacement(MediaFile mediaFile, File newCoverFile) throws IOException {
         MediaFile dir = mediaFile;
         while (true) {
-            File coverFile = mediaFileService.getCoverArt(dir);
-            if (coverFile == null || isMediaFile(coverFile) || newCoverFile.equals(coverFile)) {
+            Path coverArtPath = mediaFileService.getCoverArt(dir);
+            if (coverArtPath == null || isMediaFile(coverArtPath)
+                    || newCoverFile.getAbsolutePath().equals(coverArtPath.toString())) {
                 break;
             }
 
-            boolean renamed = coverFile.renameTo(new File(coverFile.getCanonicalPath() + ".old"));
+            Path oldPath = Path.of(coverArtPath.getParent().toString(),
+                    coverArtPath.getFileName().normalize().toString() + ".old");
+            Path movedPath = Files.move(coverArtPath, oldPath);
+            boolean renamed = movedPath.equals(oldPath);
             if (!renamed && LOG.isWarnEnabled()) {
-                LOG.warn("Unable to rename old image file " + coverFile);
+                LOG.warn("Unable to rename old image file " + coverArtPath);
             }
             if (renamed && LOG.isInfoEnabled()) {
-                LOG.info("Renamed old image file " + coverFile);
+                LOG.info("Renamed old image file " + coverArtPath);
             }
             if (renamed) {
                 // Must refresh again.
@@ -176,8 +179,8 @@ public class CoverArtService {
         return suffix;
     }
 
-    private boolean isMediaFile(File file) {
-        return mediaFileService.includeMediaFile(file);
+    private boolean isMediaFile(Path path) {
+        return mediaFileService.includeMediaFile(path);
     }
 
     private void backup(File newCoverFile, File backup) {

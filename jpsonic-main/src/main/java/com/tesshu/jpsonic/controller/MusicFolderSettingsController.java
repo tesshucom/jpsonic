@@ -107,7 +107,6 @@ public class MusicFolderSettingsController {
         command.setIgnoreSymLinks(settingsService.isIgnoreSymLinks());
 
         // Other operations
-        command.setFastCache(settingsService.isFastCacheEnabled());
         command.setFileModifiedCheckScheme(
                 FileModifiedCheckScheme.valueOf(settingsService.getFileModifiedCheckSchemeName()));
         command.setIgnoreFileTimestamps(settingsService.isIgnoreFileTimestamps());
@@ -165,7 +164,6 @@ public class MusicFolderSettingsController {
         settingsService.setIgnoreSymLinks(command.isIgnoreSymLinks());
 
         // Other operations
-        settingsService.setFastCacheEnabled(command.isFastCache());
         settingsService.setFileModifiedCheckSchemeName(command.getFileModifiedCheckScheme().name());
         settingsService
                 .setIgnoreFileTimestamps(FileModifiedCheckScheme.LAST_MODIFIED == command.getFileModifiedCheckScheme()

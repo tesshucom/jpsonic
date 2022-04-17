@@ -28,7 +28,8 @@ import java.util.List;
 import com.tesshu.jpsonic.controller.MusicFolderSettingsController;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import org.apache.commons.lang.StringUtils;
+import com.tesshu.jpsonic.service.SecurityService;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Command used in {@link MusicFolderSettingsController}.
@@ -53,7 +54,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
     private boolean ignoreSymLinks;
 
     // Other operations
-    private boolean fastCache;
     private FileModifiedCheckScheme fileModifiedCheckScheme;
     private boolean ignoreFileTimestamps;
     private boolean ignoreFileTimestampsForEachAlbum;
@@ -128,14 +128,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
     public void setIgnoreSymLinks(boolean ignoreSymLinks) {
         this.ignoreSymLinks = ignoreSymLinks;
-    }
-
-    public boolean isFastCache() {
-        return fastCache;
-    }
-
-    public void setFastCache(boolean fastCache) {
-        this.fastCache = fastCache;
     }
 
     public FileModifiedCheckScheme getFileModifiedCheckScheme() {
@@ -225,7 +217,7 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
         public MusicFolder toMusicFolder() {
             String path = StringUtils.trimToNull(this.path);
-            if (path == null) {
+            if (path == null || !SecurityService.isNoTraversal(path)) {
                 return null;
             }
             File file = new File(path);
