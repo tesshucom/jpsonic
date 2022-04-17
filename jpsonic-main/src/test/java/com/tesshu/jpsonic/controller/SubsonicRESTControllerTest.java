@@ -1102,7 +1102,7 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
                     musicFolderDao.getAllMusicFolders());
             MediaFile song = mediaFileDao.getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME).get(0);
             assertNotNull(song);
-            req.setParameter(Attributes.Request.PATH.value(), song.getPath());
+            req.setParameter(Attributes.Request.PATH.value(), song.getPathString());
             res = new MockHttpServletResponse();
             streamController.handleRequest(req, res, true);
             assertNotEquals(0, res.getContentLength());
@@ -1110,7 +1110,7 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
             statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
                     .findFirst().ifPresentOrElse((status) -> {
                         assertNotNull(status.getFile());
-                        assertEquals(song.getFile(), status.getFile());
+                        assertEquals(song.toPath(), status.getFile().toPath());
                     }, () -> Assertions.fail());
 
             res = new MockHttpServletResponse();
@@ -1130,7 +1130,7 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
             statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
                     .findFirst().ifPresentOrElse((status) -> {
                         assertNotNull(status.getFile());
-                        assertEquals(song.getFile(), status.getFile());
+                        assertEquals(song.toPath(), status.getFile().toPath());
                     }, () -> Assertions.fail());
 
             res.getOutputStream().close();
@@ -1159,7 +1159,7 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
                     musicFolderDao.getAllMusicFolders());
             MediaFile song = mediaFileDao.getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME).get(0);
             assertNotNull(song);
-            req.setParameter(Attributes.Request.PATH.value(), song.getPath());
+            req.setParameter(Attributes.Request.PATH.value(), song.getPathString());
             res = new MockHttpServletResponse();
             streamController.handleRequest(req, res, true);
             assertNotEquals(0, res.getContentLength());
@@ -1167,7 +1167,7 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
             statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
                     .findFirst().ifPresentOrElse((status) -> {
                         assertNotNull(status.getFile());
-                        assertEquals(song.getFile(), status.getFile());
+                        assertEquals(song.toPath(), status.getFile().toPath());
                     }, () -> Assertions.fail());
 
             res = new MockHttpServletResponse();
@@ -1189,7 +1189,7 @@ class SubsonicRESTControllerTest extends AbstractNeedsScan {
             statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
                     .findFirst().ifPresentOrElse((status) -> {
                         assertNotNull(status.getFile());
-                        assertEquals(song.getFile(), status.getFile());
+                        assertEquals(song.toPath(), status.getFile().toPath());
                     }, () -> Assertions.fail());
 
             res.getOutputStream().close();

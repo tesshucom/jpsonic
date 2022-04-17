@@ -84,10 +84,11 @@ class MediaScannerServiceUtilsCopySortOfArtistTest extends AbstractNeedsScan {
 
         List<MediaFile> artists = mediaFileDao.getArtistAll(MUSIC_FOLDERS);
         assertEquals(1, artists.size());
-        List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(0).getPath(), false);
+        List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(0).getPathString(),
+                false);
         assertEquals(1, albums.size());
         MediaFile album = albums.get(0);
-        List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPath(), false);
+        List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPathString(), false);
         assertEquals(2, files.size());
         List<Artist> artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, MUSIC_FOLDERS);
         assertEquals(1, artistID3s.size());
@@ -104,7 +105,7 @@ class MediaScannerServiceUtilsCopySortOfArtistTest extends AbstractNeedsScan {
 
         utils.copySortOfArtist();
 
-        files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPath(), false);
+        files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPathString(), false);
         artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, MUSIC_FOLDERS);
 
         assertEquals(2, files.size());

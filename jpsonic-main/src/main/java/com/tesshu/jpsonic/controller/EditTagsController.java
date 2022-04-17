@@ -21,6 +21,7 @@
 
 package com.tesshu.jpsonic.controller;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -100,7 +101,7 @@ public class EditTagsController {
 
     private List<MediaFile> getAncestors(MediaFile dir) {
         LinkedList<MediaFile> result = new LinkedList<>();
-        if (securityService.isInPodcastFolder(dir.getFile())) {
+        if (securityService.isInPodcastFolder(dir.toPath())) {
             // For podcasts, don't use ancestors
             return result;
         }
@@ -117,13 +118,14 @@ public class EditTagsController {
     private ParsedSong createParsedSong(MediaFile file, int index) {
         ParsedSong parsedSong = new ParsedSong();
         parsedSong.setId(file.getId());
-        parsedSong.setFileName(FilenameUtils.getBaseName(file.getPath()));
+        parsedSong.setFileName(FilenameUtils.getBaseName(file.getPathString()));
         parsedSong.setTrack(file.getTrackNumber());
         parsedSong.setSuggestedTrack(index + 1);
         parsedSong.setTitle(file.getTitle());
-        MetaDataParser parser = metaDataParserFactory.getParser(file.getFile());
+        Path path = file.toPath();
+        MetaDataParser parser = metaDataParserFactory.getParser(path);
         if (parser != null) {
-            parsedSong.setSuggestedTitle(parser.guessTitle(file.getFile()));
+            parsedSong.setSuggestedTitle(parser.guessTitle(path));
         }
         parsedSong.setArtist(file.getArtist());
         parsedSong.setAlbum(file.getAlbumName());

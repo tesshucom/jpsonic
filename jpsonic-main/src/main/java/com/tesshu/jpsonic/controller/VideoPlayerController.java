@@ -105,7 +105,7 @@ public class VideoPlayerController {
         map.put("isShowDownload", userSettings.isShowDownload());
         map.put("isShowShare", userSettings.isShowShare());
 
-        if (!securityService.isInPodcastFolder(dir.getFile())) {
+        if (!securityService.isInPodcastFolder(dir.toPath())) {
             MediaFile parent = mediaFileService.getParentOf(file);
             map.put("parent", parent);
             map.put("navigateUpAllowed", !mediaFileService.isRoot(parent));

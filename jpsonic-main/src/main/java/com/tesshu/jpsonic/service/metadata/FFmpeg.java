@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -71,7 +72,7 @@ public class FFmpeg {
         return null;
     }
 
-    public @Nullable BufferedImage createImage(@NonNull File file, int width, int height, int offset) {
+    public @Nullable BufferedImage createImage(@NonNull Path path, int width, int height, int offset) {
 
         String cmdPath = getCommandPath();
         if (isEmpty(cmdPath)) {
@@ -79,7 +80,7 @@ public class FFmpeg {
         }
 
         List<String> command = new ArrayList<>();
-        command.addAll(Arrays.asList(cmdPath, "-i", file.getAbsolutePath()));
+        command.addAll(Arrays.asList(cmdPath, "-i", path.toString()));
         String options = offset < 1 ? THUMBNAIL_OPTIONS : SEEKED_OPTIONS;
         Stream.of(options.split(" ")).forEach(c -> command.add(c //
                 .replaceAll("%w", Integer.toString(width)) //
@@ -97,7 +98,7 @@ public class FFmpeg {
                 process.destroy();
             }
         } catch (IOException e) {
-            String simplePath = createSimplePath(file);
+            String simplePath = createSimplePath(path);
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to create thumbnail({}): {}", simplePath, e.getMessage());
             }

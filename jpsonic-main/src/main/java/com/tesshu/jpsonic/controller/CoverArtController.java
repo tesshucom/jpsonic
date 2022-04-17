@@ -32,8 +32,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -231,7 +232,7 @@ public class CoverArtController {
 
     private void sendImage(File file, HttpServletResponse response) throws ExecutionException {
         response.setContentType(StringUtil.getMimeType(FilenameUtils.getExtension(file.getName())));
-        try (InputStream in = Files.newInputStream(Paths.get(file.toURI()))) {
+        try (InputStream in = Files.newInputStream(file.toPath())) {
             IOUtils.copy(in, response.getOutputStream());
         } catch (IOException e) {
             throw new ExecutionException("Cannot copy image: " + file.getPath(), e);
@@ -258,13 +259,13 @@ public class CoverArtController {
     }
 
     void sendUnscaled(CoverArtRequest coverArtRequest, HttpServletResponse response) throws ExecutionException {
-        File file = coverArtRequest.getCoverArt();
-        Pair<InputStream, String> imageInputStreamWithType = getImageInputStreamWithType(file);
+        Path path = coverArtRequest.getCoverArt();
+        Pair<InputStream, String> imageInputStreamWithType = getImageInputStreamWithType(path);
         response.setContentType(imageInputStreamWithType.getRight());
         try (InputStream in = imageInputStreamWithType.getLeft()) {
             IOUtils.copy(in, response.getOutputStream());
         } catch (IOException e) {
-            throw new ExecutionException("Cannot copy image: " + file.getPath(), e);
+            throw new ExecutionException("Cannot copy image: " + path, e);
         }
     }
 
@@ -280,7 +281,7 @@ public class CoverArtController {
         synchronized (IMG_LOCKS.get(lockKey)) {
             if (IMG_LOCKS.get(lockKey) != null && IMG_LOCKS.get(lockKey).equals(lock)
                     && (!cachedImage.exists() || request.lastModified() > cachedImage.lastModified())) {
-                try (OutputStream out = Files.newOutputStream(Paths.get(cachedImage.toURI()))) {
+                try (OutputStream out = Files.newOutputStream(cachedImage.toPath())) {
                     semaphore.acquire();
                     BufferedImage image = request.createImage(size);
                     ImageIO.write(image, encoding, out);
@@ -303,8 +304,8 @@ public class CoverArtController {
      * returned.
      */
     @NonNull
-    InputStream getImageInputStream(File file) throws ExecutionException {
-        return getImageInputStreamWithType(file).getLeft();
+    InputStream getImageInputStream(Path path) throws ExecutionException {
+        return getImageInputStreamWithType(path).getLeft();
     }
 
     /**
@@ -317,22 +318,22 @@ public class CoverArtController {
      * calling this method auto-closes the resource after this method completes.
      */
     @NonNull
-    Pair<InputStream, String> getImageInputStreamWithType(File file) throws ExecutionException {
+    Pair<InputStream, String> getImageInputStreamWithType(Path path) throws ExecutionException {
 
-        if (!ParserUtils.isEmbeddedArtworkApplicable(file)) {
+        if (!ParserUtils.isEmbeddedArtworkApplicable(path)) {
             InputStream is;
             try {
-                is = Files.newInputStream(Paths.get(file.toURI()));
+                is = Files.newInputStream(path);
             } catch (IOException e) {
-                throw new ExecutionException("Image cannot be read: " + file.getPath(), e);
+                throw new ExecutionException("Image cannot be read: " + path, e);
             }
-            String mimeType = StringUtil.getMimeType(FilenameUtils.getExtension(file.getName()));
+            String mimeType = StringUtil.getMimeType(FilenameUtils.getExtension(path.getFileName().toString()));
             return Pair.of(is, mimeType);
         }
 
-        Optional<Artwork> op = ParserUtils.getEmbeddedArtwork(file);
+        Optional<Artwork> op = ParserUtils.getEmbeddedArtwork(path);
         if (op.isEmpty()) {
-            throw new ExecutionException(new IOException("Embeded image cannot be read: " + file.getPath()));
+            throw new ExecutionException(new IOException("Embeded image cannot be read: " + path));
         }
 
         Artwork artwork = op.get();
@@ -341,7 +342,7 @@ public class CoverArtController {
 
     @Nullable
     BufferedImage getImageInputStreamForVideo(MediaFile mediaFile, int width, int height, int offset) {
-        return ffmpeg.createImage(mediaFile.getFile(), width, height, offset);
+        return ffmpeg.createImage(mediaFile.toPath(), width, height, offset);
     }
 
     private File getImageCacheDirectory(int size) {
@@ -395,20 +396,28 @@ public class CoverArtController {
 
     private abstract class CoverArtRequest {
 
-        protected File coverArt;
+        protected Path coverArt;
 
         private CoverArtRequest() {
         }
 
         private CoverArtRequest(String coverArtPath) {
-            this.coverArt = coverArtPath == null ? null : new File(coverArtPath);
+            this.coverArt = coverArtPath == null ? null : Path.of(coverArtPath);
         }
 
-        private File getCoverArt() {
+        private Path getCoverArt() {
             return coverArt;
         }
 
         public abstract String getKey();
+
+        long getLastModified(Path path) {
+            try {
+                return Files.getLastModifiedTime(path).toMillis();
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
 
         public abstract long lastModified();
 
@@ -454,7 +463,7 @@ public class CoverArtController {
         public abstract String getArtist();
     }
 
-    private class ArtistCoverArtRequest extends CoverArtRequest {
+    class ArtistCoverArtRequest extends CoverArtRequest {
 
         private final Artist artist;
 
@@ -470,7 +479,7 @@ public class CoverArtController {
 
         @Override
         public long lastModified() {
-            return coverArt == null ? artist.getLastScanned().getTime() : coverArt.lastModified();
+            return coverArt == null ? artist.getLastScanned().getTime() : getLastModified(coverArt);
         }
 
         @Override
@@ -484,7 +493,7 @@ public class CoverArtController {
         }
     }
 
-    private class AlbumCoverArtRequest extends CoverArtRequest {
+    class AlbumCoverArtRequest extends CoverArtRequest {
 
         private final Album album;
 
@@ -500,7 +509,7 @@ public class CoverArtController {
 
         @Override
         public long lastModified() {
-            return coverArt == null ? album.getLastScanned().getTime() : coverArt.lastModified();
+            return coverArt == null ? album.getLastScanned().getTime() : getLastModified(coverArt);
         }
 
         @Override
@@ -514,7 +523,7 @@ public class CoverArtController {
         }
     }
 
-    private class PlaylistCoverArtRequest extends CoverArtRequest {
+    class PlaylistCoverArtRequest extends CoverArtRequest {
 
         private static final int IMAGE_COMPOSITES_THRESHOLD = 4;
 
@@ -579,7 +588,7 @@ public class CoverArtController {
         }
     }
 
-    private class PodcastCoverArtRequest extends CoverArtRequest {
+    class PodcastCoverArtRequest extends CoverArtRequest {
 
         private final PodcastChannel channel;
 
@@ -614,19 +623,19 @@ public class CoverArtController {
         private final MediaFile dir;
 
         MediaFileCoverArtRequest(MediaFile mediaFile) {
-            super(mediaFile.getCoverArtPath());
+            super(mediaFile.getCoverArtPathString());
             dir = mediaFile.isDirectory() ? mediaFile : mediaFileService.getParentOf(mediaFile);
             coverArt = mediaFileService.getCoverArt(mediaFile);
         }
 
         @Override
         public String getKey() {
-            return coverArt == null ? dir.getPath() : coverArt.getPath();
+            return coverArt == null ? dir.getPathString() : coverArt.toString();
         }
 
         @Override
         public long lastModified() {
-            return coverArt == null ? dir.getChanged().getTime() : coverArt.lastModified();
+            return coverArt == null ? dir.getChanged().getTime() : getLastModified(coverArt);
         }
 
         @Override
@@ -640,13 +649,13 @@ public class CoverArtController {
         }
     }
 
-    private class VideoCoverArtRequest extends CoverArtRequest {
+    class VideoCoverArtRequest extends CoverArtRequest {
 
         private final MediaFile mediaFile;
         private final int offset;
 
         VideoCoverArtRequest(MediaFile mediaFile, int offset) {
-            super(mediaFile.getCoverArtPath());
+            super(mediaFile.getCoverArtPathString());
             this.mediaFile = mediaFile;
             this.offset = offset;
         }
@@ -669,7 +678,7 @@ public class CoverArtController {
 
         @Override
         public String getKey() {
-            return mediaFile.getPath() + "/" + offset;
+            return mediaFile.getPathString() + "/" + offset;
         }
 
         @Override

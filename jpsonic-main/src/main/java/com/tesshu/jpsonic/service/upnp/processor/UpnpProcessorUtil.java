@@ -99,7 +99,7 @@ public class UpnpProcessorUtil {
     }
 
     public MimeType getMimeType(MediaFile song, Player player) {
-        String suffix = song.isVideo() ? FilenameUtils.getExtension(song.getPath())
+        String suffix = song.isVideo() ? FilenameUtils.getExtension(song.getPathString())
                 : transcodingService.getSuffix(player, song, null);
         String mimeTypeString = StringUtil.getMimeType(suffix);
         return mimeTypeString == null ? null : MimeType.valueOf(mimeTypeString);

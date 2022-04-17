@@ -84,8 +84,9 @@ class MediaScannerServiceUtilsCompensateSortOfArtistTest extends AbstractNeedsSc
         utils.copySortOfArtist();
 
         List<MediaFile> artists = mediaFileDao.getArtistAll(MUSIC_FOLDERS);
-        List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(0).getPath(), false);
-        List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, albums.get(0).getPath(), false);
+        List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(0).getPathString(),
+                false);
+        List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, albums.get(0).getPathString(), false);
         assertEquals(3, files.size());
 
         files.forEach(m -> {
@@ -117,8 +118,8 @@ class MediaScannerServiceUtilsCompensateSortOfArtistTest extends AbstractNeedsSc
             }
         });
 
-        albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(1).getPath(), false);
-        files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, albums.get(0).getPath(), false);
+        albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(1).getPathString(), false);
+        files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, albums.get(0).getPathString(), false);
         assertEquals(1, files.size());
         assertEquals("file4", files.get(0).getName());
         assertEquals("山田耕筰", files.get(0).getArtist());
@@ -141,8 +142,8 @@ class MediaScannerServiceUtilsCompensateSortOfArtistTest extends AbstractNeedsSc
         utils.compensateSortOfArtist();
 
         artists = mediaFileDao.getArtistAll(MUSIC_FOLDERS);
-        albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(0).getPath(), false);
-        files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, albums.get(0).getPath(), false);
+        albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(0).getPathString(), false);
+        files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, albums.get(0).getPathString(), false);
         assertEquals(3, files.size());
 
         files.forEach(m -> {

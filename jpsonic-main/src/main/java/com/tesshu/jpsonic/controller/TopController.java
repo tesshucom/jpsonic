@@ -21,7 +21,9 @@
 
 package com.tesshu.jpsonic.controller;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -46,8 +48,9 @@ import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.VersionService;
-import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -64,6 +67,8 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 @RequestMapping({ "/top", "/top.view" })
 public class TopController {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TopController.class);
 
     // Update this time if you want to force a refresh in clients.
     private static final Calendar LAST_COMPATIBILITY_TIME = Calendar.getInstance();
@@ -202,12 +207,20 @@ public class TopController {
         MusicFolder selectedMusicFolder = securityService.getSelectedMusicFolder(username);
         if (selectedMusicFolder == null) {
             for (MusicFolder musicFolder : allMusicFolders) {
-                File file = musicFolder.getPath();
-                lastModified = Math.max(lastModified, FileUtil.lastModified(file));
+                Path path = musicFolder.getPath().toPath();
+                try {
+                    lastModified = Math.max(lastModified, Files.getLastModifiedTime(path).toMillis());
+                } catch (IOException e) {
+                    LOG.error("Unable to get last modified.", e);
+                }
             }
         } else {
-            File file = selectedMusicFolder.getPath();
-            lastModified = Math.max(lastModified, FileUtil.lastModified(file));
+            Path path = selectedMusicFolder.getPath().toPath();
+            try {
+                lastModified = Math.max(lastModified, Files.getLastModifiedTime(path).toMillis());
+            } catch (IOException e) {
+                LOG.error("Unable to get last modified.", e);
+            }
         }
 
         // When was music folder table last changed?

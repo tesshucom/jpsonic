@@ -57,7 +57,7 @@ class FFprobeTest {
     private MediaFile createTestMediafile(String path) throws URISyntaxException, IOException {
         MediaFile mediaFile = new MediaFile();
         File file = new File(MusicParserTest.class.getResource(path).toURI());
-        mediaFile.setPath(file.getAbsolutePath());
+        mediaFile.setPathString(file.getAbsolutePath());
         mediaFile.setFileSize(Files.size(file.toPath()));
         return mediaFile;
     }
@@ -140,7 +140,7 @@ class FFprobeTest {
     void testIllegalFilePath() throws URISyntaxException, IOException {
         MediaFile mediaFile = new MediaFile();
         File file = new File("fake");
-        mediaFile.setPath(file.getAbsolutePath());
+        mediaFile.setPathString(file.getAbsolutePath());
         mediaFile.setFileSize(Long.valueOf(5_000));
         MetaData metaData = ffprobe.parse(mediaFile, null);
         assertEmpty(metaData);

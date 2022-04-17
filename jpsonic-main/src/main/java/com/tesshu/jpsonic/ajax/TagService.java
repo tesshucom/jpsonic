@@ -21,6 +21,7 @@
 
 package com.tesshu.jpsonic.ajax;
 
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.concurrent.CompletionException;
 
@@ -81,9 +82,10 @@ public class TagService {
             String yearStr, String genreStr) {
 
         MediaFile file = mediaFileService.getMediaFile(id);
-        MetaDataParser parser = metaDataParserFactory.getParser(file.getFile());
-        if (parser == null || !parser.isEditingSupported(file.getFile())) {
-            return "Tag editing of " + FilenameUtils.getExtension(file.getPath()) + " files is not supported.";
+        Path path = file.toPath();
+        MetaDataParser parser = metaDataParserFactory.getParser(path);
+        if (parser == null || !parser.isEditingSupported(path)) {
+            return "Tag editing of " + FilenameUtils.getExtension(file.getPathString()) + " files is not supported.";
         }
 
         String artist = StringUtils.trimToNull(artistStr);
@@ -100,7 +102,7 @@ public class TagService {
             return "SKIPPED";
         }
 
-        MetaData newMetaData = parser.getMetaData(file.getFile());
+        MetaData newMetaData = parser.getMetaData(path);
 
         // Note: album artist is intentionally set, as it is not user-changeable.
         newMetaData.setArtist(artist);

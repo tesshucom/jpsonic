@@ -26,7 +26,7 @@
 
 <div>
     <c:if test="${not empty model.dir}">
-        <sub:url value="main.view" var="backUrl"><sub:param name="path" value="${model.dir.path}"/></sub:url>
+        <sub:url value="main.view" var="backUrl"><sub:param name="path" value="${model.dir.pathString}"/></sub:url>
         <div><a href="${backUrl}"><fmt:message key="common.back"/></a></div>
     </c:if>
     <c:if test="${model.user.settingsRole}">

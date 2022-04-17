@@ -116,7 +116,7 @@ class IndexManagerTest extends AbstractNeedsScan {
         List<Integer> candidates = mediaFileDao.getArtistExpungeCandidates();
         assertEquals(0, candidates.size());
 
-        result.getMediaFiles().forEach(a -> mediaFileDao.deleteMediaFile(a.getPath()));
+        result.getMediaFiles().forEach(a -> mediaFileDao.deleteMediaFile(a.getPathString()));
 
         candidates = mediaFileDao.getArtistExpungeCandidates();
         assertEquals(1, candidates.size());
@@ -129,7 +129,7 @@ class IndexManagerTest extends AbstractNeedsScan {
         candidates = mediaFileDao.getAlbumExpungeCandidates();
         assertEquals(0, candidates.size());
 
-        result.getMediaFiles().forEach(a -> mediaFileDao.deleteMediaFile(a.getPath()));
+        result.getMediaFiles().forEach(a -> mediaFileDao.deleteMediaFile(a.getPathString()));
 
         candidates = mediaFileDao.getAlbumExpungeCandidates();
         assertEquals(1, candidates.size());
@@ -148,7 +148,7 @@ class IndexManagerTest extends AbstractNeedsScan {
         candidates = mediaFileDao.getSongExpungeCandidates();
         assertEquals(0, candidates.size());
 
-        result.getMediaFiles().forEach(a -> mediaFileDao.deleteMediaFile(a.getPath()));
+        result.getMediaFiles().forEach(a -> mediaFileDao.deleteMediaFile(a.getPathString()));
 
         candidates = mediaFileDao.getSongExpungeCandidates();
         assertEquals(2, candidates.size());

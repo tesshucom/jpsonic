@@ -26,7 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.lang.annotation.Documented;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +37,6 @@ import java.util.concurrent.ExecutionException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.tesshu.jpsonic.MusicFolderTestDataUtils;
 import com.tesshu.jpsonic.dao.TranscodingDao;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
@@ -185,7 +186,7 @@ class StreamControllerTest {
     @Order(1)
     void testGetMaxBitRate() throws Exception {
         MediaFile song = new MediaFile();
-        song.setPath(TEST_PATH);
+        song.setPathString(TEST_PATH);
         Mockito.when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class))).thenReturn(song);
 
         ArgumentCaptor<Integer> maxBitRateCaptor = ArgumentCaptor.forClass(Integer.class);
@@ -237,7 +238,7 @@ class StreamControllerTest {
         @Order(0)
         void testAuthentication() throws Exception {
             MediaFile song = new MediaFile();
-            song.setPath(TEST_PATH);
+            song.setPathString(TEST_PATH);
             Mockito.when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class))).thenReturn(song);
 
             // no-jwt with stream role(Pass the first certification check)
@@ -268,7 +269,7 @@ class StreamControllerTest {
         @Order(1)
         void testVideoTranscoding() throws Exception {
             MediaFile song = new MediaFile();
-            song.setPath(TEST_PATH);
+            song.setPathString(TEST_PATH);
             Mockito.when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class))).thenReturn(song);
 
             ArgumentCaptor<VideoTranscodingSettings> vtsCaptor = ArgumentCaptor
@@ -416,7 +417,7 @@ class StreamControllerTest {
         @Test
         void na00() throws Exception {
             MediaFile song = new MediaFile();
-            song.setPath(TEST_PATH);
+            song.setPathString(TEST_PATH);
             song.setMediaType(MediaType.MUSIC);
             Mockito.when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class))).thenReturn(song);
             mockMvc.perform(MockMvcRequestBuilders.get(TEST_URL)).andExpect(MockMvcResultMatchers.status().isOk())
@@ -433,7 +434,7 @@ class StreamControllerTest {
         @Test
         void na01() throws Exception {
             MediaFile song = new MediaFile();
-            song.setPath(TEST_PATH);
+            song.setPathString(TEST_PATH);
             song.setMediaType(MediaType.VIDEO);
             Mockito.when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class))).thenReturn(song);
             mockMvc.perform(MockMvcRequestBuilders.get(TEST_URL)).andExpect(MockMvcResultMatchers.status().isOk())
@@ -454,7 +455,7 @@ class StreamControllerTest {
         @Test
         void cr00() throws Exception {
             MediaFile song = new MediaFile();
-            song.setPath(TEST_PATH);
+            song.setPathString(TEST_PATH);
             song.setMediaType(MediaType.MUSIC);
             song.setFileSize(3_200L);
             Mockito.when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class))).thenReturn(song);
@@ -494,7 +495,7 @@ class StreamControllerTest {
         @Test
         void cr01() throws Exception {
             MediaFile song = new MediaFile();
-            song.setPath(TEST_PATH);
+            song.setPathString(TEST_PATH);
             song.setMediaType(MediaType.MUSIC);
             song.setDurationSeconds(10);
             song.setFileSize(3_200L);
@@ -536,7 +537,7 @@ class StreamControllerTest {
         @Test
         void cr02() throws Exception {
             MediaFile song = new MediaFile();
-            song.setPath(TEST_PATH);
+            song.setPathString(TEST_PATH);
             song.setMediaType(MediaType.MUSIC);
             song.setDurationSeconds(10);
             song.setFileSize(3_300L);
@@ -569,7 +570,7 @@ class StreamControllerTest {
         @Test
         void cr03() throws Exception {
             MediaFile song = new MediaFile();
-            song.setPath(TEST_PATH);
+            song.setPathString(TEST_PATH);
             song.setMediaType(MediaType.MUSIC);
             song.setDurationSeconds(10);
             song.setFileSize(3_300L);
@@ -602,7 +603,7 @@ class StreamControllerTest {
         @Test
         void cr04() throws Exception {
             MediaFile song = new MediaFile();
-            song.setPath(TEST_PATH);
+            song.setPathString(TEST_PATH);
             song.setMediaType(MediaType.MUSIC);
             song.setDurationSeconds(null);
             song.setFileSize(3_300L);
@@ -711,11 +712,13 @@ class StreamControllerTest {
         private MediaFile song;
         private Player player;
 
-        private void initMocksWithTranscoding(boolean isSetTranscodingsAll, boolean isAnonymous) {
+        private void initMocksWithTranscoding(boolean isSetTranscodingsAll, boolean isAnonymous)
+                throws URISyntaxException {
             song = new MediaFile();
             song.setId(0);
-            song.setPath(MusicFolderTestDataUtils.resolveMusicFolderPath()
-                    + "/_DIR_ Céline Frisch- Café Zimmermann - Bach- Goldberg Variations, Canons [Disc 1]/01 - Bach- Goldberg Variations, BWV 988 - Aria.flac");
+            song.setPathString(Path.of(StreamControllerTest.class.getResource(
+                    "/MEDIAS/Music/_DIR_ Céline Frisch- Café Zimmermann - Bach- Goldberg Variations, Canons [Disc 1]/01 - Bach- Goldberg Variations, BWV 988 - Aria.flac")
+                    .toURI()).toString());
             song.setMediaType(MediaType.MUSIC);
             song.setFormat("flac");
             song.setFileSize(358_406L);
@@ -1005,7 +1008,7 @@ class StreamControllerTest {
         @Test
         void testHls() throws Exception {
             MediaFile song = new MediaFile();
-            song.setPath(TEST_PATH);
+            song.setPathString(TEST_PATH);
             Mockito.when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class))).thenReturn(song);
 
             // hls
@@ -1043,7 +1046,7 @@ class StreamControllerTest {
     void testWriteVerboseLog() throws Exception {
         Mockito.when(settingsService.isVerboseLogPlaying()).thenReturn(true);
         MediaFile song = new MediaFile();
-        song.setPath(TEST_PATH);
+        song.setPathString(TEST_PATH);
         song.setDurationSeconds(10);
         song.setFileSize(3_300L);
         Mockito.when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class))).thenReturn(song);
@@ -1074,7 +1077,7 @@ class StreamControllerTest {
     void testWriteErrorLog() throws Exception {
         Mockito.when(settingsService.isVerboseLogPlaying()).thenReturn(true);
         MediaFile song = new MediaFile();
-        song.setPath(TEST_PATH);
+        song.setPathString(TEST_PATH);
         song.setDurationSeconds(10);
         song.setFileSize(3_300L);
         Mockito.when(streamService.getSingleFile(Mockito.any(HttpServletRequest.class))).thenReturn(song);

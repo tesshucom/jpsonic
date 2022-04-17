@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -54,14 +54,14 @@ public class VideoParser extends MetaDataParser {
      * Parses meta data for the given music file. No guessing or reformatting is done.
      *
      *
-     * @param file
+     * @param path
      *            The music file to parse.
      *
      * @return Meta data for the file.
      */
     @Override
-    public MetaData getRawMetaData(File file) {
-        return ffprobe.parse(file);
+    public MetaData getRawMetaData(Path path) {
+        return ffprobe.parse(path);
     }
 
     /**
@@ -78,7 +78,7 @@ public class VideoParser extends MetaDataParser {
      * @return Always false.
      */
     @Override
-    public boolean isEditingSupported(File file) {
+    public boolean isEditingSupported(Path path) {
         return false;
     }
 
@@ -90,15 +90,15 @@ public class VideoParser extends MetaDataParser {
     /**
      * Returns whether this parser is applicable to the given file.
      *
-     * @param file
+     * @param path
      *            The file in question.
      *
      * @return Whether this parser is applicable to the given file.
      */
     @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     @Override
-    public boolean isApplicable(File file) {
-        String format = FilenameUtils.getExtension(file.getName()).toLowerCase();
+    public boolean isApplicable(Path path) {
+        String format = FilenameUtils.getExtension(path.getFileName().toString()).toLowerCase();
 
         for (String s : settingsService.getVideoFileTypesAsArray()) {
             if (format.equals(s)) {

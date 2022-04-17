@@ -24,7 +24,8 @@ package com.tesshu.jpsonic.service;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
@@ -191,15 +192,16 @@ public class MediaScannerService {
 
             // Recurse through all files on disk.
             for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders()) {
-                MediaFile root = mediaFileService.getMediaFile(musicFolder.getPath(), false);
+                MediaFile root = mediaFileService.getMediaFile(musicFolder.getPath().toPath(), false);
                 scanFile(root, musicFolder, statistics, albumCount, genres, false);
             }
 
             // Scan podcast folder.
-            File podcastFolder = new File(settingsService.getPodcastFolder());
-            if (podcastFolder.exists()) {
-                scanFile(mediaFileService.getMediaFile(podcastFolder), new MusicFolder(podcastFolder, null, true, null),
-                        statistics, albumCount, genres, true);
+            Path podcastFolder = Path.of(settingsService.getPodcastFolder());
+            if (Files.exists(podcastFolder)) {
+                scanFile(mediaFileService.getMediaFile(podcastFolder),
+                        new MusicFolder(podcastFolder.toFile(), null, true, null), statistics, albumCount, genres,
+                        true);
             }
 
             writeInfo("Scanned media library with " + scanCount + " entries.");
@@ -298,7 +300,7 @@ public class MediaScannerService {
         }
 
         updateGenres(file, genres);
-        mediaFileDao.markPresent(file.getPath(), statistics.getScanDate());
+        mediaFileDao.markPresent(file.getPathString(), statistics.getScanDate());
         artistDao.markPresent(file.getAlbumArtist(), statistics.getScanDate());
 
         if (file.getDurationSeconds() != null) {
@@ -319,7 +321,7 @@ public class MediaScannerService {
         if (LOG.isInfoEnabled() && scanCount.get() % 250 == 0) {
             writeInfo("Scanned media library with " + scanCount + " entries.");
         } else if (LOG.isTraceEnabled()) {
-            LOG.trace("Scanning file {}", file.getPath());
+            LOG.trace("Scanning file {}", file.toPath());
         }
     }
 
@@ -393,7 +395,7 @@ public class MediaScannerService {
     }
 
     private boolean isNotAlbumUpdatable(MediaFile file) {
-        return file.getAlbumName() == null || file.getParentPath() == null || !file.isAudio()
+        return file.getAlbumName() == null || file.getParentPathString() == null || !file.isAudio()
                 || file.getArtist() == null && file.getAlbumArtist() == null;
     }
 
@@ -401,7 +403,7 @@ public class MediaScannerService {
         Album album = albumDao.getAlbumForFile(file);
         if (album == null) {
             album = new Album();
-            album.setPath(file.getParentPath());
+            album.setPath(file.getParentPathString());
             album.setName(file.getAlbumName());
             album.setNameReading(file.getAlbumReading());
             album.setNameSort(file.getAlbumSort());
@@ -414,8 +416,8 @@ public class MediaScannerService {
             album.setMusicBrainzReleaseId(file.getMusicBrainzReleaseId());
         }
         MediaFile parent = mediaFileService.getParentOf(file);
-        if (parent != null && parent.getCoverArtPath() != null) {
-            album.setCoverArtPath(parent.getCoverArtPath());
+        if (parent != null && parent.getCoverArtPathString() != null) {
+            album.setCoverArtPath(parent.getCoverArtPathString());
         }
         return album;
     }
@@ -435,7 +437,7 @@ public class MediaScannerService {
         if (artist.getCoverArtPath() == null) {
             MediaFile parent = mediaFileService.getParentOf(file);
             if (parent != null) {
-                artist.setCoverArtPath(parent.getCoverArtPath());
+                artist.setCoverArtPath(parent.getCoverArtPathString());
             }
         }
         final boolean firstEncounter = !lastScanned.equals(artist.getLastScanned());

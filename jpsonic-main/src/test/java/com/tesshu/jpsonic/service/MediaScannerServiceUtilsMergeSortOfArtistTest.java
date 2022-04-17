@@ -87,7 +87,7 @@ class MediaScannerServiceUtilsMergeSortOfArtistTest extends AbstractNeedsScan {
         populateDatabaseOnlyOnce(null, () -> {
             List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, MUSIC_FOLDERS);
             albums.forEach(a -> {
-                List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, a.getPath(), false);
+                List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, a.getPathString(), false);
                 files.forEach(m -> {
                     if ("file10".equals(m.getName()) || "file12".equals(m.getName()) || "file14".equals(m.getName())
                             || "file17".equals(m.getName())) {
@@ -169,7 +169,7 @@ class MediaScannerServiceUtilsMergeSortOfArtistTest extends AbstractNeedsScan {
         assertEquals("artistU", artistID3s.get(9).getSort());
 
         artists.stream().filter(m -> "case10".equals(m.getName())).findFirst().ifPresent(m -> {
-            List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPath(), false);
+            List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPathString(), false);
             assertEquals(1, albums.size());
             MediaFile album = albums.get(0);
             assertEquals("case10", album.getArtist());
@@ -178,7 +178,7 @@ class MediaScannerServiceUtilsMergeSortOfArtistTest extends AbstractNeedsScan {
         });
 
         artists.stream().filter(m -> "case11".equals(m.getName())).findFirst().ifPresent(m -> {
-            List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPath(), false);
+            List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPathString(), false);
             assertEquals(1, albums.size());
             MediaFile album = albums.get(0);
             assertEquals("case11", album.getArtist());
@@ -187,7 +187,7 @@ class MediaScannerServiceUtilsMergeSortOfArtistTest extends AbstractNeedsScan {
         });
 
         artists.stream().filter(m -> "ARTIST".equals(m.getName())).findFirst().ifPresent(m -> {
-            List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPath(), false);
+            List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPathString(), false);
             assertEquals(9, albums.size());
 
             albums.forEach(album -> {
@@ -246,7 +246,7 @@ class MediaScannerServiceUtilsMergeSortOfArtistTest extends AbstractNeedsScan {
             });
 
             List<MediaFile> songs = albums.stream()
-                    .flatMap(al -> mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, al.getPath(), false).stream())
+                    .flatMap(al -> mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, al.getPathString(), false).stream())
                     .collect(Collectors.toList());
             assertEquals(15, songs.size());
 

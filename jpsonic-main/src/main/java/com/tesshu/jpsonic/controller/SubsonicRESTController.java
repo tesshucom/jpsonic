@@ -1430,7 +1430,7 @@ public class SubsonicRESTController {
 
     private String findCoverArt(MediaFile mediaFile, MediaFile parent) {
         MediaFile dir = mediaFile.isDirectory() ? mediaFile : parent;
-        if (dir != null && dir.getCoverArtPath() != null) {
+        if (dir != null && dir.getCoverArtPathString() != null) {
             return String.valueOf(dir.getId());
         }
         return null;
@@ -1439,7 +1439,7 @@ public class SubsonicRESTController {
     public static String getRelativePath(MediaFile musicFile, SettingsService settingsService,
             MusicFolderService musicFolderService) {
 
-        String filePath = musicFile.getPath();
+        String filePath = musicFile.getPathString();
 
         // Convert slashes.
         filePath = filePath.replace('\\', '/');

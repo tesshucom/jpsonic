@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -45,14 +45,14 @@ public class MetaDataParserFactory {
     /**
      * Returns a meta-data parser for the given file.
      *
-     * @param file
+     * @param path
      *            The file in question.
      *
      * @return An applicable parser, or <code>null</code> if no parser is found.
      */
-    public @Nullable MetaDataParser getParser(File file) {
+    public @Nullable MetaDataParser getParser(Path path) {
         for (MetaDataParser parser : parsers) {
-            if (parser.isApplicable(file)) {
+            if (parser.isApplicable(path)) {
                 return parser;
             }
         }
