@@ -54,7 +54,14 @@ public interface NeedsScan {
     boolean isDataBaseReady();
 
     /**
-     * Populate the database only once. It is called in the @Before granted method.
+     * Populate the database. Used when a subclass has a single test method. Can be used even if there are multiple
+     * inner classes by @Nested.
+     */
+    void populateDatabase();
+
+    /**
+     * Populate the database only once. If you have multiple inner classes, we can only use it if the class that uses
+     * this method is executed first.
      */
     void populateDatabaseOnlyOnce();
 
