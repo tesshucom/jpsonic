@@ -35,6 +35,10 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.AvoidDuplicateLiterals" })
@@ -43,6 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractNeedsScan {
 
+    private static final Logger LOG = LoggerFactory.getLogger(MediaScannerServiceUtilsUpdateSortOfAlbumTest.class);
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
     static {
@@ -95,13 +100,20 @@ class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractNeedsScan {
     }
 
     @Test
-    void testUpdateSortOfAlbum() throws ExecutionException {
+    @DisabledOnOs(OS.LINUX)
+    void testUpdateSortOfAlbumOnWindows() throws ExecutionException {
 
+        // for Windows Server 2022(ver.20220426.1) Results may differ from Desktop Windows.
+
+        LOG.info(" *** Before merge(id, name, sort)");
         List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, MUSIC_FOLDERS);
         assertEquals(5, albums.size());
+        albums.forEach(m -> LOG.info("MediaFile.ALBUM:" + m.getId() + ", " + m.getAlbumName() + ", " + m.getAlbumSort()
+                + ", " + m.getPathString()));
 
         List<Album> albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, MUSIC_FOLDERS);
         assertEquals(5, albumId3s.size());
+        albumId3s.forEach(a -> LOG.info("Album:" + a.getId() + ", " + a.getName() + ", " + a.getNameSort()));
 
         // to be merge
         assertEquals(1L, albums.stream().filter(m -> "albumA".equals(m.getAlbumSort())).count());
@@ -116,11 +128,15 @@ class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractNeedsScan {
 
         utils.mergeSortOfAlbum();
 
+        LOG.info(" *** After merge(id, name, sort)");
         albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, MUSIC_FOLDERS);
         assertEquals(5, albums.size());
+        albums.forEach(m -> LOG.info("MediaFile.ALBUM:" + m.getId() + ", " + m.getAlbumName() + ", " + m.getAlbumSort()
+                + ", " + m.getPathString()));
 
         albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, MUSIC_FOLDERS);
         assertEquals(5, albumId3s.size());
+        albumId3s.forEach(a -> LOG.info("Album:" + a.getId() + ", " + a.getName() + ", " + a.getNameSort()));
 
         // merged
         assertEquals(1L, albums.stream().filter(m -> "albumA".equals(m.getAlbumSort())).count());
@@ -174,4 +190,94 @@ class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractNeedsScan {
         assertEquals(1L, albumId3s.stream().filter(a -> "ニホンゴノアルバムメイ".equals(a.getNameSort())).count());
     }
 
+    @Test
+    @DisabledOnOs(OS.WINDOWS)
+    void testUpdateSortOfAlbumOnLinux() throws ExecutionException {
+
+        // for Ubuntu 20.04.4(ver.20220425.1)
+
+        LOG.info(" *** Before merge(id, name, sort)");
+        List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, MUSIC_FOLDERS);
+        assertEquals(5, albums.size());
+        albums.forEach(m -> LOG.info("MediaFile.ALBUM:" + m.getId() + ", " + m.getAlbumName() + ", " + m.getAlbumSort()
+                + ", " + m.getPathString()));
+
+        List<Album> albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, MUSIC_FOLDERS);
+        assertEquals(5, albumId3s.size());
+        albumId3s.forEach(a -> LOG.info("Album:" + a.getId() + ", " + a.getName() + ", " + a.getNameSort()));
+
+        // to be merge
+        assertEquals(1L, albums.stream().filter(m -> "albumA".equals(m.getAlbumSort())).count());
+        assertEquals(2L, albums.stream().filter(m -> m.getAlbumSort() == null).count());
+        assertEquals(1L, albums.stream().filter(m -> "albumC".equals(m.getAlbumSort())).count());
+        assertEquals(1L, albums.stream().filter(m -> "albumD".equals(m.getAlbumSort())).count());
+
+        assertEquals(1L, albumId3s.stream().filter(a -> "albumA".equals(a.getNameSort())).count());
+        assertEquals(2L, albumId3s.stream().filter(a -> a.getNameSort() == null).count());
+        assertEquals(1L, albumId3s.stream().filter(a -> "albumC".equals(a.getNameSort())).count());
+        assertEquals(1L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count());
+
+        utils.mergeSortOfAlbum();
+
+        LOG.info(" *** After merge(id, name, sort)");
+        albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, MUSIC_FOLDERS);
+        assertEquals(5, albums.size());
+        albums.forEach(m -> LOG.info("MediaFile.ALBUM:" + m.getId() + ", " + m.getAlbumName() + ", " + m.getAlbumSort()
+                + ", " + m.getPathString()));
+
+        albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, MUSIC_FOLDERS);
+        assertEquals(5, albumId3s.size());
+        albumId3s.forEach(a -> LOG.info("Album:" + a.getId() + ", " + a.getName() + ", " + a.getNameSort()));
+
+        // merged
+        assertEquals(1L, albums.stream().filter(m -> "albumA".equals(m.getAlbumSort())).count());
+        assertEquals(2L, albums.stream().filter(m -> m.getAlbumSort() == null).count());
+        assertEquals(2L, albums.stream().filter(m -> "albumC".equals(m.getAlbumSort())).count()); // merged
+        assertEquals(0L, albums.stream().filter(m -> "albumD".equals(m.getAlbumSort())).count()); // merged
+
+        assertEquals(1L, albumId3s.stream().filter(a -> "albumA".equals(a.getNameSort())).count());
+        assertEquals(2L, albumId3s.stream().filter(a -> a.getNameSort() == null).count());
+        assertEquals(2L, albumId3s.stream().filter(a -> "albumC".equals(a.getNameSort())).count()); // merged
+        assertEquals(0L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count()); // merged
+
+        utils.copySortOfAlbum();
+
+        albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, MUSIC_FOLDERS);
+        assertEquals(5, albums.size());
+
+        albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, MUSIC_FOLDERS);
+        assertEquals(5, albumId3s.size());
+
+        // copied
+        assertEquals(2L, albums.stream().filter(m -> "albumA".equals(m.getAlbumSort())).count()); // copied
+        assertEquals(1L, albums.stream().filter(m -> m.getAlbumSort() == null).count()); // copied
+        assertEquals(2L, albums.stream().filter(m -> "albumC".equals(m.getAlbumSort())).count());
+        assertEquals(0L, albums.stream().filter(m -> "albumD".equals(m.getAlbumSort())).count());
+
+        assertEquals(2L, albumId3s.stream().filter(a -> "albumA".equals(a.getNameSort())).count()); // copied
+        assertEquals(1L, albumId3s.stream().filter(a -> a.getNameSort() == null).count()); // copied
+        assertEquals(2L, albumId3s.stream().filter(a -> "albumC".equals(a.getNameSort())).count());
+        assertEquals(0L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count());
+
+        utils.compensateSortOfAlbum();
+
+        albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, MUSIC_FOLDERS);
+        assertEquals(5, albums.size());
+
+        albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, MUSIC_FOLDERS);
+        assertEquals(5, albumId3s.size());
+
+        // compensated
+        assertEquals(2L, albums.stream().filter(m -> "albumA".equals(m.getAlbumSort())).count());
+        assertEquals(0L, albums.stream().filter(m -> m.getAlbumSort() == null).count()); // compensated
+        assertEquals(2L, albums.stream().filter(m -> "albumC".equals(m.getAlbumSort())).count());
+        assertEquals(0L, albums.stream().filter(m -> "albumD".equals(m.getAlbumSort())).count());
+        assertEquals(1L, albums.stream().filter(m -> "ニホンゴノアルバムメイ".equals(m.getAlbumSort())).count());
+
+        assertEquals(2L, albumId3s.stream().filter(a -> "albumA".equals(a.getNameSort())).count());
+        assertEquals(0L, albumId3s.stream().filter(a -> a.getNameSort() == null).count()); // compensated
+        assertEquals(2L, albumId3s.stream().filter(a -> "albumC".equals(a.getNameSort())).count());
+        assertEquals(0L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count());
+        assertEquals(1L, albumId3s.stream().filter(a -> "ニホンゴノアルバムメイ".equals(a.getNameSort())).count());
+    }
 }

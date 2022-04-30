@@ -84,8 +84,8 @@ class MediaScannerServiceUtilsCompensateSortOfArtistTest extends AbstractNeedsSc
         utils.copySortOfArtist();
 
         List<MediaFile> artists = mediaFileDao.getArtistAll(MUSIC_FOLDERS);
-        List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(0).getPathString(),
-                false);
+        MediaFile artist = artists.stream().filter(m -> "ARTIST".equals(m.getArtist())).findFirst().get();
+        List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false);
         List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, albums.get(0).getPathString(), false);
         assertEquals(3, files.size());
 
@@ -118,7 +118,8 @@ class MediaScannerServiceUtilsCompensateSortOfArtistTest extends AbstractNeedsSc
             }
         });
 
-        albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(1).getPathString(), false);
+        artist = artists.stream().filter(m -> "山田耕筰".equals(m.getArtist())).findFirst().get();
+        albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false);
         files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, albums.get(0).getPathString(), false);
         assertEquals(1, files.size());
         assertEquals("file4", files.get(0).getName());
@@ -142,7 +143,8 @@ class MediaScannerServiceUtilsCompensateSortOfArtistTest extends AbstractNeedsSc
         utils.compensateSortOfArtist();
 
         artists = mediaFileDao.getArtistAll(MUSIC_FOLDERS);
-        albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(0).getPathString(), false);
+        artist = artists.stream().filter(m -> "ARTIST".equals(m.getArtist())).findFirst().get();
+        albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false);
         files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, albums.get(0).getPathString(), false);
         assertEquals(3, files.size());
 
