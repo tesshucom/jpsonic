@@ -842,7 +842,6 @@
                         Or run alone.
                     -->
                     com.tesshu.jpsonic.service.MediaScannerServiceUtilsUpdateSortOfAlbumTest,
-                    com.tesshu.jpsonic.service.MediaScannerServiceUtilsMergeSortOfArtistTest,
                     **/Abstract*Test.java
                 </test.excludes>
             </properties>
