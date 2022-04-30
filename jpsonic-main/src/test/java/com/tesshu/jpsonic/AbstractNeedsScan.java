@@ -99,6 +99,19 @@ public abstract class AbstractNeedsScan implements NeedsScan {
     }
 
     @Override
+    public final void populateDatabase() {
+        DATA_BASE_POPULATED.set(false);
+        DATABASE_READY.set(false);
+        populateDatabaseOnlyOnce(null);
+    }
+
+    public final void populateDatabase(BeforeScan beforeScan, AfterScan afterscan) {
+        DATA_BASE_POPULATED.set(false);
+        DATABASE_READY.set(false);
+        populateDatabaseOnlyOnce(beforeScan, afterscan);
+    }
+
+    @Override
     public final void populateDatabaseOnlyOnce() {
         populateDatabaseOnlyOnce(null);
     }
