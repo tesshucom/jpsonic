@@ -841,7 +841,6 @@
 
                         Or run alone.
                     -->
-                    com.tesshu.jpsonic.service.MediaScannerServiceUtilsUpdateSortOfAlbumTest,
                     **/Abstract*Test.java
                 </test.excludes>
             </properties>
