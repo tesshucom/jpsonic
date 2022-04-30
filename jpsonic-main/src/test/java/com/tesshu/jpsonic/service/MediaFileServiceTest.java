@@ -97,6 +97,7 @@ class MediaFileServiceTest {
 
         Path path = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
         assertEquals(Files.getLastModifiedTime(path).toMillis(), mediaFileService.getLastModified(path));
+        assertEquals(path.toFile().lastModified(), mediaFileService.getLastModified(path));
 
         // File modification date independent method (scan execution time is used)
         Mockito.when(settingsService.getFileModifiedCheckSchemeName())
