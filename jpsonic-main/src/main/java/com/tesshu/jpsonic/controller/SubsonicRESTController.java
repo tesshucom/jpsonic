@@ -171,6 +171,7 @@ public class SubsonicRESTController {
     private static final String MSG_PLAYLIST_NOT_FOUND = "Playlist not found: ";
     private static final String MSG_PLAYLIST_DENIED = "Permission denied for playlist: ";
     private static final String MSG_PODCAST_NOT_AUTHORIZED = " is not authorized to administrate podcasts.";
+    private static final String MSG_SCANNING_NOW = "The feature cannot be used being scanning.";
     private static final long LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60;
 
     private final SettingsService settingsService;
@@ -1752,6 +1753,12 @@ public class SubsonicRESTController {
     @RequestMapping({ "/refreshPodcasts", "/refreshPodcasts.view" })
     public void refreshPodcasts(HttpServletRequest req, HttpServletResponse response) {
         HttpServletRequest request = wrapRequest(req);
+
+        if (mediaScannerService.isScanning()) {
+            writeError(request, response, ErrorCode.GENERIC, MSG_SCANNING_NOW);
+            return;
+        }
+
         User user = securityService.getCurrentUser(request);
         if (!user.isPodcastRole()) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
@@ -1765,6 +1772,12 @@ public class SubsonicRESTController {
     public void createPodcastChannel(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
+
+        if (mediaScannerService.isScanning()) {
+            writeError(request, response, ErrorCode.GENERIC, MSG_SCANNING_NOW);
+            return;
+        }
+
         User user = securityService.getCurrentUser(request);
         if (!user.isPodcastRole()) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
@@ -1810,6 +1823,12 @@ public class SubsonicRESTController {
     public void downloadPodcastEpisode(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
+
+        if (mediaScannerService.isScanning()) {
+            writeError(request, response, ErrorCode.GENERIC, MSG_SCANNING_NOW);
+            return;
+        }
+
         User user = securityService.getCurrentUser(request);
         if (!user.isPodcastRole()) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);

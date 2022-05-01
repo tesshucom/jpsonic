@@ -132,6 +132,7 @@ class SubsonicRESTControllerTest {
         private TopController topController;
         private SubsonicRESTController controller;
         private PodcastService podcastService;
+        private MediaScannerService mediaScannerService;
 
         @BeforeEach
         public void setup() {
@@ -164,7 +165,7 @@ class SubsonicRESTControllerTest {
             final AlbumDao albumDao = mock(AlbumDao.class);
             final BookmarkService bookmarkService = mock(BookmarkService.class);
             final PlayQueueDao playQueueDao = mock(PlayQueueDao.class);
-            final MediaScannerService mediaScannerService = mock(MediaScannerService.class);
+            mediaScannerService = mock(MediaScannerService.class);
             final AirsonicLocaleResolver airsonicLocaleResolver = mock(AirsonicLocaleResolver.class);
             final CoverArtLogic logic = mock(CoverArtLogic.class);
             final SearchCriteriaDirector director = mock(SearchCriteriaDirector.class);
@@ -191,6 +192,11 @@ class SubsonicRESTControllerTest {
 
             controller.refreshPodcasts(new MockHttpServletRequest(), new MockHttpServletResponse());
             Mockito.verify(podcastService, Mockito.times(1)).refreshAllChannels(Mockito.anyBoolean());
+            Mockito.clearInvocations(podcastService);
+
+            Mockito.when(mediaScannerService.isScanning()).thenReturn(true);
+            controller.refreshPodcasts(new MockHttpServletRequest(), new MockHttpServletResponse());
+            Mockito.verify(podcastService, Mockito.never()).refreshAllChannels(Mockito.anyBoolean());
         }
 
         @Test
@@ -204,6 +210,11 @@ class SubsonicRESTControllerTest {
 
             controller.createPodcastChannel(req, new MockHttpServletResponse());
             Mockito.verify(podcastService, Mockito.times(1)).createChannel(podcastUrl);
+            Mockito.clearInvocations(podcastService);
+
+            Mockito.when(mediaScannerService.isScanning()).thenReturn(true);
+            controller.createPodcastChannel(req, new MockHttpServletResponse());
+            Mockito.verify(podcastService, Mockito.never()).createChannel(podcastUrl);
         }
 
         @Test
@@ -220,6 +231,11 @@ class SubsonicRESTControllerTest {
 
             controller.downloadPodcastEpisode(req, new MockHttpServletResponse());
             Mockito.verify(podcastService, Mockito.times(1)).downloadEpisode(episode);
+            Mockito.clearInvocations(podcastService);
+
+            Mockito.when(mediaScannerService.isScanning()).thenReturn(true);
+            controller.downloadPodcastEpisode(req, new MockHttpServletResponse());
+            Mockito.verify(podcastService, Mockito.never()).downloadEpisode(episode);
         }
     }
 
