@@ -52,8 +52,6 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -97,6 +95,7 @@ class MediaFileServiceTest {
 
         Path path = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
         assertEquals(Files.getLastModifiedTime(path).toMillis(), mediaFileService.getLastModified(path));
+        assertEquals(path.toFile().lastModified(), mediaFileService.getLastModified(path));
 
         // File modification date independent method (scan execution time is used)
         Mockito.when(settingsService.getFileModifiedCheckSchemeName())
@@ -804,8 +803,7 @@ class MediaFileServiceTest {
         }
 
         @Test
-        @DisabledOnOs(OS.LINUX)
-        void testIsEmbeddedArtworkApplicableOnWin() throws ExecutionException, URISyntaxException {
+        void testIsEmbeddedArtworkApplicable() throws ExecutionException, URISyntaxException {
 
             Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
 
@@ -823,27 +821,5 @@ class MediaFileServiceTest {
             Path containsDirOnly = createPath("/MEDIAS/Metadata/tagger3");
             assertTrue(mediaFileService.findCoverArt(containsDirOnly).isEmpty());
         }
-
-        @Test
-        @DisabledOnOs(OS.WINDOWS)
-        void testIsEmbeddedArtworkApplicableOnLinux() throws ExecutionException, URISyntaxException {
-
-            Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
-
-            // coverArt
-            Path parent = createPath("/MEDIAS/Metadata/coverart");
-            Path firstChild = createPath("/MEDIAS/Metadata/coverart/coveratrt.GIF"); // OS dependent
-            assertEquals(firstChild, mediaFileService.findCoverArt(parent).get());
-
-            // coverArt
-            Path containsEmbeddedFormats = createPath("/MEDIAS/Metadata/v2.4");
-            Path embeddedFormat = createPath("/MEDIAS/Metadata/v2.4/Mp3tag2.9.7.mp3");
-            assertEquals(embeddedFormat, mediaFileService.findCoverArt(containsEmbeddedFormats).get());
-
-            // empty
-            Path containsDirOnly = createPath("/MEDIAS/Metadata/tagger3");
-            assertTrue(mediaFileService.findCoverArt(containsDirOnly).isEmpty());
-        }
-
     }
 }
