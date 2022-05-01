@@ -841,6 +841,13 @@
 
                         Or run alone.
                     -->
+                    com.tesshu.jpsonic.domain.JpsonicComparatorsIntegrationTest,
+                    com.tesshu.jpsonic.service.MediaScannerServiceTest$UpdateAlbumTest,
+                    com.tesshu.jpsonic.service.MediaScannerServiceTest$GetChildrenOfTest,
+                    com.tesshu.jpsonic.service.MediaScannerServiceUtilsTest$CompensateSortOfArtistTest,
+                    com.tesshu.jpsonic.service.MediaScannerServiceUtilsTest$CopySortOfArtistTest,
+                    com.tesshu.jpsonic.service.MediaScannerServiceUtilsTest$MergeSortOfArtistTest,
+                    com.tesshu.jpsonic.service.MediaScannerServiceUtilsTest$UpdateSortOfAlbumTest,
                     **/Abstract*Test.java
                 </test.excludes>
             </properties>
