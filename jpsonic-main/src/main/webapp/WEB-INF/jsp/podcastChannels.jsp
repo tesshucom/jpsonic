@@ -113,14 +113,18 @@ $(document).ready(function(){
 
 <c:if test="${not empty model.newestEpisodes}">
     <h2><fmt:message key="podcastreceiver.newestepisodes"/></h2>
-    <c:if test="${model.user.podcastRole}">
+
+    <c:if test="${model.user.podcastRole && model.scanning}">
+        <p><strong><fmt:message key="common.nowscanning"/></strong></p>
+    </c:if>
+    <c:if test="${model.user.podcastRole && !model.scanning}">
         <div class="actions">
             <ul class="controls">
                 <li><a href="podcastReceiverAdmin.view?refresh" title="<fmt:message key='podcastreceiver.check'/>" class="control refresh"><fmt:message key='podcastreceiver.check'/></a></li>
             </ul>
         </div>
     </c:if>
-    
+
     <table class="tabular episodes">
         <thead>
             <tr>
@@ -134,37 +138,35 @@ $(document).ready(function(){
             </tr>
         </thead>
         <tbody>
-	        <c:forEach items="${model.newestEpisodes}" var="episode" varStatus="i">
-	            <tr>
-	                <c:import url="playButtons.jsp">
-	                    <c:param name="id" value="${episode.mediaFileId}"/>
-	                    <c:param name="podcastEpisodeId" value="${episode.id}"/>
-	                    <c:param name="playEnabled" value="${model.user.streamRole and not model.partyMode}"/>
-	                    <c:param name="addEnabled" value="${model.user.streamRole and not model.partyMode}"/>
-	                    <c:param name="asTable" value="true"/>
-	                    <c:param name="onPlay" value="top.playQueue.onPlayNewestPodcastEpisode(${i.index})"/>
-	                </c:import>
-	                <td class="episodeTitle"><span>${episode.title}</span></td>
-	                <c:set var="channelTitle" value="${model.channelMap[episode.channelId].title}"/>
-	                <td class="channelTitle"><span><a href="podcastChannel.view?id=${episode.channelId}">${channelTitle}</a></span></td>
-	                <td class="duration">${episode.duration}</td>
-	                <td class="date"><fmt:formatDate value="${episode.publishDate}" dateStyle="medium"/></td>
-	            </tr>
-	        </c:forEach>
+            <c:forEach items="${model.newestEpisodes}" var="episode" varStatus="i">
+                <tr>
+                    <c:import url="playButtons.jsp">
+                        <c:param name="id" value="${episode.mediaFileId}"/>
+                        <c:param name="podcastEpisodeId" value="${episode.id}"/>
+                        <c:param name="playEnabled" value="${model.user.streamRole and not model.partyMode}"/>
+                        <c:param name="addEnabled" value="${model.user.streamRole and not model.partyMode}"/>
+                        <c:param name="asTable" value="true"/>
+                        <c:param name="onPlay" value="top.playQueue.onPlayNewestPodcastEpisode(${i.index})"/>
+                    </c:import>
+                    <td class="episodeTitle"><span>${episode.title}</span></td>
+                    <c:set var="channelTitle" value="${model.channelMap[episode.channelId].title}"/>
+                    <td class="channelTitle"><span><a href="podcastChannel.view?id=${episode.channelId}">${channelTitle}</a></span></td>
+                    <td class="duration">${episode.duration}</td>
+                    <td class="date"><fmt:formatDate value="${episode.publishDate}" dateStyle="medium"/></td>
+                </tr>
+            </c:forEach>
         </tbody>
     </table>
 </c:if>
 
 <c:if test="${model.user.podcastRole}">
-
     <h2><fmt:message key="podcastreceiver.subscribe"/></h2>
-
     <form:form method="post" action="podcastReceiverAdmin.view?">
         <dl class="single">
             <dt></dt>
             <dd>
-                <input type="text" name="add" value="http://" onclick="select()"/>
-                <input type="submit" value="<fmt:message key='common.ok'/>"/>
+                <input type="text" name="add" value="http://" onclick="select()" ${model.scanning ? 'disabled' : ''}/>
+                <input type="submit" value="<fmt:message key='common.ok'/>" ${model.scanning ? 'disabled' : ''}/>
             </dd>
         </dl>
     </form:form>

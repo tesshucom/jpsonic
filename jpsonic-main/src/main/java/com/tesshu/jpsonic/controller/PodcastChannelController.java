@@ -24,6 +24,7 @@ package com.tesshu.jpsonic.controller;
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.domain.CoverArtScheme;
+import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.util.LegacyMap;
@@ -44,11 +45,14 @@ import org.springframework.web.servlet.ModelAndView;
 public class PodcastChannelController {
 
     private final SecurityService securityService;
+    private final MediaScannerService mediaScannerService;
     private final PodcastService podcastService;
 
-    public PodcastChannelController(SecurityService securityService, PodcastService podcastService) {
+    public PodcastChannelController(SecurityService securityService, MediaScannerService mediaScannerService,
+            PodcastService podcastService) {
         super();
         this.securityService = securityService;
+        this.mediaScannerService = mediaScannerService;
         this.podcastService = podcastService;
     }
 
@@ -61,8 +65,7 @@ public class PodcastChannelController {
         result.addObject("model",
                 LegacyMap.of("user", securityService.getCurrentUser(request), "channel",
                         podcastService.getChannel(channelId), "episodes", podcastService.getEpisodes(channelId),
-                        "coverArtSize", CoverArtScheme.LARGE.getSize()));
-
+                        "coverArtSize", CoverArtScheme.LARGE.getSize(), "scanning", mediaScannerService.isScanning()));
         return result;
     }
 

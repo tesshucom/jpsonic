@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.domain.PodcastChannel;
+import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
@@ -50,8 +51,8 @@ class PodcastChannelControllerTest {
         PodcastService podcastService = mock(PodcastService.class);
         Mockito.when(podcastService.getChannel(Mockito.nullable(int.class))).thenReturn(new PodcastChannel(""));
         Mockito.when(podcastService.getEpisodes(Mockito.nullable(int.class))).thenReturn(Collections.emptyList());
-        mockMvc = MockMvcBuilders
-                .standaloneSetup(new PodcastChannelController(mock(SecurityService.class), podcastService)).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(new PodcastChannelController(mock(SecurityService.class),
+                mock(MediaScannerService.class), podcastService)).build();
     }
 
     @Test
