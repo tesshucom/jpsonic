@@ -22,6 +22,7 @@
 package com.tesshu.jpsonic.controller;
 
 import com.tesshu.jpsonic.command.PodcastSettingsCommand;
+import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,10 +44,12 @@ import org.springframework.web.servlet.view.RedirectView;
 public class PodcastSettingsController {
 
     private final SettingsService settingsService;
+    private final MediaScannerService mediaScannerService;
 
-    public PodcastSettingsController(SettingsService settingsService) {
+    public PodcastSettingsController(SettingsService settingsService, MediaScannerService mediaScannerService) {
         super();
         this.settingsService = settingsService;
+        this.mediaScannerService = mediaScannerService;
     }
 
     @GetMapping
@@ -58,6 +61,9 @@ public class PodcastSettingsController {
         command.setEpisodeDownloadCount(String.valueOf(settingsService.getPodcastEpisodeDownloadCount()));
         command.setFolder(settingsService.getPodcastFolder());
 
+        // for view page control
+        command.setScanning(mediaScannerService.isScanning());
+
         model.addAttribute(Attributes.Model.Command.VALUE, command);
         return "podcastSettings";
     }
@@ -66,15 +72,16 @@ public class PodcastSettingsController {
     protected ModelAndView doSubmitAction(
             @ModelAttribute(Attributes.Model.Command.VALUE) PodcastSettingsCommand command,
             RedirectAttributes redirectAttributes) {
-        settingsService.setPodcastUpdateInterval(Integer.parseInt(command.getInterval()));
-        settingsService.setPodcastEpisodeRetentionCount(Integer.parseInt(command.getEpisodeRetentionCount()));
-        settingsService.setPodcastEpisodeDownloadCount(Integer.parseInt(command.getEpisodeDownloadCount()));
-        settingsService.setPodcastFolder(command.getFolder());
-        settingsService.save();
 
-        redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
+        if (!mediaScannerService.isScanning()) {
+            settingsService.setPodcastUpdateInterval(Integer.parseInt(command.getInterval()));
+            settingsService.setPodcastEpisodeRetentionCount(Integer.parseInt(command.getEpisodeRetentionCount()));
+            settingsService.setPodcastEpisodeDownloadCount(Integer.parseInt(command.getEpisodeDownloadCount()));
+            settingsService.setPodcastFolder(command.getFolder());
+            settingsService.save();
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
+        }
 
         return new ModelAndView(new RedirectView(ViewName.PODCAST_SETTINGS.value()));
     }
-
 }

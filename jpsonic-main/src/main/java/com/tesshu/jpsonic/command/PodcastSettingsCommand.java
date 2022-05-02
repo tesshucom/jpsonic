@@ -29,7 +29,7 @@ import com.tesshu.jpsonic.service.SecurityService;
  *
  * @author Sindre Mehus
  */
-public class PodcastSettingsCommand {
+public class PodcastSettingsCommand extends SettingsPageCommons {
 
     private String interval;
     private String folder;

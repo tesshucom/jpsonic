@@ -97,7 +97,6 @@ public class MusicFolderSettingsController {
         // Run a scan
         command.setFullScanNext(
                 settingsService.isIgnoreFileTimestamps() || settingsService.isIgnoreFileTimestampsNext());
-        command.setScanning(mediaScannerService.isScanning());
         command.setInterval(String.valueOf(settingsService.getIndexCreationInterval()));
         command.setHour(String.valueOf(settingsService.getIndexCreationHour()));
         command.setShowRefresh(settingsService.isShowRefresh());
@@ -120,6 +119,7 @@ public class MusicFolderSettingsController {
         User user = securityService.getCurrentUser(request);
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
+        command.setScanning(mediaScannerService.isScanning());
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
