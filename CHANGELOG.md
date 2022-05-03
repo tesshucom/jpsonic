@@ -19,6 +19,7 @@ The binaries of SNAPSHOT are available from the latest artifacts on the [master 
     * Improve design to prevent duplicate analysis
     * Delete Fast access mode ([#1452](https://github.com/tesshucom/jpsonic/issues/1452))
     * Embedded images check during scan will be simplified. Full check will be done when a request for image
+    * Fix to suppress some functions when scanning ([#1475](https://github.com/tesshucom/jpsonic/issues/1475))
 
 #### Fixes
   * Fix bug that the cover art of Video is not displayed on Windows

@@ -22,10 +22,23 @@ package com.tesshu.jpsonic.controller;
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.AlbumListType;
+import com.tesshu.jpsonic.domain.Genre;
+import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -36,15 +49,20 @@ import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.servlet.ModelAndView;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 class HomeControllerTest {
 
     private MockMvc mockMvc;
@@ -70,5 +88,136 @@ class HomeControllerTest {
         @SuppressWarnings("unchecked")
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get("model");
         assertNotNull(model);
+    }
+
+    @Nested
+    class GetTest {
+
+        private SettingsService settingsService;
+        private SecurityService securityService;
+        private MusicFolderService musicFolderService;
+        private MediaScannerService mediaScannerService;
+        private RatingService ratingService;
+        private MediaFileService mediaFileService;
+        private SearchService searchService;
+        private MusicIndexService musicIndexService;
+        private HomeController controller;
+
+        @BeforeEach
+        public void setup() throws ExecutionException {
+            settingsService = mock(SettingsService.class);
+            securityService = mock(SecurityService.class);
+            musicFolderService = mock(MusicFolderService.class);
+            mediaScannerService = mock(MediaScannerService.class);
+            ratingService = mock(RatingService.class);
+            mediaFileService = mock(MediaFileService.class);
+            searchService = mock(SearchService.class);
+            musicIndexService = mock(MusicIndexService.class);
+            controller = new HomeController(settingsService, securityService, musicFolderService, mediaScannerService,
+                    ratingService, mediaFileService, searchService, musicIndexService);
+        }
+
+        @Test
+        void testHighest() throws ServletRequestBindingException {
+            MockHttpServletRequest req = mock(MockHttpServletRequest.class);
+            Mockito.when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
+                    .thenReturn(AlbumListType.HIGHEST.getId());
+            controller.handleRequestInternal(req);
+            Mockito.verify(ratingService, Mockito.times(1)).getHighestRatedAlbums(anyInt(), anyInt(), anyList());
+        }
+
+        @Test
+        void testFrequent() throws ServletRequestBindingException {
+            MockHttpServletRequest req = mock(MockHttpServletRequest.class);
+            Mockito.when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
+                    .thenReturn(AlbumListType.FREQUENT.getId());
+            controller.handleRequestInternal(req);
+            Mockito.verify(mediaFileService, Mockito.times(1)).getMostFrequentlyPlayedAlbums(anyInt(), anyInt(),
+                    anyList());
+        }
+
+        @Test
+        void testRecent() throws ServletRequestBindingException {
+            MockHttpServletRequest req = mock(MockHttpServletRequest.class);
+            Mockito.when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
+                    .thenReturn(AlbumListType.RECENT.getId());
+            controller.handleRequestInternal(req);
+            Mockito.verify(mediaFileService, Mockito.times(1)).getMostRecentlyPlayedAlbums(anyInt(), anyInt(),
+                    anyList());
+        }
+
+        @Test
+        void testNewest() throws ServletRequestBindingException {
+            MockHttpServletRequest req = mock(MockHttpServletRequest.class);
+            Mockito.when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
+                    .thenReturn(AlbumListType.NEWEST.getId());
+            controller.handleRequestInternal(req);
+            Mockito.verify(mediaFileService, Mockito.times(1)).getNewestAlbums(anyInt(), anyInt(), anyList());
+        }
+
+        @Test
+        void testStarred() throws ServletRequestBindingException {
+            MockHttpServletRequest req = mock(MockHttpServletRequest.class);
+            Mockito.when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
+                    .thenReturn(AlbumListType.STARRED.getId());
+            controller.handleRequestInternal(req);
+            Mockito.verify(mediaFileService, Mockito.times(1)).getStarredAlbums(anyInt(), anyInt(), anyString(),
+                    anyList());
+        }
+
+        @Test
+        void testRandom() throws ServletRequestBindingException {
+            MockHttpServletRequest req = mock(MockHttpServletRequest.class);
+            Mockito.when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
+                    .thenReturn(AlbumListType.RANDOM.getId());
+            controller.handleRequestInternal(req);
+            Mockito.verify(searchService, Mockito.times(1)).getRandomAlbums(anyInt(), anyList());
+        }
+
+        @Test
+        void testAlphabetical() throws ServletRequestBindingException {
+            MockHttpServletRequest req = mock(MockHttpServletRequest.class);
+            Mockito.when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
+                    .thenReturn(AlbumListType.ALPHABETICAL.getId());
+            controller.handleRequestInternal(req);
+            Mockito.verify(mediaFileService, Mockito.times(1)).getAlphabeticalAlbums(anyInt(), anyInt(), anyBoolean(),
+                    anyList());
+        }
+
+        @Test
+        void testDecade() throws ServletRequestBindingException {
+            MockHttpServletRequest req = mock(MockHttpServletRequest.class);
+            Mockito.when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
+                    .thenReturn(AlbumListType.DECADE.getId());
+            controller.handleRequestInternal(req);
+            Mockito.verify(mediaFileService, Mockito.times(1)).getAlbumsByYear(anyInt(), anyInt(), anyInt(), anyInt(),
+                    anyList());
+        }
+
+        @Test
+        void testGenre() throws ServletRequestBindingException {
+            MockHttpServletRequest req = mock(MockHttpServletRequest.class);
+            Mockito.when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
+                    .thenReturn(AlbumListType.GENRE.getId());
+            List<Genre> genres = Arrays.asList(new Genre("pops"));
+            Mockito.when(searchService.getGenres(true)).thenReturn(genres);
+            controller.handleRequestInternal(req);
+            Mockito.verify(searchService, Mockito.times(1)).getAlbumsByGenres(anyString(), anyInt(), anyInt(),
+                    anyList());
+        }
+
+        @Test
+        void testIndex() throws ServletRequestBindingException {
+            MockHttpServletRequest req = mock(MockHttpServletRequest.class);
+            Mockito.when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
+                    .thenReturn(AlbumListType.INDEX.getId());
+            List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, null, "name", false, new Date()));
+            Mockito.when(musicFolderService.getMusicFoldersForUser(anyString(), Mockito.nullable(Integer.class)))
+                    .thenReturn(musicFolders);
+            Mockito.when(musicIndexService.getMusicFolderContent(musicFolders, false))
+                    .thenReturn(new MusicFolderContent(new TreeMap<>(), Collections.emptyList()));
+            controller.handleRequestInternal(req);
+            Mockito.verify(musicIndexService, Mockito.times(1)).getMusicFolderContent(musicFolders, false);
+        }
     }
 }

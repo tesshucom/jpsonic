@@ -24,24 +24,37 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.PodcastEpisode;
+import com.tesshu.jpsonic.domain.PodcastStatus;
+import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PodcastService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.ServletRequestBindingException;
 
 class PodcastReceiverAdminControllerTest {
+
+    private PodcastService podcastService;
+    private MediaScannerService mediaScannerService;
+    private PodcastReceiverAdminController controller;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        mockMvc = MockMvcBuilders.standaloneSetup(new PodcastReceiverAdminController(mock(PodcastService.class)))
-                .build();
+        podcastService = mock(PodcastService.class);
+        mediaScannerService = mock(MediaScannerService.class);
+        controller = new PodcastReceiverAdminController(podcastService, mediaScannerService);
+        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
     @Test
@@ -52,5 +65,111 @@ class PodcastReceiverAdminControllerTest {
                 .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PODCAST_CHANNELS.value()))
                 .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
         assertNotNull(result);
+    }
+
+    @Nested
+    class GetTest {
+
+        @Test
+        void testAdd() throws ServletRequestBindingException {
+            MockHttpServletRequest req = mock(MockHttpServletRequest.class);
+            String url = "http://boo.foo";
+            Mockito.when(req.getParameter(Attributes.Request.ADD.value())).thenReturn(url);
+            controller.handleRequestInternal(req);
+            Mockito.verify(podcastService, Mockito.times(1)).createChannel(url);
+        }
+
+        @Test
+        void testDownload() throws ServletRequestBindingException {
+            int episodeId = 99;
+            PodcastEpisode episode = new PodcastEpisode(episodeId, null, "url", null, null, null, null, null, null,
+                    null, PodcastStatus.NEW, null);
+            Mockito.when(podcastService.getEpisode(episodeId, false)).thenReturn(episode);
+            MockHttpServletRequest req = mock(MockHttpServletRequest.class);
+            Mockito.when(req.getParameter(Attributes.Request.DOWNLOAD_EPISODE.value()))
+                    .thenReturn(Integer.toString(episodeId));
+            int channelId = 1;
+            Mockito.when(req.getParameter(Attributes.Request.CHANNEL_ID.value()))
+                    .thenReturn(Integer.toString(channelId));
+
+            controller.handleRequestInternal(req);
+            Mockito.verify(podcastService, Mockito.times(1)).downloadEpisode(episode);
+        }
+
+        @Test
+        void testDeleteChannel() throws ServletRequestBindingException {
+            MockHttpServletRequest req = mock(MockHttpServletRequest.class);
+            int channelId = 99;
+            Mockito.when(req.getParameter(Attributes.Request.CHANNEL_ID.value()))
+                    .thenReturn(Integer.toString(channelId));
+
+            controller.handleRequestInternal(req);
+            Mockito.verify(podcastService, Mockito.never()).deleteChannel(channelId);
+
+            Mockito.when(req.getParameter(Attributes.Request.DELETE_CHANNEL.value()))
+                    .thenReturn(Integer.toString(channelId));
+            controller.handleRequestInternal(req);
+            Mockito.verify(podcastService, Mockito.times(1)).deleteChannel(channelId);
+        }
+
+        @Test
+        void testDeleteEpisode() throws ServletRequestBindingException {
+            MockHttpServletRequest req = mock(MockHttpServletRequest.class);
+            int episodeId = 99;
+            Mockito.when(req.getParameter(Attributes.Request.CHANNEL_ID.value()))
+                    .thenReturn(Integer.toString(episodeId));
+            Mockito.when(req.getParameter(Attributes.Request.DELETE_EPISODE.value()))
+                    .thenReturn(Integer.toString(episodeId));
+            controller.handleRequestInternal(req);
+            Mockito.verify(podcastService, Mockito.times(1)).deleteEpisode(episodeId, true);
+        }
+
+        @Test
+        void testReflesh() throws ServletRequestBindingException {
+            MockHttpServletRequest req = mock(MockHttpServletRequest.class);
+            int channelId = 99;
+            Mockito.when(req.getParameter(Attributes.Request.REFRESH.value())).thenReturn(Integer.toString(channelId));
+            controller.handleRequestInternal(req);
+            Mockito.verify(podcastService, Mockito.times(1)).refreshAllChannels(true);
+            Mockito.verify(podcastService, Mockito.never()).refreshChannel(channelId, true);
+            Mockito.clearInvocations(podcastService);
+
+            Mockito.when(req.getParameter(Attributes.Request.CHANNEL_ID.value()))
+                    .thenReturn(Integer.toString(channelId));
+            controller.handleRequestInternal(req);
+            Mockito.verify(podcastService, Mockito.never()).refreshAllChannels(true);
+            Mockito.verify(podcastService, Mockito.times(1)).refreshChannel(channelId, true);
+        }
+
+        @Test
+        void testIsScanning() throws ServletRequestBindingException {
+            MockHttpServletRequest req = mock(MockHttpServletRequest.class);
+            String url = "http://boo.foo";
+            Mockito.when(req.getParameter(Attributes.Request.ADD.value())).thenReturn(url);
+            int episodeId = 99;
+            PodcastEpisode episode = new PodcastEpisode(episodeId, null, "url", null, null, null, null, null, null,
+                    null, PodcastStatus.NEW, null);
+            Mockito.when(podcastService.getEpisode(episodeId, false)).thenReturn(episode);
+            Mockito.when(req.getParameter(Attributes.Request.DOWNLOAD_EPISODE.value()))
+                    .thenReturn(Integer.toString(episodeId));
+            int channelId = 99;
+            Mockito.when(req.getParameter(Attributes.Request.CHANNEL_ID.value()))
+                    .thenReturn(Integer.toString(channelId));
+            Mockito.when(req.getParameter(Attributes.Request.DELETE_CHANNEL.value()))
+                    .thenReturn(Integer.toString(channelId));
+            Mockito.when(req.getParameter(Attributes.Request.DELETE_EPISODE.value()))
+                    .thenReturn(Integer.toString(episodeId));
+            Mockito.when(req.getParameter(Attributes.Request.REFRESH.value())).thenReturn(Integer.toString(channelId));
+
+            Mockito.when(mediaScannerService.isScanning()).thenReturn(true);
+            controller.handleRequestInternal(req);
+
+            Mockito.verify(podcastService, Mockito.never()).createChannel(url);
+            Mockito.verify(podcastService, Mockito.never()).downloadEpisode(episode);
+            Mockito.verify(podcastService, Mockito.never()).deleteChannel(channelId);
+            Mockito.verify(podcastService, Mockito.never()).deleteEpisode(episodeId, true);
+            Mockito.verify(podcastService, Mockito.never()).refreshAllChannels(true);
+            Mockito.verify(podcastService, Mockito.never()).refreshChannel(channelId, true);
+        }
     }
 }

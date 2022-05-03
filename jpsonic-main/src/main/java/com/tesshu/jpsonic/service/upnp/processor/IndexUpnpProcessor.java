@@ -39,6 +39,7 @@ import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.domain.MusicIndex;
 import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import com.tesshu.jpsonic.spring.EhcacheConfiguration.IndexCacheKey;
@@ -62,6 +63,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
     private final UpnpProcessorUtil util;
     private final JMediaFileService mediaFileService;
+    private final MediaScannerService mediaScannerService;
     private final MusicIndexService musicIndexService;
     private final Ehcache indexCache;
 
@@ -69,12 +71,14 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     private Map<Integer, MediaIndex> indexesMap;
     private List<MediaFile> topNodes;
 
-    public IndexUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
-            MusicIndexService mi, Ehcache indexCache) {
-        super(d, u);
-        this.util = u;
-        this.mediaFileService = m;
-        this.musicIndexService = mi;
+    public IndexUpnpProcessor(@Lazy UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util,
+            JMediaFileService mediaFileService, MediaScannerService mediaScannerService,
+            MusicIndexService musicIndexService, Ehcache indexCache) {
+        super(dispatcher, util);
+        this.util = util;
+        this.mediaFileService = mediaFileService;
+        this.mediaScannerService = mediaScannerService;
+        this.musicIndexService = musicIndexService;
         this.indexCache = indexCache;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX);
     }
@@ -205,13 +209,14 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         setRootTitleWithResource("dlna.title.index");
     }
 
-    private void refreshIndex() {
+    void refreshIndex() {
         Element element = indexCache.getQuiet(IndexCacheKey.FILE_STRUCTURE);
         boolean expired = isEmpty(element) || indexCache.isExpired(element);
         synchronized (LOCK) {
             if (isEmpty(content) || 0 == content.getIndexedArtists().size() || expired) {
                 INDEX_IDS.set(Integer.MIN_VALUE);
-                content = musicIndexService.getMusicFolderContent(util.getGuestMusicFolders(), true);
+                content = musicIndexService.getMusicFolderContent(util.getGuestMusicFolders(),
+                        !mediaScannerService.isScanning());
                 indexCache.put(new Element(IndexCacheKey.FILE_STRUCTURE, content));
                 List<MediaIndex> indexes = content.getIndexedArtists().keySet().stream().map(MediaIndex::new)
                         .collect(Collectors.toList());

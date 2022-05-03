@@ -33,7 +33,7 @@ $(document).ready(function(){
 
     const ps = new PrefferedSize(480, 180);
     top.$("#dialog-delete").dialog({
-    	autoOpen: false,
+        autoOpen: false,
         closeOnEscape: true,
         draggable: false,
         resizable: false,
@@ -42,16 +42,16 @@ $(document).ready(function(){
         height  : ps.height,
         buttons: {
             "<fmt:message key="common.delete"/>": function() {
-            	top.$("#dialog-delete").dialog("close");
-            	location.href = "podcastReceiverAdmin.view?channelId=${model.channel.id}&deleteChannel=${model.channel.id}";
+                top.$("#dialog-delete").dialog("close");
+                location.href = "podcastReceiverAdmin.view?channelId=${model.channel.id}&deleteChannel=${model.channel.id}";
             },
             "<fmt:message key="common.cancel"/>": {
-            	text: "<fmt:message key="common.cancel"/>",
-            	id: 'ddCancelButton',
-            	click: function() {top.$("#dialog-delete").dialog("close");}
+                text: "<fmt:message key="common.cancel"/>",
+                id: 'ddCancelButton',
+                click: function() {top.$("#dialog-delete").dialog("close");}
             }
         },
-	    open: function() {top.$("#ddCancelButton").focus();}
+        open: function() {top.$("#ddCancelButton").focus();}
     });
     top.$("#dialog-delete").text("<fmt:message key='podcastreceiver.confirmdelete2'><fmt:param><sub:escapeJavaScript string='${model.channel.title}'/></fmt:param></fmt:message>");
 });
@@ -113,18 +113,25 @@ function getSelectedEpisodes() {
     </c:choose>
 </section>
 
+<c:if test="${model.user.podcastRole && model.scanning}">
+    <strong><fmt:message key="common.nowscanning"/></strong>
+</c:if>
+
 <div class="actions">
+
     <ul class="controls">
         <li><a href="javascript:top.playQueue.onPlayPodcastChannel(${model.channel.id})" title="<fmt:message key='common.play'/>" class="control play"><fmt:message key='podcastreceiver.check'/></a></li>
-        <c:choose>
-            <c:when test="${model.user.podcastRole}">
-                <li><a href="javascript:deleteChannel()" title="<fmt:message key='common.delete'/>" class="control cross"><fmt:message key='common.delete'/></a></li>
-                <li><a href="javascript:refreshChannels()" title="<fmt:message key='podcastreceiver.check'/>" class="control refresh"><fmt:message key='podcastreceiver.check'/></a></li>
-            </c:when>
-            <c:otherwise>
-                <li><a href="javascript:refreshPage()" title="<fmt:message key='podcastreceiver.refresh'/>" class="control refresh"><fmt:message key='podcastreceiver.refresh'/></a></li>
-            </c:otherwise>
-        </c:choose>
+        <c:if test="${!model.scanning}">
+            <c:choose>
+                <c:when test="${model.user.podcastRole}">
+                    <li><a href="javascript:deleteChannel()" title="<fmt:message key='common.delete'/>" class="control cross"><fmt:message key='common.delete'/></a></li>
+                    <li><a href="javascript:refreshChannels()" title="<fmt:message key='podcastreceiver.check'/>" class="control refresh"><fmt:message key='podcastreceiver.check'/></a></li>
+                </c:when>
+                <c:otherwise>
+                    <li><a href="javascript:refreshPage()" title="<fmt:message key='podcastreceiver.refresh'/>" class="control refresh"><fmt:message key='podcastreceiver.refresh'/></a></li>
+                </c:otherwise>
+            </c:choose>
+        </c:if>
     </ul>
 </div>
 
@@ -178,7 +185,7 @@ function getSelectedEpisodes() {
                     </c:forEach>
                 </tbody>        
             </table>
-            <c:if test="${model.user.podcastRole}">
+            <c:if test="${model.user.podcastRole && !model.scanning}">
                 <div class="actions">
                     <ul class="controls">
                         <li><a href="javascript:downloadSelected()" title="<fmt:message key='podcastreceiver.downloadselected'/>" class="control download"><fmt:message key='podcastreceiver.downloadselected'/></a></li>

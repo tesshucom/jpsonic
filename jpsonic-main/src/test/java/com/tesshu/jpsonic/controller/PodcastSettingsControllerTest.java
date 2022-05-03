@@ -26,10 +26,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.command.PodcastSettingsCommand;
+import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -41,10 +43,15 @@ import org.springframework.web.servlet.ModelAndView;
 class PodcastSettingsControllerTest {
 
     private MockMvc mockMvc;
+    private SettingsService settingsService;
+    private MediaScannerService mediaScannerService;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        mockMvc = MockMvcBuilders.standaloneSetup(new PodcastSettingsController(mock(SettingsService.class))).build();
+        settingsService = mock(SettingsService.class);
+        mediaScannerService = mock(MediaScannerService.class);
+        mockMvc = MockMvcBuilders.standaloneSetup(new PodcastSettingsController(settingsService, mediaScannerService))
+                .build();
     }
 
     @Test
@@ -81,6 +88,17 @@ class PodcastSettingsControllerTest {
                 .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PODCAST_SETTINGS.value()))
                 .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
         assertNotNull(result);
-    }
+        Mockito.verify(settingsService, Mockito.times(1)).save();
+        Mockito.clearInvocations(settingsService);
 
+        Mockito.when(mediaScannerService.isScanning()).thenReturn(true);
+        result = mockMvc
+                .perform(MockMvcRequestBuilders.post("/" + ViewName.PODCAST_SETTINGS.value())
+                        .flashAttr(Attributes.Model.Command.VALUE, command))
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.PODCAST_SETTINGS.value()))
+                .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
+        assertNotNull(result);
+        Mockito.verify(settingsService, Mockito.never()).save();
+    }
 }

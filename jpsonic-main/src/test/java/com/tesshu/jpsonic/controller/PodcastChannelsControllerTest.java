@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
@@ -45,7 +46,7 @@ class PodcastChannelsControllerTest {
     @BeforeEach
     public void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders.standaloneSetup(new PodcastChannelsController(mock(SecurityService.class),
-                mock(PodcastService.class), mock(ViewAsListSelector.class))).build();
+                mock(PodcastService.class), mock(MediaScannerService.class), mock(ViewAsListSelector.class))).build();
     }
 
     @Test

@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
@@ -57,13 +58,15 @@ public class EditTagsController {
     private final SecurityService securityService;
     private final MetaDataParserFactory metaDataParserFactory;
     private final MediaFileService mediaFileService;
+    private final MediaScannerService mediaScannerService;
 
     public EditTagsController(SecurityService securityService, MetaDataParserFactory metaDataParserFactory,
-            MediaFileService mediaFileService) {
+            MediaFileService mediaFileService, MediaScannerService mediaScannerService) {
         super();
         this.securityService = securityService;
         this.metaDataParserFactory = metaDataParserFactory;
         this.mediaFileService = mediaFileService;
+        this.mediaScannerService = mediaScannerService;
     }
 
     @GetMapping
@@ -81,6 +84,7 @@ public class EditTagsController {
             map.put("defaultGenre", files.get(0).getGenre());
         }
         map.put("allGenres", ParserUtils.getID3V1Genres());
+        map.put("scanning", mediaScannerService.isScanning());
 
         List<ParsedSong> parsedSongs = new ArrayList<>();
         for (int i = 0; i < files.size(); i++) {

@@ -43,6 +43,8 @@ import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import net.sf.ehcache.Ehcache;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -232,9 +234,21 @@ public class SecurityService implements UserDetailsService {
      *
      * @return The logged-in user, or <code>null</code>.
      */
-    public User getCurrentUser(HttpServletRequest request) {
+    public @Nullable User getCurrentUser(HttpServletRequest request) {
         String username = getCurrentUsername(request);
         return username == null ? null : getUserByName(username);
+    }
+
+    public @NonNull User getCurrentUserStrict(HttpServletRequest request) {
+        String username = getCurrentUsername(request);
+        if (username == null) {
+            throw new IllegalArgumentException("User not found");
+        }
+        User user = getUserByName(username);
+        if (user == null) {
+            throw new IllegalArgumentException("User not found:" + username);
+        }
+        return user;
     }
 
     /**

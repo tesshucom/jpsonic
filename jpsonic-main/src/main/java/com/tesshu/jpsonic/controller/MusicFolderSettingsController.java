@@ -97,7 +97,6 @@ public class MusicFolderSettingsController {
         // Run a scan
         command.setFullScanNext(
                 settingsService.isIgnoreFileTimestamps() || settingsService.isIgnoreFileTimestampsNext());
-        command.setScanning(mediaScannerService.isScanning());
         command.setInterval(String.valueOf(settingsService.getIndexCreationInterval()));
         command.setHour(String.valueOf(settingsService.getIndexCreationHour()));
         command.setShowRefresh(settingsService.isShowRefresh());
@@ -117,9 +116,10 @@ public class MusicFolderSettingsController {
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());
 
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
+        command.setScanning(mediaScannerService.isScanning());
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
