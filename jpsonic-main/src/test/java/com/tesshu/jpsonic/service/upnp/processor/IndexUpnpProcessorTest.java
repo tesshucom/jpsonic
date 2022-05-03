@@ -41,6 +41,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import net.sf.ehcache.Ehcache;
@@ -59,6 +60,7 @@ class IndexUpnpProcessorTest {
         private UpnpProcessDispatcher dispatcher;
         private UpnpProcessorUtil util;
         private JMediaFileService mediaFileService;
+        private MediaScannerService mediaScannerService;
         private MusicIndexService musicIndexService;
         private Ehcache indexCache;
         private IndexUpnpProcessor processor;
@@ -68,20 +70,33 @@ class IndexUpnpProcessorTest {
             dispatcher = mock(UpnpProcessDispatcher.class);
             util = mock(UpnpProcessorUtil.class);
             mediaFileService = mock(JMediaFileService.class);
+            mediaScannerService = mock(MediaScannerService.class);
             musicIndexService = mock(MusicIndexService.class);
             indexCache = mock(Ehcache.class);
-            processor = new IndexUpnpProcessor(dispatcher, util, mediaFileService, musicIndexService, indexCache);
+            processor = new IndexUpnpProcessor(dispatcher, util, mediaFileService, mediaScannerService,
+                    musicIndexService, indexCache);
         }
 
         @Test
         void testRefreshIndex() {
+            // not scanning
             List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, null, "name", true, new Date()));
             Mockito.when(util.getGuestMusicFolders()).thenReturn(musicFolders);
             Mockito.when(musicIndexService.getMusicFolderContent(musicFolders, true))
                     .thenReturn(new MusicFolderContent(new TreeMap<>(), Collections.emptyList()));
-
+            Mockito.when(mediaScannerService.isScanning()).thenReturn(false);
             processor.refreshIndex();
+            // refresh = true
             Mockito.verify(musicIndexService, Mockito.times(1)).getMusicFolderContent(musicFolders, true);
+            Mockito.clearInvocations(musicIndexService);
+
+            // scanning
+            Mockito.when(mediaScannerService.isScanning()).thenReturn(true);
+            Mockito.when(musicIndexService.getMusicFolderContent(musicFolders, false))
+                    .thenReturn(new MusicFolderContent(new TreeMap<>(), Collections.emptyList()));
+            processor.refreshIndex();
+            // refresh = false
+            Mockito.verify(musicIndexService, Mockito.times(1)).getMusicFolderContent(musicFolders, false);
         }
     }
 
