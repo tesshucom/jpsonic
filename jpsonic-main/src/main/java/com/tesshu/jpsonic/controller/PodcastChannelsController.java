@@ -78,7 +78,7 @@ public class PodcastChannelsController {
             channelMap.put(channel.getId(), channel);
         }
 
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         Map<String, Object> map = LegacyMap.of("user", securityService.getCurrentUser(request), "channels", channels,
                 "channelMap", channelMap, "newestEpisodes", podcastService.getNewestEpisodes(10), "viewAsList",
                 viewSelector.isViewAsList(request, user.getUsername()), "coverArtSize", CoverArtScheme.MEDIUM.getSize(),

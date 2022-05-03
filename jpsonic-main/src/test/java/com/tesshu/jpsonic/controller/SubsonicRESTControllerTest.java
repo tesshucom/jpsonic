@@ -188,7 +188,7 @@ class SubsonicRESTControllerTest {
         void testRefreshPodcasts() {
             User user = new User("name", "pass", "mail");
             user.setPodcastRole(true);
-            Mockito.when(securityService.getCurrentUser(Mockito.any(HttpServletRequest.class))).thenReturn(user);
+            Mockito.when(securityService.getCurrentUserStrict(Mockito.any(HttpServletRequest.class))).thenReturn(user);
 
             controller.refreshPodcasts(new MockHttpServletRequest(), new MockHttpServletResponse());
             Mockito.verify(podcastService, Mockito.times(1)).refreshAllChannels(Mockito.anyBoolean());
@@ -203,7 +203,7 @@ class SubsonicRESTControllerTest {
         void testCreatePodcastChannel() throws ServletRequestBindingException {
             User user = new User("name", "pass", "mail");
             user.setPodcastRole(true);
-            Mockito.when(securityService.getCurrentUser(Mockito.any(HttpServletRequest.class))).thenReturn(user);
+            Mockito.when(securityService.getCurrentUserStrict(Mockito.any(HttpServletRequest.class))).thenReturn(user);
             HttpServletRequest req = mock(HttpServletRequest.class);
             String podcastUrl = "http://boo.foo";
             Mockito.when(req.getParameter(Attributes.Request.URL.value())).thenReturn(podcastUrl);
@@ -221,7 +221,7 @@ class SubsonicRESTControllerTest {
         void testDownloadPodcastEpisode() throws ServletRequestBindingException {
             User user = new User("name", "pass", "mail");
             user.setPodcastRole(true);
-            Mockito.when(securityService.getCurrentUser(Mockito.any(HttpServletRequest.class))).thenReturn(user);
+            Mockito.when(securityService.getCurrentUserStrict(Mockito.any(HttpServletRequest.class))).thenReturn(user);
             HttpServletRequest req = mock(HttpServletRequest.class);
             int episodeId = 99;
             Mockito.when(req.getParameter(Attributes.Request.ID.value())).thenReturn(Integer.toString(episodeId));
