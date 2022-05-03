@@ -85,11 +85,11 @@ public class TagService {
     public String updateTags(int id, String trackStr, String artistStr, String albumStr, String titleStr,
             String yearStr, String genreStr) {
 
-        if (mediaScannerService.isScanning()) {
+        MediaFile file = mediaFileService.getMediaFile(id);
+        if (file == null || mediaScannerService.isScanning()) {
             return "SKIPPED";
         }
 
-        MediaFile file = mediaFileService.getMediaFile(id);
         Path path = file.toPath();
         MetaDataParser parser = metaDataParserFactory.getParser(path);
         if (parser == null || !parser.isEditingSupported(path)) {
