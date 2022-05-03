@@ -104,81 +104,92 @@ function updateTagsCallback(result) {
 <%@ include file="mediafileBreadcrumb.jsp" %>
 
 <section>
-	<h1 class="image"><fmt:message key="edittags.title"/></h1>
+    <h1 class="image"><fmt:message key="edittags.title"/></h1>
 </section>
 
-<table class="tabular tags">
-	<thead>
-	    <tr>
-	        <th><fmt:message key="edittags.file"/></th>
-	        <th><fmt:message key="edittags.track"/></th>
-	        <th><fmt:message key="edittags.songtitle"/></th>
-	        <th><fmt:message key="edittags.artist"/></th>
-	        <th><fmt:message key="edittags.album"/></th>
-	        <th><fmt:message key="edittags.year"/></th>
-	        <th><fmt:message key="edittags.genre"/></th>
-	        <th><fmt:message key="edittags.status"/></th>
-	    </tr>
-	    <tr>
-	        <th/>
-	        <th>
-	        	<a href="javascript:suggestTrack()" title="<fmt:message key='edittags.suggest'/>" class="control suggest"><fmt:message key="edittags.suggest"/></a>
-	        	<a href="javascript:resetTrack()" title="<fmt:message key='edittags.reset'/>" class="control undo"><fmt:message key="edittags.reset"/></a>
-	        </th>
-	        <th>
-	        	<a href="javascript:suggestTitle()" title="<fmt:message key='edittags.suggest'/>" class="control suggest"><fmt:message key="edittags.suggest"/></a>
-	        	<a href="javascript:resetTitle()" title="<fmt:message key='edittags.reset'/>" class="control undo"><fmt:message key="edittags.reset"/></a>
-	        </th>
-	        <th>
-	        	<input type="text" name="artistAll" onkeypress="dwr.util.onReturn(event, setArtist)" value="${fn:escapeXml(model.defaultArtist)}"/>
-	        	<a href="javascript:setArtist()" title="<fmt:message key='edittags.set'/>" class="control apply-all"><fmt:message key="edittags.set"/></a>
-			</th>
-	        <th>
-	        	<input type="text" name="albumAll" onkeypress="dwr.util.onReturn(event, setAlbum)" value="${fn:escapeXml(model.defaultAlbum)}"/>
-	        	<a href="javascript:setAlbum()" title="<fmt:message key='edittags.set'/>" class="control apply-all"><fmt:message key="edittags.set"/></a>
-			</th>
-	        <th>
-	        	<input type="text" name="yearAll" onkeypress="dwr.util.onReturn(event, setYear)" value="${model.defaultYear}"/>
-	        	<a href="javascript:setYear()" title="<fmt:message key='edittags.set'/>" class="control apply-all"><fmt:message key="edittags.set"/></a>
-			</th>
-	        <th>
-	            <select name="genreAll">
-	                <option value=""/>
-	                <c:forEach items="${model.allGenres}" var="genre">
-	                    <option ${genre eq model.defaultGenre ? "selected" : ""} value="${fn:escapeXml(genre)}">${fn:escapeXml(genre)}</option>
-	                </c:forEach>
-	            </select>
-	        	<a href="javascript:setGenre()" title="<fmt:message key='edittags.set'/>" class="control apply-all"><fmt:message key="edittags.set"/></a>
-	        </th>
-	        <th/>
-	    </tr>
-	</thead>
-	<tbody>
-	    <c:forEach items="${model.songs}" var="song" varStatus="loopStatus">
-	        <tr>
-                <str:truncateNicely lower="25" upper="25" var="fileName">${song.fileName}</str:truncateNicely>
-	            <td title="${fn:escapeXml(song.fileName)}">${fn:escapeXml(fileName)}</td>
-	           
-	            <input type="hidden" name="id${loopStatus.count - 1}" value="${song.id}"/>
-	            <input type="hidden" name="suggestedTitle${loopStatus.count - 1}" value="${fn:escapeXml(song.suggestedTitle)}"/>
-	            <input type="hidden" name="originalTitle${loopStatus.count - 1}" value="${fn:escapeXml(song.title)}"/>
-	            <input type="hidden" name="suggestedTrack${loopStatus.count - 1}" value="${song.suggestedTrack}"/>
-	            <input type="hidden" name="originalTrack${loopStatus.count - 1}" value="${song.track}"/>
+<c:if test="${model.scanning}">
+    <strong><fmt:message key="common.nowscanning"/></strong>
+</c:if>
 
-	            <td><input type="text" name="track${loopStatus.count - 1}" value="${song.track}"/></td>
-	            <td><input type="text" name="title${loopStatus.count - 1}" value="${fn:escapeXml(song.title)}"/></td>
-	            <td><input type="text" name="artist${loopStatus.count - 1}" value="${fn:escapeXml(song.artist)}"/></td>
-	            <td><input type="text" name="album${loopStatus.count - 1}" value="${fn:escapeXml(song.album)}"/></td>
-	            <td><input type="text" name="year${loopStatus.count - 1}" value="${song.year}"/></td>
-	            <td><input type="text" name="genre${loopStatus.count - 1}" value="${fn:escapeXml(song.genre)}" /></td>
-	            <td><div id="status${loopStatus.count - 1}"/></td>
-	        </tr>
-	    </c:forEach>
-	</tbody>
+<table class="tabular tags">
+    <thead>
+        <tr>
+            <th><fmt:message key="edittags.file"/></th>
+            <th><fmt:message key="edittags.track"/></th>
+            <th><fmt:message key="edittags.songtitle"/></th>
+            <th><fmt:message key="edittags.artist"/></th>
+            <th><fmt:message key="edittags.album"/></th>
+            <th><fmt:message key="edittags.year"/></th>
+            <th><fmt:message key="edittags.genre"/></th>
+            <th><fmt:message key="edittags.status"/></th>
+        </tr>
+        <tr>
+            <th/>
+            <th>
+                <a href="javascript:suggestTrack()" title="<fmt:message key='edittags.suggest'/>" class="control suggest"><fmt:message key="edittags.suggest"/></a>
+                <a href="javascript:resetTrack()" title="<fmt:message key='edittags.reset'/>" class="control undo"><fmt:message key="edittags.reset"/></a>
+            </th>
+            <th>
+                <a href="javascript:suggestTitle()" title="<fmt:message key='edittags.suggest'/>" class="control suggest"><fmt:message key="edittags.suggest"/></a>
+                <a href="javascript:resetTitle()" title="<fmt:message key='edittags.reset'/>" class="control undo"><fmt:message key="edittags.reset"/></a>
+            </th>
+            <th>
+                <input type="text" name="artistAll" onkeypress="dwr.util.onReturn(event, setArtist)" value="${fn:escapeXml(model.defaultArtist)}"/>
+                <a href="javascript:setArtist()" title="<fmt:message key='edittags.set'/>" class="control apply-all"><fmt:message key="edittags.set"/></a>
+            </th>
+            <th>
+                <input type="text" name="albumAll" onkeypress="dwr.util.onReturn(event, setAlbum)" value="${fn:escapeXml(model.defaultAlbum)}"/>
+                <a href="javascript:setAlbum()" title="<fmt:message key='edittags.set'/>" class="control apply-all"><fmt:message key="edittags.set"/></a>
+            </th>
+            <th>
+                <input type="text" name="yearAll" onkeypress="dwr.util.onReturn(event, setYear)" value="${model.defaultYear}"/>
+                <a href="javascript:setYear()" title="<fmt:message key='edittags.set'/>" class="control apply-all"><fmt:message key="edittags.set"/></a>
+            </th>
+            <th>
+                <select name="genreAll">
+                    <option value=""/>
+                    <c:forEach items="${model.allGenres}" var="genre">
+                        <option ${genre eq model.defaultGenre ? "selected" : ""} value="${fn:escapeXml(genre)}">${fn:escapeXml(genre)}</option>
+                    </c:forEach>
+                </select>
+                <a href="javascript:setGenre()" title="<fmt:message key='edittags.set'/>" class="control apply-all"><fmt:message key="edittags.set"/></a>
+            </th>
+            <th/>
+        </tr>
+    </thead>
+    <tbody>
+        <c:forEach items="${model.songs}" var="song" varStatus="loopStatus">
+            <tr>
+                <str:truncateNicely lower="25" upper="25" var="fileName">${song.fileName}</str:truncateNicely>
+                <td title="${fn:escapeXml(song.fileName)}">${fn:escapeXml(fileName)}</td>
+               
+                <input type="hidden" name="id${loopStatus.count - 1}" value="${song.id}"/>
+                <input type="hidden" name="suggestedTitle${loopStatus.count - 1}" value="${fn:escapeXml(song.suggestedTitle)}"/>
+                <input type="hidden" name="originalTitle${loopStatus.count - 1}" value="${fn:escapeXml(song.title)}"/>
+                <input type="hidden" name="suggestedTrack${loopStatus.count - 1}" value="${song.suggestedTrack}"/>
+                <input type="hidden" name="originalTrack${loopStatus.count - 1}" value="${song.track}"/>
+
+                <td><input type="text" name="track${loopStatus.count - 1}" value="${song.track}"/></td>
+                <td><input type="text" name="title${loopStatus.count - 1}" value="${fn:escapeXml(song.title)}"/></td>
+                <td><input type="text" name="artist${loopStatus.count - 1}" value="${fn:escapeXml(song.artist)}"/></td>
+                <td><input type="text" name="album${loopStatus.count - 1}" value="${fn:escapeXml(song.album)}"/></td>
+                <td><input type="text" name="year${loopStatus.count - 1}" value="${song.year}"/></td>
+                <td><input type="text" name="genre${loopStatus.count - 1}" value="${fn:escapeXml(song.genre)}" /></td>
+                <td><div id="status${loopStatus.count - 1}"/></td>
+            </tr>
+        </c:forEach>
+    </tbody>
 </table>
 
     <div class="submits">
-        <input type="submit"  id="save" value="<fmt:message key='common.save'/>" onclick="updateTags()">
+        <c:choose>
+            <c:when test='${model.scanning}'>
+                <input type="submit"  id="save" value="<fmt:message key='common.save'/>" disabled/>
+            </c:when>
+            <c:otherwise>
+                <input type="submit"  id="save" value="<fmt:message key='common.save'/>" onclick="updateTags()"/>
+            </c:otherwise>
+        </c:choose>
     </div>
     <strong><div id="errors"/></strong>
 

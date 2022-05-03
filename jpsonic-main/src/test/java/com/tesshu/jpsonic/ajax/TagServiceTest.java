@@ -30,6 +30,7 @@ import java.nio.file.Path;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
@@ -42,6 +43,7 @@ class TagServiceTest {
 
     private MetaDataParserFactory metaDataParserFactory;
     private MediaFileService mediaFileService;
+    private MediaScannerService mediaScannerService;
     private TagService tagService;
     private MusicParser parser;
 
@@ -49,7 +51,8 @@ class TagServiceTest {
     public void setup() {
         metaDataParserFactory = mock(MetaDataParserFactory.class);
         mediaFileService = mock(MediaFileService.class);
-        tagService = new TagService(metaDataParserFactory, mediaFileService);
+        mediaScannerService = mock(MediaScannerService.class);
+        tagService = new TagService(metaDataParserFactory, mediaFileService, mediaScannerService);
         parser = new MusicParser(mock(MusicFolderService.class));
     }
 
@@ -75,9 +78,17 @@ class TagServiceTest {
         Mockito.when(mediaFileService.getParentOf(mediaFile)).thenReturn(parent);
         Mockito.when(metaDataParserFactory.getParser(Path.of(mediaFile.getPathString()))).thenReturn(parser);
 
+        Mockito.when(mediaScannerService.isScanning()).thenReturn(false);
         String result = tagService.updateTags(0, "1", "artist", "album", "title", "2022", "genre");
         assertEquals("UPDATED", result);
         Mockito.verify(mediaFileService, Mockito.times(1)).refreshMediaFile(mediaFile);
         Mockito.verify(mediaFileService, Mockito.times(1)).refreshMediaFile(parent);
+        Mockito.clearInvocations(mediaFileService);
+
+        Mockito.when(mediaScannerService.isScanning()).thenReturn(true);
+        result = tagService.updateTags(0, "2", "artist2", "album2", "title2", "2023", "genre2");
+        assertEquals("SKIPPED", result);
+        Mockito.verify(mediaFileService, Mockito.never()).refreshMediaFile(mediaFile);
+        Mockito.verify(mediaFileService, Mockito.never()).refreshMediaFile(parent);
     }
 }
