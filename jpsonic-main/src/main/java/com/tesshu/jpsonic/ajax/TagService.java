@@ -27,6 +27,7 @@ import java.util.concurrent.CompletionException;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
@@ -49,11 +50,14 @@ public class TagService {
 
     private final MetaDataParserFactory metaDataParserFactory;
     private final MediaFileService mediaFileService;
+    private final MediaScannerService mediaScannerService;
 
-    public TagService(MetaDataParserFactory metaDataParserFactory, MediaFileService mediaFileService) {
+    public TagService(MetaDataParserFactory metaDataParserFactory, MediaFileService mediaFileService,
+            MediaScannerService mediaScannerService) {
         super();
         this.metaDataParserFactory = metaDataParserFactory;
         this.mediaFileService = mediaFileService;
+        this.mediaScannerService = mediaScannerService;
     }
 
     /**
@@ -82,6 +86,10 @@ public class TagService {
             String yearStr, String genreStr) {
 
         MediaFile file = mediaFileService.getMediaFile(id);
+        if (file == null || mediaScannerService.isScanning()) {
+            return "SKIPPED";
+        }
+
         Path path = file.toPath();
         MetaDataParser parser = metaDataParserFactory.getParser(path);
         if (parser == null || !parser.isEditingSupported(path)) {

@@ -26,6 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.Trigger;
+import org.springframework.scheduling.TriggerContext;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
@@ -39,28 +41,54 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
     private final TaskScheduler taskScheduler;
     private final SettingsService settingsService;
     private final PodcastService podcastService;
+    private final MediaScannerService mediaScannerService;
 
     public PodcastScheduleConfiguration(TaskScheduler taskScheduler, SettingsService settingsService,
-            PodcastService podcastService) {
+            PodcastService podcastService, MediaScannerService mediaScannerService) {
         super();
         this.taskScheduler = taskScheduler;
         this.settingsService = settingsService;
         this.podcastService = podcastService;
+        this.mediaScannerService = mediaScannerService;
     }
 
     /*
      * The first execution is 5 minutes after the server starts.
      */
-    final Date createFirstTime() {
+    static final Date createFirstTime() {
         return Date.from(Instant.now().plus(5L, ChronoUnit.MINUTES));
     }
 
     @Override
     public void configureTasks(ScheduledTaskRegistrar scheduledTaskRegistrar) {
-        scheduledTaskRegistrar.setScheduler(taskScheduler);
-        scheduledTaskRegistrar.addTriggerTask(() -> podcastService.refreshAllChannels(true), (context) -> {
 
-            int hoursBetween = settingsService.getPodcastUpdateInterval();
+        scheduledTaskRegistrar.setScheduler(taskScheduler);
+
+        scheduledTaskRegistrar.addTriggerTask(() -> {
+            if (mediaScannerService.isScanning()) {
+                LOG.info("Is scanning. Automatic podcast updates will not be performed.");
+            } else {
+                LOG.info("Auto Podcast update will be performed.");
+                podcastService.refreshAllChannels(true);
+            }
+        }, new PodcastUpdateTrigger(settingsService, mediaScannerService));
+    }
+
+    static class PodcastUpdateTrigger implements Trigger {
+
+        private final SettingsService settingsService;
+        private final MediaScannerService mediaScannerService;
+
+        public PodcastUpdateTrigger(SettingsService settingsService, MediaScannerService mediaScannerService) {
+            super();
+            this.settingsService = settingsService;
+            this.mediaScannerService = mediaScannerService;
+        }
+
+        @Override
+        public Date nextExecutionTime(TriggerContext triggerContext) {
+
+            int hoursBetween = this.settingsService.getPodcastUpdateInterval();
             if (hoursBetween == -1) {
                 if (LOG.isInfoEnabled()) {
                     LOG.info("Automatic Podcast update disabled.");
@@ -68,15 +96,25 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
                 return null;
             }
 
-            Date lastTime = context.lastCompletionTime();
-            Date nextTime = lastTime == null ? createFirstTime()
+            Date lastTime = triggerContext.lastCompletionTime();
+            boolean isReschedule = lastTime == null || this.mediaScannerService.isScanning();
+            Date nextTime = isReschedule ? createFirstTime()
                     : Date.from(lastTime.toInstant().plus(hoursBetween, ChronoUnit.HOURS));
+            String nextTimeString = new SimpleDateFormat("yyyy/MM/dd HH:mm", settingsService.getLocale())
+                    .format(nextTime);
 
-            if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
-                LOG.info("Auto Podcast update every {} hours was scheduled. (Next {})", +hoursBetween,
-                        new SimpleDateFormat("yyyy/MM/dd HH:mm", settingsService.getLocale()).format(nextTime));
+            String msg;
+            if (this.mediaScannerService.isScanning()) {
+                msg = "Auto Podcast update has been rescheduled because being scanning. (Next {})";
+            } else {
+                msg = "Auto Podcast update every " + hoursBetween + " hours was scheduled. (Next {})";
             }
+
+            if (this.settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+                LOG.info(msg, nextTimeString);
+            }
+
             return nextTime;
-        });
+        }
     }
 }

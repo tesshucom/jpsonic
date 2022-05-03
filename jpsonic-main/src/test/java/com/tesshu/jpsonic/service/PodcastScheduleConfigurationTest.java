@@ -46,19 +46,22 @@ class PodcastScheduleConfigurationTest {
     private SettingsService settingsService;
     private PodcastService podcastService;
     private PodcastScheduleConfiguration configuration;
+    private MediaScannerService mediaScannerService;
 
     @BeforeEach
     public void setup() throws URISyntaxException {
         settingsService = mock(SettingsService.class);
         podcastService = mock(PodcastService.class);
-        configuration = new PodcastScheduleConfiguration(mock(TaskScheduler.class), settingsService, podcastService);
+        mediaScannerService = mock(MediaScannerService.class);
+        configuration = new PodcastScheduleConfiguration(mock(TaskScheduler.class), settingsService, podcastService,
+                mediaScannerService);
     }
 
     @Test
     void testCreateFirstTime() {
         LocalDateTime firstTimeExpected = LocalDateTime.now().plus(5, ChronoUnit.MINUTES);
-        LocalDateTime firstTime = configuration.createFirstTime().toInstant().atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
+        LocalDateTime firstTime = PodcastScheduleConfiguration.createFirstTime().toInstant()
+                .atZone(ZoneId.systemDefault()).toLocalDateTime();
         assertEquals(firstTimeExpected.getDayOfMonth(), firstTime.getDayOfMonth());
         assertEquals(firstTimeExpected.getHour(), firstTime.getHour());
         assertEquals(firstTimeExpected.getMinute(), firstTime.getMinute());
@@ -118,5 +121,66 @@ class PodcastScheduleConfigurationTest {
 
             Mockito.verify(podcastService, Mockito.never()).refreshAllChannels(Mockito.anyBoolean());
         }
+
+        /*
+         * If isScanning is true, refreshAllChannels will not run. Also nextExecutionTime is recalculated using
+         * createFirstTime (ie after 5 minutes).
+         */
+        @Test
+        void testExecutionTimeDuringScan() {
+
+            Mockito.when(mediaScannerService.isScanning()).thenReturn(true);
+
+            ScheduledTaskRegistrar registrar = new ScheduledTaskRegistrar();
+            configuration.configureTasks(registrar);
+            assertNotNull(registrar.getScheduler());
+            assertEquals(0, registrar.getCronTaskList().size());
+            assertEquals(0, registrar.getFixedDelayTaskList().size());
+            assertEquals(0, registrar.getFixedRateTaskList().size());
+            assertEquals(0, registrar.getScheduledTasks().size());
+            assertEquals(1, registrar.getTriggerTaskList().size());
+
+            TriggerTask task = registrar.getTriggerTaskList().get(0);
+            assertNotNull(task.getRunnable());
+
+            // Confirmation of scan startup
+            task.getRunnable().run();
+
+            Mockito.verify(podcastService, Mockito.never()).refreshAllChannels(Mockito.anyBoolean());
+
+            Trigger trigger = task.getTrigger();
+            TriggerContext triggerContext = mock(TriggerContext.class);
+            Mockito.when(settingsService.isVerboseLogStart()).thenReturn(true);
+
+            // Do nothing
+            Mockito.when(settingsService.getPodcastUpdateInterval()).thenReturn(-1);
+            assertNull(trigger.nextExecutionTime(triggerContext));
+
+            int hourOfweek = 24 * 7;
+            Mockito.when(settingsService.getPodcastUpdateInterval()).thenReturn(hourOfweek);
+
+            // Operation check at the first startup
+            LocalDateTime firstTimeExpected = LocalDateTime.now().plus(5, ChronoUnit.MINUTES);
+
+            Date firstTime = trigger.nextExecutionTime(triggerContext);
+            LocalDateTime firstDateTime = Instant.ofEpochMilli(firstTime.getTime()).atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+            assertEquals(firstTimeExpected.getDayOfMonth(), firstDateTime.getDayOfMonth());
+            assertEquals(firstTimeExpected.getHour(), firstDateTime.getHour());
+            assertEquals(firstTimeExpected.getMinute(), firstDateTime.getMinute());
+
+            // Operation check at the second and subsequent startups
+            Mockito.when(triggerContext.lastCompletionTime()).thenReturn(firstTime);
+            LocalDateTime secondDateTime = Instant.ofEpochMilli(trigger.nextExecutionTime(triggerContext).getTime())
+                    .atZone(ZoneId.systemDefault()).toLocalDateTime();
+
+            LocalDateTime secondExpected = LocalDateTime.now().plus(5, ChronoUnit.MINUTES);
+            assertEquals(secondExpected.getDayOfMonth(), secondDateTime.getDayOfMonth());
+            assertEquals(secondExpected.getHour(), secondDateTime.getHour());
+            assertEquals(secondExpected.getMinute(), secondDateTime.getMinute());
+
+            Mockito.verify(podcastService, Mockito.never()).refreshAllChannels(Mockito.anyBoolean());
+        }
+
     }
 }

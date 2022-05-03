@@ -44,7 +44,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
     // Run a scan
     private boolean fullScanNext;
-    private boolean scanning;
     private String interval;
     private String hour;
     private boolean showRefresh;
@@ -80,14 +79,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
     public void setFullScanNext(boolean fullScanNext) {
         this.fullScanNext = fullScanNext;
-    }
-
-    public boolean isScanning() {
-        return scanning;
-    }
-
-    public void setScanning(boolean scanning) {
-        this.scanning = scanning;
     }
 
     public String getInterval() {

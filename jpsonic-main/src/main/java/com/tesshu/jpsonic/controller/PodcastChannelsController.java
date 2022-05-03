@@ -32,6 +32,7 @@ import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.domain.PodcastChannel;
 import com.tesshu.jpsonic.domain.PodcastEpisode;
 import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.util.LegacyMap;
@@ -51,13 +52,15 @@ public class PodcastChannelsController {
 
     private final SecurityService securityService;
     private final PodcastService podcastService;
+    private final MediaScannerService mediaScannerService;
     private final ViewAsListSelector viewSelector;
 
     public PodcastChannelsController(SecurityService securityService, PodcastService podcastService,
-            ViewAsListSelector viewSelector) {
+            MediaScannerService mediaScannerService, ViewAsListSelector viewSelector) {
         super();
         this.securityService = securityService;
         this.podcastService = podcastService;
+        this.mediaScannerService = mediaScannerService;
         this.viewSelector = viewSelector;
     }
 
@@ -75,11 +78,11 @@ public class PodcastChannelsController {
             channelMap.put(channel.getId(), channel);
         }
 
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         Map<String, Object> map = LegacyMap.of("user", securityService.getCurrentUser(request), "channels", channels,
                 "channelMap", channelMap, "newestEpisodes", podcastService.getNewestEpisodes(10), "viewAsList",
-                viewSelector.isViewAsList(request, user.getUsername()), "coverArtSize",
-                CoverArtScheme.MEDIUM.getSize());
+                viewSelector.isViewAsList(request, user.getUsername()), "coverArtSize", CoverArtScheme.MEDIUM.getSize(),
+                "scanning", mediaScannerService.isScanning());
 
         ModelAndView result = new ModelAndView();
         result.addObject("model", map);

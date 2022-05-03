@@ -50,6 +50,11 @@ public class SettingsPageCommons {
      */
     private boolean showToast;
 
+    /**
+     * Whether it is currently scanning
+     */
+    private boolean scanning;
+
     public final boolean isUseRadio() {
         return useRadio;
     }
@@ -88,5 +93,13 @@ public class SettingsPageCommons {
 
     public final void setShowToast(boolean showToast) {
         this.showToast = showToast;
+    }
+
+    public boolean isScanning() {
+        return scanning;
+    }
+
+    public void setScanning(boolean scanning) {
+        this.scanning = scanning;
     }
 }
