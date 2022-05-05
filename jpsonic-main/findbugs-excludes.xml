@@ -15,7 +15,10 @@
         Author: tesshucom
         -->
     <Match>
-        <Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS" /><!-- It is a bug rule. -->
+        <Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS" /><!-- It is a bug rule. -->                   
+    </Match>
+    <Match>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" /><!-- It is a bug rule. -->
     </Match>
     <Match>
         <Bug pattern="EI_EXPOSE_REP" />            <!-- *** Should be triaged! *** -->
