@@ -22,11 +22,17 @@ package com.tesshu.jpsonic.service;
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
+import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MusicFolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -34,12 +40,13 @@ import org.mockito.Mockito;
 class MusicIndexServiceUtilsTest {
 
     private SettingsService settingsService;
+    private MediaFileService mediaFileService;
     private MusicIndexServiceUtils musicIndexServiceUtils;
 
     @BeforeEach
     public void setup() throws ExecutionException {
         settingsService = mock(SettingsService.class);
-        MediaFileService mediaFileService = mock(MediaFileService.class);
+        mediaFileService = mock(MediaFileService.class);
         JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsService);
         JpsonicComparators comparators = new JpsonicComparators(settingsService, readingUtils);
         musicIndexServiceUtils = new MusicIndexServiceUtils(settingsService, mediaFileService, readingUtils,
@@ -73,5 +80,25 @@ class MusicIndexServiceUtilsTest {
                 musicIndexServiceUtils.createSortableName("\u0049 abcde", // I
                         "\u0130", // İ
                         "\u0049")); // I
+    }
+
+    @Test
+    void testCreateSortableArtists() throws URISyntaxException {
+        Path path = Path.of(MusicIndexServiceTest.class.getResource("/MEDIAS").toURI());
+        MusicFolder musicFolder = new MusicFolder(path.toFile(), "musicFolder", false, null);
+        assertEquals(path, musicFolder.getPath().toPath());
+
+        final List<MusicFolder> musicFolders = Arrays.asList(musicFolder);
+        MediaFile mediaFile = new MediaFile();
+        mediaFile.setId(0);
+        mediaFile.setPathString(path.toString());
+
+        Mockito.when(mediaFileService.getMediaFile(path, true)).thenReturn(null);
+        musicIndexServiceUtils.createSortableArtists(musicFolders, false);
+        Mockito.verify(mediaFileService, Mockito.never()).getChildrenOf(mediaFile, false, true, true, true);
+
+        Mockito.when(mediaFileService.getMediaFile(path, true)).thenReturn(mediaFile);
+        musicIndexServiceUtils.createSortableArtists(musicFolders, false);
+        Mockito.verify(mediaFileService, Mockito.times(1)).getChildrenOf(mediaFile, false, true, true, true);
     }
 }
