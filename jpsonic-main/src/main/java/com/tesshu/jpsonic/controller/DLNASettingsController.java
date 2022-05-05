@@ -129,7 +129,7 @@ public class DLNASettingsController {
         command.setDlnaGuestPublish(settingsService.isDlnaGuestPublish());
 
         // for view page control
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setShareCount(shareService.getAllShares().size());

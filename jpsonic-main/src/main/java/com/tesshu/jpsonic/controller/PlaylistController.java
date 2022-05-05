@@ -72,7 +72,7 @@ public class PlaylistController {
             return new ModelAndView(new RedirectView("notFound"));
         }
 
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         String username = user.getUsername();
         UserSettings userSettings = securityService.getUserSettings(username);
         Player player = playerService.getPlayer(request, response);

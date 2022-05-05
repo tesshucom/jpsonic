@@ -49,7 +49,7 @@ public class SettingsController {
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request) {
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         // Redirect to music folder settings if admin.
         return new ModelAndView(new RedirectView(
                 user.isAdminRole() ? ViewName.MUSIC_FOLDER_SETTINGS.value() : ViewName.PERSONAL_SETTINGS.value()));

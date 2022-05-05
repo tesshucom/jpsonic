@@ -94,7 +94,7 @@ public class SearchController {
             @ModelAttribute(Attributes.Model.Command.VALUE) SearchCommand command)
             throws ServletRequestBindingException, IOException {
 
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setUser(user);
         command.setPartyModeEnabled(userSettings.isPartyModeEnabled());

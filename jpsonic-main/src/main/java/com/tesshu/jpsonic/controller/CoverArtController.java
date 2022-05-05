@@ -327,7 +327,11 @@ public class CoverArtController {
             } catch (IOException e) {
                 throw new ExecutionException("Image cannot be read: " + path, e);
             }
-            String mimeType = StringUtil.getMimeType(FilenameUtils.getExtension(path.getFileName().toString()));
+            Path fileName = path.getFileName();
+            if (fileName == null) {
+                throw new IllegalArgumentException("Image cannot be read: The root path was specified");
+            }
+            String mimeType = StringUtil.getMimeType(FilenameUtils.getExtension(fileName.toString()));
             return Pair.of(is, mimeType);
         }
 

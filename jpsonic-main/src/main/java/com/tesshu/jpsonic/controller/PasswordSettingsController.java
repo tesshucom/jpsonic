@@ -66,7 +66,7 @@ public class PasswordSettingsController {
     @GetMapping
     protected ModelAndView get(HttpServletRequest request) {
         PasswordSettingsCommand command = new PasswordSettingsCommand();
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         command.setUsername(user.getUsername());
         command.setLdapAuthenticated(user.isLdapAuthenticated());
         return new ModelAndView("passwordSettings", Attributes.Model.Command.VALUE, command);

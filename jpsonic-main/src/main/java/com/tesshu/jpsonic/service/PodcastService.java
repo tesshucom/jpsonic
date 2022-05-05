@@ -355,6 +355,9 @@ public class PodcastService {
 
             File dir = getChannelDirectory(channel);
             MediaFile channelMediaFile = mediaFileService.getMediaFile(dir.toPath());
+            if (channelMediaFile == null) {
+                return;
+            }
             Path existingCoverArt = mediaFileService.getCoverArt(channelMediaFile);
             boolean imageFileExists = existingCoverArt != null
                     && mediaFileService.getMediaFile(existingCoverArt) == null;
@@ -736,8 +739,10 @@ public class PodcastService {
             }
 
             MediaFile mediaFile = mediaFileService.getMediaFile(channelDir.toPath());
-            mediaFile.setComment(channel.getDescription());
-            mediaFileService.updateMediaFile(mediaFile);
+            if (mediaFile != null) {
+                mediaFile.setComment(channel.getDescription());
+                mediaFileService.updateMediaFile(mediaFile);
+            }
         }
         return channelDir;
     }

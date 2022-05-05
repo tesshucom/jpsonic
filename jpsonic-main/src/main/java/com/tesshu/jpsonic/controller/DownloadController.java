@@ -217,8 +217,12 @@ public class DownloadController {
         status.setFile(path.toFile());
 
         response.setContentType("application/x-download");
+        Path fileName = path.getFileName();
+        if (fileName == null) {
+            throw new IllegalArgumentException("Illegal path specified: " + path);
+        }
         response.setHeader("Content-Disposition",
-                "attachment; filename*=UTF-8''" + encodeAsRFC5987(path.getFileName().toString()));
+                "attachment; filename*=UTF-8''" + encodeAsRFC5987(fileName.toString()));
         if (range == null) {
             PlayerUtils.setContentLength(response, Files.size(path));
         }
@@ -410,7 +414,8 @@ public class DownloadController {
             throws IOException {
 
         // Exclude all hidden files starting with a "."
-        if (!path.getFileName().toString().isEmpty() && path.getFileName().toString().charAt(0) == '.') {
+        Path fileName = path.getFileName();
+        if (fileName == null || fileName.toString().charAt(0) == '.') {
             return;
         }
 

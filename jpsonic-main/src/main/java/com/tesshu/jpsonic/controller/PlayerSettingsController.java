@@ -96,7 +96,7 @@ public class PlayerSettingsController {
         PlayerSettingsCommand command = new PlayerSettingsCommand();
         List<Player> players = getPlayers(request);
         command.setPlayers(players.stream().toArray(Player[]::new));
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         command.setAdmin(user.isAdminRole());
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
 
@@ -178,7 +178,7 @@ public class PlayerSettingsController {
     }
 
     private List<Player> getPlayers(HttpServletRequest request) {
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         String username = user.getUsername();
         List<Player> players = playerService.getAllPlayers();
         List<Player> authorizedPlayers = new ArrayList<>();

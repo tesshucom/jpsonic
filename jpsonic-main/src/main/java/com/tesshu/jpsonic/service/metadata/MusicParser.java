@@ -19,11 +19,11 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import static com.tesshu.jpsonic.service.metadata.ParserUtils.createSimplePath;
 import static com.tesshu.jpsonic.service.metadata.ParserUtils.mapGenre;
 import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseInt;
 import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseTrackNumber;
 import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseYear;
+import static com.tesshu.jpsonic.util.FileUtil.getShortPath;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
@@ -132,9 +132,9 @@ public class MusicParser extends MetaDataParser {
         } catch (CannotReadException | IOException | TagException | ReadOnlyFileException
                 | InvalidAudioFrameException e) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Unable to read file: ".concat(createSimplePath(path)), e);
+                LOG.debug("Unable to read file: " + getShortPath(path), e);
             } else {
-                LOG.warn("Unable to read ".concat(createSimplePath(path)).concat(": [{}]"), e.getMessage().trim());
+                LOG.warn("Unable to read " + getShortPath(path) + ": [{}]", e.getMessage().trim());
             }
             return metaData;
         }
@@ -148,7 +148,7 @@ public class MusicParser extends MetaDataParser {
         if (isEmpty(tag)) {
             return metaData;
         } else if (tag instanceof WavTag && !((WavTag) tag).isExistingId3Tag()) {
-            LOG.info("Only ID3 chunk is supported: {}", createSimplePath(path));
+            LOG.info("Only ID3 chunk is supported: {}", getShortPath(path));
             return metaData;
         }
 
@@ -226,8 +226,15 @@ public class MusicParser extends MetaDataParser {
         if (Files.isDirectory(path)) {
             return false;
         }
-        String ext = FilenameUtils.getExtension(path.getFileName().toString()).toLowerCase(Locale.getDefault());
-        return APPLICABLES.contains(ext);
+        Path fileName = path.getFileName();
+        if (fileName == null) {
+            return false;
+        }
+        String extension = FilenameUtils.getExtension(fileName.toString());
+        if (extension == null) {
+            return false;
+        }
+        return APPLICABLES.contains(extension.toLowerCase(Locale.ENGLISH));
     }
 
     @Override
@@ -235,10 +242,18 @@ public class MusicParser extends MetaDataParser {
         if (Files.isDirectory(path)) {
             return false;
         }
-        String ext = FilenameUtils.getExtension(path.getFileName().toString()).toLowerCase(Locale.getDefault());
-        if (NOT_EDITABLES.contains(ext)) {
+        Path fileName = path.getFileName();
+        if (fileName == null) {
             return false;
-        } else if (APPLICABLES.contains(ext)) {
+        }
+        String extension = FilenameUtils.getExtension(fileName.toString());
+        if (extension == null) {
+            return false;
+        }
+        extension = extension.toLowerCase(Locale.ENGLISH);
+        if (NOT_EDITABLES.contains(extension)) {
+            return false;
+        } else if (APPLICABLES.contains(extension)) {
             return true;
         }
         return false;

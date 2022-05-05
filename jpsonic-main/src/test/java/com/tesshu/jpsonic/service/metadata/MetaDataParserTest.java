@@ -129,8 +129,8 @@ class MetaDataParserTest {
 
     @Test
     void testGuessArtist() {
-        assertThrows(NullPointerException.class, () -> parser.guessArtist(Path.of("/")));
-        assertThrows(NullPointerException.class, () -> parser.guessArtist(Path.of("/song.mp3")));
+        assertThrows(IllegalArgumentException.class, () -> parser.guessArtist(Path.of("/")));
+        assertThrows(IllegalArgumentException.class, () -> parser.guessArtist(Path.of("/song.mp3")));
         assertEquals("", parser.guessArtist(Path.of("/MusicFolder/artist")));
         assertEquals("MusicFolder", parser.guessArtist(Path.of("/MusicFolder/artist/song.mp3")));
         assertEquals("MusicFolder", parser.guessArtist(Path.of("/MusicFolder/artist/album")));
@@ -139,8 +139,8 @@ class MetaDataParserTest {
         List<MusicFolder> musicFolders = Arrays
                 .asList(new MusicFolder(new File("/MusicFolder"), "MusicFolder", true, null));
         Mockito.when(musicFolderService.getAllMusicFolders(false, true)).thenReturn(musicFolders);
-        assertThrows(NullPointerException.class, () -> parser.guessArtist(Path.of("/")));
-        assertThrows(NullPointerException.class, () -> parser.guessArtist(Path.of("/song.mp3")));
+        assertThrows(IllegalArgumentException.class, () -> parser.guessArtist(Path.of("/")));
+        assertThrows(IllegalArgumentException.class, () -> parser.guessArtist(Path.of("/song.mp3")));
         assertNull(parser.guessArtist(Path.of("/MusicFolder/artist")));
         assertNull(parser.guessArtist(Path.of("/MusicFolder/artist/song.mp3")));
         assertNull(parser.guessArtist(Path.of("/MusicFolder/artist/album")));
@@ -149,7 +149,7 @@ class MetaDataParserTest {
 
     @Test
     void testGuessAlbum() {
-        assertThrows(NullPointerException.class, () -> parser.guessAlbum(Path.of("/"), "artist"));
+        assertThrows(IllegalArgumentException.class, () -> parser.guessAlbum(Path.of("/"), "artist"));
         assertEquals("", parser.guessAlbum(Path.of("/song.mp3"), "artist"));
         assertEquals("MusicFolder", parser.guessAlbum(Path.of("/MusicFolder/artist"), "artist"));
         assertEquals("artist", parser.guessAlbum(Path.of("/MusicFolder/artist/song.mp3"), "artist"));
@@ -159,7 +159,7 @@ class MetaDataParserTest {
         List<MusicFolder> musicFolders = Arrays
                 .asList(new MusicFolder(new File("/MusicFolder"), "MusicFolder", true, null));
         Mockito.when(musicFolderService.getAllMusicFolders(false, true)).thenReturn(musicFolders);
-        assertThrows(NullPointerException.class, () -> parser.guessAlbum(Path.of("/"), "artist"));
+        assertThrows(IllegalArgumentException.class, () -> parser.guessAlbum(Path.of("/"), "artist"));
         assertEquals("", parser.guessAlbum(Path.of("/song.mp3"), "artist"));
         assertNull(parser.guessAlbum(Path.of("/MusicFolder/artist"), "artist"));
         assertEquals("artist", parser.guessAlbum(Path.of("/MusicFolder/artist/song.mp3"), "artist"));

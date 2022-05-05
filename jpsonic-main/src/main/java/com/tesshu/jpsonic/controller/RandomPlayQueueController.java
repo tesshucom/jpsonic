@@ -121,7 +121,7 @@ public class RandomPlayQueueController {
                 playCount.getMaxPlayCount(), rating.isDoesShowStarredSongs(), rating.isDoesShowUnstarredSongs(),
                 format);
 
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         Player player = playerService.getPlayer(request, response);
         PlayQueue playQueue = player.getPlayQueue();
         // Do we add to the current playlist or do we replace it?

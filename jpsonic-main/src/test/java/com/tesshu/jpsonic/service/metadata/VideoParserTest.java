@@ -46,8 +46,8 @@ class VideoParserTest {
 
     @Test
     void testisApplicable() {
-        assertThrows(NullPointerException.class, () -> parser.isApplicable(null));
-        assertThrows(NullPointerException.class, () -> parser.isApplicable(Path.of("/")));
+        assertThrows(IllegalArgumentException.class, () -> parser.isApplicable(null));
+        assertThrows(IllegalArgumentException.class, () -> parser.isApplicable(Path.of("/")));
         assertFalse(parser.isApplicable(Path.of("/album")));
         assertFalse(parser.isApplicable(Path.of("")));
         assertTrue(parser.isApplicable(Path.of("movie.mp4")));

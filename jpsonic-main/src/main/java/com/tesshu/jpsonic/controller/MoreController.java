@@ -70,7 +70,7 @@ public class MoreController {
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
             throws ServletRequestBindingException {
 
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
 
         String uploadDirectory = null;
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(user.getUsername());

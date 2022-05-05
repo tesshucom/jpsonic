@@ -59,7 +59,7 @@ public class PlayQueueController {
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
             throws ServletRequestBindingException {
 
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         Player player = playerService.getPlayer(request, response);
 

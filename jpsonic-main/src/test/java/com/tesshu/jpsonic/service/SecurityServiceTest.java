@@ -210,8 +210,8 @@ class SecurityServiceTest {
 
     @Test
     void testIsWriteAllowed() {
-        assertThrows(NullPointerException.class, () -> service.isWriteAllowed(null));
-        assertThrows(NullPointerException.class, () -> service.isWriteAllowed(Path.of("/")));
+        assertThrows(IllegalArgumentException.class, () -> service.isWriteAllowed(null));
+        assertThrows(IllegalArgumentException.class, () -> service.isWriteAllowed(Path.of("/")));
         assertFalse(service.isWriteAllowed(Path.of("")));
         Mockito.when(musicFolderService.getAllMusicFolders(false, true)).thenReturn(Collections.emptyList());
         Mockito.when(settingsService.getPodcastFolder()).thenReturn("");
