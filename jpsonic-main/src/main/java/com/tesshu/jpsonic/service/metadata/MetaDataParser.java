@@ -144,7 +144,7 @@ public abstract class MetaDataParser {
         return StringUtils.trim(FilenameUtils.getBaseName(file.getPath()));
     }
 
-    private boolean isRoot(File file) {
+    protected boolean isRoot(File file) {
         List<MusicFolder> folders = getMusicFolderService().getAllMusicFolders(false, true);
         for (MusicFolder folder : folders) {
             if (file.equals(folder.getPath())) {
