@@ -24,6 +24,8 @@ package com.tesshu.jpsonic.util;
 import java.io.File;
 import java.nio.file.Path;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 /**
  * Miscellaneous file utility methods.
  *
@@ -41,14 +43,22 @@ public final class FileUtil {
      * Returns a short path for the given file. The path consists of the name of the parent directory and the given
      * file.
      */
-    public static String getShortPath(Path path) {
+    public static @Nullable String getShortPath(@Nullable Path path) {
         if (path == null) {
             return null;
         }
+        Path fileName = path.getFileName();
+        if (fileName == null) {
+            return "";
+        }
         Path parent = path.getParent();
         if (parent == null) {
-            return path.getFileName().toString();
+            return fileName.toString(); // Probably unreachable
         }
-        return parent.getFileName().toString() + File.separator + path.getFileName().toString();
+        Path parentFileName = parent.getFileName();
+        if (parentFileName == null) {
+            return File.separator + fileName.toString();
+        }
+        return parentFileName.toString() + File.separator + fileName.toString();
     }
 }
