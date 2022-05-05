@@ -114,7 +114,7 @@ public class UserSettingsValidator implements Validator {
         }
     }
 
-    private void validateCurrentUser(UserSettingsCommand command, Errors errors) {
+    void validateCurrentUser(UserSettingsCommand command, Errors errors) {
         String username = command.getUsername();
         if (securityService.getCurrentUser(request).getUsername().equals(username)) {
             if (command.isDeleteUser()) {

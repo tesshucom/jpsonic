@@ -122,7 +122,11 @@ public abstract class MetaDataParser {
             return null;
         }
         Path grandParent = parent.getParent();
-        return isRoot(grandParent) ? null : grandParent.getFileName().toString();
+        Path grandParentFilename = grandParent.getFileName();
+        if (grandParentFilename == null) {
+            return "";
+        }
+        return isRoot(grandParent) ? null : grandParentFilename.toString();
     }
 
     /**
@@ -130,7 +134,12 @@ public abstract class MetaDataParser {
      */
     protected final String guessAlbum(Path path, String artist) {
         Path parent = path.getParent();
-        String album = isRoot(parent) ? null : parent.getFileName().toString();
+        Path parentFileName = parent.getFileName();
+        if (parentFileName == null) {
+            return "";
+        }
+
+        String album = isRoot(parent) ? null : parentFileName.toString();
         if (artist != null && album != null) {
             album = album.replace(artist + " - ", "");
         }
@@ -144,10 +153,10 @@ public abstract class MetaDataParser {
         return StringUtils.trim(FilenameUtils.getBaseName(path.toString()));
     }
 
-    private boolean isRoot(Path path) {
+    protected boolean isRoot(Path path) {
         List<MusicFolder> folders = getMusicFolderService().getAllMusicFolders(false, true);
         for (MusicFolder folder : folders) {
-            if (path.toString().equals(folder.getPath().getAbsolutePath())) {
+            if (path.equals(folder.getPath().toPath())) {
                 return true;
             }
         }

@@ -200,6 +200,26 @@ class MusicIndexServiceTest {
     }
 
     @Test
+    void testGetSingleSongs() throws URISyntaxException {
+        Path path = Path.of(MusicIndexServiceTest.class.getResource("/MEDIAS").toURI());
+        MusicFolder musicFolder = new MusicFolder(path.toFile(), "musicFolder", false, null);
+        assertEquals(path, musicFolder.getPath().toPath());
+
+        final List<MusicFolder> musicFolders = Arrays.asList(musicFolder);
+        MediaFile mediaFile = new MediaFile();
+        mediaFile.setId(0);
+        mediaFile.setPathString(path.toString());
+
+        Mockito.when(mediaFileService.getMediaFile(path, true)).thenReturn(null);
+        musicIndexService.getSingleSongs(musicFolders, false);
+        Mockito.verify(mediaFileService, Mockito.never()).getChildrenOf(mediaFile, true, false, true, true);
+
+        Mockito.when(mediaFileService.getMediaFile(path, true)).thenReturn(mediaFile);
+        musicIndexService.getSingleSongs(musicFolders, false);
+        Mockito.verify(mediaFileService, Mockito.times(1)).getChildrenOf(mediaFile, true, false, true, true);
+    }
+
+    @Test
     void testGetShortcuts() throws URISyntaxException {
         Mockito.when(settingsService.getShortcutsAsArray())
                 .thenReturn(StringUtil.split(SettingsConstants.General.Extension.SHORTCUTS.defaultValue + " Metadata"));
