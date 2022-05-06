@@ -24,8 +24,11 @@ package com.tesshu.jpsonic.service;
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
@@ -37,6 +40,7 @@ import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import com.tesshu.jpsonic.domain.UserSettings;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -45,96 +49,109 @@ import org.mockito.Mockito;
  *
  * @author Sindre Mehus
  */
-@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class SecurityServiceTest {
 
     private SecurityService service;
     private SettingsService settingsService;
+    private MusicFolderService musicFolderService;
 
     @BeforeEach
     public void setup() {
         settingsService = mock(SettingsService.class);
-        service = new SecurityService(mock(UserDao.class), settingsService, mock(MusicFolderService.class), null);
+        musicFolderService = mock(MusicFolderService.class);
+        service = new SecurityService(mock(UserDao.class), settingsService, musicFolderService, null);
+    }
+
+    @Nested
+    class GetUserSettingsTest {
+
+        @Test
+        void testLanguageAndTheme() throws ExecutionException {
+            assertEquals("DEFAULT", service.getUserSettings("").getFontSchemeName());
+        }
+
+        @Test
+        void testSettings4DesktopPC() throws ExecutionException {
+            UserSettings userSettings = service.getUserSettings("");
+            assertTrue(userSettings.isKeyboardShortcutsEnabled());
+            assertEquals(AlbumListType.RANDOM, userSettings.getDefaultAlbumList());
+            assertFalse(userSettings.isPutMenuInDrawer());
+            assertTrue(userSettings.isShowIndex());
+            assertFalse(userSettings.isCloseDrawer());
+            assertTrue(userSettings.isClosePlayQueue());
+            assertTrue(userSettings.isAlternativeDrawer());
+            assertTrue(userSettings.isAutoHidePlayQueue());
+            assertTrue(userSettings.isBreadcrumbIndex());
+            assertTrue(userSettings.isAssignAccesskeyToNumber());
+            assertTrue(userSettings.isSimpleDisplay());
+            assertTrue(userSettings.isQueueFollowingSongs());
+            assertFalse(userSettings.isOpenDetailSetting());
+            assertFalse(userSettings.isOpenDetailStar());
+            assertFalse(userSettings.isOpenDetailIndex());
+            assertFalse(userSettings.isSongNotificationEnabled());
+            assertFalse(userSettings.isVoiceInputEnabled());
+            assertTrue(userSettings.isShowCurrentSongInfo());
+            assertEquals(SpeechToTextLangScheme.DEFAULT.name(), userSettings.getSpeechLangSchemeName());
+            Assertions.assertNull(userSettings.getIetf());
+            assertEquals(FontScheme.DEFAULT.name(), userSettings.getFontSchemeName());
+            assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, userSettings.getFontFamily());
+            assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, userSettings.getFontSize());
+            assertEquals(Integer.valueOf(101), userSettings.getSystemAvatarId());
+        }
+
+        @Test
+        void testDisplay() throws Exception {
+            UserSettings userSettings = service.getUserSettings("");
+            assertTrue(userSettings.getMainVisibility().isTrackNumberVisible());
+            assertTrue(userSettings.getMainVisibility().isArtistVisible());
+            assertFalse(userSettings.getMainVisibility().isAlbumVisible());
+            assertTrue(userSettings.getMainVisibility().isComposerVisible());
+            assertTrue(userSettings.getMainVisibility().isGenreVisible());
+            assertFalse(userSettings.getMainVisibility().isYearVisible());
+            assertFalse(userSettings.getMainVisibility().isBitRateVisible());
+            assertTrue(userSettings.getMainVisibility().isDurationVisible());
+            assertFalse(userSettings.getMainVisibility().isFormatVisible());
+            assertFalse(userSettings.getMainVisibility().isFileSizeVisible());
+
+            assertFalse(userSettings.getPlaylistVisibility().isTrackNumberVisible());
+            assertTrue(userSettings.getPlaylistVisibility().isArtistVisible());
+            assertTrue(userSettings.getPlaylistVisibility().isAlbumVisible());
+            assertTrue(userSettings.getPlaylistVisibility().isComposerVisible());
+            assertTrue(userSettings.getPlaylistVisibility().isGenreVisible());
+            assertTrue(userSettings.getPlaylistVisibility().isYearVisible());
+            assertTrue(userSettings.getPlaylistVisibility().isBitRateVisible());
+            assertTrue(userSettings.getPlaylistVisibility().isDurationVisible());
+            assertTrue(userSettings.getPlaylistVisibility().isFormatVisible());
+            assertTrue(userSettings.getPlaylistVisibility().isFileSizeVisible());
+        }
+
+        @Test
+        void testAdditionalDisplay() throws ExecutionException {
+            UserSettings userSettings = service.getUserSettings("");
+            assertFalse(userSettings.isShowNowPlayingEnabled());
+            assertFalse(userSettings.isNowPlayingAllowed());
+            assertFalse(userSettings.isShowArtistInfoEnabled());
+            assertFalse(userSettings.isForceBio2Eng());
+            assertFalse(userSettings.isShowTopSongs());
+            assertFalse(userSettings.isShowSimilar());
+            assertFalse(userSettings.isShowSibling());
+            assertEquals(40, userSettings.getPaginationSize());
+            assertFalse(userSettings.isShowDownload());
+            assertFalse(userSettings.isShowTag());
+            assertFalse(userSettings.isShowChangeCoverArt());
+            assertFalse(userSettings.isShowComment());
+            assertFalse(userSettings.isShowShare());
+            assertFalse(userSettings.isShowRate());
+            assertFalse(userSettings.isShowAlbumSearch());
+            assertFalse(userSettings.isShowLastPlay());
+            assertFalse(userSettings.isShowAlbumActions());
+            assertFalse(userSettings.isPartyModeEnabled());
+        }
     }
 
     @Test
-    void testIsFileInFolder() {
-
-        assertTrue(service.isFileInFolder("/music/foo.mp3", "\\"));
-        assertTrue(service.isFileInFolder("/music/foo.mp3", "/"));
-
-        assertTrue(service.isFileInFolder("/music/foo.mp3", "/music"));
-        assertTrue(service.isFileInFolder("\\music\\foo.mp3", "/music"));
-        assertTrue(service.isFileInFolder("/music/foo.mp3", "\\music"));
-        assertTrue(service.isFileInFolder("/music/foo.mp3", "\\music\\"));
-
-        assertFalse(service.isFileInFolder("", "/tmp"));
-        assertFalse(service.isFileInFolder("foo.mp3", "/tmp"));
-        assertFalse(service.isFileInFolder("/music/foo.mp3", "/tmp"));
-        assertFalse(service.isFileInFolder("/music/foo.mp3", "/tmp/music"));
-
-        // Test that references to the parent directory (..) is not allowed.
-        assertTrue(service.isFileInFolder("/music/foo..mp3", "/music"));
-        assertTrue(service.isFileInFolder("/music/foo..", "/music"));
-        assertTrue(service.isFileInFolder("/music/foo.../", "/music"));
-        assertFalse(service.isFileInFolder("/music/foo/..", "/music"));
-        assertFalse(service.isFileInFolder("../music/foo", "/music"));
-        assertFalse(service.isFileInFolder("/music/../foo", "/music"));
-        assertFalse(service.isFileInFolder("/music/../bar/../foo", "/music"));
-        assertFalse(service.isFileInFolder("/music\\foo\\..", "/music"));
-        assertFalse(service.isFileInFolder("..\\music/foo", "/music"));
-        assertFalse(service.isFileInFolder("/music\\../foo", "/music"));
-        assertFalse(service.isFileInFolder("/music/..\\bar/../foo", "/music"));
-    }
-
-    /*
-     * #852. https://wiki.sei.cmu.edu/confluence/display/java/STR02-J.+Specify+an+appropriate+locale+when+
-     * comparing+locale-dependent+data
-     */
-    @Test
-    void testIsFileInFolderSTR02J() {
-        Mockito.when(settingsService.getLocale()).thenReturn(Locale.ENGLISH);
-        assertTrue(service.isFileInFolder("/music/foo.mp3", "/Music"));
-        assertTrue(service.isFileInFolder("/\u0130\u0049/foo.mp3", // İI
-                "/\u0069\u0131")); // iı
-    }
-
-    @Test
-    void testLanguageAndTheme() throws ExecutionException {
-        assertEquals("DEFAULT", service.getUserSettings("").getFontSchemeName());
-    }
-
-    @Test
-    void testSettings4DesktopPC() throws ExecutionException {
-        UserSettings userSettings = service.getUserSettings("");
-        assertTrue(userSettings.isKeyboardShortcutsEnabled());
-        assertEquals(AlbumListType.RANDOM, userSettings.getDefaultAlbumList());
-        assertFalse(userSettings.isPutMenuInDrawer());
-        assertTrue(userSettings.isShowIndex());
-        assertFalse(userSettings.isCloseDrawer());
-        assertTrue(userSettings.isClosePlayQueue());
-        assertTrue(userSettings.isAlternativeDrawer());
-        assertTrue(userSettings.isAutoHidePlayQueue());
-        assertTrue(userSettings.isBreadcrumbIndex());
-        assertTrue(userSettings.isAssignAccesskeyToNumber());
-        assertTrue(userSettings.isSimpleDisplay());
-        assertTrue(userSettings.isQueueFollowingSongs());
-        assertFalse(userSettings.isOpenDetailSetting());
-        assertFalse(userSettings.isOpenDetailStar());
-        assertFalse(userSettings.isOpenDetailIndex());
-        assertFalse(userSettings.isSongNotificationEnabled());
-        assertFalse(userSettings.isVoiceInputEnabled());
-        assertTrue(userSettings.isShowCurrentSongInfo());
-        assertEquals(SpeechToTextLangScheme.DEFAULT.name(), userSettings.getSpeechLangSchemeName());
-        Assertions.assertNull(userSettings.getIetf());
-        assertEquals(FontScheme.DEFAULT.name(), userSettings.getFontSchemeName());
-        assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, userSettings.getFontFamily());
-        assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, userSettings.getFontSize());
-        assertEquals(Integer.valueOf(101), userSettings.getSystemAvatarId());
-    }
-
-    @Test
-    void testSettings4Tablet() {
+    void testCreateDefaultTabletUserSettings() {
         UserSettings tabletSettings = service.createDefaultTabletUserSettings("");
         assertFalse(tabletSettings.isKeyboardShortcutsEnabled());
         assertEquals(AlbumListType.RANDOM, tabletSettings.getDefaultAlbumList());
@@ -163,7 +180,7 @@ class SecurityServiceTest {
     }
 
     @Test
-    void testSettings4Smartphone() {
+    void testCreateDefaultSmartphoneUserSettings() {
         UserSettings smartphoneSettings = service.createDefaultSmartphoneUserSettings("");
         assertFalse(smartphoneSettings.isKeyboardShortcutsEnabled());
         assertEquals(AlbumListType.INDEX, smartphoneSettings.getDefaultAlbumList());
@@ -192,51 +209,58 @@ class SecurityServiceTest {
     }
 
     @Test
-    void testDisplay() throws Exception {
-        UserSettings userSettings = service.getUserSettings("");
-        assertTrue(userSettings.getMainVisibility().isTrackNumberVisible());
-        assertTrue(userSettings.getMainVisibility().isArtistVisible());
-        assertFalse(userSettings.getMainVisibility().isAlbumVisible());
-        assertTrue(userSettings.getMainVisibility().isComposerVisible());
-        assertTrue(userSettings.getMainVisibility().isGenreVisible());
-        assertFalse(userSettings.getMainVisibility().isYearVisible());
-        assertFalse(userSettings.getMainVisibility().isBitRateVisible());
-        assertTrue(userSettings.getMainVisibility().isDurationVisible());
-        assertFalse(userSettings.getMainVisibility().isFormatVisible());
-        assertFalse(userSettings.getMainVisibility().isFileSizeVisible());
-
-        assertFalse(userSettings.getPlaylistVisibility().isTrackNumberVisible());
-        assertTrue(userSettings.getPlaylistVisibility().isArtistVisible());
-        assertTrue(userSettings.getPlaylistVisibility().isAlbumVisible());
-        assertTrue(userSettings.getPlaylistVisibility().isComposerVisible());
-        assertTrue(userSettings.getPlaylistVisibility().isGenreVisible());
-        assertTrue(userSettings.getPlaylistVisibility().isYearVisible());
-        assertTrue(userSettings.getPlaylistVisibility().isBitRateVisible());
-        assertTrue(userSettings.getPlaylistVisibility().isDurationVisible());
-        assertTrue(userSettings.getPlaylistVisibility().isFormatVisible());
-        assertTrue(userSettings.getPlaylistVisibility().isFileSizeVisible());
+    void testIsWriteAllowed() {
+        assertThrows(IllegalArgumentException.class, () -> service.isWriteAllowed(null));
+        assertThrows(IllegalArgumentException.class, () -> service.isWriteAllowed(Path.of("/")));
+        assertFalse(service.isWriteAllowed(Path.of("")));
+        Mockito.when(musicFolderService.getAllMusicFolders(false, true)).thenReturn(Collections.emptyList());
+        Mockito.when(settingsService.getPodcastFolder()).thenReturn("");
+        assertTrue(service.isWriteAllowed(Path.of("cover.jpg")));
     }
 
-    @Test
-    void testAdditionalDisplay() throws ExecutionException {
-        UserSettings userSettings = service.getUserSettings("");
-        assertFalse(userSettings.isShowNowPlayingEnabled());
-        assertFalse(userSettings.isNowPlayingAllowed());
-        assertFalse(userSettings.isShowArtistInfoEnabled());
-        assertFalse(userSettings.isForceBio2Eng());
-        assertFalse(userSettings.isShowTopSongs());
-        assertFalse(userSettings.isShowSimilar());
-        assertFalse(userSettings.isShowSibling());
-        assertEquals(40, userSettings.getPaginationSize());
-        assertFalse(userSettings.isShowDownload());
-        assertFalse(userSettings.isShowTag());
-        assertFalse(userSettings.isShowChangeCoverArt());
-        assertFalse(userSettings.isShowComment());
-        assertFalse(userSettings.isShowShare());
-        assertFalse(userSettings.isShowRate());
-        assertFalse(userSettings.isShowAlbumSearch());
-        assertFalse(userSettings.isShowLastPlay());
-        assertFalse(userSettings.isShowAlbumActions());
-        assertFalse(userSettings.isPartyModeEnabled());
+    @Nested
+    class IsFileInFolderTest {
+
+        @Test
+        void testIsFileInFolder() {
+
+            assertTrue(service.isFileInFolder("/music/foo.mp3", "\\"));
+            assertTrue(service.isFileInFolder("/music/foo.mp3", "/"));
+
+            assertTrue(service.isFileInFolder("/music/foo.mp3", "/music"));
+            assertTrue(service.isFileInFolder("\\music\\foo.mp3", "/music"));
+            assertTrue(service.isFileInFolder("/music/foo.mp3", "\\music"));
+            assertTrue(service.isFileInFolder("/music/foo.mp3", "\\music\\"));
+
+            assertFalse(service.isFileInFolder("", "/tmp"));
+            assertFalse(service.isFileInFolder("foo.mp3", "/tmp"));
+            assertFalse(service.isFileInFolder("/music/foo.mp3", "/tmp"));
+            assertFalse(service.isFileInFolder("/music/foo.mp3", "/tmp/music"));
+
+            // Test that references to the parent directory (..) is not allowed.
+            assertTrue(service.isFileInFolder("/music/foo..mp3", "/music"));
+            assertTrue(service.isFileInFolder("/music/foo..", "/music"));
+            assertTrue(service.isFileInFolder("/music/foo.../", "/music"));
+            assertFalse(service.isFileInFolder("/music/foo/..", "/music"));
+            assertFalse(service.isFileInFolder("../music/foo", "/music"));
+            assertFalse(service.isFileInFolder("/music/../foo", "/music"));
+            assertFalse(service.isFileInFolder("/music/../bar/../foo", "/music"));
+            assertFalse(service.isFileInFolder("/music\\foo\\..", "/music"));
+            assertFalse(service.isFileInFolder("..\\music/foo", "/music"));
+            assertFalse(service.isFileInFolder("/music\\../foo", "/music"));
+            assertFalse(service.isFileInFolder("/music/..\\bar/../foo", "/music"));
+        }
+
+        /*
+         * #852. https://wiki.sei.cmu.edu/confluence/display/java/STR02-J.+Specify+an+appropriate+locale+when+
+         * comparing+locale-dependent+data
+         */
+        @Test
+        void testIsFileInFolderSTR02J() {
+            Mockito.when(settingsService.getLocale()).thenReturn(Locale.ENGLISH);
+            assertTrue(service.isFileInFolder("/music/foo.mp3", "/Music"));
+            assertTrue(service.isFileInFolder("/\u0130\u0049/foo.mp3", // İI
+                    "/\u0069\u0131")); // iı
+        }
     }
 }

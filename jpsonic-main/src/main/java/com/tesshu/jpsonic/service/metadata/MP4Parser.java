@@ -19,12 +19,12 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import static com.tesshu.jpsonic.service.metadata.ParserUtils.createSimplePath;
 import static com.tesshu.jpsonic.service.metadata.ParserUtils.getFolder;
 import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseDoubleToInt;
 import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseInt;
 import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseTrackNumber;
 import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseYear;
+import static com.tesshu.jpsonic.util.FileUtil.getShortPath;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -93,9 +93,8 @@ public class MP4Parser {
             current = System.currentTimeMillis();
             tikaParser.parse(bid, handler, metadata, ps);
         } catch (IOException | SAXException | TikaException e) {
-            String simplePath = createSimplePath(mediaFile.toPath());
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to parse the tag({}): {}", simplePath, e.getMessage());
+                LOG.warn("Failed to parse the tag({}): {}", getShortPath(mediaFile.toPath()), e.getMessage());
             }
             return result;
         }

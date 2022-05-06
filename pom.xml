@@ -137,7 +137,7 @@
             <dependency>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-core</artifactId>
-                <version>4.9.1</version>
+                <version>4.10.0</version>
             </dependency>
 
             <!-- Fix convergence issues -->
@@ -538,7 +538,7 @@
                         <dependency>
                             <groupId>com.github.spotbugs</groupId>
                             <artifactId>spotbugs</artifactId>
-                            <version>4.6.0</version>
+                            <version>4.7.0</version>
                         </dependency>
                     </dependencies>
                 </plugin>

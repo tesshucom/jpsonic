@@ -80,7 +80,7 @@ public class DatabaseSettingsController {
         // for view page control
         command.setUseRadio(settingsService.isUseRadio());
         command.setShareCount(shareService.getAllShares().size());
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }

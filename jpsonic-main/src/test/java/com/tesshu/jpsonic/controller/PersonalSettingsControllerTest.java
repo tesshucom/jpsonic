@@ -40,10 +40,12 @@ import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -61,6 +63,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.TooManyStaticImports")
+@TestClassOrder(ClassOrderer.OrderAnnotation.class)
 class PersonalSettingsControllerTest {
 
     private static final String VIEW_NAME = "personalSettings";
@@ -258,6 +261,7 @@ class PersonalSettingsControllerTest {
     @SuppressWarnings("PMD.SignatureDeclareThrowsException")
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Nested
+    @Order(2)
     class DoSubmitAction {
 
         @DoSubmitDecision.Conditions.UserSettings.Locale.Null
@@ -646,6 +650,7 @@ class PersonalSettingsControllerTest {
     @SuppressWarnings("PMD.SignatureDeclareThrowsException")
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     @Nested
+    @Order(1)
     class NowPlaying {
 
         @NowPlayingDecision.Conditions.UserSettings.NowPlayingAllowed.False

@@ -125,7 +125,7 @@ public class ShareSettingsController {
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (ShareInfo) Not reusable
     private List<ShareInfo> getShareInfos(HttpServletRequest request) {
         List<ShareInfo> result = new ArrayList<>();
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(user.getUsername());
 
         for (Share share : shareService.getSharesForUser(user)) {

@@ -165,7 +165,7 @@ public class GeneralSettingsController {
 
         // for view page control
         command.setUseRadio(settingsService.isUseRadio());
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         toast.ifPresent(command::setShowToast);
         command.setShareCount(shareService.getAllShares().size());

@@ -56,7 +56,7 @@ public class StarService {
     }
 
     private String getUser() {
-        User user = securityService.getCurrentUser(ajaxHelper.getHttpServletRequest());
+        User user = securityService.getCurrentUserStrict(ajaxHelper.getHttpServletRequest());
         return user.getUsername();
     }
 }

@@ -119,7 +119,7 @@ public class UserSettingsController {
                 command.setTranscodeScheme(userSettings.getTranscodeScheme());
                 command.setAllowedMusicFolderIds(PlayerUtils.toIntArray(getAllowedMusicFolderIds(user)));
                 command.setCurrentUser(
-                        securityService.getCurrentUser(request).getUsername().equals(user.getUsername()));
+                        securityService.getCurrentUserStrict(request).getUsername().equals(user.getUsername()));
             }
         }
 

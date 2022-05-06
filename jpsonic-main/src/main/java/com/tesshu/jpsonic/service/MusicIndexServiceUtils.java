@@ -90,6 +90,9 @@ public class MusicIndexServiceUtils {
         for (MusicFolder folder : folders) {
 
             MediaFile root = mediaFileService.getMediaFile(folder.getPath().toPath(), !refresh);
+            if (root == null) {
+                continue;
+            }
             List<MediaFile> children = mediaFileService.getChildrenOf(root, false, true, true, !refresh);
             for (MediaFile child : children) {
                 if (shortcutSet.contains(child.getName())) {

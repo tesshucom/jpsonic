@@ -22,6 +22,8 @@
 package com.tesshu.jpsonic.service.metadata;
 
 import java.nio.file.Path;
+import java.util.Locale;
+import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -87,24 +89,21 @@ public class VideoParser extends MetaDataParser {
         return musicFolderService;
     }
 
-    /**
-     * Returns whether this parser is applicable to the given file.
-     *
-     * @param path
-     *            The file in question.
-     *
-     * @return Whether this parser is applicable to the given file.
-     */
-    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     @Override
     public boolean isApplicable(Path path) {
-        String format = FilenameUtils.getExtension(path.getFileName().toString()).toLowerCase();
-
-        for (String s : settingsService.getVideoFileTypesAsArray()) {
-            if (format.equals(s)) {
-                return true;
-            }
+        if (path == null) {
+            throw new IllegalArgumentException("Illegal path specified.");
         }
-        return false;
+        Path fileName = path.getFileName();
+        if (fileName == null) {
+            throw new IllegalArgumentException("Illegal path specified: " + path);
+        }
+        String extension = FilenameUtils.getExtension(fileName.toString());
+        if (extension.isEmpty()) {
+            return false;
+        }
+        String format = extension.toLowerCase(Locale.ENGLISH);
+        return Stream.of(settingsService.getVideoFileTypesAsArray())
+                .anyMatch(type -> format.equals(type.toLowerCase(Locale.ENGLISH)));
     }
 }

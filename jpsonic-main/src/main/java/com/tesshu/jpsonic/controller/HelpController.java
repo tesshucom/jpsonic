@@ -90,7 +90,7 @@ public class HelpController {
 
         String serverInfo = request.getSession().getServletContext().getServerInfo() + ", java "
                 + System.getProperty("java.version") + ", " + System.getProperty("os.name");
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         map.put("user", user);
         map.put("admin", securityService.isAdmin(user.getUsername()));
         map.put("brand", SettingsService.getBrand());

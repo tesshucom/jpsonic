@@ -151,8 +151,7 @@ public class CoverArtService {
                 break;
             }
 
-            Path oldPath = Path.of(coverArtPath.getParent().toString(),
-                    coverArtPath.getFileName().normalize().toString() + ".old");
+            Path oldPath = createOldPath(coverArtPath);
             Path movedPath = Files.move(coverArtPath, oldPath);
             boolean renamed = movedPath.equals(oldPath);
             if (!renamed && LOG.isWarnEnabled()) {
@@ -167,6 +166,15 @@ public class CoverArtService {
                 dir = mediaFileService.getMediaFile(dir.getId());
             }
         }
+    }
+
+    private Path createOldPath(Path coverArtPath) throws IOException {
+        Path parent = coverArtPath.getParent();
+        Path fileName = coverArtPath.getFileName();
+        if (parent == null || fileName == null) {
+            throw new IOException("Illegal cover art path has specified: " + coverArtPath);
+        }
+        return Path.of(parent.toString(), fileName.normalize().toString() + ".old");
     }
 
     private String getProperSuffix(String url) {

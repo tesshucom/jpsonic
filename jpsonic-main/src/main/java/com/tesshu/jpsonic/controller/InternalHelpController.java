@@ -113,7 +113,7 @@ public class InternalHelpController {
     protected ModelAndView handleRequestInternal(HttpServletRequest request) {
         Map<String, Object> map = LegacyMap.of();
 
-        map.put("admin", securityService.isAdmin(securityService.getCurrentUser(request).getUsername()));
+        map.put("admin", securityService.isAdmin(securityService.getCurrentUserStrict(request).getUsername()));
         map.put("showStatus", settingsService.isShowStatus());
 
         if (versionService.isNewFinalVersionAvailable()) {

@@ -62,7 +62,7 @@ public class PlaylistsController {
 
     @GetMapping
     public String doGet(HttpServletRequest request, Model model) {
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         List<Playlist> playlists = playlistService.getReadablePlaylistsForUser(user.getUsername());
         model.addAttribute("model",
                 LegacyMap.of("playlists", playlists, "viewAsList",

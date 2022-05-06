@@ -89,11 +89,13 @@ public class MusicIndexService {
         return new MusicFolderContent(indexedArtists, singleSongs);
     }
 
-    private List<MediaFile> getSingleSongs(List<MusicFolder> folders, boolean refresh) {
+    List<MediaFile> getSingleSongs(List<MusicFolder> folders, boolean refresh) {
         List<MediaFile> result = new ArrayList<>();
         for (MusicFolder folder : folders) {
             MediaFile parent = mediaFileService.getMediaFile(folder.getPath().toPath(), !refresh);
-            result.addAll(mediaFileService.getChildrenOf(parent, true, false, true, !refresh));
+            if (parent != null) {
+                result.addAll(mediaFileService.getChildrenOf(parent, true, false, true, !refresh));
+            }
         }
         return result;
     }

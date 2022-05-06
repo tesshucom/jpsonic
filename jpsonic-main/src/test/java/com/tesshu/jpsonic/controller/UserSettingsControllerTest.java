@@ -18,9 +18,12 @@
 package com.tesshu.jpsonic.controller;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,6 +55,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 class UserSettingsControllerTest {
 
     private SecurityService securityService;
@@ -73,15 +77,36 @@ class UserSettingsControllerTest {
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGet() throws Exception {
+        // User creation
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.USER_SETTINGS.value()))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("userSettings", modelAndView.getViewName());
-
         UserSettingsCommand command = (UserSettingsCommand) modelAndView.getModelMap()
                 .get(Attributes.Model.Command.VALUE);
         assertNotNull(command);
+        assertTrue(command.isNewUser());
+        assertNull(command.getUsername());
+
+        // User update
+        User user0 = new User("user0", null, null);
+        User user1 = new User("user1", null, null);
+        User user2 = new User("user2", null, null);
+        List<User> users = Arrays.asList(user0, user1, user2);
+        Mockito.when(securityService.getAllUsers()).thenReturn(users);
+        Mockito.when(securityService.getUserSettings(anyString())).thenReturn(new UserSettings(user2.getUsername()));
+        result = mockMvc
+                .perform(MockMvcRequestBuilders.get("/" + ViewName.USER_SETTINGS.value())
+                        .param(Attributes.Redirect.USER_INDEX.value(), "2"))
+                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        assertNotNull(result);
+        modelAndView = result.getModelAndView();
+        assertEquals("userSettings", modelAndView.getViewName());
+        command = (UserSettingsCommand) modelAndView.getModelMap().get(Attributes.Model.Command.VALUE);
+        assertNotNull(command);
+        assertFalse(command.isNewUser());
+        assertEquals(user2.getUsername(), command.getUsername());
     }
 
     @Test
