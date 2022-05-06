@@ -84,7 +84,7 @@ public class PersonalSettingsController {
             @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) {
         PersonalSettingsCommand command = new PersonalSettingsCommand();
 
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setUser(user);
 

@@ -226,20 +226,13 @@ public class SecurityService implements UserDetailsService {
         return authorities;
     }
 
-    /**
-     * Returns the currently logged-in user for the given HTTP request.
-     *
-     * @param request
-     *            The HTTP request.
-     *
-     * @return The logged-in user, or <code>null</code>.
-     */
-    public @Nullable User getCurrentUser(HttpServletRequest request) {
+    @Deprecated
+    public @Nullable User getCurrentUser(@NonNull HttpServletRequest request) {
         String username = getCurrentUsername(request);
         return username == null ? null : getUserByName(username);
     }
 
-    public @NonNull User getCurrentUserStrict(HttpServletRequest request) {
+    public @NonNull User getCurrentUserStrict(@NonNull HttpServletRequest request) {
         String username = getCurrentUsername(request);
         if (username == null) {
             throw new IllegalArgumentException("User not found");
@@ -427,11 +420,17 @@ public class SecurityService implements UserDetailsService {
      *
      * @return Whether the given file may be written, created or deleted.
      */
-    public boolean isWriteAllowed(Path path) {
+    public boolean isWriteAllowed(@NonNull Path path) {
+        if (path == null) {
+            throw new IllegalArgumentException("Illegal path specified: " + path);
+        }
+        Path fileName = path.getFileName();
+        if (fileName == null) {
+            throw new IllegalArgumentException("Illegal path specified: " + path);
+        }
         // Only allowed to write podcasts or cover art.
         boolean isPodcast = isInPodcastFolder(path);
-        boolean isCoverArt = isInMusicFolder(path.toString()) && path.getFileName().toString().startsWith("cover.");
-
+        boolean isCoverArt = isInMusicFolder(path.toString()) && fileName.toString().startsWith("cover.");
         return isPodcast || isCoverArt;
     }
 

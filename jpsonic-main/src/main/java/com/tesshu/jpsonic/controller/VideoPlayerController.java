@@ -81,7 +81,7 @@ public class VideoPlayerController {
             return new ModelAndView(new RedirectView(ViewName.ACCESS_DENIED.value()));
         }
 
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         mediaFileService.populateStarredDate(file, user.getUsername());
         Integer duration = file.getDurationSeconds();
         Integer playerId = playerService.getPlayer(request, response).getId();

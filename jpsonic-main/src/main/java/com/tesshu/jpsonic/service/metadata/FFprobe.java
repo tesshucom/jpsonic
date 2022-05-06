@@ -19,11 +19,11 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import static com.tesshu.jpsonic.service.metadata.ParserUtils.createSimplePath;
 import static com.tesshu.jpsonic.service.metadata.ParserUtils.getFolder;
 import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseInt;
 import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseTrackNumber;
 import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseYear;
+import static com.tesshu.jpsonic.util.FileUtil.getShortPath;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -178,9 +178,8 @@ public class FFprobe {
             }
         } catch (IOException e) {
             // Exceptions to this class are self-explanatory, avoiding redundant trace output
-            String simplePath = createSimplePath(path);
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to execute ffprobe({}): {}", simplePath, e.getMessage());
+                LOG.warn("Failed to execute ffprobe({}): {}", getShortPath(path), e.getMessage());
             }
             return result;
         }

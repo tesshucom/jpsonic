@@ -76,7 +76,7 @@ public class StarredController {
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
             throws ServletRequestBindingException {
 
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         String username = user.getUsername();
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
 

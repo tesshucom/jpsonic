@@ -303,7 +303,11 @@ public class MediaFileService {
 
     @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     public boolean includeMediaFile(Path candidate) {
-        String suffix = FilenameUtils.getExtension(candidate.getFileName().toString()).toLowerCase();
+        Path fileName = candidate.getFileName();
+        if (fileName == null) {
+            return false;
+        }
+        String suffix = FilenameUtils.getExtension(fileName.toString()).toLowerCase();
         return !isExcluded(candidate) && (Files.isDirectory(candidate) || isAudioFile(suffix) || isVideoFile(suffix));
     }
 
@@ -334,7 +338,11 @@ public class MediaFileService {
             }
             return true;
         }
-        String name = path.getFileName().toString();
+        Path fileName = path.getFileName();
+        if (fileName == null) {
+            return true;
+        }
+        String name = fileName.toString();
         if (settingsService.getExcludePattern() != null && settingsService.getExcludePattern().matcher(name).find()) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("excluding file which matches exclude pattern " + settingsService.getExcludePatternString()
@@ -364,7 +372,12 @@ public class MediaFileService {
 
         mediaFile.setPathString(path.toString());
         mediaFile.setFolder(securityService.getRootFolderForFile(path));
-        mediaFile.setParentPathString(path.getParent().toString());
+
+        Path parent = path.getParent();
+        if (parent == null) {
+            throw new IllegalArgumentException("Illegal path specified: " + path);
+        }
+        mediaFile.setParentPathString(parent.toString());
         mediaFile.setPlayCount(existingFile == null ? 0 : existingFile.getPlayCount());
         mediaFile.setLastPlayed(existingFile == null ? null : existingFile.getLastPlayed());
         mediaFile.setComment(existingFile == null ? null : existingFile.getComment());
@@ -483,7 +496,7 @@ public class MediaFileService {
         mediaFileCache.remove(path);
     }
 
-    public Path getCoverArt(MediaFile mediaFile) {
+    public @Nullable Path getCoverArt(MediaFile mediaFile) {
         if (mediaFile.getCoverArtPathString() != null) {
             return Path.of(mediaFile.getCoverArtPathString());
         }

@@ -76,7 +76,7 @@ public class MultiService {
         MediaFile mediaFile = mediaFileService.getMediaFile(mediaFileId);
         List<SimilarArtist> similarArtists = getSimilarArtists(mediaFileId, maxSimilarArtists);
 
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         Locale locale = userSettings.isForceBio2Eng() ? Locale.ENGLISH : airsonicLocaleResolver.resolveLocale(request);
         ArtistBio artistBio = lastFmService.getArtistBio(mediaFile, locale);

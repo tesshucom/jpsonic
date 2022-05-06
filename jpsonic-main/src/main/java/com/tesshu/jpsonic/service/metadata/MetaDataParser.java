@@ -29,6 +29,7 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
  * Parses meta data from media files.
@@ -104,7 +105,7 @@ public abstract class MetaDataParser {
      *
      * @return Whether this parser is applicable to the given file.
      */
-    public abstract boolean isApplicable(Path path);
+    public abstract boolean isApplicable(@NonNull Path path);
 
     /**
      * Returns whether this parser supports tag editing (using the {@link #setMetaData} method).
@@ -116,21 +117,39 @@ public abstract class MetaDataParser {
     /**
      * Guesses the artist for the given file.
      */
-    protected final String guessArtist(Path path) {
+    protected final String guessArtist(@NonNull Path path) {
         Path parent = path.getParent();
+        if (parent == null) {
+            throw new IllegalArgumentException("Illegal path specified: " + path);
+        }
         if (isRoot(parent)) {
             return null;
         }
         Path grandParent = parent.getParent();
-        return isRoot(grandParent) ? null : grandParent.getFileName().toString();
+        if (grandParent == null) {
+            throw new IllegalArgumentException("Illegal path specified: " + path);
+        }
+        Path grandParentFilename = grandParent.getFileName();
+        if (grandParentFilename == null) {
+            return "";
+        }
+        return isRoot(grandParent) ? null : grandParentFilename.toString();
     }
 
     /**
      * Guesses the album for the given file.
      */
-    protected final String guessAlbum(Path path, String artist) {
+    protected final String guessAlbum(@NonNull Path path, String artist) {
         Path parent = path.getParent();
-        String album = isRoot(parent) ? null : parent.getFileName().toString();
+        if (parent == null) {
+            throw new IllegalArgumentException("Illegal path specified: " + path);
+        }
+        Path parentFileName = parent.getFileName();
+        if (parentFileName == null) {
+            return "";
+        }
+
+        String album = isRoot(parent) ? null : parentFileName.toString();
         if (artist != null && album != null) {
             album = album.replace(artist + " - ", "");
         }
@@ -140,14 +159,14 @@ public abstract class MetaDataParser {
     /**
      * Guesses the title for the given file.
      */
-    public String guessTitle(Path path) {
+    public String guessTitle(@NonNull Path path) {
         return StringUtils.trim(FilenameUtils.getBaseName(path.toString()));
     }
 
-    private boolean isRoot(Path path) {
+    protected boolean isRoot(Path path) {
         List<MusicFolder> folders = getMusicFolderService().getAllMusicFolders(false, true);
         for (MusicFolder folder : folders) {
-            if (path.toString().equals(folder.getPath().getAbsolutePath())) {
+            if (path.equals(folder.getPath().toPath())) {
                 return true;
             }
         }

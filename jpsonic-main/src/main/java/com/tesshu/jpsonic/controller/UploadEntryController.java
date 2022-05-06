@@ -50,7 +50,7 @@ public class UploadEntryController {
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request) {
 
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
 
         String uploadDirectory = null;
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(user.getUsername());

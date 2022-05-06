@@ -109,7 +109,7 @@ public class AdvancedSettingsController {
         // for view page control
         command.setUseRadio(settingsService.isUseRadio());
         command.setShareCount(shareService.getAllShares().size());
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());

@@ -19,7 +19,7 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import static com.tesshu.jpsonic.service.metadata.ParserUtils.createSimplePath;
+import static com.tesshu.jpsonic.util.FileUtil.getShortPath;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.awt.image.BufferedImage;
@@ -98,9 +98,8 @@ public class FFmpeg {
                 process.destroy();
             }
         } catch (IOException e) {
-            String simplePath = createSimplePath(path);
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to create thumbnail({}): {}", simplePath, e.getMessage());
+                LOG.warn("Failed to create thumbnail({}): {}", getShortPath(path), e.getMessage());
             }
             return null;
         }

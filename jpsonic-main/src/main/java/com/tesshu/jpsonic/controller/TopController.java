@@ -107,7 +107,7 @@ public class TopController {
 
         Map<String, Object> map = LegacyMap.of();
 
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         map.put("user", user);
         map.put("othersPlayingEnabled", settingsService.isOthersPlayingEnabled());

@@ -21,6 +21,7 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
+import static com.tesshu.jpsonic.util.FileUtil.getShortPath;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -178,10 +179,6 @@ public final class ParserUtils {
         return StringUtils.defaultIfBlank(mediaFile.getFolder(), "root");
     }
 
-    static String createSimplePath(Path path) {
-        return path.getParent().getFileName().toString().concat("/").concat(path.getFileName().toString());
-    }
-
     /**
      * Returns whether the embedded artwork is in an available format. There is no guarantee that the artwork is
      * actually embedded.
@@ -190,8 +187,15 @@ public final class ParserUtils {
         if (Files.isDirectory(path)) {
             return false;
         }
-        return IMG_APPLICABLES
-                .contains(FilenameUtils.getExtension(path.getFileName().toString()).toLowerCase(Locale.getDefault()));
+        Path fileName = path.getFileName();
+        if (fileName == null) {
+            return false;
+        }
+        String extension = FilenameUtils.getExtension(fileName.toString());
+        if (extension == null) {
+            return false;
+        }
+        return IMG_APPLICABLES.contains(extension.toLowerCase(Locale.getDefault()));
     }
 
     @SuppressWarnings("PMD.GuardLogStatement")
@@ -207,10 +211,9 @@ public final class ParserUtils {
         } catch (CannotReadException | IOException | TagException | ReadOnlyFileException
                 | InvalidAudioFrameException e) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Unable to read cover art: ".concat(createSimplePath(path)), e);
+                LOG.debug("Unable to read cover art: " + getShortPath(path), e);
             } else {
-                LOG.warn("Unable to read cover art in ".concat(createSimplePath(path)).concat(": [{}]"),
-                        e.getMessage().trim());
+                LOG.warn("Unable to read cover art in " + getShortPath(path) + ": [{}]", e.getMessage().trim());
             }
             return Optional.empty();
         }
@@ -219,7 +222,7 @@ public final class ParserUtils {
         if (isEmpty(tag)) {
             return Optional.empty();
         } else if (tag instanceof WavTag && !((WavTag) tag).isExistingId3Tag()) {
-            LOG.info("Cover art is only supported in ID3 chunks: {}", createSimplePath(path));
+            LOG.info("Cover art is only supported in ID3 chunks: {}", getShortPath(path));
             return Optional.empty();
         }
 

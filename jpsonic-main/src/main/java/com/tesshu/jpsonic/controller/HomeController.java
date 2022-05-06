@@ -94,7 +94,7 @@ public class HomeController {
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request) throws ServletRequestBindingException {
 
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         if (user.isAdminRole() && settingsService.isGettingStartedEnabled()) {
             return new ModelAndView(new RedirectView(ViewName.GETTING_STARTED.value()));
         }

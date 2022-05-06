@@ -72,7 +72,7 @@ public class TranscodingSettingsController {
     @GetMapping
     public String doGet(HttpServletRequest request, Model model) {
 
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
 
         model.addAttribute("model",
