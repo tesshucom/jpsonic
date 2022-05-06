@@ -6,9 +6,10 @@
 
 ## v111.2.0 (SNAPSHOT)
 
-Scan parallelization is planned for v111.x. v111.2.0 will have bug fixes and improvements that underlie parallelization. Parallelization is not provided in v111.2.0, but it will be a bit faster than Subsonic's or Airsonic's scans.
-
-The binaries of SNAPSHOT are available from the latest artifacts on the [master branch](https://github.com/tesshucom/jpsonic/actions?query=branch%3Amaster) .
+  * Scan parallelization is planned for v111.x. v111.2.0 will have bug fixes and improvements that underlie parallelization.
+  * Parallelization is not provided in v111.2.0. This version focuses on fixes related to Robust optimization.
+  * But it may be a bit faster than Subsonic's or Airsonic's scans.
+  * The binaries of SNAPSHOT are available from the latest artifacts on the [master branch](https://github.com/tesshucom/jpsonic/actions?query=branch%3Amaster).
 
 #### Enhancement
   * Update libs. Includes fixes for CVE-2022-0839, CVE-2020-36518
@@ -24,6 +25,7 @@ The binaries of SNAPSHOT are available from the latest artifacts on the [master 
 #### Fixes
   * Fix bug that the cover art of Video is not displayed on Windows
   * Fix bug that video tags were not parsed on Windows
+  * Fix to prevent potential NPE ([#1489](https://github.com/tesshucom/jpsonic/issues/1489))
 
 <details>
 <summary>v111.1.0</summary>
