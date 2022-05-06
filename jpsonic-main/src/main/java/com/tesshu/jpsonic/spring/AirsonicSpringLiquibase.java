@@ -25,7 +25,10 @@ import static org.apache.commons.lang3.StringUtils.trimToNull;
 
 import java.sql.Connection;
 import java.util.List;
+import java.util.Map;
 
+import com.google.common.util.concurrent.UncheckedExecutionException;
+import liquibase.Scope;
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.DatabaseFactory;
@@ -34,6 +37,7 @@ import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
 import liquibase.resource.ResourceAccessor;
+import liquibase.ui.LoggerUIService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,8 +45,17 @@ public class AirsonicSpringLiquibase extends liquibase.integration.spring.Spring
 
     private static final Logger LOG = LoggerFactory.getLogger(AirsonicSpringLiquibase.class);
 
+    @SuppressWarnings("PMD.AvoidCatchingGenericException") // Scope#enter
     @Override
     public void afterPropertiesSet() throws LiquibaseException {
+
+        try {
+            // Suppress console log. May be fixed in the future. #1476
+            Scope.enter(Map.of(Scope.Attr.ui.name(), new LoggerUIService()));
+        } catch (Exception e) {
+            throw new UncheckedExecutionException(e);
+        }
+
         LOG.trace("Starting Liquibase Update");
         try {
             super.afterPropertiesSet();
@@ -89,4 +102,5 @@ public class AirsonicSpringLiquibase extends liquibase.integration.spring.Spring
     private void removeCurrentHsqlDb(List<Database> implementedDatabases) {
         implementedDatabases.removeIf(db -> db instanceof liquibase.database.core.HsqlDatabase);
     }
+
 }
