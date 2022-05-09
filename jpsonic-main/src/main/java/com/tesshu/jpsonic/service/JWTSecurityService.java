@@ -59,11 +59,11 @@ public class JWTSecurityService {
         return randomInt.toString(32);
     }
 
-    public static Algorithm getAlgorithm(String jwtKey) {
+    static Algorithm getAlgorithm(String jwtKey) {
         return Algorithm.HMAC256(jwtKey);
     }
 
-    private static String createToken(String jwtKey, String path, Date expireDate) {
+    static String createToken(String jwtKey, String path, Date expireDate) {
         UriComponents components = UriComponentsBuilder.fromUriString(path).build();
         String query = components.getQuery();
         String claim = components.getPath() + (StringUtils.isBlank(query) ? "" : "?" + components.getQuery());
@@ -89,11 +89,10 @@ public class JWTSecurityService {
 
     public static DecodedJWT verify(String jwtKey, String token) {
         Algorithm algorithm = JWTSecurityService.getAlgorithm(jwtKey);
-        JWTVerifier verifier = JWT.require(algorithm).build();
-        if (token.split("\\.").length == WITH_FILE_EXTENSION) {
-            return verifier.verify(FilenameUtils.removeExtension(token));
-        }
-        return verifier.verify(token);
+        JWTVerifier verifier = JWT.require(algorithm).withClaimPresence(CLAIM_PATH).build();
+        DecodedJWT decoded = verifier.verify(
+                token.split("\\.").length == WITH_FILE_EXTENSION ? FilenameUtils.removeExtension(token) : token);
+        return verifier.verify(decoded);
     }
 
     public DecodedJWT verify(String credentials) {
