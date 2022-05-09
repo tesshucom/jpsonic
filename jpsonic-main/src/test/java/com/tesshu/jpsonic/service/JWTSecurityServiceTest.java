@@ -25,6 +25,7 @@ import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDateTime;
@@ -41,14 +42,13 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.AlgorithmMismatchException;
 import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.auth0.jwt.exceptions.SignatureVerificationException;
-import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
@@ -130,34 +130,40 @@ class JWTSecurityServiceTest {
 
             assertNotNull(JWTSecurityService.verify(key, JWTSecurityService.createToken(key, path, after)));
             assertNotNull(JWTSecurityService.verify(key, JWTSecurityService.createToken(key, path, current)));
-            assertThrows(TokenExpiredException.class,
+            Throwable t = assertThrows(com.tesshu.jpsonic.security.TokenExpiredException.class,
                     () -> JWTSecurityService.verify(key, JWTSecurityService.createToken(key, path, before)));
+            assertInstanceOf(com.auth0.jwt.exceptions.TokenExpiredException.class, t.getCause());
         }
 
         @Test
         void testSignatureVerification() {
             Date current = toDate(LocalDateTime.now());
             String invalidToken = JWTSecurityService.createToken(key, path, current);
-            assertThrows(SignatureVerificationException.class, () -> jwtSecurityService.verify(invalidToken));
+            Throwable t = assertThrows(com.tesshu.jpsonic.security.SignatureVerificationException.class,
+                    () -> jwtSecurityService.verify(invalidToken));
+            assertInstanceOf(com.auth0.jwt.exceptions.SignatureVerificationException.class, t.getCause());
         }
 
         @Test
         void testJWTDecode() {
             Date current = toDate(LocalDateTime.now());
             String invalidToken = "foo" + JWTSecurityService.createToken(key, path, current).substring(3);
-            assertThrows(JWTDecodeException.class, () -> jwtSecurityService.verify(invalidToken));
+            Throwable t = assertThrows(BadCredentialsException.class, () -> jwtSecurityService.verify(invalidToken));
+            assertInstanceOf(JWTDecodeException.class, t.getCause());
         }
 
         @Test
         void testAlgorithmMismatch() {
             String invalidToken = JWT.create().sign(Algorithm.HMAC512(key));
-            assertThrows(AlgorithmMismatchException.class, () -> jwtSecurityService.verify(invalidToken));
+            Throwable t = assertThrows(BadCredentialsException.class, () -> jwtSecurityService.verify(invalidToken));
+            assertInstanceOf(AlgorithmMismatchException.class, t.getCause());
         }
 
         @Test
         void testInvalidClaim() {
             final String token = JWT.create().withExpiresAt(toDate(LocalDateTime.now())).sign(Algorithm.HMAC256(key));
-            assertThrows(InvalidClaimException.class, () -> JWTSecurityService.verify(key, token));
+            Throwable t = assertThrows(BadCredentialsException.class, () -> JWTSecurityService.verify(key, token));
+            assertInstanceOf(InvalidClaimException.class, t.getCause());
         }
     }
 }

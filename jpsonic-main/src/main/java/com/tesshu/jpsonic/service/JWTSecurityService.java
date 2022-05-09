@@ -28,12 +28,16 @@ import java.util.Date;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -90,9 +94,18 @@ public class JWTSecurityService {
     public static DecodedJWT verify(String jwtKey, String token) {
         Algorithm algorithm = JWTSecurityService.getAlgorithm(jwtKey);
         JWTVerifier verifier = JWT.require(algorithm).withClaimPresence(CLAIM_PATH).build();
-        DecodedJWT decoded = verifier.verify(
-                token.split("\\.").length == WITH_FILE_EXTENSION ? FilenameUtils.removeExtension(token) : token);
-        return verifier.verify(decoded);
+        try {
+            DecodedJWT decoded = verifier.verify(
+                    token.split("\\.").length == WITH_FILE_EXTENSION ? FilenameUtils.removeExtension(token) : token);
+            return verifier.verify(decoded);
+        } catch (TokenExpiredException e) {
+            throw new com.tesshu.jpsonic.security.TokenExpiredException("The token has expired.", e);
+        } catch (SignatureVerificationException e) {
+            throw new com.tesshu.jpsonic.security.SignatureVerificationException(
+                    "The token's signature resulted invalid.", e);
+        } catch (JWTVerificationException e) {
+            throw new BadCredentialsException("The token is incorrect.", e);
+        }
     }
 
     public DecodedJWT verify(String credentials) {
