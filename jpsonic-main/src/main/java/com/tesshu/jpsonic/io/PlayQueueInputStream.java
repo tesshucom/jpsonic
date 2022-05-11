@@ -102,7 +102,7 @@ public class PlayQueueInputStream extends InputStream {
 
         if (isEmpty(currentFile)) {
             // Prepare currentInputStream.
-            Future<Boolean> prepare = executor.submit(new Prepare());
+            Future<Boolean> prepare = executor.submit(new Prepare(this));
             try {
                 boolean isPrepare = prepare.get();
                 if (!isPrepare) {
@@ -130,35 +130,43 @@ public class PlayQueueInputStream extends InputStream {
         return n;
     }
 
-    private class Prepare implements Callable<Boolean> {
+    private static class Prepare implements Callable<Boolean> {
+
+        private PlayQueueInputStream pqis;
+
+        public Prepare(PlayQueueInputStream pqis) {
+            super();
+            this.pqis = pqis;
+        }
 
         @Override
         public Boolean call() {
-            PlayQueue playQueue = player.getPlayQueue();
+            PlayQueue playQueue = pqis.player.getPlayQueue();
 
             // If playlist is in auto-random mode, populate it with new random songs.
             if (playQueue.getIndex() == -1 && !isEmpty(playQueue.getRandomSearchCriteria())) {
-                populateRandomPlaylist(playQueue);
+                pqis.populateRandomPlaylist(playQueue);
             }
 
             MediaFile file = playQueue.getCurrentFile();
             if (isEmpty(file)) {
-                internalClose();
+                pqis.internalClose();
                 return false;
             }
 
-            if (isEmpty(currentFile) || !file.equals(currentFile.get())) {
+            if (isEmpty(pqis.currentFile) || !file.equals(pqis.currentFile.get())) {
 
-                internalClose();
-                scrobble();
-                mediaFileService.incrementPlayCount(file);
-                writeLog(file);
+                pqis.internalClose();
+                pqis.scrobble();
+                pqis.mediaFileService.incrementPlayCount(file);
+                pqis.writeLog(file);
 
                 try {
-                    delegate = new AtomicReference<>(transcodingService.getTranscodedInputStream(transParam));
-                    if (!isEmpty(delegate) || player.getPlayQueue().getStatus() != PlayQueue.Status.STOPPED) {
-                        currentFile = new AtomicReference<>(file);
-                        status.setFile(currentFile.get().toPath().toFile());
+                    pqis.delegate = new AtomicReference<>(
+                            pqis.transcodingService.getTranscodedInputStream(pqis.transParam));
+                    if (!isEmpty(pqis.delegate) || pqis.player.getPlayQueue().getStatus() != PlayQueue.Status.STOPPED) {
+                        pqis.currentFile = new AtomicReference<>(file);
+                        pqis.status.setFile(pqis.currentFile.get().toPath().toFile());
                         return true;
                     }
                 } catch (IOException e) {
