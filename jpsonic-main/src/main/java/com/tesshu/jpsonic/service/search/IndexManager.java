@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -57,6 +58,7 @@ import com.tesshu.jpsonic.util.PlayerUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.FieldInfos;
 import org.apache.lucene.index.IndexNotFoundException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
@@ -619,6 +621,12 @@ public class IndexManager {
                 mayBeInit: synchronized (GENRE_LOCK) {
 
                     multiGenreMaster.clear();
+
+                    Collection<String> fields = FieldInfos.getIndexedFields(genreSearcher.getIndexReader());
+                    if (fields.size() == 0) {
+                        LOG.info("The multi-genre master has been updated(no record).");
+                        return;
+                    }
 
                     int numTerms = HighFreqTerms.DEFAULT_NUMTERMS;
                     Comparator<TermStats> c = new HighFreqTerms.DocFreqComparator();
