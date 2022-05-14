@@ -76,6 +76,8 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
@@ -547,7 +549,8 @@ class MediaScannerServiceTest {
          *
          */
         @Test
-        void testUpdateAlbum() {
+        @DisabledOnOs(OS.LINUX)
+        void testUpdateAlbumOnWin() {
 
             // LIFO
             List<MusicFolder> folder = getMusicFolders().stream().filter(f -> "alphaBeticalProps".equals(f.getName()))
@@ -624,6 +627,106 @@ class MediaScannerServiceTest {
             assertNull(album.getAlbumArtist());
             assertEquals("genreE", album.getGenre());
             assertEquals(Integer.valueOf(2002), album.getYear());
+            assertNull(album.getMusicBrainzReleaseId());
+            assertNull(album.getMusicBrainzRecordingId());
+
+            albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folder);
+            assertEquals(2, albumId3s.size());
+
+            albumId3 = albumId3s.get(0);
+            assertEquals("albumD", albumId3.getName());
+            assertEquals("albumArtistD", albumId3.getArtist());
+            assertEquals("genreD", albumId3.getGenre());
+            assertEquals(Integer.valueOf(2001), albumId3.getYear());
+            assertNull(albumId3.getMusicBrainzReleaseId());
+
+            albumId3 = albumId3s.get(1);
+            assertEquals("albumE", albumId3.getName());
+            assertEquals("albumArtistE", albumId3.getArtist());
+            assertEquals("genreE", albumId3.getGenre());
+            assertEquals(Integer.valueOf(2002), albumId3.getYear());
+            assertNull(albumId3.getMusicBrainzReleaseId());
+        }
+
+        @Test
+        @DisabledOnOs(OS.WINDOWS)
+        void testUpdateAlbumOnLinux() {
+
+            // LIFO
+            List<MusicFolder> folder = getMusicFolders().stream().filter(f -> "alphaBeticalProps".equals(f.getName()))
+                    .collect(Collectors.toList());
+            assertEquals(1, folder.size());
+            List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, folder);
+            assertEquals(1, albums.size());
+            MediaFile album = albums.get(0);
+            assertEquals("ALBUM1", album.getName());
+            assertEquals("albumArtistB", album.getArtist());
+            assertNull(album.getAlbumArtist());
+            assertEquals("genreB", album.getGenre());
+            assertEquals(Integer.valueOf(2002), album.getYear());
+            assertNull(album.getMusicBrainzReleaseId());
+            assertNull(album.getMusicBrainzRecordingId());
+
+            List<Album> albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folder);
+            assertEquals(1, albumId3s.size());
+            Album albumId3 = albumId3s.get(0);
+            assertEquals("albumA", albumId3.getName());
+            assertEquals("albumArtistB", albumId3.getArtist());
+
+            // [For legacy implementations, the following values ​​are inserted]
+            // assertEquals("genreB", albumId3.getGenre());
+            // assertEquals(Integer.valueOf(2002), albumId3.getYear());
+
+            // [For Jpsonic, modified to insert the following values]
+            // Other than this case, it is the same specification as the legacy.
+            assertEquals("genreB", albumId3.getGenre());
+            assertEquals(Integer.valueOf(2002), albumId3.getYear());
+
+            assertNull(album.getMusicBrainzReleaseId());
+            assertNull(album.getMusicBrainzRecordingId());
+
+            // Null
+            folder = getMusicFolders().stream().filter(f -> "noTagFirstChild".equals(f.getName()))
+                    .collect(Collectors.toList());
+            albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, folder);
+            assertEquals(1, albums.size());
+            album = albums.get(0);
+            assertEquals("ALBUM2", album.getName());
+            assertEquals("albumArtistC", album.getArtist());
+            assertNull(album.getAlbumArtist());
+            assertEquals("genreC", album.getGenre());
+            assertEquals(2002, album.getYear());
+            assertNull(album.getMusicBrainzReleaseId());
+            assertNull(album.getMusicBrainzRecordingId());
+
+            albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folder);
+            assertEquals(2, albumId3s.size());
+
+            albumId3 = albumId3s.get(0);
+            assertEquals("ALBUM2", albumId3.getName());
+            assertEquals("ARTIST2", albumId3.getArtist());
+            assertNull(albumId3.getGenre());
+            assertNull(albumId3.getYear());
+            assertNull(albumId3.getMusicBrainzReleaseId());
+
+            albumId3 = albumId3s.get(1);
+            assertEquals("albumC", albumId3.getName());
+            assertEquals("albumArtistC", albumId3.getArtist());
+            assertEquals("genreC", albumId3.getGenre());
+            assertEquals(Integer.valueOf(2002), albumId3.getYear());
+            assertNull(albumId3.getMusicBrainzReleaseId());
+
+            // Reverse
+            folder = getMusicFolders().stream().filter(f -> "fileAndPropsNameInReverse".equals(f.getName()))
+                    .collect(Collectors.toList());
+            albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, folder);
+            assertEquals(1, albums.size());
+            album = albums.get(0);
+            assertEquals("ALBUM3", album.getName());
+            assertEquals("albumArtistD", album.getArtist());
+            assertNull(album.getAlbumArtist());
+            assertEquals("genreD", album.getGenre());
+            assertEquals(Integer.valueOf(2001), album.getYear());
             assertNull(album.getMusicBrainzReleaseId());
             assertNull(album.getMusicBrainzRecordingId());
 
