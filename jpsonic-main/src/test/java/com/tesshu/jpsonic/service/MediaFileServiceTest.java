@@ -52,6 +52,8 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -803,7 +805,8 @@ class MediaFileServiceTest {
         }
 
         @Test
-        void testIsEmbeddedArtworkApplicable() throws ExecutionException, URISyntaxException {
+        @DisabledOnOs(OS.LINUX)
+        void testIsEmbeddedArtworkApplicableOnWin() throws ExecutionException, URISyntaxException {
 
             Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
 
@@ -821,5 +824,27 @@ class MediaFileServiceTest {
             Path containsDirOnly = createPath("/MEDIAS/Metadata/tagger3");
             assertTrue(mediaFileService.findCoverArt(containsDirOnly).isEmpty());
         }
+
+        @Test
+        @DisabledOnOs(OS.WINDOWS)
+        void testIsEmbeddedArtworkApplicableOnLinux() throws ExecutionException, URISyntaxException {
+
+            Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
+
+            // coverArt
+            Path parent = createPath("/MEDIAS/Metadata/coverart");
+            Path firstChild = createPath("/MEDIAS/Metadata/coverart/album.jpg"); // OS dependent
+            assertEquals(firstChild, mediaFileService.findCoverArt(parent).get());
+
+            // coverArt
+            Path containsEmbeddedFormats = createPath("/MEDIAS/Metadata/v2.4");
+            Path embeddedFormat = createPath("/MEDIAS/Metadata/v2.4/Mp3tag2.9.7.mp3");
+            assertEquals(embeddedFormat, mediaFileService.findCoverArt(containsEmbeddedFormats).get());
+
+            // empty
+            Path containsDirOnly = createPath("/MEDIAS/Metadata/tagger3");
+            assertTrue(mediaFileService.findCoverArt(containsDirOnly).isEmpty());
+        }
+
     }
 }
