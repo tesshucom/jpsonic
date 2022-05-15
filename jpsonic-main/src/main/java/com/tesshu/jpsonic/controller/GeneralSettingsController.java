@@ -143,6 +143,7 @@ public class GeneralSettingsController {
         command.setShowRememberMe(settingsService.isShowRememberMe());
         command.setPublishPodcast(settingsService.isPublishPodcast());
         command.setUseExternalPlayer(settingsService.isUseExternalPlayer());
+        command.setUseRefresh(settingsService.isUseRefresh());
 
         // Extensions and shortcuts
         command.setMusicFileTypes(settingsService.getMusicFileTypes());
@@ -240,6 +241,8 @@ public class GeneralSettingsController {
         if (!command.isUseExternalPlayer()) {
             playerService.resetExternalPlayer();
         }
+        settingsService.setUseRefresh(command.isUseRefresh());
+        settingsService.setShowRefresh(command.isUseRefresh() && settingsService.isShowRefresh());
 
         // Extensions and shortcuts
         settingsService.setMusicFileTypes(command.getMusicFileTypes());

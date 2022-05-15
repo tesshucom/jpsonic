@@ -57,6 +57,9 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
     private boolean ignoreFileTimestamps;
     private boolean ignoreFileTimestampsForEachAlbum;
 
+    // for view page control
+    private boolean useRefresh;
+
     public List<MusicFolderInfo> getMusicFolders() {
         return musicFolders;
     }
@@ -143,6 +146,14 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
     public void setIgnoreFileTimestampsForEachAlbum(boolean ignoreFileTimestampsForEachAlbum) {
         this.ignoreFileTimestampsForEachAlbum = ignoreFileTimestampsForEachAlbum;
+    }
+
+    public boolean isUseRefresh() {
+        return useRefresh;
+    }
+
+    public void setUseRefresh(boolean useRefresh) {
+        this.useRefresh = useRefresh;
     }
 
     public static class MusicFolderInfo {

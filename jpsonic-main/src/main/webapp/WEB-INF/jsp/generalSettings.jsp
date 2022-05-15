@@ -241,6 +241,12 @@ function resetExtension() {
                 <label for="useExternalPlayer"><fmt:message key="generalsettings.useexternalplayer"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="useexternalplayer"/></c:import>
             </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="useRefresh" id="useRefresh"/>
+                <label for="useRefresh"><fmt:message key="generalsettings.userefresh"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="userefresh"/></c:import>
+            </dd>
         </dl>
     </details>
 

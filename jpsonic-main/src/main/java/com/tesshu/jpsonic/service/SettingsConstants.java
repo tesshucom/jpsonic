@@ -138,6 +138,7 @@ final class SettingsConstants {
             static final Pair<Boolean> PUBLISH_PODCAST = Pair.of("PublishPodcast", false);
             static final Pair<Boolean> USE_RADIO = Pair.of("UseRadio", false);
             static final Pair<Boolean> USE_EXTERNAL_PLAYER = Pair.of("UseExternalPlayer", false);
+            static final Pair<Boolean> USE_REFRESH = Pair.of("UseRefresh", false);
 
             private Legacy() {
             }
