@@ -197,23 +197,24 @@ public class CoverArtController {
 
     private CoverArtRequest createAlbumCoverArtRequest(int id) {
         Album album = albumDao.getAlbum(id);
-        return album == null ? null : new AlbumCoverArtRequest(album);
+        return album == null ? null : new AlbumCoverArtRequest(this, fontLoader, logic, album);
     }
 
     private CoverArtRequest createArtistCoverArtRequest(int id) {
         Artist artist = artistDao.getArtist(id);
-        return artist == null ? null : new ArtistCoverArtRequest(artist);
+        return artist == null ? null : new ArtistCoverArtRequest(this, fontLoader, logic, artist);
     }
 
     private PlaylistCoverArtRequest createPlaylistCoverArtRequest(int id) {
         Playlist playlist = playlistService.getPlaylist(id);
-        return playlist == null ? null : new PlaylistCoverArtRequest(playlist);
+        return playlist == null ? null
+                : new PlaylistCoverArtRequest(this, fontLoader, logic, mediaFileService, playlistService, playlist);
     }
 
     private CoverArtRequest createPodcastCoverArtRequest(int id, HttpServletRequest request) {
         PodcastChannel channel = podcastService.getChannel(id);
         if (channel.getMediaFileId() == null) {
-            return new PodcastCoverArtRequest(channel);
+            return new PodcastCoverArtRequest(this, fontLoader, logic, channel);
         }
         return createMediaFileCoverArtRequest(channel.getMediaFileId(), request);
     }
@@ -225,9 +226,9 @@ public class CoverArtController {
         }
         if (mediaFile.isVideo()) {
             int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
-            return new VideoCoverArtRequest(mediaFile, offset);
+            return new VideoCoverArtRequest(this, fontLoader, logic, mediaFile, offset);
         }
-        return new MediaFileCoverArtRequest(mediaFile);
+        return new MediaFileCoverArtRequest(this, fontLoader, logic, mediaFileService, mediaFile);
     }
 
     private void sendImage(File file, HttpServletResponse response) throws ExecutionException {
@@ -398,14 +399,18 @@ public class CoverArtController {
         return thumb;
     }
 
-    private abstract class CoverArtRequest {
+    private abstract static class CoverArtRequest {
 
+        protected final CoverArtController controller;
+        protected final FontLoader fontLoader;
+        protected final CoverArtLogic logic;
         protected Path coverArt;
 
-        private CoverArtRequest() {
-        }
-
-        private CoverArtRequest(String coverArtPath) {
+        private CoverArtRequest(CoverArtController controller, FontLoader fontLoader, CoverArtLogic logic,
+                String coverArtPath) {
+            this.controller = controller;
+            this.fontLoader = fontLoader;
+            this.logic = logic;
             this.coverArt = coverArtPath == null ? null : Path.of(coverArtPath);
         }
 
@@ -428,7 +433,7 @@ public class CoverArtController {
         @SuppressWarnings("PMD.GuardLogStatement")
         public BufferedImage createImage(int size) {
             if (coverArt != null) {
-                try (InputStream in = getImageInputStream(coverArt)) {
+                try (InputStream in = controller.getImageInputStream(coverArt)) {
 
                     BufferedImage image = ImageIO.read(in);
                     if (image == null) {
@@ -467,12 +472,13 @@ public class CoverArtController {
         public abstract String getArtist();
     }
 
-    class ArtistCoverArtRequest extends CoverArtRequest {
+    static class ArtistCoverArtRequest extends CoverArtRequest {
 
         private final Artist artist;
 
-        ArtistCoverArtRequest(Artist artist) {
-            super(artist.getCoverArtPath());
+        ArtistCoverArtRequest(CoverArtController controller, FontLoader fontLoader, CoverArtLogic logic,
+                Artist artist) {
+            super(controller, fontLoader, logic, artist.getCoverArtPath());
             this.artist = artist;
         }
 
@@ -497,12 +503,12 @@ public class CoverArtController {
         }
     }
 
-    class AlbumCoverArtRequest extends CoverArtRequest {
+    static class AlbumCoverArtRequest extends CoverArtRequest {
 
         private final Album album;
 
-        AlbumCoverArtRequest(Album album) {
-            super(album.getCoverArtPath());
+        AlbumCoverArtRequest(CoverArtController controller, FontLoader fontLoader, CoverArtLogic logic, Album album) {
+            super(controller, fontLoader, logic, album.getCoverArtPath());
             this.album = album;
         }
 
@@ -527,14 +533,18 @@ public class CoverArtController {
         }
     }
 
-    class PlaylistCoverArtRequest extends CoverArtRequest {
+    static class PlaylistCoverArtRequest extends CoverArtRequest {
 
         private static final int IMAGE_COMPOSITES_THRESHOLD = 4;
-
+        private final MediaFileService mediaFileService;
+        private final PlaylistService playlistService;
         private final Playlist playlist;
 
-        PlaylistCoverArtRequest(Playlist playlist) {
-            super(null);
+        PlaylistCoverArtRequest(CoverArtController controller, FontLoader fontLoader, CoverArtLogic logic,
+                MediaFileService mediaFileService, PlaylistService playlistService, Playlist playlist) {
+            super(controller, fontLoader, logic, null);
+            this.mediaFileService = mediaFileService;
+            this.playlistService = playlistService;
             this.playlist = playlist;
         }
 
@@ -565,17 +575,30 @@ public class CoverArtController {
                 return createAutoCover(size, size);
             }
             if (albums.size() < IMAGE_COMPOSITES_THRESHOLD) {
-                return new MediaFileCoverArtRequest(albums.get(0)).createImage(size);
+                return new MediaFileCoverArtRequest(controller, fontLoader, logic, mediaFileService, albums.get(0))
+                        .createImage(size);
             }
 
             BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
             Graphics2D graphics = image.createGraphics();
 
             int half = size / 2;
-            graphics.drawImage(new MediaFileCoverArtRequest(albums.get(0)).createImage(half), null, 0, 0);
-            graphics.drawImage(new MediaFileCoverArtRequest(albums.get(1)).createImage(half), null, half, 0);
-            graphics.drawImage(new MediaFileCoverArtRequest(albums.get(2)).createImage(half), null, 0, half);
-            graphics.drawImage(new MediaFileCoverArtRequest(albums.get(3)).createImage(half), null, half, half);
+            graphics.drawImage(
+                    new MediaFileCoverArtRequest(controller, fontLoader, logic, mediaFileService, albums.get(0))
+                            .createImage(half),
+                    null, 0, 0);
+            graphics.drawImage(
+                    new MediaFileCoverArtRequest(controller, fontLoader, logic, mediaFileService, albums.get(1))
+                            .createImage(half),
+                    null, half, 0);
+            graphics.drawImage(
+                    new MediaFileCoverArtRequest(controller, fontLoader, logic, mediaFileService, albums.get(2))
+                            .createImage(half),
+                    null, 0, half);
+            graphics.drawImage(
+                    new MediaFileCoverArtRequest(controller, fontLoader, logic, mediaFileService, albums.get(3))
+                            .createImage(half),
+                    null, half, half);
             graphics.dispose();
             return image;
         }
@@ -592,12 +615,13 @@ public class CoverArtController {
         }
     }
 
-    class PodcastCoverArtRequest extends CoverArtRequest {
+    static class PodcastCoverArtRequest extends CoverArtRequest {
 
         private final PodcastChannel channel;
 
-        PodcastCoverArtRequest(PodcastChannel channel) {
-            super(null);
+        PodcastCoverArtRequest(CoverArtController controller, FontLoader fontLoader, CoverArtLogic logic,
+                PodcastChannel channel) {
+            super(controller, fontLoader, logic, null);
             this.channel = channel;
         }
 
@@ -622,12 +646,13 @@ public class CoverArtController {
         }
     }
 
-    class MediaFileCoverArtRequest extends CoverArtRequest {
+    static class MediaFileCoverArtRequest extends CoverArtRequest {
 
         private final MediaFile dir;
 
-        MediaFileCoverArtRequest(MediaFile mediaFile) {
-            super(mediaFile.getCoverArtPathString());
+        MediaFileCoverArtRequest(CoverArtController controller, FontLoader fontLoader, CoverArtLogic logic,
+                MediaFileService mediaFileService, MediaFile mediaFile) {
+            super(controller, fontLoader, logic, mediaFile.getCoverArtPathString());
             dir = mediaFile.isDirectory() ? mediaFile : mediaFileService.getParentOf(mediaFile);
             coverArt = mediaFileService.getCoverArt(mediaFile);
         }
@@ -653,13 +678,14 @@ public class CoverArtController {
         }
     }
 
-    class VideoCoverArtRequest extends CoverArtRequest {
+    static class VideoCoverArtRequest extends CoverArtRequest {
 
         private final MediaFile mediaFile;
         private final int offset;
 
-        VideoCoverArtRequest(MediaFile mediaFile, int offset) {
-            super(mediaFile.getCoverArtPathString());
+        VideoCoverArtRequest(CoverArtController controller, FontLoader fontLoader, CoverArtLogic logic,
+                MediaFile mediaFile, int offset) {
+            super(controller, fontLoader, logic, mediaFile.getCoverArtPathString());
             this.mediaFile = mediaFile;
             this.offset = offset;
         }
@@ -669,7 +695,7 @@ public class CoverArtController {
             int height = size;
             int width = height * 16 / 9;
 
-            BufferedImage result = getImageInputStreamForVideo(mediaFile, width, height, offset);
+            BufferedImage result = controller.getImageInputStreamForVideo(mediaFile, width, height, offset);
             if (result != null) {
                 return result;
             }

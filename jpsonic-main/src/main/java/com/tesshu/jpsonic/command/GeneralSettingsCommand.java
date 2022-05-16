@@ -70,6 +70,7 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean showRememberMe;
     private boolean publishPodcast;
     private boolean useExternalPlayer;
+    private boolean useRefresh;
 
     // Extensions and shortcuts
     private String musicFileTypes;
@@ -322,6 +323,14 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setUseExternalPlayer(boolean useExternalPlayer) {
         this.useExternalPlayer = useExternalPlayer;
+    }
+
+    public boolean isUseRefresh() {
+        return useRefresh;
+    }
+
+    public void setUseRefresh(boolean useRefresh) {
+        this.useRefresh = useRefresh;
     }
 
     public String getMusicFileTypes() {

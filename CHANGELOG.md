@@ -3,13 +3,12 @@
 # jpsonic/jpsonic
 # -->
 
-
-## v111.2.0 (SNAPSHOT)
+## [v111.2.0](https://github.com/tesshucom/jpsonic/milestone/57)
 
   * Scan parallelization is planned for v111.x. v111.2.0 will have bug fixes and improvements that underlie parallelization.
   * Parallelization is not provided in v111.2.0. This version focuses on fixes related to Robust optimization.
   * But it may be a bit faster than Subsonic's or Airsonic's scans.
-  * The binaries of SNAPSHOT are available from the latest artifacts on the [master branch](https://github.com/tesshucom/jpsonic/actions?query=branch%3Amaster).
+  * Dummy data of 400,000 songs was scanned and it was confirmed that there were no Memory, handle, thread leaks.
 
 #### Enhancement
   * Update libs. Includes fixes for CVE-2022-0839, CVE-2020-36518
@@ -19,13 +18,16 @@
   * Improved scanning process
     * Improve design to prevent duplicate analysis
     * Delete Fast access mode ([#1452](https://github.com/tesshucom/jpsonic/issues/1452))
+    * Suppress reflesh button ([#1499](https://github.com/tesshucom/jpsonic/issues/1499))
     * Embedded images check during scan will be simplified. Full check will be done when a request for image
-    * Fix to suppress some functions when scanning ([#1475](https://github.com/tesshucom/jpsonic/issues/1475))
+    * Fix to suppress some features when scanning ([#1475](https://github.com/tesshucom/jpsonic/issues/1475))
 
 #### Fixes
   * Fix bug that the cover art of Video is not displayed on Windows
   * Fix bug that video tags were not parsed on Windows
   * Fix to prevent potential NPE ([#1489](https://github.com/tesshucom/jpsonic/issues/1489))
+  * JWT logging is simplified ([#1192](https://github.com/tesshucom/jpsonic/issues/1192))
+  * Fix to avoid error when genre is 0 ([#1500](https://github.com/tesshucom/jpsonic/issues/1500))
 
 <details>
 <summary>v111.1.0</summary>

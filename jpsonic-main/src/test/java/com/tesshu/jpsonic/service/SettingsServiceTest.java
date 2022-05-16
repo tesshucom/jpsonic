@@ -768,6 +768,11 @@ class SettingsServiceTest {
     }
 
     @Test
+    void testIsUseRefresh() {
+        assertFalse(settingsService.isUseRefresh());
+    }
+
+    @Test
     void testGetSmtpEncryption() {
         assertEquals("None", settingsService.getSmtpEncryption());
     }

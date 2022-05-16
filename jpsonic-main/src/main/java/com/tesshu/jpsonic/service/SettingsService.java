@@ -643,6 +643,14 @@ public class SettingsService {
         setProperty(SettingsConstants.General.Legacy.USE_EXTERNAL_PLAYER, b);
     }
 
+    public boolean isUseRefresh() {
+        return getBoolean(SettingsConstants.General.Legacy.USE_REFRESH);
+    }
+
+    public void setUseRefresh(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.USE_REFRESH, b);
+    }
+
     public String getMusicFileTypes() {
         synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
             return getString(SettingsConstants.General.Extension.MUSIC_FILE_TYPES);

@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -106,7 +107,21 @@ public class JWTRequestParameterProcessingFilter implements Filter {
         } catch (InternalAuthenticationServiceException failed) {
             LOG.error("An internal error occurred while trying to authenticate the user.", failed);
             unsuccessfulAuthentication(request, response, failed);
-
+            return;
+        } catch (TokenExpiredException | SignatureVerificationException e) {
+            // TODO #1192 Insufficient handling
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(e.getMessage(), e);
+            } else if (LOG.isWarnEnabled()) {
+                LOG.warn(e.getMessage());
+            }
+            unsuccessfulAuthentication(request, response, e);
+            return;
+        } catch (BadCredentialsException e) {
+            if (LOG.isErrorEnabled()) {
+                LOG.error(e.getMessage(), e);
+            }
+            unsuccessfulAuthentication(request, response, e);
             return;
         } catch (AuthenticationException e) {
             unsuccessfulAuthentication(request, response, e);
