@@ -45,7 +45,7 @@ public class AirsonicSpringLiquibase extends liquibase.integration.spring.Spring
 
     private static final Logger LOG = LoggerFactory.getLogger(AirsonicSpringLiquibase.class);
 
-    @SuppressWarnings("PMD.AvoidCatchingGenericException") // Scope#enter
+    @SuppressWarnings("PMD.AvoidCatchingGenericException") // liquibase/Scope#enter
     @Override
     public void afterPropertiesSet() throws LiquibaseException {
 

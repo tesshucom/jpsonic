@@ -49,10 +49,7 @@ public class DefaultPlaylistExportHandler implements PlaylistExportHandler {
         return true;
     }
 
-    @SuppressWarnings("PMD.AvoidCatchingGenericException")
-    /*
-     * Wrap and rethrow due to constraints of 'chameleon' {@link SpecificPlaylistProvider#toSpecificPlaylist(Playlist)}
-     */
+    @SuppressWarnings("PMD.AvoidCatchingGenericException") // chameleon/SpecificPlaylistProvider#toSpecificPlaylist
     @Override
     public SpecificPlaylist handle(int id, SpecificPlaylistProvider provider) throws ExecutionException {
         Playlist playlist = createChameleonGenericPlaylistFromDBId(id);

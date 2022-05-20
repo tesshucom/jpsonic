@@ -154,11 +154,7 @@ public class UPnPService {
         }
     }
 
-    @SuppressWarnings("PMD.AvoidCatchingGenericException")
-    /*
-     * Wrap and rethrow due to constraints of 'fourthline' {@link
-     * UpnpServiceImpl#UpnpServiceImpl(UpnpServiceConfiguration, org.fourthline.cling.registry.RegistryListener...)}
-     */
+    @SuppressWarnings("PMD.AvoidCatchingGenericException") // fourthline/UpnpServiceImpl#UpnpServiceImpl
     private void createService() {
         synchronized (LOCK) {
             UpnpServiceConfiguration upnpConf = 0 < SettingsService.getDefaultUPnPPort()

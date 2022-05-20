@@ -226,10 +226,7 @@ public class UploadController {
         return new UnzipResult(uploadedFiles, unzippedFiles);
     }
 
-    @SuppressWarnings("PMD.AvoidCatchingGenericException")
-    /*
-     * [AvoidCatchingGenericException] Wrap&Throw due to constraints of 'apache commons' {@link FileItem#write(File)}
-     */
+    @SuppressWarnings("PMD.AvoidCatchingGenericException") // apache-commons/FileItem#write
     private void addUploadedFile(FileItem targetItem, File targetFile, List<File> to) throws ExecutionException {
         if (!securityService.isUploadAllowed(targetFile.toPath())) {
             throw new ExecutionException(new GeneralSecurityException(

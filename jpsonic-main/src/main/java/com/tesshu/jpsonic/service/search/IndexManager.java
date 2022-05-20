@@ -601,11 +601,8 @@ public class IndexManager {
 
     }
 
-    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.AvoidCatchingGenericException" })
-    /*
-     * [AvoidInstantiatingObjectsInLoops] (Genre) Not reusable [AvoidCatchingGenericException] LOG Exception due to
-     * constraints of 'lucene' {@link HighFreqTerms#getHighFreqTerms(IndexReader, int, String, Comparator)}
-     */
+    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.AvoidCatchingGenericException" }) // lucene/HighFreqTerms#getHighFreqTerms
+    // [AvoidInstantiatingObjectsInLoops] (Genre) Not reusable
     private void refreshMultiGenreMaster() {
 
         IndexSearcher genreSearcher = getSearcher(IndexType.GENRE);
@@ -632,9 +629,7 @@ public class IndexManager {
                         stats = HighFreqTerms.getHighFreqTerms(genreSearcher.getIndexReader(), numTerms,
                                 FieldNamesConstants.GENRE, c);
                     } catch (Exception e) {
-                        LOG.error(
-                                "The genre field may not exist. This is an expected error before scan or using library without genre. : ",
-                                e);
+                        LOG.error("The genre field may not exist.", e);
                         break mayBeInit;
                     }
                     List<String> genreNames = Arrays.stream(stats).map(t -> t.termtext.utf8ToString())

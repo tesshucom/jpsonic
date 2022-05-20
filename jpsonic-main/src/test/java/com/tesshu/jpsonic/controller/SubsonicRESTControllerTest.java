@@ -104,12 +104,8 @@ import org.subsonic.restapi.Response;
 import org.subsonic.restapi.ResponseStatus;
 
 @AutoConfigureMockMvc
-@SuppressWarnings({ "PMD.JUnitTestsShouldIncludeAssert", "PMD.AvoidCatchingGenericException", "PMD.DetachedTestCase",
-        "PMD.TooManyStaticImports" })
-/*
- * Wrap&Throw Exception due to constraints of 'springframework' {@link
- * MockMvc#perform(org.springframework.test.web.servlet.RequestBuilder)}
- */
+@SuppressWarnings({ "PMD.AvoidCatchingGenericException", // springframework/MockMvc#perform
+        "PMD.JUnitTestsShouldIncludeAssert", "PMD.DetachedTestCase", "PMD.TooManyStaticImports" })
 class SubsonicRESTControllerTest {
 
     private static final String CLIENT_NAME = "jpsonic";
