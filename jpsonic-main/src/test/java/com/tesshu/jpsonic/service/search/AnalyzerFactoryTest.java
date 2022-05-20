@@ -796,7 +796,7 @@ class AnalyzerFactoryTest {
                     .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
 
             String query = "B︴C";
-            var notTokenized = Arrays.asList(query.toLowerCase(Locale.US));
+            var notTokenized = Arrays.asList(query.toLowerCase(Locale.ENGLISH));
             assertEquals(notTokenized, toTermString(FieldNamesConstants.MEDIA_TYPE, query));
             assertEquals(notTokenized, toTermString(query));
             assertEquals(notTokenized, toTermString(FieldNamesConstants.ARTIST, query));

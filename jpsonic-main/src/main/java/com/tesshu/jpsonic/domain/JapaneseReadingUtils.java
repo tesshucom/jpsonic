@@ -391,14 +391,12 @@ public class JapaneseReadingUtils {
         if (isEmpty(s)) {
             return null;
         }
-        /* @see MusicIndexService#createSortableName */
-        String lower = s.toLowerCase(settingsService.getLocale());
         String result = s;
         if (ObjectUtils.isEmpty(ignoredArticles)) {
             ignoredArticles = Arrays.asList(settingsService.getIgnoredArticles().split("\\s+"));
         }
         for (String article : ignoredArticles) {
-            if (lower.startsWith(article.toLowerCase(settingsService.getLocale()) + SPACE)) {
+            if (StringUtils.startsWithIgnoreCase(s, article + SPACE)) {
                 // reading = lower.substring(article.length() + 1) + ", " + article;
                 result = result.substring(article.length() + 1);
             }

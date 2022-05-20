@@ -195,7 +195,7 @@ public final class ParserUtils {
         if (extension == null) {
             return false;
         }
-        return IMG_APPLICABLES.contains(extension.toLowerCase(Locale.getDefault()));
+        return IMG_APPLICABLES.contains(extension.toLowerCase(Locale.ENGLISH));
     }
 
     public static Optional<Artwork> getEmbeddedArtwork(Path path) {

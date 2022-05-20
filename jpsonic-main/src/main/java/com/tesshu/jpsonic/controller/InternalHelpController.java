@@ -55,6 +55,7 @@ import com.tesshu.jpsonic.spring.DatabaseConfiguration.ProfileNameConstants;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.input.ReversedLinesFileReader;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
@@ -204,15 +205,11 @@ public class InternalHelpController {
      *
      * See: https://superuser.com/questions/999133/differences-between-en-us-utf8-and-en-us-utf-8
      */
-    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
-    /*
-     * Locale doesn't matter because it's a modifier comparison of lang-tags.
-     */
     private boolean doesLocaleSupportUtf8(String locale) {
         if (locale == null) {
             return false;
         } else {
-            return locale.toLowerCase().replaceAll("\\W", "").contains("utf8");
+            return StringUtils.containsIgnoreCase(locale.replaceAll("\\W", ""), "utf8");
         }
     }
 

@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -195,18 +196,15 @@ public class SecurityService implements UserDetailsService {
                 !user.isLdapAuthenticated(), true, true, true, authorities);
     }
 
-    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
-    /*
-     * [AvoidInstantiatingObjectsInLoops] (SimpleGrantedAuthority) Not reusable [UseLocaleWithCaseConversions] The
-     * locale doesn't matter because just converting the literal.
-     */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    // [AvoidInstantiatingObjectsInLoops] (SimpleGrantedAuthority)
     public List<GrantedAuthority> getGrantedAuthorities(String username) {
         String[] roles = userDao.getRolesForUser(username);
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("IS_AUTHENTICATED_ANONYMOUSLY"));
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
         for (String role : roles) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase(Locale.ENGLISH)));
         }
         return authorities;
     }

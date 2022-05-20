@@ -197,11 +197,8 @@ public class UploadController {
         }
     }
 
-    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
-    /*
-     * [AvoidInstantiatingObjectsInLoops] (File, Execution) Not reusable [UseLocaleWithCaseConversions] The locale
-     * doesn't matter, as only comparing the extension literal.
-     */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    // AvoidInstantiatingObjectsInLoops] (File, Execution) Not reusable
     private UnzipResult doUnzip(List<FileItem> items, File dir, boolean unzip) throws ExecutionException {
         List<File> uploadedFiles = new ArrayList<>();
         List<File> unzippedFiles = new ArrayList<>();
@@ -221,7 +218,7 @@ public class UploadController {
                     LOG.info("Uploaded " + targetFile);
                 }
 
-                if (unzip && targetFile.getName().toLowerCase().endsWith(".zip")) {
+                if (unzip && StringUtils.endsWithIgnoreCase(targetFile.getName(), ".zip")) {
                     unzippedFiles = unzip(targetFile);
                 }
             }
