@@ -39,7 +39,6 @@ import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.DaoHelper;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
@@ -167,7 +166,6 @@ public class InternalHelpController {
         }
     }
 
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @SuppressWarnings({ "PMD.CloseResource", "PMD.AvoidInstantiatingObjectsInLoops" })
     /*
      * [CloseResource] False positive. SearcherManager inherits Closeable but ensures each searcher is closed only once
@@ -235,7 +233,6 @@ public class InternalHelpController {
         map.put("localeDefaultCharsetSupportsUtf8", doesLocaleSupportUtf8(Charset.defaultCharset().toString()));
     }
 
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private void gatherDatabaseInfo(Map<String, Object> map) {
 
         try (Connection conn = daoHelper.getDataSource().getConnection()) {
