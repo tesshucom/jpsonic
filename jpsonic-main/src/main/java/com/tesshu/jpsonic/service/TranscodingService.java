@@ -427,7 +427,7 @@ public class TranscodingService {
      *            Data to feed to the process. May be {@code null}. @return The newly created input stream.
      */
     TranscodeInputStream createTranscodeInputStream(@NonNull String command, Integer maxBitRate,
-            VideoTranscodingSettings vts, @NonNull MediaFile mediaFile, InputStream in) throws IOException {
+            VideoTranscodingSettings vts, @NonNull MediaFile mediaFile, @Nullable InputStream in) throws IOException {
 
         String title = mediaFile.getTitle();
         String album = mediaFile.getAlbumName();

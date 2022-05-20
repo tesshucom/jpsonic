@@ -52,7 +52,6 @@ public class ShutdownHook implements ApplicationListener<ContextClosedEvent> {
         this.settingsService = settingsService;
     }
 
-    @SuppressWarnings("PMD.DoNotUseThreads")
     /*
      * The Transfer Status check is done when working with most streams. However, many of these processes are
      * overcrowded processes. If any of these processes are already running and then perform a shutdown, the Spring

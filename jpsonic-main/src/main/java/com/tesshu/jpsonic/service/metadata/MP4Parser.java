@@ -19,11 +19,6 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import static com.tesshu.jpsonic.service.metadata.ParserUtils.getFolder;
-import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseDoubleToInt;
-import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseInt;
-import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseTrackNumber;
-import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseYear;
 import static com.tesshu.jpsonic.util.FileUtil.getShortPath;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -49,7 +44,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-@SuppressWarnings("PMD.TooManyStaticImports")
 public class MP4Parser {
 
     private static final Logger LOG = LoggerFactory.getLogger(MP4Parser.class);
@@ -65,7 +59,7 @@ public class MP4Parser {
     }
 
     long getThreshold(@NonNull MediaFile mediaFile, Map<String, @NonNull MP4ParseStatistics> statistics) {
-        String folder = getFolder(mediaFile);
+        String folder = ParserUtils.getFolder(mediaFile);
         if (!statistics.containsKey(folder)) {
             statistics.putIfAbsent(folder, new MP4ParseStatistics());
         }
@@ -100,22 +94,24 @@ public class MP4Parser {
         }
 
         long readtime = System.currentTimeMillis() - current;
-        statistics.get(getFolder(mediaFile)).addTikaLeadTime(mediaFile.getFileSize(), readtime);
+        statistics.get(ParserUtils.getFolder(mediaFile)).addTikaLeadTime(mediaFile.getFileSize(), readtime);
 
-        getField(metadata, TIFF.IMAGE_LENGTH.getName()).ifPresent(s -> result.setHeight(parseInt(s)));
-        getField(metadata, TIFF.IMAGE_WIDTH.getName()).ifPresent(s -> result.setWidth(parseInt(s)));
-        getField(metadata, XMPDM.DURATION.getName()).ifPresent(s -> result.setDurationSeconds(parseDoubleToInt(s)));
+        getField(metadata, TIFF.IMAGE_LENGTH.getName()).ifPresent(s -> result.setHeight(ParserUtils.parseInt(s)));
+        getField(metadata, TIFF.IMAGE_WIDTH.getName()).ifPresent(s -> result.setWidth(ParserUtils.parseInt(s)));
+        getField(metadata, XMPDM.DURATION.getName())
+                .ifPresent(s -> result.setDurationSeconds(ParserUtils.parseDoubleToInt(s)));
         getField(metadata, XMPDM.ALBUM_ARTIST.getName()).ifPresent(s -> result.setAlbumArtist(s));
         getField(metadata, XMPDM.ALBUM.getName()).ifPresent(s -> result.setAlbumName(s));
         getField(metadata, XMPDM.ARTIST.getName()).ifPresent(s -> result.setArtist(s));
         if (isEmpty(result.getArtist())) {
             getField(metadata, DublinCore.CREATOR.getName()).ifPresent(s -> result.setArtist(s));
         }
-        getField(metadata, XMPDM.DISC_NUMBER.getName()).ifPresent(s -> result.setDiscNumber(parseInt(s)));
+        getField(metadata, XMPDM.DISC_NUMBER.getName()).ifPresent(s -> result.setDiscNumber(ParserUtils.parseInt(s)));
         getField(metadata, XMPDM.GENRE.getName()).ifPresent(s -> result.setGenre(s));
         getField(metadata, DublinCore.TITLE.getName()).ifPresent(s -> result.setTitle(s));
-        getField(metadata, XMPDM.TRACK_NUMBER.getName()).ifPresent(s -> result.setTrackNumber(parseTrackNumber(s)));
-        getField(metadata, XMPDM.RELEASE_DATE.getName()).ifPresent(s -> result.setYear(parseYear(s)));
+        getField(metadata, XMPDM.TRACK_NUMBER.getName())
+                .ifPresent(s -> result.setTrackNumber(ParserUtils.parseTrackNumber(s)));
+        getField(metadata, XMPDM.RELEASE_DATE.getName()).ifPresent(s -> result.setYear(ParserUtils.parseYear(s)));
         getField(metadata, XMPDM.COMPOSER.getName()).ifPresent(s -> result.setComposer(s));
 
         return result;

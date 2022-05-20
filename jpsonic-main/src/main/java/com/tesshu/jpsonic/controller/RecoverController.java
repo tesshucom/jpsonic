@@ -64,7 +64,6 @@ public class RecoverController {
         this.random = new SecureRandom();
     }
 
-    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     @RequestMapping(method = { RequestMethod.GET, RequestMethod.POST })
     public ModelAndView recover(HttpServletRequest request) {
 

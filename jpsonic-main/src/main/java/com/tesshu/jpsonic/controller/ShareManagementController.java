@@ -97,7 +97,6 @@ public class ShareManagementController {
         return playlistId == null ? null : playlistService.getPlaylist(playlistId).getName();
     }
 
-    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     private List<MediaFile> getMediaFiles(HttpServletRequest request) throws ServletRequestBindingException {
         Integer id = ServletRequestUtils.getIntParameter(request, Attributes.Request.ID.value());
         Integer playerId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYER.value());

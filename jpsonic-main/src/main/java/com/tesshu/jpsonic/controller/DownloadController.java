@@ -113,7 +113,6 @@ public class DownloadController {
     }
 
     @GetMapping
-    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletRequestBindingException, IOException {
 

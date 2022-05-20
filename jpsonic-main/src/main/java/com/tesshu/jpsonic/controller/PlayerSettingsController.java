@@ -86,7 +86,6 @@ public class PlayerSettingsController {
     }
 
     @ModelAttribute
-    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     protected void formBackingObject(HttpServletRequest request, Model model,
             @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast)
             throws ServletRequestBindingException {
@@ -193,7 +192,6 @@ public class PlayerSettingsController {
         return authorizedPlayers;
     }
 
-    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     private void deleteOrClone(HttpServletRequest request, Model model) throws ServletRequestBindingException {
         if (request.getParameter(Attributes.Request.DELETE.value()) != null) {
             Integer delete = ServletRequestUtils.getIntParameter(request, Attributes.Request.DELETE.value());

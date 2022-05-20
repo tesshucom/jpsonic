@@ -198,7 +198,6 @@ public final class ParserUtils {
         return IMG_APPLICABLES.contains(extension.toLowerCase(Locale.getDefault()));
     }
 
-    @SuppressWarnings("PMD.GuardLogStatement")
     public static Optional<Artwork> getEmbeddedArtwork(Path path) {
 
         if (!isEmbeddedArtworkApplicable(path)) {
@@ -212,7 +211,7 @@ public final class ParserUtils {
                 | InvalidAudioFrameException e) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Unable to read cover art: " + getShortPath(path), e);
-            } else {
+            } else if (LOG.isWarnEnabled()) {
                 LOG.warn("Unable to read cover art in " + getShortPath(path) + ": [{}]", e.getMessage().trim());
             }
             return Optional.empty();
@@ -222,7 +221,9 @@ public final class ParserUtils {
         if (isEmpty(tag)) {
             return Optional.empty();
         } else if (tag instanceof WavTag && !((WavTag) tag).isExistingId3Tag()) {
-            LOG.info("Cover art is only supported in ID3 chunks: {}", getShortPath(path));
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Cover art is only supported in ID3 chunks: {}", getShortPath(path));
+            }
             return Optional.empty();
         }
 

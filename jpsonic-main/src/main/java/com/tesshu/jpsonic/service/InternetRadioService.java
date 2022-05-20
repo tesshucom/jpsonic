@@ -268,7 +268,7 @@ public class InternetRadioService {
      *
      * @return a list of internet radio sources
      */
-    @SuppressWarnings({ "PMD.AvoidCatchingGenericException", "PMD.InvalidLogMessageFormat" })
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
     /*
      * [AvoidCatchingGenericException] Wrap&Throw Exception due to constraints of 'chameleon'. {@link
      * Playlist#acceptDown(PlaylistVisitor)} [InvalidLogMessageFormat] false positive

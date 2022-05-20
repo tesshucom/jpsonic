@@ -67,7 +67,6 @@ public class UserSettingsValidator implements Validator {
      * {@inheritDoc}
      */
     @Override
-    @SuppressWarnings("PMD.ConfusingTernary") // false positive. Do not change the order.
     public void validate(Object obj, Errors errors) {
         UserSettingsCommand command = (UserSettingsCommand) obj;
         validateNewUser(command, errors);
@@ -76,7 +75,6 @@ public class UserSettingsValidator implements Validator {
         validateCurrentUser(command, errors);
     }
 
-    @SuppressWarnings("PMD.ConfusingTernary") // false positive. Do not change the order.
     private void validateNewUser(UserSettingsCommand command, Errors errors) {
         if (command.isNewUser()) {
             String username = command.getUsername();

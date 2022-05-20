@@ -110,7 +110,6 @@ class ExecutorConfigurationTest {
          * "submit".
          */
         @Test
-        @SuppressWarnings("PMD.PreserveStackTrace") // false positive
         void testDeprecatedListenableFuture() {
 
             int len = shortThreadPoolConf.getCorePoolSize();
@@ -544,7 +543,6 @@ class ExecutorConfigurationTest {
          */
         @Order(9)
         @Test
-        @SuppressWarnings("PMD.PreserveStackTrace") // false positive
         void testWithFutureThrowable() {
 
             int len = shortThreadPoolConf.getCorePoolSize();
