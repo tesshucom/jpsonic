@@ -147,7 +147,7 @@ public class MainController {
         map.put("thereIsMore", getThereIsMore(thereIsMoreSiblingAlbums, isShowAll, subDirs, userPaginationPreference));
 
         // others
-        map.put("user", securityService.getCurrentUser(request));
+        map.put("user", securityService.getCurrentUserStrict(request));
         map.put("selectedMusicFolder", securityService.getSelectedMusicFolder(username));
         map.put("viewAsList", viewSelector.isViewAsList(request, userSettings.getUsername()));
 

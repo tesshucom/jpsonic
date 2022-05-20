@@ -46,6 +46,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.mock.web.MockMultipartHttpServletRequest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.web.servlet.ModelAndView;
 
 @SpringBootTest
@@ -99,6 +100,7 @@ class UploadControllerTest {
 
     @SuppressWarnings("unchecked")
     @Test
+    @WithMockUser(username = "admin")
     void testHandleRequestInternalWithZip(@TempDir Path tempDirPath) throws Exception {
 
         MusicFolder musicFolder = new MusicFolder(Integer.valueOf(1), tempDirPath.toFile(), "Incoming2", true,

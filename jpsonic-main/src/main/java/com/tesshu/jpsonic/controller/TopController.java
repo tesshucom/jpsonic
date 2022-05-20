@@ -166,7 +166,7 @@ public class TopController {
         map.put("indexedArtists", musicFolderContent.getIndexedArtists());
         map.put("singleSongs", musicFolderContent.getSingleSongs());
         map.put("indexes", musicFolderContent.getIndexedArtists().keySet());
-        map.put("user", securityService.getCurrentUser(request));
+        map.put("user", securityService.getCurrentUserStrict(request));
         mainView.ifPresent(v -> {
             if (validateMainViewName(v)) {
                 map.put("mainView", v);

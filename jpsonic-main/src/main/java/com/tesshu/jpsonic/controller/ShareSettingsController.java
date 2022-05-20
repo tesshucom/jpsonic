@@ -77,8 +77,9 @@ public class ShareSettingsController {
     @GetMapping
     public String doGet(HttpServletRequest request, Model model) {
         model.addAttribute("model",
-                LegacyMap.of("shareInfos", getShareInfos(request), "user", securityService.getCurrentUser(request),
-                        "useRadio", settingsService.isUseRadio(), "shareCount", shareService.getAllShares().size()));
+                LegacyMap.of("shareInfos", getShareInfos(request), "user",
+                        securityService.getCurrentUserStrict(request), "useRadio", settingsService.isUseRadio(),
+                        "shareCount", shareService.getAllShares().size()));
         return "shareSettings";
     }
 
@@ -90,7 +91,7 @@ public class ShareSettingsController {
     }
 
     private void handleParameters(HttpServletRequest request) {
-        User user = securityService.getCurrentUser(request);
+        User user = securityService.getCurrentUserStrict(request);
         for (Share share : shareService.getSharesForUser(user)) {
             int id = share.getId();
 

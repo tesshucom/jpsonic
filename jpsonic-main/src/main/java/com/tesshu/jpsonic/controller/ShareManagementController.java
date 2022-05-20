@@ -89,7 +89,7 @@ public class ShareManagementController {
         }
 
         return new ModelAndView("createShare", "model", LegacyMap.of("dir", dir, "user",
-                securityService.getCurrentUser(request), "playUrl", shareService.getShareUrl(request, share)));
+                securityService.getCurrentUserStrict(request), "playUrl", shareService.getShareUrl(request, share)));
     }
 
     private String getDescription(HttpServletRequest request) throws ServletRequestBindingException {

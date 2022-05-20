@@ -172,7 +172,7 @@ public class UploadController {
         if (status != null) {
             statusService.removeUploadStatus(status);
             request.getSession().removeAttribute(Attributes.Session.UPLOAD_STATUS.value());
-            User user = securityService.getCurrentUser(request);
+            User user = securityService.getCurrentUserStrict(request);
             securityService.updateUserByteCounts(user, 0L, 0L, status.getBytesTransfered());
         }
     }
