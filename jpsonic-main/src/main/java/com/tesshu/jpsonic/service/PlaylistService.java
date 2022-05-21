@@ -240,10 +240,7 @@ public class PlaylistService {
         return provider.getContentTypes()[0].getExtensions()[0];
     }
 
-    @SuppressWarnings("PMD.AvoidCatchingGenericException")
-    /*
-     * Wrap and rethrow due to constraints of 'chameleon' {@link SpecificPlaylist#writeTo(OutputStream, String)}
-     */
+    @SuppressWarnings("PMD.AvoidCatchingGenericException") // chameleon/SpecificPlaylist#writeTo
     public void exportPlaylist(int id, OutputStream out) throws ExecutionException {
         SpecificPlaylistProvider provider = SpecificPlaylistFactory.getInstance()
                 .findProviderById(EXPORT_PLAYLIST_FORMAT);

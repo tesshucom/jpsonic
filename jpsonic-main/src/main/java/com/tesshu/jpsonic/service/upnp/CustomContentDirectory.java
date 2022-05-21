@@ -40,10 +40,7 @@ public abstract class CustomContentDirectory extends AbstractContentDirectorySer
         super(Lists.newArrayList("*"), Lists.newArrayList());
     }
 
-    @SuppressWarnings("PMD.AvoidCatchingGenericException")
-    /*
-     * Wrap and rethrow due to constraints of 'fourthline' {@link DIDLParser#generate(DIDLContent)}
-     */
+    @SuppressWarnings("PMD.AvoidCatchingGenericException") // fourthline/DIDLParser#generate
     protected BrowseResult createBrowseResult(DIDLContent didl, int count, int totalMatches) throws ExecutionException {
         try {
             return new BrowseResult(new DIDLParser().generate(didl), count, totalMatches);

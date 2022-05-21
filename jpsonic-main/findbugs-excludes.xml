@@ -15,10 +15,20 @@
         Author: tesshucom
         -->
     <Match>
-        <Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS" /><!-- It is a bug rule. -->                   
+        <!-- It is a bug rule. -->
+        <Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS" />               
     </Match>
     <Match>
-        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" /><!-- It is a bug rule. -->
+        <!-- It is a bug rule. spotbugs#1694 -->
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
+    </Match>
+    <Match>
+        <!-- It is a bug rule. spotbugs#2043 -->
+        <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION" />
+    </Match>
+    <Match>
+        <!-- It is a bug rule. spotbugs#2050 -->
+        <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION" />
     </Match>
     <Match>
         <Bug pattern="EI_EXPOSE_REP" />            <!-- *** Should be triaged! *** -->

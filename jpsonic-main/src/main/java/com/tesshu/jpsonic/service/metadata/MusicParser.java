@@ -19,11 +19,6 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import static com.tesshu.jpsonic.service.metadata.ParserUtils.mapGenre;
-import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseInt;
-import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseTrackNumber;
-import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseYear;
-import static com.tesshu.jpsonic.util.FileUtil.getShortPath;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
@@ -41,6 +36,7 @@ import java.util.logging.LogManager;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.util.FileUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.jaudiotagger.audio.AudioFile;
@@ -63,7 +59,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Order(0)
-@SuppressWarnings("PMD.TooManyStaticImports")
 public class MusicParser extends MetaDataParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(MusicParser.class);
@@ -117,7 +112,6 @@ public class MusicParser extends MetaDataParser {
     }
 
     @Override
-    @SuppressWarnings("PMD.GuardLogStatement")
     public @NonNull MetaData getRawMetaData(Path path) {
 
         MetaData metaData = new MetaData();
@@ -132,9 +126,9 @@ public class MusicParser extends MetaDataParser {
         } catch (CannotReadException | IOException | TagException | ReadOnlyFileException
                 | InvalidAudioFrameException e) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Unable to read file: " + getShortPath(path), e);
-            } else {
-                LOG.warn("Unable to read " + getShortPath(path) + ": [{}]", e.getMessage().trim());
+                LOG.debug("Unable to read file: " + FileUtil.getShortPath(path), e);
+            } else if (LOG.isWarnEnabled()) {
+                LOG.warn("Unable to read " + FileUtil.getShortPath(path) + ": [{}]", e.getMessage().trim());
             }
             return metaData;
         }
@@ -148,20 +142,22 @@ public class MusicParser extends MetaDataParser {
         if (isEmpty(tag)) {
             return metaData;
         } else if (tag instanceof WavTag && !((WavTag) tag).isExistingId3Tag()) {
-            LOG.info("Only ID3 chunk is supported: {}", getShortPath(path));
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Only ID3 chunk is supported: {}", FileUtil.getShortPath(path));
+            }
             return metaData;
         }
 
         getField(af, tag, FieldKey.ALBUM_ARTIST).ifPresent(s -> metaData.setAlbumArtist(s));
         getField(af, tag, FieldKey.ALBUM).ifPresent(s -> metaData.setAlbumName(s));
         getField(af, tag, FieldKey.ARTIST).ifPresent(s -> metaData.setArtist(s));
-        getField(af, tag, FieldKey.DISC_NO).ifPresent(s -> metaData.setDiscNumber(parseInt(s)));
-        getField(af, tag, FieldKey.GENRE).ifPresent(s -> metaData.setGenre(mapGenre(s)));
+        getField(af, tag, FieldKey.DISC_NO).ifPresent(s -> metaData.setDiscNumber(ParserUtils.parseInt(s)));
+        getField(af, tag, FieldKey.GENRE).ifPresent(s -> metaData.setGenre(ParserUtils.mapGenre(s)));
         getField(af, tag, FieldKey.MUSICBRAINZ_TRACK_ID).ifPresent(s -> metaData.setMusicBrainzRecordingId(s));
         getField(af, tag, FieldKey.MUSICBRAINZ_RELEASEID).ifPresent(s -> metaData.setMusicBrainzReleaseId(s));
         getField(af, tag, FieldKey.TITLE).ifPresent(s -> metaData.setTitle(s));
-        getField(af, tag, FieldKey.TRACK).ifPresent(s -> metaData.setTrackNumber(parseTrackNumber(s)));
-        getField(af, tag, FieldKey.YEAR).ifPresent(s -> metaData.setYear(parseYear(s)));
+        getField(af, tag, FieldKey.TRACK).ifPresent(s -> metaData.setTrackNumber(ParserUtils.parseTrackNumber(s)));
+        getField(af, tag, FieldKey.YEAR).ifPresent(s -> metaData.setYear(ParserUtils.parseYear(s)));
         getField(af, tag, FieldKey.ARTIST_SORT).ifPresent(s -> metaData.setArtistSort(s));
         getField(af, tag, FieldKey.ALBUM_SORT).ifPresent(s -> metaData.setAlbumSort(s));
         getField(af, tag, FieldKey.TITLE_SORT).ifPresent(s -> metaData.setTitleSort(s));

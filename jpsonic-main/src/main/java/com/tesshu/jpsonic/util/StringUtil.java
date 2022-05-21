@@ -50,8 +50,6 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Miscellaneous string utility methods.
@@ -59,8 +57,6 @@ import org.slf4j.LoggerFactory;
  * @author Sindre Mehus
  */
 public final class StringUtil {
-
-    private static final Logger LOG = LoggerFactory.getLogger(StringUtil.class);
 
     private static final Pair<String> ENV_MIME_DSF = Pair.of("jpsonic.mime.dsf", "audio/x-dsd");
     private static final Pair<String> ENV_MIME_DFF = Pair.of("jpsonic.mime.dff", "audio/x-dsd");
@@ -245,7 +241,6 @@ public final class StringUtil {
      * @throws IOException
      *             If an I/O error occurs.
      */
-    @SuppressWarnings("PMD.UseTryWithResources") // False positive. pmd/pmd/issues/2882
     public static String[] readLines(@NonNull InputStream in) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
             List<String> result = new ArrayList<>();
@@ -256,16 +251,6 @@ public final class StringUtil {
                 }
             }
             return result.toArray(new String[0]);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    if (LOG.isTraceEnabled()) {
-                        LOG.trace("Unable to close Stream.", e);
-                    }
-                }
-            }
         }
     }
 

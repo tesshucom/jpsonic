@@ -19,10 +19,6 @@
 
 package com.tesshu.jpsonic.service.metadata;
 
-import static com.tesshu.jpsonic.service.metadata.ParserUtils.getFolder;
-import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseInt;
-import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseTrackNumber;
-import static com.tesshu.jpsonic.service.metadata.ParserUtils.parseYear;
 import static com.tesshu.jpsonic.util.FileUtil.getShortPath;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -52,7 +48,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-@SuppressWarnings("PMD.TooManyStaticImports")
 @Component
 public class FFprobe {
 
@@ -109,8 +104,8 @@ public class FFprobe {
         for (JsonNode stream : node.at("/streams")) {
             String codec = stream.get("codec_type").asText();
             if (CODEC_TYPE_VIDEO.equals(codec) && stream.has("width") && stream.has("height")) {
-                result.setWidth(parseInt(stream.get("width").asText()));
-                result.setHeight(parseInt(stream.get("height").asText()));
+                result.setWidth(ParserUtils.parseInt(stream.get("width").asText()));
+                result.setHeight(ParserUtils.parseInt(stream.get("height").asText()));
                 break;
             }
         }
@@ -141,11 +136,11 @@ public class FFprobe {
         getField(tags, FFmpegFieldKey.ALBUM_ARTIST).ifPresent(s -> result.setAlbumArtist(s));
         getField(tags, FFmpegFieldKey.ALBUM).ifPresent(s -> result.setAlbumName(s));
         getField(tags, FFmpegFieldKey.ARTIST).ifPresent(s -> result.setArtist(s));
-        getField(tags, FFmpegFieldKey.DISC_NO).ifPresent(s -> result.setDiscNumber(parseInt(s)));
+        getField(tags, FFmpegFieldKey.DISC_NO).ifPresent(s -> result.setDiscNumber(ParserUtils.parseInt(s)));
         getField(tags, FFmpegFieldKey.GENRE).ifPresent(s -> result.setGenre(s));
         getField(tags, FFmpegFieldKey.TITLE).ifPresent(s -> result.setTitle(s));
-        getField(tags, FFmpegFieldKey.TRACK).ifPresent(s -> result.setTrackNumber(parseTrackNumber(s)));
-        getField(tags, FFmpegFieldKey.YEAR).ifPresent(s -> result.setYear(parseYear(s)));
+        getField(tags, FFmpegFieldKey.TRACK).ifPresent(s -> result.setTrackNumber(ParserUtils.parseTrackNumber(s)));
+        getField(tags, FFmpegFieldKey.YEAR).ifPresent(s -> result.setYear(ParserUtils.parseYear(s)));
         getField(tags, FFmpegFieldKey.COMPOSER).ifPresent(s -> result.setComposer(s));
 
         return result;
@@ -191,9 +186,9 @@ public class FFprobe {
 
     MetaData parse(@NonNull MediaFile mediaFile, @Nullable Map<String, MP4ParseStatistics> statistics) {
         return parse(mediaFile.toPath(), (start) -> {
-            if (!isEmpty(statistics) && statistics.containsKey(getFolder(mediaFile))) {
+            if (!isEmpty(statistics) && statistics.containsKey(ParserUtils.getFolder(mediaFile))) {
                 long readtime = System.currentTimeMillis() - start;
-                statistics.get(getFolder(mediaFile)).addCmdLeadTime(readtime);
+                statistics.get(ParserUtils.getFolder(mediaFile)).addCmdLeadTime(readtime);
             }
         });
     }

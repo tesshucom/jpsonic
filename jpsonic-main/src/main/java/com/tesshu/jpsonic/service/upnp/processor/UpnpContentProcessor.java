@@ -102,10 +102,7 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
         return createBrowseResult(didl, selectedChildren.size(), getChildSizeOf(item));
     }
 
-    @SuppressWarnings("PMD.AvoidCatchingGenericException")
-    /*
-     * Wrap&Throw due to constraints of 'fourthline' {@link DIDLParser#generate(DIDLContent)}
-     */
+    @SuppressWarnings("PMD.AvoidCatchingGenericException") // fourthline/DIDLParser#generate
     protected final BrowseResult createBrowseResult(DIDLContent didl, int count, int totalMatches)
             throws ExecutionException {
         String result;

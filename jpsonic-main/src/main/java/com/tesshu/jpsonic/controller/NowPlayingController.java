@@ -60,7 +60,6 @@ public class NowPlayingController {
         this.mediaFileService = mediaFileService;
     }
 
-    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     @GetMapping
     protected ModelAndView get(HttpServletRequest request, HttpServletResponse response)
             throws ServletRequestBindingException {

@@ -268,11 +268,7 @@ public class InternetRadioService {
      *
      * @return a list of internet radio sources
      */
-    @SuppressWarnings({ "PMD.AvoidCatchingGenericException", "PMD.InvalidLogMessageFormat" })
-    /*
-     * [AvoidCatchingGenericException] Wrap&Throw Exception due to constraints of 'chameleon'. {@link
-     * Playlist#acceptDown(PlaylistVisitor)} [InvalidLogMessageFormat] false positive
-     */
+    @SuppressWarnings("PMD.AvoidCatchingGenericException") // chameleon/Playlist#acceptDown
     private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio, int maxCount, long maxByteSize,
             int maxRedirects) throws ExecutionException {
         // Retrieve the remote playlist

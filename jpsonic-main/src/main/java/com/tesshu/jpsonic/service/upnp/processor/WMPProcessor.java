@@ -171,7 +171,7 @@ public class WMPProcessor {
         return item;
     }
 
-    @SuppressWarnings("PMD.AvoidCatchingGenericException") // DIDLParser#generate
+    @SuppressWarnings("PMD.AvoidCatchingGenericException") // fourthline/DIDLParser#generate
     private BrowseResult createBrowseResult(DIDLContent didl, int count, int totalMatches) throws ExecutionException {
         String result;
         try {

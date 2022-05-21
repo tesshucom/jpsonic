@@ -57,10 +57,7 @@ public class DefaultPlaylistImportHandler implements PlaylistImportHandler {
         return true;
     }
 
-    @SuppressWarnings("PMD.AvoidCatchingGenericException")
-    /*
-     * LOG Exception due to constraints of 'chameleon'. {@link Playlist#acceptDown(PlaylistVisitor)}
-     */
+    @SuppressWarnings("PMD.AvoidCatchingGenericException") // chameleon/Playlist#acceptDown
     @Override
     public Pair<List<MediaFile>, List<String>> handle(SpecificPlaylist inputSpecificPlaylist) {
         List<MediaFile> mediaFiles = new ArrayList<>();

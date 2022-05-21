@@ -23,10 +23,10 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.text.Collator;
 import java.util.Comparator;
-import java.util.regex.Pattern;
 
 import com.tesshu.jpsonic.domain.MusicIndex.SortableArtist;
 import com.tesshu.jpsonic.service.SettingsService;
+import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.context.annotation.DependsOn;
@@ -48,13 +48,11 @@ public class JpsonicComparators {
 
     private final SettingsService settingsService;
     private final JapaneseReadingUtils utils;
-    private final Pattern various;
 
     public JpsonicComparators(SettingsService settingsService, JapaneseReadingUtils utils) {
         super();
         this.settingsService = settingsService;
         this.utils = utils;
-        various = Pattern.compile("^various.*$");
     }
 
     /**
@@ -107,8 +105,8 @@ public class JpsonicComparators {
     }
 
     public final boolean isSortAlbumsByYear(@Nullable String artist) {
-        return settingsService.isSortAlbumsByYear() && (isEmpty(artist) || !(settingsService.isProhibitSortVarious()
-                && various.matcher(artist.toLowerCase(settingsService.getLocale())).matches()));
+        return settingsService.isSortAlbumsByYear() && (isEmpty(artist)
+                || !(settingsService.isProhibitSortVarious() && StringUtils.startsWithIgnoreCase(artist, "various")));
     }
 
     /**

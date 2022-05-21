@@ -29,7 +29,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.domain.LastFmCoverArt;
@@ -39,6 +38,7 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
@@ -179,9 +179,9 @@ public class CoverArtService {
 
     private String getProperSuffix(String url) {
         String suffix = "jpg";
-        if (url.toLowerCase(Locale.getDefault()).endsWith(".gif")) {
+        if (StringUtils.endsWithIgnoreCase(url, ".gif")) {
             suffix = "gif";
-        } else if (url.toLowerCase(Locale.getDefault()).endsWith(".png")) {
+        } else if (StringUtils.endsWithIgnoreCase(url, ".png")) {
             suffix = "png";
         }
         return suffix;
