@@ -65,8 +65,6 @@ public final class ServiceMockUtils {
             SecurityService securityService = Mockito.mock(SecurityService.class);
             Mockito.when(securityService.getCurrentUsername(Mockito.nullable(HttpServletRequest.class)))
                     .thenReturn(ADMIN_NAME);
-            Mockito.when(securityService.getCurrentUser(Mockito.nullable(HttpServletRequest.class)))
-                    .thenReturn(new User(ADMIN_NAME, ADMIN_NAME, ""));
             Mockito.when(securityService.getCurrentUserStrict(Mockito.nullable(HttpServletRequest.class)))
                     .thenReturn(new User(ADMIN_NAME, ADMIN_NAME, ""));
             Mockito.when(securityService.getUserSettings(ADMIN_NAME)).thenReturn(new UserSettings(ADMIN_NAME));

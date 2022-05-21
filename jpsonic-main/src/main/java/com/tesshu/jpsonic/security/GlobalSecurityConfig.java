@@ -83,13 +83,8 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
         this.customUserDetailsContextMapper = customUserDetailsContextMapper;
     }
 
-    @SuppressWarnings("PMD.AvoidCatchingGenericException")
-    /*
-     * Wrap and rethrow due to constraints of 'springframework' {@link
-     * AuthenticationManagerBuilder#ldapAuthentication()} {@link
-     * AuthenticationManagerBuilder#userDetailsService(org.springframework.security.core.userdetails.UserDetailsService)
-     * }
-     */
+    @SuppressWarnings("PMD.AvoidCatchingGenericException") // springframework/AuthenticationManagerBuilder#ldapAuthentication
+    // springframework/AuthenticationManagerBuilder#userDetailsService
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws ExecutionException {
         if (settingsService.isLdapEnabled()) {
@@ -160,11 +155,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
             this.csrfSecurityRequestMatcher = csrfSecurityRequestMatcher;
         }
 
-        @SuppressWarnings("PMD.AvoidCatchingGenericException")
-        /*
-         * Wrap and rethrow due to constraints of 'springframework' {@link
-         * WebSecurityConfigurerAdapter#authenticationManager()}
-         */
+        @SuppressWarnings("PMD.AvoidCatchingGenericException") // springframework/WebSecurityConfigurerAdapter#authenticationManager
         @Bean(name = "jwtAuthenticationFilter")
         public JWTRequestParameterProcessingFilter jwtAuthFilter() throws ExecutionException {
             try {

@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,7 +48,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -184,22 +184,8 @@ public class SecurityService implements UserDetailsService {
         userDao.updateUserSettings(settings);
     }
 
-    /**
-     * Locates the user based on the username.
-     *
-     * @param username
-     *            The username
-     *
-     * @return A fully populated user record (never <code>null</code>)
-     *
-     * @throws UsernameNotFoundException
-     *             if the user could not be found or the user has no GrantedAuthority.
-     * @throws DataAccessException
-     *             If user could not be found for a repository-specific reason.
-     */
-    @SuppressWarnings("PMD.AvoidUncheckedExceptionsInSignatures") // False positive for explicit comment.
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
+    public @Nullable UserDetails loadUserByUsername(String username) {
         boolean caseSensitive = true;
         User user = getUserByName(username, caseSensitive);
         if (user == null) {
@@ -210,18 +196,15 @@ public class SecurityService implements UserDetailsService {
                 !user.isLdapAuthenticated(), true, true, true, authorities);
     }
 
-    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
-    /*
-     * [AvoidInstantiatingObjectsInLoops] (SimpleGrantedAuthority) Not reusable [UseLocaleWithCaseConversions] The
-     * locale doesn't matter because just converting the literal.
-     */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    // [AvoidInstantiatingObjectsInLoops] (SimpleGrantedAuthority)
     public List<GrantedAuthority> getGrantedAuthorities(String username) {
         String[] roles = userDao.getRolesForUser(username);
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("IS_AUTHENTICATED_ANONYMOUSLY"));
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
         for (String role : roles) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase(Locale.ENGLISH)));
         }
         return authorities;
     }

@@ -63,7 +63,7 @@ public class PodcastChannelController {
 
         int channelId = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         result.addObject("model",
-                LegacyMap.of("user", securityService.getCurrentUser(request), "channel",
+                LegacyMap.of("user", securityService.getCurrentUserStrict(request), "channel",
                         podcastService.getChannel(channelId), "episodes", podcastService.getEpisodes(channelId),
                         "coverArtSize", CoverArtScheme.LARGE.getSize(), "scanning", mediaScannerService.isScanning()));
         return result;

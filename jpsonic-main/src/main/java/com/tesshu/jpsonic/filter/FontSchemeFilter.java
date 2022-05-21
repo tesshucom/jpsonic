@@ -33,6 +33,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
+import com.drew.lang.annotations.Nullable;
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.controller.WebFontUtils;
 import com.tesshu.jpsonic.domain.User;
@@ -72,6 +73,8 @@ public class FontSchemeFilter implements Filter {
          * AbstractAirsonicRestApiJukeboxIntTest.
          */
         if (!excludes.contains(request.getServletPath()) && !isEmpty(settingsService) && !isEmpty(securityService)) {
+            @SuppressWarnings("deprecation")
+            @Nullable
             User user = securityService.getCurrentUser(request);
             UserSettings settings = isEmpty(user) ? null : securityService.getUserSettings(user.getUsername());
             WebFontUtils.setToRequest(settings, request);

@@ -240,7 +240,7 @@ class MusicFolderSettingsControllerTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testIfFullScanNext() throws Exception {
 
-        @SuppressWarnings("PMD.AvoidCatchingGenericException")
+        @SuppressWarnings("PMD.AvoidCatchingGenericException") // springframework/MockMvc#perform
         Supplier<MusicFolderSettingsCommand> supplier = () -> {
             try {
                 return (MusicFolderSettingsCommand) mockMvc

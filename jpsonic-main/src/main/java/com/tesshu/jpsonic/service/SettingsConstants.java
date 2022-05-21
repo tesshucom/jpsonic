@@ -32,7 +32,7 @@ import com.tesshu.jpsonic.util.PlayerUtils;
 /*
  * SettingsConstants and SettingsService need to be modified if the key used for the properties file changes.
  */
-@SuppressWarnings({ "PMD.ClassNamingConventions", "PMD.ShortClassName" }) // It's inner constants class
+@SuppressWarnings("PMD.ShortClassName")
 final class SettingsConstants {
 
     /*

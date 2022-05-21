@@ -39,7 +39,6 @@ import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.DaoHelper;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
@@ -56,6 +55,7 @@ import com.tesshu.jpsonic.spring.DatabaseConfiguration.ProfileNameConstants;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.input.ReversedLinesFileReader;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
@@ -130,7 +130,7 @@ public class InternalHelpController {
         String serverInfo = request.getSession().getServletContext().getServerInfo() + ", java "
                 + System.getProperty("java.version") + ", " + System.getProperty("os.name");
 
-        map.put("user", securityService.getCurrentUser(request));
+        map.put("user", securityService.getCurrentUserStrict(request));
         map.put("brand", SettingsService.getBrand());
         map.put("localVersion", versionService.getLocalVersion());
         map.put("buildDate", versionService.getLocalBuildDate());
@@ -167,7 +167,6 @@ public class InternalHelpController {
         }
     }
 
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @SuppressWarnings({ "PMD.CloseResource", "PMD.AvoidInstantiatingObjectsInLoops" })
     /*
      * [CloseResource] False positive. SearcherManager inherits Closeable but ensures each searcher is closed only once
@@ -206,15 +205,11 @@ public class InternalHelpController {
      *
      * See: https://superuser.com/questions/999133/differences-between-en-us-utf8-and-en-us-utf-8
      */
-    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
-    /*
-     * Locale doesn't matter because it's a modifier comparison of lang-tags.
-     */
     private boolean doesLocaleSupportUtf8(String locale) {
         if (locale == null) {
             return false;
         } else {
-            return locale.toLowerCase().replaceAll("\\W", "").contains("utf8");
+            return StringUtils.containsIgnoreCase(locale.replaceAll("\\W", ""), "utf8");
         }
     }
 
@@ -235,7 +230,6 @@ public class InternalHelpController {
         map.put("localeDefaultCharsetSupportsUtf8", doesLocaleSupportUtf8(Charset.defaultCharset().toString()));
     }
 
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private void gatherDatabaseInfo(Map<String, Object> map) {
 
         try (Connection conn = daoHelper.getDataSource().getConnection()) {

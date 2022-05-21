@@ -34,6 +34,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.io.IOUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +92,9 @@ public final class TranscodeInputStream extends InputStream {
 
         // Must read stderr from the process, otherwise it may block.
         final String name = processBuilder.command().get(0);
-        executor.execute(new TranscodedErrorStreamTask(process.getErrorStream(), name, true));
+        try (InputStream errorStream = process.getErrorStream()) {
+            executor.execute(new TranscodedErrorStreamTask(errorStream, name, true));
+        }
 
         // Copy data in a separate thread
         if (!isEmpty(in)) {
@@ -113,7 +116,6 @@ public final class TranscodeInputStream extends InputStream {
             this.log = log;
         }
 
-        @SuppressWarnings("PMD.UseTryWithResources") // False positive. pmd/pmd/issues/2882
         @Override
         public void run() {
             try (BufferedReader reader = new BufferedReader(
@@ -127,41 +129,25 @@ public final class TranscodeInputStream extends InputStream {
                 if (LOG.isErrorEnabled()) {
                     LOG.error("Error in reading process out.", e);
                 }
-            } finally {
-                try {
-                    errorStream.close();
-                } catch (IOException e) {
-                    if (LOG.isTraceEnabled()) {
-                        LOG.trace("Error in reading process out.", e);
-                    }
-                }
             }
         }
     }
 
-    @SuppressWarnings("PMD.UseTryWithResources") // False positive. pmd/pmd/issues/2882
     private static class TranscodedOutputStreamTask implements Runnable {
         private final InputStream in;
         private final OutputStream out;
 
-        public TranscodedOutputStreamTask(InputStream in, OutputStream out) {
+        public TranscodedOutputStreamTask(@NonNull InputStream in, OutputStream out) {
             this.in = in;
             this.out = out;
         }
 
         @Override
         public void run() {
-            try {
+            try (in; out) {
                 IOUtils.copy(in, out);
             } catch (IOException e) {
                 trace("Ignored. Will happen if the remote player closes the stream.", e);
-            } finally {
-                try {
-                    in.close();
-                    out.close();
-                } catch (IOException e) {
-                    trace("Error in TranscodedInputStream#close().", e);
-                }
             }
         }
     }

@@ -59,7 +59,6 @@ import org.springframework.stereotype.Service;
  */
 @SuppressFBWarnings(value = { "DMI_HARDCODED_ABSOLUTE_FILENAME",
         "SSD_DO_NOT_USE_INSTANCE_LOCK_ON_SHARED_STATIC_DATA" }, justification = "Literal value for which OS is assumed. / False positives for objects stored in immutable maps")
-@SuppressWarnings("PMD.DefaultPackage")
 @Service
 /*
  * [DefaultPackage] A remnant of legacy, some methods are implemented in package private. This is intended not to be
@@ -147,11 +146,6 @@ public class SettingsService {
         }
     }
 
-    @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions", "PMD.ConfusingTernary" })
-    /*
-     * [UseLocaleWithCaseConversions] The locale doesn't matter, as only comparing the OS names. [ConfusingTernary]
-     * false positive
-     */
     public static File getJpsonicHome() {
         File home;
         synchronized (LOCKS.get(LocksKeys.HOME)) {
@@ -333,7 +327,7 @@ public class SettingsService {
         return getString(SettingsConstants.MusicFolder.Exclusion.EXCLUDE_PATTERN_STRING);
     }
 
-    @SuppressWarnings({ "PMD.NullAssignment", "PMD.ConfusingTernary" })
+    @SuppressWarnings("PMD.NullAssignment")
     /*
      * [NullAssignment](excludePattern) Intentional allocation to clear cache. [ConfusingTernary] false positive
      */

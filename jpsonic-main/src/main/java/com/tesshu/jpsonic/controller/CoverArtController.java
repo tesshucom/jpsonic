@@ -90,7 +90,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping({ "/coverArt.view", "/ext/coverArt.view" })
-@SuppressWarnings("PMD.AccessorMethodGeneration") // Triaged in #834
 public class CoverArtController {
 
     private static final Logger LOG = LoggerFactory.getLogger(CoverArtController.class);
@@ -126,6 +125,18 @@ public class CoverArtController {
     @PostConstruct
     public void init() {
         semaphore = new Semaphore(COVER_ART_CONCURRENCY);
+    }
+
+    private static void warnLog(String msg, Throwable t) {
+        if (LOG.isWarnEnabled()) {
+            LOG.warn(msg, t);
+        }
+    }
+
+    private static void warnLog(String format, Object arg) {
+        if (LOG.isWarnEnabled()) {
+            LOG.warn(format, arg);
+        }
     }
 
     /*
@@ -288,7 +299,7 @@ public class CoverArtController {
                     ImageIO.write(image, encoding, out);
                 } catch (InterruptedException | IOException e) {
                     if (!cachedImage.delete() && LOG.isWarnEnabled()) {
-                        LOG.warn("The cached image '{}' could not be deleted.", cachedImage.getAbsolutePath());
+                        warnLog("The cached image '{}' could not be deleted.", cachedImage.getAbsolutePath());
                     }
                     throw new ExecutionException("Failed to create thumbnail for " + request + ". ", e);
                 } finally {
@@ -430,25 +441,24 @@ public class CoverArtController {
 
         public abstract long lastModified();
 
-        @SuppressWarnings("PMD.GuardLogStatement")
         public BufferedImage createImage(int size) {
             if (coverArt != null) {
                 try (InputStream in = controller.getImageInputStream(coverArt)) {
 
                     BufferedImage image = ImageIO.read(in);
                     if (image == null) {
-                        LOG.warn("Empty Image? :" + coverArt);
+                        warnLog("Empty Image? :{}", coverArt.toString());
                     } else {
                         return scale(image, size, size);
                     }
                 } catch (IOException e) {
-                    LOG.warn("Failed to process cover art " + coverArt + ": ", e);
+                    warnLog("Failed to process cover art " + coverArt + ": ", e);
                 } catch (ExecutionException e) {
                     Throwable cause = e.getCause();
                     if (cause instanceof IOException) {
-                        LOG.warn("Empty embeded image or Non-existent file? :" + coverArt + " ", e.getMessage());
+                        warnLog("Empty embeded image or Non-existent file? :" + coverArt + ": {}", e.getMessage());
                     } else {
-                        LOG.warn("Failed to process cover art " + coverArt + ": ");
+                        warnLog("Failed to process cover art: {}", coverArt.toString());
                         ConcurrentUtils.handleCauseUnchecked(e);
                     }
                 }
@@ -700,9 +710,7 @@ public class CoverArtController {
                 return result;
             }
 
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Unable to create video thumbnails : " + mediaFile);
-            }
+            warnLog("Unable to create video thumbnails: {}", mediaFile.toString());
             return createAutoCover(width, height);
         }
 
