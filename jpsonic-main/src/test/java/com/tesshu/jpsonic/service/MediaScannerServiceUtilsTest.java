@@ -286,8 +286,7 @@ class MediaScannerServiceUtilsTest {
             files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, albums.get(0).getPathString(), false);
             assertEquals(3, files.size());
 
-            files.stream().forEach(
-                    m -> LOG.info(m.getName() + ", " + m.getAlbumArtist() + ", " + m.getArtist()));
+            files.stream().forEach(m -> LOG.info(m.getName() + ", " + m.getAlbumArtist() + ", " + m.getArtist()));
             files.forEach(m -> {
                 switch (m.getName()) {
                 case "file1":
