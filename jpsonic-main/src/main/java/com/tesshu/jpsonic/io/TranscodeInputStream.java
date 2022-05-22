@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
@@ -78,11 +79,11 @@ public final class TranscodeInputStream extends InputStream {
             this.tmpFile = new AtomicReference<>(tmpFile);
         }
 
-        StringBuilder buf = new StringBuilder("Starting transcoder: ");
-        for (String s : processBuilder.command()) {
-            buf.append('[').append(s).append("] ");
-        }
         if (isVerboseLogPlaying && LOG.isInfoEnabled()) {
+            StringBuilder buf = new StringBuilder("Starting transcoder: ");
+            for (String s : processBuilder.command()) {
+                buf.append('[').append(s).append("] ");
+            }
             LOG.info(buf.toString());
         }
 
@@ -92,9 +93,7 @@ public final class TranscodeInputStream extends InputStream {
 
         // Must read stderr from the process, otherwise it may block.
         final String name = processBuilder.command().get(0);
-        try (InputStream errorStream = process.getErrorStream()) {
-            executor.execute(new TranscodedErrorStreamTask(errorStream, name, true));
-        }
+        executor.execute(new TranscodedErrorStreamTask(process.getErrorStream(), name, true));
 
         // Copy data in a separate thread
         if (!isEmpty(in)) {
@@ -110,8 +109,8 @@ public final class TranscodeInputStream extends InputStream {
         private final String name;
         private final boolean log;
 
-        public TranscodedErrorStreamTask(InputStream input, String name, boolean log) {
-            this.errorStream = input;
+        public TranscodedErrorStreamTask(InputStream errorStream, String name, boolean log) {
+            this.errorStream = errorStream;
             this.name = name;
             this.log = log;
         }
@@ -126,9 +125,7 @@ public final class TranscodeInputStream extends InputStream {
                     }
                 }
             } catch (IOException e) {
-                if (LOG.isErrorEnabled()) {
-                    LOG.error("Error in reading process out.", e);
-                }
+                throw new UncheckedIOException("Error in reading process error message.", e);
             }
         }
     }
@@ -147,14 +144,8 @@ public final class TranscodeInputStream extends InputStream {
             try (in; out) {
                 IOUtils.copy(in, out);
             } catch (IOException e) {
-                trace("Ignored. Will happen if the remote player closes the stream.", e);
+                throw new UncheckedIOException(e);
             }
-        }
-    }
-
-    private static void trace(String s, Exception e) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace(s, e);
         }
     }
 
@@ -179,7 +170,9 @@ public final class TranscodeInputStream extends InputStream {
             processInputStream.get().close();
             processOutputStream.get().close();
         } catch (IOException e) {
-            trace("Error in Stream#close() of ProcessBuilder.", e);
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Error in Stream#close() of ProcessBuilder.", e);
+            }
         } finally {
             if (!isEmpty(process)) {
                 process.destroy();
