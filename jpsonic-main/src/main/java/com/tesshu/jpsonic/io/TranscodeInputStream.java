@@ -78,11 +78,11 @@ public final class TranscodeInputStream extends InputStream {
             this.tmpFile = new AtomicReference<>(tmpFile);
         }
 
-        StringBuilder buf = new StringBuilder("Starting transcoder: ");
-        for (String s : processBuilder.command()) {
-            buf.append('[').append(s).append("] ");
-        }
         if (isVerboseLogPlaying && LOG.isInfoEnabled()) {
+            StringBuilder buf = new StringBuilder("Starting transcoder: ");
+            for (String s : processBuilder.command()) {
+                buf.append('[').append(s).append("] ");
+            }
             LOG.info(buf.toString());
         }
 
@@ -92,9 +92,7 @@ public final class TranscodeInputStream extends InputStream {
 
         // Must read stderr from the process, otherwise it may block.
         final String name = processBuilder.command().get(0);
-        try (InputStream errorStream = process.getErrorStream()) {
-            executor.execute(new TranscodedErrorStreamTask(errorStream, name, true));
-        }
+        executor.execute(new TranscodedErrorStreamTask(process.getErrorStream(), name, true));
 
         // Copy data in a separate thread
         if (!isEmpty(in)) {
@@ -110,8 +108,8 @@ public final class TranscodeInputStream extends InputStream {
         private final String name;
         private final boolean log;
 
-        public TranscodedErrorStreamTask(InputStream input, String name, boolean log) {
-            this.errorStream = input;
+        public TranscodedErrorStreamTask(InputStream errorStream, String name, boolean log) {
+            this.errorStream = errorStream;
             this.name = name;
             this.log = log;
         }
