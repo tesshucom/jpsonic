@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -301,17 +302,15 @@ public class MediaFileService {
         return includeMediaFile(candidate.toPath());
     }
 
-    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     public boolean includeMediaFile(Path candidate) {
         Path fileName = candidate.getFileName();
         if (fileName == null) {
             return false;
         }
-        String suffix = FilenameUtils.getExtension(fileName.toString()).toLowerCase();
+        String suffix = FilenameUtils.getExtension(fileName.toString()).toLowerCase(Locale.ENGLISH);
         return !isExcluded(candidate) && (Files.isDirectory(candidate) || isAudioFile(suffix) || isVideoFile(suffix));
     }
 
-    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     private boolean isAudioFile(String suffix) {
         for (String type : settingsService.getMusicFileTypesAsArray()) {
             if (type.equalsIgnoreCase(suffix)) {
@@ -321,7 +320,6 @@ public class MediaFileService {
         return false;
     }
 
-    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     private boolean isVideoFile(String suffix) {
         for (String type : settingsService.getVideoFileTypesAsArray()) {
             if (type.equalsIgnoreCase(suffix)) {
@@ -472,13 +470,12 @@ public class MediaFileService {
         }
     }
 
-    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     private MediaFile.MediaType getMediaType(MediaFile mediaFile) {
         if (isVideoFile(mediaFile.getFormat())) {
             return MediaFile.MediaType.VIDEO;
         }
-        String path = mediaFile.getPathString().toLowerCase();
-        String genre = StringUtils.trimToEmpty(mediaFile.getGenre()).toLowerCase();
+        String path = mediaFile.getPathString().toLowerCase(Locale.ENGLISH);
+        String genre = StringUtils.trimToEmpty(mediaFile.getGenre()).toLowerCase(Locale.ENGLISH);
         if (path.contains("podcast") || genre.contains("podcast")) {
             return MediaFile.MediaType.PODCAST;
         }
@@ -508,13 +505,12 @@ public class MediaFileService {
                 : Path.of(parent.getCoverArtPathString());
     }
 
-    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     Optional<Path> findCoverArt(Path parent) {
 
         BiPredicate<Path, BasicFileAttributes> coverArtNamePredicate = (child, attrs) -> Files.isRegularFile(child)
                 && child.getFileName().toString().charAt(0) != '.'
                 && Stream.of(settingsService.getCoverArtFileTypesAsArray())
-                        .anyMatch(t -> child.getFileName().toString().toUpperCase().endsWith(t.toUpperCase()));
+                        .anyMatch(type -> StringUtils.endsWithIgnoreCase(child.getFileName().toString(), type));
 
         try (Stream<Path> results = Files.find(parent, 1, coverArtNamePredicate)) {
             Optional<Path> coverArt = results.findFirst();

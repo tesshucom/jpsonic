@@ -89,7 +89,7 @@ public class ShareManagementController {
         }
 
         return new ModelAndView("createShare", "model", LegacyMap.of("dir", dir, "user",
-                securityService.getCurrentUser(request), "playUrl", shareService.getShareUrl(request, share)));
+                securityService.getCurrentUserStrict(request), "playUrl", shareService.getShareUrl(request, share)));
     }
 
     private String getDescription(HttpServletRequest request) throws ServletRequestBindingException {
@@ -97,7 +97,6 @@ public class ShareManagementController {
         return playlistId == null ? null : playlistService.getPlaylist(playlistId).getName();
     }
 
-    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     private List<MediaFile> getMediaFiles(HttpServletRequest request) throws ServletRequestBindingException {
         Integer id = ServletRequestUtils.getIntParameter(request, Attributes.Request.ID.value());
         Integer playerId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYER.value());

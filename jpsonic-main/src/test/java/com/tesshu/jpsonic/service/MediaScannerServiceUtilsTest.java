@@ -93,7 +93,7 @@ class MediaScannerServiceUtilsTest {
 
         @Test
         @DisabledOnOs(OS.LINUX)
-        void testCompensateSortOfArtistOnWin() throws ExecutionException {
+        void testCompensateSortOfArtistOnWindows() throws ExecutionException {
 
             utils.mergeSortOfArtist();
             utils.copySortOfArtist();
@@ -212,7 +212,7 @@ class MediaScannerServiceUtilsTest {
 
         @Test
         @DisabledOnOs(OS.WINDOWS)
-        void testCompensateSortOfArtistOnWinOnLinux() throws ExecutionException {
+        void testCompensateSortOfArtistOnLinux() throws ExecutionException {
 
             utils.mergeSortOfArtist();
             utils.copySortOfArtist();
@@ -227,19 +227,19 @@ class MediaScannerServiceUtilsTest {
             files.forEach(m -> {
                 switch (m.getName()) {
                 case "file1":
-                    assertEquals("ARTIST", m.getAlbumArtist());
+                    assertEquals("中山晋平", m.getAlbumArtist());
                     assertNull(m.getAlbumArtistSort());
                     assertEquals("近衛秀麿", m.getArtist());
                     assertNull(m.getArtistSort());
                     break;
                 case "file2":
-                    assertEquals("ARTIST", m.getAlbumArtist());
+                    assertEquals("中山晋平", m.getAlbumArtist());
                     assertNull(m.getAlbumArtistSort());
                     assertEquals("中山晋平", m.getArtist());
                     assertNull(m.getArtistSort());
                     break;
                 case "file3":
-                    assertEquals("ARTIST", m.getAlbumArtist());
+                    assertEquals("中山晋平", m.getAlbumArtist());
                     assertNull(m.getAlbumArtistSort());
                     assertEquals("ARTIST", m.getArtist());
                     assertNull(m.getArtistSort());
@@ -263,11 +263,13 @@ class MediaScannerServiceUtilsTest {
 
             List<Artist> artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
             assertEquals(2, artistID3s.size());
+            artistID3s.stream().forEach(a -> LOG.info(a.getName()));
             artistID3s.forEach(a -> {
                 switch (a.getName()) {
                 case "近衛秀麿":
                 case "山田耕筰":
                 case "ARTIST":
+                case "中山晋平":
                     assertNull(a.getSort());
                     break;
                 default:
@@ -284,23 +286,24 @@ class MediaScannerServiceUtilsTest {
             files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, albums.get(0).getPathString(), false);
             assertEquals(3, files.size());
 
+            files.stream().forEach(m -> LOG.info(m.getName() + ", " + m.getAlbumArtist() + ", " + m.getArtist()));
             files.forEach(m -> {
                 switch (m.getName()) {
                 case "file1":
-                    assertEquals("ARTIST", m.getAlbumArtist());
-                    assertEquals("ARTIST", m.getAlbumArtistSort());
+                    assertEquals("中山晋平", m.getAlbumArtist());
+                    assertEquals("ナカヤマシンペイ", m.getAlbumArtistSort());
                     assertEquals("近衛秀麿", m.getArtist());
                     assertEquals("コノエヒデマロ", m.getArtistSort());
                     break;
                 case "file2":
-                    assertEquals("ARTIST", m.getAlbumArtist());
-                    assertEquals("ARTIST", m.getAlbumArtistSort());
+                    assertEquals("中山晋平", m.getAlbumArtist());
+                    assertEquals("ナカヤマシンペイ", m.getAlbumArtistSort());
                     assertEquals("中山晋平", m.getArtist());
                     assertEquals("ナカヤマシンペイ", m.getArtistSort());
                     break;
                 case "file3":
-                    assertEquals("ARTIST", m.getAlbumArtist());
-                    assertEquals("ARTIST", m.getAlbumArtistSort());
+                    assertEquals("中山晋平", m.getAlbumArtist());
+                    assertEquals("ナカヤマシンペイ", m.getAlbumArtistSort());
                     assertEquals("ARTIST", m.getArtist());
                     assertEquals("ARTIST", m.getArtistSort());
                     assertEquals("世阿弥", m.getComposer());
@@ -951,39 +954,39 @@ class MediaScannerServiceUtilsTest {
             assertEquals(11, artistID3s.size()); // OS dipendent
 
             artistID3s.stream().forEach(a -> LOG.info(a.getName()));
-            assertEquals("case01", artistID3s.get(0).getName());
-            assertEquals("case02", artistID3s.get(1).getName());
-            assertEquals("case03", artistID3s.get(2).getName());
-            assertEquals("case04", artistID3s.get(3).getName());
-            assertEquals("case05", artistID3s.get(4).getName());
-            assertEquals("case06", artistID3s.get(5).getName());
-            assertEquals("case07", artistID3s.get(6).getName());
+            assertEquals("ARTIST", artistID3s.get(0).getName());
+            assertEquals("case01", artistID3s.get(1).getName());
+            assertEquals("case02", artistID3s.get(2).getName());
+            assertEquals("case03", artistID3s.get(3).getName());
+            assertEquals("case04", artistID3s.get(4).getName());
+            assertEquals("case05", artistID3s.get(5).getName());
+            assertEquals("case06", artistID3s.get(6).getName());
             assertEquals("case08", artistID3s.get(7).getName());
             assertEquals("case09", artistID3s.get(8).getName());
             assertEquals("case10", artistID3s.get(9).getName());
             assertEquals("case11", artistID3s.get(10).getName());
 
             artistID3s.stream().forEach(a -> LOG.info(a.getReading()));
-            assertEquals("case01", artistID3s.get(0).getReading());
-            assertEquals("case02", artistID3s.get(1).getReading());
-            assertEquals("case03", artistID3s.get(2).getReading());
-            assertEquals("case04", artistID3s.get(3).getReading());
-            assertEquals("case05", artistID3s.get(4).getReading());
-            assertEquals("case06", artistID3s.get(5).getReading());
-            assertEquals("case07", artistID3s.get(6).getReading());
+            assertEquals("ARTIST", artistID3s.get(0).getReading());
+            assertEquals("case01", artistID3s.get(1).getReading());
+            assertEquals("case02", artistID3s.get(2).getReading());
+            assertEquals("case03", artistID3s.get(3).getReading());
+            assertEquals("case04", artistID3s.get(4).getReading());
+            assertEquals("case05", artistID3s.get(5).getReading());
+            assertEquals("case06", artistID3s.get(6).getReading());
             assertEquals("case08", artistID3s.get(7).getReading());
             assertEquals("case09", artistID3s.get(8).getReading());
             assertEquals("case10", artistID3s.get(9).getReading());
             assertEquals("case11", artistID3s.get(10).getReading());
 
             artistID3s.stream().forEach(a -> LOG.info(a.getSort()));
-            assertEquals("artistA", artistID3s.get(0).getSort());
-            assertEquals("artistD", artistID3s.get(1).getSort());
-            assertEquals("artistE", artistID3s.get(2).getSort());
-            assertEquals("artistH", artistID3s.get(3).getSort());
-            assertEquals("artistJ", artistID3s.get(4).getSort());
-            assertEquals("artistL", artistID3s.get(5).getSort());
-            assertEquals("artistN", artistID3s.get(6).getSort());
+            assertNull(artistID3s.get(0).getSort());
+            assertEquals("artistA", artistID3s.get(1).getSort());
+            assertEquals("artistD", artistID3s.get(2).getSort());
+            assertEquals("artistE", artistID3s.get(3).getSort());
+            assertEquals("artistH", artistID3s.get(4).getSort());
+            assertEquals("artistJ", artistID3s.get(5).getSort());
+            assertEquals("artistL", artistID3s.get(6).getSort());
             assertEquals("artistO", artistID3s.get(7).getSort());
             assertEquals("artistQ", artistID3s.get(8).getSort());
             assertEquals("artistT", artistID3s.get(9).getSort());
@@ -1237,6 +1240,7 @@ class MediaScannerServiceUtilsTest {
 
             assertEquals(11, albumId3s.size());
 
+            albumId3s.stream().forEach(a -> LOG.info(a.getName()));
             assertEquals("ALBUM1", albumId3s.get(0).getName());
             assertEquals("ALBUM10", albumId3s.get(1).getName());
             assertEquals("ALBUM11", albumId3s.get(2).getName());
@@ -1249,6 +1253,7 @@ class MediaScannerServiceUtilsTest {
             assertEquals("ALBUM8", albumId3s.get(9).getName());
             assertEquals("ALBUM9", albumId3s.get(10).getName());
 
+            albumId3s.stream().forEach(a -> LOG.info(a.getArtist()));
             assertEquals("case01", albumId3s.get(0).getArtist());
             assertEquals("case10", albumId3s.get(1).getArtist());
             assertEquals("case11", albumId3s.get(2).getArtist());
@@ -1257,10 +1262,11 @@ class MediaScannerServiceUtilsTest {
             assertEquals("case04", albumId3s.get(5).getArtist());
             assertEquals("case05", albumId3s.get(6).getArtist());
             assertEquals("case06", albumId3s.get(7).getArtist());
-            assertEquals("case07", albumId3s.get(8).getArtist());
+            assertEquals("ARTIST", albumId3s.get(8).getArtist());
             assertEquals("case08", albumId3s.get(9).getArtist());
             assertEquals("case09", albumId3s.get(10).getArtist());
 
+            albumId3s.stream().forEach(a -> LOG.info(a.getArtistReading()));
             assertEquals("case01", albumId3s.get(0).getArtistReading());
             assertEquals("case10", albumId3s.get(1).getArtistReading());
             assertEquals("case11", albumId3s.get(2).getArtistReading());
@@ -1269,10 +1275,11 @@ class MediaScannerServiceUtilsTest {
             assertEquals("case04", albumId3s.get(5).getArtistReading());
             assertEquals("case05", albumId3s.get(6).getArtistReading());
             assertEquals("case06", albumId3s.get(7).getArtistReading());
-            assertEquals("case07", albumId3s.get(8).getArtistReading());
+            assertEquals("ARTIST", albumId3s.get(8).getArtistReading());
             assertEquals("case08", albumId3s.get(9).getArtistReading());
             assertEquals("case09", albumId3s.get(10).getArtistReading());
 
+            albumId3s.stream().forEach(a -> LOG.info(a.getArtistSort()));
             assertEquals("artistA", albumId3s.get(0).getArtistSort());
             assertEquals("artistT", albumId3s.get(1).getArtistSort());
             assertEquals("artistU", albumId3s.get(2).getArtistSort());
@@ -1281,7 +1288,7 @@ class MediaScannerServiceUtilsTest {
             assertEquals("artistH", albumId3s.get(5).getArtistSort());
             assertEquals("artistJ", albumId3s.get(6).getArtistSort());
             assertEquals("artistL", albumId3s.get(7).getArtistSort());
-            assertEquals("artistN", albumId3s.get(8).getArtistSort());
+            assertNull(albumId3s.get(8).getArtistSort());
             assertEquals("artistO", albumId3s.get(9).getArtistSort());
             assertEquals("artistQ", albumId3s.get(10).getArtistSort());
         }

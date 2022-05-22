@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -116,12 +117,8 @@ public class IndexManager {
     /**
      * Returns the directory of the specified index
      */
-    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
-    /*
-     * The locale doesn't matter because just converting the literal.
-     */
     private static final Function<IndexType, File> GET_INDEX_DIRECTORY = (indexType) -> new File(
-            ROOT_INDEX_DIRECTORY.get(), indexType.toString().toLowerCase());
+            ROOT_INDEX_DIRECTORY.get(), indexType.toString().toLowerCase(Locale.ENGLISH));
 
     private enum GenreSort {
         ALBUM_COUNT, SONG_COUNT, ALBUM_ALPHABETICAL, SONG_ALPHABETICAL
@@ -604,11 +601,8 @@ public class IndexManager {
 
     }
 
-    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.AvoidCatchingGenericException" })
-    /*
-     * [AvoidInstantiatingObjectsInLoops] (Genre) Not reusable [AvoidCatchingGenericException] LOG Exception due to
-     * constraints of 'lucene' {@link HighFreqTerms#getHighFreqTerms(IndexReader, int, String, Comparator)}
-     */
+    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.AvoidCatchingGenericException" }) // lucene/HighFreqTerms#getHighFreqTerms
+    // [AvoidInstantiatingObjectsInLoops] (Genre) Not reusable
     private void refreshMultiGenreMaster() {
 
         IndexSearcher genreSearcher = getSearcher(IndexType.GENRE);
@@ -635,9 +629,7 @@ public class IndexManager {
                         stats = HighFreqTerms.getHighFreqTerms(genreSearcher.getIndexReader(), numTerms,
                                 FieldNamesConstants.GENRE, c);
                     } catch (Exception e) {
-                        LOG.error(
-                                "The genre field may not exist. This is an expected error before scan or using library without genre. : ",
-                                e);
+                        LOG.error("The genre field may not exist.", e);
                         break mayBeInit;
                     }
                     List<String> genreNames = Arrays.stream(stats).map(t -> t.termtext.utf8ToString())

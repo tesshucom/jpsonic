@@ -460,7 +460,6 @@ public class MediaScannerService {
         this.cleansingProcess.set(b);
     }
 
-    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     public void expunge() {
 
         if (IS_EXPUNGING.get()) {

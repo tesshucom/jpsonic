@@ -172,7 +172,7 @@ public class UploadController {
         if (status != null) {
             statusService.removeUploadStatus(status);
             request.getSession().removeAttribute(Attributes.Session.UPLOAD_STATUS.value());
-            User user = securityService.getCurrentUser(request);
+            User user = securityService.getCurrentUserStrict(request);
             securityService.updateUserByteCounts(user, 0L, 0L, status.getBytesTransfered());
         }
     }
@@ -197,11 +197,8 @@ public class UploadController {
         }
     }
 
-    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
-    /*
-     * [AvoidInstantiatingObjectsInLoops] (File, Execution) Not reusable [UseLocaleWithCaseConversions] The locale
-     * doesn't matter, as only comparing the extension literal.
-     */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    // AvoidInstantiatingObjectsInLoops] (File, Execution) Not reusable
     private UnzipResult doUnzip(List<FileItem> items, File dir, boolean unzip) throws ExecutionException {
         List<File> uploadedFiles = new ArrayList<>();
         List<File> unzippedFiles = new ArrayList<>();
@@ -221,7 +218,7 @@ public class UploadController {
                     LOG.info("Uploaded " + targetFile);
                 }
 
-                if (unzip && targetFile.getName().toLowerCase().endsWith(".zip")) {
+                if (unzip && StringUtils.endsWithIgnoreCase(targetFile.getName(), ".zip")) {
                     unzippedFiles = unzip(targetFile);
                 }
             }
@@ -229,10 +226,7 @@ public class UploadController {
         return new UnzipResult(uploadedFiles, unzippedFiles);
     }
 
-    @SuppressWarnings("PMD.AvoidCatchingGenericException")
-    /*
-     * [AvoidCatchingGenericException] Wrap&Throw due to constraints of 'apache commons' {@link FileItem#write(File)}
-     */
+    @SuppressWarnings("PMD.AvoidCatchingGenericException") // apache-commons/FileItem#write
     private void addUploadedFile(FileItem targetItem, File targetFile, List<File> to) throws ExecutionException {
         if (!securityService.isUploadAllowed(targetFile.toPath())) {
             throw new ExecutionException(new GeneralSecurityException(

@@ -79,10 +79,10 @@ public class PodcastChannelsController {
         }
 
         User user = securityService.getCurrentUserStrict(request);
-        Map<String, Object> map = LegacyMap.of("user", securityService.getCurrentUser(request), "channels", channels,
-                "channelMap", channelMap, "newestEpisodes", podcastService.getNewestEpisodes(10), "viewAsList",
-                viewSelector.isViewAsList(request, user.getUsername()), "coverArtSize", CoverArtScheme.MEDIUM.getSize(),
-                "scanning", mediaScannerService.isScanning());
+        Map<String, Object> map = LegacyMap.of("user", securityService.getCurrentUserStrict(request), "channels",
+                channels, "channelMap", channelMap, "newestEpisodes", podcastService.getNewestEpisodes(10),
+                "viewAsList", viewSelector.isViewAsList(request, user.getUsername()), "coverArtSize",
+                CoverArtScheme.MEDIUM.getSize(), "scanning", mediaScannerService.isScanning());
 
         ModelAndView result = new ModelAndView();
         result.addObject("model", map);

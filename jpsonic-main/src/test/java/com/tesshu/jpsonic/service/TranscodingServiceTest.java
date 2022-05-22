@@ -110,7 +110,7 @@ class TranscodingServiceTest {
 
     @BeforeEach
     public void setup() throws ExecutionException, URISyntaxException {
-        realPath = Path.of(MediaFileServiceTest.class.getResource(
+        realPath = Path.of(TranscodingServiceTest.class.getResource(
                 "/MEDIAS/Music/_DIR_ Céline Frisch- Café Zimmermann - Bach- Goldberg Variations, Canons [Disc 1]"
                         + "/01 - Bach- Goldberg Variations, BWV 988 - Aria.flac")
                 .toURI()).toString();
