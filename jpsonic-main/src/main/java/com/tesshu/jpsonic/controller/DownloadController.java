@@ -271,7 +271,7 @@ public class DownloadController {
     private void downloadFiles(HttpServletResponse response, TransferStatus status, List<MediaFile> files,
             int[] indexes, Path coverArtPath, HttpRange range, String zipFileName) throws IOException {
         if (indexes != null && indexes.length == 1) {
-            downloadFile(response, status, Path.of(files.get(indexes[0]).getPathString()), range);
+            downloadFile(response, status, files.get(indexes[0]).toPath(), range);
             return;
         }
 
