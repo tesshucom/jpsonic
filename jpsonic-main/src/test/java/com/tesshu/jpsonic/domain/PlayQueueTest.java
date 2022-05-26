@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -343,11 +342,6 @@ class PlayQueueTest {
         @Override
         public String getAlbumReading() {
             return album;
-        }
-
-        @Override
-        public File getFile() {
-            return new File(name);
         }
 
         @Override

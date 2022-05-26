@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.domain;
 
-import java.io.File;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
@@ -68,11 +67,6 @@ public class MediaFileWithUrlInfo {
 
     public void setFolder(String folder) {
         file.setFolder(folder);
-    }
-
-    @Deprecated
-    public File getFile() {
-        return file.getFile();
     }
 
     public boolean exists() {
@@ -251,11 +245,6 @@ public class MediaFileWithUrlInfo {
         file.setParentPathString(parentPath);
     }
 
-    @Deprecated
-    public File getParentFile() {
-        return file.getParentFile();
-    }
-
     public int getPlayCount() {
         return file.getPlayCount();
     }
@@ -330,11 +319,6 @@ public class MediaFileWithUrlInfo {
 
     public int getVersion() {
         return file.getVersion();
-    }
-
-    @Deprecated
-    public File getCoverArtFile() {
-        return file.getCoverArtFile();
     }
 
     public static List<Integer> toIdList(List<MediaFile> from) {

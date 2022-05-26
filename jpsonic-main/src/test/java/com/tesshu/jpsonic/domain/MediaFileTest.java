@@ -37,14 +37,12 @@ import org.junit.jupiter.api.Test;
  */
 class MediaFileTest {
 
-    @SuppressWarnings("deprecation")
     @Test
     void testGetfile() throws URISyntaxException {
         MediaFile mediaFile = new MediaFile();
         URL url = MediaFileTest.class.getResource("/MEDIAS/Music3/TestAlbum/01 - Aria.flac");
         mediaFile.setPathString(url.toURI().toString().replace("file:/", ""));
-        File file = mediaFile.getFile();
-        assertEquals(file.toPath(), mediaFile.toPath());
+        assertEquals(new File(mediaFile.getPathString()).getPath(), mediaFile.toPath().toString());
     }
 
     @Test

@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.domain;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
@@ -171,11 +170,6 @@ public class MediaFile {
 
     public void setFolder(String folder) {
         this.folder = folder;
-    }
-
-    @Deprecated
-    public File getFile() {
-        return new File(pathString);
     }
 
     public Path toPath() {
@@ -365,11 +359,6 @@ public class MediaFile {
         this.parentPathString = parentPath;
     }
 
-    @Deprecated
-    public File getParentFile() {
-        return getFile().getParentFile();
-    }
-
     public Path getParent() {
         return toPath().getParent();
     }
@@ -477,11 +466,6 @@ public class MediaFile {
     @Override
     public int hashCode() {
         return pathString.hashCode();
-    }
-
-    @Deprecated
-    public File getCoverArtFile() {
-        return coverArtPathString == null ? null : new File(coverArtPathString);
     }
 
     public Optional<Path> getCoverArtPath() {
