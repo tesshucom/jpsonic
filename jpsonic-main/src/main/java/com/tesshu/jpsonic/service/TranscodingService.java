@@ -601,8 +601,8 @@ public class TranscodingService {
     @SuppressWarnings("OperatorPrecedence") // (sonatype-lift) Compete with PMD:UselessParentheses.
     int createBitrate(@NonNull MediaFile mediaFile, @Nullable Transcoding transcoding) {
         // If null assume unlimited bitrate
-        int bitRate = mediaFile.getBitRate() == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate())
-                : mediaFile.getBitRate();
+        Integer br = mediaFile.getBitRate();
+        int bitRate = br == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate()) : br;
         if (!mediaFile.isVideo()) {
             if (mediaFile.isVariableBitRate() && transcoding == null
                     || transcoding != null && !FORMAT_FLAC.equalsIgnoreCase(transcoding.getTargetFormat())) {

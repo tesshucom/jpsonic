@@ -389,7 +389,7 @@ public class SecurityService implements UserDetailsService {
      *
      * @return Whether the given file may be read.
      */
-    public boolean isReadAllowed(Path path) {
+    public boolean isReadAllowed(@NonNull Path path) {
         // Allowed to read from both music folder and podcast folder.
         return isInMusicFolder(path.toString()) || isInPodcastFolder(path);
     }

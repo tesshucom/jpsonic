@@ -21,6 +21,7 @@
 
 package com.tesshu.jpsonic.domain;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -43,6 +44,8 @@ class MediaFileTest {
         URL url = MediaFileTest.class.getResource("/MEDIAS/Music3/TestAlbum/01 - Aria.flac");
         mediaFile.setPathString(url.toURI().toString().replace("file:/", ""));
         assertEquals(new File(mediaFile.getPathString()).getPath(), mediaFile.toPath().toString());
+        mediaFile.setPathString("/");
+        assertNull(mediaFile.getParent());
     }
 
     @Test

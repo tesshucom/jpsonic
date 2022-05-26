@@ -303,8 +303,9 @@ public class MediaScannerService {
         mediaFileDao.markPresent(file.getPathString(), statistics.getScanDate());
         artistDao.markPresent(file.getAlbumArtist(), statistics.getScanDate());
 
-        if (file.getDurationSeconds() != null) {
-            statistics.incrementTotalDurationInSeconds(file.getDurationSeconds());
+        Integer duration = file.getDurationSeconds();
+        if (duration != null) {
+            statistics.incrementTotalDurationInSeconds(duration);
         }
         if (file.getFileSize() != null) {
             statistics.incrementTotalLengthInBytes(file.getFileSize());

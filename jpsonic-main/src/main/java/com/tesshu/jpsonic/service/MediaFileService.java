@@ -497,7 +497,8 @@ public class MediaFileService {
         if (mediaFile.getCoverArtPathString() != null) {
             return Path.of(mediaFile.getCoverArtPathString());
         }
-        if (!securityService.isReadAllowed(mediaFile.getParent())) {
+        Path parentPath = mediaFile.getParent();
+        if (parentPath == null || !securityService.isReadAllowed(parentPath)) {
             return null;
         }
         MediaFile parent = getParentOf(mediaFile);

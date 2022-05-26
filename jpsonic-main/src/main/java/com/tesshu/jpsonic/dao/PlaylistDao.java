@@ -104,8 +104,9 @@ public class PlaylistDao extends AbstractDao {
         int duration = 0;
         for (MediaFile file : files) {
             update("insert into playlist_file (playlist_id, media_file_id) values (?, ?)", id, file.getId());
-            if (file.getDurationSeconds() != null) {
-                duration += file.getDurationSeconds();
+            Integer ds = file.getDurationSeconds();
+            if (ds != null) {
+                duration += ds;
             }
         }
         update("update playlist set file_count=?, duration_seconds=?, changed=? where id=?", files.size(), duration,

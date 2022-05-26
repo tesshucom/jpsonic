@@ -192,8 +192,9 @@ public class IndexManager {
                 Document document = documentFactory.createArtistDocument(mediaFile);
                 writers.get(IndexType.ARTIST).updateDocument(primarykey, document);
             }
-            if (!isEmpty(mediaFile.getGenre())) {
-                primarykey = DocumentFactory.createPrimarykey(mediaFile.getGenre().hashCode());
+            String genre = mediaFile.getGenre();
+            if (!isEmpty(genre)) {
+                primarykey = DocumentFactory.createPrimarykey(genre.hashCode());
                 Document document = documentFactory.createGenreDocument(mediaFile);
                 writers.get(IndexType.GENRE).updateDocument(primarykey, document);
             }

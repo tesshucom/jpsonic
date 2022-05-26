@@ -419,7 +419,7 @@ public class JapaneseReadingUtils {
     }
 
     @NonNull
-    String createReading(@NonNull String name, @Nullable String sort) {
+    String createReading(@Nullable String name, @Nullable String sort) {
         String n = removeArticles(name);
         String s = removeArticles(sort);
         String reading;
@@ -474,7 +474,7 @@ public class JapaneseReadingUtils {
      *
      * @return indexable Name
      */
-    String createIndexableName(@NonNull String value) {
+    String createIndexableName(@Nullable String value) {
         String indexableName = value;
         IndexScheme scheme = getIndexScheme();
         if (scheme == IndexScheme.NATIVE_JAPANESE && value.charAt(0) > WAVY_LINE) {
@@ -491,7 +491,7 @@ public class JapaneseReadingUtils {
         return indexableName;
     }
 
-    public String createIndexableName(@NonNull Artist artist) {
+    public @NonNull String createIndexableName(@NonNull Artist artist) {
         IndexScheme scheme = getIndexScheme();
         @NonNull
         String name = artist.getName();
@@ -502,7 +502,7 @@ public class JapaneseReadingUtils {
         return createIndexableName(artist.getReading());
     }
 
-    public String createIndexableName(@NonNull MediaFile artist) {
+    public @NonNull String createIndexableName(@NonNull MediaFile artist) {
         IndexScheme scheme = getIndexScheme();
         @NonNull
         String name = artist.getName();
