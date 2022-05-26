@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.domain;
 
-import java.io.File;
 import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.Date;
@@ -39,26 +38,10 @@ import com.google.common.base.Objects;
 public class MusicFolder implements Serializable {
 
     private final Integer id;
-    @Deprecated
-    private File file;
     private String pathString;
     private String name;
     private boolean enabled;
     private Date changed;
-
-    @Deprecated
-    public MusicFolder(Integer id, File file, String name, boolean enabled, Date changed) {
-        this.id = id;
-        this.file = file;
-        this.name = name;
-        this.enabled = enabled;
-        this.changed = changed;
-    }
-
-    @Deprecated
-    public MusicFolder(File file, String name, boolean enabled, Date changed) {
-        this(null, file, name, enabled, changed);
-    }
 
     public MusicFolder(Integer id, String pathString, String name, boolean enabled, Date changed) {
         this.id = id;
@@ -74,16 +57,6 @@ public class MusicFolder implements Serializable {
 
     public Integer getId() {
         return id;
-    }
-
-    @Deprecated
-    public File getPath() {
-        return file;
-    }
-
-    @Deprecated
-    public void setFolderPath(File path) {
-        this.file = path;
     }
 
     public String getPathString() {
