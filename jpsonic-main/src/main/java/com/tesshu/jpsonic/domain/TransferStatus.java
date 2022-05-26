@@ -45,6 +45,7 @@ public class TransferStatus implements Serializable {
     private static final Object HISTORY_LOCK = new Object();
 
     private transient Player player;
+    @Deprecated
     private File file;
     private final AtomicLong bytesTransfered;
     private final AtomicLong bytesSkipped;
@@ -173,6 +174,7 @@ public class TransferStatus implements Serializable {
      *
      * @return The file that is currently being transferred.
      */
+    @Deprecated
     public File getFile() {
         return file;
     }
@@ -183,6 +185,7 @@ public class TransferStatus implements Serializable {
      * @param file
      *            The file that is currently being transferred.
      */
+    @Deprecated
     public void setFile(File file) {
         this.file = file;
     }
