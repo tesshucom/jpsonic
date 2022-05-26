@@ -19,7 +19,7 @@
 
 package com.tesshu.jpsonic.service;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
 import com.tesshu.jpsonic.dao.JMediaFileDao;
@@ -69,12 +69,11 @@ public class JMediaFileService {
      * @return the number of child elements
      */
     public int getChildSizeOf(MusicFolder musicFolder) {
-        return mediaFileDao.getChildSizeOf(musicFolder.getPath().getPath());
+        return mediaFileDao.getChildSizeOf(musicFolder.getPathString());
     }
 
-    public MediaFile getMediaFile(File file) {
-        return deligate.getMediaFile(file.toPath());
-
+    public MediaFile getMediaFile(Path path) {
+        return deligate.getMediaFile(path);
     }
 
     public MediaFile getMediaFile(int id) {

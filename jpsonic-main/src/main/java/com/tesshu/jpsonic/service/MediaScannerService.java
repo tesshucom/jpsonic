@@ -192,16 +192,18 @@ public class MediaScannerService {
 
             // Recurse through all files on disk.
             for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders()) {
-                MediaFile root = mediaFileService.getMediaFile(musicFolder.getPath().toPath(), false);
+                MediaFile root = mediaFileService.getMediaFile(musicFolder.toPath(), false);
                 scanFile(root, musicFolder, statistics, albumCount, genres, false);
             }
 
             // Scan podcast folder.
-            Path podcastFolder = Path.of(settingsService.getPodcastFolder());
-            if (Files.exists(podcastFolder)) {
-                scanFile(mediaFileService.getMediaFile(podcastFolder),
-                        new MusicFolder(podcastFolder.toFile(), null, true, null), statistics, albumCount, genres,
-                        true);
+            if (settingsService.getPodcastFolder() != null) {
+                Path podcastFolder = Path.of(settingsService.getPodcastFolder());
+                if (Files.exists(podcastFolder)) {
+                    scanFile(mediaFileService.getMediaFile(podcastFolder),
+                            new MusicFolder(podcastFolder.toString(), null, true, null), statistics, albumCount, genres,
+                            true);
+                }
             }
 
             writeInfo("Scanned media library with " + scanCount + " entries.");
@@ -277,8 +279,9 @@ public class MediaScannerService {
         writeScanLog(file);
 
         // Update the root folder if it has changed.
-        if (!musicFolder.getPath().getPath().equals(file.getFolder())) {
-            file.setFolder(musicFolder.getPath().getPath());
+        String musicFolderPath = musicFolder.getPathString();
+        if (!musicFolderPath.equals(file.getFolder())) {
+            file.setFolder(musicFolderPath);
             mediaFileDao.createOrUpdateMediaFile(file);
         }
 

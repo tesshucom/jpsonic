@@ -25,7 +25,6 @@ import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.File;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -74,12 +73,12 @@ class MediaFileUpnpProcessorTest {
             Path musicFolderPath1 = Path.of(MediaFileUpnpProcessorTest.class.getResource("/MEDIAS/Music").toURI());
             MediaFile folder1 = new MediaFile();
             folder1.setMediaType(MediaType.DIRECTORY);
-            Mockito.when(mediaFileService.getMediaFile(musicFolderPath1.toFile())).thenReturn(folder1);
+            Mockito.when(mediaFileService.getMediaFile(musicFolderPath1)).thenReturn(folder1);
 
             Mockito.when(upnpProcessorUtil.getGuestMusicFolders()).thenReturn(
-                    Arrays.asList(new MusicFolder(0, musicFolderPath1.toFile(), "Music", true, new Date())));
+                    Arrays.asList(new MusicFolder(0, musicFolderPath1.toString(), "Music", true, new Date())));
             List<MediaFile> result = mediaFileUpnpProcessor.getItems(0, Integer.MAX_VALUE);
-            Mockito.verify(mediaFileService, Mockito.times(1)).getMediaFile(Mockito.any(File.class));
+            Mockito.verify(mediaFileService, Mockito.times(1)).getMediaFile(Mockito.any(Path.class));
             assertEquals(0, result.size());
             Mockito.clearInvocations(mediaFileService);
 
@@ -87,13 +86,13 @@ class MediaFileUpnpProcessorTest {
             Path musicFolderPath2 = Path.of(MediaFileUpnpProcessorTest.class.getResource("/MEDIAS/Music2").toURI());
             MediaFile folder2 = new MediaFile();
             folder2.setMediaType(MediaType.DIRECTORY);
-            Mockito.when(mediaFileService.getMediaFile(musicFolderPath2.toFile())).thenReturn(folder2);
+            Mockito.when(mediaFileService.getMediaFile(musicFolderPath2)).thenReturn(folder2);
 
-            Mockito.when(upnpProcessorUtil.getGuestMusicFolders())
-                    .thenReturn(Arrays.asList(new MusicFolder(0, musicFolderPath1.toFile(), "Music1", true, new Date()),
-                            new MusicFolder(1, musicFolderPath2.toFile(), "Music2", true, new Date())));
+            Mockito.when(upnpProcessorUtil.getGuestMusicFolders()).thenReturn(
+                    Arrays.asList(new MusicFolder(0, musicFolderPath1.toString(), "Music1", true, new Date()),
+                            new MusicFolder(1, musicFolderPath2.toString(), "Music2", true, new Date())));
             result = mediaFileUpnpProcessor.getItems(0, Integer.MAX_VALUE);
-            Mockito.verify(mediaFileService, Mockito.times(2)).getMediaFile(Mockito.any(File.class));
+            Mockito.verify(mediaFileService, Mockito.times(2)).getMediaFile(Mockito.any(Path.class));
             assertEquals(2, result.size());
         }
     }
@@ -117,7 +116,7 @@ class MediaFileUpnpProcessorTest {
 
             musicFolders = Arrays.asList(new MusicFolder(1,
                     Path.of(MediaFileUpnpProcessorTest.class.getResource("/MEDIAS/Sort/Pagination/Artists").toURI())
-                            .toFile(),
+                            .toString(),
                     "Artists", true, new Date()));
 
             setSortStrict(true);

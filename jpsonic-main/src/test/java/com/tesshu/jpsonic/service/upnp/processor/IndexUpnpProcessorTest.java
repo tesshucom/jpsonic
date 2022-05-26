@@ -27,7 +27,6 @@ import static com.tesshu.jpsonic.service.upnp.processor.UpnpProcessorTestUtils.J
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -80,7 +79,7 @@ class IndexUpnpProcessorTest {
         @Test
         void testRefreshIndex() {
             // not scanning
-            List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, new File(""), "name", true, new Date()));
+            List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, "", "name", true, new Date()));
             Mockito.when(util.getGuestMusicFolders()).thenReturn(musicFolders);
             Mockito.when(musicIndexService.getMusicFolderContent(musicFolders, true))
                     .thenReturn(new MusicFolderContent(new TreeMap<>(), Collections.emptyList()));
@@ -103,8 +102,8 @@ class IndexUpnpProcessorTest {
     @Nested
     class IntegrationTest extends AbstractNeedsScan {
 
-        private final List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
-                new File(resolveBaseMediaPath("Sort/Pagination/Artists")), "Artists", true, new Date()));
+        private final List<MusicFolder> musicFolders = Arrays.asList(
+                new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, new Date()));
 
         @Autowired
         private IndexUpnpProcessor indexUpnpProcessor;

@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.File;
 import java.lang.annotation.Documented;
 import java.util.Date;
 
@@ -155,8 +154,8 @@ class DocumentFactoryTest {
         artist.setName("name");
         artist.setSort("sort");
         artist.setFolderId(10);
-        File musicDir = new File(MusicFolderTestDataUtils.resolveMusicFolderPath());
-        MusicFolder musicFolder = new MusicFolder(100, musicDir, "Music", true, new Date());
+        MusicFolder musicFolder = new MusicFolder(100, MusicFolderTestDataUtils.resolveMusicFolderPath(), "Music", true,
+                new Date());
         Document document = documentFactory.createArtistId3Document(artist, musicFolder);
         assertEquals(6, document.getFields().size(), "fields.size");
         assertEquals("1", document.get(FieldNamesConstants.ID));

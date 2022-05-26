@@ -22,7 +22,6 @@ package com.tesshu.jpsonic.controller;
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -86,7 +85,7 @@ class ExternalPlayerControllerTest {
         mediaFile.setPathString(path.toString());
         List<MediaFile> mediaFiles = Arrays.asList(mediaFile);
 
-        MusicFolder folder = new MusicFolder(0, new File(""), "", true, expires);
+        MusicFolder folder = new MusicFolder(0, "", "", true, expires);
         List<MusicFolder> folders = Arrays.asList(folder);
         Mockito.when(musicFolderService.getMusicFoldersForUser(Mockito.anyString())).thenReturn(folders);
         Mockito.when(shareService.getSharedFiles(shareId, folders)).thenReturn(mediaFiles);

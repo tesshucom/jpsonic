@@ -235,7 +235,7 @@ class TopControllerTest {
         @Test
         void testWithoutSelectedMusicFolders() throws ServletRequestBindingException, URISyntaxException {
             List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
-                    Path.of(TopControllerTest.class.getResource("/MEDIAS/Sort/Pagination/Artists").toURI()).toFile(),
+                    Path.of(TopControllerTest.class.getResource("/MEDIAS/Sort/Pagination/Artists").toURI()).toString(),
                     "MEDIAS", true, new Date()));
             Mockito.when(musicFolderService.getMusicFoldersForUser(Mockito.anyString())).thenReturn(musicFolders);
 
@@ -247,7 +247,7 @@ class TopControllerTest {
         @Test
         void testWithSelectedMusicFolders() throws ServletRequestBindingException, URISyntaxException {
             List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
-                    Path.of(TopControllerTest.class.getResource("/MEDIAS/Sort/Pagination/Artists").toURI()).toFile(),
+                    Path.of(TopControllerTest.class.getResource("/MEDIAS/Sort/Pagination/Artists").toURI()).toString(),
                     "MEDIAS", true, new Date()));
             Mockito.when(musicFolderService.getMusicFoldersForUser(Mockito.anyString())).thenReturn(musicFolders);
             Mockito.when(securityService.getSelectedMusicFolder(Mockito.anyString())).thenReturn(musicFolders.get(0));

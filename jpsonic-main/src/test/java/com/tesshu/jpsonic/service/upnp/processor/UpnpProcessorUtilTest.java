@@ -24,7 +24,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -99,7 +98,7 @@ class UpnpProcessorUtilTest {
         assertFalse(util.isGenreCountAvailable());
 
         Mockito.when(settingsService.isDlnaGenreCountVisible()).thenReturn(true);
-        List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, new File(""), null, true, null));
+        List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, "", null, true, null));
         Mockito.when(musicFolderService.getAllMusicFolders()).thenReturn(musicFolders);
         Mockito.when(musicFolderService.getMusicFoldersForUser(User.USERNAME_GUEST)).thenReturn(musicFolders);
         assertTrue(util.isGenreCountAvailable());

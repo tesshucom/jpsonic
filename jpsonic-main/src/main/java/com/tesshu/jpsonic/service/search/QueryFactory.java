@@ -74,7 +74,7 @@ public class QueryFactory {
 
     private final Function<MusicFolder, Query> toFolderPathQuery = (folder) -> {
         // Unanalyzed field
-        return new TermQuery(new Term(FieldNamesConstants.FOLDER, folder.getPath().getPath()));
+        return new TermQuery(new Term(FieldNamesConstants.FOLDER, folder.getPathString()));
     };
 
     public final BiFunction<@NonNull Boolean, @NonNull List<MusicFolder>, @NonNull Query> toFolderQuery = (isId3,
@@ -331,8 +331,8 @@ public class QueryFactory {
 
         // sub - folder
         BooleanQuery.Builder folderQuery = new BooleanQuery.Builder();
-        musicFolders.forEach(musicFolder -> folderQuery.add(
-                new TermQuery(new Term(FieldNamesConstants.FOLDER, musicFolder.getPath().getPath())), Occur.SHOULD));
+        musicFolders.forEach(musicFolder -> folderQuery
+                .add(new TermQuery(new Term(FieldNamesConstants.FOLDER, musicFolder.getPathString())), Occur.SHOULD));
         query.add(folderQuery.build(), Occur.MUST);
 
         return query.build();

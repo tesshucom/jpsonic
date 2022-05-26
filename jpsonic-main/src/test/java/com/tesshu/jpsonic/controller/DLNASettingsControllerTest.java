@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.io.File;
 import java.lang.annotation.Documented;
 import java.util.Arrays;
 import java.util.List;
@@ -160,7 +159,7 @@ class DLNASettingsControllerTest {
          * Always false if all folders are not allowed. Because the genre count is a statistical result for all
          * directories.
          */
-        List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, new File(""), null, true, null));
+        List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, "", null, true, null));
         Mockito.when(musicFolderService.getAllMusicFolders()).thenReturn(musicFolders);
         Mockito.when(musicFolderService.getMusicFoldersForUser(User.USERNAME_GUEST)).thenReturn(musicFolders);
 

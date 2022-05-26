@@ -24,12 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 
+import com.tesshu.jpsonic.MusicFolderTestDataUtils;
 import com.tesshu.jpsonic.command.MusicFolderSettingsCommand;
 import com.tesshu.jpsonic.command.MusicFolderSettingsCommand.MusicFolderInfo;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
@@ -174,8 +174,8 @@ class MusicFolderSettingsControllerTest {
                 .get(Attributes.Model.Command.VALUE);
         assertNotNull(command);
 
-        File dir = new File(MusicFolderSettingsControllerTest.class.getResource("/MEDIAS/Music").toURI());
-        MusicFolder musicFolder = new MusicFolder(dir, "Music", true, new Date());
+        MusicFolder musicFolder = new MusicFolder(MusicFolderTestDataUtils.resolveMusicFolderPath(), "Music", true,
+                new Date());
         MusicFolderInfo musicFolderInfo = new MusicFolderInfo(musicFolder);
         command.setNewMusicFolder(musicFolderInfo);
 
@@ -201,23 +201,22 @@ class MusicFolderSettingsControllerTest {
                 .get(Attributes.Model.Command.VALUE);
         assertNotNull(command);
 
-        File dir = new File(MusicFolderSettingsControllerTest.class.getResource("/MEDIAS/Music").toURI());
-        MusicFolder musicFolder1 = new MusicFolder(99, dir, "Music", true, new Date());
+        MusicFolder musicFolder1 = new MusicFolder(99, MusicFolderTestDataUtils.resolveMusicFolderPath(), "Music", true,
+                new Date());
         MusicFolderInfo musicFolderInfo1 = new MusicFolderInfo(musicFolder1);
         musicFolderInfo1.setDelete(true);
-        File dir2 = new File(MusicFolderSettingsControllerTest.class.getResource("/MEDIAS/Music2").toURI());
-        MusicFolder musicFolder2 = new MusicFolder(dir2, null, true, new Date());
+        MusicFolder musicFolder2 = new MusicFolder(MusicFolderTestDataUtils.resolveMusic2FolderPath(), null, true,
+                new Date());
         MusicFolderInfo musicFolderInfo2 = new MusicFolderInfo(musicFolder2);
         command.setMusicFolders(Arrays.asList(musicFolderInfo1, musicFolderInfo2));
 
         // Case where the registered path is deleted on the web page
-        File dir3 = new File(MusicFolderSettingsControllerTest.class.getResource("/MEDIAS/Music3").toURI());
-        MusicFolder musicFolder3 = new MusicFolder(dir3, null, true, new Date());
+        MusicFolder musicFolder3 = new MusicFolder(MusicFolderTestDataUtils.resolveMusic3FolderPath(), null, true,
+                new Date());
         MusicFolderInfo musicFolderInfo3 = new MusicFolderInfo(musicFolder3);
         musicFolderInfo3.setPath(null);
         // Cases that do not (already) exist. Update will be executed but will be ignored in Dao.
-        File dir4 = new File("/Unknown");
-        MusicFolder musicFolder4 = new MusicFolder(dir4, null, true, new Date());
+        MusicFolder musicFolder4 = new MusicFolder("/Unknown", null, true, new Date());
         MusicFolderInfo musicFolderInfo4 = new MusicFolderInfo(musicFolder4);
 
         command.setMusicFolders(Arrays.asList(musicFolderInfo1, musicFolderInfo2, musicFolderInfo3, musicFolderInfo4));

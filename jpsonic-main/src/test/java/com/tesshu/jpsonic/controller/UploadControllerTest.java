@@ -74,7 +74,7 @@ class UploadControllerTest {
     // @Test Currently it is not possible to run two tests in a row
     void testHandleRequestInternalWithFile(@TempDir Path tempDirPath) throws Exception {
 
-        MusicFolder musicFolder = new MusicFolder(Integer.valueOf(0), tempDirPath.toFile(), "Incoming1", true,
+        MusicFolder musicFolder = new MusicFolder(Integer.valueOf(0), tempDirPath.toString(), "Incoming1", true,
                 new Date());
         musicFolderDao.createMusicFolder(musicFolder);
 
@@ -103,7 +103,7 @@ class UploadControllerTest {
     @WithMockUser(username = "admin")
     void testHandleRequestInternalWithZip(@TempDir Path tempDirPath) throws Exception {
 
-        MusicFolder musicFolder = new MusicFolder(Integer.valueOf(1), tempDirPath.toFile(), "Incoming2", true,
+        MusicFolder musicFolder = new MusicFolder(Integer.valueOf(1), tempDirPath.toString(), "Incoming2", true,
                 new Date());
         musicFolderDao.createMusicFolder(musicFolder);
 

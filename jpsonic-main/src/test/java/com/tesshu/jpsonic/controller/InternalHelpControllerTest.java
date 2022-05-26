@@ -69,7 +69,7 @@ class InternalHelpControllerTest {
         void testSetFromPath() throws URISyntaxException {
             Path path = Path.of(InternalHelpControllerTest.class.getResource("/MEDIAS/Music").toURI());
             FileStatistics fileStatistics = new FileStatistics();
-            fileStatistics.setFromFile(path.toFile());
+            fileStatistics.setFromPath(path);
             assertEquals("Music", fileStatistics.getName());
             assertNotNull(fileStatistics.getFreeFilesystemSizeBytes());
             assertTrue(fileStatistics.isReadable());

@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.controller;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Calendar;
 import java.util.List;
 
@@ -75,7 +75,7 @@ public class MoreController {
         String uploadDirectory = null;
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(user.getUsername());
         if (!musicFolders.isEmpty()) {
-            uploadDirectory = new File(musicFolders.get(0).getPath(), "Incoming").getPath();
+            uploadDirectory = Path.of(musicFolders.get(0).getPathString(), "Incoming").toString();
         }
 
         Player player = playerService.getPlayer(request, response);
