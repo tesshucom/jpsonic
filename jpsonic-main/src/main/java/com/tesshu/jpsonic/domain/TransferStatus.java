@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.domain;
 
-import java.io.File;
 import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicLong;
@@ -46,8 +45,6 @@ public class TransferStatus implements Serializable {
     private static final Object HISTORY_LOCK = new Object();
 
     private transient Player player;
-    @Deprecated
-    private File file;
     private String pathString;
     private final AtomicLong bytesTransfered;
     private final AtomicLong bytesSkipped;
@@ -119,16 +116,6 @@ public class TransferStatus implements Serializable {
 
     public void addBytesSkipped(long byteCount) {
         bytesSkipped.addAndGet(byteCount);
-    }
-
-    @Deprecated
-    public File getFile() {
-        return file;
-    }
-
-    @Deprecated
-    public void setFile(File file) {
-        this.file = file;
     }
 
     public String getPathString() {
@@ -208,8 +195,8 @@ public class TransferStatus implements Serializable {
 
     @Override
     public String toString() {
-        return "TransferStatus-" + hashCode() + " [player: " + player.getId() + ", file: " + file + ", terminated: "
-                + terminated + ", active: " + active + "]";
+        return "TransferStatus-" + hashCode() + " [player: " + player.getId() + ", path: " + pathString
+                + ", terminated: " + terminated + ", active: " + active + "]";
     }
 
     @SuppressWarnings("serial")
