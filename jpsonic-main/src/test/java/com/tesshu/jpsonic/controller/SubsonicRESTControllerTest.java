@@ -1235,8 +1235,9 @@ class SubsonicRESTControllerTest {
 
                 statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
                         .findFirst().ifPresentOrElse((status) -> {
-                            assertNotNull(status.getFile());
-                            assertEquals(song.toPath(), status.getFile().toPath());
+                            assertNotNull(status.getPathString());
+                            assertNotNull(status.toPath());
+                            assertEquals(song.toPath(), status.toPath());
                         }, () -> Assertions.fail());
 
                 res = new MockHttpServletResponse();
@@ -1255,8 +1256,9 @@ class SubsonicRESTControllerTest {
 
                 statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
                         .findFirst().ifPresentOrElse((status) -> {
-                            assertNotNull(status.getFile());
-                            assertEquals(song.toPath(), status.getFile().toPath());
+                            assertNotNull(status.getPathString());
+                            assertNotNull(status.toPath());
+                            assertEquals(song.toPath(), status.toPath());
                         }, () -> Assertions.fail());
 
                 res.getOutputStream().close();
@@ -1292,8 +1294,9 @@ class SubsonicRESTControllerTest {
 
                 statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
                         .findFirst().ifPresentOrElse((status) -> {
-                            assertNotNull(status.getFile());
-                            assertEquals(song.toPath(), status.getFile().toPath());
+                            assertNotNull(status.getPathString());
+                            assertNotNull(status.toPath());
+                            assertEquals(song.toPath(), status.toPath());
                         }, () -> Assertions.fail());
 
                 res = new MockHttpServletResponse();
@@ -1314,8 +1317,9 @@ class SubsonicRESTControllerTest {
 
                 statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
                         .findFirst().ifPresentOrElse((status) -> {
-                            assertNotNull(status.getFile());
-                            assertEquals(song.toPath(), status.getFile().toPath());
+                            assertNotNull(status.getPathString());
+                            assertNotNull(status.toPath());
+                            assertEquals(song.toPath(), status.toPath());
                         }, () -> Assertions.fail());
 
                 res.getOutputStream().close();

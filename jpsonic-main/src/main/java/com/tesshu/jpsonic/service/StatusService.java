@@ -23,7 +23,7 @@ package com.tesshu.jpsonic.service;
 
 import static java.util.Collections.unmodifiableList;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -203,11 +203,11 @@ public class StatusService {
 
                 for (TransferStatus streamStatus : statuses) {
                     Player player = streamStatus.getPlayer();
-                    File file = streamStatus.getFile();
-                    if (file == null) {
+                    Path path = streamStatus.toPath();
+                    if (path == null) {
                         continue;
                     }
-                    MediaFile mediaFile = mediaFileService.getMediaFile(file.toPath());
+                    MediaFile mediaFile = mediaFileService.getMediaFile(path);
                     if (player == null || mediaFile == null) {
                         continue;
                     }

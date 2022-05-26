@@ -166,7 +166,7 @@ public class PlayQueueInputStream extends InputStream {
                             pqis.transcodingService.getTranscodedInputStream(pqis.transParam));
                     if (!isEmpty(pqis.delegate) || pqis.player.getPlayQueue().getStatus() != PlayQueue.Status.STOPPED) {
                         pqis.currentFile = new AtomicReference<>(file);
-                        pqis.status.setFile(pqis.currentFile.get().toPath().toFile());
+                        pqis.status.setPathString(pqis.currentFile.get().toPath().toString());
                         return true;
                     }
                 } catch (IOException e) {

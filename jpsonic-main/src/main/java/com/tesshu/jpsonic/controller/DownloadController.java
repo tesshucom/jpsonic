@@ -213,7 +213,7 @@ public class DownloadController {
     private void downloadFile(HttpServletResponse response, TransferStatus status, Path path, HttpRange range)
             throws IOException {
         writeLog("Starting to download", FileUtil.getShortPath(path), status.getPlayer());
-        status.setFile(path.toFile());
+        status.setPathString(path.toString());
 
         response.setContentType("application/x-download");
         Path fileName = path.getFileName();
@@ -421,7 +421,7 @@ public class DownloadController {
         String zipName = path.toRealPath().toString().substring(root.toRealPath().toString().length() + 1);
 
         if (Files.isRegularFile(path)) {
-            status.setFile(path.toFile());
+            status.setPathString(path.toString());
 
             ZipEntry zipEntry = new ZipEntry(zipName);
             zipEntry.setSize(Files.size(path));
