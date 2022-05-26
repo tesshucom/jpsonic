@@ -39,130 +39,60 @@ import com.google.common.base.Objects;
 public class MusicFolder implements Serializable {
 
     private final Integer id;
-    private File path;
+    @Deprecated
+    private File file;
     private String name;
     private boolean enabled;
     private Date changed;
 
-    /**
-     * Creates a new music folder.
-     *
-     * @param id
-     *            The system-generated ID.
-     * @param path
-     *            The path of the music folder.
-     * @param name
-     *            The user-defined name.
-     * @param enabled
-     *            Whether the folder is enabled.
-     * @param changed
-     *            When the corresponding database entry was last changed.
-     */
-    public MusicFolder(Integer id, File path, String name, boolean enabled, Date changed) {
+    @Deprecated
+    public MusicFolder(Integer id, File file, String name, boolean enabled, Date changed) {
         this.id = id;
-        this.path = path;
+        this.file = file;
         this.name = name;
         this.enabled = enabled;
         this.changed = changed;
     }
 
-    /**
-     * Creates a new music folder.
-     *
-     * @param path
-     *            The path of the music folder.
-     * @param name
-     *            The user-defined name.
-     * @param enabled
-     *            Whether the folder is enabled.
-     * @param changed
-     *            When the corresponding database entry was last changed.
-     */
-    public MusicFolder(File path, String name, boolean enabled, Date changed) {
-        this(null, path, name, enabled, changed);
+    @Deprecated
+    public MusicFolder(File file, String name, boolean enabled, Date changed) {
+        this(null, file, name, enabled, changed);
     }
 
-    /**
-     * Returns the system-generated ID.
-     *
-     * @return The system-generated ID.
-     */
     public Integer getId() {
         return id;
     }
 
-    /**
-     * Returns the path of the music folder.
-     *
-     * @return The path of the music folder.
-     */
+    @Deprecated
     public File getPath() {
-        return path;
+        return file;
     }
 
-    /**
-     * Sets the path of the music folder.
-     *
-     * @param path
-     *            The path of the music folder.
-     */
-    public void setPath(File path) {
-        this.path = path;
+    @Deprecated
+    public void setFolderPath(File path) {
+        this.file = path;
     }
 
-    /**
-     * Returns the user-defined name.
-     *
-     * @return The user-defined name.
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * Sets the user-defined name.
-     *
-     * @param name
-     *            The user-defined name.
-     */
     public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * Returns whether the folder is enabled.
-     *
-     * @return Whether the folder is enabled.
-     */
     public boolean isEnabled() {
         return enabled;
     }
 
-    /**
-     * Sets whether the folder is enabled.
-     *
-     * @param enabled
-     *            Whether the folder is enabled.
-     */
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
 
-    /**
-     * Returns when the corresponding database entry was last changed.
-     *
-     * @return When the corresponding database entry was last changed.
-     */
     public Date getChanged() {
         return changed;
     }
 
-    /**
-     * Sets when the corresponding database entry was last changed.
-     *
-     * @param changed
-     *            When the corresponding database entry was last changed.
-     */
     public void setChanged(Date changed) {
         this.changed = changed;
     }

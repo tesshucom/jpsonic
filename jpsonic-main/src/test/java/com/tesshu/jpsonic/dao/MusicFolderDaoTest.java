@@ -70,7 +70,7 @@ class MusicFolderDaoTest {
         musicFolderDao.createMusicFolder(musicFolder);
         musicFolder = musicFolderDao.getAllMusicFolders().get(0);
 
-        musicFolder.setPath(new File("newPath"));
+        musicFolder.setFolderPath(new File("newPath"));
         musicFolder.setName("newName");
         musicFolder.setEnabled(false);
         musicFolder.setChanged(new Date(234_234L));
