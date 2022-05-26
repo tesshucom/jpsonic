@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -142,7 +143,7 @@ class MediaFileDaoTest {
             assertFalse(op.isPresent());
 
             List<com.tesshu.jpsonic.domain.MusicFolder> folders = new ArrayList<>();
-            folders.add(new com.tesshu.jpsonic.domain.MusicFolder(null, "", false, null));
+            folders.add(new com.tesshu.jpsonic.domain.MusicFolder(new File(""), "", false, null));
             criteria = new RandomSearchCriteria(0, null, null, null, folders, null, null, null, null, null, null, false,
                     false, null);
             builder = new RandomSongsQueryBuilder(criteria);
@@ -471,7 +472,7 @@ class MediaFileDaoTest {
 
             // folder
             List<com.tesshu.jpsonic.domain.MusicFolder> folders = new ArrayList<>();
-            folders.add(new com.tesshu.jpsonic.domain.MusicFolder(null, "", false, null));
+            folders.add(new com.tesshu.jpsonic.domain.MusicFolder(new File(""), "", false, null));
             criteria = new RandomSearchCriteria(0, null, null, null, folders, null, null, null, null, null, null, false,
                     false, null);
             builder = new RandomSongsQueryBuilder(criteria);

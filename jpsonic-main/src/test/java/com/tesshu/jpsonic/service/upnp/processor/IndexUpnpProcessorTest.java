@@ -80,7 +80,7 @@ class IndexUpnpProcessorTest {
         @Test
         void testRefreshIndex() {
             // not scanning
-            List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, null, "name", true, new Date()));
+            List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, new File(""), "name", true, new Date()));
             Mockito.when(util.getGuestMusicFolders()).thenReturn(musicFolders);
             Mockito.when(musicIndexService.getMusicFolderContent(musicFolders, true))
                     .thenReturn(new MusicFolderContent(new TreeMap<>(), Collections.emptyList()));

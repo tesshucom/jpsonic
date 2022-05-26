@@ -23,9 +23,9 @@ package com.tesshu.jpsonic.domain;
 
 import java.io.File;
 import java.io.Serializable;
+import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Objects;
@@ -41,6 +41,7 @@ public class MusicFolder implements Serializable {
     private final Integer id;
     @Deprecated
     private File file;
+    private String pathString;
     private String name;
     private boolean enabled;
     private Date changed;
@@ -59,6 +60,18 @@ public class MusicFolder implements Serializable {
         this(null, file, name, enabled, changed);
     }
 
+    public MusicFolder(Integer id, String pathString, String name, boolean enabled, Date changed) {
+        this.id = id;
+        this.pathString = pathString;
+        this.name = name;
+        this.enabled = enabled;
+        this.changed = changed;
+    }
+
+    public MusicFolder(String pathString, String name, boolean enabled, Date changed) {
+        this(null, pathString, name, enabled, changed);
+    }
+
     public Integer getId() {
         return id;
     }
@@ -71,6 +84,18 @@ public class MusicFolder implements Serializable {
     @Deprecated
     public void setFolderPath(File path) {
         this.file = path;
+    }
+
+    public String getPathString() {
+        return pathString;
+    }
+
+    public void setPathString(String pathString) {
+        this.pathString = pathString;
+    }
+
+    public Path toPath() {
+        return Path.of(pathString);
     }
 
     public String getName() {
@@ -114,18 +139,10 @@ public class MusicFolder implements Serializable {
     }
 
     public static List<Integer> toIdList(List<MusicFolder> from) {
-        return from.stream().map(toId()).collect(Collectors.toList());
+        return from.stream().map(MusicFolder::getId).collect(Collectors.toList());
     }
 
     public static List<String> toPathList(List<MusicFolder> from) {
-        return from.stream().map(toPath()).collect(Collectors.toList());
-    }
-
-    public static Function<MusicFolder, Integer> toId() {
-        return MusicFolder::getId;
-    }
-
-    public static Function<MusicFolder, String> toPath() {
-        return from -> from.getPath().getPath();
+        return from.stream().map(MusicFolder::getPathString).collect(Collectors.toList());
     }
 }

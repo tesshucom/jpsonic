@@ -27,6 +27,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -211,7 +212,7 @@ class HomeControllerTest {
             MockHttpServletRequest req = mock(MockHttpServletRequest.class);
             Mockito.when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
                     .thenReturn(AlbumListType.INDEX.getId());
-            List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, null, "name", false, new Date()));
+            List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, new File(""), "name", false, new Date()));
             Mockito.when(musicFolderService.getMusicFoldersForUser(anyString(), Mockito.nullable(Integer.class)))
                     .thenReturn(musicFolders);
             Mockito.when(musicIndexService.getMusicFolderContent(musicFolders, false))
