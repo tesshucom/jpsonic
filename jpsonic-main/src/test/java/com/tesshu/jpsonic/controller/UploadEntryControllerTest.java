@@ -23,14 +23,21 @@ import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -44,10 +51,14 @@ class UploadEntryControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    public void setup() throws ExecutionException, URISyntaxException {
+        List<MusicFolder> musicFolders = Arrays.asList(
+                new MusicFolder(1, Path.of(UploadEntryControllerTest.class.getResource("/MEDIAS").toURI()).toFile(),
+                        "MEDIAS", true, new Date()));
+        MusicFolderService musicFolderService = mock(MusicFolderService.class);
+        Mockito.when(musicFolderService.getMusicFoldersForUser(ServiceMockUtils.ADMIN_NAME)).thenReturn(musicFolders);
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new UploadEntryController(mock(MusicFolderService.class), mock(SecurityService.class)))
-                .build();
+                .standaloneSetup(new UploadEntryController(musicFolderService, mock(SecurityService.class))).build();
     }
 
     @Test

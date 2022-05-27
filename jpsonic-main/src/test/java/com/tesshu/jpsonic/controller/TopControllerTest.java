@@ -27,12 +27,17 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.annotation.Documented;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.service.InternetRadioService;
@@ -61,6 +66,7 @@ import org.springframework.web.servlet.ModelAndView;
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.SignatureDeclareThrowsException" })
 class TopControllerTest {
 
+    private SecurityService securityService;
     private MusicFolderService musicFolderService;
     private MediaScannerService mediaScannerService;
     private MusicIndexService musicIndexService;
@@ -71,13 +77,14 @@ class TopControllerTest {
     @SuppressWarnings("unchecked")
     @BeforeEach
     public void setup() throws ExecutionException {
+        securityService = mock(SecurityService.class);
         musicFolderService = mock(MusicFolderService.class);
         mediaScannerService = mock(MediaScannerService.class);
         musicIndexService = mock(MusicIndexService.class);
         Mockito.when(
                 musicIndexService.getMusicFolderContent(Mockito.nullable(List.class), Mockito.nullable(boolean.class)))
                 .thenReturn(new MusicFolderContent(new TreeMap<>(), Collections.emptyList()));
-        controller = new TopController(mock(SettingsService.class), musicFolderService, mock(SecurityService.class),
+        controller = new TopController(mock(SettingsService.class), musicFolderService, securityService,
                 mediaScannerService, musicIndexService, mock(VersionService.class), mock(InternetRadioService.class),
                 mock(AirsonicLocaleResolver.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
@@ -210,5 +217,45 @@ class TopControllerTest {
                     refreshCaptor.capture());
             assertFalse(refreshCaptor.getValue());
         }
+    }
+
+    @Nested
+    class GetLastModifiedTest {
+
+        // ... This method is not currently used, but is probably wrong.
+
+        @Test
+        void testWithScanning() throws ServletRequestBindingException {
+            Mockito.when(mediaScannerService.isScanning()).thenReturn(true);
+            MockHttpServletRequest request = mock(MockHttpServletRequest.class);
+            long lastModified = controller.getLastModified(request);
+            assertEquals(-1L, lastModified);
+        }
+
+        @Test
+        void testWithoutSelectedMusicFolders() throws ServletRequestBindingException, URISyntaxException {
+            List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
+                    Path.of(TopControllerTest.class.getResource("/MEDIAS/Sort/Pagination/Artists").toURI()).toFile(),
+                    "MEDIAS", true, new Date()));
+            Mockito.when(musicFolderService.getMusicFoldersForUser(Mockito.anyString())).thenReturn(musicFolders);
+
+            MockHttpServletRequest request = mock(MockHttpServletRequest.class);
+            long lastModified = controller.getLastModified(request);
+            assertNotEquals(-1L, lastModified);
+        }
+
+        @Test
+        void testWithSelectedMusicFolders() throws ServletRequestBindingException, URISyntaxException {
+            List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
+                    Path.of(TopControllerTest.class.getResource("/MEDIAS/Sort/Pagination/Artists").toURI()).toFile(),
+                    "MEDIAS", true, new Date()));
+            Mockito.when(musicFolderService.getMusicFoldersForUser(Mockito.anyString())).thenReturn(musicFolders);
+            Mockito.when(securityService.getSelectedMusicFolder(Mockito.anyString())).thenReturn(musicFolders.get(0));
+
+            MockHttpServletRequest request = mock(MockHttpServletRequest.class);
+            long lastModified = controller.getLastModified(request);
+            assertNotEquals(-1L, lastModified);
+        }
+
     }
 }

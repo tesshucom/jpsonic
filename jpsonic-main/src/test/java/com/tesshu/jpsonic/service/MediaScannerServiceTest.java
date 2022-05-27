@@ -105,6 +105,7 @@ class MediaScannerServiceTest {
         private MediaFileService mediaFileService;
         private MediaFileDao mediaFileDao;
         private MediaScannerService mediaScannerService;
+        private ThreadPoolTaskExecutor executor;
 
         @BeforeEach
         public void setup() {
@@ -114,10 +115,10 @@ class MediaScannerServiceTest {
             mediaFileDao = mock(MediaFileDao.class);
             artistDao = mock(ArtistDao.class);
             albumDao = mock(AlbumDao.class);
+            executor = mock(ThreadPoolTaskExecutor.class);
             mediaScannerService = new MediaScannerService(settingsService, mock(MusicFolderService.class), indexManager,
                     mock(PlaylistService.class), mock(MediaFileCache.class), mediaFileService, mediaFileDao, artistDao,
-                    albumDao, mock(Ehcache.class), mock(MediaScannerServiceUtils.class),
-                    mock(ThreadPoolTaskExecutor.class));
+                    albumDao, mock(Ehcache.class), mock(MediaScannerServiceUtils.class), executor);
         }
 
         @Test
@@ -127,6 +128,29 @@ class MediaScannerServiceTest {
 
             Mockito.when(indexManager.getStatistics()).thenReturn(new MediaLibraryStatistics());
             assertFalse(mediaScannerService.neverScanned());
+        }
+
+        @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert") // It doesn't seem to be able to capture
+        @Test
+        void testPodcast() throws URISyntaxException {
+            executor = new ThreadPoolTaskExecutor();
+            executor.setQueueCapacity(0);
+            executor.setCorePoolSize(1);
+            executor.setMaxPoolSize(1);
+            executor.initialize();
+            indexManager = mock(IndexManager.class);
+            Mockito.doNothing().when(indexManager).startIndexing();
+            Path podcastPath = Path.of(MediaScannerServiceTest.class.getResource("/MEDIAS/Scan/Null").toURI());
+            Mockito.when(settingsService.getPodcastFolder()).thenReturn(podcastPath.toString());
+            MediaFile mediaFile = new MediaFile();
+            mediaFile.setPathString(podcastPath.toString());
+            Mockito.when(mediaFileService.getMediaFile(podcastPath)).thenReturn(mediaFile);
+
+            mediaScannerService = new MediaScannerService(settingsService, mock(MusicFolderService.class), indexManager,
+                    mock(PlaylistService.class), mock(MediaFileCache.class), mediaFileService, mediaFileDao, artistDao,
+                    albumDao, mock(Ehcache.class), mock(MediaScannerServiceUtils.class), executor);
+            mediaScannerService.scanLibrary();
+            executor.shutdown();
         }
 
         @Nested

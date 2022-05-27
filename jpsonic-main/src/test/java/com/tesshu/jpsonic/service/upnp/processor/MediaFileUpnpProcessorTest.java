@@ -21,11 +21,15 @@
 
 package com.tesshu.jpsonic.service.upnp.processor;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -33,162 +37,219 @@ import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.service.PlayerService;
+import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class MediaFileUpnpProcessorTest extends AbstractNeedsScan {
+class MediaFileUpnpProcessorTest {
 
-    private static final List<MusicFolder> MUSIC_FOLDERS;
+    @Nested
+    class UnitTest {
 
-    static {
-        MUSIC_FOLDERS = new ArrayList<>();
-        File musicDir = new File(resolveBaseMediaPath("Sort/Pagination/Artists"));
-        MUSIC_FOLDERS.add(new MusicFolder(1, musicDir, "Artists", true, new Date()));
-    }
+        private UpnpProcessorUtil upnpProcessorUtil;
+        private JMediaFileService mediaFileService;
+        private MediaFileUpnpProcessor mediaFileUpnpProcessor;
 
-    @Autowired
-    private MediaFileUpnpProcessor mediaFileUpnpProcessor;
-
-    @Override
-    public List<MusicFolder> getMusicFolders() {
-        return MUSIC_FOLDERS;
-    }
-
-    @BeforeEach
-    public void setup() {
-        setSortStrict(true);
-        setSortAlphanum(true);
-        settingsService.setSortAlbumsByYear(false);
-        populateDatabaseOnlyOnce();
-    }
-
-    @Test
-    void testGetItemCount() {
-        // 31 + 22(topnodes)
-        assertEquals(53, mediaFileUpnpProcessor.getItemCount());
-    }
-
-    @Test
-    void testGetItems() {
-
-        List<MediaFile> items = mediaFileUpnpProcessor.getItems(0, 10);
-        assertEquals(10, items.size());
-
-        items = mediaFileUpnpProcessor.getItems(10, 10);
-        assertEquals(10, items.size());
-
-        items = mediaFileUpnpProcessor.getItems(20, 100);
-        assertEquals(33, items.size());
-
-        items = mediaFileUpnpProcessor.getItems(0, 100).stream().filter(a -> !a.getName().startsWith("single"))
-                .collect(Collectors.toList());
-        assertTrue(UpnpProcessorTestUtils
-                .validateJPSonicNaturalList(items.stream().map(MediaFile::getName).collect(Collectors.toList())));
-    }
-
-    @Test
-    void testGetChildSizeOf() {
-        List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream().filter(a -> "10".equals(a.getName()))
-                .collect(Collectors.toList());
-        assertEquals(1, artists.size());
-        assertEquals("10", artists.get(0).getName());
-        assertEquals(31, mediaFileUpnpProcessor.getChildSizeOf(artists.get(0)));
-    }
-
-    @Test
-    void testgetChildren() {
-
-        List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream().filter(a -> "10".equals(a.getName()))
-                .collect(Collectors.toList());
-        assertEquals(1, artists.size());
-        assertEquals("10", artists.get(0).getName());
-
-        List<MediaFile> children = mediaFileUpnpProcessor.getChildren(artists.get(0), 0, 10);
-        for (int i = 0; i < children.size(); i++) {
-            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i), children.get(i).getName());
+        @BeforeEach
+        public void setup() {
+            upnpProcessorUtil = mock(UpnpProcessorUtil.class);
+            mediaFileService = mock(JMediaFileService.class);
+            mediaFileUpnpProcessor = new MediaFileUpnpProcessor(mock(UpnpProcessDispatcher.class), upnpProcessorUtil,
+                    mediaFileService, mock(PlayerService.class));
         }
 
-        children = mediaFileUpnpProcessor.getChildren(artists.get(0), 10, 10);
-        for (int i = 0; i < children.size(); i++) {
-            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10), children.get(i).getName());
+        @Test
+        void testGetItems() throws URISyntaxException {
+
+            // If there is a single music folder, the first level is not the music folder, but the
+            // child (artist) of the music folder.
+            Path musicFolderPath1 = Path.of(MediaFileUpnpProcessorTest.class.getResource("/MEDIAS/Music").toURI());
+            MediaFile folder1 = new MediaFile();
+            folder1.setMediaType(MediaType.DIRECTORY);
+            Mockito.when(mediaFileService.getMediaFile(musicFolderPath1.toFile())).thenReturn(folder1);
+
+            Mockito.when(upnpProcessorUtil.getGuestMusicFolders()).thenReturn(
+                    Arrays.asList(new MusicFolder(0, musicFolderPath1.toFile(), "Music", true, new Date())));
+            List<MediaFile> result = mediaFileUpnpProcessor.getItems(0, Integer.MAX_VALUE);
+            Mockito.verify(mediaFileService, Mockito.times(1)).getMediaFile(Mockito.any(File.class));
+            assertEquals(0, result.size());
+            Mockito.clearInvocations(mediaFileService);
+
+            // If there are multiple Music folders, the first level is the Music folder.
+            Path musicFolderPath2 = Path.of(MediaFileUpnpProcessorTest.class.getResource("/MEDIAS/Music2").toURI());
+            MediaFile folder2 = new MediaFile();
+            folder2.setMediaType(MediaType.DIRECTORY);
+            Mockito.when(mediaFileService.getMediaFile(musicFolderPath2.toFile())).thenReturn(folder2);
+
+            Mockito.when(upnpProcessorUtil.getGuestMusicFolders())
+                    .thenReturn(Arrays.asList(new MusicFolder(0, musicFolderPath1.toFile(), "Music1", true, new Date()),
+                            new MusicFolder(1, musicFolderPath2.toFile(), "Music2", true, new Date())));
+            result = mediaFileUpnpProcessor.getItems(0, Integer.MAX_VALUE);
+            Mockito.verify(mediaFileService, Mockito.times(2)).getMediaFile(Mockito.any(File.class));
+            assertEquals(2, result.size());
+        }
+    }
+
+    @SpringBootTest
+    @Nested
+    class IntegrationTest extends AbstractNeedsScan {
+
+        private List<MusicFolder> musicFolders;
+
+        @Autowired
+        private MediaFileUpnpProcessor mediaFileUpnpProcessor;
+
+        @Override
+        public List<MusicFolder> getMusicFolders() {
+            return musicFolders;
         }
 
-        children = mediaFileUpnpProcessor.getChildren(artists.get(0), 20, 100);
-        assertEquals(11, children.size());
-        for (int i = 0; i < children.size(); i++) {
-            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20), children.get(i).getName());
+        @BeforeEach
+        public void setup() throws URISyntaxException {
+
+            musicFolders = Arrays.asList(new MusicFolder(1,
+                    Path.of(MediaFileUpnpProcessorTest.class.getResource("/MEDIAS/Sort/Pagination/Artists").toURI())
+                            .toFile(),
+                    "Artists", true, new Date()));
+
+            setSortStrict(true);
+            setSortAlphanum(true);
+            settingsService.setSortAlbumsByYear(false);
+            populateDatabaseOnlyOnce();
         }
 
-    }
+        @Test
+        void testGetItemCount() {
+            // 31 + 22(topnodes)
+            assertEquals(53, mediaFileUpnpProcessor.getItemCount());
+        }
 
-    @Test
-    void testAlbum() {
+        @Test
+        void testGetItems() {
 
-        settingsService.setSortAlbumsByYear(false);
+            List<MediaFile> items = mediaFileUpnpProcessor.getItems(0, 10);
+            assertEquals(10, items.size());
 
-        List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream().filter(a -> "10".equals(a.getName()))
-                .collect(Collectors.toList());
-        assertEquals(1, artists.size());
-        assertEquals("10", artists.get(0).getName());
+            items = mediaFileUpnpProcessor.getItems(10, 10);
+            assertEquals(10, items.size());
 
-        MediaFile artist = artists.get(0);
+            items = mediaFileUpnpProcessor.getItems(20, 100);
+            assertEquals(33, items.size());
 
-        List<MediaFile> albums = mediaFileUpnpProcessor.getChildren(artist, 0, Integer.MAX_VALUE);
-        assertEquals(31, albums.size());
-        assertTrue(UpnpProcessorTestUtils
-                .validateJPSonicNaturalList(albums.stream().map(a -> a.getName()).collect(Collectors.toList())));
+            items = mediaFileUpnpProcessor.getItems(0, 100).stream().filter(a -> !a.getName().startsWith("single"))
+                    .collect(Collectors.toList());
+            assertTrue(UpnpProcessorTestUtils
+                    .validateJPSonicNaturalList(items.stream().map(MediaFile::getName).collect(Collectors.toList())));
+        }
 
-    }
+        @Test
+        void testGetChildSizeOf() {
+            List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream()
+                    .filter(a -> "10".equals(a.getName())).collect(Collectors.toList());
+            assertEquals(1, artists.size());
+            assertEquals("10", artists.get(0).getName());
+            assertEquals(31, mediaFileUpnpProcessor.getChildSizeOf(artists.get(0)));
+        }
 
-    @Test
-    void testAlbumByYear() {
+        @Test
+        void testgetChildren() {
 
-        // The result change depending on the setting
-        settingsService.setSortAlbumsByYear(true);
-        List<String> reversedByYear = new ArrayList<>(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST);
-        Collections.reverse(reversedByYear);
+            List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream()
+                    .filter(a -> "10".equals(a.getName())).collect(Collectors.toList());
+            assertEquals(1, artists.size());
+            assertEquals("10", artists.get(0).getName());
 
-        List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream().filter(a -> "10".equals(a.getName()))
-                .collect(Collectors.toList());
-        assertEquals(1, artists.size());
-        assertEquals("10", artists.get(0).getName());
+            List<MediaFile> children = mediaFileUpnpProcessor.getChildren(artists.get(0), 0, 10);
+            for (int i = 0; i < children.size(); i++) {
+                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i), children.get(i).getName());
+            }
 
-        MediaFile artist = artists.get(0);
+            children = mediaFileUpnpProcessor.getChildren(artists.get(0), 10, 10);
+            for (int i = 0; i < children.size(); i++) {
+                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10), children.get(i).getName());
+            }
 
-        List<MediaFile> albums = mediaFileUpnpProcessor.getChildren(artist, 0, Integer.MAX_VALUE);
-        assertEquals(31, albums.size());
-        assertEquals(reversedByYear, albums.stream().map(a -> a.getName()).collect(Collectors.toList()));
+            children = mediaFileUpnpProcessor.getChildren(artists.get(0), 20, 100);
+            assertEquals(11, children.size());
+            for (int i = 0; i < children.size(); i++) {
+                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20), children.get(i).getName());
+            }
 
-    }
+        }
 
-    @Test
-    void testSongs() {
+        @Test
+        void testAlbum() {
 
-        settingsService.setSortAlbumsByYear(false);
+            settingsService.setSortAlbumsByYear(false);
 
-        List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream().filter(a -> "20".equals(a.getName()))
-                .collect(Collectors.toList());
-        assertEquals(1, artists.size());
+            List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream()
+                    .filter(a -> "10".equals(a.getName())).collect(Collectors.toList());
+            assertEquals(1, artists.size());
+            assertEquals("10", artists.get(0).getName());
 
-        MediaFile artist = artists.get(0);
-        assertEquals("20", artist.getName());
+            MediaFile artist = artists.get(0);
 
-        List<MediaFile> albums = mediaFileUpnpProcessor.getChildren(artist, 0, Integer.MAX_VALUE);
-        assertEquals(1, albums.size());
+            List<MediaFile> albums = mediaFileUpnpProcessor.getChildren(artist, 0, Integer.MAX_VALUE);
+            assertEquals(31, albums.size());
+            assertTrue(UpnpProcessorTestUtils
+                    .validateJPSonicNaturalList(albums.stream().map(a -> a.getName()).collect(Collectors.toList())));
 
-        MediaFile album = albums.get(0);
-        assertEquals("ALBUM", album.getName()); // the case where album name is different between file and id3
+        }
 
-        List<MediaFile> songs = mediaFileUpnpProcessor.getChildren(album, 0, Integer.MAX_VALUE);
-        assertEquals(1, songs.size());
+        @Test
+        void testAlbumByYear() {
 
-        MediaFile song = songs.get(0);
-        assertEquals("empty", song.getName());
+            // The result change depending on the setting
+            settingsService.setSortAlbumsByYear(true);
+            List<String> reversedByYear = new ArrayList<>(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST);
+            Collections.reverse(reversedByYear);
 
+            List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream()
+                    .filter(a -> "10".equals(a.getName())).collect(Collectors.toList());
+            assertEquals(1, artists.size());
+            assertEquals("10", artists.get(0).getName());
+
+            MediaFile artist = artists.get(0);
+
+            List<MediaFile> albums = mediaFileUpnpProcessor.getChildren(artist, 0, Integer.MAX_VALUE);
+            assertEquals(31, albums.size());
+            assertEquals(reversedByYear, albums.stream().map(a -> a.getName()).collect(Collectors.toList()));
+
+        }
+
+        @Test
+        void testSongs() {
+
+            settingsService.setSortAlbumsByYear(false);
+
+            List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream()
+                    .filter(a -> "20".equals(a.getName())).collect(Collectors.toList());
+            assertEquals(1, artists.size());
+
+            MediaFile artist = artists.get(0);
+            assertEquals("20", artist.getName());
+
+            List<MediaFile> albums = mediaFileUpnpProcessor.getChildren(artist, 0, Integer.MAX_VALUE);
+            assertEquals(1, albums.size());
+
+            MediaFile album = albums.get(0);
+            assertEquals("ALBUM", album.getName()); // the case where album name is different between file and id3
+
+            List<MediaFile> songs = mediaFileUpnpProcessor.getChildren(album, 0, Integer.MAX_VALUE);
+            assertEquals(1, songs.size());
+
+            MediaFile song = songs.get(0);
+            assertEquals("empty", song.getName());
+
+        }
     }
 
 }
