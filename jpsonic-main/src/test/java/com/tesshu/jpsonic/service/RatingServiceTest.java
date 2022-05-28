@@ -61,7 +61,7 @@ class RatingServiceTest {
         album.setPathString(albumPath.toString());
         Mockito.when(mediaFileService.getMediaFile(albumPath)).thenReturn(album);
 
-        MusicFolder musicFolder = new MusicFolder(0, Path.of("path").toFile(), "Music", true, new Date());
+        MusicFolder musicFolder = new MusicFolder(0, "path", "Music", true, new Date());
         List<MusicFolder> musicFolders = Arrays.asList(musicFolder);
         List<MediaFile> highestRatedAlbums = ratingService.getHighestRatedAlbums(0, 0, musicFolders);
         assertEquals(1, highestRatedAlbums.size());

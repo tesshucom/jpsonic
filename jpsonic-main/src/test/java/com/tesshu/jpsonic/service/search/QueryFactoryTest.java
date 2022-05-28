@@ -25,7 +25,6 @@ import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -62,10 +61,8 @@ class QueryFactoryTest {
     private static final int FID1 = 10;
     private static final int FID2 = 20;
 
-    private static final MusicFolder MUSIC_FOLDER1 = new MusicFolder(FID1, new File(PATH1), "music1", true,
-            new java.util.Date());
-    private static final MusicFolder MUSIC_FOLDER2 = new MusicFolder(FID2, new File(PATH2), "music2", true,
-            new java.util.Date());
+    private static final MusicFolder MUSIC_FOLDER1 = new MusicFolder(FID1, PATH1, "music1", true, new java.util.Date());
+    private static final MusicFolder MUSIC_FOLDER2 = new MusicFolder(FID2, PATH2, "music2", true, new java.util.Date());
 
     private static final List<MusicFolder> SINGLE_FOLDERS = Arrays.asList(MUSIC_FOLDER1);
     private static final List<MusicFolder> MULTI_FOLDERS = Arrays.asList(MUSIC_FOLDER1, MUSIC_FOLDER2);

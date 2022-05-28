@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
@@ -239,7 +238,7 @@ class SubsonicRESTControllerTest {
     class IntegreationTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays
-                .asList(new MusicFolder(1, new File(resolveBaseMediaPath("Music")), "Music", true, new Date()));
+                .asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, new Date()));
 
         @Autowired
         private MockMvc mvc;
@@ -1236,8 +1235,9 @@ class SubsonicRESTControllerTest {
 
                 statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
                         .findFirst().ifPresentOrElse((status) -> {
-                            assertNotNull(status.getFile());
-                            assertEquals(song.toPath(), status.getFile().toPath());
+                            assertNotNull(status.getPathString());
+                            assertNotNull(status.toPath());
+                            assertEquals(song.toPath(), status.toPath());
                         }, () -> Assertions.fail());
 
                 res = new MockHttpServletResponse();
@@ -1256,8 +1256,9 @@ class SubsonicRESTControllerTest {
 
                 statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
                         .findFirst().ifPresentOrElse((status) -> {
-                            assertNotNull(status.getFile());
-                            assertEquals(song.toPath(), status.getFile().toPath());
+                            assertNotNull(status.getPathString());
+                            assertNotNull(status.toPath());
+                            assertEquals(song.toPath(), status.toPath());
                         }, () -> Assertions.fail());
 
                 res.getOutputStream().close();
@@ -1293,8 +1294,9 @@ class SubsonicRESTControllerTest {
 
                 statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
                         .findFirst().ifPresentOrElse((status) -> {
-                            assertNotNull(status.getFile());
-                            assertEquals(song.toPath(), status.getFile().toPath());
+                            assertNotNull(status.getPathString());
+                            assertNotNull(status.toPath());
+                            assertEquals(song.toPath(), status.toPath());
                         }, () -> Assertions.fail());
 
                 res = new MockHttpServletResponse();
@@ -1315,8 +1317,9 @@ class SubsonicRESTControllerTest {
 
                 statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
                         .findFirst().ifPresentOrElse((status) -> {
-                            assertNotNull(status.getFile());
-                            assertEquals(song.toPath(), status.getFile().toPath());
+                            assertNotNull(status.getPathString());
+                            assertNotNull(status.toPath());
+                            assertEquals(song.toPath(), status.toPath());
                         }, () -> Assertions.fail());
 
                 res.getOutputStream().close();

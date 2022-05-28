@@ -24,7 +24,9 @@ package com.tesshu.jpsonic.controller;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.FileStore;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -334,7 +336,7 @@ public class InternalHelpController {
         SortedMap<String, FileStatistics> fsMusicFolderStatistics = new TreeMap<>();
         for (MusicFolder folder : musicFolderDao.getAllMusicFolders()) {
             FileStatistics stat = new FileStatistics();
-            stat.setFromFile(folder.getPath());
+            stat.setFromPath(folder.toPath());
             stat.setName(folder.getName());
             fsMusicFolderStatistics.put(folder.getName(), stat);
         }
@@ -365,10 +367,10 @@ public class InternalHelpController {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
-    private File lookForExecutable(String executableName) {
+    private Path lookForExecutable(String executableName) {
         for (String path : System.getenv("PATH").split(File.pathSeparator)) {
-            File file = new File(path, executableName);
-            if (file.exists()) {
+            Path file = Path.of(path, executableName);
+            if (Files.exists(file)) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Found {} in {}", executableName, path);
                 }
@@ -383,14 +385,14 @@ public class InternalHelpController {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
-    private File lookForTranscodingExecutable(String executableName) {
+    private Path lookForTranscodingExecutable(String executableName) {
         for (String name : Arrays.asList(executableName, String.format("%s.exe", executableName))) {
-            File executableLocation = new File(transcodingService.getTranscodeDirectory(), name);
-            if (executableLocation.exists()) {
+            Path executableLocation = Path.of(transcodingService.getTranscodeDirectory().toPath().toString(), name);
+            if (Files.exists(executableLocation)) {
                 return executableLocation;
             }
             executableLocation = lookForExecutable(executableName);
-            if (executableLocation != null && executableLocation.exists()) {
+            if (executableLocation != null && Files.exists(executableLocation)) {
                 return executableLocation;
             }
         }
@@ -399,10 +401,10 @@ public class InternalHelpController {
 
     private FileStatistics gatherStatisticsForTranscodingExecutable(String executableName) {
         FileStatistics executableStatistics = null;
-        File executableLocation = lookForTranscodingExecutable(executableName);
+        Path executableLocation = lookForTranscodingExecutable(executableName);
         if (executableLocation != null) {
             executableStatistics = new FileStatistics();
-            executableStatistics.setFromFile(executableLocation);
+            executableStatistics.setFromPath(executableLocation);
         }
         return executableStatistics;
     }
@@ -502,14 +504,24 @@ public class InternalHelpController {
             this.path = path;
         }
 
-        public void setFromFile(File file) {
-            this.setName(file.getName());
-            this.setPath(file.getAbsolutePath());
-            this.setFreeFilesystemSizeBytes(FileUtils.byteCountToDisplaySize(file.getUsableSpace()));
-            this.setTotalFilesystemSizeBytes(FileUtils.byteCountToDisplaySize(file.getTotalSpace()));
-            this.setReadable(Files.isReadable(file.toPath()));
-            this.setWritable(Files.isWritable(file.toPath()));
-            this.setExecutable(Files.isExecutable(file.toPath()));
+        public void setFromPath(Path path) {
+            Path fileName = path.getFileName();
+            if (fileName != null) {
+                this.setName(fileName.toString());
+            }
+            this.setPath(path.toString());
+            try {
+                FileStore store = Files.getFileStore(path);
+                this.setFreeFilesystemSizeBytes(FileUtils.byteCountToDisplaySize(store.getUsableSpace()));
+                this.setTotalFilesystemSizeBytes(FileUtils.byteCountToDisplaySize(store.getTotalSpace()));
+            } catch (IOException e) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Could not get directory size because path cannot be accessed.: " + path, e.getMessage());
+                }
+            }
+            this.setReadable(Files.isReadable(path));
+            this.setWritable(Files.isWritable(path));
+            this.setExecutable(Files.isExecutable(path));
         }
     }
 }

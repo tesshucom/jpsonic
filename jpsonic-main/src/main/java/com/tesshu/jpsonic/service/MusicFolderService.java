@@ -72,8 +72,7 @@ public class MusicFolderService {
 
         List<MusicFolder> result = new ArrayList<>(cachedMusicFolders.size());
         for (MusicFolder folder : cachedMusicFolders) {
-            if ((includeDisabled || folder.isEnabled())
-                    && (includeNonExisting || Files.exists(folder.getPath().toPath()))) {
+            if ((includeDisabled || folder.isEnabled()) && (includeNonExisting || Files.exists(folder.toPath()))) {
                 result.add(folder);
             }
         }

@@ -24,8 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import java.io.File;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -65,9 +64,7 @@ class MultiServiceTest extends AbstractNeedsScan {
     @Override
     public List<MusicFolder> getMusicFolders() {
         if (isEmpty(musicFolders)) {
-            musicFolders = new ArrayList<>();
-            File musicDir = new File(resolveBaseMediaPath("Music"));
-            musicFolders.add(new MusicFolder(1, musicDir, "Music", true, new Date()));
+            musicFolders = Arrays.asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, new Date()));
         }
         return musicFolders;
     }

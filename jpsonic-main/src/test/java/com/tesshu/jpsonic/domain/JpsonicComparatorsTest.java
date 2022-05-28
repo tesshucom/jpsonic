@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.util.ArrayList;
@@ -71,13 +70,8 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
 
     protected static final Logger LOG = LoggerFactory.getLogger(JpsonicComparatorsTest.class);
 
-    protected static final List<MusicFolder> MUSIC_FOLDERS;
-
-    static {
-        MUSIC_FOLDERS = new ArrayList<>();
-        File musicDir = new File(resolveBaseMediaPath("Sort/Compare"));
-        MUSIC_FOLDERS.add(new MusicFolder(1, musicDir, "test date for sorting", true, new Date()));
-    }
+    protected static final List<MusicFolder> MUSIC_FOLDERS = Arrays.asList(
+            new MusicFolder(1, resolveBaseMediaPath("Sort/Compare"), "test date for sorting", true, new Date()));
 
     protected static final List<String> INDEX_LIST = Collections.unmodifiableList(Arrays.asList("abcde", "abcいうえおあ", // Turn
                                                                                                                      // over

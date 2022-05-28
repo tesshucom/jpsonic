@@ -105,6 +105,7 @@ class MediaScannerServiceTest {
         private MediaFileService mediaFileService;
         private MediaFileDao mediaFileDao;
         private MediaScannerService mediaScannerService;
+        private ThreadPoolTaskExecutor executor;
 
         @BeforeEach
         public void setup() {
@@ -114,10 +115,10 @@ class MediaScannerServiceTest {
             mediaFileDao = mock(MediaFileDao.class);
             artistDao = mock(ArtistDao.class);
             albumDao = mock(AlbumDao.class);
+            executor = mock(ThreadPoolTaskExecutor.class);
             mediaScannerService = new MediaScannerService(settingsService, mock(MusicFolderService.class), indexManager,
                     mock(PlaylistService.class), mock(MediaFileCache.class), mediaFileService, mediaFileDao, artistDao,
-                    albumDao, mock(Ehcache.class), mock(MediaScannerServiceUtils.class),
-                    mock(ThreadPoolTaskExecutor.class));
+                    albumDao, mock(Ehcache.class), mock(MediaScannerServiceUtils.class), executor);
         }
 
         @Test
@@ -129,12 +130,31 @@ class MediaScannerServiceTest {
             assertFalse(mediaScannerService.neverScanned());
         }
 
+        @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert") // It doesn't seem to be able to capture
+        @Test
+        void testPodcast() throws URISyntaxException {
+            executor = new ThreadPoolTaskExecutor();
+            executor.setQueueCapacity(0);
+            executor.setCorePoolSize(1);
+            executor.setMaxPoolSize(1);
+            executor.initialize();
+            indexManager = mock(IndexManager.class);
+            Mockito.doNothing().when(indexManager).startIndexing();
+            Path podcastPath = Path.of(MediaScannerServiceTest.class.getResource("/MEDIAS/Scan/Null").toURI());
+            Mockito.when(settingsService.getPodcastFolder()).thenReturn(podcastPath.toString());
+            MediaFile mediaFile = new MediaFile();
+            mediaFile.setPathString(podcastPath.toString());
+            Mockito.when(mediaFileService.getMediaFile(podcastPath)).thenReturn(mediaFile);
+
+            mediaScannerService = new MediaScannerService(settingsService, mock(MusicFolderService.class), indexManager,
+                    mock(PlaylistService.class), mock(MediaFileCache.class), mediaFileService, mediaFileDao, artistDao,
+                    albumDao, mock(Ehcache.class), mock(MediaScannerServiceUtils.class), executor);
+            mediaScannerService.scanLibrary();
+            executor.shutdown();
+        }
+
         @Nested
         class ScanFileTest {
-
-            private File createFile(String path) throws URISyntaxException {
-                return new File(MediaFileServiceTest.class.getResource(path).toURI());
-            }
 
             private Path createPath(String path) throws URISyntaxException {
                 return Path.of(MediaFileServiceTest.class.getResource(path).toURI());
@@ -168,7 +188,8 @@ class MediaScannerServiceTest {
                 MediaFile child = mediaFileService.createMediaFile(file);
                 child.setLastScanned(MediaFileDao.ZERO_DATE);
 
-                MusicFolder musicFolder = new MusicFolder(createFile("/MEDIAS/Music2"), "name", false, new Date());
+                MusicFolder musicFolder = new MusicFolder(
+                        MusicFolderTestDataUtils.resolveBaseMediaPath().concat("Music2"), "name", false, new Date());
                 Date scanStart = DateUtils.truncate(new Date(), Calendar.SECOND);
                 MediaLibraryStatistics statistics = new MediaLibraryStatistics(scanStart);
                 Map<String, Integer> albumCount = new ConcurrentHashMap<>();
@@ -202,7 +223,7 @@ class MediaScannerServiceTest {
             }
 
             private MusicFolder createMusicFolder() {
-                return new MusicFolder(Integer.valueOf(1), new File(""), "", true, new Date());
+                return new MusicFolder(Integer.valueOf(1), "", "", true, new Date());
             }
 
             @Test
@@ -444,7 +465,7 @@ class MediaScannerServiceTest {
             }
 
             private MusicFolder createMusicFolder() {
-                return new MusicFolder(Integer.valueOf(1), new File(""), "", true, new Date());
+                return new MusicFolder(Integer.valueOf(1), "", "", true, new Date());
             }
 
             @Test
@@ -524,13 +545,11 @@ class MediaScannerServiceTest {
         @Override
         public List<MusicFolder> getMusicFolders() {
             if (ObjectUtils.isEmpty(musicFolders)) {
-                musicFolders = new ArrayList<>();
-                File musicDir1 = new File(resolveBaseMediaPath("Scan/Id3LIFO"));
-                musicFolders.add(new MusicFolder(1, musicDir1, "alphaBeticalProps", true, new Date()));
-                File musicDir2 = new File(resolveBaseMediaPath("Scan/Null"));
-                musicFolders.add(new MusicFolder(2, musicDir2, "noTagFirstChild", true, new Date()));
-                File musicDir3 = new File(resolveBaseMediaPath("Scan/Reverse"));
-                musicFolders.add(new MusicFolder(3, musicDir3, "fileAndPropsNameInReverse", true, new Date()));
+                musicFolders = Arrays.asList(
+                        new MusicFolder(1, resolveBaseMediaPath("Scan/Id3LIFO"), "alphaBeticalProps", true, new Date()),
+                        new MusicFolder(2, resolveBaseMediaPath("Scan/Null"), "noTagFirstChild", true, new Date()),
+                        new MusicFolder(3, resolveBaseMediaPath("Scan/Reverse"), "fileAndPropsNameInReverse", true,
+                                new Date()));
             }
             return musicFolders;
         }
@@ -757,9 +776,9 @@ class MediaScannerServiceTest {
     class GetChildrenOfTest extends AbstractNeedsScan {
 
         private List<MusicFolder> musicFolders;
-        private File artist;
-        private File album;
-        private File song;
+        private Path artist;
+        private Path album;
+        private Path song;
 
         @Autowired
         private MediaFileDao mediaFileDao;
@@ -777,22 +796,21 @@ class MediaScannerServiceTest {
         }
 
         @BeforeEach
-        public void setup(@TempDir File tempDir) throws IOException, URISyntaxException {
+        public void setup(@TempDir Path tempDir) throws IOException, URISyntaxException {
 
             // Create a musicfolder for verification
-            File musicFolder = new File(tempDir.getPath());
-            artist = new File(musicFolder, "ARTIST");
-            assertTrue(artist.mkdirs());
-            this.album = new File(artist, "ALBUM");
-            assertTrue(album.mkdirs());
-            this.musicFolders = Arrays.asList(new MusicFolder(1, musicFolder, "musicFolder", true, new Date()));
+            artist = Path.of(tempDir.toString(), "ARTIST");
+            assertNotNull(Files.createDirectory(artist));
+            this.album = Path.of(artist.toString(), "ALBUM");
+            assertNotNull(Files.createDirectory(album));
+            this.musicFolders = Arrays.asList(new MusicFolder(1, tempDir.toString(), "musicFolder", true, new Date()));
 
             // Copy the song file from the test resource. No tags are registered in this file.
-            File sample = new File(MediaScannerServiceTest.class
+            Path sample = Path.of(MediaScannerServiceTest.class
                     .getResource("/MEDIAS/Scan/Timestamp/ARTIST/ALBUM/sample.mp3").toURI());
-            this.song = new File(this.album, "sample.mp3");
-            Files.copy(sample.toPath(), song.toPath());
-            assertTrue(song.exists());
+            this.song = Path.of(this.album.toString(), "sample.mp3");
+            assertNotNull(Files.copy(sample, song));
+            assertTrue(Files.exists(song));
 
             // Exec scan
             populateDatabase();
@@ -801,34 +819,34 @@ class MediaScannerServiceTest {
         @Test
         void testSpecialCharactersInDirName() throws URISyntaxException, IOException, InterruptedException {
 
-            MediaFile artist = mediaFileDao.getMediaFile(this.artist.getPath());
-            assertEquals(this.artist.toPath(), artist.toPath());
+            MediaFile artist = mediaFileDao.getMediaFile(this.artist.toString());
+            assertEquals(this.artist, artist.toPath());
             assertEquals("ARTIST", artist.getName());
-            MediaFile album = mediaFileDao.getMediaFile(this.album.getPath());
-            assertEquals(this.album.toPath(), album.toPath());
+            MediaFile album = mediaFileDao.getMediaFile(this.album.toString());
+            assertEquals(this.album, album.toPath());
             assertEquals("ALBUM", album.getName());
-            MediaFile song = mediaFileDao.getMediaFile(this.song.getPath());
-            assertEquals(this.song.getPath(), song.getPathString());
+            MediaFile song = mediaFileDao.getMediaFile(this.song.toString());
+            assertEquals(this.song, song.toPath());
             assertEquals("ARTIST", song.getArtist());
             assertEquals("ALBUM", song.getAlbumName());
 
             // Copy the song file from the test resource. Tags are registered in this file.
-            assertTrue(this.song.delete());
-            File sampleEdited = new File(MediaScannerServiceTest.class
+            Files.delete(this.song);
+            Path sampleEdited = Path.of(MediaScannerServiceTest.class
                     .getResource("/MEDIAS/Scan/Timestamp/ARTIST/ALBUM/sampleEdited.mp3").toURI());
-            this.song = new File(this.album, "sample.mp3");
-            Files.copy(sampleEdited.toPath(), this.song.toPath());
+            this.song = Path.of(this.album.toString(), "sample.mp3");
+            Files.copy(sampleEdited, this.song);
             assertTrue(song.exists());
 
             /*
              * If you get it via Dao, you can get the record before had been copied. (It's a expected behavior)
              */
-            List<MediaFile> albums = mediaFileDao.getChildrenOf(this.artist.getPath());
+            List<MediaFile> albums = mediaFileDao.getChildrenOf(this.artist.toString());
             assertEquals(1, albums.size());
-            List<MediaFile> songs = mediaFileDao.getChildrenOf(this.album.getPath());
+            List<MediaFile> songs = mediaFileDao.getChildrenOf(this.album.toString());
             assertEquals(1, songs.size());
             song = songs.get(0);
-            assertEquals(this.song.getPath(), song.getPathString());
+            assertEquals(this.song, song.toPath());
             assertEquals("ARTIST", song.getArtist());
             assertEquals("ALBUM", song.getAlbumName());
 
@@ -847,16 +865,16 @@ class MediaScannerServiceTest {
              */
 
             // Artist and Album are not subject to the update process
-            artist = mediaFileDao.getMediaFile(this.artist.getPath());
-            assertEquals(this.artist.getPath(), artist.getPathString());
+            artist = mediaFileDao.getMediaFile(this.artist.toString());
+            assertEquals(this.artist, artist.toPath());
             assertEquals("ARTIST", artist.getName());
-            album = mediaFileDao.getMediaFile(this.album.getPath());
-            assertEquals(this.album.getPath(), album.getPathString());
+            album = mediaFileDao.getMediaFile(this.album.toString());
+            assertEquals(this.album, album.toPath());
             assertEquals("ALBUM", album.getName());
 
             // Only songs are updated
-            song = mediaFileDao.getMediaFile(this.song.getPath());
-            assertEquals(this.song.getPath(), song.getPathString());
+            song = mediaFileDao.getMediaFile(this.song.toString());
+            assertEquals(this.song, song.toPath());
             assertEquals("Edited artist!", song.getArtist());
             assertEquals("Edited album!", song.getAlbumName());
 
@@ -884,19 +902,19 @@ class MediaScannerServiceTest {
                 Thread.sleep(1000);
             }
 
-            artist = mediaFileDao.getMediaFile(this.artist.getPath());
-            assertEquals(this.artist.getPath(), artist.getPathString());
+            artist = mediaFileDao.getMediaFile(this.artist.toString());
+            assertEquals(this.artist, artist.toPath());
             assertNull(artist.getTitle());
             assertEquals("ARTIST", artist.getName());
             assertEquals("ARTIST", artist.getArtist());
-            album = mediaFileDao.getMediaFile(this.album.getPath());
-            assertEquals(this.album.getPath(), album.getPathString());
+            album = mediaFileDao.getMediaFile(this.album.toString());
+            assertEquals(this.album, album.toPath());
             assertNull(album.getTitle());
             assertEquals("ALBUM", album.getName());
             assertEquals("Edited album!", album.getAlbumName());
 
-            song = mediaFileDao.getMediaFile(this.song.getPath());
-            assertEquals(this.song.getPath(), song.getPathString());
+            song = mediaFileDao.getMediaFile(this.song.toString());
+            assertEquals(this.song, song.toPath());
             assertEquals("Edited song!", song.getTitle());
             assertEquals("Edited song!", song.getName());
             assertEquals("Edited artist!", song.getArtist());
@@ -1072,7 +1090,7 @@ class MediaScannerServiceTest {
                 IOUtils.copy(resource, Files.newOutputStream(musicPath));
             }
 
-            MusicFolder musicFolder = new MusicFolder(1, tempDirPath.toFile(), "Music", true, new Date());
+            MusicFolder musicFolder = new MusicFolder(1, tempDirPath.toString(), "Music", true, new Date());
             musicFolderDao.createMusicFolder(musicFolder);
             musicFolderService.clearMusicFolderCache();
             TestCaseUtils.execScan(mediaScannerService);
@@ -1090,8 +1108,8 @@ class MediaScannerServiceTest {
         void testMusicBrainzReleaseIdTag() {
 
             // Add the "Music3" folder to the database
-            File musicFolderFile = new File(MusicFolderTestDataUtils.resolveMusic3FolderPath());
-            MusicFolder musicFolder = new MusicFolder(1, musicFolderFile, "Music3", true, new Date());
+            Path musicFolderPath = Path.of(MusicFolderTestDataUtils.resolveMusic3FolderPath());
+            MusicFolder musicFolder = new MusicFolder(1, musicFolderPath.toString(), "Music3", true, new Date());
             musicFolderDao.createMusicFolder(musicFolder);
             musicFolderService.clearMusicFolderCache();
             TestCaseUtils.execScan(mediaScannerService);
@@ -1099,7 +1117,7 @@ class MediaScannerServiceTest {
             // Retrieve the "Music3" folder from the database to make
             // sure that we don't accidentally operate on other folders
             // from previous tests.
-            musicFolder = musicFolderDao.getMusicFolderForPath(musicFolder.getPath().getPath());
+            musicFolder = musicFolderDao.getMusicFolderForPath(musicFolder.getPathString());
             List<MusicFolder> folders = new ArrayList<>();
             folders.add(musicFolder);
 
@@ -1118,7 +1136,7 @@ class MediaScannerServiceTest {
             assertEquals("TestArtist", album.getArtist());
             assertEquals(1, album.getSongCount());
             assertEquals("0820752d-1043-4572-ab36-2df3b5cc15fa", album.getMusicBrainzReleaseId());
-            assertEquals(musicFolderFile.toPath().resolve("TestAlbum").toString(), album.getPath());
+            assertEquals(musicFolderPath.resolve("TestAlbum").toString(), album.getPath());
 
             // Test that the music file is correctly imported, along with its MusicBrainz release ID and recording ID
             List<MediaFile> albumFiles = mediaFileDao.getChildrenOf(allAlbums.get(0).getPath());

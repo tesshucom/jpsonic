@@ -19,7 +19,7 @@
 
 package com.tesshu.jpsonic.controller;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -55,7 +55,7 @@ public class UploadEntryController {
         String uploadDirectory = null;
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(user.getUsername());
         if (!musicFolders.isEmpty()) {
-            uploadDirectory = new File(musicFolders.get(0).getPath(), "Incoming").getPath();
+            uploadDirectory = Path.of(musicFolders.get(0).getPathString(), "Incoming").toString();
         }
 
         ModelAndView result = new ModelAndView();

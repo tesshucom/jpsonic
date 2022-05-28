@@ -148,10 +148,10 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
         List<MusicFolder> allFolders = util.getGuestMusicFolders();
         List<MediaFile> returnValue = new ArrayList<>();
         if (allFolders.size() == SINGLE_MUSIC_FOLDER) {
-            returnValue = getChildren(mediaFileService.getMediaFile(allFolders.get(0).getPath()), offset, maxResults);
+            returnValue = getChildren(mediaFileService.getMediaFile(allFolders.get(0).toPath()), offset, maxResults);
         } else {
             for (int i = (int) offset; i < Math.min(allFolders.size(), offset + maxResults); i++) {
-                returnValue.add(mediaFileService.getMediaFile(allFolders.get(i).getPath()));
+                returnValue.add(mediaFileService.getMediaFile(allFolders.get(i).toPath()));
             }
         }
         return returnValue;

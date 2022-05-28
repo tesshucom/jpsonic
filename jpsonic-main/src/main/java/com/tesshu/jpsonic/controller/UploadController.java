@@ -325,8 +325,8 @@ public class UploadController {
         }
 
         @Override
-        public void start(String fileName) {
-            status.setFile(new File(fileName));
+        public void start(String path) {
+            status.setPathString(path);
         }
 
         @Override

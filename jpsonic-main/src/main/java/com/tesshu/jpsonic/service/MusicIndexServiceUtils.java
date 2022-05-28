@@ -89,7 +89,7 @@ public class MusicIndexServiceUtils {
         Comparator<SortableArtist> c = comparators.sortableArtistOrder();
         for (MusicFolder folder : folders) {
 
-            MediaFile root = mediaFileService.getMediaFile(folder.getPath().toPath(), !refresh);
+            MediaFile root = mediaFileService.getMediaFile(folder.toPath(), !refresh);
             if (root == null) {
                 continue;
             }

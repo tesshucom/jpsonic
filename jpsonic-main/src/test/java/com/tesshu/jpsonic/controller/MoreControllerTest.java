@@ -23,9 +23,15 @@ import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
@@ -48,13 +54,19 @@ class MoreControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    public void setup() throws ExecutionException, URISyntaxException {
+        MusicFolderService musicFolderService = mock(MusicFolderService.class);
         SearchService searchService = mock(SearchService.class);
         PlayerService playerService = mock(PlayerService.class);
-        mockMvc = MockMvcBuilders.standaloneSetup(new MoreController(mock(MusicFolderService.class),
-                mock(SecurityService.class), playerService, searchService)).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(
+                new MoreController(musicFolderService, mock(SecurityService.class), playerService, searchService))
+                .build();
         Mockito.when(searchService.getGenres(false)).thenReturn(Collections.emptyList());
         Mockito.when(playerService.getPlayer(Mockito.any(), Mockito.any())).thenReturn(new Player());
+        List<MusicFolder> musicFolders = Arrays
+                .asList(new MusicFolder(1, Path.of(MoreControllerTest.class.getResource("/MEDIAS").toURI()).toString(),
+                        "MEDIAS", true, new Date()));
+        Mockito.when(musicFolderService.getMusicFoldersForUser(ServiceMockUtils.ADMIN_NAME)).thenReturn(musicFolders);
     }
 
     @Test

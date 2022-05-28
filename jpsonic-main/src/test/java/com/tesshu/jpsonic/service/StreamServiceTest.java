@@ -368,7 +368,7 @@ class StreamServiceTest {
         song.setPathString("song");
 
         Mockito.when(mediaFileService.getMediaFile(song.getId())).thenReturn(song);
-        Mockito.when(mediaFileService.getMediaFile(song.toPath().toString())).thenReturn(song);
+        Mockito.when(mediaFileService.getMediaFile(song.getPathString())).thenReturn(song);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         assertNull(streamService.getSingleFile(request));

@@ -71,7 +71,7 @@ class StatusControllerTest {
         Path path = Path.of(StatusControllerTest.class.getResource(
                 "/MEDIAS/Music/_DIR_ Céline Frisch- Café Zimmermann - Bach- Goldberg Variations, Canons [Disc 1]/01 - Bach- Goldberg Variations, BWV 988 - Aria.flac")
                 .toURI());
-        status.setFile(path.toFile());
+        status.setPathString(path.toString());
         TransferStatusHolder holder = new TransferStatusHolder(status, false, false, false, 0, null);
         assertEquals(FileUtil.getShortPath(path), holder.getPath());
     }

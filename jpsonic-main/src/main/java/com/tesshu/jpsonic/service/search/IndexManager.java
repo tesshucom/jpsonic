@@ -205,7 +205,7 @@ public class IndexManager {
         }
     }
 
-    public final void startIndexing() {
+    public void startIndexing() {
         try {
             for (IndexType indexType : IndexType.values()) {
                 writers.put(indexType, createIndexWriter(indexType));

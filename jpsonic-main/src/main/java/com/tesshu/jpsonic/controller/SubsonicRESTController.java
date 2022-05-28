@@ -1450,8 +1450,7 @@ public class SubsonicRESTController {
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getAllMusicFolders(false, true);
         StringBuilder builder = new StringBuilder();
         for (com.tesshu.jpsonic.domain.MusicFolder musicFolder : musicFolders) {
-            String folderPath = musicFolder.getPath().getPath();
-            folderPath = folderPath.replace('\\', '/');
+            String folderPath = musicFolder.getPathString().replace('\\', '/');
             String folderPathLower = folderPath.toLowerCase(settingsService.getLocale());
             if (!folderPathLower.endsWith("/")) {
                 builder.setLength(0);

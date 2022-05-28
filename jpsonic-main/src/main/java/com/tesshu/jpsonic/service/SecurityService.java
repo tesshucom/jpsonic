@@ -441,7 +441,7 @@ public class SecurityService implements UserDetailsService {
     private MusicFolder getMusicFolderForFile(String path) {
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders(false, true);
         for (MusicFolder folder : folders) {
-            if (isFileInFolder(path, folder.getPath().getPath())) {
+            if (isFileInFolder(path, folder.getPathString())) {
                 return folder;
             }
         }
@@ -469,7 +469,7 @@ public class SecurityService implements UserDetailsService {
     public String getRootFolderForFile(String path) {
         MusicFolder folder = getMusicFolderForFile(path);
         if (folder != null) {
-            return folder.getPath().getPath();
+            return folder.getPathString();
         }
 
         if (isInPodcastFolder(path)) {
@@ -481,7 +481,7 @@ public class SecurityService implements UserDetailsService {
     public String getRootFolderForFile(Path path) {
         MusicFolder folder = getMusicFolderForFile(path.toString());
         if (folder != null) {
-            return folder.getPath().getPath();
+            return folder.getPathString();
         }
 
         if (isInPodcastFolder(path)) {
@@ -496,7 +496,7 @@ public class SecurityService implements UserDetailsService {
         }
 
         for (MusicFolder musicFolder : musicFolderService.getMusicFoldersForUser(username)) {
-            if (musicFolder.getPath().getPath().equals(file.getFolder())) {
+            if (musicFolder.getPathString().equals(file.getFolder())) {
                 return true;
             }
         }

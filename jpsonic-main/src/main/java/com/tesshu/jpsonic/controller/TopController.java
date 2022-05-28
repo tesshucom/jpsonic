@@ -23,7 +23,6 @@ package com.tesshu.jpsonic.controller;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -207,17 +206,16 @@ public class TopController {
         MusicFolder selectedMusicFolder = securityService.getSelectedMusicFolder(username);
         if (selectedMusicFolder == null) {
             for (MusicFolder musicFolder : allMusicFolders) {
-                Path path = musicFolder.getPath().toPath();
                 try {
-                    lastModified = Math.max(lastModified, Files.getLastModifiedTime(path).toMillis());
+                    lastModified = Math.max(lastModified, Files.getLastModifiedTime(musicFolder.toPath()).toMillis());
                 } catch (IOException e) {
                     LOG.error("Unable to get last modified.", e);
                 }
             }
         } else {
-            Path path = selectedMusicFolder.getPath().toPath();
             try {
-                lastModified = Math.max(lastModified, Files.getLastModifiedTime(path).toMillis());
+                lastModified = Math.max(lastModified,
+                        Files.getLastModifiedTime(selectedMusicFolder.toPath()).toMillis());
             } catch (IOException e) {
                 LOG.error("Unable to get last modified.", e);
             }

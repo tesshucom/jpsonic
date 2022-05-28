@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -63,9 +62,8 @@ class MediaScannerServiceUtilsTest {
     @Order(1)
     class CompensateSortOfArtistTest extends AbstractNeedsScan {
 
-        private final List<MusicFolder> musicFolders = Arrays
-                .asList(new MusicFolder(1, new File(resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Compensation")),
-                        "Duplicate", true, new Date()));
+        private final List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
+                resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Compensation"), "Duplicate", true, new Date()));
 
         @Autowired
         private JMediaFileDao mediaFileDao;
@@ -348,7 +346,7 @@ class MediaScannerServiceUtilsTest {
     class CopySortOfArtistTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
-                new File(resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Copy")), "Duplicate", true, new Date()));
+                resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Copy"), "Duplicate", true, new Date()));
 
         @Autowired
         private JMediaFileDao mediaFileDao;
@@ -487,7 +485,7 @@ class MediaScannerServiceUtilsTest {
     class MergeSortOfArtistTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
-                new File(resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Merge")), "Duplicate", true, new Date()));
+                resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Merge"), "Duplicate", true, new Date()));
 
         @Autowired
         private JMediaFileDao mediaFileDao;
@@ -1300,8 +1298,8 @@ class MediaScannerServiceUtilsTest {
     // Windows 10 Home and Ubuntu results are same
     class UpdateSortOfAlbumTest extends AbstractNeedsScan {
 
-        private final List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
-                new File(resolveBaseMediaPath("Sort/Cleansing/AlbumSort")), "Duplicate", true, new Date()));
+        private final List<MusicFolder> musicFolders = Arrays.asList(
+                new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/AlbumSort"), "Duplicate", true, new Date()));
 
         @Autowired
         private JMediaFileDao mediaFileDao;

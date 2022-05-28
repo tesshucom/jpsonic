@@ -142,7 +142,7 @@ class MediaFileDaoTest {
             assertFalse(op.isPresent());
 
             List<com.tesshu.jpsonic.domain.MusicFolder> folders = new ArrayList<>();
-            folders.add(new com.tesshu.jpsonic.domain.MusicFolder(null, "", false, null));
+            folders.add(new com.tesshu.jpsonic.domain.MusicFolder("/", "", false, null));
             criteria = new RandomSearchCriteria(0, null, null, null, folders, null, null, null, null, null, null, false,
                     false, null);
             builder = new RandomSongsQueryBuilder(criteria);
@@ -471,7 +471,7 @@ class MediaFileDaoTest {
 
             // folder
             List<com.tesshu.jpsonic.domain.MusicFolder> folders = new ArrayList<>();
-            folders.add(new com.tesshu.jpsonic.domain.MusicFolder(null, "", false, null));
+            folders.add(new com.tesshu.jpsonic.domain.MusicFolder("/", "", false, null));
             criteria = new RandomSearchCriteria(0, null, null, null, folders, null, null, null, null, null, null, false,
                     false, null);
             builder = new RandomSongsQueryBuilder(criteria);

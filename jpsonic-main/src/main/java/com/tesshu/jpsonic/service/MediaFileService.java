@@ -253,7 +253,7 @@ public class MediaFileService {
 
     public boolean isRoot(MediaFile mediaFile) {
         for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders(false, true)) {
-            if (mediaFile.toPath().equals(musicFolder.getPath().toPath())) {
+            if (mediaFile.toPath().equals(musicFolder.toPath())) {
                 return true;
             }
         }

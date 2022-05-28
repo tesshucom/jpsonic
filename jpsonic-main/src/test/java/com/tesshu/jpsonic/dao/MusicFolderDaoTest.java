@@ -23,7 +23,6 @@ package com.tesshu.jpsonic.dao;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.File;
 import java.util.Date;
 
 import com.tesshu.jpsonic.NeedsHome;
@@ -57,7 +56,7 @@ class MusicFolderDaoTest {
 
     @Test
     void testCreateMusicFolder() {
-        MusicFolder musicFolder = new MusicFolder(new File("path"), "name", true, new Date());
+        MusicFolder musicFolder = new MusicFolder("path", "name", true, new Date());
         musicFolderDao.createMusicFolder(musicFolder);
 
         MusicFolder newMusicFolder = musicFolderDao.getAllMusicFolders().get(0);
@@ -66,11 +65,10 @@ class MusicFolderDaoTest {
 
     @Test
     void testUpdateMusicFolder() {
-        MusicFolder musicFolder = new MusicFolder(new File("path"), "name", true, new Date());
+        MusicFolder musicFolder = new MusicFolder("path", "name", true, new Date());
         musicFolderDao.createMusicFolder(musicFolder);
         musicFolder = musicFolderDao.getAllMusicFolders().get(0);
 
-        musicFolder.setPath(new File("newPath"));
         musicFolder.setName("newName");
         musicFolder.setEnabled(false);
         musicFolder.setChanged(new Date(234_234L));
@@ -84,10 +82,10 @@ class MusicFolderDaoTest {
     void testDeleteMusicFolder() {
         assertEquals(0, musicFolderDao.getAllMusicFolders().size(), "Wrong number of music folders.");
 
-        musicFolderDao.createMusicFolder(new MusicFolder(new File("path"), "name", true, new Date()));
+        musicFolderDao.createMusicFolder(new MusicFolder("path", "name", true, new Date()));
         assertEquals(1, musicFolderDao.getAllMusicFolders().size(), "Wrong number of music folders.");
 
-        musicFolderDao.createMusicFolder(new MusicFolder(new File("path"), "name", true, new Date()));
+        musicFolderDao.createMusicFolder(new MusicFolder("path", "name", true, new Date()));
         assertEquals(2, musicFolderDao.getAllMusicFolders().size(), "Wrong number of music folders.");
 
         musicFolderDao.deleteMusicFolder(musicFolderDao.getAllMusicFolders().get(0).getId());
@@ -99,7 +97,7 @@ class MusicFolderDaoTest {
 
     private void assertMusicFolderEquals(MusicFolder expected, MusicFolder actual) {
         assertEquals(expected.getName(), actual.getName(), "Wrong name.");
-        assertEquals(expected.getPath(), actual.getPath(), "Wrong path.");
+        assertEquals(expected.toPath(), actual.toPath(), "Wrong path.");
         assertEquals(expected.isEnabled(), actual.isEnabled(), "Wrong enabled state.");
         assertEquals(expected.getChanged(), actual.getChanged(), "Wrong changed date.");
     }
