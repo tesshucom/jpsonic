@@ -22,7 +22,6 @@ package com.tesshu.jpsonic.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.io.File;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -94,8 +93,8 @@ class UploadControllerTest {
         assertEquals("upload", result.getViewName());
         Map<String, Object> model = (Map<String, Object>) result.getModel().get("model");
         assertNotNull(model);
-        assertEquals(FILE_NAME, ((List<File>) model.get("uploadedFiles")).get(0).getName());
-        assertEquals(0, ((List<File>) model.get("unzippedFiles")).size());
+        assertEquals(FILE_NAME, ((List<Path>) model.get("uploadedFiles")).get(0).getFileName().toString());
+        assertEquals(0, ((List<Path>) model.get("unzippedFiles")).size());
     }
 
     @SuppressWarnings("unchecked")
@@ -129,7 +128,7 @@ class UploadControllerTest {
         assertEquals("upload", result.getViewName());
         Map<String, Object> model = (Map<String, Object>) result.getModel().get("model");
         assertNotNull(model);
-        assertEquals(FILE_NAME, ((List<File>) model.get("unzippedFiles")).get(0).getName());
+        assertEquals(FILE_NAME, ((List<Path>) model.get("unzippedFiles")).get(0).getFileName().toString());
     }
 
     public byte[] createFileContent(String tempDir, String fileName, String contentType, byte[] fileValue) {

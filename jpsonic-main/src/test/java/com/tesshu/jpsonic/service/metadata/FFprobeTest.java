@@ -25,10 +25,10 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -40,6 +40,8 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mockito;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -56,9 +58,9 @@ class FFprobeTest {
 
     private MediaFile createTestMediafile(String path) throws URISyntaxException, IOException {
         MediaFile mediaFile = new MediaFile();
-        File file = new File(MusicParserTest.class.getResource(path).toURI());
-        mediaFile.setPathString(file.getAbsolutePath());
-        mediaFile.setFileSize(Files.size(file.toPath()));
+        Path file = Path.of(MusicParserTest.class.getResource(path).toURI());
+        mediaFile.setPathString(file.toString());
+        mediaFile.setFileSize(Files.size(file));
         return mediaFile;
     }
 
@@ -110,8 +112,11 @@ class FFprobeTest {
 
     @Test
     @Order(1)
-    void testParseWithoutCmd() throws URISyntaxException, IOException {
-        ffprobe = new FFprobe(mock(TranscodingService.class));
+    void testParseWithoutCmd(@TempDir Path emptytranscodeDir) throws URISyntaxException, IOException {
+        TranscodingService transcodingService = mock(TranscodingService.class);
+        Mockito.when(transcodingService.getTranscodeDirectory()).thenReturn(emptytranscodeDir);
+        ffprobe = new FFprobe(transcodingService);
+
         MediaFile mediaFile = createTestMediafile("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4");
         MetaData metaData = ffprobe.parse(mediaFile, null);
         assertEmpty(metaData);
@@ -139,8 +144,8 @@ class FFprobeTest {
     @Order(4)
     void testIllegalFilePath() throws URISyntaxException, IOException {
         MediaFile mediaFile = new MediaFile();
-        File file = new File("fake");
-        mediaFile.setPathString(file.getAbsolutePath());
+        Path file = Path.of("fake");
+        mediaFile.setPathString(file.toString());
         mediaFile.setFileSize(Long.valueOf(5_000));
         MetaData metaData = ffprobe.parse(mediaFile, null);
         assertEmpty(metaData);

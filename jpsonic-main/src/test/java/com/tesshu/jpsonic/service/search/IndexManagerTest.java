@@ -25,8 +25,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -40,6 +41,7 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SearchResult;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.util.FileUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -207,35 +209,31 @@ class IndexManagerTest extends AbstractNeedsScan {
     @Order(2)
     void testDeleteLegacyFiles() throws ExecutionException, IOException {
         // Remove the index used in the early days of Airsonic(Close to Subsonic)
-        File legacyFile = new File(SettingsService.getJpsonicHome(), "lucene2");
-        if (legacyFile.createNewFile()) {
-            assertTrue(legacyFile.exists());
+        Path legacyFile = Path.of(SettingsService.getJpsonicHome().toString(), "lucene2");
+        if (Files.createFile(legacyFile) != null) {
+            assertTrue(Files.exists(legacyFile));
         } else {
             Assertions.fail();
         }
-        File legacyDir = new File(SettingsService.getJpsonicHome(), "lucene3");
-        if (legacyDir.mkdir()) {
-            assertTrue(legacyDir.exists());
-        } else {
-            Assertions.fail();
-        }
-        indexManager.deleteLegacyFiles();
+        Path legacyDir = Path.of(SettingsService.getJpsonicHome().toString(), "lucene3");
+        FileUtil.createDirectories(legacyDir);
 
-        assertFalse(legacyFile.exists());
-        assertFalse(legacyDir.exists());
+        indexManager.deleteLegacyFiles();
+        assertFalse(Files.exists(legacyFile));
+        assertFalse(Files.exists(legacyDir));
     }
 
     @Test
     @Order(3)
     void testDeleteOldFiles() throws ExecutionException, IOException {
         // If the index version does not match, delete it
-        File oldDir = new File(SettingsService.getJpsonicHome(), "index-JP22");
-        if (oldDir.mkdir()) {
-            assertTrue(oldDir.exists());
+        Path oldDir = Path.of(SettingsService.getJpsonicHome().toString(), "index-JP22");
+        if (FileUtil.createDirectories(oldDir) != null) {
+            assertTrue(Files.exists(oldDir));
         } else {
             Assertions.fail();
         }
         indexManager.deleteOldFiles();
-        assertFalse(oldDir.exists());
+        assertFalse(Files.exists(oldDir));
     }
 }

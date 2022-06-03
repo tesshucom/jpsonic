@@ -21,10 +21,12 @@
 
 package com.tesshu.jpsonic.service;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.CompletionException;
 
+import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.FileBasedConfiguration;
@@ -36,7 +38,6 @@ import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.configuration2.sync.ReadWriteSynchronizer;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -52,10 +53,10 @@ public class ApacheCommonsConfigurationService {
     private final Configuration config;
 
     public ApacheCommonsConfigurationService() {
-        File propertyFile = SettingsService.getPropertyFile();
-        if (!propertyFile.exists()) {
+        Path propertyFile = SettingsService.getPropertyFile();
+        if (!Files.exists(propertyFile)) {
             try {
-                FileUtils.touch(propertyFile);
+                FileUtil.touch(propertyFile);
             } catch (IOException e) {
                 throw new CompletionException("Could not create new property file", e);
             }
@@ -65,8 +66,8 @@ public class ApacheCommonsConfigurationService {
         layout.setHeaderComment(HEADER_COMMENT);
         layout.setGlobalSeparator("=");
         builder = new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-                .configure(params.properties().setFile(propertyFile).setSynchronizer(new ReadWriteSynchronizer())
-                        .setLayout(layout));
+                .configure(params.properties().setFile(propertyFile.toFile())
+                        .setSynchronizer(new ReadWriteSynchronizer()).setLayout(layout));
         try {
             config = builder.getConfiguration();
         } catch (ConfigurationException e) {

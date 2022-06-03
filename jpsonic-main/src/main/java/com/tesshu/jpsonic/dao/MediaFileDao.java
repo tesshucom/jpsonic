@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.dao;
 
-import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -605,7 +604,7 @@ public class MediaFileDao extends AbstractDao {
         return query("SELECT " + prefix(QUERY_COLUMNS, "media_file") + " FROM media_file "
                 + "WHERE media_file.path != media_file.folder "
                 + "AND media_file.path NOT LIKE concat(media_file.folder, concat(?, '%')) "
-                + "ORDER BY media_file.id LIMIT ?", rowMapper, File.separator, count);
+                + "ORDER BY media_file.id LIMIT ?", rowMapper, java.io.File.separator, count);
     }
 
     /**

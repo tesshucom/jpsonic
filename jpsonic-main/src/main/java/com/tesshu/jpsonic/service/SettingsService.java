@@ -23,9 +23,9 @@ package com.tesshu.jpsonic.service;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,10 +44,12 @@ import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.Theme;
 import com.tesshu.jpsonic.service.SettingsConstants.Pair;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
+import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -81,8 +83,8 @@ public class SettingsService {
 
     private static final String LOCALES_FILE = "/com/tesshu/jpsonic/i18n/locales.txt";
     private static final String THEMES_FILE = "/com/tesshu/jpsonic/theme/themes.txt";
-    private static final File JPSONIC_HOME_WINDOWS = new File("c:/jpsonic");
-    private static final File JPSONIC_HOME_OTHER = new File("/var/jpsonic");
+    private static final Path JPSONIC_HOME_WINDOWS = Path.of("c:/jpsonic");
+    private static final Path JPSONIC_HOME_OTHER = Path.of("/var/jpsonic");
     private static final Pair<Integer> ENV_UPNP_PORT = Pair.of("UPNP_PORT", -1);
 
     // Array of obsolete keys. Used to clean property file.
@@ -133,28 +135,28 @@ public class SettingsService {
         });
     }
 
-    private static void ensureDirectoryPresent(File home) {
-        // Attempt to create home directory if it doesn't exist.
-        if (!home.exists() || !home.isDirectory()) {
-            boolean success = home.mkdirs();
-            if (!success) {
-                String message = "The directory " + home + " does not exist. Please create it and make it writable. "
-                        + "(You can override the directory location by specifying -Djpsonic.home=... when "
-                        + "starting the servlet container.)";
-                throw new IllegalStateException(message);
+    private static void ensureDirectoryPresent(Path home) {
+        if (!Files.exists(home) && !Files.isDirectory(home)) {
+            synchronized (LOCKS.get(LocksKeys.HOME)) {
+                if (FileUtil.createDirectories(home) == null) {
+                    throw new IllegalStateException(
+                            "The directory " + home + " does not exist. Please create it and make it writable. "
+                                    + "(You can override the directory location "
+                                    + "by specifying -Djpsonic.home=... when starting the servlet container.)");
+                }
             }
         }
     }
 
-    public static File getJpsonicHome() {
-        File home;
+    public static @NonNull Path getJpsonicHome() {
+        Path home;
         synchronized (LOCKS.get(LocksKeys.HOME)) {
             String overrideHome = System.getProperty("jpsonic.home");
             String oldHome = System.getProperty("libresonic.home");
             if (overrideHome != null) {
-                home = new File(overrideHome);
+                home = Path.of(overrideHome);
             } else if (oldHome != null) {
-                home = new File(oldHome);
+                home = Path.of(oldHome);
             } else {
                 home = PlayerUtils.isWindows() ? JPSONIC_HOME_WINDOWS : JPSONIC_HOME_OTHER;
             }
@@ -168,12 +170,12 @@ public class SettingsService {
     }
 
     private static String getFileSystemAppName() {
-        String home = getJpsonicHome().getPath();
+        String home = getJpsonicHome().toString();
         return home.contains("libresonic") ? "libresonic" : "jpsonic";
     }
 
     public static String getDefaultJDBCPath() {
-        return getJpsonicHome().getPath() + "/db/" + getFileSystemAppName();
+        return getJpsonicHome().toString() + "/db/" + getFileSystemAppName();
     }
 
     public static String getDefaultJDBCUrl() {
@@ -201,14 +203,12 @@ public class SettingsService {
                 .orElse(ENV_UPNP_PORT.defaultValue);
     }
 
-    public static File getLogFile() {
-        File jpsonicHome = SettingsService.getJpsonicHome();
-        return new File(jpsonicHome, getFileSystemAppName() + ".log");
+    public static Path getLogFile() {
+        return Path.of(getJpsonicHome().toString(), getFileSystemAppName() + ".log");
     }
 
-    static File getPropertyFile() {
-        File propertyFile = getJpsonicHome();
-        return new File(propertyFile, getFileSystemAppName() + ".properties");
+    static Path getPropertyFile() {
+        return Path.of(getJpsonicHome().toString(), getFileSystemAppName() + ".properties");
     }
 
     private int getInt(Pair<Integer> p) {

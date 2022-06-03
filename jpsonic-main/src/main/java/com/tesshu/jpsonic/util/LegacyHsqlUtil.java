@@ -21,9 +21,10 @@
 
 package com.tesshu.jpsonic.util;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Driver;
 import java.util.Properties;
 
@@ -47,8 +48,8 @@ public final class LegacyHsqlUtil {
      * Return the current version of the HSQLDB database, as reported by the database properties file.
      */
     static String getHsqldbDatabaseVersion() {
-        File configFile = new File(SettingsService.getDefaultJDBCPath() + ".properties");
-        if (!configFile.exists()) {
+        Path configFile = Path.of(SettingsService.getDefaultJDBCPath() + ".properties");
+        if (!Files.exists(configFile)) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("HSQLDB database doesn't exist, cannot determine version");
             }

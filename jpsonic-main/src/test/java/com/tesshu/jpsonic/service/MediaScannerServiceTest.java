@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -70,6 +69,7 @@ import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.service.search.IndexType;
 import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
+import com.tesshu.jpsonic.util.FileUtil;
 import net.sf.ehcache.Ehcache;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -800,9 +800,9 @@ class MediaScannerServiceTest {
 
             // Create a musicfolder for verification
             artist = Path.of(tempDir.toString(), "ARTIST");
-            assertNotNull(Files.createDirectory(artist));
+            assertNotNull(FileUtil.createDirectories(artist));
             this.album = Path.of(artist.toString(), "ALBUM");
-            assertNotNull(Files.createDirectory(album));
+            assertNotNull(FileUtil.createDirectories(album));
             this.musicFolders = Arrays.asList(new MusicFolder(1, tempDir.toString(), "musicFolder", true, new Date()));
 
             // Copy the song file from the test resource. No tags are registered in this file.
@@ -831,7 +831,7 @@ class MediaScannerServiceTest {
             assertEquals("ALBUM", song.getAlbumName());
 
             // Copy the song file from the test resource. Tags are registered in this file.
-            Files.delete(this.song);
+            FileUtil.deleteIfExists(this.song);
             Path sampleEdited = Path.of(MediaScannerServiceTest.class
                     .getResource("/MEDIAS/Scan/Timestamp/ARTIST/ALBUM/sampleEdited.mp3").toURI());
             this.song = Path.of(this.album.toString(), "sample.mp3");
@@ -1003,11 +1003,11 @@ class MediaScannerServiceTest {
 
             // Music Folder Music must have 3 children
             List<MediaFile> listeMusicChildren = mediaFileDao
-                    .getChildrenOf(new File(MusicFolderTestDataUtils.resolveMusicFolderPath()).getPath());
+                    .getChildrenOf(Path.of(MusicFolderTestDataUtils.resolveMusicFolderPath()).toString());
             assertEquals(3, listeMusicChildren.size());
             // Music Folder Music2 must have 1 children
             List<MediaFile> listeMusic2Children = mediaFileDao
-                    .getChildrenOf(new File(MusicFolderTestDataUtils.resolveMusic2FolderPath()).getPath());
+                    .getChildrenOf(Path.of(MusicFolderTestDataUtils.resolveMusic2FolderPath()).toString());
             assertEquals(1, listeMusic2Children.size());
 
             logArtistsAll();
@@ -1084,7 +1084,7 @@ class MediaScannerServiceTest {
                 String fileName = "Muff1nman\u2019s\uFF0FPiano.mp3"; // Muff1nman’s／Piano.mp3
 
                 Path artistDir = Path.of(tempDirPath.toString(), directoryName);
-                Files.createDirectory(artistDir);
+                FileUtil.createDirectories(artistDir);
 
                 musicPath = Path.of(artistDir.toString(), fileName);
                 IOUtils.copy(resource, Files.newOutputStream(musicPath));

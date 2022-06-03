@@ -36,6 +36,7 @@ import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.util.FileUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -90,11 +91,11 @@ class CoverArtServiceTest extends AbstractNeedsScan {
         mediaFile.setCoverArtPathString(coverArt.toString());
 
         assertTrue(Files.exists(coverArt));
-        coverArtService.renameWithoutReplacement(mediaFile, Path.of(tmpDir.toString(), "dummy.jpg").toFile());
+        coverArtService.renameWithoutReplacement(mediaFile, Path.of(tmpDir.toString(), "dummy.jpg"));
         Path moved = Path.of(tmpDir.toString(), "cover.jpg.old");
         assertFalse(Files.exists(coverArt));
         assertTrue(Files.exists(moved));
 
-        Files.delete(moved);
+        FileUtil.deleteIfExists(moved);
     }
 }

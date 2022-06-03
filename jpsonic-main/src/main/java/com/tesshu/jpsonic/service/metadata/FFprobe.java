@@ -24,10 +24,10 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -90,10 +90,10 @@ public class FFprobe {
     }
 
     private @Nullable String getCommandPath() {
-        File cmdFile = new File(transcodingService.getTranscodeDirectory(),
+        Path cmdFile = Path.of(transcodingService.getTranscodeDirectory().toString(),
                 PlayerUtils.isWindows() ? "ffprobe.exe" : "ffprobe");
-        if (cmdFile.exists()) {
-            return cmdFile.getAbsolutePath();
+        if (Files.exists(cmdFile)) {
+            return cmdFile.toString();
         }
         return null;
     }

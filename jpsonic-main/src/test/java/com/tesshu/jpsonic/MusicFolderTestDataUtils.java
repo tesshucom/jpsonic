@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic;
 
-import java.io.File;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -41,7 +40,7 @@ public final class MusicFolderTestDataUtils {
     public static String resolveBaseMediaPath() {
         try {
             return Path.of(MusicFolderTestDataUtils.class.getResource(BASE_RESOURCES).toURI()).toString()
-                    + File.separator;
+                    + java.io.File.separator;
         } catch (URISyntaxException e) {
             throw new UncheckedExecutionException(e);
         }
