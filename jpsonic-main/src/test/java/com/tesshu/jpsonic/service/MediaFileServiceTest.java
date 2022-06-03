@@ -833,7 +833,7 @@ class MediaFileServiceTest {
 
             // coverArt
             Path parent = createPath("/MEDIAS/Metadata/coverart");
-            Path firstChild = createPath("/MEDIAS/Metadata/coverart/cover.jpg"); // OS dependent
+            Path firstChild = createPath("/MEDIAS/Metadata/coverart/coveratrt.GIF"); // OS dependent
             assertEquals(firstChild, mediaFileService.findCoverArt(parent).get());
 
             // coverArt
