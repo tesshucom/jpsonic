@@ -28,7 +28,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -66,6 +65,7 @@ import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.metadata.FFmpeg;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
 import com.tesshu.jpsonic.spring.LoggingExceptionResolver;
+import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -175,7 +175,7 @@ public class CoverArtController {
             if (size == null) {
                 size = CoverArtScheme.LARGE.getSize() * 2;
             }
-            File cachedImage = getCachedImage(coverArtRequest, size);
+            Path cachedImage = getCachedImage(coverArtRequest, size);
             sendImage(cachedImage, response);
         } catch (ExecutionException e) {
             ConcurrentUtils.handleCauseUnchecked(e);
@@ -242,12 +242,12 @@ public class CoverArtController {
         return new MediaFileCoverArtRequest(this, fontLoader, logic, mediaFileService, mediaFile);
     }
 
-    private void sendImage(File file, HttpServletResponse response) throws ExecutionException {
-        response.setContentType(StringUtil.getMimeType(FilenameUtils.getExtension(file.getName())));
-        try (InputStream in = Files.newInputStream(file.toPath())) {
+    private void sendImage(Path path, HttpServletResponse response) throws ExecutionException {
+        response.setContentType(StringUtil.getMimeType(FilenameUtils.getExtension(path.toString())));
+        try (InputStream in = Files.newInputStream(path)) {
             IOUtils.copy(in, response.getOutputStream());
         } catch (IOException e) {
-            throw new ExecutionException("Cannot copy image: " + file.getPath(), e);
+            throw new ExecutionException("Cannot copy image: " + path, e);
         }
     }
 
@@ -281,31 +281,32 @@ public class CoverArtController {
         }
     }
 
-    private File getCachedImage(CoverArtRequest request, int size) throws ExecutionException {
+    private Path getCachedImage(CoverArtRequest request, int size) throws ExecutionException {
         String encoding = request.getCoverArt() == null ? "png" : "jpeg";
-        File cachedImage = new File(getImageCacheDirectory(size),
+        Path cachedImage = Path.of(getImageCacheDirectory(size).toString(),
                 DigestUtils.md5Hex(request.getKey()) + "." + encoding);
-        String lockKey = cachedImage.getPath();
+        String lockKey = cachedImage.toString();
 
         Object lock = new Object();
         IMG_LOCKS.putIfAbsent(lockKey, lock);
 
         synchronized (IMG_LOCKS.get(lockKey)) {
-            if (IMG_LOCKS.get(lockKey) != null && IMG_LOCKS.get(lockKey).equals(lock)
-                    && (!cachedImage.exists() || request.lastModified() > cachedImage.lastModified())) {
-                try (OutputStream out = Files.newOutputStream(cachedImage.toPath())) {
-                    semaphore.acquire();
-                    BufferedImage image = request.createImage(size);
-                    ImageIO.write(image, encoding, out);
-                } catch (InterruptedException | IOException e) {
-                    if (!cachedImage.delete() && LOG.isWarnEnabled()) {
-                        warnLog("The cached image '{}' could not be deleted.", cachedImage.getAbsolutePath());
+            try {
+                if (IMG_LOCKS.get(lockKey) != null && IMG_LOCKS.get(lockKey).equals(lock) && (!Files.exists(cachedImage)
+                        || request.lastModified() > Files.getLastModifiedTime(cachedImage).toMillis())) {
+                    try (OutputStream out = Files.newOutputStream(cachedImage)) {
+                        semaphore.acquire();
+                        BufferedImage image = request.createImage(size);
+                        ImageIO.write(image, encoding, out);
+                    } catch (InterruptedException | IOException e) {
+                        FileUtil.deleteIfExists(cachedImage);
+                    } finally {
+                        semaphore.release();
+                        IMG_LOCKS.remove(lockKey, lock);
                     }
-                    throw new ExecutionException("Failed to create thumbnail for " + request + ". ", e);
-                } finally {
-                    semaphore.release();
-                    IMG_LOCKS.remove(lockKey, lock);
                 }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
             }
             return cachedImage;
         }
@@ -361,19 +362,12 @@ public class CoverArtController {
         return ffmpeg.createImage(mediaFile.toPath(), width, height, offset);
     }
 
-    private File getImageCacheDirectory(int size) {
-        File dir = new File(SettingsService.getJpsonicHome(), "thumbs");
-        dir = new File(dir, String.valueOf(size));
-        if (!dir.exists()) {
+    private Path getImageCacheDirectory(int size) {
+        Path dir = Path.of(SettingsService.getJpsonicHome().toString(), "thumbs", String.valueOf(size));
+        if (!Files.exists(dir)) {
             synchronized (DIRS_LOCK) {
-                if (dir.mkdirs()) {
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info("Created thumbnail cache " + dir);
-                    }
-                } else {
-                    if (LOG.isErrorEnabled()) {
-                        LOG.error("Failed to create thumbnail cache " + dir);
-                    }
+                if (FileUtil.createDirectories(dir) == null && LOG.isErrorEnabled()) {
+                    LOG.error("Failed to create thumbnail cache " + dir);
                 }
             }
         }

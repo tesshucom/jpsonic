@@ -23,7 +23,6 @@ package com.tesshu.jpsonic.service.search;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -38,8 +37,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -55,8 +52,8 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.PlayerUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.FieldInfos;
@@ -108,18 +105,6 @@ public class IndexManager {
 
     private static final Object GENRE_LOCK = new Object();
 
-    /**
-     * File supplier for index directory.
-     */
-    private static final Supplier<File> ROOT_INDEX_DIRECTORY = () -> new File(SettingsService.getJpsonicHome(),
-            INDEX_ROOT_DIR_NAME.concat(Integer.toString(INDEX_VERSION)));
-
-    /**
-     * Returns the directory of the specified index
-     */
-    private static final Function<IndexType, File> GET_INDEX_DIRECTORY = (indexType) -> new File(
-            ROOT_INDEX_DIRECTORY.get(), indexType.toString().toLowerCase(Locale.ENGLISH));
-
     private enum GenreSort {
         ALBUM_COUNT, SONG_COUNT, ALBUM_ALPHABETICAL, SONG_ALPHABETICAL
     }
@@ -136,6 +121,14 @@ public class IndexManager {
     private final Map<IndexType, SearcherManager> searchers;
     private final Map<IndexType, IndexWriter> writers;
     private final Map<GenreSort, List<Genre>> multiGenreMaster;
+
+    private @NonNull Path getRootIndexDirectory() {
+        return Path.of(SettingsService.getJpsonicHome().toString(), INDEX_ROOT_DIR_NAME + INDEX_VERSION);
+    }
+
+    private @NonNull Path getIndexDirectory(IndexType indexType) {
+        return Path.of(getRootIndexDirectory().toString(), indexType.toString().toLowerCase(Locale.ENGLISH));
+    }
 
     public IndexManager(AnalyzerFactory analyzerFactory, DocumentFactory documentFactory, MediaFileDao mediaFileDao,
             ArtistDao artistDao, AlbumDao albumDao, QueryFactory queryFactory, SearchServiceUtilities util,
@@ -216,10 +209,10 @@ public class IndexManager {
         }
     }
 
-    private IndexWriter createIndexWriter(IndexType indexType) throws IOException {
-        File indexDirectory = GET_INDEX_DIRECTORY.apply(indexType);
+    private @NonNull IndexWriter createIndexWriter(IndexType indexType) throws IOException {
+        Path indexDirectory = getIndexDirectory(indexType);
         IndexWriterConfig config = new IndexWriterConfig(analyzerFactory.getAnalyzer());
-        return new IndexWriter(FSDirectory.open(indexDirectory.toPath()), config);
+        return new IndexWriter(FSDirectory.open(indexDirectory), config);
     }
 
     private void clearMultiGenreMaster() {
@@ -381,18 +374,18 @@ public class IndexManager {
      */
     public @Nullable IndexSearcher getSearcher(@NonNull IndexType indexType) {
         if (!searchers.containsKey(indexType)) {
-            File indexDirectory = GET_INDEX_DIRECTORY.apply(indexType);
+            Path indexDirectory = getIndexDirectory(indexType);
             try {
-                if (indexDirectory.exists()) {
-                    SearcherManager manager = new SearcherManager(FSDirectory.open(indexDirectory.toPath()), null);
+                if (Files.exists(indexDirectory)) {
+                    SearcherManager manager = new SearcherManager(FSDirectory.open(indexDirectory), null);
                     searchers.put(indexType, manager);
                 } else if (LOG.isWarnEnabled()) {
-                    LOG.warn("{} does not exist. Please run a scan.", indexDirectory.getAbsolutePath());
+                    LOG.warn("{} does not exist. Please run a scan.", indexDirectory);
                 }
             } catch (IndexNotFoundException e) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Index {} does not exist in {}, likely not yet created.", indexType.toString(),
-                            indexDirectory.getAbsolutePath());
+                            indexDirectory);
                 }
                 return null;
             } catch (IOException e) {
@@ -449,17 +442,10 @@ public class IndexManager {
             if (LOG.isInfoEnabled()) {
                 LOG.info("Found " + label + ". Try to delete : {}", old);
             }
-            try {
-                if (Files.isRegularFile(old)) {
-                    FileUtils.deleteQuietly(old.toFile());
-                } else {
-                    FileUtils.deleteDirectory(old.toFile());
-                }
-            } catch (IOException e) {
-                // Log only if failed
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to delete " + label + " : " + old, e);
-                }
+            if (Files.isRegularFile(old)) {
+                FileUtil.deleteIfExists(old);
+            } else {
+                FileUtil.deleteDirectory(old);
             }
         }
     }
@@ -469,7 +455,7 @@ public class IndexManager {
         Pattern legacyPattern1 = Pattern.compile("^lucene\\d+$");
         String legacyName2 = "index";
 
-        try (Stream<Path> children = Files.list(SettingsService.getJpsonicHome().toPath())) {
+        try (Stream<Path> children = Files.list(SettingsService.getJpsonicHome())) {
             children.filter(childPath -> {
                 String name = childPath.getFileName().toString();
                 return legacyPattern1.matcher(name).matches() || legacyName2.contentEquals(name);
@@ -483,10 +469,11 @@ public class IndexManager {
         // Delete if not old index version
         Pattern indexPattern = Pattern.compile("^" + INDEX_ROOT_DIR_NAME + "\\d+$");
 
-        try (Stream<Path> children = Files.list(SettingsService.getJpsonicHome().toPath())) {
+        try (Stream<Path> children = Files.list(SettingsService.getJpsonicHome())) {
             children.filter(childPath -> {
                 String name = childPath.getFileName().toString();
-                return indexPattern.matcher(name).matches() && !ROOT_INDEX_DIRECTORY.get().getName().equals(name);
+                return indexPattern.matcher(name).matches()
+                        && !getRootIndexDirectory().getFileName().toString().equals(name);
             }).forEach(childPath -> deleteFile("old index file", childPath));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -498,17 +485,13 @@ public class IndexManager {
      */
     public void initializeIndexDirectory() {
         // Check if Index is current version
-        if (ROOT_INDEX_DIRECTORY.get().exists()) {
+        if (Files.exists(getRootIndexDirectory())) {
             // Index of current version already exists
             if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
                 LOG.info("Index was found (index version {}). ", INDEX_VERSION);
             }
-        } else {
-            if (ROOT_INDEX_DIRECTORY.get().mkdir()) {
-                LOG.info("Index directory was created (index version {}). ", INDEX_VERSION);
-            } else {
-                LOG.warn("Failed to create index directory :  (index version {}). ", INDEX_VERSION);
-            }
+        } else if (FileUtil.createDirectories(getRootIndexDirectory()) == null) {
+            LOG.warn("Failed to create index directory :  (index version {}). ", INDEX_VERSION);
         }
     }
 

@@ -21,11 +21,11 @@
 
 package com.tesshu.jpsonic.controller;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,6 +47,7 @@ import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.upload.MonitoredDiskFileItemFactory;
 import com.tesshu.jpsonic.upload.UploadListener;
+import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.fileupload.FileItem;
@@ -110,7 +111,7 @@ public class UploadController {
 
             List<FileItem> items = getUploadItems(request, status);
 
-            File dir = getDir(items);
+            Path dir = getDir(items);
             if (dir == null) {
                 throw new IOException("Missing 'dir' parameter.");
             }
@@ -142,10 +143,10 @@ public class UploadController {
         return new ModelAndView("upload", "model", model);
     }
 
-    private File getDir(List<FileItem> items) {
+    private Path getDir(List<FileItem> items) {
         for (FileItem item : items) {
             if (item.isFormField() && FIELD_NAME_DIR.equals(item.getFieldName())) {
-                return new File(item.getString());
+                return Path.of(item.getString());
             }
         }
         return null;
@@ -179,46 +180,46 @@ public class UploadController {
 
     private static class UnzipResult {
 
-        private final List<File> uploadedFiles;
-        private final List<File> unzippedFiles;
+        private final List<Path> uploadedFiles;
+        private final List<Path> unzippedFiles;
 
-        public UnzipResult(List<File> uploadedFiles, List<File> unzippedFiles) {
+        public UnzipResult(List<Path> uploadedFiles, List<Path> unzippedFiles) {
             super();
             this.uploadedFiles = uploadedFiles;
             this.unzippedFiles = unzippedFiles;
         }
 
-        public List<File> getUploadedFiles() {
+        public List<Path> getUploadedFiles() {
             return uploadedFiles;
         }
 
-        public List<File> getUnzippedFiles() {
+        public List<Path> getUnzippedFiles() {
             return unzippedFiles;
         }
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     // AvoidInstantiatingObjectsInLoops] (File, Execution) Not reusable
-    private UnzipResult doUnzip(List<FileItem> items, File dir, boolean unzip) throws ExecutionException {
-        List<File> uploadedFiles = new ArrayList<>();
-        List<File> unzippedFiles = new ArrayList<>();
+    private UnzipResult doUnzip(List<FileItem> items, Path dir, boolean unzip) throws ExecutionException {
+        List<Path> uploadedFiles = new ArrayList<>();
+        List<Path> unzippedFiles = new ArrayList<>();
 
-        if (!dir.exists() && !dir.mkdirs() && LOG.isWarnEnabled()) {
-            LOG.warn("The directory '{}' could not be created.", dir.getAbsolutePath());
+        if (!Files.exists(dir) && FileUtil.createDirectories(dir) == null && LOG.isWarnEnabled()) {
+            LOG.warn("The directory '{}' could not be created.", dir);
         }
 
         // Look for file items.
         for (FileItem item : items) {
             if (!item.isFormField() && !StringUtils.isAllBlank(item.getName())) {
 
-                File targetFile = new File(dir, new File(item.getName()).getName());
+                Path targetFile = Path.of(dir.toString(), item.getName());
                 addUploadedFile(item, targetFile, unzippedFiles);
 
                 if (LOG.isInfoEnabled()) {
                     LOG.info("Uploaded " + targetFile);
                 }
 
-                if (unzip && StringUtils.endsWithIgnoreCase(targetFile.getName(), ".zip")) {
+                if (unzip && StringUtils.endsWithIgnoreCase(targetFile.toString(), ".zip")) {
                     unzippedFiles = unzip(targetFile);
                 }
             }
@@ -227,13 +228,13 @@ public class UploadController {
     }
 
     @SuppressWarnings("PMD.AvoidCatchingGenericException") // apache-commons/FileItem#write
-    private void addUploadedFile(FileItem targetItem, File targetFile, List<File> to) throws ExecutionException {
-        if (!securityService.isUploadAllowed(targetFile.toPath())) {
+    private void addUploadedFile(FileItem targetItem, Path targetFile, List<Path> to) throws ExecutionException {
+        if (!securityService.isUploadAllowed(targetFile)) {
             throw new ExecutionException(new GeneralSecurityException(
-                    "Permission denied: " + StringEscapeUtils.escapeHtml4(targetFile.getPath())));
+                    "Permission denied: " + StringEscapeUtils.escapeHtml4(targetFile.toString())));
         }
         try {
-            targetItem.write(targetFile);
+            targetItem.write(targetFile.toFile());
         } catch (Exception e) {
             throw new ExecutionException("Unable to write item.", e);
         }
@@ -241,51 +242,54 @@ public class UploadController {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File, IOException) Not reusable
-    private List<File> unzip(File file) throws ExecutionException {
+    private List<Path> unzip(Path file) throws ExecutionException {
         if (LOG.isInfoEnabled()) {
             LOG.info("Unzipping " + file);
         }
-        List<File> unzippedFiles = Collections.emptyList();
-        try (ZipFile zipFile = new ZipFile(file)) {
+        List<Path> unzippedFiles = Collections.emptyList();
+        try (ZipFile zipFile = new ZipFile(file.toString())) {
 
             Enumeration<?> entries = zipFile.entries();
-
             while (entries.hasMoreElements()) {
-                ZipEntry entry = (ZipEntry) entries.nextElement();
-                File entryFile = new File(file.getParentFile(), entry.getName());
-                if (!entryFile.toPath().normalize().startsWith(file.getParentFile().toPath())) {
+                Path parent = file.getParent();
+                if (parent == null) {
                     throw new ExecutionException(
-                            new IOException("Bad zip filename: " + StringEscapeUtils.escapeHtml4(entryFile.getPath())));
+                            new IOException("Bad zip filename: " + StringEscapeUtils.escapeHtml4(file.toString())));
+                }
+                ZipEntry entry = (ZipEntry) entries.nextElement();
+                Path entryFile = Path.of(parent.toString(), entry.getName());
+                if (!entryFile.normalize().toString().startsWith(parent.toString())) {
+                    throw new ExecutionException(new IOException(
+                            "Bad zip filename: " + StringEscapeUtils.escapeHtml4(entryFile.toString())));
                 }
                 if (!entry.isDirectory()) {
                     unzippedFiles = unzip(zipFile, entry, entryFile);
                 }
             }
-
             zipFile.close();
+            FileUtil.deleteIfExists(file);
 
-            if (!file.delete() && LOG.isWarnEnabled()) {
-                LOG.warn("The file '{}' could not be deleted.", file.getAbsolutePath());
-            }
         } catch (IOException e) {
             throw new ExecutionException("Can't unzip.", e);
         }
         return unzippedFiles;
     }
 
-    private List<File> unzip(ZipFile zipFile, ZipEntry entry, File entryFile) throws ExecutionException {
+    private List<Path> unzip(ZipFile zipFile, ZipEntry entry, Path entryFile) throws ExecutionException {
 
-        if (!securityService.isUploadAllowed(entryFile.toPath())) {
+        if (!securityService.isUploadAllowed(entryFile)) {
             throw new ExecutionException(new GeneralSecurityException(
-                    "Permission denied: " + StringEscapeUtils.escapeHtml4(entryFile.getPath())));
+                    "Permission denied: " + StringEscapeUtils.escapeHtml4(entryFile.toString())));
         }
 
-        if (!entryFile.getParentFile().mkdirs() && LOG.isWarnEnabled()) {
-            LOG.warn("The directory '{}' could not be created.", entryFile.getParentFile().getAbsolutePath());
+        Path parent = entryFile.getParent();
+        if (parent == null
+                || !Files.exists(parent) && FileUtil.createDirectories(parent) == null && LOG.isWarnEnabled()) {
+            LOG.warn("The directory '{}' could not be created.", parent);
         }
 
-        List<File> unzippedFiles = new ArrayList<>();
-        try (OutputStream outputStream = Files.newOutputStream(entryFile.toPath());
+        List<Path> unzippedFiles = new ArrayList<>();
+        try (OutputStream outputStream = Files.newOutputStream(entryFile);
                 InputStream inputStream = zipFile.getInputStream(entry)) {
             byte[] buf = new byte[8192];
             while (true) {

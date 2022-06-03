@@ -33,11 +33,11 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.domain.Version;
-import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.VersionService;
+import com.tesshu.jpsonic.util.FileUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,12 +61,12 @@ class HelpControllerTest {
         SettingsService settingsService = mock(SettingsService.class);
         VersionService versionService = mock(VersionService.class);
         Mockito.when(versionService.getLocalVersion()).thenReturn(new Version("v110.0.0"));
-        mockMvc = MockMvcBuilders.standaloneSetup(new HelpController(versionService, settingsService, securityService,
-                mock(AirsonicLocaleResolver.class))).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(new HelpController(versionService, settingsService, securityService))
+                .build();
 
         Path testLog = Path.of(TestCaseUtils.jpsonicHomePathForTest(), "jpsonic.log");
         if (!Files.exists(testLog)) {
-            Files.createDirectories(Path.of(TestCaseUtils.jpsonicHomePathForTest()));
+            FileUtil.createDirectories(Path.of(TestCaseUtils.jpsonicHomePathForTest()));
             testLog = Files.createFile(testLog);
             Path dummySource = Path.of(HelpControllerTest.class.getResource("/banner.txt").toURI());
             Files.copy(dummySource, testLog, StandardCopyOption.REPLACE_EXISTING);

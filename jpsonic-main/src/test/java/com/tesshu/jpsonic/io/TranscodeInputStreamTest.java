@@ -62,11 +62,11 @@ class TranscodeInputStreamTest {
             assertEquals(1, Files.list(tempDir).count());
 
             ExecutorService executor = Executors.newSingleThreadExecutor();
-            DeleteTmpFileTask task = new DeleteTmpFileTask(Path.of(tempFile.toString() + ".dummy").toFile());
+            DeleteTmpFileTask task = new DeleteTmpFileTask(Path.of(tempFile.toString() + ".dummy"));
             executor.submit(task).get();
             assertEquals(1, Files.list(tempDir).count());
 
-            executor.submit(new DeleteTmpFileTask(tempFile.toFile())).get();
+            executor.submit(new DeleteTmpFileTask(tempFile)).get();
             assertEquals(0, Files.list(tempDir).count());
             executor.shutdown();
         }

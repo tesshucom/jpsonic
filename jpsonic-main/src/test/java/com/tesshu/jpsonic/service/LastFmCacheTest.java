@@ -41,7 +41,7 @@ class LastFmCacheTest {
 
     @BeforeEach
     public void setup() throws ExecutionException, IOException, URISyntaxException {
-        lastFmCache = new LastFmCache(tempDir.toFile(), 1L);
+        lastFmCache = new LastFmCache(tempDir, 1L);
         Path dummyCache = Path.of(tempDir.toString(), "jpsonic.log");
         if (!Files.exists(dummyCache)) {
             dummyCache = Files.createFile(dummyCache);

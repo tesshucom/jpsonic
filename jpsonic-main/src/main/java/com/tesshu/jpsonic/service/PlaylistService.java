@@ -21,11 +21,13 @@
 
 package com.tesshu.jpsonic.service;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -279,50 +281,60 @@ public class PlaylistService {
         if (playlistFolderPath == null) {
             return;
         }
-        File playlistFolder = new File(playlistFolderPath);
-        if (!playlistFolder.exists()) {
+        Path playlistFolder = Path.of(playlistFolderPath);
+        if (!Files.exists(playlistFolder)) {
             return;
         }
 
         List<Playlist> allPlaylists = playlistDao.getAllPlaylists();
-        File[] listFiles = playlistFolder.listFiles();
-        if (listFiles != null) {
-            for (File file : listFiles) {
+        try (DirectoryStream<Path> ds = Files.newDirectoryStream(playlistFolder)) {
+            for (Path child : ds) {
                 try {
-                    importPlaylistIfUpdated(file, allPlaylists);
+                    importPlaylistIfUpdated(child, allPlaylists);
                 } catch (ExecutionException e) {
                     ConcurrentUtils.handleCauseUnchecked(e);
                     if (LOG.isWarnEnabled()) {
-                        LOG.warn("Failed to auto-import playlist " + file + ". ", e);
+                        LOG.warn("Failed to auto-import playlist " + child + ". ", e);
                     }
                 }
             }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
-    private void importPlaylistIfUpdated(File file, List<Playlist> allPlaylists) throws ExecutionException {
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (ExecutionException) Not reusable
+    private void importPlaylistIfUpdated(Path file, List<Playlist> allPlaylists) throws ExecutionException {
 
-        String fileName = file.getName();
+        Path fileName = file.getFileName();
+        if (fileName == null) {
+            throw new IllegalArgumentException("The file name is invalid: " + file);
+        }
+
         Playlist existingPlaylist = null;
         for (Playlist playlist : allPlaylists) {
-            if (fileName.equals(playlist.getImportedFrom())) {
+            if (fileName.toString().equals(playlist.getImportedFrom())) {
                 existingPlaylist = playlist;
-                if (file.lastModified() <= playlist.getChanged().getTime()) {
-                    // Already imported and not changed since.
-                    return;
+                try {
+                    if (Files.getLastModifiedTime(file).toMillis() <= playlist.getChanged().getTime()) {
+                        // Already imported and not changed since.
+                        return;
+                    }
+                } catch (IOException e) {
+                    throw new ExecutionException(e);
                 }
             }
         }
-        try (InputStream in = Files.newInputStream(file.toPath())) {
+        try (InputStream in = Files.newInputStream(file)) {
             // With the transition away from a hardcoded admin account to Admin Roles, there is no longer
             // a specific account to use for auto-imported playlists, so use the first admin account
-            importPlaylist(securityService.getAdminUsername(), FilenameUtils.getBaseName(fileName), fileName, in,
-                    existingPlaylist);
+            importPlaylist(securityService.getAdminUsername(), FilenameUtils.getBaseName(fileName.toString()),
+                    fileName.toString(), in, existingPlaylist);
             if (LOG.isInfoEnabled()) {
                 LOG.info("Auto-imported playlist " + file);
             }
         } catch (IOException e) {
-            throw new ExecutionException("Unable to read the file: " + file.getPath(), e);
+            throw new ExecutionException("Unable to read the file: " + file, e);
         }
     }
 

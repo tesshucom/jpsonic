@@ -23,23 +23,24 @@ package com.tesshu.jpsonic.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.net.JarURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Enumeration;
-import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
-import org.apache.commons.io.FileUtils;
+import com.tesshu.jpsonic.util.FileUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.junit.jupiter.api.BeforeAll;
@@ -65,9 +66,8 @@ class LegacyDatabaseStartupTest {
 
     @BeforeAll
     public static void beforeAll() throws IOException {
-        String homePath = System.getProperty("jpsonic.home");
-        File dbDirectory = new File(homePath, "/db");
-        FileUtils.forceMkdir(dbDirectory);
+        Path dbDirectory = Path.of(System.getProperty("jpsonic.home"), "/db");
+        FileUtil.createDirectories(dbDirectory);
         copyResourcesRecursively(LegacyDatabaseStartupTest.class.getResource("/db/pre-liquibase/db"), dbDirectory);
     }
 
@@ -76,9 +76,8 @@ class LegacyDatabaseStartupTest {
         assertEquals(1, musicFolderDao.getAllMusicFolders().size());
     }
 
-    private static boolean copyFile(final File toCopy, final File destFile) {
-        try (OutputStream os = Files.newOutputStream(Path.of(destFile.toURI()));
-                InputStream is = Files.newInputStream(Path.of(toCopy.toURI()))) {
+    private static boolean copyFile(final Path toCopy, final Path destFile) {
+        try (OutputStream os = Files.newOutputStream(destFile); InputStream is = Files.newInputStream(toCopy)) {
             return copyStream(is, os);
         } catch (IOException e) {
             LOG.error("Exception occurred while copying file.", e);
@@ -86,27 +85,33 @@ class LegacyDatabaseStartupTest {
         return false;
     }
 
-    private static boolean copyFilesRecusively(@NonNull final File toCopy, final File destDir) {
-        assert destDir.isDirectory();
+    private static boolean copyFilesRecusively(@NonNull final Path source, Path destDir) {
+        Path sourceFileName = source.getFileName();
+        assert sourceFileName != null;
+        assert Files.isDirectory(destDir);
 
-        if (toCopy.isDirectory()) {
-            final File newDestDir = new File(destDir, toCopy.getName());
-            if (!newDestDir.exists() && !newDestDir.mkdir()) {
+        if (Files.isDirectory(source)) {
+            final Path newDestDir = Path.of(destDir.toString(), sourceFileName.toString());
+            if (!Files.exists(newDestDir) && FileUtil.createDirectories(newDestDir) == null) {
                 return false;
             }
-            for (final File child : Objects.requireNonNull(toCopy.listFiles())) {
-                if (!copyFilesRecusively(child, newDestDir)) {
-                    return false;
+            try (DirectoryStream<Path> ds = Files.newDirectoryStream(source)) {
+                for (Path child : ds) {
+                    if (!copyFilesRecusively(child, newDestDir)) {
+                        return false;
+                    }
                 }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
             }
         } else {
-            return copyFile(toCopy, new File(destDir, toCopy.getName()));
+            return copyFile(source, Path.of(destDir.toString(), sourceFileName.toString()));
         }
         return true;
     }
 
     @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.CognitiveComplexity" })
-    private static boolean copyJarResourcesRecursively(final File destDir, final JarURLConnection jarConnection)
+    private static boolean copyJarResourcesRecursively(final Path destDir, final JarURLConnection jarConnection)
             throws IOException {
         try (JarFile jarFile = jarConnection.getJarFile()) {
             for (final Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements();) {
@@ -115,10 +120,10 @@ class LegacyDatabaseStartupTest {
                     final String filename = StringUtils.removeStart(entry.getName(), //
                             jarConnection.getEntryName());
 
-                    final File f = new File(destDir, filename);
+                    final Path f = Path.of(destDir.toString(), filename);
                     if (entry.isDirectory()) {
                         if (!ensureDirectoryExists(f)) {
-                            throw new IOException("Could not create directory: " + f.getAbsolutePath());
+                            throw new IOException("Could not create directory: " + f);
                         }
                     } else {
                         try (InputStream entryInputStream = jarFile.getInputStream(entry)) {
@@ -133,13 +138,17 @@ class LegacyDatabaseStartupTest {
         return true;
     }
 
-    private static boolean copyResourcesRecursively(final URL originUrl, final File destination) {
+    private static boolean copyResourcesRecursively(final URL originUrl, final Path destination) {
         try {
             final URLConnection urlConnection = originUrl.openConnection();
             if (urlConnection instanceof JarURLConnection) {
                 return copyJarResourcesRecursively(destination, (JarURLConnection) urlConnection);
             } else {
-                return copyFilesRecusively(new File(originUrl.getPath()), destination);
+                try {
+                    return copyFilesRecusively(Path.of(originUrl.toURI()), destination);
+                } catch (URISyntaxException e) {
+                    LOG.error("Exception occurred while copying file.", e);
+                }
             }
         } catch (final IOException e) {
             LOG.error("Exception occurred while copying file.", e);
@@ -147,8 +156,8 @@ class LegacyDatabaseStartupTest {
         return false;
     }
 
-    private static boolean copyStream(final InputStream is, final File f) {
-        try (OutputStream os = Files.newOutputStream(Path.of(f.toURI()))) {
+    private static boolean copyStream(final InputStream is, final Path f) {
+        try (OutputStream os = Files.newOutputStream(f)) {
             return copyStream(is, os);
         } catch (IOException e) {
             LOG.error("Exception occurred while copying stream.", e);
@@ -171,8 +180,8 @@ class LegacyDatabaseStartupTest {
         return false;
     }
 
-    private static boolean ensureDirectoryExists(final File f) {
-        return f.exists() || f.mkdir();
+    private static boolean ensureDirectoryExists(final Path f) {
+        return Files.exists(f) || FileUtil.createDirectories(f) != null;
     }
 
 }

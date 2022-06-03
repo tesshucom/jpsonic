@@ -21,8 +21,9 @@
 
 package com.tesshu.jpsonic.filter;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.Filter;
@@ -69,7 +70,7 @@ public class BootstrapVerificationFilter implements Filter {
             return;
         }
 
-        File home = SettingsService.getJpsonicHome();
+        Path home = SettingsService.getJpsonicHome();
         if (!directoryExists(home)) {
             writeError(res,
                     "<p>The directory <b>" + home + "</b> does not exist. Please create it and make it writable, "
@@ -100,14 +101,13 @@ public class BootstrapVerificationFilter implements Filter {
         }
     }
 
-    private boolean directoryExists(File dir) {
-        return dir.exists() && dir.isDirectory();
+    private boolean directoryExists(Path dir) {
+        return Files.exists(dir) && Files.isDirectory(dir);
     }
 
-    private boolean directoryWritable(File dir) {
+    private boolean directoryWritable(Path dir) {
         try {
-            File tempFile = File.createTempFile("test", null, dir);
-            return tempFile.delete();
+            return Files.createTempFile(dir, null, null).toFile().delete();
         } catch (IOException x) {
             return false;
         }

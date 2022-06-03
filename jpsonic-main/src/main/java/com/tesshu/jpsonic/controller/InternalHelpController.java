@@ -21,8 +21,8 @@
 
 package com.tesshu.jpsonic.controller;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
@@ -54,8 +54,8 @@ import com.tesshu.jpsonic.service.search.AnalyzerFactory;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.service.search.IndexType;
 import com.tesshu.jpsonic.spring.DatabaseConfiguration.ProfileNameConstants;
+import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
@@ -140,7 +140,7 @@ public class InternalHelpController {
         map.put("serverInfo", serverInfo);
         map.put("usedMemory", totalMemory - freeMemory);
         map.put("totalMemory", totalMemory);
-        File logFile = SettingsService.getLogFile();
+        Path logFile = SettingsService.getLogFile();
         List<String> latestLogEntries = getLatestLogEntries(logFile);
         map.put("logEntries", latestLogEntries);
         map.put("logFile", logFile);
@@ -165,7 +165,7 @@ public class InternalHelpController {
             map.put("statSongCount", stats.getSongCount());
             map.put("statLastScanDate", stats.getScanDate());
             map.put("statTotalDurationSeconds", stats.getTotalDurationInSeconds());
-            map.put("statTotalLengthBytes", FileUtils.byteCountToDisplaySize(stats.getTotalLengthInBytes()));
+            map.put("statTotalLengthBytes", FileUtil.byteCountToDisplaySize(stats.getTotalLengthInBytes()));
         }
     }
 
@@ -278,12 +278,16 @@ public class InternalHelpController {
     private void putDatabaseLegacyInfoTo(Map<String, Object> map) {
         if (environment.acceptsProfiles(Profiles.of(ProfileNameConstants.LEGACY))) {
             map.put("dbIsLegacy", true);
-            File dbDirectory = new File(SettingsService.getJpsonicHome(), "db");
-            map.put("dbDirectorySizeBytes", dbDirectory.exists() ? FileUtils.sizeOfDirectory(dbDirectory) : 0);
-            map.put("dbDirectorySize", FileUtils.byteCountToDisplaySize((long) map.get("dbDirectorySizeBytes")));
-            File dbLogFile = new File(dbDirectory, "airsonic.log");
-            map.put("dbLogSizeBytes", dbLogFile.exists() ? dbLogFile.length() : 0);
-            map.put("dbLogSize", FileUtils.byteCountToDisplaySize((long) map.get("dbLogSizeBytes")));
+            Path dbDirectory = Path.of(SettingsService.getJpsonicHome().toString(), "db");
+            map.put("dbDirectorySizeBytes", Files.exists(dbDirectory) ? FileUtil.sizeOfDirectory(dbDirectory) : 0);
+            map.put("dbDirectorySize", FileUtil.byteCountToDisplaySize((long) map.get("dbDirectorySizeBytes")));
+            Path dbLogFile = Path.of(dbDirectory.toString(), "airsonic.log");
+            try {
+                map.put("dbLogSizeBytes", Files.exists(dbLogFile) ? Files.size(dbLogFile) : 0);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+            map.put("dbLogSize", FileUtil.byteCountToDisplaySize((long) map.get("dbLogSizeBytes")));
         } else {
             map.put("dbIsLegacy", false);
         }
@@ -327,12 +331,20 @@ public class InternalHelpController {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (FileStatistics) Not reusable
     private void gatherFilesystemInfo(Map<String, Object> map) {
-        map.put("fsHomeDirectorySizeBytes", FileUtils.sizeOfDirectory(SettingsService.getJpsonicHome()));
-        map.put("fsHomeDirectorySize", FileUtils.byteCountToDisplaySize((long) map.get("fsHomeDirectorySizeBytes")));
-        map.put("fsHomeTotalSpaceBytes", SettingsService.getJpsonicHome().getTotalSpace());
-        map.put("fsHomeTotalSpace", FileUtils.byteCountToDisplaySize((long) map.get("fsHomeTotalSpaceBytes")));
-        map.put("fsHomeUsableSpaceBytes", SettingsService.getJpsonicHome().getUsableSpace());
-        map.put("fsHomeUsableSpace", FileUtils.byteCountToDisplaySize((long) map.get("fsHomeUsableSpaceBytes")));
+        long directorySize = FileUtil.sizeOfDirectory(SettingsService.getJpsonicHome());
+        map.put("fsHomeDirectorySizeBytes", directorySize);
+        map.put("fsHomeDirectorySize", FileUtil.byteCountToDisplaySize(directorySize));
+        try {
+            FileStore store = Files.getFileStore(SettingsService.getJpsonicHome());
+            long usableSpace = store.getUsableSpace();
+            map.put("fsHomeUsableSpaceBytes", usableSpace);
+            map.put("fsHomeUsableSpace", FileUtil.byteCountToDisplaySize(usableSpace));
+            long totalSpace = store.getTotalSpace();
+            map.put("fsHomeTotalSpaceBytes", totalSpace);
+            map.put("fsHomeTotalSpace", FileUtil.byteCountToDisplaySize(totalSpace));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
         SortedMap<String, FileStatistics> fsMusicFolderStatistics = new TreeMap<>();
         for (MusicFolder folder : musicFolderDao.getAllMusicFolders()) {
             FileStatistics stat = new FileStatistics();
@@ -348,7 +360,7 @@ public class InternalHelpController {
         map.put("fsFfmpegInfo", gatherStatisticsForTranscodingExecutable("ffmpeg"));
     }
 
-    private static List<String> getLatestLogEntries(File logFile) {
+    private static List<String> getLatestLogEntries(Path logFile) {
         List<String> lines = new ArrayList<>(LOG_LINES_TO_SHOW);
         try (ReversedLinesFileReader reader = new ReversedLinesFileReader(logFile, Charset.defaultCharset())) {
             for (String current = reader.readLine(); current != null; current = reader.readLine()) {
@@ -368,7 +380,7 @@ public class InternalHelpController {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     private Path lookForExecutable(String executableName) {
-        for (String path : System.getenv("PATH").split(File.pathSeparator)) {
+        for (String path : System.getenv("PATH").split(java.io.File.pathSeparator)) {
             Path file = Path.of(path, executableName);
             if (Files.exists(file)) {
                 if (LOG.isDebugEnabled()) {
@@ -387,7 +399,7 @@ public class InternalHelpController {
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     private Path lookForTranscodingExecutable(String executableName) {
         for (String name : Arrays.asList(executableName, String.format("%s.exe", executableName))) {
-            Path executableLocation = Path.of(transcodingService.getTranscodeDirectory().toPath().toString(), name);
+            Path executableLocation = Path.of(transcodingService.getTranscodeDirectory().toString(), name);
             if (Files.exists(executableLocation)) {
                 return executableLocation;
             }
@@ -512,8 +524,8 @@ public class InternalHelpController {
             this.setPath(path.toString());
             try {
                 FileStore store = Files.getFileStore(path);
-                this.setFreeFilesystemSizeBytes(FileUtils.byteCountToDisplaySize(store.getUsableSpace()));
-                this.setTotalFilesystemSizeBytes(FileUtils.byteCountToDisplaySize(store.getTotalSpace()));
+                this.setFreeFilesystemSizeBytes(FileUtil.byteCountToDisplaySize(store.getUsableSpace()));
+                this.setTotalFilesystemSizeBytes(FileUtil.byteCountToDisplaySize(store.getTotalSpace()));
             } catch (IOException e) {
                 if (LOG.isWarnEnabled()) {
                     LOG.warn("Could not get directory size because path cannot be accessed.: " + path, e.getMessage());

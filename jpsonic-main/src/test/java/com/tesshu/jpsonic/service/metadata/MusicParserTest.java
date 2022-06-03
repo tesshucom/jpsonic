@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -649,13 +648,12 @@ class MusicParserTest {
     @Nested
     class JaudiotaggerImplementationTest {
 
-        private String createTooSmallMessage(File file) {
-            return "Unable to read file because it is too small to be valid audio file: "
-                    .concat(file.getAbsolutePath());
+        private String createTooSmallMessage(Path file) {
+            return "Unable to read file because it is too small to be valid audio file: ".concat(file.toString());
         }
 
-        private File createFile(String resourcePath) throws URISyntaxException {
-            return new File(MusicParserTest.class.getResource(resourcePath).toURI());
+        private Path createPath(String resourcePath) throws URISyntaxException {
+            return Path.of(MusicParserTest.class.getResource(resourcePath).toURI());
         }
 
         @Test
@@ -668,69 +666,70 @@ class MusicParserTest {
              * MP3 files always contain at least 1 frame of audio.Therefore, even if the error content is the same, the
              * exception type may be different.
              */
-            File mp3 = createFile("/MEDIAS/Metadata/tagger3/blank/blank.mp3");
-            assertThrows(InvalidAudioFrameException.class, () -> AudioFileIO.read(mp3), createTooSmallMessage(mp3));
+            Path mp3 = createPath("/MEDIAS/Metadata/tagger3/blank/blank.mp3");
+            assertThrows(InvalidAudioFrameException.class, () -> AudioFileIO.read(mp3.toFile()),
+                    createTooSmallMessage(mp3));
 
-            File ogg = createFile("/MEDIAS/Metadata/tagger3/blank/blank.ogg");
-            assertThrows(CannotReadException.class, () -> AudioFileIO.read(ogg), createTooSmallMessage(ogg));
+            Path ogg = createPath("/MEDIAS/Metadata/tagger3/blank/blank.ogg");
+            assertThrows(CannotReadException.class, () -> AudioFileIO.read(ogg.toFile()), createTooSmallMessage(ogg));
 
-            File oga = createFile("/MEDIAS/Metadata/tagger3/blank/blank.oga");
-            assertThrows(CannotReadException.class, () -> AudioFileIO.read(oga), createTooSmallMessage(oga));
+            Path oga = createPath("/MEDIAS/Metadata/tagger3/blank/blank.oga");
+            assertThrows(CannotReadException.class, () -> AudioFileIO.read(oga.toFile()), createTooSmallMessage(oga));
 
-            File aac = createFile("/MEDIAS/Metadata/tagger3/blank/blank.aac");
-            assertThrows(CannotReadException.class, () -> AudioFileIO.read(aac), createTooSmallMessage(aac));
+            Path aac = createPath("/MEDIAS/Metadata/tagger3/blank/blank.aac");
+            assertThrows(CannotReadException.class, () -> AudioFileIO.read(aac.toFile()), createTooSmallMessage(aac));
 
-            File m4a = createFile("/MEDIAS/Metadata/tagger3/blank/blank.m4a");
-            assertThrows(CannotReadException.class, () -> AudioFileIO.read(m4a), createTooSmallMessage(m4a));
+            Path m4a = createPath("/MEDIAS/Metadata/tagger3/blank/blank.m4a");
+            assertThrows(CannotReadException.class, () -> AudioFileIO.read(m4a.toFile()), createTooSmallMessage(m4a));
 
-            File m4b = createFile("/MEDIAS/Metadata/tagger3/blank/blank.m4b");
-            assertThrows(CannotReadException.class, () -> AudioFileIO.read(m4b), createTooSmallMessage(m4b));
+            Path m4b = createPath("/MEDIAS/Metadata/tagger3/blank/blank.m4b");
+            assertThrows(CannotReadException.class, () -> AudioFileIO.read(m4b.toFile()), createTooSmallMessage(m4b));
 
-            File flac = createFile("/MEDIAS/Metadata/tagger3/blank/blank.flac");
-            assertThrows(CannotReadException.class, () -> AudioFileIO.read(flac), createTooSmallMessage(flac));
+            Path flac = createPath("/MEDIAS/Metadata/tagger3/blank/blank.flac");
+            assertThrows(CannotReadException.class, () -> AudioFileIO.read(flac.toFile()), createTooSmallMessage(flac));
 
-            File wav = createFile("/MEDIAS/Metadata/tagger3/blank/blank.wav");
-            assertThrows(CannotReadException.class, () -> AudioFileIO.read(wav), createTooSmallMessage(wav));
+            Path wav = createPath("/MEDIAS/Metadata/tagger3/blank/blank.wav");
+            assertThrows(CannotReadException.class, () -> AudioFileIO.read(wav.toFile()), createTooSmallMessage(wav));
 
-            File wma = createFile("/MEDIAS/Metadata/tagger3/blank/blank.wma");
-            assertThrows(CannotReadException.class, () -> AudioFileIO.read(wma), createTooSmallMessage(wav));
+            Path wma = createPath("/MEDIAS/Metadata/tagger3/blank/blank.wma");
+            assertThrows(CannotReadException.class, () -> AudioFileIO.read(wma.toFile()), createTooSmallMessage(wav));
 
-            File aif = createFile("/MEDIAS/Metadata/tagger3/blank/blank.aif");
-            assertThrows(CannotReadException.class, () -> AudioFileIO.read(aif), createTooSmallMessage(aif));
+            Path aif = createPath("/MEDIAS/Metadata/tagger3/blank/blank.aif");
+            assertThrows(CannotReadException.class, () -> AudioFileIO.read(aif.toFile()), createTooSmallMessage(aif));
 
-            File aiff = createFile("/MEDIAS/Metadata/tagger3/blank/blank.aiff");
-            assertThrows(CannotReadException.class, () -> AudioFileIO.read(aiff), createTooSmallMessage(aiff));
+            Path aiff = createPath("/MEDIAS/Metadata/tagger3/blank/blank.aiff");
+            assertThrows(CannotReadException.class, () -> AudioFileIO.read(aiff.toFile()), createTooSmallMessage(aiff));
 
-            File ape = createFile("/MEDIAS/Metadata/tagger3/blank/blank.ape");
-            assertThrows(CannotReadException.class, () -> AudioFileIO.read(ape), createTooSmallMessage(ape));
+            Path ape = createPath("/MEDIAS/Metadata/tagger3/blank/blank.ape");
+            assertThrows(CannotReadException.class, () -> AudioFileIO.read(ape.toFile()), createTooSmallMessage(ape));
 
-            File mpc = createFile("/MEDIAS/Metadata/tagger3/blank/blank.mpc");
-            assertThrows(CannotReadException.class, () -> AudioFileIO.read(mpc), createTooSmallMessage(mpc));
+            Path mpc = createPath("/MEDIAS/Metadata/tagger3/blank/blank.mpc");
+            assertThrows(CannotReadException.class, () -> AudioFileIO.read(mpc.toFile()), createTooSmallMessage(mpc));
 
-            File shn = createFile("/MEDIAS/Metadata/tagger3/blank/blank.shn");
-            assertThrows(CannotReadException.class, () -> AudioFileIO.read(shn), createTooSmallMessage(shn));
+            Path shn = createPath("/MEDIAS/Metadata/tagger3/blank/blank.shn");
+            assertThrows(CannotReadException.class, () -> AudioFileIO.read(shn.toFile()), createTooSmallMessage(shn));
 
-            File mka = createFile("/MEDIAS/Metadata/tagger3/blank/blank.mka");
-            assertThrows(CannotReadException.class, () -> AudioFileIO.read(mka), createTooSmallMessage(mka));
+            Path mka = createPath("/MEDIAS/Metadata/tagger3/blank/blank.mka");
+            assertThrows(CannotReadException.class, () -> AudioFileIO.read(mka.toFile()), createTooSmallMessage(mka));
 
-            File opus = createFile("/MEDIAS/Metadata/tagger3/blank/blank.opus");
-            assertThrows(CannotReadException.class, () -> AudioFileIO.read(opus), createTooSmallMessage(opus));
+            Path opus = createPath("/MEDIAS/Metadata/tagger3/blank/blank.opus");
+            assertThrows(CannotReadException.class, () -> AudioFileIO.read(opus.toFile()), createTooSmallMessage(opus));
         }
 
         @Test
         @Order(2)
         void testAudioFileIOExeptionNoHeader() throws URISyntaxException {
 
-            File mp3 = createFile("/MEDIAS/Metadata/tagger3/noheader/empty.mp3");
-            Throwable e = assertThrows(InvalidAudioFrameException.class, () -> AudioFileIO.read(mp3));
+            Path mp3 = createPath("/MEDIAS/Metadata/tagger3/noheader/empty.mp3");
+            Throwable e = assertThrows(InvalidAudioFrameException.class, () -> AudioFileIO.read(mp3.toFile()));
             assertEquals("No audio header found within empty.mp3", e.getMessage());
 
-            File empty1c = createFile("/MEDIAS/Metadata/tagger3/noheader/empty_1c.wav");
-            e = assertThrows(CannotReadException.class, () -> AudioFileIO.read(empty1c));
+            Path empty1c = createPath("/MEDIAS/Metadata/tagger3/noheader/empty_1c.wav");
+            e = assertThrows(CannotReadException.class, () -> AudioFileIO.read(empty1c.toFile()));
             assertEquals(createTooSmallMessage(empty1c), e.getMessage());
 
-            File empty2c = createFile("/MEDIAS/Metadata/tagger3/noheader/empty_2c.wav");
-            e = assertThrows(CannotReadException.class, () -> AudioFileIO.read(empty2c));
+            Path empty2c = createPath("/MEDIAS/Metadata/tagger3/noheader/empty_2c.wav");
+            e = assertThrows(CannotReadException.class, () -> AudioFileIO.read(empty2c.toFile()));
             assertEquals(createTooSmallMessage(empty2c), e.getMessage());
         }
 
@@ -739,32 +738,32 @@ class MusicParserTest {
         void testAudioFileIOExeptionNotsupported() throws URISyntaxException, CannotReadException, IOException,
                 TagException, ReadOnlyFileException, InvalidAudioFrameException {
 
-            Function<File, String> notsupportedMsg = (file) -> {
-                return "No Reader associated with this extension:".concat(FilenameUtils.getExtension(file.getName()));
+            Function<Path, String> notsupportedMsg = (file) -> {
+                return "No Reader associated with this extension:".concat(FilenameUtils.getExtension(file.toString()));
             };
 
-            File aac = createFile("/MEDIAS/Metadata/tagger3/dummy/empty.aac");
-            Throwable e = assertThrows(CannotReadException.class, () -> AudioFileIO.read(aac));
+            Path aac = createPath("/MEDIAS/Metadata/tagger3/dummy/empty.aac");
+            Throwable e = assertThrows(CannotReadException.class, () -> AudioFileIO.read(aac.toFile()));
             assertEquals(notsupportedMsg.apply(aac), e.getMessage());
 
-            File opus = createFile("/MEDIAS/Metadata/tagger3/dummy/empty.opus");
-            e = assertThrows(CannotReadException.class, () -> AudioFileIO.read(opus));
+            Path opus = createPath("/MEDIAS/Metadata/tagger3/dummy/empty.opus");
+            e = assertThrows(CannotReadException.class, () -> AudioFileIO.read(opus.toFile()));
             assertEquals(notsupportedMsg.apply(opus), e.getMessage());
 
-            File ape = createFile("/MEDIAS/Metadata/tagger3/dummy/empty.ape");
-            e = assertThrows(CannotReadException.class, () -> AudioFileIO.read(ape));
+            Path ape = createPath("/MEDIAS/Metadata/tagger3/dummy/empty.ape");
+            e = assertThrows(CannotReadException.class, () -> AudioFileIO.read(ape.toFile()));
             assertEquals(notsupportedMsg.apply(ape), e.getMessage());
 
-            File mka = createFile("/MEDIAS/Metadata/tagger3/dummy/empty.mka");
-            e = assertThrows(CannotReadException.class, () -> AudioFileIO.read(mka));
+            Path mka = createPath("/MEDIAS/Metadata/tagger3/dummy/empty.mka");
+            e = assertThrows(CannotReadException.class, () -> AudioFileIO.read(mka.toFile()));
             assertEquals(notsupportedMsg.apply(mka), e.getMessage());
 
-            File mpc = createFile("/MEDIAS/Metadata/tagger3/dummy/empty.mpc");
-            e = assertThrows(CannotReadException.class, () -> AudioFileIO.read(mpc));
+            Path mpc = createPath("/MEDIAS/Metadata/tagger3/dummy/empty.mpc");
+            e = assertThrows(CannotReadException.class, () -> AudioFileIO.read(mpc.toFile()));
             assertEquals(notsupportedMsg.apply(mpc), e.getMessage());
 
-            File shn = createFile("/MEDIAS/Metadata/tagger3/dummy/empty.shn");
-            e = assertThrows(CannotReadException.class, () -> AudioFileIO.read(shn));
+            Path shn = createPath("/MEDIAS/Metadata/tagger3/dummy/empty.shn");
+            e = assertThrows(CannotReadException.class, () -> AudioFileIO.read(shn.toFile()));
             assertEquals(notsupportedMsg.apply(shn), e.getMessage());
         }
 
@@ -812,7 +811,7 @@ class MusicParserTest {
             @Test
             void testOgg() throws URISyntaxException, CannotReadException, IOException, TagException,
                     ReadOnlyFileException, InvalidAudioFrameException {
-                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/tagger3/tagged/test.ogg"));
+                AudioFile af = AudioFileIO.read(createPath("/MEDIAS/Metadata/tagger3/tagged/test.ogg").toFile());
                 Tag tag = af.getTag();
                 assertNotNull(tag);
                 assertTagsWrittenByMp3tag(tag);
@@ -821,7 +820,7 @@ class MusicParserTest {
             @Test
             void testFlac() throws URISyntaxException, CannotReadException, IOException, TagException,
                     ReadOnlyFileException, InvalidAudioFrameException {
-                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/tagger3/tagged/test.flac"));
+                AudioFile af = AudioFileIO.read(createPath("/MEDIAS/Metadata/tagger3/tagged/test.flac").toFile());
                 Tag tag = af.getTag();
                 assertNotNull(tag);
                 assertTagsWrittenByMC4PCAndMp3tag(tag);
@@ -830,7 +829,7 @@ class MusicParserTest {
             @Test
             void testMp3() throws URISyntaxException, CannotReadException, IOException, TagException,
                     ReadOnlyFileException, InvalidAudioFrameException {
-                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/tagger3/tagged/01.mp3"));
+                AudioFile af = AudioFileIO.read(createPath("/MEDIAS/Metadata/tagger3/tagged/01.mp3").toFile());
                 Tag tag = af.getTag();
                 assertNotNull(tag);
                 assertTagsWrittenByMp3tag(tag);
@@ -839,7 +838,7 @@ class MusicParserTest {
             @Test
             void testMp3v1() throws URISyntaxException, CannotReadException, IOException, TagException,
                     ReadOnlyFileException, InvalidAudioFrameException {
-                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/v1/Mp3tag3.12.mp3"));
+                AudioFile af = AudioFileIO.read(createPath("/MEDIAS/Metadata/v1/Mp3tag3.12.mp3").toFile());
                 Tag tag = af.getTag();
                 assertNotNull(tag);
 
@@ -868,7 +867,7 @@ class MusicParserTest {
             @Test
             void testM4a() throws URISyntaxException, CannotReadException, IOException, TagException,
                     ReadOnlyFileException, InvalidAudioFrameException {
-                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/tagger3/tagged/test.m4a"));
+                AudioFile af = AudioFileIO.read(createPath("/MEDIAS/Metadata/tagger3/tagged/test.m4a").toFile());
                 Tag tag = af.getTag();
                 assertNotNull(tag);
                 assertTagsWrittenByMp3tag(tag);
@@ -877,7 +876,7 @@ class MusicParserTest {
             @Test
             void testWavMC4PC() throws CannotReadException, IOException, TagException, ReadOnlyFileException,
                     InvalidAudioFrameException, URISyntaxException {
-                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/tagger3/tagged/mc4pc.wav"));
+                AudioFile af = AudioFileIO.read(createPath("/MEDIAS/Metadata/tagger3/tagged/mc4pc.wav").toFile());
                 Tag tag = af.getTag();
                 assertEquals("", tag.getFirst(FieldKey.ALBUM_ARTIST));
             }
@@ -885,7 +884,7 @@ class MusicParserTest {
             @Test
             void testWav() throws CannotReadException, IOException, TagException, ReadOnlyFileException,
                     InvalidAudioFrameException, URISyntaxException {
-                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/tagger3/tagged/test.wav"));
+                AudioFile af = AudioFileIO.read(createPath("/MEDIAS/Metadata/tagger3/tagged/test.wav").toFile());
                 Tag tag = af.getTag();
                 assertNotNull(tag);
                 assertTagsWrittenByMp3tag(tag);
@@ -897,7 +896,7 @@ class MusicParserTest {
             @Test
             void testWma() throws CannotReadException, IOException, TagException, ReadOnlyFileException,
                     InvalidAudioFrameException, URISyntaxException {
-                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/tagger3/tagged/test1.wma"));
+                AudioFile af = AudioFileIO.read(createPath("/MEDIAS/Metadata/tagger3/tagged/test1.wma").toFile());
                 Tag tag = af.getTag();
                 assertNotNull(tag);
                 assertTagsWrittenByMC4PCAndMp3tag(tag);
@@ -906,7 +905,7 @@ class MusicParserTest {
             @Test
             void testAif() throws CannotReadException, IOException, TagException, ReadOnlyFileException,
                     InvalidAudioFrameException, URISyntaxException {
-                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/tagger3/tagged/test119.aif"));
+                AudioFile af = AudioFileIO.read(createPath("/MEDIAS/Metadata/tagger3/tagged/test119.aif").toFile());
                 Tag tag = af.getTag();
                 assertNotNull(tag);
                 assertTagsWrittenByMp3tag(tag);
@@ -915,7 +914,7 @@ class MusicParserTest {
             @Test
             void testDsf() throws URISyntaxException, CannotReadException, IOException, TagException,
                     ReadOnlyFileException, InvalidAudioFrameException {
-                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/tagger3/tagged/test122.dsf"));
+                AudioFile af = AudioFileIO.read(createPath("/MEDIAS/Metadata/tagger3/tagged/test122.dsf").toFile());
                 Tag tag = af.getTag();
                 assertNotNull(tag);
                 assertTagsWrittenByMC4PCAndMp3tag(tag);
@@ -924,7 +923,7 @@ class MusicParserTest {
             @Test
             void testDff() throws URISyntaxException, CannotReadException, IOException, TagException,
                     ReadOnlyFileException, InvalidAudioFrameException {
-                AudioFile af = AudioFileIO.read(createFile("/MEDIAS/Metadata/tagger3/tagged/test229.dff"));
+                AudioFile af = AudioFileIO.read(createPath("/MEDIAS/Metadata/tagger3/tagged/test229.dff").toFile());
                 // Tags are not loaded. Only audio headers will be used.
                 assertNull(af.getTag());
             }

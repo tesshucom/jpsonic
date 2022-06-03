@@ -21,20 +21,22 @@
 
 package com.tesshu.jpsonic.controller;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.VersionService;
@@ -62,15 +64,13 @@ public class HelpController {
     private final VersionService versionService;
     private final SettingsService settingsService;
     private final SecurityService securityService;
-    private final AirsonicLocaleResolver airsonicLocaleResolver;
 
     public HelpController(VersionService versionService, SettingsService settingsService,
-            SecurityService securityService, AirsonicLocaleResolver airsonicLocaleResolver) {
+            SecurityService securityService) {
         super();
         this.versionService = versionService;
         this.settingsService = settingsService;
         this.securityService = securityService;
-        this.airsonicLocaleResolver = airsonicLocaleResolver;
     }
 
     @GetMapping
@@ -100,19 +100,25 @@ public class HelpController {
         map.put("serverInfo", serverInfo);
         map.put("usedMemory", totalMemory - freeMemory);
         map.put("totalMemory", totalMemory);
-        File logFile = SettingsService.getLogFile();
-        List<String> latestLogEntries = getLatestLogEntries(logFile);
-        map.put("logEntries", latestLogEntries);
-        map.put("logFile", logFile);
-        Locale locale = airsonicLocaleResolver.resolveLocale(request);
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", locale);
-        map.put("lastModified", format.format(logFile.lastModified()));
+        Path logFile = SettingsService.getLogFile();
+        if (Files.exists(logFile)) {
+            List<String> latestLogEntries = getLatestLogEntries(logFile);
+            map.put("logEntries", latestLogEntries);
+            map.put("logFile", logFile);
+            try {
+                LocalDateTime localDateTime = Files.getLastModifiedTime(logFile).toInstant()
+                        .atZone(ZoneId.systemDefault()).toLocalDateTime();
+                map.put("lastModified", localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
         map.put("showServerLog", settingsService.isShowServerLog());
         map.put("showStatus", settingsService.isShowStatus());
         return new ModelAndView("help", "model", map);
     }
 
-    private static List<String> getLatestLogEntries(File logFile) {
+    private static List<String> getLatestLogEntries(Path logFile) {
         List<String> lines = new ArrayList<>(LOG_LINES_TO_SHOW);
         try (ReversedLinesFileReader reader = new ReversedLinesFileReader(logFile, Charset.defaultCharset())) {
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {

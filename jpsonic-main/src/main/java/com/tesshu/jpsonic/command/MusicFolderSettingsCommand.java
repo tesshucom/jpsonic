@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.command;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
@@ -225,10 +224,13 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
             if (path == null || !SecurityService.isNoTraversal(path)) {
                 return null;
             }
-            File file = new File(path);
             String name = StringUtils.trimToNull(this.name);
             if (name == null) {
-                name = file.getName();
+                Path fileName = Path.of(path).getFileName();
+                if (fileName == null) {
+                    return null;
+                }
+                name = fileName.toString();
             }
             return new MusicFolder(id, path, name, enabled, new Date());
         }

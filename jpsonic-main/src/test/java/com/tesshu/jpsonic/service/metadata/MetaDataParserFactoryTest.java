@@ -30,6 +30,7 @@ import java.nio.file.Path;
 
 import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.util.FileUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,7 +60,7 @@ class MetaDataParserFactoryTest {
     @BeforeAll
     public static void beforeAll() throws IOException {
         Path homePath = Path.of(System.getProperty("jpsonic.home"));
-        Files.createDirectory(homePath);
+        FileUtil.createDirectories(homePath);
         someMp3 = Path.of(homePath.toString(), "some.mp3");
         someFlv = Path.of(homePath.toString(), "some.flv");
         someJunk = Path.of(homePath.toString(), "some.junk");

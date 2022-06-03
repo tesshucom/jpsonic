@@ -27,7 +27,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.service.playlist.DefaultPlaylistExportHandler;
 import com.tesshu.jpsonic.service.playlist.DefaultPlaylistImportHandler;
-import org.apache.commons.io.FileUtils;
+import com.tesshu.jpsonic.util.FileUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -144,11 +144,11 @@ class PlaylistServiceTest {
             StringBuilder builder = new StringBuilder();
             builder.append("#EXTM3U\n");
             Path mf1 = Path.of(tempDir.toString(), "EXTM3U-mf1");
-            FileUtils.touch(mf1.toFile());
+            FileUtil.touch(mf1);
             Path mf2 = Path.of(tempDir.toString(), "EXTM3U-mf2");
-            FileUtils.touch(mf2.toFile());
+            FileUtil.touch(mf2);
             Path mf3 = Path.of(tempDir.toString(), "EXTM3U-mf3");
-            FileUtils.touch(mf3.toFile());
+            FileUtil.touch(mf3);
             builder.append(mf1.toUri().toString()).append('\n').append(mf2.toUri().toString()).append('\n')
                     .append(mf3.toUri().toString()).append('\n');
 
@@ -185,11 +185,11 @@ class PlaylistServiceTest {
             final String username = "testUser";
             final String playlistName = "test-playlist";
             Path mf1 = Path.of(tempDir.toString(), "PLS-mf1");
-            FileUtils.touch(mf1.toFile());
+            FileUtil.touch(mf1);
             Path mf2 = Path.of(tempDir.toString(), "PLS-mf2");
-            FileUtils.touch(mf2.toFile());
+            FileUtil.touch(mf2);
             Path mf3 = Path.of(tempDir.toString(), "PLS-mf3");
-            FileUtils.touch(mf3.toFile());
+            FileUtil.touch(mf3);
             StringBuilder builder = new StringBuilder(40);
             builder.append("[playlist]\nFile1=").append(mf1.toUri().toString()).append("\nFile2=")
                     .append(mf2.toUri().toString()).append("\nFile3=").append(mf3.toUri().toString()).append('\n');
@@ -226,11 +226,11 @@ class PlaylistServiceTest {
             final String username = "testUser";
             final String playlistName = "test-playlist";
             Path mf1 = Path.of(tempDir.toString(), "XSPF-mf1");
-            FileUtils.touch(mf1.toFile());
+            FileUtil.touch(mf1);
             Path mf2 = Path.of(tempDir.toString(), "XSPF-mf2");
-            FileUtils.touch(mf2.toFile());
+            FileUtil.touch(mf2);
             Path mf3 = Path.of(tempDir.toString(), "XSPF-mf3");
-            FileUtils.touch(mf3.toFile());
+            FileUtil.touch(mf3);
             StringBuilder builder = new StringBuilder(300);
             builder.append(
                     "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<playlist version=\"1\" xmlns=\"http://xspf.org/ns/0/\">\n<trackList>\n<track><location>")
@@ -311,11 +311,11 @@ class PlaylistServiceTest {
             Mockito.when(settingsService.getPlaylistFolder()).thenReturn(tempDir.toString());
 
             Path mf1 = Path.of(tempDir.toString(), "XSPF-mf1");
-            FileUtils.touch(mf1.toFile());
+            FileUtil.touch(mf1);
             Path mf2 = Path.of(tempDir.toString(), "XSPF-mf2");
-            FileUtils.touch(mf2.toFile());
+            FileUtil.touch(mf2);
             Path mf3 = Path.of(tempDir.toString(), "XSPF-mf3");
-            FileUtils.touch(mf3.toFile());
+            FileUtil.touch(mf3);
             StringBuilder builder = new StringBuilder(300);
             builder.append(
                     "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<playlist version=\"1\" xmlns=\"http://xspf.org/ns/0/\">\n<trackList>\n<track><location>")
@@ -340,10 +340,12 @@ class PlaylistServiceTest {
             Mockito.doNothing().when(playlistDao).createPlaylist(playlistCatCaptor.capture());
             playlistService.importPlaylists();
 
+            List<Playlist> captored = playlistCatCaptor.getAllValues();
+            captored.sort((p1, p2) -> p1.getName().compareTo(p2.getName()));
             assertEquals(3, playlistCatCaptor.getAllValues().size());
-            assertEquals("XSPF-mf1", playlistCatCaptor.getAllValues().get(0).getName());
-            assertEquals("XSPF-mf2", playlistCatCaptor.getAllValues().get(1).getName());
-            assertEquals("XSPF-mf3", playlistCatCaptor.getAllValues().get(2).getName());
+            assertEquals("XSPF-mf1", captored.get(0).getName());
+            assertEquals("XSPF-mf2", captored.get(1).getName());
+            assertEquals("XSPF-mf3", captored.get(2).getName());
         }
     }
 }

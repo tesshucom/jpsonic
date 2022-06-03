@@ -21,9 +21,9 @@
 
 package com.tesshu.jpsonic;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 import com.tesshu.jpsonic.controller.JAXBWriter;
 import com.tesshu.jpsonic.dao.DaoHelper;
 import com.tesshu.jpsonic.service.MediaScannerService;
-import org.apache.commons.io.FileUtils;
+import com.tesshu.jpsonic.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +40,7 @@ public final class TestCaseUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestCaseUtils.class);
 
-    private static File jpsonicHomeDirForTest;
+    private static Path jpsonicHomeDirForTest;
 
     private TestCaseUtils() {
     }
@@ -57,15 +57,15 @@ public final class TestCaseUtils {
 
         if (jpsonicHomeDirForTest == null) {
             try {
-                jpsonicHomeDirForTest = Files.createTempDirectory("jpsonic_test_").toFile();
+                jpsonicHomeDirForTest = Files.createTempDirectory("jpsonic_test_");
             } catch (IOException e) {
                 throw new IllegalStateException("Error while creating temporary JPSONIC_HOME directory for tests", e);
             }
             if (LOG.isInfoEnabled()) {
-                LOG.info("JPSONIC_HOME directory will be {}", jpsonicHomeDirForTest.getAbsolutePath());
+                LOG.info("JPSONIC_HOME directory will be {}", jpsonicHomeDirForTest);
             }
         }
-        return jpsonicHomeDirForTest.getAbsolutePath();
+        return jpsonicHomeDirForTest.toString();
     }
 
     /**
@@ -80,19 +80,12 @@ public final class TestCaseUtils {
      */
     public static void cleanJpsonicHomeForTest() throws IOException {
 
-        File jpsonicHomeDir = new File(jpsonicHomePathForTest());
-        if (jpsonicHomeDir.exists() && jpsonicHomeDir.isDirectory()) {
+        Path jpsonicHomeDir = Path.of(jpsonicHomePathForTest());
+        if (Files.exists(jpsonicHomeDir) && Files.isDirectory(jpsonicHomeDir)) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Delete jpsonic home (ie. {}).", jpsonicHomeDir.getAbsolutePath());
+                LOG.debug("Delete jpsonic home (ie. {}).", jpsonicHomeDir.toString());
             }
-            try {
-                FileUtils.deleteDirectory(jpsonicHomeDir);
-            } catch (IOException e) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Error while deleting jpsonic home.");
-                }
-                throw e;
-            }
+            FileUtil.deleteDirectory(jpsonicHomeDir);
         }
     }
 

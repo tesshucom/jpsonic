@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.spring;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -118,8 +118,8 @@ public class DatabaseConfiguration {
     }
 
     @Bean
-    public File rollbackFile() {
-        return new File(SettingsService.getJpsonicHome(), "rollback.sql");
+    public Path rollbackFile() {
+        return Path.of(SettingsService.getJpsonicHome().toString(), "rollback.sql");
     }
 
     @Bean
@@ -133,7 +133,7 @@ public class DatabaseConfiguration {
         SpringLiquibase springLiquibase = new AirsonicSpringLiquibase();
         springLiquibase.setDataSource(dataSource);
         springLiquibase.setChangeLog("classpath:liquibase/db-changelog.xml");
-        springLiquibase.setRollbackFile(rollbackFile());
+        springLiquibase.setRollbackFile(rollbackFile().toFile());
         Map<String, String> parameters = LegacyMap.of("defaultMusicFolder", PlayerUtils.getDefaultMusicFolder(),
                 "mysqlVarcharLimit", mysqlVarcharLimit, "userTableQuote", userTableQuote);
         springLiquibase.setChangeLogParameters(parameters);

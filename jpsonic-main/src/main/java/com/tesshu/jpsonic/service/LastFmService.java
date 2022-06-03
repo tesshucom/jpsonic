@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.service;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -83,7 +83,7 @@ public class LastFmService {
         Caller caller = Caller.getInstance();
         caller.setUserAgent("Airsonic");
 
-        File cacheDir = new File(SettingsService.getJpsonicHome(), "lastfmcache");
+        Path cacheDir = Path.of(SettingsService.getJpsonicHome().toString(), "lastfmcache");
         caller.setCache(new LastFmCache(cacheDir, CACHE_TIME_TO_LIVE_MILLIS));
     }
 
