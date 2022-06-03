@@ -23,9 +23,15 @@ import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.domain.Version;
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -50,13 +56,21 @@ class HelpControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    public void setup() throws ExecutionException {
+    public void setup() throws ExecutionException, URISyntaxException, IOException {
         SecurityService securityService = mock(SecurityService.class);
         SettingsService settingsService = mock(SettingsService.class);
         VersionService versionService = mock(VersionService.class);
         Mockito.when(versionService.getLocalVersion()).thenReturn(new Version("v110.0.0"));
         mockMvc = MockMvcBuilders.standaloneSetup(new HelpController(versionService, settingsService, securityService,
-                new AirsonicLocaleResolver(securityService, settingsService))).build();
+                mock(AirsonicLocaleResolver.class))).build();
+
+        Path testLog = Path.of(TestCaseUtils.jpsonicHomePathForTest(), "jpsonic.log");
+        if (!Files.exists(testLog)) {
+            Files.createDirectories(Path.of(TestCaseUtils.jpsonicHomePathForTest()));
+            testLog = Files.createFile(testLog);
+            Path dummySource = Path.of(HelpControllerTest.class.getResource("/banner.txt").toURI());
+            Files.copy(dummySource, testLog, StandardCopyOption.REPLACE_EXISTING);
+        }
     }
 
     @Test

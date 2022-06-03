@@ -193,7 +193,7 @@ public final class TranscodeInputStream extends InputStream {
      * If it fails, will be removed when the VM is shut down, but once started, this product will not shut down for a
      * very long time. Therefore, it will retry and delete it as soon as possible.
      */
-    private static class DeleteTmpFileTask implements Runnable {
+    static class DeleteTmpFileTask implements Runnable {
 
         private File tmpFile;
 
