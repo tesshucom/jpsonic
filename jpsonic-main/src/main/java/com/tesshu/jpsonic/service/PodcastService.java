@@ -723,6 +723,9 @@ public class PodcastService {
 
     private Path getChannelDirectory(PodcastChannel channel) {
         Path podcastDir = Path.of(settingsService.getPodcastFolder());
+        if (!Files.exists(podcastDir) && FileUtil.createDirectories(podcastDir) == null) {
+            throw new IllegalStateException("Failed to create directory " + podcastDir);
+        }
         if (!Files.isWritable(podcastDir)) {
             throw new IllegalStateException("The podcasts directory " + podcastDir + " isn't writeable.");
         }
