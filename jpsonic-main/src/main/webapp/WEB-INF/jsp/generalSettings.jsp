@@ -247,6 +247,12 @@ function resetExtension() {
                 <label for="useRefresh"><fmt:message key="generalsettings.userefresh"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="userefresh"/></c:import>
             </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="useCopyOfAsciiUnprintable" id="usecopyofasciiunprintable"/>
+                <label for="useCopyOfAsciiUnprintable"><fmt:message key="generalsettings.usecopyofasciiunprintable"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="usecopyofasciiunprintable"/></c:import>
+            </dd>
         </dl>
     </details>
 

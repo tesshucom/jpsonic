@@ -36,6 +36,7 @@ import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.util.PlayerUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -144,6 +145,7 @@ public class GeneralSettingsController {
         command.setPublishPodcast(settingsService.isPublishPodcast());
         command.setUseExternalPlayer(settingsService.isUseExternalPlayer());
         command.setUseRefresh(settingsService.isUseRefresh());
+        command.setUseCopyOfAsciiUnprintable(settingsService.isUseCopyOfAsciiUnprintable());
 
         // Extensions and shortcuts
         command.setMusicFileTypes(settingsService.getMusicFileTypes());
@@ -243,6 +245,7 @@ public class GeneralSettingsController {
         }
         settingsService.setUseRefresh(command.isUseRefresh());
         settingsService.setShowRefresh(command.isUseRefresh() && settingsService.isShowRefresh());
+        settingsService.setUseCopyOfAsciiUnprintable(PlayerUtils.isWindows() && command.isUseCopyOfAsciiUnprintable());
 
         // Extensions and shortcuts
         settingsService.setMusicFileTypes(command.getMusicFileTypes());

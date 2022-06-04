@@ -645,6 +645,14 @@ public class SettingsService {
         setProperty(SettingsConstants.General.Legacy.USE_REFRESH, b);
     }
 
+    public boolean isUseCopyOfAsciiUnprintable() {
+        return getBoolean(SettingsConstants.General.Legacy.USE_COPY_OF_ASCII_UNPRINTABLE);
+    }
+
+    public void setUseCopyOfAsciiUnprintable(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.USE_COPY_OF_ASCII_UNPRINTABLE, b);
+    }
+
     public String getMusicFileTypes() {
         synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
             return getString(SettingsConstants.General.Extension.MUSIC_FILE_TYPES);
