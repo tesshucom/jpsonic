@@ -71,6 +71,7 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean publishPodcast;
     private boolean useExternalPlayer;
     private boolean useRefresh;
+    private boolean useCopyOfAsciiUnprintable;
 
     // Extensions and shortcuts
     private String musicFileTypes;
@@ -331,6 +332,14 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setUseRefresh(boolean useRefresh) {
         this.useRefresh = useRefresh;
+    }
+
+    public boolean isUseCopyOfAsciiUnprintable() {
+        return useCopyOfAsciiUnprintable;
+    }
+
+    public void setUseCopyOfAsciiUnprintable(boolean useCopyOfAsciiUnprintable) {
+        this.useCopyOfAsciiUnprintable = useCopyOfAsciiUnprintable;
     }
 
     public String getMusicFileTypes() {

@@ -772,6 +772,11 @@ class SettingsServiceTest {
     }
 
     @Test
+    void testIsUseCopyOfAsciiUnprintable() {
+        assertFalse(settingsService.isUseCopyOfAsciiUnprintable());
+    }
+
+    @Test
     void testGetSmtpEncryption() {
         assertEquals("None", settingsService.getSmtpEncryption());
     }
