@@ -455,7 +455,8 @@ public class TranscodingService {
                 // Work-around for filename character encoding problem on Windows.
                 // Create temporary file, and feed this to the transcoder.
                 Path path = mediaFile.toPath();
-                if (PlayerUtils.isWindows() && !mediaFile.isVideo() && !StringUtils.isAsciiPrintable(path.toString())) {
+                if (settingsService.isUseCopyOfAsciiUnprintable() && PlayerUtils.isWindows() && !mediaFile.isVideo()
+                        && !StringUtils.isAsciiPrintable(path.toString())) {
                     tmpFile = Files.createTempFile("jpsonic", "." + FilenameUtils.getExtension(path.toString()));
                     Files.copy(mediaFile.toPath(), tmpFile, StandardCopyOption.REPLACE_EXISTING);
                     tmpFile.toFile().deleteOnExit();
