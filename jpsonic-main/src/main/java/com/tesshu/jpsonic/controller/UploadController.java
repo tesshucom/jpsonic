@@ -33,6 +33,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -56,6 +58,7 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -73,13 +76,15 @@ public class UploadController {
 
     public static final String FIELD_NAME_DIR = "dir";
     public static final String FIELD_NAME_UNZIP = "unzip";
-
+    public static final String FILE_ITEM_HEADER_DISPOSITION = "content-disposition";
     private static final Logger LOG = LoggerFactory.getLogger(UploadController.class);
 
     private final SecurityService securityService;
     private final PlayerService playerService;
     private final StatusService statusService;
     private final SettingsService settingsService;
+
+    private final Pattern fileItemHeaderValue = Pattern.compile("value=\"([^\"]*)\"");
 
     public UploadController(SecurityService securityService, PlayerService playerService, StatusService statusService,
             SettingsService settingsService) {
@@ -110,14 +115,8 @@ public class UploadController {
             }
 
             List<FileItem> items = getUploadItems(request, status);
-
             Path dir = getDir(items);
-            if (dir == null) {
-                throw new IOException("Missing 'dir' parameter.");
-            }
-
             boolean unzip = isUnzip(items);
-
             result = doUnzip(items, dir, unzip);
 
         } catch (IOException | FileUploadException e) {
@@ -143,13 +142,20 @@ public class UploadController {
         return new ModelAndView("upload", "model", model);
     }
 
-    private Path getDir(List<FileItem> items) {
+    private @NonNull Path getDir(List<FileItem> items) throws IOException {
         for (FileItem item : items) {
-            if (item.isFormField() && FIELD_NAME_DIR.equals(item.getFieldName())) {
-                return Path.of(item.getString());
+            if (!item.isFormField() || !FIELD_NAME_DIR.equals(item.getFieldName())) {
+                continue;
+            }
+            String contentDisposition = item.getHeaders().getHeader(FILE_ITEM_HEADER_DISPOSITION);
+            if (contentDisposition != null) {
+                Matcher m = fileItemHeaderValue.matcher(contentDisposition);
+                if (m.find()) {
+                    return Path.of(m.group(1));
+                }
             }
         }
-        return null;
+        throw new IOException("Missing 'dir' parameter.");
     }
 
     private boolean isUnzip(List<FileItem> items) {

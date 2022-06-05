@@ -137,11 +137,7 @@
     <rule ref="category/java/multithreading.xml" />
 
     <!-- Java Rules:Performance -->
-    <rule ref="category/java/performance.xml">
-
-        <!-- Because there is bug with the rules and it cannot be used. -->
-        <exclude name="UseIOStreamsWithApacheCommonsFileItem" />
-    </rule>
+    <rule ref="category/java/performance.xml" />
 
     <!-- Java Rules:Security -->
     <rule ref="category/java/security.xml" />
