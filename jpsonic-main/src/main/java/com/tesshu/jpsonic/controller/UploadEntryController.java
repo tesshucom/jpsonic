@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.util.LegacyMap;
@@ -40,11 +41,14 @@ public class UploadEntryController {
 
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
+    private final MediaScannerService mediaScannerService;
 
-    public UploadEntryController(MusicFolderService musicFolderService, SecurityService securityService) {
+    public UploadEntryController(MusicFolderService musicFolderService, SecurityService securityService,
+            MediaScannerService mediaScannerService) {
         super();
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
+        this.mediaScannerService = mediaScannerService;
     }
 
     @GetMapping
@@ -59,8 +63,8 @@ public class UploadEntryController {
         }
 
         ModelAndView result = new ModelAndView();
-        result.addObject("model",
-                LegacyMap.of("user", user, "uploadDirectory", uploadDirectory, "musicFolders", musicFolders));
+        result.addObject("model", LegacyMap.of("user", user, "uploadDirectory", uploadDirectory, "musicFolders",
+                musicFolders, "scanning", mediaScannerService.isScanning()));
         return result;
     }
 }

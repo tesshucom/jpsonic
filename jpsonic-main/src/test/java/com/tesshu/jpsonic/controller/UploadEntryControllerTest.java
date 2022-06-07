@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
@@ -57,8 +58,8 @@ class UploadEntryControllerTest {
                         "MEDIAS", true, new Date()));
         MusicFolderService musicFolderService = mock(MusicFolderService.class);
         Mockito.when(musicFolderService.getMusicFoldersForUser(ServiceMockUtils.ADMIN_NAME)).thenReturn(musicFolders);
-        mockMvc = MockMvcBuilders
-                .standaloneSetup(new UploadEntryController(musicFolderService, mock(SecurityService.class))).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(new UploadEntryController(musicFolderService,
+                mock(SecurityService.class), mock(MediaScannerService.class))).build();
     }
 
     @Test

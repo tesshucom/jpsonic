@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -28,17 +29,29 @@ import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.service.MediaScannerService;
+import com.tesshu.jpsonic.service.PlayerService;
+import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.StatusService;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
@@ -142,5 +155,30 @@ class UploadControllerTest {
         String end = SEPA + "--" + BOUNDARY + "--";
         return ArrayUtils.addAll((dirField + dirValue + fileField).getBytes(),
                 ArrayUtils.addAll(fileValue, end.getBytes()));
+    }
+
+    @Nested
+    class ExceptionTest {
+
+        private MediaScannerService mediaScannerService;
+
+        @BeforeEach
+        public void setup() throws ExecutionException {
+            mediaScannerService = mock(MediaScannerService.class);
+            uploadController = new UploadController(mock(SecurityService.class), mock(PlayerService.class),
+                    mock(StatusService.class), mock(SettingsService.class), mediaScannerService);
+        }
+
+        @Test
+        void testIsScanning() {
+
+            Mockito.when(mediaScannerService.isScanning()).thenReturn(true);
+            ModelAndView result = uploadController.handleRequestInternal(mock(HttpServletRequest.class),
+                    mock(HttpServletResponse.class));
+            @SuppressWarnings("unchecked")
+            Map<String, Object> model = (Map<String, Object>) result.getModel().get("model");
+            assertEquals("Currently scanning. Please try again after a while.",
+                    ((Exception) model.get("exception")).getMessage());
+        }
     }
 }
