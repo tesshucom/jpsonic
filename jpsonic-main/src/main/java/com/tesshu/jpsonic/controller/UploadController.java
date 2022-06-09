@@ -83,6 +83,8 @@ public class UploadController {
     private final SettingsService settingsService;
     private final MediaScannerService mediaScannerService;
 
+    private String uploadNotAllowedMessage = "The root path is other than the Musicfolder, or the file already exists: ";
+
     public UploadController(SecurityService securityService, PlayerService playerService, StatusService statusService,
             SettingsService settingsService, MediaScannerService mediaScannerService) {
         super();
@@ -129,13 +131,13 @@ public class UploadController {
 
         } catch (IOException | FileUploadException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Uploading failed.", e);
+                LOG.warn("Uploading failed. {}", e.getMessage());
             }
             model.put("exception", e);
         } catch (ExecutionException e) {
             ConcurrentUtils.handleCauseUnchecked(e);
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Uploading failed.", e);
+                LOG.warn("Uploading failed. {}", e.getMessage());
             }
             model.put("exception", e);
         } finally {
@@ -237,7 +239,7 @@ public class UploadController {
 
         if (!securityService.isUploadAllowed(targetFile)) {
             throw new ExecutionException(new GeneralSecurityException(
-                    "Permission denied: " + StringEscapeUtils.escapeHtml4(targetFile.toString())));
+                    uploadNotAllowedMessage + StringEscapeUtils.escapeHtml4(targetFile.toString())));
         }
 
         List<Path> uploadedFiles = new ArrayList<>();
@@ -288,7 +290,7 @@ public class UploadController {
 
         if (!securityService.isUploadAllowed(entryFile)) {
             throw new ExecutionException(new GeneralSecurityException(
-                    "Permission denied: " + StringEscapeUtils.escapeHtml4(entryFile.toString())));
+                    uploadNotAllowedMessage + StringEscapeUtils.escapeHtml4(entryFile.toString())));
         }
 
         Path parent = entryFile.getParent();
