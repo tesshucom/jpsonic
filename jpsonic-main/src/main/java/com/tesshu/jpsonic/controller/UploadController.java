@@ -41,6 +41,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -80,23 +81,29 @@ public class UploadController {
     private final PlayerService playerService;
     private final StatusService statusService;
     private final SettingsService settingsService;
+    private final MediaScannerService mediaScannerService;
 
     public UploadController(SecurityService securityService, PlayerService playerService, StatusService statusService,
-            SettingsService settingsService) {
+            SettingsService settingsService, MediaScannerService mediaScannerService) {
         super();
         this.securityService = securityService;
         this.playerService = playerService;
         this.statusService = statusService;
         this.settingsService = settingsService;
+        this.mediaScannerService = mediaScannerService;
     }
 
     @PostMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
 
+        Map<String, Object> model = LegacyMap.of();
+        if (mediaScannerService.isScanning()) {
+            model.put("exception", new IllegalArgumentException("Currently scanning. Please try again after a while."));
+            return new ModelAndView("upload", "model", model);
+        }
+
         TransferStatus status = null;
         UnzipResult result = null;
-        Map<String, Object> model = LegacyMap.of();
-
         try {
 
             status = statusService.createUploadStatus(playerService.getPlayer(request, response, false, false));
