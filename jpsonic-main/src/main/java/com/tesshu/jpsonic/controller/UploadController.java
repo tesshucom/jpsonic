@@ -57,6 +57,7 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -119,14 +120,8 @@ public class UploadController {
             }
 
             List<FileItem> items = getUploadItems(request, status);
-
             Path dir = getDir(items);
-            if (dir == null) {
-                throw new IOException("Missing 'dir' parameter.");
-            }
-
             boolean unzip = isUnzip(items);
-
             result = doUnzip(items, dir, unzip);
 
         } catch (IOException | FileUploadException e) {
@@ -152,13 +147,14 @@ public class UploadController {
         return new ModelAndView("upload", "model", model);
     }
 
-    private Path getDir(List<FileItem> items) {
+    @SuppressWarnings("PMD.UseIOStreamsWithApacheCommonsFileItem") // #1539
+    private @NonNull Path getDir(List<FileItem> items) throws IOException {
         for (FileItem item : items) {
             if (item.isFormField() && FIELD_NAME_DIR.equals(item.getFieldName())) {
                 return Path.of(item.getString());
             }
         }
-        return null;
+        throw new IOException("Missing 'dir' parameter.");
     }
 
     private boolean isUnzip(List<FileItem> items) {
