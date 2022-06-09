@@ -6,12 +6,12 @@
 
 <h1><fmt:message key="upload.title"/></h1>
 
-<c:forEach items="${model.uploadedFiles}" var="file">
-    <p><fmt:message key="upload.success"><fmt:param value="${file.path}"/></fmt:message></p>
+<c:forEach items="${model.uploadedFiles}" var="path">
+    <p><fmt:message key="upload.success"><fmt:param value="${path}"/></fmt:message></p>
 </c:forEach>
 
-<c:forEach items="${model.unzippedFiles}" var="file">
-    <fmt:message key="upload.unzipped"><fmt:param value="${file.path}"/></fmt:message><br/>
+<c:forEach items="${model.unzippedFiles}" var="path">
+    <fmt:message key="upload.unzipped"><fmt:param value="${path}"/></fmt:message><br/>
 </c:forEach>
 
 <c:choose>

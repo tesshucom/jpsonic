@@ -198,8 +198,6 @@ public class UploadController {
         }
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-    // AvoidInstantiatingObjectsInLoops] (File, Execution) Not reusable
     private UnzipResult doUnzip(List<FileItem> items, Path dir, boolean unzip) throws ExecutionException {
         List<Path> uploadedFiles = new ArrayList<>();
         List<Path> unzippedFiles = new ArrayList<>();
@@ -213,7 +211,7 @@ public class UploadController {
             if (!item.isFormField() && !StringUtils.isAllBlank(item.getName())) {
 
                 Path targetFile = Path.of(dir.toString(), item.getName());
-                addUploadedFile(item, targetFile, unzippedFiles);
+                uploadedFiles = upload(item, targetFile);
 
                 if (LOG.isInfoEnabled()) {
                     LOG.info("Uploaded " + targetFile);
@@ -228,17 +226,21 @@ public class UploadController {
     }
 
     @SuppressWarnings("PMD.AvoidCatchingGenericException") // apache-commons/FileItem#write
-    private void addUploadedFile(FileItem targetItem, Path targetFile, List<Path> to) throws ExecutionException {
+    private List<Path> upload(FileItem targetItem, Path targetFile) throws ExecutionException {
+
         if (!securityService.isUploadAllowed(targetFile)) {
             throw new ExecutionException(new GeneralSecurityException(
                     "Permission denied: " + StringEscapeUtils.escapeHtml4(targetFile.toString())));
         }
+
+        List<Path> uploadedFiles = new ArrayList<>();
         try {
             targetItem.write(targetFile.toFile());
+            uploadedFiles.add(targetFile);
         } catch (Exception e) {
             throw new ExecutionException("Unable to write item.", e);
         }
-        to.add(targetFile);
+        return uploadedFiles;
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File, IOException) Not reusable

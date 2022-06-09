@@ -71,6 +71,7 @@ class UploadControllerTest {
 
     @SuppressWarnings({ "unchecked", "PMD.DefaultPackage" })
     // @Test Currently it is not possible to run two tests in a row
+    @WithMockUser(username = "admin")
     void testHandleRequestInternalWithFile(@TempDir Path tempDirPath) throws Exception {
 
         MusicFolder musicFolder = new MusicFolder(Integer.valueOf(0), tempDirPath.toString(), "Incoming1", true,
