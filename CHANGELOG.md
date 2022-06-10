@@ -3,12 +3,18 @@
 # jpsonic/jpsonic
 # -->
 
-## [v111.2.0](https://github.com/tesshucom/jpsonic/milestone/57)
+## v111.3.0 (SNAPSHOT)
 
-  * Scan parallelization is planned for v111.x. v111.2.0 will have bug fixes and improvements that underlie parallelization.
-  * Parallelization is not provided in v111.2.0. This version focuses on fixes related to Robust optimization.
-  * But it may be a bit faster than Subsonic's or Airsonic's scans.
-  * Dummy data of 400,000 songs was scanned and it was confirmed that there were no Memory, handle, thread leaks.
+The binaries of SNAPSHOT are available from the latest artifacts on the [master branch](https://github.com/tesshucom/jpsonic/actions?query=branch%3Amaster) .
+
+#### Enhancement
+  * File I/O improvements
+    * NIO.2 migration ([#1526](https://github.com/tesshucom/jpsonic/issues/1526))
+    * Fix to suppress copy non-ASCII name files when transcoding on Windows ([#1531](https://github.com/tesshucom/jpsonic/issues/1531))
+    * Fix podcast directory to be created if it doesn't exist ([#1509](https://github.com/tesshucom/jpsonic/issues/1509))
+
+<details>
+<summary>v111.2.0</summary>
 
 #### Enhancement
   * Update libs. Includes fixes for CVE-2022-0839, CVE-2020-36518
@@ -29,6 +35,7 @@
   * JWT logging is simplified ([#1192](https://github.com/tesshucom/jpsonic/issues/1192))
   * Fix to avoid error when genre is 0 ([#1500](https://github.com/tesshucom/jpsonic/issues/1500))
 
+</details>
 <details>
 <summary>v111.1.0</summary>
 
