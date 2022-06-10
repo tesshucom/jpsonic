@@ -41,6 +41,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.domain.User;
+import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -56,6 +57,7 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -80,23 +82,31 @@ public class UploadController {
     private final PlayerService playerService;
     private final StatusService statusService;
     private final SettingsService settingsService;
+    private final MediaScannerService mediaScannerService;
+
+    private String uploadNotAllowedMessage = "The root path is other than the Musicfolder, or the file already exists: ";
 
     public UploadController(SecurityService securityService, PlayerService playerService, StatusService statusService,
-            SettingsService settingsService) {
+            SettingsService settingsService, MediaScannerService mediaScannerService) {
         super();
         this.securityService = securityService;
         this.playerService = playerService;
         this.statusService = statusService;
         this.settingsService = settingsService;
+        this.mediaScannerService = mediaScannerService;
     }
 
     @PostMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
 
+        Map<String, Object> model = LegacyMap.of();
+        if (mediaScannerService.isScanning()) {
+            model.put("exception", new IllegalArgumentException("Currently scanning. Please try again after a while."));
+            return new ModelAndView("upload", "model", model);
+        }
+
         TransferStatus status = null;
         UnzipResult result = null;
-        Map<String, Object> model = LegacyMap.of();
-
         try {
 
             status = statusService.createUploadStatus(playerService.getPlayer(request, response, false, false));
@@ -110,25 +120,19 @@ public class UploadController {
             }
 
             List<FileItem> items = getUploadItems(request, status);
-
             Path dir = getDir(items);
-            if (dir == null) {
-                throw new IOException("Missing 'dir' parameter.");
-            }
-
             boolean unzip = isUnzip(items);
-
             result = doUnzip(items, dir, unzip);
 
         } catch (IOException | FileUploadException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Uploading failed.", e);
+                LOG.warn("Uploading failed. {}", e.getMessage());
             }
             model.put("exception", e);
         } catch (ExecutionException e) {
             ConcurrentUtils.handleCauseUnchecked(e);
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Uploading failed.", e);
+                LOG.warn("Uploading failed. {}", e.getMessage());
             }
             model.put("exception", e);
         } finally {
@@ -143,13 +147,14 @@ public class UploadController {
         return new ModelAndView("upload", "model", model);
     }
 
-    private Path getDir(List<FileItem> items) {
+    @SuppressWarnings("PMD.UseIOStreamsWithApacheCommonsFileItem") // #1539
+    private @NonNull Path getDir(List<FileItem> items) throws IOException {
         for (FileItem item : items) {
             if (item.isFormField() && FIELD_NAME_DIR.equals(item.getFieldName())) {
                 return Path.of(item.getString());
             }
         }
-        return null;
+        throw new IOException("Missing 'dir' parameter.");
     }
 
     private boolean isUnzip(List<FileItem> items) {
@@ -198,8 +203,6 @@ public class UploadController {
         }
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-    // AvoidInstantiatingObjectsInLoops] (File, Execution) Not reusable
     private UnzipResult doUnzip(List<FileItem> items, Path dir, boolean unzip) throws ExecutionException {
         List<Path> uploadedFiles = new ArrayList<>();
         List<Path> unzippedFiles = new ArrayList<>();
@@ -213,7 +216,7 @@ public class UploadController {
             if (!item.isFormField() && !StringUtils.isAllBlank(item.getName())) {
 
                 Path targetFile = Path.of(dir.toString(), item.getName());
-                addUploadedFile(item, targetFile, unzippedFiles);
+                uploadedFiles = upload(item, targetFile);
 
                 if (LOG.isInfoEnabled()) {
                     LOG.info("Uploaded " + targetFile);
@@ -228,17 +231,21 @@ public class UploadController {
     }
 
     @SuppressWarnings("PMD.AvoidCatchingGenericException") // apache-commons/FileItem#write
-    private void addUploadedFile(FileItem targetItem, Path targetFile, List<Path> to) throws ExecutionException {
+    private List<Path> upload(FileItem targetItem, Path targetFile) throws ExecutionException {
+
         if (!securityService.isUploadAllowed(targetFile)) {
             throw new ExecutionException(new GeneralSecurityException(
-                    "Permission denied: " + StringEscapeUtils.escapeHtml4(targetFile.toString())));
+                    uploadNotAllowedMessage + StringEscapeUtils.escapeHtml4(targetFile.toString())));
         }
+
+        List<Path> uploadedFiles = new ArrayList<>();
         try {
             targetItem.write(targetFile.toFile());
+            uploadedFiles.add(targetFile);
         } catch (Exception e) {
             throw new ExecutionException("Unable to write item.", e);
         }
-        to.add(targetFile);
+        return uploadedFiles;
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File, IOException) Not reusable
@@ -279,7 +286,7 @@ public class UploadController {
 
         if (!securityService.isUploadAllowed(entryFile)) {
             throw new ExecutionException(new GeneralSecurityException(
-                    "Permission denied: " + StringEscapeUtils.escapeHtml4(entryFile.toString())));
+                    uploadNotAllowedMessage + StringEscapeUtils.escapeHtml4(entryFile.toString())));
         }
 
         Path parent = entryFile.getParent();
