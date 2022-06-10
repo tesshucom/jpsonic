@@ -75,9 +75,6 @@
         <exclude name="ExcessiveClassLength" />
         <exclude name="NcssCount" />
 
-        <!-- Not required at this time. -->
-        <exclude name="ImmutableField" />
-
         <!-- The rule flags any usage of objects not created locally received as 
             parameters. This rule is ignored, as even standard notation is affected in 
             this day and age. -->

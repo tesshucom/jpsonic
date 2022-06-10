@@ -41,13 +41,12 @@ class TranscodeInputStreamTest {
     @Nested
     class DeleteTmpFileTaskTest {
 
-        @TempDir
         private Path tempDir;
         private Path tempFile;
 
         @BeforeEach
-        public void setup() throws ExecutionException, IOException, URISyntaxException {
-
+        public void setup(@TempDir Path tempDir) throws ExecutionException, IOException, URISyntaxException {
+            this.tempDir = tempDir;
             tempFile = Path.of(tempDir.toString(), "jpsonic.log");
             if (!Files.exists(tempFile)) {
                 tempFile = Files.createFile(tempFile);

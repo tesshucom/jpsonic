@@ -132,7 +132,7 @@ public class PlayQueueInputStream extends InputStream {
 
     private static class Prepare implements Callable<Boolean> {
 
-        private PlayQueueInputStream pqis;
+        private final PlayQueueInputStream pqis;
 
         public Prepare(PlayQueueInputStream pqis) {
             super();

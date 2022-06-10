@@ -35,12 +35,11 @@ import org.junit.jupiter.api.io.TempDir;
 class LastFmCacheTest {
 
     private LastFmCache lastFmCache;
-
-    @TempDir
     private Path tempDir;
 
     @BeforeEach
-    public void setup() throws ExecutionException, IOException, URISyntaxException {
+    public void setup(@TempDir Path tempDir) throws ExecutionException, IOException, URISyntaxException {
+        this.tempDir = tempDir;
         lastFmCache = new LastFmCache(tempDir, 1L);
         Path dummyCache = Path.of(tempDir.toString(), "jpsonic.log");
         if (!Files.exists(dummyCache)) {

@@ -55,7 +55,7 @@ public final class TranscodeInputStream extends InputStream {
     private final Process process;
     private final AtomicReference<InputStream> processInputStream;
     private final AtomicReference<OutputStream> processOutputStream;
-    private @Nullable AtomicReference<Path> tmpFile;
+    private final @Nullable AtomicReference<Path> tmpFile;
 
     /**
      * Creates a transcoded input stream by executing an external process. If <code>in</code> is not null, data from it
@@ -71,13 +71,12 @@ public final class TranscodeInputStream extends InputStream {
      * @throws IOException
      *             If an I/O error occurs.
      */
+    @SuppressWarnings("PMD.NullAssignment")
     public TranscodeInputStream(ProcessBuilder processBuilder, @Nullable final InputStream in, @Nullable Path tmpFile,
             Executor executor, boolean isVerboseLogPlaying) throws IOException {
         super();
         this.executor = executor;
-        if (!isEmpty(tmpFile)) {
-            this.tmpFile = new AtomicReference<>(tmpFile);
-        }
+        this.tmpFile = isEmpty(tmpFile) ? null : new AtomicReference<>(tmpFile);
 
         if (isVerboseLogPlaying && LOG.isInfoEnabled()) {
             StringBuilder buf = new StringBuilder("Starting transcoder: ");
@@ -196,7 +195,7 @@ public final class TranscodeInputStream extends InputStream {
      */
     static class DeleteTmpFileTask implements Runnable {
 
-        private Path tmpFile;
+        private final Path tmpFile;
         private static final int TRIAL_MAX = 3;
 
         public DeleteTmpFileTask(Path tmpFile) {

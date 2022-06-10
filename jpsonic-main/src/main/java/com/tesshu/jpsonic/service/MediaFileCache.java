@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
 public class MediaFileCache {
 
     private final Ehcache mediaFileMemoryCache;
-    private AtomicBoolean enabled;
+    private final AtomicBoolean enabled;
 
     public MediaFileCache(Ehcache mediaFileMemoryCache) {
         super();
