@@ -91,10 +91,6 @@
         <!-- This rule is intended to avoid the Anemic Domain Model anti-pattern 
             in favor of using Domain-Driven Design. Not valid for this project. -->
         <exclude name="DataClass" />
-
-        <!-- References to traditionally existing ghost rules. Suppress log warnings.
-            This rule cannot be used even if the suppression is removed. -->
-        <exclude name="LoosePackageCoupling" />
     </rule>
 
     <!-- Java Rules:Documentation -->
