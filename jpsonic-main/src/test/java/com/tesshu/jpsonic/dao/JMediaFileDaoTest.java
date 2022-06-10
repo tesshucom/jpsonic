@@ -23,9 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.io.File;
 import java.lang.annotation.Documented;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -47,13 +46,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 class JMediaFileDaoTest extends AbstractNeedsScan {
 
-    private static final List<MusicFolder> MUSIC_FOLDERS;
-
-    static {
-        MUSIC_FOLDERS = new ArrayList<>();
-        File musicDir = new File(resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Merge"));
-        MUSIC_FOLDERS.add(new MusicFolder(1, musicDir, "Duplicate", true, new Date()));
-    }
+    private static final List<MusicFolder> MUSIC_FOLDERS = Arrays.asList(
+            new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Merge"), "Duplicate", true, new Date()));
 
     @Autowired
     private JMediaFileDao mediaFileDao;
@@ -449,13 +443,10 @@ class JMediaFileDaoTest extends AbstractNeedsScan {
     @Test
     @EnabledOnOs(OS.WINDOWS)
     void testGetToBeFixedSort() {
-        assertEquals(0, mediaFileDao.getSortOfArtistToBeFixed(null).size());
         assertEquals(0, mediaFileDao.getSortOfArtistToBeFixed(Collections.emptyList()).size());
         assertEquals(22, mediaFileDao.getSortOfArtistToBeFixed(candidates).size());
-        assertEquals(0, albumDao.getSortOfArtistToBeFixed(null).size());
         assertEquals(0, albumDao.getSortOfArtistToBeFixed(Collections.emptyList()).size());
         assertEquals(5, albumDao.getSortOfArtistToBeFixed(candidates).size());
-        assertEquals(0, artistDao.getSortOfArtistToBeFixed(null).size());
         assertEquals(0, artistDao.getSortOfArtistToBeFixed(Collections.emptyList()).size());
         assertEquals(5, artistDao.getSortOfArtistToBeFixed(candidates).size());
     }

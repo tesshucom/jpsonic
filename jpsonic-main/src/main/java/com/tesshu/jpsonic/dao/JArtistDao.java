@@ -20,7 +20,6 @@
 package com.tesshu.jpsonic.dao;
 
 import static java.util.stream.Collectors.toList;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +29,7 @@ import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SortCandidate;
 import com.tesshu.jpsonic.util.LegacyMap;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.stereotype.Repository;
 
 @Repository("jartistDao")
@@ -71,8 +71,8 @@ public class JArtistDao extends AbstractDao {
         return namedQueryForInt("select count(id) from artist " + "where present and folder_id in (:folders)", 0, args);
     }
 
-    public List<Integer> getSortOfArtistToBeFixed(List<SortCandidate> candidates) {
-        if (isEmpty(candidates) || 0 == candidates.size()) {
+    public List<Integer> getSortOfArtistToBeFixed(@NonNull List<SortCandidate> candidates) {
+        if (candidates.isEmpty()) {
             return Collections.emptyList();
         }
         Map<String, Object> args = LegacyMap.of("names",

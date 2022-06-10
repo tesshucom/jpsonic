@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.domain;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
@@ -31,7 +30,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.util.StringUtil;
+import liquibase.repackaged.org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A media file (audio, video or directory) with an assortment of its meta data.
@@ -173,11 +174,6 @@ public class MediaFile {
         this.folder = folder;
     }
 
-    @Deprecated
-    public File getFile() {
-        return new File(pathString);
-    }
-
     public Path toPath() {
         return Path.of(pathString);
     }
@@ -230,7 +226,7 @@ public class MediaFile {
         this.title = title;
     }
 
-    public String getAlbumName() {
+    public @Nullable String getAlbumName() {
         return albumName;
     }
 
@@ -238,7 +234,7 @@ public class MediaFile {
         this.albumName = album;
     }
 
-    public String getArtist() {
+    public @Nullable String getArtist() {
         return artist;
     }
 
@@ -246,7 +242,7 @@ public class MediaFile {
         this.artist = artist;
     }
 
-    public String getAlbumArtist() {
+    public @Nullable String getAlbumArtist() {
         return albumArtist;
     }
 
@@ -256,12 +252,12 @@ public class MediaFile {
 
     public String getName() {
         if (isFile()) {
-            return title == null ? FilenameUtils.getBaseName(pathString) : title;
+            return ObjectUtils.defaultIfNull(title, FilenameUtils.getBaseName(pathString));
         }
         return FilenameUtils.getName(pathString);
     }
 
-    public Integer getDiscNumber() {
+    public @Nullable Integer getDiscNumber() {
         return discNumber;
     }
 
@@ -269,7 +265,7 @@ public class MediaFile {
         this.discNumber = discNumber;
     }
 
-    public Integer getTrackNumber() {
+    public @Nullable Integer getTrackNumber() {
         return trackNumber;
     }
 
@@ -277,7 +273,7 @@ public class MediaFile {
         this.trackNumber = trackNumber;
     }
 
-    public Integer getYear() {
+    public @Nullable Integer getYear() {
         return year;
     }
 
@@ -285,7 +281,7 @@ public class MediaFile {
         this.year = year;
     }
 
-    public String getGenre() {
+    public @Nullable String getGenre() {
         return genre;
     }
 
@@ -293,7 +289,7 @@ public class MediaFile {
         this.genre = genre;
     }
 
-    public Integer getBitRate() {
+    public @Nullable Integer getBitRate() {
         return bitRate;
     }
 
@@ -309,7 +305,7 @@ public class MediaFile {
         this.variableBitRate = variableBitRate;
     }
 
-    public Integer getDurationSeconds() {
+    public @Nullable Integer getDurationSeconds() {
         return durationSeconds;
     }
 
@@ -317,7 +313,7 @@ public class MediaFile {
         this.durationSeconds = durationSeconds;
     }
 
-    public String getDurationString() {
+    public @Nullable String getDurationString() {
         if (durationSeconds == null) {
             return null;
         }
@@ -333,7 +329,7 @@ public class MediaFile {
         this.fileSize = fileSize;
     }
 
-    public Integer getWidth() {
+    public @Nullable Integer getWidth() {
         return width;
     }
 
@@ -341,7 +337,7 @@ public class MediaFile {
         this.width = width;
     }
 
-    public Integer getHeight() {
+    public @Nullable Integer getHeight() {
         return height;
     }
 
@@ -349,7 +345,7 @@ public class MediaFile {
         this.height = height;
     }
 
-    public String getCoverArtPathString() {
+    public @Nullable String getCoverArtPathString() {
         return coverArtPathString;
     }
 
@@ -365,12 +361,7 @@ public class MediaFile {
         this.parentPathString = parentPath;
     }
 
-    @Deprecated
-    public File getParentFile() {
-        return getFile().getParentFile();
-    }
-
-    public Path getParent() {
+    public @Nullable Path getParent() {
         return toPath().getParent();
     }
 
@@ -382,7 +373,7 @@ public class MediaFile {
         this.playCount = playCount;
     }
 
-    public Date getLastPlayed() {
+    public @Nullable Date getLastPlayed() {
         return lastPlayed;
     }
 
@@ -390,7 +381,7 @@ public class MediaFile {
         this.lastPlayed = lastPlayed;
     }
 
-    public String getComment() {
+    public @Nullable String getComment() {
         return comment;
     }
 
@@ -430,7 +421,7 @@ public class MediaFile {
         this.starredDate = starredDate;
     }
 
-    public String getMusicBrainzReleaseId() {
+    public @Nullable String getMusicBrainzReleaseId() {
         return musicBrainzReleaseId;
     }
 
@@ -438,7 +429,7 @@ public class MediaFile {
         this.musicBrainzReleaseId = musicBrainzReleaseId;
     }
 
-    public String getMusicBrainzRecordingId() {
+    public @Nullable String getMusicBrainzRecordingId() {
         return musicBrainzRecordingId;
     }
 
@@ -479,16 +470,11 @@ public class MediaFile {
         return pathString.hashCode();
     }
 
-    @Deprecated
-    public File getCoverArtFile() {
-        return coverArtPathString == null ? null : new File(coverArtPathString);
-    }
-
     public Optional<Path> getCoverArtPath() {
         return coverArtPathString == null ? Optional.empty() : Optional.of(Path.of(coverArtPathString));
     }
 
-    public String getComposer() {
+    public @Nullable String getComposer() {
         return composer;
     }
 
@@ -496,7 +482,7 @@ public class MediaFile {
         this.composer = composer;
     }
 
-    public String getArtistSort() {
+    public @Nullable String getArtistSort() {
         return artistSort;
     }
 
@@ -504,7 +490,7 @@ public class MediaFile {
         this.artistSort = artistSort;
     }
 
-    public String getAlbumSort() {
+    public @Nullable String getAlbumSort() {
         return albumSort;
     }
 
@@ -512,7 +498,7 @@ public class MediaFile {
         this.albumSort = albumSort;
     }
 
-    public String getTitleSort() {
+    public @Nullable String getTitleSort() {
         return titleSort;
     }
 
@@ -520,7 +506,7 @@ public class MediaFile {
         this.titleSort = titleSort;
     }
 
-    public String getAlbumArtistSort() {
+    public @Nullable String getAlbumArtistSort() {
         return albumArtistSort;
     }
 
@@ -528,7 +514,7 @@ public class MediaFile {
         this.albumArtistSort = albumArtistSort;
     }
 
-    public String getComposerSort() {
+    public @Nullable String getComposerSort() {
         return composerSort;
     }
 
@@ -536,7 +522,7 @@ public class MediaFile {
         this.composerSort = composerSort;
     }
 
-    public String getArtistReading() {
+    public @Nullable String getArtistReading() {
         return artistReading;
     }
 
@@ -544,7 +530,7 @@ public class MediaFile {
         this.artistReading = artistReading;
     }
 
-    public String getAlbumReading() {
+    public @Nullable String getAlbumReading() {
         return albumReading;
     }
 
@@ -552,7 +538,7 @@ public class MediaFile {
         this.albumReading = albumReading;
     }
 
-    public String getAlbumArtistReading() {
+    public @Nullable String getAlbumArtistReading() {
         return albumArtistReading;
     }
 

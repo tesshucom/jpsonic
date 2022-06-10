@@ -22,7 +22,6 @@ package com.tesshu.jpsonic.util;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.File;
 import java.nio.file.Path;
 
 import org.junit.jupiter.api.Test;
@@ -36,11 +35,12 @@ class FileUtilTest {
 
         assertEquals("", FileUtil.getShortPath(Path.of("/")));
 
-        assertEquals(File.separator + "child.mp3", FileUtil.getShortPath(Path.of("/child.mp3")));
+        assertEquals(java.io.File.separator + "child.mp3", FileUtil.getShortPath(Path.of("/child.mp3")));
 
-        assertEquals("MusicFolder" + File.separator + "artist", FileUtil.getShortPath(Path.of("/MusicFolder/artist")));
+        assertEquals("MusicFolder" + java.io.File.separator + "artist",
+                FileUtil.getShortPath(Path.of("/MusicFolder/artist")));
 
-        assertEquals("artist" + File.separator + "child.mp3",
+        assertEquals("artist" + java.io.File.separator + "child.mp3",
                 FileUtil.getShortPath(Path.of("/MusicFolder/artist/child.mp3")));
     }
 }

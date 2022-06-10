@@ -25,7 +25,6 @@ import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.File;
 import java.lang.annotation.Documented;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -245,13 +244,12 @@ public class UPnPSearchCriteriaDirectorTest {
         Mockito.when(settingsService.isSearchComposer()).thenReturn(true);
 
         List<MusicFolder> musicFolders = new ArrayList<>();
-        File musicDir = new File("dummy");
-        musicFolders.add(new MusicFolder(1, musicDir, "accessible", true, new Date()));
+        musicFolders.add(new MusicFolder(1, "dummy", "accessible", true, new Date()));
         musicFolderService = mock(MusicFolderService.class);
         Mockito.when(musicFolderService.getMusicFoldersForUser(User.USERNAME_GUEST)).thenReturn(musicFolders);
 
         for (MusicFolder m : musicFolders) {
-            path = path.concat("f:").concat(m.getPath().getPath()).concat(" ");
+            path = path.concat("f:").concat(m.getPathString()).concat(" ");
             fid = fid.concat("fId:").concat(Integer.toString(m.getId())).concat(" ");
         }
         path = path.trim();

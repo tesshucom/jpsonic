@@ -21,11 +21,13 @@
 
 package com.tesshu.jpsonic;
 
-import java.io.File;
-import java.util.ArrayList;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.tesshu.jpsonic.domain.MusicFolder;
 
 public final class MusicFolderTestDataUtils {
@@ -36,7 +38,12 @@ public final class MusicFolderTestDataUtils {
     }
 
     public static String resolveBaseMediaPath() {
-        return MusicFolderTestDataUtils.class.getResource(BASE_RESOURCES).toString().replace("file:", "");
+        try {
+            return Path.of(MusicFolderTestDataUtils.class.getResource(BASE_RESOURCES).toURI()).toString()
+                    + java.io.File.separator;
+        } catch (URISyntaxException e) {
+            throw new UncheckedExecutionException(e);
+        }
     }
 
     public static String resolveMusicFolderPath() {
@@ -52,14 +59,8 @@ public final class MusicFolderTestDataUtils {
     }
 
     public static List<MusicFolder> getTestMusicFolders() {
-        List<MusicFolder> liste = new ArrayList<>();
-        File musicDir = new File(MusicFolderTestDataUtils.resolveMusicFolderPath());
-        MusicFolder musicFolder = new MusicFolder(1, musicDir, "Music", true, new Date());
-        liste.add(musicFolder);
-
-        File music2Dir = new File(MusicFolderTestDataUtils.resolveMusic2FolderPath());
-        MusicFolder musicFolder2 = new MusicFolder(2, music2Dir, "Music2", true, new Date());
-        liste.add(musicFolder2);
-        return liste;
+        return Arrays.asList(
+                new MusicFolder(1, MusicFolderTestDataUtils.resolveMusicFolderPath(), "Music", true, new Date()),
+                new MusicFolder(2, MusicFolderTestDataUtils.resolveMusic2FolderPath(), "Music2", true, new Date()));
     }
 }

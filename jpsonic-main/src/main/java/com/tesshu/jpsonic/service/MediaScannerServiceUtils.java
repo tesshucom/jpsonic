@@ -34,6 +34,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SortCandidate;
 import com.tesshu.jpsonic.service.search.IndexManager;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
@@ -219,9 +220,9 @@ public class MediaScannerServiceUtils {
         updateIndexOfAlbum(merged, copied, compensated);
     }
 
-    private FixedIds updateSortOfAlbum(List<SortCandidate> candidates) {
+    private FixedIds updateSortOfAlbum(@NonNull List<SortCandidate> candidates) {
         FixedIds ids = new FixedIds();
-        if (0 == candidates.size()) {
+        if (candidates.isEmpty()) {
             return ids;
         }
         ids.getMediaFileIds().addAll(mediaFileDao.getSortOfAlbumToBeFixed(candidates));
@@ -241,9 +242,9 @@ public class MediaScannerServiceUtils {
         updateIndexOfArtist(merged, copied, compensated);
     }
 
-    private FixedIds updateSortOfArtist(List<SortCandidate> candidates) {
+    private FixedIds updateSortOfArtist(@NonNull List<SortCandidate> candidates) {
         FixedIds ids = new FixedIds();
-        if (0 == candidates.size()) {
+        if (candidates.isEmpty()) {
             return ids;
         }
         ids.getMediaFileIds().addAll(mediaFileDao.getSortOfArtistToBeFixed(candidates));

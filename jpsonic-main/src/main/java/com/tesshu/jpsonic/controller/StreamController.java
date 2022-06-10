@@ -279,8 +279,9 @@ public class StreamController {
     }
 
     private static void applyContentDuration(HttpServletResponse response, MediaFile file) {
-        if (file.getDurationSeconds() != null) {
-            response.setHeader("X-Content-Duration", String.format("%.1f", file.getDurationSeconds().doubleValue()));
+        Integer duration = file.getDurationSeconds();
+        if (duration != null) {
+            response.setHeader("X-Content-Duration", String.format("%.1f", duration.doubleValue()));
         }
     }
 

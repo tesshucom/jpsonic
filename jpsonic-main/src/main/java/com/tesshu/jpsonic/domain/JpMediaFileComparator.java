@@ -24,6 +24,8 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import java.text.Collator;
 import java.util.Comparator;
 
+import liquibase.repackaged.org.apache.commons.lang3.ObjectUtils;
+
 /**
  * Comparator for sorting media files.
  */
@@ -124,12 +126,12 @@ class JpMediaFileComparator implements MediaFileComparator {
     }
 
     private Integer getSortableDiscAndTrackNumber(MediaFile file) {
-        if (file.getTrackNumber() == null) {
+        Integer trackNumber = file.getTrackNumber();
+        if (trackNumber == null) {
             return null;
         }
-
-        int discNumber = file.getDiscNumber() == null ? 1 : file.getDiscNumber();
-        return discNumber * 1000 + file.getTrackNumber();
+        int discNumber = ObjectUtils.defaultIfNull(file.getDiscNumber(), 1);
+        return discNumber * 1000 + trackNumber;
     }
 
 }

@@ -253,7 +253,7 @@ public class MediaFileService {
 
     public boolean isRoot(MediaFile mediaFile) {
         for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders(false, true)) {
-            if (mediaFile.toPath().equals(musicFolder.getPath().toPath())) {
+            if (mediaFile.toPath().equals(musicFolder.toPath())) {
                 return true;
             }
         }
@@ -497,7 +497,8 @@ public class MediaFileService {
         if (mediaFile.getCoverArtPathString() != null) {
             return Path.of(mediaFile.getCoverArtPathString());
         }
-        if (!securityService.isReadAllowed(mediaFile.getParent())) {
+        Path parentPath = mediaFile.getParent();
+        if (parentPath == null || !securityService.isReadAllowed(parentPath)) {
             return null;
         }
         MediaFile parent = getParentOf(mediaFile);

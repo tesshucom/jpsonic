@@ -42,10 +42,10 @@ public class AudioScrobblerService {
     private static final Object BRAINZ_LOCK = new Object();
 
     private final SecurityService securityService;
+    private final Executor shortExecutor;
 
     private LastFMScrobbler lastFMScrobbler;
     private ListenBrainzScrobbler listenBrainzScrobbler;
-    private Executor shortExecutor;
 
     public AudioScrobblerService(SecurityService securityService, Executor shortExecutor) {
         this.securityService = securityService;

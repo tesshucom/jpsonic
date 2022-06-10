@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
@@ -208,7 +207,7 @@ class SettingsServiceTest {
     @Test
     void testJpsonicHome() {
         String homePath = System.getProperty("jpsonic.home");
-        assertEquals(homePath, SettingsService.getJpsonicHome().getAbsolutePath(), "Wrong Jpsonic home.");
+        assertEquals(homePath, SettingsService.getJpsonicHome().toString(), "Wrong Jpsonic home.");
     }
 
     @Test
@@ -233,7 +232,7 @@ class SettingsServiceTest {
 
     @Test
     void testGetBackupDBScript() {
-        Path backupDir = new File("./").toPath();
+        Path backupDir = Path.of("./");
         assertEquals("./jpsonic.script", SettingsService.getBackupDBScript(backupDir));
     }
 
@@ -770,6 +769,11 @@ class SettingsServiceTest {
     @Test
     void testIsUseRefresh() {
         assertFalse(settingsService.isUseRefresh());
+    }
+
+    @Test
+    void testIsUseCopyOfAsciiUnprintable() {
+        assertFalse(settingsService.isUseCopyOfAsciiUnprintable());
     }
 
     @Test

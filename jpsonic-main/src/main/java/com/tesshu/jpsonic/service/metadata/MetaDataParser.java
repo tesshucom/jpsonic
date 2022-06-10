@@ -166,7 +166,7 @@ public abstract class MetaDataParser {
     protected boolean isRoot(Path path) {
         List<MusicFolder> folders = getMusicFolderService().getAllMusicFolders(false, true);
         for (MusicFolder folder : folders) {
-            if (path.equals(folder.getPath().toPath())) {
+            if (path.equals(folder.toPath())) {
                 return true;
             }
         }

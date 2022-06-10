@@ -92,7 +92,7 @@ public class MusicIndexService {
     List<MediaFile> getSingleSongs(List<MusicFolder> folders, boolean refresh) {
         List<MediaFile> result = new ArrayList<>();
         for (MusicFolder folder : folders) {
-            MediaFile parent = mediaFileService.getMediaFile(folder.getPath().toPath(), !refresh);
+            MediaFile parent = mediaFileService.getMediaFile(folder.toPath(), !refresh);
             if (parent != null) {
                 result.addAll(mediaFileService.getChildrenOf(parent, true, false, true, !refresh));
             }
@@ -104,7 +104,7 @@ public class MusicIndexService {
         List<MediaFile> result = new ArrayList<>();
         for (String shortcut : settingsService.getShortcutsAsArray()) {
             for (MusicFolder musicFolder : musicFoldersToUse) {
-                Path shortcutPath = Path.of(musicFolder.getPath().toString(), shortcut);
+                Path shortcutPath = Path.of(musicFolder.getPathString(), shortcut);
                 if (Files.exists(shortcutPath)) {
                     result.add(mediaFileService.getMediaFile(shortcutPath, true));
                 }

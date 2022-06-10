@@ -142,8 +142,8 @@ public class StreamService {
         Integer existingHeight = file.getHeight();
         Integer maxBitRate = getIntParameter(request, Attributes.Request.MAX_BIT_RATE.value());
         int timeOffset = getIntParameter(request, Attributes.Request.TIME_OFFSET.value(), 0);
-        int defaultDuration = file.getDurationSeconds() == null ? Integer.MAX_VALUE
-                : file.getDurationSeconds() - timeOffset;
+        Integer ds = file.getDurationSeconds();
+        int defaultDuration = ds == null ? Integer.MAX_VALUE : ds - timeOffset;
         int duration = getIntParameter(request, Attributes.Request.DURATION.value(), defaultDuration);
         boolean hls = getBooleanParameter(request, Attributes.Request.HLS.value(), false);
 

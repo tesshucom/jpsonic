@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.dao;
 
-import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -81,14 +80,14 @@ public class MusicFolderDao extends AbstractDao {
      */
     public void createMusicFolder(MusicFolder musicFolder) {
         String sql = "insert into music_folder (" + INSERT_COLUMNS + ") values (?, ?, ?, ?)";
-        update(sql, musicFolder.getPath().getPath(), musicFolder.getName(), musicFolder.isEnabled(),
+        update(sql, musicFolder.getPathString(), musicFolder.getName(), musicFolder.isEnabled(),
                 musicFolder.getChanged());
 
         Integer id = queryForInt("select max(id) from music_folder", 0);
         update("insert into music_folder_user (music_folder_id, username) select ?, username from "
                 + userDao.getUserTable(), id);
         if (LOG.isInfoEnabled()) {
-            LOG.info("Created music folder " + musicFolder.getPath());
+            LOG.info("Created music folder " + musicFolder.getPathString());
         }
     }
 
@@ -114,7 +113,7 @@ public class MusicFolderDao extends AbstractDao {
      */
     public void updateMusicFolder(MusicFolder musicFolder) {
         String sql = "update music_folder set path=?, name=?, enabled=?, changed=? where id=?";
-        update(sql, musicFolder.getPath().getPath(), musicFolder.getName(), musicFolder.isEnabled(),
+        update(sql, musicFolder.getPathString(), musicFolder.getName(), musicFolder.isEnabled(),
                 musicFolder.getChanged(), musicFolder.getId());
     }
 
@@ -134,7 +133,7 @@ public class MusicFolderDao extends AbstractDao {
     private static class MusicFolderRowMapper implements RowMapper<MusicFolder> {
         @Override
         public MusicFolder mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new MusicFolder(rs.getInt(1), new File(rs.getString(2)), rs.getString(3), rs.getBoolean(4),
+            return new MusicFolder(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getBoolean(4),
                     rs.getTimestamp(5));
         }
     }

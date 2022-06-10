@@ -21,8 +21,7 @@ package com.tesshu.jpsonic.dao;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.File;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,13 +36,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 class JAlbumDaoTest extends AbstractNeedsScan {
 
-    private static final List<MusicFolder> MUSIC_FOLDERS;
-
-    static {
-        MUSIC_FOLDERS = new ArrayList<>();
-        File musicDir = new File(resolveBaseMediaPath("Sort/Compare"));
-        MUSIC_FOLDERS.add(new MusicFolder(1, musicDir, "Albums", true, new Date()));
-    }
+    private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
+            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Compare"), "Albums", true, new Date()));
 
     @Autowired
     private AlbumDao albumDao;

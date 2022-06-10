@@ -38,6 +38,7 @@ import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
@@ -363,7 +364,7 @@ public class LastFMScrobbler {
             this.artist = mediaFile.getArtist();
             this.album = mediaFile.getAlbumName();
             this.title = mediaFile.getTitle();
-            this.duration = mediaFile.getDurationSeconds() == null ? 0 : mediaFile.getDurationSeconds();
+            this.duration = ObjectUtils.defaultIfNull(mediaFile.getDurationSeconds(), 0);
             this.time = time == null ? new Date() : time;
             this.submission = submission;
         }

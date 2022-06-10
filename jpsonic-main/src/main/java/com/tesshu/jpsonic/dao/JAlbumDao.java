@@ -20,7 +20,6 @@
 package com.tesshu.jpsonic.dao;
 
 import static java.util.stream.Collectors.toList;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +29,7 @@ import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SortCandidate;
 import com.tesshu.jpsonic.util.LegacyMap;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.stereotype.Repository;
 
 @Repository("jalbumDao")
@@ -92,8 +92,8 @@ public class JAlbumDao extends AbstractDao {
         return deligate.getNewestAlbums(offset, count, musicFolders);
     }
 
-    public List<Integer> getSortOfAlbumToBeFixed(List<SortCandidate> candidates) {
-        if (isEmpty(candidates) || 0 == candidates.size()) {
+    public List<Integer> getSortOfAlbumToBeFixed(@NonNull List<SortCandidate> candidates) {
+        if (candidates.isEmpty()) {
             return Collections.emptyList();
         }
         Map<String, Object> args = LegacyMap.of("names",
@@ -105,8 +105,8 @@ public class JAlbumDao extends AbstractDao {
                 (rs, rowNum) -> rs.getInt(1), args);
     }
 
-    public List<Integer> getSortOfArtistToBeFixed(List<SortCandidate> candidates) {
-        if (isEmpty(candidates) || 0 == candidates.size()) {
+    public List<Integer> getSortOfArtistToBeFixed(@NonNull List<SortCandidate> candidates) {
+        if (candidates.isEmpty()) {
             return Collections.emptyList();
         }
         Map<String, Object> args = LegacyMap.of("names",

@@ -22,7 +22,6 @@
 package com.tesshu.jpsonic.util;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -32,6 +31,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -366,17 +366,17 @@ public final class StringUtil {
      */
     public static @Nullable String getUrlFile(String url) {
         try {
-            String path = new URL(url).getPath();
-            if (StringUtils.isBlank(path) || path.endsWith("/")) {
+            String pathString = new URL(url).getPath();
+            if (StringUtils.isBlank(pathString) || pathString.endsWith("/")) {
                 return null;
             }
 
-            File file = new File(path);
-            String filename = file.getName();
-            if (StringUtils.isBlank(filename)) {
+            Path path = Path.of(pathString);
+            Path filename = path.getFileName();
+            if (filename == null) {
                 return null;
             }
-            return filename;
+            return filename.toString();
 
         } catch (MalformedURLException x) {
             return null;

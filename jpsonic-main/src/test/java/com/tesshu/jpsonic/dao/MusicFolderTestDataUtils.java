@@ -21,6 +21,11 @@
 
 package com.tesshu.jpsonic.dao;
 
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+
+import com.google.common.util.concurrent.UncheckedExecutionException;
+
 public final class MusicFolderTestDataUtils {
 
     private static final String BASE_RESOURCES = "/MEDIAS/";
@@ -29,7 +34,11 @@ public final class MusicFolderTestDataUtils {
     }
 
     private static String resolveBaseMediaPath() {
-        return MusicFolderTestDataUtils.class.getResource(BASE_RESOURCES).toString().replace("file:", "");
+        try {
+            return Path.of(MusicFolderTestDataUtils.class.getResource(BASE_RESOURCES).toURI()).toString();
+        } catch (URISyntaxException e) {
+            throw new UncheckedExecutionException(e);
+        }
     }
 
     public static String resolveMusicFolderPath() {

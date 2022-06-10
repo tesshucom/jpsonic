@@ -23,11 +23,13 @@ package com.tesshu.jpsonic.service;
 
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -50,11 +52,10 @@ import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
 import com.tesshu.jpsonic.io.TranscodeInputStream;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
+import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import com.tesshu.jpsonic.util.StringUtil;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -81,6 +82,7 @@ public class TranscodingService {
     public static final String FORMAT_RAW = "raw";
     public static final String FORMAT_FLAC = "flac";
     private static final Pattern SPLIT_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
+    private static final Object LOCK = new Object();
 
     private final SettingsService settingsService;
     private final SecurityService securityService;
@@ -89,7 +91,7 @@ public class TranscodingService {
     private final Executor shortExecutor;
     private final String transcodePath = Optional.ofNullable(System.getProperty("transcodePath") == null ? null
             : System.getProperty("transcodePath").replaceAll("\\\\", "\\\\\\\\")).orElse(null);
-    private File transcodeDirectory;
+    private Path transcodeDirectory;
 
     public TranscodingService(SettingsService settingsService, SecurityService securityService,
             TranscodingDao transcodingDao, @Lazy PlayerService playerService, Executor shortExecutor) {
@@ -104,27 +106,26 @@ public class TranscodingService {
     /**
      * Returns the directory in which all transcoders are installed.
      */
-    public @NonNull File getTranscodeDirectory() {
+    public @NonNull Path getTranscodeDirectory() {
         if (!isEmpty(transcodeDirectory)) {
             return transcodeDirectory;
         }
         if (isEmpty(transcodePath)) {
-            transcodeDirectory = new File(SettingsService.getJpsonicHome(), "transcode");
-            if (!transcodeDirectory.exists()) {
-                boolean ok = transcodeDirectory.mkdir();
-                if (ok && LOG.isInfoEnabled()) {
-                    LOG.info("Created directory " + transcodeDirectory);
-                } else if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to create directory " + transcodeDirectory);
+            transcodeDirectory = Path.of(SettingsService.getJpsonicHome().toString(), "transcode");
+            if (!Files.exists(transcodeDirectory)) {
+                synchronized (LOCK) {
+                    if (FileUtil.createDirectories(transcodeDirectory) == null && LOG.isWarnEnabled()) {
+                        LOG.warn("The directory '{}' could not be created.", transcodeDirectory);
+                    }
                 }
             }
         } else {
-            transcodeDirectory = new File(transcodePath);
+            transcodeDirectory = Path.of(transcodePath);
         }
         return transcodeDirectory;
     }
 
-    protected void setTranscodeDirectory(@Nullable File transcodeDirectory) {
+    protected void setTranscodeDirectory(@Nullable Path transcodeDirectory) {
         this.transcodeDirectory = transcodeDirectory;
     }
 
@@ -444,9 +445,9 @@ public class TranscodingService {
         }
 
         List<String> result = Arrays.asList(splitCommand(command));
-        result.set(0, getTranscodeDirectory().getPath() + File.separatorChar + result.get(0));
+        result.set(0, getTranscodeDirectory().toString() + java.io.File.separatorChar + result.get(0));
 
-        File tmpFile = null;
+        Path tmpFile = null;
         for (int i = 1; i < result.size(); i++) {
             String cmd = result.get(i);
             cmd = mergeTransCommand(cmd, artist, album, title, maxBitRate, vts);
@@ -454,11 +455,12 @@ public class TranscodingService {
                 // Work-around for filename character encoding problem on Windows.
                 // Create temporary file, and feed this to the transcoder.
                 Path path = mediaFile.toPath();
-                if (PlayerUtils.isWindows() && !mediaFile.isVideo() && !StringUtils.isAsciiPrintable(path.toString())) {
-                    tmpFile = File.createTempFile("jpsonic", "." + FilenameUtils.getExtension(path.toString()));
-                    tmpFile.deleteOnExit();
-                    FileUtils.copyFile(path.toFile(), tmpFile);
-                    cmd = cmd.replace("%s", tmpFile.getPath());
+                if (settingsService.isUseCopyOfAsciiUnprintable() && PlayerUtils.isWindows() && !mediaFile.isVideo()
+                        && !StringUtils.isAsciiPrintable(path.toString())) {
+                    tmpFile = Files.createTempFile("jpsonic", "." + FilenameUtils.getExtension(path.toString()));
+                    Files.copy(mediaFile.toPath(), tmpFile, StandardCopyOption.REPLACE_EXISTING);
+                    tmpFile.toFile().deleteOnExit();
+                    cmd = cmd.replace("%s", tmpFile.toString());
                 } else {
                     cmd = cmd.replace("%s", path.toString());
                 }
@@ -520,13 +522,26 @@ public class TranscodingService {
     }
 
     private boolean isTranscoderInstalled(String step) {
+
+        if (!Files.exists(getTranscodeDirectory())) {
+            return false;
+        }
         if (StringUtils.isEmpty(step)) {
             return true;
         }
+
         String executable = StringUtil.split(step)[0];
-        PrefixFileFilter filter = new PrefixFileFilter(executable);
-        String[] matches = getTranscodeDirectory().list(filter);
-        return matches != null && matches.length > 0;
+        try (DirectoryStream<Path> ds = Files.newDirectoryStream(getTranscodeDirectory())) {
+            for (Path child : ds) {
+                Path filename = child.getFileName();
+                if (filename != null && executable.equals(filename.toString().replaceAll("\\.exe$", ""))) {
+                    return true;
+                }
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return false;
     }
 
     /**
@@ -601,8 +616,8 @@ public class TranscodingService {
     @SuppressWarnings("OperatorPrecedence") // (sonatype-lift) Compete with PMD:UselessParentheses.
     int createBitrate(@NonNull MediaFile mediaFile, @Nullable Transcoding transcoding) {
         // If null assume unlimited bitrate
-        int bitRate = mediaFile.getBitRate() == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate())
-                : mediaFile.getBitRate();
+        Integer br = mediaFile.getBitRate();
+        int bitRate = br == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate()) : br;
         if (!mediaFile.isVideo()) {
             if (mediaFile.isVariableBitRate() && transcoding == null
                     || transcoding != null && !FORMAT_FLAC.equalsIgnoreCase(transcoding.getTargetFormat())) {

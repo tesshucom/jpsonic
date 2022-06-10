@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.cache;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import com.tesshu.jpsonic.service.SettingsService;
 import net.sf.ehcache.CacheManager;
@@ -44,8 +44,8 @@ public class CacheFactory implements InitializingBean {
         Configuration configuration = ConfigurationFactory.parseConfiguration();
 
         // Override configuration to make sure cache is stored in Airsonic home dir.
-        File cacheDir = new File(SettingsService.getJpsonicHome(), "cache");
-        configuration.getDiskStoreConfiguration().setPath(cacheDir.getPath());
+        Path cacheDir = Path.of(SettingsService.getJpsonicHome().toString(), "cache");
+        configuration.getDiskStoreConfiguration().setPath(cacheDir.toString());
 
         cacheManager = CacheManager.create(configuration);
     }

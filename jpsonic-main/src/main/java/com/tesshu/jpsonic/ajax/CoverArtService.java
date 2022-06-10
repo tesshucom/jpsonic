@@ -21,12 +21,12 @@
 
 package com.tesshu.jpsonic.ajax;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -100,20 +100,20 @@ public class CoverArtService {
         }
     }
 
-    private void saveCoverArt(String path, String url) throws ExecutionException {
+    private void saveCoverArt(String pathString, String url) throws ExecutionException {
 
         // Attempt to resolve proper suffix.
         String suffix = getProperSuffix(url);
 
         // Check permissions.
-        File newCoverFile = new File(path, "cover." + suffix);
-        if (!securityService.isWriteAllowed(newCoverFile.toPath())) {
+        Path newCoverFile = Path.of(pathString, "cover." + suffix);
+        if (!securityService.isWriteAllowed(newCoverFile)) {
             throw new ExecutionException(new GeneralSecurityException(
-                    "Permission denied: " + StringEscapeUtils.escapeHtml4(newCoverFile.getPath())));
+                    "Permission denied: " + StringEscapeUtils.escapeHtml4(newCoverFile.toString())));
         }
 
         // If file exists, create a backup.
-        backup(newCoverFile, new File(path, "cover." + suffix + ".backup"));
+        backup(newCoverFile, Path.of(pathString, "cover." + suffix + ".backup"));
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(2000).setSocketTimeout(2000).build();
@@ -123,12 +123,12 @@ public class CoverArtService {
             try (InputStream input = client.execute(method).getEntity().getContent()) {
 
                 // Write file.
-                try (OutputStream output = Files.newOutputStream(Path.of(newCoverFile.toURI()))) {
+                try (OutputStream output = Files.newOutputStream(newCoverFile)) {
                     IOUtils.copy(input, output);
                     input.close();
                 }
 
-                MediaFile dir = mediaFileService.getMediaFile(path);
+                MediaFile dir = mediaFileService.getMediaFile(pathString);
 
                 // Refresh database.
                 mediaFileService.refreshMediaFile(dir);
@@ -138,16 +138,16 @@ public class CoverArtService {
                 renameWithoutReplacement(dir, newCoverFile);
             }
         } catch (UnsupportedOperationException | IOException e) {
-            throw new ExecutionException("Failed to save coverArt: " + path, e);
+            throw new ExecutionException("Failed to save coverArt: " + pathString, e);
         }
     }
 
-    void renameWithoutReplacement(MediaFile mediaFile, File newCoverFile) throws IOException {
+    void renameWithoutReplacement(MediaFile mediaFile, Path newCoverFile) throws IOException {
         MediaFile dir = mediaFile;
         while (true) {
             Path coverArtPath = mediaFileService.getCoverArt(dir);
             if (coverArtPath == null || isMediaFile(coverArtPath)
-                    || newCoverFile.getAbsolutePath().equals(coverArtPath.toString())) {
+                    || newCoverFile.toString().equals(coverArtPath.toString())) {
                 break;
             }
 
@@ -191,15 +191,18 @@ public class CoverArtService {
         return mediaFileService.includeMediaFile(path);
     }
 
-    private void backup(File newCoverFile, File backup) {
-        if (newCoverFile.exists()) {
-            if (backup.exists() && !backup.delete() && LOG.isWarnEnabled()) {
-                LOG.warn("Failed to delete " + backup);
-            }
-            if (newCoverFile.renameTo(backup) && LOG.isInfoEnabled()) {
-                LOG.info("Backed up old image file to " + backup);
-            } else if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to create image file backup " + backup);
+    private void backup(Path newCoverFile, Path backup) {
+        if (Files.exists(newCoverFile)) {
+            try {
+                Path path = Files.move(newCoverFile, backup, StandardCopyOption.REPLACE_EXISTING,
+                        StandardCopyOption.ATOMIC_MOVE);
+                if (path != null && LOG.isInfoEnabled()) {
+                    LOG.info("Backed up old image file to " + path);
+                }
+            } catch (IOException | SecurityException e) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to create image file backup " + backup);
+                }
             }
         }
     }

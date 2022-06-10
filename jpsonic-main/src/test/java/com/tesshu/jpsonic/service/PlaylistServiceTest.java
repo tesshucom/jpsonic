@@ -6,12 +6,15 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -24,7 +27,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.service.playlist.DefaultPlaylistExportHandler;
 import com.tesshu.jpsonic.service.playlist.DefaultPlaylistImportHandler;
-import org.apache.commons.io.FileUtils;
+import com.tesshu.jpsonic.util.FileUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -40,10 +43,11 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class PlaylistServiceTest {
 
     @Nested
-    class ExportTest {
+    class ExportPlaylistTest {
 
         private MediaFileDao mediaFileDao;
         private PlaylistService playlistService;
@@ -104,7 +108,7 @@ class PlaylistServiceTest {
     }
 
     @Nested
-    class ImportTest {
+    class ImportPlaylistTest {
 
         private PlaylistService playlistService;
 
@@ -115,8 +119,7 @@ class PlaylistServiceTest {
         private ArgumentCaptor<List<MediaFile>> medias;
 
         @TempDir
-        public Path tempDirPath;
-        public File tempDir;
+        public Path tempDir;
 
         @SuppressWarnings("unchecked")
         @BeforeEach
@@ -129,37 +132,28 @@ class PlaylistServiceTest {
             DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(mediaFileService);
             playlistService = new PlaylistService(jMediaFileDao, jPlaylistDao, mock(SecurityService.class),
                     mock(SettingsService.class), Collections.emptyList(), Lists.newArrayList(importHandler), null);
-            if (tempDir != null) {
-                tempDir = tempDirPath.toFile();
-                if (!tempDir.exists()) {
-                    tempDir.mkdir();
-                }
-            }
             actual = ArgumentCaptor.forClass(Playlist.class);
             medias = ArgumentCaptor.forClass(List.class);
         }
 
         @Test
         void testImportFromM3U() throws Exception {
+
             final String username = "testUser";
             final String playlistName = "test-playlist";
             StringBuilder builder = new StringBuilder();
             builder.append("#EXTM3U\n");
-            File tempDir = tempDirPath.toFile();
-            if (!tempDir.exists()) {
-                tempDir.mkdir();
-            }
-            File mf1 = new File(tempDir, "EXTM3U-mf1");
-            FileUtils.touch(mf1);
-            File mf2 = new File(tempDir, "EXTM3U-mf2");
-            FileUtils.touch(mf2);
-            File mf3 = new File(tempDir, "EXTM3U-mf3");
-            FileUtils.touch(mf3);
-            builder.append(mf1.toURI().toString()).append('\n').append(mf2.toURI().toString()).append('\n')
-                    .append(mf3.toURI().toString()).append('\n');
+            Path mf1 = Path.of(tempDir.toString(), "EXTM3U-mf1");
+            FileUtil.touch(mf1);
+            Path mf2 = Path.of(tempDir.toString(), "EXTM3U-mf2");
+            FileUtil.touch(mf2);
+            Path mf3 = Path.of(tempDir.toString(), "EXTM3U-mf3");
+            FileUtil.touch(mf3);
+            builder.append(mf1.toUri().toString()).append('\n').append(mf2.toUri().toString()).append('\n')
+                    .append(mf3.toUri().toString()).append('\n');
 
             doAnswer(new PersistPlayList(23)).when(playlistDao).createPlaylist(ArgumentMatchers.any());
-            String path = Path.of("/path/to/" + playlistName + ".m3u").toString();
+            String path = playlistName + ".m3u";
             MediaFile mediaFile = new MediaFile();
             mediaFile.setPathString(path);
             Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(new MediaFile());
@@ -190,15 +184,15 @@ class PlaylistServiceTest {
         void testImportFromPLS() throws Exception {
             final String username = "testUser";
             final String playlistName = "test-playlist";
-            File mf1 = new File(tempDir, "PLS-mf1");
-            FileUtils.touch(mf1);
-            File mf2 = new File(tempDir, "PLS-mf2");
-            FileUtils.touch(mf2);
-            File mf3 = new File(tempDir, "PLS-mf3");
-            FileUtils.touch(mf3);
+            Path mf1 = Path.of(tempDir.toString(), "PLS-mf1");
+            FileUtil.touch(mf1);
+            Path mf2 = Path.of(tempDir.toString(), "PLS-mf2");
+            FileUtil.touch(mf2);
+            Path mf3 = Path.of(tempDir.toString(), "PLS-mf3");
+            FileUtil.touch(mf3);
             StringBuilder builder = new StringBuilder(40);
-            builder.append("[playlist]\nFile1=").append(mf1.toURI().toString()).append("\nFile2=")
-                    .append(mf2.toURI().toString()).append("\nFile3=").append(mf3.toURI().toString()).append('\n');
+            builder.append("[playlist]\nFile1=").append(mf1.toUri().toString()).append("\nFile2=")
+                    .append(mf2.toUri().toString()).append("\nFile3=").append(mf3.toUri().toString()).append('\n');
 
             doAnswer(new PersistPlayList(23)).when(playlistDao).createPlaylist(ArgumentMatchers.any());
 
@@ -231,18 +225,18 @@ class PlaylistServiceTest {
         void testImportFromXSPF() throws Exception {
             final String username = "testUser";
             final String playlistName = "test-playlist";
-            File mf1 = new File(tempDir, "XSPF-mf1");
-            FileUtils.touch(mf1);
-            File mf2 = new File(tempDir, "XSPF-mf2");
-            FileUtils.touch(mf2);
-            File mf3 = new File(tempDir, "XSPF-mf3");
-            FileUtils.touch(mf3);
+            Path mf1 = Path.of(tempDir.toString(), "XSPF-mf1");
+            FileUtil.touch(mf1);
+            Path mf2 = Path.of(tempDir.toString(), "XSPF-mf2");
+            FileUtil.touch(mf2);
+            Path mf3 = Path.of(tempDir.toString(), "XSPF-mf3");
+            FileUtil.touch(mf3);
             StringBuilder builder = new StringBuilder(300);
             builder.append(
                     "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<playlist version=\"1\" xmlns=\"http://xspf.org/ns/0/\">\n<trackList>\n<track><location>")
-                    .append(mf1.toURI().toString()).append("</location></track>\n<track><location>")
-                    .append(mf2.toURI().toString()).append("</location></track>\n<track><location>")
-                    .append(mf3.toURI().toString()).append("</location></track>\n</trackList>\n</playlist>\n");
+                    .append(mf1.toUri().toString()).append("</location></track>\n<track><location>")
+                    .append(mf2.toUri().toString()).append("</location></track>\n<track><location>")
+                    .append(mf3.toUri().toString()).append("</location></track>\n</trackList>\n</playlist>\n");
 
             doAnswer(new PersistPlayList(23)).when(playlistDao).createPlaylist(ArgumentMatchers.any());
             String path = Path.of("/path/to/" + playlistName + ".xspf").toString();
@@ -268,7 +262,6 @@ class PlaylistServiceTest {
             List<MediaFile> mediaFiles = medias.getValue();
             assertEquals(3, mediaFiles.size());
         }
-
     }
 
     private static class PersistPlayList implements Answer<Object> {
@@ -283,6 +276,76 @@ class PlaylistServiceTest {
             Playlist playlist = invocationOnMock.getArgument(0);
             playlist.setId(id);
             return null;
+        }
+    }
+
+    @Nested
+    class ImportPlaylistsTest {
+
+        private SettingsService settingsService;
+        private PlaylistService playlistService;
+        private PlaylistDao playlistDao;
+        private MediaFileService mediaFileService;
+
+        @TempDir
+        public Path tempDir;
+
+        @BeforeEach
+        public void setup() {
+            playlistDao = mock(PlaylistDao.class);
+            settingsService = mock(SettingsService.class);
+            mediaFileService = mock(MediaFileService.class);
+            DaoHelper daoHelper = mock(DaoHelper.class);
+            JMediaFileDao jMediaFileDao = new JMediaFileDao(daoHelper, mock(MediaFileDao.class));
+            JPlaylistDao jPlaylistDao = new JPlaylistDao(daoHelper, playlistDao);
+            DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(mediaFileService);
+            playlistService = new PlaylistService(jMediaFileDao, jPlaylistDao, mock(SecurityService.class),
+                    settingsService, Collections.emptyList(), Lists.newArrayList(importHandler), null);
+        }
+
+        @Test
+        void testImportPlaylists(@TempDir Path tempDir) throws IOException {
+
+            final Date current = new Date();
+
+            Mockito.when(settingsService.getPlaylistFolder()).thenReturn(tempDir.toString());
+
+            Path mf1 = Path.of(tempDir.toString(), "XSPF-mf1");
+            FileUtil.touch(mf1);
+            Path mf2 = Path.of(tempDir.toString(), "XSPF-mf2");
+            FileUtil.touch(mf2);
+            Path mf3 = Path.of(tempDir.toString(), "XSPF-mf3");
+            FileUtil.touch(mf3);
+            StringBuilder builder = new StringBuilder(300);
+            builder.append(
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<playlist version=\"1\" xmlns=\"http://xspf.org/ns/0/\">\n<trackList>\n<track><location>")
+                    .append(mf1.toUri().toString()).append("</location></track>\n<track><location>")
+                    .append(mf2.toUri().toString()).append("</location></track>\n<track><location>")
+                    .append(mf3.toUri().toString()).append("</location></track>\n</trackList>\n</playlist>\n");
+
+            Path playlistFile = Path.of(tempDir.toString(), "playlistFile");
+            Files.write(playlistFile, builder.toString().getBytes());
+
+            Playlist playlist = new Playlist();
+            playlist.setImportedFrom(playlistFile.getFileName().toString());
+            playlist.setChanged(current);
+            Mockito.when(playlistDao.getAllPlaylists()).thenReturn(Arrays.asList(playlist));
+
+            MediaFile mediaFile = new MediaFile();
+            mediaFile.setId(0);
+            mediaFile.setPathString(mf3.toString());
+            Mockito.when(mediaFileService.getMediaFile(mf3)).thenReturn(mediaFile);
+
+            ArgumentCaptor<Playlist> playlistCatCaptor = ArgumentCaptor.forClass(Playlist.class);
+            Mockito.doNothing().when(playlistDao).createPlaylist(playlistCatCaptor.capture());
+            playlistService.importPlaylists();
+
+            List<Playlist> captored = playlistCatCaptor.getAllValues();
+            captored.sort((p1, p2) -> p1.getName().compareTo(p2.getName()));
+            assertEquals(3, playlistCatCaptor.getAllValues().size());
+            assertEquals("XSPF-mf1", captored.get(0).getName());
+            assertEquals("XSPF-mf2", captored.get(1).getName());
+            assertEquals("XSPF-mf3", captored.get(2).getName());
         }
     }
 }

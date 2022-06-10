@@ -62,33 +62,34 @@ $(function() {
 <section>
     <h1 class="upload"><fmt:message key="more.upload.title"/></h1>
 </section>
+<c:if test="${model.scanning}">
+    <strong><fmt:message key="musicfoldersettings.nowscanning"/></strong>
+</c:if>
 
 <c:if test="${model.user.uploadRole}">
+    <form method="post" enctype="multipart/form-data" action="upload.view?${_csrf.parameterName}=${_csrf.token}">
 
-<form method="post" enctype="multipart/form-data" action="upload.view?${_csrf.parameterName}=${_csrf.token}">
+        <dl>
+            <dt><fmt:message key="more.upload.source"/></dt>
+            <dd><input type="file" id="file" name="file"/></dd>
+            <dt><fmt:message key="more.upload.target"/></dt>
+            <dd><input type="text" id="dir" name="dir" value="${model.uploadDirectory}"/></dd>
+            <dt></dt>
+            <dd><input type="checkbox" checked name="unzip" id="unzip"/><label for="unzip"><fmt:message key="more.upload.unzip"/></label></dd>
+        </dl>
 
-    <dl>
-        <dt><fmt:message key="more.upload.source"/></dt>
-        <dd><input type="file" id="file" name="file"/></dd>
-        <dt><fmt:message key="more.upload.target"/></dt>
-        <dd><input type="text" id="dir" name="dir" value="${model.uploadDirectory}"/></dd>
-        <dt></dt>
-        <dd><input type="checkbox" checked name="unzip" id="unzip"/><label for="unzip"><fmt:message key="more.upload.unzip"/></label></dd>
-    </dl>
+        <p class="detail" id="progressText"/>
+        
+        <div id="progressBar">
+            <div id="progressBarContent"></div>
+        </div>
 
-    <p class="detail" id="progressText"/>
-    
-    <div id="progressBar">
-        <div id="progressBarContent"></div>
-    </div>
+        <div class="submits">
+            <input type="submit" value="<fmt:message key='more.upload.ok'/>" ${model.scanning ? 'disabled' : ''}/>
+            <input type="button" onClick="location.href='nowPlaying.view'" value="<fmt:message key='common.cancel'/>"/>
+        </div>
 
-    <div class="submits">
-        <input type="submit" value="<fmt:message key='more.upload.ok'/>"/>
-        <input type="button" onClick="location.href='nowPlaying.view'" value="<fmt:message key='common.cancel'/>"/>
-    </div>
-
-</form>
-
+    </form>
 </c:if>
 
 </body></html>

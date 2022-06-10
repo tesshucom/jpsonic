@@ -25,21 +25,23 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
@@ -57,9 +59,9 @@ class MP4ParserTest {
 
     private MediaFile createTestMediafile() throws URISyntaxException, IOException {
         MediaFile mediaFile = new MediaFile();
-        File file = new File(MP4ParserTest.class.getResource("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4").toURI());
-        mediaFile.setPathString(file.getAbsolutePath());
-        mediaFile.setFileSize(Files.size(file.toPath()));
+        Path file = Path.of(MP4ParserTest.class.getResource("/MEDIAS/Metadata/tagger3/tagged/test.stem.mp4").toURI());
+        mediaFile.setPathString(file.toString());
+        mediaFile.setFileSize(Files.size(file));
         return mediaFile;
     }
 
@@ -99,12 +101,21 @@ class MP4ParserTest {
 
     @Test
     @Order(2)
-    void testParseWithFFProbeNoCmd() throws URISyntaxException, IOException {
+    void testParseWithFFProbeNoCmd(@TempDir Path emptytranscodeDir) throws URISyntaxException, IOException {
+
+        transcodingService = new TranscodingService(mock(SettingsService.class), null, null, null, null) {
+
+            @Override
+            public @NonNull Path getTranscodeDirectory() {
+                return emptytranscodeDir;
+            }
+
+        };
+        parser = new MP4Parser(new FFprobe(transcodingService));
+
         MediaFile mediaFile = createTestMediafile();
         Map<String, MP4ParseStatistics> statistics = new ConcurrentHashMap<>();
         parser.getThreshold(mediaFile, statistics);
-
-        parser = new MP4Parser(new FFprobe(mock(TranscodingService.class)));
 
         MetaData metaData = parser.parseWithFFProbe(mediaFile, statistics);
         assertNull(metaData.getWidth());
@@ -155,10 +166,12 @@ class MP4ParserTest {
 
     @Test
     @Order(5)
-    void testGetRawMetaData() throws URISyntaxException, IOException {
+    void testGetRawMetaData(@TempDir Path emptytranscodeDir) throws URISyntaxException, IOException {
 
         transcodingService = mock(TranscodingService.class);
+        Mockito.when(transcodingService.getTranscodeDirectory()).thenReturn(emptytranscodeDir);
         parser = new MP4Parser(new FFprobe(transcodingService));
+
         MediaFile mediaFile = createTestMediafile();
         parser.getRawMetaData(mediaFile);
         // If the argument is only mediaFile, FFProbe is used

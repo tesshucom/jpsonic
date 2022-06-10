@@ -24,9 +24,7 @@ package com.tesshu.jpsonic.service.search;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -593,9 +591,8 @@ class SearchServiceTest {
         @Override
         public List<MusicFolder> getMusicFolders() {
             if (isEmpty(musicFolders)) {
-                musicFolders = new ArrayList<>();
-                File musicDir = new File(resolveBaseMediaPath("Search/SpecialGenre"));
-                musicFolders.add(new MusicFolder(1, musicDir, "accessible", true, new Date()));
+                musicFolders = Arrays.asList(new MusicFolder(1, resolveBaseMediaPath("Search/SpecialGenre"),
+                        "accessible", true, new Date()));
             }
             return musicFolders;
         }
@@ -869,16 +866,13 @@ class SearchServiceTest {
         @Override
         public List<MusicFolder> getMusicFolders() {
             if (isEmpty(musicFolders)) {
-                musicFolders = new ArrayList<>();
-
-                File musicDir = new File(resolveBaseMediaPath("Search/SpecialPath/accessible"));
-                musicFolders.add(new MusicFolder(1, musicDir, "accessible", true, new Date()));
-
-                File music2Dir = new File(resolveBaseMediaPath("Search/SpecialPath/accessible's"));
-                musicFolders.add(new MusicFolder(2, music2Dir, "accessible's", true, new Date()));
-
-                File music3Dir = new File(resolveBaseMediaPath("Search/SpecialPath/accessible+s"));
-                musicFolders.add(new MusicFolder(3, music3Dir, "accessible+s", true, new Date()));
+                musicFolders = Arrays.asList(
+                        new MusicFolder(1, resolveBaseMediaPath("Search/SpecialPath/accessible"), "accessible", true,
+                                new Date()),
+                        new MusicFolder(2, resolveBaseMediaPath("Search/SpecialPath/accessible's"), "accessible's",
+                                true, new Date()),
+                        new MusicFolder(3, resolveBaseMediaPath("Search/SpecialPath/accessible+s"), "accessible+s",
+                                true, new Date()));
             }
             return musicFolders;
         }
@@ -937,9 +931,8 @@ class SearchServiceTest {
         @Override
         public List<MusicFolder> getMusicFolders() {
             if (isEmpty(musicFolders)) {
-                musicFolders = new ArrayList<>();
-                File musicDir = new File(resolveBaseMediaPath("Search/StartWithStopwards"));
-                musicFolders.add(new MusicFolder(1, musicDir, "accessible", true, new Date()));
+                musicFolders = Arrays.asList(new MusicFolder(1, resolveBaseMediaPath("Search/StartWithStopwards"),
+                        "accessible", true, new Date()));
             }
             return musicFolders;
         }

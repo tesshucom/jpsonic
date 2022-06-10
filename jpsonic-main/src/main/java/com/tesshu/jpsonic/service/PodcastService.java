@@ -23,7 +23,6 @@ package com.tesshu.jpsonic.service;
 
 import static com.tesshu.jpsonic.util.XMLUtil.createSAXBuilder;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -52,6 +51,7 @@ import com.tesshu.jpsonic.domain.PodcastStatus;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
+import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -261,8 +261,8 @@ public class PodcastService {
                     }
                     continue;
                 }
-                File dir = getChannelDirectory(channel);
-                MediaFile mediaFile = mediaFileService.getMediaFile(dir.toPath());
+                Path dir = getChannelDirectory(channel);
+                MediaFile mediaFile = mediaFileService.getMediaFile(dir);
                 if (mediaFile != null) {
                     channel.setMediaFileId(mediaFile.getId());
                 }
@@ -353,8 +353,8 @@ public class PodcastService {
                 return;
             }
 
-            File dir = getChannelDirectory(channel);
-            MediaFile channelMediaFile = mediaFileService.getMediaFile(dir.toPath());
+            Path dir = getChannelDirectory(channel);
+            MediaFile channelMediaFile = mediaFileService.getMediaFile(dir);
             if (channelMediaFile == null) {
                 return;
             }
@@ -367,9 +367,8 @@ public class PodcastService {
 
             HttpGet method = new HttpGet(imageUrl);
             try (CloseableHttpResponse response = client.execute(method)) {
-                File f = new File(dir, "cover." + getCoverArtSuffix(response));
-                try (InputStream in = response.getEntity().getContent();
-                        OutputStream out = Files.newOutputStream(Path.of(f.toURI()))) {
+                Path f = Path.of(dir.toString(), "cover." + getCoverArtSuffix(response));
+                try (InputStream in = response.getEntity().getContent(); OutputStream out = Files.newOutputStream(f)) {
                     IOUtils.copy(in, out);
                 }
                 mediaFileService.refreshMediaFile(channelMediaFile);
@@ -593,7 +592,7 @@ public class PodcastService {
 
                     synchronized (FILE_LOCK) {
 
-                        Path path = getFile(channel, episode).toPath();
+                        Path path = getFile(channel, episode);
                         episode.setStatus(PodcastStatus.DOWNLOADING);
                         episode.setBytesDownloaded(0L);
                         episode.setErrorMessage(null);
@@ -604,10 +603,7 @@ public class PodcastService {
 
                         if (isEpisodeDeleted(episode)) {
                             writeInfo("Podcast " + episode.getUrl() + " was deleted. Aborting download.");
-
-                            if (!Files.deleteIfExists(path) && LOG.isWarnEnabled()) {
-                                LOG.warn("Unable to delete " + path);
-                            }
+                            FileUtil.deleteIfExists(path);
                         } else {
                             addMediaFileIdToEpisodes(Arrays.asList(episode));
                             episode.setBytesDownloaded(bytesDownloaded);
@@ -699,7 +695,7 @@ public class PodcastService {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
-    private File getFile(PodcastChannel channel, PodcastEpisode episode) {
+    private Path getFile(PodcastChannel channel, PodcastEpisode episode) {
 
         String episodeDate = String.format("%tF", episode.getPublishDate());
         String filename = channel.getTitle() + " - " + episodeDate + " - " + episode.getId() + " - "
@@ -713,32 +709,33 @@ public class PodcastService {
             extension = "mp3";
         }
 
-        File channelDir = getChannelDirectory(channel);
-        File file = new File(channelDir, filename + "." + extension);
-        for (int i = 0; file.exists(); i++) {
-            file = new File(channelDir, filename + i + "." + extension);
+        Path channelDir = getChannelDirectory(channel);
+        Path file = Path.of(channelDir.toString(), filename + "." + extension);
+        for (int i = 0; Files.exists(file); i++) {
+            file = Path.of(channelDir.toString(), filename + i + "." + extension);
         }
 
-        if (!securityService.isWriteAllowed(file.toPath())) {
+        if (!securityService.isWriteAllowed(file)) {
             throw new SecurityException("Access denied to file " + file);
         }
         return file;
     }
 
-    private File getChannelDirectory(PodcastChannel channel) {
-        File podcastDir = new File(settingsService.getPodcastFolder());
-        if (!podcastDir.canWrite()) {
+    private Path getChannelDirectory(PodcastChannel channel) {
+        Path podcastDir = Path.of(settingsService.getPodcastFolder());
+        if (!Files.exists(podcastDir) && FileUtil.createDirectories(podcastDir) == null) {
+            throw new IllegalStateException("Failed to create directory " + podcastDir);
+        }
+        if (!Files.isWritable(podcastDir)) {
             throw new IllegalStateException("The podcasts directory " + podcastDir + " isn't writeable.");
         }
 
-        File channelDir = new File(podcastDir, StringUtil.fileSystemSafe(channel.getTitle()));
-        if (!channelDir.exists()) {
-            boolean ok = channelDir.mkdirs();
-            if (!ok) {
+        Path channelDir = Path.of(podcastDir.toString(), StringUtil.fileSystemSafe(channel.getTitle()));
+        if (!Files.exists(channelDir)) {
+            if (FileUtil.createDirectories(channelDir) == null) {
                 throw new IllegalStateException("Failed to create directory " + channelDir);
             }
-
-            MediaFile mediaFile = mediaFileService.getMediaFile(channelDir.toPath());
+            MediaFile mediaFile = mediaFileService.getMediaFile(channelDir);
             if (mediaFile != null) {
                 mediaFile.setComment(channel.getDescription());
                 mediaFileService.updateMediaFile(mediaFile);
@@ -776,13 +773,10 @@ public class PodcastService {
             return;
         }
 
-        // Delete file.
-        if (episode.getPath() != null) {
+        String episodePath = episode.getPath();
+        if (episodePath != null) {
             synchronized (FILE_LOCK) {
-                File file = new File(episode.getPath());
-                if (file.exists() && !file.delete() && LOG.isWarnEnabled()) {
-                    LOG.warn("The file '{}' could not be deleted.", file.getAbsolutePath());
-                }
+                FileUtil.deleteIfExists(Path.of(episodePath));
             }
         }
 

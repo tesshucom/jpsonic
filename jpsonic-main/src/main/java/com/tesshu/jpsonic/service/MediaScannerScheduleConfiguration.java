@@ -93,7 +93,7 @@ public class MediaScannerScheduleConfiguration implements SchedulingConfigurer {
 
     private static class ScanLibraryTask implements Runnable {
 
-        private MediaScannerService mediaScannerService;
+        private final MediaScannerService mediaScannerService;
 
         public ScanLibraryTask(MediaScannerService mediaScannerService) {
             super();

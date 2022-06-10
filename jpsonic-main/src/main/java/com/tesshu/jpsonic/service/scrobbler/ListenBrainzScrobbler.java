@@ -139,7 +139,7 @@ public class ListenBrainzScrobbler {
         additionalInfo.computeIfAbsent("tracknumber", k -> registrationData.getTrackNumber());
 
         Map<String, Object> trackMetadata = LegacyMap.of();
-        if (additionalInfo.size() > 0) {
+        if (!additionalInfo.isEmpty()) {
             trackMetadata.put("additional_info", additionalInfo);
         }
         trackMetadata.computeIfAbsent("artist_name", k -> registrationData.getArtist());
@@ -147,7 +147,7 @@ public class ListenBrainzScrobbler {
         trackMetadata.computeIfAbsent("release_name", k -> registrationData.getAlbum());
 
         Map<String, Object> payload = LegacyMap.of();
-        if (trackMetadata.size() > 0) {
+        if (!trackMetadata.isEmpty()) {
             payload.put("track_metadata", trackMetadata);
         }
 

@@ -22,14 +22,16 @@
 package com.tesshu.jpsonic.service;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
+import com.tesshu.jpsonic.util.FileUtil;
 import de.umass.lastfm.cache.Cache;
 import de.umass.lastfm.cache.FileSystemCache;
 import org.apache.commons.io.IOUtils;
@@ -45,11 +47,12 @@ import org.slf4j.LoggerFactory;
 public class LastFmCache extends Cache {
 
     private static final Logger LOG = LoggerFactory.getLogger(LastFmCache.class);
+    private static final Object LOCK = new Object();
 
-    private final File cacheDir;
+    private final Path cacheDir;
     private final long ttl;
 
-    public LastFmCache(File cacheDir, final long ttl) {
+    public LastFmCache(Path cacheDir, final long ttl) {
         super();
         this.cacheDir = cacheDir;
         this.ttl = ttl;
@@ -58,12 +61,12 @@ public class LastFmCache extends Cache {
 
     @Override
     public boolean contains(String cacheEntryName) {
-        return getXmlFile(cacheEntryName).exists();
+        return Files.exists(getXmlFile(cacheEntryName));
     }
 
     @Override
     public InputStream load(String cacheEntryName) {
-        try (InputStream in = Files.newInputStream(getXmlFile(cacheEntryName).toPath())) {
+        try (InputStream in = Files.newInputStream(getXmlFile(cacheEntryName))) {
             return new ByteArrayInputStream(IOUtils.toByteArray(in));
         } catch (IOException e) {
             return null;
@@ -72,32 +75,26 @@ public class LastFmCache extends Cache {
 
     @Override
     public void remove(String cacheEntryName) {
-        File xml = getXmlFile(cacheEntryName);
-        if (!xml.delete() && LOG.isWarnEnabled()) {
-            LOG.warn("The file '{}' could not be deleted.", xml.getAbsolutePath());
-        }
-        File meta = getMetaFile(cacheEntryName);
-        if (!meta.delete() && LOG.isWarnEnabled()) {
-            LOG.warn("The file '{}' could not be deleted.", meta.getAbsolutePath());
-        }
+        FileUtil.deleteIfExists(getXmlFile(cacheEntryName));
+        FileUtil.deleteIfExists(getMetaFile(cacheEntryName));
     }
 
     @Override
     public void store(String cacheEntryName, InputStream inputStream, long expirationDate) {
         createCache();
 
-        File xmlFile = getXmlFile(cacheEntryName);
-        try (OutputStream xmlOut = Files.newOutputStream(Path.of(xmlFile.toURI()))) {
+        Path xmlFile = getXmlFile(cacheEntryName);
+        try (OutputStream xmlOut = Files.newOutputStream(xmlFile)) {
 
             IOUtils.copy(inputStream, xmlOut);
 
-            File metaFile = getMetaFile(cacheEntryName);
+            Path metaFile = getMetaFile(cacheEntryName);
             Properties properties = new Properties();
 
             // Note: Ignore the given expirationDate, since Last.fm sets it to just one day ahead.
             properties.setProperty("expiration-date", Long.toString(getExpirationDate()));
 
-            try (OutputStream metaOut = Files.newOutputStream(Path.of(metaFile.toURI()))) {
+            try (OutputStream metaOut = Files.newOutputStream(metaFile)) {
                 properties.store(metaOut, null);
             }
 
@@ -113,18 +110,23 @@ public class LastFmCache extends Cache {
     }
 
     private void createCache() {
-        if (!cacheDir.exists() && !cacheDir.mkdirs() && LOG.isWarnEnabled()) {
-            LOG.warn("The directory '{}' could not be created.", cacheDir.getAbsolutePath());
+        if (!Files.exists(cacheDir)) {
+            synchronized (LOCK) {
+                if (FileUtil.createDirectories(cacheDir) == null && LOG.isWarnEnabled()) {
+                    LOG.warn("The directory '{}' could not be created.", cacheDir);
+                }
+
+            }
         }
     }
 
     @Override
     public boolean isExpired(String cacheEntryName) {
-        File f = getMetaFile(cacheEntryName);
-        if (!f.exists()) {
+        Path f = getMetaFile(cacheEntryName);
+        if (!Files.exists(f)) {
             return false;
         }
-        try (InputStream in = Files.newInputStream(Path.of(f.toURI()))) {
+        try (InputStream in = Files.newInputStream(f)) {
             Properties p = new Properties();
             p.load(in);
             long expirationDate = Long.parseLong(p.getProperty("expiration-date"));
@@ -136,21 +138,22 @@ public class LastFmCache extends Cache {
 
     @Override
     public void clear() {
-        File[] listFiles = cacheDir.listFiles();
-        if (listFiles != null) {
-            for (File file : listFiles) {
-                if (file.isFile() && !file.delete() && LOG.isWarnEnabled()) {
-                    LOG.warn("The file '{}' could not be deleted.", file.getAbsolutePath());
+        try (DirectoryStream<Path> ds = Files.newDirectoryStream(cacheDir)) {
+            ds.forEach(child -> {
+                if (Files.isRegularFile(child)) {
+                    FileUtil.deleteIfExists(child);
                 }
-            }
+            });
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
-    private File getXmlFile(String cacheEntryName) {
-        return new File(cacheDir, cacheEntryName + ".xml");
+    private Path getXmlFile(String cacheEntryName) {
+        return Path.of(cacheDir.toString(), cacheEntryName + ".xml");
     }
 
-    private File getMetaFile(String cacheEntryName) {
-        return new File(cacheDir, cacheEntryName + ".meta");
+    private Path getMetaFile(String cacheEntryName) {
+        return Path.of(cacheDir.toString(), cacheEntryName + ".meta");
     }
 }

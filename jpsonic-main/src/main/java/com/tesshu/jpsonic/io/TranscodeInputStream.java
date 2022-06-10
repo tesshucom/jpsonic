@@ -24,12 +24,13 @@ package com.tesshu.jpsonic.io;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -54,7 +55,7 @@ public final class TranscodeInputStream extends InputStream {
     private final Process process;
     private final AtomicReference<InputStream> processInputStream;
     private final AtomicReference<OutputStream> processOutputStream;
-    private @Nullable AtomicReference<File> tmpFile;
+    private final @Nullable AtomicReference<Path> tmpFile;
 
     /**
      * Creates a transcoded input stream by executing an external process. If <code>in</code> is not null, data from it
@@ -70,13 +71,12 @@ public final class TranscodeInputStream extends InputStream {
      * @throws IOException
      *             If an I/O error occurs.
      */
-    public TranscodeInputStream(ProcessBuilder processBuilder, @Nullable final InputStream in, @Nullable File tmpFile,
+    @SuppressWarnings("PMD.NullAssignment")
+    public TranscodeInputStream(ProcessBuilder processBuilder, @Nullable final InputStream in, @Nullable Path tmpFile,
             Executor executor, boolean isVerboseLogPlaying) throws IOException {
         super();
         this.executor = executor;
-        if (!isEmpty(tmpFile)) {
-            this.tmpFile = new AtomicReference<>(tmpFile);
-        }
+        this.tmpFile = isEmpty(tmpFile) ? null : new AtomicReference<>(tmpFile);
 
         if (isVerboseLogPlaying && LOG.isInfoEnabled()) {
             StringBuilder buf = new StringBuilder("Starting transcoder: ");
@@ -193,33 +193,37 @@ public final class TranscodeInputStream extends InputStream {
      * If it fails, will be removed when the VM is shut down, but once started, this product will not shut down for a
      * very long time. Therefore, it will retry and delete it as soon as possible.
      */
-    private static class DeleteTmpFileTask implements Runnable {
+    static class DeleteTmpFileTask implements Runnable {
 
-        private File tmpFile;
+        private final Path tmpFile;
+        private static final int TRIAL_MAX = 3;
 
-        public DeleteTmpFileTask(File tmpFile) {
+        public DeleteTmpFileTask(Path tmpFile) {
             super();
             this.tmpFile = tmpFile;
         }
 
+        @SuppressWarnings("PMD.GuardLogStatement")
         @Override
         public void run() {
-            boolean isDelete = false;
-            for (int i = 0; i < 3; i++) {
-                isDelete = isEmpty(tmpFile) || tmpFile.delete();
-                if (isDelete) {
-                    break;
-                } else {
-                    try {
+            for (int i = 0; i < TRIAL_MAX; i++) {
+                try {
+                    if (Files.deleteIfExists(tmpFile)) {
+                        break;
+                    } else {
                         Thread.sleep(3000);
-                    } catch (InterruptedException e) {
-                        if (LOG.isWarnEnabled()) {
-                            LOG.warn("The deleting tmp file has been interrupted.: " + tmpFile, e);
-                        }
                     }
+                } catch (IOException | SecurityException e) {
+                    if (i == TRIAL_MAX - 1) {
+                        LOG.warn("Failed to delete tmp file: " + tmpFile);
+                        break;
+                    }
+                } catch (InterruptedException e) {
+                    LOG.warn("The deleting tmp file has been interrupted.: " + tmpFile, e);
+                    break;
                 }
             }
-            if (!isDelete && LOG.isWarnEnabled()) {
+            if (Files.exists(tmpFile)) {
                 LOG.warn("Failed to delete tmp file: " + tmpFile);
             }
         }

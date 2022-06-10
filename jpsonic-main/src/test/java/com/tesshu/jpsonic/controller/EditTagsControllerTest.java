@@ -21,8 +21,7 @@ package com.tesshu.jpsonic.controller;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.io.File;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -46,13 +45,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 @SpringBootTest
 class EditTagsControllerTest extends AbstractNeedsScan {
 
-    private static final List<MusicFolder> MUSIC_FOLDERS;
-
-    static {
-        MUSIC_FOLDERS = new ArrayList<>();
-        File musicDir = new File(resolveBaseMediaPath("Music"));
-        MUSIC_FOLDERS.add(new MusicFolder(1, musicDir, "Music", true, new Date()));
-    }
+    private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
+            .asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, new Date()));
 
     private MockMvc mockMvc;
 

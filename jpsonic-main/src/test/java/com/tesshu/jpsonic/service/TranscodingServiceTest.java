@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Documented;
@@ -748,13 +747,13 @@ class TranscodingServiceTest {
         @Test
         @Order(5)
         void testITI5() throws ExecutionException {
-            File f = transcodingService.getTranscodeDirectory();
-            transcodingService.setTranscodeDirectory(new File(fakePath));
+            Path transcodeDirectory = transcodingService.getTranscodeDirectory();
+            transcodingService.setTranscodeDirectory(Path.of(fakePath));
             Transcoding transcoding = new Transcoding(null, null, fmtFlac, fmtMp3, ffmpeg, ffmpeg, ffmpeg, true);
 
             assertFalse(transcodingService.isTranscoderInstalled(transcoding));
 
-            transcodingService.setTranscodeDirectory(f);
+            transcodingService.setTranscodeDirectory(transcodeDirectory);
         }
     }
 

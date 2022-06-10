@@ -25,9 +25,6 @@
     <!-- Java Rules:Best Practices -->
     <rule ref="category/java/bestpractices.xml">
 
-        <!-- Because currently contains bugs pmd/pmd/issues/2833. -->
-        <exclude name="UseCollectionIsEmpty" />
-
         <!-- Because it is a single project and caller is guaranteed. -->
         <exclude name="MethodReturnsInternalArray" />
 
@@ -78,9 +75,6 @@
         <exclude name="ExcessiveClassLength" />
         <exclude name="NcssCount" />
 
-        <!-- Not required at this time. -->
-        <exclude name="ImmutableField" />
-
         <!-- The rule flags any usage of objects not created locally received as 
             parameters. This rule is ignored, as even standard notation is affected in 
             this day and age. -->
@@ -94,10 +88,6 @@
         <!-- This rule is intended to avoid the Anemic Domain Model anti-pattern 
             in favor of using Domain-Driven Design. Not valid for this project. -->
         <exclude name="DataClass" />
-
-        <!-- References to traditionally existing ghost rules. Suppress log warnings.
-            This rule cannot be used even if the suppression is removed. -->
-        <exclude name="LoosePackageCoupling" />
     </rule>
 
     <!-- Java Rules:Documentation -->
@@ -137,11 +127,7 @@
     <rule ref="category/java/multithreading.xml" />
 
     <!-- Java Rules:Performance -->
-    <rule ref="category/java/performance.xml">
-
-        <!-- Because there is bug with the rules and it cannot be used. -->
-        <exclude name="UseIOStreamsWithApacheCommonsFileItem" />
-    </rule>
+    <rule ref="category/java/performance.xml" />
 
     <!-- Java Rules:Security -->
     <rule ref="category/java/security.xml" />

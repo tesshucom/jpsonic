@@ -40,6 +40,7 @@ import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SortCandidate;
 import com.tesshu.jpsonic.util.LegacyMap;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -322,8 +323,8 @@ public class JMediaFileDao extends AbstractDao {
                 + "order by id ", (rs, rowNum) -> rs.getInt(1), args);
     }
 
-    public List<Integer> getSortOfArtistToBeFixed(List<SortCandidate> candidates) {
-        if (isEmpty(candidates) || 0 == candidates.size()) {
+    public List<Integer> getSortOfArtistToBeFixed(@NonNull List<SortCandidate> candidates) {
+        if (candidates.isEmpty()) {
             return Collections.emptyList();
         }
         Map<String, Object> args = LegacyMap.of("names",
