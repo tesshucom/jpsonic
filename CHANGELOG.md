@@ -3,9 +3,10 @@
 # jpsonic/jpsonic
 # -->
 
-## v111.3.0 (SNAPSHOT)
+## [v111.2.1](https://github.com/tesshucom/jpsonic/milestone/58)
 
-The binaries of SNAPSHOT are available from the latest artifacts on the [master branch](https://github.com/tesshucom/jpsonic/actions?query=branch%3Amaster) .
+#### Fixes
+  * Update libs. Includes fixes for **CVE-2022-22978**
 
 #### Enhancement
   * File I/O improvements
