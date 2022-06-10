@@ -443,13 +443,10 @@ class JMediaFileDaoTest extends AbstractNeedsScan {
     @Test
     @EnabledOnOs(OS.WINDOWS)
     void testGetToBeFixedSort() {
-        assertEquals(0, mediaFileDao.getSortOfArtistToBeFixed(null).size());
         assertEquals(0, mediaFileDao.getSortOfArtistToBeFixed(Collections.emptyList()).size());
         assertEquals(22, mediaFileDao.getSortOfArtistToBeFixed(candidates).size());
-        assertEquals(0, albumDao.getSortOfArtistToBeFixed(null).size());
         assertEquals(0, albumDao.getSortOfArtistToBeFixed(Collections.emptyList()).size());
         assertEquals(5, albumDao.getSortOfArtistToBeFixed(candidates).size());
-        assertEquals(0, artistDao.getSortOfArtistToBeFixed(null).size());
         assertEquals(0, artistDao.getSortOfArtistToBeFixed(Collections.emptyList()).size());
         assertEquals(5, artistDao.getSortOfArtistToBeFixed(candidates).size());
     }

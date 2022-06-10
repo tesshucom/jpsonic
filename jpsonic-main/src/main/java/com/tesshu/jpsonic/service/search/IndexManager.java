@@ -508,9 +508,9 @@ public class IndexManager {
      *
      * @since 101.2.0
      */
-    public List<String> toPreAnalyzedGenres(List<String> genres) {
+    public List<String> toPreAnalyzedGenres(@NonNull List<String> genres) {
 
-        if (isEmpty(genres) || genres.size() == 0) {
+        if (genres.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -601,7 +601,7 @@ public class IndexManager {
                     multiGenreMaster.clear();
 
                     Collection<String> fields = FieldInfos.getIndexedFields(genreSearcher.getIndexReader());
-                    if (fields.size() == 0) {
+                    if (fields.isEmpty()) {
                         LOG.info("The multi-genre master has been updated(no record).");
                         return;
                     }

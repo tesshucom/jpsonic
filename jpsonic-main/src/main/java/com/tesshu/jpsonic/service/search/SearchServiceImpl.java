@@ -253,7 +253,7 @@ public class SearchServiceImpl implements SearchService {
         Consumer<List<Integer>> addSubToResult = (ids) -> ids.subList(offset, Math.min(ids.size(), offset + count))
                 .forEach(id -> util.addIgnoreNull(result, IndexType.SONG, id));
         util.getCache(RandomCacheKey.SONG, casheMax, musicFolders).ifPresent(addSubToResult);
-        if (0 < result.size()) {
+        if (!result.isEmpty()) {
             return result;
         }
 
@@ -310,7 +310,7 @@ public class SearchServiceImpl implements SearchService {
 
         util.getCache(RandomCacheKey.SONG_BY_ARTIST, casheMax, musicFolders, artist.getName())
                 .ifPresent(addSubToResult);
-        if (0 < result.size()) {
+        if (!result.isEmpty()) {
             return result;
         }
 
@@ -387,7 +387,7 @@ public class SearchServiceImpl implements SearchService {
         Consumer<List<Integer>> addSubToResult = (ids) -> ids.subList(offset, Math.min(ids.size(), offset + count))
                 .forEach(id -> util.addIgnoreNull(result, IndexType.ALBUM_ID3, id));
         util.getCache(RandomCacheKey.ALBUM, casheMax, musicFolders).ifPresent(addSubToResult);
-        if (0 < result.size()) {
+        if (!result.isEmpty()) {
             return result;
         }
 
@@ -450,7 +450,7 @@ public class SearchServiceImpl implements SearchService {
         Consumer<List<MediaFile>> addSubToResult = (mediaFiles) -> result
                 .addAll(mediaFiles.subList(offset, Math.min(mediaFiles.size(), offset + count)));
         util.getCache(genres, musicFolders, IndexType.ALBUM).ifPresent(addSubToResult);
-        if (0 < result.size()) {
+        if (!result.isEmpty()) {
             return result;
         }
 
@@ -509,7 +509,7 @@ public class SearchServiceImpl implements SearchService {
         Consumer<List<MediaFile>> addSubToResult = (mediaFiles) -> result
                 .addAll(mediaFiles.subList(offset, Math.min(mediaFiles.size(), offset + count)));
         util.getCache(genres, musicFolders, IndexType.SONG).ifPresent(addSubToResult);
-        if (0 < result.size()) {
+        if (!result.isEmpty()) {
             return result;
         }
 
