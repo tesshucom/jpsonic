@@ -39,14 +39,14 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'adopt'
-        java-version: 11.0.10
+        java-version: 11
     - name: Autobuild
       uses: github/codeql-action/autobuild@v2
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
   ##########################################################################
-  verify-lts:
-    name: Verify with JDK 11.0.10 on ${{ matrix.os }}
+  verify-JDK11:
+    name: JDK11 on ${{ matrix.os }}
     strategy:
       matrix:
         os: [ windows-latest, ubuntu-latest ]
@@ -58,7 +58,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
-          java-version: 11.0.10
+          java-version: 11
       - name: Set up ffmpeg
         id: ffmpeg
         uses: FedericoCarboni/setup-ffmpeg@v1
@@ -85,13 +85,8 @@ jobs:
         if: contains(matrix.os, 'windows-latest')
         run: mvn -DfailIfNoTests=false -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" clean verify -B -Ptomcat-embed -Punit-test
   ##########################################################################
-  send-coverage:
-    name: Send coverage to Codacy
-    needs: verify-lts
-    if: "(github.ref == 'refs/heads/master' || contains(github.ref, 'snapshot'))"
-    env:
-      CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-      GITHUB_SHA: ${{ github.sha }}
+  verify-JDK17:
+    name: JDK17 on ubuntu-latest
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -100,19 +95,26 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
-          java-version: 11.0.10
-      - name: Download coverage
-        uses: actions/download-artifact@v3
+          java-version: 17
+      - name: Set up ffmpeg
+        id: ffmpeg
+        uses: FedericoCarboni/setup-ffmpeg@v1
         with:
-          name: Code coverage report
-      - name: Send Jacoco report
-        run: mvn -Psend-coverage com.gavinmogan:codacy-maven-plugin:coverage
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2 
+      - name: Verify with Maven
+        run: mvn -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" clean verify -B -Ptomcat-embed -Prelease${{ matrix.java }} -Punit-test
   ##########################################################################
   verify-experiment:
-    name: Verify with JDK ${{ matrix.java }} on ubuntu-latest
+    name: JDK${{ matrix.java }} on ubuntu-latest
     strategy:
       matrix:
-        java: [ 17 ]
+        java: [ 18 ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -136,13 +138,36 @@ jobs:
       - name: Verify with Maven
         run: mvn -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" clean verify -B -Ptomcat-embed -Prelease${{ matrix.java }} -Punit-test
   ##########################################################################
+  send-coverage:
+    name: Send coverage to Codacy
+    needs: [ verify-JDK11, verify-JDK17 ]
+    if: "(github.ref == 'refs/heads/master' || contains(github.ref, 'snapshot'))"
+    env:
+      CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+      GITHUB_SHA: ${{ github.sha }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: 11
+      - name: Download coverage
+        uses: actions/download-artifact@v3
+        with:
+          name: Code coverage report
+      - name: Send Jacoco report
+        run: mvn -Psend-coverage com.gavinmogan:codacy-maven-plugin:coverage
+  ##########################################################################
   package:
     if: github.ref == 'refs/heads/master'
-    needs: [ verify-lts, verify-experiment ]
-    name: Package with JDK ${{ matrix.java }} on ubuntu-latest
+    needs: [ verify-JDK11, verify-JDK17, verify-experiment ]
+    name: Package with JDK ${{ matrix.java }} on ubuntu
     strategy:
       matrix:
-        java: [ 11, 17 ]
+        java: [ 11, 17, 18 ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
