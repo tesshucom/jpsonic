@@ -125,11 +125,9 @@ class JWTSecurityServiceTest {
         void testTokenExpired() {
             LocalDateTime now = LocalDateTime.now();
             Date after = toDate(now.plus(7, ChronoUnit.DAYS));
-            Date current = toDate(now);
             Date before = toDate(now.minus(7, ChronoUnit.DAYS));
 
             assertNotNull(JWTSecurityService.verify(key, JWTSecurityService.createToken(key, path, after)));
-            assertNotNull(JWTSecurityService.verify(key, JWTSecurityService.createToken(key, path, current)));
             Throwable t = assertThrows(com.tesshu.jpsonic.security.TokenExpiredException.class,
                     () -> JWTSecurityService.verify(key, JWTSecurityService.createToken(key, path, before)));
             assertInstanceOf(com.auth0.jwt.exceptions.TokenExpiredException.class, t.getCause());
