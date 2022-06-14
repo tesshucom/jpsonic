@@ -604,6 +604,10 @@
             <artifactId>tika-parser-audiovideo-module</artifactId>
             <version>2.4.0</version>
         </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
