@@ -37,6 +37,8 @@ import java.util.concurrent.ExecutionException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import ch.qos.logback.classic.Level;
+import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.dao.TranscodingDao;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
@@ -59,6 +61,7 @@ import com.tesshu.jpsonic.service.StreamService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.TranscodingService.Parameters;
 import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
@@ -144,6 +147,12 @@ class StreamControllerTest {
                 Mockito.nullable(VideoTranscodingSettings.class))).thenReturn(parameters);
         StreamService streamService = mock(StreamService.class);
         initMocks(player, transcodingService, streamService);
+        TestCaseUtils.setLogLevel(StreamController.class, Level.TRACE);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        TestCaseUtils.setLogLevel(StreamController.class, Level.WARN);
     }
 
     @Test

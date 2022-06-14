@@ -22,10 +22,24 @@ package com.tesshu.jpsonic.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import ch.qos.logback.classic.Level;
+import com.tesshu.jpsonic.TestCaseUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class LegacyHsqlUtilTest {
+
+    @BeforeEach
+    public void setup() {
+        TestCaseUtils.setLogLevel(LegacyHsqlUtil.class, Level.INFO);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        TestCaseUtils.setLogLevel(LegacyHsqlUtil.class, Level.WARN);
+    }
 
     private void setHome(String s) {
         System.setProperty("jpsonic.home", s);

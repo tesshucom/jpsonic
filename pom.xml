@@ -735,7 +735,11 @@
                                 <ignoredUnusedDeclaredDependency>jakarta.websocket:jakarta.websocket-all</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>javax.annotation:javax.annotation-api</ignoredUnusedDeclaredDependency>
                             </ignoredUnusedDeclaredDependencies>
-                        </configuration>
+                            <ignoredNonTestScopedDependencies>
+                                <!-- Not a test-only scope -->
+                                <ignoredNonTestScopedDependency>ch.qos.logback:logback-classic</ignoredNonTestScopedDependency>
+                            </ignoredNonTestScopedDependencies>
+                         </configuration>
                     </execution>
                 </executions>
             </plugin>
