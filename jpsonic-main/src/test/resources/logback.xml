@@ -4,9 +4,4 @@
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="FILE" />
     </root>
-    <logger name="com.tesshu.jpsonic.controller.StreamController" level="trace"/>
-    <logger name="com.tesshu.jpsonic.service.MediaScannerScheduleConfiguration" level="trace"/>
-    <logger name="com.tesshu.jpsonic.service.PodcastScheduleConfiguration" level="trace"/>
-    <logger name="com.tesshu.jpsonic.service.upnp.processor.WMPProcessor" level="debug"/>
-    <logger name="com.tesshu.jpsonic.util.LegacyHsqlUtil" level="info"/>
 </configuration>

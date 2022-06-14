@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>111.2.1-RELEASE</version>
+    <version>111.3.0-SNAPSHOT</version>
     <name>Jpsonic</name>
     <packaging>pom</packaging>
     <organization>
@@ -545,7 +545,7 @@
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>7.1.0</version>
+                    <version>7.1.1</version>
                     <inherited>true</inherited>
                     <configuration>
                         <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
@@ -735,7 +735,11 @@
                                 <ignoredUnusedDeclaredDependency>jakarta.websocket:jakarta.websocket-all</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>javax.annotation:javax.annotation-api</ignoredUnusedDeclaredDependency>
                             </ignoredUnusedDeclaredDependencies>
-                        </configuration>
+                            <ignoredNonTestScopedDependencies>
+                                <!-- Not a test-only scope -->
+                                <ignoredNonTestScopedDependency>ch.qos.logback:logback-classic</ignoredNonTestScopedDependency>
+                            </ignoredNonTestScopedDependencies>
+                         </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -819,6 +823,13 @@
             <id>release17</id>
             <properties>
                 <java.version>17</java.version>
+                <maven.compiler.release>${java.version}</maven.compiler.release>
+            </properties>
+        </profile>
+        <profile>
+            <id>release18</id>
+            <properties>
+                <java.version>18</java.version>
                 <maven.compiler.release>${java.version}</maven.compiler.release>
             </properties>
         </profile>

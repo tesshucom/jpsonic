@@ -294,7 +294,7 @@ class ExecutorConfigurationTest {
             if (LOG.isInfoEnabled()) {
                 LOG.error("***** It is a test of logging (testWithRunnableOverQueue). *****");
             }
-            int len = shortThreadPoolConf.getQueueCapacity() + 20;
+            int len = shortThreadPoolConf.getQueueCapacity() + 10;
             AtomicInteger c1 = new AtomicInteger();
             AtomicInteger c2 = new AtomicInteger();
             AtomicInteger c3 = new AtomicInteger();
@@ -486,7 +486,7 @@ class ExecutorConfigurationTest {
         @Test
         void testWithFutureOverQueue() {
 
-            int len = shortThreadPoolConf.getQueueCapacity() + 20;
+            int len = shortThreadPoolConf.getQueueCapacity() + 10;
 
             AtomicInteger c1 = new AtomicInteger();
             AtomicInteger c2 = new AtomicInteger();

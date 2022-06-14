@@ -31,7 +31,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 
+import ch.qos.logback.classic.Level;
+import com.tesshu.jpsonic.TestCaseUtils;
 import org.junit.AfterClass;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -57,6 +60,12 @@ class MediaScannerScheduleConfigurationTest {
         configuration = new MediaScannerScheduleConfiguration(mock(TaskScheduler.class), settingsService,
                 mediaScannerService);
         now = LocalDateTime.now();
+        TestCaseUtils.setLogLevel(MediaScannerScheduleConfiguration.class, Level.TRACE);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        TestCaseUtils.setLogLevel(MediaScannerScheduleConfiguration.class, Level.WARN);
     }
 
     @AfterClass

@@ -129,4 +129,8 @@ public final class TestCaseUtils {
             }
         }
     }
+
+    public static void setLogLevel(Class<?> clazz, ch.qos.logback.classic.Level level) {
+        ((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(clazz)).setLevel(level);
+    }
 }

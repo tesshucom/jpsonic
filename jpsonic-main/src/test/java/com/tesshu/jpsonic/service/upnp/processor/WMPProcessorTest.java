@@ -29,6 +29,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import ch.qos.logback.classic.Level;
+import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -38,6 +40,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.AUTHOR;
 import org.fourthline.cling.support.model.item.MusicTrack;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -59,6 +62,12 @@ class WMPProcessorTest {
         util = mock(UpnpProcessorUtil.class);
         Mockito.when(settingsService.isVerboseLogScanning()).thenReturn(true);
         wmpProcessor = new WMPProcessor(mediaFileService, settingsService, mediaFileUpnpProcessor, util);
+        TestCaseUtils.setLogLevel(WMPProcessor.class, Level.DEBUG);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        TestCaseUtils.setLogLevel(WMPProcessor.class, Level.WARN);
     }
 
     @Test
