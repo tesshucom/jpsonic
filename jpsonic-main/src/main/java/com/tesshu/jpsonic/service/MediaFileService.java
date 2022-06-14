@@ -464,7 +464,7 @@ public class MediaFileService {
     private Optional<Path> getFirstChildMediaFile(Path parent) {
         try (Stream<Path> children = Files.list(parent)) {
             return children.filter(child -> Files.isRegularFile(child)).filter(child -> includeMediaFile(child))
-                    .findAny();
+                    .findFirst();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
