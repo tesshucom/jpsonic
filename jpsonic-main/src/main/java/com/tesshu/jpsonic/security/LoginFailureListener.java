@@ -29,9 +29,6 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
-/**
- * @author Sindre Mehus
- */
 public class LoginFailureListener implements ApplicationListener<ApplicationEvent> {
 
     private static final Logger LOG = LoggerFactory.getLogger(LoginFailureListener.class);

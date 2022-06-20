@@ -21,10 +21,6 @@
 
 package com.tesshu.jpsonic.controller;
 
-/**
- *
- * @author Sindre Mehus
- */
 public class ReloadFrame {
 
     private String frame;

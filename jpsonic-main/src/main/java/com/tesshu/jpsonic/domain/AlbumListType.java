@@ -21,9 +21,6 @@
 
 package com.tesshu.jpsonic.domain;
 
-/**
- * @author Sindre Mehus
- */
 public enum AlbumListType {
 
     RANDOM("random", "Random"), NEWEST("newest", "Recently Added"), STARRED("starred", "Starred"),

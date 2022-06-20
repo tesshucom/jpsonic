@@ -68,9 +68,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
-/**
- * @author Sindre Mehus
- */
 @Service
 @DependsOn("shutdownHook")
 public class UPnPService {

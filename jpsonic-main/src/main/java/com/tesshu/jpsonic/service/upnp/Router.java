@@ -21,9 +21,6 @@
 
 package com.tesshu.jpsonic.service.upnp;
 
-/**
- * @author Sindre Mehus
- */
 public interface Router {
 
     /**

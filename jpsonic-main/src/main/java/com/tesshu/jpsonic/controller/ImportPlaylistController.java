@@ -46,9 +46,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-/**
- * @author Sindre Mehus
- */
 @Controller
 @RequestMapping({ "/importPlaylist", "/importPlaylist.view" })
 public class ImportPlaylistController {
