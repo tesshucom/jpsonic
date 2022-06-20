@@ -92,8 +92,10 @@ public enum IndexType {
 
     ;
 
+    @SuppressWarnings("ImmutableEnumChecker")
     private final Map<String, Float> boosts;
 
+    @SuppressWarnings("ImmutableEnumChecker")
     private final String[] fields;
 
     /**
