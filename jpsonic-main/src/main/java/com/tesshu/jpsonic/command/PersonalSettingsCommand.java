@@ -307,8 +307,8 @@ public class PersonalSettingsCommand extends SettingsPageCommons {
         return closePlayQueue;
     }
 
-    public void setClosePlayQueue(boolean closePlayqueue) {
-        this.closePlayQueue = closePlayqueue;
+    public void setClosePlayQueue(boolean closePlayQueue) {
+        this.closePlayQueue = closePlayQueue;
     }
 
     public boolean isAutoHidePlayQueue() {
@@ -483,8 +483,8 @@ public class PersonalSettingsCommand extends SettingsPageCommons {
         return showTopSongs;
     }
 
-    public void setShowTopSongs(boolean showtopSongs) {
-        this.showTopSongs = showtopSongs;
+    public void setShowTopSongs(boolean showTopSongs) {
+        this.showTopSongs = showTopSongs;
     }
 
     public boolean isShowSimilar() {
