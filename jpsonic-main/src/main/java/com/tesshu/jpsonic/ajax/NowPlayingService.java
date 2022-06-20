@@ -40,6 +40,7 @@ import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.ServletRequestBindingException;
 
@@ -72,14 +73,7 @@ public class NowPlayingService {
         this.ajaxHelper = ajaxHelper;
     }
 
-    /**
-     * Returns details about what the current player is playing.
-     *
-     * @return Details about what the current player is playing, or <code>null</code> if not playing anything.
-     *
-     * @throws ServletRequestBindingException
-     */
-    public NowPlayingInfo getNowPlayingForCurrentPlayer() throws ServletRequestBindingException {
+    public @Nullable NowPlayingInfo getNowPlayingForCurrentPlayer() throws ServletRequestBindingException {
         Player player = playerService.getPlayer(ajaxHelper.getHttpServletRequest(),
                 ajaxHelper.getHttpServletResponse());
 
