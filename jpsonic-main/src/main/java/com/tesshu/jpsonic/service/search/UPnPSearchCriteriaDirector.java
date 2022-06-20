@@ -246,6 +246,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         assignableClass = MediaFile.class;
     }
 
+    @SuppressWarnings("ArgumentSelectionDefectChecker")
     private Class<?> purseDerivedfrom(String subject, String verb, String complement) {
 
         Class<?> clazz = null;
@@ -295,6 +296,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         return clazz;
     }
 
+    @SuppressWarnings("ArgumentSelectionDefectChecker")
     private Class<?> purseClass(String subject, String verb, String complement) {
 
         Class<?> clazz = null;
