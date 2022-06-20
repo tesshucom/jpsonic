@@ -109,6 +109,7 @@ public class JapaneseReadingUtils {
      * @param japaneseReading
      *            string after analysis
      */
+    @SuppressWarnings("LoopOverCharArray")
     public String removePunctuationFromJapaneseReading(@Nullable String japaneseReading) {
         if (isJapaneseReading(japaneseReading)) {
             if (truncatedReadingMap.containsKey(japaneseReading)) {
