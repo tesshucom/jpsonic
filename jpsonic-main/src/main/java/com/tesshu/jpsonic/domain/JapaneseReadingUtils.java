@@ -57,7 +57,7 @@ public class JapaneseReadingUtils {
     private static final String ASTER = "*";
     private static final String HYPHEN = "-";
     private static final String TILDE = "\uff5e"; // Special usage for Japanese
-    private static final char WAVY_LINE = '\u007e'; // ~
+    private static final char WAVY_LINE = '~';
 
     private final SettingsService settingsService;
     private final Tokenizer tokenizer;
