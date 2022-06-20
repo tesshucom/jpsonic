@@ -261,15 +261,14 @@ public class UPnPService {
         String serverName = settingsService.getDlnaServerName();
         String serialNumber = versionService.getLocalBuildNumber();
         DLNADoc[] dlnaDocs = { new DLNADoc("DMS", DLNADoc.Version.V1_5) };
-        DeviceDetails details = null;
         URI modelURI = URI.create("https://tesshu.com");
         URI manufacturerURI = URI.create("https://github.com/jpsonic/jpsonic");
         URI presentationURI = URI.create(settingsService.getDlnaBaseLANURL());
         ManufacturerDetails manufacturerDetails = new ManufacturerDetails(serverName, modelURI);
         ModelDetails modelDetails = new ModelDetails(serverName, null, versionService.getLocalVersion().toString(),
                 manufacturerURI);
-        details = new DeviceDetails(serverName, manufacturerDetails, modelDetails, serialNumber, null, presentationURI,
-                dlnaDocs, null);
+        DeviceDetails details = new DeviceDetails(serverName, manufacturerDetails, modelDetails, serialNumber, null,
+                presentationURI, dlnaDocs, null);
         DeviceIdentity identity = new DeviceIdentity(UDN.uniqueSystemIdentifier(serverName),
                 MIN_ADVERTISEMENT_AGE_SECONDS);
         DeviceType type = new UDADeviceType("MediaServer", 1);
