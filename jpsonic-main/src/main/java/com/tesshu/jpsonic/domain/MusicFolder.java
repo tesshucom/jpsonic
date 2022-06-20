@@ -100,7 +100,7 @@ public class MusicFolder implements Serializable {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof MusicFolder)) {
             return false;
         }
         return Objects.equal(id, ((MusicFolder) o).id);
