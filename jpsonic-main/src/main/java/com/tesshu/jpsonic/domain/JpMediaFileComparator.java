@@ -24,7 +24,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import java.text.Collator;
 import java.util.Comparator;
 
-import liquibase.repackaged.org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * Comparator for sorting media files.

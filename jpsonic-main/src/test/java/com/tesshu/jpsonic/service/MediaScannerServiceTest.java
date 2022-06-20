@@ -667,8 +667,10 @@ class MediaScannerServiceTest {
             assertNull(albumId3.getMusicBrainzReleaseId());
         }
 
-        @Test
-        @DisabledOnOs(OS.WINDOWS)
+        @SuppressWarnings("PMD.DetachedTestCase")
+        // @Test
+        // @Disabled
+        // @DisabledOnOs(OS.WINDOWS)
         void testUpdateAlbumOnLinux() {
 
             // LIFO
