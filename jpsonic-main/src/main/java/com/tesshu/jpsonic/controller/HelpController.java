@@ -127,7 +127,7 @@ public class HelpController {
                 }
                 lines.add(0, line);
             }
-            return lines;
+            return Collections.unmodifiableList(lines);
         } catch (IOException e) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Could not open log file " + logFile, e);

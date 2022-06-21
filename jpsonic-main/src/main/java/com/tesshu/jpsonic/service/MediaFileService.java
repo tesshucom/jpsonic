@@ -224,8 +224,9 @@ public class MediaFileService {
     public List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories,
             boolean sort, boolean useFastCache, MediaLibraryStatistics... statistics) {
 
+        List<MediaFile> result = new ArrayList<>();
         if (!parent.isDirectory()) {
-            return Collections.emptyList();
+            return result;
         }
 
         // Make sure children are stored and up-to-date in the database.
@@ -233,7 +234,6 @@ public class MediaFileService {
             updateChildren(parent, statistics);
         }
 
-        List<MediaFile> result = new ArrayList<>();
         for (MediaFile child : mediaFileDao.getChildrenOf(parent.getPathString())) {
             MediaFile checked = checkLastModified(child, useFastCache, statistics);
             if (checked.isDirectory() && includeDirectories && includeMediaFile(checked)) {

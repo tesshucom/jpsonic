@@ -510,16 +510,16 @@ public class IndexManager {
      */
     public List<String> toPreAnalyzedGenres(@NonNull List<String> genres) {
 
+        List<String> result = new ArrayList<>();
         if (genres.isEmpty()) {
-            return Collections.emptyList();
+            return result;
         }
 
         IndexSearcher searcher = getSearcher(IndexType.GENRE);
         if (isEmpty(searcher)) {
-            return Collections.emptyList();
+            return result;
         }
 
-        List<String> result = new ArrayList<>();
         try {
             final Query query = queryFactory.toPreAnalyzedGenres(genres);
             TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);

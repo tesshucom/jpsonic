@@ -22,7 +22,6 @@
 package com.tesshu.jpsonic.util;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,10 +108,10 @@ public final class PlayerUtils {
     }
 
     public static List<Integer> toIntegerList(int... values) {
+        List<Integer> result = new ArrayList<>();
         if (values == null) {
-            return Collections.emptyList();
+            return result;
         }
-        List<Integer> result = new ArrayList<>(values.length);
         for (int value : values) {
             result.add(value);
         }

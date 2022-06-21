@@ -442,11 +442,11 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public List<MediaFile> getAlbumsByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders) {
+        final List<MediaFile> result = new ArrayList<>();
         if (isEmpty(genres)) {
-            return Collections.emptyList();
+            return result;
         }
 
-        final List<MediaFile> result = new ArrayList<>();
         Consumer<List<MediaFile>> addSubToResult = (mediaFiles) -> result
                 .addAll(mediaFiles.subList(offset, Math.min(mediaFiles.size(), offset + count)));
         util.getCache(genres, musicFolders, IndexType.ALBUM).ifPresent(addSubToResult);
@@ -465,16 +465,16 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public List<Album> getAlbumId3sByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders) {
 
+        List<Album> result = new ArrayList<>();
         if (isEmpty(genres)) {
-            return Collections.emptyList();
+            return result;
         }
 
         IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM_ID3);
         if (isEmpty(searcher)) {
-            return Collections.emptyList();
+            return result;
         }
 
-        List<Album> result = new ArrayList<>();
         try {
             SortField[] sortFields = Arrays.stream(IndexType.ALBUM_ID3.getFields())
                     .map(n -> new SortField(n, SortField.Type.STRING)).toArray(SortField[]::new);
@@ -501,11 +501,11 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public List<MediaFile> getSongsByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders) {
+        final List<MediaFile> result = new ArrayList<>();
         if (isEmpty(genres)) {
-            return Collections.emptyList();
+            return result;
         }
 
-        final List<MediaFile> result = new ArrayList<>();
         Consumer<List<MediaFile>> addSubToResult = (mediaFiles) -> result
                 .addAll(mediaFiles.subList(offset, Math.min(mediaFiles.size(), offset + count)));
         util.getCache(genres, musicFolders, IndexType.SONG).ifPresent(addSubToResult);
