@@ -380,7 +380,7 @@ public class InternalHelpController {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     private Path lookForExecutable(String executableName) {
-        for (String path : System.getenv("PATH").split(java.io.File.pathSeparator)) {
+        for (String path : System.getenv("PATH").split(java.io.File.pathSeparator, -1)) {
             Path file = Path.of(path, executableName);
             if (Files.exists(file)) {
                 if (LOG.isDebugEnabled()) {
