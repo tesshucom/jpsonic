@@ -22,6 +22,7 @@ package com.tesshu.jpsonic.service.upnp.processor;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.net.URI;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -57,8 +58,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 public class PodcastUpnpProcessor extends UpnpContentProcessor<PodcastChannel, PodcastEpisode> {
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-
+    private static final ThreadLocal<DateFormat> DATE_FORMAT = ThreadLocal
+            .withInitial(() -> new SimpleDateFormat("yyyy-MM-dd", Locale.US));
     private final UpnpProcessorUtil util;
     private final MediaFileService mediaFileService;
     private final PodcastService podcastService;
@@ -122,7 +123,7 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor<PodcastChannel, P
             Calendar c = Calendar.getInstance();
             c.setTime(publishDate);
             synchronized (DATE_FORMAT) {
-                item.setDate(DATE_FORMAT.format(c.getTime()));
+                item.setDate(DATE_FORMAT.get().format(c.getTime()));
             }
         }
 

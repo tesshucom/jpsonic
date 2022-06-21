@@ -31,9 +31,6 @@ import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.SortCriterion;
 
-/**
- * @author Sindre Mehus
- */
 public abstract class CustomContentDirectory extends AbstractContentDirectoryService {
 
     public CustomContentDirectory() {

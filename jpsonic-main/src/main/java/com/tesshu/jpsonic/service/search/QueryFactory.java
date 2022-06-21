@@ -27,8 +27,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
@@ -67,26 +65,27 @@ public class QueryFactory {
     private final SettingsService settingsService;
     private final AnalyzerFactory analyzerFactory;
 
-    private final Function<MusicFolder, Query> toFolderIdQuery = (folder) -> {
+    private Query toFolderIdQuery(MusicFolder folder) {
         // Unanalyzed field
         return new TermQuery(new Term(FieldNamesConstants.FOLDER_ID, folder.getId().toString()));
-    };
+    }
 
-    private final Function<MusicFolder, Query> toFolderPathQuery = (folder) -> {
+    private Query toFolderPathQuery(MusicFolder folder) {
         // Unanalyzed field
         return new TermQuery(new Term(FieldNamesConstants.FOLDER, folder.getPathString()));
-    };
+    }
 
-    public final BiFunction<@NonNull Boolean, @NonNull List<MusicFolder>, @NonNull Query> toFolderQuery = (isId3,
-            folders) -> {
+    public @NonNull Query createFolderQuery(@NonNull Boolean isId3, @NonNull List<MusicFolder> folders) {
         BooleanQuery.Builder mfQuery = new BooleanQuery.Builder();
-        folders.stream().map(isId3 ? toFolderIdQuery : toFolderPathQuery).forEach(t -> mfQuery.add(t, Occur.SHOULD));
+        folders.stream().map(isId3 ? this::toFolderIdQuery : this::toFolderPathQuery)
+                .forEach(t -> mfQuery.add(t, Occur.SHOULD));
         return mfQuery.build();
-    };
+    }
 
-    private final BiFunction<@Nullable Integer, @Nullable Integer, @NonNull Query> toYearRangeQuery = (from,
-            to) -> IntPoint.newRangeQuery(FieldNamesConstants.YEAR, isEmpty(from) ? Integer.MIN_VALUE : from,
-                    isEmpty(to) ? Integer.MAX_VALUE : to);
+    private @NonNull Query createYearRangeQuery(@Nullable Integer from, @Nullable Integer to) {
+        return IntPoint.newRangeQuery(FieldNamesConstants.YEAR, isEmpty(from) ? Integer.MIN_VALUE : from,
+                isEmpty(to) ? Integer.MAX_VALUE : to);
+    }
 
     public QueryFactory(SettingsService settingsService, AnalyzerFactory analyzerFactory) {
         super();
@@ -187,7 +186,7 @@ public class QueryFactory {
         multiFieldQuery.ifPresent(q -> mainQuery.add(q, Occur.MUST));
 
         boolean isId3 = indexType == IndexType.ALBUM_ID3 || indexType == IndexType.ARTIST_ID3;
-        Query folderQuery = toFolderQuery.apply(isId3, musicFolders);
+        Query folderQuery = createFolderQuery(isId3, musicFolders);
         mainQuery.add(folderQuery, Occur.MUST);
 
         return mainQuery.build();
@@ -220,10 +219,10 @@ public class QueryFactory {
         }
 
         if (!(isEmpty(criteria.getFromYear()) && isEmpty(criteria.getToYear()))) {
-            query.add(toYearRangeQuery.apply(criteria.getFromYear(), criteria.getToYear()), Occur.MUST);
+            query.add(createYearRangeQuery(criteria.getFromYear(), criteria.getToYear()), Occur.MUST);
         }
 
-        query.add(toFolderQuery.apply(false, criteria.getMusicFolders()), Occur.MUST);
+        query.add(createFolderQuery(false, criteria.getMusicFolders()), Occur.MUST);
 
         return query.build();
 
@@ -240,7 +239,7 @@ public class QueryFactory {
     public Query getRandomSongs(@NonNull List<MusicFolder> musicFolders) {
         return new BooleanQuery.Builder()
                 .add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.MUST)
-                .add(toFolderQuery.apply(false, musicFolders), Occur.MUST).build();
+                .add(createFolderQuery(false, musicFolders), Occur.MUST).build();
     }
 
     /**
@@ -253,7 +252,7 @@ public class QueryFactory {
      * @return Query
      */
     public Query getRandomAlbums(@NonNull List<MusicFolder> musicFolders) {
-        return new BooleanQuery.Builder().add(toFolderQuery.apply(false, musicFolders), Occur.SHOULD).build();
+        return new BooleanQuery.Builder().add(createFolderQuery(false, musicFolders), Occur.SHOULD).build();
     }
 
     /**
@@ -266,7 +265,7 @@ public class QueryFactory {
      * @return Query
      */
     public Query getRandomAlbumsId3(@NonNull List<MusicFolder> musicFolders) {
-        return new BooleanQuery.Builder().add(toFolderQuery.apply(true, musicFolders), Occur.SHOULD).build();
+        return new BooleanQuery.Builder().add(createFolderQuery(true, musicFolders), Occur.SHOULD).build();
     }
 
     /**

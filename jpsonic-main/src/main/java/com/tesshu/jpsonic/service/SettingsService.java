@@ -835,30 +835,28 @@ public class SettingsService {
     }
 
     /**
-     * @return The limit in Kbit/s. Zero if unlimited.
+     * Get the limit in Kbit/s. Zero if unlimited.
      */
     public long getDownloadBitrateLimit() {
         return getLong(SettingsConstants.Advanced.Bandwidth.DOWNLOAD_BITRATE_LIMIT);
     }
 
     /**
-     * @param l
-     *            The limit in Kbit/s. Zero if unlimited.
+     * Set the limit in Kbit/s. Zero if unlimited.
      */
     public void setDownloadBitrateLimit(long l) {
         setProperty(SettingsConstants.Advanced.Bandwidth.DOWNLOAD_BITRATE_LIMIT, l);
     }
 
     /**
-     * @return The limit in Kbit/s. Zero if unlimited.
+     * Get the limit in Kbit/s. Zero if unlimited.
      */
     public long getUploadBitrateLimit() {
         return getLong(SettingsConstants.Advanced.Bandwidth.UPLOAD_BITRATE_LIMIT);
     }
 
     /**
-     * @param l
-     *            The limit in Kbit/s. Zero if unlimited.
+     * Set the limit in Kbit/s. Zero if unlimited.
      */
     public void setUploadBitrateLimit(long l) {
         setProperty(SettingsConstants.Advanced.Bandwidth.UPLOAD_BITRATE_LIMIT, l);

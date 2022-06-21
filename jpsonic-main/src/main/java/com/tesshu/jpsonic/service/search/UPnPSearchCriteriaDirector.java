@@ -246,6 +246,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         assignableClass = MediaFile.class;
     }
 
+    @SuppressWarnings("ArgumentSelectionDefectChecker")
     private Class<?> purseDerivedfrom(String subject, String verb, String complement) {
 
         Class<?> clazz = null;
@@ -295,6 +296,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         return clazz;
     }
 
+    @SuppressWarnings("ArgumentSelectionDefectChecker")
     private Class<?> purseClass(String subject, String verb, String complement) {
 
         Class<?> clazz = null;
@@ -648,7 +650,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         // folder
         IndexType t = getIndexType();
         boolean isId3 = t == IndexType.ALBUM_ID3 || t == IndexType.ARTIST_ID3;
-        Query folderQuery = queryFactory.toFolderQuery.apply(isId3, upnpUtil.getGuestMusicFolders());
+        Query folderQuery = queryFactory.createFolderQuery(isId3, upnpUtil.getGuestMusicFolders());
         mainQuery.add(folderQuery, Occur.MUST);
 
         result = new UPnPSearchCriteria(upnpSearchQuery, offset, count);

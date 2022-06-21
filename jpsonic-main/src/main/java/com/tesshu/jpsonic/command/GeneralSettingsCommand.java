@@ -298,8 +298,8 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
         return othersPlayingEnabled;
     }
 
-    public void setOthersPlayingEnabled(boolean othersplayingenabled) {
-        this.othersPlayingEnabled = othersplayingenabled;
+    public void setOthersPlayingEnabled(boolean othersPlayingEnabled) {
+        this.othersPlayingEnabled = othersPlayingEnabled;
     }
 
     public boolean isShowRememberMe() {

@@ -50,7 +50,7 @@ public class EhcacheConfiguration {
         return new CacheDisposer(settingsService);
     }
 
-    /*
+    /**
      * Shutdown priority is equal to database.
      *
      * @see net.sf.ehcache.constructs.web.ShutdownListener

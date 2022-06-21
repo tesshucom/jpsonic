@@ -30,6 +30,7 @@ import java.util.Properties;
 
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.spring.AirsonicHsqlDatabase;
+import org.hsqldb.jdbc.JDBCDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
@@ -88,7 +89,7 @@ public final class LegacyHsqlUtil {
         try {
             Driver driver = (Driver) Class
                     .forName("org.hsqldb.jdbc.JDBCDriver", true, Thread.currentThread().getContextClassLoader())
-                    .getDeclaredConstructor().newInstance();
+                    .asSubclass(JDBCDriver.class).getDeclaredConstructor().newInstance();
             driverVersion = String.format("%d.%d", driver.getMajorVersion(), driver.getMinorVersion());
             if (driver.getMajorVersion() != AirsonicHsqlDatabase.CURRENT_SUPPORTED_MAJOR_VERSION) {
                 LOG.warn(

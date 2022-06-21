@@ -21,9 +21,6 @@
 
 package com.tesshu.jpsonic.domain;
 
-/**
- * @author Sindre Mehus
- */
 public class AlbumNotes {
 
     private final String notes;

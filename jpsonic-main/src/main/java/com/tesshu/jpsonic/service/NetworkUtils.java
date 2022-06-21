@@ -73,7 +73,7 @@ public final class NetworkUtils {
         // If the request has been through multiple reverse proxies,
         // We need to return the original Host that the client used
         if (xForardedHost != null) {
-            xForardedHost = xForardedHost.split(",")[0];
+            xForardedHost = xForardedHost.split(",", -1)[0];
         }
 
         if (!isValidXForwardedHost(xForardedHost)) {
@@ -82,7 +82,7 @@ public final class NetworkUtils {
             // If the request has been through multiple reverse proxies,
             // We need to return the original Host that the client used
             if (xForardedHost != null) {
-                xForardedHost = xForardedHost.split(",")[0];
+                xForardedHost = xForardedHost.split(",", -1)[0];
             }
 
             if (!isValidXForwardedHost(xForardedHost)) {

@@ -25,9 +25,6 @@ import com.hoodcomputing.natpmp.MapRequestMessage;
 import com.hoodcomputing.natpmp.NatPmpDevice;
 import com.hoodcomputing.natpmp.NatPmpException;
 
-/**
- * @author Sindre Mehus
- */
 public final class NATPMPRouter implements Router {
 
     private final NatPmpDevice device;

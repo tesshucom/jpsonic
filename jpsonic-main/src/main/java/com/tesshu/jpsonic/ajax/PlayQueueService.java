@@ -269,10 +269,8 @@ public class PlayQueueService {
         return doPlay(request, player, songs).startPlayerAtAndGetInfo(0);
     }
 
-    /**
-     * @param startIndex
-     *            Start playing at this index in the list of radio streams, or play whole radio playlist if
-     *            {@code null}.
+    /*
+     * Start playing at this index in the list of radio streams, or play whole radio playlist if {@code null}.
      */
     public PlayQueueInfo playInternetRadio(int id, Integer startIndex)
             throws ServletRequestBindingException, ExecutionException {
@@ -300,9 +298,8 @@ public class PlayQueueService {
         return doAdd(request, response, ids, null);
     }
 
-    /**
-     * @param startIndex
-     *            Start playing at this index, or play whole playlist if {@code null}.
+    /*
+     * Start playing at this index, or play whole playlist if {@code null}.
      */
     public PlayQueueInfo playPlaylist(int id, Integer startIndex) throws ServletRequestBindingException {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
@@ -328,9 +325,8 @@ public class PlayQueueService {
         return doPlay(request, player, files).startPlayerAtAndGetInfo(0);
     }
 
-    /**
-     * @param startIndex
-     *            Start playing at this index, or play all top songs if {@code null}.
+    /*
+     * Start playing at this index, or play all top songs if {@code null}.
      */
     public PlayQueueInfo playTopSong(int id, Integer startIndex) throws ServletRequestBindingException {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
@@ -558,10 +554,9 @@ public class PlayQueueService {
         return playQueue;
     }
 
-    /**
-     * @param addAtIndex
-     *            if not null, insert the media files at the specified index otherwise, append the media files at the
-     *            end of the play queue
+    /*
+     * if not null, insert the media files at the specified index otherwise, append the media files at the end of the
+     * play queue
      */
     public PlayQueueInfo doAdd(HttpServletRequest request, HttpServletResponse response, int[] ids, Integer addAtIndex)
             throws ServletRequestBindingException {

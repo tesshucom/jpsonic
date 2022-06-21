@@ -25,7 +25,6 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import java.net.URI;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -51,7 +50,7 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor<MediaFile, M
     private final SearchService searchService;
     private final JMediaFileService mediaFileService;
 
-    private final Function<Genre, MediaFile> toMediaFile = (g) -> {
+    private MediaFile toMediaFile(Genre g) {
         MediaFile m = new MediaFile();
         m.setId(-1);
         m.setTitle(g.getName());
@@ -60,7 +59,7 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor<MediaFile, M
         }
         m.setGenre(g.getName());
         return m;
-    };
+    }
 
     public AlbumByGenreUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
             SearchService s) {
@@ -130,7 +129,8 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor<MediaFile, M
 
     @Override
     public List<MediaFile> getItems(long offset, long maxResults) {
-        return searchService.getGenres(true, offset, maxResults).stream().map(toMediaFile).collect(Collectors.toList());
+        return searchService.getGenres(true, offset, maxResults).stream().map(this::toMediaFile)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -138,7 +138,7 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor<MediaFile, M
         int index = Integer.parseInt(id);
         List<Genre> genres = searchService.getGenres(true);
         if (genres.size() > index) {
-            return toMediaFile.apply(genres.get(index));
+            return toMediaFile(genres.get(index));
         }
         return null;
     }

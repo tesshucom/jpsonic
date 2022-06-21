@@ -23,9 +23,6 @@ package com.tesshu.jpsonic.domain;
 
 import java.util.Date;
 
-/**
- * @author Sindre Mehus
- */
 public class Artist {
 
     private int id;
