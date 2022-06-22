@@ -25,7 +25,7 @@ func main() {
 
 	// Iterate over files
 	for _, path := range files {
-		f, err := os.Open(path)
+		f, err := os.Open(filepath.Clean(path))
 		if err != nil {
 			log.Fatal(err)
 		}
