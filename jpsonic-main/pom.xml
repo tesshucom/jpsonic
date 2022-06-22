@@ -320,18 +320,10 @@
             <artifactId>jakarta.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
-
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>jstl</artifactId>
-            <scope>runtime</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.servlet</groupId>
-                    <artifactId>servlet-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+		<dependency>
+		    <groupId>jakarta.servlet.jsp.jstl</groupId>
+		    <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+		</dependency>
 
         <dependency>
             <groupId>jakarta.mail</groupId>
