@@ -22,6 +22,6 @@ function checkTruncate(tabularWidthBase, tabular, controlLength, cols) {
 }
 function initTruncate(tabularWidthBase, tabular, controlLength, cols) {
     checkTruncate(tabularWidthBase, tabular, controlLength, cols);
-    function onResize(c, t){onresize=function(){clearTimeout(t);t=setTimeout(c, 500)};return c};
+    function onResize(c, t){onresize=function(){clearTimeout(t);t=setTimeout(c, 500)};return c}
     onResize(function() {checkTruncate(tabularWidthBase, tabular, controlLength, cols)})();
 }

@@ -11,6 +11,6 @@ function adjustCoverartContainer() {
 
 $(document).ready(function () {
   adjustCoverartContainer();
-  function onResize(c,t){onresize=function(){clearTimeout(t);t=setTimeout(c,300)};return c};
+  function onResize(c,t){onresize=function(){clearTimeout(t);t=setTimeout(c,300)};return c}
   onResize(function() {adjustCoverartContainer();})();
 });

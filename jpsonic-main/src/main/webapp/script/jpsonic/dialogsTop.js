@@ -1,7 +1,7 @@
-function refShowPlaylist4Album() {};
-function refAppendPlaylist4Album(playlistId) {};
-function refShowPlaylist4Playqueue() {};
-function refAppendPlaylist4Playqueue(playlistId) {};
+function refShowPlaylist4Album() {}
+function refAppendPlaylist4Album(playlistId) {}
+function refShowPlaylist4Playqueue() {}
+function refAppendPlaylist4Playqueue(playlistId) {}
 
 function createDialogVoiceInput(lang, closeText) {
     const ps = new PrefferedSize(480, 180);
@@ -38,7 +38,7 @@ function createDialogVoiceInput(lang, closeText) {
                         $("#query").val(top.$("#voice-input-result").text());
                         executeInstantSearch();
                     }
-                };
+                }
                 sr.onend = onEnd;
                 sr.onerror = function(e) {console.log(e);onEnd(e)}
                 sr.start();
