@@ -22,14 +22,14 @@
 package com.tesshu.jpsonic.security;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.google.common.collect.MapDifference;
-import com.google.common.collect.Maps;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -93,10 +93,20 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
     }
 
     static boolean expectedJWTParam(@NonNull Map<String, List<String>> left, @NonNull Map<String, List<String>> right) {
-        MapDifference<String, List<String>> difference = Maps.difference(left, right);
-        return !(!difference.entriesDiffering().isEmpty() || !difference.entriesOnlyOnLeft().isEmpty()
-                || difference.entriesOnlyOnRight().size() != 1
-                || difference.entriesOnlyOnRight().get(JWTSecurityService.JWT_PARAM_NAME) == null);
+
+        if (left.size() + 1 != right.size() // Size
+                || left.values().stream().anyMatch(Objects::isNull) // Null
+                || right.values().stream().anyMatch(Objects::isNull) // Null
+                || !right.containsKey(JWTSecurityService.JWT_PARAM_NAME)) { // hasParam
+            return false;
+        }
+
+        // Equivalence
+        var sortedLeft = new TreeMap<>(left);
+        var sortedRight = new TreeMap<>(right);
+        sortedRight.remove(JWTSecurityService.JWT_PARAM_NAME);
+        return Arrays.equals(sortedLeft.keySet().toArray(), sortedRight.keySet().toArray())
+                && Arrays.deepEquals(sortedLeft.values().toArray(), sortedRight.values().toArray());
     }
 
     @Override
