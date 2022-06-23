@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.tesshu.jpsonic.domain.MusicFolder;
 
 public final class MusicFolderTestDataUtils {
@@ -42,7 +41,7 @@ public final class MusicFolderTestDataUtils {
             return Path.of(MusicFolderTestDataUtils.class.getResource(BASE_RESOURCES).toURI()).toString()
                     + java.io.File.separator;
         } catch (URISyntaxException e) {
-            throw new UncheckedExecutionException(e);
+            throw new IllegalArgumentException(BASE_RESOURCES + "is not found", e);
         }
     }
 
