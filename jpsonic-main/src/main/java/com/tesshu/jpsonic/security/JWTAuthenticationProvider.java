@@ -31,8 +31,10 @@ import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
@@ -77,23 +79,13 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
         return new JWTAuthenticationToken(authorities, rawToken, authentication.getRequestedPath());
     }
 
-    private static boolean roughlyEqual(String expectedRaw, String requestedPathRaw) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Comparing expected [{}] vs requested [{}]", expectedRaw, requestedPathRaw);
-        }
+    static boolean roughlyEqual(@Nullable String expectedRaw, @NonNull String requestedPathRaw) {
         if (StringUtils.isEmpty(expectedRaw)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("False: empty expected");
-            }
             return false;
         }
         UriComponents expected = UriComponentsBuilder.fromUriString(expectedRaw).build();
         UriComponents requested = UriComponentsBuilder.fromUriString(requestedPathRaw).build();
         if (!Objects.equals(expected.getPath(), requested.getPath())) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("False: expected path [{}] does not match requested path [{}]", expected.getPath(),
-                        requested.getPath());
-            }
             return false;
         }
 
@@ -102,10 +94,6 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
         if (!difference.entriesDiffering().isEmpty() || !difference.entriesOnlyOnLeft().isEmpty()
                 || difference.entriesOnlyOnRight().size() != 1
                 || difference.entriesOnlyOnRight().get(JWTSecurityService.JWT_PARAM_NAME) == null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("False: expected query params [{}] do not match requested query params [{}]",
-                        expected.getQueryParams(), requested.getQueryParams());
-            }
             return false;
         }
         return true;
