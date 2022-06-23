@@ -27,7 +27,6 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.util.concurrent.UncheckedExecutionException;
 import liquibase.Scope;
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
@@ -53,7 +52,7 @@ public class AirsonicSpringLiquibase extends liquibase.integration.spring.Spring
             // Suppress console log. May be fixed in the future. #1476
             Scope.enter(Map.of(Scope.Attr.ui.name(), new LoggerUIService()));
         } catch (Exception e) {
-            throw new UncheckedExecutionException(e);
+            throw new LiquibaseException(e);
         }
 
         LOG.trace("Starting Liquibase Update");
