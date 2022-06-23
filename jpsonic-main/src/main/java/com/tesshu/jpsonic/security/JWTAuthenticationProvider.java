@@ -23,6 +23,7 @@ package com.tesshu.jpsonic.security;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import com.auth0.jwt.interfaces.Claim;
@@ -88,15 +89,14 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
         if (!Objects.equals(expected.getPath(), requested.getPath())) {
             return false;
         }
+        return expectedJWTParam(expected.getQueryParams(), requested.getQueryParams());
+    }
 
-        MapDifference<String, List<String>> difference = Maps.difference(expected.getQueryParams(),
-                requested.getQueryParams());
-        if (!difference.entriesDiffering().isEmpty() || !difference.entriesOnlyOnLeft().isEmpty()
+    static boolean expectedJWTParam(@NonNull Map<String, List<String>> left, @NonNull Map<String, List<String>> right) {
+        MapDifference<String, List<String>> difference = Maps.difference(left, right);
+        return !(!difference.entriesDiffering().isEmpty() || !difference.entriesOnlyOnLeft().isEmpty()
                 || difference.entriesOnlyOnRight().size() != 1
-                || difference.entriesOnlyOnRight().get(JWTSecurityService.JWT_PARAM_NAME) == null) {
-            return false;
-        }
-        return true;
+                || difference.entriesOnlyOnRight().get(JWTSecurityService.JWT_PARAM_NAME) == null);
     }
 
     @Override
