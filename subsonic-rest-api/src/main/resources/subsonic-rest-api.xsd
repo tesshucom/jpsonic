@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+		   jaxb:version="2.1"
+		   jaxb:extensionBindingPrefixes="annox"
+           xmlns:annox="http://annox.dev.java.net"
            xmlns:sub="http://subsonic.org/restapi"
            targetNamespace="http://subsonic.org/restapi"
            attributeFormDefault="unqualified"
@@ -631,6 +635,11 @@
     </xs:complexType>
 
     <xs:complexType name="Error">
+        <xs:annotation>
+            <xs:appinfo>
+                <annox:annotate>@java.lang.SuppressWarnings({"JavaLangClash"})</annox:annotate>
+            </xs:appinfo>
+        </xs:annotation>
         <xs:attribute name="code" type="xs:int" use="required"/>
         <xs:attribute name="message" type="xs:string" use="optional"/>
     </xs:complexType>

@@ -73,7 +73,6 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor<Genre, MediaF
         return createBrowseResult(didl, (int) didl.getCount(), getItemCount());
     }
 
-    @Deprecated
     @Override
     public Container createContainer(Genre item) {
         return null;

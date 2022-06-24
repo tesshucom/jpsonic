@@ -53,7 +53,6 @@ import org.apache.lucene.analysis.core.KeywordTokenizerFactory;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
 import org.apache.lucene.analysis.core.StopFilterFactory;
 import org.apache.lucene.analysis.custom.CustomAnalyzer;
-import org.apache.lucene.analysis.custom.CustomAnalyzer.Builder;
 import org.apache.lucene.analysis.ja.JapanesePartOfSpeechStopFilter;
 import org.apache.lucene.analysis.ja.JapanesePartOfSpeechStopFilterFactory;
 import org.apache.lucene.analysis.ja.JapaneseTokenizerFactory;
@@ -116,7 +115,7 @@ public final class AnalyzerFactory {
      */
     private Analyzer createDefaultAnalyzer(boolean isArtist) throws IOException {
         IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
-        CustomAnalyzer.Builder builder = CustomAnalyzer.builder()
+        return CustomAnalyzer.builder()
                 .withTokenizer(scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING ? StandardTokenizerFactory.class
                         : JapaneseTokenizerFactory.class)
                 .addTokenFilter(CJKWidthFilterFactory.class)
@@ -133,8 +132,8 @@ public final class AnalyzerFactory {
                 .addTokenFilter(PatternReplaceFilterFactory.class, //
                         FILTER_ATTR_PATTERN, "\\_$", //
                         FILTER_ATTR_REPLACEMENT, "", //
-                        FILTER_ATTR_REPLACE, FILTER_ATTR_ALL);
-        return builder.build();
+                        FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
+                .build();
     }
 
     /**
@@ -229,7 +228,7 @@ public final class AnalyzerFactory {
      * @see org.jaudiotagger.tag.id3.framebody.FrameBodyTCON#convertID3v23GenreToGeneric
      */
     private Analyzer createGenreAnalyzer() throws IOException {
-        Builder builder = CustomAnalyzer.builder().withTokenizer(GenreTokenizerFactory.class) //
+        return CustomAnalyzer.builder().withTokenizer(GenreTokenizerFactory.class) //
                 .addTokenFilter(PatternReplaceFilterFactory.class, //
                         FILTER_ATTR_PATTERN, "\\(", FILTER_ATTR_REPLACEMENT, "", //
                         FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
@@ -246,8 +245,7 @@ public final class AnalyzerFactory {
                         FILTER_ATTR_PATTERN, "\\[\\]", FILTER_ATTR_REPLACEMENT, "\\[ \\]", //
                         FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
                 .addTokenFilter(CJKWidthFilterFactory.class) //
-                .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false");
-        return builder.build();
+                .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false").build();
     }
 
     /**

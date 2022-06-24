@@ -22,7 +22,6 @@
 package com.tesshu.jpsonic.service;
 
 import java.util.List;
-import java.util.Objects;
 
 import com.tesshu.jpsonic.dao.BookmarkDao;
 import com.tesshu.jpsonic.domain.Bookmark;
@@ -39,9 +38,8 @@ public class BookmarkService {
     }
 
     public Bookmark getBookmarkForUserAndMediaFile(String username, MediaFile mediaFile) {
-        return dao.getBookmarks(username).stream()
-                .filter(bookmark -> Objects.equals(mediaFile.getId(), bookmark.getMediaFileId())).findFirst()
-                .orElse(null);
+        return dao.getBookmarks(username).stream().filter(bookmark -> mediaFile.getId() == bookmark.getMediaFileId())
+                .findFirst().orElse(null);
     }
 
     public void createOrUpdateBookmark(Bookmark bookmark) {

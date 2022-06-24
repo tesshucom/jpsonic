@@ -21,9 +21,6 @@
 
 package com.tesshu.jpsonic.domain;
 
-/**
- * @author Sindre Mehus
- */
 public class CacheElement {
 
     private final long id;

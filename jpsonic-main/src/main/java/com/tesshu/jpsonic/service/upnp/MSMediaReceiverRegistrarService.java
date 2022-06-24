@@ -23,8 +23,5 @@ package com.tesshu.jpsonic.service.upnp;
 
 import org.fourthline.cling.support.xmicrosoft.AbstractMediaReceiverRegistrarService;
 
-/**
- * @author Sindre Mehus
- */
 public class MSMediaReceiverRegistrarService extends AbstractMediaReceiverRegistrarService {
 }

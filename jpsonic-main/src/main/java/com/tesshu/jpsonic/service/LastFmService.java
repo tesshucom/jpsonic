@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
-import com.google.common.collect.Lists;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.AlbumNotes;
@@ -438,7 +437,9 @@ public class LastFmService {
 
     private LastFmCoverArt convert(Album album) {
         String imageUrl = null;
-        for (ImageSize imageSize : Lists.reverse(Arrays.asList(ImageSize.values()))) {
+        List<ImageSize> imageSizes = Arrays.asList(ImageSize.values());
+        Collections.reverse(imageSizes);
+        for (ImageSize imageSize : imageSizes) {
             imageUrl = StringUtils.trimToNull(album.getImageURL(imageSize));
             if (imageUrl != null) {
                 break;

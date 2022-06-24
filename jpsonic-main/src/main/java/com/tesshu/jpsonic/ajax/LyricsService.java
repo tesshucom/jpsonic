@@ -26,7 +26,6 @@ import static com.tesshu.jpsonic.util.XMLUtil.createSAXBuilder;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.SocketException;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.util.StringUtil;
@@ -87,7 +86,7 @@ public class LyricsService {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to get lyrics for song '{}'. Request failed: {}", song, e.toString());
             }
-            if (Objects.equals(HttpStatus.SC_SERVICE_UNAVAILABLE, e.getStatusCode())) {
+            if (HttpStatus.SC_SERVICE_UNAVAILABLE == e.getStatusCode()) {
                 lyrics.setTryLater(true);
             }
         } catch (SocketException | ConnectTimeoutException e) {

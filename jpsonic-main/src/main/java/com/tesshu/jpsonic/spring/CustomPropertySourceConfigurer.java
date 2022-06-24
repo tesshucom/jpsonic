@@ -22,8 +22,9 @@
 package com.tesshu.jpsonic.spring;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import com.google.common.collect.Lists;
 import com.tesshu.jpsonic.service.ApacheCommonsConfigurationService;
 import org.apache.commons.configuration2.ImmutableConfiguration;
 import org.apache.commons.lang3.StringUtils;
@@ -59,7 +60,8 @@ public class CustomPropertySourceConfigurer
             dataSourceConfigType = DataSourceConfigType.LEGACY;
         }
         String dataSourceTypeProfile = StringUtils.lowerCase(dataSourceConfigType.name());
-        List<String> existingProfiles = Lists.newArrayList(ctx.getEnvironment().getActiveProfiles());
+        List<String> existingProfiles = Stream.of(ctx.getEnvironment().getActiveProfiles())
+                .collect(Collectors.toList());
         existingProfiles.add(dataSourceTypeProfile);
         ctx.getEnvironment().setActiveProfiles(existingProfiles.toArray(new String[0]));
     }

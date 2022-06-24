@@ -21,9 +21,10 @@
 
 package com.tesshu.jpsonic.service.upnp;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
-import com.google.common.collect.Lists;
 import org.fourthline.cling.support.contentdirectory.AbstractContentDirectoryService;
 import org.fourthline.cling.support.contentdirectory.ContentDirectoryException;
 import org.fourthline.cling.support.contentdirectory.DIDLParser;
@@ -31,13 +32,10 @@ import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.SortCriterion;
 
-/**
- * @author Sindre Mehus
- */
 public abstract class CustomContentDirectory extends AbstractContentDirectoryService {
 
     public CustomContentDirectory() {
-        super(Lists.newArrayList("*"), Lists.newArrayList());
+        super(Arrays.asList("*"), Collections.emptyList());
     }
 
     @SuppressWarnings("PMD.AvoidCatchingGenericException") // fourthline/DIDLParser#generate

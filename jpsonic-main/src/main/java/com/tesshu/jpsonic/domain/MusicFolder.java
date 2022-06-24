@@ -25,9 +25,8 @@ import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-
-import com.google.common.base.Objects;
 
 /**
  * Represents a top level directory in which music or other media is stored.
@@ -100,10 +99,10 @@ public class MusicFolder implements Serializable {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof MusicFolder)) {
             return false;
         }
-        return Objects.equal(id, ((MusicFolder) o).id);
+        return Objects.equals(id, ((MusicFolder) o).id);
     }
 
     @Override

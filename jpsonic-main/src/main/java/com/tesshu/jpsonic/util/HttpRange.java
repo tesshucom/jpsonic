@@ -26,9 +26,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
-/**
- * @author Sindre Mehus
- */
 public class HttpRange {
 
     private static final Pattern PATTERN = Pattern.compile("bytes=(\\d+)-(\\d*)");
@@ -75,35 +72,35 @@ public class HttpRange {
     }
 
     /**
-     * @return The first byte position (inclusive) in the range. Never {@code null}.
+     * The first byte position (inclusive) in the range. Never {@code null}.
      */
     public Long getFirstBytePos() {
         return firstBytePos;
     }
 
     /**
-     * @return The last byte position (inclusive) in the range. Can be {@code null}.
+     * The last byte position (inclusive) in the range. Can be {@code null}.
      */
     public Long getLastBytePos() {
         return lastBytePos;
     }
 
     /**
-     * @return Whether this is a closed range (both first and last byte position specified).
+     * Whether this is a closed range (both first and last byte position specified).
      */
     public boolean isClosed() {
         return firstBytePos != null && lastBytePos != null;
     }
 
     /**
-     * @return The size in bytes if the range is closed, -1 otherwise.
+     * The size in bytes if the range is closed, -1 otherwise.
      */
     public long size() {
         return isClosed() ? lastBytePos - firstBytePos + 1 : -1;
     }
 
     /**
-     * @return Returns whether the given byte position is within this range.
+     * Returns whether the given byte position is within this range.
      */
     public boolean contains(long pos) {
         if (pos < firstBytePos) {

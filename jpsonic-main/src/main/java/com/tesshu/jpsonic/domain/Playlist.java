@@ -25,9 +25,6 @@ import java.util.Date;
 
 import com.tesshu.jpsonic.util.StringUtil;
 
-/**
- * @author Sindre Mehus
- */
 public class Playlist {
 
     private int id;

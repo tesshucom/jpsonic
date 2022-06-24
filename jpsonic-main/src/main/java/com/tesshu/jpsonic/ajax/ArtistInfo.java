@@ -25,9 +25,6 @@ import java.util.List;
 
 import com.tesshu.jpsonic.domain.ArtistBio;
 
-/**
- * @author Sindre Mehus
- */
 public class ArtistInfo {
 
     private final List<SimilarArtist> similarArtists;

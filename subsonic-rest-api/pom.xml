@@ -30,6 +30,20 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <extension>true</extension>
+                    <args>
+                        <arg>-Xannotate</arg>
+                    </args>
+                    <generatePackage>org.subsonic.restapi</generatePackage>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.jvnet.jaxb2_commons</groupId>
+                            <artifactId>jaxb2-basics-annotate</artifactId>
+                            <version>1.1.0</version>
+                        </plugin>
+                    </plugins>
+                </configuration>
             </plugin>
         </plugins>
     </build>

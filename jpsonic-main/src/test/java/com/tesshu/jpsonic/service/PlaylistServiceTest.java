@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import com.google.common.collect.Lists;
 import com.tesshu.jpsonic.dao.DaoHelper;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
 import com.tesshu.jpsonic.dao.JPlaylistDao;
@@ -59,7 +58,7 @@ class PlaylistServiceTest {
             JMediaFileDao jMediaFileDao = new JMediaFileDao(daoHelper, mediaFileDao);
             JPlaylistDao jPlaylistDao = new JPlaylistDao(daoHelper, mock(PlaylistDao.class));
             playlistService = new PlaylistService(jMediaFileDao, jPlaylistDao, mock(SecurityService.class),
-                    mock(SettingsService.class), Lists.newArrayList(new DefaultPlaylistExportHandler(mediaFileDao)),
+                    mock(SettingsService.class), Arrays.asList(new DefaultPlaylistExportHandler(mediaFileDao)),
                     Collections.emptyList(), null);
         }
 
@@ -131,7 +130,7 @@ class PlaylistServiceTest {
             JPlaylistDao jPlaylistDao = new JPlaylistDao(daoHelper, playlistDao);
             DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(mediaFileService);
             playlistService = new PlaylistService(jMediaFileDao, jPlaylistDao, mock(SecurityService.class),
-                    mock(SettingsService.class), Collections.emptyList(), Lists.newArrayList(importHandler), null);
+                    mock(SettingsService.class), Collections.emptyList(), Arrays.asList(importHandler), null);
             actual = ArgumentCaptor.forClass(Playlist.class);
             medias = ArgumentCaptor.forClass(List.class);
         }
@@ -300,7 +299,7 @@ class PlaylistServiceTest {
             JPlaylistDao jPlaylistDao = new JPlaylistDao(daoHelper, playlistDao);
             DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(mediaFileService);
             playlistService = new PlaylistService(jMediaFileDao, jPlaylistDao, mock(SecurityService.class),
-                    settingsService, Collections.emptyList(), Lists.newArrayList(importHandler), null);
+                    settingsService, Collections.emptyList(), Arrays.asList(importHandler), null);
         }
 
         @Test

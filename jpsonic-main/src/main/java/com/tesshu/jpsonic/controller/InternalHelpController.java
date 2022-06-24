@@ -32,7 +32,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -361,26 +360,26 @@ public class InternalHelpController {
     }
 
     private static List<String> getLatestLogEntries(Path logFile) {
-        List<String> lines = new ArrayList<>(LOG_LINES_TO_SHOW);
+        List<String> result = new ArrayList<>(LOG_LINES_TO_SHOW);
         try (ReversedLinesFileReader reader = new ReversedLinesFileReader(logFile, Charset.defaultCharset())) {
             for (String current = reader.readLine(); current != null; current = reader.readLine()) {
-                if (lines.size() >= LOG_LINES_TO_SHOW) {
+                if (result.size() >= LOG_LINES_TO_SHOW) {
                     break;
                 }
-                lines.add(0, current);
+                result.add(0, current);
             }
-            return lines;
+            return result;
         } catch (IOException e) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Could not open log file " + logFile, e);
             }
-            return Collections.emptyList();
+            return result;
         }
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     private Path lookForExecutable(String executableName) {
-        for (String path : System.getenv("PATH").split(java.io.File.pathSeparator)) {
+        for (String path : System.getenv("PATH").split(java.io.File.pathSeparator, -1)) {
             Path file = Path.of(path, executableName);
             if (Files.exists(file)) {
                 if (LOG.isDebugEnabled()) {

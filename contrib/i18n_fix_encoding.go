@@ -25,7 +25,7 @@ func main() {
 
 	// Iterate over files
 	for _, path := range files {
-		f, err := os.Open(path)
+		f, err := os.Open(filepath.Clean(path))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -46,7 +46,7 @@ func main() {
 		// If any changes where made write them to file
 		if string(data) != out {
 			fmt.Printf("Changes where made for %s\n", path)
-			if err := ioutil.WriteFile(path, []byte(out), 0644); err != nil {
+			if err := ioutil.WriteFile(path, []byte(out), 0600); err != nil {
 				log.Fatal(err)
 			}
 		}

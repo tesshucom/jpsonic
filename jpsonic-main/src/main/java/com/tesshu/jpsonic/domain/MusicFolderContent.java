@@ -24,9 +24,6 @@ package com.tesshu.jpsonic.domain;
 import java.util.List;
 import java.util.SortedMap;
 
-/**
- * @author Sindre Mehus
- */
 public class MusicFolderContent {
 
     private final SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> indexedArtists;

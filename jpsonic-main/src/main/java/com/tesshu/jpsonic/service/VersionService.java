@@ -65,7 +65,8 @@ import org.springframework.stereotype.Service;
 public class VersionService {
 
     private static final Logger LOG = LoggerFactory.getLogger(VersionService.class);
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd", Locale.US);
+    private static final ThreadLocal<DateFormat> DATE_FORMAT = ThreadLocal
+            .withInitial(() -> new SimpleDateFormat("yyyyMMdd", Locale.US));
     private static final Object LATEST_LOCK = new Object();
     private static final Object LOCAL_VERSION_LOCK = new Object();
     private static final Object LOCAL_BUILD_DATE = new Object();
@@ -147,7 +148,7 @@ public class VersionService {
                 try {
                     String date = readLineFromResource("/build_date.txt");
                     synchronized (DATE_FORMAT) {
-                        localBuildDate = DATE_FORMAT.parse(date);
+                        localBuildDate = DATE_FORMAT.get().parse(date);
                     }
                 } catch (ParseException e) {
                     if (LOG.isWarnEnabled()) {

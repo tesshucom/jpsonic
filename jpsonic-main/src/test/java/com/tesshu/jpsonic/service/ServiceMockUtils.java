@@ -19,12 +19,12 @@
 
 package com.tesshu.jpsonic.service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.google.common.collect.ImmutableList;
 import com.tesshu.jpsonic.dao.TranscodingDao;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.IndexScheme;
@@ -41,7 +41,7 @@ public final class ServiceMockUtils {
 
     public static final String ADMIN_NAME = "admin";
 
-    private static final List<Transcoding> DEFAULT_TRANSCODINGS = ImmutableList.of(
+    private static final List<Transcoding> DEFAULT_TRANSCODINGS = Arrays.asList(
             new Transcoding(0, "mp3 audio", "mp3 ogg oga aac m4a flac wav wma aif aiff ape mpc shn", "mp3",
                     "ffmpeg -i %s -map 0:0 -b:a %bk -v 0 -f mp3 -", null, null, true),
             new Transcoding(1, "flv/h264 video", "avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts", "flv",
