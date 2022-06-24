@@ -22,17 +22,20 @@
 package com.tesshu.jpsonic.security;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.google.common.collect.MapDifference;
-import com.google.common.collect.Maps;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
@@ -77,38 +80,33 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
         return new JWTAuthenticationToken(authorities, rawToken, authentication.getRequestedPath());
     }
 
-    private static boolean roughlyEqual(String expectedRaw, String requestedPathRaw) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Comparing expected [{}] vs requested [{}]", expectedRaw, requestedPathRaw);
-        }
+    static boolean roughlyEqual(@Nullable String expectedRaw, @NonNull String requestedPathRaw) {
         if (StringUtils.isEmpty(expectedRaw)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("False: empty expected");
-            }
             return false;
         }
         UriComponents expected = UriComponentsBuilder.fromUriString(expectedRaw).build();
         UriComponents requested = UriComponentsBuilder.fromUriString(requestedPathRaw).build();
         if (!Objects.equals(expected.getPath(), requested.getPath())) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("False: expected path [{}] does not match requested path [{}]", expected.getPath(),
-                        requested.getPath());
-            }
+            return false;
+        }
+        return expectedJWTParam(expected.getQueryParams(), requested.getQueryParams());
+    }
+
+    static boolean expectedJWTParam(@NonNull Map<String, List<String>> left, @NonNull Map<String, List<String>> right) {
+
+        if (left.size() + 1 != right.size() // Size
+                || left.values().stream().anyMatch(Objects::isNull) // Null
+                || right.values().stream().anyMatch(Objects::isNull) // Null
+                || !right.containsKey(JWTSecurityService.JWT_PARAM_NAME)) { // hasParam
             return false;
         }
 
-        MapDifference<String, List<String>> difference = Maps.difference(expected.getQueryParams(),
-                requested.getQueryParams());
-        if (!difference.entriesDiffering().isEmpty() || !difference.entriesOnlyOnLeft().isEmpty()
-                || difference.entriesOnlyOnRight().size() != 1
-                || difference.entriesOnlyOnRight().get(JWTSecurityService.JWT_PARAM_NAME) == null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("False: expected query params [{}] do not match requested query params [{}]",
-                        expected.getQueryParams(), requested.getQueryParams());
-            }
-            return false;
-        }
-        return true;
+        // Equivalence
+        var sortedLeft = new TreeMap<>(left);
+        var sortedRight = new TreeMap<>(right);
+        sortedRight.remove(JWTSecurityService.JWT_PARAM_NAME);
+        return Arrays.equals(sortedLeft.keySet().toArray(), sortedRight.keySet().toArray())
+                && Arrays.deepEquals(sortedLeft.values().toArray(), sortedRight.values().toArray());
     }
 
     @Override
