@@ -42,6 +42,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.ajax.LyricsInfo;
 import com.tesshu.jpsonic.ajax.LyricsService;
 import com.tesshu.jpsonic.command.UserSettingsCommand;
@@ -161,6 +162,7 @@ import org.subsonic.restapi.Videos;
  * many loop instances because it is responsible for conversion objects. [LinguisticNaming] This is a naming convention
  * specific to this REST class that writes directly to the HTTP response without returning a return value.
  */
+@SuppressFBWarnings(value = "SPRING_CSRF_UNRESTRICTED_REQUEST_MAPPING", justification = "This is because the modification will deviate from the ecosystem.")
 @Controller
 @RequestMapping(value = "/rest", method = { RequestMethod.GET, RequestMethod.POST })
 public class SubsonicRESTController {
