@@ -22,6 +22,7 @@
 package com.tesshu.jpsonic.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 
@@ -29,6 +30,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
@@ -201,5 +203,12 @@ class InternetRadioServiceTest {
         // A PlaylistHasTooManyRedirects exception is thrown internally,
         // and the `getInternetRadioSources` method logs it and returns 0 sources.
         assertEquals(0, radioSources.size());
+    }
+
+    @Test
+    void testVerifyRadioURL() throws MalformedURLException, IOException {
+        internetRadioService.verifyRadioURL(new URL("http://dummy.com"));
+        internetRadioService.verifyRadioURL(new URL("https://dummy.com"));
+        assertThrows(IOException.class, () -> internetRadioService.verifyRadioURL(new URL("ftp://dummy.com")));
     }
 }
