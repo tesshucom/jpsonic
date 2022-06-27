@@ -29,9 +29,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -155,16 +152,16 @@ public class FFprobe {
             return result;
         }
 
-        List<String> command = new ArrayList<>();
-        command.add(cmdPath);
-        command.addAll(Arrays.asList(FFPROBE_OPTIONS));
-        command.add(path.toString());
+        ProcessBuilder pb = new ProcessBuilder();
+        pb.command().add(cmdPath);
+        Stream.of(FFPROBE_OPTIONS).forEach(op -> pb.command().add(op));
+        pb.command().add(path.toString());
 
         long start;
         JsonNode node;
         try {
             start = System.currentTimeMillis();
-            Process process = new ProcessBuilder(command).start();
+            Process process = pb.start();
             try (InputStream is = process.getInputStream(); OutputStream os = process.getOutputStream();
                     InputStream es = process.getErrorStream(); BufferedInputStream bis = new BufferedInputStream(is);) {
                 node = MAPPER.readTree(bis);

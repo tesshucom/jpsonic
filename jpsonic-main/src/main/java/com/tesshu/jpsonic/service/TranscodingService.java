@@ -446,12 +446,12 @@ public class TranscodingService {
             artist = "Unknown Artist";
         }
 
-        List<String> result = Arrays.asList(splitCommand(command));
-        result.set(0, getTranscodeDirectory().toString() + java.io.File.separatorChar + result.get(0));
+        List<String> commands = Arrays.asList(splitCommand(command));
+        commands.set(0, getTranscodeDirectory().toString() + java.io.File.separatorChar + commands.get(0));
 
         Path tmpFile = null;
-        for (int i = 1; i < result.size(); i++) {
-            String cmd = result.get(i);
+        for (int i = 1; i < commands.size(); i++) {
+            String cmd = commands.get(i);
             cmd = mergeTransCommand(cmd, artist, album, title, maxBitRate, vts);
             if (cmd.contains("%s")) {
                 // Work-around for filename character encoding problem on Windows.
@@ -467,10 +467,11 @@ public class TranscodingService {
                     cmd = cmd.replace("%s", path.toString());
                 }
             }
-            result.set(i, cmd);
+            commands.set(i, cmd);
         }
-        return new TranscodeInputStream(new ProcessBuilder(result), in, tmpFile, shortExecutor,
-                settingsService.isVerboseLogPlaying());
+        ProcessBuilder pb = new ProcessBuilder();
+        commands.forEach(op -> pb.command().add(op));
+        return new TranscodeInputStream(pb, in, tmpFile, shortExecutor, settingsService.isVerboseLogPlaying());
     }
 
     private String mergeTransCommand(@NonNull String transCommand, String artist, String album, String title,
