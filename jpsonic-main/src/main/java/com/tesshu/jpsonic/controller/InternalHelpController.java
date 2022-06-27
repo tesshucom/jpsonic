@@ -232,7 +232,8 @@ public class InternalHelpController {
         map.put("localeDefaultCharsetSupportsUtf8", doesLocaleSupportUtf8(Charset.defaultCharset().toString()));
     }
 
-    @SuppressFBWarnings(value = "CRLF_INJECTION_LOGS", justification = "False positive. find-sec-bugs#614")
+    @SuppressFBWarnings(value = { "CRLF_INJECTION_LOGS",
+            "SQL_INJECTION_SPRING_JDBC" }, justification = "False positive. find-sec-bugs#614/find-sec-bugs#385")
     private void gatherDatabaseInfo(Map<String, Object> map) {
 
         try (Connection conn = daoHelper.getDataSource().getConnection()) {
