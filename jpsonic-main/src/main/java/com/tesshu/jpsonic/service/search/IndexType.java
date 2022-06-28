@@ -46,7 +46,7 @@ public enum IndexType {
             FieldNamesConstants.COMPOSER, //
             FieldNamesConstants.COMPOSER_READING, //
             FieldNamesConstants.COMPOSER_READING_ROMANIZED), //
-            boosts(entry(FieldNamesConstants.TITLE, 3.0F), //
+            createBoosts(entry(FieldNamesConstants.TITLE, 3.0F), //
                     entry(FieldNamesConstants.TITLE_READING, 3.1F), //
                     entry(FieldNamesConstants.ARTIST, 2.0F), //
                     entry(FieldNamesConstants.ARTIST_READING, 2.1F), //
@@ -59,7 +59,7 @@ public enum IndexType {
             FieldNamesConstants.ARTIST, //
             FieldNamesConstants.ARTIST_READING, //
             FieldNamesConstants.ARTIST_READING_ROMANIZED), //
-            boosts(entry(FieldNamesConstants.ALBUM, 2.0F), //
+            createBoosts(entry(FieldNamesConstants.ALBUM, 2.0F), //
                     entry(FieldNamesConstants.ALBUM_READING, 2.1F), //
                     entry(FieldNamesConstants.ARTIST_READING, 1.1F),
                     entry(FieldNamesConstants.ARTIST_READING_ROMANIZED, 1.1F))),
@@ -69,7 +69,7 @@ public enum IndexType {
             FieldNamesConstants.ARTIST, //
             FieldNamesConstants.ARTIST_READING, //
             FieldNamesConstants.ARTIST_READING_ROMANIZED), //
-            boosts(entry(FieldNamesConstants.ALBUM, 2.0F), //
+            createBoosts(entry(FieldNamesConstants.ALBUM, 2.0F), //
                     entry(FieldNamesConstants.ALBUM_READING, 2.1F), //
                     entry(FieldNamesConstants.ARTIST_READING, 1.1F), //
                     entry(FieldNamesConstants.ARTIST_READING_ROMANIZED, 1.1F))),
@@ -77,18 +77,18 @@ public enum IndexType {
     ARTIST(fieldNames(FieldNamesConstants.ARTIST, //
             FieldNamesConstants.ARTIST_READING, //
             FieldNamesConstants.ARTIST_READING_ROMANIZED), //
-            boosts(entry(FieldNamesConstants.ARTIST_READING, 1.1F), //
+            createBoosts(entry(FieldNamesConstants.ARTIST_READING, 1.1F), //
                     entry(FieldNamesConstants.ARTIST_READING_ROMANIZED, 1.1F))),
 
     ARTIST_ID3(fieldNames(FieldNamesConstants.ARTIST, //
             FieldNamesConstants.ARTIST_READING, //
             FieldNamesConstants.ARTIST_READING_ROMANIZED), //
-            boosts(entry(FieldNamesConstants.ARTIST_READING, 1.1F), //
+            createBoosts(entry(FieldNamesConstants.ARTIST_READING, 1.1F), //
                     entry(FieldNamesConstants.ARTIST_READING_ROMANIZED, 1.1F))),
 
     GENRE(fieldNames(FieldNamesConstants.GENRE_KEY, //
             FieldNamesConstants.GENRE), //
-            boosts(entry(FieldNamesConstants.GENRE_KEY, 1.1F))),
+            createBoosts(entry(FieldNamesConstants.GENRE_KEY, 1.1F))),
 
     ;
 
@@ -107,7 +107,7 @@ public enum IndexType {
      * @return Map of boost values ​​to be applied to the field
      */
     @SafeVarargs
-    private static Map<String, Float> boosts(SimpleEntry<String, Float>... entry) {
+    private static Map<String, Float> createBoosts(SimpleEntry<String, Float>... entry) {
         Map<String, Float> m = LegacyMap.of();
         Arrays.stream(entry).forEach(kv -> m.put(kv.getKey(), kv.getValue()));
         return Collections.unmodifiableMap(m);
