@@ -63,10 +63,10 @@ public class ChangeCoverArtController {
             throws ServletRequestBindingException {
 
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        MediaFile dir = mediaFileService.getMediaFileStrict(id);
+
         String artist = request.getParameter(Attributes.Request.ARTIST.value());
         String album = request.getParameter(Attributes.Request.ALBUM.value());
-        MediaFile dir = mediaFileService.getMediaFile(id);
-
         if (StringUtils.isBlank(artist)) {
             artist = dir.getArtist();
         }
@@ -74,7 +74,7 @@ public class ChangeCoverArtController {
             album = dir.getAlbumName();
         }
 
-        String username = securityService.getCurrentUsername(request);
+        String username = securityService.getCurrentUsernameStrict(request);
         UserSettings userSettings = securityService.getUserSettings(username);
         return new ModelAndView("changeCoverArt", "model",
                 LegacyMap.of("id", id, "artist", artist, "album", album, "ancestors", getAncestors(dir),

@@ -246,12 +246,12 @@ public class PlayQueueService {
         HttpServletResponse response = resolveHttpServletResponse();
 
         Player player = getCurrentPlayer(request, response);
-        MediaFile file = mediaFileService.getMediaFile(id);
+        MediaFile file = mediaFileService.getMediaFileStrict(id);
 
         List<MediaFile> songs;
 
         if (file.isFile()) {
-            String username = securityService.getCurrentUsername(request);
+            String username = securityService.getCurrentUsernameStrict(request);
             boolean queueFollowingSongs = securityService.getUserSettings(username).isQueueFollowingSongs();
             if (queueFollowingSongs) {
                 MediaFile dir = mediaFileService.getParentOf(file);
@@ -276,7 +276,7 @@ public class PlayQueueService {
             throws ServletRequestBindingException, ExecutionException {
 
         InternetRadio radio = internetRadioDao.getInternetRadioById(id);
-        if (!radio.isEnabled()) {
+        if (radio == null || !radio.isEnabled()) {
             throw new ExecutionException(new IOException("Radio is not enabled"));
         }
 
@@ -305,7 +305,7 @@ public class PlayQueueService {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         HttpServletResponse response = ajaxHelper.getHttpServletResponse();
 
-        String username = securityService.getCurrentUsername(request);
+        String username = securityService.getCurrentUsernameStrict(request);
         boolean queueFollowingSongs = securityService.getUserSettings(username).isQueueFollowingSongs();
 
         List<MediaFile> files = playlistService.getFilesInPlaylist(id, true);
@@ -332,11 +332,11 @@ public class PlayQueueService {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         HttpServletResponse response = ajaxHelper.getHttpServletResponse();
 
-        String username = securityService.getCurrentUsername(request);
+        String username = securityService.getCurrentUsernameStrict(request);
         boolean queueFollowingSongs = securityService.getUserSettings(username).isQueueFollowingSongs();
 
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
-        List<MediaFile> files = lastFmService.getTopSongs(mediaFileService.getMediaFile(id), 50, musicFolders);
+        List<MediaFile> files = lastFmService.getTopSongs(mediaFileService.getMediaFileStrict(id), 50, musicFolders);
         if (!files.isEmpty() && startIndex != null) {
             if (queueFollowingSongs) {
                 files = files.subList(startIndex, files.size());
@@ -371,11 +371,11 @@ public class PlayQueueService {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         HttpServletResponse response = ajaxHelper.getHttpServletResponse();
 
-        PodcastEpisode episode = podcastService.getEpisode(id, false);
+        PodcastEpisode episode = podcastService.getEpisodeStrict(id, false);
         List<PodcastEpisode> allEpisodes = podcastService.getEpisodes(episode.getChannelId());
         List<MediaFile> files = new ArrayList<>();
 
-        String username = securityService.getCurrentUsername(request);
+        String username = securityService.getCurrentUsernameStrict(request);
         boolean queueFollowingSongs = securityService.getUserSettings(username).isQueueFollowingSongs();
 
         for (PodcastEpisode ep : allEpisodes) {
@@ -399,7 +399,7 @@ public class PlayQueueService {
         List<MediaFile> files = episodes.stream()
                 .map(episode -> mediaFileService.getMediaFile(episode.getMediaFileId())).collect(Collectors.toList());
 
-        String username = securityService.getCurrentUsername(request);
+        String username = securityService.getCurrentUsernameStrict(request);
         boolean queueFollowingSongs = securityService.getUserSettings(username).isQueueFollowingSongs();
 
         if (!files.isEmpty() && startIndex != null) {
@@ -418,7 +418,7 @@ public class PlayQueueService {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         HttpServletResponse response = ajaxHelper.getHttpServletResponse();
 
-        String username = securityService.getCurrentUsername(request);
+        String username = securityService.getCurrentUsernameStrict(request);
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
         List<MediaFile> files = mediaFileDao.getStarredFiles(0, Integer.MAX_VALUE, username, musicFolders);
         Player player = getCurrentPlayer(request, response);
@@ -428,7 +428,7 @@ public class PlayQueueService {
     public PlayQueueInfo playShuffle(String albumListType, int offset, int count, String genre, String decade)
             throws ServletRequestBindingException {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
-        String username = securityService.getCurrentUsername(request);
+        String username = securityService.getCurrentUsernameStrict(request);
 
         MusicFolder selectedMusicFolder = securityService.getSelectedMusicFolder(username);
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username,
@@ -492,7 +492,7 @@ public class PlayQueueService {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         HttpServletResponse response = ajaxHelper.getHttpServletResponse();
 
-        MediaFile file = mediaFileService.getMediaFile(id);
+        MediaFile file = mediaFileService.getMediaFileStrict(id);
         List<MediaFile> randomFiles = mediaFileService.getRandomSongsForParent(file, count);
         Player player = getCurrentPlayer(request, response);
         player.getPlayQueue().addFiles(false, randomFiles);
@@ -504,8 +504,8 @@ public class PlayQueueService {
     public PlayQueueInfo playSimilar(int id, int count) throws ServletRequestBindingException {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         HttpServletResponse response = ajaxHelper.getHttpServletResponse();
-        MediaFile artist = mediaFileService.getMediaFile(id);
-        String username = securityService.getCurrentUsername(request);
+        MediaFile artist = mediaFileService.getMediaFileStrict(id);
+        String username = securityService.getCurrentUsernameStrict(request);
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
         List<MediaFile> similarSongs = lastFmService.getSimilarSongs(artist, count, musicFolders);
         Player player = getCurrentPlayer(request, response);
@@ -538,7 +538,7 @@ public class PlayQueueService {
             boolean removeVideoFiles) {
         List<MediaFile> files = new ArrayList<>(ids.length);
         for (int id : ids) {
-            MediaFile ancestor = mediaFileService.getMediaFile(id);
+            MediaFile ancestor = mediaFileService.getMediaFileStrict(id);
             files.addAll(mediaFileService.getDescendantsOf(ancestor, true));
         }
         if (removeVideoFiles) {

@@ -89,7 +89,7 @@ public class CoverArtService {
      */
     public String saveCoverArtImage(int albumId, String url) {
         try {
-            MediaFile mediaFile = mediaFileService.getMediaFile(albumId);
+            MediaFile mediaFile = mediaFileService.getMediaFileStrict(albumId);
             saveCoverArt(mediaFile.getPathString(), url);
             return null;
         } catch (ExecutionException e) {
@@ -129,11 +129,11 @@ public class CoverArtService {
                     input.close();
                 }
 
-                MediaFile dir = mediaFileService.getMediaFile(pathString);
+                MediaFile dir = mediaFileService.getMediaFileStrict(pathString);
 
                 // Refresh database.
                 mediaFileService.refreshMediaFile(dir);
-                dir = mediaFileService.getMediaFile(dir.getId());
+                dir = mediaFileService.getMediaFileStrict(dir.getId());
 
                 // Rename existing cover files if new cover file is not the preferred.
                 renameWithoutReplacement(dir, newCoverFile);
@@ -164,7 +164,7 @@ public class CoverArtService {
             if (renamed) {
                 // Must refresh again.
                 mediaFileService.refreshMediaFile(dir);
-                dir = mediaFileService.getMediaFile(dir.getId());
+                dir = mediaFileService.getMediaFileStrict(dir.getId());
             }
         }
     }

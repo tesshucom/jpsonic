@@ -48,7 +48,7 @@ public class IndexController {
 
     @RequestMapping(value = { "/index", "/index.view" }, method = { RequestMethod.GET, RequestMethod.POST })
     public ModelAndView index(HttpServletRequest request, @RequestParam("mainView") Optional<String> mainView) {
-        UserSettings userSettings = securityService.getUserSettings(securityService.getCurrentUsername(request));
+        UserSettings userSettings = securityService.getUserSettings(securityService.getCurrentUsernameStrict(request));
         Map<String, Object> model = LegacyMap.of("keyboardShortcutsEnabled", userSettings.isKeyboardShortcutsEnabled(),
                 "showLeft", userSettings.isCloseDrawer(), "brand", SettingsService.getBrand());
         mainView.ifPresent(v -> model.put("mainView", v));

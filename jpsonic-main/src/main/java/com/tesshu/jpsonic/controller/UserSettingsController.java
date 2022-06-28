@@ -208,7 +208,7 @@ public class UserSettingsController {
     }
 
     public void updateUser(UserSettingsCommand command) {
-        User user = securityService.getUserByName(command.getUsername());
+        User user = securityService.getUserByNameStrict(command.getUsername());
         user.setLdapAuthenticated(command.isLdapAuthenticated());
         if (command.isPasswordChange()) {
             user.setPassword(command.getPassword());

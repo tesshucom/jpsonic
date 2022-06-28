@@ -98,7 +98,7 @@ public class MainController {
             return new ModelAndView(new RedirectView(ViewName.HOME.value() + "?"));
         }
 
-        final String username = securityService.getCurrentUsername(request);
+        final String username = securityService.getCurrentUsernameStrict(request);
         if (!securityService.isFolderAccessAllowed(dir, username)) {
             return new ModelAndView(new RedirectView(ViewName.ACCESS_DENIED.value()));
         }

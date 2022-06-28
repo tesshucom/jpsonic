@@ -157,7 +157,7 @@ public class PlaylistService {
 
         Date now = new Date();
         Playlist playlist = new Playlist();
-        String username = securityService.getCurrentUsername(request);
+        String username = securityService.getCurrentUsernameStrict(request);
         playlist.setUsername(username);
         playlist.setCreated(now);
         playlist.setChanged(now);
@@ -255,6 +255,9 @@ public class PlaylistService {
 
     public PlaylistInfo updatePlaylist(int id, String name, String comment, boolean shared) {
         Playlist playlist = deligate.getPlaylist(id);
+        if (playlist == null) {
+            throw new IllegalArgumentException("The specified playlist cannot be found.");
+        }
         playlist.setName(name);
         playlist.setComment(comment);
         playlist.setShared(shared);

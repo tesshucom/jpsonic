@@ -43,6 +43,7 @@ import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
@@ -56,7 +57,6 @@ import org.fourthline.cling.support.model.item.MusicTrack;
 import org.seamless.util.MimeType;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
@@ -159,7 +159,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
 
     @Override
     public MediaFile getItemById(String id) {
-        return mediaFileService.getMediaFile(Integer.parseInt(id));
+        return mediaFileService.getMediaFileStrict(Integer.parseInt(id));
     }
 
     @Override
@@ -218,7 +218,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
         item.setDescription(song.getComment());
 
         MediaFile parent = mediaFileService.getParentOf(song);
-        if (!ObjectUtils.isEmpty(parent)) {
+        if (parent != null) {
             item.setParentID(String.valueOf(parent.getId()));
             item.addProperty(new ALBUM_ART_URI(createAlbumArtURI(parent)));
         }
@@ -258,7 +258,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
                         .queryParam("id", artist.getId()).queryParam("size", CoverArtScheme.LARGE.getSize()));
     }
 
-    public URI createAlbumArtURI(MediaFile album) {
+    public URI createAlbumArtURI(@NonNull MediaFile album) {
         return util.createURIWithToken(
                 UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
                         .queryParam("id", album.getId()).queryParam("size", CoverArtScheme.LARGE.getSize()));

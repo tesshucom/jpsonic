@@ -217,8 +217,10 @@ public class MediaFileDao extends AbstractDao {
                     file.getAlbumArtistSortRaw(), file.getComposerSortRaw(), -1); // <<<< JP
         }
 
-        int id = queryForInt("select id from media_file where path=?", null, file.getPathString());
-        file.setId(id);
+        Integer id = queryForInt("select id from media_file where path=?", null, file.getPathString());
+        if (id != null) {
+            file.setId(id);
+        }
     }
 
     private MediaFile getMusicFileInfo(String path) {

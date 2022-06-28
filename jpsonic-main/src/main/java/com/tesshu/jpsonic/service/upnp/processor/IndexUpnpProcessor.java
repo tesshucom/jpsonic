@@ -182,7 +182,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         if (isIndex(id)) {
             return indexesMap.get(id);
         }
-        return mediaFileService.getMediaFile(id);
+        return mediaFileService.getMediaFileStrict(id);
     }
 
     @Override

@@ -98,7 +98,7 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
         }
 
         // LDAP authentication must be enabled for the given user.
-        if (!user.isLdapAuthenticated()) {
+        if (user == null || !user.isLdapAuthenticated()) {
             throw new BadCredentialsException("LDAP authentication disabled for user.");
         }
 

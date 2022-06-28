@@ -141,12 +141,16 @@ public class RandomSongByFolderArtistUpnpProcessor
     public FolderArtistWrapper getItemById(String ids) {
         int id = toRawId(ids);
         if (isArtistId(ids)) {
-            return new FolderArtist(artistDao.getArtist(id));
+            Artist artist = artistDao.getArtist(id);
+            if (artist == null) {
+                throw new IllegalArgumentException("The specified Artist cannot be found.");
+            }
+            return new FolderArtist(artist);
         } else if (isMusicFolderId(ids)) {
             return new FolderArtist(
                     musicFolderDao.getAllMusicFolders().stream().filter(m -> id == m.getId()).findFirst().get());
         }
-        return new FolderArtist(mediaFileService.getMediaFile(id));
+        return new FolderArtist(mediaFileService.getMediaFileStrict(id));
     }
 
     @Override

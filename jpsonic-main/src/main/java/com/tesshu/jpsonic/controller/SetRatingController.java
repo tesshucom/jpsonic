@@ -64,7 +64,7 @@ public class SetRatingController {
         if (rating != null && rating == 0) {
             rating = null;
         }
-        MediaFile mediaFile = mediaFileService.getMediaFile(id);
+        MediaFile mediaFile = mediaFileService.getMediaFileStrict(id);
         String username = securityService.getCurrentUsername(request);
         ratingService.setRatingForUser(username, mediaFile, rating);
         return new ModelAndView(

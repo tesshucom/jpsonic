@@ -50,6 +50,7 @@ import de.umass.lastfm.Caller;
 import de.umass.lastfm.ImageSize;
 import de.umass.lastfm.Track;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -265,7 +266,7 @@ public class LastFmService {
      *
      * @return Artist bio.
      */
-    public ArtistBio getArtistBio(MediaFile mediaFile, Locale locale) {
+    public @Nullable ArtistBio getArtistBio(MediaFile mediaFile, Locale locale) {
         return getArtistBio(getCanonicalArtistName(getArtistName(mediaFile)), locale);
     }
 
@@ -281,7 +282,7 @@ public class LastFmService {
         return getArtistBio(getCanonicalArtistName(artist.getName()), locale);
     }
 
-    private ArtistBio getArtistBio(String artistName, Locale locale) {
+    private @Nullable ArtistBio getArtistBio(String artistName, Locale locale) {
         if (artistName == null) {
             return null;
         }

@@ -55,7 +55,7 @@ public class SetMusicFileInfoController {
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         String action = request.getParameter(Attributes.Request.ACTION.value());
 
-        MediaFile mediaFile = mediaFileService.getMediaFile(id);
+        MediaFile mediaFile = mediaFileService.getMediaFileStrict(id);
 
         if ("comment".equals(action)) {
             mediaFile.setComment(

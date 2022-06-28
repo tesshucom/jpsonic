@@ -73,11 +73,11 @@ public class VideoPlayerController {
             throws ServletRequestBindingException {
 
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
-        MediaFile file = mediaFileService.getMediaFile(id);
-        MediaFile dir = mediaFileService.getParentOf(file);
+        MediaFile file = mediaFileService.getMediaFileStrict(id);
+        MediaFile parentDir = mediaFileService.getParentOf(file);
 
-        String username = securityService.getCurrentUsername(request);
-        if (!securityService.isFolderAccessAllowed(dir, username)) {
+        String username = securityService.getCurrentUsernameStrict(request);
+        if (parentDir != null && !securityService.isFolderAccessAllowed(parentDir, username)) {
             return new ModelAndView(new RedirectView(ViewName.ACCESS_DENIED.value()));
         }
 
@@ -91,7 +91,7 @@ public class VideoPlayerController {
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
 
         Map<String, Object> map = LegacyMap.of();
-        map.put("dir", dir);
+        map.put("dir", parentDir);
         map.put("breadcrumbIndex", userSettings.isBreadcrumbIndex());
         map.put("selectedMusicFolder", securityService.getSelectedMusicFolder(user.getUsername()));
         map.put("video", file);
@@ -105,7 +105,7 @@ public class VideoPlayerController {
         map.put("isShowDownload", userSettings.isShowDownload());
         map.put("isShowShare", userSettings.isShowShare());
 
-        if (!securityService.isInPodcastFolder(dir.toPath())) {
+        if (parentDir != null && !securityService.isInPodcastFolder(parentDir.toPath())) {
             MediaFile parent = mediaFileService.getParentOf(file);
             map.put("parent", parent);
             map.put("navigateUpAllowed", !mediaFileService.isRoot(parent));
