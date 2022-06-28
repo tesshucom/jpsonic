@@ -227,8 +227,8 @@ class DLNASettingsControllerTest {
     @Nested
     class MediaServerEnabledTest {
 
-        private String defaultDlnaServerName = "jpsonic";
-        private String defaultDlnaBaseLANURL = "url";
+        private static final String DLNA_SERVER_NAME = "jpsonic";
+        private static final String DLNA_BASE_LAN_URL = "url";
 
         @MediaServerEnabledDecision.Conditions.EnabledChanged.False
         @MediaServerEnabledDecision.Conditions.NameOrUrlChanged.False
@@ -237,13 +237,13 @@ class DLNASettingsControllerTest {
         @Test
         void m01() {
             Mockito.when(settingsService.isDlnaEnabled()).thenReturn(false);
-            Mockito.when(settingsService.getDlnaServerName()).thenReturn(defaultDlnaServerName);
-            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(defaultDlnaBaseLANURL);
+            Mockito.when(settingsService.getDlnaServerName()).thenReturn(DLNA_SERVER_NAME);
+            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(DLNA_BASE_LAN_URL);
 
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setDlnaEnabled(false);
-            command.setDlnaServerName(defaultDlnaServerName);
-            command.setDlnaBaseLANURL(defaultDlnaBaseLANURL);
+            command.setDlnaServerName(DLNA_SERVER_NAME);
+            command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
 
             controller.post(command, Mockito.mock(RedirectAttributes.class));
             Mockito.verify(upnpService, Mockito.never()).setMediaServerEnabled(Mockito.any(boolean.class));
@@ -257,13 +257,13 @@ class DLNASettingsControllerTest {
         // Boot
         void m02() {
             Mockito.when(settingsService.isDlnaEnabled()).thenReturn(false);
-            Mockito.when(settingsService.getDlnaServerName()).thenReturn(defaultDlnaServerName);
-            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(defaultDlnaBaseLANURL);
+            Mockito.when(settingsService.getDlnaServerName()).thenReturn(DLNA_SERVER_NAME);
+            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(DLNA_BASE_LAN_URL);
 
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setDlnaEnabled(true);
-            command.setDlnaServerName(defaultDlnaServerName);
-            command.setDlnaBaseLANURL(defaultDlnaBaseLANURL);
+            command.setDlnaServerName(DLNA_SERVER_NAME);
+            command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
 
             ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
             Mockito.doNothing().when(upnpService).setMediaServerEnabled(captor.capture());
@@ -280,13 +280,13 @@ class DLNASettingsControllerTest {
         // Shutdown
         void m03() {
             Mockito.when(settingsService.isDlnaEnabled()).thenReturn(true);
-            Mockito.when(settingsService.getDlnaServerName()).thenReturn(defaultDlnaServerName);
-            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(defaultDlnaBaseLANURL);
+            Mockito.when(settingsService.getDlnaServerName()).thenReturn(DLNA_SERVER_NAME);
+            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(DLNA_BASE_LAN_URL);
 
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setDlnaEnabled(false);
-            command.setDlnaServerName(defaultDlnaServerName);
-            command.setDlnaBaseLANURL(defaultDlnaBaseLANURL);
+            command.setDlnaServerName(DLNA_SERVER_NAME);
+            command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
 
             ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
             Mockito.doNothing().when(upnpService).setMediaServerEnabled(captor.capture());
@@ -303,13 +303,13 @@ class DLNASettingsControllerTest {
         @Test
         void m04() {
             Mockito.when(settingsService.isDlnaEnabled()).thenReturn(false);
-            Mockito.when(settingsService.getDlnaServerName()).thenReturn(defaultDlnaServerName);
-            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(defaultDlnaBaseLANURL);
+            Mockito.when(settingsService.getDlnaServerName()).thenReturn(DLNA_SERVER_NAME);
+            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(DLNA_BASE_LAN_URL);
 
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setDlnaEnabled(false);
             command.setDlnaServerName("changedDlnaServerName");
-            command.setDlnaBaseLANURL(defaultDlnaBaseLANURL);
+            command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
 
             controller.post(command, Mockito.mock(RedirectAttributes.class));
             Mockito.verify(upnpService, Mockito.never()).setMediaServerEnabled(Mockito.any(boolean.class));
@@ -324,12 +324,12 @@ class DLNASettingsControllerTest {
         @Test
         void m05() {
             Mockito.when(settingsService.isDlnaEnabled()).thenReturn(true);
-            Mockito.when(settingsService.getDlnaServerName()).thenReturn(defaultDlnaServerName);
-            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(defaultDlnaBaseLANURL);
+            Mockito.when(settingsService.getDlnaServerName()).thenReturn(DLNA_SERVER_NAME);
+            Mockito.when(settingsService.getDlnaBaseLANURL()).thenReturn(DLNA_BASE_LAN_URL);
 
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setDlnaEnabled(true);
-            command.setDlnaServerName(defaultDlnaServerName);
+            command.setDlnaServerName(DLNA_SERVER_NAME);
             command.setDlnaBaseLANURL("changedDlnaBaseLANURL");
 
             ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);

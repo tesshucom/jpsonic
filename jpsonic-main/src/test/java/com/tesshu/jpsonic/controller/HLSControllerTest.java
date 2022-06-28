@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
  */
 class HLSControllerTest {
 
-    private HLSController controller = new HLSController(null, null, null, null);
+    private final HLSController controller = new HLSController(null, null, null, null);
 
     @Test
     void testParseBitRateSuccess() {
