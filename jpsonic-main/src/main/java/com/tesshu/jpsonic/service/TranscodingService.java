@@ -40,6 +40,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.controller.VideoPlayerController;
 import com.tesshu.jpsonic.dao.TranscodingDao;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -427,6 +428,7 @@ public class TranscodingService {
      * @param in
      *            Data to feed to the process. May be {@code null}. @return The newly created input stream.
      */
+    @SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "False positive. Filtered file-extension are used.")
     TranscodeInputStream createTranscodeInputStream(@NonNull String command, Integer maxBitRate,
             VideoTranscodingSettings vts, @NonNull MediaFile mediaFile, @Nullable InputStream in) throws IOException {
 
@@ -444,12 +446,12 @@ public class TranscodingService {
             artist = "Unknown Artist";
         }
 
-        List<String> result = Arrays.asList(splitCommand(command));
-        result.set(0, getTranscodeDirectory().toString() + java.io.File.separatorChar + result.get(0));
+        List<String> commands = Arrays.asList(splitCommand(command));
+        commands.set(0, getTranscodeDirectory().toString() + java.io.File.separatorChar + commands.get(0));
 
         Path tmpFile = null;
-        for (int i = 1; i < result.size(); i++) {
-            String cmd = result.get(i);
+        for (int i = 1; i < commands.size(); i++) {
+            String cmd = commands.get(i);
             cmd = mergeTransCommand(cmd, artist, album, title, maxBitRate, vts);
             if (cmd.contains("%s")) {
                 // Work-around for filename character encoding problem on Windows.
@@ -465,10 +467,11 @@ public class TranscodingService {
                     cmd = cmd.replace("%s", path.toString());
                 }
             }
-            result.set(i, cmd);
+            commands.set(i, cmd);
         }
-        return new TranscodeInputStream(new ProcessBuilder(result), in, tmpFile, shortExecutor,
-                settingsService.isVerboseLogPlaying());
+        ProcessBuilder pb = new ProcessBuilder();
+        commands.forEach(op -> pb.command().add(op));
+        return new TranscodeInputStream(pb, in, tmpFile, shortExecutor, settingsService.isVerboseLogPlaying());
     }
 
     private String mergeTransCommand(@NonNull String transCommand, String artist, String album, String title,

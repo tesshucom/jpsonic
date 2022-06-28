@@ -37,7 +37,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -66,7 +65,6 @@ public class DatabaseSettingsController {
 
     @ModelAttribute
     protected void formBackingObject(HttpServletRequest request, Model model) {
-
         DatabaseSettingsCommand command = new DatabaseSettingsCommand();
         command.setConfigType(settingsService.getDatabaseConfigType());
         command.setEmbedDriver(settingsService.getDatabaseConfigEmbedDriver());
@@ -86,12 +84,10 @@ public class DatabaseSettingsController {
     }
 
     @PostMapping
-    protected ModelAndView onSubmit(
+    protected RedirectView onSubmit(
             @ModelAttribute(Attributes.Model.Command.VALUE) @Validated DatabaseSettingsCommand command,
             BindingResult bindingResult, RedirectAttributes redirectAttributes) {
-        if (bindingResult.hasErrors()) {
-            return new ModelAndView(ViewName.DATABASE_SETTINGS.value());
-        } else {
+        if (!bindingResult.hasErrors()) {
             settingsService.resetDatabaseToDefault();
             settingsService.setDatabaseConfigType(command.getConfigType());
             switch (command.getConfigType()) {
@@ -114,8 +110,7 @@ public class DatabaseSettingsController {
             }
             redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
             settingsService.save();
-            return new ModelAndView(new RedirectView(ViewName.DATABASE_SETTINGS.value()));
         }
+        return new RedirectView(ViewName.DATABASE_SETTINGS.value());
     }
-
 }

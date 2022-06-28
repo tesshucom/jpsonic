@@ -39,6 +39,7 @@ import java.util.zip.ZipFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.MediaScannerService;
@@ -203,6 +204,7 @@ public class UploadController {
         }
     }
 
+    @SuppressFBWarnings(value = "FILE_UPLOAD_FILENAME", justification = "Limited features used by privileged users")
     private UnzipResult doUnzip(List<FileItem> items, Path dir, boolean unzip) throws ExecutionException {
         List<Path> uploadedFiles = new ArrayList<>();
         List<Path> unzippedFiles = new ArrayList<>();

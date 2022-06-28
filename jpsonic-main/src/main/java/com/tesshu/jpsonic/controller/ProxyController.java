@@ -25,6 +25,7 @@ import static org.springframework.http.HttpStatus.OK;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -58,7 +59,7 @@ public class ProxyController {
         String url = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.URL.value());
 
         RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(15_000).setSocketTimeout(15_000).build();
-        HttpGet method = new HttpGet(url);
+        HttpGet method = new HttpGet(URI.create(url));
         method.setConfig(requestConfig);
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {

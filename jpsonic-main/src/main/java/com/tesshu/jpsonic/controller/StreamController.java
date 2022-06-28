@@ -55,6 +55,7 @@ import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.spring.LoggingExceptionResolver;
 import com.tesshu.jpsonic.util.HttpRange;
 import com.tesshu.jpsonic.util.PlayerUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.DependsOn;
@@ -106,7 +107,7 @@ public class StreamController {
 
     private static void sendForbidden(HttpServletResponse res, String m) {
         try {
-            res.sendError(HttpServletResponse.SC_FORBIDDEN, m);
+            res.sendError(HttpServletResponse.SC_FORBIDDEN, StringEscapeUtils.escapeHtml4(m));
         } catch (IOException e) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Error writing error :", e);

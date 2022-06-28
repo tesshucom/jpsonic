@@ -26,6 +26,7 @@ import static com.tesshu.jpsonic.util.XMLUtil.createSAXBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DateFormat;
@@ -301,7 +302,7 @@ public class PodcastService {
             RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(2 * 60 * 1000) // 2 minutes
                     .setSocketTimeout(10 * 60 * 1000) // 10 minutes
                     .build();
-            HttpGet method = new HttpGet(channel.getUrl());
+            HttpGet method = new HttpGet(URI.create(channel.getUrl()));
             method.setConfig(requestConfig);
 
             try (CloseableHttpResponse response = client.execute(method);
@@ -365,7 +366,7 @@ public class PodcastService {
                 return;
             }
 
-            HttpGet method = new HttpGet(imageUrl);
+            HttpGet method = new HttpGet(URI.create(imageUrl));
             try (CloseableHttpResponse response = client.execute(method)) {
                 Path f = Path.of(dir.toString(), "cover." + getCoverArtSuffix(response));
                 try (InputStream in = response.getEntity().getContent(); OutputStream out = Files.newOutputStream(f)) {
@@ -544,7 +545,7 @@ public class PodcastService {
                 .setCircularRedirectsAllowed(true)
                 // Workaround HttpClient not understanding latest RFC-compliant cookie 'expires' attributes
                 .setCookieSpec(CookieSpecs.STANDARD).build();
-        HttpGet method = new HttpGet(url);
+        HttpGet method = new HttpGet(URI.create(url));
         method.setConfig(requestConfig);
         return method;
     }

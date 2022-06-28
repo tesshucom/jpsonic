@@ -25,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -258,7 +259,7 @@ public class VersionService {
             }
             RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(10_000).setSocketTimeout(10_000)
                     .build();
-            HttpGet method = new HttpGet(VERSION_URL + "?v=" + getLocalVersion());
+            HttpGet method = new HttpGet(URI.create(VERSION_URL + "?v=" + getLocalVersion()));
             method.setConfig(requestConfig);
             String content;
             try (CloseableHttpClient client = HttpClients.createDefault()) {

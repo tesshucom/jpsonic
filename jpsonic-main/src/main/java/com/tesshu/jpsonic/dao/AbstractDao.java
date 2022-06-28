@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,6 +78,7 @@ public class AbstractDao {
         return String.join(", ", l);
     }
 
+    @SuppressFBWarnings(value = "SQL_INJECTION_SPRING_JDBC", justification = "False positive. find-sec-bugs#385")
     protected int update(String sql, Object... args) {
         long t = System.nanoTime();
         LOG.trace("Executing query: [{}]", sql);
@@ -95,6 +97,7 @@ public class AbstractDao {
         }
     }
 
+    @SuppressFBWarnings(value = "SQL_INJECTION_SPRING_JDBC", justification = "False positive. find-sec-bugs#385")
     protected <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) {
         long t = System.nanoTime();
         List<T> result = getJdbcTemplate().query(sql, rowMapper, args);
@@ -154,6 +157,7 @@ public class AbstractDao {
         return result;
     }
 
+    @SuppressFBWarnings(value = "SQL_INJECTION_SPRING_JDBC", justification = "False positive. find-sec-bugs#385")
     protected Long queryForLong(String sql, Long defaultValue, Object... args) {
         long t = System.nanoTime();
         List<Long> list = getJdbcTemplate().queryForList(sql, Long.class, args);

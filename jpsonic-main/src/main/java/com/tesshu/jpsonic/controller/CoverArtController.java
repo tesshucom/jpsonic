@@ -49,6 +49,7 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Album;
@@ -281,6 +282,7 @@ public class CoverArtController {
         }
     }
 
+    @SuppressFBWarnings(value = "WEAK_MESSAGE_DIGEST_MD5", justification = "It has nothing to do with security. The chances of a collision are also low enough")
     private Path getCachedImage(CoverArtRequest request, int size) throws ExecutionException {
         String encoding = request.getCoverArt() == null ? "png" : "jpeg";
         Path cachedImage = Path.of(getImageCacheDirectory(size).toString(),

@@ -29,9 +29,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
@@ -78,18 +75,20 @@ public class FFmpeg {
             return null;
         }
 
-        List<String> command = new ArrayList<>();
-        command.addAll(Arrays.asList(cmdPath, "-i", path.toString()));
+        ProcessBuilder pb = new ProcessBuilder();
+        pb.command().add(cmdPath);
+        pb.command().add("-i");
+        pb.command().add(path.toString());
         String options = offset < 1 ? THUMBNAIL_OPTIONS : SEEKED_OPTIONS;
-        Stream.of(options.split(" ")).forEach(c -> command.add(c //
+        Stream.of(options.split(" ")).forEach(c -> pb.command().add(c //
                 .replaceAll("%w", Integer.toString(width)) //
                 .replaceAll("%h", Integer.toString(height)) //
                 .replaceAll("%o", Integer.toString(offset))));
-        command.add("-");
+        pb.command().add("-");
 
         BufferedImage result;
         try {
-            Process process = new ProcessBuilder(command).start();
+            Process process = pb.start();
             try (InputStream is = process.getInputStream(); OutputStream os = process.getOutputStream();
                     InputStream es = process.getErrorStream(); BufferedInputStream bis = new BufferedInputStream(is);) {
                 result = ImageIO.read(bis);

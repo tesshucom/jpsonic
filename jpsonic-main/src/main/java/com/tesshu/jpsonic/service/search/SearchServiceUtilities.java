@@ -34,6 +34,7 @@ import java.util.function.Function;
 
 import javax.annotation.PostConstruct;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Album;
@@ -130,6 +131,7 @@ public class SearchServiceUtilities {
         this.settingsService = settingsService;
     }
 
+    @SuppressFBWarnings(value = "PREDICTABLE_RANDOM", justification = "The Random class is only used if the native random number generator is not available")
     @PostConstruct
     public void postConstruct() {
         try {
