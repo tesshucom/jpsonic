@@ -74,18 +74,16 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping({ "/upload", "/upload.view" })
 public class UploadController {
 
+    private static final Logger LOG = LoggerFactory.getLogger(UploadController.class);
     public static final String FIELD_NAME_DIR = "dir";
     public static final String FIELD_NAME_UNZIP = "unzip";
-
-    private static final Logger LOG = LoggerFactory.getLogger(UploadController.class);
+    private static final String NOT_ALLOWED_MSG = "The root path is other than the Musicfolder, or the file already exists: ";
 
     private final SecurityService securityService;
     private final PlayerService playerService;
     private final StatusService statusService;
     private final SettingsService settingsService;
     private final MediaScannerService mediaScannerService;
-
-    private String uploadNotAllowedMessage = "The root path is other than the Musicfolder, or the file already exists: ";
 
     public UploadController(SecurityService securityService, PlayerService playerService, StatusService statusService,
             SettingsService settingsService, MediaScannerService mediaScannerService) {
@@ -237,7 +235,7 @@ public class UploadController {
 
         if (!securityService.isUploadAllowed(targetFile)) {
             throw new ExecutionException(new GeneralSecurityException(
-                    uploadNotAllowedMessage + StringEscapeUtils.escapeHtml4(targetFile.toString())));
+                    NOT_ALLOWED_MSG + StringEscapeUtils.escapeHtml4(targetFile.toString())));
         }
 
         List<Path> uploadedFiles = new ArrayList<>();
@@ -288,7 +286,7 @@ public class UploadController {
 
         if (!securityService.isUploadAllowed(entryFile)) {
             throw new ExecutionException(new GeneralSecurityException(
-                    uploadNotAllowedMessage + StringEscapeUtils.escapeHtml4(entryFile.toString())));
+                    NOT_ALLOWED_MSG + StringEscapeUtils.escapeHtml4(entryFile.toString())));
         }
 
         Path parent = entryFile.getParent();

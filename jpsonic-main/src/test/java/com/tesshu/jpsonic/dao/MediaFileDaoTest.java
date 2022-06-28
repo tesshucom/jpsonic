@@ -46,7 +46,7 @@ class MediaFileDaoTest {
 
         // Below is a test of MediaFileDao#RandomSongsQueryBuilder
 
-        private String select = "select media_file.id, media_file.path, media_file.folder, media_file.type, "
+        private static final String SELECT = "select media_file.id, media_file.path, media_file.folder, media_file.type, "
                 + "media_file.format, media_file.title, media_file.album, media_file.artist, media_file.album_artist, "
                 + "media_file.disc_number, media_file.track_number, media_file.year, media_file.genre, "
                 + "media_file.bit_rate, media_file.variable_bit_rate, media_file.duration_seconds, "
@@ -59,16 +59,16 @@ class MediaFileDaoTest {
                 + "media_file.album_reading, media_file.album_artist_reading, media_file.artist_sort_raw, "
                 + "media_file.album_sort_raw, media_file.album_artist_sort_raw, media_file.composer_sort_raw, "
                 + "media_file.media_file_order from media_file";
-        private String conditionJoin1 = " left outer join starred_media_file "
+        private static final String CONDITION_JOIN1 = " left outer join starred_media_file "
                 + "on media_file.id = starred_media_file.media_file_id and starred_media_file.username = :username";
-        private String conditionJoin2 = " left outer join media_file media_album "
+        private static final String CONDITION_JOIN2 = " left outer join media_file media_album "
                 + "on media_album.type = 'ALBUM' and media_album.album = media_file.album "
                 + "and media_album.artist = media_file.artist " + "left outer join user_rating "
                 + "on user_rating.path = media_album.path and user_rating.username = :username";
-        private String where = " where media_file.present and media_file.type = 'MUSIC'";
-        private String orderLimit = " order by rand() limit 0";
-        private String conditionShowStarredSongs = " and starred_media_file.id is not null";
-        private String conditionMinAlbumRating = " and user_rating.rating >= :minAlbumRating";
+        private static final String WHERE = " where media_file.present and media_file.type = 'MUSIC'";
+        private static final String ORDER_LIMIT = " order by rand() limit 0";
+        private static final String CONDITION_SHOW_STARRED_SONGS = " and starred_media_file.id is not null";
+        private static final String CONDITION_MIN_ALBUM_RATING = " and user_rating.rating >= :minAlbumRating";
 
         @Test
         void testGetIfJoinStarred() throws ExecutionException {
@@ -83,13 +83,13 @@ class MediaFileDaoTest {
                     false, null);
             builder = new RandomSongsQueryBuilder(criteria);
             op = builder.getIfJoinStarred();
-            assertEquals(conditionJoin1, op.get());
+            assertEquals(CONDITION_JOIN1, op.get());
 
             criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, null, null, null, false,
                     true, null);
             builder = new RandomSongsQueryBuilder(criteria);
             op = builder.getIfJoinStarred();
-            assertEquals(conditionJoin1, op.get());
+            assertEquals(CONDITION_JOIN1, op.get());
 
             criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, null, null, null, true,
                     true, null);
@@ -112,14 +112,14 @@ class MediaFileDaoTest {
             assertEquals(Integer.valueOf(1), criteria.getMinAlbumRating());
             builder = new RandomSongsQueryBuilder(criteria);
             op = builder.getIfJoinAlbumRating();
-            assertEquals(conditionJoin2, op.get());
+            assertEquals(CONDITION_JOIN2, op.get());
 
             criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, 1, null, null, false,
                     false, null);
             assertEquals(Integer.valueOf(1), criteria.getMaxAlbumRating());
             builder = new RandomSongsQueryBuilder(criteria);
             op = builder.getIfJoinAlbumRating();
-            assertEquals(conditionJoin2, op.get());
+            assertEquals(CONDITION_JOIN2, op.get());
 
             criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, 1, 1, null, null, false, false,
                     null);
@@ -127,7 +127,7 @@ class MediaFileDaoTest {
             assertEquals(Integer.valueOf(1), criteria.getMaxAlbumRating());
             builder = new RandomSongsQueryBuilder(criteria);
             op = builder.getIfJoinAlbumRating();
-            assertEquals(conditionJoin2, op.get());
+            assertEquals(CONDITION_JOIN2, op.get());
         }
 
         @Test
@@ -290,7 +290,7 @@ class MediaFileDaoTest {
             assertEquals(Integer.valueOf(1), criteria.getMinAlbumRating());
             builder = new RandomSongsQueryBuilder(criteria);
             op = builder.getMinAlbumRatingCondition();
-            assertEquals(conditionMinAlbumRating, op.get());
+            assertEquals(CONDITION_MIN_ALBUM_RATING, op.get());
         }
 
         @Test
@@ -391,7 +391,7 @@ class MediaFileDaoTest {
             assertFalse(criteria.isShowUnstarredSongs());
             builder = new RandomSongsQueryBuilder(criteria);
             op = builder.getShowStarredSongsCondition();
-            assertEquals(conditionShowStarredSongs, op.get());
+            assertEquals(CONDITION_SHOW_STARRED_SONGS, op.get());
 
             criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, null, null, null, true,
                     true, null);
@@ -435,29 +435,30 @@ class MediaFileDaoTest {
         @Test
         void testBuild() throws ExecutionException {
 
-            final String noOp = select + where + orderLimit;
+            final String noOp = SELECT + WHERE + ORDER_LIMIT;
             RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(), null,
                     null, null, null, null, null, false, false, null);
             RandomSongsQueryBuilder builder = new RandomSongsQueryBuilder(criteria);
             String query = builder.build();
             assertEquals(noOp, query);
 
-            final String ifJoinStarred = select + conditionJoin1 + where + conditionShowStarredSongs + orderLimit;
+            final String ifJoinStarred = SELECT + CONDITION_JOIN1 + WHERE + CONDITION_SHOW_STARRED_SONGS + ORDER_LIMIT;
             criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(), null, null, null, null,
                     null, null, true, false, null);
             builder = new RandomSongsQueryBuilder(criteria);
             query = builder.build();
             assertEquals(ifJoinStarred, query);
 
-            final String ifJoinAlbumRating = select + conditionJoin2 + where + conditionMinAlbumRating + orderLimit;
+            final String ifJoinAlbumRating = SELECT + CONDITION_JOIN2 + WHERE + CONDITION_MIN_ALBUM_RATING
+                    + ORDER_LIMIT;
             criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(), null, null, 1, null, null,
                     null, false, false, null);
             builder = new RandomSongsQueryBuilder(criteria);
             query = builder.build();
             assertEquals(ifJoinAlbumRating, query);
 
-            final String ifJoinStarredAndRating = select + conditionJoin1 + conditionJoin2 + where
-                    + conditionMinAlbumRating + conditionShowStarredSongs + orderLimit;
+            final String ifJoinStarredAndRating = SELECT + CONDITION_JOIN1 + CONDITION_JOIN2 + WHERE
+                    + CONDITION_MIN_ALBUM_RATING + CONDITION_SHOW_STARRED_SONGS + ORDER_LIMIT;
             criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(), null, null, 1, null, null,
                     null, true, false, null);
             builder = new RandomSongsQueryBuilder(criteria);
@@ -465,8 +466,8 @@ class MediaFileDaoTest {
             assertEquals(ifJoinStarredAndRating, query);
 
             final Function<String, Boolean> assertWithCondition = (q) -> {
-                String suffix = select + where;
-                return q.startsWith(suffix) && q.endsWith(orderLimit) && suffix.length() < q.length();
+                String suffix = SELECT + WHERE;
+                return q.startsWith(suffix) && q.endsWith(ORDER_LIMIT) && suffix.length() < q.length();
             };
 
             // folder
@@ -527,9 +528,9 @@ class MediaFileDaoTest {
                     null, false, false, null);
             builder = new RandomSongsQueryBuilder(criteria);
             query = builder.build();
-            String suffix = select + conditionJoin2 + where;
+            String suffix = SELECT + CONDITION_JOIN2 + WHERE;
             assertTrue(query.startsWith(suffix));
-            assertTrue(query.endsWith(orderLimit));
+            assertTrue(query.endsWith(ORDER_LIMIT));
             assertTrue(suffix.length() < query.length());
 
             // minPlayCountCondition
@@ -551,9 +552,9 @@ class MediaFileDaoTest {
                     null, null, false, true, null);
             builder = new RandomSongsQueryBuilder(criteria);
             query = builder.build();
-            suffix = select + conditionJoin1 + where;
+            suffix = SELECT + CONDITION_JOIN1 + WHERE;
             assertTrue(query.startsWith(suffix));
-            assertTrue(query.endsWith(orderLimit));
+            assertTrue(query.endsWith(ORDER_LIMIT));
             assertTrue(suffix.length() < query.length());
         }
     }

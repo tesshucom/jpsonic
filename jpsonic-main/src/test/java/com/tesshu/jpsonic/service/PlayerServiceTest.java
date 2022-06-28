@@ -159,7 +159,7 @@ class PlayerServiceTest {
     @Nested
     class GetGuestPlayerTest {
 
-        private String playerIp = "192.168.1.2";
+        private static final String PLAYER_IP = "192.168.1.2";
 
         @GetGuestPlayerLastSeenDecision.Conditions.IsExists.False
         @GetGuestPlayerLastSeenDecision.Conditions.Request.Null
@@ -195,7 +195,7 @@ class PlayerServiceTest {
             today.setTime(new Date());
             Player dummy = playerService.getGuestPlayer(null);
             Player playerWithIp = new Player();
-            playerWithIp.setIpAddress(playerIp);
+            playerWithIp.setIpAddress(PLAYER_IP);
             playerWithIp.setLastSeen(new Date());
             Mockito.when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class),
                     Mockito.nullable(String.class))).thenReturn(Arrays.asList(playerWithIp, dummy));
@@ -259,11 +259,11 @@ class PlayerServiceTest {
                     Mockito.nullable(String.class))).thenReturn(Collections.emptyList());
 
             MockHttpServletRequest req = new MockHttpServletRequest();
-            req.setRemoteAddr(playerIp);
+            req.setRemoteAddr(PLAYER_IP);
 
             Mockito.clearInvocations(playerDao);
             Player player = playerService.getGuestPlayer(req);
-            assertEquals(playerIp, player.getIpAddress());
+            assertEquals(PLAYER_IP, player.getIpAddress());
             assertNotNull(player.getLastSeen());
             Calendar lastSeen = Calendar.getInstance();
             lastSeen.setTime(player.getLastSeen());
@@ -288,17 +288,17 @@ class PlayerServiceTest {
 
             Player dummy = playerService.getGuestPlayer(null);
             Player playerWithIp = new Player();
-            playerWithIp.setIpAddress(playerIp);
+            playerWithIp.setIpAddress(PLAYER_IP);
             playerWithIp.setLastSeen(new Date());
             Mockito.when(playerDao.getPlayersForUserAndClientId(Mockito.nullable(String.class),
                     Mockito.nullable(String.class))).thenReturn(Arrays.asList(dummy, playerWithIp));
 
             MockHttpServletRequest req = new MockHttpServletRequest();
-            req.setRemoteAddr(playerIp);
+            req.setRemoteAddr(PLAYER_IP);
 
             Mockito.clearInvocations(playerDao);
             Player player = playerService.getGuestPlayer(req);
-            assertEquals(playerIp, player.getIpAddress());
+            assertEquals(PLAYER_IP, player.getIpAddress());
             assertNotNull(player.getLastSeen());
             Calendar lastSeen = Calendar.getInstance();
             lastSeen.setTime(player.getLastSeen());

@@ -44,13 +44,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 class PlaylistControllerTest {
 
-    private int playlistId = 1;
+    private static final int PLAYLIST_ID = 1;
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() throws ExecutionException {
         PlaylistService playlistService = mock(PlaylistService.class);
-        Mockito.when(playlistService.getPlaylist(playlistId)).thenReturn(new Playlist());
+        Mockito.when(playlistService.getPlaylist(PLAYLIST_ID)).thenReturn(new Playlist());
         mockMvc = MockMvcBuilders
                 .standaloneSetup(
                         new PlaylistController(mock(SecurityService.class), playlistService, mock(PlayerService.class)))
@@ -62,7 +62,7 @@ class PlaylistControllerTest {
     void testFormBackingObject() throws Exception {
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/playlist.view")
-                .param(Attributes.Request.ID.value(), Integer.toString(playlistId)))
+                .param(Attributes.Request.ID.value(), Integer.toString(PLAYLIST_ID)))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
         ModelAndView modelAndView = result.getModelAndView();
