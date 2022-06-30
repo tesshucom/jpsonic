@@ -85,9 +85,9 @@ public class MediaScannerService {
     private final MediaScannerServiceUtils utils;
     private final ThreadPoolTaskExecutor scanExecutor;
 
-    private AtomicBoolean cleansingProcess = new AtomicBoolean();
-    private AtomicInteger scanCount = new AtomicInteger();
-    private AtomicBoolean destroy = new AtomicBoolean();
+    private final AtomicBoolean cleansingProcess = new AtomicBoolean();
+    private final AtomicInteger scanCount = new AtomicInteger();
+    private final AtomicBoolean destroy = new AtomicBoolean();
 
     public MediaScannerService(SettingsService settingsService, MusicFolderService musicFolderService,
             IndexManager indexManager, PlaylistService playlistService, MediaFileCache mediaFileCache,

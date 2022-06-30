@@ -40,6 +40,7 @@ import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.DaoHelper;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
@@ -231,6 +232,8 @@ public class InternalHelpController {
         map.put("localeDefaultCharsetSupportsUtf8", doesLocaleSupportUtf8(Charset.defaultCharset().toString()));
     }
 
+    @SuppressFBWarnings(value = { "CRLF_INJECTION_LOGS",
+            "SQL_INJECTION_SPRING_JDBC" }, justification = "False positive. find-sec-bugs#614/find-sec-bugs#385")
     private void gatherDatabaseInfo(Map<String, Object> map) {
 
         try (Connection conn = daoHelper.getDataSource().getConnection()) {

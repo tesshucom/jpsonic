@@ -14,6 +14,8 @@
 
         Author: tesshucom
         -->
+
+    <!-- spotbugs -->
     <Match>
         <!-- It is a bug rule. -->
         <Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS" />               
@@ -31,10 +33,17 @@
         <Bug pattern="THROWS_METHOD_THROWS_RUNTIMEEXCEPTION" />
     </Match>
     <Match>
-        <Bug pattern="EI_EXPOSE_REP" />            <!-- *** Should be triaged! *** -->
+        <!-- Not important for now -->
+        <Bug pattern="EI_EXPOSE_REP" />
     </Match>
     <Match>
-        <Bug pattern="EI_EXPOSE_REP2" />           <!-- *** Should be triaged! *** -->
+        <!-- Not important for now -->
+        <Bug pattern="EI_EXPOSE_REP2" />
     </Match>
 
+    <!-- find-sec-bugs -->
+    <Match>
+        <!-- It is a bug rule. find-sec-bugs#385 -->
+        <Bug pattern="SQL_INJECTION_SPRING_JDBC" />
+    </Match>
 </FindBugsFilter>

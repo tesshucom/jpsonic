@@ -91,10 +91,10 @@ public class RecoverController {
                     user.setPassword(password);
                     securityService.updateUser(user);
                 } else {
-                    map.put(Attributes.Model.ERROR.value(), "recover.error.sendfailed");
+                    map.put(Attributes.Model.ERROR.getValue(), "recover.error.sendfailed");
                 }
             } else {
-                map.put(Attributes.Model.ERROR.value(), errorMsg);
+                map.put(Attributes.Model.ERROR.getValue(), errorMsg);
             }
         }
 

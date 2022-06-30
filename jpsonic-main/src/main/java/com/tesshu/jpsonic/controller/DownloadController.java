@@ -57,6 +57,7 @@ import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.HttpRange;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -144,8 +145,8 @@ public class DownloadController {
 
             if (mediaFile != null) {
                 if (!securityService.isFolderAccessAllowed(mediaFile, user.getUsername())) {
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN,
-                            "Access to file " + mediaFile.getId() + " is forbidden for user " + user.getUsername());
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN, StringEscapeUtils.escapeHtml4(
+                            "Access to file " + mediaFile.getId() + " is forbidden for user " + user.getUsername()));
                     return;
                 }
 

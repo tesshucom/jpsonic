@@ -41,6 +41,7 @@ import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -75,6 +76,10 @@ public class HLSController {
         this.jwtSecurityService = jwtSecurityService;
     }
 
+    private void sendError(HttpServletResponse response, int sc, String msg) throws IOException {
+        response.sendError(sc, StringEscapeUtils.escapeHtml4(msg));
+    }
+
     @GetMapping
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletRequestBindingException, IOException {
@@ -84,21 +89,21 @@ public class HLSController {
         int id = ServletRequestUtils.getIntParameter(request, Attributes.Request.ID.value(), 0);
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
         if (mediaFile == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Media file not found: " + id);
+            sendError(response, HttpServletResponse.SC_NOT_FOUND, "Media file not found: " + id);
             return;
         }
 
         Player player = playerService.getPlayer(request, response);
         String username = player.getUsername();
         if (username != null && !securityService.isFolderAccessAllowed(mediaFile, username)) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN,
+            sendError(response, HttpServletResponse.SC_FORBIDDEN,
                     "Access to file " + mediaFile.getId() + " is forbidden for user " + username);
             return;
         }
 
         Integer duration = mediaFile.getDurationSeconds();
         if (duration == null || duration == 0) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unknown duration for media file: " + id);
+            sendError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unknown duration for media file: " + id);
             return;
         }
 
@@ -145,6 +150,10 @@ public class HLSController {
         }
     }
 
+    private void println(PrintWriter writer, String x) {
+        writer.println(StringEscapeUtils.escapeHtml4(x));
+    }
+
     private void generateVariantPlaylist(HttpServletRequest request, int id, Player player,
             List<Pair<Integer, Dimension>> bitRates, PrintWriter writer) {
         writer.println("#EXTM3U");
@@ -154,16 +163,16 @@ public class HLSController {
         String contextPath = getContextPath(request);
         for (Pair<Integer, Dimension> bitRate : bitRates) {
             Integer kbps = bitRate.getLeft();
-            writer.println("#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=" + kbps * 1000L);
+            println(writer, "#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=" + kbps * 1000L);
             UriComponentsBuilder url = UriComponentsBuilder.fromUriString(contextPath + "ext/hls/hls.m3u8")
                     .queryParam(Attributes.Request.ID.value(), id)
                     .queryParam(Attributes.Request.PLAYER.value(), player.getId())
                     .queryParam(Attributes.Request.BITRATE.value(), kbps);
             jwtSecurityService.addJWTToken(url);
-            writer.print(url.toUriString());
+            println(writer, url.toUriString());
             Dimension dimension = bitRate.getRight();
             if (dimension != null) {
-                writer.print("@" + dimension.width + "x" + dimension.height);
+                println(writer, "@" + dimension.width + "x" + dimension.height);
             }
             writer.println();
         }
@@ -179,14 +188,14 @@ public class HLSController {
         for (int i = 0; i < totalDuration / SEGMENT_DURATION; i++) {
             int offset = i * SEGMENT_DURATION;
             writer.println("#EXTINF:" + SEGMENT_DURATION + ",");
-            writer.println(createStreamUrl(request, player, id, offset, SEGMENT_DURATION, bitRate));
+            println(writer, createStreamUrl(request, player, id, offset, SEGMENT_DURATION, bitRate));
         }
 
         int remainder = totalDuration % SEGMENT_DURATION;
         if (remainder > 0) {
-            writer.println("#EXTINF:" + remainder + ",");
+            println(writer, "#EXTINF:" + remainder + ",");
             int offset = totalDuration - remainder;
-            writer.println(createStreamUrl(request, player, id, offset, remainder, bitRate));
+            println(writer, createStreamUrl(request, player, id, offset, remainder, bitRate));
         }
         writer.println("#EXT-X-ENDLIST");
     }

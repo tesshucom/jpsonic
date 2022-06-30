@@ -24,6 +24,7 @@ package com.tesshu.jpsonic.ajax;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -117,7 +118,7 @@ public class CoverArtService {
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(2000).setSocketTimeout(2000).build();
-            HttpGet method = new HttpGet(url);
+            HttpGet method = new HttpGet(URI.create(url));
             method.setConfig(requestConfig);
 
             try (InputStream input = client.execute(method).getEntity().getContent()) {

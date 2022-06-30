@@ -69,7 +69,7 @@ public class PlayerService {
     private static final String COOKIE_NAME = "player";
     private static final String ATTRIBUTE_SESSION_KEY = "player";
     private static final String GUEST_PLAYER_TYPE = "UPnP Processor";
-    private static final int COOKIE_EXPIRY = 365 * 24 * 3600; // One year
+    private static final int COOKIE_EXPIRY = 360 * 24 * 3600; // About One year
 
     private final PlayerDao playerDao;
     private final StatusService statusService;

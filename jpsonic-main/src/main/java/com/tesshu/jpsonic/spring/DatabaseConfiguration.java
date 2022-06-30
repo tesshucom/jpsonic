@@ -26,6 +26,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.DaoHelper;
 import com.tesshu.jpsonic.dao.GenericDaoHelper;
 import com.tesshu.jpsonic.dao.LegacyHsqlDaoHelper;
@@ -87,6 +88,7 @@ public class DatabaseConfiguration {
 
     @Bean
     @Profile(ProfileNameConstants.LEGACY)
+    @SuppressFBWarnings(value = "HARD_CODE_PASSWORD", justification = "The hard-coded fixed strings is used for embedded-hsqldb passwords.")
     public DataSource legacyDataSource() {
         BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("org.hsqldb.jdbcDriver");

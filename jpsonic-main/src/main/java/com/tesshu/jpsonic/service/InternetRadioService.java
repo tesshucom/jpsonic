@@ -28,6 +28,8 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,6 +42,7 @@ import chameleon.playlist.PlaylistVisitor;
 import chameleon.playlist.Sequence;
 import chameleon.playlist.SpecificPlaylist;
 import chameleon.playlist.SpecificPlaylistFactory;
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.InternetRadioDao;
 import com.tesshu.jpsonic.domain.InternetRadio;
 import com.tesshu.jpsonic.domain.InternetRadioSource;
@@ -75,6 +78,8 @@ public class InternetRadioService {
     private final Map<Integer, List<InternetRadioSource>> cachedSources;
 
     private final InternetRadioDao internetRadioDao;
+
+    private final List<String> availableProtocols = Collections.unmodifiableList(Arrays.asList("http", "https"));
 
     /**
      * Returns all internet radio stations. Disabled stations are not returned.
@@ -459,6 +464,13 @@ public class InternetRadioService {
         }
     }
 
+    void verifyRadioURL(URL url) throws IOException {
+        if (availableProtocols.stream().anyMatch(p -> p.equals(url.getProtocol()))) {
+            return;
+        }
+        throw new IOException("Only http or https protocol can be used.");
+    }
+
     /**
      * Start a new connection to a remote URL.
      *
@@ -467,7 +479,9 @@ public class InternetRadioService {
      *
      * @return an open connection
      */
+    @SuppressFBWarnings(value = "URLCONNECTION_SSRF_FD", justification = "The URL can only be specified by authorized users. Also, this service is suppressed and unavailable by default.")
     protected HttpURLConnection connectToURL(URL url) throws IOException {
+        verifyRadioURL(url);
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setAllowUserInteraction(false);
         urlConnection.setConnectTimeout(10_000);

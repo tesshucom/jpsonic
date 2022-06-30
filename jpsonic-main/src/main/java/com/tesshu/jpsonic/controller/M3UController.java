@@ -36,6 +36,7 @@ import com.tesshu.jpsonic.service.NetworkUtils;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.util.StringUtil;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -96,11 +97,12 @@ public class M3UController {
             if (duration == null) {
                 duration = -1;
             }
-            out.println("#EXTINF:" + duration + "," + mediaFile.getArtist() + " - " + mediaFile.getTitle());
+            out.println(StringEscapeUtils
+                    .escapeHtml4("#EXTINF:" + duration + "," + mediaFile.getArtist() + " - " + mediaFile.getTitle()));
 
             String urlNoAuth = url + "player=" + player.getId() + "&id=" + mediaFile.getId() + "&suffix=."
                     + transcodingService.getSuffix(player, mediaFile, null);
-            String urlWithAuth = jwtSecurityService.addJWTToken(urlNoAuth);
+            String urlWithAuth = StringEscapeUtils.escapeHtml4(jwtSecurityService.addJWTToken(urlNoAuth));
             out.println(urlWithAuth);
         }
     }
@@ -123,7 +125,7 @@ public class M3UController {
         }
         out.println("#EXTM3U");
         out.println("#EXTINF:-1,Jpsonic");
-        out.println(jwtSecurityService.addJWTToken(url));
+        out.println(StringEscapeUtils.escapeHtml4(jwtSecurityService.addJWTToken(url)));
     }
 
     private String getSuffix(Player player) {

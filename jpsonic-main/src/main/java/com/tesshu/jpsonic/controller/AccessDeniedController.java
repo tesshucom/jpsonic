@@ -21,8 +21,11 @@
 
 package com.tesshu.jpsonic.controller;
 
+import java.net.URI;
+
 import javax.servlet.http.HttpServletRequest;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -39,11 +42,12 @@ public class AccessDeniedController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AccessDeniedController.class);
 
+    @SuppressFBWarnings(value = "CRLF_INJECTION_LOGS", justification = "False positive. find-sec-bugs#614")
     @GetMapping
     public ModelAndView get(HttpServletRequest request) {
         if (LOG.isInfoEnabled()) {
-            LOG.info("The IP {} tried to access the forbidden url {}.", request.getRemoteAddr(),
-                    request.getRequestURL());
+            LOG.info("The IP {} tried to access the forbidden url {}.", URI.create(request.getRemoteAddr()),
+                    URI.create(request.getRequestURL().toString()));
         }
         return new ModelAndView("accessDenied");
     }

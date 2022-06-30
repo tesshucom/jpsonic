@@ -26,6 +26,7 @@ import static com.tesshu.jpsonic.util.XMLUtil.createSAXBuilder;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.SocketException;
+import java.net.URI;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.util.StringUtil;
@@ -128,7 +129,7 @@ public class LyricsService {
 
     private String executeGetRequest(String url) throws IOException {
         RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(15_000).setSocketTimeout(15_000).build();
-        HttpGet method = new HttpGet(url);
+        HttpGet method = new HttpGet(URI.create(url));
         method.setConfig(requestConfig);
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
