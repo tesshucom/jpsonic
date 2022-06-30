@@ -48,7 +48,7 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class MusicParserTest {
 
-    private MusicParser parser = new MusicParser(null);
+    private static final MusicParser PARSER = new MusicParser(null);
 
     private static Path createPath(String resourcePath) throws URISyntaxException {
         return Path.of(MusicParserTest.class.getResource(resourcePath).toURI());
@@ -79,30 +79,30 @@ class MusicParserTest {
 
                 @Test
                 void testNoAudioHeader() throws URISyntaxException {
-                    assertNotNull(parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/corrupt.mp3")));
-                    assertNotNull(parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/Issue79.mp3")));
-                    assertNotNull(parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/Issue81.mp3")));
+                    assertNotNull(PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/corrupt.mp3")));
+                    assertNotNull(PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/Issue79.mp3")));
+                    assertNotNull(PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/Issue81.mp3")));
                 }
 
                 @Test
                 void testNoOggSHeader() throws URISyntaxException {
-                    assertNotNull(parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test36.ogg")));
+                    assertNotNull(PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test36.ogg")));
                 }
 
                 @Test
                 void testInvalidOggHeader() throws URISyntaxException {
-                    assertNotNull(parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test508.ogg")));
+                    assertNotNull(PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test508.ogg")));
                 }
 
                 @Test
                 void testInvalidRIFFHeader() throws URISyntaxException {
-                    assertNotNull(parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/testV25.wav")));
+                    assertNotNull(PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/testV25.wav")));
                 }
             }
 
             @Test
             void testMp3() throws URISyntaxException {
-                assertNotNull(parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/01.mp3")));
+                assertNotNull(PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/01.mp3")));
                 // assertNotNull(
                 // parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/issue52.mp3")));
                 // assertNotNull(
@@ -203,7 +203,7 @@ class MusicParserTest {
 
             @Test
             void testOgg() throws URISyntaxException {
-                assertNotNull(parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test.ogg")));
+                assertNotNull(PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test.ogg")));
                 // assertNotNull(
                 // parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test3.ogg")));
                 // assertNotNull(
@@ -220,7 +220,7 @@ class MusicParserTest {
 
             @Test
             void testFlac() throws URISyntaxException {
-                assertNotNull(parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test.flac")));
+                assertNotNull(PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test.flac")));
                 // assertNotNull(
                 // parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test2.flac")));
                 // assertNotNull(
@@ -229,7 +229,7 @@ class MusicParserTest {
 
             @Test
             void testM4a() throws URISyntaxException {
-                assertNotNull(parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test.m4a")));
+                assertNotNull(PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test.m4a")));
                 // assertNotNull(
                 // parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test14.m4a")));
                 // assertNotNull(
@@ -272,13 +272,13 @@ class MusicParserTest {
             void testWav() throws URISyntaxException {
 
                 // isExistingInfoTag
-                assertNotNull(parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test123.wav")));
+                assertNotNull(PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test123.wav")));
 
                 // !isExistingId3
-                assertNotNull(parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test.wav")));
+                assertNotNull(PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test.wav")));
 
                 // isExistingId3
-                assertNotNull(parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test126.wav")));
+                assertNotNull(PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test126.wav")));
 
                 // assertNotNull(parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test125.wav")));
                 // assertNotNull(parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test127.wav")));
@@ -292,7 +292,7 @@ class MusicParserTest {
 
             @Test
             void testWma() throws URISyntaxException {
-                assertNotNull(parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test1.wma")));
+                assertNotNull(PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test1.wma")));
                 // assertNotNull(
                 // parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test2.wma")));
                 // assertNotNull(
@@ -312,7 +312,7 @@ class MusicParserTest {
             @Test
             void testAif() throws URISyntaxException {
 
-                assertNotNull(parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test119.aif")));
+                assertNotNull(PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test119.aif")));
                 // assertNotNull(
                 // parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test120.aif")));
                 // assertNotNull(
@@ -335,21 +335,21 @@ class MusicParserTest {
                 // parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test151.aif")));
                 // assertNotNull(
                 // parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test157.aif")));
-                assertNotNull(parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test138.aiff")));
+                assertNotNull(PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test138.aiff")));
                 // assertNotNull(
                 // parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test152.aiff")));
             }
 
             @Test
             void testDsf() throws URISyntaxException {
-                assertNotNull(parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test122.dsf")));
+                assertNotNull(PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test122.dsf")));
                 // assertNotNull(
                 // parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test156.dsf")));
             }
 
             @Test
             void testDff() throws URISyntaxException {
-                assertNotNull(parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test229.dff")));
+                assertNotNull(PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test229.dff")));
             }
 
             /*
@@ -400,7 +400,7 @@ class MusicParserTest {
                 @Test
                 void testOgg() throws URISyntaxException, CannotReadException, IOException, TagException,
                         ReadOnlyFileException, InvalidAudioFrameException {
-                    MetaData metaData = parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/tagged/test.ogg"));
+                    MetaData metaData = PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/tagged/test.ogg"));
                     assertNotNull(metaData);
                     assertTagsWrittenByMp3tag(metaData);
                     assertTrue(metaData.isVariableBitRate());
@@ -411,7 +411,7 @@ class MusicParserTest {
                 @Test
                 void testFlac() throws URISyntaxException, CannotReadException, IOException, TagException,
                         ReadOnlyFileException, InvalidAudioFrameException {
-                    MetaData metaData = parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/tagged/test.flac"));
+                    MetaData metaData = PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/tagged/test.flac"));
                     assertNotNull(metaData);
                     assertTagsWrittenByMC4PCAndMp3tag(metaData);
                     assertTrue(metaData.isVariableBitRate());
@@ -422,7 +422,7 @@ class MusicParserTest {
                 @Test
                 void testMp3() throws URISyntaxException, CannotReadException, IOException, TagException,
                         ReadOnlyFileException, InvalidAudioFrameException {
-                    MetaData metaData = parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/tagged/01.mp3"));
+                    MetaData metaData = PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/tagged/01.mp3"));
                     assertNotNull(metaData);
                     assertTagsWrittenByMp3tag(metaData);
                     assertFalse(metaData.isVariableBitRate());
@@ -433,7 +433,7 @@ class MusicParserTest {
                 @Test
                 void testMp3v1() throws URISyntaxException, CannotReadException, IOException, TagException,
                         ReadOnlyFileException, InvalidAudioFrameException {
-                    MetaData metaData = parser.getRawMetaData(createPath("/MEDIAS/Metadata/v1/Mp3tag3.12.mp3"));
+                    MetaData metaData = PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/v1/Mp3tag3.12.mp3"));
                     assertNotNull(metaData);
 
                     assertEquals("Mp3tag:Artist", metaData.getAlbumArtist()); // Because the value is copied
@@ -461,7 +461,7 @@ class MusicParserTest {
                 @Test
                 void testM4a() throws URISyntaxException, CannotReadException, IOException, TagException,
                         ReadOnlyFileException, InvalidAudioFrameException {
-                    MetaData metaData = parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/tagged/test.m4a"));
+                    MetaData metaData = PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/tagged/test.m4a"));
                     assertNotNull(metaData);
                     assertTagsWrittenByMp3tag(metaData);
                     assertTrue(metaData.isVariableBitRate());
@@ -477,7 +477,7 @@ class MusicParserTest {
                 @Test
                 void testWavMC4PCTag() throws CannotReadException, IOException, TagException, ReadOnlyFileException,
                         InvalidAudioFrameException, URISyntaxException {
-                    MetaData metaData = parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/tagged/mc4pc.wav"));
+                    MetaData metaData = PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/tagged/mc4pc.wav"));
                     assertNotNull(metaData);
                     // Tags are not loaded.
                     assertTrue(isEmptyMetaData(metaData));
@@ -489,7 +489,7 @@ class MusicParserTest {
 
                 @Test
                 void testWavTag() throws URISyntaxException {
-                    MetaData metaData = parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/tagged/test.wav"));
+                    MetaData metaData = PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/tagged/test.wav"));
                     assertNotNull(metaData);
                     assertFalse(isEmptyMetaData(metaData));
                     assertFalse(metaData.isVariableBitRate());
@@ -500,7 +500,7 @@ class MusicParserTest {
                 @Test
                 void testWma() throws CannotReadException, IOException, TagException, ReadOnlyFileException,
                         InvalidAudioFrameException, URISyntaxException {
-                    MetaData metaData = parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/tagged/test1.wma"));
+                    MetaData metaData = PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/tagged/test1.wma"));
                     assertNotNull(metaData);
                     assertTagsWrittenByMC4PCAndMp3tag(metaData);
                     assertFalse(metaData.isVariableBitRate());
@@ -511,7 +511,7 @@ class MusicParserTest {
                 @Test
                 void testAif() throws CannotReadException, IOException, TagException, ReadOnlyFileException,
                         InvalidAudioFrameException, URISyntaxException {
-                    MetaData metaData = parser
+                    MetaData metaData = PARSER
                             .getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/tagged/test119.aif"));
                     assertNotNull(metaData);
                     assertFalse(isEmptyMetaData(metaData));
@@ -523,7 +523,7 @@ class MusicParserTest {
                 @Test
                 void testDsf() throws URISyntaxException, CannotReadException, IOException, TagException,
                         ReadOnlyFileException, InvalidAudioFrameException {
-                    MetaData metaData = parser
+                    MetaData metaData = PARSER
                             .getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/tagged/test122.dsf"));
                     assertNotNull(metaData);
                     assertTagsWrittenByMC4PCAndMp3tag(metaData);
@@ -535,7 +535,7 @@ class MusicParserTest {
                 @Test
                 void testDff() throws URISyntaxException, CannotReadException, IOException, TagException,
                         ReadOnlyFileException, InvalidAudioFrameException {
-                    MetaData metaData = parser
+                    MetaData metaData = PARSER
                             .getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/tagged/test229.dff"));
                     // Tags are not loaded.
                     assertNotNull(metaData);
@@ -553,7 +553,7 @@ class MusicParserTest {
 
             @Test
             void testMp4() throws URISyntaxException {
-                MetaData metaData = parser
+                MetaData metaData = PARSER
                         .getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test.stem.mp4"));
                 assertNotNull(metaData);
                 assertTrue(isEmptyMetaData(metaData));
@@ -568,7 +568,7 @@ class MusicParserTest {
              */
             @Test
             void testRm() throws URISyntaxException {
-                MetaData metaData = parser.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test05.rm"));
+                MetaData metaData = PARSER.getRawMetaData(createPath("/MEDIAS/Metadata/tagger3/testdata/test05.rm"));
                 assertNotNull(metaData);
                 assertTrue(isEmptyMetaData(metaData));
                 // assertNotNull(
@@ -588,58 +588,58 @@ class MusicParserTest {
     @Test
     void testIsApplicable() throws URISyntaxException {
 
-        assertFalse(parser.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/")));
+        assertFalse(PARSER.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/")));
 
         // @see SettingsConstants.General.Extension.MUSIC_FILE_TYPES
         // mp3 ogg oga aac m4a m4b flac wav wma aif aiff ape mpc shn mka opus
 
-        assertTrue(parser.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.mp3")));
-        assertTrue(parser.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.ogg")));
-        assertTrue(parser.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.oga")));
-        assertFalse(parser.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.aac")));
-        assertTrue(parser.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.m4a")));
-        assertTrue(parser.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.m4b")));
-        assertTrue(parser.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.flac")));
-        assertTrue(parser.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.wav")));
-        assertTrue(parser.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.wma")));
-        assertTrue(parser.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.aif")));
-        assertTrue(parser.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.aiff")));
-        assertFalse(parser.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.ape")));
-        assertFalse(parser.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.mpc")));
-        assertFalse(parser.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.shn")));
-        assertFalse(parser.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.mka")));
-        assertFalse(parser.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.opus")));
+        assertTrue(PARSER.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.mp3")));
+        assertTrue(PARSER.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.ogg")));
+        assertTrue(PARSER.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.oga")));
+        assertFalse(PARSER.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.aac")));
+        assertTrue(PARSER.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.m4a")));
+        assertTrue(PARSER.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.m4b")));
+        assertTrue(PARSER.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.flac")));
+        assertTrue(PARSER.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.wav")));
+        assertTrue(PARSER.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.wma")));
+        assertTrue(PARSER.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.aif")));
+        assertTrue(PARSER.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.aiff")));
+        assertFalse(PARSER.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.ape")));
+        assertFalse(PARSER.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.mpc")));
+        assertFalse(PARSER.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.shn")));
+        assertFalse(PARSER.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.mka")));
+        assertFalse(PARSER.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.opus")));
 
-        assertTrue(parser.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.aifc")));
-        assertTrue(parser.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.dsf")));
-        assertTrue(parser.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.dff")));
+        assertTrue(PARSER.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.aifc")));
+        assertTrue(PARSER.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.dsf")));
+        assertTrue(PARSER.isApplicable(createPath("/MEDIAS/Metadata/tagger3/blank/blank.dff")));
     }
 
     @Test
     void testIsEditingSupported() throws URISyntaxException {
 
-        assertFalse(parser.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/")));
+        assertFalse(PARSER.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/")));
 
-        assertTrue(parser.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.mp3")));
-        assertTrue(parser.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.ogg")));
-        assertTrue(parser.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.oga")));
-        assertFalse(parser.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.aac")));
-        assertTrue(parser.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.m4a")));
-        assertTrue(parser.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.m4b")));
-        assertTrue(parser.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.flac")));
-        assertTrue(parser.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.wav")));
-        assertTrue(parser.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.wma")));
-        assertTrue(parser.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.aif")));
-        assertTrue(parser.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.aiff")));
-        assertFalse(parser.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.ape")));
-        assertFalse(parser.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.mpc")));
-        assertFalse(parser.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.shn")));
-        assertFalse(parser.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.mka")));
-        assertFalse(parser.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.opus")));
+        assertTrue(PARSER.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.mp3")));
+        assertTrue(PARSER.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.ogg")));
+        assertTrue(PARSER.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.oga")));
+        assertFalse(PARSER.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.aac")));
+        assertTrue(PARSER.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.m4a")));
+        assertTrue(PARSER.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.m4b")));
+        assertTrue(PARSER.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.flac")));
+        assertTrue(PARSER.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.wav")));
+        assertTrue(PARSER.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.wma")));
+        assertTrue(PARSER.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.aif")));
+        assertTrue(PARSER.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.aiff")));
+        assertFalse(PARSER.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.ape")));
+        assertFalse(PARSER.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.mpc")));
+        assertFalse(PARSER.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.shn")));
+        assertFalse(PARSER.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.mka")));
+        assertFalse(PARSER.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.opus")));
 
-        assertTrue(parser.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.aifc")));
-        assertTrue(parser.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.dsf")));
-        assertFalse(parser.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.dff"))); // false
+        assertTrue(PARSER.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.aifc")));
+        assertTrue(PARSER.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.dsf")));
+        assertFalse(PARSER.isEditingSupported(createPath("/MEDIAS/Metadata/tagger3/blank/blank.dff"))); // false
     }
 
     /*
@@ -937,7 +937,7 @@ class MusicParserTest {
     @Nested
     class ITunesMP3Test {
 
-        private MusicParser parser = new MusicParser(null);
+        private final MusicParser parser = new MusicParser(null);
 
         private void assertITunesEN(Path path, boolean isAlbumArtist) {
             MetaData metaData = parser.getRawMetaData(path);

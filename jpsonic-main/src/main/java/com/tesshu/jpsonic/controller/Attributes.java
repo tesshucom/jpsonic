@@ -46,7 +46,7 @@ public class Attributes {
                 this.v = value;
             }
 
-            public String value() {
+            public String getValue() {
                 return v;
             }
         }
@@ -59,7 +59,7 @@ public class Attributes {
             this.v = value;
         }
 
-        public String value() {
+        public String getValue() {
             return v;
         }
     }

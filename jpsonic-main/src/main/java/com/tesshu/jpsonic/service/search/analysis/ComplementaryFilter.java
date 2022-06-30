@@ -61,18 +61,18 @@ public final class ComplementaryFilter extends TokenFilter {
     public enum Mode {
         STOP_WORDS_ONLY("swo"), STOP_WORDS_ONLY_AND_HIRA_KATA_ONLY("swoahka"), HIRA_KATA_ONLY("hko");
 
-        private final String value;
+        private final String v;
 
         Mode(String value) {
-            this.value = value;
+            this.v = value;
         }
 
         public String value() {
-            return value;
+            return v;
         }
 
         public static Optional<Mode> fromValue(final String value) {
-            return Stream.of(Mode.values()).filter(m -> m.value.equals(value)).findFirst();
+            return Stream.of(Mode.values()).filter(m -> m.v.equals(value)).findFirst();
         }
 
     }
