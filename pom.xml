@@ -21,8 +21,8 @@
         <jackson.version>2.13.3</jackson.version>
         <tomcat.version>9.0.64</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
-        <jetty.version>10.0.10</jetty.version>
-        <jetty-jsp.version>9.4.48.v20220622</jetty-jsp.version>
+        <jetty.version>10.0.11</jetty.version>
+        <jetty-jsp.version>10.0.11</jetty-jsp.version>
         <pmd.version>6.47.0</pmd.version>
         <log4j.version>2.18.0</log4j.version>
         <logback.version>1.2.11</logback.version>
@@ -301,38 +301,8 @@
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.jetty.websocket</groupId>
-                <artifactId>websocket-server</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty.websocket</groupId>
-                <artifactId>websocket-common</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty.websocket</groupId>
-                <artifactId>websocket-api</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty.websocket</groupId>
-                <artifactId>websocket-client</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-client</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty.websocket</groupId>
-                <artifactId>websocket-servlet</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty.websocket</groupId>
-                <artifactId>javax-websocket-server-impl</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
@@ -358,11 +328,6 @@
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-jndi</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty.websocket</groupId>
-                <artifactId>javax-websocket-client-impl</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
@@ -729,8 +694,6 @@
                                 <ignoredUnusedDeclaredDependency>org.springframework.boot:spring-boot*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>jakarta.xml.bind:jakarta.xml.bind-api</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api</ignoredUnusedDeclaredDependency>
-                                <!-- Needed by Jetty compile only -->
-                                <ignoredUnusedDeclaredDependency>jakarta.websocket:jakarta.websocket-all</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>javax.annotation:javax.annotation-api</ignoredUnusedDeclaredDependency>
                             </ignoredUnusedDeclaredDependencies>
                             <ignoredNonTestScopedDependencies>
