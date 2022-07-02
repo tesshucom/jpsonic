@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
@@ -69,6 +70,7 @@ public class VideoPlayerController {
     }
 
     @GetMapping
+    @SuppressLint(value = "CROSS_SITE_SCRIPTING", justification = "False positive. Header value is used to make Proxy transparent.")
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
             throws ServletRequestBindingException {
 

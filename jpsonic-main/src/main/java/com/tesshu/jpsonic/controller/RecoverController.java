@@ -26,6 +26,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.RecoverService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -65,6 +66,7 @@ public class RecoverController {
     }
 
     @RequestMapping(method = { RequestMethod.GET, RequestMethod.POST })
+    @SuppressLint(value = "CROSS_SITE_SCRIPTING", justification = "No unnecessary sanitization here.")
     public ModelAndView recover(HttpServletRequest request) {
 
         Map<String, Object> map = LegacyMap.of();

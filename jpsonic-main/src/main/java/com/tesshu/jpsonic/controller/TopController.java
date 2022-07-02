@@ -32,6 +32,7 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.domain.AvatarScheme;
 import com.tesshu.jpsonic.domain.InternetRadio;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -100,6 +101,7 @@ public class TopController {
     }
 
     @GetMapping
+    @SuppressLint(value = "CROSS_SITE_SCRIPTING", justification = "False positive. VersionService reads static local files.")
     protected ModelAndView handleRequestInternal(HttpServletRequest request,
             @RequestParam("mainView") Optional<String> mainView,
             @RequestParam("selectedItem") Optional<String> selectedItem) throws ServletRequestBindingException {
