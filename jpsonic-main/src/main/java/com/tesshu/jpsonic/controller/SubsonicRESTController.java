@@ -43,6 +43,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.ajax.LyricsInfo;
 import com.tesshu.jpsonic.ajax.LyricsService;
 import com.tesshu.jpsonic.command.UserSettingsCommand;
@@ -802,6 +803,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping({ "/search", "/search.view" })
+    @SuppressLint(value = "USER_CONTROLLED_SQL_RISK", justification = "False positive. Username is being used via SecurityContextHolderAwareRequestWrapper.")
     public void search(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
@@ -848,6 +850,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping({ "/search2", "/search2.view" })
+    @SuppressLint(value = "USER_CONTROLLED_SQL_RISK", justification = "False positive. Username is being used via SecurityContextHolderAwareRequestWrapper.")
     public void search2(HttpServletRequest req, HttpServletResponse response)
             throws IOException, ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -895,6 +898,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping({ "/search3", "/search3.view" })
+    @SuppressLint(value = "USER_CONTROLLED_SQL_RISK", justification = "False positive. Username is being used via SecurityContextHolderAwareRequestWrapper.")
     public void search3(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
