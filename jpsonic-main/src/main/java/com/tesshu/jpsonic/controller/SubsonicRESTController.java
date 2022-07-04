@@ -43,6 +43,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.ajax.LyricsInfo;
 import com.tesshu.jpsonic.ajax.LyricsService;
 import com.tesshu.jpsonic.command.UserSettingsCommand;
@@ -174,6 +175,8 @@ public class SubsonicRESTController {
     private static final String MSG_PLAYLIST_DENIED = "Permission denied for playlist: ";
     private static final String MSG_PODCAST_NOT_AUTHORIZED = " is not authorized to administrate podcasts.";
     private static final String MSG_SCANNING_NOW = "The feature cannot be used being scanning.";
+    private static final String MSG_NO_USER = "No such user: ";
+
     private static final long LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60;
 
     private final SettingsService settingsService;
@@ -800,6 +803,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping({ "/search", "/search.view" })
+    @SuppressLint(value = "USER_CONTROLLED_SQL_RISK", justification = "False positive. Username is being used via SecurityContextHolderAwareRequestWrapper.")
     public void search(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
@@ -846,6 +850,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping({ "/search2", "/search2.view" })
+    @SuppressLint(value = "USER_CONTROLLED_SQL_RISK", justification = "False positive. Username is being used via SecurityContextHolderAwareRequestWrapper.")
     public void search2(HttpServletRequest req, HttpServletResponse response)
             throws IOException, ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
@@ -893,6 +898,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping({ "/search3", "/search3.view" })
+    @SuppressLint(value = "USER_CONTROLLED_SQL_RISK", justification = "False positive. Username is being used via SecurityContextHolderAwareRequestWrapper.")
     public void search3(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
@@ -1347,21 +1353,21 @@ public class SubsonicRESTController {
     @SuppressWarnings("PMD.CognitiveComplexity") // #1020 Move to support class or service
     private <T extends Child> T createJaxbChild(T child, Player player, MediaFile mediaFile, String username) {
         MediaFile parent = mediaFileService.getParentOf(mediaFile);
-        child.setId(String.valueOf(mediaFile.getId()));
-        try {
-            if (!mediaFileService.isRoot(parent)) {
-                child.setParent(String.valueOf(parent.getId()));
-            }
-        } catch (SecurityException e) {
-            if (LOG.isTraceEnabled()) {
+        if (parent != null) {
+            try {
+                if (!mediaFileService.isRoot(parent)) {
+                    child.setParent(String.valueOf(parent.getId()));
+                }
+            } catch (SecurityException e) {
                 LOG.trace("Error in getMusicDirectory", new AssertionError("Errors with unclear cases.", e));
             }
+            child.setCoverArt(findCoverArt(mediaFile, parent));
         }
+        child.setId(String.valueOf(mediaFile.getId()));
         child.setTitle(mediaFile.getName());
         child.setAlbum(mediaFile.getAlbumName());
         child.setArtist(mediaFile.getArtist());
         child.setIsDir(mediaFile.isDirectory());
-        child.setCoverArt(findCoverArt(mediaFile, parent));
         child.setYear(mediaFile.getYear());
         child.setGenre(mediaFile.getGenre());
         child.setCreated(jaxbWriter.convertDate(mediaFile.getCreated()));
@@ -2126,9 +2132,13 @@ public class SubsonicRESTController {
             return;
         }
 
+        User user = securityService.getUserByName(username);
+        if (user == null) {
+            writeError(request, response, ErrorCode.NOT_FOUND, MSG_NO_USER + username);
+            return;
+        }
         String password = decrypt(
                 ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.PASSWORD.value()));
-        User user = securityService.getUserByName(username);
         user.setPassword(password);
         securityService.updateUser(user);
 
@@ -2150,7 +2160,7 @@ public class SubsonicRESTController {
 
         User requestedUser = securityService.getUserByName(username);
         if (requestedUser == null) {
-            writeError(request, response, ErrorCode.NOT_FOUND, "No such user: " + username);
+            writeError(request, response, ErrorCode.NOT_FOUND, MSG_NO_USER + username);
             return;
         }
 
@@ -2279,7 +2289,7 @@ public class SubsonicRESTController {
         String username = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
         User u = securityService.getUserByName(username);
         if (u == null) {
-            writeError(request, response, ErrorCode.NOT_FOUND, "No such user: " + username);
+            writeError(request, response, ErrorCode.NOT_FOUND, MSG_NO_USER + username);
             return;
         } else if (user.getUsername().equals(username)) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to change own user");
@@ -2357,7 +2367,7 @@ public class SubsonicRESTController {
         User u = securityService.getUserByName(username);
 
         if (u == null) {
-            writeError(request, response, ErrorCode.NOT_FOUND, "No such user: " + username);
+            writeError(request, response, ErrorCode.NOT_FOUND, MSG_NO_USER + username);
             return;
         } else if (user.getUsername().equals(username)) {
             writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to delete own user");

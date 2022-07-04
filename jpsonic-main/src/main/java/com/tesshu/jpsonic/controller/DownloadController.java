@@ -154,7 +154,7 @@ public class DownloadController {
 
             } else if (playlistId != null) {
                 List<MediaFile> songs = playlistService.getFilesInPlaylist(playlistId);
-                Playlist playlist = playlistService.getPlaylist(playlistId);
+                Playlist playlist = playlistService.getPlaylistStrict(playlistId);
                 downloadFiles(response, status, songs, null, null, range, playlist.getName() + ".zip");
 
             } else if (playerId != null) {

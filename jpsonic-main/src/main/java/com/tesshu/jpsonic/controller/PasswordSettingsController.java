@@ -79,7 +79,7 @@ public class PasswordSettingsController {
         if (bindingResult.hasErrors()) {
             return new ModelAndView("passwordSettings");
         } else {
-            User user = securityService.getUserByName(command.getUsername());
+            User user = securityService.getUserByNameStrict(command.getUsername());
             user.setPassword(command.getPassword());
             securityService.updateUser(user);
 

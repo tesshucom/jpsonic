@@ -26,6 +26,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -55,6 +56,7 @@ public class LoginController {
     }
 
     @GetMapping
+    @SuppressLint(value = "CROSS_SITE_SCRIPTING", justification = "No unnecessary sanitization here.")
     public ModelAndView get(HttpServletRequest request, HttpServletResponse response) {
 
         // Auto-login if "user" and "password" parameters are given.
@@ -63,9 +65,9 @@ public class LoginController {
         if (username != null && password != null) {
             username = StringUtil.urlEncode(username);
             password = StringUtil.urlEncode(password);
-            return new ModelAndView(new RedirectView("/login?"
-                    + UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY + "=" + username + "&"
-                    + UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY + "=" + password));
+            return new ModelAndView(new RedirectView("/login"),
+                    Map.of(UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY, username,
+                            UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY, password));
         }
 
         Map<String, Object> map = LegacyMap.of("logout",

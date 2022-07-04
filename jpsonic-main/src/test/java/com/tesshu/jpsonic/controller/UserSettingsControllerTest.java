@@ -138,7 +138,7 @@ class UserSettingsControllerTest {
         void testUpdateUser() throws Exception {
 
             User user = new User("updateTest", "notChangedPassword", "");
-            Mockito.when(securityService.getUserByName(user.getUsername())).thenReturn(user);
+            Mockito.when(securityService.getUserByNameStrict(user.getUsername())).thenReturn(user);
             UserSettings settings = new UserSettings(user.getUsername());
             Mockito.when(securityService.getUserSettings(user.getUsername())).thenReturn(settings);
 
@@ -195,7 +195,7 @@ class UserSettingsControllerTest {
         void testUpdateUserChangePass() throws Exception {
 
             User user = new User("changePass", "", "");
-            Mockito.when(securityService.getUserByName(user.getUsername())).thenReturn(user);
+            Mockito.when(securityService.getUserByNameStrict(user.getUsername())).thenReturn(user);
             UserSettings settings = new UserSettings(user.getUsername());
             Mockito.when(securityService.getUserSettings(user.getUsername())).thenReturn(settings);
 
@@ -222,7 +222,7 @@ class UserSettingsControllerTest {
         void testUpdateUserChangeTranscodeScheme() throws Exception {
 
             User user = new User("changeTranscode", "", "");
-            Mockito.when(securityService.getUserByName(user.getUsername())).thenReturn(user);
+            Mockito.when(securityService.getUserByNameStrict(user.getUsername())).thenReturn(user);
             UserSettings settings = new UserSettings(user.getUsername());
             Mockito.when(securityService.getUserSettings(user.getUsername())).thenReturn(settings);
 

@@ -225,7 +225,7 @@ public class CoverArtController {
 
     private CoverArtRequest createPodcastCoverArtRequest(int id, HttpServletRequest request) {
         PodcastChannel channel = podcastService.getChannel(id);
-        if (channel.getMediaFileId() == null) {
+        if (channel == null || channel.getMediaFileId() == null) {
             return new PodcastCoverArtRequest(this, fontLoader, logic, channel);
         }
         return createMediaFileCoverArtRequest(channel.getMediaFileId(), request);

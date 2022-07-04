@@ -167,14 +167,22 @@ public class ArtistByFolderUpnpProcessor
     public FolderArtistAlbumWrapper getItemById(String ids) {
         int id = toRawId(ids);
         if (isArtistId(ids)) {
-            return new FolderContent(artistDao.getArtist(id));
+            Artist artist = artistDao.getArtist(id);
+            if (artist == null) {
+                throw new IllegalArgumentException("The specified Artist cannot be found.");
+            }
+            return new FolderContent(artist);
         } else if (isAlbumId(ids)) {
-            return new FolderContent(albumDao.getAlbum(id));
+            Album album = albumDao.getAlbum(id);
+            if (album == null) {
+                throw new IllegalArgumentException("The specified Album cannot be found.");
+            }
+            return new FolderContent(album);
         } else if (isMusicFolderId(ids)) {
             return new FolderContent(
                     musicFolderDao.getAllMusicFolders().stream().filter(m -> id == m.getId()).findFirst().get());
         }
-        return new FolderContent(mediaFileService.getMediaFile(id));
+        return new FolderContent(mediaFileService.getMediaFileStrict(id));
     }
 
     @Override

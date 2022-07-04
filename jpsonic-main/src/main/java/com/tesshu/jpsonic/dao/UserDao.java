@@ -103,7 +103,7 @@ public class UserDao extends AbstractDao {
      *
      * @return The user, or <code>null</code> if not found.
      */
-    public User getUserByName(String username, boolean caseSensitive) {
+    public @Nullable User getUserByName(String username, boolean caseSensitive) {
         String sql;
         if (caseSensitive) {
             sql = "select " + USER_COLUMNS + " from " + getUserTable() + " where username=?";

@@ -128,8 +128,10 @@ public class ArtistDao extends AbstractDao {
                     artist.getSort(), artist.getReading(), -1); // <<<< JP
         }
 
-        int id = queryForInt("select id from artist where name=?", null, artist.getName());
-        artist.setId(id);
+        Integer id = queryForInt("select id from artist where name=?", null, artist.getName());
+        if (id != null) {
+            artist.setId(id);
+        }
     }
 
     /**

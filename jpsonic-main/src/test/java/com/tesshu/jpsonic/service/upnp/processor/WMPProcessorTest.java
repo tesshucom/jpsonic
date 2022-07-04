@@ -237,7 +237,7 @@ class WMPProcessorTest {
             m.setId(id);
             m.setPathString("path4");
             m.setTitle("dummy title");
-            Mockito.when(mediaFileService.getMediaFile(id)).thenReturn(m);
+            Mockito.when(mediaFileService.getMediaFileStrict(id)).thenReturn(m);
             assertEmpty(wmpProcessor.getBrowseResult("dc:title = \"99\"", "*", 0, 0));
 
             m.setMediaType(MediaType.MUSIC);

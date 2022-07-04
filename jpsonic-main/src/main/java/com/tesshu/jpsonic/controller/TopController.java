@@ -32,6 +32,7 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.domain.AvatarScheme;
 import com.tesshu.jpsonic.domain.InternetRadio;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -100,6 +101,7 @@ public class TopController {
     }
 
     @GetMapping
+    @SuppressLint(value = "CROSS_SITE_SCRIPTING", justification = "False positive. VersionService reads static local files.")
     protected ModelAndView handleRequestInternal(HttpServletRequest request,
             @RequestParam("mainView") Optional<String> mainView,
             @RequestParam("selectedItem") Optional<String> selectedItem) throws ServletRequestBindingException {
@@ -136,7 +138,7 @@ public class TopController {
             musicFolderService.clearMusicFolderCache();
         }
 
-        String username = securityService.getCurrentUsername(request);
+        String username = securityService.getCurrentUsernameStrict(request);
         List<MusicFolder> allMusicFolders = musicFolderService.getMusicFoldersForUser(username);
         MusicFolder selectedMusicFolder = securityService.getSelectedMusicFolder(username);
         List<MusicFolder> musicFoldersToUse = selectedMusicFolder == null ? allMusicFolders
@@ -196,7 +198,7 @@ public class TopController {
         }
 
         long lastModified = System.currentTimeMillis();
-        String username = securityService.getCurrentUsername(request);
+        String username = securityService.getCurrentUsernameStrict(request);
 
         // When was settings last changed?
         lastModified = Math.max(lastModified, settingsService.getSettingsChanged());
@@ -246,7 +248,7 @@ public class TopController {
         }
         // Note: UserSettings.setChanged() is intentionally not called. This would break browser caching
         // of the left frame.
-        UserSettings settings = securityService.getUserSettings(securityService.getCurrentUsername(request));
+        UserSettings settings = securityService.getUserSettings(securityService.getCurrentUsernameStrict(request));
         settings.setSelectedMusicFolderId(musicFolderId);
         securityService.updateUserSettings(settings);
 

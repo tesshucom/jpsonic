@@ -70,7 +70,8 @@ class PlayQueueServiceTest {
         PodcastService podcastService = mock(PodcastService.class);
         PodcastEpisode podcastEpisode = new PodcastEpisode(0, 0, null, null, null, null, null, null, null, null, null,
                 null);
-        Mockito.when(podcastService.getEpisode(Mockito.anyInt(), Mockito.anyBoolean())).thenReturn(podcastEpisode);
+        Mockito.when(podcastService.getEpisodeStrict(Mockito.anyInt(), Mockito.anyBoolean()))
+                .thenReturn(podcastEpisode);
         Mockito.when(podcastService.getEpisodes(Mockito.anyInt())).thenReturn(Collections.emptyList());
 
         mediaFileService = mock(MediaFileService.class);
@@ -87,7 +88,7 @@ class PlayQueueServiceTest {
     void testPlay() throws ServletRequestBindingException {
         MediaFile song = new MediaFile();
         song.setId(0);
-        Mockito.when(mediaFileService.getMediaFile(song.getId())).thenReturn(song);
+        Mockito.when(mediaFileService.getMediaFileStrict(song.getId())).thenReturn(song);
         assertNotNull(playQueueService.play(song.getId()));
     }
 

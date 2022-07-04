@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.MediaScannerService;
@@ -249,6 +250,7 @@ public class UploadController {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File, IOException) Not reusable
+    @SuppressLint(value = "RESOURCE_LEAK", justification = "False positive. facebook/infer#619")
     private List<Path> unzip(Path file) throws ExecutionException {
         if (LOG.isInfoEnabled()) {
             LOG.info("Unzipping " + file);
