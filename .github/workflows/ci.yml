@@ -17,6 +17,23 @@ env:
 
 jobs:
   ##########################################################################
+  pre_job:
+    name: Duplicate actions check
+    # continue-on-error: true # Uncomment once integration is finished
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@v4
+        with:
+          # All of these options are optional, so you can remove them if you are happy with the defaults
+          concurrent_skipping: 'never'
+          skip_after_successful_duplicate: 'true'
+          paths_ignore: '["**/README.md", "**/CHANGELOG.md"]'
+          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
+  ##########################################################################
   ## Although use for evaluation purposes, most checks are included in LGTM.
   ## Run only on master to save time.
   analyze:
@@ -46,6 +63,8 @@ jobs:
       uses: github/codeql-action/analyze@v2
   ##########################################################################
   verify-JDK11:
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     name: JDK11 on ${{ matrix.os }}
     strategy:
       matrix:
@@ -86,6 +105,8 @@ jobs:
         run: mvn -DfailIfNoTests=false -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" clean verify -B -Ptomcat-embed -Punit-test
   ##########################################################################
   verify-JDK17:
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     name: JDK17 on ubuntu-latest
     runs-on: ubuntu-latest
     steps:
@@ -111,6 +132,8 @@ jobs:
         run: mvn -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" clean verify -B -Ptomcat-embed -Prelease${{ matrix.java }} -Punit-test
   ##########################################################################
   verify-experiment:
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     name: JDK${{ matrix.java }} on ubuntu-latest
     strategy:
       matrix:
