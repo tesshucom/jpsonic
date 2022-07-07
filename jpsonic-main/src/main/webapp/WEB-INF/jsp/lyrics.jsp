@@ -3,8 +3,8 @@
 <html><head>
     <%@ include file="head.jsp" %>
     <title><fmt:message key="lyrics.title"/></title>
-    <script src="<c:url value='/dwr/interface/lyricsService.js'/>"></script>
     <script src="<c:url value='/dwr/engine.js'/>"></script>
+    <script src="<c:url value='/dwr/interface/lyricsService.js'/>"></script>
     <script src="<c:url value='/dwr/util.js'/>"></script>
 
     <script>
