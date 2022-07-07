@@ -193,11 +193,19 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         if (-1 > id) {
             return indexesMap.get(ids);
         } else if (isArtistId(ids)) {
-            return new Id3Content(artistDao.getArtist(id));
+            Artist artist = artistDao.getArtist(id);
+            if (artist == null) {
+                throw new IllegalArgumentException("The specified Artist cannot be found.");
+            }
+            return new Id3Content(artist);
         } else if (isAlbumId(ids)) {
-            return new Id3Content(albumDao.getAlbum(id));
+            Album album = albumDao.getAlbum(id);
+            if (album == null) {
+                throw new IllegalArgumentException("The specified Album cannot be found.");
+            }
+            return new Id3Content(album);
         }
-        return new Id3Content(mediaFileService.getMediaFile(id));
+        return new Id3Content(mediaFileService.getMediaFileStrict(id));
     }
 
     @Override
@@ -231,7 +239,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
 
     private void applyParentId(Id3Wrapper album, MusicAlbum container) {
         Artist artist = artistDao.getArtist(album.getArtist());
-        if (!isEmpty(artist)) {
+        if (artist != null) {
             container.setParentID(createArtistId(artist.getId()));
         }
     }

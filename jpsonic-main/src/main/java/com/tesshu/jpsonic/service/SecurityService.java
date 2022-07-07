@@ -85,7 +85,7 @@ public class SecurityService implements UserDetailsService {
     /**
      * Returns the selected music folder for a given user, or {@code null} if all music folders should be displayed.
      */
-    public MusicFolder getSelectedMusicFolder(String username) {
+    public @Nullable MusicFolder getSelectedMusicFolder(String username) {
         UserSettings settings = getUserSettings(username);
         int musicFolderId = settings.getSelectedMusicFolderId();
 
@@ -102,12 +102,12 @@ public class SecurityService implements UserDetailsService {
      *
      * @return User-specific settings. Never <code>null</code>.
      */
-    public UserSettings getUserSettings(String username) {
+    public @NonNull UserSettings getUserSettings(String username) {
         UserSettings settings = userDao.getUserSettings(username);
         return settings == null ? createDefaultUserSettings(username) : settings;
     }
 
-    private UserSettings createDefaultUserSettings(String username) {
+    private @NonNull UserSettings createDefaultUserSettings(String username) {
 
         UserSettings settings = new UserSettings(username);
         settings.setChanged(new Date());
@@ -155,7 +155,7 @@ public class SecurityService implements UserDetailsService {
         return settings;
     }
 
-    public UserSettings createDefaultTabletUserSettings(String username) {
+    public @NonNull UserSettings createDefaultTabletUserSettings(String username) {
         UserSettings settings = createDefaultUserSettings(username);
         settings.setKeyboardShortcutsEnabled(false);
         settings.setCloseDrawer(true);
@@ -163,7 +163,7 @@ public class SecurityService implements UserDetailsService {
         return settings;
     }
 
-    public UserSettings createDefaultSmartphoneUserSettings(String username) {
+    public @NonNull UserSettings createDefaultSmartphoneUserSettings(String username) {
         UserSettings settings = createDefaultUserSettings(username);
         settings.setKeyboardShortcutsEnabled(false);
         settings.setDefaultAlbumList(AlbumListType.INDEX);
@@ -209,7 +209,6 @@ public class SecurityService implements UserDetailsService {
         return authorities;
     }
 
-    @Deprecated
     public @Nullable User getCurrentUser(@NonNull HttpServletRequest request) {
         String username = getCurrentUsername(request);
         return username == null ? null : getUserByName(username);
@@ -227,42 +226,32 @@ public class SecurityService implements UserDetailsService {
         return user;
     }
 
-    /**
-     * Returns the name of the currently logged-in user.
-     *
-     * @param request
-     *            The HTTP request.
-     *
-     * @return The name of the logged-in user, or <code>null</code>.
-     */
-    public String getCurrentUsername(HttpServletRequest request) {
+    public @Nullable String getCurrentUsername(HttpServletRequest request) {
         return new SecurityContextHolderAwareRequestWrapper(request, null).getRemoteUser();
     }
 
-    /**
-     * Returns the user with the given username.
-     *
-     * @param username
-     *            The username used when logging in.
-     *
-     * @return The user, or <code>null</code> if not found.
-     */
-    public User getUserByName(String username) {
+    public @NonNull String getCurrentUsernameStrict(HttpServletRequest request) {
+        String username = getCurrentUsername(request);
+        if (username == null) {
+            throw new IllegalArgumentException("User not found");
+        }
+        return username;
+    }
+
+    public @Nullable User getUserByName(String username) {
         return getUserByName(username, true);
     }
 
-    /**
-     * Returns the user with the given username
-     *
-     * @param username
-     *            The username to look for
-     * @param caseSensitive
-     *            If false, will do a case insensitive search
-     *
-     * @return The corresponding User
-     */
-    public User getUserByName(String username, boolean caseSensitive) {
+    public @Nullable User getUserByName(String username, boolean caseSensitive) {
         return userDao.getUserByName(username, caseSensitive);
+    }
+
+    public @NonNull User getUserByNameStrict(String username) {
+        User user = getUserByName(username);
+        if (user == null) {
+            throw new IllegalArgumentException("User not found:" + username);
+        }
+        return user;
     }
 
     public User getGuestUser() {
@@ -490,7 +479,7 @@ public class SecurityService implements UserDetailsService {
         return null;
     }
 
-    public boolean isFolderAccessAllowed(MediaFile file, String username) {
+    public boolean isFolderAccessAllowed(@NonNull MediaFile file, String username) {
         if (isInPodcastFolder(file.toPath())) {
             return true;
         }

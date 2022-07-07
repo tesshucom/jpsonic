@@ -23,6 +23,7 @@ import java.util.List;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.Playlist;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Repository;
 
 @Repository("jplaylistDao")
@@ -59,7 +60,7 @@ public class JPlaylistDao extends AbstractDao {
         return queryForInt("select count(id) from playlist", 0);
     }
 
-    public Playlist getPlaylist(int id) {
+    public @Nullable Playlist getPlaylist(int id) {
         return deligate.getPlaylist(id);
     }
 

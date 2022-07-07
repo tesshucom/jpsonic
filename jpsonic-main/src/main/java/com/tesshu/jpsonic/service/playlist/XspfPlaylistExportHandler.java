@@ -29,6 +29,8 @@ import chameleon.playlist.SpecificPlaylistProvider;
 import chameleon.playlist.xspf.Location;
 import chameleon.playlist.xspf.Track;
 import chameleon.playlist.xspf.XspfProvider;
+import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.PlaylistDao;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -36,6 +38,7 @@ import com.tesshu.jpsonic.domain.Playlist;
 import org.springframework.stereotype.Component;
 
 @Component
+@SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "It's unreachable code. Will be deleted")
 public class XspfPlaylistExportHandler implements PlaylistExportHandler {
 
     private final MediaFileDao mediaFileDao;
@@ -57,6 +60,7 @@ public class XspfPlaylistExportHandler implements PlaylistExportHandler {
         return createXsfpPlaylistFromDBId(id);
     }
 
+    @SuppressLint(value = "NULL_DEREFERENCE", justification = "It's unreachable code. Will be deleted")
     private chameleon.playlist.xspf.Playlist createXsfpPlaylistFromDBId(int id) {
         chameleon.playlist.xspf.Playlist newPlaylist = new chameleon.playlist.xspf.Playlist();
         Playlist playlist = playlistDao.getPlaylist(id);

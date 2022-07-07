@@ -36,6 +36,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -74,6 +75,7 @@ public class HelpController {
     }
 
     @GetMapping
+    @SuppressLint(value = "CROSS_SITE_SCRIPTING", justification = "False positive. VersionService reads static local files.")
     protected ModelAndView get(HttpServletRequest request) {
         Map<String, Object> map = LegacyMap.of();
 

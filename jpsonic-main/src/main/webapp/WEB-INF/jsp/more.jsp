@@ -6,8 +6,8 @@
 <style type="text/css">
     #randomPlayQueue td { padding: 0 5px; }
 </style>
-<script src="<c:url value='/dwr/interface/transferService.js'/>"></script>
 <script src="<c:url value='/dwr/engine.js'/>"></script>
+<script src="<c:url value='/dwr/interface/transferService.js'/>"></script>
 <script src="<c:url value='/dwr/util.js'/>"></script>
 
 <script>

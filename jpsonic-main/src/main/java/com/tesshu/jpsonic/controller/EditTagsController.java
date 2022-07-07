@@ -73,7 +73,7 @@ public class EditTagsController {
     protected ModelAndView handleRequestInternal(HttpServletRequest request) throws ServletRequestBindingException {
 
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
-        MediaFile dir = mediaFileService.getMediaFile(id);
+        MediaFile dir = mediaFileService.getMediaFileStrict(id);
         List<MediaFile> files = mediaFileService.getChildrenOf(dir, true, false, true, false);
 
         Map<String, Object> map = LegacyMap.of();
@@ -94,7 +94,7 @@ public class EditTagsController {
         map.put("songs", parsedSongs);
         map.put("ancestors", getAncestors(dir));
 
-        String username = securityService.getCurrentUsername(request);
+        String username = securityService.getCurrentUsernameStrict(request);
         UserSettings userSettings = securityService.getUserSettings(username);
         map.put("breadcrumbIndex", userSettings.isBreadcrumbIndex());
         map.put("dir", dir);

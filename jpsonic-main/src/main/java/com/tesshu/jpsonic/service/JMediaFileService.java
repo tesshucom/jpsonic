@@ -84,6 +84,10 @@ public class JMediaFileService {
         return deligate.getMediaFile(pathName);
     }
 
+    public MediaFile getMediaFileStrict(int id) {
+        return deligate.getMediaFileStrict(id);
+    }
+
     public long countSongs(List<MusicFolder> folders) {
         return mediaFileDao.countMediaFile(MediaType.MUSIC, folders);
     }

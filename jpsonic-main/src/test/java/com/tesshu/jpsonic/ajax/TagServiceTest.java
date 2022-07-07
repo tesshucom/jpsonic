@@ -74,7 +74,7 @@ class TagServiceTest {
         parent.setId(1);
         parent.setPathString(copy.getParent().toString());
 
-        Mockito.when(mediaFileService.getMediaFile(mediaFile.getId())).thenReturn(mediaFile);
+        Mockito.when(mediaFileService.getMediaFileStrict(mediaFile.getId())).thenReturn(mediaFile);
         Mockito.when(mediaFileService.getParentOf(mediaFile)).thenReturn(parent);
         Mockito.when(metaDataParserFactory.getParser(Path.of(mediaFile.getPathString()))).thenReturn(parser);
 

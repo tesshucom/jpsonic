@@ -73,10 +73,9 @@ public class FontSchemeFilter implements Filter {
          * AbstractAirsonicRestApiJukeboxIntTest.
          */
         if (!excludes.contains(request.getServletPath()) && !isEmpty(settingsService) && !isEmpty(securityService)) {
-            @SuppressWarnings("deprecation")
             @Nullable
             User user = securityService.getCurrentUser(request);
-            UserSettings settings = isEmpty(user) ? null : securityService.getUserSettings(user.getUsername());
+            UserSettings settings = user == null ? null : securityService.getUserSettings(user.getUsername());
             WebFontUtils.setToRequest(settings, request);
         }
         chain.doFilter(request, res);

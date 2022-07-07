@@ -43,7 +43,6 @@ import org.fourthline.cling.support.model.item.VideoItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
 @Service
 public class WMPProcessor {
@@ -123,10 +122,10 @@ public class WMPProcessor {
         item.setDescription(song.getComment());
 
         MediaFile parent = mediaFileService.getParentOf(song);
-        if (!ObjectUtils.isEmpty(parent)) {
+        if (parent != null) {
             item.setParentID(String.valueOf(parent.getId()));
+            item.addProperty(new ALBUM_ART_URI(mediaFileUpnpProcessor.createAlbumArtURI(parent)));
         }
-        item.addProperty(new ALBUM_ART_URI(mediaFileUpnpProcessor.createAlbumArtURI(parent)));
 
         // Multi-artist is probably difficult with MS specs
         if (song.getAlbumArtist() != null) {
@@ -157,10 +156,10 @@ public class WMPProcessor {
         item.setDescription(video.getComment());
 
         MediaFile parent = mediaFileService.getParentOf(video);
-        if (!ObjectUtils.isEmpty(parent)) {
+        if (parent != null) {
             item.setParentID(String.valueOf(parent.getId()));
+            item.addProperty(new ALBUM_ART_URI(mediaFileUpnpProcessor.createAlbumArtURI(parent)));
         }
-        item.addProperty(new ALBUM_ART_URI(mediaFileUpnpProcessor.createAlbumArtURI(parent)));
         if (video.getGenre() != null) {
             item.setGenres(new String[] { video.getGenre() });
         }
@@ -228,7 +227,7 @@ public class WMPProcessor {
 
     private BrowseResult createSingleObjectBrowseResult(String query) {
         int id = Integer.parseInt(query.replaceAll("[^0-9]", ""));
-        MediaFile mediaFile = mediaFileService.getMediaFile(id);
+        MediaFile mediaFile = mediaFileService.getMediaFileStrict(id);
         if (mediaFile.isAudio()) {
             DIDLContent didl = new DIDLContent();
             didl.addItem(createMusicTrack(mediaFile));

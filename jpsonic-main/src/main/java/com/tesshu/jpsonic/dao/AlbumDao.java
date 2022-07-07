@@ -164,9 +164,11 @@ public class AlbumDao extends AbstractDao {
                                                                                                                        // JP
         }
 
-        int id = queryForInt("select id from album where artist=? and name=?", null, album.getArtist(),
+        Integer id = queryForInt("select id from album where artist=? and name=?", null, album.getArtist(),
                 album.getName());
-        album.setId(id);
+        if (id != null) {
+            album.setId(id);
+        }
     }
 
     /**

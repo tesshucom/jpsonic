@@ -255,7 +255,7 @@ public class PlayerService {
      *
      * @return The player with the given ID, or <code>null</code> if no such player exists.
      */
-    public Player getPlayerById(Integer id) {
+    public @Nullable Player getPlayerById(Integer id) {
         if (id == null) {
             return null;
         } else {
@@ -380,6 +380,10 @@ public class PlayerService {
      */
     public Player clonePlayer(int playerId) {
         Player player = getPlayerById(playerId);
+        if (player == null) {
+            throw new IllegalArgumentException("The specified Player cannot be found.");
+        }
+
         if (player.getName() != null) {
             player.setName(player.getName() + " (copy)");
         }

@@ -73,14 +73,15 @@ public class MultiService {
     public ArtistInfo getArtistInfo(int mediaFileId, int maxSimilarArtists, int maxTopSongs) {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
 
-        MediaFile mediaFile = mediaFileService.getMediaFile(mediaFileId);
-        List<SimilarArtist> similarArtists = getSimilarArtists(mediaFileId, maxSimilarArtists);
-
         User user = securityService.getCurrentUserStrict(request);
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         Locale locale = userSettings.isForceBio2Eng() ? Locale.ENGLISH : airsonicLocaleResolver.resolveLocale(request);
+
+        MediaFile mediaFile = mediaFileService.getMediaFileStrict(mediaFileId);
         ArtistBio artistBio = lastFmService.getArtistBio(mediaFile, locale);
         List<TopSong> topSongs = getTopSongs(mediaFile, maxTopSongs);
+
+        List<SimilarArtist> similarArtists = getSimilarArtists(mediaFileId, maxSimilarArtists);
 
         return new ArtistInfo(similarArtists, artistBio, topSongs);
     }
@@ -88,7 +89,7 @@ public class MultiService {
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TopSong) Not reusable
     private List<TopSong> getTopSongs(MediaFile mediaFile, int limit) {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
-        String username = securityService.getCurrentUsername(request);
+        String username = securityService.getCurrentUsernameStrict(request);
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
 
         List<TopSong> result = new ArrayList<>();
@@ -104,7 +105,7 @@ public class MultiService {
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (SimilarArtist) Not reusable
     private List<SimilarArtist> getSimilarArtists(int mediaFileId, int limit) {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
-        String username = securityService.getCurrentUsername(request);
+        String username = securityService.getCurrentUsernameStrict(request);
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
 
         MediaFile artist = mediaFileService.getMediaFile(mediaFileId);

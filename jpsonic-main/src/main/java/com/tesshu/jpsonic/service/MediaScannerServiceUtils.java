@@ -145,8 +145,9 @@ public class MediaScannerServiceUtils {
             fixedIdAll.getArtistIds().addAll(toBeFixed.getArtistIds());
             fixedIdAll.getAlbumIds().addAll(toBeFixed.getAlbumIds());
         }
-        fixedIdAll.getMediaFileIds().forEach(id -> indexManager.index(mediaFileDao.getMediaFile(id)));
-        fixedIdAll.getAlbumIds().forEach(id -> indexManager.index(albumDao.getAlbum(id)));
+        fixedIdAll.getMediaFileIds().stream().map(id -> mediaFileDao.getMediaFile(id))
+                .forEach(mediaFile -> indexManager.index(mediaFile));
+        fixedIdAll.getAlbumIds().stream().map(id -> albumDao.getAlbum(id)).forEach(album -> indexManager.index(album));
     }
 
     private void updateIndexOfArtist(FixedIds... fixedIds) {
@@ -156,10 +157,16 @@ public class MediaScannerServiceUtils {
             fixedIdAll.getArtistIds().addAll(toBeFixed.getArtistIds());
             fixedIdAll.getAlbumIds().addAll(toBeFixed.getAlbumIds());
         }
-        fixedIdAll.getMediaFileIds().forEach(id -> indexManager.index(mediaFileDao.getMediaFile(id)));
+        fixedIdAll.getMediaFileIds().stream().map(id -> mediaFileDao.getMediaFile(id))
+                .forEach(mediaFile -> indexManager.index(mediaFile));
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders(false, false);
-        fixedIdAll.getArtistIds().forEach(id -> folders.forEach(m -> indexManager.index(artistDao.getArtist(id), m)));
-        fixedIdAll.getAlbumIds().forEach(id -> indexManager.index(albumDao.getAlbum(id)));
+        fixedIdAll.getArtistIds().forEach(id -> folders.forEach(m -> {
+            Artist artist = artistDao.getArtist(id);
+            if (artist != null) {
+                indexManager.index(artist, m);
+            }
+        }));
+        fixedIdAll.getAlbumIds().stream().map(id -> albumDao.getAlbum(id)).forEach(album -> indexManager.index(album));
     }
 
     private void updateOrderOfAlbum() {

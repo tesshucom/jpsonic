@@ -133,7 +133,7 @@ public class MediaFileService {
         return result;
     }
 
-    public MediaFile getMediaFile(String path) {
+    public @Nullable MediaFile getMediaFile(String path) {
         if (!SecurityService.isNoTraversal(path)) {
             throw new SecurityException("Access denied to file : " + path);
         }
@@ -141,7 +141,7 @@ public class MediaFileService {
     }
 
     // TODO: Optimize with memory caching.
-    public MediaFile getMediaFile(int id) {
+    public @Nullable MediaFile getMediaFile(int id) {
         MediaFile mediaFile = mediaFileDao.getMediaFile(id);
         if (mediaFile == null) {
             return null;
@@ -154,7 +154,23 @@ public class MediaFileService {
         return mediaFile;
     }
 
-    public MediaFile getParentOf(MediaFile mediaFile) {
+    public @NonNull MediaFile getMediaFileStrict(String path) {
+        MediaFile mediaFile = getMediaFile(path);
+        if (mediaFile == null) {
+            throw new IllegalArgumentException("The specified MediaFile cannot be found.");
+        }
+        return mediaFile;
+    }
+
+    public @NonNull MediaFile getMediaFileStrict(int id) {
+        MediaFile mediaFile = getMediaFile(id);
+        if (mediaFile == null) {
+            throw new IllegalArgumentException("The specified MediaFile cannot be found.");
+        }
+        return mediaFile;
+    }
+
+    public @Nullable MediaFile getParentOf(MediaFile mediaFile) {
         if (mediaFile.getParentPathString() == null) {
             return null;
         }
@@ -251,7 +267,7 @@ public class MediaFileService {
         return result;
     }
 
-    public boolean isRoot(MediaFile mediaFile) {
+    public boolean isRoot(@NonNull MediaFile mediaFile) {
         for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders(false, true)) {
             if (mediaFile.toPath().equals(musicFolder.toPath())) {
                 return true;
@@ -555,7 +571,7 @@ public class MediaFileService {
         updateMediaFile(file);
 
         MediaFile parent = getParentOf(file);
-        if (!isRoot(parent)) {
+        if (parent != null && !isRoot(parent)) {
             parent.setLastPlayed(now);
             parent.setPlayCount(parent.getPlayCount() + 1);
             updateMediaFile(parent);

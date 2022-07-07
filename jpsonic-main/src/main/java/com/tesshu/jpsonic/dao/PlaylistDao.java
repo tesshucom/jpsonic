@@ -31,6 +31,7 @@ import java.util.TreeMap;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.Playlist;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,7 +82,7 @@ public class PlaylistDao extends AbstractDao {
         return query("select " + QUERY_COLUMNS + " from playlist where username=?", rowMapper, username);
     }
 
-    public Playlist getPlaylist(int id) {
+    public @Nullable Playlist getPlaylist(int id) {
         return queryOne("select " + QUERY_COLUMNS + " from playlist where id=?", rowMapper, id);
     }
 

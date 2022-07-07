@@ -66,6 +66,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -158,9 +160,9 @@ public class PodcastService {
     /**
      * Returns a single Podcast channel.
      */
-    public PodcastChannel getChannel(int channelId) {
+    public @Nullable PodcastChannel getChannel(int channelId) {
         PodcastChannel channel = podcastDao.getChannel(channelId);
-        if (channel.getTitle() != null) {
+        if (channel != null && channel.getTitle() != null) {
             addMediaFileIdToChannels(Arrays.asList(channel));
         }
         return channel;
@@ -229,7 +231,7 @@ public class PodcastService {
         return result;
     }
 
-    public PodcastEpisode getEpisode(int episodeId, boolean includeDeleted) {
+    public @Nullable PodcastEpisode getEpisode(int episodeId, boolean includeDeleted) {
         PodcastEpisode episode = podcastDao.getEpisode(episodeId);
         if (episode == null) {
             return null;
@@ -238,6 +240,14 @@ public class PodcastService {
             return null;
         }
         addMediaFileIdToEpisodes(Arrays.asList(episode));
+        return episode;
+    }
+
+    public @NonNull PodcastEpisode getEpisodeStrict(int episodeId, boolean includeDeleted) {
+        PodcastEpisode episode = getEpisode(episodeId, includeDeleted);
+        if (episode == null) {
+            throw new IllegalArgumentException("The specified PodcastEpisode cannot be found.");
+        }
         return episode;
     }
 

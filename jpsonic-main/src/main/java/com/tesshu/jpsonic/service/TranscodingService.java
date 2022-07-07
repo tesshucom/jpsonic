@@ -34,13 +34,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.controller.VideoPlayerController;
 import com.tesshu.jpsonic.dao.TranscodingDao;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -90,8 +90,7 @@ public class TranscodingService {
     private final TranscodingDao transcodingDao;
     private final PlayerService playerService;
     private final Executor shortExecutor;
-    private final String transcodePath = Optional.ofNullable(System.getProperty("transcodePath") == null ? null
-            : System.getProperty("transcodePath").replaceAll("\\\\", "\\\\\\\\")).orElse(null);
+    private final String transcodePath;
     private Path transcodeDirectory;
 
     public TranscodingService(SettingsService settingsService, SecurityService securityService,
@@ -102,6 +101,12 @@ public class TranscodingService {
         this.transcodingDao = transcodingDao;
         this.playerService = playerService;
         this.shortExecutor = shortExecutor;
+        String propPath = System.getProperty("transcodePath");
+        if (propPath != null) {
+            transcodePath = propPath.replaceAll("\\\\", "\\\\\\\\");
+        } else {
+            transcodePath = null;
+        }
     }
 
     /**
@@ -568,6 +573,7 @@ public class TranscodingService {
      *
      * @return Parameters to be used in the {@link #getTranscodedInputStream} method.
      */
+    @SuppressLint(value = "NULL_DEREFERENCE", justification = "False positive. Transcoding is Nullable.")
     public Parameters getParameters(@NonNull MediaFile mediaFile, @NonNull Player player,
             @Nullable final Integer maxBitRate, @Nullable String preferredTargetFormat,
             @Nullable VideoTranscodingSettings videoTranscodingSettings) {
@@ -588,6 +594,7 @@ public class TranscodingService {
                 .strictest(TranscodeScheme.fromMaxBitRate(
                         maxBitRate == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate()) : maxBitRate));
         final boolean hls = videoTranscodingSettings != null && videoTranscodingSettings.isHls();
+        @Nullable
         final Transcoding transcoding = getTranscoding(mediaFile, playerForTranscode, preferredTargetFormat, hls);
         final int bitRate = createBitrate(mediaFile, transcoding);
         final int mb = createMaxBitrate(transcodeScheme, mediaFile, bitRate);

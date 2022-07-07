@@ -114,8 +114,10 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor<PodcastChannel, P
 
         item.setParentID(String.valueOf(episode.getChannelId()));
         PodcastChannel channel = podcastService.getChannel(episode.getChannelId());
-        item.setAlbum(channel.getTitle());
-        item.addProperty(new ALBUM_ART_URI(createPodcastChannelURI(channel)));
+        if (channel != null) {
+            item.setAlbum(channel.getTitle());
+            item.addProperty(new ALBUM_ART_URI(createPodcastChannelURI(channel)));
+        }
 
         Date publishDate = episode.getPublishDate();
         if (isEmpty(publishDate)) {
@@ -128,7 +130,7 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor<PodcastChannel, P
         }
 
         if (episode.getStatus() == PodcastStatus.COMPLETED && !isEmpty(episode.getMediaFileId())) {
-            MediaFile mediaFile = mediaFileService.getMediaFile(episode.getMediaFileId());
+            MediaFile mediaFile = mediaFileService.getMediaFileStrict(episode.getMediaFileId());
             item.setResources(Arrays.asList(getDispatcher().getMediaFileProcessor().createResourceForSong(mediaFile)));
         }
 

@@ -24,8 +24,8 @@
 <html><head>
 <%@ include file="head.jsp" %>
 <%@ include file="jquery.jsp" %>
-<script src="<c:url value='/dwr/util.js'/>"></script>
 <script src="<c:url value='/dwr/engine.js'/>"></script>
+<script src="<c:url value='/dwr/util.js'/>"></script>
 <script src="<c:url value='/dwr/interface/starService.js'/>"></script>
 <script src="<c:url value='/dwr/interface/multiService.js'/>"></script>
 <script src="<c:url value='/script/jquery.fancyzoom.js'/>"></script>

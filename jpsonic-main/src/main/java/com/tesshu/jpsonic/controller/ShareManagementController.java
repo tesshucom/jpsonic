@@ -94,7 +94,7 @@ public class ShareManagementController {
 
     private String getDescription(HttpServletRequest request) throws ServletRequestBindingException {
         Integer playlistId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYLIST.value());
-        return playlistId == null ? null : playlistService.getPlaylist(playlistId).getName();
+        return playlistId == null ? null : playlistService.getPlaylistStrict(playlistId).getName();
     }
 
     private List<MediaFile> getMediaFiles(HttpServletRequest request) throws ServletRequestBindingException {

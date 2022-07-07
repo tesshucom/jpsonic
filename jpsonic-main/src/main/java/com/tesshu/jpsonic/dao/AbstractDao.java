@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -166,7 +167,7 @@ public class AbstractDao {
         return result;
     }
 
-    protected <T> T queryOne(String sql, RowMapper<T> rowMapper, Object... args) {
+    protected @Nullable <T> T queryOne(String sql, RowMapper<T> rowMapper, Object... args) {
         List<T> list = query(sql, rowMapper, args);
         return list.isEmpty() ? null : list.get(0);
     }

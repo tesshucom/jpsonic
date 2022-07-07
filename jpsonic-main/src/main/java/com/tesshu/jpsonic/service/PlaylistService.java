@@ -49,6 +49,8 @@ import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -117,8 +119,16 @@ public class PlaylistService {
         return playlists;
     }
 
-    public Playlist getPlaylist(int id) {
+    public @Nullable Playlist getPlaylist(int id) {
         return playlistDao.getPlaylist(id);
+    }
+
+    public @NonNull Playlist getPlaylistStrict(int id) {
+        Playlist playlist = getPlaylist(id);
+        if (playlist == null) {
+            throw new IllegalArgumentException("Playlist not found");
+        }
+        return playlist;
     }
 
     public List<String> getPlaylistUsers(int playlistId) {

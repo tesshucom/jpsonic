@@ -85,7 +85,7 @@ public class TagService {
     public String updateTags(int id, String trackStr, String artistStr, String albumStr, String titleStr,
             String yearStr, String genreStr) {
 
-        MediaFile file = mediaFileService.getMediaFile(id);
+        MediaFile file = mediaFileService.getMediaFileStrict(id);
         if (file == null || mediaScannerService.isScanning()) {
             return "SKIPPED";
         }
@@ -129,7 +129,7 @@ public class TagService {
             return e.getMessage();
         }
         mediaFileService.refreshMediaFile(file);
-        file = mediaFileService.getMediaFile(file.getId());
+        file = mediaFileService.getMediaFileStrict(file.getId());
         mediaFileService.refreshMediaFile(mediaFileService.getParentOf(file));
         return "UPDATED";
     }

@@ -88,7 +88,7 @@ public class SearchServiceImpl implements SearchService {
         }
 
         IndexSearcher searcher = indexManager.getSearcher(criteria.getIndexType());
-        if (isEmpty(searcher)) {
+        if (searcher == null) {
             return result;
         }
 
@@ -133,7 +133,7 @@ public class SearchServiceImpl implements SearchService {
         }
 
         IndexSearcher searcher = indexManager.getSearcher(indexType);
-        if (isEmpty(searcher)) {
+        if (searcher == null) {
             return result;
         }
 
@@ -227,7 +227,7 @@ public class SearchServiceImpl implements SearchService {
     public List<MediaFile> getRandomSongs(RandomSearchCriteria criteria) {
 
         IndexSearcher searcher = indexManager.getSearcher(IndexType.SONG);
-        if (isEmpty(searcher)) {
+        if (searcher == null) {
             // At first start
             return Collections.emptyList();
         }
@@ -258,7 +258,7 @@ public class SearchServiceImpl implements SearchService {
         }
 
         IndexSearcher searcher = indexManager.getSearcher(IndexType.SONG);
-        if (isEmpty(searcher)) {
+        if (searcher == null) {
             return result;
         }
 
@@ -338,7 +338,7 @@ public class SearchServiceImpl implements SearchService {
     public List<MediaFile> getRandomAlbums(int count, List<MusicFolder> musicFolders) {
 
         IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM);
-        if (isEmpty(searcher)) {
+        if (searcher == null) {
             return Collections.emptyList();
         }
 
@@ -361,7 +361,7 @@ public class SearchServiceImpl implements SearchService {
     public List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders) {
 
         IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM_ID3);
-        if (isEmpty(searcher)) {
+        if (searcher == null) {
             return Collections.emptyList();
         }
 
@@ -392,7 +392,7 @@ public class SearchServiceImpl implements SearchService {
         }
 
         IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM_ID3);
-        if (isEmpty(searcher)) {
+        if (searcher == null) {
             return result;
         }
 
@@ -471,7 +471,7 @@ public class SearchServiceImpl implements SearchService {
         }
 
         IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM_ID3);
-        if (isEmpty(searcher)) {
+        if (searcher == null) {
             return result;
         }
 
