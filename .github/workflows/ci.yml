@@ -185,7 +185,7 @@ jobs:
         run: mvn -Psend-coverage com.gavinmogan:codacy-maven-plugin:coverage
   ##########################################################################
   package:
-    if: github.ref == 'refs/heads/master'
+    if: "(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')"
     needs: [ verify-JDK11, verify-JDK17, verify-experiment ]
     name: Package with JDK ${{ matrix.java }} on ubuntu
     strategy:
