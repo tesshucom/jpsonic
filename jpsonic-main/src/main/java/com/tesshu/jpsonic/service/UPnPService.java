@@ -37,9 +37,7 @@ import com.tesshu.jpsonic.service.upnp.ApacheUpnpServiceConfiguration;
 import com.tesshu.jpsonic.service.upnp.CustomContentDirectory;
 import com.tesshu.jpsonic.service.upnp.MSMediaReceiverRegistrarService;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
-import org.fourthline.cling.DefaultUpnpServiceConfiguration;
 import org.fourthline.cling.UpnpService;
-import org.fourthline.cling.UpnpServiceConfiguration;
 import org.fourthline.cling.UpnpServiceImpl;
 import org.fourthline.cling.binding.annotations.AnnotationLocalServiceBinder;
 import org.fourthline.cling.model.DefaultServiceManager;
@@ -154,11 +152,8 @@ public class UPnPService {
     @SuppressWarnings("PMD.AvoidCatchingGenericException") // fourthline/UpnpServiceImpl#UpnpServiceImpl
     private void createService() {
         synchronized (LOCK) {
-            UpnpServiceConfiguration upnpConf = 0 < SettingsService.getDefaultUPnPPort()
-                    ? new DefaultUpnpServiceConfiguration(SettingsService.getDefaultUPnPPort())
-                    : new ApacheUpnpServiceConfiguration();
             try {
-                deligate = new UpnpServiceImpl(upnpConf);
+                deligate = new UpnpServiceImpl(new ApacheUpnpServiceConfiguration());
             } catch (RuntimeException e) {
                 // The exception is wrapped in Runtime and thrown!
                 if (e.getCause() instanceof RouterException) {
