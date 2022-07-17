@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>111.3.0-SNAPSHOT</version>
+    <version>111.2.8</version>
     <name>Jpsonic</name>
     <packaging>pom</packaging>
     <organization>
@@ -137,7 +137,7 @@
             <dependency>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-core</artifactId>
-                <version>4.12.0</version>
+                <version>4.13.0</version>
             </dependency>
 
             <!-- Fix convergence issues -->
@@ -185,7 +185,7 @@
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
                 <scope>compile</scope>
-                <version>3.22.2</version>
+                <version>3.23.0</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
@@ -399,7 +399,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.4.0</version>
+                    <version>3.4.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -522,7 +522,7 @@
                 <plugin>
                     <groupId>com.github.spotbugs</groupId>
                     <artifactId>spotbugs-maven-plugin</artifactId>
-                    <version>4.7.0.0</version>
+                    <version>4.7.1.0</version>
                     <dependencies>
                         <dependency>
                             <groupId>com.github.spotbugs</groupId>
