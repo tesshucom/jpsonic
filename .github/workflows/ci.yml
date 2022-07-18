@@ -267,7 +267,7 @@ jobs:
           mkdir -p install/docker/alpine-jdk17/target/dependency
           mv jpsonic.war install/docker/alpine-jdk17/target/dependency
       - name: Release with Version Tag
-        if: "(github.ref == 'refs/heads/master' && contains(github.event.commits[0].message, 'Release'))"
+        if: "(github.ref == 'refs/heads/master' && contains(github.event.head_commit.message, 'Release'))"
         run: |
           cd install/docker/alpine-jdk17
           mvn -DdockerTag=${{ env.DOCKER_TAG }} package
