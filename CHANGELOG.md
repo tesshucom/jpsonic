@@ -3,10 +3,24 @@
 # jpsonic/jpsonic
 # -->
 
-## [v111.2.1](https://github.com/tesshucom/jpsonic/milestone/58)
+## v111.3.0
+
+#### Enhancement
+  * Auto-build of Docker Image ([#1604](https://github.com/tesshucom/jpsonic/issues/1604))
+  * Bump Jetty from 9 to 10.0.11 ([#1606](https://github.com/tesshucom/jpsonic/issues/1606))
+  * Change shutdown timeout to 29s ([#1602](https://github.com/tesshucom/jpsonic/issues/1602))
 
 #### Fixes
-  * Update libs. Includes fixes for **CVE-2022-22978**
+  * Fix bug that UPnP port specified is not reflected correctly ([#1600](https://github.com/tesshucom/jpsonic/issues/1600))
+
+#### Refactoring
+  * Organize warnings of 'FacebookInfer' ([#1584](https://github.com/tesshucom/jpsonic/issues/1584))
+  * Organize warnings of 'FindSecBugs' ([#1580](https://github.com/tesshucom/jpsonic/issues/1580))
+  * Organize warnings of 'google/error-prone' ([#1561](https://github.com/tesshucom/jpsonic/issues/1561))
+  * Remove guava ([#1571](https://github.com/tesshucom/jpsonic/issues/1571))
+
+<details>
+<summary>v111.2.1</summary>
 
 #### Enhancement
   * File I/O improvements
@@ -14,6 +28,10 @@
     * Fix to suppress copy non-ASCII name files when transcoding on Windows ([#1531](https://github.com/tesshucom/jpsonic/issues/1531))
     * Fix podcast directory to be created if it doesn't exist ([#1509](https://github.com/tesshucom/jpsonic/issues/1509))
 
+#### Fixes
+  * Update libs. Includes fixes for **CVE-2022-22978**
+
+</details>
 <details>
 <summary>v111.2.0</summary>
 
