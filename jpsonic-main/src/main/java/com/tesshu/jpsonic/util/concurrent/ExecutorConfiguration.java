@@ -42,10 +42,10 @@ public class ExecutorConfiguration {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExecutorConfiguration.class);
 
-    protected static final int SHORT_AWAIT_TERMINATION = 20_000;
-    protected static final int PODCAST_DOWNLOAD_AWAIT_TERMINATION = 30_000;
-    protected static final int PODCAST_REFRESH_AWAIT_TERMINATION = 30_000;
-    protected static final int SCAN_AWAIT_TERMINATION = 30_000;
+    protected static final int SHORT_AWAIT_TERMINATION = 10_000;
+    protected static final int PODCAST_DOWNLOAD_AWAIT_TERMINATION = 25_000;
+    protected static final int PODCAST_REFRESH_AWAIT_TERMINATION = 25_000;
+    protected static final int SCAN_AWAIT_TERMINATION = 25_000;
 
     private final ShortTaskPoolConfiguration poolConf;
 

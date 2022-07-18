@@ -1,0 +1,81 @@
+# 
+# This is a sample of Jpsonic boot configuration (on Win).
+# You can easily start Jpsonic by changing the volume, port and so on.
+#
+# usege: 
+#   docker-compose -f production.yml up -d
+#
+
+version: '3.9'
+services:
+  app:
+    image: jpsonic/jpsonic:latest
+    container_name: jpsonic
+
+    # The host networking driver only works on Linux hosts,
+    # and is not supported on Docker Desktop for Mac Docker Desktop for Windows,
+    # or Docker EE for Windows Server.
+    # https://docs.docker.com/network/host/
+    network_mode: bridge
+
+    ports:
+     # <host>:<internal>
+     # Windows docker does not transfer UDP.
+     # If you want to use UPnP on Windows host, Docker is not recommended.
+     - 1900:1900/udp
+     - 8080:4040
+     - 4041:4041
+
+    pid: host
+    volumes:
+     # <host>:<internal>
+     # Please rewrite the path of host appropriately.
+     - /c/tmp/jpsonic/data:/jpsonic/data
+     - /c/tmp/jpsonic/music:/jpsonic/music
+     - /c/tmp/jpsonic/podcasts:/jpsonic/podcasts
+     - /c/tmp/jpsonic/playlists:/jpsonic/playlists
+
+    environment:
+
+     # Set the appropriate UID/GUI.
+     USER_ID: 0
+     GROUP_ID: 0
+
+     # If the UID/GUI is not correct, Jpsonic will not start.
+     # If this value is true, run ls -a on jpsonic/data to check UID/GUI.
+     SHOW_DATA_DIR: false
+
+     # Available locales : locale -a
+     LANG: C.UTF-8
+
+     # Available time zones : ls /usr/share/zoneinfo
+     TIME_ZONE: 'Asia/Tokyo'
+
+     # Specify the appropriate Java options.
+     # Currently, Jpsonic will not require extremely large memory(It doesn't actually need 512m).
+     JAVA_OPTS: '-Xmx512m'
+
+     # Jpsonic context path.
+     CONTEXT_PATH: '/'
+
+     # Whether to log the logo at startup
+     BANNER_MODE: off
+
+     # Whether to scan at startup. False is recommended for Docker.
+     SCAN_ON_BOOT: false
+
+     # You can override the MIME of DSD according to your device.
+     MIME_DSF: 'audio/x-dsd'
+     MIME_DFF: 'audio/x-dsd'
+
+     # Don't change
+     TINI_SUBREAPER: true
+     UPNP_PORT: 4041
+
+    # Don't change
+    # Unlike other Sonic servers, Jpsonic has a graceful shutdown implemented.
+    # After receiving the 'kill 15' of Docker message, it will phase out, and finnaly shut down the database.
+    # In case of emergency shutdown during critical processing,
+    # there may be a wait time of up to 30 seconds to protect data.
+    stop_grace_period: 30s
+    working_dir: /jpsonic

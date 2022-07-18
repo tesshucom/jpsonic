@@ -109,7 +109,7 @@ class StreamControllerTest {
         securityService = mock(SecurityService.class);
 
         User user = new User(player.getUsername(), player.getUsername(), "");
-        Mockito.when(securityService.getUserByNameStrict(player.getUsername())).thenReturn(user);
+        Mockito.when(securityService.getUserByName(player.getUsername())).thenReturn(user);
         playerService = mock(PlayerService.class);
         Mockito.when(playerService.getPlayer(Mockito.any(), Mockito.any(), Mockito.anyBoolean(), Mockito.anyBoolean()))
                 .thenReturn(player);
@@ -162,7 +162,7 @@ class StreamControllerTest {
         // no stream role
         User user = new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, "");
         user.setStreamRole(false);
-        Mockito.when(securityService.getUserByNameStrict(ServiceMockUtils.ADMIN_NAME)).thenReturn(user);
+        Mockito.when(securityService.getUserByName(ServiceMockUtils.ADMIN_NAME)).thenReturn(user);
         mockMvc.perform(MockMvcRequestBuilders.get(TEST_URL)).andExpect(MockMvcResultMatchers.status().isOk());
 
         // no-jwt
@@ -254,7 +254,7 @@ class StreamControllerTest {
             SecurityContextHolder.getContext().setAuthentication(null);
             User user = new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, "");
             user.setStreamRole(true);
-            Mockito.when(securityService.getUserByNameStrict(ServiceMockUtils.ADMIN_NAME)).thenReturn(user);
+            Mockito.when(securityService.getUserByName(ServiceMockUtils.ADMIN_NAME)).thenReturn(user);
 
             // No folder access permission
             Mockito.when(securityService.isFolderAccessAllowed(Mockito.any(MediaFile.class), Mockito.any(String.class)))

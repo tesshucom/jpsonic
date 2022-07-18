@@ -23,6 +23,7 @@ package com.tesshu.jpsonic.service.upnp;
 
 import java.util.concurrent.Executors;
 
+import com.tesshu.jpsonic.service.SettingsService;
 import org.fourthline.cling.DefaultUpnpServiceConfiguration;
 import org.fourthline.cling.transport.impl.apache.StreamClientConfigurationImpl;
 import org.fourthline.cling.transport.impl.apache.StreamClientImpl;
@@ -48,6 +49,8 @@ public class ApacheUpnpServiceConfiguration extends DefaultUpnpServiceConfigurat
     @SuppressWarnings("rawtypes")
     @Override
     public StreamServer createStreamServer(NetworkAddressFactory networkAddressFactory) {
-        return new StreamServerImpl(new StreamServerConfigurationImpl(networkAddressFactory.getStreamListenPort()));
+        int listenPort = SettingsService.getDefaultUPnPPort();
+        return new StreamServerImpl(new StreamServerConfigurationImpl(
+                listenPort < 1 ? networkAddressFactory.getStreamListenPort() : listenPort));
     }
 }

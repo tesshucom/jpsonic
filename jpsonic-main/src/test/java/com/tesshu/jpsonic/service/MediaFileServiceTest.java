@@ -913,8 +913,10 @@ class MediaFileServiceTest {
             assertTrue(mediaFileService.findCoverArt(containsDirOnly).isEmpty());
         }
 
-        @Test
-        @DisabledOnOs(OS.WINDOWS)
+        @SuppressWarnings("PMD.DetachedTestCase")
+        // @Test
+        // @Disabled
+        // @DisabledOnOs(OS.WINDOWS)
         void testIsEmbeddedArtworkApplicableOnLinux() throws ExecutionException, URISyntaxException {
 
             Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);

@@ -21,9 +21,6 @@ package com.tesshu.jpsonic;
 
 import java.util.Arrays;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.eclipse.jetty.http.HttpCompliance;
-import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.ServerConnector;
 import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
 
@@ -37,12 +34,6 @@ public final class JettyApplicationHelper {
             Arrays.stream(server.getConnectors()).filter(c -> c instanceof ServerConnector).forEach(c -> {
                 ServerConnector serverConnector = (ServerConnector) c;
                 serverConnector.setIdleTimeout(300_000);
-                @Nullable
-                HttpConnectionFactory hcf = serverConnector.getConnectionFactory(HttpConnectionFactory.class);
-                if (hcf != null) {
-                    // #953
-                    hcf.setHttpCompliance(HttpCompliance.RFC7230_NO_AMBIGUOUS_URIS);
-                }
             });
         });
     }

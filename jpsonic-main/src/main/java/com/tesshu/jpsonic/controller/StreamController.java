@@ -378,9 +378,10 @@ public class StreamController {
             throws ServletRequestBindingException {
 
         final Player player = playerService.getPlayer(req, res, false, true);
-        final User user = securityService.getUserByNameStrict(player.getUsername());
+        final User user = securityService.getUserByName(player.getUsername());
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (!(auth instanceof JWTAuthenticationToken) && !user.isStreamRole()) {
+        boolean isWithoutRole = user != null && !user.isStreamRole();
+        if (!(auth instanceof JWTAuthenticationToken) && isWithoutRole) {
             sendForbidden(res, "Streaming is forbidden for user " + user.getUsername());
             return;
         }
