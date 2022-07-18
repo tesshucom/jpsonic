@@ -27,9 +27,9 @@ if "$SHOW_DATA_DIR"; then
     ls -n "$JPSONIC_DIR"/data
 fi
 
-mkdir -p "$JPSONIC_DIR"/data/transcode
+su-exec "$username":"$groupname" mkdir -p "$JPSONIC_DIR"/data/transcode
 if [ ! -e "$JPSONIC_DIR"/data/transcode/ffmpeg ]; then
-    ln -fs /usr/bin/ffmpeg "$JPSONIC_DIR"/data/transcode/ffmpeg
+    su-exec "$username":"$groupname" ln -fs /usr/bin/ffmpeg "$JPSONIC_DIR"/data/transcode/ffmpeg
 fi
 
 if [[ $# -lt 1 ]] || [[ ! "$1" == "java"* ]]; then
