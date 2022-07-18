@@ -1,8 +1,8 @@
 # 
 # This is a sample of Jpsonic boot configuration (on Win).
 # You can easily start Jpsonic by changing the volume, port and so on.
-# usege: 
 #
+# usege: 
 #   docker-compose -f production.yml up -d
 #
 
@@ -19,6 +19,7 @@ services:
     network_mode: bridge
 
     ports:
+     # <host>:<internal>
      # Windows docker does not transfer UDP.
      # If you want to use UPnP on Windows host, Docker is not recommended.
      - 1900:1900/udp
@@ -27,6 +28,8 @@ services:
 
     pid: host
     volumes:
+     # <host>:<internal>
+     # Please rewrite the path of host appropriately.
      - /c/tmp/jpsonic/data:/jpsonic/data
      - /c/tmp/jpsonic/music:/jpsonic/music
      - /c/tmp/jpsonic/podcasts:/jpsonic/podcasts
@@ -48,7 +51,8 @@ services:
      # Available time zones : ls /usr/share/zoneinfo
      TIME_ZONE: 'Asia/Tokyo'
 
-     # Available time zones : ls /usr/share/zoneinfo
+     # Specify the appropriate Java options.
+     # Currently, Jpsonic will not require extremely large memory(It doesn't actually need 512m).
      JAVA_OPTS: '-Xmx512m'
 
      # Jpsonic context path.
@@ -69,5 +73,9 @@ services:
      UPNP_PORT: 4041
 
     # Don't change
+    # Unlike other Sonic servers, Jpsonic has a graceful shutdown implemented.
+    # After receiving the 'kill 15' of Docker message, it will phase out, and finnaly shut down the database.
+    # In case of emergency shutdown during critical processing,
+    # there may be a wait time of up to 30 seconds to protect data.
     stop_grace_period: 30s
     working_dir: /jpsonic
