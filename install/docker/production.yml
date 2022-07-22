@@ -49,7 +49,8 @@ services:
      TIME_ZONE: 'Asia/Tokyo'
 
      # Specify the appropriate Java options.
-     # Currently, Jpsonic will not require extremely large memory(It doesn't actually need 512m).
+     # Currently, Jpsonic will not require extremely large memory.
+     # If you are using 32 bit OS please specify -Xmx256m
      JAVA_OPTS: '-Xmx512m'
 
      # Jpsonic context path.
