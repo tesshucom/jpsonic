@@ -45,9 +45,6 @@ services:
      # If this value is true, run ls -a on jpsonic/data to check UID/GUI.
      SHOW_DATA_DIR: false
 
-     # Available locales : locale -a
-     LANG: C.UTF-8
-
      # Available time zones : ls /usr/share/zoneinfo
      TIME_ZONE: 'Asia/Tokyo'
 
