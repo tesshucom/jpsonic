@@ -27,11 +27,15 @@ RUN apk --no-cache add \
     bash \
     libressl \
     fontconfig \
-    ttf-dejavu \
+    font-noto-cjk \
     ca-certificates \
     tini \
     curl \
-    openjdk17-jdk
+    openjdk17-jdk \
+    && rm -rf /var/cache/apk/* \
+    && rm /usr/share/fonts/noto/NotoSansCJK-Bold.ttc \
+    && rm /usr/share/fonts/noto/NotoSerifCJK-Bold.ttc \
+    && rm /usr/share/fonts/noto/NotoSerifCJK-Regular.ttc
 
 COPY entry-point.sh /usr/local/bin/entry-point.sh
 RUN chmod +x /usr/local/bin/entry-point.sh
