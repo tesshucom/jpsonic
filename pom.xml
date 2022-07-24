@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>111.3.1</version>
+    <version>111.3.2</version>
     <name>Jpsonic</name>
     <packaging>pom</packaging>
     <organization>
@@ -517,6 +517,8 @@
                         </suppressionFiles>
                         <!-- disabled due to the poor quality of the data from this analyzer -->
                         <ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
+                        <!-- Disabled due to unavoidable bug. jeremylong/DependencyCheck#4695, 4696 -->
+                        <retireJsAnalyzerEnabled>false</retireJsAnalyzerEnabled>
                     </configuration>
                     <executions>
                         <execution>
