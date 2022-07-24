@@ -517,6 +517,8 @@
                         </suppressionFiles>
                         <!-- disabled due to the poor quality of the data from this analyzer -->
                         <ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
+                        <!-- Disabled due to unavoidable bug. jeremylong/DependencyCheck#4695, 4696 -->
+                        <retireJsAnalyzerEnabled>false</retireJsAnalyzerEnabled>
                     </configuration>
                     <executions>
                         <execution>
