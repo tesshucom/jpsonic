@@ -71,6 +71,7 @@ public class AirsonicSpringLiquibase extends liquibase.integration.spring.Spring
         }
     }
 
+    @SuppressWarnings("PMD.CloseResource") // liquibaseConnection should not be closed here
     @Override
     protected Database createDatabase(Connection c, ResourceAccessor resourceAccessor) throws DatabaseException {
         DatabaseConnection liquibaseConnection;
