@@ -1,9 +1,5 @@
 #!/bin/bash
 
-export LANG="$LANG"
-ln -sf /usr/share/zoneinfo/"$TIME_ZONE" /etc/localtime
-dpkg-reconfigure --frontend noninteractive tzdata
-
 groupname=$(getent group "$GROUP_ID" | cut -d":" -f1)
 if [ -z "$groupname" ]; then
     groupname=jpsonic
@@ -53,6 +49,7 @@ if [[ $# -lt 1 ]] || [[ ! "$1" == "java"* ]]; then
      -DUPNP_PORT="$UPNP_PORT" \
      -Dspring.main.banner-mode="$BANNER_MODE" \
      -Djava.awt.headless=true \
+     -Duser.timezone="$TIME_ZONE" \
      "${java_opts_array[@]}" \
      -jar jpsonic.war "$@"
 fi
