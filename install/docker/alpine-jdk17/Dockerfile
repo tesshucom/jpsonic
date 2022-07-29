@@ -25,10 +25,8 @@ RUN apk --no-cache add \
     musl-locales-lang \
     ffmpeg \
     bash \
-    libressl \
     fontconfig \
     font-noto-cjk \
-    ca-certificates \
     tini \
     curl \
     openjdk17-jdk \

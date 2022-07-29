@@ -21,8 +21,6 @@ RUN apt-get update && apt-get install -y \
     software-properties-common \
     gosu \
     tini \
-    bash \
-    fontconfig \
     fonts-noto-cjk \
     ffmpeg \
     && apt-get clean \

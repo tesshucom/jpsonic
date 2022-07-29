@@ -23,10 +23,8 @@ RUN apk --no-cache add \
     tzdata \
     ffmpeg \
     bash \
-    libressl \
     fontconfig \
     font-noto-cjk \
-    ca-certificates \
     tini \
     curl \
     && rm -rf /var/cache/apk/* \
