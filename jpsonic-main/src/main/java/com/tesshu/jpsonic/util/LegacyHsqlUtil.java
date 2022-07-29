@@ -119,8 +119,13 @@ public final class LegacyHsqlUtil {
             }
             return;
         } else {
-            // The expected conversion version is 2.5.0 to 2.6.1.
-            LOG.warn("HSQLDB database upgrade needed, from version {} to {}", currentVersion, driverVersion);
+            // The expected conversion version is from '2.5.0 to 2.7'.
+            // HSQLDB 2.5.0 is the last to include a legacy converter that can convert 1.8.x data.
+            // if use v110.2.0 that contains HSQLDB 2.5.0, can convert data from 1.8.x to 2.5.0.
+            // Jpsonic does not use incompatible features between HSQLDB 2.5.0 and 2.7.0.
+            // So the data between 2.5.0 and 2.7.0 (All of Jpsonic v111.x.x) is reversible.
+            LOG.info("HSQLDB database version changed, from version {} to {}", currentVersion, driverVersion);
+            // If you see this message, the database properties file version has probably been rewritten.
             return;
         }
     }
