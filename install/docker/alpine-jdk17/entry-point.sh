@@ -20,10 +20,6 @@ fi
 
 addgroup "$username" "$groupname"
 
-if "$SHOW_DATA_DIR"; then
-    ls -n "$JPSONIC_DIR"/data
-fi
-
 su-exec "$username":"$groupname" mkdir -p "$JPSONIC_DIR"/data/transcode
 if [ ! -e "$JPSONIC_DIR"/data/transcode/ffmpeg ]; then
     su-exec "$username":"$groupname" ln -fs /usr/bin/ffmpeg "$JPSONIC_DIR"/data/transcode/ffmpeg
