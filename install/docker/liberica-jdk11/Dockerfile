@@ -33,6 +33,7 @@ RUN apk --no-cache add \
 EXPOSE $JPSONIC_PORT
 EXPOSE $UPNP_PORT
 EXPOSE 1900/udp
+EXPOSE 3333
 
 VOLUME \
     $JPSONIC_DIR/data  \

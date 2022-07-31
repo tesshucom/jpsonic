@@ -18,13 +18,20 @@ services:
     # https://docs.docker.com/network/host/
     network_mode: bridge
 
+    # <host>:<internal>
+    # Please set the port of host properly.
     ports:
-     # <host>:<internal>
-     # Windows docker does not transfer UDP.
-     # If you want to use UPnP on Windows host, Docker is not recommended.
-     - 1900:1900/udp
+
+     # Port for Jpsonic. 
      - 8080:4040
+
+     # Port for UPnP. Windows docker does not transfer UDP.
+     # If you want to use UPnP on Windows host, Docker is not recommended.
      - 4041:4041
+     - 1900:1900/udp
+
+     # Port for JMX. The "ea" tag image is required to use JMX.
+     # - 3333:3333
 
     pid: host
     volumes:
@@ -52,6 +59,17 @@ services:
      # Currently, Jpsonic will not require extremely large memory.
      # If you are using 32 bit OS please specify -Xmx256m
      JAVA_OPTS: '-Xmx512m'
+
+     #　Option example when using JMX. The "ea" tag image is required to use JMX.
+     #JAVA_OPTS: >
+     #  -Xmx512m
+     #  -Dcom.sun.management.jmxremote
+     #  -Dcom.sun.management.jmxremote.port=3333
+     #  -Dcom.sun.management.jmxremote.rmi.port=3333
+     #  -Dcom.sun.management.jmxremote.local.only=false
+     #  -Dcom.sun.management.jmxremote.ssl=false
+     #  -Dcom.sun.management.jmxremote.authenticate=false
+     #  -Djava.rmi.server.hostname=localhost
 
      # Jpsonic context path.
      CONTEXT_PATH: '/'

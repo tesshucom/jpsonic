@@ -32,6 +32,7 @@ RUN apt-get update && apt-get install -y \
 EXPOSE $JPSONIC_PORT
 EXPOSE $UPNP_PORT
 EXPOSE 1900/udp
+EXPOSE 3333
 
 VOLUME \
     $JPSONIC_DIR/data \
