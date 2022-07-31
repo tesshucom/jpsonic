@@ -18,22 +18,35 @@ services:
     # https://docs.docker.com/network/host/
     network_mode: bridge
 
+    # <host>:<internal>
+    # Please set "the port of host" properly.
     ports:
-     # <host>:<internal>
-     # Windows docker does not transfer UDP.
-     # If you want to use UPnP on Windows host, Docker is not recommended.
-     - 1900:1900/udp
+
+     # Port for Jpsonic. 
      - 8080:4040
+
+     # Port for UPnP. Windows docker does not transfer UDP.
+     # If you want to use UPnP on Windows host, Docker is not recommended.
      - 4041:4041
+     - 1900:1900/udp
+
+     # Port for JMX. The "ea" tag image is required to use JMX.
+     # - 3333:3333
 
     pid: host
     volumes:
      # <host>:<internal>
-     # Please rewrite the path of host appropriately.
+     # Please rewrite "the path of host" appropriately.
      - /c/tmp/jpsonic/data:/jpsonic/data
      - /c/tmp/jpsonic/music:/jpsonic/music
      - /c/tmp/jpsonic/podcasts:/jpsonic/podcasts
      - /c/tmp/jpsonic/playlists:/jpsonic/playlists
+
+    # If the UID/GUI is not correct, Jpsonic will not start.
+    # If you need to check the permissions of the data directory,
+    # rewrite the entrypoint and check it.
+    # 
+    # entrypoint: ls -n /jpsonic/data
 
     environment:
 
@@ -41,17 +54,8 @@ services:
      USER_ID: 0
      GROUP_ID: 0
 
-     # If the UID/GUI is not correct, Jpsonic will not start.
-     # If this value is true, run ls -a on jpsonic/data to check UID/GUI.
-     SHOW_DATA_DIR: false
-
-     # Available time zones : ls /usr/share/zoneinfo
+     # Please specify the appropriate timezone
      TIME_ZONE: 'Asia/Tokyo'
-
-     # Specify the appropriate Java options.
-     # Currently, Jpsonic will not require extremely large memory.
-     # If you are using 32 bit OS please specify -Xmx256m
-     JAVA_OPTS: '-Xmx512m'
 
      # Jpsonic context path.
      CONTEXT_PATH: '/'
@@ -66,14 +70,29 @@ services:
      MIME_DSF: 'audio/x-dsd'
      MIME_DFF: 'audio/x-dsd'
 
-     # Don't change
-     TINI_SUBREAPER: true
-     UPNP_PORT: 4041
+     # Specify the appropriate Java options.
+     # Currently, Jpsonic will not require extremely large memory.
+     # If you are using 32 bit OS please specify -Xmx256m
+     JAVA_OPTS: '-Xmx512m'
 
-    # Don't change
+     #　Option example when using JMX. The "ea" tag image is required to use JMX.
+     #　For VisualVM, you need to specify the port in File-Add JMX Connection.
+     #　e.g. localhost:3333
+     #　
+     #JAVA_OPTS: >
+     #  -Xmx512m
+     #  -Dcom.sun.management.jmxremote
+     #  -Dcom.sun.management.jmxremote.port=3333
+     #  -Dcom.sun.management.jmxremote.rmi.port=3333
+     #  -Dcom.sun.management.jmxremote.local.only=false
+     #  -Dcom.sun.management.jmxremote.ssl=false
+     #  -Dcom.sun.management.jmxremote.authenticate=false
+     #  -Djava.rmi.server.hostname=localhost
+
+    # Usually no need to change.
     # Unlike other Sonic servers, Jpsonic has a graceful shutdown implemented.
     # After receiving the 'kill 15' of Docker message, it will phase out, and finnaly shut down the database.
     # In case of emergency shutdown during critical processing,
     # there may be a wait time of up to 30 seconds to protect data.
+     TINI_SUBREAPER: true
     stop_grace_period: 30s
-    working_dir: /jpsonic

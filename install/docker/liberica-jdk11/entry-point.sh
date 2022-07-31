@@ -1,8 +1,5 @@
 #!/bin/bash
 
-export LANG="$LANG"
-setup-timezone -z "$TIME_ZONE"
-
 groupname=$(getent group "$GROUP_ID" | cut -d":" -f1)
 if [ -z "$groupname" ]; then
     groupname=jpsonic
@@ -22,10 +19,6 @@ if [ -z "$username" ]; then
 fi
 
 addgroup "$username" "$groupname"
-
-if "$SHOW_DATA_DIR"; then
-    ls -n "$JPSONIC_DIR"/data
-fi
 
 su-exec "$username":"$groupname" mkdir -p "$JPSONIC_DIR"/data/transcode
 if [ ! -e "$JPSONIC_DIR"/data/transcode/ffmpeg ]; then
@@ -52,6 +45,7 @@ if [[ $# -lt 1 ]] || [[ ! "$1" == "java"* ]]; then
      -DUPNP_PORT="$UPNP_PORT" \
      -Dspring.main.banner-mode="$BANNER_MODE" \
      -Djava.awt.headless=true \
+     -Duser.timezone="$TIME_ZONE" \
      "${java_opts_array[@]}" \
      -jar jpsonic.war "$@"
 fi

@@ -19,14 +19,10 @@ WORKDIR $JPSONIC_DIR
 
 RUN apk --no-cache add \
     su-exec \ 
-    alpine-conf \
-    tzdata \
     ffmpeg \
     bash \
-    libressl \
     fontconfig \
     font-noto-cjk \
-    ca-certificates \
     tini \
     curl \
     && rm -rf /var/cache/apk/* \
@@ -34,13 +30,10 @@ RUN apk --no-cache add \
     && rm /usr/share/fonts/noto/NotoSerifCJK-Bold.ttc \
     && rm /usr/share/fonts/noto/NotoSerifCJK-Regular.ttc
 
-COPY entry-point.sh /usr/local/bin/entry-point.sh
-RUN chmod +x /usr/local/bin/entry-point.sh
-COPY target/dependency/jpsonic.war jpsonic.war
-
 EXPOSE $JPSONIC_PORT
 EXPOSE $UPNP_PORT
 EXPOSE 1900/udp
+EXPOSE 3333
 
 VOLUME \
     $JPSONIC_DIR/data  \
@@ -49,5 +42,9 @@ VOLUME \
     $JPSONIC_DIR/podcasts
 
 HEALTHCHECK --interval=30s --timeout=2s CMD wget -q http://localhost:"$JPSONIC_PORT""$CONTEXT_PATH"rest/ping -O /dev/null || exit 1
+
+COPY entry-point.sh /usr/local/bin/entry-point.sh
+RUN chmod +x /usr/local/bin/entry-point.sh
+COPY target/dependency/jpsonic.war jpsonic.war
 
 ENTRYPOINT ["tini", "-e", "143", "--", "entry-point.sh"]
