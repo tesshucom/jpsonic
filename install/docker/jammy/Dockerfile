@@ -13,6 +13,10 @@ ENV JPSONIC_DIR=/jpsonic \
     LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8 \
     TIME_ZONE=GB \
     BANNER_MODE=on \
+    SCAN_ON_BOOT=false \
+    EMBEDDED_FONT=false \
+    MIME_DSF=audio/x-dsd \
+    MIME_DFF=audio/x-dsd \
     JAVA_OPTS=-Xmx512m
 
 WORKDIR $JPSONIC_DIR

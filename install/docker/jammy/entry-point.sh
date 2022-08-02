@@ -42,6 +42,10 @@ if [[ $# -lt 1 ]] || [[ ! "$1" == "java"* ]]; then
      -Djpsonic.defaultMusicFolder="$JPSONIC_DIR"/music \
      -Djpsonic.defaultPodcastFolder="$JPSONIC_DIR"/podcasts \
      -Djpsonic.defaultPlaylistFolder="$JPSONIC_DIR"/playlists \
+     -Djpsonic.scan.onboot="$SCAN_ON_BOOT" \
+     -Djpsonic.embeddedfont="$EMBEDDED_FONT" \
+     -Djpsonic.mime.dsf="$MIME_DSF" \
+     -Djpsonic.mime.dff="$MIME_DFF" \
      -DUPNP_PORT="$UPNP_PORT" \
      -Dspring.main.banner-mode="$BANNER_MODE" \
      -Djava.awt.headless=true \

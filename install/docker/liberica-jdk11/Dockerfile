@@ -13,22 +13,22 @@ ENV JPSONIC_DIR=/jpsonic \
     LANG=en_US.UTF-8 \
     TIME_ZONE=GB \
     BANNER_MODE=on \
+    SCAN_ON_BOOT=false \
+    EMBEDDED_FONT=false \
+    MIME_DSF=audio/x-dsd \
+    MIME_DFF=audio/x-dsd \
     JAVA_OPTS=-Xmx256m
 
 WORKDIR $JPSONIC_DIR
 
 RUN apk --no-cache add \
-    su-exec \ 
+    su-exec \
     ffmpeg \
     bash \
-    fontconfig \
-    font-noto-cjk \
     tini \
     curl \
-    && rm -rf /var/cache/apk/* \
-    && rm /usr/share/fonts/noto/NotoSansCJK-Bold.ttc \
-    && rm /usr/share/fonts/noto/NotoSerifCJK-Bold.ttc \
-    && rm /usr/share/fonts/noto/NotoSerifCJK-Regular.ttc
+    && rm -rf /var/cache/apk/*
+COPY fontconfig.properties "$JAVA_HOME"/lib/fontconfig.properties
 
 EXPOSE $JPSONIC_PORT
 EXPOSE $UPNP_PORT
@@ -36,9 +36,9 @@ EXPOSE 1900/udp
 EXPOSE 3333
 
 VOLUME \
-    $JPSONIC_DIR/data  \
-    $JPSONIC_DIR/music  \
-    $JPSONIC_DIR/playlists  \
+    $JPSONIC_DIR/data \
+    $JPSONIC_DIR/music \
+    $JPSONIC_DIR/playlists \
     $JPSONIC_DIR/podcasts
 
 HEALTHCHECK --interval=30s --timeout=2s CMD wget -q http://localhost:"$JPSONIC_PORT""$CONTEXT_PATH"rest/ping -O /dev/null || exit 1
