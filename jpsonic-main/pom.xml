@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.tesshu.jpsonic.player</groupId>
         <artifactId>jpsonic</artifactId>
-        <version>111.3.3</version>
+        <version>111.3.4</version>
     </parent>
 
     <properties>
@@ -252,7 +252,8 @@
         <dependency>
             <groupId>org.directwebremoting</groupId>
             <artifactId>dwr</artifactId>
-            <version>3.0.2-RELEASE</version>
+            <!-- Only 3.0.0-rc3-RELEASE is available. #1630 -->
+            <version>3.0.0-rc3-RELEASE</version>
         </dependency>
 
         <!--Needed by dwr-->
