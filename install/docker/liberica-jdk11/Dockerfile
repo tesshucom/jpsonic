@@ -1,4 +1,4 @@
-FROM bellsoft/liberica-openjdk-alpine:11
+FROM bellsoft/liberica-openjdk-alpine-musl:11
 
 LABEL description="Jpsonic is a free, web-based media streamer, providing ubiquitious access to your music." \
       url="https://github.com/jpsonic/jpsonic"
@@ -13,6 +13,10 @@ ENV JPSONIC_DIR=/jpsonic \
     LANG=en_US.UTF-8 \
     TIME_ZONE=GB \
     BANNER_MODE=on \
+    SCAN_ON_BOOT=false \
+    EMBEDDED_FONT=false \
+    MIME_DSF=audio/x-dsd \
+    MIME_DFF=audio/x-dsd \
     JAVA_OPTS=-Xmx256m
 
 WORKDIR $JPSONIC_DIR

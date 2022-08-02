@@ -23,6 +23,7 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -42,23 +43,21 @@ public class FontLoader {
         this.fontCache = fontCache;
     }
 
+    public boolean isEmbeddedFonts() {
+        return Optional.ofNullable(System.getProperty("jpsonic.embeddedfont")).map(Boolean::parseBoolean).orElse(false);
+    }
+
     public Font getFont(float fontSize) {
         Font font = null;
         String key = Float.toString(fontSize);
         synchronized (FONT_LOCK) {
             Element element = fontCache.get(key);
             if (element == null) {
-                try (InputStream fontStream = CoverArtController.class
-                        .getResourceAsStream("/fonts/kazesawa/Kazesawa-Regular.ttf")) {
-                    font = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(fontSize);
-                } catch (IOException | FontFormatException e) {
-                    if (LOG.isWarnEnabled()) {
-                        LOG.warn("Failed to load font.");
-                    }
-                } finally {
-                    if (font == null) {
-                        font = new Font(Font.SANS_SERIF, Font.BOLD, (int) fontSize);
-                    }
+                if (!isEmbeddedFonts()) {
+                    font = getFontFromResource(fontSize);
+                }
+                if (font == null) {
+                    font = new Font(Font.SANS_SERIF, Font.PLAIN, (int) fontSize);
                 }
                 fontCache.put(new Element(key, font));
             } else {
@@ -67,4 +66,21 @@ public class FontLoader {
         }
         return font;
     }
+
+    /*
+     * Font stream may not be obtained except for general OpenJDK (based on Windows or Linux glibc).
+     */
+    private Font getFontFromResource(float fontSize) {
+        Font font = null;
+        try (InputStream fontStream = FontLoader.class.getResourceAsStream("/fonts/kazesawa/Kazesawa-Regular.ttf")) {
+            font = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(fontSize);
+        } catch (IOException | FontFormatException e) {
+            // do nothing if not available
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Failed to load font.");
+            }
+        }
+        return font;
+    }
+
 }
