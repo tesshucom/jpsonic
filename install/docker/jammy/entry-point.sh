@@ -21,9 +21,10 @@ fi
 addgroup "$username" "$groupname"
 
 gosu "$username":"$groupname" mkdir -p "$JPSONIC_DIR"/data/transcode
-if [ ! -e "$JPSONIC_DIR"/data/transcode/ffmpeg ]; then
-    gosu "$username":"$groupname" ln -fs /usr/bin/ffmpeg "$JPSONIC_DIR"/data/transcode/ffmpeg
-fi
+rm -f "$JPSONIC_DIR"/data/transcode/ffmpeg
+gosu "$username":"$groupname" ln -fs /usr/bin/ffmpeg "$JPSONIC_DIR"/data/transcode/ffmpeg
+rm -f "$JPSONIC_DIR"/data/transcode/ffprobe
+gosu "$username":"$groupname" ln -fs /usr/bin/ffprobe "$JPSONIC_DIR"/data/transcode/ffprobe
 
 if [[ $# -lt 1 ]] || [[ ! "$1" == "java"* ]]; then
 
