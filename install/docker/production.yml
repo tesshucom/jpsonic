@@ -66,6 +66,11 @@ services:
      # Whether to scan at startup. False is recommended for Docker.
      SCAN_ON_BOOT: false
 
+     # If false, use the logical font of JRE (JDK) for Cover Art.
+     # If true, preferentially use embedded fonts.
+     # If using Liberica JDK11, set to true.
+     EMBEDDED_FONT: false
+
      # You can override the MIME of DSD according to your device.
      MIME_DSF: 'audio/x-dsd'
      MIME_DFF: 'audio/x-dsd'

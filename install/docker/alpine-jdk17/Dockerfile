@@ -13,12 +13,16 @@ ENV JPSONIC_DIR=/jpsonic \
     LANG=C.UTF-8 \
     TIME_ZONE=GB \
     BANNER_MODE=on \
+    SCAN_ON_BOOT=false \
+    EMBEDDED_FONT=false \
+    MIME_DSF=audio/x-dsd \
+    MIME_DFF=audio/x-dsd \
     JAVA_OPTS=-Xmx512m
 
 WORKDIR $JPSONIC_DIR
 
 RUN apk --no-cache add \
-    su-exec \ 
+    su-exec \
     musl-locales \
     ffmpeg \
     bash \
