@@ -329,7 +329,7 @@ jobs:
           sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
           mvn -DdockerTag=${{ env.DOCKER_TAG }} package
           docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-          docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-armv7 .
+          docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }} .
       - name: Release with Latest Tag
         if: github.ref == 'refs/heads/master'
         run: |
