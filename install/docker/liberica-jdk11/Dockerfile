@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM bellsoft/liberica-openjdk-alpine:11
 
 LABEL description="Jpsonic is a free, web-based media streamer, providing ubiquitious access to your music." \
       url="https://github.com/jpsonic/jpsonic"
@@ -10,31 +10,25 @@ ENV JPSONIC_DIR=/jpsonic \
     SHOW_DATA_DIR=true \
     USER_ID=1000 \
     GROUP_ID=1000 \
-    LANG=C.UTF-8 \
+    LANG=en_US.UTF-8 \
     TIME_ZONE=GB \
     BANNER_MODE=on \
     SCAN_ON_BOOT=false \
     EMBEDDED_FONT=false \
     MIME_DSF=audio/x-dsd \
     MIME_DFF=audio/x-dsd \
-    JAVA_OPTS=-Xmx512m
+    JAVA_OPTS=-Xmx256m
 
 WORKDIR $JPSONIC_DIR
 
 RUN apk --no-cache add \
     su-exec \
-    musl-locales \
     ffmpeg \
     bash \
-    fontconfig \
-    font-noto-cjk \
     tini \
     curl \
-    openjdk17-jdk \
-    && rm -rf /var/cache/apk/* \
-    && rm /usr/share/fonts/noto/NotoSansCJK-Bold.ttc \
-    && rm /usr/share/fonts/noto/NotoSerifCJK-Bold.ttc \
-    && rm /usr/share/fonts/noto/NotoSerifCJK-Regular.ttc
+    && rm -rf /var/cache/apk/*
+COPY fontconfig.properties "$JAVA_HOME"/lib/fontconfig.properties
 
 EXPOSE $JPSONIC_PORT
 EXPOSE $UPNP_PORT
