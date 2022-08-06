@@ -20,11 +20,11 @@ fi
 
 addgroup "$username" "$groupname"
 
-su-exec "$username":"$groupname" mkdir -p "$JPSONIC_DIR"/data/transcode
+gosu "$username":"$groupname" mkdir -p "$JPSONIC_DIR"/data/transcode
 rm -f "$JPSONIC_DIR"/data/transcode/ffmpeg
-su-exec "$username":"$groupname" ln -fs /usr/bin/ffmpeg "$JPSONIC_DIR"/data/transcode/ffmpeg
+gosu "$username":"$groupname" ln -fs /usr/bin/ffmpeg "$JPSONIC_DIR"/data/transcode/ffmpeg
 rm -f "$JPSONIC_DIR"/data/transcode/ffprobe
-su-exec "$username":"$groupname" ln -fs /usr/bin/ffprobe "$JPSONIC_DIR"/data/transcode/ffprobe
+gosu "$username":"$groupname" ln -fs /usr/bin/ffprobe "$JPSONIC_DIR"/data/transcode/ffprobe
 
 if [[ $# -lt 1 ]] || [[ ! "$1" == "java"* ]]; then
 
@@ -33,9 +33,9 @@ if [[ $# -lt 1 ]] || [[ ! "$1" == "java"* ]]; then
         java_opts_array+=( "$item" )
     done < <([[ $JAVA_OPTS ]] && xargs printf '%s\0' <<<"$JAVA_OPTS")
 
-    # su-exec and sudo may obscure exit codes.
+    # su-exec and gosu may obscure exit codes.
     # Use set to enable graceful shutdown.
-    set -- su-exec "$username":"$groupname" java \
+    set -- gosu "$username":"$groupname" java \
      -Dserver.host=0.0.0.0 \
      -Dserver.port="$JPSONIC_PORT" \
      -Dserver.contextPath="$CONTEXT_PATH" \
