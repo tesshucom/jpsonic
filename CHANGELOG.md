@@ -3,7 +3,24 @@
 # jpsonic/jpsonic
 # -->
 
-## v111.3.0
+## v111.4.0
+
+#### Enhancement
+  * Add Dockerfile for arm/v7 ([#1620](https://github.com/tesshucom/jpsonic/issues/1620))
+  * Add Dockerfile for jammy ([#1629](https://github.com/tesshucom/jpsonic/issues/1629))
+  * Change to use JRE for release images and JDK for development images
+    * This will reduce the size of your Docker image. 
+    * The development image also expose an extra port for JMX. Memory profiling made easy.
+  * Change specification of font ([#1638](https://github.com/tesshucom/jpsonic/issues/1638))
+    * Change embedded fonts used for offscreen rendering of cover art to optional
+    * Boot arguments provide similar functionality as before : '-Djpsonic.embeddedfont=true'
+    * Docker uses Noto CJK as standard. A wide range of languages will be supported, including common Latin, glyphs, and East Asian languages.
+
+#### Fixes
+  * Fix ffmpeg/ffprobe links ([#1638](https://github.com/tesshucom/jpsonic/issues/1638))
+
+<details>
+<summary>v111.3.0</summary>
 
 #### Enhancement
   * Auto-build of Docker Image ([#1604](https://github.com/tesshucom/jpsonic/issues/1604))
@@ -19,6 +36,7 @@
   * Organize warnings of 'google/error-prone' ([#1561](https://github.com/tesshucom/jpsonic/issues/1561))
   * Remove guava ([#1571](https://github.com/tesshucom/jpsonic/issues/1571))
 
+</details>
 <details>
 <summary>v111.2.1</summary>
 
