@@ -121,11 +121,25 @@ L | ★ | ★ | ★ | ★ | ★1 |   | ★3 |
  - ★6 Special process. Crawl all resources at startup.
 
 </details>
+<details>
+<summary>No Tofu</summary>
+
+Java logical fonts are used by default, but it is also possible to use the built-in Japanese fonts with a startup option. This allows off-screen rendering even on systems without fonts.
+
+`-Djpsonic.embeddedfont=true`
+
+Jpsonic's Docker configures Noto CJK fonts as standard fonts, so a wide range of languages can be rendered.
+
+<img src="contrib/assets/screenshot5.png" width="200">
+
+</details>
 
 Usage
 -----
 
 The basic installation procedure is almost the same as Airsonic. Please use the [Airsonic documentation](https://airsonic.github.io/docs/) for instructions on running Airsonic. A more detailed specification description can be found at the [author's site](https://tesshu.com/category/spec).
+
+Docker version is <a href="https://hub.docker.com/r/jpsonic/jpsonic">jpsonic/jpsonic</a>. We recommend using <a href="https://github.com/tesshucom/jpsonic/blob/release/install/docker/production.yml">production.yml</a> to set the launch configuration.
 
 History
 -----
