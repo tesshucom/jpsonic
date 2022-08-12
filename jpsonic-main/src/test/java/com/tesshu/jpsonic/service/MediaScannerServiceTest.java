@@ -818,6 +818,7 @@ class MediaScannerServiceTest {
             populateDatabase();
         }
 
+        @DisabledOnOs(OS.WINDOWS) // Flaky in Windows Server 2022 (#1645)
         @Test
         void testSpecialCharactersInDirName() throws URISyntaxException, IOException, InterruptedException {
 

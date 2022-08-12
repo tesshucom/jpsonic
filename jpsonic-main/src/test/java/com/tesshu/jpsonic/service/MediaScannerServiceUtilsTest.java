@@ -1351,7 +1351,7 @@ class MediaScannerServiceUtilsTest {
         }
 
         @Test
-        @DisabledOnOs(OS.LINUX)
+        @DisabledOnOs({ OS.LINUX, OS.WINDOWS }) // Flaky in Windows Server 2022 (#1645)
         void testUpdateSortOfAlbumOnWindows() throws ExecutionException {
 
             // for Windows Server 2022(ver.20220426.1) Results may differ from Desktop Windows.
