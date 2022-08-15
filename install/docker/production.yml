@@ -9,26 +9,26 @@
 version: '3.9'
 services:
   app:
-    image: jpsonic/jpsonic:latest
-    container_name: jpsonic
+    image: 'jpsonic/jpsonic:latest'
+    container_name: 'jpsonic'
 
     # The host networking driver only works on Linux hosts,
     # and is not supported on Docker Desktop for Mac Docker Desktop for Windows,
     # or Docker EE for Windows Server.
     # https://docs.docker.com/network/host/
-    network_mode: bridge
+    network_mode: 'bridge'
 
     # <host>:<internal>
     # Please set "the port of host" properly.
     ports:
 
      # Port for Jpsonic. 
-     - 8080:4040
+     - '8080:4040'
 
      # Port for UPnP. Windows docker does not transfer UDP.
      # If you want to use UPnP on Windows host, Docker is not recommended.
-     - 4041:4041
-     - 1900:1900/udp
+     - '4041:4041'
+     - '1900:1900/udp'
 
      # Port for JMX. The "ea" tag image is required to use JMX.
      # - 3333:3333
@@ -37,10 +37,10 @@ services:
     volumes:
      # <host>:<internal>
      # Please rewrite "the path of host" appropriately.
-     - /c/tmp/jpsonic/data:/jpsonic/data
-     - /c/tmp/jpsonic/music:/jpsonic/music
-     - /c/tmp/jpsonic/podcasts:/jpsonic/podcasts
-     - /c/tmp/jpsonic/playlists:/jpsonic/playlists
+     - '/c/tmp/jpsonic/data:/jpsonic/data'
+     - '/c/tmp/jpsonic/music:/jpsonic/music'
+     - '/c/tmp/jpsonic/podcasts:/jpsonic/podcasts'
+     - '/c/tmp/jpsonic/playlists:/jpsonic/playlists'
 
     # If the UID/GUI is not correct, Jpsonic will not start.
     # If you need to check the permissions of the data directory,
@@ -50,9 +50,9 @@ services:
 
     environment:
 
-     # Set the appropriate UID/GUI.
-     USER_ID: 0
-     GROUP_ID: 0
+     # Set the appropriate UID/GID.
+     USER_ID: '0'
+     GROUP_ID: '0'
 
      # Please specify the appropriate timezone
      TIME_ZONE: 'Asia/Tokyo'
@@ -60,16 +60,15 @@ services:
      # Jpsonic context path.
      CONTEXT_PATH: '/'
 
-     # Whether to log the logo at startup
-     BANNER_MODE: off
+     # Whether to log the logo at startup. [OFF|CONSOLE|LOG]
+     BANNER_MODE: 'OFF'
 
      # Whether to scan at startup. False is recommended for Docker.
-     SCAN_ON_BOOT: false
+     SCAN_ON_BOOT: 'false'
 
      # If false, use the logical font of JRE (JDK) for Cover Art.
      # If true, preferentially use embedded fonts.
-     # If using Liberica JDK11, set to true.
-     EMBEDDED_FONT: false
+     EMBEDDED_FONT: 'false'
 
      # You can override the MIME of DSD according to your device.
      MIME_DSF: 'audio/x-dsd'
@@ -99,5 +98,5 @@ services:
     # After receiving the 'kill 15' of Docker message, it will phase out, and finnaly shut down the database.
     # In case of emergency shutdown during critical processing,
     # there may be a wait time of up to 30 seconds to protect data.
-     TINI_SUBREAPER: true
-    stop_grace_period: 30s
+     TINI_SUBREAPER: 'true'
+    stop_grace_period: '30s'

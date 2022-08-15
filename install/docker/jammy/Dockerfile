@@ -12,7 +12,7 @@ ENV JPSONIC_DIR=/jpsonic \
     GROUP_ID=1000 \
     LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8 \
     TIME_ZONE=GB \
-    BANNER_MODE=on \
+    BANNER_MODE=CONSOLE \
     SCAN_ON_BOOT=false \
     EMBEDDED_FONT=false \
     MIME_DSF=audio/x-dsd \
