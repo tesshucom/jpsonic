@@ -10,7 +10,6 @@ ENV JPSONIC_DIR=/jpsonic \
     SHOW_DATA_DIR=true \
     USER_ID=1000 \
     GROUP_ID=1000 \
-    LANG=en_US.UTF-8 LANGUAGE=en_US:en LC_ALL=en_US.UTF-8 \
     TIME_ZONE=GB \
     BANNER_MODE=CONSOLE \
     SCAN_ON_BOOT=false \
@@ -20,6 +19,8 @@ ENV JPSONIC_DIR=/jpsonic \
     JAVA_OPTS=-Xmx512m
 
 WORKDIR $JPSONIC_DIR
+
+COPY local.conf /etc/fonts
 
 RUN apt-get update && apt-get install -y \
     software-properties-common \
@@ -31,7 +32,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/* \
     && rm /usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc \
     && rm /usr/share/fonts/opentype/noto/NotoSerifCJK-Bold.ttc \
-    && rm /usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc
+    && rm /usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc \
+    && fc-cache -vf
 
 EXPOSE $JPSONIC_PORT
 EXPOSE $UPNP_PORT
