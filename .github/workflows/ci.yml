@@ -184,7 +184,7 @@ jobs:
       - name: Send Jacoco report
         run: mvn -Psend-coverage com.gavinmogan:codacy-maven-plugin:coverage
   ##########################################################################
-  package:
+  ship-war:
     if: "(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop') && github.event_name != 'schedule'"
     needs: [ verify-JDK11, verify-JDK17, verify-experiment ]
     name: Package with JDK ${{ matrix.java }} on ubuntu
@@ -236,9 +236,9 @@ jobs:
             jpsonic-main/target/README.txt
           retention-days: 90
   ##########################################################################
-  docker:
+  ship-docker-image:
     name: Docker(alpine-amd64)
-    needs: package
+    needs: ship-war
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -292,9 +292,9 @@ jobs:
           docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
           docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:ea .
   ##########################################################################
-  docker-jammy:
+  ship-docker-image-jammy:
     name: Docker(jammy-arm64,amd64,armv7)
-    needs: package
+    needs: ship-war
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -347,3 +347,63 @@ jobs:
           mvn -DdockerTag=ea-jammy package
           docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
           docker buildx build --push --platform linux/arm64,linux/amd64,linux/arm/v7 -t jpsonic/jpsonic:ea-jammy .
+  ##########################################################################
+  run-docker4latest:
+    name: Run ${{ matrix.tag }}
+    needs: [ ship-docker-image, ship-docker-image-jammy ]
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tag: [ latest, latest-jammy ]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/setup-qemu-action@v2
+      - uses: docker/setup-buildx-action@v2
+      - uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
+      - name: Boot test for ea (Within 30 sec)
+        run: |
+          mkdir -p /tmp/${{ matrix.tag }}
+          cp install/docker/production.yml /tmp/${{ matrix.tag }}
+          cd /tmp/${{ matrix.tag }}
+          mkdir -p /tmp/${{ matrix.tag }}/jpsonic/data /tmp/${{ matrix.tag }}/jpsonic/music /tmp/${{ matrix.tag }}/jpsonic/podcasts /tmp/${{ matrix.tag }}/jpsonic/playlists
+          sed -i -e "s/image: 'jpsonic\/jpsonic:latest'/image: 'jpsonic\/jpsonic:${{ matrix.tag }}'/g" production.yml
+          sed -i -e "s/container_name: 'jpsonic'/container_name: 'jpsonic_${{ matrix.tag }}'/g" production.yml
+          sed -i -e "s/\/c\/tmp\/jpsonic/\/tmp\/${{ matrix.tag }}\/jpsonic/g" production.yml
+          cat production.yml
+          set -x
+          docker-compose -f production.yml up -d
+          for i in {1..30};do sleep 1;docker exec jpsonic_${{ matrix.tag }} bash -c "curl http://localhost:4040/rest/ping"&&break;done
+  ##########################################################################
+  run-docker4ea:
+    name: Run ${{ matrix.tag }}
+    needs: [ ship-docker-image, ship-docker-image-jammy ]
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature/docker'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tag: [ ea, ea-jammy ]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/setup-qemu-action@v2
+      - uses: docker/setup-buildx-action@v2
+      - uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
+      - name: Boot test for ea (Within 30 sec)
+        run: |
+          mkdir -p /tmp/${{ matrix.tag }}
+          cp install/docker/production.yml /tmp/${{ matrix.tag }}
+          cd /tmp/${{ matrix.tag }}
+          mkdir -p /tmp/${{ matrix.tag }}/jpsonic/data /tmp/${{ matrix.tag }}/jpsonic/music /tmp/${{ matrix.tag }}/jpsonic/podcasts /tmp/${{ matrix.tag }}/jpsonic/playlists
+          sed -i -e "s/image: 'jpsonic\/jpsonic:latest'/image: 'jpsonic\/jpsonic:${{ matrix.tag }}'/g" production.yml
+          sed -i -e "s/container_name: 'jpsonic'/container_name: 'jpsonic_${{ matrix.tag }}'/g" production.yml
+          sed -i -e "s/\/c\/tmp\/jpsonic/\/tmp\/${{ matrix.tag }}\/jpsonic/g" production.yml
+          cat production.yml
+          set -x
+          docker-compose -f production.yml up -d
+          for i in {1..30};do sleep 1;docker exec jpsonic_${{ matrix.tag }} bash -c "curl http://localhost:4040/rest/ping"&&break;done
