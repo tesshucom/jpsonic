@@ -37,6 +37,8 @@ Jpsonic is a free, web-based media streamer, an [Airsonic](https://github.com/ai
 
 Since v110.2.0, conversion for Romanized Japanese has been supported to make it easier for non-native Japanese people to handle Japanese. And it is also possible to bypass Japanese processing and use it like a general Subdonic server.
 
+Docker Image is <a href="https://hub.docker.com/r/jpsonic/jpsonic">jpsonic/jpsonic</a>.
+
 Features
 -----------------
 
@@ -81,7 +83,7 @@ L | [Kazoo](https://play.google.com/store/apps/details?id=uk.co.linn.kazoo2) wit
 
 [Main cooperation features]
 
-In the case of BubbleUPnP, you will be able to receive DSD and pass it to your local renderer without any special settings.　The dsd/dsf MIME can be changed by [boot options](https://tesshu.com/jpsonic/start-arg-spec).
+In the case of BubbleUPnP, you will be able to receive DSD and pass it to your local renderer without any special settings. The dsd/dsf MIME can be changed by [boot options](https://tesshu.com/jpsonic/start-arg-spec).
 
 No | Features | Perspective
 -- | -- | --
@@ -124,13 +126,24 @@ L | ★ | ★ | ★ | ★ | ★1 |   | ★3 |
 <details>
 <summary>No Tofu</summary>
 
-Java logical fonts are used by default, but it is also possible to use the built-in Japanese fonts with a startup option. This allows off-screen rendering even on systems without fonts.
+ - Java logical fonts are used by default. 'sans-serif' (that does not have extending features called "serifs" at the end of strokes) on your system will be referenced.
+ - It is also possible to use the built-in Japanese fonts with a startup option. `-Djpsonic.embeddedfont=true` This allows off-screen rendering even on systems without fonts. Also, it may be possible to avoid font troubles due to the combination of specific OS and JVM.
+ - Jpsonic's Docker is configured with the Noto CJK font as the standard font. CJK also includes Latin, Cyrillic, and glyphs, so many languages are assumed to be rendered using Noto. Strings outside the range of Noto CJK fall back to Dejabu.
 
-`-Djpsonic.embeddedfont=true`
+<table>
+<tr>
+<td>
+Noto CJK(Default)
+<img src="contrib/assets/screenshot5.png" width="300">
+</td>
+<td>
++ DejaVu(Font Fallbacks)
+<img src="contrib/assets/screenshot6.png" width="300">
+</td>
+</tr>
+</table>
 
-Jpsonic's Docker configures Noto CJK fonts as standard fonts, so a wide range of languages can be rendered.
-
-<img src="contrib/assets/screenshot5.png" width="200">
+Noto has higher visibility, and even song names that combine several languages can be displayed in a well-balanced manner.　
 
 </details>
 
@@ -138,8 +151,6 @@ Usage
 -----
 
 The basic installation procedure is almost the same as Airsonic. Please use the [Airsonic documentation](https://airsonic.github.io/docs/) for instructions on running Airsonic. A more detailed specification description can be found at the [author's site](https://tesshu.com/category/spec).
-
-Docker version is <a href="https://hub.docker.com/r/jpsonic/jpsonic">jpsonic/jpsonic</a>. We recommend using <a href="https://github.com/tesshucom/jpsonic/blob/master/install/docker/production.yml">production.yml</a> to set the launch configuration.
 
 History
 -----
