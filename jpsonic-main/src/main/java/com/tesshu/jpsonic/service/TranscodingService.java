@@ -32,7 +32,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.regex.Matcher;
@@ -280,7 +279,7 @@ public class TranscodingService {
                     null, true);
         }
 
-        List<Transcoding> applicableTranscodings = new LinkedList<>();
+        List<Transcoding> applicableTranscodings = new ArrayList<>();
         String suffix = mediaFile.getFormat();
 
         // This is what I'd like todo, but this will most likely break video transcoding as video transcoding is
