@@ -30,9 +30,9 @@ import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -44,6 +44,7 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tesshu.jpsonic.domain.Version;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
@@ -272,9 +273,12 @@ public class VersionService {
                 return;
             }
 
-            List<String> unsortedTags = new LinkedList<>();
+            List<String> unsortedTags = new ArrayList<>();
             for (JsonNode item : new ObjectMapper().readTree(content)) {
-                unsortedTags.add(item.path("tag_name").asText());
+                String tagName = item.path("tag_name").asText();
+                if (!StringUtils.isEmpty(tagName)) {
+                    unsortedTags.add(tagName);
+                }
             }
 
             Function<String, Version> convertToVersion = s -> {

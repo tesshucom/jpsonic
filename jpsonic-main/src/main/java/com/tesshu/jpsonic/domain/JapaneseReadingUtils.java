@@ -239,22 +239,22 @@ public class JapaneseReadingUtils {
 
     private static String capitalize(@NonNull List<ReadingResult> tokens) {
         String reading;
-        StringBuffer buf = new StringBuffer(StringUtils.capitalize(tokens.get(0).reading));
+        StringBuilder sb = new StringBuilder(StringUtils.capitalize(tokens.get(0).reading));
         for (int pos = 1; pos < tokens.size(); pos++) {
             if (Tag.of(tokens.get(pos - 1).token.getPartOfSpeechLevel1()) == Tag.POSTPOSITIONAL_PARTICLE
                     && Tag.of(tokens.get(pos - 1).token.getPartOfSpeechLevel2()) != Tag.MULTI_PARTICLE
                     || tokens.get(pos - 1).reading.endsWith(SPACE)
                     || Tag.of(tokens.get(pos - 1).token.getPartOfSpeechLevel1()) == Tag.SYMBOL) {
                 if (isJapaneseReading(tokens.get(pos).token.getBaseForm())) {
-                    buf.append(StringUtils.capitalize(tokens.get(pos).reading));
+                    sb.append(StringUtils.capitalize(tokens.get(pos).reading));
                 } else {
-                    buf.append(tokens.get(pos).reading);
+                    sb.append(tokens.get(pos).reading);
                 }
             } else {
-                buf.append(tokens.get(pos).reading);
+                sb.append(tokens.get(pos).reading);
             }
         }
-        reading = romanize(buf.toString());
+        reading = romanize(sb.toString());
         if (!reading.isBlank()) {
             reading = reading.replaceAll("\\s+", SPACE).replaceAll(SPACE + "$", "");
         }
