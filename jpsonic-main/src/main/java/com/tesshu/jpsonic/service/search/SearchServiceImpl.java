@@ -32,6 +32,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
@@ -119,6 +120,7 @@ public class SearchServiceImpl implements SearchService {
 
     @SuppressWarnings("unchecked")
     @Override
+    @SuppressLint(value = "NULL_DEREFERENCE", justification = "False positive. #1585")
     public <T> ParamSearchResult<T> search(UPnPSearchCriteria criteria) {
 
         int offset = criteria.getOffset();
