@@ -25,7 +25,6 @@ import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.text.Normalizer;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,6 +35,7 @@ import java.util.stream.Stream;
 import com.atilika.kuromoji.ipadic.Token;
 import com.atilika.kuromoji.ipadic.Tokenizer;
 import com.ibm.icu.text.Transliterator;
+import com.tesshu.jpsonic.ThreadSafe;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.commons.lang3.StringUtils;
@@ -43,13 +43,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
 
 /**
  * Provide analysis of Japanese name.
  */
 @Component
 @DependsOn({ "settingsService" })
+@ThreadSafe(enableChecks = false)
 public class JapaneseReadingUtils {
 
     public static final Pattern ALPHA = Pattern.compile("^[a-zA-Zａ-ｚＡ-Ｚ]+$");
@@ -63,8 +63,6 @@ public class JapaneseReadingUtils {
     private final Tokenizer tokenizer;
     private final Map<String, String> readingMap;
     private final Map<String, String> truncatedReadingMap;
-
-    private List<String> ignoredArticles;
 
     public static boolean isPunctuation(char ch) {
         switch (Character.getType(ch)) {
@@ -393,10 +391,7 @@ public class JapaneseReadingUtils {
             return null;
         }
         String result = s;
-        if (ObjectUtils.isEmpty(ignoredArticles)) {
-            ignoredArticles = Arrays.asList(settingsService.getIgnoredArticles().split("\\s+"));
-        }
-        for (String article : ignoredArticles) {
+        for (String article : settingsService.getIgnoredArticlesAsArray()) {
             if (StringUtils.startsWithIgnoreCase(s, article + SPACE)) {
                 // reading = lower.substring(article.length() + 1) + ", " + article;
                 result = result.substring(article.length() + 1);

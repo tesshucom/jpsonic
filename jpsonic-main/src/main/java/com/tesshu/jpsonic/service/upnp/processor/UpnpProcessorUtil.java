@@ -22,7 +22,6 @@ package com.tesshu.jpsonic.service.upnp.processor;
 import java.net.URI;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -45,7 +44,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class UpnpProcessorUtil {
 
     private static final Object LOCK = new Object();
-    private static final AtomicBoolean RESOURCE_LOADED = new AtomicBoolean();
 
     private static ResourceBundle resourceBundle;
 
@@ -106,14 +104,13 @@ public class UpnpProcessorUtil {
     }
 
     public String getResource(String key) {
-        if (!RESOURCE_LOADED.get()) {
-            synchronized (LOCK) {
+        synchronized (LOCK) {
+            if (resourceBundle == null) {
                 resourceBundle = ResourceBundle.getBundle("com.tesshu.jpsonic.i18n.ResourceBundle",
                         settingsService.getLocale());
-                RESOURCE_LOADED.set(true);
             }
+            return resourceBundle.getString(key);
         }
-        return resourceBundle.getString(key);
     }
 
     public boolean isGenreCountAvailable() {

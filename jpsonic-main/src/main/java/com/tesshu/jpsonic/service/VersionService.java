@@ -112,8 +112,8 @@ public class VersionService {
                     LOG.info("Resolved local Jpsonic version to: " + localVersion);
                 }
             }
+            return localVersion;
         }
-        return localVersion;
     }
 
     /**
@@ -158,8 +158,8 @@ public class VersionService {
                     }
                 }
             }
+            return localBuildDate;
         }
-        return localBuildDate;
     }
 
     /**
@@ -173,8 +173,8 @@ public class VersionService {
             if (localBuildNumber == null) {
                 localBuildNumber = readLineFromResource("/build_number.txt");
             }
+            return localBuildNumber;
         }
-        return localBuildNumber;
     }
 
     /**
