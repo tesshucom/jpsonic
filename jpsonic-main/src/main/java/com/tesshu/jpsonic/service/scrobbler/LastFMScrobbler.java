@@ -63,10 +63,10 @@ public class LastFMScrobbler {
     private static final int MAX_PENDING_REGISTRATION = 2000;
     private static final RequestConfig REQUEST_CONFIG = RequestConfig.custom().setConnectTimeout(15_000)
             .setSocketTimeout(15_000).build();
-    private static final Object REGISTRATION_LOCK = new Object();
     private static final String MSG_PREF_ON_FAIL = "Failed to scrobble song '";
 
     private final LinkedBlockingQueue<RegistrationData> queue;
+    private final Object registrationLock = new Object();
 
     private RegistrationTask task;
 
@@ -92,7 +92,7 @@ public class LastFMScrobbler {
     public void register(MediaFile mediaFile, String username, String password, boolean submission, Date time,
             Executor executor) {
 
-        synchronized (REGISTRATION_LOCK) {
+        synchronized (registrationLock) {
 
             if (task == null) {
                 task = new RegistrationTask(queue);

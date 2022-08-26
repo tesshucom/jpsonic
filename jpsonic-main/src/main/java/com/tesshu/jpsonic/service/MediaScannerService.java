@@ -70,7 +70,6 @@ public class MediaScannerService {
     private static final Logger LOG = LoggerFactory.getLogger(MediaScannerService.class);
     private static final AtomicBoolean IS_EXPUNGING = new AtomicBoolean();
     private static final AtomicBoolean IS_SCANNING = new AtomicBoolean();
-    private static final Object SCAN_LOCK = new Object();
 
     private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
@@ -88,6 +87,8 @@ public class MediaScannerService {
     private final AtomicBoolean cleansingProcess = new AtomicBoolean();
     private final AtomicInteger scanCount = new AtomicInteger();
     private final AtomicBoolean destroy = new AtomicBoolean();
+
+    private final Object scanLock = new Object();
 
     public MediaScannerService(SettingsService settingsService, MusicFolderService musicFolderService,
             IndexManager indexManager, PlaylistService playlistService, MediaFileCache mediaFileCache,
@@ -151,7 +152,7 @@ public class MediaScannerService {
         if (isScanning() || IS_EXPUNGING.get()) {
             return;
         }
-        synchronized (SCAN_LOCK) {
+        synchronized (scanLock) {
             IS_SCANNING.set(true);
             scanExecutor.execute(this::doScanLibrary);
         }

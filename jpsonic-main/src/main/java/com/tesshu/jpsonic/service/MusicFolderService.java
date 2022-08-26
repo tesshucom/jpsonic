@@ -34,13 +34,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class MusicFolderService {
 
-    private static final Object LOCK = new Object();
-
     private final ConcurrentMap<String, List<MusicFolder>> cachedUserFolders;
     private List<MusicFolder> cachedMusicFolders;
 
     private final MusicFolderDao musicFolderDao;
     private final Ehcache indexCache;
+    private final Object lock = new Object();
 
     public MusicFolderService(MusicFolderDao musicFolderDao, Ehcache indexCache) {
         this.musicFolderDao = musicFolderDao;
@@ -68,7 +67,7 @@ public class MusicFolderService {
      * @return Possibly empty list of all music folders.
      */
     public List<MusicFolder> getAllMusicFolders(boolean includeDisabled, boolean includeNonExisting) {
-        synchronized (LOCK) {
+        synchronized (lock) {
             if (cachedMusicFolders == null) {
                 cachedMusicFolders = musicFolderDao.getAllMusicFolders();
             }
@@ -89,7 +88,7 @@ public class MusicFolderService {
      * @return Possibly empty list of music folders.
      */
     public List<MusicFolder> getMusicFoldersForUser(String username) {
-        synchronized (LOCK) {
+        synchronized (lock) {
             List<MusicFolder> result = cachedUserFolders.get(username);
             if (result == null) {
                 result = musicFolderDao.getMusicFoldersForUser(username);
@@ -120,7 +119,7 @@ public class MusicFolderService {
 
     public void setMusicFoldersForUser(String username, List<Integer> musicFolderIds) {
         musicFolderDao.setMusicFoldersForUser(username, musicFolderIds);
-        synchronized (LOCK) {
+        synchronized (lock) {
             cachedUserFolders.remove(username);
         }
         indexCache.removeAll();
@@ -179,7 +178,7 @@ public class MusicFolderService {
 
     @SuppressWarnings("PMD.NullAssignment") // (cachedMusicFolders) Intentional allocation to clear cache
     public void clearMusicFolderCache() {
-        synchronized (LOCK) {
+        synchronized (lock) {
             cachedMusicFolders = null;
             cachedUserFolders.clear();
         }

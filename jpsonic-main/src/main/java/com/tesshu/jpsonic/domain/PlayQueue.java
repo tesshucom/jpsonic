@@ -39,9 +39,8 @@ import com.tesshu.jpsonic.ThreadSafe;
 @ThreadSafe(enableChecks = false)
 public class PlayQueue {
 
-    private static final Object STATUS_LOCK = new Object();
-    private static final Object SEQUENCE_LOCK = new Object();
-
+    private final Object statusLock = new Object();
+    private final Object sequenceLock = new Object();
     private final AtomicBoolean repeatEnabled;
 
     private List<MediaFile> files;
@@ -95,8 +94,8 @@ public class PlayQueue {
      * @return The current song in the playlist, or <code>null</code> if no current song exists.
      */
     public MediaFile getCurrentFile() {
-        synchronized (STATUS_LOCK) {
-            synchronized (SEQUENCE_LOCK) {
+        synchronized (statusLock) {
+            synchronized (sequenceLock) {
                 if (index == -1 || index == 0 && size() == 0) {
                     setStatus(Status.STOPPED);
                     return null;
@@ -122,7 +121,7 @@ public class PlayQueue {
      * @return All music files in the playlist.
      */
     public List<MediaFile> getFiles() {
-        synchronized (SEQUENCE_LOCK) {
+        synchronized (sequenceLock) {
             return files;
         }
     }
@@ -139,7 +138,7 @@ public class PlayQueue {
      *             If the index is out of range.
      */
     public MediaFile getFile(int index) {
-        synchronized (SEQUENCE_LOCK) {
+        synchronized (sequenceLock) {
             return files.get(index);
         }
     }
@@ -148,7 +147,7 @@ public class PlayQueue {
      * Skip to the next song in the playlist.
      */
     public void next() {
-        synchronized (SEQUENCE_LOCK) {
+        synchronized (sequenceLock) {
             index++;
 
             // Reached the end?
@@ -164,7 +163,7 @@ public class PlayQueue {
      * @return The number of songs in the playlists.
      */
     public int size() {
-        synchronized (SEQUENCE_LOCK) {
+        synchronized (sequenceLock) {
             return files.size();
         }
     }
@@ -175,7 +174,7 @@ public class PlayQueue {
      * @return Whether the playlist is empty.
      */
     public boolean isEmpty() {
-        synchronized (SEQUENCE_LOCK) {
+        synchronized (sequenceLock) {
             return files.isEmpty();
         }
     }
@@ -186,7 +185,7 @@ public class PlayQueue {
      * @return The index of the current song, or -1 if the end of the playlist is reached.
      */
     public int getIndex() {
-        synchronized (SEQUENCE_LOCK) {
+        synchronized (sequenceLock) {
             return index;
         }
     }
@@ -198,8 +197,8 @@ public class PlayQueue {
      *            The index of the current song.
      */
     public void setIndex(int index) {
-        synchronized (STATUS_LOCK) {
-            synchronized (SEQUENCE_LOCK) {
+        synchronized (statusLock) {
+            synchronized (sequenceLock) {
                 makeBackup();
                 this.index = Math.max(0, Math.min(index, size() - 1));
                 setStatus(Status.PLAYING);
@@ -216,8 +215,8 @@ public class PlayQueue {
      *            Where to add them.
      */
     public void addFilesAt(Iterable<MediaFile> mediaFiles, final int index) {
-        synchronized (STATUS_LOCK) {
-            synchronized (SEQUENCE_LOCK) {
+        synchronized (statusLock) {
+            synchronized (sequenceLock) {
                 makeBackup();
                 AtomicInteger i = new AtomicInteger(index);
                 mediaFiles.forEach(m -> files.add(i.getAndIncrement(), m));
@@ -235,8 +234,8 @@ public class PlayQueue {
      *            The music files to add.
      */
     public void addFiles(boolean append, Iterable<MediaFile> mediaFiles) {
-        synchronized (STATUS_LOCK) {
-            synchronized (SEQUENCE_LOCK) {
+        synchronized (statusLock) {
+            synchronized (sequenceLock) {
                 makeBackup();
                 if (!append) {
                     index = 0;
@@ -252,8 +251,8 @@ public class PlayQueue {
      * Convenience method, equivalent to {@link #addFiles(boolean, Iterable)}.
      */
     public void addFiles(boolean append, MediaFile... mediaFiles) {
-        synchronized (STATUS_LOCK) {
-            synchronized (SEQUENCE_LOCK) {
+        synchronized (statusLock) {
+            synchronized (sequenceLock) {
                 addFiles(append, Arrays.asList(mediaFiles));
             }
         }
@@ -266,7 +265,7 @@ public class PlayQueue {
      *            The playlist index.
      */
     public void removeFileAt(final int index) {
-        synchronized (SEQUENCE_LOCK) {
+        synchronized (sequenceLock) {
             makeBackup();
             int i = index;
             i = Math.max(0, Math.min(i, size() - 1));
@@ -283,7 +282,7 @@ public class PlayQueue {
      * Clears the playlist.
      */
     public void clear() {
-        synchronized (SEQUENCE_LOCK) {
+        synchronized (sequenceLock) {
             makeBackup();
             files.clear();
             setRandomSearchCriteria(null);
@@ -296,8 +295,8 @@ public class PlayQueue {
      * Shuffles the playlist.
      */
     public void shuffle() {
-        synchronized (STATUS_LOCK) {
-            synchronized (SEQUENCE_LOCK) {
+        synchronized (statusLock) {
+            synchronized (sequenceLock) {
                 makeBackup();
                 MediaFile currentFile = getCurrentFile();
                 Collections.shuffle(files);
@@ -313,8 +312,8 @@ public class PlayQueue {
      * Sorts the playlist according to the given sort order.
      */
     public void sort(Comparator<MediaFile> comparator) {
-        synchronized (STATUS_LOCK) {
-            synchronized (SEQUENCE_LOCK) {
+        synchronized (statusLock) {
+            synchronized (sequenceLock) {
                 makeBackup();
                 MediaFile currentFile = getCurrentFile();
                 files.sort(comparator);
@@ -329,7 +328,7 @@ public class PlayQueue {
      * Rearranges the playlist using the provided indexes.
      */
     public void rearrange(int... indexes) {
-        synchronized (SEQUENCE_LOCK) {
+        synchronized (sequenceLock) {
             makeBackup();
             if (indexes == null || indexes.length != size()) {
                 return;
@@ -367,7 +366,7 @@ public class PlayQueue {
      *            The playlist index.
      */
     public void moveDown(int index) {
-        synchronized (SEQUENCE_LOCK) {
+        synchronized (sequenceLock) {
             makeBackup();
             if (index < 0 || index >= size() - 1) {
                 return;
@@ -423,7 +422,7 @@ public class PlayQueue {
      * Revert the last operation.
      */
     public void undo() {
-        synchronized (SEQUENCE_LOCK) {
+        synchronized (sequenceLock) {
             int indexTmp = index;
 
             index = indexBackup;
@@ -440,7 +439,7 @@ public class PlayQueue {
      * @return The playlist status.
      */
     public Status getStatus() {
-        synchronized (STATUS_LOCK) {
+        synchronized (statusLock) {
             return status;
         }
     }
@@ -452,8 +451,8 @@ public class PlayQueue {
      *            The playlist status.
      */
     public void setStatus(Status status) {
-        synchronized (STATUS_LOCK) {
-            synchronized (SEQUENCE_LOCK) {
+        synchronized (statusLock) {
+            synchronized (sequenceLock) {
                 this.status = status;
                 if (index == -1) {
                     index = Math.max(0, Math.min(index, size() - 1));
@@ -507,7 +506,7 @@ public class PlayQueue {
      */
     public long length() {
         long length;
-        synchronized (SEQUENCE_LOCK) {
+        synchronized (sequenceLock) {
             length = files.stream().mapToLong(MediaFile::getFileSize).sum();
         }
         return length;

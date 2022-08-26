@@ -47,10 +47,10 @@ import org.slf4j.LoggerFactory;
 public class LastFmCache extends Cache {
 
     private static final Logger LOG = LoggerFactory.getLogger(LastFmCache.class);
-    private static final Object LOCK = new Object();
 
     private final Path cacheDir;
     private final long ttl;
+    private final Object lock = new Object();
 
     public LastFmCache(Path cacheDir, final long ttl) {
         super();
@@ -111,7 +111,7 @@ public class LastFmCache extends Cache {
 
     private void createCache() {
         if (!Files.exists(cacheDir)) {
-            synchronized (LOCK) {
+            synchronized (lock) {
                 if (FileUtil.createDirectories(cacheDir) == null && LOG.isWarnEnabled()) {
                     LOG.warn("The directory '{}' could not be created.", cacheDir);
                 }
