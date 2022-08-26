@@ -154,10 +154,11 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     @Override
     public List<MediaFile> getChildren(MediaFile item, long offset, long maxResults) {
         if (isIndex(item)) {
-            MusicIndex index = indexesMap.get(item.getId()).getDeligate();
-            // refactoring(Few cases are actually a problem)
-            return subList(content.getIndexedArtists().get(index).stream().flatMap(s -> s.getMediaFiles().stream())
-                    .collect(Collectors.toList()), offset, maxResults);
+            synchronized (LOCK) {
+                MusicIndex index = indexesMap.get(item.getId()).getDeligate();
+                return subList(content.getIndexedArtists().get(index).stream().flatMap(s -> s.getMediaFiles().stream())
+                        .collect(Collectors.toList()), offset, maxResults);
+            }
         }
         if (item.isAlbum()) {
             return mediaFileService.getSongsForAlbum(offset, maxResults, item);
@@ -171,7 +172,9 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     @Override
     public int getChildSizeOf(MediaFile item) {
         if (isIndex(item)) {
-            return content.getIndexedArtists().get(indexesMap.get(item.getId()).getDeligate()).size();
+            synchronized (LOCK) {
+                return content.getIndexedArtists().get(indexesMap.get(item.getId()).getDeligate()).size();
+            }
         }
         return mediaFileService.getChildSizeOf(item);
     }
@@ -180,15 +183,19 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     public MediaFile getItemById(String ids) {
         int id = Integer.parseInt(ids);
         if (isIndex(id)) {
-            return indexesMap.get(id);
+            synchronized (LOCK) {
+                return indexesMap.get(id);
+            }
         }
         return mediaFileService.getMediaFileStrict(id);
     }
 
     @Override
     public int getItemCount() {
-        refreshIndex();
-        return topNodes.size();
+        synchronized (LOCK) {
+            refreshIndex();
+            return topNodes.size();
+        }
     }
 
     @Override
@@ -196,8 +203,10 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         List<MediaFile> result = new ArrayList<>();
         if (offset < getItemCount()) {
             int count = min((int) (offset + maxResults), getItemCount());
-            for (int i = (int) offset; i < count; i++) {
-                result.add(topNodes.get(i));
+            synchronized (LOCK) {
+                for (int i = (int) offset; i < count; i++) {
+                    result.add(topNodes.get(i));
+                }
             }
         }
         return result;

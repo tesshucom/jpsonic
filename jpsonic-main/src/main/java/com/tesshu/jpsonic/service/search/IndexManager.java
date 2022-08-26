@@ -373,24 +373,26 @@ public class IndexManager {
      * finished using it. No explicit close is done here.
      */
     public @Nullable IndexSearcher getSearcher(@NonNull IndexType indexType) {
-        if (!searchers.containsKey(indexType)) {
-            Path indexDirectory = getIndexDirectory(indexType);
-            try {
-                if (Files.exists(indexDirectory)) {
-                    SearcherManager manager = new SearcherManager(FSDirectory.open(indexDirectory), null);
-                    searchers.put(indexType, manager);
-                } else if (LOG.isWarnEnabled()) {
-                    LOG.warn("{} does not exist. Please run a scan.", indexDirectory);
+        synchronized (GENRE_LOCK) {
+            if (!searchers.containsKey(indexType)) {
+                Path indexDirectory = getIndexDirectory(indexType);
+                try {
+                    if (Files.exists(indexDirectory)) {
+                        SearcherManager manager = new SearcherManager(FSDirectory.open(indexDirectory), null);
+                        searchers.put(indexType, manager);
+                    } else if (LOG.isWarnEnabled()) {
+                        LOG.warn("{} does not exist. Please run a scan.", indexDirectory);
+                    }
+                } catch (IndexNotFoundException e) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Index {} does not exist in {}, likely not yet created.", indexType.toString(),
+                                indexDirectory);
+                    }
+                    return null;
+                } catch (IOException e) {
+                    LOG.warn("Failed to initialize SearcherManager.", e);
+                    return null;
                 }
-            } catch (IndexNotFoundException e) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Index {} does not exist in {}, likely not yet created.", indexType.toString(),
-                            indexDirectory);
-                }
-                return null;
-            } catch (IOException e) {
-                LOG.warn("Failed to initialize SearcherManager.", e);
-                return null;
             }
         }
         try {
@@ -405,24 +407,26 @@ public class IndexManager {
     }
 
     public void release(IndexType indexType, IndexSearcher indexSearcher) {
-        if (searchers.containsKey(indexType)) {
-            try {
-                searchers.get(indexType).release(indexSearcher);
-            } catch (IOException e) {
-                LOG.error("Failed to release IndexSearcher.", e);
-                searchers.remove(indexType);
-            }
-        } else {
-            try {
-                /*
-                 * #1280 This method is called automatically from various finally clauses. If you have never scanned,
-                 * Searcher is null.
-                 */
-                if (indexSearcher != null) {
-                    indexSearcher.getIndexReader().close();
+        synchronized (GENRE_LOCK) {
+            if (searchers.containsKey(indexType)) {
+                try {
+                    searchers.get(indexType).release(indexSearcher);
+                } catch (IOException e) {
+                    LOG.error("Failed to release IndexSearcher.", e);
+                    searchers.remove(indexType);
                 }
-            } catch (IOException e) {
-                LOG.warn("Failed to release. IndexSearcher has been closed.", e);
+            } else {
+                try {
+                    /*
+                     * #1280 This method is called automatically from various finally clauses. If you have never
+                     * scanned, Searcher is null.
+                     */
+                    if (indexSearcher != null) {
+                        indexSearcher.getIndexReader().close();
+                    }
+                } catch (IOException e) {
+                    LOG.warn("Failed to release. IndexSearcher has been closed.", e);
+                }
             }
         }
     }
@@ -515,9 +519,12 @@ public class IndexManager {
             return result;
         }
 
-        IndexSearcher searcher = getSearcher(IndexType.GENRE);
-        if (isEmpty(searcher)) {
-            return result;
+        IndexSearcher searcher;
+        synchronized (GENRE_LOCK) {
+            searcher = getSearcher(IndexType.GENRE);
+            if (isEmpty(searcher)) {
+                return result;
+            }
         }
 
         try {
@@ -546,16 +553,14 @@ public class IndexManager {
     }
 
     public List<Genre> getGenres(boolean sortByAlbum) {
-
-        if (multiGenreMaster.isEmpty()) {
-            refreshMultiGenreMaster();
-        }
-
-        if (settingsService.isSortGenresByAlphabet() && sortByAlbum) {
-            if (multiGenreMaster.containsKey(GenreSort.ALBUM_ALPHABETICAL)) {
-                return multiGenreMaster.get(GenreSort.ALBUM_ALPHABETICAL);
+        synchronized (GENRE_LOCK) {
+            if (multiGenreMaster.isEmpty()) {
+                refreshMultiGenreMaster();
             }
-            synchronized (GENRE_LOCK) {
+            if (settingsService.isSortGenresByAlphabet() && sortByAlbum) {
+                if (multiGenreMaster.containsKey(GenreSort.ALBUM_ALPHABETICAL)) {
+                    return multiGenreMaster.get(GenreSort.ALBUM_ALPHABETICAL);
+                }
                 List<Genre> albumGenres = new ArrayList<>();
                 if (!isEmpty(multiGenreMaster.get(GenreSort.ALBUM_COUNT))) {
                     albumGenres.addAll(multiGenreMaster.get(GenreSort.ALBUM_COUNT));
@@ -563,12 +568,10 @@ public class IndexManager {
                 }
                 multiGenreMaster.put(GenreSort.ALBUM_ALPHABETICAL, albumGenres);
                 return albumGenres;
-            }
-        } else if (settingsService.isSortGenresByAlphabet()) {
-            if (multiGenreMaster.containsKey(GenreSort.SONG_ALPHABETICAL)) {
-                return multiGenreMaster.get(GenreSort.SONG_ALPHABETICAL);
-            }
-            synchronized (GENRE_LOCK) {
+            } else if (settingsService.isSortGenresByAlphabet()) {
+                if (multiGenreMaster.containsKey(GenreSort.SONG_ALPHABETICAL)) {
+                    return multiGenreMaster.get(GenreSort.SONG_ALPHABETICAL);
+                }
                 List<Genre> albumGenres = new ArrayList<>();
                 if (!isEmpty(multiGenreMaster.get(GenreSort.SONG_COUNT))) {
                     albumGenres.addAll(multiGenreMaster.get(GenreSort.SONG_COUNT));
@@ -577,12 +580,11 @@ public class IndexManager {
                 multiGenreMaster.put(GenreSort.SONG_ALPHABETICAL, albumGenres);
                 return albumGenres;
             }
+
+            List<Genre> genres = sortByAlbum ? multiGenreMaster.get(GenreSort.ALBUM_COUNT)
+                    : multiGenreMaster.get(GenreSort.SONG_COUNT);
+            return isEmpty(genres) ? Collections.emptyList() : genres;
         }
-
-        List<Genre> genres = sortByAlbum ? multiGenreMaster.get(GenreSort.ALBUM_COUNT)
-                : multiGenreMaster.get(GenreSort.SONG_COUNT);
-        return isEmpty(genres) ? Collections.emptyList() : genres;
-
     }
 
     @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.AvoidCatchingGenericException" }) // lucene/HighFreqTerms#getHighFreqTerms
@@ -596,7 +598,7 @@ public class IndexManager {
         try {
             if (!isEmpty(genreSearcher) && !isEmpty(songSearcher) && !isEmpty(albumSearcher)) {
 
-                mayBeInit: synchronized (GENRE_LOCK) {
+                mayBeInit: {
 
                     multiGenreMaster.clear();
 
@@ -613,7 +615,7 @@ public class IndexManager {
                         stats = HighFreqTerms.getHighFreqTerms(genreSearcher.getIndexReader(), numTerms,
                                 FieldNamesConstants.GENRE, c);
                     } catch (Exception e) {
-                        LOG.error("The genre field may not exist.", e);
+                        LOG.info("The genre field may not exist.");
                         break mayBeInit;
                     }
                     List<String> genreNames = Arrays.stream(stats).map(t -> t.termtext.utf8ToString())
@@ -638,9 +640,7 @@ public class IndexManager {
                     multiGenreMaster.put(GenreSort.ALBUM_COUNT, genresByAlbum);
 
                     LOG.info("The multi-genre master has been updated.");
-
                 }
-
             }
         } catch (IOException e) {
             LOG.error("Failed to execute Lucene search.", e);

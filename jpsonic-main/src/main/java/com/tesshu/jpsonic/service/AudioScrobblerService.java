@@ -77,9 +77,9 @@ public class AudioScrobblerService {
                 if (lastFMScrobbler == null) {
                     lastFMScrobbler = new LastFMScrobbler();
                 }
+                lastFMScrobbler.register(mediaFile, userSettings.getLastFmUsername(), userSettings.getLastFmPassword(),
+                        submission, time, shortExecutor);
             }
-            lastFMScrobbler.register(mediaFile, userSettings.getLastFmUsername(), userSettings.getLastFmPassword(),
-                    submission, time, shortExecutor);
         }
 
         if (userSettings.isListenBrainzEnabled() && userSettings.getListenBrainzToken() != null) {
@@ -87,9 +87,9 @@ public class AudioScrobblerService {
                 if (listenBrainzScrobbler == null) {
                     listenBrainzScrobbler = new ListenBrainzScrobbler();
                 }
+                listenBrainzScrobbler.register(mediaFile, userSettings.getListenBrainzToken(), submission, time,
+                        shortExecutor);
             }
-            listenBrainzScrobbler.register(mediaFile, userSettings.getListenBrainzToken(), submission, time,
-                    shortExecutor);
         }
     }
 

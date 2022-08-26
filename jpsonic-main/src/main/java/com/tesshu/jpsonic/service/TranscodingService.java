@@ -82,7 +82,7 @@ public class TranscodingService {
     public static final String FORMAT_RAW = "raw";
     public static final String FORMAT_FLAC = "flac";
     private static final Pattern SPLIT_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
-    private static final Object LOCK = new Object();
+    private static final Object DIR_LOCK = new Object();
 
     private final SettingsService settingsService;
     private final SecurityService securityService;
@@ -112,26 +112,30 @@ public class TranscodingService {
      * Returns the directory in which all transcoders are installed.
      */
     public @NonNull Path getTranscodeDirectory() {
-        if (!isEmpty(transcodeDirectory)) {
-            return transcodeDirectory;
-        }
-        if (isEmpty(transcodePath)) {
-            transcodeDirectory = Path.of(SettingsService.getJpsonicHome().toString(), "transcode");
-            if (!Files.exists(transcodeDirectory)) {
-                synchronized (LOCK) {
-                    if (FileUtil.createDirectories(transcodeDirectory) == null && LOG.isWarnEnabled()) {
-                        LOG.warn("The directory '{}' could not be created.", transcodeDirectory);
+        synchronized (DIR_LOCK) {
+            if (!isEmpty(transcodeDirectory)) {
+                return transcodeDirectory;
+            }
+            if (isEmpty(transcodePath)) {
+                transcodeDirectory = Path.of(SettingsService.getJpsonicHome().toString(), "transcode");
+                if (!Files.exists(transcodeDirectory)) {
+                    synchronized (DIR_LOCK) {
+                        if (FileUtil.createDirectories(transcodeDirectory) == null && LOG.isWarnEnabled()) {
+                            LOG.warn("The directory '{}' could not be created.", transcodeDirectory);
+                        }
                     }
                 }
+            } else {
+                transcodeDirectory = Path.of(transcodePath);
             }
-        } else {
-            transcodeDirectory = Path.of(transcodePath);
+            return transcodeDirectory;
         }
-        return transcodeDirectory;
     }
 
     protected void setTranscodeDirectory(@Nullable Path transcodeDirectory) {
-        this.transcodeDirectory = transcodeDirectory;
+        synchronized (DIR_LOCK) {
+            this.transcodeDirectory = transcodeDirectory;
+        }
     }
 
     /**

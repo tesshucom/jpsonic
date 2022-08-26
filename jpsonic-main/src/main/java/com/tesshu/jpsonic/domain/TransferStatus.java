@@ -159,7 +159,9 @@ public class TransferStatus implements Serializable {
     }
 
     public boolean isActive() {
-        return active;
+        synchronized (HISTORY_LOCK) {
+            return active;
+        }
     }
 
     public void setActive(boolean active) {
@@ -196,7 +198,7 @@ public class TransferStatus implements Serializable {
     @Override
     public String toString() {
         return "TransferStatus-" + hashCode() + " [player: " + player.getId() + ", path: " + pathString
-                + ", terminated: " + terminated + ", active: " + active + "]";
+                + ", terminated: " + terminated + ", active: " + isActive() + "]";
     }
 
     @SuppressWarnings("serial")

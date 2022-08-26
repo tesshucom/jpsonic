@@ -29,11 +29,14 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.tesshu.jpsonic.ThreadSafe;
+
 /**
  * A play queue is a list of music files that are associated to a remote player.
  *
  * @author Sindre Mehus
  */
+@ThreadSafe(enableChecks = false)
 public class PlayQueue {
 
     private static final Object STATUS_LOCK = new Object();

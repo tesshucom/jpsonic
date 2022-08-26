@@ -70,15 +70,15 @@ public class PodcastController {
         this.securityService = securityService;
     }
 
-    public DateFormat getRssDateFormat() {
+    private DateFormat getRssDateFormat() {
         synchronized (DATE_LOCK) {
             if (rssDateFormat == null) {
                 Locale locale = settingsService.getLocale();
                 rssDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", locale);
                 lang = locale.getLanguage();
             }
+            return rssDateFormat;
         }
-        return rssDateFormat;
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Podcast) Not reusable
@@ -104,10 +104,7 @@ public class PodcastController {
             for (MediaFile song : songs) {
                 length += song.getFileSize();
             }
-            String publishDate;
-            synchronized (getRssDateFormat()) {
-                publishDate = getRssDateFormat().format(playlist.getCreated());
-            }
+            String publishDate = getRssDateFormat().format(playlist.getCreated());
 
             // Resolve content type.
             String suffix = songs.get(0).getFormat();
