@@ -52,11 +52,10 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping({ "/podcast", "/podcast.view" })
 public class PodcastController {
 
-    private static final Object DATE_LOCK = new Object();
-
     private final SettingsService settingsService;
     private final SecurityService securityService;
     private final PlaylistService playlistService;
+    private final Object dateLock = new Object();
 
     // Locale is changed by Setting, but restart is required.
     private DateFormat rssDateFormat;
@@ -71,7 +70,7 @@ public class PodcastController {
     }
 
     private DateFormat getRssDateFormat() {
-        synchronized (DATE_LOCK) {
+        synchronized (dateLock) {
             if (rssDateFormat == null) {
                 Locale locale = settingsService.getLocale();
                 rssDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", locale);

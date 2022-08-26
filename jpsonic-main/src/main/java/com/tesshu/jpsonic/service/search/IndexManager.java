@@ -103,7 +103,7 @@ public class IndexManager {
      */
     private static final String INDEX_ROOT_DIR_NAME = "index-JP";
 
-    private static final Object GENRE_LOCK = new Object();
+    private final Object genreLock = new Object();
 
     private enum GenreSort {
         ALBUM_COUNT, SONG_COUNT, ALBUM_ALPHABETICAL, SONG_ALPHABETICAL
@@ -216,7 +216,7 @@ public class IndexManager {
     }
 
     private void clearMultiGenreMaster() {
-        synchronized (GENRE_LOCK) {
+        synchronized (genreLock) {
             multiGenreMaster.clear();
         }
     }
@@ -373,7 +373,7 @@ public class IndexManager {
      * finished using it. No explicit close is done here.
      */
     public @Nullable IndexSearcher getSearcher(@NonNull IndexType indexType) {
-        synchronized (GENRE_LOCK) {
+        synchronized (genreLock) {
             if (!searchers.containsKey(indexType)) {
                 Path indexDirectory = getIndexDirectory(indexType);
                 try {
@@ -407,7 +407,7 @@ public class IndexManager {
     }
 
     public void release(IndexType indexType, IndexSearcher indexSearcher) {
-        synchronized (GENRE_LOCK) {
+        synchronized (genreLock) {
             if (searchers.containsKey(indexType)) {
                 try {
                     searchers.get(indexType).release(indexSearcher);
@@ -520,7 +520,7 @@ public class IndexManager {
         }
 
         IndexSearcher searcher;
-        synchronized (GENRE_LOCK) {
+        synchronized (genreLock) {
             searcher = getSearcher(IndexType.GENRE);
             if (isEmpty(searcher)) {
                 return result;
@@ -553,7 +553,7 @@ public class IndexManager {
     }
 
     public List<Genre> getGenres(boolean sortByAlbum) {
-        synchronized (GENRE_LOCK) {
+        synchronized (genreLock) {
             if (multiGenreMaster.isEmpty()) {
                 refreshMultiGenreMaster();
             }

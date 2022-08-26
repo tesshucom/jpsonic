@@ -69,10 +69,6 @@ public class VersionService {
     private static final Logger LOG = LoggerFactory.getLogger(VersionService.class);
     private static final ThreadLocal<DateFormat> DATE_FORMAT = ThreadLocal
             .withInitial(() -> new SimpleDateFormat("yyyyMMdd", Locale.US));
-    private static final Object LATEST_LOCK = new Object();
-    private static final Object LOCAL_VERSION_LOCK = new Object();
-    private static final Object LOCAL_BUILD_DATE = new Object();
-    private static final Object LOCAL_BUILD_NUMBER_LOCK = new Object();
     private static final Pattern VERSION_REGEX = Pattern.compile("^v(.*)");
     private static final String VERSION_URL = "https://api.github.com/repos/jpsonic/jpsonic/releases";
 
@@ -82,6 +78,11 @@ public class VersionService {
     private static final long LAST_VERSION_FETCH_INTERVAL = 7L * 24L * 3600L * 1000L; // One week
 
     private final SettingsService settingsService;
+
+    private final Object latestLock = new Object();
+    private final Object localVersionLock = new Object();
+    private final Object localBuildDateLock = new Object();
+    private final Object localBuildNumberLock = new Object();
 
     private Version latestFinalVersion;
     private Version latestBetaVersion;
@@ -105,7 +106,7 @@ public class VersionService {
      * @return The version number for the locally installed Jpsonic version.
      */
     public Version getLocalVersion() {
-        synchronized (LOCAL_VERSION_LOCK) {
+        synchronized (localVersionLock) {
             if (localVersion == null) {
                 localVersion = new Version(readLineFromResource("/version.txt"));
                 if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
@@ -145,7 +146,7 @@ public class VersionService {
      *         resolved.
      */
     public Date getLocalBuildDate() {
-        synchronized (LOCAL_BUILD_DATE) {
+        synchronized (localBuildDateLock) {
             if (localBuildDate == null) {
                 try {
                     String date = readLineFromResource("/build_date.txt");
@@ -169,7 +170,7 @@ public class VersionService {
      *         can't be resolved.
      */
     public String getLocalBuildNumber() {
-        synchronized (LOCAL_BUILD_NUMBER_LOCK) {
+        synchronized (localBuildNumberLock) {
             if (localBuildNumber == null) {
                 localBuildNumber = readLineFromResource("/build_number.txt");
             }
@@ -253,7 +254,7 @@ public class VersionService {
      */
     private void readLatestVersion() throws IOException {
 
-        synchronized (LATEST_LOCK) {
+        synchronized (latestLock) {
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Starting to read latest version");

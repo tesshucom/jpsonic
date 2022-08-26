@@ -82,7 +82,6 @@ public class TranscodingService {
     public static final String FORMAT_RAW = "raw";
     public static final String FORMAT_FLAC = "flac";
     private static final Pattern SPLIT_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
-    private static final Object DIR_LOCK = new Object();
 
     private final SettingsService settingsService;
     private final SecurityService securityService;
@@ -91,6 +90,8 @@ public class TranscodingService {
     private final Executor shortExecutor;
     private final String transcodePath;
     private Path transcodeDirectory;
+
+    private final Object dirLock = new Object();
 
     public TranscodingService(SettingsService settingsService, SecurityService securityService,
             TranscodingDao transcodingDao, @Lazy PlayerService playerService, Executor shortExecutor) {
@@ -112,14 +113,14 @@ public class TranscodingService {
      * Returns the directory in which all transcoders are installed.
      */
     public @NonNull Path getTranscodeDirectory() {
-        synchronized (DIR_LOCK) {
+        synchronized (dirLock) {
             if (!isEmpty(transcodeDirectory)) {
                 return transcodeDirectory;
             }
             if (isEmpty(transcodePath)) {
                 transcodeDirectory = Path.of(SettingsService.getJpsonicHome().toString(), "transcode");
                 if (!Files.exists(transcodeDirectory)) {
-                    synchronized (DIR_LOCK) {
+                    synchronized (dirLock) {
                         if (FileUtil.createDirectories(transcodeDirectory) == null && LOG.isWarnEnabled()) {
                             LOG.warn("The directory '{}' could not be created.", transcodeDirectory);
                         }
@@ -133,7 +134,7 @@ public class TranscodingService {
     }
 
     protected void setTranscodeDirectory(@Nullable Path transcodeDirectory) {
-        synchronized (DIR_LOCK) {
+        synchronized (dirLock) {
             this.transcodeDirectory = transcodeDirectory;
         }
     }

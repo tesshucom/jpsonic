@@ -43,10 +43,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Component
 public class UpnpProcessorUtil {
 
-    private static final Object LOCK = new Object();
-
-    private static ResourceBundle resourceBundle;
-
     private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
@@ -54,6 +50,7 @@ public class UpnpProcessorUtil {
     private final PlayerService playerService;
     private final TranscodingService transcodingService;
     private final JpsonicComparators comparators;
+    private final ResourceBundle resourceBundle;
 
     public UpnpProcessorUtil(SettingsService ss, MusicFolderService mfs, SecurityService securityService,
             JpsonicComparators c, JWTSecurityService jwt, PlayerService playerService, TranscodingService ts) {
@@ -64,6 +61,8 @@ public class UpnpProcessorUtil {
         comparators = c;
         this.playerService = playerService;
         transcodingService = ts;
+        resourceBundle = ResourceBundle.getBundle("com.tesshu.jpsonic.i18n.ResourceBundle",
+                settingsService.getLocale());
     }
 
     public UriComponentsBuilder addJWTToken(UriComponentsBuilder builder) {
@@ -104,13 +103,7 @@ public class UpnpProcessorUtil {
     }
 
     public String getResource(String key) {
-        synchronized (LOCK) {
-            if (resourceBundle == null) {
-                resourceBundle = ResourceBundle.getBundle("com.tesshu.jpsonic.i18n.ResourceBundle",
-                        settingsService.getLocale());
-            }
-            return resourceBundle.getString(key);
-        }
+        return resourceBundle.getString(key);
     }
 
     public boolean isGenreCountAvailable() {

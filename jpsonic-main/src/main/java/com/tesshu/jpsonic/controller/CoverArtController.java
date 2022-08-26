@@ -95,7 +95,6 @@ public class CoverArtController {
 
     private static final Logger LOG = LoggerFactory.getLogger(CoverArtController.class);
     private static final int COVER_ART_CONCURRENCY = 4;
-    private static final Object DIRS_LOCK = new Object();
     private static final Map<String, Object> IMG_LOCKS = new ConcurrentHashMap<>();
 
     private final MediaFileService mediaFileService;
@@ -106,6 +105,7 @@ public class CoverArtController {
     private final AlbumDao albumDao;
     private final CoverArtLogic logic;
     private final FontLoader fontLoader;
+    private final Object dirLock = new Object();
 
     private Semaphore semaphore;
 
@@ -367,7 +367,7 @@ public class CoverArtController {
     private Path getImageCacheDirectory(int size) {
         Path dir = Path.of(SettingsService.getJpsonicHome().toString(), "thumbs", String.valueOf(size));
         if (!Files.exists(dir)) {
-            synchronized (DIRS_LOCK) {
+            synchronized (dirLock) {
                 if (FileUtil.createDirectories(dir) == null && LOG.isErrorEnabled()) {
                     LOG.error("Failed to create thumbnail cache " + dir);
                 }

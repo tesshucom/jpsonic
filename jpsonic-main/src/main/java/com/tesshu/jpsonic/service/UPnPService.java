@@ -75,12 +75,12 @@ public class UPnPService {
     private static final int MIN_ADVERTISEMENT_AGE_SECONDS = 60 * 60 * 24;
 
     private static final Logger LOG = LoggerFactory.getLogger(UPnPService.class);
-    private static final Object LOCK = new Object();
 
     private final SettingsService settingsService;
     private final VersionService versionService;
     private final CustomContentDirectory dispatchingContentDirectory;
     private final AtomicReference<Boolean> running;
+    private final Object lock = new Object();
 
     private UpnpService deligate;
 
@@ -151,7 +151,7 @@ public class UPnPService {
 
     @SuppressWarnings("PMD.AvoidCatchingGenericException") // fourthline/UpnpServiceImpl#UpnpServiceImpl
     private void createService() {
-        synchronized (LOCK) {
+        synchronized (lock) {
             try {
                 deligate = new UpnpServiceImpl(new ApacheUpnpServiceConfiguration());
             } catch (RuntimeException e) {

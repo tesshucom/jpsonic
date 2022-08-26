@@ -65,7 +65,6 @@ public class PlayerService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlayerService.class);
 
-    private static final Object PLAYER_LOCK = new Object();
     private static final String COOKIE_NAME = "player";
     private static final String ATTRIBUTE_SESSION_KEY = "player";
     private static final String GUEST_PLAYER_TYPE = "UPnP Processor";
@@ -76,6 +75,8 @@ public class PlayerService {
     private final SettingsService settingsService;
     private final SecurityService securityService;
     private final TranscodingService transcodingService;
+
+    private final Object playerLock = new Object();
 
     public PlayerService(PlayerDao playerDao, StatusService statusService, SettingsService settingsService,
             SecurityService securityService, TranscodingService transcodingService) {
@@ -119,7 +120,7 @@ public class PlayerService {
     public Player getPlayer(HttpServletRequest request, HttpServletResponse response, boolean remoteControlEnabled,
             boolean isStreamRequest) {
 
-        synchronized (PLAYER_LOCK) {
+        synchronized (playerLock) {
 
             // Get player.
             Player player = findOrCreatePlayer(request, remoteControlEnabled);
@@ -365,7 +366,7 @@ public class PlayerService {
      *            The unique player ID.
      */
     public void removePlayerById(int id) {
-        synchronized (PLAYER_LOCK) {
+        synchronized (playerLock) {
             playerDao.deletePlayer(id);
         }
     }
@@ -403,7 +404,7 @@ public class PlayerService {
     }
 
     private void createPlayer(Player player, boolean isInitTranscoding) {
-        synchronized (PLAYER_LOCK) {
+        synchronized (playerLock) {
             UserSettings userSettings = securityService
                     .getUserSettings(JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername())
                             ? User.USERNAME_GUEST : player.getUsername());
