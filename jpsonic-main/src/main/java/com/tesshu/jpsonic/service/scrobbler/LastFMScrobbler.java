@@ -33,6 +33,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
@@ -247,6 +248,7 @@ public class LastFMScrobbler {
         return executePostRequest(url, params);
     }
 
+    @SuppressFBWarnings(value = "WEAK_MESSAGE_DIGEST_MD5", justification = "That's Last.fm Auth API Spec 1.0 (https://www.last.fm/api/authspec")
     private static String calculateAuthenticationToken(String password, long timestamp) {
         return DigestUtils.md5Hex(DigestUtils.md5Hex(password) + timestamp);
     }
