@@ -716,6 +716,9 @@
                         <id>enforce</id>
                         <configuration>
                             <rules>
+                                <requireMavenVersion>
+                                    <version>3.8.6</version>
+                                </requireMavenVersion>
                                 <dependencyConvergence/>
                             </rules>
                         </configuration>
