@@ -283,7 +283,10 @@ public class MainController {
         for (MediaFile mediaFile : mediaFiles) {
             MediaFile m = mediaFile;
             if (m.isFile()) {
-                m = mediaFileService.getParentOf(m);
+                MediaFile parent = mediaFileService.getParentOf(m);
+                if (parent != null) {
+                    m = parent;
+                }
             }
             result.addAll(mediaFileService.getChildrenOf(m, true, true, true));
         }

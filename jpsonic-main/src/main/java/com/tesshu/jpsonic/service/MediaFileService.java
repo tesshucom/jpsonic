@@ -177,6 +177,10 @@ public class MediaFileService {
         return getMediaFile(mediaFile.getParentPathString());
     }
 
+    public Optional<MediaFile> getParent(MediaFile mediaFile) {
+        return Optional.ofNullable(getParentOf(mediaFile));
+    }
+
     boolean isSchemeLastModified() {
         return FileModifiedCheckScheme.LAST_MODIFIED == FileModifiedCheckScheme
                 .valueOf(settingsService.getFileModifiedCheckSchemeName());
@@ -267,7 +271,10 @@ public class MediaFileService {
         return result;
     }
 
-    public boolean isRoot(@NonNull MediaFile mediaFile) {
+    public boolean isRoot(@Nullable MediaFile mediaFile) {
+        if (mediaFile == null) {
+            return false;
+        }
         for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders(false, true)) {
             if (mediaFile.toPath().equals(musicFolder.toPath())) {
                 return true;

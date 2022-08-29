@@ -214,6 +214,7 @@ public class SecurityService implements UserDetailsService {
         return username == null ? null : getUserByName(username);
     }
 
+    // TODO For REST, fix to return response instead of exception.
     public @NonNull User getCurrentUserStrict(@NonNull HttpServletRequest request) {
         String username = getCurrentUsername(request);
         if (username == null) {

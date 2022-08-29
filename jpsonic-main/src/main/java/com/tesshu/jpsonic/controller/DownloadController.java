@@ -159,6 +159,9 @@ public class DownloadController {
 
             } else if (playerId != null) {
                 Player player = playerService.getPlayerById(playerId);
+                if (player == null) {
+                    throw new IllegalArgumentException("The specified Player cannot be found.");
+                }
                 PlayQueue playQueue = player.getPlayQueue();
                 playQueue.setName("Playlist");
                 downloadFiles(response, status, playQueue.getFiles(), indexes, null, range, "download.zip");

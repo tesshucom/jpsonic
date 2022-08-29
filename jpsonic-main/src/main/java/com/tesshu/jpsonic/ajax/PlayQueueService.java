@@ -246,25 +246,25 @@ public class PlayQueueService {
         HttpServletResponse response = resolveHttpServletResponse();
 
         Player player = getCurrentPlayer(request, response);
-        MediaFile file = mediaFileService.getMediaFileStrict(id);
+        MediaFile mediaFile = mediaFileService.getMediaFileStrict(id);
 
-        List<MediaFile> songs;
-
-        if (file.isFile()) {
+        final List<MediaFile> songs = new ArrayList<>();
+        if (mediaFile.isFile()) {
             String username = securityService.getCurrentUsernameStrict(request);
             boolean queueFollowingSongs = securityService.getUserSettings(username).isQueueFollowingSongs();
             if (queueFollowingSongs) {
-                MediaFile dir = mediaFileService.getParentOf(file);
-                songs = mediaFileService.getChildrenOf(dir, true, false, true);
-                if (!songs.isEmpty()) {
-                    int index = songs.indexOf(file);
-                    songs = songs.subList(index, songs.size());
-                }
+                mediaFileService.getParent(mediaFile).ifPresentOrElse(parent -> {
+                    List<MediaFile> children = mediaFileService.getChildrenOf(parent, true, false, true);
+                    if (!children.isEmpty()) {
+                        int index = children.indexOf(mediaFile);
+                        songs.addAll(children.subList(index, children.size()));
+                    }
+                }, () -> songs.add(mediaFile));
             } else {
-                songs = Arrays.asList(file);
+                songs.add(mediaFile);
             }
         } else {
-            songs = mediaFileService.getDescendantsOf(file, true);
+            songs.addAll(mediaFileService.getDescendantsOf(mediaFile, true));
         }
         return doPlay(request, player, songs).startPlayerAtAndGetInfo(0);
     }
