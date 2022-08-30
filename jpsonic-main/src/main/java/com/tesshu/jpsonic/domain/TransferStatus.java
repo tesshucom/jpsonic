@@ -38,12 +38,6 @@ public class TransferStatus implements Serializable {
     private static final int HISTORY_LENGTH = 200;
     private static final long SAMPLE_INTERVAL_MILLIS = 5000;
 
-    /*
-     * History-only locking is sufficient on this class of legacy design. If have problems with synchronization
-     * restrictions, the constructor design should be reviewed. Signed-off-by: tesshucom <webmaster@tesshu.com>
-     */
-    private static final Object HISTORY_LOCK = new Object();
-
     private transient Player player;
     private String pathString;
     private final AtomicLong bytesTransfered;
@@ -52,6 +46,7 @@ public class TransferStatus implements Serializable {
     private final SampleHistory history;
     private boolean terminated;
     private boolean active;
+    private final Object historyLock = new Object();
 
     public TransferStatus() {
         bytesTransfered = new AtomicLong();
@@ -70,7 +65,7 @@ public class TransferStatus implements Serializable {
     }
 
     public void setBytesTransfered(long bytesTransfered) {
-        synchronized (HISTORY_LOCK) {
+        synchronized (historyLock) {
             this.bytesTransfered.set(bytesTransfered);
             createSample(bytesTransfered, false);
         }
@@ -90,7 +85,7 @@ public class TransferStatus implements Serializable {
     }
 
     public long getMillisSinceLastUpdate() {
-        synchronized (HISTORY_LOCK) {
+        synchronized (historyLock) {
             if (history.isEmpty()) {
                 return 0L;
             }
@@ -139,7 +134,7 @@ public class TransferStatus implements Serializable {
     }
 
     public SampleHistory getHistory() {
-        synchronized (HISTORY_LOCK) {
+        synchronized (historyLock) {
             return new SampleHistory(HISTORY_LENGTH, history);
         }
     }
@@ -159,11 +154,13 @@ public class TransferStatus implements Serializable {
     }
 
     public boolean isActive() {
-        return active;
+        synchronized (historyLock) {
+            return active;
+        }
     }
 
     public void setActive(boolean active) {
-        synchronized (HISTORY_LOCK) {
+        synchronized (historyLock) {
             this.active = active;
             if (active) {
                 bytesSkipped.set(0);
@@ -196,7 +193,7 @@ public class TransferStatus implements Serializable {
     @Override
     public String toString() {
         return "TransferStatus-" + hashCode() + " [player: " + player.getId() + ", path: " + pathString
-                + ", terminated: " + terminated + ", active: " + active + "]";
+                + ", terminated: " + terminated + ", active: " + isActive() + "]";
     }
 
     @SuppressWarnings("serial")

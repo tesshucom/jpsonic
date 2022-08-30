@@ -22,7 +22,6 @@ package com.tesshu.jpsonic.service.upnp.processor;
 import java.net.URI;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -44,11 +43,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Component
 public class UpnpProcessorUtil {
 
-    private static final Object LOCK = new Object();
-    private static final AtomicBoolean RESOURCE_LOADED = new AtomicBoolean();
-
-    private static ResourceBundle resourceBundle;
-
     private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
@@ -56,6 +50,7 @@ public class UpnpProcessorUtil {
     private final PlayerService playerService;
     private final TranscodingService transcodingService;
     private final JpsonicComparators comparators;
+    private final ResourceBundle resourceBundle;
 
     public UpnpProcessorUtil(SettingsService ss, MusicFolderService mfs, SecurityService securityService,
             JpsonicComparators c, JWTSecurityService jwt, PlayerService playerService, TranscodingService ts) {
@@ -66,6 +61,8 @@ public class UpnpProcessorUtil {
         comparators = c;
         this.playerService = playerService;
         transcodingService = ts;
+        resourceBundle = ResourceBundle.getBundle("com.tesshu.jpsonic.i18n.ResourceBundle",
+                settingsService.getLocale());
     }
 
     public UriComponentsBuilder addJWTToken(UriComponentsBuilder builder) {
@@ -106,13 +103,6 @@ public class UpnpProcessorUtil {
     }
 
     public String getResource(String key) {
-        if (!RESOURCE_LOADED.get()) {
-            synchronized (LOCK) {
-                resourceBundle = ResourceBundle.getBundle("com.tesshu.jpsonic.i18n.ResourceBundle",
-                        settingsService.getLocale());
-                RESOURCE_LOADED.set(true);
-            }
-        }
         return resourceBundle.getString(key);
     }
 

@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import com.tesshu.jpsonic.ThreadSafe;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
@@ -40,6 +41,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.LoggerFactory;
 
+@ThreadSafe(enableChecks = false)
 public final class ComplementaryFilter extends TokenFilter {
 
     private static final AtomicBoolean STOPWORD_LOADED = new AtomicBoolean();
@@ -93,12 +95,12 @@ public final class ComplementaryFilter extends TokenFilter {
             synchronized (LOCK) {
                 try (Reader reader = getReafer(getClass())) {
                     CharArraySet stops = WordlistLoader.getWordSet(reader, "#", new CharArraySet(16, true));
-                    StringBuffer buffer = new StringBuffer();
+                    StringBuilder sb = new StringBuilder();
                     stops.forEach(s -> {
-                        buffer.append((char[]) s);
-                        buffer.append('|');
+                        sb.append((char[]) s);
+                        sb.append('|');
                     });
-                    onlyStopWords = Pattern.compile("^(" + buffer.toString().replaceAll("^\\||\\|$", "") + ")*$");
+                    onlyStopWords = Pattern.compile("^(" + sb.toString().replaceAll("^\\||\\|$", "") + ")*$");
                 } catch (IOException e) {
                     LoggerFactory.getLogger(ComplementaryFilter.class).error("Initialization error.", e);
                 }

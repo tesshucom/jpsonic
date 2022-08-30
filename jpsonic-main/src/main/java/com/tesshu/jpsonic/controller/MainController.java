@@ -23,7 +23,6 @@ package com.tesshu.jpsonic.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
@@ -292,7 +291,7 @@ public class MainController {
     }
 
     private List<MediaFile> getAncestors(MediaFile dir) {
-        LinkedList<MediaFile> result = new LinkedList<>();
+        List<MediaFile> result = new ArrayList<>();
         if (securityService.isInPodcastFolder(dir.toPath())) {
             // For podcasts, don't use ancestors
             return result;
@@ -300,7 +299,7 @@ public class MainController {
 
         MediaFile parent = mediaFileService.getParentOf(dir);
         while (parent != null && !mediaFileService.isRoot(parent)) {
-            result.addFirst(parent);
+            result.add(parent);
             parent = mediaFileService.getParentOf(parent);
         }
         return result;

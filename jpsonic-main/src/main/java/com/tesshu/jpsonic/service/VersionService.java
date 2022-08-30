@@ -30,9 +30,9 @@ import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -44,6 +44,7 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tesshu.jpsonic.domain.Version;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
@@ -68,10 +69,6 @@ public class VersionService {
     private static final Logger LOG = LoggerFactory.getLogger(VersionService.class);
     private static final ThreadLocal<DateFormat> DATE_FORMAT = ThreadLocal
             .withInitial(() -> new SimpleDateFormat("yyyyMMdd", Locale.US));
-    private static final Object LATEST_LOCK = new Object();
-    private static final Object LOCAL_VERSION_LOCK = new Object();
-    private static final Object LOCAL_BUILD_DATE = new Object();
-    private static final Object LOCAL_BUILD_NUMBER_LOCK = new Object();
     private static final Pattern VERSION_REGEX = Pattern.compile("^v(.*)");
     private static final String VERSION_URL = "https://api.github.com/repos/jpsonic/jpsonic/releases";
 
@@ -81,6 +78,11 @@ public class VersionService {
     private static final long LAST_VERSION_FETCH_INTERVAL = 7L * 24L * 3600L * 1000L; // One week
 
     private final SettingsService settingsService;
+
+    private final Object latestLock = new Object();
+    private final Object localVersionLock = new Object();
+    private final Object localBuildDateLock = new Object();
+    private final Object localBuildNumberLock = new Object();
 
     private Version latestFinalVersion;
     private Version latestBetaVersion;
@@ -104,15 +106,15 @@ public class VersionService {
      * @return The version number for the locally installed Jpsonic version.
      */
     public Version getLocalVersion() {
-        synchronized (LOCAL_VERSION_LOCK) {
+        synchronized (localVersionLock) {
             if (localVersion == null) {
                 localVersion = new Version(readLineFromResource("/version.txt"));
                 if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
                     LOG.info("Resolved local Jpsonic version to: " + localVersion);
                 }
             }
+            return localVersion;
         }
-        return localVersion;
     }
 
     /**
@@ -144,7 +146,7 @@ public class VersionService {
      *         resolved.
      */
     public Date getLocalBuildDate() {
-        synchronized (LOCAL_BUILD_DATE) {
+        synchronized (localBuildDateLock) {
             if (localBuildDate == null) {
                 try {
                     String date = readLineFromResource("/build_date.txt");
@@ -157,8 +159,8 @@ public class VersionService {
                     }
                 }
             }
+            return localBuildDate;
         }
-        return localBuildDate;
     }
 
     /**
@@ -168,12 +170,12 @@ public class VersionService {
      *         can't be resolved.
      */
     public String getLocalBuildNumber() {
-        synchronized (LOCAL_BUILD_NUMBER_LOCK) {
+        synchronized (localBuildNumberLock) {
             if (localBuildNumber == null) {
                 localBuildNumber = readLineFromResource("/build_number.txt");
             }
+            return localBuildNumber;
         }
-        return localBuildNumber;
     }
 
     /**
@@ -252,7 +254,7 @@ public class VersionService {
      */
     private void readLatestVersion() throws IOException {
 
-        synchronized (LATEST_LOCK) {
+        synchronized (latestLock) {
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Starting to read latest version");
@@ -272,9 +274,12 @@ public class VersionService {
                 return;
             }
 
-            List<String> unsortedTags = new LinkedList<>();
+            List<String> unsortedTags = new ArrayList<>();
             for (JsonNode item : new ObjectMapper().readTree(content)) {
-                unsortedTags.add(item.path("tag_name").asText());
+                String tagName = item.path("tag_name").asText();
+                if (!StringUtils.isEmpty(tagName)) {
+                    unsortedTags.add(tagName);
+                }
             }
 
             Function<String, Version> convertToVersion = s -> {

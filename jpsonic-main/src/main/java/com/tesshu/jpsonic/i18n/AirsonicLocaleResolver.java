@@ -43,10 +43,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class AirsonicLocaleResolver implements org.springframework.web.servlet.LocaleResolver {
 
-    private static final Object LOCK = new Object();
-
     private final SecurityService securityService;
     private final SettingsService settingsService;
+    private final Object lock = new Object();
 
     private Set<Locale> locales;
 
@@ -108,7 +107,7 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
      * @return Whether the locale exists.
      */
     private boolean localeExists(Locale locale) {
-        synchronized (LOCK) {
+        synchronized (lock) {
             if (locales == null) {
                 locales = Arrays.stream(settingsService.getAvailableLocales()).collect(Collectors.toSet());
             }

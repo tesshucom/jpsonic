@@ -56,11 +56,6 @@ import org.springframework.stereotype.Service;
 @DependsOn("mediaFileService")
 public class StatusService {
 
-    private static final Object STREAM_LOCK = new Object();
-    private static final Object DOWNLOAD_LOCK = new Object();
-    private static final Object UPLOAD_LOCK = new Object();
-    private static final Object REMOTE_LOCK = new Object();
-
     private final MediaFileService mediaFileService;
     private final transient List<TransferStatus> streamStatuses;
     private final transient List<TransferStatus> downloadStatuses;
@@ -69,6 +64,11 @@ public class StatusService {
 
     // Maps from player ID to latest inactive stream status.
     private final Map<Integer, TransferStatus> inactiveStreamStatuses;
+
+    private final Object streamLock = new Object();
+    private final Object downloadLock = new Object();
+    private final Object uploadLock = new Object();
+    private final Object remotelock = new Object();
 
     public StatusService(MediaFileService mediaFileService) {
         this.mediaFileService = mediaFileService;
@@ -80,7 +80,7 @@ public class StatusService {
     }
 
     public TransferStatus createStreamStatus(Player player) {
-        synchronized (STREAM_LOCK) {
+        synchronized (streamLock) {
             // Reuse existing status, if possible.
             TransferStatus status = inactiveStreamStatuses.get(player.getId());
             if (status == null) {
@@ -93,7 +93,7 @@ public class StatusService {
     }
 
     public void removeStreamStatus(TransferStatus status) {
-        synchronized (STREAM_LOCK) {
+        synchronized (streamLock) {
             // Move it to the map of inactive statuses.
             status.setActive(false);
             inactiveStreamStatuses.put(status.getPlayer().getId(), status);
@@ -102,7 +102,7 @@ public class StatusService {
     }
 
     public List<TransferStatus> getAllStreamStatuses() {
-        synchronized (STREAM_LOCK) {
+        synchronized (streamLock) {
 
             List<TransferStatus> result = new ArrayList<>(streamStatuses);
 
@@ -122,7 +122,7 @@ public class StatusService {
     }
 
     public List<TransferStatus> getStreamStatusesForPlayer(Player player) {
-        synchronized (STREAM_LOCK) {
+        synchronized (streamLock) {
             List<TransferStatus> result = new ArrayList<>();
             for (TransferStatus status : streamStatuses) {
                 if (status.getPlayer().getId().equals(player.getId())) {
@@ -143,43 +143,43 @@ public class StatusService {
     }
 
     public TransferStatus createDownloadStatus(Player player) {
-        synchronized (DOWNLOAD_LOCK) {
+        synchronized (downloadLock) {
             return createStatus(player, downloadStatuses);
         }
     }
 
     public void removeDownloadStatus(TransferStatus status) {
-        synchronized (DOWNLOAD_LOCK) {
+        synchronized (downloadLock) {
             downloadStatuses.remove(status);
         }
     }
 
     public List<TransferStatus> getAllDownloadStatuses() {
-        synchronized (DOWNLOAD_LOCK) {
+        synchronized (downloadLock) {
             return unmodifiableList(downloadStatuses);
         }
     }
 
     public TransferStatus createUploadStatus(Player player) {
-        synchronized (UPLOAD_LOCK) {
+        synchronized (uploadLock) {
             return createStatus(player, uploadStatuses);
         }
     }
 
     public void removeUploadStatus(TransferStatus status) {
-        synchronized (UPLOAD_LOCK) {
+        synchronized (uploadLock) {
             uploadStatuses.remove(status);
         }
     }
 
     public List<TransferStatus> getAllUploadStatuses() {
-        synchronized (UPLOAD_LOCK) {
+        synchronized (uploadLock) {
             return unmodifiableList(uploadStatuses);
         }
     }
 
     public void addRemotePlay(PlayStatus playStatus) {
-        synchronized (REMOTE_LOCK) {
+        synchronized (remotelock) {
             remotePlays.removeIf(PlayStatus::isExpired);
             remotePlays.add(playStatus);
         }
@@ -187,8 +187,8 @@ public class StatusService {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Date, PlayStatus) Not reusable
     public List<PlayStatus> getPlayStatuses() {
-        synchronized (STREAM_LOCK) {
-            synchronized (REMOTE_LOCK) {
+        synchronized (streamLock) {
+            synchronized (remotelock) {
 
                 Map<Integer, PlayStatus> result = new LinkedHashMap<>();
                 for (PlayStatus remotePlay : remotePlays) {

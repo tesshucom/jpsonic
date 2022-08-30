@@ -25,7 +25,6 @@ import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.text.Normalizer;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,6 +35,7 @@ import java.util.stream.Stream;
 import com.atilika.kuromoji.ipadic.Token;
 import com.atilika.kuromoji.ipadic.Tokenizer;
 import com.ibm.icu.text.Transliterator;
+import com.tesshu.jpsonic.ThreadSafe;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.commons.lang3.StringUtils;
@@ -43,13 +43,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
 
 /**
  * Provide analysis of Japanese name.
  */
 @Component
 @DependsOn({ "settingsService" })
+@ThreadSafe(enableChecks = false)
 public class JapaneseReadingUtils {
 
     public static final Pattern ALPHA = Pattern.compile("^[a-zA-Zａ-ｚＡ-Ｚ]+$");
@@ -63,8 +63,6 @@ public class JapaneseReadingUtils {
     private final Tokenizer tokenizer;
     private final Map<String, String> readingMap;
     private final Map<String, String> truncatedReadingMap;
-
-    private List<String> ignoredArticles;
 
     public static boolean isPunctuation(char ch) {
         switch (Character.getType(ch)) {
@@ -239,22 +237,22 @@ public class JapaneseReadingUtils {
 
     private static String capitalize(@NonNull List<ReadingResult> tokens) {
         String reading;
-        StringBuffer buf = new StringBuffer(StringUtils.capitalize(tokens.get(0).reading));
+        StringBuilder sb = new StringBuilder(StringUtils.capitalize(tokens.get(0).reading));
         for (int pos = 1; pos < tokens.size(); pos++) {
             if (Tag.of(tokens.get(pos - 1).token.getPartOfSpeechLevel1()) == Tag.POSTPOSITIONAL_PARTICLE
                     && Tag.of(tokens.get(pos - 1).token.getPartOfSpeechLevel2()) != Tag.MULTI_PARTICLE
                     || tokens.get(pos - 1).reading.endsWith(SPACE)
                     || Tag.of(tokens.get(pos - 1).token.getPartOfSpeechLevel1()) == Tag.SYMBOL) {
                 if (isJapaneseReading(tokens.get(pos).token.getBaseForm())) {
-                    buf.append(StringUtils.capitalize(tokens.get(pos).reading));
+                    sb.append(StringUtils.capitalize(tokens.get(pos).reading));
                 } else {
-                    buf.append(tokens.get(pos).reading);
+                    sb.append(tokens.get(pos).reading);
                 }
             } else {
-                buf.append(tokens.get(pos).reading);
+                sb.append(tokens.get(pos).reading);
             }
         }
-        reading = romanize(buf.toString());
+        reading = romanize(sb.toString());
         if (!reading.isBlank()) {
             reading = reading.replaceAll("\\s+", SPACE).replaceAll(SPACE + "$", "");
         }
@@ -393,10 +391,7 @@ public class JapaneseReadingUtils {
             return null;
         }
         String result = s;
-        if (ObjectUtils.isEmpty(ignoredArticles)) {
-            ignoredArticles = Arrays.asList(settingsService.getIgnoredArticles().split("\\s+"));
-        }
-        for (String article : ignoredArticles) {
+        for (String article : settingsService.getIgnoredArticlesAsArray()) {
             if (StringUtils.startsWithIgnoreCase(s, article + SPACE)) {
                 // reading = lower.substring(article.length() + 1) + ", " + article;
                 result = result.substring(article.length() + 1);

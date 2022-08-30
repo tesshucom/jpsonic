@@ -38,11 +38,10 @@ import org.springframework.stereotype.Service;
 @DependsOn({ "settingsService", "shortExecutor" })
 public class AudioScrobblerService {
 
-    private static final Object FM_LOCK = new Object();
-    private static final Object BRAINZ_LOCK = new Object();
-
     private final SecurityService securityService;
     private final Executor shortExecutor;
+    private final Object fmLock = new Object();
+    private final Object brainzLock = new Object();
 
     private LastFMScrobbler lastFMScrobbler;
     private ListenBrainzScrobbler listenBrainzScrobbler;
@@ -73,23 +72,23 @@ public class AudioScrobblerService {
         UserSettings userSettings = securityService.getUserSettings(username);
         if (userSettings.isLastFmEnabled() && userSettings.getLastFmUsername() != null
                 && userSettings.getLastFmPassword() != null) {
-            synchronized (FM_LOCK) {
+            synchronized (fmLock) {
                 if (lastFMScrobbler == null) {
                     lastFMScrobbler = new LastFMScrobbler();
                 }
+                lastFMScrobbler.register(mediaFile, userSettings.getLastFmUsername(), userSettings.getLastFmPassword(),
+                        submission, time, shortExecutor);
             }
-            lastFMScrobbler.register(mediaFile, userSettings.getLastFmUsername(), userSettings.getLastFmPassword(),
-                    submission, time, shortExecutor);
         }
 
         if (userSettings.isListenBrainzEnabled() && userSettings.getListenBrainzToken() != null) {
-            synchronized (BRAINZ_LOCK) {
+            synchronized (brainzLock) {
                 if (listenBrainzScrobbler == null) {
                     listenBrainzScrobbler = new ListenBrainzScrobbler();
                 }
+                listenBrainzScrobbler.register(mediaFile, userSettings.getListenBrainzToken(), submission, time,
+                        shortExecutor);
             }
-            listenBrainzScrobbler.register(mediaFile, userSettings.getListenBrainzToken(), submission, time,
-                    shortExecutor);
         }
     }
 

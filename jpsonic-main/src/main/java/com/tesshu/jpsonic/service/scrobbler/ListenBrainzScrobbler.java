@@ -52,9 +52,9 @@ public class ListenBrainzScrobbler {
 
     private static final Logger LOG = LoggerFactory.getLogger(ListenBrainzScrobbler.class);
     private static final int MAX_PENDING_REGISTRATION = 2000;
-    private static final Object REGISTRATION_LOCK = new Object();
 
     private final LinkedBlockingQueue<RegistrationData> queue;
+    private final Object registrationLock = new Object();
 
     private RegistrationTask task;
 
@@ -82,7 +82,7 @@ public class ListenBrainzScrobbler {
      */
     public void register(MediaFile mediaFile, String token, boolean submission, Date time, Executor executor) {
 
-        synchronized (REGISTRATION_LOCK) {
+        synchronized (registrationLock) {
 
             if (task == null) {
                 task = new RegistrationTask(queue);

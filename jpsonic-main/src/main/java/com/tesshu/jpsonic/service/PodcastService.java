@@ -94,8 +94,6 @@ public class PodcastService {
     private static final Namespace[] ITUNES_NAMESPACES = {
             Namespace.getNamespace("http://www.itunes.com/DTDs/Podcast-1.0.dtd"),
             Namespace.getNamespace("http://www.itunes.com/dtds/podcast-1.0.dtd") };
-    private static final Object EPISODES_LOCK = new Object();
-    private static final Object FILE_LOCK = new Object();
     private static final long DURATION_FORMAT_THRESHOLD = 3600;
 
     private final PodcastDao podcastDao;
@@ -107,6 +105,8 @@ public class PodcastService {
     private final ThreadPoolTaskExecutor podcastRefreshExecutor;
 
     private final AtomicBoolean destroy = new AtomicBoolean();
+    private final Object episodesLock = new Object();
+    private final Object fileLock = new Object();
 
     public PodcastService(PodcastDao podcastDao, SettingsService settingsService, SecurityService securityService,
             MediaFileService mediaFileService, MetaDataParserFactory metaDataParserFactory,
@@ -123,7 +123,7 @@ public class PodcastService {
     @PostConstruct
     public void init() {
         // Clean up partial downloads.
-        synchronized (EPISODES_LOCK) {
+        synchronized (episodesLock) {
             getAllChannels().forEach(channel -> getEpisodes(channel.getId()).forEach(episode -> {
                 if (episode.getStatus() == PodcastStatus.DOWNLOADING) {
                     deleteEpisode(episode.getId(), false);
@@ -584,7 +584,7 @@ public class PodcastService {
             return;
         }
 
-        synchronized (EPISODES_LOCK) {
+        synchronized (episodesLock) {
 
             if (isEpisodeDeleted(episode)) {
                 writeInfo("Podcast " + episode.getUrl() + " was deleted. Aborting download.");
@@ -601,7 +601,7 @@ public class PodcastService {
                 try (CloseableHttpResponse response = client.execute(httpGet);
                         InputStream in = response.getEntity().getContent()) {
 
-                    synchronized (FILE_LOCK) {
+                    synchronized (fileLock) {
 
                         Path path = getFile(channel, episode);
                         episode.setStatus(PodcastStatus.DOWNLOADING);
@@ -679,7 +679,7 @@ public class PodcastService {
     }
 
     private void deleteObsoleteEpisodes(PodcastChannel channel) {
-        synchronized (EPISODES_LOCK) {
+        synchronized (episodesLock) {
             int episodeCount = settingsService.getPodcastEpisodeRetentionCount();
             if (episodeCount == -1) {
                 return;
@@ -786,7 +786,7 @@ public class PodcastService {
 
         String episodePath = episode.getPath();
         if (episodePath != null) {
-            synchronized (FILE_LOCK) {
+            synchronized (fileLock) {
                 FileUtil.deleteIfExists(Path.of(episodePath));
             }
         }

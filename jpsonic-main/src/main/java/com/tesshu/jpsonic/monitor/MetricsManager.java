@@ -38,7 +38,7 @@ public class MetricsManager {
     // Main metrics registry
     private static final MetricRegistry METRICS = new MetricRegistry();
     private static final AtomicBoolean METRICS_ACTIVATED_BY_CONFIGURATION = new AtomicBoolean(false);
-    private static final Object LOCK = new Object();
+    private final Object lock = new Object();
     // -----------------------------------------------------------------
     // Convenient singletons to avoid creating useless objects instances
     // -----------------------------------------------------------------
@@ -71,7 +71,7 @@ public class MetricsManager {
 
     private boolean isMetricsActivatedByConfiguration() {
         if (!METRICS_ACTIVATED_BY_CONFIGURATION.get()) {
-            synchronized (LOCK) {
+            synchronized (lock) {
                 if (!METRICS_ACTIVATED_BY_CONFIGURATION.get()) {
                     configureMetricsActivation();
                 }
