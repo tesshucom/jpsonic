@@ -26,7 +26,7 @@
         <pmd.version>6.48.0</pmd.version>
         <log4j.version>2.18.0</log4j.version>
         <logback.version>1.2.11</logback.version>
-        <slf4j.version>1.7.36</slf4j.version>
+        <slf4j.version>2.0.0</slf4j.version>
         <antlr.version>4.10.1</antlr.version>
         <docker.container.repo>jpsonic/jpsonic</docker.container.repo>
     </properties>
