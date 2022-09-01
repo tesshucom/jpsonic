@@ -67,7 +67,7 @@ public class PodcastReceiverAdminController {
 
         final Integer channelId = ServletRequestUtils.getIntParameter(request, Attributes.Request.CHANNEL_ID.value());
         if (!isEmpty(request.getParameter(Attributes.Request.REFRESH.value()))) {
-            if (isEmpty(channelId)) {
+            if (channelId == null) {
                 podcastService.refreshAllChannels(true);
                 return createModelAndView();
             } else {
@@ -91,7 +91,7 @@ public class PodcastReceiverAdminController {
             return createRedirect(channelId);
         }
 
-        if (!isEmpty(request.getParameter(Attributes.Request.DELETE_CHANNEL.value()))) {
+        if (!isEmpty(request.getParameter(Attributes.Request.DELETE_CHANNEL.value())) && channelId != null) {
             podcastService.deleteChannel(channelId);
         }
 
