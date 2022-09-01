@@ -22,7 +22,6 @@
 package com.tesshu.jpsonic.controller;
 
 import java.util.Map;
-import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -31,12 +30,14 @@ import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
+@RequestMapping({ "/index", "/index.view" })
 public class IndexController {
 
     private final SecurityService securityService;
@@ -46,12 +47,21 @@ public class IndexController {
         this.securityService = securityService;
     }
 
-    @RequestMapping(value = { "/index", "/index.view" }, method = { RequestMethod.GET, RequestMethod.POST })
-    public ModelAndView index(HttpServletRequest request, @RequestParam("mainView") Optional<String> mainView) {
-        UserSettings userSettings = securityService.getUserSettings(securityService.getCurrentUsernameStrict(request));
-        Map<String, Object> model = LegacyMap.of("keyboardShortcutsEnabled", userSettings.isKeyboardShortcutsEnabled(),
-                "showLeft", userSettings.isCloseDrawer(), "brand", SettingsService.getBrand());
-        mainView.ifPresent(v -> model.put("mainView", v));
+    @GetMapping
+    public ModelAndView get(HttpServletRequest request) {
+        return new ModelAndView("index", "model", createModel(request));
+    }
+
+    @PostMapping
+    public ModelAndView post(HttpServletRequest request, @RequestParam("mainView") String mainView) {
+        Map<String, Object> model = createModel(request);
+        model.put("mainView", mainView);
         return new ModelAndView("index", "model", model);
+    }
+
+    private Map<String, Object> createModel(HttpServletRequest request) {
+        UserSettings userSettings = securityService.getUserSettings(securityService.getCurrentUsernameStrict(request));
+        return LegacyMap.of("keyboardShortcutsEnabled", userSettings.isKeyboardShortcutsEnabled(), "showLeft",
+                userSettings.isCloseDrawer(), "brand", SettingsService.getBrand());
     }
 }
