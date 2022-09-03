@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>111.4.3</version>
+    <version>111.4.4</version>
     <name>Jpsonic</name>
     <packaging>pom</packaging>
     <organization>
@@ -23,7 +23,7 @@
         <jetty.schema.version>3.1.2</jetty.schema.version>
         <jetty.version>10.0.11</jetty.version>
         <jetty-jsp.version>10.0.11</jetty-jsp.version>
-        <pmd.version>6.48.0</pmd.version>
+        <pmd.version>6.49.0</pmd.version>
         <log4j.version>2.18.0</log4j.version>
         <logback.version>1.2.11</logback.version>
         <slf4j.version>1.7.36</slf4j.version>
@@ -106,6 +106,11 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>1.31</version>
+            </dependency>
 
             <!-- Spring Boot is slow to fix CVE, so some libraries will be overridden. -->
             <dependency>
@@ -185,7 +190,7 @@
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
                 <scope>compile</scope>
-                <version>3.24.0</version>
+                <version>3.25.0</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
@@ -418,7 +423,7 @@
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
                             <artifactId>checkstyle</artifactId>
-                            <version>10.3.2</version>
+                            <version>10.3.3</version>
                         </dependency>
                     </dependencies>
                     <configuration>
@@ -716,6 +721,9 @@
                         <id>enforce</id>
                         <configuration>
                             <rules>
+                                <requireMavenVersion>
+                                    <version>3.8.6</version>
+                                </requireMavenVersion>
                                 <dependencyConvergence/>
                             </rules>
                         </configuration>
