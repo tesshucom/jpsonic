@@ -41,6 +41,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.eclipse.persistence.jaxb.JAXBContext;
 import org.eclipse.persistence.jaxb.MarshallerProperties;
@@ -119,6 +120,7 @@ public class JAXBWriter {
         return response;
     }
 
+    @SuppressFBWarnings(value = "XSS_SERVLET", justification = "Limited threat. It's not a free-for-all can write, and APIs are mostly not used by browsers.")
     public void writeResponse(HttpServletRequest request, HttpServletResponse httpResponse, Response jaxbResponse) {
 
         String format = getStringParameter(request, Attributes.Request.F.value(), "xml");
