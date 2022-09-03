@@ -51,6 +51,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TopDocs;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -130,7 +131,7 @@ public class SearchServiceImpl implements SearchService {
         result.setOffset(offset);
 
         IndexType indexType = searchableIndex(criteria);
-        if (count <= 0 || isEmpty(indexType)) {
+        if (count <= 0 || indexType == null) {
             return result;
         }
 
@@ -188,7 +189,7 @@ public class SearchServiceImpl implements SearchService {
         }
     }
 
-    private IndexType searchableIndex(UPnPSearchCriteria criteria) {
+    private @Nullable IndexType searchableIndex(UPnPSearchCriteria criteria) {
         IndexType indexType = null;
         if (Artist.class == criteria.getAssignableClass()) {
             indexType = IndexType.ARTIST_ID3;

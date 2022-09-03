@@ -596,6 +596,11 @@ public class PodcastService {
             try (CloseableHttpClient client = HttpClients.createDefault()) {
 
                 PodcastChannel channel = getChannel(episode.getChannelId());
+                if (channel == null) {
+                    writeInfo("Podcast channel for " + episode.getUrl() + " was deleted. Aborting download.");
+                    return;
+                }
+
                 HttpGet httpGet = createHttpGet(episode.getUrl());
 
                 try (CloseableHttpResponse response = client.execute(httpGet);

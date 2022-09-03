@@ -204,7 +204,7 @@ class RecoverControllerTest {
 
         MockHttpServletRequest req = new MockHttpServletRequest();
         req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ServiceMockUtils.ADMIN_NAME);
-        ModelAndView modelAndView = controller.recover(req);
+        ModelAndView modelAndView = controller.post(req);
         @SuppressWarnings("unchecked")
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
 
@@ -229,7 +229,7 @@ class RecoverControllerTest {
 
         MockHttpServletRequest req = new MockHttpServletRequest();
         req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ServiceMockUtils.ADMIN_NAME);
-        ModelAndView modelAndView = controller.recover(req);
+        ModelAndView modelAndView = controller.post(req);
         @SuppressWarnings("unchecked")
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
 
@@ -257,7 +257,7 @@ class RecoverControllerTest {
 
         MockHttpServletRequest req = new MockHttpServletRequest();
         req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ServiceMockUtils.ADMIN_NAME);
-        ModelAndView modelAndView = controller.recover(req);
+        ModelAndView modelAndView = controller.post(req);
         @SuppressWarnings("unchecked")
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
 
@@ -287,7 +287,7 @@ class RecoverControllerTest {
 
         MockHttpServletRequest req = new MockHttpServletRequest();
         req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ServiceMockUtils.ADMIN_NAME);
-        ModelAndView modelAndView = controller.recover(req);
+        ModelAndView modelAndView = controller.post(req);
         @SuppressWarnings("unchecked")
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
 
@@ -317,7 +317,7 @@ class RecoverControllerTest {
 
         MockHttpServletRequest req = new MockHttpServletRequest();
         req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ServiceMockUtils.ADMIN_NAME);
-        ModelAndView modelAndView = controller.recover(req);
+        ModelAndView modelAndView = controller.post(req);
         @SuppressWarnings("unchecked")
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
 
@@ -349,7 +349,7 @@ class RecoverControllerTest {
 
         MockHttpServletRequest req = new MockHttpServletRequest();
         req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ServiceMockUtils.ADMIN_NAME);
-        ModelAndView modelAndView = controller.recover(req);
+        ModelAndView modelAndView = controller.post(req);
         @SuppressWarnings("unchecked")
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
 
@@ -381,7 +381,7 @@ class RecoverControllerTest {
 
         MockHttpServletRequest req = new MockHttpServletRequest();
         req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ServiceMockUtils.ADMIN_NAME);
-        ModelAndView modelAndView = controller.recover(req);
+        ModelAndView modelAndView = controller.post(req);
         @SuppressWarnings("unchecked")
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get(ATTR_MODEL);
 

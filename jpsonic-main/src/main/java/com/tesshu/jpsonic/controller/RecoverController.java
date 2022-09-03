@@ -36,8 +36,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
@@ -65,39 +66,43 @@ public class RecoverController {
         this.random = new SecureRandom();
     }
 
-    @RequestMapping(method = { RequestMethod.GET, RequestMethod.POST })
+    @GetMapping
+    public ModelAndView get(HttpServletRequest request) {
+        Map<String, Object> map = LegacyMap.of();
+        if (settingsService.isCaptchaEnabled()) {
+            map.put("recaptchaSiteKey", settingsService.getRecaptchaSiteKey());
+        }
+        return new ModelAndView("recover", "model", map);
+    }
+
+    @PostMapping
     @SuppressLint(value = "CROSS_SITE_SCRIPTING", justification = "No unnecessary sanitization here.")
-    public ModelAndView recover(HttpServletRequest request) {
+    public ModelAndView post(HttpServletRequest request) {
 
         Map<String, Object> map = LegacyMap.of();
         String usernameOrEmail = StringUtils
                 .trimToNull(request.getParameter(Attributes.Request.USERNAME_OR_EMAIL.value()));
-
-        if (usernameOrEmail != null) {
-
-            map.put(Attributes.Request.USERNAME_OR_EMAIL.value(), usernameOrEmail);
-            User user = recoverService.getUserByUsernameOrEmail(usernameOrEmail);
-
-            String errorMsg = validateParam(request, user);
-            if (errorMsg == null) {
-                StringBuilder sb = new StringBuilder(PASSWORD_LENGTH);
-                for (int i = 0; i < PASSWORD_LENGTH; i++) {
-                    int index = random.nextInt(SYMBOLS.length());
-                    sb.append(SYMBOLS.charAt(index));
-                }
-                String password = sb.toString();
-
-                if (emailPassword(password, user.getUsername(), user.getEmail())) {
-                    map.put("sentTo", user.getEmail());
-                    user.setLdapAuthenticated(false);
-                    user.setPassword(password);
-                    securityService.updateUser(user);
-                } else {
-                    map.put(Attributes.Model.ERROR.getValue(), "recover.error.sendfailed");
-                }
-            } else {
-                map.put(Attributes.Model.ERROR.getValue(), errorMsg);
+        map.put(Attributes.Request.USERNAME_OR_EMAIL.value(), usernameOrEmail);
+        User user = recoverService.getUserByUsernameOrEmail(usernameOrEmail);
+        String errorMsg = validateParam(request, user);
+        if (errorMsg == null) {
+            StringBuilder sb = new StringBuilder(PASSWORD_LENGTH);
+            for (int i = 0; i < PASSWORD_LENGTH; i++) {
+                int index = random.nextInt(SYMBOLS.length());
+                sb.append(SYMBOLS.charAt(index));
             }
+            String password = sb.toString();
+
+            if (emailPassword(password, user.getUsername(), user.getEmail())) {
+                map.put("sentTo", user.getEmail());
+                user.setLdapAuthenticated(false);
+                user.setPassword(password);
+                securityService.updateUser(user);
+            } else {
+                map.put(Attributes.Model.ERROR.getValue(), "recover.error.sendfailed");
+            }
+        } else {
+            map.put(Attributes.Model.ERROR.getValue(), errorMsg);
         }
 
         if (settingsService.isCaptchaEnabled()) {
