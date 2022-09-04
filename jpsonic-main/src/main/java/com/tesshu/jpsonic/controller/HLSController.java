@@ -84,8 +84,6 @@ public class HLSController {
     public void handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletRequestBindingException, IOException {
 
-        response.setHeader("Access-Control-Allow-Origin", "*");
-
         int id = ServletRequestUtils.getIntParameter(request, Attributes.Request.ID.value(), 0);
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
         if (mediaFile == null) {
