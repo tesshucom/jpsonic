@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.service.metadata;
 
 import static com.tesshu.jpsonic.util.FileUtil.getShortPath;
+import static com.tesshu.jpsonic.util.PlayerUtils.OBJECT_MAPPER;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -35,7 +36,6 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.util.PlayerUtils;
@@ -54,8 +54,6 @@ public class FFprobe {
             "json" };
 
     private static final String CODEC_TYPE_VIDEO = "video";
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private final TranscodingService transcodingService;
 
@@ -164,7 +162,7 @@ public class FFprobe {
             Process process = pb.start();
             try (InputStream is = process.getInputStream(); OutputStream os = process.getOutputStream();
                     InputStream es = process.getErrorStream(); BufferedInputStream bis = new BufferedInputStream(is);) {
-                node = MAPPER.readTree(bis);
+                node = OBJECT_MAPPER.readTree(bis);
             } finally {
                 process.destroy();
             }

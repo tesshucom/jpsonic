@@ -179,11 +179,16 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.13.4</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
@@ -689,13 +694,13 @@
                                 <ignoredUsedUndeclaredDependency>org.eclipse.jetty:*</ignoredUsedUndeclaredDependency>
                                 <ignoredUsedUndeclaredDependency>org.apache.tomcat:*</ignoredUsedUndeclaredDependency>
                                 <ignoredUsedUndeclaredDependency>org.apache.tomcat.embed:*</ignoredUsedUndeclaredDependency>
-                                <ignoredUnusedDeclaredDependency>commons-lang:commons-lang:jar:*</ignoredUnusedDeclaredDependency>
-                                <ignoredUnusedDeclaredDependency>com.drewnoakes:metadata-extractor:jar:*</ignoredUnusedDeclaredDependency>
+                                <ignoredUsedUndeclaredDependency>commons-lang:commons-lang:jar:*</ignoredUsedUndeclaredDependency>
+                                <ignoredUsedUndeclaredDependency>com.drewnoakes:metadata-extractor:jar:*</ignoredUsedUndeclaredDependency>
                             </ignoredUsedUndeclaredDependencies>
                             <ignoredUnusedDeclaredDependencies>
                                 <ignoredUnusedDeclaredDependency>org.springframework.security:*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.springframework.boot:*</ignoredUnusedDeclaredDependency>
-                                <ignoredUsedUndeclaredDependency>org.eclipse.jetty:*</ignoredUsedUndeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>org.eclipse.jetty:*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>javax.annotation:javax.annotation-api:jar:*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>jakarta.xml.bind:jakarta.xml.bind-api:jar:*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>jakarta.servlet.jsp:jakarta.servlet.jsp-api:jar:*</ignoredUnusedDeclaredDependency>
@@ -708,6 +713,7 @@
                                 <ignoredUnusedDeclaredDependency>org.postgresql:postgresql:jar:*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>mysql:mysql-connector-java:jar:*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.mariadb.jdbc:mariadb-java-client:jar:*</ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:*</ignoredUnusedDeclaredDependency>
                             </ignoredUnusedDeclaredDependencies>
                             <ignoredNonTestScopedDependencies>
                                 <!-- Not a test-only scope -->

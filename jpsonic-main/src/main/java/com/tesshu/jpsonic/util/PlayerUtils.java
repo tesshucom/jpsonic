@@ -51,14 +51,12 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public final class PlayerUtils {
 
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).findAndRegisterModules();
+
     private static final Logger LOG = LoggerFactory.getLogger(PlayerUtils.class);
     private static final String URL_SENSITIVE_REPLACEMENT_STRING = "<hidden>";
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final Validator VALIDATOR;
-
-    static {
-        VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
-    }
+    private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
 
     /**
      * Disallow external instantiation.
@@ -127,10 +125,6 @@ public final class PlayerUtils {
             result[i] = values.get(i);
         }
         return result;
-    }
-
-    static {
-        OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     public static String debugObject(Object object) {

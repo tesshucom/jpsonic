@@ -21,6 +21,8 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.OBJECT_MAPPER;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,7 +44,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tesshu.jpsonic.domain.Version;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.ResponseHandler;
@@ -275,7 +276,7 @@ public class VersionService {
             }
 
             List<String> unsortedTags = new ArrayList<>();
-            for (JsonNode item : new ObjectMapper().readTree(content)) {
+            for (JsonNode item : OBJECT_MAPPER.readTree(content)) {
                 String tagName = item.path("tag_name").asText();
                 if (!StringUtils.isEmpty(tagName)) {
                     unsortedTags.add(tagName);
