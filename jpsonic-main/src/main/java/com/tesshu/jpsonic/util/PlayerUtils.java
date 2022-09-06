@@ -21,6 +21,8 @@
 
 package com.tesshu.jpsonic.util;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,10 +60,22 @@ public final class PlayerUtils {
     private static final String URL_SENSITIVE_REPLACEMENT_STRING = "<hidden>";
     private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
 
+    /*
+     * Represents a "far past timestamp". A flag value that may be used as an initial value or when forcibly scanning.
+     * To avoid ArithmeticException, Instant.MIN is not used. https://bugs.openjdk.org/browse/JDK-8169532
+     */
+    public static final Instant FAR_PAST = Instant.EPOCH;
+
     /**
      * Disallow external instantiation.
      */
     private PlayerUtils() {
+    }
+
+    public static Instant now() {
+        // Date precision uses milliseconds.
+        // (hsqldb timestamp precision is milliseconds)
+        return Instant.now().truncatedTo(ChronoUnit.MILLIS);
     }
 
     public static String getDefaultMusicFolder() {
