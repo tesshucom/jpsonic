@@ -22,6 +22,7 @@
 package com.tesshu.jpsonic.controller;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -30,7 +31,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -238,7 +238,7 @@ class SubsonicRESTControllerTest {
     class IntegreationTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays
-                .asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, new Date()));
+                .asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now()));
 
         @Autowired
         private MockMvc mvc;
@@ -895,8 +895,8 @@ class SubsonicRESTControllerTest {
         void testGetPlaylist() throws ExecutionException {
             try {
 
-                Playlist playlist = new Playlist(0, ServiceMockUtils.ADMIN_NAME, false, "name", "comment", 0, 0,
-                        new Date(), new Date(), null);
+                Playlist playlist = new Playlist(0, ServiceMockUtils.ADMIN_NAME, false, "name", "comment", 0, 0, now(),
+                        now(), null);
                 playlistService.createPlaylist(playlist);
 
                 mvc.perform(MockMvcRequestBuilders.get("/rest/getPlaylist")
@@ -971,7 +971,7 @@ class SubsonicRESTControllerTest {
 
                 String playlistName = "UpdatePlaylist";
                 Playlist playlist = new Playlist(0, ServiceMockUtils.ADMIN_NAME, false, playlistName, "comment", 0, 0,
-                        new Date(), new Date(), null);
+                        now(), now(), null);
                 playlistService.createPlaylist(playlist);
                 playlist = playlistService.getAllPlaylists().stream().filter(p -> playlistName.equals(p.getName()))
                         .findFirst().get();
@@ -1013,7 +1013,7 @@ class SubsonicRESTControllerTest {
 
                 String playlistName = "DeletePlaylist";
                 Playlist playlist = new Playlist(0, ServiceMockUtils.ADMIN_NAME, false, playlistName, "comment", 0, 0,
-                        new Date(), new Date(), null);
+                        now(), now(), null);
                 playlistService.createPlaylist(playlist);
                 playlist = playlistService.getAllPlaylists().stream().filter(p -> playlistName.equals(p.getName()))
                         .findFirst().get();

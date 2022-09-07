@@ -21,6 +21,9 @@
 
 package com.tesshu.jpsonic.controller;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -78,8 +81,9 @@ public class PlaylistController {
         Player player = playerService.getPlayer(request, response);
 
         return new ModelAndView("playlist", "model",
-                LegacyMap.of("playlist", playlist, "user", user, "visibility", userSettings.getMainVisibility(),
-                        "player", player, "editAllowed",
+                LegacyMap.of("playlist", playlist, "created",
+                        ZonedDateTime.ofInstant(playlist.getCreated(), ZoneId.systemDefault()), "user", user,
+                        "visibility", userSettings.getMainVisibility(), "player", player, "editAllowed",
                         username.equals(playlist.getUsername()) || securityService.isAdmin(username), "coverArtSize",
                         CoverArtScheme.LARGE.getSize(), "partyMode", userSettings.isPartyModeEnabled(), "simpleDisplay",
                         userSettings.isSimpleDisplay()));

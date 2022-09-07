@@ -34,10 +34,10 @@ $(document).ready(function(){
     <ul class="breadcrumb">
         <c:choose>
             <c:when test="${not empty model.musicFolder}">
-		        <li>${fn:escapeXml(model.musicFolder.name)}</li>
+                <li>${fn:escapeXml(model.musicFolder.name)}</li>
             </c:when>
             <c:otherwise>
-		        <li><fmt:message key='left.allfolders'/></li>
+                <li><fmt:message key='left.allfolders'/></li>
             </c:otherwise>
         </c:choose>
     </ul>
@@ -95,11 +95,11 @@ $(document).ready(function(){
 </section>
 
 <div class="actions">
-	<ul class="controls">
-		<li><a href="javascript:refresh()" title="<fmt:message key='common.refresh'/>" class="control refresh"><fmt:message key="common.refresh"/></a></li>
-		<li><a href="javascript:playShuffle()" title="<fmt:message key='home.shuffle'/>" class="control shuffle"><fmt:message key="home.shuffle"/></a></li>
-	</ul>
-	<c:set var="isFootPager" value="false" />
+    <ul class="controls">
+        <li><a href="javascript:refresh()" title="<fmt:message key='common.refresh'/>" class="control refresh"><fmt:message key="common.refresh"/></a></li>
+        <li><a href="javascript:playShuffle()" title="<fmt:message key='home.shuffle'/>" class="control shuffle"><fmt:message key="home.shuffle"/></a></li>
+    </ul>
+    <c:set var="isFootPager" value="false" />
     <%@ include file="homePager.jsp" %>
 </div>
 
@@ -131,12 +131,14 @@ $(document).ready(function(){
             <c:set var="captionCount" value="3"/>
         </c:if>
         <c:if test="${not empty album.lastPlayed}">
-            <fmt:formatDate value="${album.lastPlayed}" dateStyle="short" var="lastPlayedDate"/>
+            <fmt:parseDate value="${album.lastPlayed}" type="both" pattern="yyyy-MM-dd" var="parsedDate" />
+            <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd" var="lastPlayedDate" />
             <c:set var="caption3"><fmt:message key="home.lastplayed"><fmt:param value="${lastPlayedDate}"/></fmt:message></c:set>
             <c:set var="captionCount" value="3"/>
         </c:if>
         <c:if test="${not empty album.created}">
-            <fmt:formatDate value="${album.created}" dateStyle="short" var="creationDate"/>
+            <fmt:parseDate value="${album.created}" type="both" pattern="yyyy-MM-dd" var="parsedDate" />
+            <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd" var="creationDate" />
             <c:set var="caption3"><fmt:message key="home.created"><fmt:param value="${creationDate}"/></fmt:message></c:set>
             <c:set var="captionCount" value="3"/>
         </c:if>

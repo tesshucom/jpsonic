@@ -10,7 +10,7 @@
 </head>
 <script>
 $(document).ready(function(){
-    initTruncate(".mainframe", ".tabular.playlists", 2, ["name", "created", "comment"]);
+    initTruncate(".mainframe", ".tabular.playlists", 2, ["name", "comment"]);
 });
 </script>
 <body class="mainframe playlists">
@@ -65,7 +65,12 @@ $(document).ready(function(){
                             <td class="name"><span><a href="${targetUrl}" title="${fn:escapeXml(playlist.name)}">${fn:escapeXml(playlist.name)}</a></span></td>
                             <td class="numberofsongs">${playlist.fileCount} <fmt:message key="playlist2.songs"/></td>
                             <td class="duration">${playlist.durationAsString}</td>
-                            <td class="created"><span><fmt:formatDate type="date" dateStyle="long" value="${playlist.created}"/></span></td>
+                            <td class="created">
+                                <span>
+                                    <fmt:parseDate value="${playlist.createdDateTime}" type="both" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" />
+                                    <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd HH:mm:ss" />
+                                </span>
+                            </td>
                             <td class="author">${fn:escapeXml(playlist.username)}</td>
                             <td class="visibility">
                                 <c:choose>

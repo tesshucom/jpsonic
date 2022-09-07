@@ -21,6 +21,7 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
@@ -32,7 +33,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -45,6 +45,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("PMD.TooManyStaticImports")
 class InternetRadioServiceTest {
 
     private static final String TEST_RADIO_NAME = "Test Radio";
@@ -79,15 +80,13 @@ class InternetRadioServiceTest {
         internetRadioService = Mockito.spy(new InternetRadioService(null));
 
         // Prepare a mock InternetRadio object
-        radio1 = new InternetRadio(1, TEST_RADIO_NAME, TEST_PLAYLIST_URL_1, TEST_RADIO_HOMEPAGE, true, new Date());
-        radioMove = new InternetRadio(3, TEST_RADIO_NAME, TEST_PLAYLIST_URL_MOVE, TEST_RADIO_HOMEPAGE, true,
-                new Date());
+        radio1 = new InternetRadio(1, TEST_RADIO_NAME, TEST_PLAYLIST_URL_1, TEST_RADIO_HOMEPAGE, true, now());
+        radioMove = new InternetRadio(3, TEST_RADIO_NAME, TEST_PLAYLIST_URL_MOVE, TEST_RADIO_HOMEPAGE, true, now());
         radioMoveLoop = new InternetRadio(3, TEST_RADIO_NAME, TEST_PLAYLIST_URL_MOVE_LOOP, TEST_RADIO_HOMEPAGE, true,
-                new Date());
-        radioLarge = new InternetRadio(4, TEST_RADIO_NAME, TEST_PLAYLIST_URL_LARGE, TEST_RADIO_HOMEPAGE, true,
-                new Date());
+                now());
+        radioLarge = new InternetRadio(4, TEST_RADIO_NAME, TEST_PLAYLIST_URL_LARGE, TEST_RADIO_HOMEPAGE, true, now());
         radioLarge2 = new InternetRadio(5, TEST_RADIO_NAME, TEST_PLAYLIST_URL_LARGE_2, TEST_RADIO_HOMEPAGE, true,
-                new Date());
+                now());
 
         // Prepare the mocked URL connection for the simple playlist
         HttpURLConnection mockURLConnection1 = Mockito.mock(HttpURLConnection.class);

@@ -21,6 +21,7 @@
 
 package com.tesshu.jpsonic.service.search;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -29,7 +30,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -78,7 +78,7 @@ class IndexManagerTest extends AbstractNeedsScan {
     @Override
     public List<MusicFolder> getMusicFolders() {
         if (ObjectUtils.isEmpty(musicFolders)) {
-            musicFolders = Arrays.asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, new Date()));
+            musicFolders = Arrays.asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now()));
         }
         return musicFolders;
     }
@@ -161,7 +161,7 @@ class IndexManagerTest extends AbstractNeedsScan {
         candidates = artistDao.getExpungeCandidates();
         assertEquals(0, candidates.size());
 
-        artistDao.markNonPresent(new Date());
+        artistDao.markNonPresent(now());
 
         candidates = artistDao.getExpungeCandidates();
         assertEquals(4, candidates.size());
@@ -174,7 +174,7 @@ class IndexManagerTest extends AbstractNeedsScan {
         candidates = albumDao.getExpungeCandidates();
         assertEquals(0, candidates.size());
 
-        albumDao.markNonPresent(new Date());
+        albumDao.markNonPresent(now());
 
         candidates = albumDao.getExpungeCandidates();
         assertEquals(4, candidates.size());

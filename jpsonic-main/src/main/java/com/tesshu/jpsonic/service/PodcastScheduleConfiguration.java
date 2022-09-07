@@ -17,10 +17,14 @@
 
 package com.tesshu.jpsonic.service;
 
-import java.text.SimpleDateFormat;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,8 +59,8 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
     /*
      * The first execution is 5 minutes after the server starts.
      */
-    static final Date createFirstTime() {
-        return Date.from(Instant.now().plus(5L, ChronoUnit.MINUTES));
+    static final Instant createFirstTime() {
+        return now().plus(5, ChronoUnit.MINUTES);
     }
 
     @Override
@@ -86,7 +90,7 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
         }
 
         @Override
-        public Date nextExecutionTime(TriggerContext triggerContext) {
+        public java.util.Date nextExecutionTime(TriggerContext triggerContext) {
 
             int hoursBetween = this.settingsService.getPodcastUpdateInterval();
             if (hoursBetween == -1) {
@@ -96,11 +100,12 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
                 return null;
             }
 
-            Date lastTime = triggerContext.lastCompletionTime();
+            Instant lastTime = Optional.ofNullable(triggerContext.lastCompletionTime()).filter(Objects::nonNull)
+                    .map(d -> d.toInstant()).orElse(null);
             boolean isReschedule = lastTime == null || this.mediaScannerService.isScanning();
-            Date nextTime = isReschedule ? createFirstTime()
-                    : Date.from(lastTime.toInstant().plus(hoursBetween, ChronoUnit.HOURS));
-            String nextTimeString = new SimpleDateFormat("yyyy/MM/dd HH:mm", settingsService.getLocale())
+            Instant nextTime = isReschedule ? createFirstTime() : lastTime.plus(hoursBetween, ChronoUnit.HOURS);
+
+            String nextTimeString = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault())
                     .format(nextTime);
 
             String msg;
@@ -114,7 +119,7 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
                 LOG.info(msg, nextTimeString);
             }
 
-            return nextTime;
+            return java.util.Date.from(nextTime);
         }
     }
 }

@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.controller;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -27,7 +28,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.lang.annotation.Documented;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -49,7 +49,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class InternetRadioSettingsControllerTest {
 
     private InternetRadioDao internetRadioDao;
@@ -58,7 +58,7 @@ class InternetRadioSettingsControllerTest {
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        InternetRadio radio = new InternetRadio(0, "*name*", "*streamUrl*", "*homepageUrl*", false, new Date());
+        InternetRadio radio = new InternetRadio(0, "*name*", "*streamUrl*", "*homepageUrl*", false, now());
         internetRadioDao = mock(InternetRadioDao.class);
         Mockito.when(internetRadioDao.getAllInternetRadios()).thenReturn(Arrays.asList(radio));
         InternetRadioService internetRadioService = new InternetRadioService(internetRadioDao);

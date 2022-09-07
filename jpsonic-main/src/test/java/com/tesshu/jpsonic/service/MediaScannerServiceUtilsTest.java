@@ -19,12 +19,13 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -63,7 +64,7 @@ class MediaScannerServiceUtilsTest {
     class CompensateSortOfArtistTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
-                resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Compensation"), "Duplicate", true, new Date()));
+                resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Compensation"), "Duplicate", true, now()));
 
         @Autowired
         private JMediaFileDao mediaFileDao;
@@ -347,8 +348,8 @@ class MediaScannerServiceUtilsTest {
     @Order(2)
     class CopySortOfArtistTest extends AbstractNeedsScan {
 
-        private final List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
-                resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Copy"), "Duplicate", true, new Date()));
+        private final List<MusicFolder> musicFolders = Arrays.asList(
+                new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Copy"), "Duplicate", true, now()));
 
         @Autowired
         private JMediaFileDao mediaFileDao;
@@ -488,8 +489,8 @@ class MediaScannerServiceUtilsTest {
     // Windows 10 Home and Windows Server 2022 results are same
     class MergeSortOfArtistTest extends AbstractNeedsScan {
 
-        private final List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
-                resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Merge"), "Duplicate", true, new Date()));
+        private final List<MusicFolder> musicFolders = Arrays.asList(
+                new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Merge"), "Duplicate", true, now()));
 
         @Autowired
         private JMediaFileDao mediaFileDao;
@@ -518,7 +519,7 @@ class MediaScannerServiceUtilsTest {
             assertEquals(0, mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders).size());
             assertEquals(0, artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders).size());
 
-            Date now = new Date();
+            Instant now = now();
             populateDatabase(null, () -> {
                 List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
                 albums.forEach(a -> {
@@ -1304,8 +1305,8 @@ class MediaScannerServiceUtilsTest {
     // Windows 10 Home and Ubuntu results are same
     class UpdateSortOfAlbumTest extends AbstractNeedsScan {
 
-        private final List<MusicFolder> musicFolders = Arrays.asList(
-                new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/AlbumSort"), "Duplicate", true, new Date()));
+        private final List<MusicFolder> musicFolders = Arrays
+                .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/AlbumSort"), "Duplicate", true, now()));
 
         @Autowired
         private JMediaFileDao mediaFileDao;
@@ -1335,7 +1336,7 @@ class MediaScannerServiceUtilsTest {
 
             populateDatabase(null, () -> {
                 List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
-                Date now = new Date();
+                Instant now = now();
                 albums.forEach(a -> {
                     List<MediaFile> songs = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, a.getPathString(), false);
                     songs.forEach(m -> {

@@ -21,12 +21,12 @@
 
 package com.tesshu.jpsonic.service.search;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -591,8 +591,8 @@ class SearchServiceTest {
         @Override
         public List<MusicFolder> getMusicFolders() {
             if (isEmpty(musicFolders)) {
-                musicFolders = Arrays.asList(new MusicFolder(1, resolveBaseMediaPath("Search/SpecialGenre"),
-                        "accessible", true, new Date()));
+                musicFolders = Arrays.asList(
+                        new MusicFolder(1, resolveBaseMediaPath("Search/SpecialGenre"), "accessible", true, now()));
             }
             return musicFolders;
         }
@@ -868,11 +868,11 @@ class SearchServiceTest {
             if (isEmpty(musicFolders)) {
                 musicFolders = Arrays.asList(
                         new MusicFolder(1, resolveBaseMediaPath("Search/SpecialPath/accessible"), "accessible", true,
-                                new Date()),
+                                now()),
                         new MusicFolder(2, resolveBaseMediaPath("Search/SpecialPath/accessible's"), "accessible's",
-                                true, new Date()),
+                                true, now()),
                         new MusicFolder(3, resolveBaseMediaPath("Search/SpecialPath/accessible+s"), "accessible+s",
-                                true, new Date()));
+                                true, now()));
             }
             return musicFolders;
         }
@@ -932,7 +932,7 @@ class SearchServiceTest {
         public List<MusicFolder> getMusicFolders() {
             if (isEmpty(musicFolders)) {
                 musicFolders = Arrays.asList(new MusicFolder(1, resolveBaseMediaPath("Search/StartWithStopwards"),
-                        "accessible", true, new Date()));
+                        "accessible", true, now()));
             }
             return musicFolders;
         }

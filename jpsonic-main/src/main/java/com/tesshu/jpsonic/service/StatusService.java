@@ -24,8 +24,8 @@ package com.tesshu.jpsonic.service;
 import static java.util.Collections.unmodifiableList;
 
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -211,7 +211,8 @@ public class StatusService {
                     if (player == null || mediaFile == null) {
                         continue;
                     }
-                    Date time = new Date(System.currentTimeMillis() - streamStatus.getMillisSinceLastUpdate());
+                    Instant time = Instant
+                            .ofEpochMilli(Instant.now().toEpochMilli() - streamStatus.getMillisSinceLastUpdate());
                     result.put(player.getId(), new PlayStatus(mediaFile, player, time));
                 }
                 return unmodifiableList(new ArrayList<>(result.values()));

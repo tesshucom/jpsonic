@@ -46,13 +46,19 @@
 	                                <dt><fmt:message key="sharesettings.description" /></dt>
 	                                <dd><input type="text" name="description[${share.id}]" value="${share.description}" /></dd>
 	                                <dt><fmt:message key="sharesettings.lastvisited" /></dt>
-	                                <dd><fmt:formatDate value="${share.lastVisited}" type="date" dateStyle="medium" /></dd>
-	                                <dt><fmt:message key="sharesettings.visits" /></dt>
-	                                <dd>${share.visitCount}</dd>
-	                                <dt><fmt:message key="sharesettings.files" /></dt>
-	                                <dd><a href="${albumUrl}" title="${shareInfo.dir.name}"><str:truncateNicely upper="30">${fn:escapeXml(shareInfo.dir.name)}</str:truncateNicely></a></dd>
-	                                <dt><fmt:message key="sharesettings.expires" /></dt>
-	                                <dd><fmt:formatDate value="${share.expires}" type="date" dateStyle="medium" /></dd>
+                                    <dd>
+                                        <fmt:parseDate value="${share.lastVisitedWithZone}" type="date" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" />
+                                        <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd HH:mm:ss" />
+                                    </dd>
+                                    <dt><fmt:message key="sharesettings.visits" /></dt>
+                                    <dd>${share.visitCount}</dd>
+                                    <dt><fmt:message key="sharesettings.files" /></dt>
+                                    <dd><a href="${albumUrl}" title="${shareInfo.dir.name}"><str:truncateNicely upper="30">${fn:escapeXml(shareInfo.dir.name)}</str:truncateNicely></a></dd>
+                                    <dt><fmt:message key="sharesettings.expires" /></dt>
+                                    <dd>
+                                        <fmt:parseDate value="${share.expiresWithZone}" type="date" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" />
+                                        <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd HH:mm:ss" />
+                                    </dd>
 	                                <dt><fmt:message key="sharesettings.expirein" /></dt>
 	                                <dd>
 	                                    

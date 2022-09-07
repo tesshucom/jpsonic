@@ -21,9 +21,10 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -109,13 +110,9 @@ public class ShareService {
 
         Share share = new Share();
         share.setName(RandomStringUtils.random(5, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"));
-        share.setCreated(new Date());
+        share.setCreated(now());
         share.setUsername(securityService.getCurrentUsername(request));
-
-        Calendar expires = Calendar.getInstance();
-        expires.add(Calendar.YEAR, 1);
-        share.setExpires(expires.getTime());
-
+        share.setExpires(now().plus(365, ChronoUnit.DAYS));
         shareDao.createShare(share);
         for (MediaFile file : files) {
             shareDao.createSharedFiles(share.getId(), file.getPathString());

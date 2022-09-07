@@ -22,8 +22,8 @@
 package com.tesshu.jpsonic.controller;
 
 import java.security.GeneralSecurityException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -55,11 +55,8 @@ public class PodcastController {
     private final SettingsService settingsService;
     private final SecurityService securityService;
     private final PlaylistService playlistService;
-    private final Object dateLock = new Object();
-
-    // Locale is changed by Setting, but restart is required.
-    private DateFormat rssDateFormat;
-    private String lang;
+    private final DateTimeFormatter rssDateFormat = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss Z")
+            .withZone(ZoneId.systemDefault()).withLocale(Locale.ENGLISH);
 
     public PodcastController(SettingsService settingsService, SecurityService securityService,
             PlaylistService playlistService) {
@@ -67,17 +64,6 @@ public class PodcastController {
         this.playlistService = playlistService;
         this.settingsService = settingsService;
         this.securityService = securityService;
-    }
-
-    private DateFormat getRssDateFormat() {
-        synchronized (dateLock) {
-            if (rssDateFormat == null) {
-                Locale locale = settingsService.getLocale();
-                rssDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", locale);
-                lang = locale.getLanguage();
-            }
-            return rssDateFormat;
-        }
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Podcast) Not reusable
@@ -103,7 +89,7 @@ public class PodcastController {
             for (MediaFile song : songs) {
                 length += song.getFileSize();
             }
-            String publishDate = getRssDateFormat().format(playlist.getCreated());
+            String publishDate = rssDateFormat.format(playlist.getCreated());
 
             // Resolve content type.
             String suffix = songs.get(0).getFormat();
@@ -115,7 +101,7 @@ public class PodcastController {
         }
 
         return new ModelAndView("podcast", "model",
-                LegacyMap.of("url", url, "lang", lang, "logo",
+                LegacyMap.of("url", url, "lang", settingsService.getLocale().getLanguage(), "logo",
                         url.replaceAll("podcast/" + ViewName.PODCAST.value() + "$", "") + "/icons/logo.svg", "podcasts",
                         podcasts));
     }

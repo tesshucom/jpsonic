@@ -26,10 +26,10 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -420,11 +420,11 @@ public class JMediaFileDao extends AbstractDao {
         return result;
     }
 
-    public void markNonPresent(Date lastScanned) {
+    public void markNonPresent(Instant lastScanned) {
         deligate.markNonPresent(lastScanned);
     }
 
-    public void markPresent(String path, Date lastScanned) {
+    public void markPresent(String path, Instant lastScanned) {
         deligate.markPresent(path, lastScanned);
     }
 

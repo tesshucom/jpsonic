@@ -21,10 +21,12 @@
 
 package com.tesshu.jpsonic.dao;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
@@ -150,11 +152,11 @@ public class AbstractDao {
         return result;
     }
 
-    protected Date queryForDate(String sql, Date defaultValue, Object... args) {
-        long t = System.nanoTime();
-        List<Date> list = getJdbcTemplate().queryForList(sql, Date.class, args);
-        Date result = list.isEmpty() ? defaultValue : list.get(0) == null ? defaultValue : list.get(0);
-        writeLog(sql, t);
+    protected Instant queryForInstant(String sql, Instant defaultValue, Object... args) {
+        long startTimeNano = System.nanoTime();
+        Instant result = getJdbcTemplate().queryForList(sql, Timestamp.class, args).stream().filter(Objects::nonNull)
+                .findFirst().map(t -> t.toInstant()).orElse(defaultValue);
+        writeLog(sql, startTimeNano);
         return result;
     }
 
@@ -181,4 +183,7 @@ public class AbstractDao {
         daoHelper.checkpoint();
     }
 
+    protected static @Nullable Instant nullableInstantOf(Timestamp timestamp) {
+        return timestamp == null ? null : timestamp.toInstant();
+    }
 }

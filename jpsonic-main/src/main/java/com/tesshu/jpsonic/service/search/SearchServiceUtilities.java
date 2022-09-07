@@ -25,6 +25,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -146,7 +147,7 @@ public class SearchServiceUtilities {
                     LOG.info("SHA1PRNG is used to create a random list of songs.");
                 }
             } catch (NoSuchAlgorithmException e1) {
-                random = new Random(System.currentTimeMillis());
+                random = new Random(Instant.now().toEpochMilli());
                 if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
                     LOG.info("NativePRNG and SHA1PRNG cannot be used on this platform.");
                 }

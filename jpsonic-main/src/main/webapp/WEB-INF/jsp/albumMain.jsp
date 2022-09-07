@@ -283,10 +283,12 @@ function toggleComment() {
 
     <c:if test="${model.showLastPlay}">
         <div><fmt:message key="main.playcount"><fmt:param value="${model.dir.playCount}"/></fmt:message></div>
-        <c:if test="${not empty model.dir.lastPlayed}">
+        <c:if test="${not empty model.lastPlayed}">
             <div>
+                <fmt:parseDate value="${model.lastPlayed}" type="both" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" />
+                <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd HH:mm:ss" var="formatedDate" />
                 <fmt:message key="main.lastplayed">
-                    <fmt:param><fmt:formatDate type="date" dateStyle="long" value="${model.dir.lastPlayed}"/></fmt:param>
+                    <fmt:param>${formatedDate}</fmt:param>
                 </fmt:message>
             </div>
         </c:if>

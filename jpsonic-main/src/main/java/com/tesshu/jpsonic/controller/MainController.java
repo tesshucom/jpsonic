@@ -21,7 +21,11 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.FAR_PAST;
+
 import java.io.IOException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +36,6 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -107,6 +110,7 @@ public class MainController {
         // dir
         mediaFileService.populateStarredDate(dir, username);
         map.put("dir", dir);
+        putLastPlayed(map, dir);
         map.put("ancestors", getAncestors(dir));
         map.put("userRating", getUserRating(username, dir));
         map.put("averageRating", getAverageRating(dir));
@@ -116,7 +120,7 @@ public class MainController {
             map.put("parent", parent);
             map.put("navigateUpAllowed", !mediaFileService.isRoot(parent));
         }
-        map.put("scanForcable", !MediaFileDao.ZERO_DATE.equals(dir.getLastScanned()));
+        map.put("scanForcable", !FAR_PAST.equals(dir.getLastScanned()));
 
         // children
         List<MediaFile> children = mediaFiles.size() == 1 // children
@@ -176,6 +180,12 @@ public class MainController {
         map.put("breadcrumbIndex", userSettings.isBreadcrumbIndex());
 
         return new ModelAndView(getTargetView(dir, children), "model", map);
+    }
+
+    private void putLastPlayed(Map<String, Object> map, MediaFile dir) {
+        if (dir.getLastPlayed() != null) {
+            map.put("lastPlayed", ZonedDateTime.ofInstant(dir.getLastPlayed(), ZoneId.systemDefault()));
+        }
     }
 
     private boolean getThereIsMore(boolean thereIsMoreSiblingAlbums, boolean isShowAll, List<MediaFile> subDirs,

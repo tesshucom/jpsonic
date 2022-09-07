@@ -21,17 +21,19 @@
 
 package com.tesshu.jpsonic.util;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.Map;
 
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import org.junit.jupiter.api.Test;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 class PlayerUtilsTest {
 
     @Test
@@ -43,7 +45,7 @@ class PlayerUtilsTest {
 
     @Test
     void testObjectToStringMap() {
-        Date date = new Date(1_568_350_960_725L);
+        Instant date = now();
         MediaLibraryStatistics statistics = new MediaLibraryStatistics(date);
         statistics.incrementAlbums(5);
         statistics.incrementSongs(4);
@@ -56,13 +58,15 @@ class PlayerUtilsTest {
         assertEquals("910823", stringStringMap.get("artistCount"));
         assertEquals("30", stringStringMap.get("totalDurationInSeconds"));
         assertEquals("2930491082", stringStringMap.get("totalLengthInBytes"));
-        assertEquals("1568350960725", stringStringMap.get("scanDate"));
+        assertEquals(Long.toString(date.getEpochSecond()) + "." + String.format("%09d", date.getNano()),
+                stringStringMap.get("scanDate"));
     }
 
     @Test
     void testStringMapToObject() {
+        Instant scanDate = now();
         Map<String, String> stringStringMap = LegacyMap.of("albumCount", "5", "songCount", "4", "artistCount", "910823",
-                "totalDurationInSeconds", "30", "totalLengthInBytes", "2930491082", "scanDate", "1568350960725");
+                "totalDurationInSeconds", "30", "totalLengthInBytes", "2930491082", "scanDate", scanDate.toString());
         MediaLibraryStatistics statistics = PlayerUtils.stringMapToObject(MediaLibraryStatistics.class,
                 stringStringMap);
         assertEquals(Integer.valueOf(5), statistics.getAlbumCount());
@@ -70,13 +74,14 @@ class PlayerUtilsTest {
         assertEquals(Integer.valueOf(910_823), statistics.getArtistCount());
         assertEquals(Long.valueOf(30L), statistics.getTotalDurationInSeconds());
         assertEquals(Long.valueOf(2_930_491_082L), statistics.getTotalLengthInBytes());
-        assertEquals(new Date(1_568_350_960_725L), statistics.getScanDate());
+        assertEquals(scanDate, statistics.getScanDate());
     }
 
     @Test
     void testStringMapToObjectWithExtraneousData() {
+        Instant scanDate = now();
         Map<String, String> stringStringMap = LegacyMap.of("albumCount", "5", "songCount", "4", "artistCount", "910823",
-                "totalDurationInSeconds", "30", "totalLengthInBytes", "2930491082", "scanDate", "1568350960725",
+                "totalDurationInSeconds", "30", "totalLengthInBytes", "2930491082", "scanDate", scanDate.toString(),
                 "extraneousData", "nothingHereToLookAt");
         MediaLibraryStatistics statistics = PlayerUtils.stringMapToObject(MediaLibraryStatistics.class,
                 stringStringMap);
@@ -85,7 +90,7 @@ class PlayerUtilsTest {
         assertEquals(Integer.valueOf(910_823), statistics.getArtistCount());
         assertEquals(Long.valueOf(30L), statistics.getTotalDurationInSeconds());
         assertEquals(Long.valueOf(2_930_491_082L), statistics.getTotalLengthInBytes());
-        assertEquals(new Date(1_568_350_960_725L), statistics.getScanDate());
+        assertEquals(scanDate, statistics.getScanDate());
     }
 
     @Test

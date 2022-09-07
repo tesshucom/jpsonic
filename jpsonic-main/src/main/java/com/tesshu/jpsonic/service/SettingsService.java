@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -279,7 +280,7 @@ public class SettingsService {
     public void save(boolean updateSettingsChanged) {
         if (updateSettingsChanged) {
             removeObsoleteProperties();
-            setProperty(SettingsConstants.SETTINGS_CHANGED, System.currentTimeMillis());
+            setProperty(SettingsConstants.SETTINGS_CHANGED, Instant.now().toEpochMilli());
         }
         configurationService.save();
     }

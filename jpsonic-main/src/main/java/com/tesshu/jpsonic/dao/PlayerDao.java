@@ -209,7 +209,7 @@ public class PlayerDao extends AbstractDao {
             player.setIpAddress(rs.getString(col++));
             player.setAutoControlEnabled(rs.getBoolean(col++));
             player.setM3uBomEnabled(rs.getBoolean(col++));
-            player.setLastSeen(rs.getTimestamp(col++));
+            player.setLastSeen(nullableInstantOf(rs.getTimestamp(col++)));
             col++; // Ignore cover art scheme.
             player.setTranscodeScheme(TranscodeScheme.of(rs.getString(col++)));
             player.setDynamicIp(rs.getBoolean(col++));

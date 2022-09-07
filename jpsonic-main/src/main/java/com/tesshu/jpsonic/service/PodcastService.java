@@ -29,13 +29,14 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -88,9 +89,18 @@ import org.springframework.stereotype.Service;
 public class PodcastService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PodcastService.class);
-    private static final DateFormat[] RSS_DATE_FORMATS = {
-            new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US),
-            new SimpleDateFormat("dd MMM yyyy HH:mm:ss Z", Locale.US) };
+
+    /**
+     * RFC 2822.
+     *
+     * @link https://podcasters.apple.com/support/823-podcast-requirements
+     */
+    // Correct date format:
+    // Wed, 6 Jul 2014 13:00:00 PDT
+    // Wed, 6 Jul 2014 13:00:00 -0700
+    private static final DateTimeFormatter RSS_DATE_FORMAT = DateTimeFormatter
+            .ofPattern("EEE, dd MMM yyyy HH:mm:ss [Z][zzz]", Locale.ROOT);
+
     private static final Namespace[] ITUNES_NAMESPACES = {
             Namespace.getNamespace("http://www.itunes.com/DTDs/Podcast-1.0.dtd"),
             Namespace.getNamespace("http://www.itunes.com/dtds/podcast-1.0.dtd") };
@@ -433,8 +443,8 @@ public class PodcastService {
 
         // Sort episode in reverse chronological order (newest first)
         episodes.sort((a, b) -> {
-            long timeA = a.getPublishDate() == null ? 0L : a.getPublishDate().getTime();
-            long timeB = b.getPublishDate() == null ? 0L : b.getPublishDate().getTime();
+            long timeA = a.getPublishDate() == null ? 0L : a.getPublishDate().toEpochMilli();
+            long timeB = b.getPublishDate() == null ? 0L : b.getPublishDate().toEpochMilli();
             return Long.compare(timeB, timeA);
         });
 
@@ -486,7 +496,7 @@ public class PodcastService {
                     }
                 }
 
-                Date date = parseDate(episodeElement.getChildTextTrim("pubDate"));
+                Instant date = parseDate(episodeElement.getChildTextTrim("pubDate"));
                 PodcastEpisode episode = new PodcastEpisode(null, channelId, url, null, title, description, date,
                         duration, length, 0L, PodcastStatus.NEW, null);
                 episodes.add(episode);
@@ -496,18 +506,19 @@ public class PodcastService {
         return episodes;
     }
 
-    private Date parseDate(String s) {
-        for (DateFormat dateFormat : RSS_DATE_FORMATS) {
-            try {
-                return dateFormat.parse(s);
-            } catch (ParseException e) {
-                if (LOG.isTraceEnabled()) {
-                    LOG.trace("Error in parse of RSS date.", e);
-                }
+    Instant parseDate(String s) {
+        if (s == null) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Date is null.");
             }
+            return null;
         }
-        if (LOG.isWarnEnabled()) {
-            LOG.warn("Failed to parse publish date: '" + s + "'.");
+        try {
+            return ZonedDateTime.parse(s, RSS_DATE_FORMAT).toInstant();
+        } catch (DateTimeParseException e) {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Podcast dates must comply with RFC 2822.", e);
+            }
         }
         return null;
     }
@@ -713,7 +724,8 @@ public class PodcastService {
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     private Path getFile(PodcastChannel channel, PodcastEpisode episode) {
 
-        String episodeDate = String.format("%tF", episode.getPublishDate());
+        String episodeDate = episode.getPublishDate() == null ? StringUtils.EMPTY : DateTimeFormatter
+                .ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault()).format(episode.getPublishDate());
         String filename = channel.getTitle() + " - " + episodeDate + " - " + episode.getId() + " - "
                 + episode.getTitle();
         filename = filename.substring(0, Math.min(filename.length(), 146));

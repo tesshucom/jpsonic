@@ -21,10 +21,11 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -111,7 +112,7 @@ public class PlaylistDao extends AbstractDao {
             }
         }
         update("update playlist set file_count=?, duration_seconds=?, changed=? where id=?", files.size(), duration,
-                new Date(), id);
+                now(), id);
     }
 
     public List<String> getPlaylistUsers(int playlistId) {
@@ -135,7 +136,7 @@ public class PlaylistDao extends AbstractDao {
 
     public void updatePlaylist(Playlist playlist) {
         update("update playlist set username=?, is_public=?, name=?, comment=?, changed=?, imported_from=? where id=?",
-                playlist.getUsername(), playlist.isShared(), playlist.getName(), playlist.getComment(), new Date(),
+                playlist.getUsername(), playlist.isShared(), playlist.getName(), playlist.getComment(), now(),
                 playlist.getImportedFrom(), playlist.getId());
     }
 
@@ -143,7 +144,8 @@ public class PlaylistDao extends AbstractDao {
         @Override
         public Playlist mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new Playlist(rs.getInt(1), rs.getString(2), rs.getBoolean(3), rs.getString(4), rs.getString(5),
-                    rs.getInt(6), rs.getInt(7), rs.getTimestamp(8), rs.getTimestamp(9), rs.getString(10));
+                    rs.getInt(6), rs.getInt(7), nullableInstantOf(rs.getTimestamp(8)),
+                    nullableInstantOf(rs.getTimestamp(9)), rs.getString(10));
         }
     }
 }

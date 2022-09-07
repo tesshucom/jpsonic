@@ -29,6 +29,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Properties;
 
 import com.tesshu.jpsonic.util.FileUtil;
@@ -106,7 +107,7 @@ public class LastFmCache extends Cache {
     }
 
     private long getExpirationDate() {
-        return System.currentTimeMillis() + ttl;
+        return Instant.now().toEpochMilli() + ttl;
     }
 
     private void createCache() {
@@ -130,7 +131,7 @@ public class LastFmCache extends Cache {
             Properties p = new Properties();
             p.load(in);
             long expirationDate = Long.parseLong(p.getProperty("expiration-date"));
-            return expirationDate < System.currentTimeMillis();
+            return expirationDate < Instant.now().toEpochMilli();
         } catch (IOException e) {
             return false;
         }

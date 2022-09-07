@@ -21,9 +21,10 @@
 
 package com.tesshu.jpsonic.domain;
 
-import java.util.Date;
+import java.time.Instant;
 
 import com.tesshu.jpsonic.util.StringUtil;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class Playlist {
 
@@ -34,8 +35,8 @@ public class Playlist {
     private String comment;
     private int fileCount;
     private int durationSeconds;
-    private Date created;
-    private Date changed;
+    private Instant created;
+    private Instant changed;
     private String importedFrom;
     private transient String reading;
 
@@ -43,7 +44,7 @@ public class Playlist {
     }
 
     public Playlist(int id, String username, boolean shared, String name, String comment, int fileCount,
-            int durationSeconds, Date created, Date changed, String importedFrom) {
+            int durationSeconds, Instant created, Instant changed, String importedFrom) {
         this.id = id;
         this.username = username;
         this.shared = shared;
@@ -116,19 +117,19 @@ public class Playlist {
         return StringUtil.formatDurationMSS(durationSeconds);
     }
 
-    public Date getCreated() {
+    public @NonNull Instant getCreated() {
         return created;
     }
 
-    public void setCreated(Date created) {
+    public void setCreated(Instant created) {
         this.created = created;
     }
 
-    public Date getChanged() {
+    public Instant getChanged() {
         return changed;
     }
 
-    public void setChanged(Date changed) {
+    public void setChanged(Instant changed) {
         this.changed = changed;
     }
 

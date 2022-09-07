@@ -20,13 +20,13 @@
 package com.tesshu.jpsonic.controller;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -55,7 +55,7 @@ class UploadEntryControllerTest {
     public void setup() throws ExecutionException, URISyntaxException {
         List<MusicFolder> musicFolders = Arrays.asList(
                 new MusicFolder(1, Path.of(UploadEntryControllerTest.class.getResource("/MEDIAS").toURI()).toString(),
-                        "MEDIAS", true, new Date()));
+                        "MEDIAS", true, now()));
         MusicFolderService musicFolderService = mock(MusicFolderService.class);
         Mockito.when(musicFolderService.getMusicFoldersForUser(ServiceMockUtils.ADMIN_NAME)).thenReturn(musicFolders);
         mockMvc = MockMvcBuilders.standaloneSetup(new UploadEntryController(musicFolderService,

@@ -21,7 +21,10 @@
 
 package com.tesshu.jpsonic.domain;
 
-import java.util.Date;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 /**
  * Represents the playback of a track, possibly remote (e.g., a cached song on a mobile phone).
@@ -30,13 +33,11 @@ import java.util.Date;
  */
 public class PlayStatus {
 
-    private static final long TTL_MILLIS = 6L * 60L * 60L * 1000L; // 6 hours
-
     private final MediaFile mediaFile;
     private final Player player;
-    private final Date time;
+    private final Instant time;
 
-    public PlayStatus(MediaFile mediaFile, Player player, Date time) {
+    public PlayStatus(MediaFile mediaFile, Player player, Instant time) {
         this.mediaFile = mediaFile;
         this.player = player;
         this.time = time;
@@ -50,15 +51,15 @@ public class PlayStatus {
         return player;
     }
 
-    public Date getTime() {
+    public Instant getTime() {
         return time;
     }
 
     public boolean isExpired() {
-        return System.currentTimeMillis() > time.getTime() + TTL_MILLIS;
+        return now().minus(6, ChronoUnit.HOURS).isBefore(time);
     }
 
     public long getMinutesAgo() {
-        return (System.currentTimeMillis() - time.getTime()) / 1000L / 60L;
+        return Math.abs(ChronoUnit.MINUTES.between(time, now()));
     }
 }

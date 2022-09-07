@@ -21,8 +21,9 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -239,7 +240,7 @@ public class UserSettingsController {
                 }
             }
         }
-        userSettings.setChanged(new Date());
+        userSettings.setChanged(now());
         securityService.updateUserSettings(userSettings);
 
         List<Integer> allowedMusicFolderIds = PlayerUtils.toIntegerList(command.getAllowedMusicFolderIds());

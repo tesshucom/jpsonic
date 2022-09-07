@@ -152,7 +152,12 @@ $(document).ready(function(){
                     <c:set var="channelTitle" value="${model.channelMap[episode.channelId].title}"/>
                     <td class="channelTitle"><span><a href="podcastChannel.view?id=${episode.channelId}">${channelTitle}</a></span></td>
                     <td class="duration">${episode.duration}</td>
-                    <td class="date"><fmt:formatDate value="${episode.publishDate}" dateStyle="medium"/></td>
+                    <td class="date">
+                        <c:if test="${not empty episode.publishDateWithZone}">
+                            <fmt:parseDate value="${episode.publishDateWithZone}" type="both" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" />
+                            <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd HH:mm" />
+                        </c:if>
+                    </td>
                 </tr>
             </c:forEach>
         </tbody>

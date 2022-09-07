@@ -21,9 +21,11 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -104,7 +106,7 @@ public class ExternalPlayerController {
 
         Share share = shareService.getShareByName(shareName);
 
-        if (share != null && share.getExpires() != null && share.getExpires().before(new Date())) {
+        if (share != null && share.getExpires() != null && share.getExpires().isBefore(now())) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Share " + shareName + " is expired");
             }
@@ -112,7 +114,7 @@ public class ExternalPlayerController {
         }
 
         if (share != null) {
-            share.setLastVisited(new Date());
+            share.setLastVisited(now());
             share.setVisitCount(share.getVisitCount() + 1);
             shareService.updateShare(share);
         }
@@ -124,13 +126,13 @@ public class ExternalPlayerController {
     }
 
     private List<MediaFileWithUrlInfo> getSongs(HttpServletRequest request, Share share, Player player) {
-        Date expires = null;
+        Instant expires = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication instanceof JWTAuthenticationToken) {
             DecodedJWT token = jwtSecurityService.verify((String) authentication.getCredentials());
-            expires = token.getExpiresAt();
+            expires = token.getExpiresAt().toInstant();
         }
-        Date finalExpires = expires;
+        Instant finalExpires = expires;
 
         List<MediaFileWithUrlInfo> result = new ArrayList<>();
 
@@ -153,7 +155,7 @@ public class ExternalPlayerController {
     }
 
     public MediaFileWithUrlInfo addUrlInfo(HttpServletRequest request, Player player, MediaFile mediaFile,
-            Date expires) {
+            Instant expires) {
         String prefix = "ext";
         String streamUrl = jwtSecurityService
                 .addJWTToken(UriComponentsBuilder.fromHttpUrl(NetworkUtils.getBaseUrl(request) + prefix + "/stream")

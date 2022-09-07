@@ -21,9 +21,10 @@
 
 package com.tesshu.jpsonic.command;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Date;
 import java.util.List;
 
 import com.tesshu.jpsonic.controller.MusicFolderSettingsController;
@@ -232,7 +233,7 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
                 }
                 name = fileName.toString();
             }
-            return new MusicFolder(id, path, name, enabled, new Date());
+            return new MusicFolder(id, path, name, enabled, now());
         }
 
         public boolean isExisting() {

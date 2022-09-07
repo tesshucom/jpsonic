@@ -220,7 +220,10 @@ function onDeletePlaylist() {
         <dt><span class="icon duration"><fmt:message key="playlist2.duration"/></span></dt>
         <dd><span id="songCount"></span><fmt:message key="playlist2.songs"/> &ndash; <span id="duration"></span></dd>
         <dt><span class="icon date"><fmt:message key="playlist2.created"/></span></dt>
-        <dd><fmt:formatDate type="date" dateStyle="long" value="${model.playlist.created}"/></dd>
+        <dd>
+            <fmt:parseDate value="${model.created}" type="both" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" />
+            <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd HH:mm:ss" />
+        </dd>
         <dt><span class="icon person"><fmt:message key="playlist2.author"/></span></dt>
         <dd>${fn:escapeXml(model.playlist.username)}</dd>
         <dt><span class="icon visibility"><fmt:message key="playlist2.visibility"/></span></dt>

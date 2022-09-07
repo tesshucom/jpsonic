@@ -79,7 +79,7 @@ public class PlayQueueDao extends AbstractDao {
         @Override
         public SavedPlayQueue mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new SavedPlayQueue(rs.getInt(1), rs.getString(2), null, rs.getInt(3), rs.getLong(4),
-                    rs.getTimestamp(5), rs.getString(6));
+                    nullableInstantOf(rs.getTimestamp(5)), rs.getString(6));
         }
     }
 }
