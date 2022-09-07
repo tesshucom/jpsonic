@@ -32,7 +32,7 @@ import org.fourthline.cling.support.model.SortCriterion;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.StorageFolder;
 
-public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
+public abstract class UpnpContentProcessor<T, U> {
 
     private final UpnpProcessDispatcher dispatcher;
     private final UpnpProcessorUtil util;
