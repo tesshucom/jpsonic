@@ -682,6 +682,9 @@ public class PodcastService {
 
     private void updateTags(Path path, PodcastEpisode episode) {
         MediaFile mediaFile = mediaFileService.getMediaFile(path, false);
+        if (mediaFile == null) {
+            return;
+        }
         if (StringUtils.isNotBlank(episode.getTitle())) {
             MetaDataParser parser = metaDataParserFactory.getParser(path);
             if (parser == null || !parser.isEditingSupported(path)) {
