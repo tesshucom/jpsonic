@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.controller;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -45,8 +46,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class RandomPlayQueueControllerTest {
 
+    private RandomPlayQueueController controller;
     private MockMvc mockMvc;
 
     @BeforeEach
@@ -56,9 +59,9 @@ class RandomPlayQueueControllerTest {
         player.setUsername(ServiceMockUtils.ADMIN_NAME);
         player.setPlayQueue(new PlayQueue());
         Mockito.when(playerService.getPlayer(Mockito.any(), Mockito.any())).thenReturn(player);
-        mockMvc = MockMvcBuilders.standaloneSetup(new RandomPlayQueueController(mock(MusicFolderService.class),
-                mock(SecurityService.class), playerService, mock(MediaFileService.class), mock(IndexManager.class)))
-                .build();
+        controller = new RandomPlayQueueController(mock(MusicFolderService.class), mock(SecurityService.class),
+                playerService, mock(MediaFileService.class), mock(IndexManager.class));
+        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
     @Test
@@ -69,6 +72,7 @@ class RandomPlayQueueControllerTest {
                         .param(Attributes.Request.SIZE.value(), Integer.toString(24))
                         .param(Attributes.Request.MUSIC_FOLDER_ID.value(), Integer.toString(0))
                         .param(Attributes.Request.NameConstants.LAST_PLAYED_VALUE, "any")
+                        .param(Attributes.Request.NameConstants.LAST_PLAYED_COMP, "lt")
                         .param(Attributes.Request.NameConstants.YEAR, "any"))
                 .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
         assertNotNull(result);
@@ -79,5 +83,43 @@ class RandomPlayQueueControllerTest {
         @SuppressWarnings("unchecked")
         Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get("model");
         assertNotNull(model);
+    }
+
+    @Test
+    void testGetLastPlayed() {
+        assertNull(controller.getLastPlayed("any", "lt").getMinLastPlayedDate());
+        assertNull(controller.getLastPlayed("any", "lt").getMaxLastPlayedDate());
+        assertNull(controller.getLastPlayed("any", "gt").getMinLastPlayedDate());
+        assertNull(controller.getLastPlayed("any", "gt").getMaxLastPlayedDate());
+
+        assertNull(controller.getLastPlayed("1day", "lt").getMinLastPlayedDate());
+        assertNotNull(controller.getLastPlayed("1day", "lt").getMaxLastPlayedDate());
+        assertNotNull(controller.getLastPlayed("1day", "gt").getMinLastPlayedDate());
+        assertNull(controller.getLastPlayed("1day", "gt").getMaxLastPlayedDate());
+
+        assertNull(controller.getLastPlayed("1week", "lt").getMinLastPlayedDate());
+        assertNotNull(controller.getLastPlayed("1week", "lt").getMaxLastPlayedDate());
+        assertNotNull(controller.getLastPlayed("1week", "gt").getMinLastPlayedDate());
+        assertNull(controller.getLastPlayed("1week", "gt").getMaxLastPlayedDate());
+
+        assertNull(controller.getLastPlayed("1month", "lt").getMinLastPlayedDate());
+        assertNotNull(controller.getLastPlayed("1month", "lt").getMaxLastPlayedDate());
+        assertNotNull(controller.getLastPlayed("1month", "gt").getMinLastPlayedDate());
+        assertNull(controller.getLastPlayed("1month", "gt").getMaxLastPlayedDate());
+
+        assertNull(controller.getLastPlayed("3months", "lt").getMinLastPlayedDate());
+        assertNotNull(controller.getLastPlayed("3months", "lt").getMaxLastPlayedDate());
+        assertNotNull(controller.getLastPlayed("3months", "gt").getMinLastPlayedDate());
+        assertNull(controller.getLastPlayed("3months", "gt").getMaxLastPlayedDate());
+
+        assertNull(controller.getLastPlayed("6months", "lt").getMinLastPlayedDate());
+        assertNotNull(controller.getLastPlayed("6months", "lt").getMaxLastPlayedDate());
+        assertNotNull(controller.getLastPlayed("6months", "gt").getMinLastPlayedDate());
+        assertNull(controller.getLastPlayed("6months", "gt").getMaxLastPlayedDate());
+
+        assertNull(controller.getLastPlayed("1year", "lt").getMinLastPlayedDate());
+        assertNotNull(controller.getLastPlayed("1year", "lt").getMaxLastPlayedDate());
+        assertNotNull(controller.getLastPlayed("1year", "gt").getMinLastPlayedDate());
+        assertNull(controller.getLastPlayed("1year", "gt").getMaxLastPlayedDate());
     }
 }

@@ -48,16 +48,15 @@ class PodcastServiceTest {
     @Test
     void testParseDate() {
 
-        assertNull(podcastService.parseDate(null));
-        assertNull(podcastService.parseDate("Fri, 09 Sep 2022 08:49:03"));
+        assertNull(podcastService.parseDate(null)); // null
+        assertNull(podcastService.parseDate("09 Sep 2022 08:44:00 +0000")); // no days of the week
+        assertNull(podcastService.parseDate("Fri, 09 Sep 2022 08:49:03")); // no zone
+        assertNull(podcastService.parseDate("Fri, 09 Sep 2022 08:45 +0000")); // no seconds
 
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
         assertEquals("2022-09-09 17:41:00", fmt.format(toJST("Fri, 09 Sep 2022 08:41:00 +0000")));
         assertEquals("2022-09-09 16:42:00", fmt.format(toJST("Fri, 09 Sep 2022 08:42:00 +0100")));
         assertEquals("2022-09-09 15:43:00", fmt.format(toJST("Fri, 09 Sep 2022 08:43:00 +0200")));
-        assertEquals("2022-09-09 17:44:00", fmt.format(toJST("09 Sep 2022 08:44:00 +0000")));
-        assertEquals("2022-09-09 17:45:00", fmt.format(toJST("Fri, 09 Sep 2022 08:45 +0000")));
         assertEquals("2022-09-09 08:46:00", fmt.format(toJST("Fri, 09 Sep 2022 08:46:00 JST")));
         assertEquals("2022-09-09 08:47:01", fmt.format(toJST("Fri, 09 Sep 2022 08:47:01 ROK")));
         assertEquals("2022-09-09 22:48:02", fmt.format(toJST("Fri, 09 Sep 2022 08:48:02 CDT")));

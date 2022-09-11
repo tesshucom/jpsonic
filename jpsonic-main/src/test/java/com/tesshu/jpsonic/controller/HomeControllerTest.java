@@ -37,6 +37,7 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.domain.AlbumListType;
 import com.tesshu.jpsonic.domain.Genre;
+import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.service.MediaFileService;
@@ -141,6 +142,20 @@ class HomeControllerTest {
             MockHttpServletRequest req = mock(MockHttpServletRequest.class);
             Mockito.when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
                     .thenReturn(AlbumListType.RECENT.getId());
+
+            MediaFile album = new MediaFile();
+            album.setId(1);
+            Mockito.when(mediaFileService.getMostRecentlyPlayedAlbums(anyInt(), anyInt(), anyList()))
+                    .thenReturn(Arrays.asList(album));
+
+            controller.handleRequestInternal(req);
+            Mockito.verify(mediaFileService, Mockito.times(1)).getMostRecentlyPlayedAlbums(anyInt(), anyInt(),
+                    anyList());
+            Mockito.clearInvocations(mediaFileService);
+
+            album.setLastPlayed(now());
+            Mockito.when(mediaFileService.getMostRecentlyPlayedAlbums(anyInt(), anyInt(), anyList()))
+                    .thenReturn(Arrays.asList(album));
             controller.handleRequestInternal(req);
             Mockito.verify(mediaFileService, Mockito.times(1)).getMostRecentlyPlayedAlbums(anyInt(), anyInt(),
                     anyList());
@@ -151,6 +166,13 @@ class HomeControllerTest {
             MockHttpServletRequest req = mock(MockHttpServletRequest.class);
             Mockito.when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
                     .thenReturn(AlbumListType.NEWEST.getId());
+
+            MediaFile album = new MediaFile();
+            album.setId(1);
+            album.setCreated(now());
+            Mockito.when(mediaFileService.getNewestAlbums(anyInt(), anyInt(), anyList()))
+                    .thenReturn(Arrays.asList(album));
+
             controller.handleRequestInternal(req);
             Mockito.verify(mediaFileService, Mockito.times(1)).getNewestAlbums(anyInt(), anyInt(), anyList());
         }

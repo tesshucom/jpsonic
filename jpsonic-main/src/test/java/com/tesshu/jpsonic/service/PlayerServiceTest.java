@@ -312,6 +312,7 @@ class PlayerServiceTest {
             Mockito.verify(transcodingService, Mockito.never()).setTranscodingsForPlayer(Mockito.any(Player.class),
                     Mockito.anyList());
         }
+
     }
 
     @Nested
@@ -398,5 +399,14 @@ class PlayerServiceTest {
             assertEquals(TranscodeScheme.MAX_128, createdPlayer.getTranscodeScheme());
             assertEquals(transcodingDao.getAllTranscodings(), transcodingsCaptor.getValue());
         }
+    }
+
+    @Test
+    void testIsToBeUpdate() {
+        MockHttpServletRequest req = new MockHttpServletRequest();
+        Player player = new Player();
+        assertNull(player.getLastSeen());
+        assertTrue(playerService.isToBeUpdate(req, true, player));
+        assertNotNull(player.getLastSeen());
     }
 }

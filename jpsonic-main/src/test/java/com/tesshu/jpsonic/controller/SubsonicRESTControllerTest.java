@@ -1415,6 +1415,7 @@ class SubsonicRESTControllerTest {
         }
 
         @Test
+        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         void testScrobble() throws ExecutionException {
             RandomSearchCriteria criteria = new RandomSearchCriteria(1, null, null, null, musicFolders);
             MediaFile song = mediaFileDao.getRandomSongs(criteria, ServiceMockUtils.ADMIN_NAME).get(0);
@@ -1435,7 +1436,7 @@ class SubsonicRESTControllerTest {
                         .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
                         .param(Attributes.Request.P.value(), ADMIN_PASS)
                         .param(Attributes.Request.F.value(), EXPECTED_FORMAT)
-                        .param(Attributes.Request.ID.value(), Integer.toString(song.getId())).param("time", "0")
+                        .param(Attributes.Request.ID.value(), Integer.toString(song.getId()))
                         .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
                         .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
                         .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));

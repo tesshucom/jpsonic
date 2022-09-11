@@ -20,12 +20,19 @@
 package com.tesshu.jpsonic.controller;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.Collections;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
@@ -44,15 +51,21 @@ import org.springframework.web.servlet.ModelAndView;
 class PlaylistsControllerTest {
 
     private MockMvc mockMvc;
+    private final Instant now = now();
 
     @BeforeEach
     public void setup() throws ExecutionException {
+
+        Playlist playlist = new Playlist();
+        playlist.setCreated(now);
+        List<Playlist> playlists = Arrays.asList(playlist);
         PlaylistService playlistService = mock(PlaylistService.class);
-        Mockito.when(playlistService.getReadablePlaylistsForUser(Mockito.any())).thenReturn(Collections.emptyList());
+        Mockito.when(playlistService.getReadablePlaylistsForUser(Mockito.any())).thenReturn(playlists);
         mockMvc = MockMvcBuilders.standaloneSetup(new PlaylistsController(mock(SettingsService.class),
                 mock(SecurityService.class), playlistService, mock(ViewAsListSelector.class))).build();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGet() throws Exception {
@@ -62,5 +75,11 @@ class PlaylistsControllerTest {
 
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("playlists", modelAndView.getViewName());
+        Map<String, Object> model = (Map<String, Object>) modelAndView.getModel().get("model");
+        List<PlaylistsController.Playlist> playlists = (List<PlaylistsController.Playlist>) model.get("playlists");
+        assertEquals(1, playlists.size());
+
+        assertEquals(now, playlists.get(0).getCreated());
+        assertEquals(ZonedDateTime.ofInstant(now, ZoneId.systemDefault()), playlists.get(0).getCreatedDateTime());
     }
 }

@@ -60,6 +60,14 @@ class PlayerUtilsTest {
         assertEquals("2930491082", stringStringMap.get("totalLengthInBytes"));
         assertEquals(Long.toString(date.getEpochSecond()) + "." + String.format("%09d", date.getNano()),
                 stringStringMap.get("scanDate"));
+
+        MediaLibraryStatistics restored = PlayerUtils.stringMapToObject(MediaLibraryStatistics.class, stringStringMap);
+        assertEquals(statistics.getAlbumCount(), restored.getAlbumCount());
+        assertEquals(statistics.getArtistCount(), restored.getArtistCount());
+        assertEquals(statistics.getScanDate(), restored.getScanDate());
+        assertEquals(statistics.getSongCount(), restored.getSongCount());
+        assertEquals(statistics.getTotalDurationInSeconds(), restored.getTotalDurationInSeconds());
+        assertEquals(statistics.getTotalLengthInBytes(), restored.getTotalLengthInBytes());
     }
 
     @Test

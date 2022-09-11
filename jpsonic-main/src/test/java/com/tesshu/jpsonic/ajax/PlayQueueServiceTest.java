@@ -23,6 +23,7 @@ import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.lang.annotation.Documented;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +37,7 @@ import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.PlayQueue;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.PodcastEpisode;
+import com.tesshu.jpsonic.domain.SavedPlayQueue;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.InternetRadioService;
 import com.tesshu.jpsonic.service.JWTSecurityService;
@@ -61,6 +63,7 @@ class PlayQueueServiceTest {
     private MediaFileService mediaFileService;
     private PlayQueueService playQueueService;
     private SecurityService securityService;
+    private PlayQueueDao playQueueDao;
 
     @BeforeEach
     public void setup() {
@@ -70,6 +73,12 @@ class PlayQueueServiceTest {
         player.setId(100);
         player.setUsername(ServiceMockUtils.ADMIN_NAME);
         player.setPlayQueue(new PlayQueue());
+
+        PlayQueue playQueue = new PlayQueue();
+
+        playQueue.addFiles(true, Arrays.asList(new MediaFile(), new MediaFile()));
+        player.setPlayQueue(playQueue);
+
         Mockito.when(playerService.getPlayerById(player.getId())).thenReturn(player);
         Mockito.when(playerService.getPlayerById(0)).thenReturn(player);
         Mockito.when(playerService.getPlayer(Mockito.any(), Mockito.any())).thenReturn(player);
@@ -83,10 +92,11 @@ class PlayQueueServiceTest {
 
         mediaFileService = mock(MediaFileService.class);
         securityService = mock(SecurityService.class);
+        playQueueDao = mock(PlayQueueDao.class);
         playQueueService = new PlayQueueService(mock(MusicFolderService.class), securityService, playerService,
                 mock(JpsonicComparators.class), mediaFileService, mock(LastFmService.class), mock(SearchService.class),
                 mock(RatingService.class), podcastService, mock(PlaylistService.class), mock(MediaFileDao.class),
-                mock(PlayQueueDao.class), mock(InternetRadioDao.class), mock(JWTSecurityService.class),
+                playQueueDao, mock(InternetRadioDao.class), mock(JWTSecurityService.class),
                 mock(InternetRadioService.class), AjaxMockUtils.mock(AjaxHelper.class));
     }
 
@@ -183,6 +193,13 @@ class PlayQueueServiceTest {
             Mockito.when(mediaFileService.getMediaFileStrict(dir.getId())).thenReturn(dir);
             assertNotNull(playQueueService.play(dir.getId()));
         }
+    }
+
+    @Test
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    void testSavePlayQueue() throws ServletRequestBindingException {
+        playQueueService.savePlayQueue(1, 1);
+        Mockito.verify(playQueueDao, Mockito.times(1)).savePlayQueue(Mockito.any(SavedPlayQueue.class));
     }
 
     @Test
