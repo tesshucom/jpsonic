@@ -52,7 +52,7 @@ import org.springframework.util.ObjectUtils;
 @DependsOn({ "settingsService" })
 public class JapaneseReadingUtils {
 
-    public static final Pattern ALPHA = Pattern.compile("^[a-zA-Zａ-ｚＡ-Ｚ]+$");
+    public static final Pattern ALPHA = Pattern.compile("^[a-zA-Zａ-ｚＡ-Ｚ]+$"); // lgtm [java/overly-large-range]
     private static final Pattern KATAKANA = Pattern.compile("^[\\u30A0-\\u30FF]+$");
     private static final String ASTER = "*";
     private static final String HYPHEN = "-";
@@ -275,7 +275,7 @@ public class JapaneseReadingUtils {
     }
 
     /* AtoZ only true. */
-    private static boolean isStartWithAlpha(@Nullable String s) {
+    static boolean isStartWithAlpha(@Nullable String s) {
         if (isEmpty(s)) {
             return false;
         }
