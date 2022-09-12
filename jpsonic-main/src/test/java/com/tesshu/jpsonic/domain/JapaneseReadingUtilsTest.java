@@ -66,6 +66,29 @@ class JapaneseReadingUtilsTest {
     }
 
     @Test
+    @Order(0)
+    void testIsStartWithAlpha() {
+        assertTrue(JapaneseReadingUtils.isStartWithAlpha("a"));
+        assertTrue(JapaneseReadingUtils.isStartWithAlpha("z"));
+        assertTrue(JapaneseReadingUtils.isStartWithAlpha("A"));
+        assertTrue(JapaneseReadingUtils.isStartWithAlpha("Z"));
+        assertTrue(JapaneseReadingUtils.isStartWithAlpha("ａ"));
+        assertTrue(JapaneseReadingUtils.isStartWithAlpha("ｚ"));
+        assertTrue(JapaneseReadingUtils.isStartWithAlpha("Ａ"));
+        assertTrue(JapaneseReadingUtils.isStartWithAlpha("Ｚ"));
+
+        assertFalse(JapaneseReadingUtils.isStartWithAlpha("\\"));
+        assertFalse(JapaneseReadingUtils.isStartWithAlpha("^"));
+        assertFalse(JapaneseReadingUtils.isStartWithAlpha("_"));
+        assertFalse(JapaneseReadingUtils.isStartWithAlpha("`"));
+        assertFalse(JapaneseReadingUtils.isStartWithAlpha("``"));
+        assertFalse(JapaneseReadingUtils.isStartWithAlpha("."));
+        assertFalse(JapaneseReadingUtils.isStartWithAlpha(","));
+        assertFalse(JapaneseReadingUtils.isStartWithAlpha("-"));
+        assertFalse(JapaneseReadingUtils.isStartWithAlpha("_"));
+    }
+
+    @Test
     @Order(1)
     void testIsPunctuation() {
         assertFalse(JapaneseReadingUtils.isPunctuation('a'));
