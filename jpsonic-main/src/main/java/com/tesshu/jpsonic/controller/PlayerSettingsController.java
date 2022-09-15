@@ -21,6 +21,8 @@
 
 package com.tesshu.jpsonic.controller;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -126,7 +128,9 @@ public class PlayerSettingsController {
             command.setDynamicIp(player.isDynamicIp());
             command.setAutoControlEnabled(player.isAutoControlEnabled());
             command.setM3uBomEnabled(player.isM3uBomEnabled());
-            command.setLastSeen(player.getLastSeen());
+            if (player.getLastSeen() != null) {
+                command.setLastSeen(ZonedDateTime.ofInstant(player.getLastSeen(), ZoneId.systemDefault()));
+            }
         }
 
         // for view page control

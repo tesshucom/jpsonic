@@ -27,9 +27,8 @@ import java.net.URISyntaxException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
-import java.util.Date;
 
 import ch.qos.logback.classic.Level;
 import com.tesshu.jpsonic.TestCaseUtils;
@@ -75,24 +74,22 @@ class MediaScannerScheduleConfigurationTest {
 
     @Test
     void testCreateFirstTime() {
-        Date firstTime = configuration.createFirstTime();
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(firstTime);
-        assertEquals(now.plus(1, ChronoUnit.DAYS).getDayOfMonth(), cal.get(Calendar.DATE));
-        assertEquals(0, cal.get(Calendar.HOUR));
-        assertEquals(0, cal.get(Calendar.MINUTE));
+        LocalDateTime firstTime = configuration.createFirstTime().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        assertEquals(now.plus(1, ChronoUnit.DAYS).getDayOfMonth(), firstTime.getDayOfMonth());
+        assertEquals(0, firstTime.getHour());
+        assertEquals(0, firstTime.getMinute());
 
         // Date verify is simplified (coverage may not be available depending on system time)
         int hour = 23;
         Mockito.when(settingsService.getIndexCreationHour()).thenReturn(hour);
-        firstTime = configuration.createFirstTime();
-        cal.setTime(firstTime);
+        firstTime = configuration.createFirstTime().atZone(ZoneId.systemDefault()).toLocalDateTime();
         assertEquals(
                 now.plus(now.compareTo(now.withHour(hour).withMinute(0).withSecond(0)) > 0 ? 1 : 0, ChronoUnit.DAYS)
                         .getDayOfMonth(),
-                cal.get(Calendar.DATE));
-        assertEquals(11, cal.get(Calendar.HOUR));
-        assertEquals(0, cal.get(Calendar.MINUTE));
+                firstTime.get(ChronoField.DAY_OF_MONTH));
+        assertEquals(11, firstTime.get(ChronoField.HOUR_OF_AMPM));
+        assertEquals(23, firstTime.get(ChronoField.HOUR_OF_DAY));
+        assertEquals(0, firstTime.get(ChronoField.MINUTE_OF_HOUR));
     }
 
     @Nested
@@ -122,7 +119,7 @@ class MediaScannerScheduleConfigurationTest {
             Mockito.when(settingsService.isVerboseLogStart()).thenReturn(true);
 
             // Operation check at the first startup
-            Date firstTime = trigger.nextExecutionTime(triggerContext);
+            java.util.Date firstTime = trigger.nextExecutionTime(triggerContext);
             LocalDateTime firstDateTime = Instant.ofEpochMilli(firstTime.getTime()).atZone(ZoneId.systemDefault())
                     .toLocalDateTime();
             assertEquals(now.plus(1, ChronoUnit.DAYS).getDayOfMonth(), firstDateTime.getDayOfMonth());

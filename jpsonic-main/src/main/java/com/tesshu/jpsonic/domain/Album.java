@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.domain;
 
-import java.util.Date;
+import java.time.Instant;
 
 public class Album {
 
@@ -35,10 +35,10 @@ public class Album {
     private Integer year;
     private String genre;
     private int playCount;
-    private Date lastPlayed;
+    private Instant lastPlayed;
     private String comment;
-    private Date created;
-    private Date lastScanned;
+    private Instant created;
+    private Instant lastScanned;
     private boolean present;
     private Integer folderId;
     private String musicBrainzReleaseId;
@@ -62,8 +62,8 @@ public class Album {
     }
 
     public Album(int id, String path, String name, String artist, int songCount, int durationSeconds,
-            String coverArtPath, Integer year, String genre, int playCount, Date lastPlayed, String comment,
-            Date created, Date lastScanned, boolean present, Integer folderId, String musicBrainzReleaseId,
+            String coverArtPath, Integer year, String genre, int playCount, Instant lastPlayed, String comment,
+            Instant created, Instant lastScanned, boolean present, Integer folderId, String musicBrainzReleaseId,
             // JP >>>>
             String artistSort, String nameSort, String artistReading, String nameReading, int order // <<<< JP
     ) {
@@ -173,11 +173,11 @@ public class Album {
         this.playCount = playCount;
     }
 
-    public Date getLastPlayed() {
+    public Instant getLastPlayed() {
         return lastPlayed;
     }
 
-    public void setLastPlayed(Date lastPlayed) {
+    public void setLastPlayed(Instant lastPlayed) {
         this.lastPlayed = lastPlayed;
     }
 
@@ -189,19 +189,19 @@ public class Album {
         this.comment = comment;
     }
 
-    public Date getCreated() {
+    public Instant getCreated() {
         return created;
     }
 
-    public void setCreated(Date created) {
+    public void setCreated(Instant created) {
         this.created = created;
     }
 
-    public Date getLastScanned() {
+    public Instant getLastScanned() {
         return lastScanned;
     }
 
-    public void setLastScanned(Date lastScanned) {
+    public void setLastScanned(Instant lastScanned) {
         this.lastScanned = lastScanned;
     }
 

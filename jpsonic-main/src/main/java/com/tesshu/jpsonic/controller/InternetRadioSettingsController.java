@@ -21,7 +21,9 @@
 
 package com.tesshu.jpsonic.controller;
 
-import java.util.Date;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -85,7 +87,7 @@ public class InternetRadioSettingsController {
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (InternetRadio) Not reusable
     private String handleParameters(HttpServletRequest request) {
         List<InternetRadio> radios = internetRadioService.getAllInternetRadios(true);
-        Date current = new Date();
+        Instant current = now();
         for (InternetRadio radio : radios) {
             String msg = updateOrDeleteInternetRadio(request, radio, current);
             if (msg != null) {
@@ -105,14 +107,13 @@ public class InternetRadioSettingsController {
             if (streamUrl == null) {
                 return "internetradiosettings.nourl";
             }
-            internetRadioService
-                    .createInternetRadio(new InternetRadio(name, streamUrl, homepageUrl, enabled, new Date()));
+            internetRadioService.createInternetRadio(new InternetRadio(name, streamUrl, homepageUrl, enabled, now()));
         }
 
         return null;
     }
 
-    private String updateOrDeleteInternetRadio(HttpServletRequest request, InternetRadio radio, Date current) {
+    private String updateOrDeleteInternetRadio(HttpServletRequest request, InternetRadio radio, Instant current) {
         Integer id = radio.getId();
         String streamUrl = getParam4Array(request, Attributes.Request.STREAM_URL.value(), id);
         String homepageUrl = getParam4Array(request, Attributes.Request.HOMEPAGE_URL.value(), id);

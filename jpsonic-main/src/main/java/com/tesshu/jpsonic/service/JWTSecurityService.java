@@ -21,9 +21,12 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.Date;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -34,7 +37,6 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -67,7 +69,7 @@ public class JWTSecurityService {
         return Algorithm.HMAC256(jwtKey);
     }
 
-    static String createToken(String jwtKey, String path, Date expireDate) {
+    static String createToken(String jwtKey, String path, Instant expireDate) {
         UriComponents components = UriComponentsBuilder.fromUriString(path).build();
         String query = components.getQuery();
         String claim = components.getPath() + (StringUtils.isBlank(query) ? "" : "?" + components.getQuery());
@@ -82,10 +84,10 @@ public class JWTSecurityService {
     }
 
     public UriComponentsBuilder addJWTToken(UriComponentsBuilder builder) {
-        return addJWTToken(builder, DateUtils.addDays(new Date(), DEFAULT_DAYS_VALID_FOR));
+        return addJWTToken(builder, now().plus(DEFAULT_DAYS_VALID_FOR, ChronoUnit.DAYS));
     }
 
-    public UriComponentsBuilder addJWTToken(UriComponentsBuilder builder, Date expires) {
+    public UriComponentsBuilder addJWTToken(UriComponentsBuilder builder, Instant expires) {
         String token = JWTSecurityService.createToken(settingsService.getJWTKey(), builder.toUriString(), expires);
         builder.queryParam(JWTSecurityService.JWT_PARAM_NAME, token);
         return builder;

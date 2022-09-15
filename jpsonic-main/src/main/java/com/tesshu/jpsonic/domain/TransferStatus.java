@@ -23,6 +23,7 @@ package com.tesshu.jpsonic.domain;
 
 import java.io.Serializable;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
@@ -72,7 +73,7 @@ public class TransferStatus implements Serializable {
     }
 
     private void createSample(long bytesTransfered, boolean force) {
-        long now = System.currentTimeMillis();
+        long now = Instant.now().toEpochMilli();
 
         if (history.isEmpty()) {
             history.add(new Sample(bytesTransfered, now));
@@ -89,7 +90,7 @@ public class TransferStatus implements Serializable {
             if (history.isEmpty()) {
                 return 0L;
             }
-            return System.currentTimeMillis() - history.getLast().getTimestamp();
+            return Instant.now().toEpochMilli() - history.getLast().getTimestamp();
         }
     }
 

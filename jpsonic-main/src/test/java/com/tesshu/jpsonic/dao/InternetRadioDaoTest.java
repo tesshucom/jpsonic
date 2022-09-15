@@ -21,9 +21,10 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Date;
+import java.time.temporal.ChronoUnit;
 
 import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.domain.InternetRadio;
@@ -60,16 +61,16 @@ class InternetRadioDaoTest {
 
     @Test
     void testCreateInternetRadio() {
-        InternetRadio radio = new InternetRadio("name", "streamUrl", "homePageUrl", true, new Date());
+        InternetRadio radio = new InternetRadio("name", "streamUrl", "homePageUrl", true, now());
         internetRadioDao.createInternetRadio(radio);
 
-        InternetRadio newRadio = internetRadioDao.getAllInternetRadios().get(0);
-        assertInternetRadioEquals(radio, newRadio);
+        InternetRadio insertedRadio = internetRadioDao.getAllInternetRadios().get(0);
+        assertInternetRadioEquals(radio, insertedRadio);
     }
 
     @Test
     void testUpdateInternetRadio() {
-        InternetRadio radio = new InternetRadio("name", "streamUrl", "homePageUrl", true, new Date());
+        InternetRadio radio = new InternetRadio("name", "streamUrl", "homePageUrl", true, now());
         internetRadioDao.createInternetRadio(radio);
         radio = internetRadioDao.getAllInternetRadios().get(0);
 
@@ -77,7 +78,7 @@ class InternetRadioDaoTest {
         radio.setStreamUrl("newStreamUrl");
         radio.setHomepageUrl("newHomePageUrl");
         radio.setEnabled(false);
-        radio.setChanged(new Date(234_234L));
+        radio.setChanged(radio.getChanged().minus(1, ChronoUnit.DAYS));
         internetRadioDao.updateInternetRadio(radio);
 
         InternetRadio newRadio = internetRadioDao.getAllInternetRadios().get(0);
@@ -87,9 +88,9 @@ class InternetRadioDaoTest {
     @Test
     void testDeleteInternetRadio() {
         assertEquals(0, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
-        internetRadioDao.createInternetRadio(new InternetRadio("name", "streamUrl", "homePageUrl", true, new Date()));
+        internetRadioDao.createInternetRadio(new InternetRadio("name", "streamUrl", "homePageUrl", true, now()));
         assertEquals(1, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
-        internetRadioDao.createInternetRadio(new InternetRadio("name", "streamUrl", "homePageUrl", true, new Date()));
+        internetRadioDao.createInternetRadio(new InternetRadio("name", "streamUrl", "homePageUrl", true, now()));
         assertEquals(2, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
         internetRadioDao.deleteInternetRadio(internetRadioDao.getAllInternetRadios().get(0).getId());
         assertEquals(1, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");

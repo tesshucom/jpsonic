@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
@@ -256,7 +256,7 @@ class UserDaoTest {
         settings.setNowPlayingAllowed(true);
         settings.setAvatarScheme(AvatarScheme.SYSTEM);
         settings.setSystemAvatarId(102);
-        settings.setChanged(new Date(9412L));
+        settings.setChanged(Instant.ofEpochMilli(9412L));
         settings.setKeyboardShortcutsEnabled(true);
         settings.setPaginationSize(120);
 
@@ -291,7 +291,7 @@ class UserDaoTest {
         assertTrue(userSettings.isNowPlayingAllowed(), "Error in getUserSettings().");
         Assertions.assertSame(AvatarScheme.SYSTEM, userSettings.getAvatarScheme(), "Error in getUserSettings().");
         assertEquals(102, userSettings.getSystemAvatarId().intValue(), "Error in getUserSettings().");
-        assertEquals(new Date(9412L), userSettings.getChanged(), "Error in getUserSettings().");
+        assertEquals(Instant.ofEpochMilli(9412L), userSettings.getChanged(), "Error in getUserSettings().");
         assertTrue(userSettings.isKeyboardShortcutsEnabled(), "Error in getUserSettings().");
         assertEquals(120, userSettings.getPaginationSize(), "Error in getUserSettings().");
 

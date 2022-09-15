@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.domain;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 import com.tesshu.jpsonic.service.SearchService;
@@ -40,8 +40,8 @@ public class RandomSearchCriteria {
     private final Integer fromYear;
     private final Integer toYear;
     private final List<MusicFolder> musicFolders;
-    private final Date minLastPlayedDate;
-    private final Date maxLastPlayedDate;
+    private final Instant minLastPlayedDate;
+    private final Instant maxLastPlayedDate;
     private final Integer minAlbumRating;
     private final Integer maxAlbumRating;
     private final Integer minPlayCount;
@@ -102,9 +102,9 @@ public class RandomSearchCriteria {
      *            Only return songs whose file format is equal to this value. May be <code>null</code>.
      */
     public RandomSearchCriteria(int count, List<String> genres, Integer fromYear, Integer toYear,
-            List<MusicFolder> musicFolders, Date minLastPlayedDate, Date maxLastPlayedDate, Integer minAlbumRating,
-            Integer maxAlbumRating, Integer minPlayCount, Integer maxPlayCount, boolean showStarredSongs,
-            boolean showUnstarredSongs, String format) {
+            List<MusicFolder> musicFolders, Instant minLastPlayedDate, Instant maxLastPlayedDate,
+            Integer minAlbumRating, Integer maxAlbumRating, Integer minPlayCount, Integer maxPlayCount,
+            boolean showStarredSongs, boolean showUnstarredSongs, String format) {
 
         this.count = count;
         this.genres = genres;
@@ -142,11 +142,11 @@ public class RandomSearchCriteria {
         return musicFolders;
     }
 
-    public Date getMinLastPlayedDate() {
+    public Instant getMinLastPlayedDate() {
         return minLastPlayedDate;
     }
 
-    public Date getMaxLastPlayedDate() {
+    public Instant getMaxLastPlayedDate() {
         return maxLastPlayedDate;
     }
 

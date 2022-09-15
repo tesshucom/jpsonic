@@ -21,12 +21,14 @@
 
 package com.tesshu.jpsonic.controller;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.domain.CoverArtScheme;
-import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -63,11 +65,26 @@ public class PlaylistsController {
     @GetMapping
     public String doGet(HttpServletRequest request, Model model) {
         User user = securityService.getCurrentUserStrict(request);
-        List<Playlist> playlists = playlistService.getReadablePlaylistsForUser(user.getUsername());
+        List<com.tesshu.jpsonic.domain.Playlist> playlists = playlistService
+                .getReadablePlaylistsForUser(user.getUsername());
         model.addAttribute("model",
-                LegacyMap.of("playlists", playlists, "viewAsList",
-                        viewSelector.isViewAsList(request, user.getUsername()), "coverArtSize",
+                LegacyMap.of("playlists", playlists.stream().map(Playlist::new).collect(Collectors.toList()),
+                        "viewAsList", viewSelector.isViewAsList(request, user.getUsername()), "coverArtSize",
                         CoverArtScheme.MEDIUM.getSize(), "publishPodcast", settingsService.isPublishPodcast()));
         return "playlists";
+    }
+
+    // VO
+    public static class Playlist extends com.tesshu.jpsonic.domain.Playlist {
+
+        Playlist(com.tesshu.jpsonic.domain.Playlist playlist) {
+            super(playlist.getId(), playlist.getUsername(), playlist.isShared(), playlist.getName(),
+                    playlist.getComment(), playlist.getFileCount(), playlist.getDurationSeconds(),
+                    playlist.getCreated(), playlist.getChanged(), playlist.getImportedFrom());
+        }
+
+        public ZonedDateTime getCreatedDateTime() {
+            return ZonedDateTime.ofInstant(getCreated(), ZoneId.systemDefault());
+        }
     }
 }

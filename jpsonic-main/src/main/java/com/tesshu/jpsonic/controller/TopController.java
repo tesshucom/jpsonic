@@ -23,6 +23,7 @@ package com.tesshu.jpsonic.controller;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -197,7 +198,7 @@ public class TopController {
             return -1L;
         }
 
-        long lastModified = System.currentTimeMillis();
+        long lastModified = Instant.now().toEpochMilli();
         String username = securityService.getCurrentUsernameStrict(request);
 
         // When was settings last changed?
@@ -225,17 +226,17 @@ public class TopController {
 
         // When was music folder table last changed?
         for (MusicFolder musicFolder : allMusicFolders) {
-            lastModified = Math.max(lastModified, musicFolder.getChanged().getTime());
+            lastModified = Math.max(lastModified, musicFolder.getChanged().toEpochMilli());
         }
 
         // When was internet radio table last changed?
         for (InternetRadio internetRadio : internetRadioService.getAllInternetRadios()) {
-            lastModified = Math.max(lastModified, internetRadio.getChanged().getTime());
+            lastModified = Math.max(lastModified, internetRadio.getChanged().toEpochMilli());
         }
 
         // When was user settings last changed?
         UserSettings userSettings = securityService.getUserSettings(username);
-        lastModified = Math.max(lastModified, userSettings.getChanged().getTime());
+        lastModified = Math.max(lastModified, userSettings.getChanged().toEpochMilli());
 
         return lastModified;
     }

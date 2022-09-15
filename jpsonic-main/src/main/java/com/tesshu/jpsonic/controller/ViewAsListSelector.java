@@ -19,7 +19,7 @@
 
 package com.tesshu.jpsonic.controller;
 
-import java.util.Date;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -44,7 +44,7 @@ public class ViewAsListSelector {
                 userSettings.isViewAsList());
         if (viewAsList != userSettings.isViewAsList()) {
             userSettings.setViewAsList(viewAsList);
-            userSettings.setChanged(new Date());
+            userSettings.setChanged(now());
             securityService.updateUserSettings(userSettings);
         }
         return viewAsList;

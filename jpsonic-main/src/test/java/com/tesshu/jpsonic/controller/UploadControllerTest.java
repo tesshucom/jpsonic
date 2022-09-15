@@ -20,13 +20,13 @@
 package com.tesshu.jpsonic.controller;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -87,8 +87,7 @@ class UploadControllerTest {
     @WithMockUser(username = "admin")
     void testHandleRequestInternalWithFile(@TempDir Path tempDirPath) throws Exception {
 
-        MusicFolder musicFolder = new MusicFolder(Integer.valueOf(0), tempDirPath.toString(), "Incoming1", true,
-                new Date());
+        MusicFolder musicFolder = new MusicFolder(Integer.valueOf(0), tempDirPath.toString(), "Incoming1", true, now());
         musicFolderDao.createMusicFolder(musicFolder);
 
         URL url = UploadController.class.getResource(FILE_PATH);
@@ -116,8 +115,7 @@ class UploadControllerTest {
     @WithMockUser(username = "admin")
     void testHandleRequestInternalWithZip(@TempDir Path tempDirPath) throws Exception {
 
-        MusicFolder musicFolder = new MusicFolder(Integer.valueOf(1), tempDirPath.toString(), "Incoming2", true,
-                new Date());
+        MusicFolder musicFolder = new MusicFolder(Integer.valueOf(1), tempDirPath.toString(), "Incoming2", true, now());
         musicFolderDao.createMusicFolder(musicFolder);
 
         URL url = UploadController.class.getResource(ZIP_PATH);

@@ -21,9 +21,10 @@
 
 package com.tesshu.jpsonic.ajax;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -123,7 +124,7 @@ public class MultiService {
         String username = securityService.getCurrentUsername(request);
         UserSettings userSettings = securityService.getUserSettings(username);
         userSettings.setCloseDrawer(b);
-        userSettings.setChanged(new Date());
+        userSettings.setChanged(now());
         securityService.updateUserSettings(userSettings);
     }
 }

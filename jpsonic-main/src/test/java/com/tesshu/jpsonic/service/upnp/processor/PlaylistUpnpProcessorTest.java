@@ -21,12 +21,13 @@
 
 package com.tesshu.jpsonic.service.upnp.processor;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -50,7 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 class PlaylistUpnpProcessorTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, new Date()));
+            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, now()));
 
     @Autowired
     private PlaylistUpnpProcessor playlistUpnpProcessor;
@@ -79,7 +80,7 @@ class PlaylistUpnpProcessorTest extends AbstractNeedsScan {
         populateDatabaseOnlyOnce();
 
         Function<String, Playlist> toPlaylist = (title) -> {
-            Date now = new Date();
+            Instant now = now();
             Playlist playlist = new Playlist();
             playlist.setName(title);
             playlist.setUsername("admin");

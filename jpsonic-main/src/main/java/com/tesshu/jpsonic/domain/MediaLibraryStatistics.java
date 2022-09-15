@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.domain;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.Objects;
 
 import javax.validation.constraints.NotNull;
@@ -44,13 +44,13 @@ public class MediaLibraryStatistics {
     @NotNull
     private Long totalDurationInSeconds;
     @NotNull
-    private Date scanDate;
+    private Instant scanDate;
 
     public MediaLibraryStatistics() {
 
     }
 
-    public MediaLibraryStatistics(Date scanDate) {
+    public MediaLibraryStatistics(Instant scanDate) {
         if (scanDate == null) {
             throw new IllegalArgumentException();
         }
@@ -106,7 +106,7 @@ public class MediaLibraryStatistics {
         return totalDurationInSeconds;
     }
 
-    public Date getScanDate() {
+    public Instant getScanDate() {
         return scanDate;
     }
 

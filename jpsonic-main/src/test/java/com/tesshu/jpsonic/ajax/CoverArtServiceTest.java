@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.ajax;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -29,7 +30,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
@@ -42,6 +42,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 class CoverArtServiceTest extends AbstractNeedsScan {
 
     private static final String TEST_IMAGE_URL = "https://avatars.githubusercontent.com/u/44695789?s=200&v=4";
@@ -62,7 +63,7 @@ class CoverArtServiceTest extends AbstractNeedsScan {
     @Override
     public List<MusicFolder> getMusicFolders() {
         if (isEmpty(musicFolders)) {
-            musicFolders = Arrays.asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, new Date()));
+            musicFolders = Arrays.asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now()));
         }
         return musicFolders;
     }

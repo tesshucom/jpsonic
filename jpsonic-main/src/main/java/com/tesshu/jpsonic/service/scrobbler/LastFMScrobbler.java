@@ -21,12 +21,14 @@
 
 package com.tesshu.jpsonic.service.scrobbler;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -90,7 +92,7 @@ public class LastFMScrobbler {
      * @param time
      *            Event time, or {@code null} to use current time.
      */
-    public void register(MediaFile mediaFile, String username, String password, boolean submission, Date time,
+    public void register(MediaFile mediaFile, String username, String password, boolean submission, Instant time,
             Executor executor) {
 
         synchronized (registrationLock) {
@@ -163,14 +165,14 @@ public class LastFMScrobbler {
     private static String[] authenticate(RegistrationData registrationData) throws ExecutionException {
         String clientId = "sub";
         String clientVersion = "0.1";
-        long timestamp = System.currentTimeMillis() / 1000L;
-        String authToken = calculateAuthenticationToken(registrationData.getPassword(), timestamp);
+        long epochSecond = Instant.now().getEpochSecond();
+        String authToken = calculateAuthenticationToken(registrationData.getPassword(), epochSecond);
         // NOTE: HTTPS support DOES NOT WORK on the AudioScrobbler v1 API.
         URI uri;
         try {
             uri = new URI("http", /* userInfo= */ null, "post.audioscrobbler.com", -1, "/",
                     String.format("hs=true&p=1.2.1&c=%s&v=%s&u=%s&t=%s&a=%s", clientId, clientVersion,
-                            registrationData.getUsername(), timestamp, authToken),
+                            registrationData.getUsername(), epochSecond, authToken),
                     /* fragment= */ null);
         } catch (URISyntaxException e) {
             throw new ExecutionException("Unable to generate AudioScrobbler URI.", e);
@@ -225,7 +227,7 @@ public class LastFMScrobbler {
         params.put("s", sessionId);
         params.put("a[0]", registrationData.getArtist());
         params.put("t[0]", registrationData.getTitle());
-        params.put("i[0]", String.valueOf(registrationData.getTime().getTime() / 1000L));
+        params.put("i[0]", String.valueOf(registrationData.getTime().getEpochSecond()));
         params.put("o[0]", "P");
         params.put("r[0]", "");
         params.put("l[0]", String.valueOf(registrationData.getDuration()));
@@ -357,17 +359,18 @@ public class LastFMScrobbler {
         private final String album;
         private final String title;
         private final int duration;
-        private final Date time;
+        private final Instant time;
         public boolean submission;
 
-        public RegistrationData(MediaFile mediaFile, String username, String password, boolean submission, Date time) {
+        public RegistrationData(MediaFile mediaFile, String username, String password, boolean submission,
+                Instant time) {
             this.username = username;
             this.password = password;
             this.artist = mediaFile.getArtist();
             this.album = mediaFile.getAlbumName();
             this.title = mediaFile.getTitle();
             this.duration = ObjectUtils.defaultIfNull(mediaFile.getDurationSeconds(), 0);
-            this.time = time == null ? new Date() : time;
+            this.time = time == null ? now() : time;
             this.submission = submission;
         }
 
@@ -395,7 +398,7 @@ public class LastFMScrobbler {
             return duration;
         }
 
-        public Date getTime() {
+        public Instant getTime() {
             return time;
         }
 

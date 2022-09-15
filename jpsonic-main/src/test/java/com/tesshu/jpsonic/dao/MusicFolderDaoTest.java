@@ -21,9 +21,10 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Date;
+import java.time.temporal.ChronoUnit;
 
 import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -56,7 +57,7 @@ class MusicFolderDaoTest {
 
     @Test
     void testCreateMusicFolder() {
-        MusicFolder musicFolder = new MusicFolder("path", "name", true, new Date());
+        MusicFolder musicFolder = new MusicFolder("path", "name", true, now());
         musicFolderDao.createMusicFolder(musicFolder);
 
         MusicFolder newMusicFolder = musicFolderDao.getAllMusicFolders().get(0);
@@ -65,13 +66,13 @@ class MusicFolderDaoTest {
 
     @Test
     void testUpdateMusicFolder() {
-        MusicFolder musicFolder = new MusicFolder("path", "name", true, new Date());
+        MusicFolder musicFolder = new MusicFolder("path", "name", true, now());
         musicFolderDao.createMusicFolder(musicFolder);
         musicFolder = musicFolderDao.getAllMusicFolders().get(0);
 
         musicFolder.setName("newName");
         musicFolder.setEnabled(false);
-        musicFolder.setChanged(new Date(234_234L));
+        musicFolder.setChanged(now().minus(1, ChronoUnit.DAYS));
         musicFolderDao.updateMusicFolder(musicFolder);
 
         MusicFolder newMusicFolder = musicFolderDao.getAllMusicFolders().get(0);
@@ -82,10 +83,10 @@ class MusicFolderDaoTest {
     void testDeleteMusicFolder() {
         assertEquals(0, musicFolderDao.getAllMusicFolders().size(), "Wrong number of music folders.");
 
-        musicFolderDao.createMusicFolder(new MusicFolder("path", "name", true, new Date()));
+        musicFolderDao.createMusicFolder(new MusicFolder("path", "name", true, now()));
         assertEquals(1, musicFolderDao.getAllMusicFolders().size(), "Wrong number of music folders.");
 
-        musicFolderDao.createMusicFolder(new MusicFolder("path", "name", true, new Date()));
+        musicFolderDao.createMusicFolder(new MusicFolder("path", "name", true, now()));
         assertEquals(2, musicFolderDao.getAllMusicFolders().size(), "Wrong number of music folders.");
 
         musicFolderDao.deleteMusicFolder(musicFolderDao.getAllMusicFolders().get(0).getId());

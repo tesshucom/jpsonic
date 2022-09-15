@@ -1,6 +1,7 @@
 package com.tesshu.jpsonic.service;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
@@ -11,10 +12,10 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import com.tesshu.jpsonic.dao.DaoHelper;
@@ -42,7 +43,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-@SuppressWarnings("PMD.AvoidDuplicateLiterals")
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class PlaylistServiceTest {
 
     @Nested
@@ -305,7 +306,7 @@ class PlaylistServiceTest {
         @Test
         void testImportPlaylists(@TempDir Path tempDir) throws IOException {
 
-            final Date current = new Date();
+            final Instant current = now();
 
             Mockito.when(settingsService.getPlaylistFolder()).thenReturn(tempDir.toString());
 

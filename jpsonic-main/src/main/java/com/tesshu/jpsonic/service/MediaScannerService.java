@@ -21,13 +21,13 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,7 +50,6 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import net.sf.ehcache.Ehcache;
-import org.apache.commons.lang3.time.DateUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -174,7 +173,7 @@ public class MediaScannerService {
 
         LOG.info("Starting to scan media library.");
 
-        MediaLibraryStatistics statistics = new MediaLibraryStatistics(DateUtils.truncate(new Date(), Calendar.SECOND));
+        MediaLibraryStatistics statistics = new MediaLibraryStatistics(now());
         if (LOG.isDebugEnabled()) {
             LOG.debug("New last scan date is " + statistics.getScanDate());
         }
@@ -342,7 +341,7 @@ public class MediaScannerService {
         }
     }
 
-    void updateAlbum(@NonNull MediaFile file, @NonNull MusicFolder musicFolder, @NonNull Date lastScanned,
+    void updateAlbum(@NonNull MediaFile file, @NonNull MusicFolder musicFolder, @NonNull Instant lastScanned,
             @NonNull Map<String, Integer> albumCount) {
 
         if (isNotAlbumUpdatable(file)) {
@@ -427,7 +426,7 @@ public class MediaScannerService {
         return album;
     }
 
-    void updateArtist(MediaFile file, MusicFolder musicFolder, Date lastScanned, Map<String, Integer> albumCount) {
+    void updateArtist(MediaFile file, MusicFolder musicFolder, Instant lastScanned, Map<String, Integer> albumCount) {
         if (file.getAlbumArtist() == null || !file.isAudio()) {
             return;
         }

@@ -24,13 +24,13 @@ package com.tesshu.jpsonic.service.upnp.processor;
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.service.upnp.processor.UpnpProcessorTestUtils.INDEX_LIST;
 import static com.tesshu.jpsonic.service.upnp.processor.UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -79,7 +79,7 @@ class IndexUpnpProcessorTest {
         @Test
         void testRefreshIndex() {
             // not scanning
-            List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, "", "name", true, new Date()));
+            List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, "", "name", true, now()));
             Mockito.when(util.getGuestMusicFolders()).thenReturn(musicFolders);
             Mockito.when(musicIndexService.getMusicFolderContent(musicFolders, true))
                     .thenReturn(new MusicFolderContent(new TreeMap<>(), Collections.emptyList()));
@@ -102,8 +102,8 @@ class IndexUpnpProcessorTest {
     @Nested
     class IntegrationTest extends AbstractNeedsScan {
 
-        private final List<MusicFolder> musicFolders = Arrays.asList(
-                new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, new Date()));
+        private final List<MusicFolder> musicFolders = Arrays
+                .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, now()));
 
         @Autowired
         private IndexUpnpProcessor indexUpnpProcessor;

@@ -21,11 +21,14 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.FAR_PAST;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -66,7 +69,6 @@ public class MediaFileDao extends AbstractDao {
     private static final String GENRE_COLUMNS = "name, song_count, album_count";
     private static final int JP_VERSION = 8;
     public static final int VERSION = 4 + JP_VERSION;
-    public static final Date ZERO_DATE = new Date(0L);
 
     private final RowMapper<MediaFile> rowMapper;
     private final RowMapper<MediaFile> musicFileInfoRowMapper;
@@ -229,7 +231,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public void deleteMediaFile(String path) {
-        update("update media_file set present=false, children_last_updated=? where path=?", ZERO_DATE, path);
+        update("update media_file set present=false, children_last_updated=? where path=?", FAR_PAST, path);
     }
 
     public List<Genre> getGenres(boolean sortByAlbum) {
@@ -655,38 +657,37 @@ public class MediaFileDao extends AbstractDao {
 
     public void starMediaFile(int id, String username) {
         unstarMediaFile(id, username);
-        update("insert into starred_media_file(media_file_id, username, created) values (?,?,?)", id, username,
-                new Date());
+        update("insert into starred_media_file(media_file_id, username, created) values (?,?,?)", id, username, now());
     }
 
     public void unstarMediaFile(int id, String username) {
         update("delete from starred_media_file where media_file_id=? and username=?", id, username);
     }
 
-    public Date getMediaFileStarredDate(int id, String username) {
-        return queryForDate("select created from starred_media_file where media_file_id=? and username=?", null, id,
+    public Instant getMediaFileStarredDate(int id, String username) {
+        return queryForInstant("select created from starred_media_file where media_file_id=? and username=?", null, id,
                 username);
     }
 
     public void resetLastScanned() {
-        update("update media_file set last_scanned = ?, children_last_updated = ? where present", ZERO_DATE, ZERO_DATE);
+        update("update media_file set last_scanned = ?, children_last_updated = ? where present", FAR_PAST, FAR_PAST);
     }
 
     public void resetLastScanned(int id) {
-        update("update media_file set last_scanned = ?, children_last_updated = ? where present and id = ?", ZERO_DATE,
-                ZERO_DATE, id);
+        update("update media_file set last_scanned = ?, children_last_updated = ? where present and id = ?", FAR_PAST,
+                FAR_PAST, id);
     }
 
-    public void markPresent(String path, Date lastScanned) {
+    public void markPresent(String path, Instant lastScanned) {
         update("update media_file set present=?, last_scanned = ? where path=?", true, lastScanned, path);
     }
 
-    public void markNonPresent(Date lastScanned) {
+    public void markNonPresent(Instant lastScanned) {
         int minId = queryForInt("select min(id) from media_file where last_scanned < ? and present", 0, lastScanned);
         int maxId = queryForInt("select max(id) from media_file where last_scanned < ? and present", 0, lastScanned);
 
         final int batchSize = 1000;
-        Date childrenLastUpdated = ZERO_DATE; // Used to force a children rescan if file is later resurrected.
+        Instant childrenLastUpdated = FAR_PAST; // Used to force a children rescan if file is later resurrected.
         for (int id = minId; id <= maxId; id += batchSize) {
             update("update media_file set present=false, children_last_updated=? where id between ? and ? and "
                     + "last_scanned < ? and present", childrenLastUpdated, id, id + batchSize, lastScanned);
@@ -730,9 +731,10 @@ public class MediaFileDao extends AbstractDao {
                     rs.getString(13), rs.getInt(14) == 0 ? null : rs.getInt(14), rs.getBoolean(15),
                     rs.getInt(16) == 0 ? null : rs.getInt(16), rs.getLong(17) == 0 ? null : rs.getLong(17),
                     rs.getInt(18) == 0 ? null : rs.getInt(18), rs.getInt(19) == 0 ? null : rs.getInt(19),
-                    rs.getString(20), rs.getString(21), rs.getInt(22), rs.getTimestamp(23), rs.getString(24),
-                    rs.getTimestamp(25), rs.getTimestamp(26), rs.getTimestamp(27), rs.getTimestamp(28),
-                    rs.getBoolean(29), rs.getInt(30), rs.getString(31), rs.getString(32),
+                    rs.getString(20), rs.getString(21), rs.getInt(22), nullableInstantOf(rs.getTimestamp(23)),
+                    rs.getString(24), nullableInstantOf(rs.getTimestamp(25)), nullableInstantOf(rs.getTimestamp(26)),
+                    nullableInstantOf(rs.getTimestamp(27)), nullableInstantOf(rs.getTimestamp(28)), rs.getBoolean(29),
+                    rs.getInt(30), rs.getString(31), rs.getString(32),
                     // JP >>>>
                     rs.getString(33), rs.getString(34), rs.getString(35), rs.getString(36), rs.getString(37),
                     rs.getString(38), rs.getString(39), rs.getString(40), rs.getString(41), rs.getString(42),
@@ -903,7 +905,7 @@ public class MediaFileDao extends AbstractDao {
         public MediaFile mapRow(ResultSet rs, int rowNum) throws SQLException {
             MediaFile file = new MediaFile();
             file.setPlayCount(rs.getInt(1));
-            file.setLastPlayed(rs.getTimestamp(2));
+            file.setLastPlayed(nullableInstantOf(rs.getTimestamp(2)));
             file.setComment(rs.getString(3));
             return file;
         }

@@ -19,7 +19,7 @@
 
 package com.tesshu.jpsonic.controller;
 
-import java.util.Date;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -44,7 +44,7 @@ public class OutlineHelpSelector {
                 Attributes.Request.SHOW_OUTLINE_HELP.value(), userSettings.isShowOutlineHelp());
         if (showOutlineHelp != userSettings.isShowOutlineHelp()) {
             userSettings.setShowOutlineHelp(showOutlineHelp);
-            userSettings.setChanged(new Date());
+            userSettings.setChanged(now());
             securityService.updateUserSettings(userSettings);
         }
         return showOutlineHelp;

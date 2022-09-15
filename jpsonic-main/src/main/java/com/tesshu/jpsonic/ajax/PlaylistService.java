@@ -21,10 +21,13 @@
 
 package com.tesshu.jpsonic.ajax;
 
-import java.text.DateFormat;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -96,6 +99,16 @@ public class PlaylistService {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
 
         Playlist playlist = deligate.getPlaylist(id);
+
+        /*
+         * If you want to use java.time with DWR, you can do it by registering custom outbound converter. (However,
+         * there is no such necessity now. If the fields not used in the code below are intentionally nulled)
+         */
+        if (playlist != null) {
+            playlist.setCreated(null);
+            playlist.setChanged(null);
+        }
+
         List<MediaFile> files = deligate.getFilesInPlaylist(id, true);
 
         String username = securityService.getCurrentUsername(request);
@@ -114,16 +127,15 @@ public class PlaylistService {
 
     public List<Playlist> createEmptyPlaylist() {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
-        Locale locale = airsonicLocaleResolver.resolveLocale(request);
-        DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault());
 
-        Date now = new Date();
+        Instant now = now();
         Playlist playlist = new Playlist();
         playlist.setUsername(securityService.getCurrentUsername(request));
         playlist.setCreated(now);
         playlist.setChanged(now);
         playlist.setShared(false);
-        playlist.setName(dateFormat.format(now));
+        playlist.setName(formatter.format(now));
 
         deligate.createPlaylist(playlist);
         return getReadablePlaylists();
@@ -131,16 +143,15 @@ public class PlaylistService {
 
     public int createPlaylistForPlayQueue() throws ServletRequestBindingException {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
-        Locale locale = airsonicLocaleResolver.resolveLocale(request);
-        DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault());
 
-        Date now = new Date();
+        Instant now = now();
         Playlist playlist = new Playlist();
         playlist.setUsername(securityService.getCurrentUsername(request));
         playlist.setCreated(now);
         playlist.setChanged(now);
         playlist.setShared(false);
-        playlist.setName(dateFormat.format(now));
+        playlist.setName(formatter.format(now));
         deligate.createPlaylist(playlist);
 
         HttpServletResponse response = ajaxHelper.getHttpServletResponse();
@@ -153,9 +164,8 @@ public class PlaylistService {
     public int createPlaylistForStarredSongs() {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         Locale locale = airsonicLocaleResolver.resolveLocale(request);
-        DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale);
 
-        Date now = new Date();
+        Instant now = now();
         Playlist playlist = new Playlist();
         String username = securityService.getCurrentUsernameStrict(request);
         playlist.setUsername(username);
@@ -164,7 +174,8 @@ public class PlaylistService {
         playlist.setShared(false);
 
         ResourceBundle bundle = ResourceBundle.getBundle("com.tesshu.jpsonic.i18n.ResourceBundle", locale);
-        playlist.setName(bundle.getString("top.starred") + " " + dateFormat.format(now));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault());
+        playlist.setName(bundle.getString("top.starred") + " " + formatter.format(now));
 
         deligate.createPlaylist(playlist);
         List<MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);

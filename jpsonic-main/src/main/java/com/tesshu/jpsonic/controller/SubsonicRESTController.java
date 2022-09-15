@@ -22,13 +22,14 @@
 package com.tesshu.jpsonic.controller;
 
 import static com.tesshu.jpsonic.security.RESTRequestParameterProcessingFilter.decrypt;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -379,7 +380,7 @@ public class SubsonicRESTController {
                         index.getArtist().add(a);
                         a.setId(String.valueOf(mediaFile.getId()));
                         a.setName(artist.getName());
-                        Date starredDate = mediaFileDao.getMediaFileStarredDate(mediaFile.getId(), username);
+                        Instant starredDate = mediaFileDao.getMediaFileStarredDate(mediaFile.getId(), username);
                         a.setStarred(jaxbWriter.convertDate(starredDate));
 
                         if (mediaFile.isAlbum()) {
@@ -646,7 +647,7 @@ public class SubsonicRESTController {
         org.subsonic.restapi.Artist result = new org.subsonic.restapi.Artist();
         result.setId(String.valueOf(artist.getId()));
         result.setName(artist.getArtist());
-        Date starred = mediaFileDao.getMediaFileStarredDate(artist.getId(), username);
+        Instant starred = mediaFileDao.getMediaFileStarredDate(artist.getId(), username);
         result.setStarred(jaxbWriter.convertDate(starred));
         return result;
     }
@@ -1034,8 +1035,9 @@ public class SubsonicRESTController {
         if (playlistId == null) {
             playlist = new com.tesshu.jpsonic.domain.Playlist();
             playlist.setName(name);
-            playlist.setCreated(new Date());
-            playlist.setChanged(new Date());
+            Instant now = now();
+            playlist.setCreated(now);
+            playlist.setChanged(now);
             playlist.setShared(false);
             playlist.setUsername(username);
             playlistService.createPlaylist(playlist);
@@ -1570,7 +1572,7 @@ public class SubsonicRESTController {
                 }
                 continue;
             }
-            Date time = times.length == 0 ? new Date() : new Date(times[i]);
+            Instant time = times.length == 0 ? now() : Instant.ofEpochMilli(times[i]);
             statusService.addRemotePlay(new PlayStatus(file, player, time));
             mediaFileService.incrementPlayCount(file);
             if (securityService.getUserSettings(player.getUsername()).isLastFmEnabled()) {
@@ -1922,8 +1924,8 @@ public class SubsonicRESTController {
         int mediaFileId = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         long position = ServletRequestUtils.getRequiredLongParameter(request, Attributes.Request.POSITION.value());
         String comment = request.getParameter(Attributes.Request.COMMENT.value());
-        Date now = new Date();
 
+        Instant now = now();
         Bookmark bookmark = new Bookmark(0, mediaFileId, position, username, comment, now, now);
         bookmarkService.createOrUpdateBookmark(bookmark);
         writeEmptyResponse(request, response);
@@ -1986,7 +1988,7 @@ public class SubsonicRESTController {
 
         String username = securityService.getCurrentUsername(request);
         Long position = ServletRequestUtils.getLongParameter(request, Attributes.Request.POSITION.value());
-        Date changed = new Date();
+        Instant changed = now();
         String changedBy = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.C.value());
 
         SavedPlayQueue playQueue = new SavedPlayQueue(null, username, mediaFileIds, current, position, changed,
@@ -2037,7 +2039,7 @@ public class SubsonicRESTController {
         share.setDescription(request.getParameter(Attributes.Request.DESCRIPTION.value()));
         long expires = ServletRequestUtils.getLongParameter(request, Attributes.Request.EXPIRES.value(), 0L);
         if (expires != 0) {
-            share.setExpires(new Date(expires));
+            share.setExpires(Instant.ofEpochMilli(expires));
         }
         shareService.updateShare(share);
 
@@ -2104,7 +2106,7 @@ public class SubsonicRESTController {
         String expiresString = request.getParameter(Attributes.Request.EXPIRES.value());
         if (expiresString != null) {
             long expires = Long.parseLong(expiresString);
-            share.setExpires(expires == 0L ? null : new Date(expires));
+            share.setExpires(expires == 0L ? null : Instant.ofEpochMilli(expires));
         }
         shareService.updateShare(share);
         writeEmptyResponse(request, response);

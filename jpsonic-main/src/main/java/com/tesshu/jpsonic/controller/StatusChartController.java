@@ -25,8 +25,8 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -100,7 +100,7 @@ public class StatusChartController extends AbstractChartController {
 
         TimeSeries series = new TimeSeries("Kbps");
         TransferStatus.SampleHistory history = status.getHistory();
-        long to = System.currentTimeMillis();
+        long to = Instant.now().toEpochMilli();
         long from = to - status.getHistoryLengthMillis();
 
         if (!history.isEmpty()) {
@@ -114,7 +114,8 @@ public class StatusChartController extends AbstractChartController {
                 long bytesStreamed = Math.max(0L, sample.getBytesTransfered() - previous.getBytesTransfered());
 
                 double kbps = (8.0 * bytesStreamed / 1024.0) / (elapsedTimeMilis / 1000.0);
-                series.addOrUpdate(new Millisecond(new Date(sample.getTimestamp())), kbps);
+                series.addOrUpdate(new Millisecond(java.util.Date.from(Instant.ofEpochMilli(sample.getTimestamp()))),
+                        kbps);
 
                 previous = sample;
             }

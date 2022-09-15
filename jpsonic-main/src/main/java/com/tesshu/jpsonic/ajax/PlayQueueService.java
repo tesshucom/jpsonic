@@ -24,12 +24,12 @@ package com.tesshu.jpsonic.ajax;
 import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ALBUM;
 import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
 import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.TRACK;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -195,7 +195,7 @@ public class PlayQueueService {
         List<Integer> ids = MediaFile.toIdList(playQueue.getFiles());
 
         Integer currentId = currentSongIndex == -1 ? null : playQueue.getFile(currentSongIndex).getId();
-        SavedPlayQueue savedPlayQueue = new SavedPlayQueue(null, username, ids, currentId, positionMillis, new Date(),
+        SavedPlayQueue savedPlayQueue = new SavedPlayQueue(null, username, ids, currentId, positionMillis, now(),
                 "Airsonic");
         playQueueDao.savePlayQueue(savedPlayQueue);
     }

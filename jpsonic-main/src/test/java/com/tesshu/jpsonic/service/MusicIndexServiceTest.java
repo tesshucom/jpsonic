@@ -22,12 +22,12 @@
 package com.tesshu.jpsonic.service;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -94,7 +94,7 @@ class MusicIndexServiceTest {
         List<MediaFile> children = Arrays.asList(child1, child2);
         Mockito.when(mediaFileService.getChildrenOf(Mockito.any(MediaFile.class), Mockito.anyBoolean(),
                 Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(children);
-        MusicFolder folder = new MusicFolder(0, "path", "name", true, new Date());
+        MusicFolder folder = new MusicFolder(0, "path", "name", true, now());
 
         SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> indexedArtists = musicIndexService
                 .getIndexedArtists(Arrays.asList(folder), false);
@@ -146,8 +146,8 @@ class MusicIndexServiceTest {
 
     @Test
     void testGetIndexedArtistsListOfArtist() {
-        Artist artist1 = new Artist(0, "The Flipper's Guitar", null, 0, new Date(), false, 0, null, null, -1);
-        Artist artist2 = new Artist(0, "abcde", null, 0, new Date(), false, 0, null, null, -1);
+        Artist artist1 = new Artist(0, "The Flipper's Guitar", null, 0, now(), false, 0, null, null, -1);
+        Artist artist2 = new Artist(0, "abcde", null, 0, now(), false, 0, null, null, -1);
         List<Artist> artists = Arrays.asList(artist1, artist2);
 
         SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> indexedArtists = musicIndexService
@@ -182,7 +182,7 @@ class MusicIndexServiceTest {
                 .thenReturn(songs).thenThrow(new RuntimeException("Fail"));
         Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class), Mockito.anyBoolean()))
                 .thenReturn(new MediaFile());
-        MusicFolder folder = new MusicFolder(0, "path", "name", true, new Date());
+        MusicFolder folder = new MusicFolder(0, "path", "name", true, now());
 
         MusicFolderContent content = musicIndexService.getMusicFolderContent(Arrays.asList(folder), false);
         assertEquals(2, content.getIndexedArtists().size());
@@ -227,8 +227,7 @@ class MusicIndexServiceTest {
         song.setPathString("path");
         Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class), Mockito.anyBoolean())).thenReturn(song);
         MusicFolder folder = new MusicFolder(
-                Path.of(MusicIndexServiceTest.class.getResource("/MEDIAS").toURI()).toString(), "Music", true,
-                new Date());
+                Path.of(MusicIndexServiceTest.class.getResource("/MEDIAS").toURI()).toString(), "Music", true, now());
 
         List<MediaFile> shortcuts = musicIndexService.getShortcuts(Arrays.asList(folder));
         assertEquals(1, shortcuts.size());

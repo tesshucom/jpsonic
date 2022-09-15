@@ -21,10 +21,12 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +45,8 @@ import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -92,8 +96,8 @@ public class RandomPlayQueueController {
             @RequestParam(value = Attributes.Request.NameConstants.GENRE, required = false) final String genreParam,
             @RequestParam(value = Attributes.Request.NameConstants.YEAR, required = false) String yearParam,
             @RequestParam(value = Attributes.Request.NameConstants.SONG_RATING, required = false) String songRating,
-            @RequestParam(value = Attributes.Request.NameConstants.LAST_PLAYED_VALUE, required = false) String lastPlayedValue,
-            @RequestParam(value = Attributes.Request.NameConstants.LAST_PLAYED_COMP, required = false) String lastPlayedComp,
+            @RequestParam(value = Attributes.Request.NameConstants.LAST_PLAYED_VALUE, required = true) String lastPlayedValue,
+            @RequestParam(value = Attributes.Request.NameConstants.LAST_PLAYED_COMP, required = true) String lastPlayedComp,
             @RequestParam(value = Attributes.Request.NameConstants.ALBUM_RATING_VALUE, required = false) Integer albumRatingValue,
             @RequestParam(value = Attributes.Request.NameConstants.ALBUM_RATING_COMP, required = false) String albumRatingComp,
             @RequestParam(value = Attributes.Request.NameConstants.PLAY_COUNT_VALUE, required = false) Integer playCountValue,
@@ -176,45 +180,45 @@ public class RandomPlayQueueController {
     /*
      * (lastPlayed) Intentional assignment in the case of receiving a param indicating no condition value.
      */
-    private LastPlayed getLastPlayed(String lastPlayedValue, String lastPlayedComp) {
-        Date minLastPlayedDate = null;
-        Date maxLastPlayedDate = null;
+    @NonNull
+    LastPlayed getLastPlayed(@NonNull String lastPlayedValue, @NonNull String lastPlayedComp) {
+        Instant minLastPlayedDate = null;
+        Instant maxLastPlayedDate = null;
         // Handle the last played date filter
-        Calendar lastPlayed = Calendar.getInstance();
-        lastPlayed.setTime(new Date());
-        switch (lastPlayedValue) { // nullable
+        Instant lastPlayed = now();
+        switch (lastPlayedValue) {
         case REQUEST_VALUE_ANY:
             lastPlayed = null;
             break;
         case "1day":
-            lastPlayed.add(Calendar.DAY_OF_YEAR, -1);
+            lastPlayed = lastPlayed.minus(1, ChronoUnit.DAYS);
             break;
         case "1week":
-            lastPlayed.add(Calendar.WEEK_OF_YEAR, -1);
+            lastPlayed = lastPlayed.minus(7, ChronoUnit.DAYS);
             break;
         case "1month":
-            lastPlayed.add(Calendar.MONTH, -1);
+            lastPlayed = lastPlayed.minus(30, ChronoUnit.DAYS);
             break;
         case "3months":
-            lastPlayed.add(Calendar.MONTH, -3);
+            lastPlayed = lastPlayed.minus(90, ChronoUnit.DAYS);
             break;
         case "6months":
-            lastPlayed.add(Calendar.MONTH, -6);
+            lastPlayed = lastPlayed.minus(180, ChronoUnit.DAYS);
             break;
         case "1year":
-            lastPlayed.add(Calendar.YEAR, -1);
+            lastPlayed = lastPlayed.minus(365, ChronoUnit.DAYS);
             break;
         default:
             // none
             break;
         }
         if (lastPlayed != null) {
-            switch (lastPlayedComp) { // nullable
+            switch (lastPlayedComp) {
             case "lt":
-                maxLastPlayedDate = lastPlayed.getTime();
+                maxLastPlayedDate = lastPlayed;
                 break;
             case "gt":
-                minLastPlayedDate = lastPlayed.getTime();
+                minLastPlayedDate = lastPlayed;
                 break;
             default:
                 // none
@@ -224,21 +228,21 @@ public class RandomPlayQueueController {
         return new LastPlayed(minLastPlayedDate, maxLastPlayedDate);
     }
 
-    private static class LastPlayed {
-        private final Date minLastPlayedDate;
-        private final Date maxLastPlayedDate;
+    static class LastPlayed {
+        private final Instant minLastPlayedDate;
+        private final Instant maxLastPlayedDate;
 
-        public LastPlayed(Date minLastPlayedDate, Date maxLastPlayedDate) {
+        public LastPlayed(@Nullable Instant minLastPlayedDate, @Nullable Instant maxLastPlayedDate) {
             super();
             this.minLastPlayedDate = minLastPlayedDate;
             this.maxLastPlayedDate = maxLastPlayedDate;
         }
 
-        public Date getMinLastPlayedDate() {
+        public Instant getMinLastPlayedDate() {
             return minLastPlayedDate;
         }
 
-        public Date getMaxLastPlayedDate() {
+        public Instant getMaxLastPlayedDate() {
             return maxLastPlayedDate;
         }
     }

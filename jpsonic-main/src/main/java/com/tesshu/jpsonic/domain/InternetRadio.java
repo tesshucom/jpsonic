@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.domain;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * Represents an internet radio station.
@@ -35,7 +35,7 @@ public class InternetRadio {
     private String streamUrl;
     private String homepageUrl;
     private boolean enabled;
-    private Date changed;
+    private Instant changed;
 
     /**
      * Creates a new internet radio station.
@@ -54,7 +54,7 @@ public class InternetRadio {
      *            When the corresponding database entry was last changed.
      */
     public InternetRadio(Integer id, String name, String streamUrl, String homepageUrl, boolean isEnabled,
-            Date changed) {
+            Instant changed) {
         this.id = id;
         this.name = name;
         this.streamUrl = streamUrl;
@@ -77,7 +77,7 @@ public class InternetRadio {
      * @param changed
      *            When the corresponding database entry was last changed.
      */
-    public InternetRadio(String name, String streamUrl, String homepageUrl, boolean isEnabled, Date changed) {
+    public InternetRadio(String name, String streamUrl, String homepageUrl, boolean isEnabled, Instant changed) {
         this(null, name, streamUrl, homepageUrl, isEnabled, changed);
     }
 
@@ -171,7 +171,7 @@ public class InternetRadio {
      *
      * @return When the corresponding database entry was last changed.
      */
-    public Date getChanged() {
+    public Instant getChanged() {
         return changed;
     }
 
@@ -181,7 +181,7 @@ public class InternetRadio {
      * @param changed
      *            When the corresponding database entry was last changed.
      */
-    public void setChanged(Date changed) {
+    public void setChanged(Instant changed) {
         this.changed = changed;
     }
 }

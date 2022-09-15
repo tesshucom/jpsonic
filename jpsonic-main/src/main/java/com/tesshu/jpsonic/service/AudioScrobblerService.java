@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.service;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.concurrent.Executor;
 
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -64,7 +64,7 @@ public class AudioScrobblerService {
      * @param time
      *            Event time, or {@code null} to use current time.
      */
-    public void register(MediaFile mediaFile, String username, boolean submission, Date time) {
+    public void register(MediaFile mediaFile, String username, boolean submission, Instant time) {
         if (mediaFile == null || mediaFile.isVideo()) {
             return;
         }

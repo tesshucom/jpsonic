@@ -22,18 +22,18 @@
 package com.tesshu.jpsonic.service;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.stream.Stream;
 
 import com.auth0.jwt.JWT;
@@ -44,7 +44,6 @@ import com.auth0.jwt.exceptions.InvalidClaimException;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -91,13 +90,9 @@ class JWTSecurityServiceTest {
         private static final String KEY = "key";
         private static final String PATH = "path";
 
-        private Date toDate(LocalDateTime l) {
-            return Date.from(ZonedDateTime.of(l, ZoneId.systemDefault()).toInstant());
-        }
-
         @Test
         void testVerify() {
-            Date current = toDate(LocalDateTime.now());
+            Instant current = now();
             String token = JWTSecurityService.createToken(KEY, PATH, current);
             DecodedJWT decoded = JWTSecurityService.verify(KEY, token);
 
@@ -106,8 +101,7 @@ class JWTSecurityServiceTest {
             assertEquals(2, decoded.getClaims().size());
             assertEquals("\"" + PATH + "\"", decoded.getClaim("path").toString());
             assertNull(decoded.getContentType());
-            Date truncated = DateUtils.truncate(current, Calendar.SECOND);
-            assertEquals(truncated, decoded.getExpiresAt());
+            assertEquals(current.truncatedTo(ChronoUnit.SECONDS), decoded.getExpiresAt().toInstant());
             assertEquals("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9", decoded.getHeader());
             assertNull(decoded.getId());
             assertNull(decoded.getIssuer());
@@ -123,9 +117,9 @@ class JWTSecurityServiceTest {
 
         @Test
         void testTokenExpired() {
-            LocalDateTime now = LocalDateTime.now();
-            Date after = toDate(now.plus(7, ChronoUnit.DAYS));
-            Date before = toDate(now.minus(7, ChronoUnit.DAYS));
+            Instant now = now();
+            Instant after = now.plus(7, ChronoUnit.DAYS);
+            Instant before = now.minus(7, ChronoUnit.DAYS);
 
             assertNotNull(JWTSecurityService.verify(KEY, JWTSecurityService.createToken(KEY, PATH, after)));
             Throwable t = assertThrows(com.tesshu.jpsonic.security.TokenExpiredException.class,
@@ -135,7 +129,7 @@ class JWTSecurityServiceTest {
 
         @Test
         void testSignatureVerification() {
-            Date current = toDate(LocalDateTime.now());
+            Instant current = now();
             String invalidToken = JWTSecurityService.createToken(KEY, PATH, current);
             Throwable t = assertThrows(com.tesshu.jpsonic.security.SignatureVerificationException.class,
                     () -> jwtSecurityService.verify(invalidToken));
@@ -144,7 +138,7 @@ class JWTSecurityServiceTest {
 
         @Test
         void testJWTDecode() {
-            Date current = toDate(LocalDateTime.now());
+            Instant current = now();
             String invalidToken = "foo" + JWTSecurityService.createToken(KEY, PATH, current).substring(3);
             Throwable t = assertThrows(BadCredentialsException.class, () -> jwtSecurityService.verify(invalidToken));
             assertInstanceOf(JWTDecodeException.class, t.getCause());
@@ -159,7 +153,10 @@ class JWTSecurityServiceTest {
 
         @Test
         void testInvalidClaim() {
-            final String token = JWT.create().withExpiresAt(toDate(LocalDateTime.now())).sign(Algorithm.HMAC256(KEY));
+            final String token = JWT.create()
+                    .withExpiresAt(java.util.Date
+                            .from(ZonedDateTime.of(LocalDateTime.now(), ZoneId.systemDefault()).toInstant()))
+                    .sign(Algorithm.HMAC256(KEY));
             Throwable t = assertThrows(BadCredentialsException.class, () -> JWTSecurityService.verify(KEY, token));
             assertInstanceOf(InvalidClaimException.class, t.getCause());
         }

@@ -21,20 +21,21 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.OBJECT_MAPPER;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -42,7 +43,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tesshu.jpsonic.domain.Version;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.ResponseHandler;
@@ -53,6 +53,7 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -67,8 +68,8 @@ import org.springframework.stereotype.Service;
 public class VersionService {
 
     private static final Logger LOG = LoggerFactory.getLogger(VersionService.class);
-    private static final ThreadLocal<DateFormat> DATE_FORMAT = ThreadLocal
-            .withInitial(() -> new SimpleDateFormat("yyyyMMdd", Locale.US));
+    private static final ThreadLocal<DateTimeFormatter> DATE_FORMAT = ThreadLocal
+            .withInitial(() -> DateTimeFormatter.ofPattern("yyyyMMdd"));
     private static final Pattern VERSION_REGEX = Pattern.compile("^v(.*)");
     private static final String VERSION_URL = "https://api.github.com/repos/jpsonic/jpsonic/releases";
 
@@ -87,7 +88,7 @@ public class VersionService {
     private Version latestFinalVersion;
     private Version latestBetaVersion;
     private Version localVersion;
-    private Date localBuildDate;
+    private LocalDate localBuildDate;
     private String localBuildNumber;
 
     /**
@@ -145,21 +146,28 @@ public class VersionService {
      * @return The build date for the locally installed Jpsonic version, or <code>null</code> if the build date can't be
      *         resolved.
      */
-    public Date getLocalBuildDate() {
+    public LocalDate getLocalBuildDate() {
         synchronized (localBuildDateLock) {
             if (localBuildDate == null) {
                 try {
                     String date = readLineFromResource("/build_date.txt");
                     synchronized (DATE_FORMAT) {
-                        localBuildDate = DATE_FORMAT.get().parse(date);
+                        localBuildDate = parseLocalBuildDate(date);
                     }
-                } catch (ParseException e) {
+                } catch (DateTimeParseException e) {
                     if (LOG.isWarnEnabled()) {
                         LOG.warn("Failed to resolve local Jpsonic build date.", e);
                     }
                 }
             }
             return localBuildDate;
+        }
+    }
+
+    @Nullable
+    LocalDate parseLocalBuildDate(String date) {
+        synchronized (DATE_FORMAT) {
+            return LocalDate.parse(date, DATE_FORMAT.get());
         }
     }
 
@@ -234,7 +242,7 @@ public class VersionService {
      * Refreshes the latest final and beta versions.
      */
     private void refreshLatestVersion() {
-        long now = System.currentTimeMillis();
+        long now = Instant.now().toEpochMilli();
         boolean isOutdated = now - lastVersionFetched > LAST_VERSION_FETCH_INTERVAL;
 
         if (isOutdated) {
@@ -275,7 +283,7 @@ public class VersionService {
             }
 
             List<String> unsortedTags = new ArrayList<>();
-            for (JsonNode item : new ObjectMapper().readTree(content)) {
+            for (JsonNode item : OBJECT_MAPPER.readTree(content)) {
                 String tagName = item.path("tag_name").asText();
                 if (!StringUtils.isEmpty(tagName)) {
                     unsortedTags.add(tagName);

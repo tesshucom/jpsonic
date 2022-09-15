@@ -21,12 +21,12 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Date;
 import java.util.List;
 
 import com.tesshu.jpsonic.NeedsHome;
@@ -49,7 +49,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  */
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
-@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class PlayerDaoTest {
 
     @Autowired
@@ -74,7 +74,7 @@ class PlayerDaoTest {
         player.setAutoControlEnabled(false);
         player.setTechnology(PlayerTechnology.EXTERNAL_WITH_PLAYLIST);
         player.setClientId("android");
-        player.setLastSeen(new Date());
+        player.setLastSeen(now());
         player.setTranscodeScheme(TranscodeScheme.MAX_256);
 
         playerDao.createPlayer(player);
@@ -172,7 +172,7 @@ class PlayerDaoTest {
         player.setIpAddress("ipaddress");
         player.setDynamicIp(true);
         player.setAutoControlEnabled(false);
-        player.setLastSeen(new Date());
+        player.setLastSeen(now());
         player.setTranscodeScheme(TranscodeScheme.MAX_256);
 
         playerDao.updatePlayer(player);

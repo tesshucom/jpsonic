@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.service;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,7 +30,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 
 import ch.qos.logback.classic.Level;
 import com.tesshu.jpsonic.TestCaseUtils;
@@ -44,6 +44,7 @@ import org.springframework.scheduling.TriggerContext;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.config.TriggerTask;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 class PodcastScheduleConfigurationTest {
 
     private SettingsService settingsService;
@@ -68,9 +69,10 @@ class PodcastScheduleConfigurationTest {
 
     @Test
     void testCreateFirstTime() {
-        LocalDateTime firstTimeExpected = LocalDateTime.now().plus(5, ChronoUnit.MINUTES);
-        LocalDateTime firstTime = PodcastScheduleConfiguration.createFirstTime().toInstant()
-                .atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime firstTimeExpected = now().plus(5, ChronoUnit.MINUTES).atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+        LocalDateTime firstTime = PodcastScheduleConfiguration.createFirstTime().atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
         assertEquals(firstTimeExpected.getDayOfMonth(), firstTime.getDayOfMonth());
         assertEquals(firstTimeExpected.getHour(), firstTime.getHour());
         assertEquals(firstTimeExpected.getMinute(), firstTime.getMinute());
@@ -112,15 +114,14 @@ class PodcastScheduleConfigurationTest {
             // Operation check at the first startup
             LocalDateTime firstTimeExpected = LocalDateTime.now().plus(5, ChronoUnit.MINUTES);
 
-            Date firstTime = trigger.nextExecutionTime(triggerContext);
-            LocalDateTime firstDateTime = Instant.ofEpochMilli(firstTime.getTime()).atZone(ZoneId.systemDefault())
-                    .toLocalDateTime();
+            Instant firstTime = trigger.nextExecutionTime(triggerContext).toInstant();
+            LocalDateTime firstDateTime = firstTime.atZone(ZoneId.systemDefault()).toLocalDateTime();
             assertEquals(firstTimeExpected.getDayOfMonth(), firstDateTime.getDayOfMonth());
             assertEquals(firstTimeExpected.getHour(), firstDateTime.getHour());
             assertEquals(firstTimeExpected.getMinute(), firstDateTime.getMinute());
 
             // Operation check at the second and subsequent startups
-            Mockito.when(triggerContext.lastCompletionTime()).thenReturn(firstTime);
+            Mockito.when(triggerContext.lastCompletionTime()).thenReturn(java.util.Date.from(firstTime));
             LocalDateTime secondDateTime = Instant.ofEpochMilli(trigger.nextExecutionTime(triggerContext).getTime())
                     .atZone(ZoneId.systemDefault()).toLocalDateTime();
             LocalDateTime secondExpected = firstTimeExpected.plus(hourOfweek, ChronoUnit.HOURS);
@@ -171,15 +172,14 @@ class PodcastScheduleConfigurationTest {
             // Operation check at the first startup
             LocalDateTime firstTimeExpected = LocalDateTime.now().plus(5, ChronoUnit.MINUTES);
 
-            Date firstTime = trigger.nextExecutionTime(triggerContext);
-            LocalDateTime firstDateTime = Instant.ofEpochMilli(firstTime.getTime()).atZone(ZoneId.systemDefault())
-                    .toLocalDateTime();
+            Instant firstTime = trigger.nextExecutionTime(triggerContext).toInstant();
+            LocalDateTime firstDateTime = firstTime.atZone(ZoneId.systemDefault()).toLocalDateTime();
             assertEquals(firstTimeExpected.getDayOfMonth(), firstDateTime.getDayOfMonth());
             assertEquals(firstTimeExpected.getHour(), firstDateTime.getHour());
             assertEquals(firstTimeExpected.getMinute(), firstDateTime.getMinute());
 
             // Operation check at the second and subsequent startups
-            Mockito.when(triggerContext.lastCompletionTime()).thenReturn(firstTime);
+            Mockito.when(triggerContext.lastCompletionTime()).thenReturn(java.util.Date.from(firstTime));
             LocalDateTime secondDateTime = Instant.ofEpochMilli(trigger.nextExecutionTime(triggerContext).getTime())
                     .atZone(ZoneId.systemDefault()).toLocalDateTime();
 
