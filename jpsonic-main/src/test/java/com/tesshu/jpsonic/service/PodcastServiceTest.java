@@ -61,5 +61,8 @@ class PodcastServiceTest {
         assertEquals("2022-09-09 08:47:01", fmt.format(toJST("Fri, 09 Sep 2022 08:47:01 ROK")));
         assertEquals("2022-09-09 22:48:02", fmt.format(toJST("Fri, 09 Sep 2022 08:48:02 CDT")));
         assertEquals("2022-09-09 21:49:03", fmt.format(toJST("Fri, 09 Sep 2022 08:49:03 EST")));
+
+        // Accept non zero-fill-numeric values
+        assertEquals("2022-09-09 08:07:05", fmt.format(toJST("Fri, 9 Sep 2022 8:7:5 JST")));
     }
 }

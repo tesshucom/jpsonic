@@ -99,7 +99,7 @@ public class PodcastService {
     // Wed, 6 Jul 2014 13:00:00 PDT
     // Wed, 6 Jul 2014 13:00:00 -0700
     private static final DateTimeFormatter RSS_DATE_FORMAT = DateTimeFormatter
-            .ofPattern("EEE, dd MMM yyyy HH:mm:ss [Z][zzz]", Locale.ROOT);
+            .ofPattern("EEE, d MMM yyyy H:m:s [Z][zzz]", Locale.ROOT);
 
     private static final Namespace[] ITUNES_NAMESPACES = {
             Namespace.getNamespace("http://www.itunes.com/DTDs/Podcast-1.0.dtd"),
@@ -517,7 +517,7 @@ public class PodcastService {
             return ZonedDateTime.parse(s, RSS_DATE_FORMAT).toInstant();
         } catch (DateTimeParseException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Podcast dates must comply with RFC 2822.", e);
+                LOG.warn("Podcast dates must comply with RFC 2822. : {}", e.getMessage());
             }
         }
         return null;
