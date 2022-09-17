@@ -227,6 +227,7 @@ public class InternalHelpController {
         map.put("localeLang", System.getenv("LANG"));
         map.put("localeLcAll", System.getenv("LC_ALL"));
         map.put("localeDefaultCharset", Charset.defaultCharset().toString());
+        map.put("localeDefaultZoneOffset", java.time.ZoneOffset.systemDefault());
 
         map.put("localeFileEncodingSupportsUtf8", doesLocaleSupportUtf8(System.getProperty("file.encoding")));
         map.put("localeLangSupportsUtf8", doesLocaleSupportUtf8(System.getenv("LANG")));
