@@ -305,25 +305,27 @@
         </c:if>
     </ul>
     <dl>
-        <dt><fmt:message key="internalhelp.defaultcharset"/></dt>
-        <dd>${model.localeDefaultCharset}</dd>
+        <dt><fmt:message key="internalhelp.langvar"/></dt>
+        <dd>${model.localeLang}</dd>
+        <dt><fmt:message key="internalhelp.lcallvar"/></dt>
+        <dd>${model.localeLcAll}</dd>
+
         <dt><fmt:message key="internalhelp.defaultlocale"/></dt>
         <dd>${model.localeDefault}</dd>
         <dt><fmt:message key="internalhelp.user.language"/></dt>
         <dd>${model.localeUserLanguage}</dd>
         <dt><fmt:message key="internalhelp.user.country"/></dt>
         <dd>${model.localeUserCountry}</dd>
+        <dt><fmt:message key="internalhelp.defaultcharset"/></dt>
+        <dd>${model.localeDefaultCharset}</dd>
         <dt><fmt:message key="internalhelp.file.encoding"/></dt>
         <dd>${model.localeFileEncoding}</dd>
         <dt><fmt:message key="internalhelp.sun.jnu.encoding"/></dt>
         <dd>${model.localeSunJnuEncoding}</dd>
         <dt><fmt:message key="internalhelp.sun.io.unicode.encoding"/></dt>
         <dd>${model.localeSunIoUnicodeEncoding}</dd>
-
-        <dt><fmt:message key="internalhelp.langvar"/></dt>
-        <dd>${model.localeLang}</dd>
-        <dt><fmt:message key="internalhelp.lcallvar"/></dt>
-        <dd>${model.localeLcAll}</dd>
+        <dt><fmt:message key="internalhelp.defaultzoneoffset"/></dt>
+        <dd>${model.localeDefaultZoneOffset}</dd>
     </dl>
 </details>
 
