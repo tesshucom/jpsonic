@@ -34,16 +34,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class MusicFolderService {
 
-    private final ConcurrentMap<String, List<MusicFolder>> cachedMusicFoldersPerUser;
+    private final ConcurrentMap<String, List<MusicFolder>> cachedUserFolders;
     private List<MusicFolder> cachedMusicFolders;
 
     private final MusicFolderDao musicFolderDao;
     private final Ehcache indexCache;
+    private final Object lock = new Object();
 
     public MusicFolderService(MusicFolderDao musicFolderDao, Ehcache indexCache) {
         this.musicFolderDao = musicFolderDao;
         this.indexCache = indexCache;
-        cachedMusicFoldersPerUser = new ConcurrentHashMap<>();
+        cachedUserFolders = new ConcurrentHashMap<>();
     }
 
     /**
@@ -66,17 +67,19 @@ public class MusicFolderService {
      * @return Possibly empty list of all music folders.
      */
     public List<MusicFolder> getAllMusicFolders(boolean includeDisabled, boolean includeNonExisting) {
-        if (cachedMusicFolders == null) {
-            cachedMusicFolders = musicFolderDao.getAllMusicFolders();
-        }
-
-        List<MusicFolder> result = new ArrayList<>(cachedMusicFolders.size());
-        for (MusicFolder folder : cachedMusicFolders) {
-            if ((includeDisabled || folder.isEnabled()) && (includeNonExisting || Files.exists(folder.toPath()))) {
-                result.add(folder);
+        synchronized (lock) {
+            if (cachedMusicFolders == null) {
+                cachedMusicFolders = musicFolderDao.getAllMusicFolders();
             }
+
+            List<MusicFolder> result = new ArrayList<>(cachedMusicFolders.size());
+            for (MusicFolder folder : cachedMusicFolders) {
+                if ((includeDisabled || folder.isEnabled()) && (includeNonExisting || Files.exists(folder.toPath()))) {
+                    result.add(folder);
+                }
+            }
+            return result;
         }
-        return result;
     }
 
     /**
@@ -85,13 +88,15 @@ public class MusicFolderService {
      * @return Possibly empty list of music folders.
      */
     public List<MusicFolder> getMusicFoldersForUser(String username) {
-        List<MusicFolder> result = cachedMusicFoldersPerUser.get(username);
-        if (result == null) {
-            result = musicFolderDao.getMusicFoldersForUser(username);
-            result.retainAll(getAllMusicFolders(false, false));
-            cachedMusicFoldersPerUser.put(username, result);
+        synchronized (lock) {
+            List<MusicFolder> result = cachedUserFolders.get(username);
+            if (result == null) {
+                result = musicFolderDao.getMusicFoldersForUser(username);
+                result.retainAll(getAllMusicFolders(false, false));
+                cachedUserFolders.put(username, result);
+            }
+            return result;
         }
-        return result;
     }
 
     /**
@@ -114,7 +119,9 @@ public class MusicFolderService {
 
     public void setMusicFoldersForUser(String username, List<Integer> musicFolderIds) {
         musicFolderDao.setMusicFoldersForUser(username, musicFolderIds);
-        cachedMusicFoldersPerUser.remove(username);
+        synchronized (lock) {
+            cachedUserFolders.remove(username);
+        }
         indexCache.removeAll();
     }
 
@@ -171,8 +178,10 @@ public class MusicFolderService {
 
     @SuppressWarnings("PMD.NullAssignment") // (cachedMusicFolders) Intentional allocation to clear cache
     public void clearMusicFolderCache() {
-        cachedMusicFolders = null;
-        cachedMusicFoldersPerUser.clear();
+        synchronized (lock) {
+            cachedMusicFolders = null;
+            cachedUserFolders.clear();
+        }
         indexCache.removeAll();
     }
 }

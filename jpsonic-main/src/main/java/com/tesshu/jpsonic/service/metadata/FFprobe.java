@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.service.metadata;
 
 import static com.tesshu.jpsonic.util.FileUtil.getShortPath;
+import static com.tesshu.jpsonic.util.PlayerUtils.OBJECT_MAPPER;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -29,13 +30,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.util.PlayerUtils;
@@ -46,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
+@SuppressWarnings("PMD.TooManyStaticImports")
 public class FFprobe {
 
     private static final Logger LOG = LoggerFactory.getLogger(FFprobe.class);
@@ -54,8 +56,6 @@ public class FFprobe {
             "json" };
 
     private static final String CODEC_TYPE_VIDEO = "video";
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private final TranscodingService transcodingService;
 
@@ -160,11 +160,11 @@ public class FFprobe {
         long start;
         JsonNode node;
         try {
-            start = System.currentTimeMillis();
+            start = Instant.now().toEpochMilli();
             Process process = pb.start();
             try (InputStream is = process.getInputStream(); OutputStream os = process.getOutputStream();
                     InputStream es = process.getErrorStream(); BufferedInputStream bis = new BufferedInputStream(is);) {
-                node = MAPPER.readTree(bis);
+                node = OBJECT_MAPPER.readTree(bis);
             } finally {
                 process.destroy();
             }
@@ -184,7 +184,7 @@ public class FFprobe {
     MetaData parse(@NonNull MediaFile mediaFile, @Nullable Map<String, MP4ParseStatistics> statistics) {
         return parse(mediaFile.toPath(), (start) -> {
             if (!isEmpty(statistics) && statistics.containsKey(ParserUtils.getFolder(mediaFile))) {
-                long readtime = System.currentTimeMillis() - start;
+                long readtime = Instant.now().toEpochMilli() - start;
                 statistics.get(ParserUtils.getFolder(mediaFile)).addCmdLeadTime(readtime);
             }
         });

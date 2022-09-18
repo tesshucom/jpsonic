@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.controller;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -27,7 +28,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -63,9 +63,8 @@ class MoreControllerTest {
                 .build();
         Mockito.when(searchService.getGenres(false)).thenReturn(Collections.emptyList());
         Mockito.when(playerService.getPlayer(Mockito.any(), Mockito.any())).thenReturn(new Player());
-        List<MusicFolder> musicFolders = Arrays
-                .asList(new MusicFolder(1, Path.of(MoreControllerTest.class.getResource("/MEDIAS").toURI()).toString(),
-                        "MEDIAS", true, new Date()));
+        List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
+                Path.of(MoreControllerTest.class.getResource("/MEDIAS").toURI()).toString(), "MEDIAS", true, now()));
         Mockito.when(musicFolderService.getMusicFoldersForUser(ServiceMockUtils.ADMIN_NAME)).thenReturn(musicFolders);
     }
 

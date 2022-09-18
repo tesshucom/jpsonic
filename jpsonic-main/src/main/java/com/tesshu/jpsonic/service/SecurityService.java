@@ -21,12 +21,12 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -110,7 +110,7 @@ public class SecurityService implements UserDetailsService {
     private @NonNull UserSettings createDefaultUserSettings(String username) {
 
         UserSettings settings = new UserSettings(username);
-        settings.setChanged(new Date());
+        settings.setChanged(now());
         settings.setFinalVersionNotificationEnabled(true);
 
         // settings for desktop PC
@@ -214,6 +214,7 @@ public class SecurityService implements UserDetailsService {
         return username == null ? null : getUserByName(username);
     }
 
+    // TODO For REST, fix to return response instead of exception.
     public @NonNull User getCurrentUserStrict(@NonNull HttpServletRequest request) {
         String username = getCurrentUsername(request);
         if (username == null) {

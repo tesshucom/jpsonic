@@ -777,7 +777,7 @@ class StreamControllerTest {
             initMocksWithTranscoding(false, false);
             mockMvc.perform(MockMvcRequestBuilders.get("/stream").param(Attributes.Request.ID.value(),
                     Integer.toString(song.getId()))).andExpect(MockMvcResultMatchers.status().isOk())
-                    .andExpect(MockMvcResultMatchers.header().string("Access-Control-Allow-Origin", "*"))
+                    .andExpect(MockMvcResultMatchers.header().doesNotExist("Access-Control-Allow-Origin"))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.ACCEPT_RANGES))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
                     .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_LENGTH, "358406"))
@@ -800,7 +800,7 @@ class StreamControllerTest {
                     .param(Attributes.Request.MAX_BIT_RATE.value(),
                             Integer.toString(TranscodeScheme.MAX_320.getMaxBitRate())))
                     .andExpect(MockMvcResultMatchers.status().isOk())
-                    .andExpect(MockMvcResultMatchers.header().string("Access-Control-Allow-Origin", "*"))
+                    .andExpect(MockMvcResultMatchers.header().doesNotExist("Access-Control-Allow-Origin"))
                     .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.ACCEPT_RANGES, "none"))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_LENGTH))
@@ -820,7 +820,7 @@ class StreamControllerTest {
             player.setTranscodeScheme(TranscodeScheme.MAX_320);
             mockMvc.perform(MockMvcRequestBuilders.get("/stream").param(Attributes.Request.ID.value(),
                     Integer.toString(song.getId()))).andExpect(MockMvcResultMatchers.status().isOk())
-                    .andExpect(MockMvcResultMatchers.header().string("Access-Control-Allow-Origin", "*"))
+                    .andExpect(MockMvcResultMatchers.header().doesNotExist("Access-Control-Allow-Origin"))
                     .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.ACCEPT_RANGES, "none"))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_LENGTH))
@@ -841,7 +841,7 @@ class StreamControllerTest {
             mockMvc.perform(MockMvcRequestBuilders.get("/stream")
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId())).param("format", "mp3"))
                     .andExpect(MockMvcResultMatchers.status().isOk())
-                    .andExpect(MockMvcResultMatchers.header().string("Access-Control-Allow-Origin", "*"))
+                    .andExpect(MockMvcResultMatchers.header().doesNotExist("Access-Control-Allow-Origin"))
                     .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.ACCEPT_RANGES, "none"))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_LENGTH))
@@ -861,7 +861,7 @@ class StreamControllerTest {
             initMocksWithTranscoding(true, false);
             mockMvc.perform(MockMvcRequestBuilders.get("/stream").param(Attributes.Request.ID.value(),
                     Integer.toString(song.getId())))
-                    .andExpect(MockMvcResultMatchers.header().string("Access-Control-Allow-Origin", "*"))
+                    .andExpect(MockMvcResultMatchers.header().doesNotExist("Access-Control-Allow-Origin"))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.ACCEPT_RANGES))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
                     .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_LENGTH, "358406"))
@@ -882,7 +882,7 @@ class StreamControllerTest {
             initMocksWithTranscoding(true, false);
             mockMvc.perform(MockMvcRequestBuilders.get("/stream").param(Attributes.Request.ID.value(),
                     Integer.toString(song.getId())))
-                    .andExpect(MockMvcResultMatchers.header().string("Access-Control-Allow-Origin", "*"))
+                    .andExpect(MockMvcResultMatchers.header().doesNotExist("Access-Control-Allow-Origin"))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.ACCEPT_RANGES))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
                     .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_LENGTH, "358406"))
@@ -901,7 +901,7 @@ class StreamControllerTest {
             initMocksWithTranscoding(false, true);
             mockMvc.perform(MockMvcRequestBuilders.get("/stream").param(Attributes.Request.ID.value(),
                     Integer.toString(song.getId()))).andExpect(MockMvcResultMatchers.status().isOk())
-                    .andExpect(MockMvcResultMatchers.header().string("Access-Control-Allow-Origin", "*"))
+                    .andExpect(MockMvcResultMatchers.header().doesNotExist("Access-Control-Allow-Origin"))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.ACCEPT_RANGES))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
                     .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_LENGTH, "358406"))
@@ -924,7 +924,7 @@ class StreamControllerTest {
                     .param(Attributes.Request.MAX_BIT_RATE.value(),
                             Integer.toString(TranscodeScheme.MAX_320.getMaxBitRate())))
                     .andExpect(MockMvcResultMatchers.status().isOk())
-                    .andExpect(MockMvcResultMatchers.header().string("Access-Control-Allow-Origin", "*"))
+                    .andExpect(MockMvcResultMatchers.header().doesNotExist("Access-Control-Allow-Origin"))
                     .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.ACCEPT_RANGES, "none"))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_LENGTH))
@@ -944,7 +944,7 @@ class StreamControllerTest {
             player.setTranscodeScheme(TranscodeScheme.MAX_320);
             mockMvc.perform(MockMvcRequestBuilders.get("/stream").param(Attributes.Request.ID.value(),
                     Integer.toString(song.getId()))).andExpect(MockMvcResultMatchers.status().isOk())
-                    .andExpect(MockMvcResultMatchers.header().string("Access-Control-Allow-Origin", "*"))
+                    .andExpect(MockMvcResultMatchers.header().doesNotExist("Access-Control-Allow-Origin"))
                     .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.ACCEPT_RANGES, "none"))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_LENGTH))
@@ -965,7 +965,7 @@ class StreamControllerTest {
             mockMvc.perform(MockMvcRequestBuilders.get("/stream")
                     .param(Attributes.Request.ID.value(), Integer.toString(song.getId())).param("format", "mp3"))
                     .andExpect(MockMvcResultMatchers.status().isOk())
-                    .andExpect(MockMvcResultMatchers.header().string("Access-Control-Allow-Origin", "*"))
+                    .andExpect(MockMvcResultMatchers.header().doesNotExist("Access-Control-Allow-Origin"))
                     .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.ACCEPT_RANGES, "none"))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_LENGTH))
@@ -985,7 +985,7 @@ class StreamControllerTest {
             initMocksWithTranscoding(true, true);
             mockMvc.perform(MockMvcRequestBuilders.get("/stream").param(Attributes.Request.ID.value(),
                     Integer.toString(song.getId())))
-                    .andExpect(MockMvcResultMatchers.header().string("Access-Control-Allow-Origin", "*"))
+                    .andExpect(MockMvcResultMatchers.header().doesNotExist("Access-Control-Allow-Origin"))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.ACCEPT_RANGES))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
                     .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.CONTENT_LENGTH, "358406"))
@@ -1006,7 +1006,7 @@ class StreamControllerTest {
             initMocksWithTranscoding(true, true);
             mockMvc.perform(MockMvcRequestBuilders.get("/stream").param(Attributes.Request.ID.value(),
                     Integer.toString(song.getId())))
-                    .andExpect(MockMvcResultMatchers.header().string("Access-Control-Allow-Origin", "*"))
+                    .andExpect(MockMvcResultMatchers.header().doesNotExist("Access-Control-Allow-Origin"))
                     .andExpect(MockMvcResultMatchers.header().string(HttpHeaders.ACCEPT_RANGES, "none"))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_RANGE))
                     .andExpect(MockMvcResultMatchers.header().doesNotExist(HttpHeaders.CONTENT_LENGTH))

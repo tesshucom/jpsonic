@@ -22,13 +22,13 @@
 package com.tesshu.jpsonic.service.search;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.lang.annotation.Documented;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import com.tesshu.jpsonic.domain.Album;
@@ -244,7 +244,7 @@ public class UPnPSearchCriteriaDirectorTest {
         Mockito.when(settingsService.isSearchComposer()).thenReturn(true);
 
         List<MusicFolder> musicFolders = new ArrayList<>();
-        musicFolders.add(new MusicFolder(1, "dummy", "accessible", true, new Date()));
+        musicFolders.add(new MusicFolder(1, "dummy", "accessible", true, now()));
         musicFolderService = mock(MusicFolderService.class);
         Mockito.when(musicFolderService.getMusicFoldersForUser(User.USERNAME_GUEST)).thenReturn(musicFolders);
 

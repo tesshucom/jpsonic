@@ -21,16 +21,18 @@
 
 package com.tesshu.jpsonic.controller;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.domain.PodcastChannel;
-import com.tesshu.jpsonic.domain.PodcastEpisode;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PodcastService;
@@ -71,7 +73,7 @@ public class PodcastChannelsController {
      */
     protected ModelAndView get(HttpServletRequest request, HttpServletResponse response) {
 
-        Map<PodcastChannel, List<PodcastEpisode>> channels = new LinkedHashMap<>();
+        Map<PodcastChannel, List<com.tesshu.jpsonic.domain.PodcastEpisode>> channels = new LinkedHashMap<>();
         Map<Integer, PodcastChannel> channelMap = LegacyMap.of();
         for (PodcastChannel channel : podcastService.getAllChannels()) {
             channels.put(channel, podcastService.getEpisodes(channel.getId()));
@@ -80,7 +82,8 @@ public class PodcastChannelsController {
 
         User user = securityService.getCurrentUserStrict(request);
         Map<String, Object> map = LegacyMap.of("user", securityService.getCurrentUserStrict(request), "channels",
-                channels, "channelMap", channelMap, "newestEpisodes", podcastService.getNewestEpisodes(10),
+                channels, "channelMap", channelMap, "newestEpisodes",
+                podcastService.getNewestEpisodes(10).stream().map(PodcastEpisode::new).collect(Collectors.toList()),
                 "viewAsList", viewSelector.isViewAsList(request, user.getUsername()), "coverArtSize",
                 CoverArtScheme.MEDIUM.getSize(), "scanning", mediaScannerService.isScanning());
 
@@ -89,4 +92,17 @@ public class PodcastChannelsController {
         return result;
     }
 
+    // VO
+    public static class PodcastEpisode extends com.tesshu.jpsonic.domain.PodcastEpisode {
+
+        public PodcastEpisode(com.tesshu.jpsonic.domain.PodcastEpisode episode) {
+            super(episode.getId(), episode.getChannelId(), episode.getUrl(), episode.getPath(), episode.getTitle(),
+                    episode.getDescription(), episode.getPublishDate(), episode.getDuration(), episode.getBytesTotal(),
+                    episode.getBytesDownloaded(), episode.getStatus(), episode.getErrorMessage());
+        }
+
+        public ZonedDateTime getPublishDateWithZone() {
+            return getPublishDate() == null ? null : ZonedDateTime.ofInstant(getPublishDate(), ZoneId.systemDefault());
+        }
+    }
 }

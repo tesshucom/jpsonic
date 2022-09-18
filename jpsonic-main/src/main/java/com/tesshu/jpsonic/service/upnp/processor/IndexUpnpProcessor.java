@@ -59,13 +59,13 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
     private static final AtomicInteger INDEX_IDS = new AtomicInteger(Integer.MIN_VALUE);
     // Only on write (because it can be explicitly reloaded on the client and is less risky)
-    private static final Object LOCK = new Object();
 
     private final UpnpProcessorUtil util;
     private final JMediaFileService mediaFileService;
     private final MediaScannerService mediaScannerService;
     private final MusicIndexService musicIndexService;
     private final Ehcache indexCache;
+    private final Object lock = new Object();
 
     private MusicFolderContent content;
     private Map<Integer, MediaIndex> indexesMap;
@@ -154,10 +154,11 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     @Override
     public List<MediaFile> getChildren(MediaFile item, long offset, long maxResults) {
         if (isIndex(item)) {
-            MusicIndex index = indexesMap.get(item.getId()).getDeligate();
-            // refactoring(Few cases are actually a problem)
-            return subList(content.getIndexedArtists().get(index).stream().flatMap(s -> s.getMediaFiles().stream())
-                    .collect(Collectors.toList()), offset, maxResults);
+            synchronized (lock) {
+                MusicIndex index = indexesMap.get(item.getId()).getDeligate();
+                return subList(content.getIndexedArtists().get(index).stream().flatMap(s -> s.getMediaFiles().stream())
+                        .collect(Collectors.toList()), offset, maxResults);
+            }
         }
         if (item.isAlbum()) {
             return mediaFileService.getSongsForAlbum(offset, maxResults, item);
@@ -171,7 +172,9 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     @Override
     public int getChildSizeOf(MediaFile item) {
         if (isIndex(item)) {
-            return content.getIndexedArtists().get(indexesMap.get(item.getId()).getDeligate()).size();
+            synchronized (lock) {
+                return content.getIndexedArtists().get(indexesMap.get(item.getId()).getDeligate()).size();
+            }
         }
         return mediaFileService.getChildSizeOf(item);
     }
@@ -180,15 +183,19 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     public MediaFile getItemById(String ids) {
         int id = Integer.parseInt(ids);
         if (isIndex(id)) {
-            return indexesMap.get(id);
+            synchronized (lock) {
+                return indexesMap.get(id);
+            }
         }
         return mediaFileService.getMediaFileStrict(id);
     }
 
     @Override
     public int getItemCount() {
-        refreshIndex();
-        return topNodes.size();
+        synchronized (lock) {
+            refreshIndex();
+            return topNodes.size();
+        }
     }
 
     @Override
@@ -196,8 +203,10 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         List<MediaFile> result = new ArrayList<>();
         if (offset < getItemCount()) {
             int count = min((int) (offset + maxResults), getItemCount());
-            for (int i = (int) offset; i < count; i++) {
-                result.add(topNodes.get(i));
+            synchronized (lock) {
+                for (int i = (int) offset; i < count; i++) {
+                    result.add(topNodes.get(i));
+                }
             }
         }
         return result;
@@ -212,7 +221,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     void refreshIndex() {
         Element element = indexCache.getQuiet(IndexCacheKey.FILE_STRUCTURE);
         boolean expired = isEmpty(element) || indexCache.isExpired(element);
-        synchronized (LOCK) {
+        synchronized (lock) {
             if (isEmpty(content) || 0 == content.getIndexedArtists().size() || expired) {
                 INDEX_IDS.set(Integer.MIN_VALUE);
                 content = musicIndexService.getMusicFolderContent(util.getGuestMusicFolders(),

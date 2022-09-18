@@ -20,10 +20,10 @@
 package com.tesshu.jpsonic.ajax;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.Arrays;
-import java.util.Date;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PlayStatus;
@@ -50,7 +50,7 @@ class NowPlayingServiceTest {
         file.setId(0);
         Player player = new Player();
         player.setUsername(ServiceMockUtils.ADMIN_NAME);
-        PlayStatus playStatus = new PlayStatus(file, player, new Date());
+        PlayStatus playStatus = new PlayStatus(file, player, now());
         Mockito.when(statusService.getPlayStatuses()).thenReturn(Arrays.asList(playStatus));
 
         nowPlayingService = new NowPlayingService(mock(SecurityService.class), mock(PlayerService.class), statusService,

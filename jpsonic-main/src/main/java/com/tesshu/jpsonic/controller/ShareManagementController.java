@@ -115,6 +115,9 @@ public class ShareManagementController {
             }
         } else if (playerId != null) {
             Player player = playerService.getPlayerById(playerId);
+            if (player == null) {
+                throw new IllegalArgumentException("The specified Player cannot be found.");
+            }
             PlayQueue playQueue = player.getPlayQueue();
             result = playQueue.getFiles();
         } else if (playlistId != null) {

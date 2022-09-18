@@ -66,7 +66,6 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
 
     private static final AtomicInteger INDEX_IDS = new AtomicInteger(Integer.MIN_VALUE);
     // Only on write (because it can be explicitly reloaded on the client and is less risky)
-    private static final Object LOCK = new Object();
     private static final String TYPE_PREFIX_ARTIST = "artist:";
     private static final String TYPE_PREFIX_ALBUM = "album:";
 
@@ -76,6 +75,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     private final ArtistDao artistDao;
     private final JAlbumDao albumDao;
     private final Ehcache indexCache;
+    private final Object lock = new Object();
 
     private ArtistsID3 content;
     private Map<String, Id3Wrapper> indexesMap;
@@ -248,7 +248,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     private void refreshIndex() {
         Element element = indexCache.getQuiet(IndexCacheKey.ID3);
         boolean expired = isEmpty(element) || indexCache.isExpired(element);
-        synchronized (LOCK) {
+        synchronized (lock) {
             if (isEmpty(content) || 0 == content.getIndex().stream().mapToLong(i -> i.getArtist().size()).sum()
                     || expired) {
                 INDEX_IDS.set(Integer.MIN_VALUE);

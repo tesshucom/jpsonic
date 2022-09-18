@@ -34,8 +34,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -57,22 +58,16 @@ public class PodcastReceiverAdminController {
         this.mediaScannerService = mediaScannerService;
     }
 
-    @RequestMapping(method = { RequestMethod.POST, RequestMethod.GET })
-    protected ModelAndView handleRequestInternal(HttpServletRequest request) throws ServletRequestBindingException {
+    @GetMapping
+    protected ModelAndView get(HttpServletRequest request) throws ServletRequestBindingException {
 
         if (mediaScannerService.isScanning()) {
             return createModelAndView();
         }
 
-        String addURL = request.getParameter(Attributes.Request.ADD.value());
-        if (!isEmpty(addURL)) {
-            podcastService.createChannel(StringUtils.trim(addURL));
-            return createModelAndView();
-        }
-
         final Integer channelId = ServletRequestUtils.getIntParameter(request, Attributes.Request.CHANNEL_ID.value());
         if (!isEmpty(request.getParameter(Attributes.Request.REFRESH.value()))) {
-            if (isEmpty(channelId)) {
+            if (channelId == null) {
                 podcastService.refreshAllChannels(true);
                 return createModelAndView();
             } else {
@@ -96,10 +91,19 @@ public class PodcastReceiverAdminController {
             return createRedirect(channelId);
         }
 
-        if (!isEmpty(request.getParameter(Attributes.Request.DELETE_CHANNEL.value()))) {
+        if (!isEmpty(request.getParameter(Attributes.Request.DELETE_CHANNEL.value())) && channelId != null) {
             podcastService.deleteChannel(channelId);
         }
 
+        return createModelAndView();
+    }
+
+    @PostMapping
+    protected ModelAndView post(HttpServletRequest request) throws ServletRequestBindingException {
+        String addURL = request.getParameter(Attributes.Request.ADD.value());
+        if (!isEmpty(addURL)) {
+            podcastService.createChannel(StringUtils.trim(addURL));
+        }
         return createModelAndView();
     }
 
@@ -131,5 +135,4 @@ public class PodcastReceiverAdminController {
             }
         }
     }
-
 }

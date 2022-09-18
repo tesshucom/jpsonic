@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.controller;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -29,7 +30,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -37,6 +37,7 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.domain.AlbumListType;
 import com.tesshu.jpsonic.domain.Genre;
+import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.service.MediaFileService;
@@ -141,6 +142,20 @@ class HomeControllerTest {
             MockHttpServletRequest req = mock(MockHttpServletRequest.class);
             Mockito.when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
                     .thenReturn(AlbumListType.RECENT.getId());
+
+            MediaFile album = new MediaFile();
+            album.setId(1);
+            Mockito.when(mediaFileService.getMostRecentlyPlayedAlbums(anyInt(), anyInt(), anyList()))
+                    .thenReturn(Arrays.asList(album));
+
+            controller.handleRequestInternal(req);
+            Mockito.verify(mediaFileService, Mockito.times(1)).getMostRecentlyPlayedAlbums(anyInt(), anyInt(),
+                    anyList());
+            Mockito.clearInvocations(mediaFileService);
+
+            album.setLastPlayed(now());
+            Mockito.when(mediaFileService.getMostRecentlyPlayedAlbums(anyInt(), anyInt(), anyList()))
+                    .thenReturn(Arrays.asList(album));
             controller.handleRequestInternal(req);
             Mockito.verify(mediaFileService, Mockito.times(1)).getMostRecentlyPlayedAlbums(anyInt(), anyInt(),
                     anyList());
@@ -151,6 +166,13 @@ class HomeControllerTest {
             MockHttpServletRequest req = mock(MockHttpServletRequest.class);
             Mockito.when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
                     .thenReturn(AlbumListType.NEWEST.getId());
+
+            MediaFile album = new MediaFile();
+            album.setId(1);
+            album.setCreated(now());
+            Mockito.when(mediaFileService.getNewestAlbums(anyInt(), anyInt(), anyList()))
+                    .thenReturn(Arrays.asList(album));
+
             controller.handleRequestInternal(req);
             Mockito.verify(mediaFileService, Mockito.times(1)).getNewestAlbums(anyInt(), anyInt(), anyList());
         }
@@ -211,7 +233,7 @@ class HomeControllerTest {
             MockHttpServletRequest req = mock(MockHttpServletRequest.class);
             Mockito.when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
                     .thenReturn(AlbumListType.INDEX.getId());
-            List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, "", "name", false, new Date()));
+            List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, "", "name", false, now()));
             Mockito.when(musicFolderService.getMusicFoldersForUser(anyString(), Mockito.nullable(Integer.class)))
                     .thenReturn(musicFolders);
             Mockito.when(musicIndexService.getMusicFolderContent(musicFolders, false))

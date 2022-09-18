@@ -19,13 +19,13 @@
 
 package com.tesshu.jpsonic.ajax;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
@@ -43,6 +43,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 class MultiServiceTest extends AbstractNeedsScan {
 
     private static final String ADMIN_NAME = "admin";
@@ -64,7 +65,7 @@ class MultiServiceTest extends AbstractNeedsScan {
     @Override
     public List<MusicFolder> getMusicFolders() {
         if (isEmpty(musicFolders)) {
-            musicFolders = Arrays.asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, new Date()));
+            musicFolders = Arrays.asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now()));
         }
         return musicFolders;
     }

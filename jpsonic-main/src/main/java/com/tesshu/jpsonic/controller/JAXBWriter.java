@@ -27,8 +27,10 @@ import static org.springframework.web.bind.ServletRequestUtils.getStringParamete
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
@@ -41,6 +43,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.eclipse.persistence.jaxb.JAXBContext;
 import org.eclipse.persistence.jaxb.MarshallerProperties;
@@ -119,6 +122,7 @@ public class JAXBWriter {
         return response;
     }
 
+    @SuppressFBWarnings(value = "XSS_SERVLET", justification = "Limited threat. It's not a free-for-all can write, and APIs are mostly not used by browsers.")
     public void writeResponse(HttpServletRequest request, HttpServletResponse httpResponse, Response jaxbResponse) {
 
         String format = getStringParameter(request, Attributes.Request.F.value(), "xml");
@@ -179,14 +183,12 @@ public class JAXBWriter {
         writeResponse(request, response, res);
     }
 
-    public XMLGregorianCalendar convertDate(Date date) {
+    public XMLGregorianCalendar convertDate(Instant date) {
         if (date == null) {
             return null;
         }
-
-        GregorianCalendar c = new GregorianCalendar();
-        c.setTime(date);
-        return datatypeFactory.newXMLGregorianCalendar(c).normalize();
+        return datatypeFactory
+                .newXMLGregorianCalendar(GregorianCalendar.from(ZonedDateTime.ofInstant(date, ZoneId.systemDefault())));
     }
 
     public XMLGregorianCalendar convertCalendar(Calendar calendar) {
@@ -194,6 +196,6 @@ public class JAXBWriter {
             return null;
         }
 
-        return datatypeFactory.newXMLGregorianCalendar((GregorianCalendar) calendar).normalize();
+        return datatypeFactory.newXMLGregorianCalendar((GregorianCalendar) calendar);
     }
 }

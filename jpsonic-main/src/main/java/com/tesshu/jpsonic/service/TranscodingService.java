@@ -32,7 +32,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.regex.Matcher;
@@ -83,7 +82,6 @@ public class TranscodingService {
     public static final String FORMAT_RAW = "raw";
     public static final String FORMAT_FLAC = "flac";
     private static final Pattern SPLIT_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
-    private static final Object LOCK = new Object();
 
     private final SettingsService settingsService;
     private final SecurityService securityService;
@@ -92,6 +90,8 @@ public class TranscodingService {
     private final Executor shortExecutor;
     private final String transcodePath;
     private Path transcodeDirectory;
+
+    private final Object dirLock = new Object();
 
     public TranscodingService(SettingsService settingsService, SecurityService securityService,
             TranscodingDao transcodingDao, @Lazy PlayerService playerService, Executor shortExecutor) {
@@ -113,26 +113,30 @@ public class TranscodingService {
      * Returns the directory in which all transcoders are installed.
      */
     public @NonNull Path getTranscodeDirectory() {
-        if (!isEmpty(transcodeDirectory)) {
-            return transcodeDirectory;
-        }
-        if (isEmpty(transcodePath)) {
-            transcodeDirectory = Path.of(SettingsService.getJpsonicHome().toString(), "transcode");
-            if (!Files.exists(transcodeDirectory)) {
-                synchronized (LOCK) {
-                    if (FileUtil.createDirectories(transcodeDirectory) == null && LOG.isWarnEnabled()) {
-                        LOG.warn("The directory '{}' could not be created.", transcodeDirectory);
+        synchronized (dirLock) {
+            if (!isEmpty(transcodeDirectory)) {
+                return transcodeDirectory;
+            }
+            if (isEmpty(transcodePath)) {
+                transcodeDirectory = Path.of(SettingsService.getJpsonicHome().toString(), "transcode");
+                if (!Files.exists(transcodeDirectory)) {
+                    synchronized (dirLock) {
+                        if (FileUtil.createDirectories(transcodeDirectory) == null && LOG.isWarnEnabled()) {
+                            LOG.warn("The directory '{}' could not be created.", transcodeDirectory);
+                        }
                     }
                 }
+            } else {
+                transcodeDirectory = Path.of(transcodePath);
             }
-        } else {
-            transcodeDirectory = Path.of(transcodePath);
+            return transcodeDirectory;
         }
-        return transcodeDirectory;
     }
 
     protected void setTranscodeDirectory(@Nullable Path transcodeDirectory) {
-        this.transcodeDirectory = transcodeDirectory;
+        synchronized (dirLock) {
+            this.transcodeDirectory = transcodeDirectory;
+        }
     }
 
     /**
@@ -280,7 +284,7 @@ public class TranscodingService {
                     null, true);
         }
 
-        List<Transcoding> applicableTranscodings = new LinkedList<>();
+        List<Transcoding> applicableTranscodings = new ArrayList<>();
         String suffix = mediaFile.getFormat();
 
         // This is what I'd like todo, but this will most likely break video transcoding as video transcoding is

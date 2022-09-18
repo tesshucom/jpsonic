@@ -21,9 +21,12 @@
 
 package com.tesshu.jpsonic.service.scrobbler;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.OBJECT_MAPPER;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -31,7 +34,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
@@ -52,9 +54,9 @@ public class ListenBrainzScrobbler {
 
     private static final Logger LOG = LoggerFactory.getLogger(ListenBrainzScrobbler.class);
     private static final int MAX_PENDING_REGISTRATION = 2000;
-    private static final Object REGISTRATION_LOCK = new Object();
 
     private final LinkedBlockingQueue<RegistrationData> queue;
+    private final Object registrationLock = new Object();
 
     private RegistrationTask task;
 
@@ -80,9 +82,9 @@ public class ListenBrainzScrobbler {
      * @param time
      *            Event time, or {@code null} to use current time.
      */
-    public void register(MediaFile mediaFile, String token, boolean submission, Date time, Executor executor) {
+    public void register(MediaFile mediaFile, String token, boolean submission, Instant time, Executor executor) {
 
-        synchronized (REGISTRATION_LOCK) {
+        synchronized (registrationLock) {
 
             if (task == null) {
                 task = new RegistrationTask(queue);
@@ -154,7 +156,7 @@ public class ListenBrainzScrobbler {
         Map<String, Object> content = LegacyMap.of();
 
         if (registrationData.submission) {
-            payload.put("listened_at", registrationData.getTime().getTime() / 1000L);
+            payload.put("listened_at", registrationData.getTime().getEpochSecond());
             content.put("listen_type", "single");
         } else {
             content.put("listen_type", "playing_now");
@@ -164,10 +166,9 @@ public class ListenBrainzScrobbler {
         payloads.add(payload);
         content.put("payload", payloads);
 
-        ObjectMapper mapper = new ObjectMapper();
         String json;
         try {
-            json = mapper.writeValueAsString(content);
+            json = OBJECT_MAPPER.writeValueAsString(content);
         } catch (JsonProcessingException e) {
             throw new ExecutionException("Error when writing Json", e);
         }
@@ -285,10 +286,10 @@ public class ListenBrainzScrobbler {
         private final String musicBrainzRecordingId;
         private final Integer trackNumber;
         // private int duration;
-        private final Date time;
+        private final Instant time;
         public boolean submission;
 
-        public RegistrationData(MediaFile mediaFile, String token, boolean submission, Date time) {
+        public RegistrationData(MediaFile mediaFile, String token, boolean submission, Instant time) {
             super();
             this.token = token;
             this.artist = mediaFile.getArtist();
@@ -298,7 +299,7 @@ public class ListenBrainzScrobbler {
             this.musicBrainzRecordingId = mediaFile.getMusicBrainzRecordingId();
             this.trackNumber = mediaFile.getTrackNumber();
             // reg.duration = mediaFile.getDurationSeconds() == null ? 0 : mediaFile.getDurationSeconds();
-            this.time = time == null ? new Date() : time;
+            this.time = time == null ? now() : time;
             this.submission = submission;
         }
 
@@ -310,7 +311,7 @@ public class ListenBrainzScrobbler {
             return token;
         }
 
-        public Date getTime() {
+        public Instant getTime() {
             return time;
         }
 

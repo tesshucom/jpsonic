@@ -167,7 +167,12 @@
                         </dd>
                     </c:if>
                     <dt><fmt:message key="playersettings.lastseen"/></dt>
-                    <dd><fmt:formatDate value="${command.lastSeen}" type="both" dateStyle="long" timeStyle="medium"/></dd>
+                    <dd>
+                        <c:if test="${not empty command.lastSeen}">
+                            <fmt:parseDate value="${command.lastSeen}" type="both" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" />
+                            <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd HH:mm:ss" />
+                        </c:if>
+                    </dd>
                 </dl>
             </details>
     

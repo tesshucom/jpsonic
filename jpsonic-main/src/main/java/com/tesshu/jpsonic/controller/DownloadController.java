@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -107,7 +108,7 @@ public class DownloadController {
             if (mediaFile == null || mediaFile.isDirectory() || mediaFile.getChanged() == null) {
                 return -1;
             }
-            return mediaFile.getChanged().getTime();
+            return mediaFile.getChanged().toEpochMilli();
         } catch (ServletRequestBindingException e) {
             return -1;
         }
@@ -159,6 +160,9 @@ public class DownloadController {
 
             } else if (playerId != null) {
                 Player player = playerService.getPlayerById(playerId);
+                if (player == null) {
+                    throw new IllegalArgumentException("The specified Player cannot be found.");
+                }
                 PlayQueue playQueue = player.getPlayQueue();
                 playQueue.setName("Playlist");
                 downloadFiles(response, status, playQueue.getFiles(), indexes, null, range, "download.zip");
@@ -347,7 +351,7 @@ public class DownloadController {
             long lastLimitCheck = 0;
 
             while (true) {
-                long before = System.currentTimeMillis();
+                long before = Instant.now().toEpochMilli();
                 int n = in.read(buf);
                 if (n == -1) {
                     break;
@@ -361,7 +365,7 @@ public class DownloadController {
                 }
 
                 status.addBytesTransfered(n);
-                long after = System.currentTimeMillis();
+                long after = Instant.now().toEpochMilli();
 
                 // Calculate bitrate limit every 5 seconds.
                 if (after - lastLimitCheck > BITRATE_LIMIT_UPDATE_INTERVAL) {

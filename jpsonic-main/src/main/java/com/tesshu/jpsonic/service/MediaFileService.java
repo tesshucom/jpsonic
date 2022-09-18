@@ -21,7 +21,8 @@
 
 package com.tesshu.jpsonic.service;
 
-import static com.tesshu.jpsonic.dao.MediaFileDao.ZERO_DATE;
+import static com.tesshu.jpsonic.util.PlayerUtils.FAR_PAST;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -29,10 +30,10 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -177,6 +178,10 @@ public class MediaFileService {
         return getMediaFile(mediaFile.getParentPathString());
     }
 
+    public Optional<MediaFile> getParent(MediaFile mediaFile) {
+        return Optional.ofNullable(getParentOf(mediaFile));
+    }
+
     boolean isSchemeLastModified() {
         return FileModifiedCheckScheme.LAST_MODIFIED == FileModifiedCheckScheme
                 .valueOf(settingsService.getFileModifiedCheckSchemeName());
@@ -195,7 +200,7 @@ public class MediaFileService {
                 throw new UncheckedIOException(e);
             }
         }
-        return statistics[0].getScanDate().getTime();
+        return statistics[0].getScanDate().toEpochMilli();
     }
 
     MediaFile checkLastModified(final MediaFile mediaFile, boolean useFastCache, MediaLibraryStatistics... statistics) {
@@ -209,15 +214,15 @@ public class MediaFileService {
             switch (scheme) {
             case LAST_MODIFIED:
                 if (!settingsService.isIgnoreFileTimestamps()
-                        && mediaFile.getChanged().getTime() >= getLastModified(mediaFile.toPath(), statistics)
-                        && !ZERO_DATE.equals(mediaFile.getLastScanned())) {
+                        && mediaFile.getChanged().toEpochMilli() >= getLastModified(mediaFile.toPath(), statistics)
+                        && !FAR_PAST.equals(mediaFile.getLastScanned())) {
                     return mediaFile;
-                } else if (settingsService.isIgnoreFileTimestamps() && !ZERO_DATE.equals(mediaFile.getLastScanned())) {
+                } else if (settingsService.isIgnoreFileTimestamps() && !FAR_PAST.equals(mediaFile.getLastScanned())) {
                     return mediaFile;
                 }
                 break;
             case LAST_SCANNED:
-                if (!ZERO_DATE.equals(mediaFile.getLastScanned())) {
+                if (!FAR_PAST.equals(mediaFile.getLastScanned())) {
                     return mediaFile;
                 }
                 break;
@@ -267,7 +272,10 @@ public class MediaFileService {
         return result;
     }
 
-    public boolean isRoot(@NonNull MediaFile mediaFile) {
+    public boolean isRoot(@Nullable MediaFile mediaFile) {
+        if (mediaFile == null) {
+            return false;
+        }
         for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders(false, true)) {
             if (mediaFile.toPath().equals(musicFolder.toPath())) {
                 return true;
@@ -279,10 +287,10 @@ public class MediaFileService {
     void updateChildren(MediaFile parent, MediaLibraryStatistics... statistics) {
 
         if (isSchemeLastModified() //
-                && parent.getChildrenLastUpdated().getTime() >= parent.getChanged().getTime()) {
+                && parent.getChildrenLastUpdated().toEpochMilli() >= parent.getChanged().toEpochMilli()) {
             return;
         } else if (isSchemeLastScaned() //
-                && parent.getMediaType() == MediaType.ALBUM && !ZERO_DATE.equals(parent.getChildrenLastUpdated())) {
+                && parent.getMediaType() == MediaType.ALBUM && !FAR_PAST.equals(parent.getChildrenLastUpdated())) {
             return;
         }
 
@@ -377,12 +385,12 @@ public class MediaFileService {
         MediaFile mediaFile = new MediaFile();
 
         // Variable initial value
-        Date lastModified = new Date(getLastModified(path, statistics));
+        Instant lastModified = Instant.ofEpochMilli(getLastModified(path, statistics));
         mediaFile.setChanged(lastModified);
         mediaFile.setCreated(lastModified);
 
-        mediaFile.setLastScanned(existingFile == null ? ZERO_DATE : existingFile.getLastScanned());
-        mediaFile.setChildrenLastUpdated(ZERO_DATE);
+        mediaFile.setLastScanned(existingFile == null ? FAR_PAST : existingFile.getLastScanned());
+        mediaFile.setChildrenLastUpdated(FAR_PAST);
 
         mediaFile.setPathString(path.toString());
         mediaFile.setFolder(securityService.getRootFolderForFile(path));
@@ -436,7 +444,7 @@ public class MediaFileService {
             to.setComposerSort(metaData.getComposerSort());
             to.setComposerSortRaw(metaData.getComposerSort());
             utils.analyze(to);
-            to.setLastScanned(statistics.length == 0 ? new Date() : statistics[0].getScanDate());
+            to.setLastScanned(statistics.length == 0 ? now() : statistics[0].getScanDate());
         }
         String format = StringUtils.trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(to.getPathString())));
         to.setFormat(format);
@@ -565,7 +573,7 @@ public class MediaFileService {
     }
 
     public void incrementPlayCount(MediaFile file) {
-        Date now = new Date();
+        Instant now = now();
         file.setLastPlayed(now);
         file.setPlayCount(file.getPlayCount() + 1);
         updateMediaFile(file);
@@ -630,7 +638,7 @@ public class MediaFileService {
         files.removeIf(MediaFile::isVideo);
     }
 
-    public Date getMediaFileStarredDate(int id, String username) {
+    public Instant getMediaFileStarredDate(int id, String username) {
         return mediaFileDao.getMediaFileStarredDate(id, username);
     }
 
@@ -641,7 +649,7 @@ public class MediaFileService {
     }
 
     public void populateStarredDate(MediaFile mediaFile, String username) {
-        Date starredDate = mediaFileDao.getMediaFileStarredDate(mediaFile.getId(), username);
+        Instant starredDate = mediaFileDao.getMediaFileStarredDate(mediaFile.getId(), username);
         mediaFile.setStarredDate(starredDate);
     }
 

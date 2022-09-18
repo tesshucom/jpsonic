@@ -19,7 +19,8 @@
         <fmt:message key="common.unknown" var="buildDateString"/>
     </c:when>
     <c:otherwise>
-        <fmt:formatDate value="${model.buildDate}" dateStyle="long" var="buildDateString"/>
+        <fmt:parseDate value="${model.buildDate}" type="date" pattern="yyyy-MM-dd" var="parsedDate" />
+        <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd" type="date" var="buildDateString" />
     </c:otherwise>
 </c:choose>
 

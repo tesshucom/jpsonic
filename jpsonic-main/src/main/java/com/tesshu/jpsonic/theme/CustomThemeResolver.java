@@ -42,10 +42,9 @@ import org.springframework.web.servlet.ThemeResolver;
 @Component("themeResolver")
 public class CustomThemeResolver implements ThemeResolver {
 
-    private static final Object LOCK = new Object();
-
     private final SecurityService securityService;
     private final SettingsService settingsService;
+    private final Object lock = new Object();
 
     private Set<String> themeIds;
 
@@ -107,7 +106,7 @@ public class CustomThemeResolver implements ThemeResolver {
      * @return Whether the theme with the given ID exists.
      */
     private boolean themeExists(String themeId) {
-        synchronized (LOCK) {
+        synchronized (lock) {
             if (themeIds == null) {
                 themeIds = SettingsService.getAvailableThemes().stream().map(Theme::getId).collect(Collectors.toSet());
             }

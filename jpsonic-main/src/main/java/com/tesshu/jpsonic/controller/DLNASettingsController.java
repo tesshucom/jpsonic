@@ -21,10 +21,10 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -196,7 +196,7 @@ public class DLNASettingsController {
         musicFolderService.setMusicFoldersForUser(guestUser.getUsername(), allowedIds);
         UserSettings userSettings = securityService.getUserSettings(guestUser.getUsername());
         userSettings.setTranscodeScheme(command.getTranscodeScheme());
-        userSettings.setChanged(new Date());
+        userSettings.setChanged(now());
         Player guestPlayer = playerService.getGuestPlayer(null);
         transcodingService.setTranscodingsForPlayer(guestPlayer, command.getActiveTranscodingIds());
         if (command.getActiveTranscodingIds().length == 0) {

@@ -35,7 +35,7 @@ import org.springframework.stereotype.Component;
 public class FontLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(FontLoader.class);
-    private static final Object FONT_LOCK = new Object();
+    private final Object lock = new Object();
 
     private final Ehcache fontCache;
 
@@ -50,7 +50,7 @@ public class FontLoader {
     public Font getFont(float fontSize) {
         Font font = null;
         String key = Float.toString(fontSize);
-        synchronized (FONT_LOCK) {
+        synchronized (lock) {
             Element element = fontCache.get(key);
             if (element == null) {
                 if (isEmbeddedFonts()) {

@@ -3,7 +3,21 @@
 # jpsonic/jpsonic
 # -->
 
-## v111.4.0
+## v111.5.0
+
+#### Enhancement
+  * Update Libs (#1646, #1650, #1660, #1669, #1682, #1690)
+  * Change upstream of all Docker images to Temurin ([#1655](https://github.com/tesshucom/jpsonic/issues/1655))
+  * Refactorings
+    * Fix Sonatype Lift warnings ([#1665](https://github.com/tesshucom/jpsonic/issues/1665))
+    * Fix FindSecBugs warnings ([#1670](https://github.com/tesshucom/jpsonic/issues/1670))
+    * Remove code related to Access-Control-Allow-Origin ([#1671](https://github.com/tesshucom/jpsonic/issues/1671))
+  * Migrating to the Date Time API ([#1680](https://github.com/tesshucom/jpsonic/issues/1680))
+  * Accept non zero-fill numeric values in Podcast ([#1687](https://github.com/tesshucom/jpsonic/issues/1687))
+  * Add ZoneOffset to Internal help page ([#1689](https://github.com/tesshucom/jpsonic/issues/1689))
+
+<details>
+<summary>v111.4.0</summary>
 
 #### Enhancement
   * Add Dockerfile for arm/v7 ([#1620](https://github.com/tesshucom/jpsonic/issues/1620))
@@ -19,6 +33,7 @@
 #### Fixes
   * Fix ffmpeg/ffprobe links ([#1638](https://github.com/tesshucom/jpsonic/issues/1638))
 
+</details>
 <details>
 <summary>v111.3.0</summary>
 

@@ -115,6 +115,8 @@ public final class ServiceMockUtils {
                     .thenReturn(SettingsConstants.General.Extension.PLAYLIST_FOLDER.defaultValue);
             Mockito.when(settingsService.getCoverArtFileTypesAsArray())
                     .thenReturn(SettingsConstants.General.Extension.COVER_ART_FILE_TYPES.defaultValue.split(" "));
+            Mockito.when(settingsService.getIgnoredArticlesAsArray())
+                    .thenReturn(SettingsConstants.General.Index.IGNORED_ARTICLES.defaultValue.split(" "));
             mock = settingsService;
         } else if (AirsonicLocaleResolver.class == classToMock) {
             String language = SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE.defaultValue;

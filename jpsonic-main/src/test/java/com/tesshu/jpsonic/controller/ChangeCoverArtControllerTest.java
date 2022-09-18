@@ -19,10 +19,10 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -50,7 +50,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 class ChangeCoverArtControllerTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-            .asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, new Date()));
+            .asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now()));
 
     @Autowired
     private MediaFileDao mediaFileDao;

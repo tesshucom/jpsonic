@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.controller;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -34,7 +35,7 @@ import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Date;
+import java.time.Instant;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -396,11 +397,11 @@ class CoverArtControllerTest {
         void testLastModified() throws URISyntaxException, IOException {
 
             Artist artist = new Artist();
-            Date lastScanned = new Date();
+            Instant lastScanned = now();
             artist.setLastScanned(lastScanned);
 
             ArtistCoverArtRequest request = new ArtistCoverArtRequest(controller, fontLoader, logic, artist);
-            assertEquals(lastScanned.getTime(), request.lastModified());
+            assertEquals(lastScanned.toEpochMilli(), request.lastModified());
 
             Path path = createPath("/MEDIAS/Metadata/coverart/album.gif");
             artist.setCoverArtPath(path.toString());
@@ -416,11 +417,11 @@ class CoverArtControllerTest {
         void testLastModified() throws URISyntaxException, IOException {
 
             Album album = new Album();
-            Date lastScanned = new Date();
+            Instant lastScanned = now();
             album.setLastScanned(lastScanned);
 
             AlbumCoverArtRequest request = new AlbumCoverArtRequest(controller, fontLoader, logic, album);
-            assertEquals(lastScanned.getTime(), request.lastModified());
+            assertEquals(lastScanned.toEpochMilli(), request.lastModified());
 
             Path path = createPath("/MEDIAS/Metadata/coverart/album.gif");
             album.setCoverArtPath(path.toString());
@@ -436,12 +437,12 @@ class CoverArtControllerTest {
         void testLastModified() throws URISyntaxException, IOException {
 
             Playlist playlist = new Playlist();
-            Date changed = new Date();
+            Instant changed = now();
             playlist.setChanged(changed);
 
             PlaylistCoverArtRequest request = new PlaylistCoverArtRequest(controller, fontLoader, logic,
                     mediaFileService, playlistService, playlist);
-            assertEquals(changed.getTime(), request.lastModified());
+            assertEquals(changed.toEpochMilli(), request.lastModified());
         }
     }
 
@@ -464,11 +465,11 @@ class CoverArtControllerTest {
             MediaFile album = new MediaFile();
             album.setMediaType(MediaType.ALBUM);
             assertTrue(album.isDirectory());
-            Date changed = new Date();
+            Instant changed = now();
             album.setChanged(changed);
             MediaFileCoverArtRequest request = new MediaFileCoverArtRequest(controller, fontLoader, logic,
                     mediaFileService, album);
-            assertEquals(changed.getTime(), request.lastModified());
+            assertEquals(changed.toEpochMilli(), request.lastModified());
 
             MediaFile song = new MediaFile();
             song.setMediaType(MediaType.MUSIC);
@@ -487,10 +488,10 @@ class CoverArtControllerTest {
             MediaFile video = new MediaFile();
             video.setMediaType(MediaType.ALBUM);
             assertTrue(video.isDirectory());
-            Date changed = new Date();
+            Instant changed = now();
             video.setChanged(changed);
             VideoCoverArtRequest request = new VideoCoverArtRequest(controller, fontLoader, logic, video, 0);
-            assertEquals(changed.getTime(), request.lastModified());
+            assertEquals(changed.toEpochMilli(), request.lastModified());
         }
     }
 }

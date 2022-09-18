@@ -20,13 +20,13 @@
 package com.tesshu.jpsonic.service;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import com.tesshu.jpsonic.dao.RatingDao;
@@ -61,7 +61,7 @@ class RatingServiceTest {
         album.setPathString(albumPath.toString());
         Mockito.when(mediaFileService.getMediaFile(albumPath)).thenReturn(album);
 
-        MusicFolder musicFolder = new MusicFolder(0, "path", "Music", true, new Date());
+        MusicFolder musicFolder = new MusicFolder(0, "path", "Music", true, now());
         List<MusicFolder> musicFolders = Arrays.asList(musicFolder);
         List<MediaFile> highestRatedAlbums = ratingService.getHighestRatedAlbums(0, 0, musicFolders);
         assertEquals(1, highestRatedAlbums.size());

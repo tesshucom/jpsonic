@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -72,7 +73,7 @@ public class SettingsService {
     private static final Map<LocksKeys, Object> LOCKS;
 
     private enum LocksKeys {
-        HOME, MUSIC_FILE, VIDEO_FILE, COVER_ART, THEMES, LOCALES
+        HOME, MUSIC_FILE, VIDEO_FILE, COVER_ART, THEMES, LOCALES, LOCALE, ARTICLES
     }
 
     static {
@@ -112,6 +113,7 @@ public class SettingsService {
 
     private Pattern excludePattern;
     private Locale locale;
+    private String[] ignoredArticles;
 
     public SettingsService(ApacheCommonsConfigurationService configurationService, UPnPSubnet uPnPSubnet) {
         super();
@@ -278,7 +280,7 @@ public class SettingsService {
     public void save(boolean updateSettingsChanged) {
         if (updateSettingsChanged) {
             removeObsoleteProperties();
-            setProperty(SettingsConstants.SETTINGS_CHANGED, System.currentTimeMillis());
+            setProperty(SettingsConstants.SETTINGS_CHANGED, Instant.now().toEpochMilli());
         }
         configurationService.save();
     }
@@ -408,8 +410,8 @@ public class SettingsService {
                 }
                 locales = l.toArray(new Locale[0]);
             }
+            return locales;
         }
-        return locales;
     }
 
     public static String getBrand() {
@@ -417,21 +419,25 @@ public class SettingsService {
     }
 
     public Locale getLocale() {
-        if (isEmpty(locale)) {
-            String language = getString(SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE);
-            String country = getString(SettingsConstants.General.ThemeAndLang.LOCALE_COUNTRY);
-            String variant = getString(SettingsConstants.General.ThemeAndLang.LOCALE_VARIANT);
-            locale = new Locale(language, country, variant);
+        synchronized (LOCKS.get(LocksKeys.LOCALE)) {
+            if (isEmpty(locale)) {
+                String language = getString(SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE);
+                String country = getString(SettingsConstants.General.ThemeAndLang.LOCALE_COUNTRY);
+                String variant = getString(SettingsConstants.General.ThemeAndLang.LOCALE_VARIANT);
+                locale = new Locale(language, country, variant);
+            }
+            return locale;
         }
-        return locale;
     }
 
     @SuppressWarnings("PMD.NullAssignment") // (locale) Intentional allocation to clear cache
     public void setLocale(Locale locale) {
-        this.locale = null;
-        setProperty(SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE, locale.getLanguage());
-        setProperty(SettingsConstants.General.ThemeAndLang.LOCALE_COUNTRY, locale.getCountry());
-        setProperty(SettingsConstants.General.ThemeAndLang.LOCALE_VARIANT, locale.getVariant());
+        synchronized (LOCKS.get(LocksKeys.LOCALE)) {
+            this.locale = null;
+            setProperty(SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE, locale.getLanguage());
+            setProperty(SettingsConstants.General.ThemeAndLang.LOCALE_COUNTRY, locale.getCountry());
+            setProperty(SettingsConstants.General.ThemeAndLang.LOCALE_VARIANT, locale.getVariant());
+        }
     }
 
     /**
@@ -469,8 +475,8 @@ public class SettingsService {
                 }
                 themes = Collections.unmodifiableList(l);
             }
+            return themes;
         }
-        return themes;
     }
 
     public String getThemeId() {
@@ -497,12 +503,24 @@ public class SettingsService {
         return getString(SettingsConstants.General.Index.IGNORED_ARTICLES);
     }
 
+    @SuppressWarnings("PMD.NullAssignment") // (ignoredArticles) Intentional allocation to register null
     public void setIgnoredArticles(String s) {
+        synchronized (LOCKS.get(LocksKeys.ARTICLES)) {
+            ignoredArticles = null;
+        }
         setProperty(SettingsConstants.General.Index.IGNORED_ARTICLES, s);
     }
 
     public String[] getIgnoredArticlesAsArray() {
-        return getIgnoredArticles().split("\\s+");
+        synchronized (LOCKS.get(LocksKeys.ARTICLES)) {
+            String articles = getIgnoredArticles();
+            if (isEmpty(articles)) {
+                return new String[0];
+            } else {
+                ignoredArticles = Arrays.asList(articles.split("\\s+")).toArray(new String[0]);
+            }
+            return ignoredArticles;
+        }
     }
 
     public boolean isSortAlbumsByYear() {
@@ -676,8 +694,8 @@ public class SettingsService {
             if (musicFileTypes == null) {
                 musicFileTypes = toStringArray(getMusicFileTypes());
             }
+            return musicFileTypes;
         }
-        return musicFileTypes;
     }
 
     public String getVideoFileTypes() {
@@ -703,8 +721,8 @@ public class SettingsService {
             if (videoFileTypes == null) {
                 videoFileTypes = toStringArray(getVideoFileTypes());
             }
+            return videoFileTypes;
         }
-        return videoFileTypes;
     }
 
     public String getCoverArtFileTypes() {
@@ -730,8 +748,8 @@ public class SettingsService {
             if (coverArtFileTypes == null) {
                 coverArtFileTypes = toStringArray(getCoverArtFileTypes());
             }
+            return coverArtFileTypes;
         }
-        return coverArtFileTypes;
     }
 
     public String getPlaylistFolder() {

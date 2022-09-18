@@ -21,10 +21,12 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -185,11 +187,11 @@ public class ArtistDao extends AbstractDao {
                 + "order by starred_artist.created desc limit :count offset :offset", rowMapper, args);
     }
 
-    public void markPresent(String artistName, Date lastScanned) {
+    public void markPresent(String artistName, Instant lastScanned) {
         update("update artist set present=?, last_scanned = ? where name=?", true, lastScanned, artistName);
     }
 
-    public void markNonPresent(Date lastScanned) {
+    public void markNonPresent(Instant lastScanned) {
         int minId = queryForInt("select min(id) from artist where last_scanned < ? and present", 0, lastScanned);
         int maxId = queryForInt("select max(id) from artist where last_scanned < ? and present", 0, lastScanned);
 
@@ -216,24 +218,23 @@ public class ArtistDao extends AbstractDao {
 
     public void starArtist(int artistId, String username) {
         unstarArtist(artistId, username);
-        update("insert into starred_artist(artist_id, username, created) values (?,?,?)", artistId, username,
-                new Date());
+        update("insert into starred_artist(artist_id, username, created) values (?,?,?)", artistId, username, now());
     }
 
     public void unstarArtist(int artistId, String username) {
         update("delete from starred_artist where artist_id=? and username=?", artistId, username);
     }
 
-    public Date getArtistStarredDate(int artistId, String username) {
-        return queryForDate("select created from starred_artist where artist_id=? and username=?", null, artistId,
+    public Instant getArtistStarredDate(int artistId, String username) {
+        return queryForInstant("select created from starred_artist where artist_id=? and username=?", null, artistId,
                 username);
     }
 
     private static class ArtistMapper implements RowMapper<Artist> {
         @Override
         public Artist mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new Artist(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getTimestamp(5),
-                    rs.getBoolean(6), rs.getInt(7),
+            return new Artist(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4),
+                    nullableInstantOf(rs.getTimestamp(5)), rs.getBoolean(6), rs.getInt(7),
                     // JP >>>>
                     rs.getString(8), rs.getString(9), rs.getInt(10)); // <<<< JP
         }

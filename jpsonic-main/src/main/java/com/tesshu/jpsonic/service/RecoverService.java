@@ -19,7 +19,8 @@
 
 package com.tesshu.jpsonic.service;
 
-import java.util.Date;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
 import java.util.Properties;
 
 import javax.mail.Message;
@@ -103,7 +104,7 @@ public class RecoverService {
                     + "You have requested to reset your Jpsonic password.  Please find your new login details below.\n\n"
                     + "Username: " + username + "\n" + "Password: " + password + "\n\n" + "--\n"
                     + "Your Jpsonic server\n" + "tesshu.com/");
-            message.setSentDate(new Date());
+            message.setSentDate(java.util.Date.from(now()));
 
             try (Transport trans = session.getTransport(prot)) {
                 if (props.get(SESSION_KEY_MAIL_PREF + prot + ".auth") != null

@@ -130,7 +130,7 @@ public class TagService {
         }
         mediaFileService.refreshMediaFile(file);
         file = mediaFileService.getMediaFileStrict(file.getId());
-        mediaFileService.refreshMediaFile(mediaFileService.getParentOf(file));
+        mediaFileService.getParent(file).ifPresent(parent -> mediaFileService.refreshMediaFile(parent));
         return "UPDATED";
     }
 

@@ -19,12 +19,13 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -138,7 +139,7 @@ public class AvatarService {
             mimeType = StringUtil.getMimeType("jpeg");
             resized = true;
         }
-        Avatar avatar = new Avatar(0, fileName, new Date(), mimeType, width, height, imageData);
+        Avatar avatar = new Avatar(0, fileName, now(), mimeType, width, height, imageData);
         setCustomAvatar(avatar, username);
         if (LOG.isInfoEnabled()) {
             LOG.info("Created avatar '" + fileName + "' (" + imageData.length + " bytes) for user " + username);

@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -334,7 +335,7 @@ public class UploadController {
             this.status = status;
             this.statusService = statusService;
             this.settingsService = settingsService;
-            this.startTime = System.currentTimeMillis();
+            this.startTime = Instant.now().toEpochMilli();
         }
 
         @Override
@@ -348,7 +349,7 @@ public class UploadController {
             // Throttle bitrate.
             long byteCount = status.getBytesTransfered() + bytesRead;
             long bitCount = byteCount * 8L;
-            float elapsedMillis = Math.max(1, System.currentTimeMillis() - startTime);
+            float elapsedMillis = Math.max(1, Instant.now().toEpochMilli() - startTime);
             float elapsedSeconds = elapsedMillis / 1000.0F;
             long maxBitsPerSecond = getBitrateLimit();
 

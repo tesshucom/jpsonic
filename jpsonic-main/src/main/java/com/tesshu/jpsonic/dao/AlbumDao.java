@@ -21,12 +21,14 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -387,7 +389,7 @@ public class AlbumDao extends AbstractDao {
         }
     }
 
-    public void markNonPresent(Date lastScanned) {
+    public void markNonPresent(Instant lastScanned) {
         int minId = queryForInt("select min(id) from album where last_scanned < ? and present", 0, lastScanned);
         int maxId = queryForInt("select max(id) from album where last_scanned < ? and present", 0, lastScanned);
 
@@ -414,15 +416,15 @@ public class AlbumDao extends AbstractDao {
 
     public void starAlbum(int albumId, String username) {
         unstarAlbum(albumId, username);
-        update("insert into starred_album(album_id, username, created) values (?,?,?)", albumId, username, new Date());
+        update("insert into starred_album(album_id, username, created) values (?,?,?)", albumId, username, now());
     }
 
     public void unstarAlbum(int albumId, String username) {
         update("delete from starred_album where album_id=? and username=?", albumId, username);
     }
 
-    public Date getAlbumStarredDate(int albumId, String username) {
-        return queryForDate("select created from starred_album where album_id=? and username=?", null, albumId,
+    public Instant getAlbumStarredDate(int albumId, String username) {
+        return queryForInstant("select created from starred_album where album_id=? and username=?", null, albumId,
                 username);
     }
 
@@ -431,8 +433,9 @@ public class AlbumDao extends AbstractDao {
         public Album mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new Album(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getInt(5),
                     rs.getInt(6), rs.getString(7), rs.getInt(8) == 0 ? null : rs.getInt(8), rs.getString(9),
-                    rs.getInt(10), rs.getTimestamp(11), rs.getString(12), rs.getTimestamp(13), rs.getTimestamp(14),
-                    rs.getBoolean(15), rs.getInt(16), rs.getString(17),
+                    rs.getInt(10), nullableInstantOf(rs.getTimestamp(11)), rs.getString(12),
+                    nullableInstantOf(rs.getTimestamp(13)), nullableInstantOf(rs.getTimestamp(14)), rs.getBoolean(15),
+                    rs.getInt(16), rs.getString(17),
                     // JP >>>>
                     rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21), rs.getInt(22)); // <<<< JP
         }

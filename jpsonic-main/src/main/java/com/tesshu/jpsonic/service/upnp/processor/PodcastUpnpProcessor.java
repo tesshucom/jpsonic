@@ -22,13 +22,10 @@ package com.tesshu.jpsonic.service.upnp.processor;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.net.URI;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import javax.annotation.PostConstruct;
@@ -58,8 +55,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 public class PodcastUpnpProcessor extends UpnpContentProcessor<PodcastChannel, PodcastEpisode> {
 
-    private static final ThreadLocal<DateFormat> DATE_FORMAT = ThreadLocal
-            .withInitial(() -> new SimpleDateFormat("yyyy-MM-dd", Locale.US));
+    private static final ThreadLocal<DateTimeFormatter> DATE_FORMAT = ThreadLocal
+            .withInitial(() -> DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault()));
     private final UpnpProcessorUtil util;
     private final MediaFileService mediaFileService;
     private final PodcastService podcastService;
@@ -119,13 +116,9 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor<PodcastChannel, P
             item.addProperty(new ALBUM_ART_URI(createPodcastChannelURI(channel)));
         }
 
-        Date publishDate = episode.getPublishDate();
-        if (isEmpty(publishDate)) {
-            Calendar.getInstance();
-            Calendar c = Calendar.getInstance();
-            c.setTime(publishDate);
+        if (!isEmpty(episode.getPublishDate())) {
             synchronized (DATE_FORMAT) {
-                item.setDate(DATE_FORMAT.get().format(c.getTime()));
+                item.setDate(DATE_FORMAT.get().format(episode.getPublishDate()));
             }
         }
 

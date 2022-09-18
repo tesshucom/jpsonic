@@ -59,8 +59,6 @@ public class RESTFilter implements Filter {
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) {
         try {
-            HttpServletResponse response = (HttpServletResponse) res;
-            response.setHeader("Access-Control-Allow-Origin", "*");
             chain.doFilter(req, res);
         } catch (IOException | ServletException e) {
             handleException(e, (HttpServletRequest) req, (HttpServletResponse) res);

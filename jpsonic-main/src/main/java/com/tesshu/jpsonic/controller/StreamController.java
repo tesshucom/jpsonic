@@ -387,7 +387,6 @@ public class StreamController {
         }
 
         // Processing for all responses
-        res.setHeader("Access-Control-Allow-Origin", "*");
         String contentType = getMimeType(req.getParameter(Attributes.Request.SUFFIX.value()));
         res.setContentType(contentType);
 
