@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.domain;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.function.Function;
 
@@ -253,11 +253,11 @@ public class MediaFileWithUrlInfo {
         file.setPlayCount(playCount);
     }
 
-    public Date getLastPlayed() {
+    public Instant getLastPlayed() {
         return file.getLastPlayed();
     }
 
-    public void setLastPlayed(Date lastPlayed) {
+    public void setLastPlayed(Instant lastPlayed) {
         file.setLastPlayed(lastPlayed);
     }
 
@@ -269,43 +269,43 @@ public class MediaFileWithUrlInfo {
         file.setComment(comment);
     }
 
-    public Date getCreated() {
+    public Instant getCreated() {
         return file.getCreated();
     }
 
-    public void setCreated(Date created) {
+    public void setCreated(Instant created) {
         file.setCreated(created);
     }
 
-    public Date getChanged() {
+    public Instant getChanged() {
         return file.getChanged();
     }
 
-    public void setChanged(Date changed) {
+    public void setChanged(Instant changed) {
         file.setChanged(changed);
     }
 
-    public Date getLastScanned() {
+    public Instant getLastScanned() {
         return file.getLastScanned();
     }
 
-    public void setLastScanned(Date lastScanned) {
+    public void setLastScanned(Instant lastScanned) {
         file.setLastScanned(lastScanned);
     }
 
-    public Date getStarredDate() {
+    public Instant getStarredDate() {
         return file.getStarredDate();
     }
 
-    public void setStarredDate(Date starredDate) {
+    public void setStarredDate(Instant starredDate) {
         file.setStarredDate(starredDate);
     }
 
-    public Date getChildrenLastUpdated() {
+    public Instant getChildrenLastUpdated() {
         return file.getChildrenLastUpdated();
     }
 
-    public void setChildrenLastUpdated(Date childrenLastUpdated) {
+    public void setChildrenLastUpdated(Instant childrenLastUpdated) {
         file.setChildrenLastUpdated(childrenLastUpdated);
     }
 

@@ -20,17 +20,18 @@
 package com.tesshu.jpsonic.domain;
 
 import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.lang.annotation.Documented;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.function.Function;
@@ -65,13 +66,13 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootTest
 @SpringBootConfiguration
 @ComponentScan(basePackages = "com.tesshu.jpsonic")
-@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class JpsonicComparatorsTest extends AbstractNeedsScan {
 
     protected static final Logger LOG = LoggerFactory.getLogger(JpsonicComparatorsTest.class);
 
-    protected static final List<MusicFolder> MUSIC_FOLDERS = Arrays.asList(
-            new MusicFolder(1, resolveBaseMediaPath("Sort/Compare"), "test date for sorting", true, new Date()));
+    protected static final List<MusicFolder> MUSIC_FOLDERS = Arrays
+            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Compare"), "test date for sorting", true, now()));
 
     protected static final List<String> INDEX_LIST = Collections.unmodifiableList(Arrays.asList("abcde", "abcいうえおあ", // Turn
                                                                                                                      // over
@@ -1221,7 +1222,7 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
             settingsService.setDlnaGuestPublish(false);
 
             Function<String, Playlist> toPlaylist = (title) -> {
-                Date now = new Date();
+                Instant now = now();
                 Playlist playlist = new Playlist();
                 playlist.setName(title);
                 playlist.setUsername("admin");

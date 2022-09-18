@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
@@ -75,7 +76,7 @@ class TagServiceTest {
         parent.setPathString(copy.getParent().toString());
 
         Mockito.when(mediaFileService.getMediaFileStrict(mediaFile.getId())).thenReturn(mediaFile);
-        Mockito.when(mediaFileService.getParentOf(mediaFile)).thenReturn(parent);
+        Mockito.when(mediaFileService.getParent(mediaFile)).thenReturn(Optional.of(parent));
         Mockito.when(metaDataParserFactory.getParser(Path.of(mediaFile.getPathString()))).thenReturn(parser);
 
         Mockito.when(mediaScannerService.isScanning()).thenReturn(false);

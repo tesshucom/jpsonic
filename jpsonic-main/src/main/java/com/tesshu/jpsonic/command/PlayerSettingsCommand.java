@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.command;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import com.tesshu.jpsonic.controller.PlayerSettingsController;
@@ -29,6 +29,7 @@ import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.PlayerTechnology;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.Transcoding;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Command used in {@link PlayerSettingsController}.
@@ -57,7 +58,7 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
     private boolean dynamicIp;
     private boolean autoControlEnabled;
     private boolean m3uBomEnabled;
-    private Date lastSeen;
+    private ZonedDateTime lastSeen;
 
     // for view page control
     private boolean useExternalPlayer;
@@ -210,11 +211,11 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
         this.m3uBomEnabled = m3uBomEnabled;
     }
 
-    public Date getLastSeen() {
+    public @Nullable ZonedDateTime getLastSeen() {
         return lastSeen;
     }
 
-    public void setLastSeen(Date lastSeen) {
+    public void setLastSeen(ZonedDateTime lastSeen) {
         this.lastSeen = lastSeen;
     }
 

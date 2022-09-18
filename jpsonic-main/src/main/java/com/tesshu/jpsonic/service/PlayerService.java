@@ -21,10 +21,11 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.springframework.web.bind.ServletRequestUtils.getIntParameter;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,6 +46,7 @@ import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +67,6 @@ public class PlayerService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlayerService.class);
 
-    private static final Object LOCK = new Object();
     private static final String COOKIE_NAME = "player";
     private static final String ATTRIBUTE_SESSION_KEY = "player";
     private static final String GUEST_PLAYER_TYPE = "UPnP Processor";
@@ -76,6 +77,8 @@ public class PlayerService {
     private final SettingsService settingsService;
     private final SecurityService securityService;
     private final TranscodingService transcodingService;
+
+    private final Object playerLock = new Object();
 
     public PlayerService(PlayerDao playerDao, StatusService statusService, SettingsService settingsService,
             SecurityService securityService, TranscodingService transcodingService) {
@@ -119,7 +122,7 @@ public class PlayerService {
     public Player getPlayer(HttpServletRequest request, HttpServletResponse response, boolean remoteControlEnabled,
             boolean isStreamRequest) {
 
-        synchronized (LOCK) {
+        synchronized (playerLock) {
 
             // Get player.
             Player player = findOrCreatePlayer(request, remoteControlEnabled);
@@ -208,7 +211,7 @@ public class PlayerService {
         }
     }
 
-    private boolean isToBeUpdate(HttpServletRequest request, boolean isStreamRequest, Player player) {
+    boolean isToBeUpdate(HttpServletRequest request, boolean isStreamRequest, @NonNull Player player) {
         boolean isToBeUpdate = false;
         String username = securityService.getCurrentUsername(request);
         if (username != null && player.getUsername() == null) {
@@ -223,7 +226,7 @@ public class PlayerService {
         String userAgent = request.getHeader("user-agent");
         if (isStreamRequest) {
             player.setType(userAgent);
-            player.setLastSeen(new Date());
+            player.setLastSeen(now());
             isToBeUpdate = true;
         }
         return isToBeUpdate;
@@ -365,7 +368,7 @@ public class PlayerService {
      *            The unique player ID.
      */
     public void removePlayerById(int id) {
-        synchronized (LOCK) {
+        synchronized (playerLock) {
             playerDao.deletePlayer(id);
         }
     }
@@ -403,14 +406,16 @@ public class PlayerService {
     }
 
     private void createPlayer(Player player, boolean isInitTranscoding) {
-        UserSettings userSettings = securityService
-                .getUserSettings(JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername())
-                        ? User.USERNAME_GUEST : player.getUsername());
-        player.setTranscodeScheme(userSettings.getTranscodeScheme());
-        playerDao.createPlayer(player);
-        if (isInitTranscoding) {
-            transcodingService.setTranscodingsForPlayer(player, transcodingService.getAllTranscodings().stream()
-                    .filter(Transcoding::isDefaultActive).collect(Collectors.toList()));
+        synchronized (playerLock) {
+            UserSettings userSettings = securityService
+                    .getUserSettings(JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername())
+                            ? User.USERNAME_GUEST : player.getUsername());
+            player.setTranscodeScheme(userSettings.getTranscodeScheme());
+            playerDao.createPlayer(player);
+            if (isInitTranscoding) {
+                transcodingService.setTranscodingsForPlayer(player, transcodingService.getAllTranscodings().stream()
+                        .filter(Transcoding::isDefaultActive).collect(Collectors.toList()));
+            }
         }
     }
 
@@ -420,7 +425,7 @@ public class PlayerService {
     public Player getGuestPlayer(HttpServletRequest request) {
 
         User user = securityService.getGuestUser();
-        Date now = new Date();
+        Instant now = now();
 
         // Look for existing player.
         List<Player> players = getPlayersForUserAndClientId(user.getUsername(), null);
@@ -434,9 +439,7 @@ public class PlayerService {
         if (oldPlayer.isPresent()) {
             // Update date only if more than 24 hours have passed
             Player player = oldPlayer.get();
-            Calendar lastSeen = Calendar.getInstance();
-            lastSeen.setTime(player.getLastSeen());
-            if (now.getTime() - player.getLastSeen().getTime() > 1000 * 60 * 60 * 24) {
+            if (player.getLastSeen().plus(1, ChronoUnit.DAYS).isBefore(now)) {
                 player.setLastSeen(now);
                 playerDao.updatePlayer(player);
             }
@@ -450,7 +453,7 @@ public class PlayerService {
         }
         player.setUsername(user.getUsername());
         player.setType(GUEST_PLAYER_TYPE);
-        player.setLastSeen(new Date());
+        player.setLastSeen(now());
         createPlayer(player, false);
 
         return player;

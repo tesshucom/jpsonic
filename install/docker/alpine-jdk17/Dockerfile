@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM eclipse-temurin:17-jre-alpine
 
 LABEL description="Jpsonic is a free, web-based media streamer, providing ubiquitious access to your music." \
       url="https://github.com/jpsonic/jpsonic"
@@ -10,9 +10,8 @@ ENV JPSONIC_DIR=/jpsonic \
     SHOW_DATA_DIR=true \
     USER_ID=1000 \
     GROUP_ID=1000 \
-    LANG=C.UTF-8 \
     TIME_ZONE=GB \
-    BANNER_MODE=on \
+    BANNER_MODE=CONSOLE \
     SCAN_ON_BOOT=false \
     EMBEDDED_FONT=false \
     MIME_DSF=audio/x-dsd \
@@ -21,20 +20,20 @@ ENV JPSONIC_DIR=/jpsonic \
 
 WORKDIR $JPSONIC_DIR
 
+COPY local.conf /etc/fonts
+
 RUN apk --no-cache add \
     su-exec \
-    musl-locales \
-    ffmpeg \
     bash \
-    fontconfig \
-    font-noto-cjk \
-    tini \
     curl \
-    openjdk17-jdk \
+    tini \
+    ffmpeg \
+    font-noto-cjk \
     && rm -rf /var/cache/apk/* \
     && rm /usr/share/fonts/noto/NotoSansCJK-Bold.ttc \
     && rm /usr/share/fonts/noto/NotoSerifCJK-Bold.ttc \
-    && rm /usr/share/fonts/noto/NotoSerifCJK-Regular.ttc
+    && rm /usr/share/fonts/noto/NotoSerifCJK-Regular.ttc \
+    && fc-cache -vf
 
 EXPOSE $JPSONIC_PORT
 EXPOSE $UPNP_PORT

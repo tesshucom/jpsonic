@@ -21,6 +21,10 @@
 
 package com.tesshu.jpsonic.controller;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.stream.Collectors;
+
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.domain.CoverArtScheme;
@@ -28,6 +32,7 @@ import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.util.LegacyMap;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -64,9 +69,24 @@ public class PodcastChannelController {
         int channelId = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         result.addObject("model",
                 LegacyMap.of("user", securityService.getCurrentUserStrict(request), "channel",
-                        podcastService.getChannel(channelId), "episodes", podcastService.getEpisodes(channelId),
+                        podcastService.getChannel(channelId), "episodes",
+                        podcastService.getEpisodes(channelId).stream().map(PodcastEpisode::new)
+                                .collect(Collectors.toList()),
                         "coverArtSize", CoverArtScheme.LARGE.getSize(), "scanning", mediaScannerService.isScanning()));
         return result;
     }
 
+    // VO
+    public static class PodcastEpisode extends com.tesshu.jpsonic.domain.PodcastEpisode {
+
+        public PodcastEpisode(com.tesshu.jpsonic.domain.PodcastEpisode episode) {
+            super(episode.getId(), episode.getChannelId(), episode.getUrl(), episode.getPath(), episode.getTitle(),
+                    episode.getDescription(), episode.getPublishDate(), episode.getDuration(), episode.getBytesTotal(),
+                    episode.getBytesDownloaded(), episode.getStatus(), episode.getErrorMessage());
+        }
+
+        public @Nullable ZonedDateTime getPublishDateWithZone() {
+            return getPublishDate() == null ? null : ZonedDateTime.ofInstant(getPublishDate(), ZoneId.systemDefault());
+        }
+    }
 }

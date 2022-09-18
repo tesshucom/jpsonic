@@ -21,9 +21,13 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -113,10 +117,10 @@ public class ShareSettingsController {
         boolean deleteExpired = ServletRequestUtils.getBooleanParameter(request,
                 Attributes.Request.DELETE_EXPIRED.value(), false);
         if (deleteExpired) {
-            Date now = new Date();
+            Instant now = now();
             for (Share share : shareService.getSharesForUser(user)) {
-                Date expires = share.getExpires();
-                if (expires != null && expires.before(now)) {
+                Instant expires = share.getExpires();
+                if (expires != null && expires.isBefore(now)) {
                     shareService.deleteShare(share.getId());
                 }
             }
@@ -133,7 +137,7 @@ public class ShareSettingsController {
             List<MediaFile> files = shareService.getSharedFiles(share.getId(), musicFolders);
             if (!files.isEmpty()) {
                 MediaFile file = files.get(0);
-                result.add(new ShareInfo(shareService.getShareUrl(request, share), share,
+                result.add(new ShareInfo(shareService.getShareUrl(request, share), new ShareVO(share),
                         file.isDirectory() ? file : mediaFileService.getParentOf(file)));
             }
         }
@@ -144,29 +148,26 @@ public class ShareSettingsController {
         return StringUtils.trimToNull(request.getParameter(name + "[" + id + "]"));
     }
 
-    private Date parseExpireIn(String expireIn) {
+    private Instant parseExpireIn(String expireIn) {
         int days = Integer.parseInt(expireIn);
         if (days == 0) {
             return null;
         }
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, days);
-        return calendar.getTime();
+        return now().plus(days, ChronoUnit.DAYS);
     }
 
     public static class ShareInfo {
         private final String shareUrl;
-        private final Share share;
+        private final ShareVO share;
         private final MediaFile dir;
 
-        public ShareInfo(String shareUrl, Share share, MediaFile dir) {
+        public ShareInfo(String shareUrl, ShareVO share, MediaFile dir) {
             this.shareUrl = shareUrl;
             this.share = share;
             this.dir = dir;
         }
 
-        public Share getShare() {
+        public ShareVO getShare() {
             return share;
         }
 
@@ -176,6 +177,26 @@ public class ShareSettingsController {
 
         public MediaFile getDir() {
             return dir;
+        }
+    }
+
+    public static class ShareVO extends Share {
+
+        public ShareVO(Share share) {
+            super(share.getId(), share.getName(), share.getDescription(), share.getUsername(), share.getCreated(),
+                    share.getExpires(), share.getLastVisited(), share.getVisitCount());
+        }
+
+        public ZonedDateTime getCreatedWithZone() {
+            return ZonedDateTime.ofInstant(getCreated(), ZoneId.systemDefault());
+        }
+
+        public ZonedDateTime getExpiresWithZone() {
+            return getExpires() == null ? null : ZonedDateTime.ofInstant(getExpires(), ZoneId.systemDefault());
+        }
+
+        public ZonedDateTime getLastVisitedWithZone() {
+            return getLastVisited() == null ? null : ZonedDateTime.ofInstant(getLastVisited(), ZoneId.systemDefault());
         }
     }
 }

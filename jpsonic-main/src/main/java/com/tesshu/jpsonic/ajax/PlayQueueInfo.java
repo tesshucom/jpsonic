@@ -94,6 +94,7 @@ public class PlayQueueInfo {
         this.startPlayerAt = startPlayerAt;
     }
 
+    @SuppressWarnings("CanIgnoreReturnValueSuggester")
     public PlayQueueInfo startPlayerAtAndGetInfo(int startPlayerAt) {
         setStartPlayerAt(startPlayerAt);
         return this;
@@ -107,6 +108,7 @@ public class PlayQueueInfo {
         this.startPlayerAtPosition = startPlayerAtPosition;
     }
 
+    @SuppressWarnings("CanIgnoreReturnValueSuggester")
     public PlayQueueInfo startPlayerAtPositionAndGetInfo(long startPlayerAtPosition) {
         setStartPlayerAtPosition(startPlayerAtPosition);
         return this;

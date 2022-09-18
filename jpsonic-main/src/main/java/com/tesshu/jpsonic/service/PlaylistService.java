@@ -21,6 +21,8 @@
 
 package com.tesshu.jpsonic.service;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,8 +30,8 @@ import java.io.UncheckedIOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -225,7 +227,7 @@ public class PlaylistService {
             throw new ExecutionException(new IOException("No songs in the playlist were found."));
         }
 
-        Date now = new Date();
+        Instant now = now();
         Playlist playlist;
         if (existingPlaylist == null) {
             playlist = new Playlist();
@@ -326,7 +328,7 @@ public class PlaylistService {
             if (fileName.toString().equals(playlist.getImportedFrom())) {
                 existingPlaylist = playlist;
                 try {
-                    if (Files.getLastModifiedTime(file).toMillis() <= playlist.getChanged().getTime()) {
+                    if (Files.getLastModifiedTime(file).toMillis() <= playlist.getChanged().toEpochMilli()) {
                         // Already imported and not changed since.
                         return;
                     }

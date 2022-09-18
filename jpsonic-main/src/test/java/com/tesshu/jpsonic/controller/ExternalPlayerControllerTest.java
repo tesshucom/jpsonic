@@ -23,10 +23,10 @@ import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.nio.file.Path;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -72,9 +72,9 @@ class ExternalPlayerControllerTest {
         Share share = new Share();
         share.setId(shareId);
         LocalDateTime localDateTime = LocalDateTime.now();
-        Date current = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        Instant current = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
         share.setCreated(current);
-        Date expires = Date.from(localDateTime.plusDays(10).atZone(ZoneId.systemDefault()).toInstant());
+        Instant expires = localDateTime.plusDays(10).atZone(ZoneId.systemDefault()).toInstant();
         share.setExpires(expires);
         Mockito.when(shareService.getShareByName(Mockito.anyString())).thenReturn(share);
 
@@ -93,9 +93,8 @@ class ExternalPlayerControllerTest {
         UriComponentsBuilder builder = mock(UriComponentsBuilder.class);
         UriComponents components = mock(UriComponents.class);
         Mockito.when(builder.build()).thenReturn(components);
-        Mockito.when(
-                jwtSecurityService.addJWTToken(Mockito.any(UriComponentsBuilder.class), Mockito.nullable(Date.class)))
-                .thenReturn(builder);
+        Mockito.when(jwtSecurityService.addJWTToken(Mockito.any(UriComponentsBuilder.class),
+                Mockito.nullable(Instant.class))).thenReturn(builder);
 
         MvcResult result = mockMvc
                 .perform(MockMvcRequestBuilders.get("/ext/share/AAaaA")

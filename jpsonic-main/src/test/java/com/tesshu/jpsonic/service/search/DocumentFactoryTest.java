@@ -22,12 +22,12 @@
 package com.tesshu.jpsonic.service.search;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.lang.annotation.Documented;
-import java.util.Date;
 
 import com.tesshu.jpsonic.dao.MusicFolderTestDataUtils;
 import com.tesshu.jpsonic.domain.Album;
@@ -45,7 +45,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class DocumentFactoryTest {
 
     private SettingsService settingsService;
@@ -155,7 +155,7 @@ class DocumentFactoryTest {
         artist.setSort("sort");
         artist.setFolderId(10);
         MusicFolder musicFolder = new MusicFolder(100, MusicFolderTestDataUtils.resolveMusicFolderPath(), "Music", true,
-                new Date());
+                now());
         Document document = documentFactory.createArtistId3Document(artist, musicFolder);
         assertEquals(6, document.getFields().size(), "fields.size");
         assertEquals("1", document.get(FieldNamesConstants.ID));

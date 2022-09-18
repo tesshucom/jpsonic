@@ -21,10 +21,10 @@
 
 package com.tesshu.jpsonic.service.upnp.processor;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
@@ -36,7 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 class RandomSongByFolderArtistUpnpProcessorTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, new Date()));
+            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, now()));
 
     @Autowired
     private RandomSongByFolderArtistUpnpProcessor processor;

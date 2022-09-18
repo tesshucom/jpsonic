@@ -21,10 +21,11 @@
 
 package com.tesshu.jpsonic;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -59,7 +60,7 @@ public final class MusicFolderTestDataUtils {
 
     public static List<MusicFolder> getTestMusicFolders() {
         return Arrays.asList(
-                new MusicFolder(1, MusicFolderTestDataUtils.resolveMusicFolderPath(), "Music", true, new Date()),
-                new MusicFolder(2, MusicFolderTestDataUtils.resolveMusic2FolderPath(), "Music2", true, new Date()));
+                new MusicFolder(1, MusicFolderTestDataUtils.resolveMusicFolderPath(), "Music", true, now()),
+                new MusicFolder(2, MusicFolderTestDataUtils.resolveMusic2FolderPath(), "Music2", true, now()));
     }
 }

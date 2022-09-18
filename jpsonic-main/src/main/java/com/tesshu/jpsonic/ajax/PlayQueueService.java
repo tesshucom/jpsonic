@@ -24,12 +24,12 @@ package com.tesshu.jpsonic.ajax;
 import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ALBUM;
 import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
 import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.TRACK;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -195,7 +195,7 @@ public class PlayQueueService {
         List<Integer> ids = MediaFile.toIdList(playQueue.getFiles());
 
         Integer currentId = currentSongIndex == -1 ? null : playQueue.getFile(currentSongIndex).getId();
-        SavedPlayQueue savedPlayQueue = new SavedPlayQueue(null, username, ids, currentId, positionMillis, new Date(),
+        SavedPlayQueue savedPlayQueue = new SavedPlayQueue(null, username, ids, currentId, positionMillis, now(),
                 "Airsonic");
         playQueueDao.savePlayQueue(savedPlayQueue);
     }
@@ -246,25 +246,25 @@ public class PlayQueueService {
         HttpServletResponse response = resolveHttpServletResponse();
 
         Player player = getCurrentPlayer(request, response);
-        MediaFile file = mediaFileService.getMediaFileStrict(id);
+        MediaFile mediaFile = mediaFileService.getMediaFileStrict(id);
 
-        List<MediaFile> songs;
-
-        if (file.isFile()) {
+        final List<MediaFile> songs = new ArrayList<>();
+        if (mediaFile.isFile()) {
             String username = securityService.getCurrentUsernameStrict(request);
             boolean queueFollowingSongs = securityService.getUserSettings(username).isQueueFollowingSongs();
             if (queueFollowingSongs) {
-                MediaFile dir = mediaFileService.getParentOf(file);
-                songs = mediaFileService.getChildrenOf(dir, true, false, true);
-                if (!songs.isEmpty()) {
-                    int index = songs.indexOf(file);
-                    songs = songs.subList(index, songs.size());
-                }
+                mediaFileService.getParent(mediaFile).ifPresentOrElse(parent -> {
+                    List<MediaFile> children = mediaFileService.getChildrenOf(parent, true, false, true);
+                    if (!children.isEmpty()) {
+                        int index = children.indexOf(mediaFile);
+                        songs.addAll(children.subList(index, children.size()));
+                    }
+                }, () -> songs.add(mediaFile));
             } else {
-                songs = Arrays.asList(file);
+                songs.add(mediaFile);
             }
         } else {
-            songs = mediaFileService.getDescendantsOf(file, true);
+            songs.addAll(mediaFileService.getDescendantsOf(mediaFile, true));
         }
         return doPlay(request, player, songs).startPlayerAtAndGetInfo(0);
     }

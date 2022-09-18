@@ -23,7 +23,7 @@ package com.tesshu.jpsonic.domain;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -63,13 +64,13 @@ public class MediaFile {
     private String coverArtPathString;
     private String parentPathString;
     private int playCount;
-    private Date lastPlayed;
+    private Instant lastPlayed;
     private String comment;
-    private Date created;
-    private Date changed;
-    private Date lastScanned;
-    private Date starredDate;
-    private Date childrenLastUpdated;
+    private Instant created;
+    private Instant changed;
+    private Instant lastScanned;
+    private Instant starredDate;
+    private Instant childrenLastUpdated;
     private boolean present;
     private int version;
     private String musicBrainzReleaseId;
@@ -93,12 +94,12 @@ public class MediaFile {
     public MediaFile(int id, String path, String folder, MediaType mediaType, String format, String title,
             String albumName, String artist, String albumArtist, Integer discNumber, Integer trackNumber, Integer year,
             String genre, Integer bitRate, boolean variableBitRate, Integer durationSeconds, Long fileSize,
-            Integer width, Integer height, String coverArtPath, String parentPath, int playCount, Date lastPlayed,
-            String comment, Date created, Date changed, Date lastScanned, Date childrenLastUpdated, boolean present,
-            int version, String musicBrainzReleaseId, String musicBrainzRecordingId, String composer, String artistSort,
-            String albumSort, String titleSort, String albumArtistSort, String composerSort, String artistReading,
-            String albumReading, String albumArtistReading, String artistSortRaw, String albumSortRaw,
-            String albumArtistSortRaw, String composerSortRaw, int order) {
+            Integer width, Integer height, String coverArtPath, String parentPath, int playCount, Instant lastPlayed,
+            String comment, Instant created, Instant changed, Instant lastScanned, Instant childrenLastUpdated,
+            boolean present, int version, String musicBrainzReleaseId, String musicBrainzRecordingId, String composer,
+            String artistSort, String albumSort, String titleSort, String albumArtistSort, String composerSort,
+            String artistReading, String albumReading, String albumArtistReading, String artistSortRaw,
+            String albumSortRaw, String albumArtistSortRaw, String composerSortRaw, int order) {
         this.id = id;
         this.pathString = path;
         this.folder = folder;
@@ -373,11 +374,11 @@ public class MediaFile {
         this.playCount = playCount;
     }
 
-    public @Nullable Date getLastPlayed() {
+    public @Nullable Instant getLastPlayed() {
         return lastPlayed;
     }
 
-    public void setLastPlayed(Date lastPlayed) {
+    public void setLastPlayed(Instant lastPlayed) {
         this.lastPlayed = lastPlayed;
     }
 
@@ -389,35 +390,35 @@ public class MediaFile {
         this.comment = comment;
     }
 
-    public Date getCreated() {
+    public @NonNull Instant getCreated() {
         return created;
     }
 
-    public void setCreated(Date created) {
+    public void setCreated(Instant created) {
         this.created = created;
     }
 
-    public Date getChanged() {
+    public @NonNull Instant getChanged() {
         return changed;
     }
 
-    public void setChanged(Date changed) {
+    public void setChanged(Instant changed) {
         this.changed = changed;
     }
 
-    public Date getLastScanned() {
+    public Instant getLastScanned() {
         return lastScanned;
     }
 
-    public void setLastScanned(Date lastScanned) {
+    public void setLastScanned(Instant lastScanned) {
         this.lastScanned = lastScanned;
     }
 
-    public Date getStarredDate() {
+    public Instant getStarredDate() {
         return starredDate;
     }
 
-    public void setStarredDate(Date starredDate) {
+    public void setStarredDate(Instant starredDate) {
         this.starredDate = starredDate;
     }
 
@@ -440,11 +441,11 @@ public class MediaFile {
     /**
      * Returns when the children was last updated in the database.
      */
-    public Date getChildrenLastUpdated() {
+    public Instant getChildrenLastUpdated() {
         return childrenLastUpdated;
     }
 
-    public void setChildrenLastUpdated(Date childrenLastUpdated) {
+    public void setChildrenLastUpdated(Instant childrenLastUpdated) {
         this.childrenLastUpdated = childrenLastUpdated;
     }
 

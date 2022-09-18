@@ -21,9 +21,9 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -314,7 +314,7 @@ public class PersonalSettingsController {
         settings.setOpenDetailIndex(command.isOpenDetailIndex());
         settings.setOpenDetailSetting(command.isOpenDetailSetting());
         settings.setOpenDetailStar(command.isOpenDetailStar());
-        settings.setChanged(new Date());
+        settings.setChanged(now());
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
 
         securityService.updateUserSettings(settings);

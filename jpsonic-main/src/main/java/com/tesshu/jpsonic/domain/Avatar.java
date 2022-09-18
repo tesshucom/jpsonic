@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.domain;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * An icon representing a user.
@@ -32,7 +32,7 @@ public class Avatar {
 
     private final int id;
     private final String name;
-    private final Date createdDate;
+    private final Instant createdDate;
     private final String mimeType;
     private final int width;
     private final int height;
@@ -42,7 +42,7 @@ public class Avatar {
     /*
      * False positive. The caller is guaranteed and cloning is a waste of time.
      */
-    public Avatar(int id, String name, Date createdDate, String mimeType, int width, int height, byte[] data) {
+    public Avatar(int id, String name, Instant createdDate, String mimeType, int width, int height, byte[] data) {
         this.id = id;
         this.name = name;
         this.createdDate = createdDate;
@@ -60,7 +60,7 @@ public class Avatar {
         return name;
     }
 
-    public Date getCreatedDate() {
+    public Instant getCreatedDate() {
         return createdDate;
     }
 

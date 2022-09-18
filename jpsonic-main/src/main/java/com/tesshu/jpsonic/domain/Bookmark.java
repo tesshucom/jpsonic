@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.domain;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * A bookmark within a media file, for a given user.
@@ -35,11 +35,11 @@ public class Bookmark {
     private long positionMillis;
     private String username;
     private String comment;
-    private Date created;
-    private Date changed;
+    private Instant created;
+    private Instant changed;
 
-    public Bookmark(int id, int mediaFileId, long positionMillis, String username, String comment, Date created,
-            Date changed) {
+    public Bookmark(int id, int mediaFileId, long positionMillis, String username, String comment, Instant created,
+            Instant changed) {
         this.id = id;
         this.mediaFileId = mediaFileId;
         this.positionMillis = positionMillis;
@@ -89,19 +89,19 @@ public class Bookmark {
         this.comment = comment;
     }
 
-    public Date getCreated() {
+    public Instant getCreated() {
         return created;
     }
 
-    public void setCreated(Date created) {
+    public void setCreated(Instant created) {
         this.created = created;
     }
 
-    public Date getChanged() {
+    public Instant getChanged() {
         return changed;
     }
 
-    public void setChanged(Date changed) {
+    public void setChanged(Instant changed) {
         this.changed = changed;
     }
 }

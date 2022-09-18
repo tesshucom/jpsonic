@@ -20,12 +20,12 @@
 package com.tesshu.jpsonic.controller;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 
@@ -57,6 +57,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MusicFolderSettingsControllerTest {
 
@@ -175,7 +176,7 @@ class MusicFolderSettingsControllerTest {
         assertNotNull(command);
 
         MusicFolder musicFolder = new MusicFolder(MusicFolderTestDataUtils.resolveMusicFolderPath(), "Music", true,
-                new Date());
+                now());
         MusicFolderInfo musicFolderInfo = new MusicFolderInfo(musicFolder);
         command.setNewMusicFolder(musicFolderInfo);
 
@@ -202,21 +203,21 @@ class MusicFolderSettingsControllerTest {
         assertNotNull(command);
 
         MusicFolder musicFolder1 = new MusicFolder(99, MusicFolderTestDataUtils.resolveMusicFolderPath(), "Music", true,
-                new Date());
+                now());
         MusicFolderInfo musicFolderInfo1 = new MusicFolderInfo(musicFolder1);
         musicFolderInfo1.setDelete(true);
         MusicFolder musicFolder2 = new MusicFolder(MusicFolderTestDataUtils.resolveMusic2FolderPath(), null, true,
-                new Date());
+                now());
         MusicFolderInfo musicFolderInfo2 = new MusicFolderInfo(musicFolder2);
         command.setMusicFolders(Arrays.asList(musicFolderInfo1, musicFolderInfo2));
 
         // Case where the registered path is deleted on the web page
         MusicFolder musicFolder3 = new MusicFolder(MusicFolderTestDataUtils.resolveMusic3FolderPath(), null, true,
-                new Date());
+                now());
         MusicFolderInfo musicFolderInfo3 = new MusicFolderInfo(musicFolder3);
         musicFolderInfo3.setPath(null);
         // Cases that do not (already) exist. Update will be executed but will be ignored in Dao.
-        MusicFolder musicFolder4 = new MusicFolder("/Unknown", null, true, new Date());
+        MusicFolder musicFolder4 = new MusicFolder("/Unknown", null, true, now());
         MusicFolderInfo musicFolderInfo4 = new MusicFolderInfo(musicFolder4);
 
         command.setMusicFolders(Arrays.asList(musicFolderInfo1, musicFolderInfo2, musicFolderInfo3, musicFolderInfo4));

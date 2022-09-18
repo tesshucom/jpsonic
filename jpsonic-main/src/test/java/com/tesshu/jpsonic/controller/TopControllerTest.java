@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.controller;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -31,7 +32,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -236,7 +236,7 @@ class TopControllerTest {
         void testWithoutSelectedMusicFolders() throws ServletRequestBindingException, URISyntaxException {
             List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
                     Path.of(TopControllerTest.class.getResource("/MEDIAS/Sort/Pagination/Artists").toURI()).toString(),
-                    "MEDIAS", true, new Date()));
+                    "MEDIAS", true, now()));
             Mockito.when(musicFolderService.getMusicFoldersForUser(Mockito.anyString())).thenReturn(musicFolders);
 
             MockHttpServletRequest request = mock(MockHttpServletRequest.class);
@@ -248,7 +248,7 @@ class TopControllerTest {
         void testWithSelectedMusicFolders() throws ServletRequestBindingException, URISyntaxException {
             List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
                     Path.of(TopControllerTest.class.getResource("/MEDIAS/Sort/Pagination/Artists").toURI()).toString(),
-                    "MEDIAS", true, new Date()));
+                    "MEDIAS", true, now()));
             Mockito.when(musicFolderService.getMusicFoldersForUser(Mockito.anyString())).thenReturn(musicFolders);
             Mockito.when(securityService.getSelectedMusicFolder(Mockito.anyString())).thenReturn(musicFolders.get(0));
 

@@ -22,6 +22,8 @@
 package com.tesshu.jpsonic.service;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static com.tesshu.jpsonic.util.PlayerUtils.FAR_PAST;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,10 +36,10 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -72,7 +74,6 @@ import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
 import com.tesshu.jpsonic.util.FileUtil;
 import net.sf.ehcache.Ehcache;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -186,11 +187,11 @@ class MediaScannerServiceTest {
                 Path file = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
                 assertFalse(Files.isDirectory(file));
                 MediaFile child = mediaFileService.createMediaFile(file);
-                child.setLastScanned(MediaFileDao.ZERO_DATE);
+                child.setLastScanned(FAR_PAST);
 
                 MusicFolder musicFolder = new MusicFolder(
-                        MusicFolderTestDataUtils.resolveBaseMediaPath().concat("Music2"), "name", false, new Date());
-                Date scanStart = DateUtils.truncate(new Date(), Calendar.SECOND);
+                        MusicFolderTestDataUtils.resolveBaseMediaPath().concat("Music2"), "name", false, now());
+                Instant scanStart = now();
                 MediaLibraryStatistics statistics = new MediaLibraryStatistics(scanStart);
                 Map<String, Integer> albumCount = new ConcurrentHashMap<>();
                 Genres genres = new Genres();
@@ -214,16 +215,16 @@ class MediaScannerServiceTest {
                 song.setArtist("artist");
 
                 // nullable
-                song.setLastScanned(new Date());
+                song.setLastScanned(now().minus(1, ChronoUnit.SECONDS));
                 return song;
             }
 
             private MediaLibraryStatistics createStatistics() {
-                return new MediaLibraryStatistics(DateUtils.truncate(new Date(), Calendar.SECOND));
+                return new MediaLibraryStatistics(now());
             }
 
             private MusicFolder createMusicFolder() {
-                return new MusicFolder(Integer.valueOf(1), "", "", true, new Date());
+                return new MusicFolder(Integer.valueOf(1), "", "", true, now());
             }
 
             @Test
@@ -456,16 +457,16 @@ class MediaScannerServiceTest {
                 song.setAlbumArtist("albumArtist");
 
                 // nullable
-                // song.setLastScanned(new Date());
+                // song.setLastScanned(now());
                 return song;
             }
 
             private MediaLibraryStatistics createStatistics() {
-                return new MediaLibraryStatistics(DateUtils.truncate(new Date(), Calendar.SECOND));
+                return new MediaLibraryStatistics(now());
             }
 
             private MusicFolder createMusicFolder() {
-                return new MusicFolder(Integer.valueOf(1), "", "", true, new Date());
+                return new MusicFolder(Integer.valueOf(1), "", "", true, now());
             }
 
             @Test
@@ -546,10 +547,10 @@ class MediaScannerServiceTest {
         public List<MusicFolder> getMusicFolders() {
             if (ObjectUtils.isEmpty(musicFolders)) {
                 musicFolders = Arrays.asList(
-                        new MusicFolder(1, resolveBaseMediaPath("Scan/Id3LIFO"), "alphaBeticalProps", true, new Date()),
-                        new MusicFolder(2, resolveBaseMediaPath("Scan/Null"), "noTagFirstChild", true, new Date()),
+                        new MusicFolder(1, resolveBaseMediaPath("Scan/Id3LIFO"), "alphaBeticalProps", true, now()),
+                        new MusicFolder(2, resolveBaseMediaPath("Scan/Null"), "noTagFirstChild", true, now()),
                         new MusicFolder(3, resolveBaseMediaPath("Scan/Reverse"), "fileAndPropsNameInReverse", true,
-                                new Date()));
+                                now()));
             }
             return musicFolders;
         }
@@ -805,7 +806,7 @@ class MediaScannerServiceTest {
             assertNotNull(FileUtil.createDirectories(artist));
             this.album = Path.of(artist.toString(), "ALBUM");
             assertNotNull(FileUtil.createDirectories(album));
-            this.musicFolders = Arrays.asList(new MusicFolder(1, tempDir.toString(), "musicFolder", true, new Date()));
+            this.musicFolders = Arrays.asList(new MusicFolder(1, tempDir.toString(), "musicFolder", true, now()));
 
             // Copy the song file from the test resource. No tags are registered in this file.
             Path sample = Path.of(MediaScannerServiceTest.class
@@ -1093,7 +1094,7 @@ class MediaScannerServiceTest {
                 IOUtils.copy(resource, Files.newOutputStream(musicPath));
             }
 
-            MusicFolder musicFolder = new MusicFolder(1, tempDirPath.toString(), "Music", true, new Date());
+            MusicFolder musicFolder = new MusicFolder(1, tempDirPath.toString(), "Music", true, now());
             musicFolderDao.createMusicFolder(musicFolder);
             musicFolderService.clearMusicFolderCache();
             TestCaseUtils.execScan(mediaScannerService);
@@ -1112,7 +1113,7 @@ class MediaScannerServiceTest {
 
             // Add the "Music3" folder to the database
             Path musicFolderPath = Path.of(MusicFolderTestDataUtils.resolveMusic3FolderPath());
-            MusicFolder musicFolder = new MusicFolder(1, musicFolderPath.toString(), "Music3", true, new Date());
+            MusicFolder musicFolder = new MusicFolder(1, musicFolderPath.toString(), "Music3", true, now());
             musicFolderDao.createMusicFolder(musicFolder);
             musicFolderService.clearMusicFolderCache();
             TestCaseUtils.execScan(mediaScannerService);

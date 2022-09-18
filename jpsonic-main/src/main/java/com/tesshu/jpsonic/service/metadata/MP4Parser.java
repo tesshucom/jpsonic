@@ -27,6 +27,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 
@@ -84,7 +85,7 @@ public class MP4Parser {
         ParseContext ps = new ParseContext();
         try (InputStream is = Files.newInputStream(mediaFile.toPath());
                 BufferedInputStream bid = new BufferedInputStream(is, 1_000_000);) {
-            current = System.currentTimeMillis();
+            current = Instant.now().toEpochMilli();
             tikaParser.parse(bid, handler, metadata, ps);
         } catch (IOException | SAXException | TikaException e) {
             if (LOG.isWarnEnabled()) {
@@ -93,7 +94,7 @@ public class MP4Parser {
             return result;
         }
 
-        long readtime = System.currentTimeMillis() - current;
+        long readtime = Instant.now().toEpochMilli() - current;
         statistics.get(ParserUtils.getFolder(mediaFile)).addTikaLeadTime(mediaFile.getFileSize(), readtime);
 
         getField(metadata, TIFF.IMAGE_LENGTH.getName()).ifPresent(s -> result.setHeight(ParserUtils.parseInt(s)));

@@ -19,14 +19,15 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.lang.annotation.Documented;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -47,7 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 class JMediaFileDaoTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS = Arrays.asList(
-            new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Merge"), "Duplicate", true, new Date()));
+            new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Merge"), "Duplicate", true, now()));
 
     @Autowired
     private JMediaFileDao mediaFileDao;
@@ -294,7 +295,7 @@ class JMediaFileDaoTest extends AbstractNeedsScan {
 
     @BeforeEach
     public void setup() {
-        Date now = new Date();
+        Instant now = now();
 
         mediaScannerService.setJpsonicCleansingProcess(false);
 

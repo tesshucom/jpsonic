@@ -214,7 +214,7 @@ public class PodcastDao extends AbstractDao {
         @Override
         public PodcastEpisode mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new PodcastEpisode(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getString(4), rs.getString(5),
-                    rs.getString(6), rs.getTimestamp(7), rs.getString(8), (Long) rs.getObject(9),
+                    rs.getString(6), nullableInstantOf(rs.getTimestamp(7)), rs.getString(8), (Long) rs.getObject(9),
                     (Long) rs.getObject(10), PodcastStatus.valueOf(rs.getString(11)), rs.getString(12));
         }
     }

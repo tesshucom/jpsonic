@@ -19,10 +19,10 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,7 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 class JAlbumDaoTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Compare"), "Albums", true, new Date()));
+            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Compare"), "Albums", true, now()));
 
     @Autowired
     private AlbumDao albumDao;

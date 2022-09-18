@@ -23,7 +23,7 @@ package com.tesshu.jpsonic.domain;
 
 import java.io.Serializable;
 import java.nio.file.Path;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -40,9 +40,9 @@ public class MusicFolder implements Serializable {
     private String pathString;
     private String name;
     private boolean enabled;
-    private Date changed;
+    private Instant changed;
 
-    public MusicFolder(Integer id, String pathString, String name, boolean enabled, Date changed) {
+    public MusicFolder(Integer id, String pathString, String name, boolean enabled, Instant changed) {
         this.id = id;
         this.pathString = pathString;
         this.name = name;
@@ -50,7 +50,7 @@ public class MusicFolder implements Serializable {
         this.changed = changed;
     }
 
-    public MusicFolder(String pathString, String name, boolean enabled, Date changed) {
+    public MusicFolder(String pathString, String name, boolean enabled, Instant changed) {
         this(null, pathString, name, enabled, changed);
     }
 
@@ -86,11 +86,11 @@ public class MusicFolder implements Serializable {
         this.enabled = enabled;
     }
 
-    public Date getChanged() {
+    public Instant getChanged() {
         return changed;
     }
 
-    public void setChanged(Date changed) {
+    public void setChanged(Instant changed) {
         this.changed = changed;
     }
 

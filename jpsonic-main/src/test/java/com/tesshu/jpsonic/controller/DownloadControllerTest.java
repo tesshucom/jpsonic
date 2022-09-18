@@ -19,13 +19,13 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -70,7 +70,7 @@ class DownloadControllerTest extends AbstractNeedsScan {
     @Override
     public List<MusicFolder> getMusicFolders() {
         if (isEmpty(musicFolders)) {
-            musicFolders = Arrays.asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, new Date()));
+            musicFolders = Arrays.asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now()));
         }
         return musicFolders;
     }
@@ -116,8 +116,8 @@ class DownloadControllerTest extends AbstractNeedsScan {
         Playlist playlist = new Playlist();
         playlist.setName("download test");
         playlist.setId(10);
-        playlist.setCreated(new Date());
-        playlist.setChanged(new Date());
+        playlist.setCreated(now());
+        playlist.setChanged(now());
         playlist.setShared(false);
         playlist.setUsername("admin");
         playlistService.createPlaylist(playlist);

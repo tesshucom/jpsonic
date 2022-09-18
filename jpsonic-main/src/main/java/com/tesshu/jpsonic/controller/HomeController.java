@@ -24,10 +24,11 @@ package com.tesshu.jpsonic.controller;
 import static org.springframework.web.bind.ServletRequestUtils.getIntParameter;
 import static org.springframework.web.bind.ServletRequestUtils.getStringParameter;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +51,8 @@ import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -206,7 +209,9 @@ public class HomeController {
         List<Album> result = new ArrayList<>();
         for (MediaFile mediaFile : mediaFileService.getMostRecentlyPlayedAlbums(offset, count, musicFolders)) {
             Album album = createAlbum(mediaFile);
-            album.setLastPlayed(mediaFile.getLastPlayed());
+            if (mediaFile.getLastPlayed() != null) {
+                album.setLastPlayed(ZonedDateTime.ofInstant(mediaFile.getLastPlayed(), ZoneId.systemDefault()));
+            }
             result.add(album);
         }
         return result;
@@ -216,11 +221,7 @@ public class HomeController {
         List<Album> result = new ArrayList<>();
         for (MediaFile file : mediaFileService.getNewestAlbums(offset, count, musicFolders)) {
             Album album = createAlbum(file);
-            Date created = file.getCreated();
-            if (created == null) {
-                created = file.getChanged();
-            }
-            album.setCreated(created);
+            album.setCreated(ZonedDateTime.ofInstant(file.getCreated(), ZoneId.systemDefault()));
             result.add(album);
         }
         return result;
@@ -295,8 +296,8 @@ public class HomeController {
         private String coverArtPath;
         private String artist;
         private String albumTitle;
-        private Date created;
-        private Date lastPlayed;
+        private ZonedDateTime created;
+        private ZonedDateTime lastPlayed;
         private Integer playCount;
         private Integer rating;
         private int id;
@@ -342,19 +343,19 @@ public class HomeController {
             this.albumTitle = albumTitle;
         }
 
-        public Date getCreated() {
+        public @NonNull ZonedDateTime getCreated() {
             return created;
         }
 
-        public void setCreated(Date created) {
+        public void setCreated(ZonedDateTime created) {
             this.created = created;
         }
 
-        public Date getLastPlayed() {
+        public @Nullable ZonedDateTime getLastPlayed() {
             return lastPlayed;
         }
 
-        public void setLastPlayed(Date lastPlayed) {
+        public void setLastPlayed(ZonedDateTime lastPlayed) {
             this.lastPlayed = lastPlayed;
         }
 

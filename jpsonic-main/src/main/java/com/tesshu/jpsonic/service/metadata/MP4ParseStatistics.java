@@ -25,11 +25,14 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import com.tesshu.jpsonic.ThreadSafe;
+
 /**
  * Statistics class for MP4 parsing. By performing analysis while switching between ffprobe and Apache Tika
  * appropriately, you can reduce the total parsing time without increasing the load on the CPU. This class keeps a time
  * history of tag analysis and can calculate estimates to decide whether to use ffprobe or Tika.
  */
+@ThreadSafe(enableChecks = false)
 public class MP4ParseStatistics {
 
     /*
@@ -87,12 +90,11 @@ public class MP4ParseStatistics {
      */
     long getCmdLeadTimeEstimate() {
 
-        if (leadTimeCmd.size() < SAMPLE_SIZE_LOWER_LIMIT) {
-            return CMD_LEAD_TIME_DEFAULT;
-        }
-
         List<Long> sample;
         synchronized (cmdLock) {
+            if (leadTimeCmd.size() < SAMPLE_SIZE_LOWER_LIMIT) {
+                return CMD_LEAD_TIME_DEFAULT;
+            }
             sample = new CopyOnWriteArrayList<>(
                     leadTimeCmd.subList(leadTimeCmd.size() > SAMPLE_SIZE_MAX ? leadTimeCmd.size() - SAMPLE_SIZE_MAX : 0,
                             leadTimeCmd.size()));
@@ -125,12 +127,11 @@ public class MP4ParseStatistics {
      */
     long getTikaBpmsEstimate() {
 
-        if (leadTimeTika.size() < SAMPLE_SIZE_LOWER_LIMIT) {
-            return TIKA_BPMS_DEFAULT;
-        }
-
         List<long[]> sample;
         synchronized (tikaLock) {
+            if (leadTimeTika.size() < SAMPLE_SIZE_LOWER_LIMIT) {
+                return TIKA_BPMS_DEFAULT;
+            }
             sample = new CopyOnWriteArrayList<>(leadTimeTika.subList(
                     leadTimeTika.size() > SAMPLE_SIZE_MAX ? leadTimeTika.size() - SAMPLE_SIZE_MAX : 0,
                     leadTimeTika.size()));
@@ -160,6 +161,7 @@ public class MP4ParseStatistics {
     }
 
     public long getThreshold() {
+        // no lock required
         return getTikaBpmsEstimate() * getCmdLeadTimeEstimate();
     }
 }

@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.domain;
 
-import java.util.Date;
+import java.time.Instant;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -43,7 +43,7 @@ public class Player {
     private boolean dynamicIp = true;
     private boolean autoControlEnabled = true;
     private boolean m3uBomEnabled = true;
-    private Date lastSeen;
+    private Instant lastSeen;
     private TranscodeScheme transcodeScheme = TranscodeScheme.OFF;
     private PlayQueue playQueue;
 
@@ -216,7 +216,7 @@ public class Player {
      *
      * @return The time when the player was last seen.
      */
-    public Date getLastSeen() {
+    public Instant getLastSeen() {
         return lastSeen;
     }
 
@@ -226,7 +226,7 @@ public class Player {
      * @param lastSeen
      *            The time when the player was last seen.
      */
-    public void setLastSeen(Date lastSeen) {
+    public void setLastSeen(Instant lastSeen) {
         this.lastSeen = lastSeen;
     }
 

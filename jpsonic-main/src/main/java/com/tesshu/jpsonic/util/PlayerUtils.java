@@ -21,6 +21,8 @@
 
 package com.tesshu.jpsonic.util;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,19 +53,29 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public final class PlayerUtils {
 
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).findAndRegisterModules();
+
     private static final Logger LOG = LoggerFactory.getLogger(PlayerUtils.class);
     private static final String URL_SENSITIVE_REPLACEMENT_STRING = "<hidden>";
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final Validator VALIDATOR;
+    private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
 
-    static {
-        VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
-    }
+    /*
+     * Represents a "far past timestamp". A flag value that may be used as an initial value or when forcibly scanning.
+     * To avoid ArithmeticException, Instant.MIN is not used. https://bugs.openjdk.org/browse/JDK-8169532
+     */
+    public static final Instant FAR_PAST = Instant.EPOCH;
 
     /**
      * Disallow external instantiation.
      */
     private PlayerUtils() {
+    }
+
+    public static Instant now() {
+        // Date precision uses milliseconds.
+        // (hsqldb timestamp precision is milliseconds)
+        return Instant.now().truncatedTo(ChronoUnit.MILLIS);
     }
 
     public static String getDefaultMusicFolder() {
@@ -127,10 +139,6 @@ public final class PlayerUtils {
             result[i] = values.get(i);
         }
         return result;
-    }
-
-    static {
-        OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     public static String debugObject(Object object) {

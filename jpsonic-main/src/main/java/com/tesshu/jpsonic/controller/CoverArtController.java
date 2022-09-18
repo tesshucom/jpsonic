@@ -95,7 +95,6 @@ public class CoverArtController {
 
     private static final Logger LOG = LoggerFactory.getLogger(CoverArtController.class);
     private static final int COVER_ART_CONCURRENCY = 4;
-    private static final Object DIRS_LOCK = new Object();
     private static final Map<String, Object> IMG_LOCKS = new ConcurrentHashMap<>();
 
     private final MediaFileService mediaFileService;
@@ -106,6 +105,7 @@ public class CoverArtController {
     private final AlbumDao albumDao;
     private final CoverArtLogic logic;
     private final FontLoader fontLoader;
+    private final Object dirLock = new Object();
 
     private Semaphore semaphore;
 
@@ -367,7 +367,7 @@ public class CoverArtController {
     private Path getImageCacheDirectory(int size) {
         Path dir = Path.of(SettingsService.getJpsonicHome().toString(), "thumbs", String.valueOf(size));
         if (!Files.exists(dir)) {
-            synchronized (DIRS_LOCK) {
+            synchronized (dirLock) {
                 if (FileUtil.createDirectories(dir) == null && LOG.isErrorEnabled()) {
                     LOG.error("Failed to create thumbnail cache " + dir);
                 }
@@ -495,7 +495,7 @@ public class CoverArtController {
 
         @Override
         public long lastModified() {
-            return coverArt == null ? artist.getLastScanned().getTime() : getLastModified(coverArt);
+            return coverArt == null ? artist.getLastScanned().toEpochMilli() : getLastModified(coverArt);
         }
 
         @Override
@@ -525,7 +525,7 @@ public class CoverArtController {
 
         @Override
         public long lastModified() {
-            return coverArt == null ? album.getLastScanned().getTime() : getLastModified(coverArt);
+            return coverArt == null ? album.getLastScanned().toEpochMilli() : getLastModified(coverArt);
         }
 
         @Override
@@ -561,7 +561,7 @@ public class CoverArtController {
 
         @Override
         public long lastModified() {
-            return playlist.getChanged().getTime();
+            return playlist.getChanged().toEpochMilli();
         }
 
         @Override
@@ -670,7 +670,7 @@ public class CoverArtController {
 
         @Override
         public long lastModified() {
-            return coverArt == null ? dir.getChanged().getTime() : getLastModified(coverArt);
+            return coverArt == null ? dir.getChanged().toEpochMilli() : getLastModified(coverArt);
         }
 
         @Override
@@ -717,7 +717,7 @@ public class CoverArtController {
 
         @Override
         public long lastModified() {
-            return mediaFile.getChanged().getTime();
+            return mediaFile.getChanged().toEpochMilli();
         }
 
         @Override

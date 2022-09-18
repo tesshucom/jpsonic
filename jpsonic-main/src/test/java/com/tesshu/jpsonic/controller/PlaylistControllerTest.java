@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.controller;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -50,7 +51,9 @@ class PlaylistControllerTest {
     @BeforeEach
     public void setup() throws ExecutionException {
         PlaylistService playlistService = mock(PlaylistService.class);
-        Mockito.when(playlistService.getPlaylist(PLAYLIST_ID)).thenReturn(new Playlist());
+        Playlist playlist = new Playlist();
+        playlist.setCreated(now());
+        Mockito.when(playlistService.getPlaylist(PLAYLIST_ID)).thenReturn(playlist);
         mockMvc = MockMvcBuilders
                 .standaloneSetup(
                         new PlaylistController(mock(SecurityService.class), playlistService, mock(PlayerService.class)))

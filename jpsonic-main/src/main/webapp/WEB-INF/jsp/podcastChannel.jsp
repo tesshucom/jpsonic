@@ -180,7 +180,12 @@ function getSelectedEpisodes() {
                                 </c:choose>
                             </td>
                             <td class="duration">${episode.duration}</td>
-                            <td class="date"><fmt:formatDate value="${episode.publishDate}" dateStyle="medium"/></td>
+                            <td class="date">
+                                <c:if test="${not empty episode.publishDateWithZone}">
+                                    <fmt:parseDate value="${episode.publishDateWithZone}" type="both" pattern="yyyy-MM-dd'T'HH:mm" var="parsedDate" />
+                                    <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd HH:mm" />
+                                </c:if>
+                            </td>
                         </tr>
                     </c:forEach>
                 </tbody>        

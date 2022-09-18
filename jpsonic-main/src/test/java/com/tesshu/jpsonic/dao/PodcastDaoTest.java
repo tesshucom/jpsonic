@@ -21,12 +21,13 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-import java.util.Date;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import com.tesshu.jpsonic.NeedsHome;
@@ -46,7 +47,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  */
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
-@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class PodcastDaoTest {
 
     @Autowired
@@ -132,7 +133,7 @@ class PodcastDaoTest {
     void testCreateEpisode() {
         int channelId = createChannel();
         PodcastEpisode episode = new PodcastEpisode(null, channelId, "http://bar", "path", "title", "description",
-                new Date(), "12:34", null, null, PodcastStatus.NEW, null);
+                now(), "12:34", null, null, PodcastStatus.NEW, null);
         podcastDao.createEpisode(episode);
 
         PodcastEpisode newEpisode = podcastDao.getEpisodes(channelId).get(0);
@@ -146,7 +147,7 @@ class PodcastDaoTest {
 
         int channelId = createChannel();
         PodcastEpisode episode = new PodcastEpisode(null, channelId, "http://bar", "path", "title", "description",
-                new Date(), "12:34", 3_276_213L, 2_341_234L, PodcastStatus.NEW, "error");
+                now(), "12:34", 3_276_213L, 2_341_234L, PodcastStatus.NEW, "error");
         podcastDao.createEpisode(episode);
 
         int episodeId = podcastDao.getEpisodes(channelId).get(0).getId();
@@ -157,12 +158,12 @@ class PodcastDaoTest {
     @Test
     void testGetEpisodes() {
         int channelId = createChannel();
-        PodcastEpisode a = new PodcastEpisode(null, channelId, "a", null, null, null, new Date(3000), null, null, null,
-                PodcastStatus.NEW, null);
-        PodcastEpisode b = new PodcastEpisode(null, channelId, "b", null, null, null, new Date(1000), null, null, null,
-                PodcastStatus.NEW, "error");
-        PodcastEpisode c = new PodcastEpisode(null, channelId, "c", null, null, null, new Date(2000), null, null, null,
-                PodcastStatus.NEW, null);
+        PodcastEpisode a = new PodcastEpisode(null, channelId, "a", null, null, null, now().plus(3, ChronoUnit.DAYS),
+                null, null, null, PodcastStatus.NEW, null);
+        PodcastEpisode b = new PodcastEpisode(null, channelId, "b", null, null, null, now().plus(1, ChronoUnit.DAYS),
+                null, null, null, PodcastStatus.NEW, "error");
+        PodcastEpisode c = new PodcastEpisode(null, channelId, "c", null, null, null, now().plus(2, ChronoUnit.DAYS),
+                null, null, null, PodcastStatus.NEW, null);
         PodcastEpisode d = new PodcastEpisode(null, channelId, "c", null, null, null, null, null, null, null,
                 PodcastStatus.NEW, "");
         podcastDao.createEpisode(a);
@@ -190,7 +191,7 @@ class PodcastDaoTest {
         episode.setPath("c:/tmp");
         episode.setTitle("Title");
         episode.setDescription("Description");
-        episode.setPublishDate(new Date());
+        episode.setPublishDate(now());
         episode.setDuration("1:20");
         episode.setBytesTotal(87_628_374_612L);
         episode.setBytesDownloaded(9086L);

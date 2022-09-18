@@ -21,10 +21,10 @@
 
 package com.tesshu.jpsonic.service.upnp.processor;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +43,7 @@ class RecentAlbumUpnpProcessorTest extends AbstractNeedsScan {
     private static final Logger LOG = LoggerFactory.getLogger(RecentAlbumUpnpProcessorTest.class);
 
     private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Albums"), "Albums", true, new Date()));
+            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Albums"), "Albums", true, now()));
 
     @Autowired
     private RecentAlbumUpnpProcessor processor;

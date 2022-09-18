@@ -23,7 +23,6 @@ package com.tesshu.jpsonic.controller;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -104,7 +103,7 @@ public class EditTagsController {
     }
 
     private List<MediaFile> getAncestors(MediaFile dir) {
-        LinkedList<MediaFile> result = new LinkedList<>();
+        List<MediaFile> result = new ArrayList<>();
         if (securityService.isInPodcastFolder(dir.toPath())) {
             // For podcasts, don't use ancestors
             return result;
@@ -112,7 +111,7 @@ public class EditTagsController {
 
         MediaFile parent = mediaFileService.getParentOf(dir);
         while (parent != null && !mediaFileService.isRoot(parent)) {
-            result.addFirst(parent);
+            result.add(parent);
             parent = mediaFileService.getParentOf(parent);
         }
         result.add(dir);

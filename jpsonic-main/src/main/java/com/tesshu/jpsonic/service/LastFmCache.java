@@ -29,6 +29,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Properties;
 
 import com.tesshu.jpsonic.util.FileUtil;
@@ -47,10 +48,10 @@ import org.slf4j.LoggerFactory;
 public class LastFmCache extends Cache {
 
     private static final Logger LOG = LoggerFactory.getLogger(LastFmCache.class);
-    private static final Object LOCK = new Object();
 
     private final Path cacheDir;
     private final long ttl;
+    private final Object lock = new Object();
 
     public LastFmCache(Path cacheDir, final long ttl) {
         super();
@@ -106,12 +107,12 @@ public class LastFmCache extends Cache {
     }
 
     private long getExpirationDate() {
-        return System.currentTimeMillis() + ttl;
+        return Instant.now().toEpochMilli() + ttl;
     }
 
     private void createCache() {
         if (!Files.exists(cacheDir)) {
-            synchronized (LOCK) {
+            synchronized (lock) {
                 if (FileUtil.createDirectories(cacheDir) == null && LOG.isWarnEnabled()) {
                     LOG.warn("The directory '{}' could not be created.", cacheDir);
                 }
@@ -130,7 +131,7 @@ public class LastFmCache extends Cache {
             Properties p = new Properties();
             p.load(in);
             long expirationDate = Long.parseLong(p.getProperty("expiration-date"));
-            return expirationDate < System.currentTimeMillis();
+            return expirationDate < Instant.now().toEpochMilli();
         } catch (IOException e) {
             return false;
         }

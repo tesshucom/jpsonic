@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.domain;
 
-import java.util.Date;
+import java.time.Instant;
 
 public class Artist {
 
@@ -29,7 +29,7 @@ public class Artist {
     private String name;
     private String coverArtPath;
     private int albumCount;
-    private Date lastScanned;
+    private Instant lastScanned;
     private boolean present;
     private Integer folderId;
 
@@ -49,7 +49,7 @@ public class Artist {
     public Artist() {
     }
 
-    public Artist(int id, String name, String coverArtPath, int albumCount, Date lastScanned, boolean present,
+    public Artist(int id, String name, String coverArtPath, int albumCount, Instant lastScanned, boolean present,
             Integer folderId,
             // JP >>>>
             String sort, String reading, int order // <<<< JP
@@ -100,11 +100,11 @@ public class Artist {
         this.albumCount = albumCount;
     }
 
-    public Date getLastScanned() {
+    public Instant getLastScanned() {
         return lastScanned;
     }
 
-    public void setLastScanned(Date lastScanned) {
+    public void setLastScanned(Instant lastScanned) {
         this.lastScanned = lastScanned;
     }
 

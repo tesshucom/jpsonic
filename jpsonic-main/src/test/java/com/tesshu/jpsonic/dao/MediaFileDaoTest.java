@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -26,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class MediaFileDaoTest {
 
     @Nested
@@ -237,8 +237,8 @@ class MediaFileDaoTest {
             Optional<String> op = builder.getMinLastPlayedDateCondition();
             assertFalse(op.isPresent());
 
-            criteria = new RandomSearchCriteria(0, null, null, null, null, new Date(), null, null, null, null, null,
-                    false, false, null);
+            criteria = new RandomSearchCriteria(0, null, null, null, null, now(), null, null, null, null, null, false,
+                    false, null);
             Assertions.assertNotNull(criteria.getMinLastPlayedDate());
             builder = new RandomSongsQueryBuilder(criteria);
             op = builder.getMinLastPlayedDateCondition();
@@ -259,16 +259,16 @@ class MediaFileDaoTest {
             Optional<String> op = builder.getMaxLastPlayedDateCondition();
             assertFalse(op.isPresent());
 
-            criteria = new RandomSearchCriteria(0, null, null, null, null, new Date(), new Date(), null, null, null,
-                    null, false, false, null);
+            criteria = new RandomSearchCriteria(0, null, null, null, null, now(), now(), null, null, null, null, false,
+                    false, null);
             Assertions.assertNotNull(criteria.getMinLastPlayedDate());
             Assertions.assertNotNull(criteria.getMaxLastPlayedDate());
             builder = new RandomSongsQueryBuilder(criteria);
             op = builder.getMaxLastPlayedDateCondition();
             assertEquals(condition1, op.get());
 
-            criteria = new RandomSearchCriteria(0, null, null, null, null, null, new Date(), null, null, null, null,
-                    false, false, null);
+            criteria = new RandomSearchCriteria(0, null, null, null, null, null, now(), null, null, null, null, false,
+                    false, null);
             assertNull(criteria.getMinLastPlayedDate());
             Assertions.assertNotNull(criteria.getMaxLastPlayedDate());
             builder = new RandomSongsQueryBuilder(criteria);
@@ -510,15 +510,15 @@ class MediaFileDaoTest {
             assertTrue(assertWithCondition.apply(query));
 
             // minLastPlayedDateCondition
-            criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(), new Date(), null, null,
-                    null, null, null, false, false, null);
+            criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(), now(), null, null, null,
+                    null, null, false, false, null);
             builder = new RandomSongsQueryBuilder(criteria);
             query = builder.build();
             assertTrue(assertWithCondition.apply(query));
 
             // maxLastPlayedDateCondition
-            criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(), null, new Date(), null,
-                    null, null, null, false, false, null);
+            criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(), null, now(), null, null,
+                    null, null, false, false, null);
             builder = new RandomSongsQueryBuilder(criteria);
             query = builder.build();
             assertTrue(assertWithCondition.apply(query));
