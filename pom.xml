@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>111.4.5</version>
+    <version>111.4.6</version>
     <name>Jpsonic</name>
     <packaging>pom</packaging>
     <organization>
@@ -109,7 +109,7 @@
             <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
-                <version>1.31</version>
+                <version>1.32</version>
             </dependency>
 
             <!-- Spring Boot is slow to fix CVE, so some libraries will be overridden. -->
@@ -142,7 +142,7 @@
             <dependency>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-core</artifactId>
-                <version>4.16.0</version>
+                <version>4.16.1</version>
             </dependency>
 
             <!-- Fix convergence issues -->
@@ -195,7 +195,7 @@
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
                 <artifactId>ecj</artifactId>
-                <version>3.30.0</version>
+                <version>3.31.0</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -513,7 +513,7 @@
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>7.1.2</version>
+                    <version>7.2.0</version>
                     <inherited>true</inherited>
                     <configuration>
                         <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
