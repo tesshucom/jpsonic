@@ -3,10 +3,7 @@
 # jpsonic/jpsonic
 -->
 
-[![CI](https://github.com/tesshucom/jpsonic/workflows/CI/badge.svg)](https://github.com/tesshucom/jpsonic/actions?query=workflow%3ACI)
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/tesshucom/jpsonic.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/tesshucom/jpsonic/alerts/)
-[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/tesshucom/jpsonic.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/tesshucom/jpsonic/context:javascript) 
-[![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/tesshucom/jpsonic.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/tesshucom/jpsonic/context:java)
+[![CI with CodeQL](https://github.com/tesshucom/jpsonic/workflows/CI/badge.svg)](https://github.com/tesshucom/jpsonic/actions?query=workflow%3ACI)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/7c127f864af74cf8954c691e87bea3e5)](https://www.codacy.com/gh/tesshucom/jpsonic/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tesshucom/jpsonic&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/7c127f864af74cf8954c691e87bea3e5)](https://www.codacy.com/gh/tesshucom/jpsonic/dashboard?utm_source=github.com&utm_medium=referral&utm_content=tesshucom/jpsonic&utm_campaign=Badge_Coverage)
 
