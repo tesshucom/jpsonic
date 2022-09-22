@@ -34,10 +34,9 @@ jobs:
           paths_ignore: '["**/README.md", "**/CHANGELOG.md"]'
           do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
   ##########################################################################
-  ## Although use for evaluation purposes, most checks are included in LGTM.
-  ## Run only on master to save time.
   analyze:
-    if: github.ref == 'refs/heads/master'
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     name: Analyze with CodeQL
     runs-on: ubuntu-latest
     strategy:
@@ -163,7 +162,7 @@ jobs:
   ##########################################################################
   send-coverage:
     name: Send coverage to Codacy
-    needs: [ verify-JDK11, verify-JDK17 ]
+    needs: [ analyze, verify-JDK11, verify-JDK17 ]
     if: "(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')"
     env:
       CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
@@ -186,7 +185,7 @@ jobs:
   ##########################################################################
   ship-war:
     if: "(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop') && github.event_name != 'schedule'"
-    needs: [ verify-JDK11, verify-JDK17, verify-experiment ]
+    needs: [ analyze, verify-JDK11, verify-JDK17, verify-experiment ]
     name: Package with JDK ${{ matrix.java }} on ubuntu
     strategy:
       matrix:
