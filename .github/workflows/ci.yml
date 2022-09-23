@@ -26,7 +26,7 @@ jobs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}
     steps:
       - id: skip_check
-        uses: fkirc/skip-duplicate-actions@v4
+        uses: fkirc/skip-duplicate-actions@v5
         with:
           # All of these options are optional, so you can remove them if you are happy with the defaults
           concurrent_skipping: 'never'
@@ -34,10 +34,9 @@ jobs:
           paths_ignore: '["**/README.md", "**/CHANGELOG.md"]'
           do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
   ##########################################################################
-  ## Although use for evaluation purposes, most checks are included in LGTM.
-  ## Run only on master to save time.
   analyze:
-    if: github.ref == 'refs/heads/master'
+    needs: pre_job
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
     name: Analyze with CodeQL
     runs-on: ubuntu-latest
     strategy:
