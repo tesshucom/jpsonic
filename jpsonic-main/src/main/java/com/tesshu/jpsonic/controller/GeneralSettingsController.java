@@ -252,9 +252,8 @@ public class GeneralSettingsController {
         settingsService.setMusicFileTypes(command.getMusicFileTypes());
         settingsService.setVideoFileTypes(command.getVideoFileTypes());
         settingsService.setCoverArtFileTypes(command.getCoverArtFileTypes());
-        if (command.getPlaylistFolder() == null || PathValidator.isNoTraversal(command.getPlaylistFolder())) {
-            settingsService.setPlaylistFolder(command.getPlaylistFolder());
-        }
+        PathValidator.validateFolderPath(command.getPlaylistFolder())
+                .ifPresent(folderPath -> settingsService.setPlaylistFolder(folderPath));
         settingsService.setShortcuts(command.getShortcuts());
 
         // Welcom message

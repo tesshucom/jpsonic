@@ -21,6 +21,9 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +41,8 @@ import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.util.PathValidator;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
@@ -144,16 +149,10 @@ public class MusicFolderSettingsController {
             if (musicFolderInfo.isDelete()) {
                 musicFolderService.deleteMusicFolder(musicFolderInfo.getId());
             } else {
-                MusicFolder musicFolder = musicFolderInfo.toMusicFolder();
-                if (musicFolder != null) {
-                    musicFolderService.updateMusicFolder(musicFolder);
-                }
+                toMusicFolder(musicFolderInfo).ifPresent(folder -> musicFolderService.updateMusicFolder(folder));
             }
         }
-        MusicFolder newMusicFolder = command.getNewMusicFolder().toMusicFolder();
-        if (newMusicFolder != null) {
-            musicFolderService.createMusicFolder(newMusicFolder);
-        }
+        toMusicFolder(command.getNewMusicFolder()).ifPresent(folder -> musicFolderService.createMusicFolder(folder));
 
         // Run a scan
         settingsService.setIndexCreationInterval(Integer.parseInt(command.getInterval()));
@@ -179,5 +178,21 @@ public class MusicFolderSettingsController {
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
 
         return new ModelAndView(new RedirectView(ViewName.MUSIC_FOLDER_SETTINGS.value()));
+    }
+
+    public Optional<MusicFolder> toMusicFolder(MusicFolderSettingsCommand.MusicFolderInfo info) {
+        String path = StringUtils.trimToNull(info.getPath());
+        if (PathValidator.validateFolderPath(path).isEmpty()) {
+            return Optional.empty();
+        }
+        String name = StringUtils.trimToNull(info.getName());
+        if (name == null) {
+            Path fileName = Path.of(path).getFileName();
+            if (fileName == null) {
+                return Optional.empty();
+            }
+            name = fileName.toString();
+        }
+        return Optional.of(new MusicFolder(info.getId(), path, name, info.isEnabled(), now()));
     }
 }

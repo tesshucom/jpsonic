@@ -22,6 +22,9 @@ package com.tesshu.jpsonic.util;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.annotation.Documented;
+
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class PathValidatorTest {
@@ -31,5 +34,57 @@ class PathValidatorTest {
         assertTrue(PathValidator.isNoTraversal("/foo/bar"));
         assertFalse(PathValidator.isNoTraversal("/foo/../bar"));
         assertFalse(PathValidator.isNoTraversal("C:\\foo\\..\\bar"));
+    }
+
+    @Documented
+    private @interface ValidatePathDecisions {
+        @interface Conditions {
+
+            @interface Path {
+                @interface Null {
+                }
+
+                @interface NonNull {
+                    @interface Traversal {
+                    }
+
+                    @interface NonTraversal {
+                    }
+                }
+            }
+        }
+
+        @interface Results {
+            @interface Empty {
+            }
+
+            @interface NotEmpty {
+            }
+        }
+    }
+
+    @Nested
+    class ValidatePathTest {
+
+        @Test
+        @ValidatePathDecisions.Conditions.Path.Null
+        @ValidatePathDecisions.Results.Empty
+        void c01() {
+            assertTrue(PathValidator.validateFolderPath(null).isEmpty());
+        }
+
+        @Test
+        @ValidatePathDecisions.Conditions.Path.NonNull.Traversal
+        @ValidatePathDecisions.Results.Empty
+        void c02() {
+            assertTrue(PathValidator.validateFolderPath("/../foo").isEmpty());
+        }
+
+        @Test
+        @ValidatePathDecisions.Conditions.Path.NonNull.NonTraversal
+        @ValidatePathDecisions.Results.NotEmpty
+        void c03() {
+            assertFalse(PathValidator.validateFolderPath("/foo").isEmpty());
+        }
     }
 }

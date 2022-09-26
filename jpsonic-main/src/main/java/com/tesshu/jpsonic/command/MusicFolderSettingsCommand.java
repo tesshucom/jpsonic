@@ -21,8 +21,6 @@
 
 package com.tesshu.jpsonic.command;
 
-import static com.tesshu.jpsonic.util.PlayerUtils.now;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -30,8 +28,6 @@ import java.util.List;
 import com.tesshu.jpsonic.controller.MusicFolderSettingsController;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.util.PathValidator;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Command used in {@link MusicFolderSettingsController}.
@@ -218,22 +214,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
         public void setDelete(boolean delete) {
             this.delete = delete;
-        }
-
-        public MusicFolder toMusicFolder() {
-            String path = StringUtils.trimToNull(this.path);
-            if (path == null || !PathValidator.isNoTraversal(path)) {
-                return null;
-            }
-            String name = StringUtils.trimToNull(this.name);
-            if (name == null) {
-                Path fileName = Path.of(path).getFileName();
-                if (fileName == null) {
-                    return null;
-                }
-                name = fileName.toString();
-            }
-            return new MusicFolder(id, path, name, enabled, now());
         }
 
         public boolean isExisting() {

@@ -24,7 +24,9 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.annotation.Documented;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
@@ -43,6 +45,7 @@ import com.tesshu.jpsonic.service.ShareService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -259,10 +262,10 @@ class MusicFolderSettingsControllerTest {
         // Full scan if any property of IgnoreFileTimestamps* is true.
         Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
         Mockito.when(settingsService.isIgnoreFileTimestampsNext()).thenReturn(false);
-        Assertions.assertTrue(supplier.get().isFullScanNext());
+        assertTrue(supplier.get().isFullScanNext());
         Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
         Mockito.when(settingsService.isIgnoreFileTimestampsNext()).thenReturn(true);
-        Assertions.assertTrue(supplier.get().isFullScanNext());
+        assertTrue(supplier.get().isFullScanNext());
 
         /*
          * IgnoreFileTimestamps is intentionally set by the user from the web page. IgnoreFileTimestamps is a hidden
@@ -288,7 +291,7 @@ class MusicFolderSettingsControllerTest {
         ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(Boolean.class);
         Mockito.doNothing().when(settingsService).setIgnoreFileTimestamps(captor.capture());
         controller.post(command, Mockito.mock(RedirectAttributes.class));
-        Assertions.assertTrue(captor.getValue());
+        assertTrue(captor.getValue());
 
         // Disabled if LAST_SCANNED is specified.
         command.setFileModifiedCheckScheme(FileModifiedCheckScheme.LAST_SCANNED);
@@ -331,7 +334,7 @@ class MusicFolderSettingsControllerTest {
         captor = ArgumentCaptor.forClass(Boolean.class);
         Mockito.doNothing().when(settingsService).setIgnoreFileTimestampsForEachAlbum(captor.capture());
         controller.post(command, Mockito.mock(RedirectAttributes.class));
-        Assertions.assertTrue(captor.getValue());
+        assertTrue(captor.getValue());
 
         /*
          * Depending on the scan check method, it is necessary to always display a button on the album page.
@@ -341,6 +344,112 @@ class MusicFolderSettingsControllerTest {
         captor = ArgumentCaptor.forClass(Boolean.class);
         Mockito.doNothing().when(settingsService).setIgnoreFileTimestampsForEachAlbum(captor.capture());
         controller.post(command, Mockito.mock(RedirectAttributes.class));
-        Assertions.assertTrue(captor.getValue());
+        assertTrue(captor.getValue());
+    }
+
+    @Documented
+    private @interface ToMusicFolderDecisions {
+        @interface Conditions {
+            @interface MusicFolderInfo {
+                @interface Path {
+                    @interface Null {
+                    }
+
+                    @interface NonNull {
+                        @interface Root {
+                        }
+
+                        @interface Traversal {
+                        }
+
+                        @interface NonTraversal {
+                        }
+                    }
+
+                    @interface DirName {
+                        @interface Null {
+                        }
+
+                        @interface NonNull {
+                        }
+                    }
+
+                }
+
+                @interface Name {
+                    @interface Null {
+                    }
+
+                    @interface NonNull {
+                    }
+                }
+            }
+        }
+
+        @interface Results {
+            @interface Empty {
+            }
+
+            @interface NotEmpty {
+            }
+        }
+    }
+
+    @Nested
+    class ToMusicFolderTest {
+
+        @Test
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.Null
+        @ToMusicFolderDecisions.Results.Empty
+        void c01() {
+            MusicFolderInfo info = new MusicFolderInfo();
+            assertTrue(controller.toMusicFolder(info).isEmpty());
+        }
+
+        @Test
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.Traversal
+        @ToMusicFolderDecisions.Results.Empty
+        void c02() {
+            MusicFolderInfo info = new MusicFolderInfo();
+            String path = "foo/../../bar";
+            info.setPath(path);
+            assertTrue(controller.toMusicFolder(info).isEmpty());
+        }
+
+        @Test
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.NonNull
+        @ToMusicFolderDecisions.Results.NotEmpty
+        void c03() {
+            MusicFolderInfo info = new MusicFolderInfo();
+            String path = "foo/bar";
+            info.setPath(path);
+            info.setName("name");
+            assertFalse(controller.toMusicFolder(info).isEmpty());
+        }
+
+        @Test
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.Null
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.DirName.NonNull
+        @ToMusicFolderDecisions.Results.NotEmpty
+        void c04() {
+            MusicFolderInfo info = new MusicFolderInfo();
+            String path = "foo/bar";
+            info.setPath(path);
+            assertFalse(controller.toMusicFolder(info).isEmpty());
+        }
+
+        @Test
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.Root
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.Null
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.DirName.Null
+        @ToMusicFolderDecisions.Results.Empty
+        void c05() {
+            MusicFolderInfo info = new MusicFolderInfo();
+            String path = "/";
+            info.setPath(path);
+            assertTrue(controller.toMusicFolder(info).isEmpty());
+        }
     }
 }

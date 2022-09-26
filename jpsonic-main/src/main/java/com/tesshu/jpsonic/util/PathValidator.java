@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.util;
 
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 public final class PathValidator {
@@ -30,5 +31,15 @@ public final class PathValidator {
 
     public static boolean isNoTraversal(String path) {
         return NO_TRAVERSAL.matcher(path).matches();
+    }
+
+    /**
+     * Returns a path string pointing to the music, playlist, and podcast folders, if acceptable. otherwise empty.
+     */
+    public static Optional<String> validateFolderPath(String folderPath) {
+        if (folderPath == null || PathValidator.isNoTraversal(folderPath)) {
+            return Optional.ofNullable(folderPath);
+        }
+        return Optional.empty();
     }
 }
