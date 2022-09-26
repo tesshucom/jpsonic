@@ -19,6 +19,8 @@
 
 package com.tesshu.jpsonic.util;
 
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -37,9 +39,17 @@ public final class PathValidator {
      * Returns a path string pointing to the music, playlist, and podcast folders, if acceptable. otherwise empty.
      */
     public static Optional<String> validateFolderPath(String folderPath) {
-        if (folderPath == null || PathValidator.isNoTraversal(folderPath)) {
-            return Optional.ofNullable(folderPath);
+        if (folderPath == null || !isNoTraversal(folderPath)) {
+            return Optional.empty();
         }
-        return Optional.empty();
+        try {
+            Path path = Path.of(folderPath);
+            if (path.getFileName() == null) {
+                return Optional.empty();
+            }
+            return Optional.of(path.toString());
+        } catch (InvalidPathException e) {
+            return Optional.empty();
+        }
     }
 }

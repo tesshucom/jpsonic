@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.command.MusicFolderSettingsCommand;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -180,19 +181,16 @@ public class MusicFolderSettingsController {
         return new ModelAndView(new RedirectView(ViewName.MUSIC_FOLDER_SETTINGS.value()));
     }
 
+    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Validated.")
     public Optional<MusicFolder> toMusicFolder(MusicFolderSettingsCommand.MusicFolderInfo info) {
-        String path = StringUtils.trimToNull(info.getPath());
-        if (PathValidator.validateFolderPath(path).isEmpty()) {
+        Optional<String> validated = PathValidator.validateFolderPath(StringUtils.trimToNull(info.getPath()));
+        if (validated.isEmpty()) {
             return Optional.empty();
         }
         String name = StringUtils.trimToNull(info.getName());
         if (name == null) {
-            Path fileName = Path.of(path).getFileName();
-            if (fileName == null) {
-                return Optional.empty();
-            }
-            name = fileName.toString();
+            name = Path.of(validated.get()).getFileName().toString();
         }
-        return Optional.of(new MusicFolder(info.getId(), path, name, info.isEnabled(), now()));
+        return Optional.of(new MusicFolder(info.getId(), validated.get(), name, info.isEnabled(), now()));
     }
 }

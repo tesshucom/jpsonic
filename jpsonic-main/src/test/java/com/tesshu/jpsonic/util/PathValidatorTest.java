@@ -26,6 +26,8 @@ import java.lang.annotation.Documented;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 class PathValidatorTest {
 
@@ -45,6 +47,13 @@ class PathValidatorTest {
                 }
 
                 @interface NonNull {
+
+                    @interface Root {
+                    }
+
+                    @interface Invalid {
+                    }
+
                     @interface Traversal {
                     }
 
@@ -85,6 +94,21 @@ class PathValidatorTest {
         @ValidatePathDecisions.Results.NotEmpty
         void c03() {
             assertFalse(PathValidator.validateFolderPath("/foo").isEmpty());
+        }
+
+        @Test
+        @ValidatePathDecisions.Conditions.Path.NonNull.Root
+        @ValidatePathDecisions.Results.Empty
+        void c04() {
+            assertTrue(PathValidator.validateFolderPath("/").isEmpty());
+        }
+
+        @Test
+        @ValidatePathDecisions.Conditions.Path.NonNull.Invalid
+        @ValidatePathDecisions.Results.Empty
+        @EnabledOnOs(OS.WINDOWS)
+        void c05() {
+            assertTrue(PathValidator.validateFolderPath("/:").isEmpty());
         }
     }
 }

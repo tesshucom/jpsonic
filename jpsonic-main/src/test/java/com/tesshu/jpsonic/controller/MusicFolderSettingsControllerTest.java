@@ -49,6 +49,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -359,6 +361,9 @@ class MusicFolderSettingsControllerTest {
                         @interface Root {
                         }
 
+                        @interface Invalid {
+                        }
+
                         @interface Traversal {
                         }
 
@@ -448,6 +453,19 @@ class MusicFolderSettingsControllerTest {
         void c05() {
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "/";
+            info.setPath(path);
+            assertTrue(controller.toMusicFolder(info).isEmpty());
+        }
+
+        @Test
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.Invalid
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.Null
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.DirName.Null
+        @ToMusicFolderDecisions.Results.Empty
+        @EnabledOnOs(OS.WINDOWS)
+        void c06() {
+            MusicFolderInfo info = new MusicFolderInfo();
+            String path = "/:";
             info.setPath(path);
             assertTrue(controller.toMusicFolder(info).isEmpty());
         }
