@@ -31,10 +31,97 @@ import java.time.Instant;
 import java.util.Map;
 
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
-@SuppressWarnings("PMD.TooManyStaticImports")
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class PlayerUtilsTest {
+
+    @Nested
+    class GetDefaultMusicFolderTest {
+
+        @Test
+        @EnabledOnOs(OS.WINDOWS)
+        void testDefaultOnWin() {
+            assertEquals("c:\\music", PlayerUtils.getDefaultMusicFolder());
+
+            System.setProperty("jpsonic.defaultMusicFolder", "/foo/bar");
+            assertEquals("/foo/bar", PlayerUtils.getDefaultMusicFolder());
+            System.setProperty("jpsonic.defaultMusicFolder", "/foo/../bar");
+            assertEquals("c:\\music", PlayerUtils.getDefaultMusicFolder());
+            System.clearProperty("jpsonic.defaultMusicFolder");
+        }
+
+        @Test
+        @EnabledOnOs(OS.LINUX)
+        void testDefaultOnLinux() {
+            assertEquals("/var/music", PlayerUtils.getDefaultMusicFolder());
+
+            System.setProperty("jpsonic.defaultMusicFolder", "/foo/bar");
+            assertEquals("/foo/bar", PlayerUtils.getDefaultMusicFolder());
+            System.setProperty("jpsonic.defaultMusicFolder", "/foo/../bar");
+            assertEquals("/var/music", PlayerUtils.getDefaultMusicFolder());
+            System.clearProperty("jpsonic.defaultMusicFolder");
+        }
+    }
+
+    @Nested
+    class GetDefaultPodcastFolderTest {
+
+        @Test
+        @EnabledOnOs(OS.WINDOWS)
+        void testDefaultOnWin() {
+            assertEquals("c:\\music\\Podcast", PlayerUtils.getDefaultPodcastFolder());
+
+            System.setProperty("jpsonic.defaultPodcastFolder", "/foo/bar");
+            assertEquals("/foo/bar", PlayerUtils.getDefaultPodcastFolder());
+            System.setProperty("jpsonic.defaultPodcastFolder", "/foo/../bar");
+            assertEquals("c:\\music\\Podcast", PlayerUtils.getDefaultPodcastFolder());
+            System.clearProperty("jpsonic.defaultPodcastFolder");
+        }
+
+        @Test
+        @EnabledOnOs(OS.LINUX)
+        void testDefaultOnLinux() {
+            assertEquals("/var/music/Podcast", PlayerUtils.getDefaultPodcastFolder());
+
+            System.setProperty("jpsonic.defaultPodcastFolder", "/foo/bar");
+            assertEquals("/foo/bar", PlayerUtils.getDefaultPodcastFolder());
+            System.setProperty("jpsonic.defaultPodcastFolder", "/foo/../bar");
+            assertEquals("/var/music/Podcast", PlayerUtils.getDefaultPodcastFolder());
+            System.clearProperty("jpsonic.defaultPodcastFolder");
+        }
+    }
+
+    @Nested
+    class GetDefaultPlaylistFolderTest {
+
+        @Test
+        @EnabledOnOs(OS.WINDOWS)
+        void testDefaultOnWin() {
+            assertEquals("c:\\playlists", PlayerUtils.getDefaultPlaylistFolder());
+
+            System.setProperty("jpsonic.defaultPlaylistFolder", "/foo/bar");
+            assertEquals("/foo/bar", PlayerUtils.getDefaultPlaylistFolder());
+            System.setProperty("jpsonic.defaultPlaylistFolder", "/foo/../bar");
+            assertEquals("c:\\playlists", PlayerUtils.getDefaultPlaylistFolder());
+            System.clearProperty("jpsonic.defaultPlaylistFolder");
+        }
+
+        @Test
+        @EnabledOnOs(OS.LINUX)
+        void testDefaultOnLinux() {
+            assertEquals("/var/playlists", PlayerUtils.getDefaultPlaylistFolder());
+
+            System.setProperty("jpsonic.defaultPlaylistFolder", "/foo/bar");
+            assertEquals("/foo/bar", PlayerUtils.getDefaultPlaylistFolder());
+            System.setProperty("jpsonic.defaultPlaylistFolder", "/foo/../bar");
+            assertEquals("/var/playlists", PlayerUtils.getDefaultPlaylistFolder());
+            System.clearProperty("jpsonic.defaultPlaylistFolder");
+        }
+    }
 
     @Test
     void testObjectToStringMapNull() {

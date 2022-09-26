@@ -24,6 +24,7 @@ package com.tesshu.jpsonic.controller;
 import com.tesshu.jpsonic.command.PodcastSettingsCommand;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.util.PathValidator;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -77,7 +78,8 @@ public class PodcastSettingsController {
             settingsService.setPodcastUpdateInterval(Integer.parseInt(command.getInterval()));
             settingsService.setPodcastEpisodeRetentionCount(Integer.parseInt(command.getEpisodeRetentionCount()));
             settingsService.setPodcastEpisodeDownloadCount(Integer.parseInt(command.getEpisodeDownloadCount()));
-            settingsService.setPodcastFolder(command.getFolder());
+            PathValidator.validateFolderPath(command.getFolder())
+                    .ifPresent(folderPath -> settingsService.setPodcastFolder(folderPath));
             settingsService.save();
             redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
         }

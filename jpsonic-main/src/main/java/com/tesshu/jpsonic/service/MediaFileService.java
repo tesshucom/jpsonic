@@ -56,6 +56,7 @@ import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
+import com.tesshu.jpsonic.util.PathValidator;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -135,7 +136,7 @@ public class MediaFileService {
     }
 
     public @Nullable MediaFile getMediaFile(String path) {
-        if (!SecurityService.isNoTraversal(path)) {
+        if (!PathValidator.isNoTraversal(path)) {
             throw new SecurityException("Access denied to file : " + path);
         }
         return getMediaFile(Path.of(path));
