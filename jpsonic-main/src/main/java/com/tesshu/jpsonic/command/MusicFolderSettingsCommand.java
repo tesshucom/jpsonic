@@ -30,7 +30,7 @@ import java.util.List;
 import com.tesshu.jpsonic.controller.MusicFolderSettingsController;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.util.PathValidator;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -222,7 +222,7 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
         public MusicFolder toMusicFolder() {
             String path = StringUtils.trimToNull(this.path);
-            if (path == null || !SecurityService.isNoTraversal(path)) {
+            if (path == null || !PathValidator.isNoTraversal(path)) {
                 return null;
             }
             String name = StringUtils.trimToNull(this.name);

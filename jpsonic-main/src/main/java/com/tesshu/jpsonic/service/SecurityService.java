@@ -29,7 +29,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -66,7 +65,6 @@ import org.springframework.util.StringUtils;
 public class SecurityService implements UserDetailsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityService.class);
-    private static final Pattern NO_TRAVERSAL = Pattern.compile("^(?!.*(\\.\\./|\\.\\.\\\\)).*$");
 
     private final UserDao userDao;
     private final SettingsService settingsService;
@@ -382,10 +380,6 @@ public class SecurityService implements UserDetailsService {
     public boolean isReadAllowed(@NonNull Path path) {
         // Allowed to read from both music folder and podcast folder.
         return isInMusicFolder(path.toString()) || isInPodcastFolder(path);
-    }
-
-    public static boolean isNoTraversal(String path) {
-        return NO_TRAVERSAL.matcher(path).matches();
     }
 
     /**
