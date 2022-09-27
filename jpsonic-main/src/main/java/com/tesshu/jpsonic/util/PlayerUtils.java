@@ -78,19 +78,24 @@ public final class PlayerUtils {
         return Instant.now().truncatedTo(ChronoUnit.MILLIS);
     }
 
+    private static String getDefaultFolder(String key, String winDefault, String linuxDefault) {
+        String arg = System.getProperty(key);
+        if (PathValidator.validateFolderPath(arg).isEmpty()) {
+            return isWindows() ? winDefault : linuxDefault;
+        }
+        return arg;
+    }
+
     public static String getDefaultMusicFolder() {
-        String def = isWindows() ? "c:\\music" : "/var/music";
-        return System.getProperty("jpsonic.defaultMusicFolder", def);
+        return getDefaultFolder("jpsonic.defaultMusicFolder", "c:\\music", "/var/music");
     }
 
     public static String getDefaultPodcastFolder() {
-        String def = isWindows() ? "c:\\music\\Podcast" : "/var/music/Podcast";
-        return System.getProperty("jpsonic.defaultPodcastFolder", def);
+        return getDefaultFolder("jpsonic.defaultPodcastFolder", "c:\\music\\Podcast", "/var/music/Podcast");
     }
 
     public static String getDefaultPlaylistFolder() {
-        String def = isWindows() ? "c:\\playlists" : "/var/playlists";
-        return System.getProperty("jpsonic.defaultPlaylistFolder", def);
+        return getDefaultFolder("jpsonic.defaultPlaylistFolder", "c:\\playlists", "/var/playlists");
     }
 
     public static boolean isWindows() {
