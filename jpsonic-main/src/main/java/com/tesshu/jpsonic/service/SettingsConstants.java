@@ -152,8 +152,8 @@ final class SettingsConstants {
                     "flv avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts webm");
             static final Pair<String> COVER_ART_FILE_TYPES = Pair.of("CoverArtFileTypes2",
                     "cover.jpg cover.png cover.gif folder.jpg jpg jpeg gif png");
-            static final Pair<String> PLAYLIST_FOLDER = Pair.of("PlaylistFolder", System.getProperty(
-                    "jpsonic.defaultPlaylistFolder", PlayerUtils.isWindows() ? "c:\\playlists" : "/var/playlists"));
+            static final Pair<String> PLAYLIST_FOLDER = Pair.of("PlaylistFolder",
+                    PlayerUtils.getDefaultPlaylistFolder());
             static final Pair<String> SHORTCUTS = Pair.of("Shortcuts", "\"New Incoming\" Podcast");
 
             private Extension() {
@@ -249,8 +249,7 @@ final class SettingsConstants {
     }
 
     static class Podcast {
-        static final Pair<String> FOLDER = Pair.of("PodcastFolder", System.getProperty("jpsonic.defaultPodcastFolder",
-                PlayerUtils.isWindows() ? "c:\\music\\Podcast" : "/var/music/Podcast"));
+        static final Pair<String> FOLDER = Pair.of("PodcastFolder", PlayerUtils.getDefaultPodcastFolder());
         static final Pair<Integer> UPDATE_INTERVAL = Pair.of("PodcastUpdateInterval", 24);
         static final Pair<Integer> EPISODE_RETENTION_COUNT = Pair.of("PodcastEpisodeRetentionCount", 10);
         static final Pair<Integer> EPISODE_DOWNLOAD_COUNT = Pair.of("PodcastEpisodeDownloadCount", 1);

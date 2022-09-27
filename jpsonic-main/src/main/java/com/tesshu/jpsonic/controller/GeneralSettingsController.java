@@ -36,6 +36,7 @@ import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.util.PathValidator;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -251,9 +252,8 @@ public class GeneralSettingsController {
         settingsService.setMusicFileTypes(command.getMusicFileTypes());
         settingsService.setVideoFileTypes(command.getVideoFileTypes());
         settingsService.setCoverArtFileTypes(command.getCoverArtFileTypes());
-        if (command.getPlaylistFolder() == null || SecurityService.isNoTraversal(command.getPlaylistFolder())) {
-            settingsService.setPlaylistFolder(command.getPlaylistFolder());
-        }
+        PathValidator.validateFolderPath(command.getPlaylistFolder())
+                .ifPresent(folderPath -> settingsService.setPlaylistFolder(folderPath));
         settingsService.setShortcuts(command.getShortcuts());
 
         // Welcom message
