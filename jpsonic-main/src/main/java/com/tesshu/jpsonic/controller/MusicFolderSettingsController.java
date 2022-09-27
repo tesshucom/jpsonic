@@ -21,6 +21,9 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +31,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.command.MusicFolderSettingsCommand;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -38,6 +42,8 @@ import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.util.PathValidator;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
@@ -144,16 +150,10 @@ public class MusicFolderSettingsController {
             if (musicFolderInfo.isDelete()) {
                 musicFolderService.deleteMusicFolder(musicFolderInfo.getId());
             } else {
-                MusicFolder musicFolder = musicFolderInfo.toMusicFolder();
-                if (musicFolder != null) {
-                    musicFolderService.updateMusicFolder(musicFolder);
-                }
+                toMusicFolder(musicFolderInfo).ifPresent(folder -> musicFolderService.updateMusicFolder(folder));
             }
         }
-        MusicFolder newMusicFolder = command.getNewMusicFolder().toMusicFolder();
-        if (newMusicFolder != null) {
-            musicFolderService.createMusicFolder(newMusicFolder);
-        }
+        toMusicFolder(command.getNewMusicFolder()).ifPresent(folder -> musicFolderService.createMusicFolder(folder));
 
         // Run a scan
         settingsService.setIndexCreationInterval(Integer.parseInt(command.getInterval()));
@@ -179,5 +179,18 @@ public class MusicFolderSettingsController {
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
 
         return new ModelAndView(new RedirectView(ViewName.MUSIC_FOLDER_SETTINGS.value()));
+    }
+
+    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Validated.")
+    public Optional<MusicFolder> toMusicFolder(MusicFolderSettingsCommand.MusicFolderInfo info) {
+        Optional<String> validated = PathValidator.validateFolderPath(StringUtils.trimToNull(info.getPath()));
+        if (validated.isEmpty()) {
+            return Optional.empty();
+        }
+        String name = StringUtils.trimToNull(info.getName());
+        if (name == null) {
+            name = Path.of(validated.get()).getFileName().toString();
+        }
+        return Optional.of(new MusicFolder(info.getId(), validated.get(), name, info.isEnabled(), now()));
     }
 }
