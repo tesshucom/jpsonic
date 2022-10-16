@@ -1,0 +1,8 @@
+build:
+  environment:
+    sdkman:
+      - java@17.0.4+101-open
+      - maven
+  dependencies:
+    override:
+      - mvn clean compile -Dmaven.test.skip=true -Dpmd.skip=true -Pjetty-embed -Prelease17
