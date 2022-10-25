@@ -79,7 +79,7 @@ jobs:
           java-version: 11
       - name: Set up ffmpeg
         id: ffmpeg
-        uses: FedericoCarboni/setup-ffmpeg@v1
+        uses: FedericoCarboni/setup-ffmpeg@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Cache Maven packages
@@ -118,7 +118,7 @@ jobs:
           java-version: 17
       - name: Set up ffmpeg
         id: ffmpeg
-        uses: FedericoCarboni/setup-ffmpeg@v1
+        uses: FedericoCarboni/setup-ffmpeg@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Cache Maven packages
@@ -148,7 +148,7 @@ jobs:
           java-version: ${{ matrix.java }}
       - name: Set up ffmpeg
         id: ffmpeg
-        uses: FedericoCarboni/setup-ffmpeg@v1
+        uses: FedericoCarboni/setup-ffmpeg@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Cache Maven packages
