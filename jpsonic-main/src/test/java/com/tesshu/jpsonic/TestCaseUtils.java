@@ -35,7 +35,7 @@ import com.tesshu.jpsonic.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings("PMD.NonThreadSafeSingleton") // This class is not designed for multithreading
+@SuppressWarnings({ "PMD.NonThreadSafeSingleton", "PMD.TestClassWithoutTestCases" })
 public final class TestCaseUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestCaseUtils.class);
