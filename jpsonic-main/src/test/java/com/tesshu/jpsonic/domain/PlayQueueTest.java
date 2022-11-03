@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author Sindre Mehus
  */
-@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TestClassWithoutTestCases" })
 class PlayQueueTest {
 
     private JpsonicComparators jpsonicComparators;
