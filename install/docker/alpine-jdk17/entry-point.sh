@@ -38,7 +38,7 @@ if [[ $# -lt 1 ]] || [[ ! "$1" == "java"* ]]; then
     set -- su-exec "$username":"$groupname" java \
      -Dserver.host=0.0.0.0 \
      -Dserver.port="$JPSONIC_PORT" \
-     -Dserver.contextPath="$CONTEXT_PATH" \
+     -Dserver.servlet.context-path="$CONTEXT_PATH" \
      -Djpsonic.home="$JPSONIC_DIR"/data \
      -Djpsonic.defaultMusicFolder="$JPSONIC_DIR"/music \
      -Djpsonic.defaultPodcastFolder="$JPSONIC_DIR"/podcasts \
