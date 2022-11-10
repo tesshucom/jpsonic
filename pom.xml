@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>111.5.6</version>
+    <version>111.5.7</version>
     <name>Jpsonic</name>
     <packaging>pom</packaging>
     <organization>
@@ -18,7 +18,7 @@
         <project.inceptionYear>2018</project.inceptionYear>
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jackson.version>2.13.4</jackson.version>
+        <jackson.version>2.14.0</jackson.version>
         <tomcat.version>9.0.68</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
         <jetty.version>10.0.11</jetty.version>
@@ -216,7 +216,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.14.0-rc3</version>
+                <version>2.14.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -534,7 +534,7 @@
                 <plugin>
                     <groupId>com.github.spotbugs</groupId>
                     <artifactId>spotbugs-maven-plugin</artifactId>
-                    <version>4.7.2.1</version>
+                    <version>4.7.3.0</version>
                     <dependencies>
                         <dependency>
                             <groupId>com.github.spotbugs</groupId>
@@ -675,7 +675,7 @@
             <plugin>
                 <groupId>net.revelc.code.formatter</groupId>
                 <artifactId>formatter-maven-plugin</artifactId>
-                <version>2.20.0</version>
+                <version>2.21.0</version>
                 <configuration>
                     <configXmlFile>${project.basedir}/jpsonic-main/formatter.xml</configXmlFile>
                     <encoding>UTF-8</encoding>
