@@ -253,6 +253,12 @@ function resetExtension() {
                 <label for="useCopyOfAsciiUnprintable"><fmt:message key="generalsettings.usecopyofasciiunprintable"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="usecopyofasciiunprintable"/></c:import>
             </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="useJsonp" id="useJsonp"/>
+                <label for="useJsonp"><fmt:message key="generalsettings.usejsonp"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="usejsonp"/></c:import>
+            </dd>
         </dl>
     </details>
 
