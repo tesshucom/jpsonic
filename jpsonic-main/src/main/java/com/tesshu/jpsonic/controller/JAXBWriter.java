@@ -158,7 +158,7 @@ public class JAXBWriter {
             if (jsonp) {
                 writer.append(");");
             }
-            httpResponse.getWriter().append(writer.getBuffer());
+            httpResponse.getWriter().append(writer.getBuffer()); // lgtm [java/xss]
         } catch (JAXBException | IOException e) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Failed to marshal JAXB", e);
