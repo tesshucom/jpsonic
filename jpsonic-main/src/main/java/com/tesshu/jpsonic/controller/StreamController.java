@@ -231,7 +231,6 @@ public class StreamController {
                 contentLength = endByte + 1 - startByte;
             }
 
-            response.setIntHeader("ETag", file.getId());
             PlayerUtils.setContentLength(response, contentLength);
         }
         return range;

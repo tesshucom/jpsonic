@@ -132,7 +132,6 @@ public class DownloadController {
                     : ServletRequestUtils.getIntParameters(request, Attributes.Request.I.value());
 
             if (mediaFile != null) {
-                response.setIntHeader("ETag", mediaFile.getId());
                 response.setHeader("Accept-Ranges", "bytes");
             }
 
