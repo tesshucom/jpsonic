@@ -44,7 +44,9 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.StringUtil;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.persistence.jaxb.JAXBContext;
 import org.eclipse.persistence.jaxb.MarshallerProperties;
 import org.jdom2.Attribute;
@@ -61,11 +63,13 @@ public class JAXBWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(JAXBWriter.class);
 
+    private final SettingsService settingsService;
     private final javax.xml.bind.JAXBContext jaxbContext;
     private final DatatypeFactory datatypeFactory;
     private final String restProtocolVersion;
 
-    public JAXBWriter() {
+    public JAXBWriter(@Nullable SettingsService settingsService) {
+        this.settingsService = settingsService;
         try {
             jaxbContext = JAXBContext.newInstance(Response.class);
             datatypeFactory = DatatypeFactory.newInstance();
@@ -122,13 +126,14 @@ public class JAXBWriter {
         return response;
     }
 
-    @SuppressFBWarnings(value = "XSS_SERVLET", justification = "Limited threat. It's not a free-for-all can write, and APIs are mostly not used by browsers.")
+    @SuppressFBWarnings(value = "XSS_SERVLET", justification = "Jsonp cannot be used unless the administrator explicitly enables the feature.")
     public void writeResponse(HttpServletRequest request, HttpServletResponse httpResponse, Response jaxbResponse) {
 
         String format = getStringParameter(request, Attributes.Request.F.value(), "xml");
         String jsonpCallback = request.getParameter(Attributes.Request.CALLBACK.value());
         boolean json = "json".equals(format);
-        boolean jsonp = "jsonp".equals(format) && jsonpCallback != null;
+        boolean jsonp = settingsService != null && settingsService.isUseJsonp() && "jsonp".equals(format)
+                && jsonpCallback != null;
         Marshaller marshaller;
 
         if (json) {
@@ -153,7 +158,7 @@ public class JAXBWriter {
             if (jsonp) {
                 writer.append(");");
             }
-            httpResponse.getWriter().append(writer.getBuffer());
+            httpResponse.getWriter().append(writer.getBuffer()); // lgtm [java/xss]
         } catch (JAXBException | IOException e) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Failed to marshal JAXB", e);

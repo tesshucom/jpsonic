@@ -72,7 +72,7 @@ public final class TestCaseUtils {
      * @return current REST api version.
      */
     public static String restApiVersion() {
-        return new JAXBWriter().getRestProtocolVersion();
+        return new JAXBWriter(null).getRestProtocolVersion();
     }
 
     /**

@@ -72,6 +72,7 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean useExternalPlayer;
     private boolean useRefresh;
     private boolean useCopyOfAsciiUnprintable;
+    private boolean useJsonp;
 
     // Extensions and shortcuts
     private String musicFileTypes;
@@ -340,6 +341,14 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setUseCopyOfAsciiUnprintable(boolean useCopyOfAsciiUnprintable) {
         this.useCopyOfAsciiUnprintable = useCopyOfAsciiUnprintable;
+    }
+
+    public boolean isUseJsonp() {
+        return useJsonp;
+    }
+
+    public void setUseJsonp(boolean useJsonp) {
+        this.useJsonp = useJsonp;
     }
 
     public String getMusicFileTypes() {
