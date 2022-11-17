@@ -53,7 +53,7 @@ public class RESTFilter implements Filter {
     private final JAXBWriter jaxbWriter;
 
     public RESTFilter() {
-        jaxbWriter = new JAXBWriter();
+        jaxbWriter = new JAXBWriter(null);
     }
 
     @Override

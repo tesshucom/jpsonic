@@ -140,6 +140,7 @@ final class SettingsConstants {
             static final Pair<Boolean> USE_EXTERNAL_PLAYER = Pair.of("UseExternalPlayer", false);
             static final Pair<Boolean> USE_REFRESH = Pair.of("UseRefresh", false);
             static final Pair<Boolean> USE_COPY_OF_ASCII_UNPRINTABLE = Pair.of("UseCopyOfAsciiUnprintable", false);
+            static final Pair<Boolean> USE_JSONP = Pair.of("UseJsonp", false);
 
             private Legacy() {
             }

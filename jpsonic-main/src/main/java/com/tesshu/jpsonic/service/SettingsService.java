@@ -671,6 +671,14 @@ public class SettingsService {
         setProperty(SettingsConstants.General.Legacy.USE_COPY_OF_ASCII_UNPRINTABLE, b);
     }
 
+    public boolean isUseJsonp() {
+        return getBoolean(SettingsConstants.General.Legacy.USE_JSONP);
+    }
+
+    public void setUseJsonp(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.USE_JSONP, b);
+    }
+
     public String getMusicFileTypes() {
         synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
             return getString(SettingsConstants.General.Extension.MUSIC_FILE_TYPES);

@@ -43,7 +43,7 @@ public final class PathValidator {
             return Optional.empty();
         }
         try {
-            Path path = Path.of(folderPath);
+            Path path = Path.of(folderPath); // lgtm [java/path-injection]
             if (path.getFileName() == null) {
                 return Optional.empty();
             }
