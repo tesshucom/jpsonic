@@ -70,7 +70,7 @@ public class RESTRequestParameterProcessingFilter implements Filter {
     private static final RequestMatcher REQUIRES_AUTHENTICATION_REQUEST_MATCHER = new RegexRequestMatcher("/rest/.+",
             null);
 
-    private final JAXBWriter jaxbWriter = new JAXBWriter();
+    private final JAXBWriter jaxbWriter = new JAXBWriter(null);
     private final AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
 
     private AuthenticationManager authenticationManager;

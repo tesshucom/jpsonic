@@ -262,7 +262,7 @@ public class SubsonicRESTController {
         this.airsonicLocaleResolver = airsonicLocaleResolver;
         this.logic = logic;
         this.director = director;
-        jaxbWriter = new JAXBWriter();
+        jaxbWriter = new JAXBWriter(settingsService);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

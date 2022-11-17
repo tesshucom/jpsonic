@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -30,20 +31,31 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ExecutionException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.subsonic.restapi.Response;
 
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 class JAXBWriterTest {
 
+    private SettingsService settingsService;
     private JAXBWriter writer;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        writer = new JAXBWriter();
+        settingsService = mock(SettingsService.class);
+        writer = new JAXBWriter(settingsService);
     }
 
     @Test
@@ -85,5 +97,70 @@ class JAXBWriterTest {
                 .format(parsedLocal.toGregorianCalendar().toInstant()));
         assertEquals("2002-01-01 08:59:59", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
                 .withZone(ZoneId.of("Japan")).format(parsedLocal.toGregorianCalendar().toInstant()));
+    }
+
+    @Nested
+    class WriteResponseTest {
+
+        @Test
+        void testContentTypeWithXml() {
+            HttpServletRequest request = mock(MockHttpServletRequest.class);
+            HttpServletResponse httpResponse = new MockHttpServletResponse();
+            Response response = writer.createResponse(true);
+
+            // No format
+            writer.writeResponse(request, httpResponse, response);
+            assertEquals(httpResponse.getContentType(), "text/xml;charset=UTF-8");
+
+            // format=xml
+            Mockito.when(request.getParameter(Attributes.Request.F.value())).thenReturn("xml");
+            writer.writeResponse(request, httpResponse, response);
+            assertEquals("text/xml;charset=UTF-8", httpResponse.getContentType());
+        }
+
+        @Test
+        void testContentTypeWithJson() {
+            HttpServletRequest request = mock(MockHttpServletRequest.class);
+            Mockito.when(request.getParameter(Attributes.Request.F.value())).thenReturn("json");
+            HttpServletResponse httpResponse = new MockHttpServletResponse();
+            Response response = writer.createResponse(true);
+            writer.writeResponse(request, httpResponse, response);
+            assertEquals("application/json;charset=UTF-8", httpResponse.getContentType());
+        }
+
+        @Test
+        void testContentTypeWithJsonp() {
+            Mockito.when(settingsService.isUseJsonp()).thenReturn(true);
+            HttpServletRequest request = mock(MockHttpServletRequest.class);
+            Mockito.when(request.getParameter(Attributes.Request.F.value())).thenReturn("jsonp");
+            Mockito.when(request.getParameter(Attributes.Request.CALLBACK.value())).thenReturn("testJsonp");
+            HttpServletResponse httpResponse = new MockHttpServletResponse();
+            Response response = writer.createResponse(true);
+            writer.writeResponse(request, httpResponse, response);
+            assertEquals("text/javascript;charset=UTF-8", httpResponse.getContentType());
+        }
+
+        @Test
+        void testContentTypeWithoutJsonp() {
+            // Jsonp cannot be used unless all conditions are met
+            HttpServletRequest request = mock(MockHttpServletRequest.class);
+            HttpServletResponse httpResponse = new MockHttpServletResponse();
+            Response response = writer.createResponse(true);
+
+            writer = new JAXBWriter(null);
+            Mockito.when(request.getParameter(Attributes.Request.F.value())).thenReturn("jsonp");
+            writer.writeResponse(request, httpResponse, response);
+            assertEquals("text/xml;charset=UTF-8", httpResponse.getContentType());
+
+            writer = new JAXBWriter(settingsService);
+            Mockito.when(settingsService.isUseJsonp()).thenReturn(true);
+            Mockito.when(request.getParameter(Attributes.Request.F.value())).thenReturn("xml");
+            writer.writeResponse(request, httpResponse, response);
+            assertEquals("text/xml;charset=UTF-8", httpResponse.getContentType());
+
+            Mockito.when(request.getParameter(Attributes.Request.F.value())).thenReturn("jsonp");
+            writer.writeResponse(request, httpResponse, response);
+            assertEquals("text/xml;charset=UTF-8", httpResponse.getContentType());
+        }
     }
 }

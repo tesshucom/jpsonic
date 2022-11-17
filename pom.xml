@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>111.5.7</version>
+    <version>111.5.8</version>
     <name>Jpsonic</name>
     <packaging>pom</packaging>
     <organization>
@@ -19,7 +19,7 @@
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jackson.version>2.14.0</jackson.version>
-        <tomcat.version>9.0.68</tomcat.version>
+        <tomcat.version>9.0.69</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
         <jetty.version>10.0.11</jetty.version>
         <jetty-jsp.version>10.0.11</jetty-jsp.version>
@@ -95,7 +95,7 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-junit-jupiter</artifactId>
-                <version>4.8.1</version>
+                <version>4.9.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -555,7 +555,7 @@
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>7.3.0</version>
+                    <version>7.3.1</version>
                     <inherited>true</inherited>
                     <configuration>
                         <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
@@ -748,7 +748,7 @@
                                 <ignoredUnusedDeclaredDependency>com.mattbertolini:liquibase-slf4j:jar:*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.hsqldb:hsqldb:*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.postgresql:postgresql:jar:*</ignoredUnusedDeclaredDependency>
-                                <ignoredUnusedDeclaredDependency>mysql:mysql-connector-java:jar:*</ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>com.mysql:mysql-connector-j:jar:*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.mariadb.jdbc:mariadb-java-client:jar:*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:*</ignoredUnusedDeclaredDependency>
                             </ignoredUnusedDeclaredDependencies>
