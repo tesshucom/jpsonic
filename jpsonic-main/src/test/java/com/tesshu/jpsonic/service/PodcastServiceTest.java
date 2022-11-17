@@ -65,4 +65,20 @@ class PodcastServiceTest {
         // Accept non zero-fill-numeric values
         assertEquals("2022-09-09 08:07:05", fmt.format(toJST("Fri, 9 Sep 2022 8:7:5 JST")));
     }
+
+    @Test
+    void testFormatDuration() {
+
+        /*
+         * itunes:duration - Duration of the episode, in one of the following formats: 1:10:00, 10:00, 1800. In the
+         * first two formats the values for hours, minutes, or seconds cannot exceed two digits each.
+         */
+        assertNull(podcastService.formatDuration(null));
+        assertEquals("1:10:00", podcastService.formatDuration("1:10:00"));
+        assertEquals("10:00", podcastService.formatDuration("10:00"));
+        assertEquals("00:59", podcastService.formatDuration("59"));
+        assertEquals("01:00", podcastService.formatDuration("60"));
+        assertEquals("59:59", podcastService.formatDuration("3599"));
+        assertEquals("01:60:00", podcastService.formatDuration("3600"));
+    }
 }

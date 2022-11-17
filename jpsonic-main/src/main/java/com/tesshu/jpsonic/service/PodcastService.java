@@ -523,7 +523,7 @@ public class PodcastService {
         return null;
     }
 
-    private String formatDuration(String duration) {
+    String formatDuration(String duration) {
         if (duration == null) {
             return null;
         }
