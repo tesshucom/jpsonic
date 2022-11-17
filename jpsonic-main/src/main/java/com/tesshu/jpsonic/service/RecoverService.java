@@ -75,7 +75,7 @@ public class RecoverService {
     /*
      * e-mail user new password via configured Smtp server
      */
-    public boolean emailPassword(String password, String username, String email) {
+    public boolean sendEmail(String username, String email) {
         /* Default to protocol smtp when SmtpEncryption is set to "None" */
         String prot = "smtp";
         Properties props = new Properties();
@@ -102,8 +102,7 @@ public class RecoverService {
             message.setSubject("Jpsonic Password");
             message.setText("Hi there!\n\n"
                     + "You have requested to reset your Jpsonic password.  Please find your new login details below.\n\n"
-                    + "Username: " + username + "\n" + "Password: " + password + "\n\n" + "--\n"
-                    + "Your Jpsonic server\n" + "tesshu.com/");
+                    + "Username: " + username + "\n" + "Password: ******\n\n");
             message.setSentDate(java.util.Date.from(now()));
 
             try (Transport trans = session.getTransport(prot)) {
