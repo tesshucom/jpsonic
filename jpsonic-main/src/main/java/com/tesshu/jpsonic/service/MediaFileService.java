@@ -139,7 +139,7 @@ public class MediaFileService {
         if (!PathValidator.isNoTraversal(path)) {
             throw new SecurityException("Access denied to file : " + path);
         }
-        return getMediaFile(Path.of(path));
+        return getMediaFile(Path.of(path)); // lgtm [java/path-injection]
     }
 
     // TODO: Optimize with memory caching.

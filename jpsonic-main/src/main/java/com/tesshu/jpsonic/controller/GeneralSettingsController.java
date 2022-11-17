@@ -147,6 +147,7 @@ public class GeneralSettingsController {
         command.setUseExternalPlayer(settingsService.isUseExternalPlayer());
         command.setUseRefresh(settingsService.isUseRefresh());
         command.setUseCopyOfAsciiUnprintable(settingsService.isUseCopyOfAsciiUnprintable());
+        command.setUseJsonp(settingsService.isUseJsonp());
 
         // Extensions and shortcuts
         command.setMusicFileTypes(settingsService.getMusicFileTypes());
@@ -247,6 +248,7 @@ public class GeneralSettingsController {
         settingsService.setUseRefresh(command.isUseRefresh());
         settingsService.setShowRefresh(command.isUseRefresh() && settingsService.isShowRefresh());
         settingsService.setUseCopyOfAsciiUnprintable(PlayerUtils.isWindows() && command.isUseCopyOfAsciiUnprintable());
+        settingsService.setUseJsonp(command.isUseJsonp());
 
         // Extensions and shortcuts
         settingsService.setMusicFileTypes(command.getMusicFileTypes());
