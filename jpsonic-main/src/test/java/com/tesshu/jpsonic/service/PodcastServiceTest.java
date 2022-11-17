@@ -76,9 +76,9 @@ class PodcastServiceTest {
         assertNull(podcastService.formatDuration(null));
         assertEquals("1:10:00", podcastService.formatDuration("1:10:00"));
         assertEquals("10:00", podcastService.formatDuration("10:00"));
-        assertEquals("00:59", podcastService.formatDuration("59"));
-        assertEquals("01:00", podcastService.formatDuration("60"));
+        assertEquals("0:59", podcastService.formatDuration("59"));
+        assertEquals("1:00", podcastService.formatDuration("60"));
         assertEquals("59:59", podcastService.formatDuration("3599"));
-        assertEquals("01:60:00", podcastService.formatDuration("3600"));
+        assertEquals("1:00:00", podcastService.formatDuration("3600"));
     }
 }

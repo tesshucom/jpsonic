@@ -104,7 +104,6 @@ public class PodcastService {
     private static final Namespace[] ITUNES_NAMESPACES = {
             Namespace.getNamespace("http://www.itunes.com/DTDs/Podcast-1.0.dtd"),
             Namespace.getNamespace("http://www.itunes.com/dtds/podcast-1.0.dtd") };
-    private static final long DURATION_FORMAT_THRESHOLD = 3600;
 
     private final PodcastDao podcastDao;
     private final SettingsService settingsService;
@@ -526,17 +525,11 @@ public class PodcastService {
     String formatDuration(String duration) {
         if (duration == null) {
             return null;
+        } else if (duration.matches("^\\d+$")) {
+            int seconds = Integer.parseInt(duration);
+            return StringUtil.formatDuration(seconds);
         }
-        if (duration.matches("^\\d+$")) {
-            long seconds = Long.parseLong(duration);
-            if (seconds >= DURATION_FORMAT_THRESHOLD) {
-                return String.format("%02d:%02d:%02d", seconds / 3600, seconds / 60, seconds % 60);
-            } else {
-                return String.format("%02d:%02d", seconds / 60, seconds % 60);
-            }
-        } else {
-            return duration;
-        }
+        return duration;
     }
 
     private String getITunesElement(Element element, String childName) {
