@@ -49,6 +49,7 @@ if [[ $# -lt 1 ]] || [[ ! "$1" == "java"* ]]; then
      -Djpsonic.mime.dff="$MIME_DFF" \
      -DUPNP_PORT="$UPNP_PORT" \
      -Dspring.main.banner-mode="$BANNER_MODE" \
+     -Dlogging.level.com.tesshu.jpsonic="$LOG_LEVEL" \
      -Djava.awt.headless=true \
      -Duser.timezone="$TIME_ZONE" \
      "${java_opts_array[@]}" \
