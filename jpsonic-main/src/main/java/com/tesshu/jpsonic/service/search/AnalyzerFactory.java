@@ -82,7 +82,7 @@ public final class AnalyzerFactory {
     private static final String FILTER_ATTR_ALL = "all";
 
     private final SettingsService settingsService;
-
+    private final Object analyzerLock = new Object();
     private Analyzer analyzer;
 
     public AnalyzerFactory(SettingsService settingsService) {
@@ -263,34 +263,36 @@ public final class AnalyzerFactory {
      */
     @SuppressWarnings("PMD.CloseResource") // False positive. Stream is reused by ReuseStrategy.
     public Analyzer getAnalyzer() {
-        if (isEmpty(analyzer)) {
-            try {
+        synchronized (analyzerLock) {
+            if (isEmpty(analyzer)) {
+                try {
 
-                Analyzer defaultAnalyzer = createDefaultAnalyzer(false);
-                Analyzer artistAnalyzer = createDefaultAnalyzer(true);
-                Analyzer readingAnalyzer = createReadingAnalyzer();
-                Analyzer artistReadingAnalyzer = createArtistReadingAnalyzer();
-                Analyzer romanizedAnalyzer = createRomanizedAnalyzer();
+                    Analyzer defaultAnalyzer = createDefaultAnalyzer(false);
+                    Analyzer artistAnalyzer = createDefaultAnalyzer(true);
+                    Analyzer readingAnalyzer = createReadingAnalyzer();
+                    Analyzer artistReadingAnalyzer = createArtistReadingAnalyzer();
+                    Analyzer romanizedAnalyzer = createRomanizedAnalyzer();
 
-                Map<String, Analyzer> fieldAnalyzers = //
-                        LegacyMap.of(FieldNamesConstants.ARTIST, artistAnalyzer, //
-                                FieldNamesConstants.ARTIST_READING, artistReadingAnalyzer, //
-                                FieldNamesConstants.ARTIST_READING_ROMANIZED, romanizedAnalyzer, //
-                                FieldNamesConstants.COMPOSER, artistAnalyzer, //
-                                FieldNamesConstants.COMPOSER_READING, artistReadingAnalyzer, //
-                                FieldNamesConstants.COMPOSER_READING_ROMANIZED, romanizedAnalyzer, //
-                                FieldNamesConstants.ALBUM_READING, readingAnalyzer, //
-                                FieldNamesConstants.TITLE_READING, readingAnalyzer, //
-                                FieldNamesConstants.GENRE_KEY, createGenreKeyAnalyzer(), //
-                                FieldNamesConstants.GENRE, createGenreAnalyzer());
+                    Map<String, Analyzer> fieldAnalyzers = //
+                            LegacyMap.of(FieldNamesConstants.ARTIST, artistAnalyzer, //
+                                    FieldNamesConstants.ARTIST_READING, artistReadingAnalyzer, //
+                                    FieldNamesConstants.ARTIST_READING_ROMANIZED, romanizedAnalyzer, //
+                                    FieldNamesConstants.COMPOSER, artistAnalyzer, //
+                                    FieldNamesConstants.COMPOSER_READING, artistReadingAnalyzer, //
+                                    FieldNamesConstants.COMPOSER_READING_ROMANIZED, romanizedAnalyzer, //
+                                    FieldNamesConstants.ALBUM_READING, readingAnalyzer, //
+                                    FieldNamesConstants.TITLE_READING, readingAnalyzer, //
+                                    FieldNamesConstants.GENRE_KEY, createGenreKeyAnalyzer(), //
+                                    FieldNamesConstants.GENRE, createGenreAnalyzer());
 
-                this.analyzer = new PerFieldAnalyzerWrapper(defaultAnalyzer, fieldAnalyzers);
+                    this.analyzer = new PerFieldAnalyzerWrapper(defaultAnalyzer, fieldAnalyzers);
 
-            } catch (IOException e) {
-                // Usually unreachable due to classpath resources
-                throw new IllegalArgumentException("Error when initializing Analyzer.", e);
+                } catch (IOException e) {
+                    // Usually unreachable due to classpath resources
+                    throw new IllegalArgumentException("Error when initializing Analyzer.", e);
+                }
             }
+            return analyzer;
         }
-        return analyzer;
     }
 }
