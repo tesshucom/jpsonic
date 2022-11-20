@@ -148,6 +148,7 @@ public class GeneralSettingsController {
         command.setUseRefresh(settingsService.isUseRefresh());
         command.setUseCopyOfAsciiUnprintable(settingsService.isUseCopyOfAsciiUnprintable());
         command.setUseJsonp(settingsService.isUseJsonp());
+        command.setUseRemovingTrackFromId3Title(settingsService.isUseRemovingTrackFromId3Title());
 
         // Extensions and shortcuts
         command.setMusicFileTypes(settingsService.getMusicFileTypes());
@@ -249,6 +250,7 @@ public class GeneralSettingsController {
         settingsService.setShowRefresh(command.isUseRefresh() && settingsService.isShowRefresh());
         settingsService.setUseCopyOfAsciiUnprintable(PlayerUtils.isWindows() && command.isUseCopyOfAsciiUnprintable());
         settingsService.setUseJsonp(command.isUseJsonp());
+        settingsService.setUseRemovingTrackFromId3Title(command.isUseRemovingTrackFromId3Title());
 
         // Extensions and shortcuts
         settingsService.setMusicFileTypes(command.getMusicFileTypes());

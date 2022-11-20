@@ -33,6 +33,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,7 +55,7 @@ class TagServiceTest {
         mediaFileService = mock(MediaFileService.class);
         mediaScannerService = mock(MediaScannerService.class);
         tagService = new TagService(metaDataParserFactory, mediaFileService, mediaScannerService);
-        parser = new MusicParser(mock(MusicFolderService.class));
+        parser = new MusicParser(mock(SettingsService.class), mock(MusicFolderService.class));
     }
 
     @Test

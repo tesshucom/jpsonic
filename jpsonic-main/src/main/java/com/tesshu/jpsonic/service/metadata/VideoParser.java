@@ -46,7 +46,7 @@ public class VideoParser extends MetaDataParser {
     private final FFprobe ffprobe;
 
     public VideoParser(SettingsService settingsService, MusicFolderService musicFolderService, FFprobe ffprobe) {
-        super();
+        super(settingsService);
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
         this.ffprobe = ffprobe;

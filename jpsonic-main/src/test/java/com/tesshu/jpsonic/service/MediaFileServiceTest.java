@@ -776,7 +776,7 @@ class MediaFileServiceTest {
             final MediaLibraryStatistics statistics = new MediaLibraryStatistics(scanStart);
 
             // Newly created case
-            MusicParser musicParser = new MusicParser(null);
+            MusicParser musicParser = new MusicParser(mock(SettingsService.class), null);
             Mockito.when(metaDataParserFactory.getParser(path)).thenReturn(musicParser);
             Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(new String[0]);
 
@@ -809,7 +809,7 @@ class MediaFileServiceTest {
             final MediaLibraryStatistics statistics = new MediaLibraryStatistics(scanStart);
 
             // Newly created case
-            MusicParser musicParser = new MusicParser(null);
+            MusicParser musicParser = new MusicParser(null, null);
             Mockito.when(metaDataParserFactory.getParser(path)).thenReturn(musicParser);
             Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(new String[0]);
 

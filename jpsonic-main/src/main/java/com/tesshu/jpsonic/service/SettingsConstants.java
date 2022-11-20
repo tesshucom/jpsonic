@@ -141,6 +141,8 @@ final class SettingsConstants {
             static final Pair<Boolean> USE_REFRESH = Pair.of("UseRefresh", false);
             static final Pair<Boolean> USE_COPY_OF_ASCII_UNPRINTABLE = Pair.of("UseCopyOfAsciiUnprintable", false);
             static final Pair<Boolean> USE_JSONP = Pair.of("UseJsonp", false);
+            static final Pair<Boolean> USE_REMOVING_TRACK_FROM_ID3TITLE = Pair.of("UseRemovingTrackFromId3Title",
+                    false);
 
             private Legacy() {
             }
