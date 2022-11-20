@@ -259,6 +259,12 @@ function resetExtension() {
                 <label for="useJsonp"><fmt:message key="generalsettings.usejsonp"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="usejsonp"/></c:import>
             </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="useRemovingTrackFromId3Title" id="useRemovingTrackFromId3Title"/>
+                <label for="useRemovingTrackFromId3Title"><fmt:message key="generalsettings.useremovingtrackfromid3title"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="useremovingtrackfromid3title"/></c:import>
+            </dd>
         </dl>
     </details>
 
