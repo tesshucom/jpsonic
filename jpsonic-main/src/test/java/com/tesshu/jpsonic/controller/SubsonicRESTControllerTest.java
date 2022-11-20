@@ -90,6 +90,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -314,7 +315,8 @@ class SubsonicRESTControllerTest {
                         .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                         .andExpect(MockMvcResultMatchers.status().isOk())
                         .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
-                        .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
+                        .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion)).andExpect(
+                                MockMvcResultMatchers.header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
 
                 mvc.perform(MockMvcRequestBuilders.get("/rest/ping.view").param(Attributes.Request.V.value(), apiVerion)
                         .param(Attributes.Request.C.value(), CLIENT_NAME)
@@ -323,8 +325,18 @@ class SubsonicRESTControllerTest {
                         .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                         .andExpect(MockMvcResultMatchers.status().isOk())
                         .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
-                        .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
+                        .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion)).andExpect(
+                                MockMvcResultMatchers.header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
 
+                mvc.perform(MockMvcRequestBuilders.get("/rest/ping").param(Attributes.Request.V.value(), apiVerion)
+                        .param(Attributes.Request.C.value(), CLIENT_NAME)
+                        .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                        .param(Attributes.Request.P.value(), "Bad password")
+                        .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(MockMvcResultMatchers.status().isOk())
+                        .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_FAILED))
+                        .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion)).andExpect(
+                                MockMvcResultMatchers.header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
             } catch (Exception e) {
                 Assertions.fail();
                 throw new ExecutionException(e);

@@ -60,7 +60,7 @@ class SecurityServiceTest {
     public void setup() {
         settingsService = mock(SettingsService.class);
         musicFolderService = mock(MusicFolderService.class);
-        service = new SecurityService(mock(UserDao.class), settingsService, musicFolderService, null);
+        service = new SecurityService(mock(UserDao.class), settingsService, musicFolderService);
     }
 
     @Nested

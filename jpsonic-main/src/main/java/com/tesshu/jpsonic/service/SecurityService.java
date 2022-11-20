@@ -41,7 +41,6 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
-import net.sf.ehcache.Ehcache;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -69,15 +68,12 @@ public class SecurityService implements UserDetailsService {
     private final UserDao userDao;
     private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
-    private final Ehcache userCache;
 
-    public SecurityService(UserDao userDao, SettingsService settingsService, MusicFolderService musicFolderService,
-            Ehcache userCache) {
+    public SecurityService(UserDao userDao, SettingsService settingsService, MusicFolderService musicFolderService) {
         super();
         this.userDao = userDao;
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
-        this.userCache = userCache;
     }
 
     /**
@@ -333,7 +329,6 @@ public class SecurityService implements UserDetailsService {
         if (LOG.isInfoEnabled()) {
             LOG.info("Deleted user " + username);
         }
-        userCache.remove(username);
     }
 
     /**
@@ -344,7 +339,6 @@ public class SecurityService implements UserDetailsService {
      */
     public void updateUser(User user) {
         userDao.updateUser(user);
-        userCache.remove(user.getUsername());
     }
 
     /**

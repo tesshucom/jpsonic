@@ -79,11 +79,6 @@ public class EhcacheConfiguration {
     }
 
     @Bean
-    public Ehcache userCache(CacheFactory cacheFactory) {
-        return cacheFactory.getCache("userCache");
-    }
-
-    @Bean
     public Ehcache mediaFileMemoryCache(CacheFactory cacheFactory) {
         return cacheFactory.getCache("mediaFileMemoryCache");
     }

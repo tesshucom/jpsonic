@@ -194,7 +194,7 @@ class UserDaoTest {
     @Test
     void testCreateDefaultUserSettingsWithNonExist() throws ExecutionException {
         assertNull(userDao.getUserSettings("sindre"), "Error in getUserSettings.");
-        SecurityService mockService = new SecurityService(Mockito.mock(UserDao.class), null, null, null);
+        SecurityService mockService = new SecurityService(Mockito.mock(UserDao.class), null, null);
         UserSettings userSettings = mockService.getUserSettings("sindre");
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> userDao.updateUserSettings(userSettings));
     }
@@ -204,7 +204,7 @@ class UserDaoTest {
         userDao.createUser(new User("sindre", "secret", null));
         assertNull(userDao.getUserSettings("sindre"), "Error in getUserSettings.");
 
-        SecurityService mockService = new SecurityService(Mockito.mock(UserDao.class), null, null, null);
+        SecurityService mockService = new SecurityService(Mockito.mock(UserDao.class), null, null);
         userDao.updateUserSettings(mockService.getUserSettings("sindre"));
 
         UserSettings userSettings = userDao.getUserSettings("sindre");
