@@ -48,7 +48,7 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class MusicParserTest {
 
-    private static final MusicParser PARSER = new MusicParser(null);
+    private static final MusicParser PARSER = new MusicParser(null, null);
 
     private static Path createPath(String resourcePath) throws URISyntaxException {
         return Path.of(MusicParserTest.class.getResource(resourcePath).toURI());
@@ -937,7 +937,7 @@ class MusicParserTest {
     @Nested
     class ITunesMP3Test {
 
-        private final MusicParser parser = new MusicParser(null);
+        private final MusicParser parser = new MusicParser(null, null);
 
         private void assertITunesEN(Path path, boolean isAlbumArtist) {
             MetaData metaData = parser.getRawMetaData(path);
