@@ -30,6 +30,7 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -165,7 +166,7 @@ public class InternalHelpController {
             map.put("statAlbumCount", stats.getAlbumCount());
             map.put("statArtistCount", stats.getArtistCount());
             map.put("statSongCount", stats.getSongCount());
-            map.put("statLastScanDate", stats.getScanDate());
+            map.put("statLastScanDate", stats.getScanDate().atZone(ZoneId.systemDefault()).toLocalDateTime());
             map.put("statTotalDurationSeconds", stats.getTotalDurationInSeconds());
             map.put("statTotalLengthBytes", FileUtil.byteCountToDisplaySize(stats.getTotalLengthInBytes()));
         }
