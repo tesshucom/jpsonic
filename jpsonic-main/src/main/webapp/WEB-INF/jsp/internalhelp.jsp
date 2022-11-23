@@ -9,7 +9,7 @@
 <body class="mainframe settings">
 
 <c:import url="helpHeader.jsp">
-	<c:param name="cat" value="internalhelp"/>
+    <c:param name="cat" value="internalhelp"/>
     <c:param name="isAdmin" value="${model.admin}"/>
     <c:param name="showStatus" value="${model.showStatus}"/>
 </c:import>
@@ -341,7 +341,12 @@
         <dt><fmt:message key="internalhelp.songcount"/></dt>
         <dd>${model.statSongCount}</dd>
         <dt><fmt:message key="internalhelp.lastscandate"/></dt>
-        <dd>${model.statLastScanDate}</dd>
+        <dd>
+            <c:if test="${not empty model.statLastScanDate}">
+                <fmt:parseDate value="${model.statLastScanDate}" type="both" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" />
+                <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd HH:mm:ss" />
+            </c:if>
+        </dd>
         <dt><fmt:message key="internalhelp.totaldurationseconds"/></dt>
         <dd>${model.statTotalDurationSeconds}</dd>
         <dt><fmt:message key="internalhelp.totalsizebytes"/></dt>
