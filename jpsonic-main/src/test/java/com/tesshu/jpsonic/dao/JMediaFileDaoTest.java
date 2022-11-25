@@ -37,7 +37,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SortCandidate;
-import com.tesshu.jpsonic.service.MediaScannerServiceImpl;
+import com.tesshu.jpsonic.service.scanner.ScannerStateService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,7 +60,7 @@ class JMediaFileDaoTest extends AbstractNeedsScan {
     private JAlbumDao albumDao;
 
     @Autowired
-    private MediaScannerServiceImpl mediaScannerServiceImpl;
+    private ScannerStateService scannerStateService;
 
     private List<SortCandidate> candidates;
 
@@ -297,7 +297,7 @@ class JMediaFileDaoTest extends AbstractNeedsScan {
     public void setup() {
         Instant now = now();
 
-        mediaScannerServiceImpl.setJpsonicCleansingProcess(false);
+        scannerStateService.enableCleansing(false);
 
         populateDatabaseOnlyOnce(null, () -> {
             List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, MUSIC_FOLDERS);
@@ -312,7 +312,7 @@ class JMediaFileDaoTest extends AbstractNeedsScan {
             return true;
         });
 
-        mediaScannerServiceImpl.setJpsonicCleansingProcess(true);
+        scannerStateService.enableCleansing(true);
 
         candidates = mediaFileDao.guessPersonsSorts();
     }

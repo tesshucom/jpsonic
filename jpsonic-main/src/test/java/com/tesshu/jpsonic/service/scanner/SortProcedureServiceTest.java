@@ -38,7 +38,6 @@ import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.service.MediaScannerServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.Nested;
@@ -53,9 +52,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.AvoidLiteralsInIfCondition", "PMD.NPathComplexity" })
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
-class MediaScannerServiceUtilsTest {
+class SortProcedureServiceTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MediaScannerServiceUtilsTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SortProcedureServiceTest.class);
 
     /**
      * If SORT exists for one name and null-sort data exists, unify it to SORT.
@@ -74,10 +73,10 @@ class MediaScannerServiceUtilsTest {
         private JArtistDao artistDao;
 
         @Autowired
-        private MediaScannerServiceUtils utils;
+        private SortProcedureService sortProcedureService;
 
         @Autowired
-        private MediaScannerServiceImpl mediaScannerServiceImpl;
+        private ScannerStateService scannerStateService;
 
         @Override
         public List<MusicFolder> getMusicFolders() {
@@ -86,17 +85,17 @@ class MediaScannerServiceUtilsTest {
 
         @BeforeEach
         public void setup() {
-            mediaScannerServiceImpl.setJpsonicCleansingProcess(false);
+            scannerStateService.enableCleansing(false);
             populateDatabase();
-            mediaScannerServiceImpl.setJpsonicCleansingProcess(true);
+            scannerStateService.enableCleansing(true);
         }
 
         @Test
         @DisabledOnOs(OS.LINUX)
         void testCompensateSortOfArtistOnWindows() throws ExecutionException {
 
-            utils.mergeSortOfArtist();
-            utils.copySortOfArtist();
+            sortProcedureService.mergeSortOfArtist();
+            sortProcedureService.copySortOfArtist();
 
             List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
             MediaFile artist = artists.stream().filter(m -> "ARTIST".equals(m.getArtist())).findFirst().get();
@@ -156,7 +155,7 @@ class MediaScannerServiceUtilsTest {
                 }
             });
 
-            utils.compensateSortOfArtist();
+            sortProcedureService.compensateSortOfArtist();
 
             artists = mediaFileDao.getArtistAll(musicFolders);
             artist = artists.stream().filter(m -> "ARTIST".equals(m.getArtist())).findFirst().get();
@@ -216,8 +215,8 @@ class MediaScannerServiceUtilsTest {
         // @DisabledOnOs(OS.WINDOWS)
         void testCompensateSortOfArtistOnLinux() throws ExecutionException {
 
-            utils.mergeSortOfArtist();
-            utils.copySortOfArtist();
+            sortProcedureService.mergeSortOfArtist();
+            sortProcedureService.copySortOfArtist();
 
             List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
             MediaFile artist = artists.stream().filter(m -> "ARTIST".equals(m.getArtist())).findFirst().get();
@@ -280,7 +279,7 @@ class MediaScannerServiceUtilsTest {
                 }
             });
 
-            utils.compensateSortOfArtist();
+            sortProcedureService.compensateSortOfArtist();
 
             artists = mediaFileDao.getArtistAll(musicFolders);
             artist = artists.stream().filter(m -> "ARTIST".equals(m.getArtist())).findFirst().get();
@@ -359,10 +358,10 @@ class MediaScannerServiceUtilsTest {
         private JArtistDao artistDao;
 
         @Autowired
-        private MediaScannerServiceUtils utils;
+        private SortProcedureService sortProcedureService;
 
         @Autowired
-        private MediaScannerServiceImpl mediaScannerServiceImpl;
+        private ScannerStateService scannerStateService;
 
         @Override
         public List<MusicFolder> getMusicFolders() {
@@ -371,16 +370,16 @@ class MediaScannerServiceUtilsTest {
 
         @BeforeEach
         public void setup() {
-            mediaScannerServiceImpl.setJpsonicCleansingProcess(false);
+            scannerStateService.enableCleansing(false);
             populateDatabase();
-            mediaScannerServiceImpl.setJpsonicCleansingProcess(true);
+            scannerStateService.enableCleansing(true);
         }
 
         @Test
         @DisabledOnOs(OS.LINUX)
         void testCopySortOfArtistOnWindows() throws ExecutionException {
 
-            utils.mergeSortOfArtist();
+            sortProcedureService.mergeSortOfArtist();
 
             List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
             assertEquals(1, artists.size());
@@ -403,7 +402,7 @@ class MediaScannerServiceUtilsTest {
             assertEquals("case1", artistID3s.get(0).getName());
             assertNull(artistID3s.get(0).getSort());
 
-            utils.copySortOfArtist();
+            sortProcedureService.copySortOfArtist();
 
             files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPathString(), false);
             artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
@@ -433,7 +432,7 @@ class MediaScannerServiceUtilsTest {
         // @DisabledOnOs(OS.WINDOWS)
         void testCopySortOfArtistOnLinux() throws ExecutionException {
 
-            utils.mergeSortOfArtist();
+            sortProcedureService.mergeSortOfArtist();
 
             List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
             assertEquals(1, artists.size());
@@ -456,7 +455,7 @@ class MediaScannerServiceUtilsTest {
             assertEquals("case1", artistID3s.get(0).getName());
             assertEquals("artistA", artistID3s.get(0).getSort());
 
-            utils.copySortOfArtist();
+            sortProcedureService.copySortOfArtist();
 
             files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPathString(), false);
             artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
@@ -503,10 +502,10 @@ class MediaScannerServiceUtilsTest {
         private JAlbumDao albumDao;
 
         @Autowired
-        private MediaScannerServiceUtils utils;
+        private SortProcedureService sortProcedureService;
 
         @Autowired
-        private MediaScannerServiceImpl mediaScannerServiceImpl;
+        private ScannerStateService scannerStateService;
 
         @Override
         public List<MusicFolder> getMusicFolders() {
@@ -515,7 +514,7 @@ class MediaScannerServiceUtilsTest {
 
         @BeforeEach
         public void setup() {
-            mediaScannerServiceImpl.setJpsonicCleansingProcess(false);
+            scannerStateService.enableCleansing(false);
 
             assertEquals(0, mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders).size());
             assertEquals(0, artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders).size());
@@ -536,7 +535,7 @@ class MediaScannerServiceUtilsTest {
                 return true;
             });
 
-            mediaScannerServiceImpl.setJpsonicCleansingProcess(true);
+            scannerStateService.enableCleansing(true);
         }
 
         @Test
@@ -557,7 +556,7 @@ class MediaScannerServiceUtilsTest {
             artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders)
                     .forEach(a -> LOG.info(a.getId() + ", " + a.getName()));
 
-            utils.mergeSortOfArtist();
+            sortProcedureService.mergeSortOfArtist();
 
             List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
             assertEquals(3, artists.size());
@@ -930,7 +929,7 @@ class MediaScannerServiceUtilsTest {
             artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders)
                     .forEach(a -> LOG.info(a.getId() + ", " + a.getName()));
 
-            utils.mergeSortOfArtist();
+            sortProcedureService.mergeSortOfArtist();
 
             List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
             assertEquals(3, artists.size());
@@ -1316,10 +1315,10 @@ class MediaScannerServiceUtilsTest {
         private JAlbumDao albumDao;
 
         @Autowired
-        private MediaScannerServiceUtils utils;
+        private SortProcedureService sortProcedureService;
 
         @Autowired
-        private MediaScannerServiceImpl mediaScannerServiceImpl;
+        private ScannerStateService scannerStateService;
 
         @Override
         public List<MusicFolder> getMusicFolders() {
@@ -1329,7 +1328,7 @@ class MediaScannerServiceUtilsTest {
         @BeforeEach
         public void setup() {
 
-            mediaScannerServiceImpl.setJpsonicCleansingProcess(false);
+            scannerStateService.enableCleansing(false);
 
             // Update the date of a particular file to cause a merge
             String latestMediaFileTitle1 = "file1";
@@ -1349,7 +1348,7 @@ class MediaScannerServiceUtilsTest {
                 });
                 return true;
             });
-            mediaScannerServiceImpl.setJpsonicCleansingProcess(true);
+            scannerStateService.enableCleansing(true);
         }
 
         @Test
@@ -1379,7 +1378,7 @@ class MediaScannerServiceUtilsTest {
             assertEquals(1L, albumId3s.stream().filter(a -> "albumC".equals(a.getNameSort())).count());
             assertEquals(1L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count());
 
-            utils.mergeSortOfAlbum();
+            sortProcedureService.mergeSortOfAlbum();
 
             LOG.info(" *** After merge(id, name, sort)");
             albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
@@ -1402,7 +1401,7 @@ class MediaScannerServiceUtilsTest {
             assertEquals(0L, albumId3s.stream().filter(a -> "albumC".equals(a.getNameSort())).count()); // merged
             assertEquals(2L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count()); // merged
 
-            utils.copySortOfAlbum();
+            sortProcedureService.copySortOfAlbum();
 
             albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
             assertEquals(5, albums.size());
@@ -1421,7 +1420,7 @@ class MediaScannerServiceUtilsTest {
             assertEquals(0L, albumId3s.stream().filter(a -> "albumC".equals(a.getNameSort())).count());
             assertEquals(2L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count());
 
-            utils.compensateSortOfAlbum();
+            sortProcedureService.compensateSortOfAlbum();
 
             albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
             assertEquals(5, albums.size());
@@ -1473,7 +1472,7 @@ class MediaScannerServiceUtilsTest {
             assertEquals(1L, albumId3s.stream().filter(a -> "albumC".equals(a.getNameSort())).count());
             assertEquals(1L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count());
 
-            utils.mergeSortOfAlbum();
+            sortProcedureService.mergeSortOfAlbum();
 
             LOG.info(" *** After merge(id, name, sort)");
             albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
@@ -1496,7 +1495,7 @@ class MediaScannerServiceUtilsTest {
             assertEquals(2L, albumId3s.stream().filter(a -> "albumC".equals(a.getNameSort())).count()); // merged
             assertEquals(0L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count()); // merged
 
-            utils.copySortOfAlbum();
+            sortProcedureService.copySortOfAlbum();
 
             albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
             assertEquals(5, albums.size());
@@ -1515,7 +1514,7 @@ class MediaScannerServiceUtilsTest {
             assertEquals(2L, albumId3s.stream().filter(a -> "albumC".equals(a.getNameSort())).count());
             assertEquals(0L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count());
 
-            utils.compensateSortOfAlbum();
+            sortProcedureService.compensateSortOfAlbum();
 
             albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
             assertEquals(5, albums.size());
