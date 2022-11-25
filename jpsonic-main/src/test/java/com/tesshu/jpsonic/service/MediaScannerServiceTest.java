@@ -105,7 +105,7 @@ class MediaScannerServiceTest {
         private AlbumDao albumDao;
         private MediaFileService mediaFileService;
         private MediaFileDao mediaFileDao;
-        private MediaScannerService mediaScannerService;
+        private MediaScannerServiceImpl mediaScannerService;
         private ThreadPoolTaskExecutor executor;
 
         @BeforeEach
@@ -117,9 +117,10 @@ class MediaScannerServiceTest {
             artistDao = mock(ArtistDao.class);
             albumDao = mock(AlbumDao.class);
             executor = mock(ThreadPoolTaskExecutor.class);
-            mediaScannerService = new MediaScannerService(settingsService, mock(MusicFolderService.class), indexManager,
-                    mock(PlaylistService.class), mock(MediaFileCache.class), mediaFileService, mediaFileDao, artistDao,
-                    albumDao, mock(Ehcache.class), mock(MediaScannerServiceUtils.class), executor);
+            mediaScannerService = new MediaScannerServiceImpl(settingsService, mock(MusicFolderService.class),
+                    indexManager, mock(PlaylistService.class), mock(MediaFileCache.class), mediaFileService,
+                    mediaFileDao, artistDao, albumDao, mock(Ehcache.class), mock(MediaScannerServiceUtils.class),
+                    executor);
         }
 
         @Test
@@ -147,9 +148,10 @@ class MediaScannerServiceTest {
             mediaFile.setPathString(podcastPath.toString());
             Mockito.when(mediaFileService.getMediaFile(podcastPath)).thenReturn(mediaFile);
 
-            mediaScannerService = new MediaScannerService(settingsService, mock(MusicFolderService.class), indexManager,
-                    mock(PlaylistService.class), mock(MediaFileCache.class), mediaFileService, mediaFileDao, artistDao,
-                    albumDao, mock(Ehcache.class), mock(MediaScannerServiceUtils.class), executor);
+            mediaScannerService = new MediaScannerServiceImpl(settingsService, mock(MusicFolderService.class),
+                    indexManager, mock(PlaylistService.class), mock(MediaFileCache.class), mediaFileService,
+                    mediaFileDao, artistDao, albumDao, mock(Ehcache.class), mock(MediaScannerServiceUtils.class),
+                    executor);
             mediaScannerService.scanLibrary();
             executor.shutdown();
         }
@@ -169,7 +171,7 @@ class MediaScannerServiceTest {
                 mediaFileService = new MediaFileService(settingsService, mock(MusicFolderService.class),
                         securityService, mock(MediaFileCache.class), mediaFileDao, mock(AlbumDao.class),
                         metaDataParserFactory, mock(MediaFileServiceUtils.class));
-                mediaScannerService = new MediaScannerService(settingsService, mock(MusicFolderService.class),
+                mediaScannerService = new MediaScannerServiceImpl(settingsService, mock(MusicFolderService.class),
                         indexManager, mock(PlaylistService.class), mock(MediaFileCache.class), mediaFileService,
                         mediaFileDao, artistDao, albumDao, mock(Ehcache.class), mock(MediaScannerServiceUtils.class),
                         mock(ThreadPoolTaskExecutor.class));

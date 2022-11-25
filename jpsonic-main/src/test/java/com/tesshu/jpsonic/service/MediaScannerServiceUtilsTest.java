@@ -76,7 +76,7 @@ class MediaScannerServiceUtilsTest {
         private MediaScannerServiceUtils utils;
 
         @Autowired
-        private MediaScannerService mediaScannerService;
+        private MediaScannerServiceImpl mediaScannerServiceImpl;
 
         @Override
         public List<MusicFolder> getMusicFolders() {
@@ -85,9 +85,9 @@ class MediaScannerServiceUtilsTest {
 
         @BeforeEach
         public void setup() {
-            mediaScannerService.setJpsonicCleansingProcess(false);
+            mediaScannerServiceImpl.setJpsonicCleansingProcess(false);
             populateDatabase();
-            mediaScannerService.setJpsonicCleansingProcess(true);
+            mediaScannerServiceImpl.setJpsonicCleansingProcess(true);
         }
 
         @Test
@@ -361,7 +361,7 @@ class MediaScannerServiceUtilsTest {
         private MediaScannerServiceUtils utils;
 
         @Autowired
-        private MediaScannerService mediaScannerService;
+        private MediaScannerServiceImpl mediaScannerServiceImpl;
 
         @Override
         public List<MusicFolder> getMusicFolders() {
@@ -370,9 +370,9 @@ class MediaScannerServiceUtilsTest {
 
         @BeforeEach
         public void setup() {
-            mediaScannerService.setJpsonicCleansingProcess(false);
+            mediaScannerServiceImpl.setJpsonicCleansingProcess(false);
             populateDatabase();
-            mediaScannerService.setJpsonicCleansingProcess(true);
+            mediaScannerServiceImpl.setJpsonicCleansingProcess(true);
         }
 
         @Test
@@ -505,7 +505,7 @@ class MediaScannerServiceUtilsTest {
         private MediaScannerServiceUtils utils;
 
         @Autowired
-        private MediaScannerService mediaScannerService;
+        private MediaScannerServiceImpl mediaScannerServiceImpl;
 
         @Override
         public List<MusicFolder> getMusicFolders() {
@@ -514,7 +514,7 @@ class MediaScannerServiceUtilsTest {
 
         @BeforeEach
         public void setup() {
-            mediaScannerService.setJpsonicCleansingProcess(false);
+            mediaScannerServiceImpl.setJpsonicCleansingProcess(false);
 
             assertEquals(0, mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders).size());
             assertEquals(0, artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders).size());
@@ -535,7 +535,7 @@ class MediaScannerServiceUtilsTest {
                 return true;
             });
 
-            mediaScannerService.setJpsonicCleansingProcess(true);
+            mediaScannerServiceImpl.setJpsonicCleansingProcess(true);
         }
 
         @Test
@@ -1318,7 +1318,7 @@ class MediaScannerServiceUtilsTest {
         private MediaScannerServiceUtils utils;
 
         @Autowired
-        private MediaScannerService mediaScannerService;
+        private MediaScannerServiceImpl mediaScannerServiceImpl;
 
         @Override
         public List<MusicFolder> getMusicFolders() {
@@ -1328,7 +1328,7 @@ class MediaScannerServiceUtilsTest {
         @BeforeEach
         public void setup() {
 
-            mediaScannerService.setJpsonicCleansingProcess(false);
+            mediaScannerServiceImpl.setJpsonicCleansingProcess(false);
 
             // Update the date of a particular file to cause a merge
             String latestMediaFileTitle1 = "file1";
@@ -1348,7 +1348,7 @@ class MediaScannerServiceUtilsTest {
                 });
                 return true;
             });
-            mediaScannerService.setJpsonicCleansingProcess(true);
+            mediaScannerServiceImpl.setJpsonicCleansingProcess(true);
         }
 
         @Test
