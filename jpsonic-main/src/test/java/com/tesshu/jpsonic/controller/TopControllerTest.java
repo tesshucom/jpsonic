@@ -41,13 +41,13 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.service.InternetRadioService;
-import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.VersionService;
+import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -68,7 +68,7 @@ class TopControllerTest {
 
     private SecurityService securityService;
     private MusicFolderService musicFolderService;
-    private MediaScannerService mediaScannerService;
+    private ScannerStateServiceImpl scannerState;
     private MusicIndexService musicIndexService;
     private TopController controller;
 
@@ -79,13 +79,13 @@ class TopControllerTest {
     public void setup() throws ExecutionException {
         securityService = mock(SecurityService.class);
         musicFolderService = mock(MusicFolderService.class);
-        mediaScannerService = mock(MediaScannerService.class);
+        scannerState = mock(ScannerStateServiceImpl.class);
         musicIndexService = mock(MusicIndexService.class);
         Mockito.when(
                 musicIndexService.getMusicFolderContent(Mockito.nullable(List.class), Mockito.nullable(boolean.class)))
                 .thenReturn(new MusicFolderContent(new TreeMap<>(), Collections.emptyList()));
-        controller = new TopController(mock(SettingsService.class), musicFolderService, securityService,
-                mediaScannerService, musicIndexService, mock(VersionService.class), mock(InternetRadioService.class),
+        controller = new TopController(mock(SettingsService.class), musicFolderService, securityService, scannerState,
+                musicIndexService, mock(VersionService.class), mock(InternetRadioService.class),
                 mock(AirsonicLocaleResolver.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
@@ -189,7 +189,7 @@ class TopControllerTest {
         @Test
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         void c3() throws Exception {
-            Mockito.when(mediaScannerService.isScanning()).thenReturn(true);
+            Mockito.when(scannerState.isScanning()).thenReturn(true);
             mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.TOP.value())
                     .param(Attributes.Request.MUSIC_FOLDER_ID.value(), "0"))
                     .andExpect(MockMvcResultMatchers.status().isOk());
@@ -206,7 +206,7 @@ class TopControllerTest {
         @Test
         @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
         void c4() throws Exception {
-            Mockito.when(mediaScannerService.isScanning()).thenReturn(true);
+            Mockito.when(scannerState.isScanning()).thenReturn(true);
             mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.TOP.value())
                     .param(Attributes.Request.MUSIC_FOLDER_ID.value(), "0")
                     .param(Attributes.Request.REFRESH.value(), "true"))
@@ -226,7 +226,7 @@ class TopControllerTest {
 
         @Test
         void testWithScanning() throws ServletRequestBindingException {
-            Mockito.when(mediaScannerService.isScanning()).thenReturn(true);
+            Mockito.when(scannerState.isScanning()).thenReturn(true);
             MockHttpServletRequest request = mock(MockHttpServletRequest.class);
             long lastModified = controller.getLastModified(request);
             assertEquals(-1L, lastModified);

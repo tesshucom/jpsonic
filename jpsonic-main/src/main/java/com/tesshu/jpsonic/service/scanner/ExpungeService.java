@@ -3,7 +3,6 @@ package com.tesshu.jpsonic.service.scanner;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,15 +16,13 @@ public class ExpungeService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExpungeService.class);
 
-    private final ScannerStateService scannerState;
+    private final ScannerStateServiceImpl scannerState;
     private final IndexManager indexManager;
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
     private final MediaFileDao mediaFileDao;
 
-    private final Object expungingLock = new Object();
-
-    public ExpungeService(ScannerStateService scannerState, IndexManager indexManager, ArtistDao artistDao,
+    public ExpungeService(ScannerStateServiceImpl scannerState, IndexManager indexManager, ArtistDao artistDao,
             AlbumDao albumDao, MediaFileDao mediaFileDao) {
         super();
         this.scannerState = scannerState;
@@ -36,35 +33,30 @@ public class ExpungeService {
     }
 
     void expunge() {
-        synchronized (expungingLock) {
-            if (scannerState.isScanning()) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Cleanup/Scan/Podca is already running.");
-                }
-                return;
+
+        if (!scannerState.tryScanningLock()) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Cleanup/Scan/Podcast Download is already running.");
             }
-            scannerState.setScanning(true);
+            return;
         }
 
-        MediaLibraryStatistics statistics = indexManager.getStatistics();
-
-        if (statistics != null && !scannerState.isScanning()) {
-
+        if (scannerState.neverScanned()) {
+            LOG.warn(
+                    "Index hasn't been created yet or during scanning. Plese execute clean up after scan is completed.");
+        } else {
             // to be before dao#expunge
             indexManager.startIndexing();
             indexManager.expunge();
-            indexManager.stopIndexing(statistics);
+            indexManager.stopIndexing(indexManager.getStatistics());
 
             // to be after indexManager#expunge
             artistDao.expunge();
             albumDao.expunge();
             mediaFileDao.expunge();
             mediaFileDao.checkpoint();
-
-        } else {
-            LOG.warn(
-                    "Index hasn't been created yet or during scanning. Plese execute clean up after scan is completed.");
         }
-        scannerState.setExpunging(false);
+
+        scannerState.unlockScanning();
     }
 }

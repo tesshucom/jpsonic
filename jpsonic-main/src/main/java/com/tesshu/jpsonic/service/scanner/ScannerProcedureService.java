@@ -42,14 +42,14 @@ public class ScannerProcedureService {
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
     private final SortProcedureService sortProcedure;
-    private final ScannerStateService scannerState;
+    private final ScannerStateServiceImpl scannerState;
 
     private final Ehcache indexCache;
     private final MediaFileCache mediaFileCache;
 
     public ScannerProcedureService(SettingsService settingsService, IndexManager indexManager,
             MediaFileService mediaFileService, MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao,
-            SortProcedureService sortProcedure, ScannerStateService scannerState, Ehcache indexCache,
+            SortProcedureService sortProcedure, ScannerStateServiceImpl scannerState, Ehcache indexCache,
             MediaFileCache mediaFileCache) {
         super();
         this.settingsService = settingsService;
@@ -100,7 +100,6 @@ public class ScannerProcedureService {
     void afterScan(MediaLibraryStatistics stats) {
         mediaFileCache.setEnabled(true);
         indexManager.stopIndexing(stats);
-        scannerState.setScanning(false);
         sortProcedure.clearMemoryCache();
     }
 

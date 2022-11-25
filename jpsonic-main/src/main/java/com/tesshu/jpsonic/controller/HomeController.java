@@ -43,10 +43,10 @@ import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.RatingService;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -74,20 +74,20 @@ public class HomeController {
     private final SettingsService settingsService;
     private final SecurityService securityService;
     private final MusicFolderService musicFolderService;
-    private final MediaScannerService mediaScannerService;
+    private final ScannerStateService scannerStateService;
     private final RatingService ratingService;
     private final MediaFileService mediaFileService;
     private final SearchService searchService;
     private final MusicIndexService musicIndexService;
 
     public HomeController(SettingsService settingsService, SecurityService securityService,
-            MusicFolderService musicFolderService, MediaScannerService mediaScannerService, RatingService ratingService,
+            MusicFolderService musicFolderService, ScannerStateService scannerStateService, RatingService ratingService,
             MediaFileService mediaFileService, SearchService searchService, MusicIndexService musicIndexService) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.musicFolderService = musicFolderService;
-        this.mediaScannerService = mediaScannerService;
+        this.scannerStateService = scannerStateService;
         this.ratingService = ratingService;
         this.mediaFileService = mediaFileService;
         this.searchService = searchService;
@@ -174,7 +174,7 @@ public class HomeController {
         map.put("welcomeTitle", settingsService.getWelcomeTitle());
         map.put("welcomeSubtitle", settingsService.getWelcomeSubtitle());
         map.put("welcomeMessage", settingsService.getWelcomeMessage());
-        map.put("isIndexBeingCreated", mediaScannerService.isScanning());
+        map.put("isIndexBeingCreated", scannerStateService.isScanning());
         map.put("musicFoldersExist", !musicFolderService.getAllMusicFolders().isEmpty());
         map.put("listType", listType.getId());
         map.put("listSize", LIST_SIZE);

@@ -36,6 +36,7 @@ import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.mockito.Mockito;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 public final class ServiceMockUtils {
 
@@ -136,4 +137,17 @@ public final class ServiceMockUtils {
         return (T) mock;
     }
 
+    /**
+     * Non-asynchronous executor, mainly used for testing scans. JUnit forks the execution thread to its own worker
+     * thread to continue processing, which is incompatible with some threading logic. There are some workarounds, but
+     * this is the simplest. (However, asynchronous operation check needs to be done separately)
+     */
+    public static ThreadPoolTaskExecutor mockNoAsyncTaskExecutor() {
+        ThreadPoolTaskExecutor executor = Mockito.mock(ThreadPoolTaskExecutor.class);
+        Mockito.doAnswer((invocation) -> {
+            ((Runnable) invocation.getArguments()[0]).run();
+            return null;
+        }).when(executor).execute(Mockito.any(Runnable.class));
+        return executor;
+    }
 }

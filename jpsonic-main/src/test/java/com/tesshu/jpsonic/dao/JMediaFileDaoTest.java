@@ -37,7 +37,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SortCandidate;
-import com.tesshu.jpsonic.service.scanner.ScannerStateService;
+import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,7 +60,7 @@ class JMediaFileDaoTest extends AbstractNeedsScan {
     private JAlbumDao albumDao;
 
     @Autowired
-    private ScannerStateService scannerStateService;
+    private ScannerStateServiceImpl scannerStateService;
 
     private List<SortCandidate> candidates;
 

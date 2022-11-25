@@ -32,9 +32,9 @@ import com.tesshu.jpsonic.domain.PlayStatus;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.AvatarService;
-import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.NetworkUtils;
 import com.tesshu.jpsonic.service.PlayerService;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.util.StringUtil;
@@ -58,17 +58,17 @@ public class NowPlayingService {
     private final SecurityService securityService;
     private final PlayerService playerService;
     private final StatusService statusService;
-    private final MediaScannerService mediaScannerService;
+    private final ScannerStateService scannerStateService;
     private final AvatarService avatarService;
     private final AjaxHelper ajaxHelper;
 
     public NowPlayingService(SecurityService securityService, PlayerService playerService, StatusService statusService,
-            MediaScannerService mediaScannerService, AvatarService avatarService, AjaxHelper ajaxHelper) {
+            ScannerStateService scannerStateService, AvatarService avatarService, AjaxHelper ajaxHelper) {
         super();
         this.securityService = securityService;
         this.playerService = playerService;
         this.statusService = statusService;
-        this.mediaScannerService = mediaScannerService;
+        this.scannerStateService = scannerStateService;
         this.avatarService = avatarService;
         this.ajaxHelper = ajaxHelper;
     }
@@ -98,7 +98,7 @@ public class NowPlayingService {
      * Returns media folder scanning status.
      */
     public ScanInfo getScanningStatus() {
-        return new ScanInfo(mediaScannerService.isScanning(), mediaScannerService.getScanCount());
+        return new ScanInfo(scannerStateService.isScanning(), scannerStateService.getScanCount());
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (NowPlayingInfo) Not reusable

@@ -68,6 +68,7 @@ import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SearchService;
+import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.service.search.IndexType;
@@ -106,7 +107,7 @@ class MediaScannerServiceImplTest {
         private AlbumDao albumDao;
         private MediaFileService mediaFileService;
         private MediaFileDao mediaFileDao;
-        private ScannerStateService scannerStateService;
+        private ScannerStateServiceImpl scannerStateService;
         private ThreadPoolTaskExecutor executor;
         private SortProcedureService utils;
         private ScannerProcedureService scannerProcedureService;
@@ -123,7 +124,7 @@ class MediaScannerServiceImplTest {
             executor = mock(ThreadPoolTaskExecutor.class);
             utils = mock(SortProcedureService.class);
 
-            scannerStateService = new ScannerStateService(indexManager);
+            scannerStateService = new ScannerStateServiceImpl(indexManager);
             scannerProcedureService = new ScannerProcedureService(settingsService, indexManager, mediaFileService,
                     mediaFileDao, artistDao, albumDao, utils, scannerStateService, mock(Ehcache.class),
                     mock(MediaFileCache.class));
@@ -673,28 +674,42 @@ class MediaScannerServiceImplTest {
         private final MetricRegistry metrics = new MetricRegistry();
 
         @Autowired
-        private MediaScannerService mediaScannerService;
-
-        @Autowired
-        private MediaFileDao mediaFileDao;
-
-        @Autowired
         private MusicFolderDao musicFolderDao;
-
         @Autowired
         private DaoHelper daoHelper;
 
         @Autowired
-        private MediaFileService mediaFileService;
-
-        @Autowired
-        private ArtistDao artistDao;
-
-        @Autowired
-        private AlbumDao albumDao;
-
+        private SettingsService settingsService;
         @Autowired
         private MusicFolderService musicFolderService;
+        @Autowired
+        private IndexManager indexManager;
+        @Autowired
+        private PlaylistService playlistService;
+        @Autowired
+        private MediaFileService mediaFileService;
+        @Autowired
+        private MediaFileDao mediaFileDao;
+        @Autowired
+        private ArtistDao artistDao;
+        @Autowired
+        private AlbumDao albumDao;
+        @Autowired
+        private ScannerStateServiceImpl scannerStateService;
+        @Autowired
+        private ScannerProcedureService procedure;
+        @Autowired
+        private ExpungeService expungeService;
+
+        private MediaScannerService mediaScannerService;
+
+        @BeforeEach
+        public void setup() {
+            ThreadPoolTaskExecutor scanExecutor = ServiceMockUtils.mockNoAsyncTaskExecutor();
+            mediaScannerService = new MediaScannerServiceImpl(settingsService, musicFolderService, indexManager,
+                    playlistService, mediaFileService, mediaFileDao, artistDao, albumDao, scanExecutor,
+                    scannerStateService, procedure, expungeService);
+        }
 
         /**
          * Tests the MediaScannerService by scanning the test media library into an empty database.

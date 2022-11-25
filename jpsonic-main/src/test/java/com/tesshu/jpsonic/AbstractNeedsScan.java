@@ -27,17 +27,31 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
+import javax.annotation.PostConstruct;
+
+import com.tesshu.jpsonic.dao.AlbumDao;
+import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.DaoHelper;
+import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
+import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.scanner.ExpungeService;
+import com.tesshu.jpsonic.service.scanner.MediaScannerServiceImpl;
+import com.tesshu.jpsonic.service.scanner.ScannerProcedureService;
+import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
+import com.tesshu.jpsonic.service.search.IndexManager;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.annotation.DirtiesContext;
 
 /*
@@ -62,21 +76,44 @@ public abstract class AbstractNeedsScan implements NeedsScan {
 
     @Autowired
     protected DaoHelper daoHelper;
-
-    @Autowired
-    protected MediaScannerService mediaScannerService;
-
     @Autowired
     protected MusicFolderDao musicFolderDao;
-
     @Autowired
     protected SettingsService settingsService;
-
     @Autowired
     protected MusicFolderService musicFolderService;
-
     @Autowired
     protected SecurityService securityService;
+
+    @Autowired
+    private IndexManager indexManager;
+    @Autowired
+    private PlaylistService playlistService;
+    @Autowired
+    private MediaFileService mediaFileService;
+    @Autowired
+    private MediaFileDao mediaFileDao;
+    @Autowired
+    private ArtistDao artistDao;
+    @Autowired
+    private AlbumDao albumDao;
+    @Autowired
+    private ScannerStateServiceImpl scannerStateService;
+    @Autowired
+    private ScannerProcedureService procedure;
+    @Autowired
+    private ExpungeService expungeService;
+
+    private final ThreadPoolTaskExecutor scanExecutor = ServiceMockUtils.mockNoAsyncTaskExecutor();
+
+    protected MediaScannerService mediaScannerService;
+
+    @PostConstruct
+    public void init() {
+        mediaScannerService = new MediaScannerServiceImpl(settingsService, musicFolderService, indexManager,
+                playlistService, mediaFileService, mediaFileDao, artistDao, albumDao, scanExecutor, scannerStateService,
+                procedure, expungeService);
+    }
 
     public interface BeforeScan extends Supplier<Boolean> {
     }

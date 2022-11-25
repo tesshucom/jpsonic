@@ -29,15 +29,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-class ScannerStateServiceTest {
+class ScannerStateServiceImplTest {
 
     private IndexManager indexManager;
-    private ScannerStateService scannerStateService;
+    private ScannerStateServiceImpl scannerStateService;
 
     @BeforeEach
     public void setup() {
         indexManager = mock(IndexManager.class);
-        scannerStateService = new ScannerStateService(indexManager);
+        scannerStateService = new ScannerStateServiceImpl(indexManager);
     }
 
     @Test

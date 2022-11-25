@@ -27,8 +27,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.domain.PodcastEpisode;
 import com.tesshu.jpsonic.domain.PodcastStatus;
-import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PodcastService;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -50,18 +50,18 @@ import org.springframework.web.servlet.view.RedirectView;
 public class PodcastReceiverAdminController {
 
     private final PodcastService podcastService;
-    private final MediaScannerService mediaScannerService;
+    private final ScannerStateService scannerStateService;
 
-    public PodcastReceiverAdminController(PodcastService podcastService, MediaScannerService mediaScannerService) {
+    public PodcastReceiverAdminController(PodcastService podcastService, ScannerStateService scannerStateService) {
         super();
         this.podcastService = podcastService;
-        this.mediaScannerService = mediaScannerService;
+        this.scannerStateService = scannerStateService;
     }
 
     @GetMapping
     protected ModelAndView get(HttpServletRequest request) throws ServletRequestBindingException {
 
-        if (mediaScannerService.isScanning()) {
+        if (scannerStateService.isScanning()) {
             return createModelAndView();
         }
 

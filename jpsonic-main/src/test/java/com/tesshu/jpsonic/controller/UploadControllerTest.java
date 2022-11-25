@@ -37,11 +37,11 @@ import javax.servlet.http.HttpServletResponse;
 import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.StatusService;
+import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -158,19 +158,19 @@ class UploadControllerTest {
     @Nested
     class ExceptionTest {
 
-        private MediaScannerService mediaScannerService;
+        private ScannerStateServiceImpl scannerStateService;
 
         @BeforeEach
         public void setup() throws ExecutionException {
-            mediaScannerService = mock(MediaScannerService.class);
+            scannerStateService = mock(ScannerStateServiceImpl.class);
             uploadController = new UploadController(mock(SecurityService.class), mock(PlayerService.class),
-                    mock(StatusService.class), mock(SettingsService.class), mediaScannerService);
+                    mock(StatusService.class), mock(SettingsService.class), scannerStateService);
         }
 
         @Test
         void testIsScanning() {
 
-            Mockito.when(mediaScannerService.isScanning()).thenReturn(true);
+            Mockito.when(scannerStateService.isScanning()).thenReturn(true);
             ModelAndView result = uploadController.handleRequestInternal(mock(HttpServletRequest.class),
                     mock(HttpServletResponse.class));
             @SuppressWarnings("unchecked")

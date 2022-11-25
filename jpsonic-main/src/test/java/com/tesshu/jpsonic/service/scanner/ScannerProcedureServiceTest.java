@@ -82,7 +82,7 @@ class ScannerProcedureServiceTest {
         albumDao = mock(AlbumDao.class);
         scannerProcedureService = new ScannerProcedureService(settingsService, indexManager, mediaFileService,
                 mediaFileDao, mock(ArtistDao.class), albumDao, mock(SortProcedureService.class),
-                new ScannerStateService(indexManager), mock(Ehcache.class), mock(MediaFileCache.class));
+                new ScannerStateServiceImpl(indexManager), mock(Ehcache.class), mock(MediaFileCache.class));
     }
 
     @Nested

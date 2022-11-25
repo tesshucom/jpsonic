@@ -76,7 +76,7 @@ class SortProcedureServiceTest {
         private SortProcedureService sortProcedureService;
 
         @Autowired
-        private ScannerStateService scannerStateService;
+        private ScannerStateServiceImpl scannerStateService;
 
         @Override
         public List<MusicFolder> getMusicFolders() {
@@ -361,7 +361,7 @@ class SortProcedureServiceTest {
         private SortProcedureService sortProcedureService;
 
         @Autowired
-        private ScannerStateService scannerStateService;
+        private ScannerStateServiceImpl scannerStateService;
 
         @Override
         public List<MusicFolder> getMusicFolders() {
@@ -505,7 +505,7 @@ class SortProcedureServiceTest {
         private SortProcedureService sortProcedureService;
 
         @Autowired
-        private ScannerStateService scannerStateService;
+        private ScannerStateServiceImpl scannerStateService;
 
         @Override
         public List<MusicFolder> getMusicFolders() {
@@ -1318,7 +1318,7 @@ class SortProcedureServiceTest {
         private SortProcedureService sortProcedureService;
 
         @Autowired
-        private ScannerStateService scannerStateService;
+        private ScannerStateServiceImpl scannerStateService;
 
         @Override
         public List<MusicFolder> getMusicFolders() {

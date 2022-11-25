@@ -55,7 +55,7 @@ import org.springframework.stereotype.Service;
 /**
  * Class where the main flow of scanning is handled. Thread control for scanning is done only in this class.
  */
-@Service
+@Service("mediaScannerService")
 @DependsOn("scanExecutor")
 public class MediaScannerServiceImpl implements MediaScannerService {
 
@@ -71,16 +71,15 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     private final AlbumDao albumDao;
     private final ThreadPoolTaskExecutor scanExecutor;
 
-    private final ScannerStateService scannerState;
+    private final ScannerStateServiceImpl scannerState;
     private final ScannerProcedureService procedure;
     private final ExpungeService expungeService;
-
-    private final Object scanLock = new Object();
 
     public MediaScannerServiceImpl(SettingsService settingsService, MusicFolderService musicFolderService,
             IndexManager indexManager, PlaylistService playlistService, MediaFileService mediaFileService,
             MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao, ThreadPoolTaskExecutor scanExecutor,
-            ScannerStateService scannerStateService, ScannerProcedureService procedure, ExpungeService expungeService) {
+            ScannerStateServiceImpl scannerStateService, ScannerProcedureService procedure,
+            ExpungeService expungeService) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
@@ -100,7 +99,6 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     @PostConstruct
     public void init() {
         scannerState.enableCleansing(true);
-        scannerState.setExpunging(false);
         indexManager.deleteOldIndexFiles();
         indexManager.initializeIndexDirectory();
     }
@@ -140,17 +138,18 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     @Override
     @SuppressWarnings("PMD.AccessorMethodGeneration") // Triaged in #833 or #834
     public void scanLibrary() {
-        synchronized (scanLock) {
-            if (isScanning() || scannerState.isExpunging()) {
-                return;
-            }
-            scannerState.setScanning(true);
-            scanExecutor.execute(this::doScanLibrary);
-        }
+        scanExecutor.execute(this::doScanLibrary);
     }
 
     // TODO To be fixed in v111.6.0
     private void doScanLibrary() {
+
+        if (!scannerState.tryScanningLock()) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Cleanup/Scan/Podcast Download is already running.");
+            }
+            return;
+        }
 
         LOG.info("Starting to scan media library.");
 
@@ -205,6 +204,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
             LOG.info("Completed media library scan.");
 
         } catch (ExecutionException e) {
+            scannerState.unlockScanning();
             ConcurrentUtils.handleCauseUnchecked(e);
             if (scannerState.isDestroy()) {
                 writeInfo("Interrupted to scan media library.");
@@ -220,5 +220,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
             playlistService.importPlaylists();
             procedure.checkpoint();
         }
+
+        scannerState.unlockScanning();
     }
 }

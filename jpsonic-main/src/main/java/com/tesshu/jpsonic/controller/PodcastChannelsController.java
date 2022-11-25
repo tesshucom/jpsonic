@@ -34,8 +34,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.domain.PodcastChannel;
 import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PodcastService;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.springframework.stereotype.Controller;
@@ -54,15 +54,15 @@ public class PodcastChannelsController {
 
     private final SecurityService securityService;
     private final PodcastService podcastService;
-    private final MediaScannerService mediaScannerService;
+    private final ScannerStateService scannerStateService;
     private final ViewAsListSelector viewSelector;
 
     public PodcastChannelsController(SecurityService securityService, PodcastService podcastService,
-            MediaScannerService mediaScannerService, ViewAsListSelector viewSelector) {
+            ScannerStateService scannerStateService, ViewAsListSelector viewSelector) {
         super();
         this.securityService = securityService;
         this.podcastService = podcastService;
-        this.mediaScannerService = mediaScannerService;
+        this.scannerStateService = scannerStateService;
         this.viewSelector = viewSelector;
     }
 
@@ -85,7 +85,7 @@ public class PodcastChannelsController {
                 channels, "channelMap", channelMap, "newestEpisodes",
                 podcastService.getNewestEpisodes(10).stream().map(PodcastEpisode::new).collect(Collectors.toList()),
                 "viewAsList", viewSelector.isViewAsList(request, user.getUsername()), "coverArtSize",
-                CoverArtScheme.MEDIUM.getSize(), "scanning", mediaScannerService.isScanning());
+                CoverArtScheme.MEDIUM.getSize(), "scanning", scannerStateService.isScanning());
 
         ModelAndView result = new ModelAndView();
         result.addObject("model", map);

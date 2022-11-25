@@ -45,15 +45,15 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
     private final TaskScheduler taskScheduler;
     private final SettingsService settingsService;
     private final PodcastService podcastService;
-    private final MediaScannerService mediaScannerService;
+    private final ScannerStateService scannerStateService;
 
     public PodcastScheduleConfiguration(TaskScheduler taskScheduler, SettingsService settingsService,
-            PodcastService podcastService, MediaScannerService mediaScannerService) {
+            PodcastService podcastService, ScannerStateService scannerStateService) {
         super();
         this.taskScheduler = taskScheduler;
         this.settingsService = settingsService;
         this.podcastService = podcastService;
-        this.mediaScannerService = mediaScannerService;
+        this.scannerStateService = scannerStateService;
     }
 
     /*
@@ -69,24 +69,24 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
         scheduledTaskRegistrar.setScheduler(taskScheduler);
 
         scheduledTaskRegistrar.addTriggerTask(() -> {
-            if (mediaScannerService.isScanning()) {
+            if (scannerStateService.isScanning()) {
                 LOG.info("Is scanning. Automatic podcast updates will not be performed.");
             } else {
                 LOG.info("Auto Podcast update will be performed.");
                 podcastService.refreshAllChannels(true);
             }
-        }, new PodcastUpdateTrigger(settingsService, mediaScannerService));
+        }, new PodcastUpdateTrigger(settingsService, scannerStateService));
     }
 
     static class PodcastUpdateTrigger implements Trigger {
 
         private final SettingsService settingsService;
-        private final MediaScannerService mediaScannerService;
+        private final ScannerStateService scannerStateService;
 
-        public PodcastUpdateTrigger(SettingsService settingsService, MediaScannerService mediaScannerService) {
+        public PodcastUpdateTrigger(SettingsService settingsService, ScannerStateService scannerStateService) {
             super();
             this.settingsService = settingsService;
-            this.mediaScannerService = mediaScannerService;
+            this.scannerStateService = scannerStateService;
         }
 
         @Override
@@ -102,14 +102,14 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
 
             Instant lastTime = Optional.ofNullable(triggerContext.lastCompletionTime()).filter(Objects::nonNull)
                     .map(d -> d.toInstant()).orElse(null);
-            boolean isReschedule = lastTime == null || this.mediaScannerService.isScanning();
+            boolean isReschedule = lastTime == null || this.scannerStateService.isScanning();
             Instant nextTime = isReschedule ? createFirstTime() : lastTime.plus(hoursBetween, ChronoUnit.HOURS);
 
             String nextTimeString = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault())
                     .format(nextTime);
 
             String msg;
-            if (this.mediaScannerService.isScanning()) {
+            if (this.scannerStateService.isScanning()) {
                 msg = "Auto Podcast update has been rescheduled because being scanning. (Next {})";
             } else {
                 msg = "Auto Podcast update every " + hoursBetween + " hours was scheduled. (Next {})";

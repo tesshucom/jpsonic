@@ -2,7 +2,9 @@ package com.tesshu.jpsonic.service.scanner;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import org.springframework.stereotype.Service;
 
@@ -10,8 +12,8 @@ import org.springframework.stereotype.Service;
  * A class that holds the scan progress. It is generally said that services should not have state. Now they are
  * aggregated in this class.
  */
-@Service
-public class ScannerStateService {
+@Service("scannerStateService")
+public class ScannerStateServiceImpl implements ScannerStateService {
 
     // TODO To be fixed in v111.6.0
     private final IndexManager indexManager;
@@ -19,9 +21,7 @@ public class ScannerStateService {
     // TODO To be fixed in v111.6.0
     private final AtomicInteger scanCount = new AtomicInteger();
 
-    // TODO To be fixed in v111.6.0
-    private final AtomicBoolean scanning = new AtomicBoolean();
-    private final AtomicBoolean expunging = new AtomicBoolean();
+    private final ReentrantLock scanningLock = new ReentrantLock();
 
     // TODO To be fixed in v111.6.0
     private final AtomicBoolean destroy = new AtomicBoolean();
@@ -29,7 +29,7 @@ public class ScannerStateService {
     // TODO To be fixed in v111.6.0
     private final AtomicBoolean cleansing = new AtomicBoolean(true);
 
-    public ScannerStateService(IndexManager indexManager) {
+    public ScannerStateServiceImpl(IndexManager indexManager) {
         super();
         this.indexManager = indexManager;
     }
@@ -38,7 +38,8 @@ public class ScannerStateService {
         scanCount.incrementAndGet();
     }
 
-    int getScanCount() {
+    @Override
+    public int getScanCount() {
         return scanCount.get();
     }
 
@@ -46,12 +47,17 @@ public class ScannerStateService {
         scanCount.set(0);
     }
 
-    void setScanning(boolean b) {
-        scanning.set(b);
+    boolean tryScanningLock() {
+        return scanningLock.tryLock();
     }
 
-    boolean isScanning() {
-        return scanning.get();
+    void unlockScanning() {
+        scanningLock.unlock();
+    }
+
+    @Override
+    public boolean isScanning() {
+        return scanningLock.isLocked();
     }
 
     void setDestroy(boolean b) {
@@ -62,14 +68,6 @@ public class ScannerStateService {
         return destroy.get();
     }
 
-    void setExpunging(boolean b) {
-        expunging.set(b);
-    }
-
-    boolean isExpunging() {
-        return expunging.get();
-    }
-
     public void enableCleansing(boolean b) {
         cleansing.set(b);
     }
@@ -78,7 +76,8 @@ public class ScannerStateService {
         return cleansing.get();
     }
 
-    boolean neverScanned() {
+    @Override
+    public boolean neverScanned() {
         return indexManager.getStatistics() == null;
     }
 }
