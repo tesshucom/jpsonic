@@ -17,7 +17,7 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.service;
+package com.tesshu.jpsonic.service.scanner;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -33,6 +33,7 @@ import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SortCandidate;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.context.annotation.DependsOn;

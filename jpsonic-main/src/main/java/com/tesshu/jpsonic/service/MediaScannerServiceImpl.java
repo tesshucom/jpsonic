@@ -47,6 +47,7 @@ import com.tesshu.jpsonic.domain.Genres;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.service.scanner.MediaScannerServiceUtils;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import net.sf.ehcache.Ehcache;
