@@ -17,7 +17,7 @@
  * (C) 2021 tesshucom
  */
 
-package com.tesshu.jpsonic.service;
+package com.tesshu.jpsonic.service.scanner;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,13 +30,13 @@ import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class PodcastServiceTest {
+class PodcastServiceImplTest {
 
-    private PodcastService podcastService;
+    private PodcastServiceImpl podcastService;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        podcastService = new PodcastService(null, null, null, null, null, null, null);
+        podcastService = new PodcastServiceImpl(null, null, null, null, null, null, null);
     }
 
     private ZonedDateTime toJST(String date) {
