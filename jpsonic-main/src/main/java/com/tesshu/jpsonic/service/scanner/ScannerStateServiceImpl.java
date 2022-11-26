@@ -1,7 +1,7 @@
 package com.tesshu.jpsonic.service.scanner;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
 
 import com.tesshu.jpsonic.service.ScannerStateService;
@@ -15,11 +15,10 @@ import org.springframework.stereotype.Service;
 @Service("scannerStateService")
 public class ScannerStateServiceImpl implements ScannerStateService {
 
-    // TODO To be fixed in v111.6.0
+    // TODO To be fixed in v111.6.0 #1841
     private final IndexManager indexManager;
 
-    // TODO To be fixed in v111.6.0
-    private final AtomicInteger scanCount = new AtomicInteger();
+    private final LongAdder scanCount = new LongAdder();
 
     private final ReentrantLock scanningLock = new ReentrantLock();
 
@@ -35,16 +34,16 @@ public class ScannerStateServiceImpl implements ScannerStateService {
     }
 
     void incrementScanCount() {
-        scanCount.incrementAndGet();
+        scanCount.increment();
     }
 
     @Override
-    public int getScanCount() {
-        return scanCount.get();
+    public long getScanCount() {
+        return scanCount.sum();
     }
 
     void resetScanCount() {
-        scanCount.set(0);
+        scanCount.reset();
     }
 
     boolean tryScanningLock() {

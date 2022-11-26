@@ -98,7 +98,7 @@ public class NowPlayingService {
      * Returns media folder scanning status.
      */
     public ScanInfo getScanningStatus() {
-        return new ScanInfo(scannerStateService.isScanning(), scannerStateService.getScanCount());
+        return new ScanInfo(scannerStateService.isScanning(), (int) scannerStateService.getScanCount());
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (NowPlayingInfo) Not reusable

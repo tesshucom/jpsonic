@@ -21,6 +21,7 @@ package com.tesshu.jpsonic.service.scanner;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
@@ -47,5 +48,16 @@ class ScannerStateServiceImplTest {
 
         Mockito.when(indexManager.getStatistics()).thenReturn(new MediaLibraryStatistics());
         assertFalse(scannerStateService.neverScanned());
+    }
+
+    @Test
+    void testScanCount() {
+        assertEquals(0, scannerStateService.getScanCount());
+        scannerStateService.incrementScanCount();
+        assertEquals(1, scannerStateService.getScanCount());
+        scannerStateService.incrementScanCount();
+        assertEquals(2, scannerStateService.getScanCount());
+        scannerStateService.resetScanCount();
+        assertEquals(0, scannerStateService.getScanCount());
     }
 }

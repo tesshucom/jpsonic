@@ -125,7 +125,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     }
 
     @Override
-    public int getScanCount() {
+    public long getScanCount() {
         return scannerState.getScanCount();
     }
 

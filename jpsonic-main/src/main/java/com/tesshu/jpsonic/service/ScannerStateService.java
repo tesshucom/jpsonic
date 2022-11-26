@@ -40,5 +40,5 @@ public interface ScannerStateService {
      *
      * @since airsonic
      */
-    int getScanCount();
+    long getScanCount();
 }
