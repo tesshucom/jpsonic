@@ -27,7 +27,7 @@ import java.util.concurrent.CompletionException;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.MediaScannerService;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
@@ -50,14 +50,14 @@ public class TagService {
 
     private final MetaDataParserFactory metaDataParserFactory;
     private final MediaFileService mediaFileService;
-    private final MediaScannerService mediaScannerService;
+    private final ScannerStateService scannerStateService;
 
     public TagService(MetaDataParserFactory metaDataParserFactory, MediaFileService mediaFileService,
-            MediaScannerService mediaScannerService) {
+            ScannerStateService scannerStateService) {
         super();
         this.metaDataParserFactory = metaDataParserFactory;
         this.mediaFileService = mediaFileService;
-        this.mediaScannerService = mediaScannerService;
+        this.scannerStateService = scannerStateService;
     }
 
     /**
@@ -86,7 +86,7 @@ public class TagService {
             String yearStr, String genreStr) {
 
         MediaFile file = mediaFileService.getMediaFileStrict(id);
-        if (file == null || mediaScannerService.isScanning()) {
+        if (file == null || scannerStateService.isScanning()) {
             return "SKIPPED";
         }
 

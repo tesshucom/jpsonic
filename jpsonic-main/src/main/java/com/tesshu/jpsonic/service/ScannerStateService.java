@@ -19,22 +19,26 @@
 
 package com.tesshu.jpsonic.service;
 
-/**
- * MediaScanner interface.
- */
-public interface MediaScannerService extends ScannerStateService {
+public interface ScannerStateService {
 
     /**
-     * Scans the media library. The scanning is done asynchronously, i.e., this method returns immediately.
+     * Whether or not a scan was performed even once
      *
      * @since airsonic
      */
-    void scanLibrary();
+    boolean neverScanned();
 
     /**
-     * Remove unnecessary data from the database.
+     * Returns whether the media library is currently being scanned.
      *
      * @since airsonic
      */
-    void expunge();
+    boolean isScanning();
+
+    /**
+     * Returns the number of files scanned so far.
+     *
+     * @since airsonic
+     */
+    long getScanCount();
 }

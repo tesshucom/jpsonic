@@ -183,7 +183,7 @@ public class MediaFileService {
         return Optional.ofNullable(getParentOf(mediaFile));
     }
 
-    boolean isSchemeLastModified() {
+    public boolean isSchemeLastModified() {
         return FileModifiedCheckScheme.LAST_MODIFIED == FileModifiedCheckScheme
                 .valueOf(settingsService.getFileModifiedCheckSchemeName());
     }
@@ -379,7 +379,7 @@ public class MediaFileService {
                 || "Thumbs.db".equals(name);
     }
 
-    MediaFile createMediaFile(Path path, MediaLibraryStatistics... statistics) {
+    public MediaFile createMediaFile(Path path, MediaLibraryStatistics... statistics) {
 
         MediaFile existingFile = mediaFileDao.getMediaFile(path.toString());
 

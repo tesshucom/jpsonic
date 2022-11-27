@@ -50,15 +50,15 @@ class PodcastScheduleConfigurationTest {
     private SettingsService settingsService;
     private PodcastService podcastService;
     private PodcastScheduleConfiguration configuration;
-    private MediaScannerService mediaScannerService;
+    private ScannerStateService scannerStateService;
 
     @BeforeEach
     public void setup() throws URISyntaxException {
         settingsService = mock(SettingsService.class);
         podcastService = mock(PodcastService.class);
-        mediaScannerService = mock(MediaScannerService.class);
+        scannerStateService = mock(ScannerStateService.class);
         configuration = new PodcastScheduleConfiguration(mock(TaskScheduler.class), settingsService, podcastService,
-                mediaScannerService);
+                scannerStateService);
         TestCaseUtils.setLogLevel(PodcastScheduleConfiguration.class, Level.TRACE);
     }
 
@@ -139,7 +139,7 @@ class PodcastScheduleConfigurationTest {
         @Test
         void testExecutionTimeDuringScan() {
 
-            Mockito.when(mediaScannerService.isScanning()).thenReturn(true);
+            Mockito.when(scannerStateService.isScanning()).thenReturn(true);
 
             ScheduledTaskRegistrar registrar = new ScheduledTaskRegistrar();
             configuration.configureTasks(registrar);

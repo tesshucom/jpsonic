@@ -17,7 +17,7 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.service;
+package com.tesshu.jpsonic.service.scanner;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -33,37 +33,20 @@ import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SortCandidate;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
- * Utility class for injecting into legacy MediaScannerService.
- *
- * Supplement processing that is lacking in legacy services.
- *
- * - Unify Sort tags for names. - Determines the order of all media from the sort key.
- *
- * There are three steps to integrating sort-tags:
- *
- * [merge] If multiple Sort tags exist for one name, unify them in order of priority.
- *
- * [copy] Copy if null-tag exists and can be resolved with the merged tag.
- *
- * [compensation] If null-tag is cannot be resolved by merge/copy, generate it from the name. If it is Japanese, it is
- * converted from notation to phoneme.
- *
- * - Eliminate inconsistencies and dropouts in search results - Compress index size by unifying data - Perform a perfect
- * sort - In particular, in the case of Japanese, a sort search considering phonemes is realized. Prevent dropouts when
- * searching by voice. - Perform a perfect sort - Realize high-speed paging with WEB/REST/UPnP
- *
- * This class has a great influence on the accuracy of sorting and searching.
+ * The class to complement sorting and reading. It does not exist in conventional Sonic servers. This class has a large
+ * impact on sorting and searching accuracy.
  */
-@Component
+@Service
 @DependsOn({ "musicFolderService", "jmediaFileDao", "jartistDao", "jalbumDao", "japaneseReadingUtils", "indexManager",
         "jpsonicComparators" })
-public class MediaScannerServiceUtils {
+public class SortProcedureService {
 
     private final MusicFolderService musicFolderService;
     private final JMediaFileDao mediaFileDao;
@@ -73,8 +56,8 @@ public class MediaScannerServiceUtils {
     private final IndexManager indexManager;
     private final JpsonicComparators comparators;
 
-    public MediaScannerServiceUtils(MusicFolderService musicFolderService, JMediaFileDao mediaFileDao,
-            JArtistDao artistDao, JAlbumDao albumDao, JapaneseReadingUtils utils, IndexManager indexManager,
+    public SortProcedureService(MusicFolderService musicFolderService, JMediaFileDao mediaFileDao, JArtistDao artistDao,
+            JAlbumDao albumDao, JapaneseReadingUtils utils, IndexManager indexManager,
             JpsonicComparators jpsonicComparator) {
         super();
         this.musicFolderService = musicFolderService;
@@ -86,16 +69,10 @@ public class MediaScannerServiceUtils {
         this.comparators = jpsonicComparator;
     }
 
-    /**
-     * Update the order of all mediaFile records.
-     */
     public void clearMemoryCache() {
         utils.clear();
     }
 
-    /**
-     * Clears all orders registered in the repository.
-     */
     public void clearOrder() {
         mediaFileDao.clearOrder();
         artistDao.clearOrder();

@@ -26,8 +26,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.springframework.stereotype.Controller;
@@ -41,14 +41,14 @@ public class UploadEntryController {
 
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
-    private final MediaScannerService mediaScannerService;
+    private final ScannerStateService scannerStateService;
 
     public UploadEntryController(MusicFolderService musicFolderService, SecurityService securityService,
-            MediaScannerService mediaScannerService) {
+            ScannerStateService scannerStateService) {
         super();
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
-        this.mediaScannerService = mediaScannerService;
+        this.scannerStateService = scannerStateService;
     }
 
     @GetMapping
@@ -64,7 +64,7 @@ public class UploadEntryController {
 
         ModelAndView result = new ModelAndView();
         result.addObject("model", LegacyMap.of("user", user, "uploadDirectory", uploadDirectory, "musicFolders",
-                musicFolders, "scanning", mediaScannerService.isScanning()));
+                musicFolders, "scanning", scannerStateService.isScanning()));
         return result;
     }
 }

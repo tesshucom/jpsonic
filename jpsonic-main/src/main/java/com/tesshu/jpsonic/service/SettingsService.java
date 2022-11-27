@@ -705,7 +705,7 @@ public class SettingsService {
         }
     }
 
-    String[] getMusicFileTypesAsArray() {
+    public String[] getMusicFileTypesAsArray() {
         synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
             if (musicFileTypes == null) {
                 musicFileTypes = toStringArray(getMusicFileTypes());
