@@ -98,7 +98,6 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     // TODO To be fixed in v111.6.0
     @PostConstruct
     public void init() {
-        scannerState.enableCleansing(true);
         indexManager.deleteOldIndexFiles();
         indexManager.initializeIndexDirectory();
     }

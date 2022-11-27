@@ -25,7 +25,6 @@ public class ScannerStateServiceImpl implements ScannerStateService {
     // TODO To be fixed in v111.6.0
     private final AtomicBoolean destroy = new AtomicBoolean();
 
-    // TODO To be fixed in v111.6.0
     private final AtomicBoolean cleansing = new AtomicBoolean(true);
 
     public ScannerStateServiceImpl(IndexManager indexManager) {
@@ -67,7 +66,7 @@ public class ScannerStateServiceImpl implements ScannerStateService {
         return destroy.get();
     }
 
-    public void enableCleansing(boolean b) {
+    void enableCleansing(boolean b) {
         cleansing.set(b);
     }
 

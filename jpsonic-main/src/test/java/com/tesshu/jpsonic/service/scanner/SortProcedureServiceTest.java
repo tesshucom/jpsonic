@@ -21,12 +21,16 @@ package com.tesshu.jpsonic.service.scanner;
 
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.lang.annotation.Documented;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -37,7 +41,9 @@ import com.tesshu.jpsonic.dao.JMediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.SortCandidate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.Nested;
@@ -45,16 +51,440 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.AvoidLiteralsInIfCondition", "PMD.NPathComplexity" })
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.AvoidLiteralsInIfCondition", "PMD.NPathComplexity",
+        "PMD.TooManyStaticImports" })
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 class SortProcedureServiceTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(SortProcedureServiceTest.class);
+
+    @Documented
+    private @interface DaoUnitDecisions {
+        @interface Actions {
+            @interface GetDuplicateSort {
+            }
+        }
+
+        @interface DataConditions {
+            @interface FieldToSetDifferentSortValue {
+                @interface AlbumArtist {
+                }
+
+                @interface Artist {
+                }
+
+                @interface Composer {
+                }
+            }
+
+            @interface NumberOfFiles {
+                @interface Multi {
+                }
+
+                @interface Single {
+                }
+            }
+
+            @interface SetChangeDate {
+            }
+
+            @interface TagArtistAndDirectoryArtist {
+                @interface Match {
+                }
+
+                @interface NoMatch {
+                }
+            }
+        }
+    }
+
+    @Nested
+    @Order(0)
+    class JMediaFileDaoUnitTest extends AbstractNeedsScan {
+
+        private final List<MusicFolder> musicFolders = Arrays.asList(
+                new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Merge"), "Duplicate", true, now()));
+
+        @Autowired
+        private JMediaFileDao mediaFileDao;
+
+        @Autowired
+        private JArtistDao artistDao;
+
+        @Autowired
+        private JAlbumDao albumDao;
+
+        @Autowired
+        private ScannerStateServiceImpl scannerStateService;
+
+        private List<SortCandidate> candidates;
+
+        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.NoMatch
+        @DaoUnitDecisions.DataConditions.NumberOfFiles.Single
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Artist
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Composer
+        @DaoUnitDecisions.Actions.GetDuplicateSort
+        @Test
+        void c01() {
+            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case01".equals(s.getName()))
+                    .findFirst();
+            if (candidate.isPresent()) {
+                // artist-sort is adopted instead of composer-sort
+                assertEquals("artistA", candidate.get().getSort());
+            } else {
+                fail();
+            }
+        }
+
+        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.NoMatch
+        @DaoUnitDecisions.DataConditions.NumberOfFiles.Single
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Artist
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.AlbumArtist
+        @DaoUnitDecisions.Actions.GetDuplicateSort
+        @Test
+        void c02() {
+            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case02".equals(s.getName()))
+                    .findFirst();
+            if (candidate.isPresent()) {
+                // album-artist-sort is adopted instead of artist-sort
+                assertEquals("artistD", candidate.get().getSort());
+            } else {
+                fail();
+            }
+        }
+
+        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.NoMatch
+        @DaoUnitDecisions.DataConditions.NumberOfFiles.Single
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.AlbumArtist
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Composer
+        @DaoUnitDecisions.Actions.GetDuplicateSort
+        @Test
+        void c03() {
+            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case03".equals(s.getName()))
+                    .findFirst();
+            if (candidate.isPresent()) {
+                // album-artist-sort is adopted instead of composer-sort
+                assertEquals("artistE", candidate.get().getSort());
+            } else {
+                fail();
+            }
+        }
+
+        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.NoMatch
+        @DaoUnitDecisions.DataConditions.NumberOfFiles.Multi
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Artist
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Composer
+        @DaoUnitDecisions.Actions.GetDuplicateSort
+        @Test
+        void c04() {
+            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case04".equals(s.getName()))
+                    .findFirst();
+            if (candidate.isPresent()) {
+                // artist-sort is adopted instead of composer-sort
+                assertEquals("artistH", candidate.get().getSort());
+            } else {
+                fail();
+            }
+        }
+
+        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.NoMatch
+        @DaoUnitDecisions.DataConditions.NumberOfFiles.Multi
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Artist
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.AlbumArtist
+        @DaoUnitDecisions.Actions.GetDuplicateSort
+        @Test
+        @EnabledOnOs(OS.WINDOWS)
+        void c05() {
+            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case05".equals(s.getName()))
+                    .findFirst();
+            if (candidate.isPresent()) {
+                // album-artist-sort is adopted instead of artist-sort
+                assertEquals("artistJ", candidate.get().getSort());
+            } else {
+                fail();
+            }
+        }
+
+        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.NoMatch
+        @DaoUnitDecisions.DataConditions.NumberOfFiles.Multi
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.AlbumArtist
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Composer
+        @DaoUnitDecisions.Actions.GetDuplicateSort
+        @Test
+        @EnabledOnOs(OS.WINDOWS)
+        void c06() {
+            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case06".equals(s.getName()))
+                    .findFirst();
+            if (candidate.isPresent()) {
+                // album-artist-sort is adopted instead of composer-sort
+                assertEquals("artistL", candidate.get().getSort());
+            } else {
+                fail();
+            }
+        }
+
+        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.NoMatch
+        @DaoUnitDecisions.DataConditions.NumberOfFiles.Multi
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Artist
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Composer
+        @DaoUnitDecisions.DataConditions.SetChangeDate
+        @DaoUnitDecisions.Actions.GetDuplicateSort
+        @Test
+        @EnabledOnOs(OS.WINDOWS)
+        void c07() {
+            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case07".equals(s.getName()))
+                    .findFirst();
+            if (candidate.isPresent()) {
+                // artist-sort is adopted instead of composer-sort
+                // but if change-date of the file is newer, artist-sort may come first
+                assertEquals("artistM", candidate.get().getSort());
+            } else {
+                fail();
+            }
+        }
+
+        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.NoMatch
+        @DaoUnitDecisions.DataConditions.NumberOfFiles.Multi
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Artist
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.AlbumArtist
+        @DaoUnitDecisions.DataConditions.SetChangeDate
+        @DaoUnitDecisions.Actions.GetDuplicateSort
+        @Test
+        void c08() {
+            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case08".equals(s.getName()))
+                    .findFirst();
+            if (candidate.isPresent()) {
+                // album-artist-sort is adopted instead of artist-sort
+                // but if change-date of the file is newer, artist-sort may come first
+                assertEquals("artistO", candidate.get().getSort());
+            } else {
+                fail();
+            }
+        }
+
+        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.NoMatch
+        @DaoUnitDecisions.DataConditions.NumberOfFiles.Multi
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.AlbumArtist
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Composer
+        @DaoUnitDecisions.DataConditions.SetChangeDate
+        @DaoUnitDecisions.Actions.GetDuplicateSort
+        @Test
+        void c09() {
+            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case09".equals(s.getName()))
+                    .findFirst();
+            if (candidate.isPresent()) {
+                // album-artist-sort is adopted instead of composer-sort
+                // but if change-date of the file is newer, artist-sort may come first
+                assertEquals("artistQ", candidate.get().getSort());
+            } else {
+                fail();
+            }
+        }
+
+        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.Match
+        @DaoUnitDecisions.DataConditions.NumberOfFiles.Single
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Artist
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.AlbumArtist
+        @DaoUnitDecisions.Actions.GetDuplicateSort
+        @Test
+        void c10() {
+            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case10".equals(s.getName()))
+                    .findFirst();
+            if (candidate.isPresent()) {
+                assertEquals("artistT", candidate.get().getSort());
+            } else {
+                fail();
+            }
+        }
+
+        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.Match
+        @DaoUnitDecisions.DataConditions.NumberOfFiles.Multi
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Artist
+        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Composer
+        @DaoUnitDecisions.DataConditions.SetChangeDate
+        @DaoUnitDecisions.Actions.GetDuplicateSort
+        @Test
+        void c11() {
+            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case11".equals(s.getName()))
+                    .findFirst();
+            if (candidate.isPresent()) {
+                assertEquals("artistU", candidate.get().getSort());
+            } else {
+                fail();
+            }
+        }
+
+        @Override
+        public List<MusicFolder> getMusicFolders() {
+            return musicFolders;
+        }
+
+        @BeforeEach
+        public void setup() {
+            Instant now = now();
+
+            scannerStateService.enableCleansing(false);
+
+            populateDatabaseOnlyOnce(null, () -> {
+                List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
+                albums.forEach(a -> {
+                    List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, a.getPathString(), false);
+                    files.stream().filter(m -> "file10".equals(m.getName()) || "file12".equals(m.getName())
+                            || "file14".equals(m.getName()) || "file17".equals(m.getName())).forEach(m -> {
+                                m.setChanged(now);
+                                mediaFileDao.createOrUpdateMediaFile(m);
+                            });
+                });
+                return true;
+            });
+
+            scannerStateService.enableCleansing(true);
+
+            candidates = mediaFileDao.guessPersonsSorts();
+        }
+
+        @Test
+        @EnabledOnOs(OS.WINDOWS)
+        void testGetDirtySorts() {
+
+            assertEquals(11, candidates.size());
+
+            List<MediaFile> dirtySortsAll = candidates.stream().flatMap(c -> mediaFileDao.getDirtySorts(c).stream())
+                    .collect(Collectors.toList());
+            assertEquals(22, dirtySortsAll.size());
+            assertEquals(2, dirtySortsAll.stream().filter(m -> m.getMediaType() == MediaType.DIRECTORY).count());
+            assertEquals(5, dirtySortsAll.stream().filter(m -> m.getMediaType() == MediaType.ALBUM).count());
+            assertEquals(15, dirtySortsAll.stream().filter(m -> m.getMediaType() == MediaType.MUSIC).count());
+
+            candidates.forEach(c -> {
+                List<MediaFile> dirtySortsFiles = mediaFileDao.getDirtySorts(c);
+                dirtySortsFiles.forEach(m -> {
+                    final String name = m.getName();
+                    switch (name) {
+                    case "file1":
+                        assertEquals(c.getName(), m.getArtist());
+                        assertEquals(c.getSort(), m.getArtistSort());
+                        assertEquals(c.getName(), m.getComposer());
+                        assertNotEquals(c.getSort(), m.getComposerSort());
+                        break;
+                    case "file2":
+                        assertEquals(c.getName(), m.getArtist());
+                        assertNotEquals(c.getSort(), m.getArtistSort());
+                        assertEquals(c.getName(), m.getAlbumArtist());
+                        assertEquals(c.getSort(), m.getAlbumArtistSort());
+                        break;
+                    case "file3":
+                        assertEquals(c.getName(), m.getAlbumArtist());
+                        assertEquals(c.getSort(), m.getAlbumArtistSort());
+                        assertEquals(c.getName(), m.getComposer());
+                        assertNotEquals(c.getSort(), m.getComposerSort());
+                        break;
+                    case "file4":
+                        assertEquals(c.getName(), m.getComposer());
+                        assertNotEquals(c.getSort(), m.getComposerSort());
+                        break;
+                    case "file5":
+                        assertEquals(c.getName(), m.getComposer());
+                        assertNull(m.getComposerSort());
+                        break;
+                    case "file6":
+                        assertEquals(c.getName(), m.getArtist());
+                        assertNotEquals(c.getSort(), m.getArtistSort());
+                        break;
+                    case "file8":
+                        assertEquals(c.getName(), m.getComposer());
+                        assertNotEquals(c.getSort(), m.getComposerSort());
+                        break;
+                    case "file11":
+                        assertEquals(c.getName(), m.getComposer());
+                        assertNull(m.getComposerSort());
+                        break;
+                    case "file12":
+                        assertEquals(c.getName(), m.getAlbumArtist());
+                        assertNull(m.getAlbumArtistSort());
+                        break;
+                    case "file13":
+                        assertEquals(c.getName(), m.getArtist());
+                        assertNotEquals(c.getSort(), m.getArtistSort());
+                        break;
+                    case "file14":
+                        assertEquals(c.getName(), m.getArtist());
+                        assertNull(m.getArtistSort());
+                        break;
+                    case "file15":
+                        assertEquals(c.getName(), m.getAlbumArtist());
+                        assertNotEquals(c.getSort(), m.getAlbumArtistSort());
+                        break;
+                    case "file16":
+                        assertEquals(c.getName(), m.getArtist());
+                        assertNotEquals(c.getSort(), m.getArtistSort());
+                        break;
+                    case "file17":
+                        assertEquals(c.getName(), m.getArtist());
+                        assertNull(m.getArtistSort());
+                        assertEquals(c.getName(), m.getComposer());
+                        assertEquals(c.getSort(), m.getComposerSort());
+                        break;
+                    case "file18":
+                        assertEquals(c.getName(), m.getArtist());
+                        assertNotEquals(c.getSort(), m.getArtistSort());
+                        break;
+                    case "case10":
+                        assertEquals(c.getName(), m.getArtist());
+                        assertNotEquals(c.getSort(), m.getArtistSort());
+                        break;
+                    case "case11":
+                        assertEquals(c.getName(), m.getArtist());
+                        assertNotEquals(c.getSort(), m.getArtistSort());
+                        break;
+                    case "ALBUM5":
+                        assertEquals(c.getName(), m.getArtist());
+                        assertNull(m.getArtistSort());
+                        break;
+                    case "ALBUM6":
+                        assertEquals(c.getName(), m.getArtist());
+                        assertNull(m.getArtistSort());
+                        break;
+                    case "ALBUM8":
+                        assertEquals(c.getName(), m.getArtist());
+                        assertNull(m.getArtistSort());
+                        break;
+                    case "ALBUM9":
+                        assertEquals(c.getName(), m.getArtist());
+                        assertNull(m.getArtistSort());
+                        break;
+                    case "ALBUM11":
+                        assertEquals(c.getName(), m.getArtist());
+                        assertNull(m.getArtistSort());
+                        break;
+
+                    default:
+                        fail();
+                        break;
+                    }
+
+                });
+            });
+        }
+
+        @Test
+        @EnabledOnOs(OS.WINDOWS)
+        void testGetToBeFixedSort() {
+            assertEquals(0, mediaFileDao.getSortOfArtistToBeFixed(Collections.emptyList()).size());
+            assertEquals(22, mediaFileDao.getSortOfArtistToBeFixed(candidates).size());
+            assertEquals(0, albumDao.getSortOfArtistToBeFixed(Collections.emptyList()).size());
+            assertEquals(5, albumDao.getSortOfArtistToBeFixed(candidates).size());
+            assertEquals(0, artistDao.getSortOfArtistToBeFixed(Collections.emptyList()).size());
+            assertEquals(5, artistDao.getSortOfArtistToBeFixed(candidates).size());
+        }
+
+    }
 
     /**
      * If SORT exists for one name and null-sort data exists, unify it to SORT.
