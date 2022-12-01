@@ -668,11 +668,4 @@ public class MediaFileService {
     public int getStarredAlbumCount(String username, List<MusicFolder> musicFolders) {
         return mediaFileDao.getStarredAlbumCount(username, musicFolders);
     }
-
-    public void resetLastScanned(MediaFile album) {
-        mediaFileDao.resetLastScanned(album.getId());
-        for (MediaFile child : mediaFileDao.getChildrenOf(album.getPathString())) {
-            mediaFileDao.resetLastScanned(child.getId());
-        }
-    }
 }

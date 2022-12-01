@@ -19,6 +19,9 @@
 
 package com.tesshu.jpsonic.service.scanner;
 
+import com.tesshu.jpsonic.dao.MediaFileDao;
+import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import org.springframework.stereotype.Service;
 
 /**
@@ -28,4 +31,23 @@ import org.springframework.stereotype.Service;
 @Service
 public class WritableMediaFileService {
 
+    private final ScannerStateService scannerStateService;
+    private final MediaFileDao mediaFileDao;
+
+    public WritableMediaFileService(MediaFileDao mediaFileDao, ScannerStateService scannerStateService) {
+        super();
+        this.mediaFileDao = mediaFileDao;
+        this.scannerStateService = scannerStateService;
+    }
+
+    public void resetLastScanned(MediaFile album) {
+        if (scannerStateService.isScanning()) {
+            // It will be skipped during scanning. No rigor required. Do not acquire locks.
+            return;
+        }
+        mediaFileDao.resetLastScanned(album.getId());
+        for (MediaFile child : mediaFileDao.getChildrenOf(album.getPathString())) {
+            mediaFileDao.resetLastScanned(child.getId());
+        }
+    }
 }
