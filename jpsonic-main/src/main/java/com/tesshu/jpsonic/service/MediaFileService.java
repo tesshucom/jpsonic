@@ -46,7 +46,6 @@ import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
-import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
@@ -675,15 +674,5 @@ public class MediaFileService {
         for (MediaFile child : mediaFileDao.getChildrenOf(album.getPathString())) {
             mediaFileDao.resetLastScanned(child.getId());
         }
-    }
-
-    @Deprecated
-    public List<Genre> getGenres(boolean sortByAlbum) {
-        return mediaFileDao.getGenres(sortByAlbum);
-    }
-
-    @Deprecated
-    public List<MediaFile> getAlbumsByGenre(int offset, int count, String genre, List<MusicFolder> musicFolders) {
-        return mediaFileDao.getAlbumsByGenre(offset, count, genre, musicFolders);
     }
 }
