@@ -180,7 +180,7 @@ public class DownloadController {
         if (mediaFile.isFile()) {
             downloadFile(response, status, mediaFile.toPath(), range);
         } else {
-            List<MediaFile> children = mediaFileService.getChildrenOf(mediaFile, true, false, true);
+            List<MediaFile> children = mediaFileService.getChildrenOf(mediaFile, true, false);
             String zipFileName = FilenameUtils.getBaseName(mediaFile.getPathString()) + ".zip";
             Path coverArtPath = indexes == null && mediaFile.getCoverArtPathString() != null
                     ? Path.of(mediaFile.getCoverArtPathString()) : null;

@@ -296,7 +296,7 @@ public class PodcastServiceImpl implements PodcastService {
                     continue;
                 }
                 Path dir = getChannelDirectory(channel);
-                MediaFile mediaFile = mediaFileService.getMediaFile(dir);
+                MediaFile mediaFile = writableMediaFileService.getMediaFile(dir);
                 if (mediaFile != null) {
                     channel.setMediaFileId(mediaFile.getId());
                 }
@@ -390,13 +390,13 @@ public class PodcastServiceImpl implements PodcastService {
             }
 
             Path dir = getChannelDirectory(channel);
-            MediaFile channelMediaFile = mediaFileService.getMediaFile(dir);
+            MediaFile channelMediaFile = writableMediaFileService.getMediaFile(dir);
             if (channelMediaFile == null) {
                 return;
             }
             Path existingCoverArt = mediaFileService.getCoverArt(channelMediaFile);
             boolean imageFileExists = existingCoverArt != null
-                    && mediaFileService.getMediaFile(existingCoverArt) == null;
+                    && writableMediaFileService.getMediaFile(existingCoverArt) == null;
             if (imageFileExists) {
                 return;
             }
@@ -691,7 +691,7 @@ public class PodcastServiceImpl implements PodcastService {
     }
 
     private void updateTags(Path path, PodcastEpisode episode) {
-        MediaFile mediaFile = mediaFileService.getMediaFile(path, false);
+        MediaFile mediaFile = writableMediaFileService.getMediaFile(path, false);
         if (mediaFile == null) {
             return;
         }
@@ -703,7 +703,6 @@ public class PodcastServiceImpl implements PodcastService {
             MetaData metaData = parser.getRawMetaData(path);
             metaData.setTitle(episode.getTitle());
             parser.setMetaData(mediaFile, metaData);
-            // TODO v111.7.0 Scrutinize the processing details
             writableMediaFileService.refreshMediaFile(mediaFile);
         }
     }
@@ -777,7 +776,7 @@ public class PodcastServiceImpl implements PodcastService {
             if (FileUtil.createDirectories(channelDir) == null) {
                 throw new IllegalStateException("Failed to create directory " + channelDir);
             }
-            MediaFile mediaFile = mediaFileService.getMediaFile(channelDir);
+            MediaFile mediaFile = writableMediaFileService.getMediaFile(channelDir);
             if (mediaFile != null) {
                 mediaFile.setComment(channel.getDescription());
                 writableMediaFileService.updateComment(mediaFile);

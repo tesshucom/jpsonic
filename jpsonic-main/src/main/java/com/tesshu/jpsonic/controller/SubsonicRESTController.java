@@ -805,7 +805,7 @@ public class SubsonicRESTController {
             directory.setUserRating(ratingService.getRatingForUser(username, dir));
         }
 
-        for (MediaFile child : mediaFileService.getChildrenOf(dir, true, true, true)) {
+        for (MediaFile child : mediaFileService.getChildrenOf(dir, true, true)) {
             directory.getChild().add(createJaxbChild(player, child, username));
         }
 

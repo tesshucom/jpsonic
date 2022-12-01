@@ -19,7 +19,6 @@
 
 package com.tesshu.jpsonic.service;
 
-import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFileComparator;
@@ -33,20 +32,11 @@ import org.springframework.stereotype.Component;
 @DependsOn({ "japaneseReadingUtils", "jpsonicComparators" })
 public class MediaFileServiceUtils {
 
-    private final JapaneseReadingUtils utils;
     private final JpsonicComparators jpsonicComparator;
 
-    public MediaFileServiceUtils(JapaneseReadingUtils utils, JpsonicComparators jpsonicComparator) {
+    public MediaFileServiceUtils(JpsonicComparators jpsonicComparator) {
         super();
-        this.utils = utils;
         this.jpsonicComparator = jpsonicComparator;
-    }
-
-    /**
-     * Compensate for missing properties when initial creation of MediaFile (when performing meta-analysis).
-     */
-    public void analyze(MediaFile m) {
-        utils.analyze(m);
     }
 
     /**

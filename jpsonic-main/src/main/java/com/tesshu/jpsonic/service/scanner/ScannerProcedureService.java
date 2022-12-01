@@ -38,6 +38,7 @@ public class ScannerProcedureService {
     private final SettingsService settingsService;
     private final IndexManager indexManager;
     private final MediaFileService mediaFileService;
+    private final WritableMediaFileService writableMediaFileService;
     private final MediaFileDao mediaFileDao;
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
@@ -48,13 +49,14 @@ public class ScannerProcedureService {
     private final MediaFileCache mediaFileCache;
 
     public ScannerProcedureService(SettingsService settingsService, IndexManager indexManager,
-            MediaFileService mediaFileService, MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao,
-            SortProcedureService sortProcedure, ScannerStateServiceImpl scannerState, Ehcache indexCache,
-            MediaFileCache mediaFileCache) {
+            MediaFileService mediaFileService, WritableMediaFileService writableMediaFileService,
+            MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao, SortProcedureService sortProcedure,
+            ScannerStateServiceImpl scannerState, Ehcache indexCache, MediaFileCache mediaFileCache) {
         super();
         this.settingsService = settingsService;
         this.indexManager = indexManager;
         this.mediaFileService = mediaFileService;
+        this.writableMediaFileService = writableMediaFileService;
         this.mediaFileDao = mediaFileDao;
         this.artistDao = artistDao;
         this.albumDao = albumDao;
@@ -138,10 +140,12 @@ public class ScannerProcedureService {
         indexManager.index(file);
 
         if (file.isDirectory()) {
-            for (MediaFile child : mediaFileService.getChildrenOf(file, true, false, false, false, statistics)) {
+            for (MediaFile child : writableMediaFileService.getChildrenOf(file, true, false, false, false,
+                    statistics)) {
                 scanFile(child, musicFolder, statistics, albumCount, genres, isPodcast);
             }
-            for (MediaFile child : mediaFileService.getChildrenOf(file, false, true, false, false, statistics)) {
+            for (MediaFile child : writableMediaFileService.getChildrenOf(file, false, true, false, false,
+                    statistics)) {
                 scanFile(child, musicFolder, statistics, albumCount, genres, isPodcast);
             }
         } else {

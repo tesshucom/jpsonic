@@ -44,6 +44,8 @@ import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Genres;
+import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
+import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
@@ -70,6 +72,7 @@ class ScannerProcedureServiceTest {
     private IndexManager indexManager;
     private AlbumDao albumDao;
     private MediaFileService mediaFileService;
+    private WritableMediaFileService writableMediaFileService;
     private MediaFileDao mediaFileDao;
     private ScannerProcedureService scannerProcedureService;
 
@@ -80,9 +83,13 @@ class ScannerProcedureServiceTest {
         mediaFileService = mock(MediaFileService.class);
         mediaFileDao = mock(MediaFileDao.class);
         albumDao = mock(AlbumDao.class);
+        writableMediaFileService = new WritableMediaFileService(mediaFileDao, null, mediaFileService, albumDao, null,
+                mock(MetaDataParserFactory.class), settingsService, mock(SecurityService.class),
+                mock(JapaneseReadingUtils.class), mock(JpsonicComparators.class));
         scannerProcedureService = new ScannerProcedureService(settingsService, indexManager, mediaFileService,
-                mediaFileDao, mock(ArtistDao.class), albumDao, mock(SortProcedureService.class),
-                new ScannerStateServiceImpl(indexManager), mock(Ehcache.class), mock(MediaFileCache.class));
+                writableMediaFileService, mediaFileDao, mock(ArtistDao.class), albumDao,
+                mock(SortProcedureService.class), new ScannerStateServiceImpl(indexManager), mock(Ehcache.class),
+                mock(MediaFileCache.class));
     }
 
     @Nested
@@ -96,11 +103,10 @@ class ScannerProcedureServiceTest {
         void testScanFile() throws URISyntaxException, ExecutionException {
 
             SecurityService securityService = mock(SecurityService.class);
-            MetaDataParserFactory metaDataParserFactory = mock(MetaDataParserFactory.class);
             mediaFileService = new MediaFileService(settingsService, mock(MusicFolderService.class), securityService,
-                    mock(MediaFileCache.class), mediaFileDao, metaDataParserFactory, mock(MediaFileServiceUtils.class));
+                    mock(MediaFileCache.class), mediaFileDao, mock(MediaFileServiceUtils.class));
 
-            assertTrue(mediaFileService.isSchemeLastModified());
+            assertTrue(writableMediaFileService.isSchemeLastModified());
 
             Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(new String[0]);
             Mockito.when(settingsService.getMusicFileTypesAsArray()).thenReturn(new String[] { "mp3" });
@@ -108,11 +114,11 @@ class ScannerProcedureServiceTest {
 
             Path dir = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004");
             assertTrue(Files.isDirectory(dir));
-            MediaFile album = mediaFileService.createMediaFile(dir);
+            MediaFile album = writableMediaFileService.createMediaFile(dir);
 
             Path file = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
             assertFalse(Files.isDirectory(file));
-            MediaFile child = mediaFileService.createMediaFile(file);
+            MediaFile child = writableMediaFileService.createMediaFile(file);
             child.setLastScanned(FAR_PAST);
 
             MusicFolder musicFolder = new MusicFolder(MusicFolderTestDataUtils.resolveBaseMediaPath().concat("Music2"),

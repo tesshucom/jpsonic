@@ -759,7 +759,7 @@ public class SettingsService {
         }
     }
 
-    String[] getCoverArtFileTypesAsArray() {
+    public String[] getCoverArtFileTypesAsArray() {
         synchronized (LOCKS.get(LocksKeys.COVER_ART)) {
             if (coverArtFileTypes == null) {
                 coverArtFileTypes = toStringArray(getCoverArtFileTypes());

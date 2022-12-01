@@ -51,14 +51,14 @@ public class MediaFileCache {
         }
     }
 
-    void put(Path path, MediaFile mediaFile) {
+    public void put(Path path, MediaFile mediaFile) {
         if (isEnabled()) {
             mediaFileMemoryCache.put(new Element(path, mediaFile));
         }
     }
 
     @Nullable
-    MediaFile get(Path path) {
+    public MediaFile get(Path path) {
         if (!isEnabled()) {
             return null;
         }

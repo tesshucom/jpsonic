@@ -68,6 +68,7 @@ import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SearchService;
+import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.IndexManager;
@@ -111,6 +112,7 @@ class MediaScannerServiceImplTest {
         private ThreadPoolTaskExecutor executor;
         private SortProcedureService utils;
         private ScannerProcedureService scannerProcedureService;
+        private WritableMediaFileService writableMediaFileService;
         private MediaScannerServiceImpl mediaScannerService;
 
         @BeforeEach
@@ -123,13 +125,15 @@ class MediaScannerServiceImplTest {
             albumDao = mock(AlbumDao.class);
             executor = mock(ThreadPoolTaskExecutor.class);
             utils = mock(SortProcedureService.class);
-
             scannerStateService = new ScannerStateServiceImpl(indexManager);
+            writableMediaFileService = new WritableMediaFileService(mediaFileDao, scannerStateService, mediaFileService,
+                    albumDao, mock(MediaFileCache.class), null, settingsService, mock(SecurityService.class), null,
+                    null);
             scannerProcedureService = new ScannerProcedureService(settingsService, indexManager, mediaFileService,
-                    mediaFileDao, artistDao, albumDao, utils, scannerStateService, mock(Ehcache.class),
-                    mock(MediaFileCache.class));
+                    writableMediaFileService, mediaFileDao, artistDao, albumDao, utils, scannerStateService,
+                    mock(Ehcache.class), mock(MediaFileCache.class));
             mediaScannerService = new MediaScannerServiceImpl(settingsService, mock(MusicFolderService.class),
-                    indexManager, null, mediaFileService, mediaFileDao, artistDao, albumDao, executor,
+                    indexManager, null, writableMediaFileService, mediaFileDao, artistDao, albumDao, executor,
                     scannerStateService, scannerProcedureService, mock(ExpungeService.class));
         }
 
@@ -150,8 +154,8 @@ class MediaScannerServiceImplTest {
             Mockito.when(mediaFileService.getMediaFile(podcastPath)).thenReturn(mediaFile);
 
             mediaScannerService = new MediaScannerServiceImpl(settingsService, mock(MusicFolderService.class),
-                    indexManager, mock(PlaylistService.class), mediaFileService, mediaFileDao, artistDao, albumDao,
-                    executor, scannerStateService, scannerProcedureService, mock(ExpungeService.class));
+                    indexManager, mock(PlaylistService.class), writableMediaFileService, mediaFileDao, artistDao,
+                    albumDao, executor, scannerStateService, scannerProcedureService, mock(ExpungeService.class));
             mediaScannerService.scanLibrary();
             executor.shutdown();
         }
@@ -497,7 +501,7 @@ class MediaScannerServiceImplTest {
         @Autowired
         private MediaFileDao mediaFileDao;
         @Autowired
-        private MediaFileService mediaFileService;
+        private WritableMediaFileService writableMediaFileService;
 
         @Autowired
         private SearchCriteriaDirector criteriaDirector;
@@ -570,9 +574,9 @@ class MediaScannerServiceImplTest {
              * checked, and if the file is found to change, it will be parsed and the result will be saved in storage.
              * Note that the naming is get, but the actual processing is get & Update.
              */
-            albums = mediaFileService.getChildrenOf(artist, true, true, false, false);
+            albums = writableMediaFileService.getChildrenOf(artist, true, true, false, false);
             assertEquals(1, albums.size());
-            songs = mediaFileService.getChildrenOf(album, true, true, false, false);
+            songs = writableMediaFileService.getChildrenOf(album, true, true, false, false);
             assertEquals(1, songs.size());
 
             /*
@@ -687,7 +691,7 @@ class MediaScannerServiceImplTest {
         @Autowired
         private PlaylistService playlistService;
         @Autowired
-        private MediaFileService mediaFileService;
+        private WritableMediaFileService writableMediaFileService;
         @Autowired
         private MediaFileDao mediaFileDao;
         @Autowired
@@ -707,7 +711,7 @@ class MediaScannerServiceImplTest {
         public void setup() {
             ThreadPoolTaskExecutor scanExecutor = ServiceMockUtils.mockNoAsyncTaskExecutor();
             mediaScannerService = new MediaScannerServiceImpl(settingsService, musicFolderService, indexManager,
-                    playlistService, mediaFileService, mediaFileDao, artistDao, albumDao, scanExecutor,
+                    playlistService, writableMediaFileService, mediaFileDao, artistDao, albumDao, scanExecutor,
                     scannerStateService, procedure, expungeService);
         }
 
@@ -823,7 +827,7 @@ class MediaScannerServiceImplTest {
             musicFolderDao.createMusicFolder(musicFolder);
             musicFolderService.clearMusicFolderCache();
             TestCaseUtils.execScan(mediaScannerService);
-            MediaFile mediaFile = mediaFileService.getMediaFile(musicPath);
+            MediaFile mediaFile = writableMediaFileService.getMediaFile(musicPath);
             assertEquals(mediaFile.toPath(), musicPath);
             assertNotNull(mediaFile);
         }
