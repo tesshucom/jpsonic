@@ -37,6 +37,7 @@ import java.util.function.BiPredicate;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.dao.MediaFileDao;
+import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
@@ -65,18 +66,18 @@ public class MediaFileService {
     private final SecurityService securityService;
     private final MediaFileCache mediaFileCache;
     private final MediaFileDao mediaFileDao;
-    private final MediaFileServiceUtils utils;
+    private final JpsonicComparators comparators;
 
     public MediaFileService(SettingsService settingsService, MusicFolderService musicFolderService,
             SecurityService securityService, MediaFileCache mediaFileCache, MediaFileDao mediaFileDao,
-            MediaFileServiceUtils utils) {
+            JpsonicComparators comparators) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
         this.mediaFileCache = mediaFileCache;
         this.mediaFileDao = mediaFileDao;
-        this.utils = utils;
+        this.comparators = comparators;
     }
 
     public @Nullable MediaFile getMediaFile(Path path) {
@@ -148,7 +149,7 @@ public class MediaFileService {
 
     public List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDir) {
         List<MediaFile> result = getChildrenWithoutSortOf(parent, includeFiles, includeDir);
-        result.sort(utils.mediaFileOrder(parent));
+        result.sort(comparators.mediaFileOrder(parent));
         return result;
     }
 

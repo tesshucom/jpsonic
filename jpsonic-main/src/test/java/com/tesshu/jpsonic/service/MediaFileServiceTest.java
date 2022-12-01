@@ -29,6 +29,7 @@ import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.dao.MediaFileDao;
+import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -48,7 +49,7 @@ class MediaFileServiceTest {
         securityService = mock(SecurityService.class);
         MediaFileDao mediaFileDao = mock(MediaFileDao.class);
         mediaFileService = new MediaFileService(settingsService, mock(MusicFolderService.class), securityService,
-                mock(MediaFileCache.class), mediaFileDao, mock(MediaFileServiceUtils.class));
+                mock(MediaFileCache.class), mediaFileDao, mock(JpsonicComparators.class));
 
         Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(new String[0]);
         Mockito.when(settingsService.getMusicFileTypesAsArray()).thenReturn(new String[] { "mp3" });

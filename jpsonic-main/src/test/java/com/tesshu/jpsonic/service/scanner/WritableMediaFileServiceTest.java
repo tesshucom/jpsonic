@@ -50,7 +50,6 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.MediaFileServiceUtils;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -80,7 +79,7 @@ class WritableMediaFileServiceTest {
         securityService = mock(SecurityService.class);
         MediaFileCache mediaFileCache = mock(MediaFileCache.class);
         MediaFileService mediaFileService = new MediaFileService(settingsService, mock(MusicFolderService.class),
-                securityService, mediaFileCache, mediaFileDao, mock(MediaFileServiceUtils.class));
+                securityService, mediaFileCache, mediaFileDao, mock(JpsonicComparators.class));
         AlbumDao albumDao = mock(AlbumDao.class);
         metaDataParserFactory = mock(MetaDataParserFactory.class);
         JapaneseReadingUtils readingUtils = mock(JapaneseReadingUtils.class);

@@ -52,7 +52,6 @@ import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.MediaFileServiceUtils;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -104,7 +103,7 @@ class ScannerProcedureServiceTest {
 
             SecurityService securityService = mock(SecurityService.class);
             mediaFileService = new MediaFileService(settingsService, mock(MusicFolderService.class), securityService,
-                    mock(MediaFileCache.class), mediaFileDao, mock(MediaFileServiceUtils.class));
+                    mock(MediaFileCache.class), mediaFileDao, mock(JpsonicComparators.class));
 
             assertTrue(writableMediaFileService.isSchemeLastModified());
 
