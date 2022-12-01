@@ -27,6 +27,7 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
@@ -64,7 +65,7 @@ class SetMusicFileInfoControllerTest {
         mediaFileDao = mock(MediaFileDao.class);
         scannerStateService = mock(ScannerStateServiceImpl.class);
         WritableMediaFileService writableMediaFileService = new WritableMediaFileService(mediaFileDao,
-                scannerStateService, mock(MediaFileService.class), mock(AlbumDao.class));
+                scannerStateService, mock(MediaFileService.class), mock(AlbumDao.class), mock(MediaFileCache.class));
         controller = new SetMusicFileInfoController(mediaFileService, writableMediaFileService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }

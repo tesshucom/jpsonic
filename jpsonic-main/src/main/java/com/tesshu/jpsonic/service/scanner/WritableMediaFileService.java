@@ -21,12 +21,15 @@ package com.tesshu.jpsonic.service.scanner;
 
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
+import java.nio.file.Path;
 import java.time.Instant;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
+import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import org.springframework.stereotype.Service;
@@ -42,14 +45,51 @@ public class WritableMediaFileService {
     private final MediaFileDao mediaFileDao;
     private final MediaFileService mediaFileService;
     private final AlbumDao albumDao;
+    private final MediaFileCache mediaFileCache;
 
     public WritableMediaFileService(MediaFileDao mediaFileDao, ScannerStateService scannerStateService,
-            MediaFileService mediaFileService, AlbumDao albumDao) {
+            MediaFileService mediaFileService, AlbumDao albumDao, MediaFileCache mediaFileCache) {
         super();
         this.mediaFileDao = mediaFileDao;
         this.scannerStateService = scannerStateService;
         this.mediaFileService = mediaFileService;
         this.albumDao = albumDao;
+        this.mediaFileCache = mediaFileCache;
+    }
+
+    /*
+     * Used for some tag updates. Note that it only updates the tags and does not take into account the completeness of
+     * the scan.
+     */
+    void refreshMediaFile(final MediaFile mediaFile) {
+        Path path = mediaFile.toPath();
+        MediaFile mf = mediaFileService.createMediaFile(path);
+        mediaFileDao.createOrUpdateMediaFile(mf);
+        mediaFileCache.remove(path);
+    }
+
+    // Updateable even during scanning
+    public void refreshCoverArt(final MediaFile dir) {
+        if (!(dir.getMediaType() == MediaType.ALBUM || dir.getMediaType() == MediaType.DIRECTORY)) {
+            return;
+        }
+        Path dirPath = dir.toPath();
+        mediaFileService.findCoverArt(dirPath).ifPresent(coverArtPath -> {
+            mediaFileDao.updateCoverArtPath(dirPath.toString(), coverArtPath.toString());
+            albumDao.updateCoverArtPath(dir.getAlbumArtist(), dir.getAlbumName(), coverArtPath.toString());
+            mediaFileCache.remove(dirPath);
+        });
+    }
+
+    // Cannot be updated while scanning
+    public void updateTags(final MediaFile file) {
+        if (scannerStateService.isScanning()) {
+            // It will be skipped during scanning. No rigor required. Do not acquire locks.
+            return;
+        }
+        refreshMediaFile(file);
+        MediaFile refreshed = mediaFileService.getMediaFileStrict(file.getId());
+        mediaFileService.getParent(refreshed).ifPresent(parent -> refreshMediaFile(parent));
     }
 
     // Updateable even during scanning

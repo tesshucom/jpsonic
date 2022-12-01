@@ -225,6 +225,10 @@ public class MediaFileDao extends AbstractDao {
         }
     }
 
+    public void updateCoverArtPath(String pathString, String coverArtPath) {
+        update("update media_file set cover_art_path = ? where path=?", coverArtPath, pathString);
+    }
+
     public void updatePlayCount(String pathString, Instant lastPlayed, int playCount) {
         update("update media_file set last_played = ?, play_count = ? where path=?", lastPlayed, playCount, pathString);
         update("update music_file_info set last_played = ?, play_count = ? where path=?", lastPlayed, playCount,

@@ -70,7 +70,7 @@ public class MediaFileCache {
         mediaFileMemoryCache.removeAll();
     }
 
-    boolean remove(Path path) {
+    public boolean remove(Path path) {
         return mediaFileMemoryCache.remove(path);
     }
 }

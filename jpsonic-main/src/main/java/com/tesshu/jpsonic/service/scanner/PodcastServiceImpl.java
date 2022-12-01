@@ -407,7 +407,7 @@ public class PodcastServiceImpl implements PodcastService {
                 try (InputStream in = response.getEntity().getContent(); OutputStream out = Files.newOutputStream(f)) {
                     IOUtils.copy(in, out);
                 }
-                mediaFileService.refreshMediaFile(channelMediaFile);
+                writableMediaFileService.refreshCoverArt(channelMediaFile);
             }
         } catch (UnsupportedOperationException | IOException e) {
             if (LOG.isWarnEnabled()) {
@@ -703,7 +703,8 @@ public class PodcastServiceImpl implements PodcastService {
             MetaData metaData = parser.getRawMetaData(path);
             metaData.setTitle(episode.getTitle());
             parser.setMetaData(mediaFile, metaData);
-            mediaFileService.refreshMediaFile(mediaFile);
+            // TODO v111.7.0 Scrutinize the processing details
+            writableMediaFileService.refreshMediaFile(mediaFile);
         }
     }
 

@@ -506,13 +506,6 @@ public class MediaFileService {
         return MediaFile.MediaType.MUSIC;
     }
 
-    public void refreshMediaFile(final MediaFile mediaFile) {
-        Path path = mediaFile.toPath();
-        MediaFile mf = createMediaFile(path);
-        mediaFileDao.createOrUpdateMediaFile(mf);
-        mediaFileCache.remove(path);
-    }
-
     public @Nullable Path getCoverArt(MediaFile mediaFile) {
         if (mediaFile.getCoverArtPathString() != null) {
             return Path.of(mediaFile.getCoverArtPathString());
@@ -526,7 +519,7 @@ public class MediaFileService {
                 : Path.of(parent.getCoverArtPathString());
     }
 
-    Optional<Path> findCoverArt(Path parent) {
+    public Optional<Path> findCoverArt(Path parent) {
 
         BiPredicate<Path, BasicFileAttributes> coverArtNamePredicate = (child, attrs) -> Files.isRegularFile(child)
                 && child.getFileName().toString().charAt(0) != '.'
