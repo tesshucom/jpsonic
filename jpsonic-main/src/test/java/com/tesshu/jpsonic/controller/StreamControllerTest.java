@@ -60,6 +60,7 @@ import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.StreamService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.TranscodingService.Parameters;
+import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -762,7 +763,7 @@ class StreamControllerTest {
             TranscodingService ts = new TranscodingService(settingsService, securityService, transcodingDao,
                     playerService, null);
             StreamService ss = new StreamService(statusService, null, securityService, settingsService, ts, null,
-                    mediaFileService, null, null);
+                    mediaFileService, mock(WritableMediaFileService.class), null, null);
             initMocks(player, ts, ss);
         }
 

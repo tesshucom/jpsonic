@@ -42,9 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiPredicate;
 import java.util.stream.Stream;
 
-import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
@@ -79,20 +77,18 @@ public class MediaFileService {
     private final SecurityService securityService;
     private final MediaFileCache mediaFileCache;
     private final MediaFileDao mediaFileDao;
-    private final AlbumDao albumDao;
     private final MetaDataParserFactory metaDataParserFactory;
     private final MediaFileServiceUtils utils;
 
     public MediaFileService(SettingsService settingsService, MusicFolderService musicFolderService,
             SecurityService securityService, MediaFileCache mediaFileCache, MediaFileDao mediaFileDao,
-            AlbumDao albumDao, MetaDataParserFactory metaDataParserFactory, MediaFileServiceUtils utils) {
+            MetaDataParserFactory metaDataParserFactory, MediaFileServiceUtils utils) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
         this.mediaFileCache = mediaFileCache;
         this.mediaFileDao = mediaFileDao;
-        this.albumDao = albumDao;
         this.metaDataParserFactory = metaDataParserFactory;
         this.utils = utils;
     }
@@ -572,27 +568,6 @@ public class MediaFileService {
         return result;
     }
 
-    public void incrementPlayCount(MediaFile file) {
-        Instant now = now();
-        file.setLastPlayed(now);
-        file.setPlayCount(file.getPlayCount() + 1);
-        updateMediaFile(file);
-
-        MediaFile parent = getParentOf(file);
-        if (parent != null && !isRoot(parent)) {
-            parent.setLastPlayed(now);
-            parent.setPlayCount(parent.getPlayCount() + 1);
-            updateMediaFile(parent);
-        }
-
-        Album album = albumDao.getAlbum(file.getAlbumArtist(), file.getAlbumName());
-        if (album != null) {
-            album.setLastPlayed(now);
-            album.setPlayCount(album.getPlayCount() + 1);
-            albumDao.createOrUpdateAlbum(album);
-        }
-    }
-
     public List<MediaFile> getMostFrequentlyPlayedAlbums(int offset, int count, List<MusicFolder> musicFolders) {
         return mediaFileDao.getMostFrequentlyPlayedAlbums(offset, count, musicFolders);
     }
@@ -651,10 +626,6 @@ public class MediaFileService {
     public void populateStarredDate(MediaFile mediaFile, String username) {
         Instant starredDate = mediaFileDao.getMediaFileStarredDate(mediaFile.getId(), username);
         mediaFile.setStarredDate(starredDate);
-    }
-
-    public void updateMediaFile(MediaFile mediaFile) {
-        mediaFileDao.createOrUpdateMediaFile(mediaFile);
     }
 
     public int getAlbumCount(List<MusicFolder> musicFolders) {

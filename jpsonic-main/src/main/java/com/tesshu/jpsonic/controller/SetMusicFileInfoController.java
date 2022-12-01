@@ -64,7 +64,7 @@ public class SetMusicFileInfoController {
         if ("comment".equals(action)) {
             mediaFile.setComment(
                     StringEscapeUtils.escapeHtml4(request.getParameter(Attributes.Request.COMMENT.value())));
-            mediaFileService.updateMediaFile(mediaFile);
+            writableMediaFileService.updateComment(mediaFile);
         } else if ("resetLastScanned".equals(action)) {
             writableMediaFileService.resetLastScanned(mediaFile);
         }

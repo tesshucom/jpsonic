@@ -37,10 +37,10 @@ import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
 import com.tesshu.jpsonic.service.AudioScrobblerService;
-import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +60,7 @@ public class PlayQueueInputStream extends InputStream {
     private final TranscodingService.Parameters transParam;
     private final TranscodingService transcodingService;
     private final AudioScrobblerService audioScrobblerService;
-    private final MediaFileService mediaFileService;
+    private final WritableMediaFileService writableMediaFileService;
     private final SearchService searchService;
     private final SettingsService settingsService;
     private final AsyncTaskExecutor executor;
@@ -70,14 +70,14 @@ public class PlayQueueInputStream extends InputStream {
 
     public PlayQueueInputStream(Player player, TransferStatus status, Integer maxBitRate, String preferredTargetFormat,
             VideoTranscodingSettings videoTranscodingSettings, TranscodingService transcodingService,
-            AudioScrobblerService audioScrobblerService, MediaFileService mediaFileService, SearchService searchService,
-            SettingsService settingsService, AsyncTaskExecutor executor) {
+            AudioScrobblerService audioScrobblerService, WritableMediaFileService writableMediaFileService,
+            SearchService searchService, SettingsService settingsService, AsyncTaskExecutor executor) {
         super();
         this.player = player;
         this.status = status;
         this.transcodingService = transcodingService;
         this.audioScrobblerService = audioScrobblerService;
-        this.mediaFileService = mediaFileService;
+        this.writableMediaFileService = writableMediaFileService;
         this.searchService = searchService;
         this.settingsService = settingsService;
         this.executor = executor;
@@ -158,7 +158,7 @@ public class PlayQueueInputStream extends InputStream {
 
                 pqis.internalClose();
                 pqis.scrobble();
-                pqis.mediaFileService.incrementPlayCount(file);
+                pqis.writableMediaFileService.incrementPlayCount(file);
                 pqis.writeLog(file);
 
                 try {

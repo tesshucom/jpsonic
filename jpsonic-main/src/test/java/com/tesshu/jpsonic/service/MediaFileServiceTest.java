@@ -41,7 +41,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -74,8 +73,7 @@ class MediaFileServiceTest {
         mediaFileDao = mock(MediaFileDao.class);
         metaDataParserFactory = mock(MetaDataParserFactory.class);
         mediaFileService = new MediaFileService(settingsService, mock(MusicFolderService.class), securityService,
-                mock(MediaFileCache.class), mediaFileDao, mock(AlbumDao.class), metaDataParserFactory,
-                mock(MediaFileServiceUtils.class));
+                mock(MediaFileCache.class), mediaFileDao, metaDataParserFactory, mock(MediaFileServiceUtils.class));
         dir = Path.of(MediaFileServiceTest.class.getResource("/MEDIAS/Music").toURI());
 
         Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(new String[0]);

@@ -173,6 +173,11 @@ public class AlbumDao extends AbstractDao {
         }
     }
 
+    public void updatePlayCount(String artist, String name, Instant lastPlayed, int playCount) {
+        update("update album set last_played = ?, play_count = ? where artist=? and name=?", lastPlayed, playCount,
+                artist, name);
+    }
+
     /**
      * Returns albums in alphabetical order.
      *

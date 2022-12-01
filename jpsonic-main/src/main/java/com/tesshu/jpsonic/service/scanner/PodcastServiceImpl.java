@@ -113,6 +113,7 @@ public class PodcastServiceImpl implements PodcastService {
     private final SettingsService settingsService;
     private final SecurityService securityService;
     private final MediaFileService mediaFileService;
+    private final WritableMediaFileService writableMediaFileService;
     private final MetaDataParserFactory metaDataParserFactory;
     private final ThreadPoolTaskExecutor podcastDownloadExecutor;
     private final ThreadPoolTaskExecutor podcastRefreshExecutor;
@@ -122,12 +123,14 @@ public class PodcastServiceImpl implements PodcastService {
     private final Object fileLock = new Object();
 
     public PodcastServiceImpl(PodcastDao podcastDao, SettingsService settingsService, SecurityService securityService,
-            MediaFileService mediaFileService, MetaDataParserFactory metaDataParserFactory,
-            ThreadPoolTaskExecutor podcastDownloadExecutor, ThreadPoolTaskExecutor podcastRefreshExecutor) {
+            MediaFileService mediaFileService, WritableMediaFileService writableMediaFileService,
+            MetaDataParserFactory metaDataParserFactory, ThreadPoolTaskExecutor podcastDownloadExecutor,
+            ThreadPoolTaskExecutor podcastRefreshExecutor) {
         this.podcastDao = podcastDao;
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.mediaFileService = mediaFileService;
+        this.writableMediaFileService = writableMediaFileService;
         this.metaDataParserFactory = metaDataParserFactory;
         this.podcastDownloadExecutor = podcastDownloadExecutor;
         this.podcastRefreshExecutor = podcastRefreshExecutor;
@@ -776,7 +779,7 @@ public class PodcastServiceImpl implements PodcastService {
             MediaFile mediaFile = mediaFileService.getMediaFile(channelDir);
             if (mediaFile != null) {
                 mediaFile.setComment(channel.getDescription());
-                mediaFileService.updateMediaFile(mediaFile);
+                writableMediaFileService.updateComment(mediaFile);
             }
         }
         return channelDir;

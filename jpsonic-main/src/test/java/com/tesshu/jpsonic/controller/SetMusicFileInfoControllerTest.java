@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
@@ -48,6 +49,7 @@ class SetMusicFileInfoControllerTest {
     private ScannerStateServiceImpl scannerStateService;
     private SetMusicFileInfoController controller;
     private int id = 0;
+    private String path = "pathString";
     private MockMvc mockMvc;
 
     @BeforeEach
@@ -55,12 +57,14 @@ class SetMusicFileInfoControllerTest {
         MediaFileService mediaFileService = mock(MediaFileService.class);
         MediaFile album = new MediaFile();
         album.setId(id);
+        album.setPathString(path);
+        ;
         Mockito.when(mediaFileService.getMediaFileStrict(id)).thenReturn(album);
 
         mediaFileDao = mock(MediaFileDao.class);
         scannerStateService = mock(ScannerStateServiceImpl.class);
         WritableMediaFileService writableMediaFileService = new WritableMediaFileService(mediaFileDao,
-                scannerStateService);
+                scannerStateService, mock(MediaFileService.class), mock(AlbumDao.class));
         controller = new SetMusicFileInfoController(mediaFileService, writableMediaFileService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
@@ -75,6 +79,35 @@ class SetMusicFileInfoControllerTest {
                 .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.MAIN.value() + "?id=" + id))
                 .andExpect(MockMvcResultMatchers.status().is3xxRedirection()).andReturn();
         assertNotNull(result);
+    }
+
+    @Nested
+    class CommentTest {
+
+        @Test
+        void testNoScanning() throws ServletRequestBindingException {
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            request.addParameter(Attributes.Request.ID.value(), Integer.toString(id));
+            request.addParameter(Attributes.Request.ACTION.value(), "comment");
+            String comment = "Comment Test.";
+            request.addParameter(Attributes.Request.COMMENT.value(), comment);
+
+            controller.post(request);
+            Mockito.verify(mediaFileDao, Mockito.times(1)).updateComment(path, comment);
+        }
+
+        @Test
+        void testScanning() throws ServletRequestBindingException {
+            MockHttpServletRequest request = new MockHttpServletRequest();
+            request.addParameter(Attributes.Request.ID.value(), Integer.toString(id));
+            request.addParameter(Attributes.Request.ACTION.value(), "comment");
+            String comment = "Comment Test.";
+            request.addParameter(Attributes.Request.COMMENT.value(), comment);
+
+            Mockito.when(scannerStateService.isScanning()).thenReturn(true);
+            controller.post(request);
+            Mockito.verify(mediaFileDao, Mockito.times(1)).updateComment(path, comment);
+        }
     }
 
     @Nested

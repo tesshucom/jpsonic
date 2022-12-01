@@ -98,8 +98,7 @@ class ScannerProcedureServiceTest {
             SecurityService securityService = mock(SecurityService.class);
             MetaDataParserFactory metaDataParserFactory = mock(MetaDataParserFactory.class);
             mediaFileService = new MediaFileService(settingsService, mock(MusicFolderService.class), securityService,
-                    mock(MediaFileCache.class), mediaFileDao, mock(AlbumDao.class), metaDataParserFactory,
-                    mock(MediaFileServiceUtils.class));
+                    mock(MediaFileCache.class), mediaFileDao, metaDataParserFactory, mock(MediaFileServiceUtils.class));
 
             assertTrue(mediaFileService.isSchemeLastModified());
 
