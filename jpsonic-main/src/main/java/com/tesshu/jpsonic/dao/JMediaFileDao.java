@@ -26,7 +26,6 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -70,10 +69,6 @@ public class JMediaFileDao extends AbstractDao {
     public void clearArtistReadingOfDirectory() {
         update("update media_file set artist_reading = null, artist_sort = null where present and type=?",
                 MediaType.DIRECTORY.name());
-    }
-
-    public void createOrUpdateMediaFile(MediaFile file) {
-        deligate.createOrUpdateMediaFile(file);
     }
 
     public List<MediaFile> getAlbumsByGenre(final int offset, final int count, final List<String> genres,
@@ -420,14 +415,6 @@ public class JMediaFileDao extends AbstractDao {
         return result;
     }
 
-    public void markNonPresent(Instant lastScanned) {
-        deligate.markNonPresent(lastScanned);
-    }
-
-    public void markPresent(String path, Instant lastScanned) {
-        deligate.markPresent(path, lastScanned);
-    }
-
     public void updateAlbumSort(SortCandidate candidate) {
         update("update media_file set album_reading = ?, album_sort = ? "
                 + "where present and album = ? and (album_sort is null or album_sort <> ?)", candidate.getReading(),
@@ -444,10 +431,6 @@ public class JMediaFileDao extends AbstractDao {
         update("update media_file set composer_sort = ? "
                 + "where present and type not in ('DIERECTORY', 'ALBUM') and composer = ? and (composer_sort is null or composer_sort <> ?)",
                 candidate.getSort(), candidate.getName(), candidate.getSort());
-    }
-
-    public void updateGenres(List<Genre> genres) {
-        deligate.updateGenres(genres);
     }
 
     private static class MediaFileInternalRowMapper implements RowMapper<MediaFile> {

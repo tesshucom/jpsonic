@@ -38,6 +38,7 @@ import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.dao.JArtistDao;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
+import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -112,7 +113,10 @@ class SortProcedureServiceTest {
                 new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Merge"), "Duplicate", true, now()));
 
         @Autowired
-        private JMediaFileDao mediaFileDao;
+        private MediaFileDao mediaFileDao;
+
+        @Autowired
+        private JMediaFileDao jMediaFileDao;
 
         @Autowired
         private JArtistDao artistDao;
@@ -334,7 +338,7 @@ class SortProcedureServiceTest {
             populateDatabaseOnlyOnce(null, () -> {
                 List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
                 albums.forEach(a -> {
-                    List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, a.getPathString(), false);
+                    List<MediaFile> files = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, a.getPathString(), false);
                     files.stream().filter(m -> "file10".equals(m.getName()) || "file12".equals(m.getName())
                             || "file14".equals(m.getName()) || "file17".equals(m.getName())).forEach(m -> {
                                 m.setChanged(now);
@@ -346,7 +350,7 @@ class SortProcedureServiceTest {
 
             scannerStateService.enableCleansing(true);
 
-            candidates = mediaFileDao.guessPersonsSorts();
+            candidates = jMediaFileDao.guessPersonsSorts();
         }
 
         @Test
@@ -355,7 +359,7 @@ class SortProcedureServiceTest {
 
             assertEquals(11, candidates.size());
 
-            List<MediaFile> dirtySortsAll = candidates.stream().flatMap(c -> mediaFileDao.getDirtySorts(c).stream())
+            List<MediaFile> dirtySortsAll = candidates.stream().flatMap(c -> jMediaFileDao.getDirtySorts(c).stream())
                     .collect(Collectors.toList());
             assertEquals(22, dirtySortsAll.size());
             assertEquals(2, dirtySortsAll.stream().filter(m -> m.getMediaType() == MediaType.DIRECTORY).count());
@@ -363,7 +367,7 @@ class SortProcedureServiceTest {
             assertEquals(15, dirtySortsAll.stream().filter(m -> m.getMediaType() == MediaType.MUSIC).count());
 
             candidates.forEach(c -> {
-                List<MediaFile> dirtySortsFiles = mediaFileDao.getDirtySorts(c);
+                List<MediaFile> dirtySortsFiles = jMediaFileDao.getDirtySorts(c);
                 dirtySortsFiles.forEach(m -> {
                     final String name = m.getName();
                     switch (name) {
@@ -476,8 +480,8 @@ class SortProcedureServiceTest {
         @Test
         @EnabledOnOs(OS.WINDOWS)
         void testGetToBeFixedSort() {
-            assertEquals(0, mediaFileDao.getSortOfArtistToBeFixed(Collections.emptyList()).size());
-            assertEquals(22, mediaFileDao.getSortOfArtistToBeFixed(candidates).size());
+            assertEquals(0, jMediaFileDao.getSortOfArtistToBeFixed(Collections.emptyList()).size());
+            assertEquals(22, jMediaFileDao.getSortOfArtistToBeFixed(candidates).size());
             assertEquals(0, albumDao.getSortOfArtistToBeFixed(Collections.emptyList()).size());
             assertEquals(5, albumDao.getSortOfArtistToBeFixed(candidates).size());
             assertEquals(0, artistDao.getSortOfArtistToBeFixed(Collections.emptyList()).size());
@@ -923,7 +927,10 @@ class SortProcedureServiceTest {
                 new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Merge"), "Duplicate", true, now()));
 
         @Autowired
-        private JMediaFileDao mediaFileDao;
+        private MediaFileDao mediaFileDao;
+
+        @Autowired
+        private JMediaFileDao jMediaFileDao;
 
         @Autowired
         private JArtistDao artistDao;
@@ -953,7 +960,7 @@ class SortProcedureServiceTest {
             populateDatabase(null, () -> {
                 List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
                 albums.forEach(a -> {
-                    List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, a.getPathString(), false);
+                    List<MediaFile> files = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, a.getPathString(), false);
                     files.forEach(m -> {
                         if ("file10".equals(m.getName()) || "file12".equals(m.getName()) || "file14".equals(m.getName())
                                 || "file17".equals(m.getName())) {
@@ -988,7 +995,7 @@ class SortProcedureServiceTest {
 
             sortProcedureService.mergeSortOfArtist();
 
-            List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
+            List<MediaFile> artists = jMediaFileDao.getArtistAll(musicFolders);
             assertEquals(3, artists.size());
 
             artists.forEach(m -> {
@@ -1049,7 +1056,7 @@ class SortProcedureServiceTest {
             assertEquals("artistU", artistID3s.get(9).getSort());
 
             artists.stream().filter(m -> "case10".equals(m.getName())).findFirst().ifPresent(m -> {
-                List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPathString(), false);
+                List<MediaFile> albums = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPathString(), false);
                 assertEquals(1, albums.size());
                 MediaFile album = albums.get(0);
                 assertEquals("case10", album.getArtist());
@@ -1058,7 +1065,7 @@ class SortProcedureServiceTest {
             });
 
             artists.stream().filter(m -> "case11".equals(m.getName())).findFirst().ifPresent(m -> {
-                List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPathString(), false);
+                List<MediaFile> albums = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPathString(), false);
                 assertEquals(1, albums.size());
                 MediaFile album = albums.get(0);
                 assertEquals("case11", album.getArtist());
@@ -1067,7 +1074,7 @@ class SortProcedureServiceTest {
             });
 
             artists.stream().filter(m -> "ARTIST".equals(m.getName())).findFirst().ifPresent(m -> {
-                List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPathString(), false);
+                List<MediaFile> albums = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPathString(), false);
                 assertEquals(9, albums.size());
 
                 albums.forEach(album -> {
@@ -1125,7 +1132,7 @@ class SortProcedureServiceTest {
                 });
 
                 List<MediaFile> songs = albums.stream().flatMap(
-                        al -> mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, al.getPathString(), false).stream())
+                        al -> jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, al.getPathString(), false).stream())
                         .collect(Collectors.toList());
                 assertEquals(15, songs.size());
 
@@ -1361,7 +1368,7 @@ class SortProcedureServiceTest {
 
             sortProcedureService.mergeSortOfArtist();
 
-            List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
+            List<MediaFile> artists = jMediaFileDao.getArtistAll(musicFolders);
             assertEquals(3, artists.size());
 
             artists.forEach(m -> {
@@ -1428,7 +1435,7 @@ class SortProcedureServiceTest {
             assertEquals("artistU", artistID3s.get(10).getSort());
 
             artists.stream().filter(m -> "case10".equals(m.getName())).findFirst().ifPresent(m -> {
-                List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPathString(), false);
+                List<MediaFile> albums = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPathString(), false);
                 assertEquals(1, albums.size());
                 MediaFile album = albums.get(0);
                 assertEquals("case10", album.getArtist());
@@ -1437,7 +1444,7 @@ class SortProcedureServiceTest {
             });
 
             artists.stream().filter(m -> "case11".equals(m.getName())).findFirst().ifPresent(m -> {
-                List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPathString(), false);
+                List<MediaFile> albums = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPathString(), false);
                 assertEquals(1, albums.size());
                 MediaFile album = albums.get(0);
                 assertEquals("case11", album.getArtist());
@@ -1446,7 +1453,7 @@ class SortProcedureServiceTest {
             });
 
             artists.stream().filter(m -> "case01".equals(m.getName())).findFirst().ifPresent(m -> {
-                List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPathString(), false);
+                List<MediaFile> albums = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPathString(), false);
                 assertEquals(9, albums.size());
 
                 albums.forEach(album -> {
@@ -1504,7 +1511,7 @@ class SortProcedureServiceTest {
                 });
 
                 List<MediaFile> songs = albums.stream().flatMap(
-                        al -> mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, al.getPathString(), false).stream())
+                        al -> jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, al.getPathString(), false).stream())
                         .collect(Collectors.toList());
                 assertEquals(15, songs.size());
 
@@ -1737,9 +1744,11 @@ class SortProcedureServiceTest {
 
         private final List<MusicFolder> musicFolders = Arrays
                 .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/AlbumSort"), "Duplicate", true, now()));
+        @Autowired
+        private MediaFileDao mediaFileDao;
 
         @Autowired
-        private JMediaFileDao mediaFileDao;
+        private JMediaFileDao jMediaFileDao;
 
         @Autowired
         private JAlbumDao albumDao;
@@ -1768,7 +1777,7 @@ class SortProcedureServiceTest {
                 List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
                 Instant now = now();
                 albums.forEach(a -> {
-                    List<MediaFile> songs = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, a.getPathString(), false);
+                    List<MediaFile> songs = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, a.getPathString(), false);
                     songs.forEach(m -> {
                         if (latestMediaFileTitle1.equals(m.getTitle()) || latestMediaFileTitle2.equals(m.getTitle())) {
                             m.setChanged(now);
