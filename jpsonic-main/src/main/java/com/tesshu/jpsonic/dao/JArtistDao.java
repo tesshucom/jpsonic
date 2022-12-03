@@ -47,10 +47,6 @@ public class JArtistDao extends AbstractDao {
         update("delete from artist where reading is null"); // #311
     }
 
-    public void createOrUpdateArtist(Artist artist) {
-        deligate.createOrUpdateArtist(artist);
-    }
-
     public List<Artist> getAlphabetialArtists(final int offset, final int count, final List<MusicFolder> musicFolders) {
         return deligate.getAlphabetialArtists(offset, count, musicFolders);
     }
