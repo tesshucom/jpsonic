@@ -173,6 +173,10 @@ public class AlbumDao extends AbstractDao {
         }
     }
 
+    public void updateOrder(String artist, String name, int order) {
+        update("update album set album_order = ? where artist=? and name=?", order, artist, name);
+    }
+
     public void updateCoverArtPath(String artist, String name, String coverArtPath) {
         update("update album set cover_art_path = ? where artist=? and name=?", coverArtPath, artist, name);
     }

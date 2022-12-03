@@ -23,6 +23,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.tesshu.jpsonic.dao.AlbumDao;
+import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.dao.JArtistDao;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
@@ -53,23 +55,27 @@ public class SortProcedureService {
     private final MediaFileService mediaFileService;
     private final WritableMediaFileService writableMediaFileService;
     private final JMediaFileDao jMediaFileDao;
-    private final JArtistDao artistDao;
-    private final JAlbumDao albumDao;
+    private final ArtistDao artistDao;
+    private final JArtistDao jArtistDao;
+    private final AlbumDao albumDao;
+    private final JAlbumDao jAlbumDao;
     private final JapaneseReadingUtils utils;
     private final IndexManager indexManager;
     private final JpsonicComparators comparators;
 
     public SortProcedureService(MusicFolderService musicFolderService, MediaFileService mediaFileService,
-            WritableMediaFileService writableMediaFileService, JMediaFileDao jMediaFileDao, JArtistDao artistDao,
-            JAlbumDao albumDao, JapaneseReadingUtils utils, IndexManager indexManager,
-            JpsonicComparators jpsonicComparator) {
+            WritableMediaFileService writableMediaFileService, JMediaFileDao jMediaFileDao, ArtistDao artistDao,
+            JArtistDao jArtistDao, AlbumDao albumDao, JAlbumDao jAlbumDao, JapaneseReadingUtils utils,
+            IndexManager indexManager, JpsonicComparators jpsonicComparator) {
         super();
         this.musicFolderService = musicFolderService;
         this.mediaFileService = mediaFileService;
         this.writableMediaFileService = writableMediaFileService;
         this.jMediaFileDao = jMediaFileDao;
         this.artistDao = artistDao;
+        this.jArtistDao = jArtistDao;
         this.albumDao = albumDao;
+        this.jAlbumDao = jAlbumDao;
         this.utils = utils;
         this.indexManager = indexManager;
         this.comparators = jpsonicComparator;
@@ -81,8 +87,8 @@ public class SortProcedureService {
 
     public void clearOrder() {
         jMediaFileDao.clearOrder();
-        artistDao.clearOrder();
-        albumDao.clearOrder();
+        jArtistDao.clearOrder();
+        jAlbumDao.clearOrder();
     }
 
     FixedIds compensateSortOfAlbum() {
@@ -130,7 +136,7 @@ public class SortProcedureService {
         }
         fixedIdAll.getMediaFileIds().stream().map(id -> mediaFileService.getMediaFile(id))
                 .forEach(mediaFile -> indexManager.index(mediaFile));
-        fixedIdAll.getAlbumIds().stream().map(id -> albumDao.getAlbum(id)).forEach(album -> indexManager.index(album));
+        fixedIdAll.getAlbumIds().stream().map(id -> jAlbumDao.getAlbum(id)).forEach(album -> indexManager.index(album));
     }
 
     private void updateIndexOfArtist(FixedIds... fixedIds) {
@@ -144,22 +150,21 @@ public class SortProcedureService {
                 .forEach(mediaFile -> indexManager.index(mediaFile));
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders(false, false);
         fixedIdAll.getArtistIds().forEach(id -> folders.forEach(m -> {
-            Artist artist = artistDao.getArtist(id);
+            Artist artist = jArtistDao.getArtist(id);
             if (artist != null) {
                 indexManager.index(artist, m);
             }
         }));
-        fixedIdAll.getAlbumIds().stream().map(id -> albumDao.getAlbum(id)).forEach(album -> indexManager.index(album));
+        fixedIdAll.getAlbumIds().stream().map(id -> jAlbumDao.getAlbum(id)).forEach(album -> indexManager.index(album));
     }
 
     private void updateOrderOfAlbum() {
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders(false, false);
-        List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folders);
+        List<Album> albums = jAlbumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folders);
         albums.sort(comparators.albumOrderByAlpha());
         int i = 0;
         for (Album album : albums) {
-            album.setOrder(i++);
-            albumDao.createOrUpdateAlbum(album);
+            albumDao.updateOrder(album.getArtist(), album.getName(), i++);
         }
     }
 
@@ -171,12 +176,11 @@ public class SortProcedureService {
 
     private void updateOrderOfArtist() {
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders(false, false);
-        List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
+        List<Artist> artists = jArtistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
         artists.sort(comparators.artistOrderByAlpha());
         int i = 0;
         for (Artist artist : artists) {
-            artist.setOrder(i++);
-            artistDao.createOrUpdateArtist(artist);
+            artistDao.updateOrder(artist.getName(), i++);
         }
     }
 
@@ -216,10 +220,10 @@ public class SortProcedureService {
             return ids;
         }
         ids.getMediaFileIds().addAll(jMediaFileDao.getSortOfAlbumToBeFixed(candidates));
-        ids.getAlbumIds().addAll(albumDao.getSortOfAlbumToBeFixed(candidates));
+        ids.getAlbumIds().addAll(jAlbumDao.getSortOfAlbumToBeFixed(candidates));
         candidates.forEach(c -> {
             jMediaFileDao.updateAlbumSort(c);
-            albumDao.updateAlbumSort(c);
+            jAlbumDao.updateAlbumSort(c);
         });
         return ids;
     }
@@ -238,12 +242,12 @@ public class SortProcedureService {
             return ids;
         }
         ids.getMediaFileIds().addAll(jMediaFileDao.getSortOfArtistToBeFixed(candidates));
-        ids.getArtistIds().addAll(artistDao.getSortOfArtistToBeFixed(candidates));
-        ids.getAlbumIds().addAll(albumDao.getSortOfArtistToBeFixed(candidates));
+        ids.getArtistIds().addAll(jArtistDao.getSortOfArtistToBeFixed(candidates));
+        ids.getAlbumIds().addAll(jAlbumDao.getSortOfArtistToBeFixed(candidates));
         candidates.forEach(c -> {
             jMediaFileDao.updateArtistSort(c);
-            artistDao.updateArtistSort(c);
-            albumDao.updateArtistSort(c);
+            jArtistDao.updateArtistSort(c);
+            jAlbumDao.updateArtistSort(c);
         });
         return ids;
     }
