@@ -134,7 +134,7 @@ public class ScannerProcedureService {
         String musicFolderPath = musicFolder.getPathString();
         if (!musicFolderPath.equals(file.getFolder())) {
             file.setFolder(musicFolderPath);
-            mediaFileDao.createOrUpdateMediaFile(file);
+            writableMediaFileService.updateFolder(file);
         }
 
         indexManager.index(file);
@@ -227,6 +227,7 @@ public class ScannerProcedureService {
             file.setAlbumArtist(album.getArtist());
             file.setAlbumArtistReading(album.getArtistReading());
             file.setAlbumArtistSort(album.getArtistSort());
+            // TODO To be fixed in v111.6.0 #1925 Do not use createOrUpdate here.
             mediaFileDao.createOrUpdateMediaFile(file);
         }
     }

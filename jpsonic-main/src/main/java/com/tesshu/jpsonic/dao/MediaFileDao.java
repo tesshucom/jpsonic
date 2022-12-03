@@ -225,6 +225,14 @@ public class MediaFileDao extends AbstractDao {
         }
     }
 
+    public void updateFolder(String pathString, String folder) {
+        update("update media_file set folder = ? where path=?", folder, pathString);
+    }
+
+    public void updateOrder(String pathString, int order) {
+        update("update media_file set media_file_order = ? where path=?", order, pathString);
+    }
+
     public void updateCoverArtPath(String pathString, String coverArtPath) {
         update("update media_file set cover_art_path = ? where path=?", coverArtPath, pathString);
     }

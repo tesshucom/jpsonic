@@ -389,6 +389,14 @@ public class WritableMediaFileService {
         return MediaFile.MediaType.MUSIC;
     }
 
+    void updateFolder(final MediaFile file) {
+        mediaFileDao.updateFolder(file.getPathString(), file.getFolder());
+    }
+
+    void updateOrder(final MediaFile file) {
+        mediaFileDao.updateOrder(file.getPathString(), file.getOrder());
+    }
+
     /*
      * Used for some tag updates. Note that it only updates the tags and does not take into account the completeness of
      * the scan.

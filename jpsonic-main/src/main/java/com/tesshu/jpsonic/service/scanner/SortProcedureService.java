@@ -26,7 +26,6 @@ import java.util.Set;
 import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.dao.JArtistDao;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
-import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
@@ -34,6 +33,7 @@ import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SortCandidate;
+import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -50,7 +50,8 @@ import org.springframework.stereotype.Service;
 public class SortProcedureService {
 
     private final MusicFolderService musicFolderService;
-    private final MediaFileDao mediaFileDao;
+    private final MediaFileService mediaFileService;
+    private final WritableMediaFileService writableMediaFileService;
     private final JMediaFileDao jMediaFileDao;
     private final JArtistDao artistDao;
     private final JAlbumDao albumDao;
@@ -58,12 +59,14 @@ public class SortProcedureService {
     private final IndexManager indexManager;
     private final JpsonicComparators comparators;
 
-    public SortProcedureService(MusicFolderService musicFolderService, MediaFileDao mediaFileDao,
-            JMediaFileDao jMediaFileDao, JArtistDao artistDao, JAlbumDao albumDao, JapaneseReadingUtils utils,
-            IndexManager indexManager, JpsonicComparators jpsonicComparator) {
+    public SortProcedureService(MusicFolderService musicFolderService, MediaFileService mediaFileService,
+            WritableMediaFileService writableMediaFileService, JMediaFileDao jMediaFileDao, JArtistDao artistDao,
+            JAlbumDao albumDao, JapaneseReadingUtils utils, IndexManager indexManager,
+            JpsonicComparators jpsonicComparator) {
         super();
         this.musicFolderService = musicFolderService;
-        this.mediaFileDao = mediaFileDao;
+        this.mediaFileService = mediaFileService;
+        this.writableMediaFileService = writableMediaFileService;
         this.jMediaFileDao = jMediaFileDao;
         this.artistDao = artistDao;
         this.albumDao = albumDao;
@@ -125,7 +128,7 @@ public class SortProcedureService {
             fixedIdAll.getArtistIds().addAll(toBeFixed.getArtistIds());
             fixedIdAll.getAlbumIds().addAll(toBeFixed.getAlbumIds());
         }
-        fixedIdAll.getMediaFileIds().stream().map(id -> mediaFileDao.getMediaFile(id))
+        fixedIdAll.getMediaFileIds().stream().map(id -> mediaFileService.getMediaFile(id))
                 .forEach(mediaFile -> indexManager.index(mediaFile));
         fixedIdAll.getAlbumIds().stream().map(id -> albumDao.getAlbum(id)).forEach(album -> indexManager.index(album));
     }
@@ -137,7 +140,7 @@ public class SortProcedureService {
             fixedIdAll.getArtistIds().addAll(toBeFixed.getArtistIds());
             fixedIdAll.getAlbumIds().addAll(toBeFixed.getAlbumIds());
         }
-        fixedIdAll.getMediaFileIds().stream().map(id -> mediaFileDao.getMediaFile(id))
+        fixedIdAll.getMediaFileIds().stream().map(id -> mediaFileService.getMediaFile(id))
                 .forEach(mediaFile -> indexManager.index(mediaFile));
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders(false, false);
         fixedIdAll.getArtistIds().forEach(id -> folders.forEach(m -> {
@@ -186,16 +189,16 @@ public class SortProcedureService {
         int i = 0;
         for (MediaFile artist : artists) {
             artist.setOrder(i++);
-            mediaFileDao.createOrUpdateMediaFile(artist);
+            writableMediaFileService.updateOrder(artist);
         }
 
-        List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, true, folders);
+        List<MediaFile> albums = mediaFileService.getAlphabeticalAlbums(0, Integer.MAX_VALUE, true, folders);
         albums.sort(comparators.mediaFileOrderByAlpha());
 
         i = 0;
         for (MediaFile album : albums) {
             album.setOrder(i++);
-            mediaFileDao.createOrUpdateMediaFile(album);
+            writableMediaFileService.updateOrder(album);
         }
 
     }
