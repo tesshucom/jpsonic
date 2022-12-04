@@ -24,13 +24,17 @@ package com.tesshu.jpsonic.dao;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +89,7 @@ public class AbstractDao {
     protected int update(String sql, Object... args) {
         long t = System.nanoTime();
         LOG.trace("Executing query: [{}]", sql);
-        int result = getJdbcTemplate().update(sql, args);
+        int result = getJdbcTemplate().update(sql, castArgs(args));
         LOG.trace("Updated {} rows", result);
         writeLog(sql, t);
         return result;
@@ -103,42 +107,42 @@ public class AbstractDao {
     @SuppressFBWarnings(value = "SQL_INJECTION_SPRING_JDBC", justification = "False positive. find-sec-bugs#385")
     protected <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) {
         long t = System.nanoTime();
-        List<T> result = getJdbcTemplate().query(sql, rowMapper, args);
+        List<T> result = getJdbcTemplate().query(sql, rowMapper, castArgs(args));
         writeLog(sql, t);
         return result;
     }
 
     protected <T> List<T> namedQuery(String sql, RowMapper<T> rowMapper, Map<String, Object> args) {
         long t = System.nanoTime();
-        List<T> result = getNamedParameterJdbcTemplate().query(sql, args, rowMapper);
+        List<T> result = getNamedParameterJdbcTemplate().query(sql, castArgs(args), rowMapper);
         writeLog(sql, t);
         return result;
     }
 
     protected List<String> queryForStrings(String sql, Object... args) {
         long t = System.nanoTime();
-        List<String> result = getJdbcTemplate().queryForList(sql, String.class, args);
+        List<String> result = getJdbcTemplate().queryForList(sql, String.class, castArgs(args));
         writeLog(sql, t);
         return result;
     }
 
     protected List<Integer> queryForInts(String sql, Object... args) {
         long t = System.nanoTime();
-        List<Integer> result = getJdbcTemplate().queryForList(sql, Integer.class, args);
+        List<Integer> result = getJdbcTemplate().queryForList(sql, Integer.class, castArgs(args));
         writeLog(sql, t);
         return result;
     }
 
     protected List<String> namedQueryForStrings(String sql, Map<String, Object> args) {
         long t = System.nanoTime();
-        List<String> result = getNamedParameterJdbcTemplate().queryForList(sql, args, String.class);
+        List<String> result = getNamedParameterJdbcTemplate().queryForList(sql, castArgs(args), String.class);
         writeLog(sql, t);
         return result;
     }
 
     protected Integer queryForInt(String sql, Integer defaultValue, Object... args) {
         long t = System.nanoTime();
-        List<Integer> list = getJdbcTemplate().queryForList(sql, Integer.class, args);
+        List<Integer> list = getJdbcTemplate().queryForList(sql, Integer.class, castArgs(args));
         Integer result = list.isEmpty() ? defaultValue : list.get(0) == null ? defaultValue : list.get(0);
         writeLog(sql, t);
         return result;
@@ -146,7 +150,7 @@ public class AbstractDao {
 
     protected Integer namedQueryForInt(String sql, Integer defaultValue, Map<String, Object> args) {
         long t = System.nanoTime();
-        List<Integer> list = getNamedParameterJdbcTemplate().queryForList(sql, args, Integer.class);
+        List<Integer> list = getNamedParameterJdbcTemplate().queryForList(sql, castArgs(args), Integer.class);
         Integer result = list.isEmpty() ? defaultValue : list.get(0) == null ? defaultValue : list.get(0);
         writeLog(sql, t);
         return result;
@@ -154,8 +158,8 @@ public class AbstractDao {
 
     protected Instant queryForInstant(String sql, Instant defaultValue, Object... args) {
         long startTimeNano = System.nanoTime();
-        Instant result = getJdbcTemplate().queryForList(sql, Timestamp.class, args).stream().filter(Objects::nonNull)
-                .findFirst().map(t -> t.toInstant()).orElse(defaultValue);
+        Instant result = getJdbcTemplate().queryForList(sql, Timestamp.class, castArgs(args)).stream()
+                .filter(Objects::nonNull).findFirst().map(t -> t.toInstant()).orElse(defaultValue);
         writeLog(sql, startTimeNano);
         return result;
     }
@@ -163,27 +167,50 @@ public class AbstractDao {
     @SuppressFBWarnings(value = "SQL_INJECTION_SPRING_JDBC", justification = "False positive. find-sec-bugs#385")
     protected Long queryForLong(String sql, Long defaultValue, Object... args) {
         long t = System.nanoTime();
-        List<Long> list = getJdbcTemplate().queryForList(sql, Long.class, args);
+        List<Long> list = getJdbcTemplate().queryForList(sql, Long.class, castArgs(args));
         Long result = list.isEmpty() ? defaultValue : list.get(0) == null ? defaultValue : list.get(0);
         writeLog(sql, t);
         return result;
     }
 
     protected @Nullable <T> T queryOne(String sql, RowMapper<T> rowMapper, Object... args) {
-        List<T> list = query(sql, rowMapper, args);
+        List<T> list = query(sql, rowMapper, castArgs(args));
         return list.isEmpty() ? null : list.get(0);
     }
 
     protected <T> T namedQueryOne(String sql, RowMapper<T> rowMapper, Map<String, Object> args) {
-        List<T> list = namedQuery(sql, rowMapper, args);
+        List<T> list = namedQuery(sql, rowMapper, castArgs(args));
         return list.isEmpty() ? null : list.get(0);
     }
 
-    public void checkpoint() {
-        daoHelper.checkpoint();
+    static @Nullable Object[] castArgs(@Nullable Object... args) {
+        return args == null ? null : Stream.of(args).map(AbstractDao::castArg).collect(Collectors.toList()).toArray();
+    }
+
+    @SuppressWarnings("PMD.UseConcurrentHashMap") // Explicit use of null
+    static @NonNull Map<String, Object> castArgs(@Nullable Map<String, Object> args) {
+        Map<String, Object> result = new HashMap<>();
+        if (args == null) {
+            return result;
+        }
+        args.entrySet().stream().forEach(e -> result.put(e.getKey(), castArg(e.getValue())));
+        return result;
+    }
+
+    static @Nullable Object castArg(@Nullable Object arg) {
+        if (arg == null) {
+            return null;
+        } else if (arg instanceof Instant) {
+            return Timestamp.from((Instant) arg);
+        }
+        return arg;
     }
 
     protected static @Nullable Instant nullableInstantOf(Timestamp timestamp) {
         return timestamp == null ? null : timestamp.toInstant();
+    }
+
+    public void checkpoint() {
+        daoHelper.checkpoint();
     }
 }

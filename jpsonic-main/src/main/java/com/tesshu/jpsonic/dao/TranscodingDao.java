@@ -99,10 +99,7 @@ public class TranscodingDao extends AbstractDao {
      */
     @Transactional
     public int createTranscoding(Transcoding transcoding) {
-        Integer existingMax = getJdbcTemplate().queryForObject("select max(id) from transcoding2", Integer.class);
-        if (existingMax == null) {
-            existingMax = 0;
-        }
+        Integer existingMax = queryForInt("select max(id) from transcoding2", 0);
         int registered = existingMax + 1;
         transcoding.setId(registered);
         String sql = "insert into transcoding2 (" + QUERY_COLUMNS + ") values (" + questionMarks(QUERY_COLUMNS) + ")";

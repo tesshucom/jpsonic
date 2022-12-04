@@ -119,8 +119,8 @@ public class RatingDao extends AbstractDao {
      */
     public Integer getRatingForUser(String username, MediaFile mediaFile) {
         try {
-            return getJdbcTemplate().queryForObject("select rating from user_rating where username=? and path=?",
-                    Integer.class, new Object[] { username, mediaFile.getPathString() });
+            return queryForInt("select rating from user_rating where username=? and path=?", null,
+                    new Object[] { username, mediaFile.getPathString() });
         } catch (EmptyResultDataAccessException x) {
             return null;
         }
