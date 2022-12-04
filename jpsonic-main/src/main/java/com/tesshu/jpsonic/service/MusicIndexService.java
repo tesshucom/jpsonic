@@ -85,16 +85,16 @@ public class MusicIndexService {
     public MusicFolderContent getMusicFolderContent(List<MusicFolder> musicFoldersToUse, boolean refresh) {
         SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> indexedArtists = getIndexedArtists(
                 musicFoldersToUse, refresh);
-        List<MediaFile> singleSongs = getSingleSongs(musicFoldersToUse, refresh);
+        List<MediaFile> singleSongs = getSingleSongs(musicFoldersToUse);
         return new MusicFolderContent(indexedArtists, singleSongs);
     }
 
-    List<MediaFile> getSingleSongs(List<MusicFolder> folders, boolean refresh) {
+    List<MediaFile> getSingleSongs(List<MusicFolder> folders) {
         List<MediaFile> result = new ArrayList<>();
         for (MusicFolder folder : folders) {
-            MediaFile parent = mediaFileService.getMediaFile(folder.toPath(), !refresh);
+            MediaFile parent = mediaFileService.getMediaFile(folder.toPath());
             if (parent != null) {
-                result.addAll(mediaFileService.getChildrenOf(parent, true, false, true, !refresh));
+                result.addAll(mediaFileService.getChildrenOf(parent, true, false));
             }
         }
         return result;
@@ -106,7 +106,8 @@ public class MusicIndexService {
             for (MusicFolder musicFolder : musicFoldersToUse) {
                 Path shortcutPath = Path.of(musicFolder.getPathString(), shortcut);
                 if (Files.exists(shortcutPath)) {
-                    result.add(mediaFileService.getMediaFile(shortcutPath, true));
+                    result.add(mediaFileService.getMediaFile(shortcutPath)); // TODO refresh ?
+                    // result.add(mediaFileService.getMediaFile(shortcutPath, true));
                 }
             }
         }

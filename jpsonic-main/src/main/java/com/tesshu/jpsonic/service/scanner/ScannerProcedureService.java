@@ -38,6 +38,7 @@ public class ScannerProcedureService {
     private final SettingsService settingsService;
     private final IndexManager indexManager;
     private final MediaFileService mediaFileService;
+    private final WritableMediaFileService writableMediaFileService;
     private final MediaFileDao mediaFileDao;
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
@@ -48,13 +49,14 @@ public class ScannerProcedureService {
     private final MediaFileCache mediaFileCache;
 
     public ScannerProcedureService(SettingsService settingsService, IndexManager indexManager,
-            MediaFileService mediaFileService, MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao,
-            SortProcedureService sortProcedure, ScannerStateServiceImpl scannerState, Ehcache indexCache,
-            MediaFileCache mediaFileCache) {
+            MediaFileService mediaFileService, WritableMediaFileService writableMediaFileService,
+            MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao, SortProcedureService sortProcedure,
+            ScannerStateServiceImpl scannerState, Ehcache indexCache, MediaFileCache mediaFileCache) {
         super();
         this.settingsService = settingsService;
         this.indexManager = indexManager;
         this.mediaFileService = mediaFileService;
+        this.writableMediaFileService = writableMediaFileService;
         this.mediaFileDao = mediaFileDao;
         this.artistDao = artistDao;
         this.albumDao = albumDao;
@@ -132,16 +134,18 @@ public class ScannerProcedureService {
         String musicFolderPath = musicFolder.getPathString();
         if (!musicFolderPath.equals(file.getFolder())) {
             file.setFolder(musicFolderPath);
-            mediaFileDao.createOrUpdateMediaFile(file);
+            writableMediaFileService.updateFolder(file);
         }
 
         indexManager.index(file);
 
         if (file.isDirectory()) {
-            for (MediaFile child : mediaFileService.getChildrenOf(file, true, false, false, false, statistics)) {
+            for (MediaFile child : writableMediaFileService.getChildrenOf(file, true, false, false, false,
+                    statistics)) {
                 scanFile(child, musicFolder, statistics, albumCount, genres, isPodcast);
             }
-            for (MediaFile child : mediaFileService.getChildrenOf(file, false, true, false, false, statistics)) {
+            for (MediaFile child : writableMediaFileService.getChildrenOf(file, false, true, false, false,
+                    statistics)) {
                 scanFile(child, musicFolder, statistics, albumCount, genres, isPodcast);
             }
         } else {
@@ -223,6 +227,7 @@ public class ScannerProcedureService {
             file.setAlbumArtist(album.getArtist());
             file.setAlbumArtistReading(album.getArtistReading());
             file.setAlbumArtistSort(album.getArtistSort());
+            // TODO To be fixed in v111.6.0 #1925 Do not use createOrUpdate here.
             mediaFileDao.createOrUpdateMediaFile(file);
         }
     }

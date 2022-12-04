@@ -142,7 +142,7 @@ public class ExternalPlayerController {
             for (MediaFile file : shareService.getSharedFiles(share.getId(), musicFolders)) {
                 if (file.exists()) {
                     if (file.isDirectory()) {
-                        List<MediaFile> childrenOf = mediaFileService.getChildrenOf(file, true, false, true);
+                        List<MediaFile> childrenOf = mediaFileService.getChildrenOf(file, true, false);
                         result.addAll(childrenOf.stream().map(mf -> addUrlInfo(request, player, mf, finalExpires))
                                 .collect(Collectors.toList()));
                     } else {

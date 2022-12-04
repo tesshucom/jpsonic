@@ -79,6 +79,7 @@ import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -137,6 +138,7 @@ class SubsonicRESTControllerTest {
             securityService = mock(SecurityService.class);
             final PlayerService playerService = mock(PlayerService.class);
             final MediaFileService mediaFileService = mock(MediaFileService.class);
+            final WritableMediaFileService writableMediaFileService = mock(WritableMediaFileService.class);
             final LastFmService lastFmService = mock(LastFmService.class);
             final MusicIndexService musicIndexService = mock(MusicIndexService.class);
             final TranscodingService transcodingService = mock(TranscodingService.class);
@@ -166,9 +168,9 @@ class SubsonicRESTControllerTest {
             final CoverArtLogic logic = mock(CoverArtLogic.class);
             final SearchCriteriaDirector director = mock(SearchCriteriaDirector.class);
             controller = new SubsonicRESTController(settingsService, musicFolderService, securityService, playerService,
-                    mediaFileService, lastFmService, musicIndexService, transcodingService, downloadController,
-                    coverArtController, avatarController, userSettingsController, topController, statusService,
-                    streamController, hlsController, shareService, playlistService, lyricsService,
+                    mediaFileService, writableMediaFileService, lastFmService, musicIndexService, transcodingService,
+                    downloadController, coverArtController, avatarController, userSettingsController, topController,
+                    statusService, streamController, hlsController, shareService, playlistService, lyricsService,
                     audioScrobblerService, podcastService, ratingService, searchService, internetRadioService,
                     mediaFileDao, artistDao, albumDao, bookmarkService, playQueueDao, mediaScannerService,
                     airsonicLocaleResolver, logic, director);

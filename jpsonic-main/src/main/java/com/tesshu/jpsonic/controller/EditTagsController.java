@@ -73,7 +73,7 @@ public class EditTagsController {
 
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile dir = mediaFileService.getMediaFileStrict(id);
-        List<MediaFile> files = mediaFileService.getChildrenOf(dir, true, false, true, false);
+        List<MediaFile> files = mediaFileService.getChildrenOf(dir, true, false);
 
         Map<String, Object> map = LegacyMap.of();
         if (!files.isEmpty()) {

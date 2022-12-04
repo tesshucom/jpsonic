@@ -136,6 +136,10 @@ public class ArtistDao extends AbstractDao {
         }
     }
 
+    public void updateOrder(String name, int order) {
+        update("update artist set artist_order=? where name=?", order, name);
+    }
+
     /**
      * Returns artists in alphabetical order.
      *

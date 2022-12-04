@@ -44,6 +44,7 @@ import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
 import com.tesshu.jpsonic.io.PlayQueueInputStream;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
+import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -70,13 +71,15 @@ public class StreamService {
     private final TranscodingService transcodingService;
     private final AudioScrobblerService audioScrobblerService;
     private final MediaFileService mediaFileService;
+    private final WritableMediaFileService writableMediaFileService;
     private final SearchService searchService;
     // Used to perform transcoding in subthreads (Priority changes)
     private final ThreadPoolTaskExecutor shortExecutor;
 
     public StreamService(StatusService statusService, PlaylistService playlistService, SecurityService securityService,
             SettingsService settingsService, TranscodingService transcodingService,
-            AudioScrobblerService audioScrobblerService, MediaFileService mediaFileService, SearchService searchService,
+            AudioScrobblerService audioScrobblerService, MediaFileService mediaFileService,
+            WritableMediaFileService writableMediaFileService, SearchService searchService,
             ThreadPoolTaskExecutor shortExecutor) {
         super();
         this.statusService = statusService;
@@ -86,6 +89,7 @@ public class StreamService {
         this.transcodingService = transcodingService;
         this.audioScrobblerService = audioScrobblerService;
         this.mediaFileService = mediaFileService;
+        this.writableMediaFileService = writableMediaFileService;
         this.searchService = searchService;
         this.shortExecutor = shortExecutor;
     }
@@ -218,7 +222,7 @@ public class StreamService {
     public InputStream createInputStream(Player player, TransferStatus status, Integer maxBitRate, String format,
             VideoTranscodingSettings videoTranscodingSettings) {
         return new PlayQueueInputStream(player, status, maxBitRate, format, videoTranscodingSettings,
-                transcodingService, audioScrobblerService, mediaFileService, searchService, settingsService,
+                transcodingService, audioScrobblerService, writableMediaFileService, searchService, settingsService,
                 shortExecutor);
     }
 

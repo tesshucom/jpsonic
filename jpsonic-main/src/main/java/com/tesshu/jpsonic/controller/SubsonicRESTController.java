@@ -88,6 +88,7 @@ import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.service.search.IndexType;
 import com.tesshu.jpsonic.service.search.SearchCriteria;
 import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
@@ -185,6 +186,7 @@ public class SubsonicRESTController {
     private final SecurityService securityService;
     private final PlayerService playerService;
     private final MediaFileService mediaFileService;
+    private final WritableMediaFileService writableMediaFileService;
     private final LastFmService lastFmService;
     private final MusicIndexService musicIndexService;
     private final TranscodingService transcodingService;
@@ -218,7 +220,8 @@ public class SubsonicRESTController {
 
     public SubsonicRESTController(SettingsService settingsService, MusicFolderService musicFolderService,
             SecurityService securityService, PlayerService playerService, MediaFileService mediaFileService,
-            LastFmService lastFmService, MusicIndexService musicIndexService, TranscodingService transcodingService,
+            WritableMediaFileService writableMediaFileService, LastFmService lastFmService,
+            MusicIndexService musicIndexService, TranscodingService transcodingService,
             DownloadController downloadController, CoverArtController coverArtController,
             AvatarController avatarController, UserSettingsController userSettingsController,
             TopController topController, StatusService statusService, StreamController streamController,
@@ -234,6 +237,7 @@ public class SubsonicRESTController {
         this.securityService = securityService;
         this.playerService = playerService;
         this.mediaFileService = mediaFileService;
+        this.writableMediaFileService = writableMediaFileService;
         this.lastFmService = lastFmService;
         this.musicIndexService = musicIndexService;
         this.transcodingService = transcodingService;
@@ -801,7 +805,7 @@ public class SubsonicRESTController {
             directory.setUserRating(ratingService.getRatingForUser(username, dir));
         }
 
-        for (MediaFile child : mediaFileService.getChildrenOf(dir, true, true, true)) {
+        for (MediaFile child : mediaFileService.getChildrenOf(dir, true, true)) {
             directory.getChild().add(createJaxbChild(player, child, username));
         }
 
@@ -1574,7 +1578,7 @@ public class SubsonicRESTController {
             }
             Instant time = times.length == 0 ? now() : Instant.ofEpochMilli(times[i]);
             statusService.addRemotePlay(new PlayStatus(file, player, time));
-            mediaFileService.incrementPlayCount(file);
+            writableMediaFileService.incrementPlayCount(file);
             if (securityService.getUserSettings(player.getUsername()).isLastFmEnabled()) {
                 audioScrobblerService.register(file, player.getUsername(), submission, time);
             }

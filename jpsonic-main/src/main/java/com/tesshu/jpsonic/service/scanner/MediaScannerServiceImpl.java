@@ -39,7 +39,6 @@ import com.tesshu.jpsonic.domain.Genres;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlaylistService;
@@ -65,7 +64,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     private final MusicFolderService musicFolderService;
     private final IndexManager indexManager;
     private final PlaylistService playlistService;
-    private final MediaFileService mediaFileService;
+    private final WritableMediaFileService writableMediaFileService;
     private final MediaFileDao mediaFileDao;
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
@@ -76,16 +75,16 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     private final ExpungeService expungeService;
 
     public MediaScannerServiceImpl(SettingsService settingsService, MusicFolderService musicFolderService,
-            IndexManager indexManager, PlaylistService playlistService, MediaFileService mediaFileService,
-            MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao, ThreadPoolTaskExecutor scanExecutor,
-            ScannerStateServiceImpl scannerStateService, ScannerProcedureService procedure,
-            ExpungeService expungeService) {
+            IndexManager indexManager, PlaylistService playlistService,
+            WritableMediaFileService writableMediaFileService, MediaFileDao mediaFileDao, ArtistDao artistDao,
+            AlbumDao albumDao, ThreadPoolTaskExecutor scanExecutor, ScannerStateServiceImpl scannerStateService,
+            ScannerProcedureService procedure, ExpungeService expungeService) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
         this.indexManager = indexManager;
         this.playlistService = playlistService;
-        this.mediaFileService = mediaFileService;
+        this.writableMediaFileService = writableMediaFileService;
         this.mediaFileDao = mediaFileDao;
         this.artistDao = artistDao;
         this.albumDao = albumDao;
@@ -167,7 +166,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
             // Recurse through all files on disk.
             for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders()) {
-                MediaFile root = mediaFileService.getMediaFile(musicFolder.toPath(), false);
+                MediaFile root = writableMediaFileService.getMediaFile(musicFolder.toPath(), false);
                 procedure.scanFile(root, musicFolder, stats, albumCount, genres, false);
             }
 
@@ -175,7 +174,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
             if (settingsService.getPodcastFolder() != null) {
                 Path podcastFolder = Path.of(settingsService.getPodcastFolder());
                 if (Files.exists(podcastFolder)) {
-                    procedure.scanFile(mediaFileService.getMediaFile(podcastFolder),
+                    procedure.scanFile(writableMediaFileService.getMediaFile(podcastFolder),
                             new MusicFolder(podcastFolder.toString(), null, true, null), stats, albumCount, genres,
                             true);
                 }

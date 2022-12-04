@@ -34,7 +34,6 @@ import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.DaoHelper;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
-import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlaylistService;
@@ -45,6 +44,7 @@ import com.tesshu.jpsonic.service.scanner.ExpungeService;
 import com.tesshu.jpsonic.service.scanner.MediaScannerServiceImpl;
 import com.tesshu.jpsonic.service.scanner.ScannerProcedureService;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
+import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -90,7 +90,7 @@ public abstract class AbstractNeedsScan implements NeedsScan {
     @Autowired
     private PlaylistService playlistService;
     @Autowired
-    private MediaFileService mediaFileService;
+    private WritableMediaFileService writableMediaFileService;
     @Autowired
     private MediaFileDao mediaFileDao;
     @Autowired
@@ -111,8 +111,8 @@ public abstract class AbstractNeedsScan implements NeedsScan {
     @PostConstruct
     public void init() {
         mediaScannerService = new MediaScannerServiceImpl(settingsService, musicFolderService, indexManager,
-                playlistService, mediaFileService, mediaFileDao, artistDao, albumDao, scanExecutor, scannerStateService,
-                procedure, expungeService);
+                playlistService, writableMediaFileService, mediaFileDao, artistDao, albumDao, scanExecutor,
+                scannerStateService, procedure, expungeService);
     }
 
     public interface BeforeScan extends Supplier<Boolean> {

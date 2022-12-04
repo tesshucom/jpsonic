@@ -113,6 +113,7 @@ public class PodcastServiceImpl implements PodcastService {
     private final SettingsService settingsService;
     private final SecurityService securityService;
     private final MediaFileService mediaFileService;
+    private final WritableMediaFileService writableMediaFileService;
     private final MetaDataParserFactory metaDataParserFactory;
     private final ThreadPoolTaskExecutor podcastDownloadExecutor;
     private final ThreadPoolTaskExecutor podcastRefreshExecutor;
@@ -122,12 +123,14 @@ public class PodcastServiceImpl implements PodcastService {
     private final Object fileLock = new Object();
 
     public PodcastServiceImpl(PodcastDao podcastDao, SettingsService settingsService, SecurityService securityService,
-            MediaFileService mediaFileService, MetaDataParserFactory metaDataParserFactory,
-            ThreadPoolTaskExecutor podcastDownloadExecutor, ThreadPoolTaskExecutor podcastRefreshExecutor) {
+            MediaFileService mediaFileService, WritableMediaFileService writableMediaFileService,
+            MetaDataParserFactory metaDataParserFactory, ThreadPoolTaskExecutor podcastDownloadExecutor,
+            ThreadPoolTaskExecutor podcastRefreshExecutor) {
         this.podcastDao = podcastDao;
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.mediaFileService = mediaFileService;
+        this.writableMediaFileService = writableMediaFileService;
         this.metaDataParserFactory = metaDataParserFactory;
         this.podcastDownloadExecutor = podcastDownloadExecutor;
         this.podcastRefreshExecutor = podcastRefreshExecutor;
@@ -293,7 +296,7 @@ public class PodcastServiceImpl implements PodcastService {
                     continue;
                 }
                 Path dir = getChannelDirectory(channel);
-                MediaFile mediaFile = mediaFileService.getMediaFile(dir);
+                MediaFile mediaFile = writableMediaFileService.getMediaFile(dir);
                 if (mediaFile != null) {
                     channel.setMediaFileId(mediaFile.getId());
                 }
@@ -387,13 +390,13 @@ public class PodcastServiceImpl implements PodcastService {
             }
 
             Path dir = getChannelDirectory(channel);
-            MediaFile channelMediaFile = mediaFileService.getMediaFile(dir);
+            MediaFile channelMediaFile = writableMediaFileService.getMediaFile(dir);
             if (channelMediaFile == null) {
                 return;
             }
             Path existingCoverArt = mediaFileService.getCoverArt(channelMediaFile);
             boolean imageFileExists = existingCoverArt != null
-                    && mediaFileService.getMediaFile(existingCoverArt) == null;
+                    && writableMediaFileService.getMediaFile(existingCoverArt) == null;
             if (imageFileExists) {
                 return;
             }
@@ -404,7 +407,7 @@ public class PodcastServiceImpl implements PodcastService {
                 try (InputStream in = response.getEntity().getContent(); OutputStream out = Files.newOutputStream(f)) {
                     IOUtils.copy(in, out);
                 }
-                mediaFileService.refreshMediaFile(channelMediaFile);
+                writableMediaFileService.refreshCoverArt(channelMediaFile);
             }
         } catch (UnsupportedOperationException | IOException e) {
             if (LOG.isWarnEnabled()) {
@@ -688,7 +691,7 @@ public class PodcastServiceImpl implements PodcastService {
     }
 
     private void updateTags(Path path, PodcastEpisode episode) {
-        MediaFile mediaFile = mediaFileService.getMediaFile(path, false);
+        MediaFile mediaFile = writableMediaFileService.getMediaFile(path, false);
         if (mediaFile == null) {
             return;
         }
@@ -700,7 +703,7 @@ public class PodcastServiceImpl implements PodcastService {
             MetaData metaData = parser.getRawMetaData(path);
             metaData.setTitle(episode.getTitle());
             parser.setMetaData(mediaFile, metaData);
-            mediaFileService.refreshMediaFile(mediaFile);
+            writableMediaFileService.refreshMediaFile(mediaFile);
         }
     }
 
@@ -773,10 +776,10 @@ public class PodcastServiceImpl implements PodcastService {
             if (FileUtil.createDirectories(channelDir) == null) {
                 throw new IllegalStateException("Failed to create directory " + channelDir);
             }
-            MediaFile mediaFile = mediaFileService.getMediaFile(channelDir);
+            MediaFile mediaFile = writableMediaFileService.getMediaFile(channelDir);
             if (mediaFile != null) {
                 mediaFile.setComment(channel.getDescription());
-                mediaFileService.updateMediaFile(mediaFile);
+                writableMediaFileService.updateComment(mediaFile);
             }
         }
         return channelDir;
