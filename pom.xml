@@ -115,7 +115,7 @@
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-config</artifactId>
-                <version>5.7.5</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.0</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
@@ -140,7 +140,7 @@
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
-                <version>5.7.5</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.0</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
 
             <dependency>
@@ -206,7 +206,7 @@
             <dependency>
                 <groupId>commons-net</groupId>
                 <artifactId>commons-net</artifactId>
-                <version>3.8.0</version>
+                <version>3.9.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -232,7 +232,7 @@
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
                 <scope>compile</scope>
-                <version>3.27.0</version>
+                <version>3.28.0</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
@@ -421,7 +421,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.3.0</version>
+                    <version>3.4.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
