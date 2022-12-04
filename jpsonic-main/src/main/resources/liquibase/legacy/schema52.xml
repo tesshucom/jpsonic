@@ -69,7 +69,7 @@
             </column>
             <column name="current" type="int" />
             <column name="position_millis" type="bigint" />
-            <column name="changed" type="datetime" >
+            <column name="changed" type="${timestamp_type}" >
                 <constraints nullable="false" />
             </column>
             <column name="changed_by" type="${varchar_type}" >

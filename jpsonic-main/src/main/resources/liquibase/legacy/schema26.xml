@@ -62,7 +62,7 @@
             <column name="rating" type="int" />
             <column name="comment" type="${varchar_type}" />
             <column name="play_count" type="int" />
-            <column name="last_played" type="datetime" />
+            <column name="last_played" type="${timestamp_type}" />
         </createTable>
         <createIndex tableName="music_file_info" indexName="idx_music_file_info_path">
             <column name="path"/>
@@ -115,7 +115,7 @@
             <column name="auto_control_enabled" type="boolean" >
                 <constraints nullable="false" />
             </column>
-            <column name="last_seen" type="datetime" />
+            <column name="last_seen" type="${timestamp_type}" />
             <column name="cover_art_scheme" type="${varchar_type}" >
                 <constraints nullable="false" />
             </column>
