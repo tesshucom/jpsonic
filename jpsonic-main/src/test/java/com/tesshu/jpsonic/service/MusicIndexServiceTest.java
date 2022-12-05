@@ -96,7 +96,7 @@ class MusicIndexServiceTest {
         MusicFolder folder = new MusicFolder(0, "path", "name", true, now());
 
         SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> indexedArtists = musicIndexService
-                .getIndexedArtists(Arrays.asList(folder), false);
+                .getIndexedArtists(Arrays.asList(folder));
         assertEquals(2, indexedArtists.size());
         Iterator<MusicIndex> iterator = indexedArtists.keySet().iterator();
         MusicIndex musicIndex = iterator.next();
@@ -150,7 +150,7 @@ class MusicIndexServiceTest {
         List<Artist> artists = Arrays.asList(artist1, artist2);
 
         SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> indexedArtists = musicIndexService
-                .getIndexedArtists(artists);
+                .getIndexedId3Artists(artists);
         assertEquals(2, indexedArtists.size());
         Iterator<MusicIndex> iterator = indexedArtists.keySet().iterator();
         MusicIndex musicIndex = iterator.next();
@@ -180,7 +180,7 @@ class MusicIndexServiceTest {
         Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(new MediaFile());
         MusicFolder folder = new MusicFolder(0, "path", "name", true, now());
 
-        MusicFolderContent content = musicIndexService.getMusicFolderContent(Arrays.asList(folder), false);
+        MusicFolderContent content = musicIndexService.getMusicFolderContent(Arrays.asList(folder));
         assertEquals(2, content.getIndexedArtists().size());
         Iterator<MusicIndex> iterator = content.getIndexedArtists().keySet().iterator();
         MusicIndex musicIndex = iterator.next();

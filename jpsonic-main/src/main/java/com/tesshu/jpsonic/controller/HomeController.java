@@ -154,7 +154,7 @@ public class HomeController {
             }
             break;
         case INDEX:
-            MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFolders, false);
+            MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFolders);
             map.put("indexedArtists", musicFolderContent.getIndexedArtists());
             map.put("singleSongs", musicFolderContent.getSingleSongs());
             map.put("indexes", musicFolderContent.getIndexedArtists().keySet());

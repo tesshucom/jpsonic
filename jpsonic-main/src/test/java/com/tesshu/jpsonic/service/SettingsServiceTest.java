@@ -394,11 +394,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsShowRefresh() {
-        assertFalse(settingsService.isShowRefresh());
-    }
-
-    @Test
     void testGetFileModifiedCheckSchemeName() {
         assertEquals(FileModifiedCheckScheme.LAST_MODIFIED.name(), settingsService.getFileModifiedCheckSchemeName());
     }
@@ -764,11 +759,6 @@ class SettingsServiceTest {
     @Test
     void testIsUseExternalPlayer() {
         assertFalse(settingsService.isUseExternalPlayer());
-    }
-
-    @Test
-    void testIsUseRefresh() {
-        assertFalse(settingsService.isUseRefresh());
     }
 
     @Test

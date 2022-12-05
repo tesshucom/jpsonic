@@ -256,7 +256,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
                 List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE,
                         util.getGuestMusicFolders());
                 SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> indexedArtists = musicIndexService
-                        .getIndexedArtists(artists);
+                        .getIndexedId3Artists(artists);
                 final Function<Artist, ArtistID3> toId3 = (a) -> {
                     ArtistID3 result = new ArtistID3();
                     result.setId(createArtistId(a.getId()));

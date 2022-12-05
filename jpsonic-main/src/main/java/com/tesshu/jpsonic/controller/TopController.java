@@ -119,7 +119,6 @@ public class TopController {
         map.put("showAvatar", userSettings.getAvatarScheme() != AvatarScheme.NONE);
         map.put("showIndex", userSettings.isShowIndex());
         map.put("putMenuInDrawer", userSettings.isPutMenuInDrawer());
-        map.put("showRefresh", settingsService.isShowRefresh());
         map.put("assignAccesskeyToNumber", userSettings.isAssignAccesskeyToNumber());
         map.put("voiceInputEnabled", userSettings.isVoiceInputEnabled());
         map.put("useRadio", settingsService.isUseRadio());
@@ -131,12 +130,6 @@ public class TopController {
             map.put("voiceInputLocale", userSettings.getIetf());
         } else {
             map.put("voiceInputLocale", localeResolver.resolveLocale(request).getLanguage());
-        }
-
-        boolean refresh = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.REFRESH.value(), false)
-                && !scannerStateService.isScanning();
-        if (refresh) {
-            musicFolderService.clearMusicFolderCache();
         }
 
         String username = securityService.getCurrentUsernameStrict(request);
@@ -164,7 +157,7 @@ public class TopController {
         }
         map.put("brand", SettingsService.getBrand());
 
-        MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFoldersToUse, refresh);
+        MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFoldersToUse);
         map.put("indexedArtists", musicFolderContent.getIndexedArtists());
         map.put("singleSongs", musicFolderContent.getSingleSongs());
         map.put("indexes", musicFolderContent.getIndexedArtists().keySet());

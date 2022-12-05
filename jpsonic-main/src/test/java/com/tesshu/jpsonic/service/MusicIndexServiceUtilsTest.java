@@ -94,11 +94,11 @@ class MusicIndexServiceUtilsTest {
         mediaFile.setPathString(path.toString());
 
         Mockito.when(mediaFileService.getMediaFile(path)).thenReturn(null);
-        musicIndexServiceUtils.createSortableArtists(musicFolders, false);
+        musicIndexServiceUtils.createSortableArtists(musicFolders);
         Mockito.verify(mediaFileService, Mockito.never()).getChildrenOf(mediaFile, false, true);
 
         Mockito.when(mediaFileService.getMediaFile(path)).thenReturn(mediaFile);
-        musicIndexServiceUtils.createSortableArtists(musicFolders, false);
+        musicIndexServiceUtils.createSortableArtists(musicFolders);
         Mockito.verify(mediaFileService, Mockito.times(1)).getChildrenOf(mediaFile, false, true);
     }
 }

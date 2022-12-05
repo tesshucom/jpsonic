@@ -237,10 +237,10 @@ class HomeControllerTest {
             List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, "", "name", false, now()));
             Mockito.when(musicFolderService.getMusicFoldersForUser(anyString(), Mockito.nullable(Integer.class)))
                     .thenReturn(musicFolders);
-            Mockito.when(musicIndexService.getMusicFolderContent(musicFolders, false))
+            Mockito.when(musicIndexService.getMusicFolderContent(musicFolders))
                     .thenReturn(new MusicFolderContent(new TreeMap<>(), Collections.emptyList()));
             controller.handleRequestInternal(req);
-            Mockito.verify(musicIndexService, Mockito.times(1)).getMusicFolderContent(musicFolders, false);
+            Mockito.verify(musicIndexService, Mockito.times(1)).getMusicFolderContent(musicFolders);
         }
     }
 }
