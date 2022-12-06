@@ -1304,7 +1304,7 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         void testGetIndexedArtists() {
             List<MusicFolder> musicFoldersToUse = Arrays.asList(MUSIC_FOLDERS.get(0));
             SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> m = musicIndexService
-                    .getIndexedArtists(musicFoldersToUse, true);
+                    .getIndexedArtists(musicFoldersToUse);
             List<String> artists = m.values().stream().flatMap(Collection::stream)
                     .flatMap(files -> files.getMediaFiles().stream()).map(MediaFile::getName)
                     .collect(Collectors.toList());

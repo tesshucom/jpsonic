@@ -145,7 +145,6 @@ public class GeneralSettingsController {
         command.setShowRememberMe(settingsService.isShowRememberMe());
         command.setPublishPodcast(settingsService.isPublishPodcast());
         command.setUseExternalPlayer(settingsService.isUseExternalPlayer());
-        command.setUseRefresh(settingsService.isUseRefresh());
         command.setUseCopyOfAsciiUnprintable(settingsService.isUseCopyOfAsciiUnprintable());
         command.setUseJsonp(settingsService.isUseJsonp());
         command.setUseRemovingTrackFromId3Title(settingsService.isUseRemovingTrackFromId3Title());
@@ -246,8 +245,6 @@ public class GeneralSettingsController {
         if (!command.isUseExternalPlayer()) {
             playerService.resetExternalPlayer();
         }
-        settingsService.setUseRefresh(command.isUseRefresh());
-        settingsService.setShowRefresh(command.isUseRefresh() && settingsService.isShowRefresh());
         settingsService.setUseCopyOfAsciiUnprintable(PlayerUtils.isWindows() && command.isUseCopyOfAsciiUnprintable());
         settingsService.setUseJsonp(command.isUseJsonp());
         settingsService.setUseRemovingTrackFromId3Title(command.isUseRemovingTrackFromId3Title());

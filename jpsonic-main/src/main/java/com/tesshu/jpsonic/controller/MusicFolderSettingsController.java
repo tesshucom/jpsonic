@@ -105,7 +105,6 @@ public class MusicFolderSettingsController {
                 settingsService.isIgnoreFileTimestamps() || settingsService.isIgnoreFileTimestampsNext());
         command.setInterval(String.valueOf(settingsService.getIndexCreationInterval()));
         command.setHour(String.valueOf(settingsService.getIndexCreationHour()));
-        command.setShowRefresh(settingsService.isShowRefresh());
 
         // Exclusion settings
         command.setExcludePatternString(settingsService.getExcludePatternString());
@@ -126,7 +125,6 @@ public class MusicFolderSettingsController {
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setScanning(mediaScannerService.isScanning());
-        command.setUseRefresh(settingsService.isUseRefresh());
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
@@ -158,7 +156,6 @@ public class MusicFolderSettingsController {
         // Run a scan
         settingsService.setIndexCreationInterval(Integer.parseInt(command.getInterval()));
         settingsService.setIndexCreationHour(Integer.parseInt(command.getHour()));
-        settingsService.setShowRefresh(settingsService.isUseRefresh() && command.isShowRefresh());
 
         // Exclusion settings
         settingsService.setExcludePatternString(command.getExcludePatternString());

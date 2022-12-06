@@ -98,7 +98,7 @@ public class SettingsService {
             "database.varchar.maxlength", "database.config.type", "database.config.embed.driver",
             "database.config.embed.url", "database.config.embed.username", "database.config.embed.password",
             "database.config.jndi.name", "database.usertable.quote", "ShowJavaJukebox", "AnonymousTranscoding",
-            "UseSonos", "SearchMethodLegacy", "SearchMethodChanged", "FastCacheEnabled");
+            "UseSonos", "SearchMethodLegacy", "SearchMethodChanged", "FastCacheEnabled", "UseRefresh", "ShowRefresh");
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
@@ -315,14 +315,6 @@ public class SettingsService {
      */
     public void setIndexCreationHour(int hour) {
         setProperty(SettingsConstants.MusicFolder.Scan.INDEX_CREATION_HOUR, hour);
-    }
-
-    public boolean isShowRefresh() {
-        return getBoolean(SettingsConstants.MusicFolder.Scan.SHOW_REFRESH);
-    }
-
-    public void setShowRefresh(boolean b) {
-        setProperty(SettingsConstants.MusicFolder.Scan.SHOW_REFRESH, b);
     }
 
     public String getExcludePatternString() {
@@ -653,14 +645,6 @@ public class SettingsService {
 
     public void setUseExternalPlayer(boolean b) {
         setProperty(SettingsConstants.General.Legacy.USE_EXTERNAL_PLAYER, b);
-    }
-
-    public boolean isUseRefresh() {
-        return getBoolean(SettingsConstants.General.Legacy.USE_REFRESH);
-    }
-
-    public void setUseRefresh(boolean b) {
-        setProperty(SettingsConstants.General.Legacy.USE_REFRESH, b);
     }
 
     public boolean isUseCopyOfAsciiUnprintable() {

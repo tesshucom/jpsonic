@@ -22,12 +22,9 @@ package com.tesshu.jpsonic.controller;
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.lang.annotation.Documented;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -51,7 +48,6 @@ import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -69,7 +65,6 @@ class TopControllerTest {
     private SecurityService securityService;
     private MusicFolderService musicFolderService;
     private ScannerStateServiceImpl scannerState;
-    private MusicIndexService musicIndexService;
     private TopController controller;
 
     private MockMvc mockMvc;
@@ -80,9 +75,8 @@ class TopControllerTest {
         securityService = mock(SecurityService.class);
         musicFolderService = mock(MusicFolderService.class);
         scannerState = mock(ScannerStateServiceImpl.class);
-        musicIndexService = mock(MusicIndexService.class);
-        Mockito.when(
-                musicIndexService.getMusicFolderContent(Mockito.nullable(List.class), Mockito.nullable(boolean.class)))
+        MusicIndexService musicIndexService = mock(MusicIndexService.class);
+        Mockito.when(musicIndexService.getMusicFolderContent(Mockito.nullable(List.class)))
                 .thenReturn(new MusicFolderContent(new TreeMap<>(), Collections.emptyList()));
         controller = new TopController(mock(SettingsService.class), musicFolderService, securityService, scannerState,
                 musicIndexService, mock(VersionService.class), mock(InternetRadioService.class),
@@ -111,112 +105,6 @@ class TopControllerTest {
     void testGetLastModified() throws ServletRequestBindingException {
         MockHttpServletRequest req = new MockHttpServletRequest();
         assertNotEquals(0, controller.getLastModified(req));
-    }
-
-    @Documented
-    private @interface RefleshDecision {
-        @interface Conditions {
-            @interface ParamRefresh {
-                @interface None {
-                }
-
-                @interface True {
-                }
-            }
-
-            @interface Scanning {
-                @interface False {
-                }
-
-                @interface True {
-                }
-            }
-
-        }
-
-        @interface Result {
-            @interface Refresh {
-                // useFastCache
-                @interface False {
-                }
-
-                // !useFastCache
-                @interface True {
-                }
-            }
-        }
-    }
-
-    @Nested
-    class RefleshTest {
-
-        @RefleshDecision.Conditions.ParamRefresh.None
-        @RefleshDecision.Conditions.Scanning.False
-        @RefleshDecision.Result.Refresh.False
-        @Test
-        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
-        void c1() throws Exception {
-            mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.TOP.value())
-                    .param(Attributes.Request.MUSIC_FOLDER_ID.value(), "0"))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-            ArgumentCaptor<Boolean> refreshCaptor = ArgumentCaptor.forClass(boolean.class);
-            Mockito.verify(musicFolderService, Mockito.never()).clearMusicFolderCache();
-            Mockito.verify(musicIndexService, Mockito.times(1)).getMusicFolderContent(Mockito.anyList(),
-                    refreshCaptor.capture());
-            assertFalse(refreshCaptor.getValue());
-        }
-
-        @RefleshDecision.Conditions.ParamRefresh.True
-        @RefleshDecision.Conditions.Scanning.False
-        @RefleshDecision.Result.Refresh.True
-        @Test
-        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
-        void c2() throws Exception {
-            mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.TOP.value())
-                    .param(Attributes.Request.MUSIC_FOLDER_ID.value(), "0")
-                    .param(Attributes.Request.REFRESH.value(), "true"))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-            ArgumentCaptor<Boolean> refreshCaptor = ArgumentCaptor.forClass(boolean.class);
-            Mockito.verify(musicFolderService, Mockito.times(1)).clearMusicFolderCache();
-            Mockito.verify(musicIndexService, Mockito.times(1)).getMusicFolderContent(Mockito.anyList(),
-                    refreshCaptor.capture());
-            assertTrue(refreshCaptor.getValue());
-        }
-
-        @RefleshDecision.Conditions.ParamRefresh.None
-        @RefleshDecision.Conditions.Scanning.True
-        @RefleshDecision.Result.Refresh.False
-        @Test
-        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
-        void c3() throws Exception {
-            Mockito.when(scannerState.isScanning()).thenReturn(true);
-            mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.TOP.value())
-                    .param(Attributes.Request.MUSIC_FOLDER_ID.value(), "0"))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-            ArgumentCaptor<Boolean> refreshCaptor = ArgumentCaptor.forClass(boolean.class);
-            Mockito.verify(musicFolderService, Mockito.never()).clearMusicFolderCache();
-            Mockito.verify(musicIndexService, Mockito.times(1)).getMusicFolderContent(Mockito.anyList(),
-                    refreshCaptor.capture());
-            assertFalse(refreshCaptor.getValue());
-        }
-
-        @RefleshDecision.Conditions.ParamRefresh.True
-        @RefleshDecision.Conditions.Scanning.True
-        @RefleshDecision.Result.Refresh.False
-        @Test
-        @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
-        void c4() throws Exception {
-            Mockito.when(scannerState.isScanning()).thenReturn(true);
-            mockMvc.perform(MockMvcRequestBuilders.get("/" + ViewName.TOP.value())
-                    .param(Attributes.Request.MUSIC_FOLDER_ID.value(), "0")
-                    .param(Attributes.Request.REFRESH.value(), "true"))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-            ArgumentCaptor<Boolean> refreshCaptor = ArgumentCaptor.forClass(boolean.class);
-            Mockito.verify(musicFolderService, Mockito.never()).clearMusicFolderCache();
-            Mockito.verify(musicIndexService, Mockito.times(1)).getMusicFolderContent(Mockito.anyList(),
-                    refreshCaptor.capture());
-            assertFalse(refreshCaptor.getValue());
-        }
     }
 
     @Nested

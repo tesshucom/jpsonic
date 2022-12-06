@@ -67,7 +67,7 @@ public class MusicIndexServiceUtils {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (MusicIndex.~) Not reusable
-    public List<MusicIndex.SortableArtistWithArtist> createSortableArtists(List<Artist> artists) {
+    public List<MusicIndex.SortableArtistWithArtist> createSortableId3Artists(List<Artist> artists) {
         List<MusicIndex.SortableArtistWithArtist> result = new ArrayList<>();
         String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
         Comparator<SortableArtist> c = comparators.sortableArtistOrder();
@@ -79,8 +79,7 @@ public class MusicIndexServiceUtils {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (MusicIndex.~) Not reusable
-    public List<MusicIndex.SortableArtistWithMediaFiles> createSortableArtists(List<MusicFolder> folders,
-            boolean refresh) {
+    public List<MusicIndex.SortableArtistWithMediaFiles> createSortableArtists(List<MusicFolder> folders) {
         String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
         String[] shortcuts = settingsService.getShortcutsAsArray();
         SortedMap<String, MusicIndex.SortableArtistWithMediaFiles> artistMap = new TreeMap<>();

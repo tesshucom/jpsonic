@@ -156,10 +156,6 @@ window.onChangeCurrentSong = function(song) {
     </c:if>
 }
 
-window.onRefresh = function() {
-	location.href='top.view?refresh=true';
-}
-
 <%-- dialogs(dialogsTop.js) --%>
 function onOpenDialogVoiceInput() {
     lazyOpenDialogVoiceInput('${model.voiceInputLocale}', "<fmt:message key='common.cancel'/>");
@@ -275,11 +271,6 @@ window.onOpenDialogVideoPlayer = function(videoUrl) {
                         <li><a href="starred.view?" target="main" title="${starred}" class="menu-item star">${starred}</a></li>
                         <li><a href="playlists.view?" target="main" title="${playlists}" class="menu-item playlists">${playlists}</a></li>
                         <li><a href="podcastChannels.view?" target="main" title="${podcast}" class="menu-item podcast">${podcast}</a></li>
-                    </c:if>
-                    <c:if test="${model.showRefresh}">
-	                    <li>
-	                        <a href="javascript:onRefresh()" title="<fmt:message key='common.refresh'/>" class="menu-item refresh"><fmt:message key="common.refresh" /></a>
-	                    </li>
                     </c:if>
                     <c:if test="${model.othersPlayingEnabled and model.showNowPlayingEnabled}">
                         <li><a href="javascript:onOpenDialogNowplayinginfos();" title="${othersPlaying}" class="menu-item connecting">${othersPlaying}</a></li>

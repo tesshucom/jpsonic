@@ -355,7 +355,7 @@ public class SubsonicRESTController {
             indexes.getShortcut().add(createJaxbArtist(shortcut, username));
         }
 
-        MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFolders, false);
+        MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFolders);
         setRatingAndStarred(musicFolderContent, indexes, username);
 
         // Add children
@@ -453,7 +453,7 @@ public class SubsonicRESTController {
         List<com.tesshu.jpsonic.domain.Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE,
                 musicFolders);
         SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> indexedArtists = musicIndexService
-                .getIndexedArtists(artists);
+                .getIndexedId3Artists(artists);
         for (Map.Entry<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> entry : indexedArtists.entrySet()) {
             IndexID3 index = new IndexID3();
             index.setName(entry.getKey().getIndex());

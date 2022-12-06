@@ -44,7 +44,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
     private boolean fullScanNext;
     private String interval;
     private String hour;
-    private boolean showRefresh;
 
     // Exclusion settings
     private String excludePatternString;
@@ -96,14 +95,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
     public void setHour(String hour) {
         this.hour = hour;
-    }
-
-    public boolean isShowRefresh() {
-        return showRefresh;
-    }
-
-    public void setShowRefresh(boolean showIndexRefresh) {
-        this.showRefresh = showIndexRefresh;
     }
 
     public String getExcludePatternString() {

@@ -70,7 +70,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean showRememberMe;
     private boolean publishPodcast;
     private boolean useExternalPlayer;
-    private boolean useRefresh;
     private boolean useCopyOfAsciiUnprintable;
     private boolean useJsonp;
     private boolean useRemovingTrackFromId3Title;
@@ -326,14 +325,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setUseExternalPlayer(boolean useExternalPlayer) {
         this.useExternalPlayer = useExternalPlayer;
-    }
-
-    public boolean isUseRefresh() {
-        return useRefresh;
-    }
-
-    public void setUseRefresh(boolean useRefresh) {
-        this.useRefresh = useRefresh;
     }
 
     public boolean isUseCopyOfAsciiUnprintable() {

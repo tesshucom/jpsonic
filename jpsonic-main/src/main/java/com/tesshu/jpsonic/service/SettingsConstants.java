@@ -61,7 +61,6 @@ final class SettingsConstants {
         static class Scan {
             static final Pair<Integer> INDEX_CREATION_INTERVAL = Pair.of("IndexCreationInterval", 1);
             static final Pair<Integer> INDEX_CREATION_HOUR = Pair.of("IndexCreationHour", 3);
-            static final Pair<Boolean> SHOW_REFRESH = Pair.of("ShowRefresh", false);
 
             private Scan() {
             }
@@ -138,7 +137,6 @@ final class SettingsConstants {
             static final Pair<Boolean> PUBLISH_PODCAST = Pair.of("PublishPodcast", false);
             static final Pair<Boolean> USE_RADIO = Pair.of("UseRadio", false);
             static final Pair<Boolean> USE_EXTERNAL_PLAYER = Pair.of("UseExternalPlayer", false);
-            static final Pair<Boolean> USE_REFRESH = Pair.of("UseRefresh", false);
             static final Pair<Boolean> USE_COPY_OF_ASCII_UNPRINTABLE = Pair.of("UseCopyOfAsciiUnprintable", false);
             static final Pair<Boolean> USE_JSONP = Pair.of("UseJsonp", false);
             static final Pair<Boolean> USE_REMOVING_TRACK_FROM_ID3TITLE = Pair.of("UseRemovingTrackFromId3Title",
