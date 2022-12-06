@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>111.5.9</version>
+    <version>111.5.10</version>
     <name>Jpsonic</name>
     <packaging>pom</packaging>
     <organization>
@@ -19,7 +19,7 @@
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jackson.version>2.14.1</jackson.version>
-        <tomcat.version>9.0.69</tomcat.version>
+        <tomcat.version>9.0.70</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
         <jetty.version>10.0.11</jetty.version>
         <jetty-jsp.version>10.0.11</jetty-jsp.version>
@@ -115,7 +115,7 @@
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-config</artifactId>
-                <version>5.7.5</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.0</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
@@ -140,7 +140,7 @@
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
-                <version>5.7.5</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.0</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
 
             <dependency>
@@ -206,7 +206,7 @@
             <dependency>
                 <groupId>commons-net</groupId>
                 <artifactId>commons-net</artifactId>
-                <version>3.8.0</version>
+                <version>3.9.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -232,7 +232,7 @@
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
                 <scope>compile</scope>
-                <version>3.27.0</version>
+                <version>3.28.0</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
@@ -421,7 +421,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.3.0</version>
+                    <version>3.4.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -555,7 +555,7 @@
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>7.3.2</version>
+                    <version>7.4.0</version>
                     <inherited>true</inherited>
                     <configuration>
                         <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
