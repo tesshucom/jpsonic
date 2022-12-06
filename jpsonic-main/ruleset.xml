@@ -108,9 +108,6 @@
 
         <!-- Because not needed for this project. -->
         <exclude name="MissingSerialVersionUID" />
-
-        <!-- Because not needed for this project. -->
-        <exclude name="BeanMembersShouldSerialize" />
     </rule>
 
     <!-- Because annotations and Dao (literals for building SQL) are skipped. -->
