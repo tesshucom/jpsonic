@@ -179,7 +179,7 @@
             <dependency>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-core</artifactId>
-                <version>4.17.2</version>
+                <version>4.18.0</version>
             </dependency>
 
             <!-- Fix convergence issues -->
@@ -237,7 +237,7 @@
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
                 <artifactId>ecj</artifactId>
-                <version>3.31.0</version>
+                <version>3.32.0</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
