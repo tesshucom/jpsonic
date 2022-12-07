@@ -85,7 +85,7 @@
             <column name="path" type="${varchar_type}" />
             <column name="title" type="${varchar_type}" />
             <column name="description" type="${varchar_type}" />
-            <column name="publish_date" type="datetime" />
+            <column name="publish_date" type="${timestamp_type}" />
             <column name="duration" type="${varchar_type}" />
             <column name="bytes_total" type="bigint" />
             <column name="bytes_downloaded" type="bigint" />

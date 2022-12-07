@@ -55,18 +55,18 @@
             <column name="play_count" type="int" >
                 <constraints nullable="false" />
             </column>
-            <column name="last_played" type="datetime" />
+            <column name="last_played" type="${timestamp_type}" />
             <column name="comment" type="${varchar_type}" />
-            <column name="created" type="datetime" >
+            <column name="created" type="${timestamp_type}" >
                 <constraints nullable="false" />
             </column>
-            <column name="changed" type="datetime" >
+            <column name="changed" type="${timestamp_type}" >
                 <constraints nullable="false" />
             </column>
-            <column name="last_scanned" type="datetime" >
+            <column name="last_scanned" type="${timestamp_type}" >
                 <constraints nullable="false" />
             </column>
-            <column name="children_last_updated" type="datetime" >
+            <column name="children_last_updated" type="${timestamp_type}" >
                 <constraints nullable="false" />
             </column>
             <column name="present" type="boolean" >
@@ -134,7 +134,7 @@
             <column name="album_count" type="int" defaultValueNumeric="0">
                 <constraints nullable="false" />
             </column>
-            <column name="last_scanned" type="datetime" >
+            <column name="last_scanned" type="${timestamp_type}" >
                 <constraints nullable="false" />
             </column>
             <column name="present" type="boolean" >
@@ -185,12 +185,12 @@
             <column name="play_count" type="int" defaultValueNumeric="0" >
                 <constraints nullable="false" />
             </column>
-            <column name="last_played" type="datetime" />
+            <column name="last_played" type="${timestamp_type}" />
             <column name="comment" type="${varchar_type}" />
-            <column name="created" type="datetime" >
+            <column name="created" type="${timestamp_type}" >
                 <constraints nullable="false" />
             </column>
-            <column name="last_scanned" type="datetime" >
+            <column name="last_scanned" type="${timestamp_type}" >
                 <constraints nullable="false" />
             </column>
             <column name="present" type="boolean" >
@@ -265,7 +265,7 @@
             <column name="username" type="${varchar_type}" >
                 <constraints nullable="false" foreignKeyName="smf_u_fk" referencedTableName="user" referencedColumnNames="username" deleteCascade="true" />
             </column>
-            <column name="created" type="datetime" >
+            <column name="created" type="${timestamp_type}" >
                 <constraints nullable="false" />
             </column>
         </createTable>
@@ -297,7 +297,7 @@
             <column name="username" type="${varchar_type}" >
                 <constraints nullable="false" foreignKeyName="sa_u_fk" referencedTableName="user" referencedColumnNames="username" deleteCascade="true" />
             </column>
-            <column name="created" type="datetime" >
+            <column name="created" type="${timestamp_type}" >
                 <constraints nullable="false" />
             </column>
         </createTable>
@@ -329,7 +329,7 @@
             <column name="username" type="${varchar_type}" >
                 <constraints nullable="false" foreignKeyName="sar_u_fk" referencedTableName="user" referencedColumnNames="username" deleteCascade="true" />
             </column>
-            <column name="created" type="datetime" >
+            <column name="created" type="${timestamp_type}" >
                 <constraints nullable="false" />
             </column>
         </createTable>
@@ -371,10 +371,10 @@
             <column name="duration_seconds" type="int" defaultValueNumeric="0" >
                 <constraints nullable="false" />
             </column>
-            <column name="created" type="datetime" >
+            <column name="created" type="${timestamp_type}" >
                 <constraints nullable="false" />
             </column>
-            <column name="changed" type="datetime" >
+            <column name="changed" type="${timestamp_type}" >
                 <constraints nullable="false" />
             </column>
         </createTable>
@@ -461,10 +461,10 @@
                 <constraints nullable="false" foreignKeyName="b_u_fk" referencedTableName="user" referencedColumnNames="username" deleteCascade="true" />
             </column>
             <column name="comment" type="${varchar_type}" />
-            <column name="created" type="datetime" >
+            <column name="created" type="${timestamp_type}" >
                 <constraints nullable="false" />
             </column>
-            <column name="changed" type="datetime" >
+            <column name="changed" type="${timestamp_type}" >
                 <constraints nullable="false" />
             </column>
         </createTable>
