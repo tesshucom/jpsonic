@@ -48,11 +48,11 @@
             <column name="username" type="${varchar_type}" >
                 <constraints nullable="false" foreignKeyName="s_u_fk" referencedTableName="user" referencedColumnNames="username" deleteCascade="true"/>
             </column>
-            <column name="created" type="datetime" >
+            <column name="created" type="${timestamp_type}" >
                 <constraints nullable="false" />
             </column>
-            <column name="expires" type="datetime" />
-            <column name="last_visited" type="datetime" />
+            <column name="expires" type="${timestamp_type}" />
+            <column name="last_visited" type="${timestamp_type}" />
             <column name="visit_count" type="int" defaultValueNumeric="0" >
                 <constraints nullable="false" />
             </column>

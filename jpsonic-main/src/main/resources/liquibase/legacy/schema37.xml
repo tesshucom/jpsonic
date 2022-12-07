@@ -43,37 +43,40 @@
         <rollback />
     </changeSet>
     <changeSet id="schema37_004" author="muff1nman">
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="music_folder" columnName="changed" />
             </not>
         </preConditions>
         <addColumn tableName="music_folder">
-            <column name="changed" type="datetime" defaultValueComputed="${curr_date_expr}">
+            <column name="changed" type="${timestamp_type}" defaultValueComputed="${curr_date_expr}">
                 <constraints nullable="false" />
             </column>
         </addColumn>
     </changeSet>
     <changeSet id="schema37_005" author="muff1nman">
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="internet_radio" columnName="changed" />
             </not>
         </preConditions>
         <addColumn tableName="internet_radio">
-            <column name="changed" type="datetime" defaultValueComputed="${curr_date_expr}">
+            <column name="changed" type="${timestamp_type}" defaultValueComputed="${curr_date_expr}">
                 <constraints nullable="false" />
             </column>
         </addColumn>
     </changeSet>
     <changeSet id="schema37_006" author="muff1nman">
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="user_settings" columnName="changed" />
             </not>
         </preConditions>
         <addColumn tableName="user_settings">
-            <column name="changed" type="datetime" defaultValueComputed="${curr_date_expr}">
+            <column name="changed" type="${timestamp_type}" defaultValueComputed="${curr_date_expr}">
                 <constraints nullable="false" />
             </column>
         </addColumn>
