@@ -6,7 +6,7 @@
     <!-- Changes to schema25_005 -->
     <changeSet id="delete_admin-update_role" author="tesshucom">
         <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="1">select count(*) from user where username ='admin'</sqlCheck>
+            <sqlCheck expectedResult="1">select count(*) from ${userTableQuote}user${userTableQuote} where username ='admin'</sqlCheck>
         </preConditions>
         <delete tableName="user_role">
             <where>username='admin' and role_id = 3</where>
