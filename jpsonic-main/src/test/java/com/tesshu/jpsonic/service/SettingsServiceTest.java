@@ -364,6 +364,17 @@ class SettingsServiceTest {
     }
 
     @Test
+    void testGetExcludedCoverArts() {
+        assertEquals("folder.jpg AlbumArtSmall.jpg small.jpg large.jpg", settingsService.getExcludedCoverArts());
+    }
+
+    @Test
+    void testGetExcludedCoverArtsAsArray() {
+        assertEquals(4, settingsService.getExcludedCoverArtsAsArray().length);
+        assertEquals(4, settingsService.getExcludedCoverArtsAsArray().length); // Cashed path
+    }
+
+    @Test
     void testGetWelcomeTitle() {
         assertNotNull(settingsService.getWelcomeTitle());
     }

@@ -73,7 +73,7 @@ public class SettingsService {
     private static final Map<LocksKeys, Object> LOCKS;
 
     private enum LocksKeys {
-        HOME, MUSIC_FILE, VIDEO_FILE, COVER_ART, THEMES, LOCALES, LOCALE, ARTICLES
+        HOME, MUSIC_FILE, VIDEO_FILE, COVER_ART, EXCLUDED_COVER_ART, THEMES, LOCALES, LOCALE, ARTICLES
     }
 
     static {
@@ -105,6 +105,7 @@ public class SettingsService {
     private static List<Theme> themes;
     private static Locale[] locales;
     private static String[] coverArtFileTypes;
+    private static String[] excludedCoverArts;
     private static String[] musicFileTypes;
     private static String[] videoFileTypes;
 
@@ -749,6 +750,33 @@ public class SettingsService {
                 coverArtFileTypes = toStringArray(getCoverArtFileTypes());
             }
             return coverArtFileTypes;
+        }
+    }
+
+    public String getExcludedCoverArts() {
+        synchronized (LOCKS.get(LocksKeys.EXCLUDED_COVER_ART)) {
+            return getString(SettingsConstants.General.Extension.EXCLUDED_COVER_ART);
+        }
+    }
+
+    public String getDefaultExcludedCoverArts() {
+        return SettingsConstants.General.Extension.EXCLUDED_COVER_ART.defaultValue;
+    }
+
+    @SuppressWarnings("PMD.NullAssignment") // (coverArtFileTypes) Intentional allocation to clear cache
+    public void setExcludedCoverArts(String s) {
+        synchronized (LOCKS.get(LocksKeys.EXCLUDED_COVER_ART)) {
+            setProperty(SettingsConstants.General.Extension.EXCLUDED_COVER_ART, s);
+            excludedCoverArts = null;
+        }
+    }
+
+    public String[] getExcludedCoverArtsAsArray() {
+        synchronized (LOCKS.get(LocksKeys.EXCLUDED_COVER_ART)) {
+            if (excludedCoverArts == null) {
+                excludedCoverArts = toStringArray(getExcludedCoverArts());
+            }
+            return excludedCoverArts;
         }
     }
 

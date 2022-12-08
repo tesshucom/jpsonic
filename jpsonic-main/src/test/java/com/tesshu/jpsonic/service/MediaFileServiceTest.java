@@ -53,6 +53,8 @@ class MediaFileServiceTest {
 
         Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(new String[0]);
         Mockito.when(settingsService.getMusicFileTypesAsArray()).thenReturn(new String[] { "mp3" });
+        Mockito.when(settingsService.getExcludedCoverArtsAsArray())
+                .thenReturn(new String[] { "AlbumArtSmall.jpg", "small.jpg", "large.jpg" });
         Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
     }
 
@@ -91,6 +93,11 @@ class MediaFileServiceTest {
 
             // dir
             path = createPath("/MEDIAS/Metadata/coverart/coveratrt.jpg");
+            assertTrue(Files.exists(path));
+            assertTrue(mediaFileService.findCoverArt(path).isEmpty());
+
+            // Exclude specific cover art (like caches WMP makes without permission)
+            path = createPath("/MEDIAS/Metadata/coverart/exclude");
             assertTrue(Files.exists(path));
             assertTrue(mediaFileService.findCoverArt(path).isEmpty());
         }
