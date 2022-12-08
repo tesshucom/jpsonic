@@ -78,11 +78,13 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private String musicFileTypes;
     private String videoFileTypes;
     private String coverArtFileTypes;
+    private String excludedCoverArts;
     private String playlistFolder;
     private String shortcuts;
     private String defaultMusicFileTypes;
     private String defaultVideoFileTypes;
     private String defaultCoverArtFileTypes;
+    private String defaultExcludedCoverArts;
     private String defaultPlaylistFolder;
     private String defaultShortcuts;
 
@@ -375,6 +377,14 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
         this.coverArtFileTypes = coverArtFileTypes;
     }
 
+    public String getExcludedCoverArts() {
+        return excludedCoverArts;
+    }
+
+    public void setExcludedCoverArts(String excludedCoverArts) {
+        this.excludedCoverArts = excludedCoverArts;
+    }
+
     public String getPlaylistFolder() {
         return playlistFolder;
     }
@@ -413,6 +423,14 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setDefaultCoverArtFileTypes(String defaultCoverArtFileTypes) {
         this.defaultCoverArtFileTypes = defaultCoverArtFileTypes;
+    }
+
+    public String getDefaultExcludedCoverArts() {
+        return defaultExcludedCoverArts;
+    }
+
+    public void setDefaultExcludedCoverArts(String defaultExcludedCoverArts) {
+        this.defaultExcludedCoverArts = defaultExcludedCoverArts;
     }
 
     public String getDefaultPlaylistFolder() {
