@@ -74,7 +74,7 @@
         <rollback></rollback>
     </changeSet>
     <changeSet id="schema35_005" author="muff1nman">
-        <validCheckSum>8:d428266eb794ae2f1361a6eec0f67672</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="system_avatar" />
@@ -85,7 +85,7 @@
                 <constraints primaryKey="true" />
             </column>
             <column name="name" type="${varchar_type}" />
-            <column name="created_date" type="datetime" defaultValueComputed="${curr_date_expr}">
+            <column name="created_date" type="${timestamp_type}" defaultValueComputed="${curr_date_expr}">
                 <constraints nullable="false" />
             </column>
             <column name="mime_type" type="${varchar_type}" >
@@ -120,7 +120,7 @@
         <rollback></rollback>
     </changeSet>
     <changeSet id="schema35_006" author="muff1nman">
-        <validCheckSum>8:60a4f99dea63d7813457a1b8f981f763</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <not>
                 <tableExists tableName="custom_avatar" />
@@ -131,7 +131,7 @@
                 <constraints primaryKey="true" />
             </column>
             <column name="name" type="${varchar_type}"/>
-            <column name="created_date" type="datetime" defaultValueComputed="${curr_date_expr}">
+            <column name="created_date" type="${timestamp_type}" defaultValueComputed="${curr_date_expr}">
                 <constraints nullable="false" />
             </column>
             <column name="mime_type" type="${varchar_type}" >
@@ -166,7 +166,7 @@
         <rollback></rollback>
     </changeSet>
     <changeSet id="schema35_007" author="muff1nman">
-        <validCheckSum>8:653b5e40160877def2fe855b03f8ed42</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="user_settings" columnName="avatar_scheme" />
@@ -203,7 +203,7 @@
         </addColumn>
     </changeSet>
     <changeSet id="schema35_010_Formal" author="muff1nman">
-        <validCheckSum>7:54035115d2d5d88756e872b3462f26cc</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Formal'</sqlCheck>
         </preConditions>
@@ -221,7 +221,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Engineer" author="muff1nman">
-        <validCheckSum>7:1f00633cd526800eeaa0f96d5d2d0ab4</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Engineer'</sqlCheck>
         </preConditions>
@@ -239,7 +239,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Footballer" author="muff1nman">
-        <validCheckSum>7:74067f5a06636f5f4e05fc165652da8e</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Footballer'</sqlCheck>
         </preConditions>
@@ -257,7 +257,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Green-Boy" author="muff1nman">
-        <validCheckSum>7:58eb7d10640898003be6f1742733078e</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Green-Boy'</sqlCheck>
         </preConditions>
@@ -275,7 +275,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Linux-Zealot" author="muff1nman">
-        <validCheckSum>7:6a27c30211f114b76bfb8dc87e39afe0</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Linux-Zealot'</sqlCheck>
         </preConditions>
@@ -293,7 +293,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Mac-Zealot" author="muff1nman">
-        <validCheckSum>7:9cddcb5f9a6a360f60ab72b305345817</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Mac-Zealot'</sqlCheck>
         </preConditions>
@@ -311,7 +311,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Windows-Zealot" author="muff1nman">
-        <validCheckSum>7:f2b9ba75a5bd06e4523e78362044ae7a</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Windows-Zealot'</sqlCheck>
         </preConditions>
@@ -329,7 +329,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Army-Officer" author="muff1nman">
-        <validCheckSum>7:f82442701bee7b16b2f11c83f02aabab</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Army-Officer'</sqlCheck>
         </preConditions>
@@ -347,7 +347,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Beatnik" author="muff1nman">
-        <validCheckSum>7:51ebe6f94e5cafaf3c5fcd568e950434</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Beatnik'</sqlCheck>
         </preConditions>
@@ -365,7 +365,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_All-Caps" author="muff1nman">
-        <validCheckSum>7:d22cdfc57fc0ce6413ec04fd6e2fe5f8</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'All-Caps'</sqlCheck>
         </preConditions>
@@ -383,7 +383,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Clown" author="muff1nman">
-        <validCheckSum>7:7e50b09bc5cfd25bdb353562f3f1f768</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Clown'</sqlCheck>
         </preConditions>
@@ -401,7 +401,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Commie-Pinko" author="muff1nman">
-        <validCheckSum>7:b674559ca9b7dd1c2466e138e7137405</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Commie-Pinko'</sqlCheck>
         </preConditions>
@@ -419,7 +419,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Forum-Flirt" author="muff1nman">
-        <validCheckSum>7:7290bba7007dcc3fe8d90991971b4030</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Forum-Flirt'</sqlCheck>
         </preConditions>
@@ -437,7 +437,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Gamer" author="muff1nman">
-        <validCheckSum>7:4543410f8e5681f20ecef97e780e0573</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Gamer'</sqlCheck>
         </preConditions>
@@ -455,7 +455,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Hopelessly-Addicted" author="muff1nman">
-        <validCheckSum>7:f3c66c12b246da0a90349b6a3da741a3</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Hopelessly-Addicted'</sqlCheck>
         </preConditions>
@@ -473,7 +473,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Jekyll-And-Hyde" author="muff1nman">
-        <validCheckSum>7:81c5f814838707b89721759498743da0</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Jekyll-And-Hyde'</sqlCheck>
         </preConditions>
@@ -491,7 +491,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Joker" author="muff1nman">
-        <validCheckSum>7:1a15275764dc97170319825b94f70fb3</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Joker'</sqlCheck>
         </preConditions>
@@ -509,7 +509,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Lurker" author="muff1nman">
-        <validCheckSum>7:66415321945789d22a16d042b1b3306f</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Lurker'</sqlCheck>
         </preConditions>
@@ -527,7 +527,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Moderator" author="muff1nman">
-        <validCheckSum>7:e60a95cc8d57ff522415b581f13d52e6</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Moderator'</sqlCheck>
         </preConditions>
@@ -545,7 +545,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Newbie" author="muff1nman">
-        <validCheckSum>7:9b38b2025882a11fb02d9f9784f067ed</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Newbie'</sqlCheck>
         </preConditions>
@@ -563,7 +563,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_No-Dissent" author="muff1nman">
-        <validCheckSum>7:1cd5940012c95e26462840dfaacd1ee5</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'No-Dissent'</sqlCheck>
         </preConditions>
@@ -581,7 +581,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Performer" author="muff1nman">
-        <validCheckSum>7:b6f3765aa9733f026a6eced46f17fd76</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Performer'</sqlCheck>
         </preConditions>
@@ -599,7 +599,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Push-My-Button" author="muff1nman">
-        <validCheckSum>7:e959c49fb38e99fe7fc1e00efd3d7b16</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Push-My-Button'</sqlCheck>
         </preConditions>
@@ -617,7 +617,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Ray-Of-Sunshine" author="muff1nman">
-        <validCheckSum>7:ad41d5220459ea33978c0b7c7e05b282</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Ray-Of-Sunshine'</sqlCheck>
         </preConditions>
@@ -635,7 +635,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Red-Hot-Chili-Peppers-1" author="muff1nman">
-        <validCheckSum>7:d7f6b7675de11283a5a61ece4693cdfe</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Red-Hot-Chili-Peppers-1'</sqlCheck>
         </preConditions>
@@ -653,7 +653,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Red-Hot-Chili-Peppers-2" author="muff1nman">
-        <validCheckSum>7:35f2791297bbdca1cd04447aeafd70e9</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Red-Hot-Chili-Peppers-2'</sqlCheck>
         </preConditions>
@@ -671,7 +671,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Red-Hot-Chili-Peppers-3" author="muff1nman">
-        <validCheckSum>7:97b4ee07300628c37c422dc2c4570e5a</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Red-Hot-Chili-Peppers-3'</sqlCheck>
         </preConditions>
@@ -689,7 +689,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Red-Hot-Chili-Peppers-4" author="muff1nman">
-        <validCheckSum>7:a8d662d989026bef363ea0096f2eb3f5</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Red-Hot-Chili-Peppers-4'</sqlCheck>
         </preConditions>
@@ -707,7 +707,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Ringmaster" author="muff1nman">
-        <validCheckSum>7:ee2340f09e351c1ccda3c9dfa71ffcbf</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Ringmaster'</sqlCheck>
         </preConditions>
@@ -725,7 +725,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Rumor-Junkie" author="muff1nman">
-        <validCheckSum>7:46c9cfd1d5d60eef0277d046064e7670</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Rumor-Junkie'</sqlCheck>
         </preConditions>
@@ -743,7 +743,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Sozzled-Surfer" author="muff1nman">
-        <validCheckSum>7:c018f6267a19989ba99c2361ad959fc6</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Sozzled-Surfer'</sqlCheck>
         </preConditions>
@@ -761,7 +761,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Statistician" author="muff1nman">
-        <validCheckSum>7:786c0d65ab283f6cad03fdd0757480f9</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Statistician'</sqlCheck>
         </preConditions>
@@ -779,7 +779,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Tech-Support" author="muff1nman">
-        <validCheckSum>7:5cfbe2a8a4ad2a605880170d27b195ed</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Tech-Support'</sqlCheck>
         </preConditions>
@@ -797,7 +797,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_The-Guru" author="muff1nman">
-        <validCheckSum>7:ab9565e7768e03193d2de5c60be74843</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'The-Guru'</sqlCheck>
         </preConditions>
@@ -815,7 +815,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_The-Referee" author="muff1nman">
-        <validCheckSum>7:705db6a005696ae8d9d7a39d9ef626a8</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'The-Referee'</sqlCheck>
         </preConditions>
@@ -833,7 +833,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Troll" author="muff1nman">
-        <validCheckSum>7:6eb305b202548b993d7edd0746ea71d9</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Troll'</sqlCheck>
         </preConditions>
@@ -851,7 +851,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Uptight" author="muff1nman">
-        <validCheckSum>7:dc955eccac25bbe19b61de970ddea05e</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Uptight'</sqlCheck>
         </preConditions>
@@ -869,7 +869,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Fire-Guitar" author="muff1nman">
-        <validCheckSum>7:2c8eb5047dc5ebe3fbb1c5bc4f614122</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Fire-Guitar'</sqlCheck>
         </preConditions>
@@ -887,7 +887,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Drum" author="muff1nman">
-        <validCheckSum>7:4e77bbb7cca43ba206f0bbfd4af38d7f</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Drum'</sqlCheck>
         </preConditions>
@@ -905,7 +905,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Headphones" author="muff1nman">
-        <validCheckSum>7:b577f199dd646877d51f4766d63dbd72</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Headphones'</sqlCheck>
         </preConditions>
@@ -923,7 +923,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Mic" author="muff1nman">
-        <validCheckSum>7:999caf515ab0b3d5ac99d3c81893bd67</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Mic'</sqlCheck>
         </preConditions>
@@ -941,7 +941,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Turntable" author="muff1nman">
-        <validCheckSum>7:14ea8fa0912b13ab337c940b871d7782</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Turntable'</sqlCheck>
         </preConditions>
@@ -959,7 +959,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Vinyl" author="muff1nman">
-        <validCheckSum>7:391aefb55d1076fd9e05c1ae7377d5cd</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Vinyl'</sqlCheck>
         </preConditions>
@@ -977,7 +977,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Cool" author="muff1nman">
-        <validCheckSum>7:c4fbec5479846de62714bf0fed6224c3</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Cool'</sqlCheck>
         </preConditions>
@@ -995,7 +995,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Laugh" author="muff1nman">
-        <validCheckSum>7:9ddb901cd6baef436261d8719973988d</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Laugh'</sqlCheck>
         </preConditions>
@@ -1013,7 +1013,7 @@
         </rollback>
     </changeSet>
     <changeSet id="schema35_010_Study" author="muff1nman">
-        <validCheckSum>7:d4bc85dc419904b95ff88b95dfc4694a</validCheckSum>
+        <validCheckSum>ANY</validCheckSum>
         <preConditions onFail="MARK_RAN">
             <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'Study'</sqlCheck>
         </preConditions>

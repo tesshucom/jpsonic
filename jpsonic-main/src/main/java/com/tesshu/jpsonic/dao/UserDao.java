@@ -189,8 +189,8 @@ public class UserDao extends AbstractDao {
         String sql = "update " + getUserTable()
                 + " set password=?, email=?, ldap_authenticated=?, bytes_streamed=?, bytes_downloaded=?, bytes_uploaded=? "
                 + "where username=?";
-        getJdbcTemplate().update(sql, encrypt(user.getPassword()), user.getEmail(), user.isLdapAuthenticated(),
-                user.getBytesStreamed(), user.getBytesDownloaded(), user.getBytesUploaded(), user.getUsername());
+        update(sql, encrypt(user.getPassword()), user.getEmail(), user.isLdapAuthenticated(), user.getBytesStreamed(),
+                user.getBytesDownloaded(), user.getBytesUploaded(), user.getUsername());
         writeRoles(user);
     }
 
@@ -233,23 +233,23 @@ public class UserDao extends AbstractDao {
      */
     @SuppressFBWarnings(value = "SQL_INJECTION_SPRING_JDBC", justification = "False positive. find-sec-bugs#385")
     public void updateUserSettings(UserSettings settings) {
-        getJdbcTemplate().update("delete from user_settings where username=?", settings.getUsername());
+        update("delete from user_settings where username=?", settings.getUsername());
 
         String sql = "insert into user_settings (" + USER_SETTINGS_COLUMNS + ") values ("
                 + questionMarks(USER_SETTINGS_COLUMNS) + ')';
         String locale = settings.getLocale() == null ? null : settings.getLocale().toString();
         UserSettings.Visibility main = settings.getMainVisibility();
         UserSettings.Visibility playlist = settings.getPlaylistVisibility();
-        getJdbcTemplate().update(sql, settings.getUsername(), locale, settings.getThemeId(),
-                settings.isFinalVersionNotificationEnabled(), settings.isBetaVersionNotificationEnabled(),
-                settings.isSongNotificationEnabled(), main.isTrackNumberVisible(), main.isArtistVisible(),
-                main.isAlbumVisible(), main.isGenreVisible(), main.isYearVisible(), main.isBitRateVisible(),
-                main.isDurationVisible(), main.isFormatVisible(), main.isFileSizeVisible(),
-                playlist.isTrackNumberVisible(), playlist.isArtistVisible(), playlist.isAlbumVisible(),
-                playlist.isGenreVisible(), playlist.isYearVisible(), playlist.isBitRateVisible(),
-                playlist.isDurationVisible(), playlist.isFormatVisible(), playlist.isFileSizeVisible(),
-                settings.isLastFmEnabled(), settings.getLastFmUsername(), encrypt(settings.getLastFmPassword()),
-                settings.isListenBrainzEnabled(), settings.getListenBrainzToken(), settings.getTranscodeScheme().name(),
+        update(sql, settings.getUsername(), locale, settings.getThemeId(), settings.isFinalVersionNotificationEnabled(),
+                settings.isBetaVersionNotificationEnabled(), settings.isSongNotificationEnabled(),
+                main.isTrackNumberVisible(), main.isArtistVisible(), main.isAlbumVisible(), main.isGenreVisible(),
+                main.isYearVisible(), main.isBitRateVisible(), main.isDurationVisible(), main.isFormatVisible(),
+                main.isFileSizeVisible(), playlist.isTrackNumberVisible(), playlist.isArtistVisible(),
+                playlist.isAlbumVisible(), playlist.isGenreVisible(), playlist.isYearVisible(),
+                playlist.isBitRateVisible(), playlist.isDurationVisible(), playlist.isFormatVisible(),
+                playlist.isFileSizeVisible(), settings.isLastFmEnabled(), settings.getLastFmUsername(),
+                encrypt(settings.getLastFmPassword()), settings.isListenBrainzEnabled(),
+                settings.getListenBrainzToken(), settings.getTranscodeScheme().name(),
                 settings.isShowNowPlayingEnabled(), settings.getSelectedMusicFolderId(), settings.isPartyModeEnabled(),
                 settings.isNowPlayingAllowed(), settings.getAvatarScheme().name(), settings.getSystemAvatarId(),
                 settings.getChanged(), settings.isShowArtistInfoEnabled(), settings.isAutoHidePlayQueue(),
@@ -339,7 +339,7 @@ public class UserDao extends AbstractDao {
 
     @SuppressWarnings("PMD.NPathComplexity") // It's not particularly difficult, so you can leave it as it is.
     private void writeRoles(User user) {
-        getJdbcTemplate().update("delete from user_role where username=?", user.getUsername());
+        update("delete from user_role where username=?", user.getUsername());
         if (user.isAdminRole()) {
             updateRole(user.getUsername(), ROLE_ID_ADMIN);
         }
@@ -373,7 +373,7 @@ public class UserDao extends AbstractDao {
     }
 
     private void updateRole(String username, Integer role) {
-        getJdbcTemplate().update("insert into user_role (username, role_id) values(?, ?)", username, role);
+        update("insert into user_role (username, role_id) values(?, ?)", username, role);
     }
 
     private static class UserRowMapper implements RowMapper<User> {
