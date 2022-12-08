@@ -75,6 +75,8 @@ import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.service.search.IndexType;
 import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
 import com.tesshu.jpsonic.util.FileUtil;
+import com.tesshu.jpsonic.util.concurrent.ExecutorConfiguration;
+import com.tesshu.jpsonic.util.concurrent.ShortTaskPoolConfiguration;
 import net.sf.ehcache.Ehcache;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -140,11 +142,6 @@ class MediaScannerServiceImplTest {
         @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert") // It doesn't seem to be able to capture
         @Test
         void testPodcast() throws URISyntaxException {
-            executor = new ThreadPoolTaskExecutor();
-            executor.setQueueCapacity(0);
-            executor.setCorePoolSize(1);
-            executor.setMaxPoolSize(1);
-            executor.initialize();
             indexManager = mock(IndexManager.class);
             Mockito.doNothing().when(indexManager).startIndexing();
             Path podcastPath = Path.of(MediaScannerServiceImplTest.class.getResource("/MEDIAS/Scan/Null").toURI());
@@ -152,6 +149,13 @@ class MediaScannerServiceImplTest {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setPathString(podcastPath.toString());
             Mockito.when(mediaFileService.getMediaFile(podcastPath)).thenReturn(mediaFile);
+
+            ShortTaskPoolConfiguration poolConf = new ShortTaskPoolConfiguration();
+            poolConf.setQueueCapacity("0");
+            poolConf.setCorePoolSize("1");
+            poolConf.setMaxPoolSize("1");
+            ExecutorConfiguration executorConf = new ExecutorConfiguration(poolConf);
+            final ThreadPoolTaskExecutor executor = executorConf.scanExecutor();
 
             mediaScannerService = new MediaScannerServiceImpl(settingsService, mock(MusicFolderService.class),
                     indexManager, mock(PlaylistService.class), writableMediaFileService, mediaFileDao, artistDao,
