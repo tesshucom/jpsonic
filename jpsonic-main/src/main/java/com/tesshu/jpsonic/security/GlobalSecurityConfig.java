@@ -47,7 +47,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.GlobalAuthenticationConfigurerAdapter;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -64,7 +64,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
  * Spring manners. Usually not desirable. Code that issues this warning in the future needs scrutiny.
  */
 @Order(SecurityProperties.BASIC_AUTH_ORDER - 2)
-@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
+@EnableMethodSecurity(securedEnabled = true)
 public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(GlobalSecurityConfig.class);
@@ -83,7 +83,8 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
         this.customUserDetailsContextMapper = customUserDetailsContextMapper;
     }
 
-    @SuppressWarnings("PMD.AvoidCatchingGenericException") // springframework/AuthenticationManagerBuilder#ldapAuthentication
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
+    // springframework/AuthenticationManagerBuilder#ldapAuthentication
     // springframework/AuthenticationManagerBuilder#userDetailsService
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws ExecutionException {
@@ -167,16 +168,23 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-
-            http = http.addFilter(new WebAsyncManagerIntegrationFilter());
-            http = http.addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
-
-            http.antMatcher("/ext/**").csrf().requireCsrfProtectionMatcher(csrfSecurityRequestMatcher).and().headers()
-                    .frameOptions().sameOrigin().and().authorizeRequests()
-                    .antMatchers("/ext/stream/**", "/ext/coverArt*", "/ext/share/**", "/ext/hls/**")
-                    .hasAnyRole("TEMP", "USER").and().sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().exceptionHandling().and()
-                    .securityContext().and().requestCache().and().anonymous().and().servletApi();
+            http
+                .addFilter(new WebAsyncManagerIntegrationFilter())
+                .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
+                .securityMatcher("/ext/**").csrf()
+                    .requireCsrfProtectionMatcher(csrfSecurityRequestMatcher)
+                .and().headers()
+                    .frameOptions().sameOrigin()
+                .and().authorizeHttpRequests()
+                    .requestMatchers("/ext/stream/**", "/ext/coverArt*", "/ext/share/**", "/ext/hls/**")
+                        .hasAnyRole("TEMP", "USER")
+                .and().sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and().exceptionHandling()
+                .and().securityContext()
+                .and().requestCache()
+                .and().anonymous()
+                .and().servletApi();
         }
     }
 
@@ -249,30 +257,48 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
                 }
             }
 
-            http.csrf().requireCsrfProtectionMatcher(csrfSecurityRequestMatcher).and().headers().frameOptions()
-                    .sameOrigin().and().authorizeRequests()
-                    .antMatchers("/recover*", "/accessDenied*", "/style/**", "/icons/**", "/flash/**", "/script/**",
-                            "/login", "/error")
-                    .permitAll()
-                    .antMatchers("/personalSettings*", "/passwordSettings*", "/playerSettings*", "/shareSettings*",
-                            "/passwordSettings*")
-                    .hasRole("SETTINGS")
-                    .antMatchers("/generalSettings*", "/advancedSettings*", "/userSettings*", "/internalhelp*",
-                            "/musicFolderSettings*", "/databaseSettings*", "/transcodeSettings*", "/rest/startScan*")
-                    .hasRole("ADMIN").antMatchers("/deletePlaylist*", "/savePlaylist*").hasRole("PLAYLIST")
-                    .antMatchers("/download*").hasRole("DOWNLOAD").antMatchers("/upload*").hasRole("UPLOAD")
-                    .antMatchers("/createShare*").hasRole("SHARE").antMatchers("/changeCoverArt*", "/editTags*")
-                    .hasRole("COVERART").antMatchers("/setMusicFileInfo*").hasRole("COMMENT")
-                    .antMatchers("/podcastReceiverAdmin*").hasRole("PODCAST").antMatchers("/**").hasRole("USER")
-                    .anyRequest().authenticated().and().formLogin().loginPage("/login").permitAll()
-                    .defaultSuccessUrl("/index", true).failureUrl(FAILURE_URL)
+            http
+                .csrf()
+                    .requireCsrfProtectionMatcher(csrfSecurityRequestMatcher)
+                .and().headers()
+                    .frameOptions().sameOrigin()
+                .and().authorizeHttpRequests()
+                    .requestMatchers("/recover*", "/accessDenied*", "/style/**", "/icons/**", "/flash/**", "/script/**", "/login", "/error")
+                        .permitAll()
+                    .requestMatchers("/personalSettings*", "/passwordSettings*", "/playerSettings*", "/shareSettings*", "/passwordSettings*")
+                        .hasRole("SETTINGS")
+                    .requestMatchers("/generalSettings*", "/advancedSettings*", "/userSettings*", "/internalhelp*", "/musicFolderSettings*", "/databaseSettings*", "/transcodeSettings*", "/rest/startScan*")
+                        .hasRole("ADMIN")
+                    .requestMatchers("/deletePlaylist*", "/savePlaylist*")
+                        .hasRole("PLAYLIST")
+                    .requestMatchers("/download*")
+                        .hasRole("DOWNLOAD")
+                    .requestMatchers("/upload*")
+                        .hasRole("UPLOAD")
+                    .requestMatchers("/createShare*")
+                        .hasRole("SHARE")
+                    .requestMatchers("/changeCoverArt*", "/editTags*")
+                        .hasRole("COVERART")
+                    .requestMatchers("/setMusicFileInfo*")
+                        .hasRole("COMMENT")
+                    .requestMatchers("/podcastReceiverAdmin*")
+                        .hasRole("PODCAST")
+                    .requestMatchers("/**")
+                        .hasRole("USER")
+                    .anyRequest()
+                        .authenticated()
+                .and().formLogin()
+                    .loginPage("/login").permitAll()
+                    .defaultSuccessUrl("/index", true)
+                    .failureUrl(FAILURE_URL)
                     .usernameParameter(Attributes.Request.J_USERNAME.value())
                     .passwordParameter(Attributes.Request.J_PASSWORD.value())
-                    // see
-                    // http://docs.spring.io/spring-security/site/docs/3.2.4.RELEASE/reference/htmlsingle/#csrf-logout
-                    .and().logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
-                    .logoutSuccessUrl("/login?logout").and().rememberMe().key(rememberMeKey);
+                .and().logout()
+                    // see http://docs.spring.io/spring-security/site/docs/3.2.4.RELEASE/reference/htmlsingle/#csrf-logout
+                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
+                    .logoutSuccessUrl("/login?logout")
+                .and().rememberMe()
+                    .key(rememberMeKey);
         }
-
     }
 }

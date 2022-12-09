@@ -680,6 +680,9 @@
                     <configXmlFile>${project.basedir}/jpsonic-main/formatter.xml</configXmlFile>
                     <encoding>UTF-8</encoding>
                     <lineEnding>LF</lineEnding>
+					<excludes>
+						<exclude>com/tesshu/jpsonic/security/GlobalSecurityConfig.java</exclude>
+					</excludes>
                 </configuration>
             </plugin>
             <plugin>
