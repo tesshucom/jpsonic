@@ -24,6 +24,7 @@ function resetExtension() {
     $("#musicFileTypes").val('${command.defaultMusicFileTypes}');
     $("#videoFileTypes").val('${command.defaultVideoFileTypes}');
     $("#coverArtFileTypes").val('${command.defaultCoverArtFileTypes}');
+    $("#excludedCoverArts").val('${command.defaultExcludedCoverArts}');
     $("#playlistFolder").val('${command.defaultPlaylistFolder}');
     $("#shortcuts").val('${command.defaultShortcuts}');
 }
@@ -286,6 +287,11 @@ function resetExtension() {
             <dd>
                 <form:input path="coverArtFileTypes"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="coverartmask"/></c:import>
+            </dd>
+            <dt><fmt:message key="generalsettings.coverarttoexclude"/></dt>
+            <dd>
+                <form:input path="excludedCoverArts"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="coverarttoexclude"/></c:import>
             </dd>
             <dt><fmt:message key="generalsettings.playlistfolder"/></dt>
             <dd>

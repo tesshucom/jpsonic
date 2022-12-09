@@ -89,6 +89,7 @@ class WritableMediaFileServiceTest {
 
         Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(new String[0]);
         Mockito.when(settingsService.getMusicFileTypesAsArray()).thenReturn(new String[] { "mp3" });
+        Mockito.when(settingsService.getExcludedCoverArtsAsArray()).thenReturn(new String[0]);
         Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
     }
 

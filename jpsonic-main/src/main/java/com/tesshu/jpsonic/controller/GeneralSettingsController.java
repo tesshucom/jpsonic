@@ -153,11 +153,13 @@ public class GeneralSettingsController {
         command.setMusicFileTypes(settingsService.getMusicFileTypes());
         command.setVideoFileTypes(settingsService.getVideoFileTypes());
         command.setCoverArtFileTypes(settingsService.getCoverArtFileTypes());
+        command.setExcludedCoverArts(settingsService.getExcludedCoverArts());
         command.setPlaylistFolder(settingsService.getPlaylistFolder());
         command.setShortcuts(settingsService.getShortcuts());
         command.setDefaultMusicFileTypes(settingsService.getDefaultMusicFileTypes());
         command.setDefaultVideoFileTypes(settingsService.getDefaultVideoFileTypes());
         command.setDefaultCoverArtFileTypes(settingsService.getDefaultCoverArtFileTypes());
+        command.setDefaultExcludedCoverArts(settingsService.getDefaultExcludedCoverArts());
         command.setDefaultPlaylistFolder(settingsService.getDefaultPlaylistFolder().replaceAll("\\\\", "\\\\\\\\"));
         command.setDefaultShortcuts(settingsService.getDefaultShortcuts());
 
@@ -253,6 +255,7 @@ public class GeneralSettingsController {
         settingsService.setMusicFileTypes(command.getMusicFileTypes());
         settingsService.setVideoFileTypes(command.getVideoFileTypes());
         settingsService.setCoverArtFileTypes(command.getCoverArtFileTypes());
+        settingsService.setExcludedCoverArts(command.getExcludedCoverArts());
         PathValidator.validateFolderPath(command.getPlaylistFolder())
                 .ifPresent(folderPath -> settingsService.setPlaylistFolder(folderPath));
         settingsService.setShortcuts(command.getShortcuts());
