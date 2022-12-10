@@ -113,11 +113,13 @@ class ScannerProcedureServiceTest {
 
             Path dir = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004");
             assertTrue(Files.isDirectory(dir));
-            MediaFile album = writableMediaFileService.createMediaFile(dir);
+            @SuppressWarnings("deprecation") // for test
+            MediaLibraryStatistics stats = writableMediaFileService.newStatistics();
+            MediaFile album = writableMediaFileService.createMediaFile(dir, stats);
 
             Path file = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
             assertFalse(Files.isDirectory(file));
-            MediaFile child = writableMediaFileService.createMediaFile(file);
+            MediaFile child = writableMediaFileService.createMediaFile(file, stats);
             child.setLastScanned(FAR_PAST);
 
             MusicFolder musicFolder = new MusicFolder(MusicFolderTestDataUtils.resolveBaseMediaPath().concat("Music2"),

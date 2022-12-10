@@ -578,9 +578,11 @@ class MediaScannerServiceImplTest {
              * checked, and if the file is found to change, it will be parsed and the result will be saved in storage.
              * Note that the naming is get, but the actual processing is get & Update.
              */
-            albums = writableMediaFileService.getChildrenOf(artist, true, true, false, false);
+            @SuppressWarnings("deprecation") // for test
+            MediaLibraryStatistics stats = writableMediaFileService.newStatistics();
+            albums = writableMediaFileService.getChildrenOf(artist, true, true, false, stats);
             assertEquals(1, albums.size());
-            songs = writableMediaFileService.getChildrenOf(album, true, true, false, false);
+            songs = writableMediaFileService.getChildrenOf(album, true, true, false, stats);
             assertEquals(1, songs.size());
 
             /*

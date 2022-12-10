@@ -151,6 +151,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
         procedure.beforeScan();
 
+        @SuppressWarnings("deprecation") // Correct usage
         MediaLibraryStatistics stats = writableMediaFileService.newStatistics();
         if (LOG.isDebugEnabled()) {
             LOG.debug("New last scan date is " + stats.getScanDate());

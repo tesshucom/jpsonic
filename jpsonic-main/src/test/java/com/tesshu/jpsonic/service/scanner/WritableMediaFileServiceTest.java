@@ -101,39 +101,21 @@ class WritableMediaFileServiceTest {
 
     @Test
     void testGetLastModified() throws URISyntaxException, IOException {
-
         // Defaulte (Same as legacy). File modification date.
         Mockito.when(settingsService.getFileModifiedCheckScheme()).thenReturn(FileModifiedCheckScheme.LAST_MODIFIED);
         assertTrue(writableMediaFileService.isSchemeLastModified());
-
+        MediaLibraryStatistics stats = new MediaLibraryStatistics(now());
         Path path = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
-        assertEquals(Files.getLastModifiedTime(path).toMillis(), writableMediaFileService.getLastModified(path));
+        // For scan flows in Scheme.LAST_MODIFIED, lastModified = the last modified date
+        assertEquals(Files.getLastModifiedTime(path).toMillis(), writableMediaFileService.getLastModified(path, stats));
+
         // File modification date independent method (scan execution time is used)
         Mockito.when(settingsService.getFileModifiedCheckScheme()).thenReturn(FileModifiedCheckScheme.LAST_SCANNED);
         assertFalse(writableMediaFileService.isSchemeLastModified());
-
-        /*
-         * When requested by a flow other than scanning(Not usually, but when browsing before the first scan, etc.) In
-         * this case, the last modified date is used
-         */
-        assertEquals(Files.getLastModifiedTime(path).toMillis(), writableMediaFileService.getLastModified(path));
-
-        /*
-         * For scan flows in Scheme.LAST_SCANNED, scan execution time is used.
-         *
-         * @see MediaScannerService
-         */
         Instant scanStart = now();
-        MediaLibraryStatistics statistics = new MediaLibraryStatistics(scanStart);
-        assertEquals(scanStart.toEpochMilli(), writableMediaFileService.getLastModified(path, statistics));
-
-        /*
-         * For scan flows in Scheme.LAST_MODIFIED, , the last modified date is used.
-         */
-        Mockito.when(settingsService.getFileModifiedCheckScheme()).thenReturn(FileModifiedCheckScheme.LAST_MODIFIED);
-        assertTrue(writableMediaFileService.isSchemeLastModified());
-        assertEquals(Files.getLastModifiedTime(path).toMillis(),
-                writableMediaFileService.getLastModified(path, statistics));
+        stats = new MediaLibraryStatistics(scanStart);
+        // For scan flows in Scheme.LAST_SCANNED, lastModified = scan execution time
+        assertEquals(scanStart.toEpochMilli(), writableMediaFileService.getLastModified(path, stats));
     }
 
     @Documented
@@ -204,6 +186,7 @@ class WritableMediaFileServiceTest {
     class CheckLastModifiedTest {
 
         private Path dir;
+        private final MediaLibraryStatistics stats = new MediaLibraryStatistics(now());
 
         @BeforeEach
         public void setup() throws URISyntaxException {
@@ -237,8 +220,7 @@ class WritableMediaFileServiceTest {
             assertThat("mediaFile#version Lt MediaFileDao.VERSION", mediaFile.getVersion(),
                     lessThan(MediaFileDao.VERSION));
 
-            assertEquals(mediaFile,
-                    writableMediaFileService.checkLastModified(mediaFile, new MediaLibraryStatistics[0]));
+            assertEquals(mediaFile, writableMediaFileService.checkLastModified(mediaFile, stats));
             Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
@@ -264,8 +246,7 @@ class WritableMediaFileServiceTest {
 
             assertEquals(mediaFile.getChanged(), Files.getLastModifiedTime(mediaFile.toPath()).toInstant());
             assertEquals(FAR_PAST, mediaFile.getLastScanned());
-            assertEquals(mediaFile,
-                    writableMediaFileService.checkLastModified(mediaFile, new MediaLibraryStatistics[0]));
+            assertEquals(mediaFile, writableMediaFileService.checkLastModified(mediaFile, stats));
             Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
             Mockito.clearInvocations(mediaFileDao);
 
@@ -277,8 +258,7 @@ class WritableMediaFileServiceTest {
             assertThat("Changed Gt LastModified", mediaFile.getChanged().toEpochMilli(),
                     greaterThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertEquals(FAR_PAST, mediaFile.getLastScanned());
-            assertEquals(mediaFile,
-                    writableMediaFileService.checkLastModified(mediaFile, new MediaLibraryStatistics[0]));
+            assertEquals(mediaFile, writableMediaFileService.checkLastModified(mediaFile, stats));
             Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
@@ -304,8 +284,7 @@ class WritableMediaFileServiceTest {
 
             assertEquals(mediaFile.getChanged(), Files.getLastModifiedTime(mediaFile.toPath()).toInstant());
             assertNotEquals(FAR_PAST, mediaFile.getLastScanned());
-            assertEquals(mediaFile,
-                    writableMediaFileService.checkLastModified(mediaFile, new MediaLibraryStatistics[0]));
+            assertEquals(mediaFile, writableMediaFileService.checkLastModified(mediaFile, stats));
             Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
 
             try {
@@ -316,8 +295,7 @@ class WritableMediaFileServiceTest {
             assertThat("Changed Gt LastModified", mediaFile.getChanged().toEpochMilli(),
                     greaterThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertNotEquals(FAR_PAST, mediaFile.getLastScanned());
-            assertEquals(mediaFile,
-                    writableMediaFileService.checkLastModified(mediaFile, new MediaLibraryStatistics[0]));
+            assertEquals(mediaFile, writableMediaFileService.checkLastModified(mediaFile, stats));
             Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
@@ -344,8 +322,7 @@ class WritableMediaFileServiceTest {
             assertThat("Changed Lt LastModified", mediaFile.getChanged().toEpochMilli(),
                     lessThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertEquals(FAR_PAST, mediaFile.getLastScanned());
-            assertEquals(mediaFile,
-                    writableMediaFileService.checkLastModified(mediaFile, new MediaLibraryStatistics[0]));
+            assertEquals(mediaFile, writableMediaFileService.checkLastModified(mediaFile, stats));
             Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
@@ -372,8 +349,7 @@ class WritableMediaFileServiceTest {
             assertThat("Changed Lt LastModified", mediaFile.getChanged().toEpochMilli(),
                     lessThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertNotEquals(FAR_PAST, mediaFile.getLastScanned());
-            assertEquals(mediaFile,
-                    writableMediaFileService.checkLastModified(mediaFile, new MediaLibraryStatistics[0]));
+            assertEquals(mediaFile, writableMediaFileService.checkLastModified(mediaFile, stats));
             Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
@@ -400,8 +376,7 @@ class WritableMediaFileServiceTest {
             assertEquals(mediaFile.getChanged().toEpochMilli(),
                     Files.getLastModifiedTime(mediaFile.toPath()).toMillis());
             assertEquals(FAR_PAST, mediaFile.getLastScanned());
-            assertEquals(mediaFile,
-                    writableMediaFileService.checkLastModified(mediaFile, new MediaLibraryStatistics[0]));
+            assertEquals(mediaFile, writableMediaFileService.checkLastModified(mediaFile, stats));
             Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
             Mockito.clearInvocations(mediaFileDao);
 
@@ -413,8 +388,7 @@ class WritableMediaFileServiceTest {
             assertThat("Changed Gt LastModified", mediaFile.getChanged().toEpochMilli(),
                     greaterThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertEquals(FAR_PAST, mediaFile.getLastScanned());
-            assertEquals(mediaFile,
-                    writableMediaFileService.checkLastModified(mediaFile, new MediaLibraryStatistics[0]));
+            assertEquals(mediaFile, writableMediaFileService.checkLastModified(mediaFile, stats));
             Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
@@ -441,8 +415,7 @@ class WritableMediaFileServiceTest {
             assertEquals(mediaFile.getChanged().toEpochMilli(),
                     Files.getLastModifiedTime(mediaFile.toPath()).toMillis());
             assertNotEquals(FAR_PAST, mediaFile.getLastScanned());
-            assertEquals(mediaFile,
-                    writableMediaFileService.checkLastModified(mediaFile, new MediaLibraryStatistics[0]));
+            assertEquals(mediaFile, writableMediaFileService.checkLastModified(mediaFile, stats));
             Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
 
             try {
@@ -453,8 +426,7 @@ class WritableMediaFileServiceTest {
             assertThat("Changed Gt LastModified", mediaFile.getChanged().toEpochMilli(),
                     greaterThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertNotEquals(FAR_PAST, mediaFile.getLastScanned());
-            assertEquals(mediaFile,
-                    writableMediaFileService.checkLastModified(mediaFile, new MediaLibraryStatistics[0]));
+            assertEquals(mediaFile, writableMediaFileService.checkLastModified(mediaFile, stats));
             Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
 
         }
@@ -482,8 +454,7 @@ class WritableMediaFileServiceTest {
             assertThat("Changed Lt LastModified", mediaFile.getChanged().toEpochMilli(),
                     lessThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertEquals(FAR_PAST, mediaFile.getLastScanned());
-            assertEquals(mediaFile,
-                    writableMediaFileService.checkLastModified(mediaFile, new MediaLibraryStatistics[0]));
+            assertEquals(mediaFile, writableMediaFileService.checkLastModified(mediaFile, stats));
             Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
@@ -510,8 +481,7 @@ class WritableMediaFileServiceTest {
             assertThat("Changed Lt LastModified", mediaFile.getChanged().toEpochMilli(),
                     lessThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertNotEquals(FAR_PAST, mediaFile.getLastScanned());
-            assertEquals(mediaFile,
-                    writableMediaFileService.checkLastModified(mediaFile, new MediaLibraryStatistics[0]));
+            assertEquals(mediaFile, writableMediaFileService.checkLastModified(mediaFile, stats));
             Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
@@ -535,8 +505,7 @@ class WritableMediaFileServiceTest {
             mediaFile.setLastScanned(FAR_PAST);
 
             assertEquals(FAR_PAST, mediaFile.getLastScanned());
-            assertEquals(mediaFile,
-                    writableMediaFileService.checkLastModified(mediaFile, new MediaLibraryStatistics[0]));
+            assertEquals(mediaFile, writableMediaFileService.checkLastModified(mediaFile, stats));
             Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
@@ -562,8 +531,7 @@ class WritableMediaFileServiceTest {
             assertEquals(mediaFile.getChanged().toEpochMilli(),
                     Files.getLastModifiedTime(mediaFile.toPath()).toMillis());
             assertNotEquals(FAR_PAST, mediaFile.getLastScanned());
-            assertEquals(mediaFile,
-                    writableMediaFileService.checkLastModified(mediaFile, new MediaLibraryStatistics[0]));
+            assertEquals(mediaFile, writableMediaFileService.checkLastModified(mediaFile, stats));
             Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
             Mockito.clearInvocations(mediaFileDao);
 
@@ -575,8 +543,7 @@ class WritableMediaFileServiceTest {
             assertThat("Changed Gt LastModified", mediaFile.getChanged().toEpochMilli(),
                     greaterThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertNotEquals(FAR_PAST, mediaFile.getLastScanned());
-            assertEquals(mediaFile,
-                    writableMediaFileService.checkLastModified(mediaFile, new MediaLibraryStatistics[0]));
+            assertEquals(mediaFile, writableMediaFileService.checkLastModified(mediaFile, stats));
             Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
@@ -602,8 +569,7 @@ class WritableMediaFileServiceTest {
             assertThat("Changed Lt LastModified", mediaFile.getChanged().toEpochMilli(),
                     lessThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertEquals(FAR_PAST, mediaFile.getLastScanned());
-            assertEquals(mediaFile,
-                    writableMediaFileService.checkLastModified(mediaFile, new MediaLibraryStatistics[0]));
+            assertEquals(mediaFile, writableMediaFileService.checkLastModified(mediaFile, stats));
             Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
 
@@ -629,8 +595,7 @@ class WritableMediaFileServiceTest {
             assertThat("Changed Lt LastModified", mediaFile.getChanged().toEpochMilli(),
                     lessThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertNotEquals(FAR_PAST, mediaFile.getLastScanned());
-            assertEquals(mediaFile,
-                    writableMediaFileService.checkLastModified(mediaFile, new MediaLibraryStatistics[0]));
+            assertEquals(mediaFile, writableMediaFileService.checkLastModified(mediaFile, stats));
             Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
         }
     }
@@ -700,7 +665,8 @@ class WritableMediaFileServiceTest {
             Mockito.when(metaDataParserFactory.getParser(path)).thenReturn(null);
             Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(new String[0]);
 
-            MediaFile mediaFile = writableMediaFileService.createMediaFile(path);
+            MediaLibraryStatistics stats = new MediaLibraryStatistics(now());
+            MediaFile mediaFile = writableMediaFileService.createMediaFile(path, stats);
             assertEquals(Files.getLastModifiedTime(mediaFile.toPath()).toMillis(),
                     mediaFile.getChanged().toEpochMilli());
             assertEquals(Files.getLastModifiedTime(mediaFile.toPath()).toMillis(),
@@ -717,13 +683,14 @@ class WritableMediaFileServiceTest {
             mediaFile.setLastPlayed(lastPlayed);
             mediaFile.setComment("comment");
             Mockito.when(mediaFileDao.getMediaFile(path.toString())).thenReturn(mediaFile);
-            mediaFile = writableMediaFileService.createMediaFile(path);
+            MediaLibraryStatistics statsUpdated = new MediaLibraryStatistics(now());
+            mediaFile = writableMediaFileService.createMediaFile(path, statsUpdated);
             assertEquals(Files.getLastModifiedTime(mediaFile.toPath()).toMillis(),
                     mediaFile.getChanged().toEpochMilli());
             assertEquals(Files.getLastModifiedTime(mediaFile.toPath()).toMillis(),
                     mediaFile.getCreated().toEpochMilli());
-            assertEquals(FAR_PAST.toEpochMilli(), mediaFile.getLastScanned().toEpochMilli());
-            assertEquals(FAR_PAST.toEpochMilli(), mediaFile.getChildrenLastUpdated().toEpochMilli());
+            assertEquals(FAR_PAST, mediaFile.getLastScanned());
+            assertEquals(FAR_PAST, mediaFile.getChildrenLastUpdated());
             assertEquals(100, mediaFile.getPlayCount());
             assertEquals(lastPlayed.toEpochMilli(), mediaFile.getLastPlayed().toEpochMilli());
             assertEquals("comment", mediaFile.getComment());
@@ -731,11 +698,9 @@ class WritableMediaFileServiceTest {
             Mockito.when(settingsService.getFileModifiedCheckScheme()).thenReturn(FileModifiedCheckScheme.LAST_SCANNED);
             assertFalse(writableMediaFileService.isSchemeLastModified());
 
-            mediaFile = writableMediaFileService.createMediaFile(path);
-            assertEquals(Files.getLastModifiedTime(mediaFile.toPath()).toMillis(),
-                    mediaFile.getChanged().toEpochMilli());
-            assertEquals(Files.getLastModifiedTime(mediaFile.toPath()).toMillis(),
-                    mediaFile.getCreated().toEpochMilli());
+            mediaFile = writableMediaFileService.createMediaFile(path, stats);
+            assertNotEquals(Files.getLastModifiedTime(mediaFile.toPath()).toMillis(), mediaFile.getChanged());
+            assertNotEquals(Files.getLastModifiedTime(mediaFile.toPath()).toMillis(), mediaFile.getCreated());
             assertEquals(FAR_PAST.toEpochMilli(), mediaFile.getLastScanned().toEpochMilli());
             assertEquals(FAR_PAST.toEpochMilli(), mediaFile.getChildrenLastUpdated().toEpochMilli());
 
@@ -761,6 +726,7 @@ class WritableMediaFileServiceTest {
             Path path = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
             assertFalse(Files.isDirectory(path));
             assertTrue(writableMediaFileService.isSchemeLastModified());
+
             final Instant scanStart = now();
             final MediaLibraryStatistics statistics = new MediaLibraryStatistics(scanStart);
 
@@ -769,7 +735,7 @@ class WritableMediaFileServiceTest {
             Mockito.when(metaDataParserFactory.getParser(path)).thenReturn(musicParser);
             Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(new String[0]);
 
-            MediaFile mediaFile = writableMediaFileService.createMediaFile(path);
+            MediaFile mediaFile = writableMediaFileService.createMediaFile(path, new MediaLibraryStatistics(now()));
 
             assertThat("Because the parsed time is recorded.", mediaFile.getLastScanned().toEpochMilli(),
                     greaterThan(scanStart.toEpochMilli()));
@@ -777,7 +743,7 @@ class WritableMediaFileServiceTest {
 
             // Update case
             Mockito.when(mediaFileDao.getMediaFile(path.toString())).thenReturn(mediaFile);
-            mediaFile = writableMediaFileService.createMediaFile(path);
+            mediaFile = writableMediaFileService.createMediaFile(path, new MediaLibraryStatistics(now()));
             assertThat("Because the parsed time is set.", mediaFile.getLastScanned().toEpochMilli(),
                     greaterThan(scanStart.toEpochMilli()));
             assertEquals(FAR_PAST.toEpochMilli(), mediaFile.getChildrenLastUpdated().toEpochMilli());
@@ -802,13 +768,13 @@ class WritableMediaFileServiceTest {
             Mockito.when(metaDataParserFactory.getParser(path)).thenReturn(musicParser);
             Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(new String[0]);
 
-            MediaFile mediaFile = writableMediaFileService.createMediaFile(path);
+            MediaFile mediaFile = writableMediaFileService.createMediaFile(path, statistics);
             assertEquals(FAR_PAST.toEpochMilli(), mediaFile.getLastScanned().toEpochMilli());
             assertEquals(FAR_PAST.toEpochMilli(), mediaFile.getChildrenLastUpdated().toEpochMilli());
 
             // Update case
             Mockito.when(mediaFileDao.getMediaFile(path.toString())).thenReturn(mediaFile);
-            mediaFile = writableMediaFileService.createMediaFile(path);
+            mediaFile = writableMediaFileService.createMediaFile(path, statistics);
             assertEquals(FAR_PAST.toEpochMilli(), mediaFile.getLastScanned().toEpochMilli());
             assertEquals(FAR_PAST.toEpochMilli(), mediaFile.getChildrenLastUpdated().toEpochMilli());
 
