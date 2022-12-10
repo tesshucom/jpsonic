@@ -41,7 +41,6 @@ import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
-import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
@@ -75,12 +74,11 @@ public class WritableMediaFileService {
     private final SettingsService settingsService;
     private final SecurityService securityService;
     private final JapaneseReadingUtils readingUtils;
-    private final JpsonicComparators jpsonicComparator;
 
     public WritableMediaFileService(MediaFileDao mediaFileDao, ScannerStateService scannerStateService,
             MediaFileService mediaFileService, AlbumDao albumDao, MediaFileCache mediaFileCache,
             MetaDataParserFactory metaDataParserFactory, SettingsService settingsService,
-            SecurityService securityService, JapaneseReadingUtils readingUtils, JpsonicComparators jpsonicComparator) {
+            SecurityService securityService, JapaneseReadingUtils readingUtils) {
         super();
         this.mediaFileDao = mediaFileDao;
         this.scannerStateService = scannerStateService;
@@ -91,7 +89,6 @@ public class WritableMediaFileService {
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.readingUtils = readingUtils;
-        this.jpsonicComparator = jpsonicComparator;
     }
 
     /**
@@ -185,7 +182,7 @@ public class WritableMediaFileService {
         mediaFileDao.createOrUpdateMediaFile(parent);
     }
 
-    List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories, boolean sort,
+    List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories,
             @NonNull MediaLibraryStatistics stats) {
 
         List<MediaFile> result = new ArrayList<>();
@@ -204,10 +201,6 @@ public class WritableMediaFileService {
             if (checked.isFile() && includeFiles && mediaFileService.includeMediaFile(checked.toPath())) {
                 result.add(checked);
             }
-        }
-
-        if (sort) {
-            result.sort(jpsonicComparator.mediaFileOrder(parent));
         }
 
         return result;

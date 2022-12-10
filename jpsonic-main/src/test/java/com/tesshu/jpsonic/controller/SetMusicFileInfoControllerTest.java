@@ -27,7 +27,6 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
-import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
@@ -71,7 +70,7 @@ class SetMusicFileInfoControllerTest {
         WritableMediaFileService writableMediaFileService = new WritableMediaFileService(mediaFileDao,
                 scannerStateService, mock(MediaFileService.class), mock(AlbumDao.class), mock(MediaFileCache.class),
                 mock(MetaDataParserFactory.class), mock(SettingsService.class), mock(SecurityService.class),
-                mock(JapaneseReadingUtils.class), mock(JpsonicComparators.class));
+                mock(JapaneseReadingUtils.class));
         controller = new SetMusicFileInfoController(mediaFileService, writableMediaFileService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }

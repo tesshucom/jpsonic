@@ -84,7 +84,7 @@ class ScannerProcedureServiceTest {
         albumDao = mock(AlbumDao.class);
         writableMediaFileService = new WritableMediaFileService(mediaFileDao, null, mediaFileService, albumDao, null,
                 mock(MetaDataParserFactory.class), settingsService, mock(SecurityService.class),
-                mock(JapaneseReadingUtils.class), mock(JpsonicComparators.class));
+                mock(JapaneseReadingUtils.class));
         scannerProcedureService = new ScannerProcedureService(settingsService, indexManager, mediaFileService,
                 writableMediaFileService, mediaFileDao, mock(ArtistDao.class), albumDao,
                 mock(SortProcedureService.class), new ScannerStateServiceImpl(indexManager), mock(Ehcache.class),

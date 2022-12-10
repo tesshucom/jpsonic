@@ -140,10 +140,10 @@ public class ScannerProcedureService {
         indexManager.index(file);
 
         if (file.isDirectory()) {
-            for (MediaFile child : writableMediaFileService.getChildrenOf(file, true, false, false, statistics)) {
+            for (MediaFile child : writableMediaFileService.getChildrenOf(file, true, false, statistics)) {
                 scanFile(child, musicFolder, statistics, albumCount, genres, isPodcast);
             }
-            for (MediaFile child : writableMediaFileService.getChildrenOf(file, false, true, false, statistics)) {
+            for (MediaFile child : writableMediaFileService.getChildrenOf(file, false, true, statistics)) {
                 scanFile(child, musicFolder, statistics, albumCount, genres, isPodcast);
             }
         } else {

@@ -87,7 +87,7 @@ class WritableMediaFileServiceTest {
         JapaneseReadingUtils readingUtils = mock(JapaneseReadingUtils.class);
         writableMediaFileService = new WritableMediaFileService(mediaFileDao, mock(ScannerStateService.class),
                 mediaFileService, albumDao, mediaFileCache, metaDataParserFactory, settingsService, securityService,
-                readingUtils, mock(JpsonicComparators.class));
+                readingUtils);
 
         Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(new String[0]);
         Mockito.when(settingsService.getMusicFileTypesAsArray()).thenReturn(new String[] { "mp3" });

@@ -129,8 +129,7 @@ class MediaScannerServiceImplTest {
             utils = mock(SortProcedureService.class);
             scannerStateService = new ScannerStateServiceImpl(indexManager);
             writableMediaFileService = new WritableMediaFileService(mediaFileDao, scannerStateService, mediaFileService,
-                    albumDao, mock(MediaFileCache.class), null, settingsService, mock(SecurityService.class), null,
-                    null);
+                    albumDao, mock(MediaFileCache.class), null, settingsService, mock(SecurityService.class), null);
             scannerProcedureService = new ScannerProcedureService(settingsService, indexManager, mediaFileService,
                     writableMediaFileService, mediaFileDao, artistDao, albumDao, utils, scannerStateService,
                     mock(Ehcache.class), mock(MediaFileCache.class));
@@ -580,9 +579,9 @@ class MediaScannerServiceImplTest {
              */
             @SuppressWarnings("deprecation") // for test
             MediaLibraryStatistics stats = writableMediaFileService.newStatistics();
-            albums = writableMediaFileService.getChildrenOf(artist, true, true, false, stats);
+            albums = writableMediaFileService.getChildrenOf(artist, true, true, stats);
             assertEquals(1, albums.size());
-            songs = writableMediaFileService.getChildrenOf(album, true, true, false, stats);
+            songs = writableMediaFileService.getChildrenOf(album, true, true, stats);
             assertEquals(1, songs.size());
 
             /*
