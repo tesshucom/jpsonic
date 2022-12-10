@@ -42,6 +42,7 @@ import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.Theme;
 import com.tesshu.jpsonic.service.SettingsConstants.Pair;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
@@ -356,6 +357,10 @@ public class SettingsService {
 
     public String getFileModifiedCheckSchemeName() {
         return getString(SettingsConstants.MusicFolder.Others.FILE_MODIFIED_CHECK_SCHEME_NAME);
+    }
+
+    public FileModifiedCheckScheme getFileModifiedCheckScheme() {
+        return FileModifiedCheckScheme.valueOf(getFileModifiedCheckSchemeName());
     }
 
     public void setFileModifiedCheckSchemeName(String s) {

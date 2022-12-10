@@ -695,6 +695,8 @@ class MediaScannerServiceImplTest {
         @Autowired
         private PlaylistService playlistService;
         @Autowired
+        private MediaFileService mediaFileService;
+        @Autowired
         private WritableMediaFileService writableMediaFileService;
         @Autowired
         private MediaFileDao mediaFileDao;
@@ -831,7 +833,7 @@ class MediaScannerServiceImplTest {
             musicFolderDao.createMusicFolder(musicFolder);
             musicFolderService.clearMusicFolderCache();
             TestCaseUtils.execScan(mediaScannerService);
-            MediaFile mediaFile = writableMediaFileService.getMediaFile(musicPath);
+            MediaFile mediaFile = mediaFileService.getMediaFile(musicPath);
             assertEquals(mediaFile.toPath(), musicPath);
             assertNotNull(mediaFile);
         }

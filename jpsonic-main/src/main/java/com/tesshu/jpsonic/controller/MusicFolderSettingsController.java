@@ -111,8 +111,7 @@ public class MusicFolderSettingsController {
         command.setIgnoreSymLinks(settingsService.isIgnoreSymLinks());
 
         // Other operations
-        command.setFileModifiedCheckScheme(
-                FileModifiedCheckScheme.valueOf(settingsService.getFileModifiedCheckSchemeName()));
+        command.setFileModifiedCheckScheme(settingsService.getFileModifiedCheckScheme());
         command.setIgnoreFileTimestamps(settingsService.isIgnoreFileTimestamps());
         command.setIgnoreFileTimestampsForEachAlbum(settingsService.isIgnoreFileTimestampsForEachAlbum());
 

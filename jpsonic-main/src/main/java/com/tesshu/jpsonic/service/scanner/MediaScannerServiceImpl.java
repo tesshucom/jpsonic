@@ -21,8 +21,6 @@
 
 package com.tesshu.jpsonic.service.scanner;
 
-import static com.tesshu.jpsonic.util.PlayerUtils.now;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
@@ -153,7 +151,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
         procedure.beforeScan();
 
-        MediaLibraryStatistics stats = new MediaLibraryStatistics(now());
+        MediaLibraryStatistics stats = writableMediaFileService.newStatistics();
         if (LOG.isDebugEnabled()) {
             LOG.debug("New last scan date is " + stats.getScanDate());
         }
@@ -166,7 +164,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
             // Recurse through all files on disk.
             for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders()) {
-                MediaFile root = writableMediaFileService.getMediaFile(musicFolder.toPath(), false);
+                MediaFile root = writableMediaFileService.getMediaFile(musicFolder.toPath(), stats);
                 procedure.scanFile(root, musicFolder, stats, albumCount, genres, false);
             }
 
@@ -174,7 +172,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
             if (settingsService.getPodcastFolder() != null) {
                 Path podcastFolder = Path.of(settingsService.getPodcastFolder());
                 if (Files.exists(podcastFolder)) {
-                    procedure.scanFile(writableMediaFileService.getMediaFile(podcastFolder),
+                    procedure.scanFile(writableMediaFileService.getMediaFile(podcastFolder, stats),
                             new MusicFolder(podcastFolder.toString(), null, true, null), stats, albumCount, genres,
                             true);
                 }

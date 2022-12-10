@@ -106,8 +106,8 @@ public final class ServiceMockUtils {
             Mockito.when(settingsService.getShortcutsAsArray())
                     .thenReturn(StringUtil.split(SettingsConstants.General.Extension.SHORTCUTS.defaultValue));
             Mockito.when(settingsService.isGettingStartedEnabled()).thenReturn(false);
-            Mockito.when(settingsService.getFileModifiedCheckSchemeName())
-                    .thenReturn(FileModifiedCheckScheme.LAST_MODIFIED.name());
+            Mockito.when(settingsService.getFileModifiedCheckScheme())
+                    .thenReturn(FileModifiedCheckScheme.LAST_MODIFIED);
             Mockito.when(settingsService.getJWTKey()).thenReturn("SomeKey");
             Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.NATIVE_JAPANESE.name());
             Mockito.when(settingsService.isIgnoreFullWidth()).thenReturn(true);

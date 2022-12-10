@@ -94,53 +94,51 @@ public class WritableMediaFileService {
         this.jpsonicComparator = jpsonicComparator;
     }
 
+    MediaLibraryStatistics newStatistics() {
+        return new MediaLibraryStatistics(now());
+    }
+
+    /**
+     * Where this method is currently used, Statistics is undesigned.
+     *
+     * @deprecated Use MediaFileService#getMediaFile if use the cache, otherwise use
+     *             WritableMediaFileService#getMediaFile
+     */
+    @Deprecated
     @Nullable
     MediaFile getMediaFile(Path path) {
-        return getMediaFile(path, true);
+        return getMediaFile(path, newStatistics());
     }
 
     @Nullable
-    MediaFile getMediaFile(Path path, boolean useFastCache, MediaLibraryStatistics... statistics) {
+    MediaFile getMediaFile(Path path, MediaLibraryStatistics... statistics) {
 
-        // Look in fast memory cache first.
-        MediaFile result = mediaFileCache.get(path);
-        if (result != null) {
-            return result;
-        }
-
-        if (!securityService.isReadAllowed(path)) {
+        if (path == null || !Files.exists(path)) {
+            return null;
+        } else if (!securityService.isReadAllowed(path)) {
             throw new SecurityException("Access denied to file " + path);
         }
 
-        // Secondly, look in database.
-        result = mediaFileDao.getMediaFile(path.toString());
-        if (result != null) {
-            result = checkLastModified(result, useFastCache);
-            mediaFileCache.put(path, result);
-            return result;
+        // Look in database.
+        MediaFile mediaFile = mediaFileDao.getMediaFile(path.toString());
+        if (mediaFile != null) {
+            mediaFile = checkLastModified(mediaFile);
+            mediaFileCache.put(path, mediaFile);
+            return mediaFile;
         }
 
-        if (!Files.exists(path)) {
-            return null;
-        }
         // Not found in database, must read from disk.
-        result = createMediaFile(path, statistics);
-
-        // Put in cache and database.
-        mediaFileCache.put(path, result);
-        mediaFileDao.createOrUpdateMediaFile(result);
-
-        return result;
+        mediaFile = createMediaFile(path, statistics);
+        mediaFileDao.createOrUpdateMediaFile(mediaFile);
+        return mediaFile;
     }
 
     boolean isSchemeLastModified() {
-        return FileModifiedCheckScheme.LAST_MODIFIED == FileModifiedCheckScheme
-                .valueOf(settingsService.getFileModifiedCheckSchemeName());
+        return FileModifiedCheckScheme.LAST_MODIFIED == settingsService.getFileModifiedCheckScheme();
     }
 
     boolean isSchemeLastScaned() {
-        return FileModifiedCheckScheme.LAST_SCANNED == FileModifiedCheckScheme
-                .valueOf(settingsService.getFileModifiedCheckSchemeName());
+        return FileModifiedCheckScheme.LAST_SCANNED == settingsService.getFileModifiedCheckScheme();
     }
 
     void updateChildren(MediaFile parent, MediaLibraryStatistics... statistics) {
@@ -195,7 +193,7 @@ public class WritableMediaFileService {
         }
 
         for (MediaFile child : mediaFileDao.getChildrenOf(parent.getPathString())) {
-            MediaFile checked = checkLastModified(child, useFastCache, statistics);
+            MediaFile checked = checkLastModified(child, statistics);
             if (checked.isDirectory() && includeDirectories && mediaFileService.includeMediaFile(checked.toPath())) {
                 result.add(checked);
             }
@@ -211,15 +209,11 @@ public class WritableMediaFileService {
         return result;
     }
 
-    MediaFile checkLastModified(final MediaFile mediaFile, boolean useFastCache, MediaLibraryStatistics... statistics) {
+    MediaFile checkLastModified(final MediaFile mediaFile, MediaLibraryStatistics... statistics) {
 
         // Determine if the file has not changed
-        if (useFastCache) {
-            return mediaFile;
-        } else if (mediaFile.getVersion() >= MediaFileDao.VERSION) {
-            FileModifiedCheckScheme scheme = FileModifiedCheckScheme
-                    .valueOf(settingsService.getFileModifiedCheckSchemeName());
-            switch (scheme) {
+        if (mediaFile.getVersion() >= MediaFileDao.VERSION) {
+            switch (settingsService.getFileModifiedCheckScheme()) {
             case LAST_MODIFIED:
                 if (!settingsService.isIgnoreFileTimestamps()
                         && mediaFile.getChanged().toEpochMilli() >= getLastModified(mediaFile.toPath(), statistics)
@@ -342,7 +336,7 @@ public class WritableMediaFileService {
                 to.setMediaType(MediaFile.MediaType.ALBUM);
 
                 // Guess artist/album name, year and genre.
-                MediaFile firstChild = getMediaFile(firstChildPath, false, statistics);
+                MediaFile firstChild = getMediaFile(firstChildPath, statistics);
                 if (firstChild != null) {
                     to.setArtist(firstChild.getAlbumArtist());
                     to.setArtistSort(firstChild.getAlbumArtistSort());
