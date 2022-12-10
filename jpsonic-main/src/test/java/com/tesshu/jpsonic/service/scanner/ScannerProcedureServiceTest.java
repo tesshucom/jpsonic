@@ -43,7 +43,6 @@ import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.Genres;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -127,12 +126,11 @@ class ScannerProcedureServiceTest {
             Instant scanStart = now();
             MediaLibraryStatistics statistics = new MediaLibraryStatistics(scanStart);
             Map<String, Integer> albumCount = new ConcurrentHashMap<>();
-            Genres genres = new Genres();
 
             List<MediaFile> children = Arrays.asList(child);
             Mockito.when(mediaFileDao.getChildrenOf(album.getPathString())).thenReturn(children);
 
-            scannerProcedureService.scanFile(album, musicFolder, statistics, albumCount, genres, false);
+            scannerProcedureService.scanFile(album, musicFolder, statistics, albumCount, false);
         }
     }
 

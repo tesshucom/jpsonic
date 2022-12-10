@@ -262,6 +262,20 @@ public class MediaFileDao extends AbstractDao {
         return query("select " + GENRE_COLUMNS + " from genre order by " + orderBy + " desc", genreRowMapper);
     }
 
+    public List<Genre> getGenreCounts() {
+        return query("select song_genre.name, song_count, album_count from ( "
+                + "select genres.name, count(*) as song_count from (select distinct genre name from media_file where present and type = 'ALBUM' or type = 'MUSIC') as genres "
+                + "left join media_file as songs "
+                + "on songs.present and genres.name = songs.genre and songs.type = 'MUSIC' "
+                + "group by genres.name) as song_genre " + "join ( "
+                + "select genres.name, count(*) as album_count from ( "
+                + "select distinct genre name from media_file where present and type = 'ALBUM' or type = 'MUSIC') as genres "
+                + "left join media_file as albums "
+                + "on albums.present and genres.name = albums.genre and albums.type = 'ALBUM' "
+                + "group by genres.name) as album_genre " + "on song_genre.name = album_genre.name " + "order by name",
+                genreRowMapper);
+    }
+
     public void updateGenres(List<Genre> genres) {
         update("delete from genre");
         for (Genre genre : genres) {

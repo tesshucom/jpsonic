@@ -4,6 +4,7 @@ import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -13,7 +14,7 @@ import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.Genres;
+import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -123,8 +124,8 @@ public class ScannerProcedureService {
         }
     }
 
-    void scanFile(MediaFile file, MusicFolder musicFolder, MediaLibraryStatistics statistics,
-            Map<String, Integer> albumCount, Genres genres, boolean isPodcast) throws ExecutionException {
+    void scanFile(MediaFile file, MusicFolder musicFolder, MediaLibraryStatistics stats,
+            Map<String, Integer> albumCount, boolean isPodcast) throws ExecutionException {
 
         interruptIfCancelled();
         scannerState.incrementScanCount();
@@ -140,48 +141,35 @@ public class ScannerProcedureService {
         indexManager.index(file);
 
         if (file.isDirectory()) {
-            for (MediaFile child : writableMediaFileService.getChildrenOf(file, true, false, statistics)) {
-                scanFile(child, musicFolder, statistics, albumCount, genres, isPodcast);
+            for (MediaFile child : writableMediaFileService.getChildrenOf(file, true, false, stats)) {
+                scanFile(child, musicFolder, stats, albumCount, isPodcast);
             }
-            for (MediaFile child : writableMediaFileService.getChildrenOf(file, false, true, statistics)) {
-                scanFile(child, musicFolder, statistics, albumCount, genres, isPodcast);
+            for (MediaFile child : writableMediaFileService.getChildrenOf(file, false, true, stats)) {
+                scanFile(child, musicFolder, stats, albumCount, isPodcast);
             }
         } else {
             if (!isPodcast) {
-                updateAlbum(file, musicFolder, statistics.getScanDate(), albumCount);
-                updateArtist(file, musicFolder, statistics.getScanDate(), albumCount);
+                updateAlbum(file, musicFolder, stats.getScanDate(), albumCount);
+                updateArtist(file, musicFolder, stats.getScanDate(), albumCount);
             }
-            statistics.incrementSongs(1);
+            stats.incrementSongs(1);
         }
 
-        updateGenres(file, genres);
-        mediaFileDao.markPresent(file.getPathString(), statistics.getScanDate());
-        artistDao.markPresent(file.getAlbumArtist(), statistics.getScanDate());
+        mediaFileDao.markPresent(file.getPathString(), stats.getScanDate());
+        artistDao.markPresent(file.getAlbumArtist(), stats.getScanDate());
 
         Integer duration = file.getDurationSeconds();
         if (duration != null) {
-            statistics.incrementTotalDurationInSeconds(duration);
+            stats.incrementTotalDurationInSeconds(duration);
         }
         if (file.getFileSize() != null) {
-            statistics.incrementTotalLengthInBytes(file.getFileSize());
+            stats.incrementTotalLengthInBytes(file.getFileSize());
         }
     }
 
     void interruptIfCancelled() throws ExecutionException {
         if (scannerState.isDestroy()) {
             throw new ExecutionException(new InterruptedException("The scan was stopped due to the shutdown."));
-        }
-    }
-
-    private void updateGenres(MediaFile file, Genres genres) {
-        String genre = file.getGenre();
-        if (genre == null) {
-            return;
-        }
-        if (file.isAlbum()) {
-            genres.incrementAlbumCount(genre);
-        } else if (file.isAudio()) {
-            genres.incrementSongCount(genre);
         }
     }
 
@@ -299,6 +287,11 @@ public class ScannerProcedureService {
         if (firstEncounter) {
             indexManager.index(artist, musicFolder);
         }
+    }
+
+    void updateGenreMaster() {
+        List<Genre> genres = mediaFileDao.getGenreCounts();
+        mediaFileDao.updateGenres(genres);
     }
 
     void checkpoint() {

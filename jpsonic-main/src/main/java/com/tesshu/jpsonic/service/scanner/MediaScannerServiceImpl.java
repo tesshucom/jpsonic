@@ -33,7 +33,6 @@ import javax.annotation.PreDestroy;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.domain.Genres;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -161,12 +160,11 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
             // init
             Map<String, Integer> albumCount = new ConcurrentHashMap<>();
-            Genres genres = new Genres();
 
             // Recurse through all files on disk.
             for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders()) {
                 MediaFile root = writableMediaFileService.getMediaFile(musicFolder.toPath(), stats);
-                procedure.scanFile(root, musicFolder, stats, albumCount, genres, false);
+                procedure.scanFile(root, musicFolder, stats, albumCount, false);
             }
 
             // Scan podcast folder.
@@ -174,8 +172,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
                 Path podcastFolder = Path.of(settingsService.getPodcastFolder());
                 if (Files.exists(podcastFolder)) {
                     procedure.scanFile(writableMediaFileService.getMediaFile(podcastFolder, stats),
-                            new MusicFolder(podcastFolder.toString(), null, true, null), stats, albumCount, genres,
-                            true);
+                            new MusicFolder(podcastFolder.toString(), null, true, null), stats, albumCount, true);
                 }
             }
 
@@ -193,8 +190,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
                 stats.incrementAlbums(albums);
             }
 
-            // Update genres
-            mediaFileDao.updateGenres(genres.getGenres());
+            procedure.updateGenreMaster();
 
             procedure.doCleansingProcess();
 
