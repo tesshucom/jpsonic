@@ -32,7 +32,6 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
@@ -54,7 +53,6 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
     private final IndexManager indexManager;
-    private final PlaylistService playlistService;
     private final WritableMediaFileService writableMediaFileService;
     private final ThreadPoolTaskExecutor scanExecutor;
 
@@ -63,15 +61,13 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     private final ExpungeService expungeService;
 
     public MediaScannerServiceImpl(SettingsService settingsService, MusicFolderService musicFolderService,
-            IndexManager indexManager, PlaylistService playlistService,
-            WritableMediaFileService writableMediaFileService, ThreadPoolTaskExecutor scanExecutor,
-            ScannerStateServiceImpl scannerStateService, ScannerProcedureService procedure,
-            ExpungeService expungeService) {
+            IndexManager indexManager, WritableMediaFileService writableMediaFileService,
+            ThreadPoolTaskExecutor scanExecutor, ScannerStateServiceImpl scannerStateService,
+            ScannerProcedureService procedure, ExpungeService expungeService) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
         this.indexManager = indexManager;
-        this.playlistService = playlistService;
         this.writableMediaFileService = writableMediaFileService;
         this.scanExecutor = scanExecutor;
         this.scannerState = scannerStateService;
@@ -175,7 +171,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
         // Launch another process after Scan.
         if (!scannerState.isDestroy()) {
-            playlistService.importPlaylists();
+            procedure.importPlaylists();
             procedure.checkpoint();
         }
 

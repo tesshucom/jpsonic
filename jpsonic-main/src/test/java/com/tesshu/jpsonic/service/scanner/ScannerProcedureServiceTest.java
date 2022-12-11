@@ -50,6 +50,7 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
@@ -83,7 +84,7 @@ class ScannerProcedureServiceTest {
                 mock(MetaDataParserFactory.class), settingsService, mock(SecurityService.class),
                 mock(JapaneseReadingUtils.class));
         scannerProcedureService = new ScannerProcedureService(settingsService, indexManager, mediaFileService,
-                writableMediaFileService, mediaFileDao, mock(ArtistDao.class), albumDao,
+                writableMediaFileService, mock(PlaylistService.class), mediaFileDao, mock(ArtistDao.class), albumDao,
                 mock(SortProcedureService.class), new ScannerStateServiceImpl(indexManager), mock(Ehcache.class),
                 mock(MediaFileCache.class));
     }
@@ -111,7 +112,8 @@ class ScannerProcedureServiceTest {
             Path dir = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004");
             assertTrue(Files.isDirectory(dir));
             Instant scanStart = now();
-            MediaFile album = writableMediaFileService.createMediaFile(dir, scanStart);
+
+            final MediaFile album = writableMediaFileService.createMediaFile(dir, scanStart);
 
             Path file = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
             assertFalse(Files.isDirectory(file));

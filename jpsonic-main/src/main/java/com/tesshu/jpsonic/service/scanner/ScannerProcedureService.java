@@ -19,6 +19,7 @@ import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import net.sf.ehcache.Ehcache;
@@ -39,6 +40,7 @@ public class ScannerProcedureService {
     private final IndexManager indexManager;
     private final MediaFileService mediaFileService;
     private final WritableMediaFileService writableMediaFileService;
+    private final PlaylistService playlistService;
     private final MediaFileDao mediaFileDao;
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
@@ -50,13 +52,15 @@ public class ScannerProcedureService {
 
     public ScannerProcedureService(SettingsService settingsService, IndexManager indexManager,
             MediaFileService mediaFileService, WritableMediaFileService writableMediaFileService,
-            MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao, SortProcedureService sortProcedure,
-            ScannerStateServiceImpl scannerState, Ehcache indexCache, MediaFileCache mediaFileCache) {
+            PlaylistService playlistService, MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao,
+            SortProcedureService sortProcedure, ScannerStateServiceImpl scannerState, Ehcache indexCache,
+            MediaFileCache mediaFileCache) {
         super();
         this.settingsService = settingsService;
         this.indexManager = indexManager;
         this.mediaFileService = mediaFileService;
         this.writableMediaFileService = writableMediaFileService;
+        this.playlistService = playlistService;
         this.mediaFileDao = mediaFileDao;
         this.artistDao = artistDao;
         this.albumDao = albumDao;
@@ -303,6 +307,12 @@ public class ScannerProcedureService {
     void updateGenreMaster() {
         List<Genre> genres = mediaFileDao.getGenreCounts();
         mediaFileDao.updateGenres(genres);
+    }
+
+    void importPlaylists() {
+        writeInfo("Starting playlist import.");
+        playlistService.importPlaylists();
+        writeInfo("Completed playlist import.");
     }
 
     void checkpoint() {

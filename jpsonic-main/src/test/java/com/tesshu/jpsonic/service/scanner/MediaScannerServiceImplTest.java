@@ -131,11 +131,11 @@ class MediaScannerServiceImplTest {
             writableMediaFileService = new WritableMediaFileService(mediaFileDao, scannerStateService, mediaFileService,
                     albumDao, mock(MediaFileCache.class), null, settingsService, mock(SecurityService.class), null);
             scannerProcedureService = new ScannerProcedureService(settingsService, indexManager, mediaFileService,
-                    writableMediaFileService, mediaFileDao, artistDao, albumDao, utils, scannerStateService,
-                    mock(Ehcache.class), mock(MediaFileCache.class));
+                    writableMediaFileService, mock(PlaylistService.class), mediaFileDao, artistDao, albumDao, utils,
+                    scannerStateService, mock(Ehcache.class), mock(MediaFileCache.class));
             mediaScannerService = new MediaScannerServiceImpl(settingsService, mock(MusicFolderService.class),
-                    indexManager, null, writableMediaFileService, executor, scannerStateService,
-                    scannerProcedureService, mock(ExpungeService.class));
+                    indexManager, writableMediaFileService, executor, scannerStateService, scannerProcedureService,
+                    mock(ExpungeService.class));
         }
 
         @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert") // It doesn't seem to be able to capture
@@ -157,8 +157,8 @@ class MediaScannerServiceImplTest {
             final ThreadPoolTaskExecutor executor = executorConf.scanExecutor();
 
             mediaScannerService = new MediaScannerServiceImpl(settingsService, mock(MusicFolderService.class),
-                    indexManager, mock(PlaylistService.class), writableMediaFileService, executor, scannerStateService,
-                    scannerProcedureService, mock(ExpungeService.class));
+                    indexManager, writableMediaFileService, executor, scannerStateService, scannerProcedureService,
+                    mock(ExpungeService.class));
             mediaScannerService.scanLibrary();
             executor.shutdown();
         }
@@ -690,8 +690,6 @@ class MediaScannerServiceImplTest {
         @Autowired
         private IndexManager indexManager;
         @Autowired
-        private PlaylistService playlistService;
-        @Autowired
         private MediaFileService mediaFileService;
         @Autowired
         private WritableMediaFileService writableMediaFileService;
@@ -714,8 +712,7 @@ class MediaScannerServiceImplTest {
         public void setup() {
             ThreadPoolTaskExecutor scanExecutor = ServiceMockUtils.mockNoAsyncTaskExecutor();
             mediaScannerService = new MediaScannerServiceImpl(settingsService, musicFolderService, indexManager,
-                    playlistService, writableMediaFileService, scanExecutor, scannerStateService, procedure,
-                    expungeService);
+                    writableMediaFileService, scanExecutor, scannerStateService, procedure, expungeService);
         }
 
         /**

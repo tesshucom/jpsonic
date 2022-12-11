@@ -279,16 +279,6 @@ public class PlaylistService {
     }
 
     public void importPlaylists() {
-        if (settingsService.isVerboseLogScanning() && LOG.isInfoEnabled()) {
-            LOG.info("Starting playlist import.");
-        }
-        doImportPlaylists();
-        if (settingsService.isVerboseLogScanning() && LOG.isInfoEnabled()) {
-            LOG.info("Completed playlist import.");
-        }
-    }
-
-    private void doImportPlaylists() {
         String playlistFolderPath = settingsService.getPlaylistFolder();
         if (playlistFolderPath == null) {
             return;
