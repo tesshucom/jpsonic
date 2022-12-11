@@ -28,9 +28,6 @@ import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.dao.ArtistDao;
-import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -60,9 +57,6 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     private final IndexManager indexManager;
     private final PlaylistService playlistService;
     private final WritableMediaFileService writableMediaFileService;
-    private final MediaFileDao mediaFileDao;
-    private final ArtistDao artistDao;
-    private final AlbumDao albumDao;
     private final ThreadPoolTaskExecutor scanExecutor;
 
     private final ScannerStateServiceImpl scannerState;
@@ -71,18 +65,15 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
     public MediaScannerServiceImpl(SettingsService settingsService, MusicFolderService musicFolderService,
             IndexManager indexManager, PlaylistService playlistService,
-            WritableMediaFileService writableMediaFileService, MediaFileDao mediaFileDao, ArtistDao artistDao,
-            AlbumDao albumDao, ThreadPoolTaskExecutor scanExecutor, ScannerStateServiceImpl scannerStateService,
-            ScannerProcedureService procedure, ExpungeService expungeService) {
+            WritableMediaFileService writableMediaFileService, ThreadPoolTaskExecutor scanExecutor,
+            ScannerStateServiceImpl scannerStateService, ScannerProcedureService procedure,
+            ExpungeService expungeService) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
         this.indexManager = indexManager;
         this.playlistService = playlistService;
         this.writableMediaFileService = writableMediaFileService;
-        this.mediaFileDao = mediaFileDao;
-        this.artistDao = artistDao;
-        this.albumDao = albumDao;
         this.scanExecutor = scanExecutor;
         this.scannerState = scannerStateService;
         this.procedure = procedure;
@@ -173,12 +164,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
             writeInfo("Scanned media library with " + scannerState.getScanCount() + " entries.");
 
-            writeInfo("Marking non-present files.");
-            mediaFileDao.markNonPresent(stats.getScanDate());
-            writeInfo("Marking non-present artists.");
-            artistDao.markNonPresent(stats.getScanDate());
-            writeInfo("Marking non-present albums.");
-            albumDao.markNonPresent(stats.getScanDate());
+            procedure.markNonPresent(stats);
 
             procedure.updateAlbumCounts();
 

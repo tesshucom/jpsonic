@@ -133,8 +133,8 @@ class MediaScannerServiceImplTest {
                     writableMediaFileService, mediaFileDao, artistDao, albumDao, utils, scannerStateService,
                     mock(Ehcache.class), mock(MediaFileCache.class));
             mediaScannerService = new MediaScannerServiceImpl(settingsService, mock(MusicFolderService.class),
-                    indexManager, null, writableMediaFileService, mediaFileDao, artistDao, albumDao, executor,
-                    scannerStateService, scannerProcedureService, mock(ExpungeService.class));
+                    indexManager, null, writableMediaFileService, executor, scannerStateService,
+                    scannerProcedureService, mock(ExpungeService.class));
         }
 
         @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert") // It doesn't seem to be able to capture
@@ -156,8 +156,8 @@ class MediaScannerServiceImplTest {
             final ThreadPoolTaskExecutor executor = executorConf.scanExecutor();
 
             mediaScannerService = new MediaScannerServiceImpl(settingsService, mock(MusicFolderService.class),
-                    indexManager, mock(PlaylistService.class), writableMediaFileService, mediaFileDao, artistDao,
-                    albumDao, executor, scannerStateService, scannerProcedureService, mock(ExpungeService.class));
+                    indexManager, mock(PlaylistService.class), writableMediaFileService, executor, scannerStateService,
+                    scannerProcedureService, mock(ExpungeService.class));
             mediaScannerService.scanLibrary();
             executor.shutdown();
         }
@@ -714,8 +714,8 @@ class MediaScannerServiceImplTest {
         public void setup() {
             ThreadPoolTaskExecutor scanExecutor = ServiceMockUtils.mockNoAsyncTaskExecutor();
             mediaScannerService = new MediaScannerServiceImpl(settingsService, musicFolderService, indexManager,
-                    playlistService, writableMediaFileService, mediaFileDao, artistDao, albumDao, scanExecutor,
-                    scannerStateService, procedure, expungeService);
+                    playlistService, writableMediaFileService, scanExecutor, scannerStateService, procedure,
+                    expungeService);
         }
 
         /**

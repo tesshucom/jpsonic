@@ -284,6 +284,15 @@ public class ScannerProcedureService {
         }
     }
 
+    void markNonPresent(MediaLibraryStatistics stats) {
+        writeInfo("Marking non-present files.");
+        mediaFileDao.markNonPresent(stats.getScanDate());
+        writeInfo("Marking non-present artists.");
+        artistDao.markNonPresent(stats.getScanDate());
+        writeInfo("Marking non-present albums.");
+        albumDao.markNonPresent(stats.getScanDate());
+    }
+
     void updateAlbumCounts() {
         List<Artist> artists = artistDao.getAlbumCounts();
         for (Artist artist : artists) {
