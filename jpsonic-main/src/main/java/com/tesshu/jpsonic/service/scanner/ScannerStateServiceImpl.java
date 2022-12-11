@@ -1,8 +1,14 @@
 package com.tesshu.jpsonic.service.scanner;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.FAR_PAST;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
+import java.time.Instant;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
+
+import javax.annotation.PreDestroy;
 
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.search.IndexManager;
@@ -27,9 +33,18 @@ public class ScannerStateServiceImpl implements ScannerStateService {
 
     private final AtomicBoolean cleansing = new AtomicBoolean(true);
 
+    /**
+     * Scan start time. Use only within the thread that acquired the lock.
+     */
+    private Instant scanDate = FAR_PAST;
+
     public ScannerStateServiceImpl(IndexManager indexManager) {
         super();
         this.indexManager = indexManager;
+    }
+
+    Instant getScanDate() {
+        return scanDate;
     }
 
     void incrementScanCount() {
@@ -41,16 +56,19 @@ public class ScannerStateServiceImpl implements ScannerStateService {
         return scanCount.sum();
     }
 
-    void resetScanCount() {
-        scanCount.reset();
-    }
-
     boolean tryScanningLock() {
-        return scanningLock.tryLock();
+        boolean acquired = scanningLock.tryLock();
+        if (acquired) {
+            scanDate = now();
+            scanCount.reset();
+        }
+        return acquired;
     }
 
     void unlockScanning() {
         scanningLock.unlock();
+        scanDate = FAR_PAST;
+        scanCount.reset();
     }
 
     @Override
@@ -58,8 +76,9 @@ public class ScannerStateServiceImpl implements ScannerStateService {
         return scanningLock.isLocked();
     }
 
-    void setDestroy(boolean b) {
-        destroy.set(b);
+    @PreDestroy
+    void preDestroy() {
+        destroy.set(true);
     }
 
     boolean isDestroy() {

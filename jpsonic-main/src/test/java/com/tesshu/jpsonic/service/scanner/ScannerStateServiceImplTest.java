@@ -57,7 +57,19 @@ class ScannerStateServiceImplTest {
         assertEquals(1, scannerStateService.getScanCount());
         scannerStateService.incrementScanCount();
         assertEquals(2, scannerStateService.getScanCount());
-        scannerStateService.resetScanCount();
+
+        scannerStateService.tryScanningLock();
         assertEquals(0, scannerStateService.getScanCount());
+        scannerStateService.incrementScanCount();
+        assertEquals(1, scannerStateService.getScanCount());
+        scannerStateService.incrementScanCount();
+        assertEquals(2, scannerStateService.getScanCount());
+        scannerStateService.unlockScanning();
+
+        assertEquals(0, scannerStateService.getScanCount());
+        scannerStateService.incrementScanCount();
+        assertEquals(1, scannerStateService.getScanCount());
+        scannerStateService.incrementScanCount();
+        assertEquals(2, scannerStateService.getScanCount());
     }
 }

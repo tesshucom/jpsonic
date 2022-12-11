@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -573,11 +574,10 @@ class MediaScannerServiceImplTest {
              * checked, and if the file is found to change, it will be parsed and the result will be saved in storage.
              * Note that the naming is get, but the actual processing is get & Update.
              */
-            @SuppressWarnings("deprecation") // for test
-            MediaLibraryStatistics stats = writableMediaFileService.newStatistics();
-            albums = writableMediaFileService.getChildrenOf(artist, true, true, stats);
+            Instant scanStart = now();
+            albums = writableMediaFileService.getChildrenOf(artist, true, true, scanStart);
             assertEquals(1, albums.size());
-            songs = writableMediaFileService.getChildrenOf(album, true, true, stats);
+            songs = writableMediaFileService.getChildrenOf(album, true, true, scanStart);
             assertEquals(1, songs.size());
 
             /*

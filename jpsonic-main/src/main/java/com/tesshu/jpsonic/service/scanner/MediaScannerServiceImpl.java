@@ -23,13 +23,12 @@ package com.tesshu.jpsonic.service.scanner;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.concurrent.ExecutionException;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
 import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -87,11 +86,6 @@ public class MediaScannerServiceImpl implements MediaScannerService {
         indexManager.initializeIndexDirectory();
     }
 
-    @PreDestroy
-    void preDestroy() {
-        scannerState.setDestroy(true);
-    }
-
     private void writeInfo(String msg) {
         if (settingsService.isVerboseLogScanning() && LOG.isInfoEnabled()) {
             LOG.info(msg);
@@ -135,36 +129,31 @@ public class MediaScannerServiceImpl implements MediaScannerService {
             return;
         }
 
+        Instant scanDate = scannerState.getScanDate();
         LOG.info("Starting to scan media library.");
 
         procedure.beforeScan();
-
-        @SuppressWarnings("deprecation") // Correct usage
-        MediaLibraryStatistics stats = writableMediaFileService.newStatistics();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("New last scan date is " + stats.getScanDate());
-        }
 
         try {
 
             // Recurse through all files on disk.
             for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders()) {
-                MediaFile root = writableMediaFileService.getMediaFile(musicFolder.toPath(), stats);
-                procedure.scanFile(root, musicFolder, stats, false);
+                MediaFile root = writableMediaFileService.getMediaFile(musicFolder.toPath(), scanDate);
+                procedure.scanFile(root, musicFolder, scanDate, false);
             }
 
             // Scan podcast folder.
             if (settingsService.getPodcastFolder() != null) {
                 Path podcastFolder = Path.of(settingsService.getPodcastFolder());
                 if (Files.exists(podcastFolder)) {
-                    procedure.scanFile(writableMediaFileService.getMediaFile(podcastFolder, stats),
-                            new MusicFolder(podcastFolder.toString(), null, true, null), stats, true);
+                    procedure.scanFile(writableMediaFileService.getMediaFile(podcastFolder, scanDate),
+                            new MusicFolder(podcastFolder.toString(), null, true, null), scanDate, true);
                 }
             }
 
             writeInfo("Scanned media library with " + scannerState.getScanCount() + " entries.");
 
-            procedure.markNonPresent(stats);
+            procedure.markNonPresent(scanDate);
 
             procedure.updateAlbumCounts();
 
@@ -172,18 +161,16 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
             procedure.doCleansingProcess();
 
-            LOG.info("Completed media library scan.");
-
         } catch (ExecutionException e) {
             scannerState.unlockScanning();
             ConcurrentUtils.handleCauseUnchecked(e);
             if (scannerState.isDestroy()) {
                 writeInfo("Interrupted to scan media library.");
-            } else if (LOG.isDebugEnabled()) {
-                LOG.debug("Failed to scan media library.", e);
+            } else if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to scan media library.", e);
             }
         } finally {
-            procedure.afterScan(stats);
+            procedure.afterScan(scanDate);
         }
 
         // Launch another process after Scan.
@@ -191,6 +178,8 @@ public class MediaScannerServiceImpl implements MediaScannerService {
             playlistService.importPlaylists();
             procedure.checkpoint();
         }
+
+        LOG.info("Completed media library scan.");
 
         scannerState.unlockScanning();
     }

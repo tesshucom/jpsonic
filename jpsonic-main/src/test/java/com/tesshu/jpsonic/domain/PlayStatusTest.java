@@ -43,8 +43,8 @@ class PlayStatusTest {
     }
 
     /*
-     * this class cannot be fully tested due to the design. However, rigor is not required and is
-     * not a big deal in most cases. Ubuntu may calculate slightly shorter in some cases
+     * this class cannot be fully tested due to the design. However, rigor is not required and is not a big deal in most
+     * cases. Ubuntu may calculate slightly shorter in some cases
      */
     @DisabledOnOs(OS.LINUX)
     @Test

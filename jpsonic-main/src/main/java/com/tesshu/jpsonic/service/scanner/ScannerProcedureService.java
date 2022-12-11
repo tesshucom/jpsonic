@@ -91,7 +91,6 @@ public class ScannerProcedureService {
             mediaFileDao.resetLastScanned();
         }
 
-        scannerState.resetScanCount();
         sortProcedure.clearOrder();
         indexCache.removeAll();
         mediaFileCache.setEnabled(false);
@@ -100,9 +99,10 @@ public class ScannerProcedureService {
     }
 
     // TODO To be fixed in v111.6.0 #1841
-    void afterScan(MediaLibraryStatistics stats) {
+    void afterScan(Instant scanDate) {
         mediaFileCache.setEnabled(true);
 
+        MediaLibraryStatistics stats = new MediaLibraryStatistics(scanDate);
         stats.setArtistCount(mediaFileDao.getArtistCount());
         stats.setAlbumCount(mediaFileDao.getAlbumCount());
         stats.setSongCount(mediaFileDao.getSongCount());
@@ -131,7 +131,7 @@ public class ScannerProcedureService {
         }
     }
 
-    void scanFile(MediaFile file, MusicFolder musicFolder, MediaLibraryStatistics stats, boolean isPodcast)
+    void scanFile(MediaFile file, MusicFolder musicFolder, Instant scanDate, boolean isPodcast)
             throws ExecutionException {
 
         interruptIfCancelled();
@@ -148,21 +148,21 @@ public class ScannerProcedureService {
         indexManager.index(file);
 
         if (file.isDirectory()) {
-            for (MediaFile child : writableMediaFileService.getChildrenOf(file, true, false, stats)) {
-                scanFile(child, musicFolder, stats, isPodcast);
+            for (MediaFile child : writableMediaFileService.getChildrenOf(file, true, false, scanDate)) {
+                scanFile(child, musicFolder, scanDate, isPodcast);
             }
-            for (MediaFile child : writableMediaFileService.getChildrenOf(file, false, true, stats)) {
-                scanFile(child, musicFolder, stats, isPodcast);
+            for (MediaFile child : writableMediaFileService.getChildrenOf(file, false, true, scanDate)) {
+                scanFile(child, musicFolder, scanDate, isPodcast);
             }
         } else {
             if (!isPodcast) {
-                updateAlbum(file, musicFolder, stats.getScanDate());
-                updateArtist(file, musicFolder, stats.getScanDate());
+                updateAlbum(file, musicFolder, scanDate);
+                updateArtist(file, musicFolder, scanDate);
             }
         }
 
-        mediaFileDao.markPresent(file.getPathString(), stats.getScanDate());
-        artistDao.markPresent(file.getAlbumArtist(), stats.getScanDate());
+        mediaFileDao.markPresent(file.getPathString(), scanDate);
+        artistDao.markPresent(file.getAlbumArtist(), scanDate);
     }
 
     void interruptIfCancelled() throws ExecutionException {
@@ -284,13 +284,13 @@ public class ScannerProcedureService {
         }
     }
 
-    void markNonPresent(MediaLibraryStatistics stats) {
+    void markNonPresent(Instant scanDate) {
         writeInfo("Marking non-present files.");
-        mediaFileDao.markNonPresent(stats.getScanDate());
+        mediaFileDao.markNonPresent(scanDate);
         writeInfo("Marking non-present artists.");
-        artistDao.markNonPresent(stats.getScanDate());
+        artistDao.markNonPresent(scanDate);
         writeInfo("Marking non-present albums.");
-        albumDao.markNonPresent(stats.getScanDate());
+        albumDao.markNonPresent(scanDate);
     }
 
     void updateAlbumCounts() {

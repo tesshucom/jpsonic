@@ -110,24 +110,22 @@ class ScannerProcedureServiceTest {
 
             Path dir = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004");
             assertTrue(Files.isDirectory(dir));
-            @SuppressWarnings("deprecation") // for test
-            MediaLibraryStatistics stats = writableMediaFileService.newStatistics();
-            MediaFile album = writableMediaFileService.createMediaFile(dir, stats);
+            Instant scanStart = now();
+            MediaFile album = writableMediaFileService.createMediaFile(dir, scanStart);
 
             Path file = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
             assertFalse(Files.isDirectory(file));
-            MediaFile child = writableMediaFileService.createMediaFile(file, stats);
+            MediaFile child = writableMediaFileService.createMediaFile(file, scanStart);
             child.setLastScanned(FAR_PAST);
 
             MusicFolder musicFolder = new MusicFolder(MusicFolderTestDataUtils.resolveBaseMediaPath().concat("Music2"),
                     "name", false, now());
-            Instant scanStart = now();
-            MediaLibraryStatistics statistics = new MediaLibraryStatistics(scanStart);
+            scanStart = now();
 
             List<MediaFile> children = Arrays.asList(child);
             Mockito.when(mediaFileDao.getChildrenOf(album.getPathString())).thenReturn(children);
 
-            scannerProcedureService.scanFile(album, musicFolder, statistics, false);
+            scannerProcedureService.scanFile(album, musicFolder, scanStart, false);
         }
     }
 
