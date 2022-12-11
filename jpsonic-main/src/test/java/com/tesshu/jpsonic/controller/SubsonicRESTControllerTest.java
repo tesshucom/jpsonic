@@ -88,6 +88,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -741,6 +743,7 @@ class SubsonicRESTControllerTest {
         }
 
         @Test
+        @DisabledOnOs(OS.WINDOWS)
         void testGetMusicDirectory() throws ExecutionException {
             try {
 
@@ -1630,6 +1633,7 @@ class SubsonicRESTControllerTest {
         }
 
         @Test
+        @DisabledOnOs(OS.WINDOWS)
         void testRefreshPodcasts() throws ExecutionException {
             try {
 
@@ -1750,6 +1754,7 @@ class SubsonicRESTControllerTest {
         }
 
         @Test
+        @DisabledOnOs(OS.WINDOWS)
         void testDownloadPodcastEpisode() throws ExecutionException {
             try {
 

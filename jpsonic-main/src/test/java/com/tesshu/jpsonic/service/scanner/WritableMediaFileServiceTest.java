@@ -60,6 +60,8 @@ import com.tesshu.jpsonic.service.metadata.MusicParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -787,6 +789,7 @@ class WritableMediaFileServiceTest {
         }
 
         @Test
+        @DisabledOnOs(OS.WINDOWS)
         void testApplyFile() throws URISyntaxException {
             Path path = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
             assertFalse(Files.isDirectory(path));
