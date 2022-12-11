@@ -34,15 +34,15 @@ import javax.validation.constraints.NotNull;
 public class MediaLibraryStatistics {
 
     @NotNull
-    private Integer artistCount;
+    private Integer artistCount = 0;
     @NotNull
-    private Integer albumCount;
+    private Integer albumCount = 0;
     @NotNull
-    private Integer songCount;
+    private Integer songCount = 0;
     @NotNull
-    private Long totalLengthInBytes;
+    private Long totalLengthInBytes = 0L;
     @NotNull
-    private Long totalDurationInSeconds;
+    private Long totalDurationInSeconds = 0L;
     @NotNull
     private Instant scanDate;
 
@@ -55,59 +55,54 @@ public class MediaLibraryStatistics {
             throw new IllegalArgumentException();
         }
         this.scanDate = scanDate;
-        reset();
-    }
-
-    protected final void reset() {
-        artistCount = 0;
-        albumCount = 0;
-        songCount = 0;
-        totalLengthInBytes = 0L;
-        totalDurationInSeconds = 0L;
-    }
-
-    public void incrementArtists(int n) {
-        artistCount += n;
-    }
-
-    public void incrementAlbums(int n) {
-        albumCount += n;
-    }
-
-    public void incrementSongs(int n) {
-        songCount += n;
-    }
-
-    public void incrementTotalLengthInBytes(long n) {
-        totalLengthInBytes += n;
-    }
-
-    public void incrementTotalDurationInSeconds(long n) {
-        totalDurationInSeconds += n;
     }
 
     public Integer getArtistCount() {
         return artistCount;
     }
 
+    public void setArtistCount(Integer artistCount) {
+        this.artistCount = artistCount;
+    }
+
     public Integer getAlbumCount() {
         return albumCount;
+    }
+
+    public void setAlbumCount(Integer albumCount) {
+        this.albumCount = albumCount;
     }
 
     public Integer getSongCount() {
         return songCount;
     }
 
+    public void setSongCount(Integer songCount) {
+        this.songCount = songCount;
+    }
+
     public Long getTotalLengthInBytes() {
         return totalLengthInBytes;
+    }
+
+    public void setTotalLengthInBytes(Long totalLengthInBytes) {
+        this.totalLengthInBytes = totalLengthInBytes;
     }
 
     public Long getTotalDurationInSeconds() {
         return totalDurationInSeconds;
     }
 
+    public void setTotalDurationInSeconds(Long totalDurationInSeconds) {
+        this.totalDurationInSeconds = totalDurationInSeconds;
+    }
+
     public Instant getScanDate() {
         return scanDate;
+    }
+
+    public void setScanDate(Instant scanDate) {
+        this.scanDate = scanDate;
     }
 
     @Override

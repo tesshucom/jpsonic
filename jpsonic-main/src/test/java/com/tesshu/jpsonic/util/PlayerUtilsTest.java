@@ -134,11 +134,11 @@ class PlayerUtilsTest {
     void testObjectToStringMap() {
         Instant date = now();
         MediaLibraryStatistics statistics = new MediaLibraryStatistics(date);
-        statistics.incrementAlbums(5);
-        statistics.incrementSongs(4);
-        statistics.incrementArtists(910_823);
-        statistics.incrementTotalDurationInSeconds(30);
-        statistics.incrementTotalLengthInBytes(2_930_491_082L);
+        statistics.setAlbumCount(5);
+        statistics.setSongCount(4);
+        statistics.setArtistCount(910_823);
+        statistics.setTotalDurationInSeconds(30L);
+        statistics.setTotalLengthInBytes(2_930_491_082L);
         Map<String, String> stringStringMap = PlayerUtils.objectToStringMap(statistics);
         assertEquals("5", stringStringMap.get("albumCount"));
         assertEquals("4", stringStringMap.get("songCount"));
@@ -199,5 +199,4 @@ class PlayerUtilsTest {
         assertThrows(IllegalArgumentException.class,
                 () -> PlayerUtils.stringMapToValidObject(MediaLibraryStatistics.class, LegacyMap.of()));
     }
-
 }

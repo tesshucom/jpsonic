@@ -234,6 +234,17 @@ public class ArtistDao extends AbstractDao {
                 username);
     }
 
+    public List<Artist> getAlbumCounts() {
+        return query(
+                "select artist.id, count(album.id) as album_count from artist join album on artist.name = album.artist "
+                        + "group by artist.id, artist.name",
+                new ArtistCountMapper());
+    }
+
+    public void updateAlbumCount(int id, int count) {
+        update("update artist set album_count=? where id=?", count, id);
+    }
+
     private static class ArtistMapper implements RowMapper<Artist> {
         @Override
         public Artist mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -241,6 +252,13 @@ public class ArtistDao extends AbstractDao {
                     nullableInstantOf(rs.getTimestamp(5)), rs.getBoolean(6), rs.getInt(7),
                     // JP >>>>
                     rs.getString(8), rs.getString(9), rs.getInt(10)); // <<<< JP
+        }
+    }
+
+    private static class ArtistCountMapper implements RowMapper<Artist> {
+        @Override
+        public Artist mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new Artist(rs.getInt(1), null, null, rs.getInt(2), null, false, null, null, null, -1);
         }
     }
 

@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -192,16 +191,15 @@ class MediaScannerServiceImplTest {
 
                 MusicFolder musicFolder = createMusicFolder();
                 MediaLibraryStatistics statistics = createStatistics();
-                Map<String, Integer> albumCount = new ConcurrentHashMap<>();
 
                 MediaFile song = createSong();
                 song.setAlbumArtist(null);
-                scannerProcedureService.updateArtist(song, musicFolder, statistics.getScanDate(), albumCount);
+                scannerProcedureService.updateArtist(song, musicFolder, statistics.getScanDate());
                 Mockito.verify(artistDao, Mockito.never()).createOrUpdateArtist(Mockito.any(Artist.class));
 
                 song = createSong();
                 song.setMediaType(MediaType.DIRECTORY);
-                scannerProcedureService.updateArtist(song, musicFolder, statistics.getScanDate(), albumCount);
+                scannerProcedureService.updateArtist(song, musicFolder, statistics.getScanDate());
                 Mockito.verify(artistDao, Mockito.never()).createOrUpdateArtist(Mockito.any(Artist.class));
             }
 
@@ -211,13 +209,12 @@ class MediaScannerServiceImplTest {
                 MediaFile song = createSong();
                 MusicFolder musicFolder = createMusicFolder();
                 MediaLibraryStatistics statistics = createStatistics();
-                Map<String, Integer> albumCount = new ConcurrentHashMap<>();
 
                 // Song dates are never updated
                 assertNotEquals(song.getLastScanned(), statistics.getScanDate());
 
                 // ## First run
-                scannerProcedureService.updateArtist(song, musicFolder, statistics.getScanDate(), albumCount);
+                scannerProcedureService.updateArtist(song, musicFolder, statistics.getScanDate());
                 Mockito.verify(artistDao, Mockito.times(1)).createOrUpdateArtist(Mockito.any(Artist.class));
 
                 ArgumentCaptor<Artist> artistCap = ArgumentCaptor.forClass(Artist.class);
@@ -230,11 +227,9 @@ class MediaScannerServiceImplTest {
                 assertEquals(0, registeredArtist.getAlbumCount());
                 Mockito.when(artistDao.getArtist(registeredArtist.getName())).thenReturn(registeredArtist);
 
-                albumCount.putIfAbsent(registeredArtist.getName(), 99);
-
                 // ## Second run
                 artistCap = ArgumentCaptor.forClass(Artist.class);
-                scannerProcedureService.updateArtist(song, musicFolder, statistics.getScanDate(), albumCount);
+                scannerProcedureService.updateArtist(song, musicFolder, statistics.getScanDate());
 
                 // Currently always executed
                 Mockito.verify(artistDao, Mockito.times(2)).createOrUpdateArtist(artistCap.capture());
@@ -245,7 +240,8 @@ class MediaScannerServiceImplTest {
 
                 registeredArtist = artistCap.getValue();
                 assertEquals(registeredArtist.getLastScanned(), statistics.getScanDate());
-                assertEquals(99, registeredArtist.getAlbumCount());
+                // As of v111.6.0 there will be no counting during scanning
+                assertEquals(0, registeredArtist.getAlbumCount());
             }
         }
     }

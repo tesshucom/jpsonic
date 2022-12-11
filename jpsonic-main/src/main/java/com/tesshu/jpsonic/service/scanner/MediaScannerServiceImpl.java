@@ -23,8 +23,6 @@ package com.tesshu.jpsonic.service.scanner;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 import javax.annotation.PostConstruct;
@@ -158,13 +156,10 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
         try {
 
-            // init
-            Map<String, Integer> albumCount = new ConcurrentHashMap<>();
-
             // Recurse through all files on disk.
             for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders()) {
                 MediaFile root = writableMediaFileService.getMediaFile(musicFolder.toPath(), stats);
-                procedure.scanFile(root, musicFolder, stats, albumCount, false);
+                procedure.scanFile(root, musicFolder, stats, false);
             }
 
             // Scan podcast folder.
@@ -172,11 +167,12 @@ public class MediaScannerServiceImpl implements MediaScannerService {
                 Path podcastFolder = Path.of(settingsService.getPodcastFolder());
                 if (Files.exists(podcastFolder)) {
                     procedure.scanFile(writableMediaFileService.getMediaFile(podcastFolder, stats),
-                            new MusicFolder(podcastFolder.toString(), null, true, null), stats, albumCount, true);
+                            new MusicFolder(podcastFolder.toString(), null, true, null), stats, true);
                 }
             }
 
             writeInfo("Scanned media library with " + scannerState.getScanCount() + " entries.");
+
             writeInfo("Marking non-present files.");
             mediaFileDao.markNonPresent(stats.getScanDate());
             writeInfo("Marking non-present artists.");
@@ -184,11 +180,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
             writeInfo("Marking non-present albums.");
             albumDao.markNonPresent(stats.getScanDate());
 
-            // Update statistics
-            stats.incrementArtists(albumCount.size());
-            for (Integer albums : albumCount.values()) {
-                stats.incrementAlbums(albums);
-            }
+            procedure.updateAlbumCounts();
 
             procedure.updateGenreMaster();
 
