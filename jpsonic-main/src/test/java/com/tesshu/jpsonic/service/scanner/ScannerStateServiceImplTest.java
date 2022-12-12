@@ -24,29 +24,28 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
-import com.tesshu.jpsonic.service.search.IndexManager;
+import com.tesshu.jpsonic.dao.StaticsDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 class ScannerStateServiceImplTest {
 
-    private IndexManager indexManager;
+    private StaticsDao staticsDao;
     private ScannerStateServiceImpl scannerStateService;
 
     @BeforeEach
     public void setup() {
-        indexManager = mock(IndexManager.class);
-        scannerStateService = new ScannerStateServiceImpl(indexManager);
+        staticsDao = mock(StaticsDao.class);
+        scannerStateService = new ScannerStateServiceImpl(staticsDao);
     }
 
     @Test
     void testNeverScanned() {
-        Mockito.when(indexManager.getStatistics()).thenReturn(null);
+        Mockito.when(staticsDao.isNeverScanned()).thenReturn(true);
         assertTrue(scannerStateService.neverScanned());
 
-        Mockito.when(indexManager.getStatistics()).thenReturn(new MediaLibraryStatistics());
+        Mockito.when(staticsDao.isNeverScanned()).thenReturn(false);
         assertFalse(scannerStateService.neverScanned());
     }
 

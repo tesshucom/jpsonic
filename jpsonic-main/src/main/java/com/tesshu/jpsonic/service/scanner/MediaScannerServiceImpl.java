@@ -157,6 +157,8 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
             procedure.doCleansingProcess();
 
+            procedure.runStats(scanDate);
+
         } catch (ExecutionException e) {
             scannerState.unlockScanning();
             ConcurrentUtils.handleCauseUnchecked(e);
@@ -166,7 +168,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
                 LOG.warn("Failed to scan media library.", e);
             }
         } finally {
-            procedure.afterScan(scanDate);
+            procedure.afterScan();
         }
 
         // Launch another process after Scan.

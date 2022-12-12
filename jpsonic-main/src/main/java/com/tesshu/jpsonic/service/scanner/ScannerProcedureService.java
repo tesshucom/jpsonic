@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
+import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;
@@ -19,6 +20,7 @@ import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.IndexManager;
@@ -37,6 +39,7 @@ public class ScannerProcedureService {
     private static final Logger LOG = LoggerFactory.getLogger(ScannerProcedureService.class);
 
     private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
     private final IndexManager indexManager;
     private final MediaFileService mediaFileService;
     private final WritableMediaFileService writableMediaFileService;
@@ -44,19 +47,22 @@ public class ScannerProcedureService {
     private final MediaFileDao mediaFileDao;
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
+    private final StaticsDao staticsDao;
     private final SortProcedureService sortProcedure;
     private final ScannerStateServiceImpl scannerState;
 
     private final Ehcache indexCache;
     private final MediaFileCache mediaFileCache;
 
-    public ScannerProcedureService(SettingsService settingsService, IndexManager indexManager,
-            MediaFileService mediaFileService, WritableMediaFileService writableMediaFileService,
-            PlaylistService playlistService, MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao,
+    public ScannerProcedureService(SettingsService settingsService, MusicFolderService musicFolderService,
+            IndexManager indexManager, MediaFileService mediaFileService,
+            WritableMediaFileService writableMediaFileService, PlaylistService playlistService,
+            MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao, StaticsDao staticsDao,
             SortProcedureService sortProcedure, ScannerStateServiceImpl scannerState, Ehcache indexCache,
             MediaFileCache mediaFileCache) {
         super();
         this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
         this.indexManager = indexManager;
         this.mediaFileService = mediaFileService;
         this.writableMediaFileService = writableMediaFileService;
@@ -64,6 +70,7 @@ public class ScannerProcedureService {
         this.mediaFileDao = mediaFileDao;
         this.artistDao = artistDao;
         this.albumDao = albumDao;
+        this.staticsDao = staticsDao;
         this.sortProcedure = sortProcedure;
         this.scannerState = scannerState;
         this.indexCache = indexCache;
@@ -102,18 +109,23 @@ public class ScannerProcedureService {
         mediaFileCache.removeAll();
     }
 
-    // TODO To be fixed in v111.6.0 #1841
-    void afterScan(Instant scanDate) {
-        mediaFileCache.setEnabled(true);
-
+    void runStats(Instant scanDate) {
+        writeInfo("Collecting media library statistics ...");
         MediaLibraryStatistics stats = new MediaLibraryStatistics(scanDate);
-        stats.setArtistCount(mediaFileDao.getArtistCount());
-        stats.setAlbumCount(mediaFileDao.getAlbumCount());
-        stats.setSongCount(mediaFileDao.getSongCount());
-        stats.setTotalDurationInSeconds(mediaFileDao.getTotalSeconds());
-        stats.setTotalLengthInBytes(mediaFileDao.getTotalBytes());
+        for (MusicFolder folder : musicFolderService.getAllMusicFolders()) {
+            stats.setFolderId(folder.getId());
+            stats.setArtistCount(mediaFileDao.getArtistCount(folder));
+            stats.setAlbumCount(mediaFileDao.getAlbumCount(folder));
+            stats.setSongCount(mediaFileDao.getSongCount(folder));
+            stats.setTotalDuration(mediaFileDao.getTotalSeconds(folder));
+            stats.setTotalSize(mediaFileDao.getTotalBytes(folder));
+            staticsDao.createMediaLibraryStatistics(stats);
+        }
+    }
 
-        indexManager.stopIndexing(stats);
+    void afterScan() {
+        mediaFileCache.setEnabled(true);
+        indexManager.stopIndexing();
         sortProcedure.clearMemoryCache();
     }
 

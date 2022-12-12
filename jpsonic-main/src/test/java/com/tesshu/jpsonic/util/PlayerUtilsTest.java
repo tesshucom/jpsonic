@@ -21,16 +21,8 @@
 
 package com.tesshu.jpsonic.util;
 
-import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.time.Instant;
-import java.util.Map;
-
-import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -121,82 +113,5 @@ class PlayerUtilsTest {
             assertEquals("/var/playlists", PlayerUtils.getDefaultPlaylistFolder());
             System.clearProperty("jpsonic.defaultPlaylistFolder");
         }
-    }
-
-    @Test
-    void testObjectToStringMapNull() {
-        MediaLibraryStatistics statistics = null;
-        Map<String, String> stringStringMap = PlayerUtils.objectToStringMap(statistics);
-        assertNull(stringStringMap);
-    }
-
-    @Test
-    void testObjectToStringMap() {
-        Instant date = now();
-        MediaLibraryStatistics statistics = new MediaLibraryStatistics(date);
-        statistics.setAlbumCount(5);
-        statistics.setSongCount(4);
-        statistics.setArtistCount(910_823);
-        statistics.setTotalDurationInSeconds(30L);
-        statistics.setTotalLengthInBytes(2_930_491_082L);
-        Map<String, String> stringStringMap = PlayerUtils.objectToStringMap(statistics);
-        assertEquals("5", stringStringMap.get("albumCount"));
-        assertEquals("4", stringStringMap.get("songCount"));
-        assertEquals("910823", stringStringMap.get("artistCount"));
-        assertEquals("30", stringStringMap.get("totalDurationInSeconds"));
-        assertEquals("2930491082", stringStringMap.get("totalLengthInBytes"));
-        assertEquals(Long.toString(date.getEpochSecond()) + "." + String.format("%09d", date.getNano()),
-                stringStringMap.get("scanDate"));
-
-        MediaLibraryStatistics restored = PlayerUtils.stringMapToObject(MediaLibraryStatistics.class, stringStringMap);
-        assertEquals(statistics.getAlbumCount(), restored.getAlbumCount());
-        assertEquals(statistics.getArtistCount(), restored.getArtistCount());
-        assertEquals(statistics.getScanDate(), restored.getScanDate());
-        assertEquals(statistics.getSongCount(), restored.getSongCount());
-        assertEquals(statistics.getTotalDurationInSeconds(), restored.getTotalDurationInSeconds());
-        assertEquals(statistics.getTotalLengthInBytes(), restored.getTotalLengthInBytes());
-    }
-
-    @Test
-    void testStringMapToObject() {
-        Instant scanDate = now();
-        Map<String, String> stringStringMap = LegacyMap.of("albumCount", "5", "songCount", "4", "artistCount", "910823",
-                "totalDurationInSeconds", "30", "totalLengthInBytes", "2930491082", "scanDate", scanDate.toString());
-        MediaLibraryStatistics statistics = PlayerUtils.stringMapToObject(MediaLibraryStatistics.class,
-                stringStringMap);
-        assertEquals(Integer.valueOf(5), statistics.getAlbumCount());
-        assertEquals(Integer.valueOf(4), statistics.getSongCount());
-        assertEquals(Integer.valueOf(910_823), statistics.getArtistCount());
-        assertEquals(Long.valueOf(30L), statistics.getTotalDurationInSeconds());
-        assertEquals(Long.valueOf(2_930_491_082L), statistics.getTotalLengthInBytes());
-        assertEquals(scanDate, statistics.getScanDate());
-    }
-
-    @Test
-    void testStringMapToObjectWithExtraneousData() {
-        Instant scanDate = now();
-        Map<String, String> stringStringMap = LegacyMap.of("albumCount", "5", "songCount", "4", "artistCount", "910823",
-                "totalDurationInSeconds", "30", "totalLengthInBytes", "2930491082", "scanDate", scanDate.toString(),
-                "extraneousData", "nothingHereToLookAt");
-        MediaLibraryStatistics statistics = PlayerUtils.stringMapToObject(MediaLibraryStatistics.class,
-                stringStringMap);
-        assertEquals(Integer.valueOf(5), statistics.getAlbumCount());
-        assertEquals(Integer.valueOf(4), statistics.getSongCount());
-        assertEquals(Integer.valueOf(910_823), statistics.getArtistCount());
-        assertEquals(Long.valueOf(30L), statistics.getTotalDurationInSeconds());
-        assertEquals(Long.valueOf(2_930_491_082L), statistics.getTotalLengthInBytes());
-        assertEquals(scanDate, statistics.getScanDate());
-    }
-
-    @Test
-    void testStringMapToObjectWithNoData() {
-        MediaLibraryStatistics statistics = PlayerUtils.stringMapToObject(MediaLibraryStatistics.class, LegacyMap.of());
-        assertNotNull(statistics);
-    }
-
-    @Test
-    void testStringMapToValidObjectWithNoData() {
-        assertThrows(IllegalArgumentException.class,
-                () -> PlayerUtils.stringMapToValidObject(MediaLibraryStatistics.class, LegacyMap.of()));
     }
 }

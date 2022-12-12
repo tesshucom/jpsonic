@@ -10,8 +10,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.PreDestroy;
 
+import com.tesshu.jpsonic.ThreadSafe;
+import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.search.IndexManager;
 import org.springframework.stereotype.Service;
 
 /**
@@ -21,8 +22,7 @@ import org.springframework.stereotype.Service;
 @Service("scannerStateService")
 public class ScannerStateServiceImpl implements ScannerStateService {
 
-    // TODO To be fixed in v111.6.0 #1841
-    private final IndexManager indexManager;
+    private final StaticsDao staticsDao;
 
     private final LongAdder scanCount = new LongAdder();
 
@@ -33,47 +33,11 @@ public class ScannerStateServiceImpl implements ScannerStateService {
 
     private final AtomicBoolean cleansing = new AtomicBoolean(true);
 
-    /**
-     * Scan start time. Use only within the thread that acquired the lock.
-     */
     private Instant scanDate = FAR_PAST;
 
-    public ScannerStateServiceImpl(IndexManager indexManager) {
+    public ScannerStateServiceImpl(StaticsDao staticsDao) {
         super();
-        this.indexManager = indexManager;
-    }
-
-    Instant getScanDate() {
-        return scanDate;
-    }
-
-    void incrementScanCount() {
-        scanCount.increment();
-    }
-
-    @Override
-    public long getScanCount() {
-        return scanCount.sum();
-    }
-
-    boolean tryScanningLock() {
-        boolean acquired = scanningLock.tryLock();
-        if (acquired) {
-            scanDate = now();
-            scanCount.reset();
-        }
-        return acquired;
-    }
-
-    void unlockScanning() {
-        scanningLock.unlock();
-        scanDate = FAR_PAST;
-        scanCount.reset();
-    }
-
-    @Override
-    public boolean isScanning() {
-        return scanningLock.isLocked();
+        this.staticsDao = staticsDao;
     }
 
     @PreDestroy
@@ -85,16 +49,57 @@ public class ScannerStateServiceImpl implements ScannerStateService {
         return destroy.get();
     }
 
+    @Override
+    public boolean neverScanned() {
+        return staticsDao.isNeverScanned();
+    }
+
+    boolean tryScanningLock() {
+        boolean acquired = scanningLock.tryLock();
+        if (acquired) {
+            scanDate = now();
+            scanCount.reset();
+        }
+        return acquired;
+    }
+
+    /**
+     * Use only within the thread that acquired the lock.
+     */
+    @ThreadSafe(enableChecks = false)
+    Instant getScanDate() {
+        return scanDate;
+    }
+
+    /**
+     * Use only within the thread that acquired the lock.
+     */
+    @ThreadSafe(enableChecks = false)
+    void unlockScanning() {
+        scanDate = FAR_PAST;
+        scanCount.reset();
+        scanningLock.unlock();
+    }
+
+    @Override
+    public boolean isScanning() {
+        return scanningLock.isLocked();
+    }
+
+    void incrementScanCount() {
+        scanCount.increment();
+    }
+
+    @Override
+    public long getScanCount() {
+        return scanCount.sum();
+    }
+
     void enableCleansing(boolean b) {
         cleansing.set(b);
     }
 
     boolean isEnableCleansing() {
         return cleansing.get();
-    }
-
-    @Override
-    public boolean neverScanned() {
-        return indexManager.getStatistics() == null;
     }
 }

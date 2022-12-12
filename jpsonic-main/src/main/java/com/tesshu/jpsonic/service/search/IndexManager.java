@@ -35,7 +35,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -49,16 +48,12 @@ import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.FileUtil;
-import com.tesshu.jpsonic.util.PlayerUtils;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.FieldInfos;
 import org.apache.lucene.index.IndexNotFoundException;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexableField;
@@ -278,21 +273,19 @@ public class IndexManager {
     /**
      * Close Writer of all indexes and update SearcherManager. Called at the end of the Scan flow.
      */
-    public void stopIndexing(MediaLibraryStatistics statistics) {
-        Arrays.asList(IndexType.values()).forEach(indexType -> stopIndexing(indexType, statistics));
+    public void stopIndexing() {
+        Arrays.asList(IndexType.values()).forEach(indexType -> stopIndexing(indexType));
         clearMultiGenreMaster();
     }
 
     /**
      * Close Writer of specified index and refresh SearcherManager.
      */
-    private void stopIndexing(IndexType type, MediaLibraryStatistics statistics) {
+    private void stopIndexing(IndexType type) {
 
         boolean isUpdate = false;
         // close
         try (IndexWriter writer = writers.get(type)) {
-            Map<String, String> userData = PlayerUtils.objectToStringMap(statistics);
-            writer.setLiveCommitData(userData.entrySet());
             isUpdate = -1 != writers.get(type).commit();
             writer.close();
             writers.remove(type);
@@ -319,48 +312,6 @@ public class IndexManager {
             }
         }
 
-    }
-
-    /**
-     * Return the MediaLibraryStatistics saved on commit in the index. Ensures that each index reports the same data. On
-     * invalid indices, returns null.
-     */
-    @SuppressWarnings("PMD.CloseResource")
-    /*
-     * False positive. SearcherManager inherits Closeable but ensures each searcher is closed only once all threads have
-     * finished using it. No explicit close is done here.
-     */
-    public @Nullable MediaLibraryStatistics getStatistics() {
-        MediaLibraryStatistics stats = null;
-        for (IndexType indexType : IndexType.values()) {
-            IndexSearcher searcher = getSearcher(indexType);
-            if (searcher == null) {
-                return null;
-            }
-            IndexReader indexReader = searcher.getIndexReader();
-            if (!(indexReader instanceof DirectoryReader)) {
-                return null;
-            }
-            try {
-                Map<String, String> userData = ((DirectoryReader) indexReader).getIndexCommit().getUserData();
-                MediaLibraryStatistics currentStats = PlayerUtils.stringMapToValidObject(MediaLibraryStatistics.class,
-                        userData);
-                if (stats == null) {
-                    stats = currentStats;
-                } else if (!Objects.equals(stats, currentStats)) {
-                    // Index type had differing stats data
-                    return null;
-                }
-            } catch (IOException | IllegalArgumentException e) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Exception encountered while fetching index commit data", e);
-                }
-                return null;
-            } finally {
-                release(indexType, searcher);
-            }
-        }
-        return stats;
     }
 
     /**
@@ -394,14 +345,14 @@ public class IndexManager {
                     return null;
                 }
             }
-        }
-        try {
-            SearcherManager manager = searchers.get(indexType);
-            if (!isEmpty(manager)) {
-                return searchers.get(indexType).acquire();
+            try {
+                SearcherManager manager = searchers.get(indexType);
+                if (!isEmpty(manager)) {
+                    return searchers.get(indexType).acquire();
+                }
+            } catch (ClassCastException | IOException e) {
+                LOG.warn("Failed to acquire IndexSearcher.", e);
             }
-        } catch (ClassCastException | IOException e) {
-            LOG.warn("Failed to acquire IndexSearcher.", e);
         }
         return null;
     }

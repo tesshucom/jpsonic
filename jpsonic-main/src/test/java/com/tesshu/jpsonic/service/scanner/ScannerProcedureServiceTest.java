@@ -40,6 +40,7 @@ import com.tesshu.jpsonic.MusicFolderTestDataUtils;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
+import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
@@ -83,10 +84,10 @@ class ScannerProcedureServiceTest {
         writableMediaFileService = new WritableMediaFileService(mediaFileDao, null, mediaFileService, albumDao, null,
                 mock(MetaDataParserFactory.class), settingsService, mock(SecurityService.class),
                 mock(JapaneseReadingUtils.class));
-        scannerProcedureService = new ScannerProcedureService(settingsService, indexManager, mediaFileService,
-                writableMediaFileService, mock(PlaylistService.class), mediaFileDao, mock(ArtistDao.class), albumDao,
-                mock(SortProcedureService.class), new ScannerStateServiceImpl(indexManager), mock(Ehcache.class),
-                mock(MediaFileCache.class));
+        scannerProcedureService = new ScannerProcedureService(settingsService, mock(MusicFolderService.class),
+                indexManager, mediaFileService, writableMediaFileService, mock(PlaylistService.class), mediaFileDao,
+                mock(ArtistDao.class), albumDao, mock(StaticsDao.class), mock(SortProcedureService.class),
+                new ScannerStateServiceImpl(mock(StaticsDao.class)), mock(Ehcache.class), mock(MediaFileCache.class));
     }
 
     @Nested
@@ -163,43 +164,43 @@ class ScannerProcedureServiceTest {
 
             MediaFile song = createSong();
             song.setAlbumName(null);
-            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getScanDate());
+            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getExecuted());
             Mockito.verify(albumDao, Mockito.never()).createOrUpdateAlbum(Mockito.any(Album.class));
 
             song = createSong();
             song.setParentPathString(null);
-            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getScanDate());
+            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getExecuted());
             Mockito.verify(albumDao, Mockito.never()).createOrUpdateAlbum(Mockito.any(Album.class));
 
             song = createSong();
             song.setMediaType(MediaType.DIRECTORY);
-            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getScanDate());
+            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getExecuted());
             Mockito.verify(albumDao, Mockito.never()).createOrUpdateAlbum(Mockito.any(Album.class));
 
             song = createSong();
             song.setAlbumArtist(null);
             song.setArtist(null);
-            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getScanDate());
+            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getExecuted());
             Mockito.verify(albumDao, Mockito.never()).createOrUpdateAlbum(Mockito.any(Album.class));
 
             song = createSong();
             song.setAlbumArtist("albumArtist");
             song.setArtist(null);
-            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getScanDate());
+            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getExecuted());
             Mockito.verify(albumDao, Mockito.times(1)).createOrUpdateAlbum(Mockito.any(Album.class));
 
             Mockito.clearInvocations(albumDao);
             song = createSong();
             song.setAlbumArtist(null);
             song.setArtist("artist");
-            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getScanDate());
+            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getExecuted());
             Mockito.verify(albumDao, Mockito.times(1)).createOrUpdateAlbum(Mockito.any(Album.class));
 
             Mockito.clearInvocations(albumDao);
             song = createSong();
             song.setAlbumArtist("albumArtist");
             song.setArtist("artist");
-            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getScanDate());
+            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getExecuted());
             Mockito.verify(albumDao, Mockito.times(1)).createOrUpdateAlbum(Mockito.any(Album.class));
         }
 
@@ -216,10 +217,10 @@ class ScannerProcedureServiceTest {
             MediaLibraryStatistics statistics = createStatistics();
 
             // Song dates are never updated
-            assertNotEquals(song.getLastScanned(), statistics.getScanDate());
+            assertNotEquals(song.getLastScanned(), statistics.getExecuted());
 
             // ## First run
-            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getScanDate());
+            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getExecuted());
 
             ArgumentCaptor<MediaFile> mediaCap = ArgumentCaptor.forClass(MediaFile.class);
             ArgumentCaptor<Album> albumCap = ArgumentCaptor.forClass(Album.class);
@@ -228,15 +229,15 @@ class ScannerProcedureServiceTest {
             Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(mediaCap.capture());
 
             Album registeredAlbum = albumCap.getValue();
-            assertEquals(registeredAlbum.getLastScanned(), statistics.getScanDate());
+            assertEquals(registeredAlbum.getLastScanned(), statistics.getExecuted());
             Mockito.when(albumDao.getAlbumForFile(Mockito.any(MediaFile.class))).thenReturn(registeredAlbum);
 
             // Song dates are never updated
             MediaFile registeredMedia = mediaCap.getValue();
-            assertNotEquals(registeredMedia.getLastScanned(), statistics.getScanDate());
+            assertNotEquals(registeredMedia.getLastScanned(), statistics.getExecuted());
 
             // ## Second run
-            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getScanDate());
+            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getExecuted());
 
             // Currently always executed
             Mockito.verify(albumDao, Mockito.times(2)).createOrUpdateAlbum(Mockito.any(Album.class));
@@ -260,14 +261,14 @@ class ScannerProcedureServiceTest {
             MediaLibraryStatistics statistics = createStatistics();
 
             // Song dates are never updated
-            assertNotEquals(song1.getLastScanned(), statistics.getScanDate());
+            assertNotEquals(song1.getLastScanned(), statistics.getExecuted());
 
             // ## First run
             ArgumentCaptor<Album> albumCap = ArgumentCaptor.forClass(Album.class);
-            scannerProcedureService.updateAlbum(song1, musicFolder, statistics.getScanDate());
+            scannerProcedureService.updateAlbum(song1, musicFolder, statistics.getExecuted());
             Mockito.verify(albumDao, Mockito.times(1)).createOrUpdateAlbum(albumCap.capture());
             Album registeredAlbum = albumCap.getValue();
-            assertEquals(registeredAlbum.getLastScanned(), statistics.getScanDate());
+            assertEquals(registeredAlbum.getLastScanned(), statistics.getExecuted());
 
             final MediaFile song2 = createSong();
             song2.setYear(2222);
@@ -276,7 +277,7 @@ class ScannerProcedureServiceTest {
 
             // ## Second run
             albumCap = ArgumentCaptor.forClass(Album.class);
-            scannerProcedureService.updateAlbum(song2, musicFolder, statistics.getScanDate());
+            scannerProcedureService.updateAlbum(song2, musicFolder, statistics.getExecuted());
             Mockito.verify(albumDao, Mockito.times(2)).createOrUpdateAlbum(albumCap.capture());
             assertEquals(2, albumCap.getAllValues().size());
             registeredAlbum = albumCap.getAllValues().get(1);
@@ -301,7 +302,7 @@ class ScannerProcedureServiceTest {
 
             // ## First run
             ArgumentCaptor<Album> albumCap = ArgumentCaptor.forClass(Album.class);
-            scannerProcedureService.updateAlbum(song1, musicFolder, statistics.getScanDate());
+            scannerProcedureService.updateAlbum(song1, musicFolder, statistics.getExecuted());
             Mockito.verify(albumDao, Mockito.times(1)).createOrUpdateAlbum(albumCap.capture());
 
             Album registeredAlbum = albumCap.getValue();
@@ -316,7 +317,7 @@ class ScannerProcedureServiceTest {
 
             // ## Second run
             albumCap = ArgumentCaptor.forClass(Album.class);
-            scannerProcedureService.updateAlbum(song2, musicFolder, statistics.getScanDate());
+            scannerProcedureService.updateAlbum(song2, musicFolder, statistics.getExecuted());
             Mockito.verify(albumDao, Mockito.times(2)).createOrUpdateAlbum(albumCap.capture());
             assertEquals(2, albumCap.getAllValues().size());
             registeredAlbum = albumCap.getAllValues().get(1);
@@ -340,7 +341,7 @@ class ScannerProcedureServiceTest {
             song.setDurationSeconds(60);
 
             // ## First run
-            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getScanDate());
+            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getExecuted());
             ArgumentCaptor<MediaFile> mediaCap = ArgumentCaptor.forClass(MediaFile.class);
             ArgumentCaptor<Album> albumCap = ArgumentCaptor.forClass(Album.class);
             Mockito.verify(albumDao, Mockito.times(1)).createOrUpdateAlbum(albumCap.capture());
@@ -357,7 +358,7 @@ class ScannerProcedureServiceTest {
             // ## Second run
             albumCap = ArgumentCaptor.forClass(Album.class);
             Mockito.verify(albumDao, Mockito.times(1)).createOrUpdateAlbum(albumCap.capture());
-            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getScanDate());
+            scannerProcedureService.updateAlbum(song, musicFolder, statistics.getExecuted());
 
             // ### Second result
             registeredAlbum = albumCap.getValue();

@@ -55,11 +55,11 @@ import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.DaoHelper;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
+import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
-import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SearchResult;
 import com.tesshu.jpsonic.service.MediaFileCache;
@@ -127,12 +127,13 @@ class MediaScannerServiceImplTest {
             albumDao = mock(AlbumDao.class);
             executor = mock(ThreadPoolTaskExecutor.class);
             utils = mock(SortProcedureService.class);
-            scannerStateService = new ScannerStateServiceImpl(indexManager);
+            scannerStateService = new ScannerStateServiceImpl(mock(StaticsDao.class));
             writableMediaFileService = new WritableMediaFileService(mediaFileDao, scannerStateService, mediaFileService,
                     albumDao, mock(MediaFileCache.class), null, settingsService, mock(SecurityService.class), null);
-            scannerProcedureService = new ScannerProcedureService(settingsService, indexManager, mediaFileService,
-                    writableMediaFileService, mock(PlaylistService.class), mediaFileDao, artistDao, albumDao, utils,
-                    scannerStateService, mock(Ehcache.class), mock(MediaFileCache.class));
+            scannerProcedureService = new ScannerProcedureService(settingsService, mock(MusicFolderService.class),
+                    indexManager, mediaFileService, writableMediaFileService, mock(PlaylistService.class), mediaFileDao,
+                    artistDao, albumDao, mock(StaticsDao.class), utils, scannerStateService, mock(Ehcache.class),
+                    mock(MediaFileCache.class));
             mediaScannerService = new MediaScannerServiceImpl(settingsService, mock(MusicFolderService.class),
                     indexManager, writableMediaFileService, executor, scannerStateService, scannerProcedureService,
                     mock(ExpungeService.class));
@@ -179,10 +180,6 @@ class MediaScannerServiceImplTest {
                 return song;
             }
 
-            private MediaLibraryStatistics createStatistics() {
-                return new MediaLibraryStatistics(now());
-            }
-
             private MusicFolder createMusicFolder() {
                 return new MusicFolder(Integer.valueOf(1), "", "", true, now());
             }
@@ -191,16 +188,16 @@ class MediaScannerServiceImplTest {
             void testIsNotUpdatable() {
 
                 MusicFolder musicFolder = createMusicFolder();
-                MediaLibraryStatistics statistics = createStatistics();
+                Instant scanDate = now();
 
                 MediaFile song = createSong();
                 song.setAlbumArtist(null);
-                scannerProcedureService.updateArtist(song, musicFolder, statistics.getScanDate());
+                scannerProcedureService.updateArtist(song, musicFolder, scanDate);
                 Mockito.verify(artistDao, Mockito.never()).createOrUpdateArtist(Mockito.any(Artist.class));
 
                 song = createSong();
                 song.setMediaType(MediaType.DIRECTORY);
-                scannerProcedureService.updateArtist(song, musicFolder, statistics.getScanDate());
+                scannerProcedureService.updateArtist(song, musicFolder, scanDate);
                 Mockito.verify(artistDao, Mockito.never()).createOrUpdateArtist(Mockito.any(Artist.class));
             }
 
@@ -209,13 +206,13 @@ class MediaScannerServiceImplTest {
 
                 MediaFile song = createSong();
                 MusicFolder musicFolder = createMusicFolder();
-                MediaLibraryStatistics statistics = createStatistics();
+                Instant scanDate = now();
 
                 // Song dates are never updated
-                assertNotEquals(song.getLastScanned(), statistics.getScanDate());
+                assertNotEquals(song.getLastScanned(), scanDate);
 
                 // ## First run
-                scannerProcedureService.updateArtist(song, musicFolder, statistics.getScanDate());
+                scannerProcedureService.updateArtist(song, musicFolder, scanDate);
                 Mockito.verify(artistDao, Mockito.times(1)).createOrUpdateArtist(Mockito.any(Artist.class));
 
                 ArgumentCaptor<Artist> artistCap = ArgumentCaptor.forClass(Artist.class);
@@ -224,13 +221,13 @@ class MediaScannerServiceImplTest {
                         Mockito.any(MusicFolder.class));
 
                 Artist registeredArtist = artistCap.getValue();
-                assertEquals(registeredArtist.getLastScanned(), statistics.getScanDate());
+                assertEquals(registeredArtist.getLastScanned(), scanDate);
                 assertEquals(0, registeredArtist.getAlbumCount());
                 Mockito.when(artistDao.getArtist(registeredArtist.getName())).thenReturn(registeredArtist);
 
                 // ## Second run
                 artistCap = ArgumentCaptor.forClass(Artist.class);
-                scannerProcedureService.updateArtist(song, musicFolder, statistics.getScanDate());
+                scannerProcedureService.updateArtist(song, musicFolder, scanDate);
 
                 // Currently always executed
                 Mockito.verify(artistDao, Mockito.times(2)).createOrUpdateArtist(artistCap.capture());
@@ -240,7 +237,7 @@ class MediaScannerServiceImplTest {
                         Mockito.any(MusicFolder.class));
 
                 registeredArtist = artistCap.getValue();
-                assertEquals(registeredArtist.getLastScanned(), statistics.getScanDate());
+                assertEquals(registeredArtist.getLastScanned(), scanDate);
                 // As of v111.6.0 there will be no counting during scanning
                 assertEquals(0, registeredArtist.getAlbumCount());
             }

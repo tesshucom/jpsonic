@@ -284,18 +284,16 @@ public class MediaFileDao extends AbstractDao {
         }
     }
 
-    public long getTotalBytes() {
-        Long result = getJdbcTemplate().queryForObject("select sum(file_size) from media_file "
-                + "where present and type = 'MUSIC' or type = 'PODCAST' or type = 'AUDIOBOOK' or type = 'VIDEO'",
-                Long.class);
-        return result == null ? 0L : result;
+    public long getTotalBytes(MusicFolder folder) {
+        return queryForLong(
+                "select sum(file_size) from media_file " + "where present and folder = ? and type = 'MUSIC'", 0L,
+                folder.getPathString());
     }
 
-    public long getTotalSeconds() {
-        Long result = getJdbcTemplate().queryForObject("select sum(duration_seconds) from media_file "
-                + "where present and type = 'MUSIC' or type = 'PODCAST' or type = 'AUDIOBOOK' or type = 'VIDEO'",
-                Long.class);
-        return result == null ? 0L : result;
+    public long getTotalSeconds(MusicFolder folder) {
+        return queryForLong(
+                "select sum(duration_seconds) from media_file " + "where present and folder = ? and type = 'MUSIC'", 0L,
+                folder.getPathString());
     }
 
     /**
@@ -684,22 +682,23 @@ public class MediaFileDao extends AbstractDao {
                 "select count(*) from media_file where type = :type and folder in (:folders) and present", 0, args);
     }
 
-    public int getAlbumCount() {
+    public int getAlbumCount(MusicFolder folder) {
         return queryForInt(
                 "select count(*) from media_file " + "right join music_folder on music_folder.path = media_file.folder "
-                        + "where present and type = 'ALBUM'",
-                0);
+                        + "where present and folder = ? and type = 'ALBUM'",
+                0, folder.getPathString());
     }
 
-    public int getArtistCount() {
+    public int getArtistCount(MusicFolder folder) {
         return queryForInt(
                 "select count(*) from media_file " + "right join music_folder on music_folder.path = media_file.folder "
-                        + "where present and type = 'DIRECTORY' and media_file.path <> folder",
-                0);
+                        + "where present and folder = ? and type = 'DIRECTORY' and media_file.path <> folder",
+                0, folder.getPathString());
     }
 
-    public int getSongCount() {
-        return queryForInt("select count(*) from media_file where present and type = 'MUSIC'", 0);
+    public int getSongCount(MusicFolder folder) {
+        return queryForInt("select count(*) from media_file where present and folder = ? and type = 'MUSIC'", 0,
+                folder.getPathString());
     }
 
     public int getPlayedAlbumCount(final List<MusicFolder> musicFolders) {

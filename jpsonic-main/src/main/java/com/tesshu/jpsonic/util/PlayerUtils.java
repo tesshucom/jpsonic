@@ -24,20 +24,13 @@ package com.tesshu.jpsonic.util;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.SystemUtils;
@@ -58,7 +51,6 @@ public final class PlayerUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlayerUtils.class);
     private static final String URL_SENSITIVE_REPLACEMENT_STRING = "<hidden>";
-    private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
 
     /*
      * Represents a "far past timestamp". A flag value that may be used as an initial value or when forcibly scanning.
@@ -201,25 +193,5 @@ public final class PlayerUtils {
         }
 
         return builder.build().toUriString();
-    }
-
-    public static Map<String, String> objectToStringMap(Object object) {
-        TypeReference<HashMap<String, String>> typeReference = new TypeReference<HashMap<String, String>>() {
-        };
-        return OBJECT_MAPPER.convertValue(object, typeReference);
-    }
-
-    public static <T> T stringMapToObject(Class<T> clazz, Map<String, String> data) {
-        return OBJECT_MAPPER.convertValue(data, clazz);
-    }
-
-    public static <T> T stringMapToValidObject(Class<T> clazz, Map<String, String> data) {
-        T object = stringMapToObject(clazz, data);
-        Set<ConstraintViolation<T>> validate = VALIDATOR.validate(object);
-        if (validate.isEmpty()) {
-            return object;
-        } else {
-            throw new IllegalArgumentException("Created object was not valid");
-        }
     }
 }
