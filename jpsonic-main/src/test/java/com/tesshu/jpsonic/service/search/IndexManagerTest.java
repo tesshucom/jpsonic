@@ -182,7 +182,7 @@ class IndexManagerTest extends AbstractNeedsScan {
         /* Does not scan, only expunges the index. */
         indexManager.startIndexing();
         indexManager.expunge();
-        indexManager.stopIndexing(indexManager.getStatistics());
+        indexManager.stopIndexing();
 
         /*
          * Subsequent search results. Results can also be confirmed with Luke.

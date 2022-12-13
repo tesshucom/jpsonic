@@ -46,6 +46,7 @@ import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.dao.DaoHelper;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
+import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -95,11 +96,12 @@ public class InternalHelpController {
     private final MediaFileDao mediaFileDao;
     private final TranscodingService transcodingService;
     private final Environment environment;
+    private final StaticsDao staticsDao;
 
     public InternalHelpController(VersionService versionService, SettingsService settingsService,
             SecurityService securityService, IndexManager indexManager, DaoHelper daoHelper,
             AnalyzerFactory analyzerFactory, MusicFolderDao musicFolderDao, MediaFileDao mediaFileDao,
-            TranscodingService transcodingService, Environment environment) {
+            TranscodingService transcodingService, Environment environment, StaticsDao staticsDao) {
         super();
         this.versionService = versionService;
         this.settingsService = settingsService;
@@ -111,6 +113,7 @@ public class InternalHelpController {
         this.mediaFileDao = mediaFileDao;
         this.transcodingService = transcodingService;
         this.environment = environment;
+        this.staticsDao = staticsDao;
     }
 
     @GetMapping
@@ -161,14 +164,14 @@ public class InternalHelpController {
 
     private void gatherScanInfo(Map<String, Object> map) {
         // Airsonic scan statistics
-        MediaLibraryStatistics stats = indexManager.getStatistics();
+        MediaLibraryStatistics stats = staticsDao.getRecentMediaLibraryStatistics();
         if (stats != null) {
             map.put("statAlbumCount", stats.getAlbumCount());
             map.put("statArtistCount", stats.getArtistCount());
             map.put("statSongCount", stats.getSongCount());
-            map.put("statLastScanDate", stats.getScanDate().atZone(ZoneId.systemDefault()).toLocalDateTime());
-            map.put("statTotalDurationSeconds", stats.getTotalDurationInSeconds());
-            map.put("statTotalLengthBytes", FileUtil.byteCountToDisplaySize(stats.getTotalLengthInBytes()));
+            map.put("statLastScanDate", stats.getExecuted().atZone(ZoneId.systemDefault()).toLocalDateTime());
+            map.put("statTotalDurationSeconds", stats.getTotalDuration());
+            map.put("statTotalLengthBytes", FileUtil.byteCountToDisplaySize(stats.getTotalSize()));
         }
     }
 

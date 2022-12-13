@@ -29,14 +29,10 @@ import java.util.function.Supplier;
 
 import javax.annotation.PostConstruct;
 
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.DaoHelper;
-import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -88,15 +84,7 @@ public abstract class AbstractNeedsScan implements NeedsScan {
     @Autowired
     private IndexManager indexManager;
     @Autowired
-    private PlaylistService playlistService;
-    @Autowired
     private WritableMediaFileService writableMediaFileService;
-    @Autowired
-    private MediaFileDao mediaFileDao;
-    @Autowired
-    private ArtistDao artistDao;
-    @Autowired
-    private AlbumDao albumDao;
     @Autowired
     private ScannerStateServiceImpl scannerStateService;
     @Autowired
@@ -111,8 +99,7 @@ public abstract class AbstractNeedsScan implements NeedsScan {
     @PostConstruct
     public void init() {
         mediaScannerService = new MediaScannerServiceImpl(settingsService, musicFolderService, indexManager,
-                playlistService, writableMediaFileService, mediaFileDao, artistDao, albumDao, scanExecutor,
-                scannerStateService, procedure, expungeService);
+                writableMediaFileService, scanExecutor, scannerStateService, procedure, expungeService);
     }
 
     public interface BeforeScan extends Supplier<Boolean> {

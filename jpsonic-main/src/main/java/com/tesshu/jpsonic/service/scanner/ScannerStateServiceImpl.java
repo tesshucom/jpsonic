@@ -1,11 +1,18 @@
 package com.tesshu.jpsonic.service.scanner;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.FAR_PAST;
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
+import java.time.Instant;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.annotation.PreDestroy;
+
+import com.tesshu.jpsonic.ThreadSafe;
+import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.service.ScannerStateService;
-import com.tesshu.jpsonic.service.search.IndexManager;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,8 +22,7 @@ import org.springframework.stereotype.Service;
 @Service("scannerStateService")
 public class ScannerStateServiceImpl implements ScannerStateService {
 
-    // TODO To be fixed in v111.6.0 #1841
-    private final IndexManager indexManager;
+    private final StaticsDao staticsDao;
 
     private final LongAdder scanCount = new LongAdder();
 
@@ -27,9 +33,57 @@ public class ScannerStateServiceImpl implements ScannerStateService {
 
     private final AtomicBoolean cleansing = new AtomicBoolean(true);
 
-    public ScannerStateServiceImpl(IndexManager indexManager) {
+    private Instant scanDate = FAR_PAST;
+
+    public ScannerStateServiceImpl(StaticsDao staticsDao) {
         super();
-        this.indexManager = indexManager;
+        this.staticsDao = staticsDao;
+    }
+
+    @PreDestroy
+    void preDestroy() {
+        destroy.set(true);
+    }
+
+    boolean isDestroy() {
+        return destroy.get();
+    }
+
+    @Override
+    public boolean neverScanned() {
+        return staticsDao.isNeverScanned();
+    }
+
+    boolean tryScanningLock() {
+        boolean acquired = scanningLock.tryLock();
+        if (acquired) {
+            scanDate = now();
+            scanCount.reset();
+        }
+        return acquired;
+    }
+
+    /**
+     * Use only within the thread that acquired the lock.
+     */
+    @ThreadSafe(enableChecks = false)
+    Instant getScanDate() {
+        return scanDate;
+    }
+
+    /**
+     * Use only within the thread that acquired the lock.
+     */
+    @ThreadSafe(enableChecks = false)
+    void unlockScanning() {
+        scanDate = FAR_PAST;
+        scanCount.reset();
+        scanningLock.unlock();
+    }
+
+    @Override
+    public boolean isScanning() {
+        return scanningLock.isLocked();
     }
 
     void incrementScanCount() {
@@ -41,41 +95,11 @@ public class ScannerStateServiceImpl implements ScannerStateService {
         return scanCount.sum();
     }
 
-    void resetScanCount() {
-        scanCount.reset();
-    }
-
-    boolean tryScanningLock() {
-        return scanningLock.tryLock();
-    }
-
-    void unlockScanning() {
-        scanningLock.unlock();
-    }
-
-    @Override
-    public boolean isScanning() {
-        return scanningLock.isLocked();
-    }
-
-    void setDestroy(boolean b) {
-        destroy.set(b);
-    }
-
-    boolean isDestroy() {
-        return destroy.get();
-    }
-
     void enableCleansing(boolean b) {
         cleansing.set(b);
     }
 
     boolean isEnableCleansing() {
         return cleansing.get();
-    }
-
-    @Override
-    public boolean neverScanned() {
-        return indexManager.getStatistics() == null;
     }
 }

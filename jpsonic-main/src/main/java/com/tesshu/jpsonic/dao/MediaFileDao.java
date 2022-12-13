@@ -262,12 +262,38 @@ public class MediaFileDao extends AbstractDao {
         return query("select " + GENRE_COLUMNS + " from genre order by " + orderBy + " desc", genreRowMapper);
     }
 
+    public List<Genre> getGenreCounts() {
+        return query("select song_genre.name, song_count, album_count from ( "
+                + "select genres.name, count(*) as song_count from (select distinct genre name from media_file where present and type = 'ALBUM' or type = 'MUSIC') as genres "
+                + "left join media_file as songs "
+                + "on songs.present and genres.name = songs.genre and songs.type = 'MUSIC' "
+                + "group by genres.name) as song_genre " + "join ( "
+                + "select genres.name, count(*) as album_count from ( "
+                + "select distinct genre name from media_file where present and type = 'ALBUM' or type = 'MUSIC') as genres "
+                + "left join media_file as albums "
+                + "on albums.present and genres.name = albums.genre and albums.type = 'ALBUM' "
+                + "group by genres.name) as album_genre " + "on song_genre.name = album_genre.name " + "order by name",
+                genreRowMapper);
+    }
+
     public void updateGenres(List<Genre> genres) {
         update("delete from genre");
         for (Genre genre : genres) {
             update("insert into genre(" + GENRE_COLUMNS + ") values(?, ?, ?)", genre.getName(), genre.getSongCount(),
                     genre.getAlbumCount());
         }
+    }
+
+    public long getTotalBytes(MusicFolder folder) {
+        return queryForLong(
+                "select sum(file_size) from media_file " + "where present and folder = ? and type = 'MUSIC'", 0L,
+                folder.getPathString());
+    }
+
+    public long getTotalSeconds(MusicFolder folder) {
+        return queryForLong(
+                "select sum(duration_seconds) from media_file " + "where present and folder = ? and type = 'MUSIC'", 0L,
+                folder.getPathString());
     }
 
     /**
@@ -654,6 +680,25 @@ public class MediaFileDao extends AbstractDao {
                 MusicFolder.toPathList(musicFolders));
         return namedQueryForInt(
                 "select count(*) from media_file where type = :type and folder in (:folders) and present", 0, args);
+    }
+
+    public int getAlbumCount(MusicFolder folder) {
+        return queryForInt(
+                "select count(*) from media_file " + "right join music_folder on music_folder.path = media_file.folder "
+                        + "where present and folder = ? and type = 'ALBUM'",
+                0, folder.getPathString());
+    }
+
+    public int getArtistCount(MusicFolder folder) {
+        return queryForInt(
+                "select count(*) from media_file " + "right join music_folder on music_folder.path = media_file.folder "
+                        + "where present and folder = ? and type = 'DIRECTORY' and media_file.path <> folder",
+                0, folder.getPathString());
+    }
+
+    public int getSongCount(MusicFolder folder) {
+        return queryForInt("select count(*) from media_file where present and folder = ? and type = 'MUSIC'", 0,
+                folder.getPathString());
     }
 
     public int getPlayedAlbumCount(final List<MusicFolder> musicFolders) {

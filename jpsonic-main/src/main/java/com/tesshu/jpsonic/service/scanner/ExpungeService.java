@@ -48,7 +48,7 @@ public class ExpungeService {
             // to be before dao#expunge
             indexManager.startIndexing();
             indexManager.expunge();
-            indexManager.stopIndexing(indexManager.getStatistics());
+            indexManager.stopIndexing();
 
             // to be after indexManager#expunge
             artistDao.expunge();

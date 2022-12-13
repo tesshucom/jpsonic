@@ -21,27 +21,17 @@
 
 package com.tesshu.jpsonic.service.scanner;
 
-import static com.tesshu.jpsonic.util.PlayerUtils.now;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.time.Instant;
 import java.util.concurrent.ExecutionException;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.dao.ArtistDao;
-import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.domain.Genres;
 import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
@@ -63,11 +53,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
     private final IndexManager indexManager;
-    private final PlaylistService playlistService;
     private final WritableMediaFileService writableMediaFileService;
-    private final MediaFileDao mediaFileDao;
-    private final ArtistDao artistDao;
-    private final AlbumDao albumDao;
     private final ThreadPoolTaskExecutor scanExecutor;
 
     private final ScannerStateServiceImpl scannerState;
@@ -75,19 +61,14 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     private final ExpungeService expungeService;
 
     public MediaScannerServiceImpl(SettingsService settingsService, MusicFolderService musicFolderService,
-            IndexManager indexManager, PlaylistService playlistService,
-            WritableMediaFileService writableMediaFileService, MediaFileDao mediaFileDao, ArtistDao artistDao,
-            AlbumDao albumDao, ThreadPoolTaskExecutor scanExecutor, ScannerStateServiceImpl scannerStateService,
+            IndexManager indexManager, WritableMediaFileService writableMediaFileService,
+            ThreadPoolTaskExecutor scanExecutor, ScannerStateServiceImpl scannerStateService,
             ScannerProcedureService procedure, ExpungeService expungeService) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
         this.indexManager = indexManager;
-        this.playlistService = playlistService;
         this.writableMediaFileService = writableMediaFileService;
-        this.mediaFileDao = mediaFileDao;
-        this.artistDao = artistDao;
-        this.albumDao = albumDao;
         this.scanExecutor = scanExecutor;
         this.scannerState = scannerStateService;
         this.procedure = procedure;
@@ -99,11 +80,6 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     public void init() {
         indexManager.deleteOldIndexFiles();
         indexManager.initializeIndexDirectory();
-    }
-
-    @PreDestroy
-    void preDestroy() {
-        scannerState.setDestroy(true);
     }
 
     private void writeInfo(String msg) {
@@ -149,75 +125,59 @@ public class MediaScannerServiceImpl implements MediaScannerService {
             return;
         }
 
+        Instant scanDate = scannerState.getScanDate();
         LOG.info("Starting to scan media library.");
 
         procedure.beforeScan();
 
-        MediaLibraryStatistics stats = new MediaLibraryStatistics(now());
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("New last scan date is " + stats.getScanDate());
-        }
-
         try {
-
-            // init
-            Map<String, Integer> albumCount = new ConcurrentHashMap<>();
-            Genres genres = new Genres();
 
             // Recurse through all files on disk.
             for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders()) {
-                MediaFile root = writableMediaFileService.getMediaFile(musicFolder.toPath(), false);
-                procedure.scanFile(root, musicFolder, stats, albumCount, genres, false);
+                MediaFile root = writableMediaFileService.getMediaFile(musicFolder.toPath(), scanDate);
+                procedure.scanFile(root, musicFolder, scanDate, false);
             }
 
             // Scan podcast folder.
             if (settingsService.getPodcastFolder() != null) {
                 Path podcastFolder = Path.of(settingsService.getPodcastFolder());
                 if (Files.exists(podcastFolder)) {
-                    procedure.scanFile(writableMediaFileService.getMediaFile(podcastFolder),
-                            new MusicFolder(podcastFolder.toString(), null, true, null), stats, albumCount, genres,
-                            true);
+                    procedure.scanFile(writableMediaFileService.getMediaFile(podcastFolder, scanDate),
+                            new MusicFolder(podcastFolder.toString(), null, true, null), scanDate, true);
                 }
             }
 
             writeInfo("Scanned media library with " + scannerState.getScanCount() + " entries.");
-            writeInfo("Marking non-present files.");
-            mediaFileDao.markNonPresent(stats.getScanDate());
-            writeInfo("Marking non-present artists.");
-            artistDao.markNonPresent(stats.getScanDate());
-            writeInfo("Marking non-present albums.");
-            albumDao.markNonPresent(stats.getScanDate());
 
-            // Update statistics
-            stats.incrementArtists(albumCount.size());
-            for (Integer albums : albumCount.values()) {
-                stats.incrementAlbums(albums);
-            }
+            procedure.markNonPresent(scanDate);
 
-            // Update genres
-            mediaFileDao.updateGenres(genres.getGenres());
+            procedure.updateAlbumCounts();
+
+            procedure.updateGenreMaster();
 
             procedure.doCleansingProcess();
 
-            LOG.info("Completed media library scan.");
+            procedure.runStats(scanDate);
 
         } catch (ExecutionException e) {
             scannerState.unlockScanning();
             ConcurrentUtils.handleCauseUnchecked(e);
             if (scannerState.isDestroy()) {
                 writeInfo("Interrupted to scan media library.");
-            } else if (LOG.isDebugEnabled()) {
-                LOG.debug("Failed to scan media library.", e);
+            } else if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to scan media library.", e);
             }
         } finally {
-            procedure.afterScan(stats);
+            procedure.afterScan();
         }
 
         // Launch another process after Scan.
         if (!scannerState.isDestroy()) {
-            playlistService.importPlaylists();
+            procedure.importPlaylists();
             procedure.checkpoint();
         }
+
+        LOG.info("Completed media library scan.");
 
         scannerState.unlockScanning();
     }

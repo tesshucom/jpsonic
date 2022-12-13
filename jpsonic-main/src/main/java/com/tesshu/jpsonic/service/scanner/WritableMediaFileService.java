@@ -41,10 +41,8 @@ import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
-import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
-import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.ScannerStateService;
@@ -75,12 +73,11 @@ public class WritableMediaFileService {
     private final SettingsService settingsService;
     private final SecurityService securityService;
     private final JapaneseReadingUtils readingUtils;
-    private final JpsonicComparators jpsonicComparator;
 
     public WritableMediaFileService(MediaFileDao mediaFileDao, ScannerStateService scannerStateService,
             MediaFileService mediaFileService, AlbumDao albumDao, MediaFileCache mediaFileCache,
             MetaDataParserFactory metaDataParserFactory, SettingsService settingsService,
-            SecurityService securityService, JapaneseReadingUtils readingUtils, JpsonicComparators jpsonicComparator) {
+            SecurityService securityService, JapaneseReadingUtils readingUtils) {
         super();
         this.mediaFileDao = mediaFileDao;
         this.scannerStateService = scannerStateService;
@@ -91,59 +88,62 @@ public class WritableMediaFileService {
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.readingUtils = readingUtils;
-        this.jpsonicComparator = jpsonicComparator;
     }
 
+    /**
+     * Use of this method suggests imperfect workflow design.
+     *
+     * @deprecated Spec subject to change
+     */
+    @Deprecated
+    Instant newScanDate() {
+        return now();
+    }
+
+    /**
+     * Use of this method suggests imperfect workflow design.
+     *
+     * @deprecated Use MediaFileService#getMediaFile if use the cache, otherwise use
+     *             WritableMediaFileService#getMediaFile(Path, Instant)
+     */
+    @Deprecated
     @Nullable
     MediaFile getMediaFile(Path path) {
-        return getMediaFile(path, true);
+        return getMediaFile(path, newScanDate());
     }
 
     @Nullable
-    MediaFile getMediaFile(Path path, boolean useFastCache, MediaLibraryStatistics... statistics) {
+    MediaFile getMediaFile(Path path, @NonNull Instant scanDate) {
 
-        // Look in fast memory cache first.
-        MediaFile result = mediaFileCache.get(path);
-        if (result != null) {
-            return result;
-        }
-
-        if (!securityService.isReadAllowed(path)) {
+        if (path == null || !Files.exists(path)) {
+            return null;
+        } else if (!securityService.isReadAllowed(path)) {
             throw new SecurityException("Access denied to file " + path);
         }
 
-        // Secondly, look in database.
-        result = mediaFileDao.getMediaFile(path.toString());
-        if (result != null) {
-            result = checkLastModified(result, useFastCache);
-            mediaFileCache.put(path, result);
-            return result;
+        // Look in database.
+        MediaFile mediaFile = mediaFileDao.getMediaFile(path.toString());
+        if (mediaFile != null) {
+            mediaFile = checkLastModified(mediaFile, scanDate);
+            mediaFileCache.put(path, mediaFile);
+            return mediaFile;
         }
 
-        if (!Files.exists(path)) {
-            return null;
-        }
         // Not found in database, must read from disk.
-        result = createMediaFile(path, statistics);
-
-        // Put in cache and database.
-        mediaFileCache.put(path, result);
-        mediaFileDao.createOrUpdateMediaFile(result);
-
-        return result;
+        mediaFile = createMediaFile(path, scanDate);
+        mediaFileDao.createOrUpdateMediaFile(mediaFile);
+        return mediaFile;
     }
 
     boolean isSchemeLastModified() {
-        return FileModifiedCheckScheme.LAST_MODIFIED == FileModifiedCheckScheme
-                .valueOf(settingsService.getFileModifiedCheckSchemeName());
+        return FileModifiedCheckScheme.LAST_MODIFIED == settingsService.getFileModifiedCheckScheme();
     }
 
     boolean isSchemeLastScaned() {
-        return FileModifiedCheckScheme.LAST_SCANNED == FileModifiedCheckScheme
-                .valueOf(settingsService.getFileModifiedCheckSchemeName());
+        return FileModifiedCheckScheme.LAST_SCANNED == settingsService.getFileModifiedCheckScheme();
     }
 
-    void updateChildren(MediaFile parent, MediaLibraryStatistics... statistics) {
+    void updateChildren(MediaFile parent, @NonNull Instant scanDate) {
 
         if (isSchemeLastModified() //
                 && parent.getChildrenLastUpdated().toEpochMilli() >= parent.getChanged().toEpochMilli()) {
@@ -163,7 +163,7 @@ public class WritableMediaFileService {
             for (Path child : ds) {
                 if (mediaFileService.includeMediaFile(child) && storedChildrenMap.remove(child.toString()) == null) {
                     // Add children that are not already stored.
-                    mediaFileDao.createOrUpdateMediaFile(createMediaFile(child, statistics));
+                    mediaFileDao.createOrUpdateMediaFile(createMediaFile(child, scanDate));
                 }
             }
         } catch (IOException e) {
@@ -181,8 +181,8 @@ public class WritableMediaFileService {
         mediaFileDao.createOrUpdateMediaFile(parent);
     }
 
-    List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories, boolean sort,
-            boolean useFastCache, MediaLibraryStatistics... statistics) {
+    List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories,
+            @NonNull Instant scanDate) {
 
         List<MediaFile> result = new ArrayList<>();
         if (!parent.isDirectory()) {
@@ -190,12 +190,10 @@ public class WritableMediaFileService {
         }
 
         // Make sure children are stored and up-to-date in the database.
-        if (!useFastCache) {
-            updateChildren(parent, statistics);
-        }
+        updateChildren(parent, scanDate);
 
         for (MediaFile child : mediaFileDao.getChildrenOf(parent.getPathString())) {
-            MediaFile checked = checkLastModified(child, useFastCache, statistics);
+            MediaFile checked = checkLastModified(child, scanDate);
             if (checked.isDirectory() && includeDirectories && mediaFileService.includeMediaFile(checked.toPath())) {
                 result.add(checked);
             }
@@ -204,25 +202,17 @@ public class WritableMediaFileService {
             }
         }
 
-        if (sort) {
-            result.sort(jpsonicComparator.mediaFileOrder(parent));
-        }
-
         return result;
     }
 
-    MediaFile checkLastModified(final MediaFile mediaFile, boolean useFastCache, MediaLibraryStatistics... statistics) {
+    MediaFile checkLastModified(final MediaFile mediaFile, @NonNull Instant scanDate) {
 
         // Determine if the file has not changed
-        if (useFastCache) {
-            return mediaFile;
-        } else if (mediaFile.getVersion() >= MediaFileDao.VERSION) {
-            FileModifiedCheckScheme scheme = FileModifiedCheckScheme
-                    .valueOf(settingsService.getFileModifiedCheckSchemeName());
-            switch (scheme) {
+        if (mediaFile.getVersion() >= MediaFileDao.VERSION) {
+            switch (settingsService.getFileModifiedCheckScheme()) {
             case LAST_MODIFIED:
                 if (!settingsService.isIgnoreFileTimestamps()
-                        && mediaFile.getChanged().toEpochMilli() >= getLastModified(mediaFile.toPath(), statistics)
+                        && mediaFile.getChanged().toEpochMilli() >= getLastModified(mediaFile.toPath(), scanDate)
                         && !FAR_PAST.equals(mediaFile.getLastScanned())) {
                     return mediaFile;
                 } else if (settingsService.isIgnoreFileTimestamps() && !FAR_PAST.equals(mediaFile.getLastScanned())) {
@@ -240,30 +230,30 @@ public class WritableMediaFileService {
         }
 
         // Updating database file from disk
-        MediaFile mf = createMediaFile(mediaFile.toPath(), statistics);
+        MediaFile mf = createMediaFile(mediaFile.toPath(), scanDate);
         mediaFileDao.createOrUpdateMediaFile(mf);
         return mf;
     }
 
-    long getLastModified(@NonNull Path path, MediaLibraryStatistics... statistics) {
-        if (statistics.length == 0 || isSchemeLastModified()) {
+    long getLastModified(@NonNull Path path, @NonNull Instant scanDate) {
+        if (isSchemeLastModified()) {
             try {
                 return Files.getLastModifiedTime(path).toMillis();
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         }
-        return statistics[0].getScanDate().toEpochMilli();
+        return scanDate.toEpochMilli();
     }
 
-    MediaFile createMediaFile(Path path, MediaLibraryStatistics... statistics) {
+    MediaFile createMediaFile(Path path, @NonNull Instant scanDate) {
 
         MediaFile existingFile = mediaFileDao.getMediaFile(path.toString());
 
         MediaFile mediaFile = new MediaFile();
 
         // Variable initial value
-        Instant lastModified = Instant.ofEpochMilli(getLastModified(path, statistics));
+        Instant lastModified = Instant.ofEpochMilli(getLastModified(path, scanDate));
         mediaFile.setChanged(lastModified);
         mediaFile.setCreated(lastModified);
 
@@ -285,14 +275,14 @@ public class WritableMediaFileService {
         mediaFile.setPresent(true);
 
         if (Files.isDirectory(path)) {
-            applyDirectory(path, mediaFile, statistics);
+            applyDirectory(path, mediaFile, scanDate);
         } else {
-            applyFile(path, mediaFile, statistics);
+            applyFile(path, mediaFile, scanDate);
         }
         return mediaFile;
     }
 
-    private void applyFile(Path path, MediaFile to, MediaLibraryStatistics... statistics) {
+    private void applyFile(Path path, MediaFile to, @NonNull Instant scanDate) {
         MetaDataParser parser = metaDataParserFactory.getParser(path);
         if (parser != null) {
             MetaData metaData = parser.getMetaData(path);
@@ -322,7 +312,7 @@ public class WritableMediaFileService {
             to.setComposerSort(metaData.getComposerSort());
             to.setComposerSortRaw(metaData.getComposerSort());
             readingUtils.analyze(to);
-            to.setLastScanned(statistics.length == 0 ? now() : statistics[0].getScanDate());
+            to.setLastScanned(scanDate);
         }
         String format = StringUtils.trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(to.getPathString())));
         to.setFormat(format);
@@ -334,7 +324,7 @@ public class WritableMediaFileService {
         to.setMediaType(getMediaType(to));
     }
 
-    private void applyDirectory(Path dirPath, MediaFile to, MediaLibraryStatistics... statistics) {
+    private void applyDirectory(Path dirPath, MediaFile to, @NonNull Instant scanDate) {
         // Is this an album?
         if (!mediaFileService.isRoot(to)) {
 
@@ -342,7 +332,7 @@ public class WritableMediaFileService {
                 to.setMediaType(MediaFile.MediaType.ALBUM);
 
                 // Guess artist/album name, year and genre.
-                MediaFile firstChild = getMediaFile(firstChildPath, false, statistics);
+                MediaFile firstChild = getMediaFile(firstChildPath, scanDate);
                 if (firstChild != null) {
                     to.setArtist(firstChild.getAlbumArtist());
                     to.setArtistSort(firstChild.getAlbumArtistSort());
@@ -403,7 +393,7 @@ public class WritableMediaFileService {
      */
     void refreshMediaFile(final MediaFile mediaFile) {
         Path path = mediaFile.toPath();
-        MediaFile mf = createMediaFile(path);
+        MediaFile mf = createMediaFile(path, newScanDate());
         mediaFileDao.createOrUpdateMediaFile(mf);
         mediaFileCache.remove(path);
     }

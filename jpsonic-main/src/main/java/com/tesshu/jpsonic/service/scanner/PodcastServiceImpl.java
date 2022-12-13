@@ -691,7 +691,7 @@ public class PodcastServiceImpl implements PodcastService {
     }
 
     private void updateTags(Path path, PodcastEpisode episode) {
-        MediaFile mediaFile = writableMediaFileService.getMediaFile(path, false);
+        MediaFile mediaFile = writableMediaFileService.getMediaFile(path);
         if (mediaFile == null) {
             return;
         }

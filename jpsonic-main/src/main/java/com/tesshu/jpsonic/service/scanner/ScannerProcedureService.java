@@ -4,21 +4,24 @@ import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.time.Instant;
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
+import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.Genres;
+import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import net.sf.ehcache.Ehcache;
@@ -36,30 +39,38 @@ public class ScannerProcedureService {
     private static final Logger LOG = LoggerFactory.getLogger(ScannerProcedureService.class);
 
     private final SettingsService settingsService;
+    private final MusicFolderService musicFolderService;
     private final IndexManager indexManager;
     private final MediaFileService mediaFileService;
     private final WritableMediaFileService writableMediaFileService;
+    private final PlaylistService playlistService;
     private final MediaFileDao mediaFileDao;
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
+    private final StaticsDao staticsDao;
     private final SortProcedureService sortProcedure;
     private final ScannerStateServiceImpl scannerState;
 
     private final Ehcache indexCache;
     private final MediaFileCache mediaFileCache;
 
-    public ScannerProcedureService(SettingsService settingsService, IndexManager indexManager,
-            MediaFileService mediaFileService, WritableMediaFileService writableMediaFileService,
-            MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao, SortProcedureService sortProcedure,
-            ScannerStateServiceImpl scannerState, Ehcache indexCache, MediaFileCache mediaFileCache) {
+    public ScannerProcedureService(SettingsService settingsService, MusicFolderService musicFolderService,
+            IndexManager indexManager, MediaFileService mediaFileService,
+            WritableMediaFileService writableMediaFileService, PlaylistService playlistService,
+            MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao, StaticsDao staticsDao,
+            SortProcedureService sortProcedure, ScannerStateServiceImpl scannerState, Ehcache indexCache,
+            MediaFileCache mediaFileCache) {
         super();
         this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
         this.indexManager = indexManager;
         this.mediaFileService = mediaFileService;
         this.writableMediaFileService = writableMediaFileService;
+        this.playlistService = playlistService;
         this.mediaFileDao = mediaFileDao;
         this.artistDao = artistDao;
         this.albumDao = albumDao;
+        this.staticsDao = staticsDao;
         this.sortProcedure = sortProcedure;
         this.scannerState = scannerState;
         this.indexCache = indexCache;
@@ -91,7 +102,6 @@ public class ScannerProcedureService {
             mediaFileDao.resetLastScanned();
         }
 
-        scannerState.resetScanCount();
         sortProcedure.clearOrder();
         indexCache.removeAll();
         mediaFileCache.setEnabled(false);
@@ -99,9 +109,24 @@ public class ScannerProcedureService {
         mediaFileCache.removeAll();
     }
 
-    void afterScan(MediaLibraryStatistics stats) {
+    void runStats(Instant scanDate) {
+        writeInfo("Collecting media library statistics ...");
+        MediaLibraryStatistics stats = new MediaLibraryStatistics(scanDate);
+        for (MusicFolder folder : musicFolderService.getAllMusicFolders()) {
+            stats.setFolderId(folder.getId());
+            stats.setArtistCount(mediaFileDao.getArtistCount(folder));
+            stats.setAlbumCount(mediaFileDao.getAlbumCount(folder));
+            stats.setSongCount(mediaFileDao.getSongCount(folder));
+            stats.setTotalDuration(mediaFileDao.getTotalSeconds(folder));
+            stats.setTotalSize(mediaFileDao.getTotalBytes(folder));
+            staticsDao.createMediaLibraryStatistics(stats);
+        }
+        staticsDao.deleteOldMediaLibraryStatistics();
+    }
+
+    void afterScan() {
         mediaFileCache.setEnabled(true);
-        indexManager.stopIndexing(stats);
+        indexManager.stopIndexing();
         sortProcedure.clearMemoryCache();
     }
 
@@ -123,8 +148,8 @@ public class ScannerProcedureService {
         }
     }
 
-    void scanFile(MediaFile file, MusicFolder musicFolder, MediaLibraryStatistics statistics,
-            Map<String, Integer> albumCount, Genres genres, boolean isPodcast) throws ExecutionException {
+    void scanFile(MediaFile file, MusicFolder musicFolder, Instant scanDate, boolean isPodcast)
+            throws ExecutionException {
 
         interruptIfCancelled();
         scannerState.incrementScanCount();
@@ -140,33 +165,21 @@ public class ScannerProcedureService {
         indexManager.index(file);
 
         if (file.isDirectory()) {
-            for (MediaFile child : writableMediaFileService.getChildrenOf(file, true, false, false, false,
-                    statistics)) {
-                scanFile(child, musicFolder, statistics, albumCount, genres, isPodcast);
+            for (MediaFile child : writableMediaFileService.getChildrenOf(file, true, false, scanDate)) {
+                scanFile(child, musicFolder, scanDate, isPodcast);
             }
-            for (MediaFile child : writableMediaFileService.getChildrenOf(file, false, true, false, false,
-                    statistics)) {
-                scanFile(child, musicFolder, statistics, albumCount, genres, isPodcast);
+            for (MediaFile child : writableMediaFileService.getChildrenOf(file, false, true, scanDate)) {
+                scanFile(child, musicFolder, scanDate, isPodcast);
             }
         } else {
             if (!isPodcast) {
-                updateAlbum(file, musicFolder, statistics.getScanDate(), albumCount);
-                updateArtist(file, musicFolder, statistics.getScanDate(), albumCount);
+                updateAlbum(file, musicFolder, scanDate);
+                updateArtist(file, musicFolder, scanDate);
             }
-            statistics.incrementSongs(1);
         }
 
-        updateGenres(file, genres);
-        mediaFileDao.markPresent(file.getPathString(), statistics.getScanDate());
-        artistDao.markPresent(file.getAlbumArtist(), statistics.getScanDate());
-
-        Integer duration = file.getDurationSeconds();
-        if (duration != null) {
-            statistics.incrementTotalDurationInSeconds(duration);
-        }
-        if (file.getFileSize() != null) {
-            statistics.incrementTotalLengthInBytes(file.getFileSize());
-        }
+        mediaFileDao.markPresent(file.getPathString(), scanDate);
+        artistDao.markPresent(file.getAlbumArtist(), scanDate);
     }
 
     void interruptIfCancelled() throws ExecutionException {
@@ -175,20 +188,7 @@ public class ScannerProcedureService {
         }
     }
 
-    private void updateGenres(MediaFile file, Genres genres) {
-        String genre = file.getGenre();
-        if (genre == null) {
-            return;
-        }
-        if (file.isAlbum()) {
-            genres.incrementAlbumCount(genre);
-        } else if (file.isAudio()) {
-            genres.incrementSongCount(genre);
-        }
-    }
-
-    void updateAlbum(@NonNull MediaFile file, @NonNull MusicFolder musicFolder, @NonNull Instant lastScanned,
-            @NonNull Map<String, Integer> albumCount) {
+    void updateAlbum(@NonNull MediaFile file, @NonNull MusicFolder musicFolder, @NonNull Instant lastScanned) {
 
         if (isNotAlbumUpdatable(file)) {
             return;
@@ -210,7 +210,6 @@ public class ScannerProcedureService {
         Album album = getMergedAlbum(file, artist, artistReading, artistSort);
         boolean firstEncounter = !lastScanned.equals(album.getLastScanned());
         if (firstEncounter) {
-            albumCount.put(artist, (int) defaultIfNull(albumCount.get(artist), 0) + 1);
             mergeOnFirstEncount(album, file, musicFolder);
         }
         album.setDurationSeconds(album.getDurationSeconds() + (int) defaultIfNull(file.getDurationSeconds(), 0));
@@ -273,7 +272,7 @@ public class ScannerProcedureService {
         return album;
     }
 
-    void updateArtist(MediaFile file, MusicFolder musicFolder, Instant lastScanned, Map<String, Integer> albumCount) {
+    void updateArtist(MediaFile file, MusicFolder musicFolder, Instant lastScanned) {
         if (file.getAlbumArtist() == null || !file.isAudio()) {
             return;
         }
@@ -293,7 +292,6 @@ public class ScannerProcedureService {
         }
         final boolean firstEncounter = !lastScanned.equals(artist.getLastScanned());
         artist.setFolderId(musicFolder.getId());
-        artist.setAlbumCount((int) defaultIfNull(albumCount.get(artist.getName()), 0));
         artist.setLastScanned(lastScanned);
         artist.setPresent(true);
         artistDao.createOrUpdateArtist(artist);
@@ -301,6 +299,33 @@ public class ScannerProcedureService {
         if (firstEncounter) {
             indexManager.index(artist, musicFolder);
         }
+    }
+
+    void markNonPresent(Instant scanDate) {
+        writeInfo("Marking non-present files.");
+        mediaFileDao.markNonPresent(scanDate);
+        writeInfo("Marking non-present artists.");
+        artistDao.markNonPresent(scanDate);
+        writeInfo("Marking non-present albums.");
+        albumDao.markNonPresent(scanDate);
+    }
+
+    void updateAlbumCounts() {
+        List<Artist> artists = artistDao.getAlbumCounts();
+        for (Artist artist : artists) {
+            artistDao.updateAlbumCount(artist.getId(), artist.getAlbumCount());
+        }
+    }
+
+    void updateGenreMaster() {
+        List<Genre> genres = mediaFileDao.getGenreCounts();
+        mediaFileDao.updateGenres(genres);
+    }
+
+    void importPlaylists() {
+        writeInfo("Starting playlist import.");
+        playlistService.importPlaylists();
+        writeInfo("Completed playlist import.");
     }
 
     void checkpoint() {
