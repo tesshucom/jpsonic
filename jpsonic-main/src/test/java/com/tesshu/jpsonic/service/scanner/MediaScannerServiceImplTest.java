@@ -135,7 +135,7 @@ class MediaScannerServiceImplTest {
                     artistDao, albumDao, mock(StaticsDao.class), utils, scannerStateService, mock(Ehcache.class),
                     mock(MediaFileCache.class));
             mediaScannerService = new MediaScannerServiceImpl(settingsService, mock(MusicFolderService.class),
-                    indexManager, writableMediaFileService, executor, scannerStateService, scannerProcedureService,
+                    writableMediaFileService, executor, scannerStateService, scannerProcedureService,
                     mock(ExpungeService.class));
         }
 
@@ -158,7 +158,7 @@ class MediaScannerServiceImplTest {
             final ThreadPoolTaskExecutor executor = executorConf.scanExecutor();
 
             mediaScannerService = new MediaScannerServiceImpl(settingsService, mock(MusicFolderService.class),
-                    indexManager, writableMediaFileService, executor, scannerStateService, scannerProcedureService,
+                    writableMediaFileService, executor, scannerStateService, scannerProcedureService,
                     mock(ExpungeService.class));
             mediaScannerService.scanLibrary();
             executor.shutdown();
@@ -685,8 +685,6 @@ class MediaScannerServiceImplTest {
         @Autowired
         private MusicFolderService musicFolderService;
         @Autowired
-        private IndexManager indexManager;
-        @Autowired
         private MediaFileService mediaFileService;
         @Autowired
         private WritableMediaFileService writableMediaFileService;
@@ -708,7 +706,7 @@ class MediaScannerServiceImplTest {
         @BeforeEach
         public void setup() {
             ThreadPoolTaskExecutor scanExecutor = ServiceMockUtils.mockNoAsyncTaskExecutor();
-            mediaScannerService = new MediaScannerServiceImpl(settingsService, musicFolderService, indexManager,
+            mediaScannerService = new MediaScannerServiceImpl(settingsService, musicFolderService,
                     writableMediaFileService, scanExecutor, scannerStateService, procedure, expungeService);
         }
 

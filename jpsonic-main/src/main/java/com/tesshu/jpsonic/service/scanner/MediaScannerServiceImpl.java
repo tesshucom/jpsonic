@@ -26,14 +26,11 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.concurrent.ExecutionException;
 
-import javax.annotation.PostConstruct;
-
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +49,6 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
     private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
-    private final IndexManager indexManager;
     private final WritableMediaFileService writableMediaFileService;
     private final ThreadPoolTaskExecutor scanExecutor;
 
@@ -61,25 +57,17 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     private final ExpungeService expungeService;
 
     public MediaScannerServiceImpl(SettingsService settingsService, MusicFolderService musicFolderService,
-            IndexManager indexManager, WritableMediaFileService writableMediaFileService,
-            ThreadPoolTaskExecutor scanExecutor, ScannerStateServiceImpl scannerStateService,
-            ScannerProcedureService procedure, ExpungeService expungeService) {
+            WritableMediaFileService writableMediaFileService, ThreadPoolTaskExecutor scanExecutor,
+            ScannerStateServiceImpl scannerStateService, ScannerProcedureService procedure,
+            ExpungeService expungeService) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
-        this.indexManager = indexManager;
         this.writableMediaFileService = writableMediaFileService;
         this.scanExecutor = scanExecutor;
         this.scannerState = scannerStateService;
         this.procedure = procedure;
         this.expungeService = expungeService;
-    }
-
-    // TODO To be fixed in v111.6.0
-    @PostConstruct
-    public void init() {
-        indexManager.deleteOldIndexFiles();
-        indexManager.initializeIndexDirectory();
     }
 
     private void writeInfo(String msg) {

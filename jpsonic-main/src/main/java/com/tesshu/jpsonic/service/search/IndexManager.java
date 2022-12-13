@@ -40,6 +40,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.PostConstruct;
+
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
@@ -141,6 +143,12 @@ public class IndexManager {
         searchers = new ConcurrentHashMap<>();
         writers = new ConcurrentHashMap<>();
         multiGenreMaster = new ConcurrentHashMap<>();
+    }
+
+    @PostConstruct
+    public void init() {
+        deleteOldIndexFiles();
+        initializeIndexDirectory();
     }
 
     public void index(Album album) {
@@ -387,7 +395,7 @@ public class IndexManager {
      * with lucene) are deleted. If there is no index directory, initialize the directory. If the index directory exists
      * and is not the current version, initialize the directory.
      */
-    public void deleteOldIndexFiles() {
+    void deleteOldIndexFiles() {
         deleteLegacyFiles();
         deleteOldFiles();
     }
@@ -438,7 +446,7 @@ public class IndexManager {
     /**
      * Create a directory corresponding to the current index version.
      */
-    public void initializeIndexDirectory() {
+    void initializeIndexDirectory() {
         // Check if Index is current version
         if (Files.exists(getRootIndexDirectory())) {
             // Index of current version already exists
