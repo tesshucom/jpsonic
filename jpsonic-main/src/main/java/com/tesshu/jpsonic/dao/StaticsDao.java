@@ -40,6 +40,11 @@ public class StaticsDao extends AbstractDao {
         super(daoHelper);
     }
 
+    public void deleteOldMediaLibraryStatistics() {
+        update("delete from media_library_statistics "
+                + "where executed < (select min(executed) from (select distinct executed from media_library_statistics order by executed desc limit 5) last5)");
+    }
+
     public @Nullable MediaLibraryStatistics getRecentMediaLibraryStatistics() {
         String sql = "select executed, folder_id, sum(artist_count) as artist_count, sum(album_count) as album_count, "
                 + "sum(song_count) as song_count, sum(total_size) as total_size, sum(total_duration) as total_duration "

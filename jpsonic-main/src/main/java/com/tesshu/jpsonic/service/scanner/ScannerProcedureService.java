@@ -121,6 +121,7 @@ public class ScannerProcedureService {
             stats.setTotalSize(mediaFileDao.getTotalBytes(folder));
             staticsDao.createMediaLibraryStatistics(stats);
         }
+        staticsDao.deleteOldMediaLibraryStatistics();
     }
 
     void afterScan() {
