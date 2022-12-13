@@ -52,6 +52,7 @@ import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import com.tesshu.jpsonic.util.FileUtil;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.FieldInfos;
@@ -115,6 +116,8 @@ public class IndexManager {
     private final SearchServiceUtilities util;
     private final JpsonicComparators comparators;
     private final SettingsService settingsService;
+    private final ScannerStateServiceImpl scannerState;
+
     private final Map<IndexType, SearcherManager> searchers;
     private final Map<IndexType, IndexWriter> writers;
     private final Map<GenreSort, List<Genre>> multiGenreMaster;
@@ -129,7 +132,7 @@ public class IndexManager {
 
     public IndexManager(AnalyzerFactory analyzerFactory, DocumentFactory documentFactory, MediaFileDao mediaFileDao,
             ArtistDao artistDao, AlbumDao albumDao, QueryFactory queryFactory, SearchServiceUtilities util,
-            JpsonicComparators comparators, SettingsService settingsService) {
+            JpsonicComparators comparators, SettingsService settingsService, ScannerStateServiceImpl scannerState) {
         super();
         this.analyzerFactory = analyzerFactory;
         this.documentFactory = documentFactory;
@@ -140,6 +143,7 @@ public class IndexManager {
         this.util = util;
         this.comparators = comparators;
         this.settingsService = settingsService;
+        this.scannerState = scannerState;
         searchers = new ConcurrentHashMap<>();
         writers = new ConcurrentHashMap<>();
         multiGenreMaster = new ConcurrentHashMap<>();
@@ -149,6 +153,7 @@ public class IndexManager {
     public void init() {
         deleteOldIndexFiles();
         initializeIndexDirectory();
+        scannerState.setReady();
     }
 
     public void index(Album album) {
