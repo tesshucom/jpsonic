@@ -28,6 +28,8 @@ public class ScannerStateServiceImpl implements ScannerStateService {
 
     private final ReentrantLock scanningLock = new ReentrantLock();
 
+    private final AtomicBoolean ready = new AtomicBoolean(false);
+
     // TODO To be fixed in v111.6.0
     private final AtomicBoolean destroy = new AtomicBoolean();
 
@@ -40,6 +42,9 @@ public class ScannerStateServiceImpl implements ScannerStateService {
         this.staticsDao = staticsDao;
     }
 
+    /**
+     * Called only once before shutdown.
+     */
     @PreDestroy
     void preDestroy() {
         destroy.set(true);
@@ -54,7 +59,17 @@ public class ScannerStateServiceImpl implements ScannerStateService {
         return staticsDao.isNeverScanned();
     }
 
+    /**
+     * Called only once after startup.
+     */
+    public void setReady() {
+        ready.set(true);
+    }
+
     boolean tryScanningLock() {
+        if (!ready.get() || destroy.get()) {
+            return false;
+        }
         boolean acquired = scanningLock.tryLock();
         if (acquired) {
             scanDate = now();
@@ -83,7 +98,7 @@ public class ScannerStateServiceImpl implements ScannerStateService {
 
     @Override
     public boolean isScanning() {
-        return scanningLock.isLocked();
+        return ready.get() && scanningLock.isLocked();
     }
 
     void incrementScanCount() {

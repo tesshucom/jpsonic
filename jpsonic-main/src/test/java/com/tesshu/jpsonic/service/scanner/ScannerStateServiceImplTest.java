@@ -51,6 +51,9 @@ class ScannerStateServiceImplTest {
 
     @Test
     void testScanCount() {
+
+        scannerStateService.setReady();
+
         assertEquals(0, scannerStateService.getScanCount());
         scannerStateService.incrementScanCount();
         assertEquals(1, scannerStateService.getScanCount());

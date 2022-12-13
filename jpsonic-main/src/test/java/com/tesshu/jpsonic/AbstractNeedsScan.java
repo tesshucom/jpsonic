@@ -41,7 +41,6 @@ import com.tesshu.jpsonic.service.scanner.MediaScannerServiceImpl;
 import com.tesshu.jpsonic.service.scanner.ScannerProcedureService;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
-import com.tesshu.jpsonic.service.search.IndexManager;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,8 +81,6 @@ public abstract class AbstractNeedsScan implements NeedsScan {
     protected SecurityService securityService;
 
     @Autowired
-    private IndexManager indexManager;
-    @Autowired
     private WritableMediaFileService writableMediaFileService;
     @Autowired
     private ScannerStateServiceImpl scannerStateService;
@@ -98,8 +95,8 @@ public abstract class AbstractNeedsScan implements NeedsScan {
 
     @PostConstruct
     public void init() {
-        mediaScannerService = new MediaScannerServiceImpl(settingsService, musicFolderService, indexManager,
-                writableMediaFileService, scanExecutor, scannerStateService, procedure, expungeService);
+        mediaScannerService = new MediaScannerServiceImpl(settingsService, musicFolderService, writableMediaFileService,
+                scanExecutor, scannerStateService, procedure, expungeService);
     }
 
     public interface BeforeScan extends Supplier<Boolean> {

@@ -40,6 +40,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.PostConstruct;
+
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
@@ -50,6 +52,7 @@ import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import com.tesshu.jpsonic.util.FileUtil;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.FieldInfos;
@@ -113,6 +116,8 @@ public class IndexManager {
     private final SearchServiceUtilities util;
     private final JpsonicComparators comparators;
     private final SettingsService settingsService;
+    private final ScannerStateServiceImpl scannerState;
+
     private final Map<IndexType, SearcherManager> searchers;
     private final Map<IndexType, IndexWriter> writers;
     private final Map<GenreSort, List<Genre>> multiGenreMaster;
@@ -127,7 +132,7 @@ public class IndexManager {
 
     public IndexManager(AnalyzerFactory analyzerFactory, DocumentFactory documentFactory, MediaFileDao mediaFileDao,
             ArtistDao artistDao, AlbumDao albumDao, QueryFactory queryFactory, SearchServiceUtilities util,
-            JpsonicComparators comparators, SettingsService settingsService) {
+            JpsonicComparators comparators, SettingsService settingsService, ScannerStateServiceImpl scannerState) {
         super();
         this.analyzerFactory = analyzerFactory;
         this.documentFactory = documentFactory;
@@ -138,9 +143,17 @@ public class IndexManager {
         this.util = util;
         this.comparators = comparators;
         this.settingsService = settingsService;
+        this.scannerState = scannerState;
         searchers = new ConcurrentHashMap<>();
         writers = new ConcurrentHashMap<>();
         multiGenreMaster = new ConcurrentHashMap<>();
+    }
+
+    @PostConstruct
+    public void init() {
+        deleteOldIndexFiles();
+        initializeIndexDirectory();
+        scannerState.setReady();
     }
 
     public void index(Album album) {
@@ -387,7 +400,7 @@ public class IndexManager {
      * with lucene) are deleted. If there is no index directory, initialize the directory. If the index directory exists
      * and is not the current version, initialize the directory.
      */
-    public void deleteOldIndexFiles() {
+    void deleteOldIndexFiles() {
         deleteLegacyFiles();
         deleteOldFiles();
     }
@@ -438,7 +451,7 @@ public class IndexManager {
     /**
      * Create a directory corresponding to the current index version.
      */
-    public void initializeIndexDirectory() {
+    void initializeIndexDirectory() {
         // Check if Index is current version
         if (Files.exists(getRootIndexDirectory())) {
             // Index of current version already exists
