@@ -194,6 +194,12 @@ public class UserDao extends AbstractDao {
         writeRoles(user);
     }
 
+    public void updateUserByteCounts(long bytesStreamed, long bytesDownloaded, long bytesUploaded, String username) {
+        String sql = "update " + getUserTable()
+                + " set bytes_streamed=?, bytes_downloaded=?, bytes_uploaded=? where username=?";
+        update(sql, bytesStreamed, bytesDownloaded, bytesUploaded, username);
+    }
+
     /**
      * Returns the name of the roles for the given user.
      *

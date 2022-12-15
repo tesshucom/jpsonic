@@ -358,12 +358,9 @@ public class SecurityService implements UserDetailsService {
         if (user == null) {
             return;
         }
-
-        user.setBytesStreamed(user.getBytesStreamed() + bytesStreamedDelta);
-        user.setBytesDownloaded(user.getBytesDownloaded() + bytesDownloadedDelta);
-        user.setBytesUploaded(user.getBytesUploaded() + bytesUploadedDelta);
-
-        userDao.updateUser(user);
+        userDao.updateUserByteCounts(user.getBytesStreamed() + bytesStreamedDelta,
+                user.getBytesDownloaded() + bytesDownloadedDelta, user.getBytesUploaded() + bytesUploadedDelta,
+                user.getUsername());
     }
 
     /**
