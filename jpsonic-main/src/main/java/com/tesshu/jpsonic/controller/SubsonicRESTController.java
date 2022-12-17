@@ -2163,11 +2163,9 @@ public class SubsonicRESTController {
             writeError(request, response, ErrorCode.NOT_FOUND, MSG_NO_USER + username);
             return;
         }
-        String password = decrypt(
+        String newPass = decrypt(
                 ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.PASSWORD.value()));
-        user.setPassword(password);
-        securityService.updateUser(user);
-
+        securityService.updatePassword(user, newPass, user.isLdapAuthenticated());
         writeEmptyResponse(request, response);
     }
 

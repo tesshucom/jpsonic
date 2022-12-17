@@ -91,13 +91,10 @@ public class RecoverController {
                 int index = random.nextInt(SYMBOLS.length());
                 sb.append(SYMBOLS.charAt(index));
             }
-            String password = sb.toString();
-
+            String newPass = sb.toString();
             if (sendEmail(user.getUsername(), user.getEmail())) {
                 map.put("sentTo", user.getEmail());
-                user.setLdapAuthenticated(false);
-                user.setPassword(password);
-                securityService.updateUser(user);
+                securityService.updatePassword(user, newPass, false);
             } else {
                 map.put(Attributes.Model.ERROR.getValue(), "recover.error.sendfailed");
             }

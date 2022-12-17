@@ -341,6 +341,10 @@ public class SecurityService implements UserDetailsService {
         userDao.updateUser(user);
     }
 
+    public void updatePassword(User user, String newPass, boolean ldapAuthenticated) {
+        userDao.updatePassword(user, newPass, ldapAuthenticated);
+    }
+
     /**
      * Updates the byte counts for given user.
      *

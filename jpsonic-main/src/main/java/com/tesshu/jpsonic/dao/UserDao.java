@@ -194,6 +194,11 @@ public class UserDao extends AbstractDao {
         writeRoles(user);
     }
 
+    public void updatePassword(User user, String newPass, boolean ldapAuthenticated) {
+        String sql = "update " + getUserTable() + " set password=?, ldap_authenticated=? where username=?";
+        update(sql, newPass, ldapAuthenticated, user.getUsername());
+    }
+
     public void updateUserByteCounts(long bytesStreamed, long bytesDownloaded, long bytesUploaded, String username) {
         String sql = "update " + getUserTable()
                 + " set bytes_streamed=?, bytes_downloaded=?, bytes_uploaded=? where username=?";
