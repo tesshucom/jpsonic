@@ -341,6 +341,10 @@ public class SecurityService implements UserDetailsService {
         userDao.updateUser(user);
     }
 
+    public void updatePassword(User user, String newPass, boolean ldapAuthenticated) {
+        userDao.updatePassword(user, newPass, ldapAuthenticated);
+    }
+
     /**
      * Updates the byte counts for given user.
      *
@@ -358,12 +362,9 @@ public class SecurityService implements UserDetailsService {
         if (user == null) {
             return;
         }
-
-        user.setBytesStreamed(user.getBytesStreamed() + bytesStreamedDelta);
-        user.setBytesDownloaded(user.getBytesDownloaded() + bytesDownloadedDelta);
-        user.setBytesUploaded(user.getBytesUploaded() + bytesUploadedDelta);
-
-        userDao.updateUser(user);
+        userDao.updateUserByteCounts(user.getBytesStreamed() + bytesStreamedDelta,
+                user.getBytesDownloaded() + bytesDownloadedDelta, user.getBytesUploaded() + bytesUploadedDelta,
+                user.getUsername());
     }
 
     /**

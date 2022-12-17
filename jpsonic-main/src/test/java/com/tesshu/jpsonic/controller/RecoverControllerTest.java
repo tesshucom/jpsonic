@@ -389,6 +389,7 @@ class RecoverControllerTest {
         assertEquals(ServiceMockUtils.ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(RECAPTCHA_SITE_KEY, model.get(ATTR_SITE_KEY));
         Assertions.assertFalse(model.containsKey(Attributes.Request.ERROR.value()));
-        Mockito.verify(securityService, Mockito.times(1)).updateUser(Mockito.any());
+        Mockito.verify(securityService, Mockito.times(1)).updatePassword(Mockito.any(User.class), Mockito.anyString(),
+                Mockito.anyBoolean());
     }
 }

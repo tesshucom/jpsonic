@@ -80,8 +80,7 @@ public class PasswordSettingsController {
             return new ModelAndView("passwordSettings");
         } else {
             User user = securityService.getUserByNameStrict(command.getUsername());
-            user.setPassword(command.getPassword());
-            securityService.updateUser(user);
+            securityService.updatePassword(user, command.getPassword(), user.isLdapAuthenticated());
 
             command.setPassword(null);
             command.setConfirmPassword(null);
