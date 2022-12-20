@@ -95,7 +95,7 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-junit-jupiter</artifactId>
-                <version>4.9.0</version>
+                <version>4.10.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -110,37 +110,37 @@
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-acl</artifactId>
-                <version>5.8.0</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.1</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-config</artifactId>
-                <version>5.8.0</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.1</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-core</artifactId>
-                <version>5.8.0</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.1</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-crypto</artifactId>
-                <version>5.7.5</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.7.6</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-taglibs</artifactId>
-                <version>5.8.0</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.1</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-ldap</artifactId>
-                <version>5.8.0</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.1</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
-                <version>5.8.0</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.1</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
 
             <dependency>
@@ -555,7 +555,7 @@
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>7.4.0</version>
+                    <version>7.4.1</version>
                     <inherited>true</inherited>
                     <configuration>
                         <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
