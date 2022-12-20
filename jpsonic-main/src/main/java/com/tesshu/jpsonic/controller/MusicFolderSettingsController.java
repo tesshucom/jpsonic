@@ -183,9 +183,16 @@ public class MusicFolderSettingsController {
         if (validated.isEmpty()) {
             return Optional.empty();
         }
+
+        Path newPath = Path.of(validated.get());
+        if (musicFolderService.getAllMusicFolders(true, true).stream()
+                .anyMatch(old -> old.toPath().startsWith(newPath) || newPath.startsWith(old.toPath()))) {
+            return Optional.empty();
+        }
+
         String name = StringUtils.trimToNull(info.getName());
         if (name == null) {
-            name = Path.of(validated.get()).getFileName().toString();
+            name = newPath.getFileName().toString();
         }
         return Optional.of(new MusicFolder(info.getId(), validated.get(), name, info.isEnabled(), now()));
     }
