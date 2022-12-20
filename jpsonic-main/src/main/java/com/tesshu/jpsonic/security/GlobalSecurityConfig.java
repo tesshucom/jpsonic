@@ -21,6 +21,8 @@
 
 package com.tesshu.jpsonic.security;
 
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
+
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.EnumSet;
@@ -176,8 +178,12 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
                 .and().headers()
                     .frameOptions().sameOrigin()
                 .and().authorizeHttpRequests()
-                    .requestMatchers("/ext/stream/**", "/ext/coverArt*", "/ext/share/**", "/ext/hls/**")
-                        .hasAnyRole("TEMP", "USER")
+                    .requestMatchers(
+                            antMatcher("/ext/stream/**"),
+                            antMatcher("/ext/coverArt*"),
+                            antMatcher("/ext/share/**"),
+                            antMatcher("/ext/hls/**"))
+                    .hasAnyRole("TEMP", "USER")
                 .and().sessionManagement()
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().exceptionHandling()
@@ -263,27 +269,58 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
                 .and().headers()
                     .frameOptions().sameOrigin()
                 .and().authorizeHttpRequests()
-                    .requestMatchers("/recover*", "/accessDenied*", "/style/**", "/icons/**", "/flash/**", "/script/**", "/login", "/error")
+                    .requestMatchers(
+                            antMatcher("/recover*"),
+                            antMatcher("/accessDenied*"),
+                            antMatcher("/style/**"),
+                            antMatcher("/icons/**"),
+                            antMatcher("/flash/**"),
+                            antMatcher("/script/**"),
+                            antMatcher("/login"),
+                            antMatcher("/error"))
                         .permitAll()
-                    .requestMatchers("/personalSettings*", "/passwordSettings*", "/playerSettings*", "/shareSettings*", "/passwordSettings*")
+                    .requestMatchers(
+                            antMatcher("/personalSettings*"),
+                            antMatcher("/passwordSettings*"),
+                            antMatcher("/playerSettings*"),
+                            antMatcher("/shareSettings*"),
+                            antMatcher("/passwordSettings*"))
                         .hasRole("SETTINGS")
-                    .requestMatchers("/generalSettings*", "/advancedSettings*", "/userSettings*", "/internalhelp*", "/musicFolderSettings*", "/databaseSettings*", "/transcodeSettings*", "/rest/startScan*")
+                    .requestMatchers(
+                            antMatcher("/generalSettings*"),
+                            antMatcher("/advancedSettings*"),
+                            antMatcher("/userSettings*"),
+                            antMatcher("/internalhelp*"),
+                            antMatcher("/musicFolderSettings*"),
+                            antMatcher("/databaseSettings*"),
+                            antMatcher("/transcodeSettings*"),
+                            antMatcher("/rest/startScan*"))
                         .hasRole("ADMIN")
-                    .requestMatchers("/deletePlaylist*", "/savePlaylist*")
+                    .requestMatchers(
+                            antMatcher("/deletePlaylist*"),
+                            antMatcher("/savePlaylist*"))
                         .hasRole("PLAYLIST")
-                    .requestMatchers("/download*")
+                    .requestMatchers(
+                            antMatcher("/download*"))
                         .hasRole("DOWNLOAD")
-                    .requestMatchers("/upload*")
+                    .requestMatchers(
+                            antMatcher("/upload*"))
                         .hasRole("UPLOAD")
-                    .requestMatchers("/createShare*")
+                    .requestMatchers(
+                            antMatcher("/createShare*"))
                         .hasRole("SHARE")
-                    .requestMatchers("/changeCoverArt*", "/editTags*")
+                    .requestMatchers(
+                            antMatcher("/changeCoverArt*"),
+                            antMatcher("/editTags*"))
                         .hasRole("COVERART")
-                    .requestMatchers("/setMusicFileInfo*")
+                    .requestMatchers(
+                            antMatcher("/setMusicFileInfo*"))
                         .hasRole("COMMENT")
-                    .requestMatchers("/podcastReceiverAdmin*")
+                    .requestMatchers(
+                            antMatcher("/podcastReceiverAdmin*"))
                         .hasRole("PODCAST")
-                    .requestMatchers("/**")
+                    .requestMatchers(
+                            antMatcher("/**"))
                         .hasRole("USER")
                     .anyRequest()
                         .authenticated()
