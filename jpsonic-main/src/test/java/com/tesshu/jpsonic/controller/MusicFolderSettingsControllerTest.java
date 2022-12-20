@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.annotation.Documented;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 
@@ -368,6 +369,18 @@ class MusicFolderSettingsControllerTest {
                         }
 
                         @interface NonTraversal {
+
+                            @interface OldPathStartWithNewPath {
+
+                            }
+
+                            @interface NewPathStartWithOldPath {
+
+                            }
+
+                            @interface NonDuplication {
+
+                            }
                         }
                     }
 
@@ -422,10 +435,37 @@ class MusicFolderSettingsControllerTest {
         }
 
         @Test
-        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal.OldPathStartWithNewPath
+        @ToMusicFolderDecisions.Results.Empty
+        void c03() {
+            List<MusicFolder> oldMusicFolders = Arrays.asList(new MusicFolder(0, "/jpsonic", "old", false, null));
+            Mockito.when(musicFolderService.getAllMusicFolders(true, true)).thenReturn(oldMusicFolders);
+            MusicFolderInfo info = new MusicFolderInfo();
+            String path = "/jpsonic/subDirectory";
+            info.setPath(path);
+            assertTrue(controller.toMusicFolder(info).isEmpty());
+        }
+
+        @Test
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal.NewPathStartWithOldPath
+        @ToMusicFolderDecisions.Results.Empty
+        void c04() {
+            List<MusicFolder> oldMusicFolders = Arrays
+                    .asList(new MusicFolder(0, "/jpsonic/subDirectory", "old", false, null));
+            Mockito.when(musicFolderService.getAllMusicFolders(true, true)).thenReturn(oldMusicFolders);
+            MusicFolderInfo info = new MusicFolderInfo();
+            String path = "/jpsonic";
+            info.setPath(path);
+            assertTrue(controller.toMusicFolder(info).isEmpty());
+        }
+
+        @Test
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal.NonDuplication
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.NonNull
         @ToMusicFolderDecisions.Results.NotEmpty
-        void c03() {
+        void c05() {
+            List<MusicFolder> oldMusicFolders = Arrays.asList(new MusicFolder(0, "/jpsonic", "old", false, null));
+            Mockito.when(musicFolderService.getAllMusicFolders(true, true)).thenReturn(oldMusicFolders);
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "foo/bar";
             info.setPath(path);
@@ -434,11 +474,11 @@ class MusicFolderSettingsControllerTest {
         }
 
         @Test
-        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal.NonDuplication
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.Null
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.DirName.NonNull
         @ToMusicFolderDecisions.Results.NotEmpty
-        void c04() {
+        void c06() {
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "foo/bar";
             info.setPath(path);
@@ -450,7 +490,7 @@ class MusicFolderSettingsControllerTest {
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.Null
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.DirName.Null
         @ToMusicFolderDecisions.Results.Empty
-        void c05() {
+        void c07() {
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "/";
             info.setPath(path);
@@ -463,7 +503,7 @@ class MusicFolderSettingsControllerTest {
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.DirName.Null
         @ToMusicFolderDecisions.Results.Empty
         @EnabledOnOs(OS.WINDOWS)
-        void c06() {
+        void c08() {
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "/:";
             info.setPath(path);
