@@ -244,7 +244,7 @@ class IndexManagerTest extends AbstractNeedsScan {
         assertEquals(3, ratingDao.getRatedAlbumCount(USER_NAME, musicFolders), "Because one album has been deleted.");
         int ratingsCount = ratingDao.getJdbcTemplate().queryForObject(
                 "select count(*) from user_rating where user_rating.username = ?", Integer.class, USER_NAME);
-        assertEquals(5, ratingsCount, "Nothing has been deleted!");
+        assertEquals(3, ratingsCount, "Will be removed, including oldPath");
     }
 
     @Test
