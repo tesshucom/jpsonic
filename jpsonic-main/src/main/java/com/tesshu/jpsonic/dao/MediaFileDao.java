@@ -720,6 +720,7 @@ public class MediaFileDao extends AbstractDao {
                 + "and starred_media_file.username = :username", 0, args);
     }
 
+    @Transactional
     public void starMediaFile(int id, String username) {
         unstarMediaFile(id, username);
         update("insert into starred_media_file(media_file_id, username, created) values (?,?,?)", id, username, now());
