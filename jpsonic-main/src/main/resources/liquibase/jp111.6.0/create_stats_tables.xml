@@ -1,0 +1,97 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="create_scan_log" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="scan_log"/>
+            </not>
+        </preConditions>
+        <createTable tableName="scan_log">
+            <column name="start_date" type="${timestamp_type}">
+                <constraints nullable="false" primaryKey="true" />
+            </column>
+            <column name="type" type="${varchar_type}">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <createIndex unique="true" tableName="scan_log" indexName="idx_scan_start_date">
+            <column name="start_date"/>
+        </createIndex>
+        <rollback>
+            <dropTable tableName="scan_log" />
+        </rollback>
+    </changeSet>
+    <changeSet id="create_scan_event" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="scan_event"/>
+            </not>
+        </preConditions>
+        <createTable tableName="scan_event">
+            <column name="start_date" type="${timestamp_type}">
+                <constraints nullable="false" foreignKeyName="se_sl_fk" referencedTableName="scan_log" referencedColumnNames="start_date" deleteCascade="true"/>
+            </column>
+            <column name="executed" type="${timestamp_type}">
+                <constraints nullable="false" primaryKey="true" />
+            </column>
+            <column name="type" type="${varchar_type}">
+                <constraints nullable="false" />
+            </column>
+            <column name="max_memory" type="bigint" >
+                <constraints nullable="false" />
+            </column>
+            <column name="total_memory" type="bigint" >
+                <constraints nullable="false" />
+            </column>
+            <column name="free_memory" type="bigint" >
+                <constraints nullable="false" />
+            </column>
+            <column name="comment" type="${varchar_type}">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+        <rollback>
+            <dropTable tableName="scan_event" />
+        </rollback>
+    </changeSet>
+    <changeSet id="create_media_library_statistics" author="tesshucom">
+        <validCheckSum>ANY</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="media_library_statistics" />
+            </not>
+        </preConditions>
+        <createTable tableName="media_library_statistics">
+            <column name="start_date" type="${timestamp_type}">
+                <constraints nullable="false" foreignKeyName="mls_sl_fk" referencedTableName="scan_log" referencedColumnNames="start_date" deleteCascade="true"/>
+            </column>
+            <column name="folder_id" type="int" >
+                <constraints nullable="false" foreignKeyName="mls_mf_fk" referencedTableName="music_folder" referencedColumnNames="id" deleteCascade="true"/>
+            </column>
+            <column name="artist_count" type="int" >
+                <constraints nullable="false" />
+            </column>
+            <column name="album_count" type="int" >
+                <constraints nullable="false" />
+            </column>
+            <column name="song_count" type="int" >
+                <constraints nullable="false" />
+            </column>
+            <column name="total_size" type="bigint" >
+                <constraints nullable="false" />
+            </column>
+            <column name="total_duration" type="bigint" >
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <createIndex tableName="media_library_statistics" indexName="idx_mls_start_folder" unique="true">
+            <column name="start_date"/>
+            <column name="folder_id"/>
+        </createIndex>
+        <rollback>
+            <dropTable tableName="media_library_statistics" />
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.dao.StaticsDao.ScanLogType;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MediaScannerService;
@@ -91,7 +92,6 @@ public class MediaScannerServiceImpl implements MediaScannerService {
         return scannerState.getScanCount();
     }
 
-    // TODO To be fixed in v111.6.0
     @Override
     public void expunge() {
         expungeService.expunge();
@@ -112,11 +112,10 @@ public class MediaScannerServiceImpl implements MediaScannerService {
             }
             return;
         }
-
-        Instant scanDate = scannerState.getScanDate();
         LOG.info("Starting to scan media library.");
-
-        procedure.beforeScan();
+        Instant scanDate = scannerState.getScanDate();
+        procedure.createScanLog(scanDate, ScanLogType.SCAN_ALL);
+        procedure.beforeScan(scanDate);
 
         try {
 
@@ -166,7 +165,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
         }
 
         LOG.info("Completed media library scan.");
-
+        procedure.rotateScanLog();
         scannerState.unlockScanning();
     }
 }

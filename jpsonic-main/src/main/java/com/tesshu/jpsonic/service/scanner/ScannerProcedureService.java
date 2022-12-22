@@ -1,5 +1,6 @@
 package com.tesshu.jpsonic.service.scanner;
 
+import static java.time.temporal.ChronoUnit.DAYS;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
@@ -12,6 +13,7 @@ import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.StaticsDao;
+import com.tesshu.jpsonic.dao.StaticsDao.ScanLogType;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;
@@ -91,7 +93,22 @@ public class ScannerProcedureService {
         }
     }
 
-    void beforeScan() {
+    void createScanLog(Instant scanDate, ScanLogType logType) {
+        if (logType == ScanLogType.SCAN_ALL || settingsService.isUseScanLog()) {
+            staticsDao.createScanLog(scanDate, logType);
+        }
+    }
+
+    void rotateScanLog() {
+        int retention = settingsService.getScanLogRetention();
+        if (retention == settingsService.getDefaultScanLogRetention()) {
+            staticsDao.deleteOtherThanLatest();
+        } else {
+            staticsDao.deleteBefore(Instant.now().truncatedTo(DAYS).minus(retention, DAYS));
+        }
+    }
+
+    void beforeScan(Instant scanDate) {
 
         // TODO To be fixed in v111.6.0
         if (settingsService.isIgnoreFileTimestampsNext()) {
@@ -121,7 +138,6 @@ public class ScannerProcedureService {
             stats.setTotalSize(mediaFileDao.getTotalBytes(folder));
             staticsDao.createMediaLibraryStatistics(stats);
         }
-        staticsDao.deleteOldMediaLibraryStatistics();
     }
 
     void afterScan() {

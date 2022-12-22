@@ -20,16 +20,16 @@
 package com.tesshu.jpsonic.dao;
 
 import java.sql.ResultSet;
+import java.time.Instant;
 
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class StaticsDao extends AbstractDao {
-
-    private static final String INSERT_COLUMNS = "executed, folder_id, artist_count, album_count, song_count, total_size, total_duration";
 
     private final RowMapper<MediaLibraryStatistics> libStatsMapper = (ResultSet rs, int rowNum) -> {
         return new MediaLibraryStatistics(nullableInstantOf(rs.getTimestamp(1)), rs.getInt(2), rs.getInt(3),
@@ -40,27 +40,40 @@ public class StaticsDao extends AbstractDao {
         super(daoHelper);
     }
 
-    public void deleteOldMediaLibraryStatistics() {
-        update("delete from media_library_statistics "
-                + "where executed < (select min(executed) from (select distinct executed from media_library_statistics order by executed desc limit 5) last5)");
+    public void createScanLog(@NonNull Instant scanDate, @NonNull ScanLogType type) {
+        update("insert into scan_log (start_date, type) values (?, ?)", scanDate, type.name());
+    }
+
+    public void deleteBefore(Instant retention) {
+        update("delete from scan_log where start_date < ?", retention);
+    }
+
+    public void deleteOtherThanLatest() {
+        update("delete from scan_log where start_date not in(select start_date from scan_log "
+                + "where type = 'SCAN_ALL' order by start_date desc limit 1)");
     }
 
     public @Nullable MediaLibraryStatistics getRecentMediaLibraryStatistics() {
-        String sql = "select executed, folder_id, sum(artist_count) as artist_count, sum(album_count) as album_count, "
+        String sql = "select start_date, folder_id, sum(artist_count) as artist_count, sum(album_count) as album_count, "
                 + "sum(song_count) as song_count, sum(total_size) as total_size, sum(total_duration) as total_duration "
                 + "from media_library_statistics "
-                + "where executed = (select max(executed) from media_library_statistics) "
-                + "group by executed, folder_id, artist_count, album_count, song_count, total_size, total_duration";
+                + "where start_date = (select max(start_date) from scan_log where type = 'SCAN_ALL') "
+                + "group by start_date, folder_id, artist_count, album_count, song_count, total_size, total_duration";
         return queryOne(sql, libStatsMapper);
     }
 
     public boolean isNeverScanned() {
-        return queryForInt("select count(*) from media_library_statistics", 0) == 0;
+        return queryForInt("select count(*) from scan_log where type='SCAN_ALL'", 0) == 0;
     }
 
     public void createMediaLibraryStatistics(MediaLibraryStatistics stats) {
-        String sql = "insert into media_library_statistics (" + INSERT_COLUMNS + ") values (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "insert into media_library_statistics (start_date, folder_id, artist_count, album_count, "
+                + "song_count, total_size, total_duration) values (?, ?, ?, ?, ?, ?, ?)";
         update(sql, stats.getExecuted(), stats.getFolderId(), stats.getArtistCount(), stats.getAlbumCount(),
                 stats.getSongCount(), stats.getTotalSize(), stats.getTotalDuration());
+    }
+
+    public enum ScanLogType {
+        SCAN_ALL, EXPUNGE, PODCAST_REFRESH_ALL
     }
 }
