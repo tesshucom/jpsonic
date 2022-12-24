@@ -143,12 +143,6 @@
                 <version>5.8.1</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
 
-            <dependency>
-                <groupId>org.yaml</groupId>
-                <artifactId>snakeyaml</artifactId>
-                <version>1.33</version>
-            </dependency>
-
             <!-- Spring Boot is slow to fix CVE, so some libraries will be overridden. -->
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
