@@ -224,11 +224,11 @@ jobs:
         run: cp install/keys/README.txt jpsonic-main/target
       - name: Get current date
         id: date
-        run: echo "::set-output name=date::$(date +'%Y%m%d')"
+        run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
       - name: Archive artifact
         uses: actions/upload-artifact@v3
         with:
-          name: jpsonic-jetty-embedded-for-jdk${{ matrix.java }}-${{ steps.date.outputs.date }}
+          name: jpsonic-jetty-embedded-for-jdk${{ matrix.java }}-${{ steps.date.outputs.current }}
           path: |
             jpsonic-main/target/jpsonic.war
             jpsonic-main/target/artifacts-checksums.sha.asc
@@ -253,11 +253,11 @@ jobs:
           password: ${{ secrets.DOCKER_PASS }}
       - name: Get current date
         id: date
-        run: echo "::set-output name=date::$(date +'%Y%m%d')"
+        run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
       - name: Download package
         uses: actions/download-artifact@v3
         with:
-          name: jpsonic-jetty-embedded-for-jdk17-${{ steps.date.outputs.date }}
+          name: jpsonic-jetty-embedded-for-jdk17-${{ steps.date.outputs.current }}
       - name: Create Tag
         run: |
           echo "DOCKER_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
@@ -309,11 +309,11 @@ jobs:
           password: ${{ secrets.DOCKER_PASS }}
       - name: Get current date
         id: date
-        run: echo "::set-output name=date::$(date +'%Y%m%d')"
+        run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
       - name: Download package
         uses: actions/download-artifact@v3
         with:
-          name: jpsonic-jetty-embedded-for-jdk17-${{ steps.date.outputs.date }}
+          name: jpsonic-jetty-embedded-for-jdk17-${{ steps.date.outputs.current }}
       - name: Create Tag
         run: |
           echo "DOCKER_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
