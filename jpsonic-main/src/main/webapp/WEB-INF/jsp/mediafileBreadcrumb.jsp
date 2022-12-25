@@ -11,7 +11,7 @@ PARAMETERS : (mainContloler.model)
         <c:if test="${model.breadcrumbIndex}">
 	        <c:choose>
 	            <c:when test="${not empty model.selectedMusicFolder}">
-	                <c:if test="${model.dir.folder eq model.selectedMusicFolder.path}">
+	                <c:if test="${model.dir.folder eq model.selectedMusicFolder.pathString}">
 	                    <li><a target="main" href="${indexUrl}" title="${fn:escapeXml(model.selectedMusicFolder.name)}">${fn:escapeXml(model.selectedMusicFolder.name)}</a></li>
 	                </c:if>
 	            </c:when>
