@@ -28,6 +28,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PlayQueue;
 import com.tesshu.jpsonic.domain.Player;
@@ -83,6 +84,7 @@ public class M3UController {
         return null;
     }
 
+    @SuppressFBWarnings(value = "XSS_SERVLET", justification = "Do not escape tokenized URLs.")
     private void createClientSidePlaylist(PrintWriter out, Player player, String url) {
         if (player.isM3uBomEnabled()) {
             out.print("\ufeff");
@@ -102,11 +104,12 @@ public class M3UController {
 
             String urlNoAuth = url + "player=" + player.getId() + "&id=" + mediaFile.getId() + "&suffix=."
                     + transcodingService.getSuffix(player, mediaFile, null);
-            String urlWithAuth = StringEscapeUtils.escapeHtml4(jwtSecurityService.addJWTToken(urlNoAuth));
+            String urlWithAuth = jwtSecurityService.addJWTToken(urlNoAuth);
             out.println(urlWithAuth);
         }
     }
 
+    @SuppressFBWarnings(value = "XSS_SERVLET", justification = "Do not escape tokenized URLs.")
     private void createServerSidePlaylist(PrintWriter out, Player player, final String urlStr) {
 
         String url = urlStr;
@@ -125,7 +128,7 @@ public class M3UController {
         }
         out.println("#EXTM3U");
         out.println("#EXTINF:-1,Jpsonic");
-        out.println(StringEscapeUtils.escapeHtml4(jwtSecurityService.addJWTToken(url)));
+        out.println(jwtSecurityService.addJWTToken(url));
     }
 
     private String getSuffix(Player player) {
