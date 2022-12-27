@@ -99,7 +99,8 @@ public class SettingsService {
             "database.varchar.maxlength", "database.config.type", "database.config.embed.driver",
             "database.config.embed.url", "database.config.embed.username", "database.config.embed.password",
             "database.config.jndi.name", "database.usertable.quote", "ShowJavaJukebox", "AnonymousTranscoding",
-            "UseSonos", "SearchMethodLegacy", "SearchMethodChanged", "FastCacheEnabled", "UseRefresh", "ShowRefresh");
+            "UseSonos", "SearchMethodLegacy", "SearchMethodChanged", "FastCacheEnabled", "UseRefresh", "ShowRefresh",
+            "VerboseLogStart", "VerboseLogScanning", "VerboseLogPlaying", "VerboseLogShutdown");
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
@@ -251,7 +252,7 @@ public class SettingsService {
 
     @PostConstruct
     public void init() {
-        if (isVerboseLogStart() && LOG.isInfoEnabled()) {
+        if (LOG.isInfoEnabled()) {
             LOG.info("Java: " + System.getProperty("java.version") + ", OS: " + System.getProperty("os.name"));
         }
     }
@@ -851,38 +852,6 @@ public class SettingsService {
 
     public void setLoginMessage(String s) {
         setProperty(SettingsConstants.General.Welcome.LOGIN_MESSAGE, s);
-    }
-
-    public boolean isVerboseLogStart() {
-        return getBoolean(SettingsConstants.Advanced.VerboseLog.START);
-    }
-
-    public void setVerboseLogStart(boolean b) {
-        setProperty(SettingsConstants.Advanced.VerboseLog.START, b);
-    }
-
-    public boolean isVerboseLogScanning() {
-        return getBoolean(SettingsConstants.Advanced.VerboseLog.SCANNING);
-    }
-
-    public void setVerboseLogScanning(boolean b) {
-        setProperty(SettingsConstants.Advanced.VerboseLog.SCANNING, b);
-    }
-
-    public boolean isVerboseLogPlaying() {
-        return getBoolean(SettingsConstants.Advanced.VerboseLog.PLAYING);
-    }
-
-    public void setVerboseLogPlaying(boolean b) {
-        setProperty(SettingsConstants.Advanced.VerboseLog.PLAYING, b);
-    }
-
-    public boolean isVerboseLogShutdown() {
-        return getBoolean(SettingsConstants.Advanced.VerboseLog.SHUTDOWN);
-    }
-
-    public void setVerboseLogShutdown(boolean b) {
-        setProperty(SettingsConstants.Advanced.VerboseLog.SHUTDOWN, b);
     }
 
     /**

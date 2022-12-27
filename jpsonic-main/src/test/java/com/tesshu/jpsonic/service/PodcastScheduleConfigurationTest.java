@@ -102,7 +102,6 @@ class PodcastScheduleConfigurationTest {
 
             Trigger trigger = task.getTrigger();
             TriggerContext triggerContext = mock(TriggerContext.class);
-            Mockito.when(settingsService.isVerboseLogStart()).thenReturn(true);
 
             // Do nothing
             Mockito.when(settingsService.getPodcastUpdateInterval()).thenReturn(-1);
@@ -160,7 +159,6 @@ class PodcastScheduleConfigurationTest {
 
             Trigger trigger = task.getTrigger();
             TriggerContext triggerContext = mock(TriggerContext.class);
-            Mockito.when(settingsService.isVerboseLogStart()).thenReturn(true);
 
             // Do nothing
             Mockito.when(settingsService.getPodcastUpdateInterval()).thenReturn(-1);

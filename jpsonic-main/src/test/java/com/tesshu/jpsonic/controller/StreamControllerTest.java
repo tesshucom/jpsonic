@@ -1054,7 +1054,6 @@ class StreamControllerTest {
     @Test
     @Order(5)
     void testWriteVerboseLog() throws Exception {
-        Mockito.when(settingsService.isVerboseLogPlaying()).thenReturn(true);
         MediaFile song = new MediaFile();
         song.setPathString(TEST_PATH);
         song.setDurationSeconds(10);
@@ -1085,7 +1084,6 @@ class StreamControllerTest {
     @Test
     @Order(8)
     void testWriteErrorLog() throws Exception {
-        Mockito.when(settingsService.isVerboseLogPlaying()).thenReturn(true);
         MediaFile song = new MediaFile();
         song.setPathString(TEST_PATH);
         song.setDurationSeconds(10);

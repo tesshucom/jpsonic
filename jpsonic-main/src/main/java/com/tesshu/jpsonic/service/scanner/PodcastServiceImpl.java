@@ -599,7 +599,7 @@ public class PodcastServiceImpl implements PodcastService {
     private void doDownloadEpisode(PodcastEpisode episode) {
 
         if (destroy.get()) {
-            if (settingsService.isVerboseLogShutdown() && LOG.isInfoEnabled()) {
+            if (LOG.isInfoEnabled()) {
                 LOG.info("Shutdown has been called. It will not be downloaded.: {}", episode.getTitle());
             }
             return;

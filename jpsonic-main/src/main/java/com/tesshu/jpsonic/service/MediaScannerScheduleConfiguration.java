@@ -77,7 +77,7 @@ public class MediaScannerScheduleConfiguration implements SchedulingConfigurer {
             Instant lastTime = Optional.ofNullable(triggerContext.lastCompletionTime()).filter(Objects::nonNull)
                     .map(d -> d.toInstant()).orElse(null);
             Instant nextTime = lastTime == null ? createFirstTime() : lastTime.plus(1L, ChronoUnit.DAYS);
-            if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+            if (LOG.isInfoEnabled()) {
                 LOG.info("Daily auto library scan was scheduled. (Next {})", DateTimeFormatter
                         .ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault()).format(nextTime));
             }

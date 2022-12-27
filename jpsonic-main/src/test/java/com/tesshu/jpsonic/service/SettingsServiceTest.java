@@ -262,26 +262,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsVerboseLogStart() {
-        assertTrue(settingsService.isVerboseLogStart());
-    }
-
-    @Test
-    void testIsVerboseLogScanning() {
-        assertTrue(settingsService.isVerboseLogScanning());
-    }
-
-    @Test
-    void testIsVerboseLogPlaying() {
-        assertTrue(settingsService.isVerboseLogPlaying());
-    }
-
-    @Test
-    void testIsVerboseLogShutdown() {
-        assertTrue(settingsService.isVerboseLogShutdown());
-    }
-
-    @Test
     void testGetDefaultIndexString() {
         assertEquals(
                 "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ) "

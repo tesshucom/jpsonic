@@ -184,16 +184,6 @@ final class SettingsConstants {
         private Advanced() {
         }
 
-        static class VerboseLog {
-            static final Pair<Boolean> START = Pair.of("VerboseLogStart", true);
-            static final Pair<Boolean> SCANNING = Pair.of("VerboseLogScanning", true);
-            static final Pair<Boolean> PLAYING = Pair.of("VerboseLogPlaying", true);
-            static final Pair<Boolean> SHUTDOWN = Pair.of("VerboseLogShutdown", true);
-
-            private VerboseLog() {
-            }
-        }
-
         static class Bandwidth {
 
             static final Pair<Long> DOWNLOAD_BITRATE_LIMIT = Pair.of("DownloadBitrateLimit", 0L);

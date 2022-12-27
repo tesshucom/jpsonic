@@ -31,12 +31,6 @@ import com.tesshu.jpsonic.domain.IndexScheme;
  */
 public class AdvancedSettingsCommand extends SettingsPageCommons {
 
-    // Logging control
-    private boolean verboseLogStart;
-    private boolean verboseLogScanning;
-    private boolean verboseLogPlaying;
-    private boolean verboseLogShutdown;
-
     // Bandwidth control
     private String downloadLimit;
     private String uploadLimit;
@@ -67,38 +61,6 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
     // Danger Zone
     private IndexScheme indexScheme;
     private boolean forceInternalValueInsteadOfTags;
-
-    public boolean isVerboseLogStart() {
-        return verboseLogStart;
-    }
-
-    public void setVerboseLogStart(boolean verboseLogStart) {
-        this.verboseLogStart = verboseLogStart;
-    }
-
-    public boolean isVerboseLogScanning() {
-        return verboseLogScanning;
-    }
-
-    public void setVerboseLogScanning(boolean verboseLogScanning) {
-        this.verboseLogScanning = verboseLogScanning;
-    }
-
-    public boolean isVerboseLogPlaying() {
-        return verboseLogPlaying;
-    }
-
-    public void setVerboseLogPlaying(boolean verboseLogPlaying) {
-        this.verboseLogPlaying = verboseLogPlaying;
-    }
-
-    public boolean isVerboseLogShutdown() {
-        return verboseLogShutdown;
-    }
-
-    public void setVerboseLogShutdown(boolean verboseLogShutdown) {
-        this.verboseLogShutdown = verboseLogShutdown;
-    }
 
     public String getDownloadLimit() {
         return downloadLimit;

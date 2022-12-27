@@ -8,13 +8,6 @@
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script>
 
-function resetLoggingControl() {
-    $('[name="verboseLogStart"]').prop('checked', true);
-    $('[name="verboseLogScanning"]').prop('checked', true);
-    $('[name="verboseLogPlaying"]').prop('checked', false);
-    $('[name="verboseLogShutdown"]').prop('checked', true);
-}
-
 function resetBandwidth() {
     $('[name="downloadLimit"]').val(0);
     $('[name="uploadLimit"]').val(0);
@@ -56,46 +49,6 @@ document.addEventListener('DOMContentLoaded', function () {
 <form:form method="post" action="advancedSettings.view" modelAttribute="command">
 
     <c:set var="isOpen" value='${command.openDetailSetting ? "open" : ""}' />
-
-    <details open>
-
-        <div class="actions">
-            <ul class="controls">
-                <li><a href="javascript:resetLoggingControl()" title="<fmt:message key='common.reset'/>" class="control reset"><fmt:message key="common.reset"/></a></li>
-            </ul>
-        </div>
-
-        <c:if test="${command.showOutlineHelp}">
-            <div class="outlineHelp">
-                <fmt:message key="advancedsettings.loggingcontroloutline"/>
-            </div>
-        </c:if>
-
-        <summary class="jpsonic"><fmt:message key="advancedsettings.loggingcontrol"/></summary>
-        <dl>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="verboseLogStart" id="verboseLogStart"/>
-                <label for="verboseLogStart"><fmt:message key="advancedsettings.verboselogstart"/></label>
-            </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="verboseLogScanning" id="verboseLogScanning"/>
-                <label for="verboseLogScanning"><fmt:message key="advancedsettings.verboselogscanning"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="verboselogscanning"/></c:import>
-            </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="verboseLogPlaying" id="verboseLogPlaying"/>
-                <label for="verboseLogPlaying"><fmt:message key="advancedsettings.verboselogplaying"/></label>
-            </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="verboseLogShutdown" id="verboseLogShutdown"/>
-                <label for="verboseLogShutdown"><fmt:message key="advancedsettings.verboselogshutdown"/></label>
-            </dd>
-        </dl>
-    </details>
 
     <details ${isOpen}>
 

@@ -455,7 +455,7 @@ public class IndexManager {
         // Check if Index is current version
         if (Files.exists(getRootIndexDirectory())) {
             // Index of current version already exists
-            if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+            if (LOG.isInfoEnabled()) {
                 LOG.info("Index was found (index version {}). ", INDEX_VERSION);
             }
         } else if (FileUtil.createDirectories(getRootIndexDirectory()) == null) {

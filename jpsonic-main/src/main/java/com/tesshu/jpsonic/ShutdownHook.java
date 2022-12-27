@@ -22,7 +22,6 @@ package com.tesshu.jpsonic;
 import javax.annotation.PreDestroy;
 
 import com.tesshu.jpsonic.domain.TransferStatus;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.StatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,12 +43,10 @@ public class ShutdownHook implements ApplicationListener<ContextClosedEvent> {
     private static final Logger LOG = LoggerFactory.getLogger(ShutdownHook.class);
 
     private final StatusService statusService;
-    private final SettingsService settingsService;
 
-    public ShutdownHook(@Lazy StatusService statusService, SettingsService settingsService) {
+    public ShutdownHook(@Lazy StatusService statusService) {
         super();
         this.statusService = statusService;
-        this.settingsService = settingsService;
     }
 
     /*
@@ -62,7 +59,7 @@ public class ShutdownHook implements ApplicationListener<ContextClosedEvent> {
     public void onApplicationEvent(ContextClosedEvent event) {
         statusService.getAllStreamStatuses().stream().filter(TransferStatus::isActive)
                 .forEach(TransferStatus::terminate);
-        if (settingsService.isVerboseLogShutdown() && LOG.isInfoEnabled()) {
+        if (LOG.isInfoEnabled()) {
             LOG.info("Changed the status of all active streams to 'terminate'.");
         }
     }
@@ -70,7 +67,7 @@ public class ShutdownHook implements ApplicationListener<ContextClosedEvent> {
     @PreDestroy
     public void preDestroy() {
         // Referenced by @DependsOn
-        if (settingsService.isVerboseLogShutdown() && LOG.isInfoEnabled()) {
+        if (LOG.isInfoEnabled()) {
             LOG.info("Safely stop running tasks. It can take up to about 30s to complete.");
         }
     }

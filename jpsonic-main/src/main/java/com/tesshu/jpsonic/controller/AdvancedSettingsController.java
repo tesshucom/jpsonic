@@ -72,12 +72,6 @@ public class AdvancedSettingsController {
     protected String get(HttpServletRequest request, Model model) {
         AdvancedSettingsCommand command = new AdvancedSettingsCommand();
 
-        // Logging control
-        command.setVerboseLogStart(settingsService.isVerboseLogStart());
-        command.setVerboseLogScanning(settingsService.isVerboseLogScanning());
-        command.setVerboseLogPlaying(settingsService.isVerboseLogPlaying());
-        command.setVerboseLogShutdown(settingsService.isVerboseLogShutdown());
-
         // Bandwidth control
         command.setDownloadLimit(String.valueOf(settingsService.getDownloadBitrateLimit()));
         command.setUploadLimit(String.valueOf(settingsService.getUploadBitrateLimit()));
@@ -121,12 +115,6 @@ public class AdvancedSettingsController {
     @PostMapping
     protected ModelAndView post(@ModelAttribute(Attributes.Model.Command.VALUE) AdvancedSettingsCommand command,
             RedirectAttributes redirectAttributes) {
-
-        // Logging control
-        settingsService.setVerboseLogStart(command.isVerboseLogStart());
-        settingsService.setVerboseLogScanning(command.isVerboseLogScanning());
-        settingsService.setVerboseLogPlaying(command.isVerboseLogPlaying());
-        settingsService.setVerboseLogShutdown(command.isVerboseLogShutdown());
 
         // Bandwidth control
         try {

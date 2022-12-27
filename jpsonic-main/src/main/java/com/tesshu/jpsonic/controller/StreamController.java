@@ -285,14 +285,14 @@ public class StreamController {
         }
     }
 
-    private static void writeVerboseLog(boolean verbose, boolean isHeaderRequest, MediaFile file) {
-        if (verbose && isHeaderRequest && LOG.isInfoEnabled()) {
+    private static void writeVerboseLog(boolean isHeaderRequest, MediaFile file) {
+        if (isHeaderRequest && LOG.isInfoEnabled()) {
             LOG.info("Header request for [{}]", file.toPath());
         }
     }
 
-    private static void writeVerboseLog(boolean verbose, HttpServletResponse response, MediaFile file) {
-        if (verbose && LOG.isInfoEnabled()) {
+    private static void writeVerboseLog(HttpServletResponse response, MediaFile file) {
+        if (LOG.isInfoEnabled()) {
             LOG.info("Streaming request for [{}] with range [{}]", file.toPath(), response.getHeader("Content-Range"));
         }
     }
@@ -410,11 +410,11 @@ public class StreamController {
         // If Header request or folder access not allowed, end here.
         boolean isHeaderRequest = HttpMethod.HEAD.name().equals(req.getMethod());
         if (result == null || result.isFolderAccessNotAllowed() || isHeaderRequest) {
-            writeVerboseLog(settingsService.isVerboseLogPlaying(), isHeaderRequest, file);
+            writeVerboseLog(isHeaderRequest, file);
             return;
         }
 
-        writeVerboseLog(settingsService.isVerboseLogPlaying(), res, file);
+        writeVerboseLog(res, file);
         streamService.closeAllStreamFor(player, isPodcast, isSingleFile);
 
         TransferStatus status = statusService.createStreamStatus(player);

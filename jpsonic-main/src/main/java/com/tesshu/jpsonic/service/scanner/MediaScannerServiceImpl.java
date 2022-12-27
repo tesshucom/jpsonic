@@ -71,7 +71,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     }
 
     private void writeInfo(String msg) {
-        if (settingsService.isVerboseLogScanning() && LOG.isInfoEnabled()) {
+        if (LOG.isInfoEnabled()) {
             LOG.info(msg);
         }
     }

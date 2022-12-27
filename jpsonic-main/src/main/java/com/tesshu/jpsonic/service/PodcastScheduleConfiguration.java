@@ -115,7 +115,7 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
                 msg = "Auto Podcast update every " + hoursBetween + " hours was scheduled. (Next {})";
             }
 
-            if (this.settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+            if (LOG.isInfoEnabled()) {
                 LOG.info(msg, nextTimeString);
             }
 
