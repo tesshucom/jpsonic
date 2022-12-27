@@ -39,8 +39,6 @@ import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
-import javax.annotation.PostConstruct;
-
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.Theme;
@@ -248,13 +246,6 @@ public class SettingsService {
         }
 
         return result.toArray(new String[0]);
-    }
-
-    @PostConstruct
-    public void init() {
-        if (LOG.isInfoEnabled()) {
-            LOG.info("Java: " + System.getProperty("java.version") + ", OS: " + System.getProperty("os.name"));
-        }
     }
 
     public long getSettingsChanged() {
