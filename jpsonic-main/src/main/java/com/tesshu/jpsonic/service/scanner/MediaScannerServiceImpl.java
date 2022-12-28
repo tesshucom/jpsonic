@@ -29,6 +29,7 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.dao.StaticsDao.ScanLogType;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -151,8 +152,10 @@ public class MediaScannerServiceImpl implements MediaScannerService {
             ConcurrentUtils.handleCauseUnchecked(e);
             if (scannerState.isDestroy()) {
                 writeInfo("Interrupted to scan media library.");
+                procedure.createScanEvent(scanDate, ScanEventType.DESTROYED, null);
             } else if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to scan media library.", e);
+                procedure.createScanEvent(scanDate, ScanEventType.FAILED, null);
             }
         } finally {
             procedure.afterScan();
@@ -162,10 +165,11 @@ public class MediaScannerServiceImpl implements MediaScannerService {
         if (!scannerState.isDestroy()) {
             procedure.importPlaylists();
             procedure.checkpoint();
-        }
 
-        LOG.info("Completed media library scan.");
-        procedure.rotateScanLog();
-        scannerState.unlockScanning();
+            LOG.info("Completed media library scan.");
+            procedure.createScanEvent(scanDate, ScanEventType.FINISHED, null);
+            procedure.rotateScanLog();
+            scannerState.unlockScanning();
+        }
     }
 }

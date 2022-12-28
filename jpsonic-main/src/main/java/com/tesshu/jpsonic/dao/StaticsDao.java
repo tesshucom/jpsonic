@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.time.Instant;
 
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
+import com.tesshu.jpsonic.domain.ScanEvent;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.jdbc.core.RowMapper;
@@ -46,6 +47,12 @@ public class StaticsDao extends AbstractDao {
 
     public void deleteBefore(Instant retention) {
         update("delete from scan_log where start_date < ?", retention);
+    }
+
+    public void createScanEvent(@NonNull ScanEvent scanEvent) {
+        update("insert into scan_event (start_date, executed, type, max_memory, total_memory, free_memory, comment) values(?, ?, ?, ?, ?, ?, ?)",
+                scanEvent.getStartDate(), scanEvent.getExecuted(), scanEvent.getType(), scanEvent.getMaxMemory(),
+                scanEvent.getTotalMemory(), scanEvent.getFreeMemory(), scanEvent.getComment());
     }
 
     public void deleteOtherThanLatest() {
