@@ -99,6 +99,39 @@ class AdvancedSettingsControllerTest {
         assertNotNull(result);
     }
 
+    @Test
+    void testSetScanLog() {
+
+        Mockito.when(settingsService.getDefaultScanLogRetention()).thenReturn(-1);
+
+        ArgumentCaptor<Integer> scanLogRetention = ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<Boolean> useScanEvents = ArgumentCaptor.forClass(Boolean.class);
+        ArgumentCaptor<Boolean> measureMemory = ArgumentCaptor.forClass(Boolean.class);
+
+        Mockito.doNothing().when(settingsService).setScanLogRetention(scanLogRetention.capture());
+        Mockito.doNothing().when(settingsService).setUseScanEvents(useScanEvents.capture());
+        Mockito.doNothing().when(settingsService).setMeasureMemory(measureMemory.capture());
+
+        AdvancedSettingsCommand command = new AdvancedSettingsCommand();
+        command.setUseScanLog(false);
+        command.setScanLogRetention(30);
+        command.setUseScanEvents(true);
+        command.setMeasureMemory(true);
+
+        controller.setScanLog(command);
+
+        assertEquals(-1, scanLogRetention.getValue());
+        assertFalse(useScanEvents.getValue());
+        assertFalse(measureMemory.getValue());
+
+        command.setUseScanLog(true);
+        controller.setScanLog(command);
+
+        assertEquals(30, scanLogRetention.getValue());
+        assertTrue(useScanEvents.getValue());
+        assertTrue(measureMemory.getValue());
+    }
+
     /*
      * Full scan required if schema changes (Compare before reflecting settings)
      */

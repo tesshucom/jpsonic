@@ -794,6 +794,26 @@ class SettingsServiceTest {
     }
 
     @Test
+    void testIsUseScanLog() {
+        assertFalse(settingsService.isUseScanLog());
+    }
+
+    @Test
+    void testGetScanLogRetention() {
+        assertEquals(-1, settingsService.getScanLogRetention());
+    }
+
+    @Test
+    void testIsUseScanEvents() {
+        assertFalse(settingsService.isUseScanEvents());
+    }
+
+    @Test
+    void testIsMeasureMemory() {
+        assertFalse(settingsService.isMeasureMemory());
+    }
+
+    @Test
     void testGetIndexSchemeName() {
         assertEquals(IndexScheme.NATIVE_JAPANESE.name(), settingsService.getIndexSchemeName());
     }

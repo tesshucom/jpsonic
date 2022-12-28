@@ -58,6 +58,12 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
     private String recaptchaSiteKey;
     private String recaptchaSecretKey;
 
+    // Scan log
+    private boolean useScanLog;
+    private int scanLogRetention;
+    private boolean useScanEvents;
+    private boolean measureMemory;
+
     // Danger Zone
     private IndexScheme indexScheme;
     private boolean forceInternalValueInsteadOfTags;
@@ -212,6 +218,38 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
 
     public void setRecaptchaSecretKey(String recaptchaSecretKey) {
         this.recaptchaSecretKey = recaptchaSecretKey;
+    }
+
+    public boolean isUseScanLog() {
+        return useScanLog;
+    }
+
+    public void setUseScanLog(boolean useScanLog) {
+        this.useScanLog = useScanLog;
+    }
+
+    public int getScanLogRetention() {
+        return scanLogRetention;
+    }
+
+    public void setScanLogRetention(int scanLogRetention) {
+        this.scanLogRetention = scanLogRetention;
+    }
+
+    public boolean isUseScanEvents() {
+        return useScanEvents;
+    }
+
+    public void setUseScanEvents(boolean useScanEvents) {
+        this.useScanEvents = useScanEvents;
+    }
+
+    public boolean isMeasureMemory() {
+        return measureMemory;
+    }
+
+    public void setMeasureMemory(boolean measureMemory) {
+        this.measureMemory = measureMemory;
     }
 
     public IndexScheme getIndexScheme() {

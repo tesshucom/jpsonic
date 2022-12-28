@@ -1017,6 +1017,42 @@ public class SettingsService {
         setProperty(SettingsConstants.Advanced.Captcha.SECRET_KEY, s);
     }
 
+    public boolean isUseScanLog() {
+        return getBoolean(SettingsConstants.Advanced.ScanLog.USE_SCAN_LOG);
+    }
+
+    public void setUseScanLog(boolean b) {
+        setProperty(SettingsConstants.Advanced.ScanLog.USE_SCAN_LOG, b);
+    }
+
+    public int getScanLogRetention() {
+        return getInt(SettingsConstants.Advanced.ScanLog.SCAN_LOG_RETENTION);
+    }
+
+    public void setScanLogRetention(int days) {
+        setProperty(SettingsConstants.Advanced.ScanLog.SCAN_LOG_RETENTION, days);
+    }
+
+    public int getDefaultScanLogRetention() {
+        return SettingsConstants.Advanced.ScanLog.SCAN_LOG_RETENTION.defaultValue;
+    }
+
+    public boolean isUseScanEvents() {
+        return getBoolean(SettingsConstants.Advanced.ScanLog.USE_SCAN_EVENTS);
+    }
+
+    public void setUseScanEvents(boolean b) {
+        setProperty(SettingsConstants.Advanced.ScanLog.USE_SCAN_EVENTS, b);
+    }
+
+    public boolean isMeasureMemory() {
+        return getBoolean(SettingsConstants.Advanced.ScanLog.MEASURE_MEMORY);
+    }
+
+    public void setMeasureMemory(boolean b) {
+        setProperty(SettingsConstants.Advanced.ScanLog.MEASURE_MEMORY, b);
+    }
+
     public String getIndexSchemeName() {
         return getString(SettingsConstants.Advanced.Index.INDEX_SCHEME_NAME);
     }

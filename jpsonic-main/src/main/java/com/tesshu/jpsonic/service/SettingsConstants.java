@@ -229,6 +229,16 @@ final class SettingsConstants {
             }
         }
 
+        static class ScanLog {
+            static final Pair<Boolean> USE_SCAN_LOG = Pair.of("UseScanLog", false);
+            static final Pair<Integer> SCAN_LOG_RETENTION = Pair.of("ScanLogRetention", -1);
+            static final Pair<Boolean> USE_SCAN_EVENTS = Pair.of("UseScanEvents", false);
+            static final Pair<Boolean> MEASURE_MEMORY = Pair.of("MeasureMemory", false);
+
+            private ScanLog() {
+            }
+        }
+
         static class Index {
             static final Pair<String> INDEX_SCHEME_NAME = Pair.of("IndexSchemeName",
                     IndexScheme.NATIVE_JAPANESE.name());
