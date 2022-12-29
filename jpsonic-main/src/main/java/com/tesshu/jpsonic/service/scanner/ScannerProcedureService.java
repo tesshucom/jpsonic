@@ -1,5 +1,7 @@
 package com.tesshu.jpsonic.service.scanner;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
@@ -12,12 +14,15 @@ import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.StaticsDao;
+import com.tesshu.jpsonic.dao.StaticsDao.ScanLogType;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.ScanEvent;
+import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -26,6 +31,7 @@ import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import net.sf.ehcache.Ehcache;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -78,7 +84,7 @@ public class ScannerProcedureService {
     }
 
     private void writeInfo(String msg) {
-        if (settingsService.isVerboseLogScanning() && LOG.isInfoEnabled()) {
+        if (LOG.isInfoEnabled()) {
             LOG.info(msg);
         }
     }
@@ -91,7 +97,34 @@ public class ScannerProcedureService {
         }
     }
 
-    void beforeScan() {
+    void createScanLog(Instant scanDate, ScanLogType logType) {
+        if (logType == ScanLogType.SCAN_ALL || settingsService.isUseScanLog()) {
+            staticsDao.createScanLog(scanDate, logType);
+        }
+    }
+
+    void rotateScanLog() {
+        int retention = settingsService.getScanLogRetention();
+        if (retention == settingsService.getDefaultScanLogRetention()) {
+            staticsDao.deleteOtherThanLatest();
+        } else {
+            staticsDao.deleteBefore(Instant.now().truncatedTo(DAYS).minus(retention, DAYS));
+        }
+    }
+
+    void createScanEvent(@NonNull Instant scanDate, @NonNull ScanEventType logType, @Nullable String comment) {
+        if (!settingsService.isUseScanEvents()) {
+            return;
+        }
+        boolean isMeasureMemory = settingsService.isMeasureMemory();
+        Long maxMemory = isMeasureMemory ? Runtime.getRuntime().maxMemory() : null;
+        Long totalMemory = isMeasureMemory ? Runtime.getRuntime().totalMemory() : null;
+        Long freeMemory = isMeasureMemory ? Runtime.getRuntime().freeMemory() : null;
+        ScanEvent scanEvent = new ScanEvent(scanDate, now(), logType, maxMemory, totalMemory, freeMemory, comment);
+        staticsDao.createScanEvent(scanEvent);
+    }
+
+    void beforeScan(Instant scanDate) {
 
         // TODO To be fixed in v111.6.0
         if (settingsService.isIgnoreFileTimestampsNext()) {
@@ -121,7 +154,6 @@ public class ScannerProcedureService {
             stats.setTotalSize(mediaFileDao.getTotalBytes(folder));
             staticsDao.createMediaLibraryStatistics(stats);
         }
-        staticsDao.deleteOldMediaLibraryStatistics();
     }
 
     void afterScan() {

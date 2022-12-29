@@ -26,8 +26,10 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.dao.StaticsDao.ScanLogType;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -71,7 +73,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     }
 
     private void writeInfo(String msg) {
-        if (settingsService.isVerboseLogScanning() && LOG.isInfoEnabled()) {
+        if (LOG.isInfoEnabled()) {
             LOG.info(msg);
         }
     }
@@ -91,7 +93,6 @@ public class MediaScannerServiceImpl implements MediaScannerService {
         return scannerState.getScanCount();
     }
 
-    // TODO To be fixed in v111.6.0
     @Override
     public void expunge() {
         expungeService.expunge();
@@ -112,11 +113,10 @@ public class MediaScannerServiceImpl implements MediaScannerService {
             }
             return;
         }
-
-        Instant scanDate = scannerState.getScanDate();
         LOG.info("Starting to scan media library.");
-
-        procedure.beforeScan();
+        Instant scanDate = scannerState.getScanDate();
+        procedure.createScanLog(scanDate, ScanLogType.SCAN_ALL);
+        procedure.beforeScan(scanDate);
 
         try {
 
@@ -152,8 +152,10 @@ public class MediaScannerServiceImpl implements MediaScannerService {
             ConcurrentUtils.handleCauseUnchecked(e);
             if (scannerState.isDestroy()) {
                 writeInfo("Interrupted to scan media library.");
+                procedure.createScanEvent(scanDate, ScanEventType.DESTROYED, null);
             } else if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to scan media library.", e);
+                procedure.createScanEvent(scanDate, ScanEventType.FAILED, null);
             }
         } finally {
             procedure.afterScan();
@@ -163,10 +165,11 @@ public class MediaScannerServiceImpl implements MediaScannerService {
         if (!scannerState.isDestroy()) {
             procedure.importPlaylists();
             procedure.checkpoint();
+
+            LOG.info("Completed media library scan.");
+            procedure.createScanEvent(scanDate, ScanEventType.FINISHED, null);
+            procedure.rotateScanLog();
+            scannerState.unlockScanning();
         }
-
-        LOG.info("Completed media library scan.");
-
-        scannerState.unlockScanning();
     }
 }

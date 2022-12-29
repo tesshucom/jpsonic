@@ -26,28 +26,19 @@ import java.util.List;
 import javax.annotation.PreDestroy;
 
 import com.tesshu.jpsonic.cache.CacheFactory;
-import com.tesshu.jpsonic.service.SettingsService;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 
 @Configuration
 public class EhcacheConfiguration {
 
-    private final SettingsService settingsService;
-
-    public EhcacheConfiguration(@Lazy SettingsService settingsService) {
-        super();
-        this.settingsService = settingsService;
-    }
-
     @Bean
     public CacheDisposer cacheDisposer() {
-        return new CacheDisposer(settingsService);
+        return new CacheDisposer();
     }
 
     /**
@@ -59,17 +50,10 @@ public class EhcacheConfiguration {
 
         private static final Logger LOG = LoggerFactory.getLogger(CacheDisposer.class);
 
-        private final SettingsService settingsService;
-
-        public CacheDisposer(SettingsService settingsService) {
-            super();
-            this.settingsService = settingsService;
-        }
-
         @PreDestroy
         public void preDestroy() {
             List<CacheManager> knownCacheManagers = CacheManager.ALL_CACHE_MANAGERS;
-            if (settingsService.isVerboseLogShutdown() && LOG.isInfoEnabled()) {
+            if (LOG.isInfoEnabled()) {
                 LOG.info("Shutting down " + knownCacheManagers.size() + " CacheManagers.");
             }
             while (!knownCacheManagers.isEmpty()) {

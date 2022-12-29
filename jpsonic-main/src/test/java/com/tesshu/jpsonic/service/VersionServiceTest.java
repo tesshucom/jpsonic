@@ -19,7 +19,6 @@
 
 package com.tesshu.jpsonic.service;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
@@ -33,7 +32,7 @@ class VersionServiceTest {
 
     @BeforeEach
     public void setup() {
-        versionService = new VersionService(mock(SettingsService.class));
+        versionService = new VersionService();
     }
 
     @Test

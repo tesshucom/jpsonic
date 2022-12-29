@@ -184,16 +184,6 @@ final class SettingsConstants {
         private Advanced() {
         }
 
-        static class VerboseLog {
-            static final Pair<Boolean> START = Pair.of("VerboseLogStart", true);
-            static final Pair<Boolean> SCANNING = Pair.of("VerboseLogScanning", true);
-            static final Pair<Boolean> PLAYING = Pair.of("VerboseLogPlaying", true);
-            static final Pair<Boolean> SHUTDOWN = Pair.of("VerboseLogShutdown", true);
-
-            private VerboseLog() {
-            }
-        }
-
         static class Bandwidth {
 
             static final Pair<Long> DOWNLOAD_BITRATE_LIMIT = Pair.of("DownloadBitrateLimit", 0L);
@@ -236,6 +226,16 @@ final class SettingsConstants {
                     "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe");
 
             private Captcha() {
+            }
+        }
+
+        static class ScanLog {
+            static final Pair<Boolean> USE_SCAN_LOG = Pair.of("UseScanLog", false);
+            static final Pair<Integer> SCAN_LOG_RETENTION = Pair.of("ScanLogRetention", -1);
+            static final Pair<Boolean> USE_SCAN_EVENTS = Pair.of("UseScanEvents", false);
+            static final Pair<Boolean> MEASURE_MEMORY = Pair.of("MeasureMemory", false);
+
+            private ScanLog() {
             }
         }
 

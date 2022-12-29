@@ -64,9 +64,7 @@ services:
      BANNER_MODE: 'OFF'
 
      # Granularity of output logs. [ERROR|WARN|INFO|DEBUG|TRACE]
-     # In the case of INFO level,
-     # you can also turn off the log for each feature from the app setting page.
-     LOG_LEVEL: 'INFO'
+     LOG_LEVEL: 'WARN'
 
      # Whether to scan at startup. False is recommended for Docker.
      SCAN_ON_BOOT: 'false'

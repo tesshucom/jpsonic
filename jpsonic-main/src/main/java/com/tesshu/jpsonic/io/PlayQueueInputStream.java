@@ -38,7 +38,6 @@ import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
 import com.tesshu.jpsonic.service.AudioScrobblerService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
@@ -62,7 +61,6 @@ public class PlayQueueInputStream extends InputStream {
     private final AudioScrobblerService audioScrobblerService;
     private final WritableMediaFileService writableMediaFileService;
     private final SearchService searchService;
-    private final SettingsService settingsService;
     private final AsyncTaskExecutor executor;
 
     private AtomicReference<MediaFile> currentFile;
@@ -71,7 +69,7 @@ public class PlayQueueInputStream extends InputStream {
     public PlayQueueInputStream(Player player, TransferStatus status, Integer maxBitRate, String preferredTargetFormat,
             VideoTranscodingSettings videoTranscodingSettings, TranscodingService transcodingService,
             AudioScrobblerService audioScrobblerService, WritableMediaFileService writableMediaFileService,
-            SearchService searchService, SettingsService settingsService, AsyncTaskExecutor executor) {
+            SearchService searchService, AsyncTaskExecutor executor) {
         super();
         this.player = player;
         this.status = status;
@@ -79,7 +77,6 @@ public class PlayQueueInputStream extends InputStream {
         this.audioScrobblerService = audioScrobblerService;
         this.writableMediaFileService = writableMediaFileService;
         this.searchService = searchService;
-        this.settingsService = settingsService;
         this.executor = executor;
         transParam = transcodingService.getParameters(player.getPlayQueue().getCurrentFile(), player, maxBitRate,
                 preferredTargetFormat, videoTranscodingSettings);
@@ -178,7 +175,7 @@ public class PlayQueueInputStream extends InputStream {
     }
 
     private void writeLog(MediaFile file) {
-        if (settingsService.isVerboseLogPlaying() && LOG.isInfoEnabled()) {
+        if (LOG.isInfoEnabled()) {
             String address = player.getIpAddress();
             String user = player.getUsername();
             String title = file.getTitle();

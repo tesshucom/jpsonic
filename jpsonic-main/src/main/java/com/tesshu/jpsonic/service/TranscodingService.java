@@ -480,7 +480,7 @@ public class TranscodingService {
         }
         ProcessBuilder pb = new ProcessBuilder();
         commands.forEach(op -> pb.command().add(op));
-        return new TranscodeInputStream(pb, in, tmpFile, shortExecutor, settingsService.isVerboseLogPlaying());
+        return new TranscodeInputStream(pb, in, tmpFile, shortExecutor);
     }
 
     private String mergeTransCommand(@NonNull String transCommand, String artist, String album, String title,

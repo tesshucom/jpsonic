@@ -222,8 +222,7 @@ public class StreamService {
     public InputStream createInputStream(Player player, TransferStatus status, Integer maxBitRate, String format,
             VideoTranscodingSettings videoTranscodingSettings) {
         return new PlayQueueInputStream(player, status, maxBitRate, format, videoTranscodingSettings,
-                transcodingService, audioScrobblerService, writableMediaFileService, searchService, settingsService,
-                shortExecutor);
+                transcodingService, audioScrobblerService, writableMediaFileService, searchService, shortExecutor);
     }
 
     /**

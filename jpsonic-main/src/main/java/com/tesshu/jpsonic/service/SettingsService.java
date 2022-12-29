@@ -39,8 +39,6 @@ import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
-import javax.annotation.PostConstruct;
-
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.Theme;
@@ -99,7 +97,8 @@ public class SettingsService {
             "database.varchar.maxlength", "database.config.type", "database.config.embed.driver",
             "database.config.embed.url", "database.config.embed.username", "database.config.embed.password",
             "database.config.jndi.name", "database.usertable.quote", "ShowJavaJukebox", "AnonymousTranscoding",
-            "UseSonos", "SearchMethodLegacy", "SearchMethodChanged", "FastCacheEnabled", "UseRefresh", "ShowRefresh");
+            "UseSonos", "SearchMethodLegacy", "SearchMethodChanged", "FastCacheEnabled", "UseRefresh", "ShowRefresh",
+            "VerboseLogStart", "VerboseLogScanning", "VerboseLogPlaying", "VerboseLogShutdown");
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
@@ -247,13 +246,6 @@ public class SettingsService {
         }
 
         return result.toArray(new String[0]);
-    }
-
-    @PostConstruct
-    public void init() {
-        if (isVerboseLogStart() && LOG.isInfoEnabled()) {
-            LOG.info("Java: " + System.getProperty("java.version") + ", OS: " + System.getProperty("os.name"));
-        }
     }
 
     public long getSettingsChanged() {
@@ -853,38 +845,6 @@ public class SettingsService {
         setProperty(SettingsConstants.General.Welcome.LOGIN_MESSAGE, s);
     }
 
-    public boolean isVerboseLogStart() {
-        return getBoolean(SettingsConstants.Advanced.VerboseLog.START);
-    }
-
-    public void setVerboseLogStart(boolean b) {
-        setProperty(SettingsConstants.Advanced.VerboseLog.START, b);
-    }
-
-    public boolean isVerboseLogScanning() {
-        return getBoolean(SettingsConstants.Advanced.VerboseLog.SCANNING);
-    }
-
-    public void setVerboseLogScanning(boolean b) {
-        setProperty(SettingsConstants.Advanced.VerboseLog.SCANNING, b);
-    }
-
-    public boolean isVerboseLogPlaying() {
-        return getBoolean(SettingsConstants.Advanced.VerboseLog.PLAYING);
-    }
-
-    public void setVerboseLogPlaying(boolean b) {
-        setProperty(SettingsConstants.Advanced.VerboseLog.PLAYING, b);
-    }
-
-    public boolean isVerboseLogShutdown() {
-        return getBoolean(SettingsConstants.Advanced.VerboseLog.SHUTDOWN);
-    }
-
-    public void setVerboseLogShutdown(boolean b) {
-        setProperty(SettingsConstants.Advanced.VerboseLog.SHUTDOWN, b);
-    }
-
     /**
      * Get the limit in Kbit/s. Zero if unlimited.
      */
@@ -1055,6 +1015,42 @@ public class SettingsService {
 
     public void setRecaptchaSecretKey(String s) {
         setProperty(SettingsConstants.Advanced.Captcha.SECRET_KEY, s);
+    }
+
+    public boolean isUseScanLog() {
+        return getBoolean(SettingsConstants.Advanced.ScanLog.USE_SCAN_LOG);
+    }
+
+    public void setUseScanLog(boolean b) {
+        setProperty(SettingsConstants.Advanced.ScanLog.USE_SCAN_LOG, b);
+    }
+
+    public int getScanLogRetention() {
+        return getInt(SettingsConstants.Advanced.ScanLog.SCAN_LOG_RETENTION);
+    }
+
+    public void setScanLogRetention(int days) {
+        setProperty(SettingsConstants.Advanced.ScanLog.SCAN_LOG_RETENTION, days);
+    }
+
+    public int getDefaultScanLogRetention() {
+        return SettingsConstants.Advanced.ScanLog.SCAN_LOG_RETENTION.defaultValue;
+    }
+
+    public boolean isUseScanEvents() {
+        return getBoolean(SettingsConstants.Advanced.ScanLog.USE_SCAN_EVENTS);
+    }
+
+    public void setUseScanEvents(boolean b) {
+        setProperty(SettingsConstants.Advanced.ScanLog.USE_SCAN_EVENTS, b);
+    }
+
+    public boolean isMeasureMemory() {
+        return getBoolean(SettingsConstants.Advanced.ScanLog.MEASURE_MEMORY);
+    }
+
+    public void setMeasureMemory(boolean b) {
+        setProperty(SettingsConstants.Advanced.ScanLog.MEASURE_MEMORY, b);
     }
 
     public String getIndexSchemeName() {

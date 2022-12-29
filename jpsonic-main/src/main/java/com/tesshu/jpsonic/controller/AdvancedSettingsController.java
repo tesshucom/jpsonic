@@ -72,12 +72,6 @@ public class AdvancedSettingsController {
     protected String get(HttpServletRequest request, Model model) {
         AdvancedSettingsCommand command = new AdvancedSettingsCommand();
 
-        // Logging control
-        command.setVerboseLogStart(settingsService.isVerboseLogStart());
-        command.setVerboseLogScanning(settingsService.isVerboseLogScanning());
-        command.setVerboseLogPlaying(settingsService.isVerboseLogPlaying());
-        command.setVerboseLogShutdown(settingsService.isVerboseLogShutdown());
-
         // Bandwidth control
         command.setDownloadLimit(String.valueOf(settingsService.getDownloadBitrateLimit()));
         command.setUploadLimit(String.valueOf(settingsService.getUploadBitrateLimit()));
@@ -102,6 +96,12 @@ public class AdvancedSettingsController {
         command.setCaptchaEnabled(settingsService.isCaptchaEnabled());
         command.setRecaptchaSiteKey(settingsService.getRecaptchaSiteKey());
 
+        // Scan log
+        command.setUseScanLog(settingsService.isUseScanLog());
+        command.setScanLogRetention(settingsService.getScanLogRetention());
+        command.setUseScanEvents(settingsService.isUseScanEvents());
+        command.setMeasureMemory(settingsService.isMeasureMemory());
+
         // Danger Zone
         command.setIndexScheme(IndexScheme.valueOf(settingsService.getIndexSchemeName()));
         command.setForceInternalValueInsteadOfTags(settingsService.isForceInternalValueInsteadOfTags());
@@ -121,12 +121,6 @@ public class AdvancedSettingsController {
     @PostMapping
     protected ModelAndView post(@ModelAttribute(Attributes.Model.Command.VALUE) AdvancedSettingsCommand command,
             RedirectAttributes redirectAttributes) {
-
-        // Logging control
-        settingsService.setVerboseLogStart(command.isVerboseLogStart());
-        settingsService.setVerboseLogScanning(command.isVerboseLogScanning());
-        settingsService.setVerboseLogPlaying(command.isVerboseLogPlaying());
-        settingsService.setVerboseLogShutdown(command.isVerboseLogShutdown());
 
         // Bandwidth control
         try {
@@ -166,6 +160,9 @@ public class AdvancedSettingsController {
             settingsService.setRecaptchaSecretKey(command.getRecaptchaSecretKey());
         }
 
+        // Scan log
+        setScanLog(command);
+
         // Danger Zone
         setDangerZone(command);
 
@@ -176,6 +173,19 @@ public class AdvancedSettingsController {
         redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
 
         return new ModelAndView(new RedirectView(ViewName.ADVANCED_SETTINGS.value()));
+    }
+
+    void setScanLog(AdvancedSettingsCommand command) {
+        settingsService.setUseScanLog(command.isUseScanLog());
+        if (command.isUseScanLog()) {
+            settingsService.setScanLogRetention(command.getScanLogRetention());
+            settingsService.setUseScanEvents(command.isUseScanEvents());
+            settingsService.setMeasureMemory(command.isMeasureMemory());
+        } else {
+            settingsService.setScanLogRetention(settingsService.getDefaultScanLogRetention());
+            settingsService.setUseScanEvents(false);
+            settingsService.setMeasureMemory(false);
+        }
     }
 
     private void setDangerZone(AdvancedSettingsCommand command) {

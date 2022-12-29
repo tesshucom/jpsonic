@@ -8,20 +8,32 @@
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script>
 
-function resetLoggingControl() {
-    $('[name="verboseLogStart"]').prop('checked', true);
-    $('[name="verboseLogScanning"]').prop('checked', true);
-    $('[name="verboseLogPlaying"]').prop('checked', false);
-    $('[name="verboseLogShutdown"]').prop('checked', true);
-}
-
 function resetBandwidth() {
     $('[name="downloadLimit"]').val(0);
     $('[name="uploadLimit"]').val(0);
     $('[name="bufferSize"]').prop("selectedIndex", 1);
 }
 
+function onUseScanLogStateChanged() {
+    if($("#usescanlog").prop("checked")){
+        $("#scanlogretention").prop('disabled', false);
+        $("#usescanevents").prop({'disabled': false});
+        $("#measurememory").prop({'disabled': false});
+    } else {
+        $("#scanlogretention").prop('disabled', true);
+        $("#scanlogretention").val(-1);
+        $("#usescanevents").prop({'disabled': true, 'checked': false});
+        $("#measurememory").prop({'disabled': true, 'checked': false});
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
+
+    onUseScanLogStateChanged();
+    $("#usescanlog").on('change', function(e){
+        onUseScanLogStateChanged();
+    });
+
     $("#radio1-1").on('change', function(e){
         $("#readGreekInJapanese").prop({'disabled': false, 'checked': true});
         $("#forceInternalValueInsteadOfTags").prop({'disabled': true, 'checked': false});
@@ -56,46 +68,6 @@ document.addEventListener('DOMContentLoaded', function () {
 <form:form method="post" action="advancedSettings.view" modelAttribute="command">
 
     <c:set var="isOpen" value='${command.openDetailSetting ? "open" : ""}' />
-
-    <details open>
-
-        <div class="actions">
-            <ul class="controls">
-                <li><a href="javascript:resetLoggingControl()" title="<fmt:message key='common.reset'/>" class="control reset"><fmt:message key="common.reset"/></a></li>
-            </ul>
-        </div>
-
-        <c:if test="${command.showOutlineHelp}">
-            <div class="outlineHelp">
-                <fmt:message key="advancedsettings.loggingcontroloutline"/>
-            </div>
-        </c:if>
-
-        <summary class="jpsonic"><fmt:message key="advancedsettings.loggingcontrol"/></summary>
-        <dl>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="verboseLogStart" id="verboseLogStart"/>
-                <label for="verboseLogStart"><fmt:message key="advancedsettings.verboselogstart"/></label>
-            </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="verboseLogScanning" id="verboseLogScanning"/>
-                <label for="verboseLogScanning"><fmt:message key="advancedsettings.verboselogscanning"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="verboselogscanning"/></c:import>
-            </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="verboseLogPlaying" id="verboseLogPlaying"/>
-                <label for="verboseLogPlaying"><fmt:message key="advancedsettings.verboselogplaying"/></label>
-            </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="verboseLogShutdown" id="verboseLogShutdown"/>
-                <label for="verboseLogShutdown"><fmt:message key="advancedsettings.verboselogshutdown"/></label>
-            </dd>
-        </dl>
-    </details>
 
     <details ${isOpen}>
 
@@ -226,6 +198,57 @@ document.addEventListener('DOMContentLoaded', function () {
             <dd>
                 <form:input path="recaptchaSecretKey"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="recaptchaSecretKey"/></c:import>
+            </dd>
+        </dl>
+    </details>
+
+    <details ${isOpen}>
+
+        <c:if test="${command.showOutlineHelp}">
+            <div class="outlineHelp">
+                <fmt:message key="helppopup.scanlogoutline"/>
+            </div>
+        </c:if>
+
+        <summary class="jpsonic"><fmt:message key="advancedsettings.scanlog"/></summary>
+        <dl>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="useScanLog" id="usescanlog"/>
+                <label for="usescanlog"><fmt:message key="advancedsettings.usescanlog"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="usescanlog"/></c:import>
+            </dd>
+            <dt><fmt:message key="advancedsettings.scanlogretention"/></dt>
+            <dd>
+                <form:select path="scanLogRetention" id="scanlogretention">
+                    <fmt:message key="advancedsettings.retentionmin" var="latest"/>
+                    <fmt:message key="advancedsettings.retention" var="week">
+                        <fmt:param value="7" />
+                    </fmt:message>
+                    <fmt:message key="advancedsettings.retention" var="month">
+                        <fmt:param value="30" />
+                    </fmt:message>
+                    <fmt:message key="advancedsettings.retention" var="halfYear">
+                        <fmt:param value="180" />
+                    </fmt:message>
+                    <form:option value="-1" label="${latest}"/>
+                    <form:option value="7" label="${week}"/>
+                    <form:option value="30" label="${month}"/>
+                    <form:option value="180" label="${halfYear}"/>
+                </form:select>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="scanlogretention"/></c:import>
+            </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="useScanEvents" id="usescanevents"/>
+                <label for="usescanevents"><fmt:message key="advancedsettings.usescanevents"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="usescanevents"/></c:import>
+            </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="measureMemory" id="measurememory"/>
+                <label for="measurememory"><fmt:message key="advancedsettings.measurememory"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="measurememory"/></c:import>
             </dd>
         </dl>
     </details>

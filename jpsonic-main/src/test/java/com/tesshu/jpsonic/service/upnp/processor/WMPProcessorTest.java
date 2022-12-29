@@ -35,7 +35,6 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.JMediaFileService;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.commons.lang3.StringUtils;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.AUTHOR;
@@ -57,11 +56,9 @@ class WMPProcessorTest {
     @BeforeEach
     public void setup() {
         mediaFileService = mock(JMediaFileService.class);
-        SettingsService settingsService = mock(SettingsService.class);
         mediaFileUpnpProcessor = mock(MediaFileUpnpProcessor.class);
         util = mock(UpnpProcessorUtil.class);
-        Mockito.when(settingsService.isVerboseLogScanning()).thenReturn(true);
-        wmpProcessor = new WMPProcessor(mediaFileService, settingsService, mediaFileUpnpProcessor, util);
+        wmpProcessor = new WMPProcessor(mediaFileService, mediaFileUpnpProcessor, util);
         TestCaseUtils.setLogLevel(WMPProcessor.class, Level.DEBUG);
     }
 
