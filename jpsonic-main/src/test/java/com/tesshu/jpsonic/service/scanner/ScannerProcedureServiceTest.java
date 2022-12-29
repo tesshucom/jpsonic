@@ -48,6 +48,8 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.ScanEvent;
+import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -73,6 +75,7 @@ class ScannerProcedureServiceTest {
     private WritableMediaFileService writableMediaFileService;
     private MediaFileDao mediaFileDao;
     private ScannerProcedureService scannerProcedureService;
+    private StaticsDao staticsDao;
 
     @BeforeEach
     public void setup() {
@@ -81,13 +84,57 @@ class ScannerProcedureServiceTest {
         mediaFileService = mock(MediaFileService.class);
         mediaFileDao = mock(MediaFileDao.class);
         albumDao = mock(AlbumDao.class);
+        staticsDao = mock(StaticsDao.class);
         writableMediaFileService = new WritableMediaFileService(mediaFileDao, null, mediaFileService, albumDao, null,
                 mock(MetaDataParserFactory.class), settingsService, mock(SecurityService.class),
                 mock(JapaneseReadingUtils.class));
         scannerProcedureService = new ScannerProcedureService(settingsService, mock(MusicFolderService.class),
                 indexManager, mediaFileService, writableMediaFileService, mock(PlaylistService.class), mediaFileDao,
-                mock(ArtistDao.class), albumDao, mock(StaticsDao.class), mock(SortProcedureService.class),
-                new ScannerStateServiceImpl(mock(StaticsDao.class)), mock(Ehcache.class), mock(MediaFileCache.class));
+                mock(ArtistDao.class), albumDao, staticsDao, mock(SortProcedureService.class),
+                new ScannerStateServiceImpl(staticsDao), mock(Ehcache.class), mock(MediaFileCache.class));
+    }
+
+    @Test
+    void testCreateScanEvent() {
+        Instant startDate = now();
+
+        // Log only mandary events if useScanEvents=false
+        Mockito.when(settingsService.isUseScanEvents()).thenReturn(false);
+        scannerProcedureService.createScanEvent(startDate, ScanEventType.FINISHED, null);
+        Mockito.verify(staticsDao, Mockito.times(1)).createScanEvent(Mockito.any(ScanEvent.class));
+        scannerProcedureService.createScanEvent(startDate, ScanEventType.FAILED, null);
+        Mockito.verify(staticsDao, Mockito.times(2)).createScanEvent(Mockito.any(ScanEvent.class));
+        scannerProcedureService.createScanEvent(startDate, ScanEventType.DESTROYED, null);
+        Mockito.verify(staticsDao, Mockito.times(3)).createScanEvent(Mockito.any(ScanEvent.class));
+        Mockito.clearInvocations(staticsDao);
+        scannerProcedureService.createScanEvent(startDate, ScanEventType.PARSE_AUDIO, null);
+        Mockito.verify(staticsDao, Mockito.never()).createScanEvent(Mockito.any(ScanEvent.class));
+
+        // Log all events if useScanEvents=true
+        Mockito.when(settingsService.isUseScanEvents()).thenReturn(true);
+        Mockito.clearInvocations(staticsDao);
+        scannerProcedureService.createScanEvent(startDate, ScanEventType.FINISHED, null);
+        Mockito.verify(staticsDao, Mockito.times(1)).createScanEvent(Mockito.any(ScanEvent.class));
+        scannerProcedureService.createScanEvent(startDate, ScanEventType.FAILED, null);
+        Mockito.verify(staticsDao, Mockito.times(2)).createScanEvent(Mockito.any(ScanEvent.class));
+        scannerProcedureService.createScanEvent(startDate, ScanEventType.DESTROYED, null);
+        Mockito.verify(staticsDao, Mockito.times(3)).createScanEvent(Mockito.any(ScanEvent.class));
+        scannerProcedureService.createScanEvent(startDate, ScanEventType.PARSE_AUDIO, null);
+        Mockito.verify(staticsDao, Mockito.times(4)).createScanEvent(Mockito.any(ScanEvent.class));
+
+        // No memory metering
+        Mockito.when(settingsService.isMeasureMemory()).thenReturn(false);
+        ArgumentCaptor<ScanEvent> eventCap = ArgumentCaptor.forClass(ScanEvent.class);
+        Mockito.doNothing().when(staticsDao).createScanEvent(eventCap.capture());
+        scannerProcedureService.createScanEvent(startDate, ScanEventType.PARSE_AUDIO, null);
+        assertEquals(-1, eventCap.getValue().getFreeMemory());
+
+        // With memory metering
+        Mockito.when(settingsService.isMeasureMemory()).thenReturn(true);
+        eventCap = ArgumentCaptor.forClass(ScanEvent.class);
+        Mockito.doNothing().when(staticsDao).createScanEvent(eventCap.capture());
+        scannerProcedureService.createScanEvent(startDate, ScanEventType.PARSE_AUDIO, null);
+        assertNotEquals(-1, eventCap.getValue().getFreeMemory());
     }
 
     @Nested

@@ -98,7 +98,7 @@ public class ScannerProcedureService {
     }
 
     void createScanLog(Instant scanDate, ScanLogType logType) {
-        if (logType == ScanLogType.SCAN_ALL || settingsService.isUseScanLog()) {
+        if (logType == ScanLogType.SCAN_ALL || logType == ScanLogType.EXPUNGE || settingsService.isUseScanLog()) {
             staticsDao.createScanLog(scanDate, logType);
         }
     }
@@ -113,7 +113,8 @@ public class ScannerProcedureService {
     }
 
     void createScanEvent(@NonNull Instant scanDate, @NonNull ScanEventType logType, @Nullable String comment) {
-        if (!settingsService.isUseScanEvents()) {
+        if (!(logType == ScanEventType.FINISHED || logType == ScanEventType.DESTROYED
+                || logType == ScanEventType.FAILED) && !settingsService.isUseScanEvents()) {
             return;
         }
         boolean isMeasureMemory = settingsService.isMeasureMemory();

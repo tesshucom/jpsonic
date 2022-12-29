@@ -103,6 +103,6 @@ public class ScanEvent {
     }
 
     public enum ScanEventType {
-        FINISHED, FAILED, DESTROYED
+        FINISHED, FAILED, DESTROYED, PARSE_AUDIO
     }
 }
