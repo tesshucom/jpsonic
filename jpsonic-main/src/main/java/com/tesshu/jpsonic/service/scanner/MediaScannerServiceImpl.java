@@ -78,7 +78,6 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     }
 
     @Override
-    @SuppressWarnings("PMD.AccessorMethodGeneration") // Triaged in #833 or #834
     public void scanLibrary() {
         scanExecutor.execute(this::doScanLibrary);
     }
