@@ -134,9 +134,8 @@ class MediaScannerServiceImplTest {
                     indexManager, mediaFileService, writableMediaFileService, mock(PlaylistService.class), mediaFileDao,
                     artistDao, albumDao, mock(StaticsDao.class), utils, scannerStateService, mock(Ehcache.class),
                     mock(MediaFileCache.class));
-            mediaScannerService = new MediaScannerServiceImpl(settingsService, mock(MusicFolderService.class),
-                    writableMediaFileService, executor, scannerStateService, scannerProcedureService,
-                    mock(ExpungeService.class));
+            mediaScannerService = new MediaScannerServiceImpl(scannerStateService, scannerProcedureService,
+                    mock(ExpungeService.class), executor);
         }
 
         @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert") // It doesn't seem to be able to capture
@@ -157,9 +156,8 @@ class MediaScannerServiceImplTest {
             ExecutorConfiguration executorConf = new ExecutorConfiguration(poolConf);
             final ThreadPoolTaskExecutor executor = executorConf.scanExecutor();
 
-            mediaScannerService = new MediaScannerServiceImpl(settingsService, mock(MusicFolderService.class),
-                    writableMediaFileService, executor, scannerStateService, scannerProcedureService,
-                    mock(ExpungeService.class));
+            mediaScannerService = new MediaScannerServiceImpl(scannerStateService, scannerProcedureService,
+                    mock(ExpungeService.class), executor);
             mediaScannerService.scanLibrary();
             executor.shutdown();
         }
@@ -192,12 +190,12 @@ class MediaScannerServiceImplTest {
 
                 MediaFile song = createSong();
                 song.setAlbumArtist(null);
-                scannerProcedureService.updateArtist(song, musicFolder, scanDate);
+                scannerProcedureService.updateArtist(scanDate, musicFolder, song);
                 Mockito.verify(artistDao, Mockito.never()).createOrUpdateArtist(Mockito.any(Artist.class));
 
                 song = createSong();
                 song.setMediaType(MediaType.DIRECTORY);
-                scannerProcedureService.updateArtist(song, musicFolder, scanDate);
+                scannerProcedureService.updateArtist(scanDate, musicFolder, song);
                 Mockito.verify(artistDao, Mockito.never()).createOrUpdateArtist(Mockito.any(Artist.class));
             }
 
@@ -212,7 +210,7 @@ class MediaScannerServiceImplTest {
                 assertNotEquals(song.getLastScanned(), scanDate);
 
                 // ## First run
-                scannerProcedureService.updateArtist(song, musicFolder, scanDate);
+                scannerProcedureService.updateArtist(scanDate, musicFolder, song);
                 Mockito.verify(artistDao, Mockito.times(1)).createOrUpdateArtist(Mockito.any(Artist.class));
 
                 ArgumentCaptor<Artist> artistCap = ArgumentCaptor.forClass(Artist.class);
@@ -227,7 +225,7 @@ class MediaScannerServiceImplTest {
 
                 // ## Second run
                 artistCap = ArgumentCaptor.forClass(Artist.class);
-                scannerProcedureService.updateArtist(song, musicFolder, scanDate);
+                scannerProcedureService.updateArtist(scanDate, musicFolder, song);
 
                 // Currently always executed
                 Mockito.verify(artistDao, Mockito.times(2)).createOrUpdateArtist(artistCap.capture());
@@ -681,13 +679,9 @@ class MediaScannerServiceImplTest {
         private DaoHelper daoHelper;
 
         @Autowired
-        private SettingsService settingsService;
-        @Autowired
         private MusicFolderService musicFolderService;
         @Autowired
         private MediaFileService mediaFileService;
-        @Autowired
-        private WritableMediaFileService writableMediaFileService;
         @Autowired
         private MediaFileDao mediaFileDao;
         @Autowired
@@ -706,8 +700,8 @@ class MediaScannerServiceImplTest {
         @BeforeEach
         public void setup() {
             ThreadPoolTaskExecutor scanExecutor = ServiceMockUtils.mockNoAsyncTaskExecutor();
-            mediaScannerService = new MediaScannerServiceImpl(settingsService, musicFolderService,
-                    writableMediaFileService, scanExecutor, scannerStateService, procedure, expungeService);
+            mediaScannerService = new MediaScannerServiceImpl(scannerStateService, procedure, expungeService,
+                    scanExecutor);
         }
 
         /**

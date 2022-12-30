@@ -30,7 +30,7 @@ public class ScannerStateServiceImpl implements ScannerStateService {
 
     private final AtomicBoolean ready = new AtomicBoolean(false);
 
-    // TODO To be fixed in v111.6.0
+    // TODO To be fixed in v111.6.0 #1927
     private final AtomicBoolean destroy = new AtomicBoolean();
 
     private final AtomicBoolean cleansing = new AtomicBoolean(true);

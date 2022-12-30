@@ -21,18 +21,12 @@
 
 package com.tesshu.jpsonic.service.scanner;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.dao.StaticsDao.ScanLogType;
-import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.MediaScannerService;
-import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,33 +43,18 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaScannerService.class);
 
-    private final SettingsService settingsService;
-    private final MusicFolderService musicFolderService;
-    private final WritableMediaFileService writableMediaFileService;
-    private final ThreadPoolTaskExecutor scanExecutor;
-
     private final ScannerStateServiceImpl scannerState;
     private final ScannerProcedureService procedure;
     private final ExpungeService expungeService;
+    private final ThreadPoolTaskExecutor scanExecutor;
 
-    public MediaScannerServiceImpl(SettingsService settingsService, MusicFolderService musicFolderService,
-            WritableMediaFileService writableMediaFileService, ThreadPoolTaskExecutor scanExecutor,
-            ScannerStateServiceImpl scannerStateService, ScannerProcedureService procedure,
-            ExpungeService expungeService) {
+    public MediaScannerServiceImpl(ScannerStateServiceImpl scannerState, ScannerProcedureService procedure,
+            ExpungeService expungeService, ThreadPoolTaskExecutor scanExecutor) {
         super();
-        this.settingsService = settingsService;
-        this.musicFolderService = musicFolderService;
-        this.writableMediaFileService = writableMediaFileService;
-        this.scanExecutor = scanExecutor;
-        this.scannerState = scannerStateService;
+        this.scannerState = scannerState;
         this.procedure = procedure;
         this.expungeService = expungeService;
-    }
-
-    private void writeInfo(String msg) {
-        if (LOG.isInfoEnabled()) {
-            LOG.info(msg);
-        }
+        this.scanExecutor = scanExecutor;
     }
 
     @Override
@@ -104,7 +83,6 @@ public class MediaScannerServiceImpl implements MediaScannerService {
         scanExecutor.execute(this::doScanLibrary);
     }
 
-    // TODO To be fixed in v111.6.0
     private void doScanLibrary() {
 
         if (!scannerState.tryScanningLock()) {
@@ -113,37 +91,31 @@ public class MediaScannerServiceImpl implements MediaScannerService {
             }
             return;
         }
+
         LOG.info("Starting to scan media library.");
         Instant scanDate = scannerState.getScanDate();
+
         procedure.createScanLog(scanDate, ScanLogType.SCAN_ALL);
+
         procedure.beforeScan(scanDate);
 
         try {
 
-            // Recurse through all files on disk.
-            for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders()) {
-                MediaFile root = writableMediaFileService.getMediaFile(musicFolder.toPath(), scanDate);
-                procedure.scanFile(root, musicFolder, scanDate, false);
-            }
+            procedure.parseAudio(scanDate); // Split into Audio, Album and Movie #1925
 
-            // Scan podcast folder.
-            if (settingsService.getPodcastFolder() != null) {
-                Path podcastFolder = Path.of(settingsService.getPodcastFolder());
-                if (Files.exists(podcastFolder)) {
-                    procedure.scanFile(writableMediaFileService.getMediaFile(podcastFolder, scanDate),
-                            new MusicFolder(podcastFolder.toString(), null, true, null), scanDate, true);
-                }
-            }
+            procedure.parsePodcast(scanDate);
 
-            writeInfo("Scanned media library with " + scannerState.getScanCount() + " entries.");
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Scanned media library with " + scannerState.getScanCount() + " entries.");
+            }
 
             procedure.markNonPresent(scanDate);
 
-            procedure.updateAlbumCounts();
+            procedure.updateAlbumCounts(scanDate);
 
-            procedure.updateGenreMaster();
+            procedure.updateGenreMaster(scanDate);
 
-            procedure.doCleansingProcess();
+            procedure.doCleansingProcess(scanDate); // Move before parseAlbum #1925
 
             procedure.runStats(scanDate);
 
@@ -151,21 +123,19 @@ public class MediaScannerServiceImpl implements MediaScannerService {
             scannerState.unlockScanning();
             ConcurrentUtils.handleCauseUnchecked(e);
             if (scannerState.isDestroy()) {
-                writeInfo("Interrupted to scan media library.");
+                LOG.info("Interrupted to scan media library.");
                 procedure.createScanEvent(scanDate, ScanEventType.DESTROYED, null);
             } else if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to scan media library.", e);
                 procedure.createScanEvent(scanDate, ScanEventType.FAILED, null);
             }
         } finally {
-            procedure.afterScan();
+            procedure.afterScan(scanDate);
         }
 
-        // Launch another process after Scan.
         if (!scannerState.isDestroy()) {
-            procedure.importPlaylists();
-            procedure.checkpoint();
-
+            procedure.importPlaylists(scanDate);
+            procedure.checkpoint(scanDate);
             LOG.info("Completed media library scan.");
             procedure.createScanEvent(scanDate, ScanEventType.FINISHED, null);
             procedure.rotateScanLog();
