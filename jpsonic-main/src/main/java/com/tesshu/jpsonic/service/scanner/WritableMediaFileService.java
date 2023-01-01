@@ -121,7 +121,6 @@ public class WritableMediaFileService {
             throw new SecurityException("Access denied to file " + path);
         }
 
-        // Look in database.
         MediaFile mediaFile = mediaFileDao.getMediaFile(path.toString());
         if (mediaFile != null) {
             mediaFile = checkLastModified(scanDate, mediaFile);
@@ -129,10 +128,8 @@ public class WritableMediaFileService {
             return mediaFile;
         }
 
-        // Not found in database, must read from disk.
         mediaFile = createMediaFile(scanDate, path);
-        mediaFileDao.createOrUpdateMediaFile(mediaFile);
-        return mediaFile;
+        return mediaFileDao.createMediaFile(mediaFile);
     }
 
     boolean isSchemeLastModified() {
@@ -159,8 +156,7 @@ public class WritableMediaFileService {
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(parent.toPath())) {
             for (Path childPath : ds) {
                 if (mediaFileService.includeMediaFile(childPath) && stored.remove(childPath.toString()) == null) {
-                    // Add children that are not already stored.
-                    mediaFileDao.createOrUpdateMediaFile(createMediaFile(scanDate, childPath));
+                    mediaFileDao.createMediaFile(createMediaFile(scanDate, childPath));
                 }
             }
         } catch (IOException e) {
@@ -175,7 +171,7 @@ public class WritableMediaFileService {
         // Update timestamp in parent.
         parent.setChildrenLastUpdated(parent.getChanged());
         parent.setPresent(true);
-        mediaFileDao.createOrUpdateMediaFile(parent);
+        mediaFileDao.updateMediaFile(parent);
     }
 
     List<MediaFile> getChildrenOf(@NonNull Instant scanDate, @NonNull MediaFile parent, boolean fileOnly) {
@@ -203,7 +199,6 @@ public class WritableMediaFileService {
 
     MediaFile checkLastModified(@NonNull Instant scanDate, @NonNull final MediaFile mediaFile) {
 
-        // Determine if the file has not changed
         if (mediaFile.getVersion() >= MediaFileDao.VERSION) {
             switch (settingsService.getFileModifiedCheckScheme()) {
             case LAST_MODIFIED:
@@ -225,10 +220,16 @@ public class WritableMediaFileService {
             }
         }
 
-        // Updating database file from disk
-        MediaFile mf = createMediaFile(scanDate, mediaFile.toPath());
-        mediaFileDao.createOrUpdateMediaFile(mf);
-        return mf;
+        MediaFile oldFile = mediaFileDao.getMediaFile(mediaFile.getPathString());
+        MediaFile newFile = createMediaFile(scanDate, mediaFile.toPath());
+        if (oldFile == null) {
+            newFile = mediaFileDao.createMediaFile(newFile);
+            return newFile;
+        }
+
+        newFile.setId(oldFile.getId());
+        mediaFileDao.updateMediaFile(newFile);
+        return newFile;
     }
 
     long getLastModified(@NonNull Instant scanDate, @NonNull Path path) {
@@ -390,7 +391,7 @@ public class WritableMediaFileService {
     void refreshMediaFile(@NonNull final MediaFile mediaFile) {
         Path path = mediaFile.toPath();
         MediaFile mf = createMediaFile(newScanDate(), path);
-        mediaFileDao.createOrUpdateMediaFile(mf);
+        mediaFileDao.updateMediaFile(mf);
         mediaFileCache.remove(path);
     }
 

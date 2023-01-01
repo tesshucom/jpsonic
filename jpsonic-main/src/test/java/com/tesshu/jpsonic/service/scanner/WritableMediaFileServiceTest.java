@@ -218,7 +218,7 @@ class WritableMediaFileServiceTest {
                     lessThan(MediaFileDao.VERSION));
 
             assertEquals(mediaFile, writableMediaFileService.checkLastModified(scanStart, mediaFile));
-            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.times(1)).updateMediaFile(Mockito.any(MediaFile.class));
         }
 
         @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
@@ -244,7 +244,7 @@ class WritableMediaFileServiceTest {
             assertEquals(mediaFile.getChanged(), Files.getLastModifiedTime(mediaFile.toPath()).toInstant());
             assertEquals(FAR_PAST, mediaFile.getLastScanned());
             assertEquals(mediaFile, writableMediaFileService.checkLastModified(scanStart, mediaFile));
-            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.times(1)).updateMediaFile(Mockito.any(MediaFile.class));
             Mockito.clearInvocations(mediaFileDao);
 
             try {
@@ -256,7 +256,7 @@ class WritableMediaFileServiceTest {
                     greaterThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertEquals(FAR_PAST, mediaFile.getLastScanned());
             assertEquals(mediaFile, writableMediaFileService.checkLastModified(scanStart, mediaFile));
-            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.times(1)).updateMediaFile(Mockito.any(MediaFile.class));
         }
 
         @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
@@ -282,7 +282,7 @@ class WritableMediaFileServiceTest {
             assertEquals(mediaFile.getChanged(), Files.getLastModifiedTime(mediaFile.toPath()).toInstant());
             assertNotEquals(FAR_PAST, mediaFile.getLastScanned());
             assertEquals(mediaFile, writableMediaFileService.checkLastModified(scanStart, mediaFile));
-            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.never()).updateMediaFile(Mockito.any(MediaFile.class));
 
             try {
                 mediaFile.setChanged(Files.getLastModifiedTime(dir).toInstant().plus(1, ChronoUnit.DAYS));
@@ -293,7 +293,7 @@ class WritableMediaFileServiceTest {
                     greaterThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertNotEquals(FAR_PAST, mediaFile.getLastScanned());
             assertEquals(mediaFile, writableMediaFileService.checkLastModified(scanStart, mediaFile));
-            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.never()).updateMediaFile(Mockito.any(MediaFile.class));
         }
 
         @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
@@ -320,7 +320,7 @@ class WritableMediaFileServiceTest {
                     lessThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertEquals(FAR_PAST, mediaFile.getLastScanned());
             assertEquals(mediaFile, writableMediaFileService.checkLastModified(scanStart, mediaFile));
-            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.times(1)).updateMediaFile(Mockito.any(MediaFile.class));
         }
 
         @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
@@ -347,7 +347,7 @@ class WritableMediaFileServiceTest {
                     lessThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertNotEquals(FAR_PAST, mediaFile.getLastScanned());
             assertEquals(mediaFile, writableMediaFileService.checkLastModified(scanStart, mediaFile));
-            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.never()).updateMediaFile(Mockito.any(MediaFile.class));
         }
 
         @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
@@ -374,7 +374,7 @@ class WritableMediaFileServiceTest {
                     Files.getLastModifiedTime(mediaFile.toPath()).toMillis());
             assertEquals(FAR_PAST, mediaFile.getLastScanned());
             assertEquals(mediaFile, writableMediaFileService.checkLastModified(scanStart, mediaFile));
-            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.times(1)).updateMediaFile(Mockito.any(MediaFile.class));
             Mockito.clearInvocations(mediaFileDao);
 
             try {
@@ -386,7 +386,7 @@ class WritableMediaFileServiceTest {
                     greaterThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertEquals(FAR_PAST, mediaFile.getLastScanned());
             assertEquals(mediaFile, writableMediaFileService.checkLastModified(scanStart, mediaFile));
-            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.times(1)).updateMediaFile(Mockito.any(MediaFile.class));
         }
 
         @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
@@ -413,7 +413,7 @@ class WritableMediaFileServiceTest {
                     Files.getLastModifiedTime(mediaFile.toPath()).toMillis());
             assertNotEquals(FAR_PAST, mediaFile.getLastScanned());
             assertEquals(mediaFile, writableMediaFileService.checkLastModified(scanStart, mediaFile));
-            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.never()).updateMediaFile(Mockito.any(MediaFile.class));
 
             try {
                 mediaFile.setChanged(Files.getLastModifiedTime(dir).toInstant().plus(1, ChronoUnit.DAYS));
@@ -424,7 +424,7 @@ class WritableMediaFileServiceTest {
                     greaterThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertNotEquals(FAR_PAST, mediaFile.getLastScanned());
             assertEquals(mediaFile, writableMediaFileService.checkLastModified(scanStart, mediaFile));
-            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.never()).updateMediaFile(Mockito.any(MediaFile.class));
 
         }
 
@@ -452,7 +452,7 @@ class WritableMediaFileServiceTest {
                     lessThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertEquals(FAR_PAST, mediaFile.getLastScanned());
             assertEquals(mediaFile, writableMediaFileService.checkLastModified(scanStart, mediaFile));
-            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.times(1)).updateMediaFile(Mockito.any(MediaFile.class));
         }
 
         @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
@@ -479,7 +479,7 @@ class WritableMediaFileServiceTest {
                     lessThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertNotEquals(FAR_PAST, mediaFile.getLastScanned());
             assertEquals(mediaFile, writableMediaFileService.checkLastModified(scanStart, mediaFile));
-            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.times(1)).updateMediaFile(Mockito.any(MediaFile.class));
         }
 
         @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
@@ -503,7 +503,7 @@ class WritableMediaFileServiceTest {
 
             assertEquals(FAR_PAST, mediaFile.getLastScanned());
             assertEquals(mediaFile, writableMediaFileService.checkLastModified(scanStart, mediaFile));
-            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.times(1)).updateMediaFile(Mockito.any(MediaFile.class));
         }
 
         @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
@@ -529,7 +529,7 @@ class WritableMediaFileServiceTest {
                     Files.getLastModifiedTime(mediaFile.toPath()).toMillis());
             assertNotEquals(FAR_PAST, mediaFile.getLastScanned());
             assertEquals(mediaFile, writableMediaFileService.checkLastModified(scanStart, mediaFile));
-            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.never()).updateMediaFile(Mockito.any(MediaFile.class));
             Mockito.clearInvocations(mediaFileDao);
 
             try {
@@ -541,7 +541,7 @@ class WritableMediaFileServiceTest {
                     greaterThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertNotEquals(FAR_PAST, mediaFile.getLastScanned());
             assertEquals(mediaFile, writableMediaFileService.checkLastModified(scanStart, mediaFile));
-            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.never()).updateMediaFile(Mockito.any(MediaFile.class));
         }
 
         @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
@@ -567,7 +567,7 @@ class WritableMediaFileServiceTest {
                     lessThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertEquals(FAR_PAST, mediaFile.getLastScanned());
             assertEquals(mediaFile, writableMediaFileService.checkLastModified(scanStart, mediaFile));
-            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.times(1)).updateMediaFile(Mockito.any(MediaFile.class));
         }
 
         @CheckLastModifiedDecision.Conditions.MediaFile.Version.GtEqDaoVersion
@@ -593,7 +593,7 @@ class WritableMediaFileServiceTest {
                     lessThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
             assertNotEquals(FAR_PAST, mediaFile.getLastScanned());
             assertEquals(mediaFile, writableMediaFileService.checkLastModified(scanStart, mediaFile));
-            Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+            Mockito.verify(mediaFileDao, Mockito.never()).updateMediaFile(Mockito.any(MediaFile.class));
         }
     }
 
@@ -616,7 +616,7 @@ class WritableMediaFileServiceTest {
     // // Typical case where an update is performed
     // mediaFileService.updateChildren(album);
     // Mockito.verify(mediaFileDao, Mockito.times(1)).getChildrenOf(Mockito.anyString());
-    // Mockito.verify(mediaFileDao, Mockito.times(3)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+    // Mockito.verify(mediaFileDao, Mockito.times(3)).updateMediaFile(Mockito.any(MediaFile.class));
     // Mockito.verify(mediaFileDao, Mockito.never()).deleteMediaFile(Mockito.anyString());
     // Mockito.clearInvocations(mediaFileDao);
     //
@@ -624,7 +624,7 @@ class WritableMediaFileServiceTest {
     // album.setChildrenLastUpdated(now()); // If it has already been executed, etc.
     // mediaFileService.updateChildren(album);
     // Mockito.verify(mediaFileDao, Mockito.never()).getChildrenOf(Mockito.anyString());
-    // Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+    // Mockito.verify(mediaFileDao, Mockito.never()).updateMediaFile(Mockito.any(MediaFile.class));
     // Mockito.verify(mediaFileDao, Mockito.never()).deleteMediaFile(Mockito.anyString());
     //
     // Mockito.when(settingsService.getFileModifiedCheckSchemeName())
@@ -637,13 +637,13 @@ class WritableMediaFileServiceTest {
     // */
     // mediaFileService.updateChildren(album);
     // Mockito.verify(mediaFileDao, Mockito.never()).getChildrenOf(Mockito.anyString());
-    // Mockito.verify(mediaFileDao, Mockito.never()).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+    // Mockito.verify(mediaFileDao, Mockito.never()).updateMediaFile(Mockito.any(MediaFile.class));
     // Mockito.verify(mediaFileDao, Mockito.never()).deleteMediaFile(Mockito.anyString());
     //
     // album.setChildrenLastUpdated(FAR_PAST);
     // mediaFileService.updateChildren(album);
     // Mockito.verify(mediaFileDao, Mockito.times(1)).getChildrenOf(Mockito.anyString());
-    // Mockito.verify(mediaFileDao, Mockito.times(3)).createOrUpdateMediaFile(Mockito.any(MediaFile.class));
+    // Mockito.verify(mediaFileDao, Mockito.times(3)).updateMediaFile(Mockito.any(MediaFile.class));
     // Mockito.verify(mediaFileDao, Mockito.never()).deleteMediaFile(Mockito.anyString());
     // }
     // }
@@ -805,7 +805,7 @@ class WritableMediaFileServiceTest {
              * Because firstChild is registered. Since firstChild is registered at this time, firstChild will not be
              * parsed when updateChildren is executed.
              */
-            Mockito.verify(mediaFileDao, Mockito.times(1)).createOrUpdateMediaFile(mediaFileCaptor.capture());
+            Mockito.verify(mediaFileDao, Mockito.times(1)).createMediaFile(mediaFileCaptor.capture());
             // [Windows] assertEquals("02 eyes like dull hazlenuts", mediaFileCaptor.getValue().getName());
             // [Linux] assertEquals("10 telegraph hill", mediaFileCaptor.getValue().getName());
 
