@@ -188,6 +188,11 @@ public class MediaFileDao extends AbstractDao {
                 file.getAlbumArtistSortRaw(), file.getComposerSortRaw(), file.getOrder(), file.getPathString());
     }
 
+    public void updateChildrenLastUpdated(String pathString, Instant childrenLastUpdated) {
+        update("update media_file set children_last_updated = ?, present=? where path=?", childrenLastUpdated, true,
+                pathString);
+    }
+
     public void updateFolder(String pathString, String folder) {
         update("update media_file set folder = ? where path=?", folder, pathString);
     }

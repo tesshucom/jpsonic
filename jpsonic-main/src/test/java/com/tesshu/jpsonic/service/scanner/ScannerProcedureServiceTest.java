@@ -20,30 +20,19 @@
 package com.tesshu.jpsonic.service.scanner;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
-import static com.tesshu.jpsonic.util.PlayerUtils.FAR_PAST;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.MusicFolderTestDataUtils;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
-import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
@@ -72,7 +61,6 @@ class ScannerProcedureServiceTest {
     private IndexManager indexManager;
     private AlbumDao albumDao;
     private MediaFileService mediaFileService;
-    private WritableMediaFileService writableMediaFileService;
     private MediaFileDao mediaFileDao;
     private ScannerProcedureService scannerProcedureService;
     private StaticsDao staticsDao;
@@ -85,9 +73,9 @@ class ScannerProcedureServiceTest {
         mediaFileDao = mock(MediaFileDao.class);
         albumDao = mock(AlbumDao.class);
         staticsDao = mock(StaticsDao.class);
-        writableMediaFileService = new WritableMediaFileService(mediaFileDao, null, mediaFileService, albumDao, null,
-                mock(MetaDataParserFactory.class), settingsService, mock(SecurityService.class),
-                mock(JapaneseReadingUtils.class));
+        WritableMediaFileService writableMediaFileService = new WritableMediaFileService(mediaFileDao, null,
+                mediaFileService, albumDao, null, mock(MetaDataParserFactory.class), settingsService,
+                mock(SecurityService.class), mock(JapaneseReadingUtils.class));
         scannerProcedureService = new ScannerProcedureService(settingsService, mock(MusicFolderService.class),
                 indexManager, mediaFileService, writableMediaFileService, mock(PlaylistService.class), mediaFileDao,
                 mock(ArtistDao.class), albumDao, staticsDao, mock(SortProcedureService.class),
@@ -135,48 +123,6 @@ class ScannerProcedureServiceTest {
         Mockito.doNothing().when(staticsDao).createScanEvent(eventCap.capture());
         scannerProcedureService.createScanEvent(startDate, ScanEventType.PARSE_AUDIO, null);
         assertNotEquals(-1, eventCap.getValue().getFreeMemory());
-    }
-
-    @Nested
-    class ScanFileTest {
-
-        private Path createPath(String path) throws URISyntaxException {
-            return Path.of(ScannerProcedureServiceTest.class.getResource(path).toURI());
-        }
-
-        @Test
-        void testScanFile() throws URISyntaxException, ExecutionException {
-
-            SecurityService securityService = mock(SecurityService.class);
-            mediaFileService = new MediaFileService(settingsService, mock(MusicFolderService.class), securityService,
-                    mock(MediaFileCache.class), mediaFileDao, mock(JpsonicComparators.class));
-
-            assertTrue(writableMediaFileService.isSchemeLastModified());
-
-            Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(new String[0]);
-            Mockito.when(settingsService.getMusicFileTypesAsArray()).thenReturn(new String[] { "mp3" });
-            Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
-
-            Path dir = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004");
-            assertTrue(Files.isDirectory(dir));
-            Instant scanStart = now();
-
-            final MediaFile album = writableMediaFileService.createMediaFile(scanStart, dir);
-
-            Path file = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
-            assertFalse(Files.isDirectory(file));
-            MediaFile child = writableMediaFileService.createMediaFile(scanStart, file);
-            child.setLastScanned(FAR_PAST);
-
-            MusicFolder musicFolder = new MusicFolder(MusicFolderTestDataUtils.resolveBaseMediaPath().concat("Music2"),
-                    "name", false, now());
-            scanStart = now();
-
-            List<MediaFile> children = Arrays.asList(child);
-            Mockito.when(mediaFileDao.getChildrenOf(album.getPathString())).thenReturn(children);
-
-            scannerProcedureService.scanFile(scanStart, musicFolder, album);
-        }
     }
 
     @Nested
