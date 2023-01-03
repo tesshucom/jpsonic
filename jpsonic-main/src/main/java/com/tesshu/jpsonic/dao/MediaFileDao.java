@@ -160,6 +160,7 @@ public class MediaFileDao extends AbstractDao {
      *            The media file to create/update.
      */
     @Transactional
+    @Deprecated
     public void createOrUpdateMediaFile(MediaFile file) {
         if (LOG.isTraceEnabled()) {
             LOG.trace("Creating/Updating new media file at {}", file.getPathString());

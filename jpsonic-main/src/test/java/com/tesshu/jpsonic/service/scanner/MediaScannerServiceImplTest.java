@@ -570,9 +570,9 @@ class MediaScannerServiceImplTest {
              * Note that the naming is get, but the actual processing is get & Update.
              */
             Instant scanStart = now();
-            albums = writableMediaFileService.getChildrenOf(artist, true, true, scanStart);
+            albums = writableMediaFileService.getChildrenOf(scanStart, artist, false);
             assertEquals(1, albums.size());
-            songs = writableMediaFileService.getChildrenOf(album, true, true, scanStart);
+            songs = writableMediaFileService.getChildrenOf(scanStart, album, true);
             assertEquals(1, songs.size());
 
             /*

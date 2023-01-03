@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
@@ -64,7 +64,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class WritableMediaFileService {
 
-    private final ScannerStateService scannerStateService;
+    private final ScannerStateService scannerState;
     private final MediaFileDao mediaFileDao;
     private final MediaFileService mediaFileService;
     private final AlbumDao albumDao;
@@ -80,7 +80,7 @@ public class WritableMediaFileService {
             SecurityService securityService, JapaneseReadingUtils readingUtils) {
         super();
         this.mediaFileDao = mediaFileDao;
-        this.scannerStateService = scannerStateService;
+        this.scannerState = scannerStateService;
         this.mediaFileService = mediaFileService;
         this.albumDao = albumDao;
         this.mediaFileCache = mediaFileCache;
@@ -104,16 +104,16 @@ public class WritableMediaFileService {
      * Use of this method suggests imperfect workflow design.
      *
      * @deprecated Use MediaFileService#getMediaFile if use the cache, otherwise use
-     *             WritableMediaFileService#getMediaFile(Path, Instant)
+     *             WritableMediaFileService#getMediaFile(Instant, Path)
      */
     @Deprecated
     @Nullable
-    MediaFile getMediaFile(Path path) {
-        return getMediaFile(path, newScanDate());
+    MediaFile getMediaFile(@Nullable Path path) {
+        return getMediaFile(newScanDate(), path);
     }
 
     @Nullable
-    MediaFile getMediaFile(Path path, @NonNull Instant scanDate) {
+    MediaFile getMediaFile(@NonNull Instant scanDate, @Nullable Path path) {
 
         if (path == null || !Files.exists(path)) {
             return null;
@@ -124,13 +124,13 @@ public class WritableMediaFileService {
         // Look in database.
         MediaFile mediaFile = mediaFileDao.getMediaFile(path.toString());
         if (mediaFile != null) {
-            mediaFile = checkLastModified(mediaFile, scanDate);
+            mediaFile = checkLastModified(scanDate, mediaFile);
             mediaFileCache.put(path, mediaFile);
             return mediaFile;
         }
 
         // Not found in database, must read from disk.
-        mediaFile = createMediaFile(path, scanDate);
+        mediaFile = createMediaFile(scanDate, path);
         mediaFileDao.createOrUpdateMediaFile(mediaFile);
         return mediaFile;
     }
@@ -143,7 +143,7 @@ public class WritableMediaFileService {
         return FileModifiedCheckScheme.LAST_SCANNED == settingsService.getFileModifiedCheckScheme();
     }
 
-    void updateChildren(MediaFile parent, @NonNull Instant scanDate) {
+    void updateChildren(@NonNull Instant scanDate, @NonNull MediaFile parent) {
 
         if (isSchemeLastModified() //
                 && parent.getChildrenLastUpdated().toEpochMilli() >= parent.getChanged().toEpochMilli()) {
@@ -153,17 +153,14 @@ public class WritableMediaFileService {
             return;
         }
 
-        List<MediaFile> storedChildren = mediaFileDao.getChildrenOf(parent.getPathString());
-        Map<String, MediaFile> storedChildrenMap = new ConcurrentHashMap<>();
-        for (MediaFile child : storedChildren) {
-            storedChildrenMap.put(child.getPathString(), child);
-        }
+        Map<String, MediaFile> stored = mediaFileDao.getChildrenOf(parent.getPathString()).stream()
+                .collect(Collectors.toMap(mf -> mf.getPathString(), mf -> mf));
 
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(parent.toPath())) {
-            for (Path child : ds) {
-                if (mediaFileService.includeMediaFile(child) && storedChildrenMap.remove(child.toString()) == null) {
+            for (Path childPath : ds) {
+                if (mediaFileService.includeMediaFile(childPath) && stored.remove(childPath.toString()) == null) {
                     // Add children that are not already stored.
-                    mediaFileDao.createOrUpdateMediaFile(createMediaFile(child, scanDate));
+                    mediaFileDao.createOrUpdateMediaFile(createMediaFile(scanDate, childPath));
                 }
             }
         } catch (IOException e) {
@@ -171,7 +168,7 @@ public class WritableMediaFileService {
         }
 
         // Delete children that no longer exist on disk.
-        for (String path : storedChildrenMap.keySet()) {
+        for (String path : stored.keySet()) {
             mediaFileDao.deleteMediaFile(path);
         }
 
@@ -181,8 +178,7 @@ public class WritableMediaFileService {
         mediaFileDao.createOrUpdateMediaFile(parent);
     }
 
-    List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories,
-            @NonNull Instant scanDate) {
+    List<MediaFile> getChildrenOf(@NonNull Instant scanDate, @NonNull MediaFile parent, boolean fileOnly) {
 
         List<MediaFile> result = new ArrayList<>();
         if (!parent.isDirectory()) {
@@ -190,14 +186,14 @@ public class WritableMediaFileService {
         }
 
         // Make sure children are stored and up-to-date in the database.
-        updateChildren(parent, scanDate);
+        updateChildren(scanDate, parent);
 
         for (MediaFile child : mediaFileDao.getChildrenOf(parent.getPathString())) {
-            MediaFile checked = checkLastModified(child, scanDate);
-            if (checked.isDirectory() && includeDirectories && mediaFileService.includeMediaFile(checked.toPath())) {
+            MediaFile checked = checkLastModified(scanDate, child);
+            if (checked.isDirectory() && !fileOnly && mediaFileService.includeMediaFile(checked.toPath())) {
                 result.add(checked);
             }
-            if (checked.isFile() && includeFiles && mediaFileService.includeMediaFile(checked.toPath())) {
+            if (checked.isFile() && fileOnly && mediaFileService.includeMediaFile(checked.toPath())) {
                 result.add(checked);
             }
         }
@@ -205,14 +201,14 @@ public class WritableMediaFileService {
         return result;
     }
 
-    MediaFile checkLastModified(final MediaFile mediaFile, @NonNull Instant scanDate) {
+    MediaFile checkLastModified(@NonNull Instant scanDate, @NonNull final MediaFile mediaFile) {
 
         // Determine if the file has not changed
         if (mediaFile.getVersion() >= MediaFileDao.VERSION) {
             switch (settingsService.getFileModifiedCheckScheme()) {
             case LAST_MODIFIED:
                 if (!settingsService.isIgnoreFileTimestamps()
-                        && mediaFile.getChanged().toEpochMilli() >= getLastModified(mediaFile.toPath(), scanDate)
+                        && mediaFile.getChanged().toEpochMilli() >= getLastModified(scanDate, mediaFile.toPath())
                         && !FAR_PAST.equals(mediaFile.getLastScanned())) {
                     return mediaFile;
                 } else if (settingsService.isIgnoreFileTimestamps() && !FAR_PAST.equals(mediaFile.getLastScanned())) {
@@ -230,12 +226,12 @@ public class WritableMediaFileService {
         }
 
         // Updating database file from disk
-        MediaFile mf = createMediaFile(mediaFile.toPath(), scanDate);
+        MediaFile mf = createMediaFile(scanDate, mediaFile.toPath());
         mediaFileDao.createOrUpdateMediaFile(mf);
         return mf;
     }
 
-    long getLastModified(@NonNull Path path, @NonNull Instant scanDate) {
+    long getLastModified(@NonNull Instant scanDate, @NonNull Path path) {
         if (isSchemeLastModified()) {
             try {
                 return Files.getLastModifiedTime(path).toMillis();
@@ -246,14 +242,14 @@ public class WritableMediaFileService {
         return scanDate.toEpochMilli();
     }
 
-    MediaFile createMediaFile(Path path, @NonNull Instant scanDate) {
+    MediaFile createMediaFile(@NonNull Instant scanDate, @NonNull Path path) {
 
         MediaFile existingFile = mediaFileDao.getMediaFile(path.toString());
 
         MediaFile mediaFile = new MediaFile();
 
         // Variable initial value
-        Instant lastModified = Instant.ofEpochMilli(getLastModified(path, scanDate));
+        Instant lastModified = Instant.ofEpochMilli(getLastModified(scanDate, path));
         mediaFile.setChanged(lastModified);
         mediaFile.setCreated(lastModified);
 
@@ -282,7 +278,7 @@ public class WritableMediaFileService {
         return mediaFile;
     }
 
-    private void applyFile(Path path, MediaFile to, @NonNull Instant scanDate) {
+    private void applyFile(@NonNull Path path, @NonNull MediaFile to, @NonNull Instant scanDate) {
         MetaDataParser parser = metaDataParserFactory.getParser(path);
         if (parser != null) {
             MetaData metaData = parser.getMetaData(path);
@@ -324,7 +320,7 @@ public class WritableMediaFileService {
         to.setMediaType(getMediaType(to));
     }
 
-    private void applyDirectory(Path dirPath, MediaFile to, @NonNull Instant scanDate) {
+    private void applyDirectory(@NonNull Path dirPath, @NonNull MediaFile to, @NonNull Instant scanDate) {
         // Is this an album?
         if (!mediaFileService.isRoot(to)) {
 
@@ -332,7 +328,7 @@ public class WritableMediaFileService {
                 to.setMediaType(MediaFile.MediaType.ALBUM);
 
                 // Guess artist/album name, year and genre.
-                MediaFile firstChild = getMediaFile(firstChildPath, scanDate);
+                MediaFile firstChild = getMediaFile(scanDate, firstChildPath);
                 if (firstChild != null) {
                     to.setArtist(firstChild.getAlbumArtist());
                     to.setArtistSort(firstChild.getAlbumArtistSort());
@@ -354,7 +350,7 @@ public class WritableMediaFileService {
         }
     }
 
-    private Optional<Path> getFirstChildMediaFile(Path parent) {
+    private Optional<Path> getFirstChildMediaFile(@NonNull Path parent) {
         try (Stream<Path> children = Files.list(parent)) {
             return children.filter(child -> Files.isRegularFile(child))
                     .filter(child -> mediaFileService.includeMediaFile(child)).findFirst();
@@ -363,7 +359,7 @@ public class WritableMediaFileService {
         }
     }
 
-    private MediaFile.MediaType getMediaType(MediaFile mediaFile) {
+    private MediaFile.MediaType getMediaType(@NonNull MediaFile mediaFile) {
         if (mediaFileService.isVideoFile(mediaFile.getFormat())) {
             return MediaFile.MediaType.VIDEO;
         }
@@ -379,11 +375,11 @@ public class WritableMediaFileService {
         return MediaFile.MediaType.MUSIC;
     }
 
-    void updateFolder(final MediaFile file) {
+    void updateFolder(@NonNull final MediaFile file) {
         mediaFileDao.updateFolder(file.getPathString(), file.getFolder());
     }
 
-    void updateOrder(final MediaFile file) {
+    void updateOrder(@NonNull final MediaFile file) {
         mediaFileDao.updateOrder(file.getPathString(), file.getOrder());
     }
 
@@ -391,15 +387,15 @@ public class WritableMediaFileService {
      * Used for some tag updates. Note that it only updates the tags and does not take into account the completeness of
      * the scan.
      */
-    void refreshMediaFile(final MediaFile mediaFile) {
+    void refreshMediaFile(@NonNull final MediaFile mediaFile) {
         Path path = mediaFile.toPath();
-        MediaFile mf = createMediaFile(path, newScanDate());
+        MediaFile mf = createMediaFile(newScanDate(), path);
         mediaFileDao.createOrUpdateMediaFile(mf);
         mediaFileCache.remove(path);
     }
 
     // Updateable even during scanning
-    public void refreshCoverArt(final MediaFile dir) {
+    public void refreshCoverArt(@NonNull final MediaFile dir) {
         if (!(dir.getMediaType() == MediaType.ALBUM || dir.getMediaType() == MediaType.DIRECTORY)) {
             return;
         }
@@ -412,8 +408,8 @@ public class WritableMediaFileService {
     }
 
     // Cannot be updated while scanning
-    public void updateTags(final MediaFile file) {
-        if (scannerStateService.isScanning()) {
+    public void updateTags(@NonNull final MediaFile file) {
+        if (scannerState.isScanning()) {
             // It will be skipped during scanning. No rigor required. Do not acquire locks.
             return;
         }
@@ -423,7 +419,7 @@ public class WritableMediaFileService {
     }
 
     // Updateable even during scanning
-    public void incrementPlayCount(MediaFile file) {
+    public void incrementPlayCount(@NonNull MediaFile file) {
         Instant now = now();
         mediaFileDao.updatePlayCount(file.getPathString(), now, file.getPlayCount() + 1);
         MediaFile parent = mediaFileService.getParentOf(file);
@@ -437,13 +433,13 @@ public class WritableMediaFileService {
     }
 
     // Updateable even during scanning
-    public void updateComment(MediaFile mediaFile) {
+    public void updateComment(@NonNull MediaFile mediaFile) {
         mediaFileDao.updateComment(mediaFile.getPathString(), mediaFile.getComment());
     }
 
     // Cannot be updated while scanning
-    public void resetLastScanned(MediaFile album) {
-        if (scannerStateService.isScanning()) {
+    public void resetLastScanned(@NonNull MediaFile album) {
+        if (scannerState.isScanning()) {
             // It will be skipped during scanning. No rigor required. Do not acquire locks.
             return;
         }

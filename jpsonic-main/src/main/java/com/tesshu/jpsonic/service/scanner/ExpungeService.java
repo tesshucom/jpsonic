@@ -29,11 +29,11 @@ public class ExpungeService {
     private final RatingDao ratingDao;
     private final ScannerProcedureService procedure;
 
-    public ExpungeService(ScannerStateServiceImpl scannerState, IndexManager indexManager, ArtistDao artistDao,
+    public ExpungeService(ScannerStateServiceImpl scannerStateService, IndexManager indexManager, ArtistDao artistDao,
             AlbumDao albumDao, MediaFileDao mediaFileDao, RatingDao ratingDao,
             ScannerProcedureService scannerProcedure) {
         super();
-        this.scannerState = scannerState;
+        this.scannerState = scannerStateService;
         this.indexManager = indexManager;
         this.artistDao = artistDao;
         this.albumDao = albumDao;

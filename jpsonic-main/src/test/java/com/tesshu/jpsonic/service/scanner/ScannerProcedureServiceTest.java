@@ -161,11 +161,11 @@ class ScannerProcedureServiceTest {
             assertTrue(Files.isDirectory(dir));
             Instant scanStart = now();
 
-            final MediaFile album = writableMediaFileService.createMediaFile(dir, scanStart);
+            final MediaFile album = writableMediaFileService.createMediaFile(scanStart, dir);
 
             Path file = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
             assertFalse(Files.isDirectory(file));
-            MediaFile child = writableMediaFileService.createMediaFile(file, scanStart);
+            MediaFile child = writableMediaFileService.createMediaFile(scanStart, file);
             child.setLastScanned(FAR_PAST);
 
             MusicFolder musicFolder = new MusicFolder(MusicFolderTestDataUtils.resolveBaseMediaPath().concat("Music2"),
