@@ -342,7 +342,7 @@ class SortProcedureServiceTest {
                     files.stream().filter(m -> "file10".equals(m.getName()) || "file12".equals(m.getName())
                             || "file14".equals(m.getName()) || "file17".equals(m.getName())).forEach(m -> {
                                 m.setChanged(now);
-                                mediaFileDao.createOrUpdateMediaFile(m);
+                                mediaFileDao.updateMediaFile(m);
                             });
                 });
                 return true;
@@ -965,7 +965,7 @@ class SortProcedureServiceTest {
                         if ("file10".equals(m.getName()) || "file12".equals(m.getName()) || "file14".equals(m.getName())
                                 || "file17".equals(m.getName())) {
                             m.setChanged(now);
-                            mediaFileDao.createOrUpdateMediaFile(m);
+                            mediaFileDao.updateMediaFile(m);
                         }
                     });
                 });
@@ -1781,7 +1781,7 @@ class SortProcedureServiceTest {
                     songs.forEach(m -> {
                         if (latestMediaFileTitle1.equals(m.getTitle()) || latestMediaFileTitle2.equals(m.getTitle())) {
                             m.setChanged(now);
-                            mediaFileDao.createOrUpdateMediaFile(m);
+                            mediaFileDao.updateMediaFile(m);
                         }
                     });
                 });
