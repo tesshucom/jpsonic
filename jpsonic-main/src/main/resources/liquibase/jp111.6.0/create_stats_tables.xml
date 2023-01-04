@@ -34,7 +34,7 @@
                 <constraints nullable="false" foreignKeyName="se_sl_fk" referencedTableName="scan_log" referencedColumnNames="start_date" deleteCascade="true"/>
             </column>
             <column name="executed" type="${timestamp_type}">
-                <constraints nullable="false" primaryKey="true" />
+                <constraints nullable="false"/>
             </column>
             <column name="type" type="${varchar_type}">
                 <constraints nullable="false" />
