@@ -103,14 +103,15 @@ class WritableMediaFileServiceTest {
         assertTrue(writableMediaFileService.isSchemeLastModified());
         Path path = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
         // For scan flows in Scheme.LAST_MODIFIED, lastModified = the last modified date
-        assertEquals(Files.getLastModifiedTime(path).toMillis(), writableMediaFileService.getLastModified(now(), path));
+        assertEquals(Files.getLastModifiedTime(path).toInstant(),
+                writableMediaFileService.getLastModified(now(), path));
 
         // File modification date independent method (scan execution time is used)
         Mockito.when(settingsService.getFileModifiedCheckScheme()).thenReturn(FileModifiedCheckScheme.LAST_SCANNED);
         assertFalse(writableMediaFileService.isSchemeLastModified());
         Instant scanStart = now();
         // For scan flows in Scheme.LAST_SCANNED, lastModified = scan execution time
-        assertEquals(scanStart.toEpochMilli(), writableMediaFileService.getLastModified(scanStart, path));
+        assertEquals(scanStart, writableMediaFileService.getLastModified(scanStart, path));
     }
 
     @Documented
@@ -756,7 +757,7 @@ class WritableMediaFileServiceTest {
             Mockito.when(settingsService.getFileModifiedCheckScheme())
                     .thenReturn(FileModifiedCheckScheme.LAST_MODIFIED);
             assertTrue(writableMediaFileService.isSchemeLastModified());
-            assertEquals(Files.getLastModifiedTime(mediaFile.toPath()).toMillis(),
+            assertEquals(Files.getLastModifiedTime(mediaFile.toPath()).toInstant(),
                     writableMediaFileService.getLastModified(now, path));
         }
 

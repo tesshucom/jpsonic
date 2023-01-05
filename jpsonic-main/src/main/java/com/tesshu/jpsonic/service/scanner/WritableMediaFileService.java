@@ -206,11 +206,11 @@ public class WritableMediaFileService {
         if (mediaFile.getVersion() >= MediaFileDao.VERSION) {
             switch (settingsService.getFileModifiedCheckScheme()) {
             case LAST_MODIFIED:
-                if (!settingsService.isIgnoreFileTimestamps()
-                        && mediaFile.getChanged().toEpochMilli() >= getLastModified(scanDate, mediaFile.toPath())
-                        && !FAR_PAST.equals(mediaFile.getLastScanned())) {
+                if (settingsService.isIgnoreFileTimestamps() && !FAR_PAST.equals(mediaFile.getLastScanned())) {
                     return mediaFile;
-                } else if (settingsService.isIgnoreFileTimestamps() && !FAR_PAST.equals(mediaFile.getLastScanned())) {
+                } else if (!settingsService.isIgnoreFileTimestamps()
+                        && !mediaFile.getChanged().isBefore(getLastModified(scanDate, mediaFile.toPath()))
+                        && !FAR_PAST.equals(mediaFile.getLastScanned())) {
                     return mediaFile;
                 }
                 break;
@@ -231,15 +231,15 @@ public class WritableMediaFileService {
         return refreshMediaFile(scanDate, registered);
     }
 
-    long getLastModified(@NonNull Instant scanDate, @NonNull Path path) {
+    Instant getLastModified(@NonNull Instant scanDate, @NonNull Path path) {
         if (isSchemeLastModified()) {
             try {
-                return Files.getLastModifiedTime(path).toMillis();
+                return Files.getLastModifiedTime(path).toInstant();
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         }
-        return scanDate.toEpochMilli();
+        return scanDate;
     }
 
     @SuppressLint(value = "NULL_DEREFERENCE", justification = "False positive. parseMediaFile is NonNull")
@@ -265,7 +265,7 @@ public class WritableMediaFileService {
         mediaFile.setId(registered == null ? 0 : registered.getId());
 
         // Variable initial value
-        Instant lastModified = Instant.ofEpochMilli(getLastModified(scanDate, path));
+        Instant lastModified = getLastModified(scanDate, path);
         mediaFile.setChanged(lastModified);
         mediaFile.setCreated(lastModified);
 
