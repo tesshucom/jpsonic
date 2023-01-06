@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.tesshu.jpsonic.player</groupId>
         <artifactId>jpsonic</artifactId>
-        <version>111.5.13</version>
+        <version>111.5.14</version>
     </parent>
 
     <properties>
@@ -450,7 +450,7 @@
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-artifact</artifactId>
-            <version>3.8.6</version>
+            <version>3.8.7</version>
         </dependency>
 
         <dependency>
