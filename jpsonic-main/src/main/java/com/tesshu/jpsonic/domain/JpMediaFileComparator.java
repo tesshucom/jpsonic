@@ -25,6 +25,8 @@ import java.text.Collator;
 import java.util.Comparator;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Comparator for sorting media files.
@@ -64,7 +66,10 @@ class JpMediaFileComparator implements MediaFileComparator {
         }
 
         if (a.isDirectory() && b.isDirectory()) {
-            return compareDirectory(a, b);
+            i = compareDirectory(a, b);
+            if (i != 0) {
+                return i;
+            }
         }
 
         // Compare by disc and track numbers, if present.
@@ -78,7 +83,7 @@ class JpMediaFileComparator implements MediaFileComparator {
         return comparator.compare(a.getPathString(), b.getPathString());
     }
 
-    private int compareDirectoryAndFile(MediaFile a, MediaFile b) {
+    int compareDirectoryAndFile(MediaFile a, MediaFile b) {
         if (a.isFile() && b.isDirectory()) {
             return 1;
         }
@@ -88,7 +93,7 @@ class JpMediaFileComparator implements MediaFileComparator {
         return 0;
     }
 
-    private int compareAlbumAndNotAlbum(MediaFile a, MediaFile b) {
+    int compareAlbumAndNotAlbum(@NonNull MediaFile a, @NonNull MediaFile b) {
         if (a.isAlbum() && b.getMediaType() == MediaFile.MediaType.DIRECTORY) {
             return 1;
         }
@@ -99,7 +104,7 @@ class JpMediaFileComparator implements MediaFileComparator {
     }
 
     @SuppressWarnings("PMD.ConfusingTernary") // false positive
-    private int compareDirectory(MediaFile a, MediaFile b) {
+    int compareDirectory(@NonNull MediaFile a, @NonNull MediaFile b) {
         int n;
         if (a.isAlbum() && b.isAlbum() && !isEmpty(a.getAlbumReading()) && !isEmpty(b.getAlbumReading())) {
             n = comparator.compare(a.getAlbumReading(), b.getAlbumReading());
@@ -112,7 +117,7 @@ class JpMediaFileComparator implements MediaFileComparator {
         // MediaFile.equals()
     }
 
-    private <T extends Comparable<T>> int nullSafeCompare(T a, T b, boolean nullIsSmaller) {
+    <T extends Comparable<T>> int nullSafeCompare(@Nullable T a, @Nullable T b, boolean nullIsSmaller) {
         if (a == null && b == null) {
             return 0;
         }
@@ -125,7 +130,8 @@ class JpMediaFileComparator implements MediaFileComparator {
         return a.compareTo(b);
     }
 
-    private Integer getSortableDiscAndTrackNumber(MediaFile file) {
+    @Nullable
+    Integer getSortableDiscAndTrackNumber(@NonNull MediaFile file) {
         Integer trackNumber = file.getTrackNumber();
         if (trackNumber == null) {
             return null;
@@ -133,5 +139,4 @@ class JpMediaFileComparator implements MediaFileComparator {
         int discNumber = ObjectUtils.defaultIfNull(file.getDiscNumber(), 1);
         return discNumber * 1000 + trackNumber;
     }
-
 }
