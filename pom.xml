@@ -676,6 +676,7 @@
                     <lineEnding>LF</lineEnding>
 					<excludes>
 						<exclude>com/tesshu/jpsonic/security/GlobalSecurityConfig.java</exclude>
+						<exclude>com/tesshu/jpsonic/domain/ScanEvent.java</exclude>
 					</excludes>
                 </configuration>
             </plugin>
