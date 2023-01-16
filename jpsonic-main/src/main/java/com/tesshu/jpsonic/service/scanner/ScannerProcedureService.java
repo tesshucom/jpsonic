@@ -380,23 +380,58 @@ public class ScannerProcedureService {
         createScanEvent(scanDate, ScanEventType.UPDATE_GENRE_MASTER, null);
     }
 
-    void doCleansingProcess(@NonNull Instant scanDate) {
-        if (!scannerState.isDestroy() && scannerState.isEnableCleansing()) {
-            writeInfo("[1/2] Additional processing after scanning by Jpsonic. Supplementing sort/read data.");
-            sortProcedure.updateSortOfArtist();
-            sortProcedure.updateSortOfAlbum();
-            writeInfo("[1/2] Done.");
-            if (settingsService.isSortStrict()) {
-                writeInfo(
-                        "[2/2] Additional processing after scanning by Jpsonic. Create dictionary sort index in database.");
-                sortProcedure.updateOrderOfAll();
-            } else {
-                writeInfo(
-                        "[2/2] A dictionary sort index is not created in the database. See Settings > General > Sort settings.");
-            }
-            writeInfo("[2/2] Done.");
+    void updateSortOfArtist(@NonNull Instant scanDate) throws ExecutionException {
+        if (!scannerState.isEnableCleansing()) {
+            return;
         }
-        createScanEvent(scanDate, ScanEventType.UPDATE_ORDER, null);
+        interruptIfCancelled();
+        sortProcedure.updateSortOfArtist();
+        createScanEvent(scanDate, ScanEventType.UPDATE_SORT_OF_ARTIST, null);
+    }
+
+    void updateSortOfAlbum(@NonNull Instant scanDate) throws ExecutionException {
+        if (!scannerState.isEnableCleansing()) {
+            return;
+        }
+        interruptIfCancelled();
+        sortProcedure.updateSortOfAlbum();
+        createScanEvent(scanDate, ScanEventType.UPDATE_SORT_OF_ALBUM, null);
+    }
+
+    void updateOrderOfArtist(@NonNull Instant scanDate) throws ExecutionException {
+        if (!scannerState.isEnableCleansing() || !settingsService.isSortStrict()) {
+            return;
+        }
+        interruptIfCancelled();
+        sortProcedure.updateOrderOfArtist();
+        createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ARTIST, null);
+    }
+
+    void updateOrderOfAlbum(@NonNull Instant scanDate) throws ExecutionException {
+        if (!scannerState.isEnableCleansing() || !settingsService.isSortStrict()) {
+            return;
+        }
+        interruptIfCancelled();
+        sortProcedure.updateOrderOfAlbum();
+        createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ALBUM, null);
+    }
+
+    void updateOrderOfArtistId3(@NonNull Instant scanDate) throws ExecutionException {
+        if (!scannerState.isEnableCleansing() || !settingsService.isSortStrict()) {
+            return;
+        }
+        interruptIfCancelled();
+        sortProcedure.updateOrderOfArtistID3();
+        createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ARTIST_ID3, null);
+    }
+
+    void updateOrderOfAlbumID3(@NonNull Instant scanDate) throws ExecutionException {
+        if (!scannerState.isEnableCleansing() || !settingsService.isSortStrict()) {
+            return;
+        }
+        interruptIfCancelled();
+        sortProcedure.updateOrderOfAlbumID3();
+        createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ALBUM_ID3, null);
     }
 
     void runStats(@NonNull Instant scanDate) {

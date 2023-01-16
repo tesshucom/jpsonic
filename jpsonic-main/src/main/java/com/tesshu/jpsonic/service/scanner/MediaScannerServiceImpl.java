@@ -100,21 +100,23 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
         try {
 
-            procedure.parseAudio(scanDate); // Split into Audio, Album and Movie #1925
-
+            procedure.parseAudio(scanDate);
             procedure.parsePodcast(scanDate);
+            procedure.markNonPresent(scanDate);
 
             if (LOG.isInfoEnabled()) {
                 LOG.info("Scanned media library with " + scannerState.getScanCount() + " entries.");
             }
 
-            procedure.markNonPresent(scanDate);
+            procedure.updateSortOfArtist(scanDate);
+            procedure.updateSortOfAlbum(scanDate);
+            procedure.updateOrderOfArtist(scanDate);
+            procedure.updateOrderOfAlbum(scanDate);
+            procedure.updateOrderOfArtistId3(scanDate);
+            procedure.updateOrderOfAlbumID3(scanDate);
 
             procedure.updateAlbumCounts(scanDate);
-
             procedure.updateGenreMaster(scanDate);
-
-            procedure.doCleansingProcess(scanDate); // Move before parseAlbum #1925
 
             procedure.runStats(scanDate);
 

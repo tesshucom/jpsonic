@@ -81,11 +81,11 @@ public class SortProcedureService {
         this.comparators = jpsonicComparator;
     }
 
-    public void clearMemoryCache() {
+    void clearMemoryCache() {
         utils.clear();
     }
 
-    public void clearOrder() {
+    void clearOrder() {
         jMediaFileDao.clearOrder();
         jArtistDao.clearOrder();
         jAlbumDao.clearOrder();
@@ -158,7 +158,7 @@ public class SortProcedureService {
         fixedIdAll.getAlbumIds().stream().map(id -> jAlbumDao.getAlbum(id)).forEach(album -> indexManager.index(album));
     }
 
-    private void updateOrderOfAlbum() {
+    void updateOrderOfAlbumID3() {
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders(false, false);
         List<Album> albums = jAlbumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folders);
         albums.sort(comparators.albumOrderByAlpha());
@@ -168,13 +168,7 @@ public class SortProcedureService {
         }
     }
 
-    public void updateOrderOfAll() {
-        updateOrderOfArtist();
-        updateOrderOfAlbum();
-        updateOrderOfFileStructure();
-    }
-
-    private void updateOrderOfArtist() {
+    void updateOrderOfArtistID3() {
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders(false, false);
         List<Artist> artists = jArtistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
         artists.sort(comparators.artistOrderByAlpha());
@@ -184,30 +178,29 @@ public class SortProcedureService {
         }
     }
 
-    private void updateOrderOfFileStructure() {
-
+    void updateOrderOfArtist() {
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders(false, false);
         List<MediaFile> artists = jMediaFileDao.getArtistAll(folders);
         artists.sort(comparators.mediaFileOrderByAlpha());
-
         int i = 0;
         for (MediaFile artist : artists) {
             artist.setOrder(i++);
             writableMediaFileService.updateOrder(artist);
         }
+    }
 
+    void updateOrderOfAlbum() {
+        List<MusicFolder> folders = musicFolderService.getAllMusicFolders(false, false);
         List<MediaFile> albums = mediaFileService.getAlphabeticalAlbums(0, Integer.MAX_VALUE, true, folders);
         albums.sort(comparators.mediaFileOrderByAlpha());
-
-        i = 0;
+        int i = 0;
         for (MediaFile album : albums) {
             album.setOrder(i++);
             writableMediaFileService.updateOrder(album);
         }
-
     }
 
-    public void updateSortOfAlbum() {
+    void updateSortOfAlbum() {
         FixedIds merged = mergeSortOfAlbum();
         FixedIds copied = copySortOfAlbum();
         FixedIds compensated = compensateSortOfAlbum();
@@ -228,7 +221,7 @@ public class SortProcedureService {
         return ids;
     }
 
-    public void updateSortOfArtist() {
+    void updateSortOfArtist() {
         jMediaFileDao.clearArtistReadingOfDirectory();
         FixedIds merged = mergeSortOfArtist();
         FixedIds copied = copySortOfArtist();
