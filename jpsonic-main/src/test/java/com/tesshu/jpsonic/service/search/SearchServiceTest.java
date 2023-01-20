@@ -579,7 +579,7 @@ class SearchServiceTest {
     /**
      * Tests to prove what kind of strings/chars can be used in the genre field.
      */
-    @Nested
+    // @Nested Can't seem to run on current maven-enforcer. Executable as a single class.
     @Order(2)
     class SpecialGenreTest extends AbstractNeedsScan {
 

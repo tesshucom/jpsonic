@@ -21,16 +21,10 @@ package com.tesshu.jpsonic.service.scanner;
 
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
 
-import java.lang.annotation.Documented;
-import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -42,459 +36,30 @@ import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.SortCandidate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestClassOrder;
-import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Jpsonic may supplement the sort tag internally if the sort tag is easily predictable. In multi-byte languages such as
+ * Japanese, sorting tags will affect the sorting orderand accuracy of voice search. In particular, systems that handle
+ * big data and large-scale searches may have modern mechanism to preventmissing results when necessary.
+ */
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.AvoidLiteralsInIfCondition", "PMD.NPathComplexity",
         "PMD.TooManyStaticImports" })
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 class SortProcedureServiceTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SortProcedureServiceTest.class);
-
-    @Documented
-    private @interface DaoUnitDecisions {
-        @interface Actions {
-            @interface GetDuplicateSort {
-            }
-        }
-
-        @interface DataConditions {
-            @interface FieldToSetDifferentSortValue {
-                @interface AlbumArtist {
-                }
-
-                @interface Artist {
-                }
-
-                @interface Composer {
-                }
-            }
-
-            @interface NumberOfFiles {
-                @interface Multi {
-                }
-
-                @interface Single {
-                }
-            }
-
-            @interface SetChangeDate {
-            }
-
-            @interface TagArtistAndDirectoryArtist {
-                @interface Match {
-                }
-
-                @interface NoMatch {
-                }
-            }
-        }
-    }
-
-    @Nested
-    @Order(0)
-    class JMediaFileDaoUnitTest extends AbstractNeedsScan {
-
-        private final List<MusicFolder> musicFolders = Arrays.asList(
-                new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Merge"), "Duplicate", true, now()));
-
-        @Autowired
-        private MediaFileDao mediaFileDao;
-
-        @Autowired
-        private JMediaFileDao jMediaFileDao;
-
-        @Autowired
-        private JArtistDao artistDao;
-
-        @Autowired
-        private JAlbumDao albumDao;
-
-        @Autowired
-        private ScannerStateServiceImpl scannerStateService;
-
-        private List<SortCandidate> candidates;
-
-        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.NoMatch
-        @DaoUnitDecisions.DataConditions.NumberOfFiles.Single
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Artist
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Composer
-        @DaoUnitDecisions.Actions.GetDuplicateSort
-        @Test
-        void c01() {
-            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case01".equals(s.getName()))
-                    .findFirst();
-            if (candidate.isPresent()) {
-                // artist-sort is adopted instead of composer-sort
-                assertEquals("artistA", candidate.get().getSort());
-            } else {
-                fail();
-            }
-        }
-
-        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.NoMatch
-        @DaoUnitDecisions.DataConditions.NumberOfFiles.Single
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Artist
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.AlbumArtist
-        @DaoUnitDecisions.Actions.GetDuplicateSort
-        @Test
-        void c02() {
-            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case02".equals(s.getName()))
-                    .findFirst();
-            if (candidate.isPresent()) {
-                // album-artist-sort is adopted instead of artist-sort
-                assertEquals("artistD", candidate.get().getSort());
-            } else {
-                fail();
-            }
-        }
-
-        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.NoMatch
-        @DaoUnitDecisions.DataConditions.NumberOfFiles.Single
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.AlbumArtist
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Composer
-        @DaoUnitDecisions.Actions.GetDuplicateSort
-        @Test
-        void c03() {
-            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case03".equals(s.getName()))
-                    .findFirst();
-            if (candidate.isPresent()) {
-                // album-artist-sort is adopted instead of composer-sort
-                assertEquals("artistE", candidate.get().getSort());
-            } else {
-                fail();
-            }
-        }
-
-        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.NoMatch
-        @DaoUnitDecisions.DataConditions.NumberOfFiles.Multi
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Artist
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Composer
-        @DaoUnitDecisions.Actions.GetDuplicateSort
-        @Test
-        void c04() {
-            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case04".equals(s.getName()))
-                    .findFirst();
-            if (candidate.isPresent()) {
-                // artist-sort is adopted instead of composer-sort
-                assertEquals("artistH", candidate.get().getSort());
-            } else {
-                fail();
-            }
-        }
-
-        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.NoMatch
-        @DaoUnitDecisions.DataConditions.NumberOfFiles.Multi
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Artist
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.AlbumArtist
-        @DaoUnitDecisions.Actions.GetDuplicateSort
-        @Test
-        @EnabledOnOs(OS.WINDOWS)
-        void c05() {
-            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case05".equals(s.getName()))
-                    .findFirst();
-            if (candidate.isPresent()) {
-                // album-artist-sort is adopted instead of artist-sort
-                assertEquals("artistJ", candidate.get().getSort());
-            } else {
-                fail();
-            }
-        }
-
-        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.NoMatch
-        @DaoUnitDecisions.DataConditions.NumberOfFiles.Multi
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.AlbumArtist
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Composer
-        @DaoUnitDecisions.Actions.GetDuplicateSort
-        @Test
-        @EnabledOnOs(OS.WINDOWS)
-        void c06() {
-            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case06".equals(s.getName()))
-                    .findFirst();
-            if (candidate.isPresent()) {
-                // album-artist-sort is adopted instead of composer-sort
-                assertEquals("artistL", candidate.get().getSort());
-            } else {
-                fail();
-            }
-        }
-
-        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.NoMatch
-        @DaoUnitDecisions.DataConditions.NumberOfFiles.Multi
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Artist
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Composer
-        @DaoUnitDecisions.DataConditions.SetChangeDate
-        @DaoUnitDecisions.Actions.GetDuplicateSort
-        @Test
-        @EnabledOnOs(OS.WINDOWS)
-        void c07() {
-            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case07".equals(s.getName()))
-                    .findFirst();
-            if (candidate.isPresent()) {
-                // artist-sort is adopted instead of composer-sort
-                // but if change-date of the file is newer, artist-sort may come first
-                assertEquals("artistM", candidate.get().getSort());
-            } else {
-                fail();
-            }
-        }
-
-        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.NoMatch
-        @DaoUnitDecisions.DataConditions.NumberOfFiles.Multi
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Artist
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.AlbumArtist
-        @DaoUnitDecisions.DataConditions.SetChangeDate
-        @DaoUnitDecisions.Actions.GetDuplicateSort
-        @Test
-        void c08() {
-            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case08".equals(s.getName()))
-                    .findFirst();
-            if (candidate.isPresent()) {
-                // album-artist-sort is adopted instead of artist-sort
-                // but if change-date of the file is newer, artist-sort may come first
-                assertEquals("artistO", candidate.get().getSort());
-            } else {
-                fail();
-            }
-        }
-
-        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.NoMatch
-        @DaoUnitDecisions.DataConditions.NumberOfFiles.Multi
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.AlbumArtist
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Composer
-        @DaoUnitDecisions.DataConditions.SetChangeDate
-        @DaoUnitDecisions.Actions.GetDuplicateSort
-        @Test
-        void c09() {
-            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case09".equals(s.getName()))
-                    .findFirst();
-            if (candidate.isPresent()) {
-                // album-artist-sort is adopted instead of composer-sort
-                // but if change-date of the file is newer, artist-sort may come first
-                assertEquals("artistQ", candidate.get().getSort());
-            } else {
-                fail();
-            }
-        }
-
-        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.Match
-        @DaoUnitDecisions.DataConditions.NumberOfFiles.Single
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Artist
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.AlbumArtist
-        @DaoUnitDecisions.Actions.GetDuplicateSort
-        @Test
-        void c10() {
-            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case10".equals(s.getName()))
-                    .findFirst();
-            if (candidate.isPresent()) {
-                assertEquals("artistT", candidate.get().getSort());
-            } else {
-                fail();
-            }
-        }
-
-        @DaoUnitDecisions.DataConditions.TagArtistAndDirectoryArtist.Match
-        @DaoUnitDecisions.DataConditions.NumberOfFiles.Multi
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Artist
-        @DaoUnitDecisions.DataConditions.FieldToSetDifferentSortValue.Composer
-        @DaoUnitDecisions.DataConditions.SetChangeDate
-        @DaoUnitDecisions.Actions.GetDuplicateSort
-        @Test
-        void c11() {
-            Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case11".equals(s.getName()))
-                    .findFirst();
-            if (candidate.isPresent()) {
-                assertEquals("artistU", candidate.get().getSort());
-            } else {
-                fail();
-            }
-        }
-
-        @Override
-        public List<MusicFolder> getMusicFolders() {
-            return musicFolders;
-        }
-
-        @BeforeEach
-        public void setup() {
-            Instant now = now();
-
-            scannerStateService.enableCleansing(false);
-
-            populateDatabaseOnlyOnce(null, () -> {
-                List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
-                albums.forEach(a -> {
-                    List<MediaFile> files = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, a.getPathString(), false);
-                    files.stream().filter(m -> "file10".equals(m.getName()) || "file12".equals(m.getName())
-                            || "file14".equals(m.getName()) || "file17".equals(m.getName())).forEach(m -> {
-                                m.setChanged(now);
-                                mediaFileDao.updateMediaFile(m);
-                            });
-                });
-                return true;
-            });
-
-            scannerStateService.enableCleansing(true);
-
-            candidates = jMediaFileDao.guessPersonsSorts();
-        }
-
-        @Test
-        @EnabledOnOs(OS.WINDOWS)
-        void testGetDirtySorts() {
-
-            assertEquals(11, candidates.size());
-
-            List<MediaFile> dirtySortsAll = candidates.stream().flatMap(c -> jMediaFileDao.getDirtySorts(c).stream())
-                    .collect(Collectors.toList());
-            assertEquals(22, dirtySortsAll.size());
-            assertEquals(2, dirtySortsAll.stream().filter(m -> m.getMediaType() == MediaType.DIRECTORY).count());
-            assertEquals(5, dirtySortsAll.stream().filter(m -> m.getMediaType() == MediaType.ALBUM).count());
-            assertEquals(15, dirtySortsAll.stream().filter(m -> m.getMediaType() == MediaType.MUSIC).count());
-
-            candidates.forEach(c -> {
-                List<MediaFile> dirtySortsFiles = jMediaFileDao.getDirtySorts(c);
-                dirtySortsFiles.forEach(m -> {
-                    final String name = m.getName();
-                    switch (name) {
-                    case "file1":
-                        assertEquals(c.getName(), m.getArtist());
-                        assertEquals(c.getSort(), m.getArtistSort());
-                        assertEquals(c.getName(), m.getComposer());
-                        assertNotEquals(c.getSort(), m.getComposerSort());
-                        break;
-                    case "file2":
-                        assertEquals(c.getName(), m.getArtist());
-                        assertNotEquals(c.getSort(), m.getArtistSort());
-                        assertEquals(c.getName(), m.getAlbumArtist());
-                        assertEquals(c.getSort(), m.getAlbumArtistSort());
-                        break;
-                    case "file3":
-                        assertEquals(c.getName(), m.getAlbumArtist());
-                        assertEquals(c.getSort(), m.getAlbumArtistSort());
-                        assertEquals(c.getName(), m.getComposer());
-                        assertNotEquals(c.getSort(), m.getComposerSort());
-                        break;
-                    case "file4":
-                        assertEquals(c.getName(), m.getComposer());
-                        assertNotEquals(c.getSort(), m.getComposerSort());
-                        break;
-                    case "file5":
-                        assertEquals(c.getName(), m.getComposer());
-                        assertNull(m.getComposerSort());
-                        break;
-                    case "file6":
-                        assertEquals(c.getName(), m.getArtist());
-                        assertNotEquals(c.getSort(), m.getArtistSort());
-                        break;
-                    case "file8":
-                        assertEquals(c.getName(), m.getComposer());
-                        assertNotEquals(c.getSort(), m.getComposerSort());
-                        break;
-                    case "file11":
-                        assertEquals(c.getName(), m.getComposer());
-                        assertNull(m.getComposerSort());
-                        break;
-                    case "file12":
-                        assertEquals(c.getName(), m.getAlbumArtist());
-                        assertNull(m.getAlbumArtistSort());
-                        break;
-                    case "file13":
-                        assertEquals(c.getName(), m.getArtist());
-                        assertNotEquals(c.getSort(), m.getArtistSort());
-                        break;
-                    case "file14":
-                        assertEquals(c.getName(), m.getArtist());
-                        assertNull(m.getArtistSort());
-                        break;
-                    case "file15":
-                        assertEquals(c.getName(), m.getAlbumArtist());
-                        assertNotEquals(c.getSort(), m.getAlbumArtistSort());
-                        break;
-                    case "file16":
-                        assertEquals(c.getName(), m.getArtist());
-                        assertNotEquals(c.getSort(), m.getArtistSort());
-                        break;
-                    case "file17":
-                        assertEquals(c.getName(), m.getArtist());
-                        assertNull(m.getArtistSort());
-                        assertEquals(c.getName(), m.getComposer());
-                        assertEquals(c.getSort(), m.getComposerSort());
-                        break;
-                    case "file18":
-                        assertEquals(c.getName(), m.getArtist());
-                        assertNotEquals(c.getSort(), m.getArtistSort());
-                        break;
-                    case "case10":
-                        assertEquals(c.getName(), m.getArtist());
-                        assertNotEquals(c.getSort(), m.getArtistSort());
-                        break;
-                    case "case11":
-                        assertEquals(c.getName(), m.getArtist());
-                        assertNotEquals(c.getSort(), m.getArtistSort());
-                        break;
-                    case "ALBUM5":
-                        assertEquals(c.getName(), m.getArtist());
-                        assertNull(m.getArtistSort());
-                        break;
-                    case "ALBUM6":
-                        assertEquals(c.getName(), m.getArtist());
-                        assertNull(m.getArtistSort());
-                        break;
-                    case "ALBUM8":
-                        assertEquals(c.getName(), m.getArtist());
-                        assertNull(m.getArtistSort());
-                        break;
-                    case "ALBUM9":
-                        assertEquals(c.getName(), m.getArtist());
-                        assertNull(m.getArtistSort());
-                        break;
-                    case "ALBUM11":
-                        assertEquals(c.getName(), m.getArtist());
-                        assertNull(m.getArtistSort());
-                        break;
-
-                    default:
-                        fail();
-                        break;
-                    }
-
-                });
-            });
-        }
-
-        @Test
-        @EnabledOnOs(OS.WINDOWS)
-        void testGetToBeFixedSort() {
-            assertEquals(0, jMediaFileDao.getSortOfArtistToBeFixed(Collections.emptyList()).size());
-            assertEquals(22, jMediaFileDao.getSortOfArtistToBeFixed(candidates).size());
-            assertEquals(0, albumDao.getSortOfArtistToBeFixed(Collections.emptyList()).size());
-            assertEquals(5, albumDao.getSortOfArtistToBeFixed(candidates).size());
-            assertEquals(0, artistDao.getSortOfArtistToBeFixed(Collections.emptyList()).size());
-            assertEquals(5, artistDao.getSortOfArtistToBeFixed(candidates).size());
-        }
-
-    }
-
     /**
      * If SORT exists for one name and null-sort data exists, unify it to SORT.
      */
     @Nested
-    @Order(1)
+    @Order(2)
     class CompensateSortOfArtistTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
@@ -524,254 +89,114 @@ class SortProcedureServiceTest {
             scannerStateService.enableCleansing(true);
         }
 
+        /**
+         * Completely missing sort tags are compensated.
+         */
         @Test
-        @DisabledOnOs(OS.LINUX)
-        void testCompensateSortOfArtistOnWindows() throws ExecutionException {
+        void testCompensateSortOfArtist() throws ExecutionException {
 
             sortProcedureService.mergeSortOfArtist();
             sortProcedureService.copySortOfArtist();
 
             List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
-            MediaFile artist = artists.stream().filter(m -> "ARTIST".equals(m.getArtist())).findFirst().get();
-            List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false);
-            List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, albums.get(0).getPathString(),
-                    false);
-            assertEquals(3, files.size());
+            MediaFile artist = artists.get(0);
+            assertEquals("ARTIST", artist.getName());
+            MediaFile album = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false).get(0);
+            assertEquals("ALBUM1", album.getName());
+            List<MediaFile> songs = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPathString(), false);
+            assertEquals(3, songs.size());
+            songs.sort((m1, m2) -> m1.toPath().compareTo(m2.toPath()));
 
-            files.forEach(m -> {
-                switch (m.getName()) {
-                case "file1":
-                    assertEquals("近衛秀麿", m.getAlbumArtist());
-                    assertNull(m.getAlbumArtistSort());
-                    assertEquals("近衛秀麿", m.getArtist());
-                    assertNull(m.getArtistSort());
-                    break;
-                case "file2":
-                    assertEquals("近衛秀麿", m.getAlbumArtist());
-                    assertNull(m.getAlbumArtistSort());
-                    assertEquals("中山晋平", m.getArtist());
-                    assertNull(m.getArtistSort());
-                    break;
-                case "file3":
-                    assertEquals("近衛秀麿", m.getAlbumArtist());
-                    assertNull(m.getAlbumArtistSort());
-                    assertEquals("ARTIST", m.getArtist());
-                    assertNull(m.getArtistSort());
-                    assertEquals("世阿弥", m.getComposer());
-                    assertNull(m.getComposerSort());
-                    break;
+            assertEquals("file1", songs.get(0).getName());
+            assertEquals("近衛秀麿", songs.get(0).getAlbumArtist());
+            assertNull(songs.get(0).getAlbumArtistSort());
+            assertEquals("近衛秀麿", songs.get(0).getArtist());
+            assertNull(songs.get(0).getArtistSort());
 
-                default:
-                    fail();
-                    break;
-                }
-            });
+            assertEquals("file2", songs.get(1).getName());
+            assertEquals("中山晋平", songs.get(1).getAlbumArtist());
+            assertNull(songs.get(1).getAlbumArtistSort());
+            assertEquals("中山晋平", songs.get(1).getArtist());
+            assertNull(songs.get(1).getArtistSort());
 
-            artist = artists.stream().filter(m -> "山田耕筰".equals(m.getArtist())).findFirst().get();
-            albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false);
-            files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, albums.get(0).getPathString(), false);
-            assertEquals(1, files.size());
-            assertEquals("file4", files.get(0).getName());
-            assertEquals("山田耕筰", files.get(0).getArtist());
-            assertNull(files.get(0).getArtistSort());
+            assertEquals("file3", songs.get(2).getName());
+            assertEquals("ARTIST", songs.get(2).getAlbumArtist());
+            assertNull(songs.get(2).getAlbumArtistSort());
+            assertEquals("ARTIST", songs.get(2).getArtist());
+            assertNull(songs.get(2).getArtistSort());
+            assertEquals("世阿弥", songs.get(2).getComposer());
+            assertNull(songs.get(2).getComposerSort());
+
+            artist = artists.get(1);
+            assertEquals("山田耕筰", artist.getName());
+            album = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false).get(0);
+            assertEquals("ALBUM2", album.getName());
+            songs = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPathString(), false);
+            assertEquals(1, songs.size());
+
+            assertEquals("file4", songs.get(0).getName());
+            assertEquals("山田耕筰", songs.get(0).getArtist());
+            assertNull(songs.get(0).getArtistSort());
 
             List<Artist> artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
             assertEquals(2, artistID3s.size());
-            artistID3s.forEach(a -> {
-                switch (a.getName()) {
-                case "近衛秀麿":
-                case "山田耕筰":
-                    assertNull(a.getSort());
-                    break;
-                default:
-                    fail();
-                    break;
-                }
-            });
+            artistID3s.sort((m1, m2) -> Integer.compare(m1.getOrder(), m2.getOrder()));
 
+            assertEquals("近衛秀麿", artistID3s.get(0).getName());
+            assertNull(artistID3s.get(0).getSort());
+            assertEquals("山田耕筰", artistID3s.get(1).getName());
+            assertNull(artistID3s.get(1).getSort());
+
+            // Execution of Complementary Processing
             sortProcedureService.compensateSortOfArtist();
 
-            artists = mediaFileDao.getArtistAll(musicFolders);
-            artist = artists.stream().filter(m -> "ARTIST".equals(m.getArtist())).findFirst().get();
-            albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false);
-            files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, albums.get(0).getPathString(), false);
-            assertEquals(3, files.size());
+            artist = artists.get(0);
+            assertEquals("ARTIST", artist.getName());
+            album = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false).get(0);
+            assertEquals("ALBUM1", album.getName());
+            songs = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPathString(), false);
+            assertEquals(3, songs.size());
+            songs.sort((m1, m2) -> m1.toPath().compareTo(m2.toPath()));
 
-            files.forEach(m -> {
-                switch (m.getName()) {
-                case "file1":
-                    assertEquals("近衛秀麿", m.getAlbumArtist());
-                    assertEquals("コノエヒデマロ", m.getAlbumArtistSort());
-                    assertEquals("近衛秀麿", m.getArtist());
-                    assertEquals("コノエヒデマロ", m.getArtistSort());
-                    break;
-                case "file2":
-                    assertEquals("近衛秀麿", m.getAlbumArtist());
-                    assertEquals("コノエヒデマロ", m.getAlbumArtistSort());
-                    assertEquals("中山晋平", m.getArtist());
-                    assertEquals("ナカヤマシンペイ", m.getArtistSort());
-                    break;
-                case "file3":
-                    assertEquals("近衛秀麿", m.getAlbumArtist());
-                    assertEquals("コノエヒデマロ", m.getAlbumArtistSort());
-                    assertEquals("ARTIST", m.getArtist());
-                    assertEquals("ARTIST", m.getArtistSort());
-                    assertEquals("世阿弥", m.getComposer());
-                    assertEquals("ゼアミ", m.getComposerSort());
-                    break;
+            assertEquals("file1", songs.get(0).getName());
+            assertEquals("近衛秀麿", songs.get(0).getAlbumArtist());
+            assertEquals("コノエヒデマロ", songs.get(0).getAlbumArtistSort());
+            assertEquals("近衛秀麿", songs.get(0).getArtist());
+            assertEquals("コノエヒデマロ", songs.get(0).getArtistSort());
 
-                default:
-                    fail();
-                    break;
-                }
-            });
+            assertEquals("file2", songs.get(1).getName());
+            assertEquals("中山晋平", songs.get(1).getAlbumArtist());
+            assertEquals("ナカヤマシンペイ", songs.get(1).getAlbumArtistSort());
+            assertEquals("中山晋平", songs.get(1).getArtist());
+            assertEquals("ナカヤマシンペイ", songs.get(1).getArtistSort());
+
+            assertEquals("file3", songs.get(2).getName());
+            assertEquals("ARTIST", songs.get(2).getAlbumArtist());
+            assertEquals("ARTIST", songs.get(2).getAlbumArtistSort());
+            assertEquals("ARTIST", songs.get(2).getArtist());
+            assertEquals("ARTIST", songs.get(2).getArtistSort());
+            assertEquals("世阿弥", songs.get(2).getComposer());
+            assertEquals("ゼアミ", songs.get(2).getComposerSort());
+
+            artist = artists.get(1);
+            assertEquals("山田耕筰", artist.getName());
+            album = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false).get(0);
+            assertEquals("ALBUM2", album.getName());
+            songs = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPathString(), false);
+            assertEquals(1, songs.size());
+
+            assertEquals("file4", songs.get(0).getName());
+            assertEquals("山田耕筰", songs.get(0).getArtist());
+            assertEquals("ヤマダコウサク", songs.get(0).getArtistSort());
 
             artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
             assertEquals(2, artistID3s.size());
-            artistID3s.forEach(a -> {
-                switch (a.getName()) {
-                case "近衛秀麿":
-                    assertEquals("コノエヒデマロ", a.getSort());
-                    break;
-                case "山田耕筰":
-                    assertEquals("ヤマダコウサク", a.getSort());
-                    break;
-                default:
-                    fail();
-                    break;
-                }
-            });
-        }
+            artistID3s.sort((m1, m2) -> Integer.compare(m1.getOrder(), m2.getOrder()));
 
-        @SuppressWarnings("PMD.DetachedTestCase")
-        // @Test
-        // @Disabled
-        // @DisabledOnOs(OS.WINDOWS)
-        void testCompensateSortOfArtistOnLinux() throws ExecutionException {
-
-            sortProcedureService.mergeSortOfArtist();
-            sortProcedureService.copySortOfArtist();
-
-            List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
-            MediaFile artist = artists.stream().filter(m -> "ARTIST".equals(m.getArtist())).findFirst().get();
-            List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false);
-            List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, albums.get(0).getPathString(),
-                    false);
-            assertEquals(3, files.size());
-
-            files.forEach(m -> {
-                switch (m.getName()) {
-                case "file1":
-                    assertEquals("中山晋平", m.getAlbumArtist());
-                    assertNull(m.getAlbumArtistSort());
-                    assertEquals("近衛秀麿", m.getArtist());
-                    assertNull(m.getArtistSort());
-                    break;
-                case "file2":
-                    assertEquals("中山晋平", m.getAlbumArtist());
-                    assertNull(m.getAlbumArtistSort());
-                    assertEquals("中山晋平", m.getArtist());
-                    assertNull(m.getArtistSort());
-                    break;
-                case "file3":
-                    assertEquals("中山晋平", m.getAlbumArtist());
-                    assertNull(m.getAlbumArtistSort());
-                    assertEquals("ARTIST", m.getArtist());
-                    assertNull(m.getArtistSort());
-                    assertEquals("世阿弥", m.getComposer());
-                    assertNull(m.getComposerSort());
-                    break;
-
-                default:
-                    fail();
-                    break;
-                }
-            });
-
-            artist = artists.stream().filter(m -> "山田耕筰".equals(m.getArtist())).findFirst().get();
-            albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false);
-            files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, albums.get(0).getPathString(), false);
-            assertEquals(1, files.size());
-            assertEquals("file4", files.get(0).getName());
-            assertEquals("山田耕筰", files.get(0).getArtist());
-            assertNull(files.get(0).getArtistSort());
-
-            List<Artist> artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
-            assertEquals(2, artistID3s.size());
-            artistID3s.stream().forEach(a -> LOG.info(a.getName()));
-            artistID3s.forEach(a -> {
-                switch (a.getName()) {
-                case "近衛秀麿":
-                case "山田耕筰":
-                case "ARTIST":
-                case "中山晋平":
-                    assertNull(a.getSort());
-                    break;
-                default:
-                    fail();
-                    break;
-                }
-            });
-
-            sortProcedureService.compensateSortOfArtist();
-
-            artists = mediaFileDao.getArtistAll(musicFolders);
-            artist = artists.stream().filter(m -> "ARTIST".equals(m.getArtist())).findFirst().get();
-            albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false);
-            files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, albums.get(0).getPathString(), false);
-            assertEquals(3, files.size());
-
-            files.stream().forEach(m -> LOG.info(m.getName() + ", " + m.getAlbumArtist() + ", " + m.getArtist()));
-            files.forEach(m -> {
-                switch (m.getName()) {
-                case "file1":
-                    assertEquals("中山晋平", m.getAlbumArtist());
-                    assertEquals("ナカヤマシンペイ", m.getAlbumArtistSort());
-                    assertEquals("近衛秀麿", m.getArtist());
-                    assertEquals("コノエヒデマロ", m.getArtistSort());
-                    break;
-                case "file2":
-                    assertEquals("中山晋平", m.getAlbumArtist());
-                    assertEquals("ナカヤマシンペイ", m.getAlbumArtistSort());
-                    assertEquals("中山晋平", m.getArtist());
-                    assertEquals("ナカヤマシンペイ", m.getArtistSort());
-                    break;
-                case "file3":
-                    assertEquals("中山晋平", m.getAlbumArtist());
-                    assertEquals("ナカヤマシンペイ", m.getAlbumArtistSort());
-                    assertEquals("ARTIST", m.getArtist());
-                    assertEquals("ARTIST", m.getArtistSort());
-                    assertEquals("世阿弥", m.getComposer());
-                    assertEquals("ゼアミ", m.getComposerSort());
-                    break;
-
-                default:
-                    // fail(); TODO
-                    break;
-                }
-            });
-
-            artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
-            assertEquals(2, artistID3s.size());
-            artistID3s.forEach(a -> {
-                switch (a.getName()) {
-                case "近衛秀麿":
-                    assertEquals("コノエヒデマロ", a.getSort());
-                    break;
-                case "山田耕筰":
-                    assertEquals("ヤマダコウサク", a.getSort());
-                    break;
-                case "中山晋平":
-                    assertEquals("ナカヤマシンペイ", a.getSort());
-                    break;
-                case "世阿弥":
-                    assertEquals("ゼアミ", a.getSort());
-                    break;
-                default:
-                    // fail(); TODO
-                    break;
-                }
-            });
+            assertEquals("近衛秀麿", artistID3s.get(0).getName());
+            assertEquals("コノエヒデマロ", artistID3s.get(0).getSort());
+            assertEquals("山田耕筰", artistID3s.get(1).getName());
+            assertEquals("ヤマダコウサク", artistID3s.get(1).getSort());
         }
     }
 
@@ -779,7 +204,7 @@ class SortProcedureServiceTest {
      * If SORT exists for one name and null-sort data exists, unify it to SORT.
      */
     @Nested
-    @Order(2)
+    @Order(3)
     class CopySortOfArtistTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays.asList(
@@ -791,12 +216,6 @@ class SortProcedureServiceTest {
         @Autowired
         private JArtistDao artistDao;
 
-        @Autowired
-        private SortProcedureService sortProcedureService;
-
-        @Autowired
-        private ScannerStateServiceImpl scannerStateService;
-
         @Override
         public List<MusicFolder> getMusicFolders() {
             return musicFolders;
@@ -804,16 +223,11 @@ class SortProcedureServiceTest {
 
         @BeforeEach
         public void setup() {
-            scannerStateService.enableCleansing(false);
             populateDatabase();
-            scannerStateService.enableCleansing(true);
         }
 
         @Test
-        @DisabledOnOs(OS.LINUX)
-        void testCopySortOfArtistOnWindows() throws ExecutionException {
-
-            sortProcedureService.mergeSortOfArtist();
+        void testCopySortOfArtist() throws ExecutionException {
 
             List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
             assertEquals(1, artists.size());
@@ -821,113 +235,35 @@ class SortProcedureServiceTest {
                     false);
             assertEquals(1, albums.size());
             MediaFile album = albums.get(0);
+
             List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPathString(), false);
             assertEquals(2, files.size());
-            List<Artist> artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
-            assertEquals(1, artistID3s.size());
-
+            files.sort((m1, m2) -> m1.toPath().compareTo(m2.toPath()));
             assertEquals("file1", files.get(0).getName());
             assertEquals("case1", files.get(0).getArtist());
-            assertNull(files.get(0).getArtistSort());
+            assertEquals("artistA", files.get(0).getArtistSort()); // Copied (not in tag)
             assertEquals("file2", files.get(1).getName());
             assertEquals("case1", files.get(1).getArtist());
             assertEquals("artistA", files.get(1).getArtistSort());
 
-            assertEquals("case1", artistID3s.get(0).getName());
-            assertNull(artistID3s.get(0).getSort());
-
-            sortProcedureService.copySortOfArtist();
-
-            files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPathString(), false);
-            artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
-
-            assertEquals(2, files.size());
-            files.forEach(f -> {
-                switch (f.getName()) {
-                case "file1":
-                case "file2":
-                    assertEquals("case1", f.getArtist());
-                    assertEquals("artistA", f.getArtistSort());
-                    break;
-                default:
-                    fail();
-                    break;
-                }
-            });
-
-            assertEquals(1, artistID3s.size());
-            assertEquals("case1", artistID3s.get(0).getName());
-            assertEquals("artistA", artistID3s.get(0).getSort());
-        }
-
-        @SuppressWarnings("PMD.DetachedTestCase")
-        // @Test
-        // @Disabled
-        // @DisabledOnOs(OS.WINDOWS)
-        void testCopySortOfArtistOnLinux() throws ExecutionException {
-
-            sortProcedureService.mergeSortOfArtist();
-
-            List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
-            assertEquals(1, artists.size());
-            List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(0).getPathString(),
-                    false);
-            assertEquals(1, albums.size());
-            MediaFile album = albums.get(0);
-            List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPathString(), false);
-            assertEquals(2, files.size());
             List<Artist> artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
             assertEquals(1, artistID3s.size());
-
-            assertEquals("file2", files.get(0).getName());
-            assertEquals("case1", files.get(0).getArtist());
-            assertEquals("artistA", files.get(0).getArtistSort());
-            assertEquals("file1", files.get(1).getName());
-            assertEquals("case1", files.get(1).getArtist());
-            assertNull(files.get(1).getArtistSort());
-
             assertEquals("case1", artistID3s.get(0).getName());
-            assertEquals("artistA", artistID3s.get(0).getSort());
-
-            sortProcedureService.copySortOfArtist();
-
-            files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPathString(), false);
-            artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
-
-            assertEquals(2, files.size());
-            files.forEach(f -> {
-                switch (f.getName()) {
-                case "file1":
-                case "file2":
-                    assertEquals("case1", f.getArtist());
-                    assertEquals("artistA", f.getArtistSort());
-                    break;
-                default:
-                    fail();
-                    break;
-                }
-            });
-
-            assertEquals(1, artistID3s.size());
-            assertEquals("case1", artistID3s.get(0).getName());
-            assertEquals("artistA", artistID3s.get(0).getSort());
+            assertEquals("artistA", artistID3s.get(0).getSort()); // It will definitely be registered
         }
     }
 
     /**
-     * If two or more SORTs exist in one name, unify them into one SORT.
+     * If two or more SORTs exist in one name, unify them into one SORT. In terms of person name sort tags, accuracy is
+     * conventionally in order of album artist, artist, and composer. This can be assumed from the general data input
+     * frequency.Also, if there is duplication among them, the newer ones should be preferred over the older ones.
      */
     @Nested
-    @Order(3)
-    // Windows Server 2022 and Ubuntu results are different
-    // Windows 10 Home and Windows Server 2022 results are same
+    @Order(1)
     class MergeSortOfArtistTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays.asList(
                 new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Merge"), "Duplicate", true, now()));
-
-        @Autowired
-        private MediaFileDao mediaFileDao;
 
         @Autowired
         private JMediaFileDao jMediaFileDao;
@@ -938,12 +274,6 @@ class SortProcedureServiceTest {
         @Autowired
         private JAlbumDao albumDao;
 
-        @Autowired
-        private SortProcedureService sortProcedureService;
-
-        @Autowired
-        private ScannerStateServiceImpl scannerStateService;
-
         @Override
         public List<MusicFolder> getMusicFolders() {
             return musicFolders;
@@ -951,795 +281,448 @@ class SortProcedureServiceTest {
 
         @BeforeEach
         public void setup() {
-            scannerStateService.enableCleansing(false);
-
-            assertEquals(0, mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders).size());
-            assertEquals(0, artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders).size());
-
-            Instant now = now();
-            populateDatabase(null, () -> {
-                List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
-                albums.forEach(a -> {
-                    List<MediaFile> files = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, a.getPathString(), false);
-                    files.forEach(m -> {
-                        if ("file10".equals(m.getName()) || "file12".equals(m.getName()) || "file14".equals(m.getName())
-                                || "file17".equals(m.getName())) {
-                            m.setChanged(now);
-                            mediaFileDao.updateMediaFile(m);
-                        }
-                    });
-                });
-                return true;
-            });
-
-            scannerStateService.enableCleansing(true);
+            populateDatabaseOnlyOnce();
         }
 
         @Test
-        @DisabledOnOs(OS.LINUX)
-        void testMergeSortOfArtistOnWindows() throws ExecutionException {
-
-            // Windows 10 Home
-            // for Windows Server 2022(ver.20220426.1)
-
-            assertEquals(11, mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders).size());
-            assertEquals(10, artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders).size()); // OS
-                                                                                                          // dipendent
-            LOG.info(" *** Artist(id, name)");
-            artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders)
-                    .forEach(a -> LOG.info(a.getId() + ", " + a.getName()));
-
-            LOG.info(" *** Artist(id, name)");
-            artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders)
-                    .forEach(a -> LOG.info(a.getId() + ", " + a.getName()));
-
-            sortProcedureService.mergeSortOfArtist();
-
+        @Order(1)
+        void testArtistOfFileStructure() {
             List<MediaFile> artists = jMediaFileDao.getArtistAll(musicFolders);
             assertEquals(3, artists.size());
+            for (int i = 0; i < artists.size(); i++) {
+                assertEquals(i, artists.get(i).getOrder());
+            }
+            artists.sort((m1, m2) -> Integer.compare(m1.getOrder(), m2.getOrder()));
 
-            artists.forEach(m -> {
-                switch (m.getName()) {
-                case "case10":
-                    assertEquals("case10", m.getArtistReading());
-                    assertEquals("artistT", m.getArtistSort());
-                    break;
-                case "case11":
-                    assertEquals("case11", m.getArtistReading());
-                    assertEquals("artistU", m.getArtistSort());
-                    break;
-                case "ARTIST":
-                    assertEquals("ARTIST", m.getArtistReading());
-                    assertNull(m.getArtistSort());
-                    break;
-
-                default:
-                    fail();
-                    break;
-                }
-            });
-
-            List<Artist> artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
-            assertEquals(10, artistID3s.size()); // OS dipendent
-
-            assertEquals("ARTIST", artistID3s.get(0).getName());
-            assertEquals("case01", artistID3s.get(1).getName());
-            assertEquals("case02", artistID3s.get(2).getName());
-            assertEquals("case03", artistID3s.get(3).getName());
-            assertEquals("case05", artistID3s.get(4).getName());
-            assertEquals("case06", artistID3s.get(5).getName());
-            assertEquals("case08", artistID3s.get(6).getName());
-            assertEquals("case09", artistID3s.get(7).getName());
-            assertEquals("case10", artistID3s.get(8).getName());
-            assertEquals("case11", artistID3s.get(9).getName());
-
-            assertEquals("ARTIST", artistID3s.get(0).getReading());
-            assertEquals("case01", artistID3s.get(1).getReading());
-            assertEquals("case02", artistID3s.get(2).getReading());
-            assertEquals("case03", artistID3s.get(3).getReading());
-            assertEquals("case05", artistID3s.get(4).getReading());
-            assertEquals("case06", artistID3s.get(5).getReading());
-            assertEquals("case08", artistID3s.get(6).getReading());
-            assertEquals("case09", artistID3s.get(7).getReading());
-            assertEquals("case10", artistID3s.get(8).getReading());
-            assertEquals("case11", artistID3s.get(9).getReading());
-
-            assertNull(artistID3s.get(0).getSort());
-            assertEquals("artistA", artistID3s.get(1).getSort());
-            assertEquals("artistD", artistID3s.get(2).getSort());
-            assertEquals("artistE", artistID3s.get(3).getSort());
-            assertEquals("artistJ", artistID3s.get(4).getSort());
-            assertEquals("artistL", artistID3s.get(5).getSort());
-            assertEquals("artistO", artistID3s.get(6).getSort());
-            assertEquals("artistQ", artistID3s.get(7).getSort());
-            assertEquals("artistT", artistID3s.get(8).getSort());
-            assertEquals("artistU", artistID3s.get(9).getSort());
-
-            artists.stream().filter(m -> "case10".equals(m.getName())).findFirst().ifPresent(m -> {
-                List<MediaFile> albums = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPathString(), false);
-                assertEquals(1, albums.size());
-                MediaFile album = albums.get(0);
-                assertEquals("case10", album.getArtist());
-                assertEquals("case10", album.getArtistReading());
-                assertEquals("artistT", album.getArtistSort());
-            });
-
-            artists.stream().filter(m -> "case11".equals(m.getName())).findFirst().ifPresent(m -> {
-                List<MediaFile> albums = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPathString(), false);
-                assertEquals(1, albums.size());
-                MediaFile album = albums.get(0);
-                assertEquals("case11", album.getArtist());
-                assertEquals("case11", album.getArtistReading());
-                assertEquals("artistU", album.getArtistSort());
-            });
-
-            artists.stream().filter(m -> "ARTIST".equals(m.getName())).findFirst().ifPresent(m -> {
-                List<MediaFile> albums = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPathString(), false);
-                assertEquals(9, albums.size());
-
-                albums.forEach(album -> {
-                    switch (album.getName()) {
-                    case "ALBUM1":
-                        assertEquals("case01", album.getArtist());
-                        assertEquals("case01", album.getArtistReading());
-                        assertEquals("artistA", album.getArtistSort());
-                        break;
-                    case "ALBUM2":
-                        assertEquals("case02", album.getArtist());
-                        assertEquals("case02", album.getArtistReading());
-                        assertEquals("artistD", album.getArtistSort());
-                        break;
-                    case "ALBUM3":
-                        assertEquals("case03", album.getArtist());
-                        assertEquals("case03", album.getArtistReading());
-                        assertEquals("artistE", album.getArtistSort());
-                        break;
-                    case "ALBUM4":
-                        assertEquals("ARTIST", album.getArtist());
-                        assertEquals("ARTIST", album.getArtistReading());
-                        assertNull(album.getArtistSort());
-                        break;
-                    case "ALBUM5":
-                        assertEquals("case05", album.getArtist());
-                        assertEquals("case05", album.getArtistReading());
-                        assertEquals("artistJ", album.getArtistSort());
-                        break;
-                    case "ALBUM6":
-                        assertEquals("case06", album.getArtist());
-                        assertEquals("case06", album.getArtistReading());
-                        assertEquals("artistL", album.getArtistSort());
-                        break;
-                    case "ALBUM7":
-                        assertEquals("ARTIST", album.getArtist());
-                        assertEquals("ARTIST", album.getArtistReading());
-                        assertNull(album.getArtistSort());
-                        break;
-                    case "ALBUM8":
-                        assertEquals("case08", album.getArtist());
-                        assertEquals("case08", album.getArtistReading());
-                        assertEquals("artistO", album.getArtistSort());
-                        break;
-                    case "ALBUM9":
-                        assertEquals("case09", album.getArtist());
-                        assertEquals("case09", album.getArtistReading());
-                        assertEquals("artistQ", album.getArtistSort());
-                        break;
-
-                    default:
-                        fail();
-                        break;
-                    }
-                });
-
-                List<MediaFile> songs = albums.stream().flatMap(
-                        al -> jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, al.getPathString(), false).stream())
-                        .collect(Collectors.toList());
-                assertEquals(15, songs.size());
-
-                songs.forEach(s -> {
-
-                    switch (s.getName()) {
-
-                    case "file1":
-                        assertEquals("case01", s.getArtist());
-                        assertEquals("case01", s.getArtistReading());
-                        assertEquals("artistA", s.getArtistSort());
-                        assertEquals("case01", s.getAlbumArtist());
-                        assertEquals("case01", s.getAlbumArtistReading());
-                        assertEquals("artistA", s.getAlbumArtistSort());
-                        assertEquals("case01", s.getComposer());
-                        assertEquals("artistA", s.getComposerSort());
-                        break;
-                    case "file2":
-                        assertEquals("case02", s.getArtist());
-                        assertEquals("case02", s.getArtistReading());
-                        assertEquals("artistD", s.getArtistSort());
-                        assertEquals("case02", s.getAlbumArtist());
-                        assertEquals("case02", s.getAlbumArtistReading());
-                        assertEquals("artistD", s.getAlbumArtistSort());
-                        assertNull(s.getComposer());
-                        assertNull(s.getComposerSort());
-                        break;
-                    case "file3":
-                        assertEquals("case03", s.getArtist());
-                        assertEquals("case03", s.getArtistReading());
-                        assertEquals("artistE", s.getArtistSort());
-                        assertEquals("case03", s.getAlbumArtist());
-                        assertEquals("case03", s.getAlbumArtistReading());
-                        assertEquals("artistE", s.getAlbumArtistSort());
-                        assertEquals("case03", s.getComposer());
-                        assertEquals("artistE", s.getComposerSort());
-                        break;
-                    case "file4":
-                        assertEquals("ARTIST", s.getArtist());
-                        assertEquals("ARTIST", s.getArtistReading());
-                        assertNull(s.getArtistSort());
-                        assertEquals("ARTIST", s.getAlbumArtist());
-                        assertEquals("ARTIST", s.getAlbumArtistReading());
-                        assertNull(s.getAlbumArtistSort());
-                        assertEquals("case04", s.getComposer());
-                        assertEquals("artistH", s.getComposerSort());
-                        break;
-                    case "file5":
-                        assertEquals("case04", s.getArtist());
-                        assertEquals("case04", s.getArtistReading());
-                        assertEquals("artistH", s.getArtistSort());
-                        assertEquals("ARTIST", s.getAlbumArtist());
-                        assertEquals("ARTIST", s.getAlbumArtistReading());
-                        assertNull(s.getAlbumArtistSort());
-                        assertEquals("case04", s.getComposer());
-                        assertEquals("artistH", s.getComposerSort());
-                        break;
-                    case "file6":
-                        assertEquals("case05", s.getArtist());
-                        assertEquals("case05", s.getArtistReading());
-                        assertEquals("artistJ", s.getArtistSort());
-                        assertEquals("case05", s.getAlbumArtist());
-                        assertEquals("case05", s.getAlbumArtistReading());
-                        assertEquals("artistJ", s.getAlbumArtistSort());
-                        assertNull(s.getComposer());
-                        assertNull(s.getComposerSort());
-                        break;
-                    case "file7":
-                        assertEquals("case05", s.getArtist());
-                        assertEquals("case05", s.getArtistReading());
-                        assertEquals("artistJ", s.getArtistSort());
-                        assertEquals("case05", s.getAlbumArtist());
-                        assertEquals("case05", s.getAlbumArtistReading());
-                        assertEquals("artistJ", s.getAlbumArtistSort());
-                        assertNull(s.getComposer());
-                        assertNull(s.getComposerSort());
-                        break;
-                    case "file8":
-                        assertEquals("case06", s.getArtist());
-                        assertEquals("case06", s.getArtistReading());
-                        assertEquals("artistL", s.getArtistSort());
-                        assertEquals("case06", s.getAlbumArtist());
-                        assertEquals("case06", s.getAlbumArtistReading());
-                        assertEquals("artistL", s.getAlbumArtistSort());
-                        assertEquals("case06", s.getComposer());
-                        assertEquals("artistL", s.getComposerSort());
-                        break;
-                    case "file9":
-                        assertEquals("case06", s.getArtist());
-                        assertEquals("case06", s.getArtistReading());
-                        assertEquals("artistL", s.getArtistSort());
-                        assertEquals("case06", s.getAlbumArtist());
-                        assertEquals("case06", s.getAlbumArtistReading());
-                        assertEquals("artistL", s.getAlbumArtistSort());
-                        assertNull(s.getComposer());
-                        assertNull(s.getComposerSort());
-                        break;
-                    case "file10":
-                        assertEquals("ARTIST", s.getArtist());
-                        assertEquals("ARTIST", s.getArtistReading());
-                        assertNull(s.getArtistSort());
-                        assertEquals("ARTIST", s.getAlbumArtist());
-                        assertEquals("ARTIST", s.getAlbumArtistReading());
-                        assertNull(s.getAlbumArtistSort());
-                        assertEquals("case07", s.getComposer());
-                        assertEquals("artistM", s.getComposerSort());
-                        break;
-                    case "file11":
-                        assertEquals("case07", s.getArtist());
-                        assertEquals("case07", s.getArtistReading());
-                        assertEquals("artistM", s.getArtistSort());
-                        assertEquals("ARTIST", s.getAlbumArtist());
-                        assertEquals("ARTIST", s.getAlbumArtistReading());
-                        assertNull(s.getAlbumArtistSort());
-                        assertEquals("case07", s.getComposer());
-                        assertEquals("artistM", s.getComposerSort());
-                        break;
-                    case "file12":
-                        assertEquals("case08", s.getArtist());
-                        assertEquals("case08", s.getArtistReading());
-                        assertEquals("artistO", s.getArtistSort());
-                        assertEquals("case08", s.getAlbumArtist());
-                        assertEquals("case08", s.getAlbumArtistReading());
-                        assertEquals("artistO", s.getAlbumArtistSort());
-                        assertNull(s.getComposer());
-                        assertNull(s.getComposerSort());
-                        break;
-                    case "file13":
-                        assertEquals("case08", s.getArtist());
-                        assertEquals("case08", s.getArtistReading());
-                        assertEquals("artistO", s.getArtistSort());
-                        assertEquals("case08", s.getAlbumArtist());
-                        assertEquals("case08", s.getAlbumArtistReading());
-                        assertEquals("artistO", s.getAlbumArtistSort());
-                        assertNull(s.getComposer());
-                        assertNull(s.getComposerSort());
-                        break;
-                    case "file14":
-                        assertEquals("case09", s.getArtist());
-                        assertEquals("case09", s.getArtistReading());
-                        assertEquals("artistQ", s.getArtistSort());
-                        assertEquals("case09", s.getAlbumArtist());
-                        assertEquals("case09", s.getAlbumArtistReading());
-                        assertEquals("artistQ", s.getAlbumArtistSort());
-                        assertEquals("case09", s.getComposer());
-                        assertEquals("artistQ", s.getComposerSort());
-                        break;
-                    case "file15":
-                        assertEquals("case09", s.getArtist());
-                        assertEquals("case09", s.getArtistReading());
-                        assertEquals("artistQ", s.getArtistSort());
-                        assertEquals("case09", s.getAlbumArtist());
-                        assertEquals("case09", s.getAlbumArtistReading());
-                        assertEquals("artistQ", s.getAlbumArtistSort());
-                        assertNull(s.getComposer());
-                        assertNull(s.getComposerSort());
-                        break;
-
-                    default:
-                        fail();
-                        break;
-                    }
-                });
-            });
-
-            List<Album> albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, musicFolders);
-
-            assertEquals(11, albumId3s.size());
-
-            assertEquals("ALBUM1", albumId3s.get(0).getName());
-            assertEquals("ALBUM10", albumId3s.get(1).getName());
-            assertEquals("ALBUM11", albumId3s.get(2).getName());
-            assertEquals("ALBUM2", albumId3s.get(3).getName());
-            assertEquals("ALBUM3", albumId3s.get(4).getName());
-            assertEquals("ALBUM4", albumId3s.get(5).getName());
-            assertEquals("ALBUM5", albumId3s.get(6).getName());
-            assertEquals("ALBUM6", albumId3s.get(7).getName());
-            assertEquals("ALBUM7", albumId3s.get(8).getName());
-            assertEquals("ALBUM8", albumId3s.get(9).getName());
-            assertEquals("ALBUM9", albumId3s.get(10).getName());
-
-            assertEquals("case01", albumId3s.get(0).getArtist());
-            assertEquals("case10", albumId3s.get(1).getArtist());
-            assertEquals("case11", albumId3s.get(2).getArtist());
-            assertEquals("case02", albumId3s.get(3).getArtist());
-            assertEquals("case03", albumId3s.get(4).getArtist());
-            assertEquals("ARTIST", albumId3s.get(5).getArtist());
-            assertEquals("case05", albumId3s.get(6).getArtist());
-            assertEquals("case06", albumId3s.get(7).getArtist());
-            assertEquals("ARTIST", albumId3s.get(8).getArtist());
-            assertEquals("case08", albumId3s.get(9).getArtist());
-            assertEquals("case09", albumId3s.get(10).getArtist());
-
-            assertEquals("case01", albumId3s.get(0).getArtistReading());
-            assertEquals("case10", albumId3s.get(1).getArtistReading());
-            assertEquals("case11", albumId3s.get(2).getArtistReading());
-            assertEquals("case02", albumId3s.get(3).getArtistReading());
-            assertEquals("case03", albumId3s.get(4).getArtistReading());
-            assertEquals("ARTIST", albumId3s.get(5).getArtistReading());
-            assertEquals("case05", albumId3s.get(6).getArtistReading());
-            assertEquals("case06", albumId3s.get(7).getArtistReading());
-            assertEquals("ARTIST", albumId3s.get(8).getArtistReading());
-            assertEquals("case08", albumId3s.get(9).getArtistReading());
-            assertEquals("case09", albumId3s.get(10).getArtistReading());
-
-            assertEquals("artistA", albumId3s.get(0).getArtistSort());
-            assertEquals("artistT", albumId3s.get(1).getArtistSort());
-            assertEquals("artistU", albumId3s.get(2).getArtistSort());
-            assertEquals("artistD", albumId3s.get(3).getArtistSort());
-            assertEquals("artistE", albumId3s.get(4).getArtistSort());
-            assertNull(albumId3s.get(5).getArtistSort());
-            assertEquals("artistJ", albumId3s.get(6).getArtistSort());
-            assertEquals("artistL", albumId3s.get(7).getArtistSort());
-            assertNull(albumId3s.get(8).getArtistSort());
-            assertEquals("artistO", albumId3s.get(9).getArtistSort());
-            assertEquals("artistQ", albumId3s.get(10).getArtistSort());
+            MediaFile artist = artists.get(0);
+            assertEquals("ARTIST", artist.getArtist());
+            assertEquals("ARTIST", artist.getArtistReading());
+            assertEquals("ARTIST", artist.getArtistSort());
+            assertNull(artist.getAlbumArtist());
+            assertNull(artist.getAlbumReading());
+            assertNull(artist.getAlbumSort());
+            MediaFile case10 = artists.get(1);
+            assertEquals("case10", case10.getArtist());
+            assertEquals("case10", case10.getArtistReading());
+            // Complemented from album-artist-sort in file16.mp3 with higher priority
+            assertEquals("artistT", case10.getArtistSort());
+            assertNull(case10.getAlbumArtist());
+            assertNull(case10.getAlbumReading());
+            assertNull(case10.getAlbumSort());
+            MediaFile case11 = artists.get(2);
+            assertEquals("case11", case11.getArtist());
+            assertEquals("case11", case11.getArtistReading());
+            // Complemented from artist-sort in file18.mp3 with higher priority
+            assertEquals("artistV", case11.getArtistSort());
+            assertNull(case10.getAlbumArtist());
+            assertNull(case10.getAlbumReading());
+            assertNull(case10.getAlbumSort());
         }
 
-        @SuppressWarnings("PMD.DetachedTestCase")
-        // @Test
-        // @Disabled
-        // @DisabledOnOs(OS.WINDOWS)
-        void testMergeSortOfArtistOnLinux() throws ExecutionException {
-
-            // for Ubuntu 20.04.4(ver.20220425.1)
-
-            assertEquals(11, mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders).size());
-            assertEquals(11, artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders).size()); // OS
-                                                                                                          // dipendent
-            LOG.info(" *** Artist(id, name)");
-            artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders)
-                    .forEach(a -> LOG.info(a.getId() + ", " + a.getName()));
-
-            sortProcedureService.mergeSortOfArtist();
-
+        @Test
+        @Order(2)
+        void testAlbumOfFileStructure() {
             List<MediaFile> artists = jMediaFileDao.getArtistAll(musicFolders);
-            assertEquals(3, artists.size());
 
-            artists.forEach(m -> {
-                switch (m.getName()) {
-                case "case10":
-                    assertEquals("case10", m.getArtistReading());
-                    assertEquals("artistT", m.getArtistSort());
-                    break;
-                case "case11":
-                    assertEquals("case11", m.getArtistReading());
-                    assertEquals("artistU", m.getArtistSort());
-                    break;
-                case "ARTIST":
-                    assertEquals("ARTIST", m.getArtistReading());
-                    assertNull(m.getArtistSort());
-                    break;
+            assertEquals("ARTIST", artists.get(0).getArtist());
+            List<MediaFile> albums = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(0).getPathString(),
+                    false);
+            assertEquals(9, albums.size());
+            for (int i = 0; i < albums.size(); i++) {
+                assertEquals(i, albums.get(i).getOrder());
+            }
+            albums.sort((m1, m2) -> Integer.compare(m1.getOrder(), m2.getOrder()));
 
-                default:
-                    fail();
-                    break;
-                }
-            });
+            assertEquals("ALBUM1", albums.get(0).getName());
+            assertEquals("case01", albums.get(0).getArtist());
+            assertEquals("case01", albums.get(0).getArtistReading());
+            assertEquals("artistA", albums.get(0).getArtistSort());
 
+            assertEquals("ALBUM2", albums.get(1).getName());
+            assertEquals("case02", albums.get(1).getArtist());
+            assertEquals("case02", albums.get(1).getArtistReading());
+            assertEquals("artistD", albums.get(1).getArtistSort());
+
+            assertEquals("ALBUM3", albums.get(2).getName());
+            assertEquals("case03", albums.get(2).getArtist());
+            assertEquals("case03", albums.get(2).getArtistReading());
+            assertEquals("artistE", albums.get(2).getArtistSort());
+
+            assertEquals("ALBUM4", albums.get(3).getName());
+            assertEquals("ARTIST", albums.get(3).getArtist());
+            assertEquals("ARTIST", albums.get(3).getArtistReading());
+            assertEquals("ARTIST", albums.get(3).getArtistSort());
+
+            assertEquals("ALBUM5", albums.get(4).getName());
+            assertEquals("case05", albums.get(4).getArtist());
+            assertEquals("case05", albums.get(4).getArtistReading());
+            assertEquals("artistJ", albums.get(4).getArtistSort());
+
+            assertEquals("ALBUM6", albums.get(5).getName());
+            assertEquals("case06", albums.get(5).getArtist());
+            assertEquals("case06", albums.get(5).getArtistReading());
+            assertEquals("artistL", albums.get(5).getArtistSort());
+
+            assertEquals("ALBUM7", albums.get(6).getName());
+            assertEquals("ARTIST", albums.get(6).getArtist());
+            assertEquals("ARTIST", albums.get(6).getArtistReading());
+            assertEquals("ARTIST", albums.get(6).getArtistSort());
+
+            assertEquals("ALBUM8", albums.get(7).getName());
+            assertEquals("case08", albums.get(7).getArtist());
+            assertEquals("case08", albums.get(7).getArtistReading());
+            assertEquals("artistP", albums.get(7).getArtistSort());
+
+            assertEquals("ALBUM9", albums.get(8).getName());
+            assertEquals("case09", albums.get(8).getArtist());
+            assertEquals("case09", albums.get(8).getArtistReading());
+            assertEquals("artistR", albums.get(8).getArtistSort());
+
+            assertEquals("case10", artists.get(1).getArtist());
+            albums = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(1).getPathString(), false);
+            assertEquals(1, albums.size());
+            assertEquals("ALBUM10", albums.get(0).getName());
+            assertEquals("case10", albums.get(0).getArtist());
+            assertEquals("case10", albums.get(0).getArtistReading());
+            assertEquals("artistT", albums.get(0).getArtistSort());
+
+            assertEquals("case11", artists.get(2).getArtist());
+            albums = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(2).getPathString(), false);
+            assertEquals(1, albums.size());
+            assertEquals("ALBUM11", albums.get(0).getName());
+            assertEquals("case11", albums.get(0).getArtist());
+            assertEquals("case11", albums.get(0).getArtistReading());
+            assertEquals("artistV", albums.get(0).getArtistSort());
+        }
+
+        @Test
+        @Order(3)
+        void testSongOfFileStructure() {
+            List<MediaFile> artists = jMediaFileDao.getArtistAll(musicFolders);
+
+            MediaFile artist = artists.get(0);
+            List<MediaFile> albums = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false);
+            assertEquals(9, albums.size());
+            List<MediaFile> songs = albums.stream()
+                    .flatMap(
+                            al -> jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, al.getPathString(), false).stream())
+                    .collect(Collectors.toList());
+            assertEquals(15, songs.size());
+            // The order property is valid only in the same directory.
+            songs.sort((m1, m2) -> m1.toPath().compareTo(m2.toPath()));
+
+            assertEquals("file1", songs.get(0).getName());
+            assertEquals("case01", songs.get(0).getArtist());
+            assertEquals("case01", songs.get(0).getArtistReading());
+            assertEquals("artistA", songs.get(0).getArtistSort());
+            assertEquals("case01", songs.get(0).getAlbumArtist());
+            assertEquals("case01", songs.get(0).getAlbumArtistReading());
+            assertEquals("artistA", songs.get(0).getAlbumArtistSort());
+            assertEquals("case01", songs.get(0).getComposer());
+            assertEquals("artistA", songs.get(0).getComposerSort());
+
+            assertEquals("file2", songs.get(1).getName());
+            assertEquals("case02", songs.get(1).getArtist());
+            assertEquals("case02", songs.get(1).getArtistReading());
+            assertEquals("artistD", songs.get(1).getArtistSort());
+            assertEquals("case02", songs.get(1).getAlbumArtist());
+            assertEquals("case02", songs.get(1).getAlbumArtistReading());
+            assertEquals("artistD", songs.get(1).getAlbumArtistSort());
+            assertNull(songs.get(1).getComposer());
+            assertNull(songs.get(1).getComposerSort());
+
+            assertEquals("file3", songs.get(2).getName());
+            assertEquals("case03", songs.get(2).getArtist());
+            assertEquals("case03", songs.get(2).getArtistReading());
+            assertEquals("artistE", songs.get(2).getArtistSort());
+            assertEquals("case03", songs.get(2).getAlbumArtist());
+            assertEquals("case03", songs.get(2).getAlbumArtistReading());
+            assertEquals("artistE", songs.get(2).getAlbumArtistSort());
+            assertEquals("case03", songs.get(2).getComposer());
+            assertEquals("artistE", songs.get(2).getComposerSort());
+
+            assertEquals("file4", songs.get(3).getName());
+            assertEquals("ARTIST", songs.get(3).getArtist());
+            assertEquals("ARTIST", songs.get(3).getArtistReading());
+            assertEquals("ARTIST", songs.get(3).getArtistSort());
+            assertEquals("ARTIST", songs.get(3).getAlbumArtist());
+            assertEquals("ARTIST", songs.get(3).getAlbumArtistReading());
+            assertEquals("ARTIST", songs.get(3).getAlbumArtistSort());
+            assertEquals("case04", songs.get(3).getComposer());
+            assertEquals("artistH", songs.get(3).getComposerSort());
+
+            assertEquals("file5", songs.get(4).getName());
+            assertEquals("case04", songs.get(4).getArtist());
+            assertEquals("case04", songs.get(4).getArtistReading());
+            assertEquals("artistH", songs.get(4).getArtistSort());
+            assertEquals("case04", songs.get(4).getAlbumArtist());
+            assertEquals("case04", songs.get(4).getAlbumArtistReading());
+            assertEquals("artistH", songs.get(4).getAlbumArtistSort());
+            assertEquals("case04", songs.get(4).getComposer());
+            assertEquals("artistH", songs.get(4).getComposerSort());
+
+            assertEquals("file6", songs.get(5).getName());
+            assertEquals("case05", songs.get(5).getArtist());
+            assertEquals("case05", songs.get(5).getArtistReading());
+            assertEquals("artistJ", songs.get(5).getArtistSort());
+            assertEquals("case05", songs.get(5).getAlbumArtist());
+            assertEquals("case05", songs.get(5).getAlbumArtistReading());
+            assertEquals("artistJ", songs.get(5).getAlbumArtistSort());
+            assertNull(songs.get(5).getComposer());
+            assertNull(songs.get(5).getComposerSort());
+
+            assertEquals("file7", songs.get(6).getName());
+            assertEquals("case05", songs.get(6).getArtist());
+            assertEquals("case05", songs.get(6).getArtistReading());
+            assertEquals("artistJ", songs.get(6).getArtistSort());
+            assertEquals("case05", songs.get(6).getAlbumArtist());
+            assertEquals("case05", songs.get(6).getAlbumArtistReading());
+            assertEquals("artistJ", songs.get(6).getAlbumArtistSort());
+            assertNull(songs.get(6).getComposer());
+            assertNull(songs.get(6).getComposerSort());
+
+            assertEquals("file8", songs.get(7).getName());
+            assertEquals("case06", songs.get(7).getArtist());
+            assertEquals("case06", songs.get(7).getArtistReading());
+            assertEquals("artistL", songs.get(7).getArtistSort());
+            assertEquals("case06", songs.get(7).getAlbumArtist());
+            assertEquals("case06", songs.get(7).getAlbumArtistReading());
+            assertEquals("artistL", songs.get(7).getAlbumArtistSort());
+            assertEquals("case06", songs.get(7).getComposer());
+            assertEquals("artistL", songs.get(7).getComposerSort());
+
+            assertEquals("file9", songs.get(8).getName());
+            assertEquals("case06", songs.get(8).getArtist());
+            assertEquals("case06", songs.get(8).getArtistReading());
+            assertEquals("artistL", songs.get(8).getArtistSort());
+            assertEquals("case06", songs.get(8).getAlbumArtist());
+            assertEquals("case06", songs.get(8).getAlbumArtistReading());
+            assertEquals("artistL", songs.get(8).getAlbumArtistSort());
+            assertNull(songs.get(8).getComposer());
+            assertNull(songs.get(8).getComposerSort());
+
+            assertEquals("file10", songs.get(9).getName());
+            assertEquals("ARTIST", songs.get(9).getArtist());
+            assertEquals("ARTIST", songs.get(9).getArtistReading());
+            assertEquals("ARTIST", songs.get(9).getArtistSort());
+            assertEquals("ARTIST", songs.get(9).getAlbumArtist());
+            assertEquals("ARTIST", songs.get(9).getAlbumArtistReading());
+            assertEquals("ARTIST", songs.get(9).getAlbumArtistSort());
+            assertEquals("case07", songs.get(9).getComposer());
+            assertEquals("artistN", songs.get(9).getComposerSort());
+
+            assertEquals("file11", songs.get(10).getName());
+            assertEquals("case07", songs.get(10).getArtist());
+            assertEquals("case07", songs.get(10).getArtistReading());
+            assertEquals("artistN", songs.get(10).getArtistSort());
+            assertEquals("case07", songs.get(10).getAlbumArtist());
+            assertEquals("case07", songs.get(10).getAlbumArtistReading());
+            assertEquals("artistN", songs.get(10).getAlbumArtistSort());
+            assertEquals("case07", songs.get(10).getComposer());
+            assertEquals("artistN", songs.get(10).getComposerSort());
+
+            assertEquals("file12", songs.get(11).getName());
+            assertEquals("case08", songs.get(11).getArtist());
+            assertEquals("case08", songs.get(11).getArtistReading());
+            assertEquals("artistP", songs.get(11).getArtistSort());
+            assertEquals("case08", songs.get(11).getAlbumArtist());
+            assertEquals("case08", songs.get(11).getAlbumArtistReading());
+            assertEquals("artistP", songs.get(11).getAlbumArtistSort());
+            assertNull(songs.get(11).getComposer());
+            assertNull(songs.get(11).getComposerSort());
+
+            assertEquals("file13", songs.get(12).getName());
+            assertEquals("case08", songs.get(12).getArtist());
+            assertEquals("case08", songs.get(12).getArtistReading());
+            assertEquals("artistP", songs.get(12).getArtistSort());
+            assertEquals("case08", songs.get(12).getAlbumArtist());
+            assertEquals("case08", songs.get(12).getAlbumArtistReading());
+            assertEquals("artistP", songs.get(12).getAlbumArtistSort());
+            assertNull(songs.get(12).getComposer());
+            assertNull(songs.get(12).getComposerSort());
+
+            assertEquals("file14", songs.get(13).getName());
+            assertEquals("case09", songs.get(13).getArtist());
+            assertEquals("case09", songs.get(13).getArtistReading());
+            assertEquals("artistR", songs.get(13).getArtistSort());
+            assertEquals("case09", songs.get(13).getAlbumArtist());
+            assertEquals("case09", songs.get(13).getAlbumArtistReading());
+            assertEquals("artistR", songs.get(13).getAlbumArtistSort());
+            assertEquals("case09", songs.get(13).getComposer());
+            assertEquals("artistR", songs.get(13).getComposerSort());
+
+            assertEquals("file15", songs.get(14).getName());
+            assertEquals("case09", songs.get(14).getArtist());
+            assertEquals("case09", songs.get(14).getArtistReading());
+            assertEquals("artistR", songs.get(14).getArtistSort());
+            assertEquals("case09", songs.get(14).getAlbumArtist());
+            assertEquals("case09", songs.get(14).getAlbumArtistReading());
+            assertEquals("artistR", songs.get(14).getAlbumArtistSort());
+            assertNull(songs.get(14).getComposer());
+            assertNull(songs.get(14).getComposerSort());
+
+            artist = artists.get(1);
+            albums = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false);
+            assertEquals(1, albums.size());
+            songs = albums.stream()
+                    .flatMap(
+                            al -> jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, al.getPathString(), false).stream())
+                    .collect(Collectors.toList());
+            assertEquals(1, songs.size());
+
+            assertEquals("file16", songs.get(0).getName());
+            assertEquals("case10", songs.get(0).getArtist());
+            assertEquals("case10", songs.get(0).getArtistReading());
+            assertEquals("artistT", songs.get(0).getArtistSort());
+            assertEquals("case10", songs.get(0).getAlbumArtist());
+            assertEquals("case10", songs.get(0).getAlbumArtistReading());
+            assertEquals("artistT", songs.get(0).getAlbumArtistSort());
+            assertNull(songs.get(0).getComposer());
+            assertNull(songs.get(0).getComposerSort());
+
+            artist = artists.get(2);
+            albums = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false);
+            assertEquals(1, albums.size());
+            songs = albums.stream()
+                    .flatMap(
+                            al -> jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, al.getPathString(), false).stream())
+                    .collect(Collectors.toList());
+            assertEquals(2, songs.size());
+            songs.sort((m1, m2) -> m1.toPath().compareTo(m2.toPath()));
+
+            assertEquals("file17", songs.get(0).getName());
+            assertEquals("case11", songs.get(0).getArtist());
+            assertEquals("case11", songs.get(0).getArtistReading());
+            assertEquals("artistV", songs.get(0).getArtistSort());
+            assertEquals("case11", songs.get(0).getAlbumArtist());
+            assertEquals("case11", songs.get(0).getAlbumArtistReading());
+            assertEquals("artistV", songs.get(0).getAlbumArtistSort());
+            assertEquals("case11", songs.get(0).getComposer());
+            assertEquals("artistV", songs.get(0).getComposerSort());
+        }
+
+        @Test
+        @Order(4)
+        void testArtistOfId3() {
+            // test/resources/MEDIAS/Sort/Cleansing/ArtistSort/Merge
             List<Artist> artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
-            assertEquals(11, artistID3s.size()); // OS dipendent
+            assertEquals(10, artistID3s.size());
+            for (int i = 0; i < artistID3s.size(); i++) {
+                assertEquals(i, artistID3s.get(i).getOrder());
+            }
+            artistID3s.sort((m1, m2) -> Integer.compare(m1.getOrder(), m2.getOrder()));
 
-            artistID3s.stream().forEach(a -> LOG.info(a.getName()));
-            assertEquals("case01", artistID3s.get(0).getReading());
-            assertEquals("case02", artistID3s.get(1).getReading());
-            assertEquals("case03", artistID3s.get(2).getReading());
-            assertEquals("case04", artistID3s.get(3).getReading());
+            assertEquals("ARTIST", artistID3s.get(0).getName());
+            assertEquals("ARTIST", artistID3s.get(0).getReading());
+            assertEquals("ARTIST", artistID3s.get(0).getSort());
+
+            assertEquals("case01", artistID3s.get(1).getName());
+            assertEquals("case01", artistID3s.get(1).getReading());
+            assertEquals("artistA", artistID3s.get(1).getSort());
+
+            assertEquals("case02", artistID3s.get(2).getName());
+            assertEquals("case02", artistID3s.get(2).getReading());
+            assertEquals("artistD", artistID3s.get(2).getSort());
+
+            assertEquals("case03", artistID3s.get(3).getName());
+            assertEquals("case03", artistID3s.get(3).getReading());
+            assertEquals("artistE", artistID3s.get(3).getSort());
+
+            assertEquals("case05", artistID3s.get(4).getName());
             assertEquals("case05", artistID3s.get(4).getReading());
+            assertEquals("artistJ", artistID3s.get(4).getSort());
+
+            assertEquals("case06", artistID3s.get(5).getName());
             assertEquals("case06", artistID3s.get(5).getReading());
-            assertEquals("case07", artistID3s.get(6).getReading());
-            assertEquals("case08", artistID3s.get(7).getReading());
-            assertEquals("case09", artistID3s.get(8).getReading());
-            assertEquals("case10", artistID3s.get(9).getReading());
-            assertEquals("case11", artistID3s.get(10).getReading());
-
-            artistID3s.stream().forEach(a -> LOG.info(a.getReading()));
-            assertEquals("artistA", artistID3s.get(0).getSort());
-            assertEquals("artistD", artistID3s.get(1).getSort());
-            assertEquals("artistE", artistID3s.get(2).getSort());
-            assertEquals("artistH", artistID3s.get(3).getSort());
-            assertEquals("artistJ", artistID3s.get(4).getSort());
             assertEquals("artistL", artistID3s.get(5).getSort());
-            assertEquals("artistN", artistID3s.get(6).getSort());
-            assertEquals("artistO", artistID3s.get(7).getSort());
-            assertEquals("artistQ", artistID3s.get(8).getSort());
-            assertEquals("artistT", artistID3s.get(9).getSort());
-            assertEquals("artistU", artistID3s.get(10).getSort());
 
-            artistID3s.stream().forEach(a -> LOG.info(a.getSort()));
-            assertEquals("artistA", artistID3s.get(0).getSort());
-            assertEquals("artistD", artistID3s.get(1).getSort());
-            assertEquals("artistE", artistID3s.get(2).getSort());
-            assertEquals("artistH", artistID3s.get(3).getSort());
-            assertEquals("artistJ", artistID3s.get(4).getSort());
-            assertEquals("artistL", artistID3s.get(5).getSort());
-            assertEquals("artistN", artistID3s.get(6).getSort());
-            assertEquals("artistO", artistID3s.get(7).getSort());
-            assertEquals("artistQ", artistID3s.get(8).getSort());
-            assertEquals("artistT", artistID3s.get(9).getSort());
-            assertEquals("artistU", artistID3s.get(10).getSort());
+            assertEquals("case08", artistID3s.get(6).getName());
+            assertEquals("case08", artistID3s.get(6).getReading());
+            assertEquals("artistP", artistID3s.get(6).getSort());
 
-            artists.stream().filter(m -> "case10".equals(m.getName())).findFirst().ifPresent(m -> {
-                List<MediaFile> albums = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPathString(), false);
-                assertEquals(1, albums.size());
-                MediaFile album = albums.get(0);
-                assertEquals("case10", album.getArtist());
-                assertEquals("case10", album.getArtistReading());
-                assertEquals("artistT", album.getArtistSort());
-            });
+            assertEquals("case09", artistID3s.get(7).getName());
+            assertEquals("case09", artistID3s.get(7).getReading());
+            assertEquals("artistR", artistID3s.get(7).getSort());
 
-            artists.stream().filter(m -> "case11".equals(m.getName())).findFirst().ifPresent(m -> {
-                List<MediaFile> albums = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPathString(), false);
-                assertEquals(1, albums.size());
-                MediaFile album = albums.get(0);
-                assertEquals("case11", album.getArtist());
-                assertEquals("case11", album.getArtistReading());
-                assertEquals("artistU", album.getArtistSort());
-            });
+            assertEquals("case10", artistID3s.get(8).getName());
+            assertEquals("case10", artistID3s.get(8).getReading());
+            assertEquals("artistT", artistID3s.get(8).getSort());
 
-            artists.stream().filter(m -> "case01".equals(m.getName())).findFirst().ifPresent(m -> {
-                List<MediaFile> albums = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, m.getPathString(), false);
-                assertEquals(9, albums.size());
+            assertEquals("case11", artistID3s.get(9).getName());
+            assertEquals("case11", artistID3s.get(9).getReading());
+            assertEquals("artistV", artistID3s.get(9).getSort());
+        }
 
-                albums.forEach(album -> {
-                    switch (album.getName()) {
-                    case "ALBUM1":
-                        assertEquals("case01", album.getArtist());
-                        assertEquals("case01", album.getArtistReading());
-                        assertEquals("artistA", album.getArtistSort());
-                        break;
-                    case "ALBUM2":
-                        assertEquals("case02", album.getArtist());
-                        assertEquals("case02", album.getArtistReading());
-                        assertEquals("artistD", album.getArtistSort());
-                        break;
-                    case "ALBUM3":
-                        assertEquals("case03", album.getArtist());
-                        assertEquals("case03", album.getArtistReading());
-                        assertEquals("artistE", album.getArtistSort());
-                        break;
-                    case "ALBUM4":
-                        assertEquals("case04", album.getArtist());
-                        assertEquals("case04", album.getArtistReading());
-                        assertEquals("artistH", album.getArtistSort());
-                        break;
-                    case "ALBUM5":
-                        assertEquals("case05", album.getArtist());
-                        assertEquals("case05", album.getArtistReading());
-                        assertEquals("artistJ", album.getArtistSort());
-                        break;
-                    case "ALBUM6":
-                        assertEquals("case06", album.getArtist());
-                        assertEquals("case06", album.getArtistReading());
-                        assertEquals("artistL", album.getArtistSort());
-                        break;
-                    case "ALBUM7":
-                        assertEquals("case07", album.getArtist());
-                        assertEquals("case07", album.getArtistReading());
-                        assertEquals("artistN", album.getArtistSort());
-                        break;
-                    case "ALBUM8":
-                        assertEquals("case08", album.getArtist());
-                        assertEquals("case08", album.getArtistReading());
-                        assertEquals("artistO", album.getArtistSort());
-                        break;
-                    case "ALBUM9":
-                        assertEquals("case09", album.getArtist());
-                        assertEquals("case09", album.getArtistReading());
-                        assertEquals("artistQ", album.getArtistSort());
-                        break;
-
-                    default:
-                        fail();
-                        break;
-                    }
-                });
-
-                List<MediaFile> songs = albums.stream().flatMap(
-                        al -> jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, al.getPathString(), false).stream())
-                        .collect(Collectors.toList());
-                assertEquals(15, songs.size());
-
-                songs.forEach(s -> {
-
-                    switch (s.getName()) {
-
-                    case "file1":
-                        assertEquals("case01", s.getArtist());
-                        assertEquals("case01", s.getArtistReading());
-                        assertEquals("artistA", s.getArtistSort());
-                        assertEquals("case01", s.getAlbumArtist());
-                        assertEquals("case01", s.getAlbumArtistReading());
-                        assertEquals("artistA", s.getAlbumArtistSort());
-                        assertEquals("case01", s.getComposer());
-                        assertEquals("artistA", s.getComposerSort());
-                        break;
-                    case "file2":
-                        assertEquals("case02", s.getArtist());
-                        assertEquals("case02", s.getArtistReading());
-                        assertEquals("artistD", s.getArtistSort());
-                        assertEquals("case02", s.getAlbumArtist());
-                        assertEquals("case02", s.getAlbumArtistReading());
-                        assertEquals("artistD", s.getAlbumArtistSort());
-                        assertNull(s.getComposer());
-                        assertNull(s.getComposerSort());
-                        break;
-                    case "file3":
-                        assertEquals("case03", s.getArtist());
-                        assertEquals("case03", s.getArtistReading());
-                        assertEquals("artistE", s.getArtistSort());
-                        assertEquals("case03", s.getAlbumArtist());
-                        assertEquals("case03", s.getAlbumArtistReading());
-                        assertEquals("artistE", s.getAlbumArtistSort());
-                        assertEquals("case03", s.getComposer());
-                        assertEquals("artistE", s.getComposerSort());
-                        break;
-                    case "file4":
-                        assertEquals("ARTIST", s.getArtist());
-                        assertEquals("ARTIST", s.getArtistReading());
-                        assertNull(s.getArtistSort());
-                        assertEquals("ARTIST", s.getAlbumArtist());
-                        assertEquals("ARTIST", s.getAlbumArtistReading());
-                        assertNull(s.getAlbumArtistSort());
-                        assertEquals("case04", s.getComposer());
-                        assertEquals("artistH", s.getComposerSort());
-                        break;
-                    case "file5":
-                        assertEquals("case04", s.getArtist());
-                        assertEquals("case04", s.getArtistReading());
-                        assertEquals("artistH", s.getArtistSort());
-                        assertEquals("ARTIST", s.getAlbumArtist());
-                        assertEquals("ARTIST", s.getAlbumArtistReading());
-                        assertNull(s.getAlbumArtistSort());
-                        assertEquals("case04", s.getComposer());
-                        assertEquals("artistH", s.getComposerSort());
-                        break;
-                    case "file6":
-                        assertEquals("case05", s.getArtist());
-                        assertEquals("case05", s.getArtistReading());
-                        assertEquals("artistJ", s.getArtistSort());
-                        assertEquals("case05", s.getAlbumArtist());
-                        assertEquals("case05", s.getAlbumArtistReading());
-                        assertEquals("artistJ", s.getAlbumArtistSort());
-                        assertNull(s.getComposer());
-                        assertNull(s.getComposerSort());
-                        break;
-                    case "file7":
-                        assertEquals("case05", s.getArtist());
-                        assertEquals("case05", s.getArtistReading());
-                        assertEquals("artistJ", s.getArtistSort());
-                        assertEquals("case05", s.getAlbumArtist());
-                        assertEquals("case05", s.getAlbumArtistReading());
-                        assertEquals("artistJ", s.getAlbumArtistSort());
-                        assertNull(s.getComposer());
-                        assertNull(s.getComposerSort());
-                        break;
-                    case "file8":
-                        assertEquals("case06", s.getArtist());
-                        assertEquals("case06", s.getArtistReading());
-                        assertEquals("artistL", s.getArtistSort());
-                        assertEquals("case06", s.getAlbumArtist());
-                        assertEquals("case06", s.getAlbumArtistReading());
-                        assertEquals("artistL", s.getAlbumArtistSort());
-                        assertEquals("case06", s.getComposer());
-                        assertEquals("artistL", s.getComposerSort());
-                        break;
-                    case "file9":
-                        assertEquals("case06", s.getArtist());
-                        assertEquals("case06", s.getArtistReading());
-                        assertEquals("artistL", s.getArtistSort());
-                        assertEquals("case06", s.getAlbumArtist());
-                        assertEquals("case06", s.getAlbumArtistReading());
-                        assertEquals("artistL", s.getAlbumArtistSort());
-                        assertNull(s.getComposer());
-                        assertNull(s.getComposerSort());
-                        break;
-                    case "file10":
-                        assertEquals("ARTIST", s.getArtist());
-                        assertEquals("ARTIST", s.getArtistReading());
-                        assertNull(s.getArtistSort());
-                        assertEquals("ARTIST", s.getAlbumArtist());
-                        assertEquals("ARTIST", s.getAlbumArtistReading());
-                        assertNull(s.getAlbumArtistSort());
-                        assertEquals("case07", s.getComposer());
-                        assertEquals("artistM", s.getComposerSort());
-                        break;
-                    case "file11":
-                        assertEquals("case07", s.getArtist());
-                        assertEquals("case07", s.getArtistReading());
-                        assertEquals("artistM", s.getArtistSort());
-                        assertEquals("ARTIST", s.getAlbumArtist());
-                        assertEquals("ARTIST", s.getAlbumArtistReading());
-                        assertNull(s.getAlbumArtistSort());
-                        assertEquals("case07", s.getComposer());
-                        assertEquals("artistM", s.getComposerSort());
-                        break;
-                    case "file12":
-                        assertEquals("case08", s.getArtist());
-                        assertEquals("case08", s.getArtistReading());
-                        assertEquals("artistO", s.getArtistSort());
-                        assertEquals("case08", s.getAlbumArtist());
-                        assertEquals("case08", s.getAlbumArtistReading());
-                        assertEquals("artistO", s.getAlbumArtistSort());
-                        assertNull(s.getComposer());
-                        assertNull(s.getComposerSort());
-                        break;
-                    case "file13":
-                        assertEquals("case08", s.getArtist());
-                        assertEquals("case08", s.getArtistReading());
-                        assertEquals("artistO", s.getArtistSort());
-                        assertEquals("case08", s.getAlbumArtist());
-                        assertEquals("case08", s.getAlbumArtistReading());
-                        assertEquals("artistO", s.getAlbumArtistSort());
-                        assertNull(s.getComposer());
-                        assertNull(s.getComposerSort());
-                        break;
-                    case "file14":
-                        assertEquals("case09", s.getArtist());
-                        assertEquals("case09", s.getArtistReading());
-                        assertEquals("artistQ", s.getArtistSort());
-                        assertEquals("case09", s.getAlbumArtist());
-                        assertEquals("case09", s.getAlbumArtistReading());
-                        assertEquals("artistQ", s.getAlbumArtistSort());
-                        assertEquals("case09", s.getComposer());
-                        assertEquals("artistQ", s.getComposerSort());
-                        break;
-                    case "file15":
-                        assertEquals("case09", s.getArtist());
-                        assertEquals("case09", s.getArtistReading());
-                        assertEquals("artistQ", s.getArtistSort());
-                        assertEquals("case09", s.getAlbumArtist());
-                        assertEquals("case09", s.getAlbumArtistReading());
-                        assertEquals("artistQ", s.getAlbumArtistSort());
-                        assertNull(s.getComposer());
-                        assertNull(s.getComposerSort());
-                        break;
-
-                    default:
-                        fail();
-                        break;
-                    }
-                });
-
-            });
+        @Test
+        @Order(5)
+        void testAlbumOfId3() {
 
             List<Album> albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, musicFolders);
-
             assertEquals(11, albumId3s.size());
+            for (int i = 0; i < albumId3s.size(); i++) {
+                assertEquals(i, albumId3s.get(i).getOrder());
+            }
+            albumId3s.sort((m1, m2) -> Integer.compare(m1.getOrder(), m2.getOrder()));
 
-            albumId3s.stream().forEach(a -> LOG.info(a.getName()));
             assertEquals("ALBUM1", albumId3s.get(0).getName());
-            assertEquals("ALBUM10", albumId3s.get(1).getName());
-            assertEquals("ALBUM11", albumId3s.get(2).getName());
-            assertEquals("ALBUM2", albumId3s.get(3).getName());
-            assertEquals("ALBUM3", albumId3s.get(4).getName());
-            assertEquals("ALBUM4", albumId3s.get(5).getName());
-            assertEquals("ALBUM5", albumId3s.get(6).getName());
-            assertEquals("ALBUM6", albumId3s.get(7).getName());
-            assertEquals("ALBUM7", albumId3s.get(8).getName());
-            assertEquals("ALBUM8", albumId3s.get(9).getName());
-            assertEquals("ALBUM9", albumId3s.get(10).getName());
-
-            albumId3s.stream().forEach(a -> LOG.info(a.getArtist()));
             assertEquals("case01", albumId3s.get(0).getArtist());
-            assertEquals("case10", albumId3s.get(1).getArtist());
-            assertEquals("case11", albumId3s.get(2).getArtist());
-            assertEquals("case02", albumId3s.get(3).getArtist());
-            assertEquals("case03", albumId3s.get(4).getArtist());
-            assertEquals("case04", albumId3s.get(5).getArtist());
-            assertEquals("case05", albumId3s.get(6).getArtist());
-            assertEquals("case06", albumId3s.get(7).getArtist());
-            assertEquals("case07", albumId3s.get(8).getArtist());
-            assertEquals("case08", albumId3s.get(9).getArtist());
-            assertEquals("case09", albumId3s.get(10).getArtist());
-
-            albumId3s.stream().forEach(a -> LOG.info(a.getArtistReading()));
             assertEquals("case01", albumId3s.get(0).getArtistReading());
-            assertEquals("case10", albumId3s.get(1).getArtistReading());
-            assertEquals("case11", albumId3s.get(2).getArtistReading());
-            assertEquals("case02", albumId3s.get(3).getArtistReading());
-            assertEquals("case03", albumId3s.get(4).getArtistReading());
-            assertEquals("case04", albumId3s.get(5).getArtistReading());
-            assertEquals("case05", albumId3s.get(6).getArtistReading());
-            assertEquals("case06", albumId3s.get(7).getArtistReading());
-            assertEquals("case07", albumId3s.get(8).getArtistReading());
-            assertEquals("case08", albumId3s.get(9).getArtistReading());
-            assertEquals("case09", albumId3s.get(10).getArtistReading());
-
-            albumId3s.stream().forEach(a -> LOG.info(a.getArtistSort()));
             assertEquals("artistA", albumId3s.get(0).getArtistSort());
-            assertEquals("artistT", albumId3s.get(1).getArtistSort());
-            assertEquals("artistU", albumId3s.get(2).getArtistSort());
-            assertEquals("artistD", albumId3s.get(3).getArtistSort());
-            assertEquals("artistE", albumId3s.get(4).getArtistSort());
-            assertEquals("artistH", albumId3s.get(5).getArtistSort());
-            assertEquals("artistJ", albumId3s.get(6).getArtistSort());
-            assertEquals("artistL", albumId3s.get(7).getArtistSort());
-            assertEquals("artistN", albumId3s.get(8).getArtistSort());
-            assertEquals("artistO", albumId3s.get(9).getArtistSort());
-            assertEquals("artistQ", albumId3s.get(10).getArtistSort());
+
+            assertEquals("ALBUM2", albumId3s.get(1).getName());
+            assertEquals("case02", albumId3s.get(1).getArtist());
+            assertEquals("case02", albumId3s.get(1).getArtistReading());
+            assertEquals("artistD", albumId3s.get(1).getArtistSort());
+
+            assertEquals("ALBUM3", albumId3s.get(2).getName());
+            assertEquals("case03", albumId3s.get(2).getArtist());
+            assertEquals("case03", albumId3s.get(2).getArtistReading());
+            assertEquals("artistE", albumId3s.get(2).getArtistSort());
+
+            assertEquals("ALBUM4", albumId3s.get(3).getName());
+            assertEquals("ARTIST", albumId3s.get(3).getArtist());
+            assertEquals("ARTIST", albumId3s.get(3).getArtistReading());
+            assertEquals("ARTIST", albumId3s.get(3).getArtistSort());
+
+            assertEquals("ALBUM5", albumId3s.get(4).getName());
+            assertEquals("case05", albumId3s.get(4).getArtist());
+            assertEquals("case05", albumId3s.get(4).getArtistReading());
+            assertEquals("artistJ", albumId3s.get(4).getArtistSort());
+
+            assertEquals("ALBUM6", albumId3s.get(5).getName());
+            assertEquals("case06", albumId3s.get(5).getArtist());
+            assertEquals("case06", albumId3s.get(5).getArtistReading());
+            assertEquals("artistL", albumId3s.get(5).getArtistSort());
+
+            assertEquals("ALBUM7", albumId3s.get(6).getName());
+            assertEquals("ARTIST", albumId3s.get(6).getArtist());
+            assertEquals("ARTIST", albumId3s.get(6).getArtistReading());
+            assertEquals("ARTIST", albumId3s.get(6).getArtistSort());
+
+            assertEquals("ALBUM8", albumId3s.get(7).getName());
+            assertEquals("case08", albumId3s.get(7).getArtist());
+            assertEquals("case08", albumId3s.get(7).getArtistReading());
+            assertEquals("artistP", albumId3s.get(7).getArtistSort());
+
+            assertEquals("ALBUM9", albumId3s.get(8).getName());
+            assertEquals("case09", albumId3s.get(8).getArtist());
+            assertEquals("case09", albumId3s.get(8).getArtistReading());
+            assertEquals("artistR", albumId3s.get(8).getArtistSort());
+
+            assertEquals("ALBUM10", albumId3s.get(9).getName());
+            assertEquals("case10", albumId3s.get(9).getArtist());
+            assertEquals("case10", albumId3s.get(9).getArtistReading());
+            assertEquals("artistT", albumId3s.get(9).getArtistSort());
+
+            assertEquals("ALBUM11", albumId3s.get(10).getName());
+            assertEquals("case11", albumId3s.get(10).getArtist());
+            assertEquals("case11", albumId3s.get(10).getArtistReading());
+            assertEquals("artistV", albumId3s.get(10).getArtistSort());
         }
     }
 
     @Nested
     @Order(4)
-    // Windows Server 2022 and Ubuntu results are different
-    // Windows 10 Home and Ubuntu results are same
     class UpdateSortOfAlbumTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays
@@ -1748,16 +731,7 @@ class SortProcedureServiceTest {
         private MediaFileDao mediaFileDao;
 
         @Autowired
-        private JMediaFileDao jMediaFileDao;
-
-        @Autowired
         private JAlbumDao albumDao;
-
-        @Autowired
-        private SortProcedureService sortProcedureService;
-
-        @Autowired
-        private ScannerStateServiceImpl scannerStateService;
 
         @Override
         public List<MusicFolder> getMusicFolders() {
@@ -1766,213 +740,28 @@ class SortProcedureServiceTest {
 
         @BeforeEach
         public void setup() {
-
-            scannerStateService.enableCleansing(false);
-
-            // Update the date of a particular file to cause a merge
-            String latestMediaFileTitle1 = "file1";
-            String latestMediaFileTitle2 = "file4";
-
-            populateDatabase(null, () -> {
-                List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
-                Instant now = now();
-                albums.forEach(a -> {
-                    List<MediaFile> songs = jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, a.getPathString(), false);
-                    songs.forEach(m -> {
-                        if (latestMediaFileTitle1.equals(m.getTitle()) || latestMediaFileTitle2.equals(m.getTitle())) {
-                            m.setChanged(now);
-                            mediaFileDao.updateMediaFile(m);
-                        }
-                    });
-                });
-                return true;
-            });
-            scannerStateService.enableCleansing(true);
+            populateDatabase();
         }
 
         @Test
-        @DisabledOnOs({ OS.LINUX, OS.WINDOWS }) // Flaky in Windows Server 2022 (#1645)
-        void testUpdateSortOfAlbumOnWindows() throws ExecutionException {
+        void testUpdateSortOfAlbum() throws ExecutionException {
 
-            // for Windows Server 2022(ver.20220426.1) Results may differ from Desktop Windows.
-
-            LOG.info(" *** Before merge(id, name, sort)");
             List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
             assertEquals(5, albums.size());
-            albums.forEach(m -> LOG.info("MediaFile.ALBUM:" + m.getId() + ", " + m.getAlbumName() + ", "
-                    + m.getAlbumSort() + ", " + m.getPathString()));
-
             List<Album> albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, musicFolders);
             assertEquals(5, albumId3s.size());
-            albumId3s.forEach(a -> LOG.info("Album:" + a.getId() + ", " + a.getName() + ", " + a.getNameSort()));
 
-            // to be merge
-            assertEquals(1L, albums.stream().filter(m -> "albumA".equals(m.getAlbumSort())).count());
-            assertEquals(2L, albums.stream().filter(m -> m.getAlbumSort() == null).count());
-            assertEquals(1L, albums.stream().filter(m -> "albumC".equals(m.getAlbumSort())).count());
-            assertEquals(1L, albums.stream().filter(m -> "albumD".equals(m.getAlbumSort())).count());
-
-            assertEquals(1L, albumId3s.stream().filter(a -> "albumA".equals(a.getNameSort())).count());
-            assertEquals(2L, albumId3s.stream().filter(a -> a.getNameSort() == null).count());
-            assertEquals(1L, albumId3s.stream().filter(a -> "albumC".equals(a.getNameSort())).count());
-            assertEquals(1L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count());
-
-            sortProcedureService.mergeSortOfAlbum();
-
-            LOG.info(" *** After merge(id, name, sort)");
-            albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
-            assertEquals(5, albums.size());
-            albums.forEach(m -> LOG.info("MediaFile.ALBUM:" + m.getId() + ", " + m.getAlbumName() + ", "
-                    + m.getAlbumSort() + ", " + m.getPathString()));
-
-            albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, musicFolders);
-            assertEquals(5, albumId3s.size());
-            albumId3s.forEach(a -> LOG.info("Album:" + a.getId() + ", " + a.getName() + ", " + a.getNameSort()));
-
-            // merged
-            assertEquals(1L, albums.stream().filter(m -> "albumA".equals(m.getAlbumSort())).count());
-            assertEquals(2L, albums.stream().filter(m -> m.getAlbumSort() == null).count());
+            assertEquals(2L, albums.stream().filter(m -> "albumA".equals(m.getAlbumSort())).count()); // copied
+            assertEquals(0L, albums.stream().filter(m -> m.getAlbumSort() == null).count()); // became null-safe
             assertEquals(0L, albums.stream().filter(m -> "albumC".equals(m.getAlbumSort())).count()); // merged
             assertEquals(2L, albums.stream().filter(m -> "albumD".equals(m.getAlbumSort())).count()); // merged
+            assertEquals(1L, albums.stream().filter(m -> "ニホンゴノアルバムメイ".equals(m.getAlbumSort())).count()); // compensated
 
-            assertEquals(1L, albumId3s.stream().filter(a -> "albumA".equals(a.getNameSort())).count());
-            assertEquals(2L, albumId3s.stream().filter(a -> a.getNameSort() == null).count());
+            assertEquals(2L, albumId3s.stream().filter(a -> "albumA".equals(a.getNameSort())).count()); // copied
+            assertEquals(0L, albumId3s.stream().filter(a -> a.getNameSort() == null).count()); // became null-safe
             assertEquals(0L, albumId3s.stream().filter(a -> "albumC".equals(a.getNameSort())).count()); // merged
             assertEquals(2L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count()); // merged
-
-            sortProcedureService.copySortOfAlbum();
-
-            albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
-            assertEquals(5, albums.size());
-
-            albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, musicFolders);
-            assertEquals(5, albumId3s.size());
-
-            // copied
-            assertEquals(2L, albums.stream().filter(m -> "albumA".equals(m.getAlbumSort())).count()); // copied
-            assertEquals(1L, albums.stream().filter(m -> m.getAlbumSort() == null).count()); // copied
-            assertEquals(0L, albums.stream().filter(m -> "albumC".equals(m.getAlbumSort())).count());
-            assertEquals(2L, albums.stream().filter(m -> "albumD".equals(m.getAlbumSort())).count());
-
-            assertEquals(2L, albumId3s.stream().filter(a -> "albumA".equals(a.getNameSort())).count()); // copied
-            assertEquals(1L, albumId3s.stream().filter(a -> a.getNameSort() == null).count()); // copied
-            assertEquals(0L, albumId3s.stream().filter(a -> "albumC".equals(a.getNameSort())).count());
-            assertEquals(2L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count());
-
-            sortProcedureService.compensateSortOfAlbum();
-
-            albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
-            assertEquals(5, albums.size());
-
-            albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, musicFolders);
-            assertEquals(5, albumId3s.size());
-
-            // compensated
-            assertEquals(2L, albums.stream().filter(m -> "albumA".equals(m.getAlbumSort())).count());
-            assertEquals(0L, albums.stream().filter(m -> m.getAlbumSort() == null).count()); // compensated
-            assertEquals(0L, albums.stream().filter(m -> "albumC".equals(m.getAlbumSort())).count());
-            assertEquals(2L, albums.stream().filter(m -> "albumD".equals(m.getAlbumSort())).count());
-            assertEquals(1L, albums.stream().filter(m -> "ニホンゴノアルバムメイ".equals(m.getAlbumSort())).count());
-
-            assertEquals(2L, albumId3s.stream().filter(a -> "albumA".equals(a.getNameSort())).count());
-            assertEquals(0L, albumId3s.stream().filter(a -> a.getNameSort() == null).count()); // compensated
-            assertEquals(0L, albumId3s.stream().filter(a -> "albumC".equals(a.getNameSort())).count());
-            assertEquals(2L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count());
-            assertEquals(1L, albumId3s.stream().filter(a -> "ニホンゴノアルバムメイ".equals(a.getNameSort())).count());
-        }
-
-        @SuppressWarnings("PMD.DetachedTestCase")
-        // @Test
-        // @Disabled
-        // @DisabledOnOs(OS.WINDOWS)
-        void testUpdateSortOfAlbumOnLinux() throws ExecutionException {
-
-            // Windows 10 Home
-            // for Ubuntu 20.04.4(ver.20220425.1)
-
-            LOG.info(" *** Before merge(id, name, sort)");
-            List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
-            assertEquals(5, albums.size());
-            albums.forEach(m -> LOG.info("MediaFile.ALBUM:" + m.getId() + ", " + m.getAlbumName() + ", "
-                    + m.getAlbumSort() + ", " + m.getPathString()));
-
-            List<Album> albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, musicFolders);
-            assertEquals(5, albumId3s.size());
-            albumId3s.forEach(a -> LOG.info("Album:" + a.getId() + ", " + a.getName() + ", " + a.getNameSort()));
-
-            // to be merge
-            assertEquals(1L, albums.stream().filter(m -> "albumA".equals(m.getAlbumSort())).count());
-            assertEquals(2L, albums.stream().filter(m -> m.getAlbumSort() == null).count());
-            assertEquals(1L, albums.stream().filter(m -> "albumC".equals(m.getAlbumSort())).count());
-            assertEquals(1L, albums.stream().filter(m -> "albumD".equals(m.getAlbumSort())).count());
-
-            assertEquals(1L, albumId3s.stream().filter(a -> "albumA".equals(a.getNameSort())).count());
-            assertEquals(2L, albumId3s.stream().filter(a -> a.getNameSort() == null).count());
-            assertEquals(1L, albumId3s.stream().filter(a -> "albumC".equals(a.getNameSort())).count());
-            assertEquals(1L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count());
-
-            sortProcedureService.mergeSortOfAlbum();
-
-            LOG.info(" *** After merge(id, name, sort)");
-            albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
-            assertEquals(5, albums.size());
-            albums.forEach(m -> LOG.info("MediaFile.ALBUM:" + m.getId() + ", " + m.getAlbumName() + ", "
-                    + m.getAlbumSort() + ", " + m.getPathString()));
-
-            albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, musicFolders);
-            assertEquals(5, albumId3s.size());
-            albumId3s.forEach(a -> LOG.info("Album:" + a.getId() + ", " + a.getName() + ", " + a.getNameSort()));
-
-            // merged
-            assertEquals(1L, albums.stream().filter(m -> "albumA".equals(m.getAlbumSort())).count());
-            assertEquals(2L, albums.stream().filter(m -> m.getAlbumSort() == null).count());
-            assertEquals(2L, albums.stream().filter(m -> "albumC".equals(m.getAlbumSort())).count()); // merged
-            assertEquals(0L, albums.stream().filter(m -> "albumD".equals(m.getAlbumSort())).count()); // merged
-
-            assertEquals(1L, albumId3s.stream().filter(a -> "albumA".equals(a.getNameSort())).count());
-            assertEquals(2L, albumId3s.stream().filter(a -> a.getNameSort() == null).count());
-            assertEquals(2L, albumId3s.stream().filter(a -> "albumC".equals(a.getNameSort())).count()); // merged
-            assertEquals(0L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count()); // merged
-
-            sortProcedureService.copySortOfAlbum();
-
-            albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
-            assertEquals(5, albums.size());
-
-            albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, musicFolders);
-            assertEquals(5, albumId3s.size());
-
-            // copied
-            assertEquals(2L, albums.stream().filter(m -> "albumA".equals(m.getAlbumSort())).count()); // copied
-            assertEquals(1L, albums.stream().filter(m -> m.getAlbumSort() == null).count()); // copied
-            assertEquals(2L, albums.stream().filter(m -> "albumC".equals(m.getAlbumSort())).count());
-            assertEquals(0L, albums.stream().filter(m -> "albumD".equals(m.getAlbumSort())).count());
-
-            assertEquals(2L, albumId3s.stream().filter(a -> "albumA".equals(a.getNameSort())).count()); // copied
-            assertEquals(1L, albumId3s.stream().filter(a -> a.getNameSort() == null).count()); // copied
-            assertEquals(2L, albumId3s.stream().filter(a -> "albumC".equals(a.getNameSort())).count());
-            assertEquals(0L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count());
-
-            sortProcedureService.compensateSortOfAlbum();
-
-            albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
-            assertEquals(5, albums.size());
-
-            albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, musicFolders);
-            assertEquals(5, albumId3s.size());
-
-            // compensated
-            assertEquals(2L, albums.stream().filter(m -> "albumA".equals(m.getAlbumSort())).count());
-            assertEquals(0L, albums.stream().filter(m -> m.getAlbumSort() == null).count()); // compensated
-            assertEquals(2L, albums.stream().filter(m -> "albumC".equals(m.getAlbumSort())).count());
-            assertEquals(0L, albums.stream().filter(m -> "albumD".equals(m.getAlbumSort())).count());
-            assertEquals(1L, albums.stream().filter(m -> "ニホンゴノアルバムメイ".equals(m.getAlbumSort())).count());
-
-            assertEquals(2L, albumId3s.stream().filter(a -> "albumA".equals(a.getNameSort())).count());
-            assertEquals(0L, albumId3s.stream().filter(a -> a.getNameSort() == null).count()); // compensated
-            assertEquals(2L, albumId3s.stream().filter(a -> "albumC".equals(a.getNameSort())).count());
-            assertEquals(0L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count());
-            assertEquals(1L, albumId3s.stream().filter(a -> "ニホンゴノアルバムメイ".equals(a.getNameSort())).count());
+            assertEquals(1L, albumId3s.stream().filter(a -> "ニホンゴノアルバムメイ".equals(a.getNameSort())).count()); // compensated
         }
     }
 }

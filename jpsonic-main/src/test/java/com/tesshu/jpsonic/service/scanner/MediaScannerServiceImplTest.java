@@ -82,7 +82,9 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnJre;
 import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -531,7 +533,7 @@ class MediaScannerServiceImplTest {
 
         @DisabledOnOs(OS.WINDOWS) // Flaky in Windows Server 2022 (#1645)
         @Test
-        void testSpecialCharactersInDirName() throws URISyntaxException, IOException, InterruptedException {
+        void testBehavioralSpecForTagReflesh() throws URISyntaxException, IOException, InterruptedException {
 
             MediaFile artist = mediaFileDao.getMediaFile(this.artist.toString());
             assertEquals(this.artist, artist.toPath());
@@ -875,6 +877,83 @@ class MediaScannerServiceImplTest {
             assertEquals(Path.of(album.getPath()).resolve("01 - Aria.flac"), file.toPath());
             assertEquals("0820752d-1043-4572-ab36-2df3b5cc15fa", file.getMusicBrainzReleaseId());
             assertEquals("831586f4-56f9-4785-ac91-447ae20af633", file.getMusicBrainzRecordingId());
+        }
+    }
+
+    @Nested
+    class ChangeFolderTest extends AbstractNeedsScan {
+
+        private List<MusicFolder> musicFolders;
+        private Path artist;
+        private Path album;
+        private Path song;
+        private @TempDir Path tempDir1;
+        private @TempDir Path tempDir2;
+
+        @Autowired
+        private MediaFileDao mediaFileDao;
+
+        @Override
+        public List<MusicFolder> getMusicFolders() {
+            return musicFolders;
+        }
+
+        @BeforeEach
+        public void setup() throws IOException, URISyntaxException {
+            artist = Path.of(tempDir1.toString(), "ARTIST");
+            assertNotNull(FileUtil.createDirectories(artist));
+            this.album = Path.of(artist.toString(), "ALBUM");
+            assertNotNull(FileUtil.createDirectories(album));
+            this.musicFolders = Arrays.asList(new MusicFolder(1, tempDir1.toString(), "musicFolder1", true, now()),
+                    new MusicFolder(2, tempDir2.toString(), "musicFolder2", true, now()));
+
+            Path sample = Path.of(MediaScannerServiceImplTest.class
+                    .getResource("/MEDIAS/Scan/Timestamp/ARTIST/ALBUM/sample.mp3").toURI());
+            this.song = Path.of(this.album.toString(), "sample.mp3");
+            assertNotNull(Files.copy(sample, song));
+            assertTrue(Files.exists(song));
+
+            populateDatabase();
+        }
+
+        @DisabledOnJre(JRE.JAVA_11) // #1840
+        @Test
+        void testChangeFolder() throws URISyntaxException, IOException, InterruptedException {
+
+            MediaFile artist = mediaFileDao.getMediaFile(this.artist.toString());
+            assertEquals(this.artist, artist.toPath());
+            assertEquals("ARTIST", artist.getName());
+            MediaFile album = mediaFileDao.getMediaFile(this.album.toString());
+            assertEquals(this.album, album.toPath());
+            assertEquals("ALBUM", album.getName());
+            MediaFile song = mediaFileDao.getMediaFile(this.song.toString());
+            assertEquals(this.song, song.toPath());
+
+            Map<String, MusicFolder> folders = musicFolders.stream()
+                    .collect(Collectors.toMap(mf -> mf.getName(), mf -> mf));
+            assertEquals(song.getFolder(), folders.get("musicFolder1").getPathString());
+
+            // Create a directory and move the files there
+            Path artist2 = Path.of(tempDir2.toString(), "ARTIST2");
+            assertNotNull(FileUtil.createDirectories(artist2));
+            Path album2 = Path.of(artist2.toString(), "ALBUM2");
+            assertNotNull(FileUtil.createDirectories(album2));
+            Path movedSong = Path.of(album2.toString(), "sample.mp3");
+            Files.move(this.song, movedSong);
+            assertFalse(Files.exists(this.song));
+            assertTrue(Files.exists(movedSong));
+
+            // Exec scan
+            TestCaseUtils.execScan(mediaScannerService);
+
+            song = mediaFileDao.getMediaFile(this.song.toString());
+            assertNotNull(song);
+            assertFalse(song.isPresent());
+            mediaScannerService.expunge();
+            assertNull(mediaFileDao.getMediaFile(this.song.toString()));
+            song = mediaFileDao.getMediaFile(movedSong.toString());
+            assertNotNull(song);
+            assertEquals(song.getFolder(), folders.get("musicFolder2").getPathString());
         }
     }
 }
