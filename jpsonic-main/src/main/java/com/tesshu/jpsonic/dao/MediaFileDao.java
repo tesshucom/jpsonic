@@ -65,6 +65,7 @@ public class MediaFileDao extends AbstractDao {
             + "artist_sort_raw, album_sort_raw, album_artist_sort_raw, composer_sort_raw, media_file_order";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
     private static final String GENRE_COLUMNS = "name, song_count, album_count";
+    private static final String ARTIST_ID3_COLUMNS = "folder, album_artist, album_artist_reading, album_artist_sort, cover_art_path";
 
     // Expected maximum number of album child elements (can be expanded)
     private static final int ALBUM_CHILD_MAX = 10_000;
@@ -73,11 +74,17 @@ public class MediaFileDao extends AbstractDao {
     public static final int VERSION = 4 + JP_VERSION;
 
     private final RowMapper<MediaFile> rowMapper;
+    private final RowMapper<MediaFile> artistId3Mapper;
     private final RowMapper<Genre> genreRowMapper;
 
     public MediaFileDao(DaoHelper daoHelper) {
         super(daoHelper);
         rowMapper = new MediaFileMapper();
+        artistId3Mapper = (resultSet, rowNum) -> new MediaFile(-1, null, resultSet.getString(1), null, null, null, null,
+                null, resultSet.getString(2), null, null, null, null, null, false, null, null, null, null,
+                resultSet.getString(5), null, -1, null, null, null, null, null, null, false, -1, null, null, null, null,
+                null, null, resultSet.getString(4), null, null, null, resultSet.getString(3), null, null, null, null,
+                -1);
         genreRowMapper = new GenreMapper();
     }
 
@@ -452,6 +459,43 @@ public class MediaFileDao extends AbstractDao {
                 MusicFolder.toPathList(musicFolders), "count", count, "offset", offset);
         return namedQuery("select " + QUERY_COLUMNS + " from media_file where type = :type and folder in (:folders) "
                 + "and present and genre = :genre limit :count offset :offset", rowMapper, args);
+    }
+
+    public List<MediaFile> getChangedId3Artists(final int count, List<MusicFolder> folders, boolean withPodcast) {
+        if (folders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = LegacyMap.of("types", getValidTypes4ID3(withPodcast), "count", count, "folders",
+                MusicFolder.toPathList(folders));
+        String query = "select distinct " + prefix(ARTIST_ID3_COLUMNS, "mf") + " from media_file mf "
+                + "left join artist ar on ar.name = mf.album_artist join music_folder m_folder on mf.folder = m_folder.path "
+                + "join (select album_artist, min(music_folder.id) as music_folder_id from media_file "
+                + "join music_folder on music_folder.path = folder where album_artist is not null group by album_artist) first_fetch "
+                + "on first_fetch.music_folder_id = m_folder.id and first_fetch.album_artist = mf.album_artist "
+                + "where mf.present and mf.album_artist is not null and type in (:types) and mf.folder in (:folders) "
+                // Diff comparison
+                + "and (mf.album_artist_reading <> ar.reading " // album_artist_reading
+                + "or mf.album_artist_sort <> ar.sort) " // album_artist_sort
+                // cover_art_path (pending)
+                + "limit :count";
+        return namedQuery(query, artistId3Mapper, args);
+    }
+
+    public List<MediaFile> getUnregisteredId3Artists(final int count, List<MusicFolder> folders, boolean withPodcast) {
+        if (folders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = LegacyMap.of("types", getValidTypes4ID3(withPodcast), "count", count, "folders",
+                MusicFolder.toPathList(folders));
+        String query = "select distinct " + prefix(ARTIST_ID3_COLUMNS, "mf") + " from media_file mf "
+                + "left join artist on artist.name = mf.album_artist "
+                + "join music_folder on mf.folder = music_folder.path "
+                + "join (select album_artist, min(music_folder.id) as music_folder_id from media_file join music_folder "
+                + "on music_folder.path = folder where album_artist is not null group by album_artist) first_fetch "
+                + "on first_fetch.music_folder_id = music_folder.id "
+                + "where mf.present and mf.album_artist is not null and type in (:types) "
+                + "and artist.name is null and mf.folder in (:folders) limit :count";
+        return namedQuery(query, artistId3Mapper, args);
     }
 
     public List<MediaFile> getChangedOrNewAlbums(final int count, List<MusicFolder> folders) {

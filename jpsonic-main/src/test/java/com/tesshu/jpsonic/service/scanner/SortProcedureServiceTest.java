@@ -95,8 +95,8 @@ class SortProcedureServiceTest {
         @Test
         void testCompensateSortOfArtist() throws ExecutionException {
 
-            sortProcedureService.mergeSortOfArtist();
-            sortProcedureService.copySortOfArtist();
+            sortProcedureService.mergeSortOfArtist(musicFolders);
+            sortProcedureService.copySortOfArtist(musicFolders);
 
             List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
             MediaFile artist = artists.get(0);
@@ -152,7 +152,7 @@ class SortProcedureServiceTest {
             assertNull(artistID3s.get(3).getSort());
 
             // Execution of Complementary Processing
-            sortProcedureService.compensateSortOfArtist();
+            sortProcedureService.compensateSortOfArtist(musicFolders);
 
             artist = artists.get(0);
             assertEquals("ARTIST", artist.getName());

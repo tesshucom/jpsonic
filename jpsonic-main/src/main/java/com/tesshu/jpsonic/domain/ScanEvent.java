@@ -121,8 +121,9 @@ public class ScanEvent {
 
         REFRESH_ALBUM_ID3,
         UPDATE_ORDER_OF_ALBUM_ID3,
+        REFRESH_ARTIST_ID3,
         UPDATE_ORDER_OF_ARTIST_ID3,
-        
+
         PARSE_PODCAST,
 
         UPDATE_ALBUM_COUNTS,

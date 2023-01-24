@@ -96,8 +96,8 @@ public class SortProcedureService {
         return updateSortOfAlbums(candidates);
     }
 
-    FixedIds compensateSortOfArtist() {
-        List<SortCandidate> candidates = jMediaFileDao.getSortForPersonWithoutSorts();
+    FixedIds compensateSortOfArtist(List<MusicFolder> folders) {
+        List<SortCandidate> candidates = jMediaFileDao.getSortForPersonWithoutSorts(folders);
         candidates.forEach(utils::analyze);
         return updateSortOfArtist(candidates);
     }
@@ -108,8 +108,8 @@ public class SortProcedureService {
         return updateSortOfAlbums(candidates);
     }
 
-    FixedIds copySortOfArtist() {
-        List<SortCandidate> candidates = jMediaFileDao.getCopyableSortForPersons();
+    FixedIds copySortOfArtist(List<MusicFolder> folders) {
+        List<SortCandidate> candidates = jMediaFileDao.getCopyableSortForPersons(folders);
         candidates.forEach(utils::analyze);
         return updateSortOfArtist(candidates);
     }
@@ -120,8 +120,8 @@ public class SortProcedureService {
         return updateSortOfAlbums(candidates);
     }
 
-    FixedIds mergeSortOfArtist() {
-        List<SortCandidate> candidates = jMediaFileDao.guessPersonsSorts();
+    FixedIds mergeSortOfArtist(List<MusicFolder> folders) {
+        List<SortCandidate> candidates = jMediaFileDao.guessPersonsSorts(folders);
         candidates.forEach(utils::analyze);
         return updateSortOfArtist(candidates);
     }
@@ -233,9 +233,10 @@ public class SortProcedureService {
 
     void updateSortOfArtist() {
         jMediaFileDao.clearArtistReadingOfDirectory();
-        FixedIds merged = mergeSortOfArtist();
-        FixedIds copied = copySortOfArtist();
-        FixedIds compensated = compensateSortOfArtist();
+        List<MusicFolder> folders = musicFolderService.getAllMusicFolders(false, false);
+        FixedIds merged = mergeSortOfArtist(folders);
+        FixedIds copied = copySortOfArtist(folders);
+        FixedIds compensated = compensateSortOfArtist(folders);
         updateIndexOfArtist(merged, copied, compensated);
     }
 

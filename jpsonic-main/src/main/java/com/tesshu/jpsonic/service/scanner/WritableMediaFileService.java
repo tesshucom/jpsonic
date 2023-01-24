@@ -289,7 +289,6 @@ public class WritableMediaFileService {
 
         mediaFile.setId(registered == null ? 0 : registered.getId());
 
-        // Variable initial value
         Instant lastModified = getLastModified(scanDate, path);
         mediaFile.setChanged(lastModified);
         mediaFile.setCreated(lastModified);
@@ -365,7 +364,6 @@ public class WritableMediaFileService {
                 to.setLastScanned(FAR_FUTURE);
             }, () -> {
                 to.setArtist(dirPath.getFileName().toString());
-                readingUtils.analyze(to);
                 to.setLastScanned(scanDate);
             });
         }

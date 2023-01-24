@@ -2,7 +2,6 @@ package com.tesshu.jpsonic.service.scanner;
 
 import java.time.Instant;
 
-import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.RatingDao;
 import com.tesshu.jpsonic.dao.StaticsDao.ScanLogType;
@@ -22,17 +21,15 @@ public class ExpungeService {
 
     private final ScannerStateServiceImpl scannerState;
     private final IndexManager indexManager;
-    private final ArtistDao artistDao;
     private final MediaFileDao mediaFileDao;
     private final RatingDao ratingDao;
     private final ScannerProcedureService procedure;
 
-    public ExpungeService(ScannerStateServiceImpl scannerStateService, IndexManager indexManager, ArtistDao artistDao,
+    public ExpungeService(ScannerStateServiceImpl scannerStateService, IndexManager indexManager,
             MediaFileDao mediaFileDao, RatingDao ratingDao, ScannerProcedureService scannerProcedure) {
         super();
         this.scannerState = scannerStateService;
         this.indexManager = indexManager;
-        this.artistDao = artistDao;
         this.mediaFileDao = mediaFileDao;
         this.ratingDao = ratingDao;
         this.procedure = scannerProcedure;
@@ -56,13 +53,13 @@ public class ExpungeService {
             indexManager.startIndexing();
 
             procedure.iterateAlbumId3(scanDate, procedure.isPodcastInMusicFolders());
+            procedure.iterateArtistId3(scanDate, procedure.isPodcastInMusicFolders());
 
             indexManager.expunge();
 
             indexManager.stopIndexing();
 
             // to be after indexManager#expunge
-            artistDao.expunge();
             mediaFileDao.expunge();
             mediaFileDao.checkpoint();
 

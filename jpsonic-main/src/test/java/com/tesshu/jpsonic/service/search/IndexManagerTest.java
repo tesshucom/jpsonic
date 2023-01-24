@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.RatingDao;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -70,9 +69,6 @@ class IndexManagerTest extends AbstractNeedsScan {
 
     @Autowired
     private MediaFileDao mediaFileDao;
-
-    @Autowired
-    private ArtistDao artistDao;
 
     @Autowired
     private MediaScannerService mediaScannerService;
@@ -192,14 +188,6 @@ class IndexManagerTest extends AbstractNeedsScan {
         result = searchService.search(criteriaArtistId3);
         assertEquals(1, result.getArtists().size());
         assertEquals("_DIR_ Ravel", result.getArtists().get(0).getName());
-
-        candidates = artistDao.getExpungeCandidates();
-        assertEquals(0, candidates.size());
-
-        artistDao.markNonPresent(now());
-
-        candidates = artistDao.getExpungeCandidates();
-        assertEquals(4, candidates.size());
 
         // albumId3
         result = searchService.search(criteriaAlbumId3);

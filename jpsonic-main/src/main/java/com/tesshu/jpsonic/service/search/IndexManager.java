@@ -42,7 +42,6 @@ import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
-import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
@@ -109,7 +108,6 @@ public class IndexManager {
     private final AnalyzerFactory analyzerFactory;
     private final DocumentFactory documentFactory;
     private final MediaFileDao mediaFileDao;
-    private final ArtistDao artistDao;
     private final QueryFactory queryFactory;
     private final SearchServiceUtilities util;
     private final JpsonicComparators comparators;
@@ -129,13 +127,12 @@ public class IndexManager {
     }
 
     public IndexManager(AnalyzerFactory analyzerFactory, DocumentFactory documentFactory, MediaFileDao mediaFileDao,
-            ArtistDao artistDao, QueryFactory queryFactory, SearchServiceUtilities util, JpsonicComparators comparators,
+            QueryFactory queryFactory, SearchServiceUtilities util, JpsonicComparators comparators,
             SettingsService settingsService, ScannerStateServiceImpl scannerState) {
         super();
         this.analyzerFactory = analyzerFactory;
         this.documentFactory = documentFactory;
         this.mediaFileDao = mediaFileDao;
-        this.artistDao = artistDao;
         this.queryFactory = queryFactory;
         this.util = util;
         this.comparators = comparators;
@@ -261,9 +258,10 @@ public class IndexManager {
         } catch (IOException e) {
             LOG.error("Failed to delete song doc.", e);
         }
+    }
 
-        primarykeys = artistDao.getExpungeCandidates().stream().map(DocumentFactory::createPrimarykey)
-                .toArray(Term[]::new);
+    public void expungeArtistId3(@NonNull List<Integer> expungeCandidates) {
+        Term[] primarykeys = expungeCandidates.stream().map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
         try {
             writers.get(IndexType.ARTIST_ID3).deleteDocuments(primarykeys);
         } catch (IOException e) {

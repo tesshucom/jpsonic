@@ -27,7 +27,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
@@ -60,7 +59,6 @@ import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SearchResult;
 import com.tesshu.jpsonic.service.MediaFileCache;
@@ -87,7 +85,6 @@ import org.junit.jupiter.api.condition.DisabledOnJre;
 import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,85 +159,6 @@ class MediaScannerServiceImplTest {
                     mock(ExpungeService.class), executor);
             mediaScannerService.scanLibrary();
             executor.shutdown();
-        }
-
-        @Nested
-        class UpdateArtistTest {
-
-            private MediaFile createSong() {
-                // nonull
-                MediaFile song = new MediaFile();
-                // song.setAlbumName("albumName");
-                // song.setParentPath("parentPath");
-                song.setMediaType(MediaType.MUSIC);
-                song.setAlbumArtist("albumArtist");
-
-                // nullable
-                // song.setLastScanned(now());
-                return song;
-            }
-
-            private MusicFolder createMusicFolder() {
-                return new MusicFolder(Integer.valueOf(1), "", "", true, now());
-            }
-
-            @Test
-            void testIsNotUpdatable() {
-
-                MusicFolder musicFolder = createMusicFolder();
-                Instant scanDate = now();
-
-                MediaFile song = createSong();
-                song.setAlbumArtist(null);
-                scannerProcedureService.updateArtist(scanDate, musicFolder, song);
-                Mockito.verify(artistDao, Mockito.never()).createOrUpdateArtist(Mockito.any(Artist.class));
-
-                song = createSong();
-                song.setMediaType(MediaType.DIRECTORY);
-                scannerProcedureService.updateArtist(scanDate, musicFolder, song);
-                Mockito.verify(artistDao, Mockito.never()).createOrUpdateArtist(Mockito.any(Artist.class));
-            }
-
-            @Test
-            void testFirstEncounter() {
-
-                MediaFile song = createSong();
-                MusicFolder musicFolder = createMusicFolder();
-                Instant scanDate = now();
-
-                // Song dates are never updated
-                assertNotEquals(song.getLastScanned(), scanDate);
-
-                // ## First run
-                scannerProcedureService.updateArtist(scanDate, musicFolder, song);
-                Mockito.verify(artistDao, Mockito.times(1)).createOrUpdateArtist(Mockito.any(Artist.class));
-
-                ArgumentCaptor<Artist> artistCap = ArgumentCaptor.forClass(Artist.class);
-                Mockito.verify(artistDao, Mockito.times(1)).createOrUpdateArtist(artistCap.capture());
-                Mockito.verify(indexManager, Mockito.times(1)).index(Mockito.any(Artist.class),
-                        Mockito.any(MusicFolder.class));
-
-                Artist registeredArtist = artistCap.getValue();
-                assertEquals(registeredArtist.getLastScanned(), scanDate);
-                assertEquals(0, registeredArtist.getAlbumCount());
-                Mockito.when(artistDao.getArtist(registeredArtist.getName())).thenReturn(registeredArtist);
-
-                // ## Second run
-                artistCap = ArgumentCaptor.forClass(Artist.class);
-                scannerProcedureService.updateArtist(scanDate, musicFolder, song);
-
-                // Currently always executed
-                Mockito.verify(artistDao, Mockito.times(2)).createOrUpdateArtist(artistCap.capture());
-
-                // Not executed if already executed
-                Mockito.verify(indexManager, Mockito.times(1)).index(Mockito.any(Artist.class),
-                        Mockito.any(MusicFolder.class));
-
-                registeredArtist = artistCap.getValue();
-                assertEquals(registeredArtist.getLastScanned(), scanDate);
-                // As of v111.6.0 there will be no counting during scanning
-                assertEquals(0, registeredArtist.getAlbumCount());
-            }
         }
     }
 
@@ -721,7 +639,7 @@ class MediaScannerServiceImplTest {
         }
 
         @SuppressWarnings("PMD.DetachedTestCase")
-        // TODO Under deliberation. Due to the issue of whether to copy an artist that does not exist in the tag.
+        @Test
         void testMusicBrainzReleaseIdTag() {
 
             // Add the "Music3" folder to the database

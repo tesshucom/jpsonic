@@ -116,6 +116,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
             procedure.refleshAlbumID3(scanDate);
             procedure.updateOrderOfAlbumID3(scanDate);
+            procedure.refleshArtistId3(scanDate);
             procedure.updateOrderOfArtistId3(scanDate);
 
             procedure.updateAlbumCounts(scanDate);
