@@ -22,6 +22,8 @@
 package com.tesshu.jpsonic.util;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +59,14 @@ public final class PlayerUtils {
      * To avoid ArithmeticException, Instant.MIN is not used. https://bugs.openjdk.org/browse/JDK-8169532
      */
     public static final Instant FAR_PAST = Instant.EPOCH;
+
+    /*
+     * Represents a "time stamp in the far future". May be used as a flag value if parsing is not complete. Many
+     * databases use a maximum value of 9999–12–31 23:59:59 (instead of Long.MAX). However HSQLDB doesn't seem to accept
+     * it.
+     */
+    public static final Instant FAR_FUTURE = ZonedDateTime.of(9999, 12, 31, 0, 0, 0, 0, ZoneOffset.UTC).toInstant()
+            .truncatedTo(ChronoUnit.MILLIS);
 
     /**
      * Disallow external instantiation.

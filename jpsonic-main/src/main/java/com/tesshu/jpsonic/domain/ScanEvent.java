@@ -106,21 +106,32 @@ public class ScanEvent {
         FINISHED,
         FAILED,
         DESTROYED,
+
         BEFORE_SCAN,
-        PARSE_AUDIO,
-        UPDATE_SORT_OF_ARTIST,
-        UPDATE_SORT_OF_ALBUM,
-        PARSE_PODCAST,
+
+        PARSE_FILE_STRUCTURE,
         PARSED_COUNT,
         MARK_NON_PRESENT,
+
+        PARSE_ALBUM,
+        UPDATE_SORT_OF_ALBUM,
+        UPDATE_ORDER_OF_ALBUM,
+        UPDATE_SORT_OF_ARTIST,
+        UPDATE_ORDER_OF_ARTIST,
+
+        REFRESH_ALBUM_ID3,
+        UPDATE_ORDER_OF_ALBUM_ID3,
+        UPDATE_ORDER_OF_ARTIST_ID3,
+        
+        PARSE_PODCAST,
+
         UPDATE_ALBUM_COUNTS,
         UPDATE_GENRE_MASTER,
-        UPDATE_ORDER_OF_ARTIST,
-        UPDATE_ORDER_OF_ALBUM,
-        UPDATE_ORDER_OF_ARTIST_ID3,
-        UPDATE_ORDER_OF_ALBUM_ID3,
+
         RUN_STATS,
+
         IMPORT_PLAYLISTS,
+
         CHECKPOINT,
         AFTER_SCAN
     }

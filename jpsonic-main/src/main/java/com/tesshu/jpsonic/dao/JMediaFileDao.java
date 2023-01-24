@@ -119,11 +119,17 @@ public class JMediaFileDao extends AbstractDao {
         return queryForInt("select count(id) from media_file where parent_path=? and present", 0, path);
     }
 
-    public List<SortCandidate> getCopyableSortForAlbums() {
-        return query("select known.name , known.sort from ( "
-                + "    select distinct album as name from media_file where present and type = 'ALBUM' and (album is not null and album_sort is null)) unknown "
-                + "   join (select distinct album as name, album_sort as sort from media_file where type = 'ALBUM' and album is not null and album_sort is not null and present) known "
-                + "   on known.name = unknown.name ", sortCandidateMapper);
+    public List<SortCandidate> getCopyableSortForAlbums(List<MusicFolder> folders) {
+        if (folders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = Map.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
+                MusicFolder.toPathList(folders));
+        return namedQuery("select known.name , known.sort from ( " + "select distinct album as name from media_file "
+                + "where folder in (:folders) and present and type = :type and (album is not null and album_sort is null)) unknown "
+                + "join (select distinct album as name, album_sort as sort from media_file "
+                + "where folder in (:folders) and type = :type and album is not null and album_sort is not null and present) known "
+                + "on known.name = unknown.name ", sortCandidateMapper, args);
     }
 
     public List<SortCandidate> getCopyableSortForPersons() {
@@ -338,31 +344,37 @@ public class JMediaFileDao extends AbstractDao {
                 (rs, rowNum) -> rs.getInt(1), args);
     }
 
-    public List<SortCandidate> getSortForAlbumWithoutSorts() {
-        return query(
-                "select distinct album as name, null as sort from media_file where present and type  = 'ALBUM' and (album is not null and album_sort is null) ",
-                sortCandidateMapper);
+    public List<SortCandidate> getSortForAlbumWithoutSorts(List<MusicFolder> folders) {
+        if (folders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = Map.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
+                MusicFolder.toPathList(folders));
+        return namedQuery("select distinct album as name, null as sort from media_file "
+                + "where present and folder in (:folders) and type = :type and (album is not null and album_sort is null) ",
+                sortCandidateMapper, args);
     }
 
-    public List<SortCandidate> guessAlbumSorts() {
-        List<SortCandidate> candidates = query("select name, sort, duplicate_persons_with_changed.changed from ( "
-                + "       select distinct album as name, album_sort as sort, changed " + "       from media_file m1 "
-                + "       where album in " + "           (select name from "
-                + "               (select name, count(sort) from "
-                + "                   (select distinct album as name, album_sort as sort from media_file where type = 'ALBUM' and album is not null and album_sort is not null and present) named_album "
-                + "               group by name having 1 < count(sort) " + "               ) duplicate_names "
-                + "           ) " + "   ) " + "   duplicate_persons_with_changed "
-                + "   join media_file m on type = 'ALBUM' and name in(album)  "
-                + "   group by name, sort, duplicate_persons_with_changed.changed "
-                + "   having max(m.changed) = duplicate_persons_with_changed.changed ", sortCandidateMapper);
-
+    public List<SortCandidate> guessAlbumSorts(List<MusicFolder> folders) {
         List<SortCandidate> result = new ArrayList<>();
+        if (folders.isEmpty()) {
+            return result;
+        }
+        Map<String, Object> args = Map.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
+                MusicFolder.toPathList(folders));
+        List<SortCandidate> candidates = namedQuery("select name, sort, duplicates_with_changed.changed "
+                + "from (select distinct album as name, album_sort as sort, changed from media_file m1 "
+                + "join (select name, count(sort) from ( select distinct album as name, album_sort as sort from media_file  "
+                + "where album is not null and album_sort is not null and folder in (:folders)) named_album group by name having 1 < count(sort)) duplicates "
+                + "on m1.album = duplicates.name) duplicates_with_changed "
+                + "join media_file m on type = :type and folder in (:folders) and name = album "
+                + "group by name, sort, duplicates_with_changed.changed having max(m.changed) = duplicates_with_changed.changed",
+                sortCandidateMapper, args);
         candidates.forEach((candidate) -> {
             if (result.stream().noneMatch(r -> r.getName().equals(candidate.getName()))) {
                 result.add(candidate);
             }
         });
-
         return result;
     }
 

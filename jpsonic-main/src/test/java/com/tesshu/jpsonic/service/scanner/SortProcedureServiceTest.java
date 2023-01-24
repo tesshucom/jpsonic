@@ -114,13 +114,13 @@ class SortProcedureServiceTest {
             assertNull(songs.get(0).getArtistSort());
 
             assertEquals("file2", songs.get(1).getName());
-            assertEquals("近衛秀麿", songs.get(1).getAlbumArtist());
+            assertEquals("中山晋平", songs.get(1).getAlbumArtist());
             assertNull(songs.get(1).getAlbumArtistSort());
             assertEquals("中山晋平", songs.get(1).getArtist());
             assertNull(songs.get(1).getArtistSort());
 
             assertEquals("file3", songs.get(2).getName());
-            assertEquals("近衛秀麿", songs.get(2).getAlbumArtist());
+            assertEquals("ARTIST", songs.get(2).getAlbumArtist());
             assertNull(songs.get(2).getAlbumArtistSort());
             assertEquals("ARTIST", songs.get(2).getArtist());
             assertNull(songs.get(2).getArtistSort());
@@ -139,13 +139,17 @@ class SortProcedureServiceTest {
             assertNull(songs.get(0).getArtistSort());
 
             List<Artist> artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
-            assertEquals(2, artistID3s.size());
+            assertEquals(4, artistID3s.size());
             artistID3s.sort((m1, m2) -> Integer.compare(m1.getOrder(), m2.getOrder()));
 
-            assertEquals("近衛秀麿", artistID3s.get(0).getName());
+            assertEquals("ARTIST", artistID3s.get(0).getName());
             assertNull(artistID3s.get(0).getSort());
-            assertEquals("山田耕筰", artistID3s.get(1).getName());
+            assertEquals("近衛秀麿", artistID3s.get(1).getName());
             assertNull(artistID3s.get(1).getSort());
+            assertEquals("中山晋平", artistID3s.get(2).getName());
+            assertNull(artistID3s.get(2).getSort());
+            assertEquals("山田耕筰", artistID3s.get(3).getName());
+            assertNull(artistID3s.get(3).getSort());
 
             // Execution of Complementary Processing
             sortProcedureService.compensateSortOfArtist();
@@ -165,14 +169,14 @@ class SortProcedureServiceTest {
             assertEquals("コノエヒデマロ", songs.get(0).getArtistSort());
 
             assertEquals("file2", songs.get(1).getName());
-            assertEquals("近衛秀麿", songs.get(1).getAlbumArtist());
-            assertEquals("コノエヒデマロ", songs.get(1).getAlbumArtistSort());
+            assertEquals("中山晋平", songs.get(1).getAlbumArtist());
+            assertEquals("ナカヤマシンペイ", songs.get(1).getAlbumArtistSort());
             assertEquals("中山晋平", songs.get(1).getArtist());
             assertEquals("ナカヤマシンペイ", songs.get(1).getArtistSort());
 
             assertEquals("file3", songs.get(2).getName());
-            assertEquals("近衛秀麿", songs.get(2).getAlbumArtist());
-            assertEquals("コノエヒデマロ", songs.get(2).getAlbumArtistSort());
+            assertEquals("ARTIST", songs.get(2).getAlbumArtist());
+            assertEquals("ARTIST", songs.get(2).getAlbumArtistSort());
             assertEquals("ARTIST", songs.get(2).getArtist());
             assertEquals("ARTIST", songs.get(2).getArtistSort());
             assertEquals("世阿弥", songs.get(2).getComposer());
@@ -190,13 +194,17 @@ class SortProcedureServiceTest {
             assertEquals("ヤマダコウサク", songs.get(0).getArtistSort());
 
             artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
-            assertEquals(2, artistID3s.size());
+            assertEquals(4, artistID3s.size());
             artistID3s.sort((m1, m2) -> Integer.compare(m1.getOrder(), m2.getOrder()));
 
-            assertEquals("近衛秀麿", artistID3s.get(0).getName());
-            assertEquals("コノエヒデマロ", artistID3s.get(0).getSort());
-            assertEquals("山田耕筰", artistID3s.get(1).getName());
-            assertEquals("ヤマダコウサク", artistID3s.get(1).getSort());
+            assertEquals("ARTIST", artistID3s.get(0).getName());
+            assertEquals("ARTIST", artistID3s.get(0).getSort());
+            assertEquals("近衛秀麿", artistID3s.get(1).getName());
+            assertEquals("コノエヒデマロ", artistID3s.get(1).getSort());
+            assertEquals("中山晋平", artistID3s.get(2).getName());
+            assertEquals("ナカヤマシンペイ", artistID3s.get(2).getSort());
+            assertEquals("山田耕筰", artistID3s.get(3).getName());
+            assertEquals("ヤマダコウサク", artistID3s.get(3).getSort());
         }
     }
 
@@ -238,7 +246,10 @@ class SortProcedureServiceTest {
 
             List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPathString(), false);
             assertEquals(2, files.size());
-            files.sort((m1, m2) -> m1.toPath().compareTo(m2.toPath()));
+            for (int i = 0; i < files.size(); i++) {
+                assertEquals(i, files.get(i).getOrder());
+            }
+            files.sort((m1, m2) -> Integer.compare(m1.getOrder(), m2.getOrder()));
             assertEquals("file1", files.get(0).getName());
             assertEquals("case1", files.get(0).getArtist());
             assertEquals("artistA", files.get(0).getArtistSort()); // Copied (not in tag)
@@ -455,9 +466,9 @@ class SortProcedureServiceTest {
             assertEquals("case04", songs.get(4).getArtist());
             assertEquals("case04", songs.get(4).getArtistReading());
             assertEquals("artistH", songs.get(4).getArtistSort());
-            assertEquals("ARTIST", songs.get(4).getAlbumArtist());
-            assertEquals("ARTIST", songs.get(4).getAlbumArtistReading());
-            assertEquals("ARTIST", songs.get(4).getAlbumArtistSort());
+            assertEquals("case04", songs.get(4).getAlbumArtist());
+            assertEquals("case04", songs.get(4).getAlbumArtistReading());
+            assertEquals("artistH", songs.get(4).getAlbumArtistSort());
             assertEquals("case04", songs.get(4).getComposer());
             assertEquals("artistH", songs.get(4).getComposerSort());
 
@@ -515,9 +526,9 @@ class SortProcedureServiceTest {
             assertEquals("case07", songs.get(10).getArtist());
             assertEquals("case07", songs.get(10).getArtistReading());
             assertEquals("artistN", songs.get(10).getArtistSort());
-            assertEquals("ARTIST", songs.get(10).getAlbumArtist());
-            assertEquals("ARTIST", songs.get(10).getAlbumArtistReading());
-            assertEquals("ARTIST", songs.get(10).getAlbumArtistSort());
+            assertEquals("case07", songs.get(10).getAlbumArtist());
+            assertEquals("case07", songs.get(10).getAlbumArtistReading());
+            assertEquals("artistN", songs.get(10).getAlbumArtistSort());
             assertEquals("case07", songs.get(10).getComposer());
             assertEquals("artistN", songs.get(10).getComposerSort());
 
@@ -588,7 +599,10 @@ class SortProcedureServiceTest {
                             al -> jMediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, al.getPathString(), false).stream())
                     .collect(Collectors.toList());
             assertEquals(2, songs.size());
-            songs.sort((m1, m2) -> m1.toPath().compareTo(m2.toPath()));
+            for (int i = 0; i < songs.size(); i++) {
+                assertEquals(i, songs.get(i).getOrder());
+            }
+            songs.sort((m1, m2) -> Integer.compare(m1.getOrder(), m2.getOrder()));
 
             assertEquals("file17", songs.get(0).getName());
             assertEquals("case11", songs.get(0).getArtist());
@@ -606,7 +620,7 @@ class SortProcedureServiceTest {
         void testArtistOfId3() {
             // test/resources/MEDIAS/Sort/Cleansing/ArtistSort/Merge
             List<Artist> artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
-            assertEquals(10, artistID3s.size());
+            assertEquals(12, artistID3s.size());
             for (int i = 0; i < artistID3s.size(); i++) {
                 assertEquals(i, artistID3s.get(i).getOrder());
             }
@@ -628,29 +642,37 @@ class SortProcedureServiceTest {
             assertEquals("case03", artistID3s.get(3).getReading());
             assertEquals("artistE", artistID3s.get(3).getSort());
 
-            assertEquals("case05", artistID3s.get(4).getName());
-            assertEquals("case05", artistID3s.get(4).getReading());
-            assertEquals("artistJ", artistID3s.get(4).getSort());
+            assertEquals("case04", artistID3s.get(4).getName());
+            assertEquals("case04", artistID3s.get(4).getReading());
+            assertEquals("artistH", artistID3s.get(4).getSort());
 
-            assertEquals("case06", artistID3s.get(5).getName());
-            assertEquals("case06", artistID3s.get(5).getReading());
-            assertEquals("artistL", artistID3s.get(5).getSort());
+            assertEquals("case05", artistID3s.get(5).getName());
+            assertEquals("case05", artistID3s.get(5).getReading());
+            assertEquals("artistJ", artistID3s.get(5).getSort());
 
-            assertEquals("case08", artistID3s.get(6).getName());
-            assertEquals("case08", artistID3s.get(6).getReading());
-            assertEquals("artistP", artistID3s.get(6).getSort());
+            assertEquals("case06", artistID3s.get(6).getName());
+            assertEquals("case06", artistID3s.get(6).getReading());
+            assertEquals("artistL", artistID3s.get(6).getSort());
 
-            assertEquals("case09", artistID3s.get(7).getName());
-            assertEquals("case09", artistID3s.get(7).getReading());
-            assertEquals("artistR", artistID3s.get(7).getSort());
+            assertEquals("case07", artistID3s.get(7).getName());
+            assertEquals("case07", artistID3s.get(7).getReading());
+            assertEquals("artistN", artistID3s.get(7).getSort());
 
-            assertEquals("case10", artistID3s.get(8).getName());
-            assertEquals("case10", artistID3s.get(8).getReading());
-            assertEquals("artistT", artistID3s.get(8).getSort());
+            assertEquals("case08", artistID3s.get(8).getName());
+            assertEquals("case08", artistID3s.get(8).getReading());
+            assertEquals("artistP", artistID3s.get(8).getSort());
 
-            assertEquals("case11", artistID3s.get(9).getName());
-            assertEquals("case11", artistID3s.get(9).getReading());
-            assertEquals("artistV", artistID3s.get(9).getSort());
+            assertEquals("case09", artistID3s.get(9).getName());
+            assertEquals("case09", artistID3s.get(9).getReading());
+            assertEquals("artistR", artistID3s.get(9).getSort());
+
+            assertEquals("case10", artistID3s.get(10).getName());
+            assertEquals("case10", artistID3s.get(10).getReading());
+            assertEquals("artistT", artistID3s.get(10).getSort());
+
+            assertEquals("case11", artistID3s.get(11).getName());
+            assertEquals("case11", artistID3s.get(11).getReading());
+            assertEquals("artistV", artistID3s.get(11).getSort());
         }
 
         @Test
@@ -658,7 +680,7 @@ class SortProcedureServiceTest {
         void testAlbumOfId3() {
 
             List<Album> albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, musicFolders);
-            assertEquals(11, albumId3s.size());
+            assertEquals(13, albumId3s.size());
             for (int i = 0; i < albumId3s.size(); i++) {
                 assertEquals(i, albumId3s.get(i).getOrder());
             }
@@ -684,40 +706,50 @@ class SortProcedureServiceTest {
             assertEquals("ARTIST", albumId3s.get(3).getArtistReading());
             assertEquals("ARTIST", albumId3s.get(3).getArtistSort());
 
-            assertEquals("ALBUM5", albumId3s.get(4).getName());
-            assertEquals("case05", albumId3s.get(4).getArtist());
-            assertEquals("case05", albumId3s.get(4).getArtistReading());
-            assertEquals("artistJ", albumId3s.get(4).getArtistSort());
+            assertEquals("ALBUM4", albumId3s.get(4).getName());
+            assertEquals("case04", albumId3s.get(4).getArtist());
+            assertEquals("case04", albumId3s.get(4).getArtistReading());
+            assertEquals("artistH", albumId3s.get(4).getArtistSort());
 
-            assertEquals("ALBUM6", albumId3s.get(5).getName());
-            assertEquals("case06", albumId3s.get(5).getArtist());
-            assertEquals("case06", albumId3s.get(5).getArtistReading());
-            assertEquals("artistL", albumId3s.get(5).getArtistSort());
+            assertEquals("ALBUM5", albumId3s.get(5).getName());
+            assertEquals("case05", albumId3s.get(5).getArtist());
+            assertEquals("case05", albumId3s.get(5).getArtistReading());
+            assertEquals("artistJ", albumId3s.get(5).getArtistSort());
 
-            assertEquals("ALBUM7", albumId3s.get(6).getName());
-            assertEquals("ARTIST", albumId3s.get(6).getArtist());
-            assertEquals("ARTIST", albumId3s.get(6).getArtistReading());
-            assertEquals("ARTIST", albumId3s.get(6).getArtistSort());
+            assertEquals("ALBUM6", albumId3s.get(6).getName());
+            assertEquals("case06", albumId3s.get(6).getArtist());
+            assertEquals("case06", albumId3s.get(6).getArtistReading());
+            assertEquals("artistL", albumId3s.get(6).getArtistSort());
 
-            assertEquals("ALBUM8", albumId3s.get(7).getName());
-            assertEquals("case08", albumId3s.get(7).getArtist());
-            assertEquals("case08", albumId3s.get(7).getArtistReading());
-            assertEquals("artistP", albumId3s.get(7).getArtistSort());
+            assertEquals("ALBUM7", albumId3s.get(7).getName());
+            assertEquals("ARTIST", albumId3s.get(7).getArtist());
+            assertEquals("ARTIST", albumId3s.get(7).getArtistReading());
+            assertEquals("ARTIST", albumId3s.get(7).getArtistSort());
 
-            assertEquals("ALBUM9", albumId3s.get(8).getName());
-            assertEquals("case09", albumId3s.get(8).getArtist());
-            assertEquals("case09", albumId3s.get(8).getArtistReading());
-            assertEquals("artistR", albumId3s.get(8).getArtistSort());
+            assertEquals("ALBUM7", albumId3s.get(8).getName());
+            assertEquals("case07", albumId3s.get(8).getArtist());
+            assertEquals("case07", albumId3s.get(8).getArtistReading());
+            assertEquals("artistN", albumId3s.get(8).getArtistSort());
 
-            assertEquals("ALBUM10", albumId3s.get(9).getName());
-            assertEquals("case10", albumId3s.get(9).getArtist());
-            assertEquals("case10", albumId3s.get(9).getArtistReading());
-            assertEquals("artistT", albumId3s.get(9).getArtistSort());
+            assertEquals("ALBUM8", albumId3s.get(9).getName());
+            assertEquals("case08", albumId3s.get(9).getArtist());
+            assertEquals("case08", albumId3s.get(9).getArtistReading());
+            assertEquals("artistP", albumId3s.get(9).getArtistSort());
 
-            assertEquals("ALBUM11", albumId3s.get(10).getName());
-            assertEquals("case11", albumId3s.get(10).getArtist());
-            assertEquals("case11", albumId3s.get(10).getArtistReading());
-            assertEquals("artistV", albumId3s.get(10).getArtistSort());
+            assertEquals("ALBUM9", albumId3s.get(10).getName());
+            assertEquals("case09", albumId3s.get(10).getArtist());
+            assertEquals("case09", albumId3s.get(10).getArtistReading());
+            assertEquals("artistR", albumId3s.get(10).getArtistSort());
+
+            assertEquals("ALBUM10", albumId3s.get(11).getName());
+            assertEquals("case10", albumId3s.get(11).getArtist());
+            assertEquals("case10", albumId3s.get(11).getArtistReading());
+            assertEquals("artistT", albumId3s.get(11).getArtistSort());
+
+            assertEquals("ALBUM11", albumId3s.get(12).getName());
+            assertEquals("case11", albumId3s.get(12).getArtist());
+            assertEquals("case11", albumId3s.get(12).getArtistReading());
+            assertEquals("artistV", albumId3s.get(12).getArtistSort());
         }
     }
 

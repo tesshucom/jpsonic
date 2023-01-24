@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.service.scanner;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.FAR_FUTURE;
 import static com.tesshu.jpsonic.util.PlayerUtils.FAR_PAST;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -137,7 +139,7 @@ public class WritableMediaFileService {
         if (registered != null) {
             Optional<MediaFile> op = checkLastModified(scanDate, registered);
             op.ifPresent(m -> mediaFileCache.put(path, m));
-            return op.get();
+            return op.orElse(registered);
         }
 
         return createMediaFile(scanDate, path).get();
@@ -153,45 +155,53 @@ public class WritableMediaFileService {
 
     void updateChildren(@NonNull Instant scanDate, @NonNull MediaFile parent) {
 
-        if (isSchemeLastModified() //
-                && parent.getChildrenLastUpdated().toEpochMilli() >= parent.getChanged().toEpochMilli()) {
-            return;
-        } else if (isSchemeLastScaned() //
+        if (isSchemeLastScaned() //
                 && parent.getMediaType() == MediaType.ALBUM && !FAR_PAST.equals(parent.getChildrenLastUpdated())) {
             return;
         }
 
         Map<String, MediaFile> stored = mediaFileDao.getChildrenOf(parent.getPathString()).stream()
                 .collect(Collectors.toMap(mf -> mf.getPathString(), mf -> mf));
+        LongAdder updateCount = new LongAdder();
+
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(parent.toPath())) {
             for (Path childPath : ds) {
-                if (mediaFileService.includeMediaFile(childPath)) {
-                    updateChild(stored, childPath, scanDate);
+                if (!mediaFileService.includeMediaFile(childPath)) {
+                    continue;
                 }
+                MediaFile child = stored.get(childPath.toString());
+                stored.remove(childPath.toString());
+                createOrUpdateChild(child, childPath, scanDate).ifPresentOrElse(result -> updateCount.increment(),
+                        () -> {
+                            if (child != null && !scanDate.equals(child.getLastScanned())
+                                    && !FAR_FUTURE.equals(child.getLastScanned())) {
+                                mediaFileDao.updateLastScanned(child.getId(), scanDate);
+                            }
+                        });
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
 
-        // Delete children that no longer exist on disk.
-        for (String path : stored.keySet()) {
-            mediaFileDao.deleteMediaFile(path);
-        }
+        stored.values().stream().filter(m -> mediaFileDao.deleteMediaFile(m.getId()) > 0)
+                .forEach(m -> updateCount.increment());
 
-        mediaFileDao.updateChildrenLastUpdated(parent.getPathString(), parent.getChanged());
+        if (updateCount.intValue() > 0) {
+            mediaFileDao.updateChildrenLastUpdated(parent.getPathString(),
+                    parent.getMediaType() == MediaType.ALBUM ? FAR_FUTURE : parent.getChanged());
+        }
     }
 
-    void updateChild(@NonNull Map<String, MediaFile> stored, @NonNull Path childPath, @NonNull Instant scanDate) {
-        MediaFile child = stored.get(childPath.toString());
+    Optional<MediaFile> createOrUpdateChild(@Nullable MediaFile child, @NonNull Path childPath,
+            @NonNull Instant scanDate) {
         if (child == null) {
             if (mediaFileDao.exists(childPath)) {
-                refreshMediaFile(scanDate, mediaFileDao.getMediaFile(childPath))
-                        .ifPresent(m -> stored.remove(m.getPathString()));
+                return refreshMediaFile(scanDate, mediaFileDao.getMediaFile(childPath));
             } else {
-                createMediaFile(scanDate, childPath).ifPresent(m -> stored.remove(m.getPathString()));
+                return createMediaFile(scanDate, childPath);
             }
         } else {
-            checkLastModified(scanDate, child).ifPresent(m -> stored.remove(m.getPathString()));
+            return checkLastModified(scanDate, child);
         }
     }
 
@@ -217,20 +227,22 @@ public class WritableMediaFileService {
     }
 
     Optional<MediaFile> checkLastModified(@NonNull Instant scanDate, @NonNull final MediaFile mediaFile) {
-        if (mediaFile.getVersion() >= MediaFileDao.VERSION) {
+        if (scanDate.equals(mediaFile.getLastScanned()) || FAR_FUTURE.equals(mediaFile.getLastScanned())) {
+            return Optional.empty();
+        } else if (mediaFile.getVersion() >= MediaFileDao.VERSION) {
             switch (settingsService.getFileModifiedCheckScheme()) {
             case LAST_MODIFIED:
                 if (settingsService.isIgnoreFileTimestamps() && !FAR_PAST.equals(mediaFile.getLastScanned())) {
-                    return Optional.of(mediaFile);
+                    return Optional.empty();
                 } else if (!settingsService.isIgnoreFileTimestamps()
                         && !mediaFile.getChanged().isBefore(getLastModified(scanDate, mediaFile.toPath()))
                         && !FAR_PAST.equals(mediaFile.getLastScanned())) {
-                    return Optional.of(mediaFile);
+                    return Optional.empty();
                 }
                 break;
             case LAST_SCANNED:
                 if (!FAR_PAST.equals(mediaFile.getLastScanned())) {
-                    return Optional.of(mediaFile);
+                    return Optional.empty();
                 }
                 break;
             default:
@@ -271,7 +283,8 @@ public class WritableMediaFileService {
         return mediaFile;
     }
 
-    private @NonNull MediaFile instanceOf(@NonNull Instant scanDate, @NonNull Path path, MediaFile registered) {
+    private @NonNull MediaFile instanceOf(@NonNull Instant scanDate, @NonNull Path path,
+            @Nullable MediaFile registered) {
         MediaFile mediaFile = new MediaFile();
 
         mediaFile.setId(registered == null ? 0 : registered.getId());
@@ -297,6 +310,7 @@ public class WritableMediaFileService {
         mediaFile.setComment(registered == null ? null : registered.getComment());
         mediaFile.setMediaType(MediaFile.MediaType.DIRECTORY);
         mediaFile.setPresent(true);
+        mediaFile.setOrder(registered == null ? -1 : registered.getOrder());
         return mediaFile;
     }
 
@@ -345,32 +359,15 @@ public class WritableMediaFileService {
     }
 
     private void applyDirectory(@NonNull Path dirPath, @NonNull MediaFile to, @NonNull Instant scanDate) {
-        // Is this an album?
         if (!mediaFileService.isRoot(to)) {
-
             getFirstChildMediaFile(dirPath).ifPresentOrElse(firstChildPath -> {
                 to.setMediaType(MediaFile.MediaType.ALBUM);
-
-                // Guess artist/album name, year and genre.
-                MediaFile firstChild = getMediaFile(scanDate, firstChildPath);
-                if (firstChild != null) {
-                    to.setArtist(firstChild.getAlbumArtist());
-                    to.setArtistSort(firstChild.getAlbumArtistSort());
-                    to.setArtistSortRaw(firstChild.getAlbumArtistSort());
-                    to.setAlbumName(firstChild.getAlbumName());
-                    to.setAlbumSort(firstChild.getAlbumSort());
-                    to.setAlbumSortRaw(firstChild.getAlbumSort());
-                    to.setYear(firstChild.getYear());
-                    to.setGenre(firstChild.getGenre());
-                }
-
-                // Look for cover art.
-                mediaFileService.findCoverArt(dirPath)
-                        .ifPresent(coverArtPath -> to.setCoverArtPathString(coverArtPath.toString()));
-
-            }, () -> to.setArtist(dirPath.getFileName().toString()));
-
-            readingUtils.analyze(to);
+                to.setLastScanned(FAR_FUTURE);
+            }, () -> {
+                to.setArtist(dirPath.getFileName().toString());
+                readingUtils.analyze(to);
+                to.setLastScanned(scanDate);
+            });
         }
     }
 

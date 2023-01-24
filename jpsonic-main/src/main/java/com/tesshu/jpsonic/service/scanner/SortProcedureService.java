@@ -19,15 +19,18 @@
 
 package com.tesshu.jpsonic.service.scanner;
 
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.dao.JArtistDao;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
+import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
@@ -55,6 +58,7 @@ public class SortProcedureService {
     private final MediaFileService mediaFileService;
     private final WritableMediaFileService writableMediaFileService;
     private final JMediaFileDao jMediaFileDao;
+    private final MediaFileDao mediaFileDao;
     private final ArtistDao artistDao;
     private final JArtistDao jArtistDao;
     private final AlbumDao albumDao;
@@ -64,14 +68,15 @@ public class SortProcedureService {
     private final JpsonicComparators comparators;
 
     public SortProcedureService(MusicFolderService musicFolderService, MediaFileService mediaFileService,
-            WritableMediaFileService writableMediaFileService, JMediaFileDao jMediaFileDao, ArtistDao artistDao,
-            JArtistDao jArtistDao, AlbumDao albumDao, JAlbumDao jAlbumDao, JapaneseReadingUtils utils,
-            IndexManager indexManager, JpsonicComparators jpsonicComparator) {
+            WritableMediaFileService writableMediaFileService, JMediaFileDao jMediaFileDao, MediaFileDao mediaFileDao,
+            ArtistDao artistDao, JArtistDao jArtistDao, AlbumDao albumDao, JAlbumDao jAlbumDao,
+            JapaneseReadingUtils utils, IndexManager indexManager, JpsonicComparators jpsonicComparator) {
         super();
         this.musicFolderService = musicFolderService;
         this.mediaFileService = mediaFileService;
         this.writableMediaFileService = writableMediaFileService;
         this.jMediaFileDao = jMediaFileDao;
+        this.mediaFileDao = mediaFileDao;
         this.artistDao = artistDao;
         this.jArtistDao = jArtistDao;
         this.albumDao = albumDao;
@@ -85,16 +90,10 @@ public class SortProcedureService {
         utils.clear();
     }
 
-    void clearOrder() {
-        jMediaFileDao.clearOrder();
-        jArtistDao.clearOrder();
-        jAlbumDao.clearOrder();
-    }
-
-    FixedIds compensateSortOfAlbum() {
-        List<SortCandidate> candidates = jMediaFileDao.getSortForAlbumWithoutSorts();
+    FixedIds compensateSortOfAlbum(List<MusicFolder> folders) {
+        List<SortCandidate> candidates = jMediaFileDao.getSortForAlbumWithoutSorts(folders);
         candidates.forEach(utils::analyze);
-        return updateSortOfAlbum(candidates);
+        return updateSortOfAlbums(candidates);
     }
 
     FixedIds compensateSortOfArtist() {
@@ -103,10 +102,10 @@ public class SortProcedureService {
         return updateSortOfArtist(candidates);
     }
 
-    FixedIds copySortOfAlbum() {
-        List<SortCandidate> candidates = jMediaFileDao.getCopyableSortForAlbums();
+    FixedIds copySortOfAlbum(List<MusicFolder> folders) {
+        List<SortCandidate> candidates = jMediaFileDao.getCopyableSortForAlbums(folders);
         candidates.forEach(utils::analyze);
-        return updateSortOfAlbum(candidates);
+        return updateSortOfAlbums(candidates);
     }
 
     FixedIds copySortOfArtist() {
@@ -115,10 +114,10 @@ public class SortProcedureService {
         return updateSortOfArtist(candidates);
     }
 
-    FixedIds mergeSortOfAlbum() {
-        List<SortCandidate> candidates = jMediaFileDao.guessAlbumSorts();
+    FixedIds mergeSortOfAlbum(List<MusicFolder> folders) {
+        List<SortCandidate> candidates = jMediaFileDao.guessAlbumSorts(folders);
         candidates.forEach(utils::analyze);
-        return updateSortOfAlbum(candidates);
+        return updateSortOfAlbums(candidates);
     }
 
     FixedIds mergeSortOfArtist() {
@@ -127,7 +126,7 @@ public class SortProcedureService {
         return updateSortOfArtist(candidates);
     }
 
-    private void updateIndexOfAlbum(FixedIds... fixedIds) {
+    private void updateIndexOfAlbums(FixedIds... fixedIds) {
         FixedIds fixedIdAll = new FixedIds();
         for (FixedIds toBeFixed : fixedIds) {
             fixedIdAll.getMediaFileIds().addAll(toBeFixed.getMediaFileIds());
@@ -200,14 +199,25 @@ public class SortProcedureService {
         }
     }
 
-    void updateSortOfAlbum() {
-        FixedIds merged = mergeSortOfAlbum();
-        FixedIds copied = copySortOfAlbum();
-        FixedIds compensated = compensateSortOfAlbum();
-        updateIndexOfAlbum(merged, copied, compensated);
+    void updateOrderOfSongs(MediaFile album) {
+        List<MediaFile> songs = mediaFileDao.getChildrenOf(album.getPathString()).stream()
+                .filter(child -> mediaFileService.isAudioFile(child.getFormat())
+                        || mediaFileService.isVideoFile(child.getFormat()))
+                .collect(Collectors.toList());
+        Collections.sort(songs, comparators.songsDefault());
+        for (int i = 0; i < songs.size(); i++) {
+            mediaFileDao.updateOrder(songs.get(i).getPathString(), i);
+        }
     }
 
-    private FixedIds updateSortOfAlbum(@NonNull List<SortCandidate> candidates) {
+    void updateSortOfAlbum(List<MusicFolder> folders) {
+        FixedIds merged = mergeSortOfAlbum(folders);
+        FixedIds copied = copySortOfAlbum(folders);
+        FixedIds compensated = compensateSortOfAlbum(folders);
+        updateIndexOfAlbums(merged, copied, compensated);
+    }
+
+    private FixedIds updateSortOfAlbums(@NonNull List<SortCandidate> candidates) {
         FixedIds ids = new FixedIds();
         if (candidates.isEmpty()) {
             return ids;

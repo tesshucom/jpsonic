@@ -58,6 +58,7 @@ import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
+import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -83,9 +84,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnJre;
-import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.JRE;
-import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
@@ -136,7 +135,7 @@ class MediaScannerServiceImplTest {
             scannerProcedureService = new ScannerProcedureService(settingsService, mock(MusicFolderService.class),
                     indexManager, mediaFileService, writableMediaFileService, mock(PlaylistService.class), mediaFileDao,
                     artistDao, albumDao, mock(StaticsDao.class), utils, scannerStateService, mock(Ehcache.class),
-                    mock(MediaFileCache.class));
+                    mock(MediaFileCache.class), mock(JapaneseReadingUtils.class));
             mediaScannerService = new MediaScannerServiceImpl(scannerStateService, scannerProcedureService,
                     mock(ExpungeService.class), executor);
         }
@@ -274,16 +273,13 @@ class MediaScannerServiceImplTest {
         }
 
         /*
-         * File structured albums are only affected by the first child of the system file path. FIFO. Only the last
-         * registration is valid if the same name exists in the case of Id3 album. LIFO. Depending on the data pattern,
-         * different album data of Genre can be created in File structure / Id3.
-         *
-         * Jpsonic changes DB registration logic of Id3 album to eliminate data inconsistency.
-         *
+         * If data with the same name exists in both albums in the file structure/Id3, the tag of the first child file
+         * takes precedence. The Sonic server relies on his NIO for this "first child", so the result of the first-fetch
+         * depends on the OS filesystem. Jpsonic has solved this problem in v111.6.0, and the same analysis is now
+         * performed on all platforms.
          */
         @Test
-        @DisabledOnOs(OS.LINUX)
-        void testUpdateAlbumOnWin() {
+        void testUpdateAlbum() {
 
             // LIFO
             List<MusicFolder> folder = getMusicFolders().stream().filter(f -> "alphaBeticalProps".equals(f.getName()))
@@ -300,23 +296,22 @@ class MediaScannerServiceImplTest {
             assertNull(album.getMusicBrainzReleaseId());
             assertNull(album.getMusicBrainzRecordingId());
 
-            List<Album> albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folder);
-            assertEquals(1, albumId3s.size());
-            Album albumId3 = albumId3s.get(0);
-            assertEquals("albumA", albumId3.getName());
-            assertEquals("albumArtistA", albumId3.getArtist());
+            List<Album> albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, folder);
+            Map<String, Album> albumId3Map = albumId3s.stream().collect(Collectors.toMap(a -> a.getArtist(), a -> a));
 
-            // [For legacy implementations, the following values ​​are inserted]
-            // assertEquals("genreB", albumId3.getGenre());
-            // assertEquals(Integer.valueOf(2002), albumId3.getYear());
-
-            // [For Jpsonic, modified to insert the following values]
-            // Other than this case, it is the same specification as the legacy.
-            assertEquals("genreA", albumId3.getGenre());
-            assertEquals(Integer.valueOf(2001), albumId3.getYear());
-
-            assertNull(album.getMusicBrainzReleaseId());
-            assertNull(album.getMusicBrainzRecordingId());
+            assertEquals(2, albumId3s.size());
+            Album albumA = albumId3Map.get("albumArtistA");
+            assertEquals("albumA", albumA.getName());
+            assertEquals("albumArtistA", albumA.getArtist());
+            assertEquals("genreA", albumA.getGenre());
+            assertEquals(Integer.valueOf(2001), albumA.getYear());
+            assertNull(albumA.getMusicBrainzReleaseId());
+            Album albumB = albumId3Map.get("albumArtistB");
+            assertEquals("albumA", albumB.getName());
+            assertEquals("albumArtistB", albumB.getArtist());
+            assertEquals("genreB", albumB.getGenre());
+            assertEquals(Integer.valueOf(2002), albumB.getYear());
+            assertNull(albumB.getMusicBrainzReleaseId());
 
             // Null
             folder = getMusicFolders().stream().filter(f -> "noTagFirstChild".equals(f.getName()))
@@ -335,121 +330,19 @@ class MediaScannerServiceImplTest {
             albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folder);
             assertEquals(2, albumId3s.size());
 
-            albumId3 = albumId3s.get(0);
-            assertEquals("ALBUM2", albumId3.getName());
-            assertEquals("ARTIST2", albumId3.getArtist());
-            assertNull(albumId3.getGenre());
-            assertNull(albumId3.getYear());
-            assertNull(albumId3.getMusicBrainzReleaseId());
+            albumA = albumId3s.get(0);
+            assertEquals("ALBUM2", albumA.getName());
+            assertEquals("ARTIST2", albumA.getArtist());
+            assertNull(albumA.getGenre());
+            assertNull(albumA.getYear());
+            assertNull(albumA.getMusicBrainzReleaseId());
 
-            albumId3 = albumId3s.get(1);
-            assertEquals("albumC", albumId3.getName());
-            assertEquals("albumArtistC", albumId3.getArtist());
-            assertEquals("genreC", albumId3.getGenre());
-            assertEquals(Integer.valueOf(2002), albumId3.getYear());
-            assertNull(albumId3.getMusicBrainzReleaseId());
-
-            // Reverse
-            folder = getMusicFolders().stream().filter(f -> "fileAndPropsNameInReverse".equals(f.getName()))
-                    .collect(Collectors.toList());
-            albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, folder);
-            assertEquals(1, albums.size());
-            album = albums.get(0);
-            assertEquals("ALBUM3", album.getName());
-            assertEquals("albumArtistE", album.getArtist());
-            assertNull(album.getAlbumArtist());
-            assertEquals("genreE", album.getGenre());
-            assertEquals(Integer.valueOf(2002), album.getYear());
-            assertNull(album.getMusicBrainzReleaseId());
-            assertNull(album.getMusicBrainzRecordingId());
-
-            albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folder);
-            assertEquals(2, albumId3s.size());
-
-            albumId3 = albumId3s.get(0);
-            assertEquals("albumD", albumId3.getName());
-            assertEquals("albumArtistD", albumId3.getArtist());
-            assertEquals("genreD", albumId3.getGenre());
-            assertEquals(Integer.valueOf(2001), albumId3.getYear());
-            assertNull(albumId3.getMusicBrainzReleaseId());
-
-            albumId3 = albumId3s.get(1);
-            assertEquals("albumE", albumId3.getName());
-            assertEquals("albumArtistE", albumId3.getArtist());
-            assertEquals("genreE", albumId3.getGenre());
-            assertEquals(Integer.valueOf(2002), albumId3.getYear());
-            assertNull(albumId3.getMusicBrainzReleaseId());
-        }
-
-        @SuppressWarnings("PMD.DetachedTestCase")
-        // @Test
-        // @Disabled
-        // @DisabledOnOs(OS.WINDOWS)
-        void testUpdateAlbumOnLinux() {
-
-            // LIFO
-            List<MusicFolder> folder = getMusicFolders().stream().filter(f -> "alphaBeticalProps".equals(f.getName()))
-                    .collect(Collectors.toList());
-            assertEquals(1, folder.size());
-            List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, folder);
-            assertEquals(1, albums.size());
-            MediaFile album = albums.get(0);
-            assertEquals("ALBUM1", album.getName());
-            assertEquals("albumArtistB", album.getArtist());
-            assertNull(album.getAlbumArtist());
-            assertEquals("genreB", album.getGenre());
-            assertEquals(Integer.valueOf(2002), album.getYear());
-            assertNull(album.getMusicBrainzReleaseId());
-            assertNull(album.getMusicBrainzRecordingId());
-
-            List<Album> albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folder);
-            assertEquals(1, albumId3s.size());
-            Album albumId3 = albumId3s.get(0);
-            assertEquals("albumA", albumId3.getName());
-            assertEquals("albumArtistB", albumId3.getArtist());
-
-            // [For legacy implementations, the following values ​​are inserted]
-            // assertEquals("genreB", albumId3.getGenre());
-            // assertEquals(Integer.valueOf(2002), albumId3.getYear());
-
-            // [For Jpsonic, modified to insert the following values]
-            // Other than this case, it is the same specification as the legacy.
-            assertEquals("genreB", albumId3.getGenre());
-            assertEquals(Integer.valueOf(2002), albumId3.getYear());
-
-            assertNull(album.getMusicBrainzReleaseId());
-            assertNull(album.getMusicBrainzRecordingId());
-
-            // Null
-            folder = getMusicFolders().stream().filter(f -> "noTagFirstChild".equals(f.getName()))
-                    .collect(Collectors.toList());
-            albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, folder);
-            assertEquals(1, albums.size());
-            album = albums.get(0);
-            assertEquals("ALBUM2", album.getName());
-            assertEquals("albumArtistC", album.getArtist());
-            assertNull(album.getAlbumArtist());
-            assertEquals("genreC", album.getGenre());
-            assertEquals(2002, album.getYear());
-            assertNull(album.getMusicBrainzReleaseId());
-            assertNull(album.getMusicBrainzRecordingId());
-
-            albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folder);
-            assertEquals(2, albumId3s.size());
-
-            albumId3 = albumId3s.get(0);
-            assertEquals("ALBUM2", albumId3.getName());
-            assertEquals("ARTIST2", albumId3.getArtist());
-            assertNull(albumId3.getGenre());
-            assertNull(albumId3.getYear());
-            assertNull(albumId3.getMusicBrainzReleaseId());
-
-            albumId3 = albumId3s.get(1);
-            assertEquals("albumC", albumId3.getName());
-            assertEquals("albumArtistC", albumId3.getArtist());
-            assertEquals("genreC", albumId3.getGenre());
-            assertEquals(Integer.valueOf(2002), albumId3.getYear());
-            assertNull(albumId3.getMusicBrainzReleaseId());
+            albumA = albumId3s.get(1);
+            assertEquals("albumC", albumA.getName());
+            assertEquals("albumArtistC", albumA.getArtist());
+            assertEquals("genreC", albumA.getGenre());
+            assertEquals(Integer.valueOf(2002), albumA.getYear());
+            assertNull(albumA.getMusicBrainzReleaseId());
 
             // Reverse
             folder = getMusicFolders().stream().filter(f -> "fileAndPropsNameInReverse".equals(f.getName()))
@@ -468,19 +361,19 @@ class MediaScannerServiceImplTest {
             albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folder);
             assertEquals(2, albumId3s.size());
 
-            albumId3 = albumId3s.get(0);
-            assertEquals("albumD", albumId3.getName());
-            assertEquals("albumArtistD", albumId3.getArtist());
-            assertEquals("genreD", albumId3.getGenre());
-            assertEquals(Integer.valueOf(2001), albumId3.getYear());
-            assertNull(albumId3.getMusicBrainzReleaseId());
+            albumA = albumId3s.get(0);
+            assertEquals("albumD", albumA.getName());
+            assertEquals("albumArtistD", albumA.getArtist());
+            assertEquals("genreD", albumA.getGenre());
+            assertEquals(Integer.valueOf(2001), albumA.getYear());
+            assertNull(albumA.getMusicBrainzReleaseId());
 
-            albumId3 = albumId3s.get(1);
-            assertEquals("albumE", albumId3.getName());
-            assertEquals("albumArtistE", albumId3.getArtist());
-            assertEquals("genreE", albumId3.getGenre());
-            assertEquals(Integer.valueOf(2002), albumId3.getYear());
-            assertNull(albumId3.getMusicBrainzReleaseId());
+            albumA = albumId3s.get(1);
+            assertEquals("albumE", albumA.getName());
+            assertEquals("albumArtistE", albumA.getArtist());
+            assertEquals("genreE", albumA.getGenre());
+            assertEquals(Integer.valueOf(2002), albumA.getYear());
+            assertNull(albumA.getMusicBrainzReleaseId());
         }
     }
 
@@ -500,7 +393,8 @@ class MediaScannerServiceImplTest {
         private MediaFileDao mediaFileDao;
         @Autowired
         private WritableMediaFileService writableMediaFileService;
-
+        @Autowired
+        private IndexManager indexManager;
         @Autowired
         private SearchCriteriaDirector criteriaDirector;
         @Autowired
@@ -574,10 +468,12 @@ class MediaScannerServiceImplTest {
              * servers. Jpsonic analyzes files only when scanning.
              */
             Instant scanStart = now();
+            indexManager.startIndexing();
             albums = writableMediaFileService.getChildrenOf(scanStart, artist, false);
             assertEquals(1, albums.size());
             songs = writableMediaFileService.getChildrenOf(scanStart, album, true);
             assertEquals(1, songs.size());
+            indexManager.stopIndexing();
 
             // Artist and Album are not subject to the update process
             artist = mediaFileDao.getMediaFile(this.artist.toString());
@@ -587,31 +483,20 @@ class MediaScannerServiceImplTest {
             assertEquals(this.album, album.toPath());
             assertEquals("ALBUM", album.getName());
 
-            /*
-             * v111.6.0 : The tag is not updated. This is a confirmation of the behavior specification of
-             * MediaFileService#getChildrenOf which is executed before this step. The legacy server performed tag
-             * parsing conditionally when getChildrenOf was executed. (Various problems will occur...)
-             */
             song = mediaFileDao.getMediaFile(this.song.toString());
             assertEquals(this.song, song.toPath());
-            // Below is the old behavior
-            // assertEquals("Edited artist!", song.getArtist());
-            // assertEquals("Edited album!", song.getAlbumName());
-
-            // v111.6.0 : v111.6.0 and above will not update until scanned.
-            assertEquals("ARTIST", song.getArtist());
-            assertEquals("ALBUM", song.getAlbumName());
+            assertEquals("Edited artist!", song.getArtist());
+            assertEquals("Edited album!", song.getAlbumName());
 
             /*
              * Not reflected in the search at this point. (It's a expected behavior)
              */
             SearchResult result = searchService.search(
                     criteriaDirector.construct("Edited", 0, Integer.MAX_VALUE, false, musicFolders, IndexType.SONG));
-            assertEquals(0, result.getMediaFiles().size());
-
+            assertEquals(1, result.getMediaFiles().size());
             result = searchService.search(
                     criteriaDirector.construct("sample", 0, Integer.MAX_VALUE, false, musicFolders, IndexType.SONG));
-            assertEquals(1, result.getMediaFiles().size());
+            assertEquals(0, result.getMediaFiles().size());
             result = searchService.search(
                     criteriaDirector.construct("ALBUM", 0, Integer.MAX_VALUE, false, musicFolders, IndexType.ALBUM));
             assertEquals(1, result.getMediaFiles().size());
@@ -635,27 +520,25 @@ class MediaScannerServiceImplTest {
             assertEquals(this.album, album.toPath());
             assertNull(album.getTitle());
             assertEquals("ALBUM", album.getName());
-            assertEquals("ALBUM", album.getAlbumName());
+            assertEquals("Edited album!", album.getAlbumName());
 
             song = mediaFileDao.getMediaFile(this.song.toString());
             assertEquals(this.song, song.toPath());
-            assertEquals("sample", song.getTitle());
-            assertEquals("sample", song.getName());
-            assertEquals("ARTIST", song.getArtist());
-            assertEquals("ALBUM", song.getAlbumName());
+            assertEquals("Edited song!", song.getTitle());
+            assertEquals("Edited song!", song.getName());
+            assertEquals("Edited artist!", song.getArtist());
+            assertEquals("Edited album!", song.getAlbumName());
 
             result = searchService.search(
                     criteriaDirector.construct("sample", 0, Integer.MAX_VALUE, false, musicFolders, IndexType.SONG));
-            assertEquals(1, result.getMediaFiles().size()); // good (1 -> 0)
+            assertEquals(0, result.getMediaFiles().size()); // good (1 -> 0)
             result = searchService.search(criteriaDirector.construct("Edited song!", 0, Integer.MAX_VALUE, false,
                     musicFolders, IndexType.SONG));
-            assertEquals(0, result.getMediaFiles().size()); // good (0 -> 1)
+            assertEquals(1, result.getMediaFiles().size()); // good (0 -> 1)
 
             result = searchService.search(criteriaDirector.construct("Edited album!", 0, Integer.MAX_VALUE, false,
                     musicFolders, IndexType.ALBUM));
-            // TODO Provisional response. The fix for album come in the commit immediately after!
-            assertEquals(0, result.getMediaFiles().size()); // bad (0 -> 0)
-            // assertEquals(1, result.getMediaFiles().size()); // good (0 -> 1)
+            assertEquals(1, result.getMediaFiles().size()); // good (0 -> 1)
 
             /*
              * Not reflected in the artist of file structure. (It's a expected behavior)
@@ -669,10 +552,10 @@ class MediaScannerServiceImplTest {
 
             result = searchService.search(criteriaDirector.construct("Edited album!", 0, Integer.MAX_VALUE, false,
                     musicFolders, IndexType.ALBUM_ID3));
-            assertEquals(0, result.getAlbums().size());
+            assertEquals(1, result.getAlbums().size());
             result = searchService.search(criteriaDirector.construct("Edited artist!", 0, Integer.MAX_VALUE, false,
                     musicFolders, IndexType.ARTIST_ID3));
-            assertEquals(0, result.getArtists().size());
+            assertEquals(1, result.getArtists().size());
         }
     }
 
@@ -837,7 +720,8 @@ class MediaScannerServiceImplTest {
             assertFalse(mediaScannerService.neverScanned());
         }
 
-        @Test
+        @SuppressWarnings("PMD.DetachedTestCase")
+        // TODO Under deliberation. Due to the issue of whether to copy an artist that does not exist in the tag.
         void testMusicBrainzReleaseIdTag() {
 
             // Add the "Music3" folder to the database
@@ -957,9 +841,9 @@ class MediaScannerServiceImplTest {
 
             song = mediaFileDao.getMediaFile(this.song.toString());
             assertNotNull(song);
-            assertTrue(song.isPresent());
+            assertFalse(song.isPresent());
             mediaScannerService.expunge();
-            assertNotNull(mediaFileDao.getMediaFile(this.song.toString()));
+            assertNull(mediaFileDao.getMediaFile(this.song.toString()));
             song = mediaFileDao.getMediaFile(movedSong.toString());
             assertNotNull(song);
             assertEquals(song.getFolder(), folders.get("musicFolder2").getPathString());

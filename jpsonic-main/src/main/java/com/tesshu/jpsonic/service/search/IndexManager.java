@@ -42,7 +42,6 @@ import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
-import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
@@ -111,7 +110,6 @@ public class IndexManager {
     private final DocumentFactory documentFactory;
     private final MediaFileDao mediaFileDao;
     private final ArtistDao artistDao;
-    private final AlbumDao albumDao;
     private final QueryFactory queryFactory;
     private final SearchServiceUtilities util;
     private final JpsonicComparators comparators;
@@ -131,14 +129,13 @@ public class IndexManager {
     }
 
     public IndexManager(AnalyzerFactory analyzerFactory, DocumentFactory documentFactory, MediaFileDao mediaFileDao,
-            ArtistDao artistDao, AlbumDao albumDao, QueryFactory queryFactory, SearchServiceUtilities util,
-            JpsonicComparators comparators, SettingsService settingsService, ScannerStateServiceImpl scannerState) {
+            ArtistDao artistDao, QueryFactory queryFactory, SearchServiceUtilities util, JpsonicComparators comparators,
+            SettingsService settingsService, ScannerStateServiceImpl scannerState) {
         super();
         this.analyzerFactory = analyzerFactory;
         this.documentFactory = documentFactory;
         this.mediaFileDao = mediaFileDao;
         this.artistDao = artistDao;
-        this.albumDao = albumDao;
         this.queryFactory = queryFactory;
         this.util = util;
         this.comparators = comparators;
@@ -272,15 +269,15 @@ public class IndexManager {
         } catch (IOException e) {
             LOG.error("Failed to delete artistId3 doc.", e);
         }
+    }
 
-        primarykeys = albumDao.getExpungeCandidates().stream().map(DocumentFactory::createPrimarykey)
-                .toArray(Term[]::new);
+    public void expungeAlbum(List<Integer> candidates) {
+        Term[] primarykeys = candidates.stream().map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
         try {
             writers.get(IndexType.ALBUM_ID3).deleteDocuments(primarykeys);
         } catch (IOException e) {
             LOG.error("Failed to delete albumId3 doc.", e);
         }
-
     }
 
     /**

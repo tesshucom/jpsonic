@@ -21,6 +21,7 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.FAR_FUTURE;
 import static com.tesshu.jpsonic.util.PlayerUtils.FAR_PAST;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
@@ -28,6 +29,7 @@ import java.nio.file.Path;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -63,6 +65,10 @@ public class MediaFileDao extends AbstractDao {
             + "artist_sort_raw, album_sort_raw, album_artist_sort_raw, composer_sort_raw, media_file_order";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
     private static final String GENRE_COLUMNS = "name, song_count, album_count";
+
+    // Expected maximum number of album child elements (can be expanded)
+    private static final int ALBUM_CHILD_MAX = 10_000;
+
     private static final int JP_VERSION = 8;
     public static final int VERSION = 4 + JP_VERSION;
 
@@ -229,8 +235,8 @@ public class MediaFileDao extends AbstractDao {
         update("update media_file set comment = ? where path=?", comment, pathString);
     }
 
-    public void deleteMediaFile(String path) {
-        update("update media_file set present=false, children_last_updated=? where path=?", FAR_PAST, path);
+    public int deleteMediaFile(int id) {
+        return update("update media_file set present=false, children_last_updated=? where id=?", FAR_PAST, id);
     }
 
     public List<Genre> getGenres(boolean sortByAlbum) {
@@ -448,6 +454,120 @@ public class MediaFileDao extends AbstractDao {
                 + "and present and genre = :genre limit :count offset :offset", rowMapper, args);
     }
 
+    public List<MediaFile> getChangedOrNewAlbums(final int count, List<MusicFolder> folders) {
+        if (folders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = Map.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
+                MusicFolder.toPathList(folders), "future", FAR_FUTURE, "count", count);
+        return namedQuery("select distinct " + prefix(QUERY_COLUMNS, "parent")
+                + " from media_file parent join media_file child "
+                + "on parent.path = child.parent_path and child.album is not null and child.album_artist is not null "
+                + "where parent.type = :type and parent.children_last_updated = :future and parent.folder in (:folders) limit :count",
+                rowMapper, args);
+    }
+
+    public List<MediaFile> getChangedAlbums(final int count, final List<MusicFolder> folders) {
+        if (folders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = Map.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
+                MusicFolder.toPathList(folders), "future", FAR_FUTURE, "count", count);
+        return namedQuery("select " + QUERY_COLUMNS
+                + " from media_file where type = :type and present and folder in (:folders) and children_last_updated = :future limit :count",
+                rowMapper, args);
+    }
+
+    public List<MediaFile> getUnparsedAlbums(final int count, final List<MusicFolder> folders) {
+        if (folders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = Map.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
+                MusicFolder.toPathList(folders), "future", FAR_FUTURE, "count", count);
+        return namedQuery("select " + QUERY_COLUMNS
+                + " from media_file where type = :type and present and folder in (:folders) and last_scanned = :future limit :count",
+                rowMapper, args);
+    }
+
+    public @Nullable MediaFile getFetchedFirstChildOf(MediaFile album) {
+        Map<String, Object> args = Map.of("types",
+                Arrays.asList(MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.PODCAST.name(),
+                        MediaFile.MediaType.AUDIOBOOK.name(), MediaFile.MediaType.VIDEO.name()),
+                "albumpath", album.getPathString());
+        return namedQueryOne("select " + QUERY_COLUMNS + ", "
+                + "case when album_artist is null then 1 when album is null then 2 else 0 end is_valid "
+                + "from media_file where present and parent_path=:albumpath and type in (:types) order by is_valid, media_file_order limit 1",
+                rowMapper, args);
+    }
+
+    private List<String> getValidTypes4ID3(boolean withPodcast) {
+        List<String> types = new ArrayList<>();
+        types.add(MediaFile.MediaType.MUSIC.name());
+        types.add(MediaFile.MediaType.AUDIOBOOK.name());
+        if (withPodcast) {
+            types.add(MediaFile.MediaType.PODCAST.name());
+        }
+        return types;
+    }
+
+    public List<MediaFile> getChangedId3Albums(final int count, List<MusicFolder> musicFolders, boolean withPodcast) {
+        if (musicFolders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = LegacyMap.of("types", getValidTypes4ID3(withPodcast), "count", count, "folders",
+                MusicFolder.toPathList(musicFolders), "childMax", ALBUM_CHILD_MAX);
+        String query = "select " + prefix(QUERY_COLUMNS, "mf_fetched") + " from (select registered.* from "
+                + "(select mf.*, mf.album as mf_album, mf.album_artist as mf_album_artist, mf_al.media_file_order al_order, mf.media_file_order as mf_order from media_file mf "
+                + "join media_file mf_al on mf_al.path = mf.parent_path) registered "
+                + "join (select album, album_artist, min(file_order) as file_order from "
+                + "(select mf.album, mf.album_artist, mf_al.media_file_order * :childMax + mf.media_file_order as file_order from media_file mf "
+                + "join album al on al.name = mf.album and al.artist = mf.album_artist "
+                + "join media_file mf_al on mf_al.path = mf.parent_path "
+                + "where mf.folder in (:folders) and mf.present and mf.type in (:types)) registered "
+                + "group by album, album_artist) fetched "
+                + "on fetched.album = mf_album and fetched.album_artist = mf_album_artist "
+                + "and fetched.file_order = registered.al_order * :childMax + registered.mf_order) mf_fetched "
+                + "join music_folder mf_folder on mf_fetched.folder = mf_folder.path "
+                + "join album al on al.name = mf_fetched.album and al.artist = mf_fetched.album_artist "
+                + "join media_file mf_al on mf_al.path = mf_fetched.parent_path and mf_fetched.present and ("
+                // Diff comparison
+                + "mf_fetched.parent_path <> al.path " // path
+                + "or mf_fetched.changed <> al.created " // changed
+                + "or mf_folder.id <> al.folder_id " // folder_id
+                // cover_art_path (pending)
+                + "or (mf_fetched.year is not null and al.year is null) or mf_fetched.year <> al.year " // year
+                + "or (mf_fetched.genre is not null and al.genre is null) or mf_fetched.genre <> al.genre " // genre
+                + "or (mf_fetched.album_artist_reading is not null and al.artist_reading is null) or mf_fetched.album_artist_reading <> al.artist_reading " // artist_reading
+                + "or (mf_fetched.album_artist_sort is not null and al.artist_sort is null) or mf_fetched.album_artist_sort <> al.artist_sort " // artist_sort
+                + "or (mf_fetched.album_reading is not null and al.name_reading is null) or mf_fetched.album_reading <> al.name_reading " // album_reading
+                + "or (mf_fetched.album_sort is not null and al.name_sort is null) or mf_fetched.album_sort <> al.name_sort " // album_sort
+                + "or (mf_fetched.mb_release_id is not null and al.mb_release_id is null) or mf_fetched.mb_release_id <> al.mb_release_id" // mb_release_id
+                + ") limit :count";
+        return namedQuery(query, rowMapper, args);
+    }
+
+    public List<MediaFile> getUnregisteredId3Albums(final int count, List<MusicFolder> musicFolders,
+            boolean withPodcast) {
+        if (musicFolders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = LegacyMap.of("types", getValidTypes4ID3(withPodcast), "count", count, "folders",
+                MusicFolder.toPathList(musicFolders), "childMax", ALBUM_CHILD_MAX);
+        String query = "select " + prefix(QUERY_COLUMNS, "unregistered") + " from "
+                + "(select mf.*, mf.album as mf_album, mf.album_artist as mf_album_artist, mf_al.media_file_order al_order, mf.media_file_order as mf_order from media_file mf "
+                + "join media_file mf_al on mf_al.path = mf.parent_path) unregistered "
+                + "join (select album, album_artist, min(file_order) as file_order from "
+                + "(select mf.album, mf.album_artist, mf_al.media_file_order * :childMax + mf.media_file_order as file_order from media_file mf "
+                + "left join album al on al.name = mf.album and al.artist = mf.album_artist "
+                + "join media_file mf_al on mf_al.path = mf.parent_path "
+                + "where mf.folder in (:folders) and mf.present and mf.type in (:types) "
+                + "and mf.album is not null and mf.album_artist is not null and al.name is null and al.artist is null) gap "
+                + "group by album, album_artist) fetched "
+                + "on fetched.album = mf_album and fetched.album_artist = mf_album_artist "
+                + "and fetched.file_order = unregistered.al_order * :childMax + unregistered.mf_order limit :count";
+        return namedQuery(query, rowMapper, args);
+    }
+
     public List<MediaFile> getSongsByGenre(final String genre, final int offset, final int count,
             final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
@@ -659,6 +779,10 @@ public class MediaFileDao extends AbstractDao {
     public void resetLastScanned(int id) {
         update("update media_file set last_scanned = ?, children_last_updated = ? where present and id = ?", FAR_PAST,
                 FAR_PAST, id);
+    }
+
+    public void updateLastScanned(int id, Instant lastScanned) {
+        update("update media_file set last_scanned = ? where present and id = ?", lastScanned, id);
     }
 
     public void markPresent(String path, Instant lastScanned) {

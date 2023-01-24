@@ -36,11 +36,13 @@ import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.util.LegacyMap;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Provides database services for albums.
@@ -53,9 +55,7 @@ public class AlbumDao extends AbstractDao {
 
     private static final String INSERT_COLUMNS = "path, name, artist, song_count, duration_seconds, cover_art_path, "
             + "year, genre, play_count, last_played, comment, created, last_scanned, present, "
-            + "folder_id, mb_release_id, "
-            // JP >>>>
-            + "artist_sort, name_sort, artist_reading, name_reading, album_order"; // <<<< JP
+            + "folder_id, mb_release_id, artist_sort, name_sort, artist_reading, name_reading, album_order";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final RowMapper<Album> rowMapper;
@@ -79,7 +79,7 @@ public class AlbumDao extends AbstractDao {
      *
      * @return The album or null.
      */
-    public Album getAlbum(String artistName, String albumName) {
+    public @Nullable Album getAlbum(String artistName, String albumName) {
         return queryOne("select " + QUERY_COLUMNS + " from album where artist=? and name=?", rowMapper, artistName,
                 albumName);
     }
@@ -129,48 +129,42 @@ public class AlbumDao extends AbstractDao {
                 + "order by album_order, name", rowMapper, args);
     }
 
-    /**
-     * Creates or updates an album.
-     *
-     * @param album
-     *            The album to create/update.
-     */
-    @Transactional
-    public void createOrUpdateAlbum(Album album) {
-        String sql = "update album set " + "path=?," + "song_count=?," + "duration_seconds=?," + "cover_art_path=?,"
-                + "year=?," + "genre=?," + "play_count=?," + "last_played=?," + "comment=?," + "created=?,"
-                + "last_scanned=?," + "present=?, " + "folder_id=?, " + "mb_release_id=?, "
-                // JP >>>>
-                + "artist_sort=?, " + "name_sort=?, " + "artist_reading=?, " + "name_reading=?, " + "album_order=? " // <<<<
-                                                                                                                     // JP
-                + "where artist=? and name=?";
-
-        int n = update(sql, album.getPath(), album.getSongCount(), album.getDurationSeconds(), album.getCoverArtPath(),
+    public @Nullable Album createAlbum(Album album) {
+        String query = "insert into album (" + INSERT_COLUMNS + ") " + "values (?, ?, ?, "
+                + "(select count(*) from media_file where parent_path = ? and (type=? or type=? or type=?)), "
+                + "(select sum(duration_seconds) from media_file where parent_path = ? and (type=? or type=? or type=?)), "
+                + "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        int c = update(query, album.getPath(), album.getName(), album.getArtist(), album.getPath(),
+                MediaType.MUSIC.name(), MediaType.PODCAST.name(), MediaType.AUDIOBOOK.name(), album.getPath(),
+                MediaType.MUSIC.name(), MediaType.PODCAST.name(), MediaType.AUDIOBOOK.name(), album.getCoverArtPath(),
                 album.getYear(), album.getGenre(), album.getPlayCount(), album.getLastPlayed(), album.getComment(),
                 album.getCreated(), album.getLastScanned(), album.isPresent(), album.getFolderId(),
-                album.getMusicBrainzReleaseId(),
-                // JP >>>>
+                album.getMusicBrainzReleaseId(), album.getArtistSort(), album.getNameSort(), album.getArtistReading(),
+                album.getNameReading(), -1);
+        if (c > 0) {
+            return getAlbum(album.getArtist(), album.getName());
+        }
+        return null;
+    }
+
+    public @Nullable Album updateAlbum(Album album) {
+        String sql = "update album set path=?, "
+                + "song_count= (select count(*) from media_file where parent_path = ? and (type=? or type=? or type=?)),"
+                + "duration_seconds= (select sum(duration_seconds) from media_file where parent_path = ? and (type=? or type=? or type=?)),"
+                + "cover_art_path=?, year=?, genre=?, play_count=?, last_played=?, comment=?, created=?,"
+                + "last_scanned=?," + "present=?, folder_id=?, mb_release_id=?, artist_sort=?, "
+                + "name_sort=?, artist_reading=?, name_reading=?, album_order=?  where artist=? and name=?";
+        int c = update(sql, album.getPath(), album.getPath(), MediaType.MUSIC.name(), MediaType.PODCAST.name(),
+                MediaType.AUDIOBOOK.name(), album.getPath(), MediaType.MUSIC.name(), MediaType.PODCAST.name(),
+                MediaType.AUDIOBOOK.name(), album.getCoverArtPath(), album.getYear(), album.getGenre(),
+                album.getPlayCount(), album.getLastPlayed(), album.getComment(), album.getCreated(),
+                album.getLastScanned(), album.isPresent(), album.getFolderId(), album.getMusicBrainzReleaseId(),
                 album.getArtistSort(), album.getNameSort(), album.getArtistReading(), album.getNameReading(),
-                album.getOrder(), // <<<< JP
-                album.getArtist(), album.getName());
-
-        if (n == 0) {
-
-            update("insert into album (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
-                    album.getPath(), album.getName(), album.getArtist(), album.getSongCount(),
-                    album.getDurationSeconds(), album.getCoverArtPath(), album.getYear(), album.getGenre(),
-                    album.getPlayCount(), album.getLastPlayed(), album.getComment(), album.getCreated(),
-                    album.getLastScanned(), album.isPresent(), album.getFolderId(), album.getMusicBrainzReleaseId(),
-                    // JP >>>>
-                    album.getArtistSort(), album.getNameSort(), album.getArtistReading(), album.getNameReading(), -1); // <<<<
-                                                                                                                       // JP
+                album.getOrder(), album.getArtist(), album.getName());
+        if (c > 0) {
+            return getAlbum(album.getArtist(), album.getName());
         }
-
-        Integer id = queryForInt("select id from album where artist=? and name=?", null, album.getArtist(),
-                album.getName());
-        if (id != null) {
-            album.setId(id);
-        }
+        return null;
     }
 
     public void updateOrder(String artist, String name, int order) {
@@ -402,29 +396,24 @@ public class AlbumDao extends AbstractDao {
         }
     }
 
-    public void markNonPresent(Instant lastScanned) {
-        int minId = queryForInt("select min(id) from album where last_scanned < ? and present", 0, lastScanned);
-        int maxId = queryForInt("select max(id) from album where last_scanned < ? and present", 0, lastScanned);
-
-        final int batchSize = 1000;
-        for (int id = minId; id <= maxId; id += batchSize) {
-            update("update album set present=false where id between ? and ? and last_scanned < ? and present", id,
-                    id + batchSize, lastScanned);
+    public void iterateLastScanned(@NonNull Instant scanDate, boolean withPodcast) {
+        String query = "update album set last_scanned = ?, present = ? "
+                + "where id in (select distinct al.id from album al join media_file child "
+                + "on child.present and child.album = al.name and child.album_artist = al.artist "
+                + "and (child.type=? or child.type=? " + (withPodcast ? "or child.type=?" : "") + ")) ";
+        if (withPodcast) {
+            update(query, scanDate, true, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name(), MediaType.PODCAST.name());
+        } else {
+            update(query, scanDate, true, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name());
         }
     }
 
-    public List<Integer> getExpungeCandidates() {
-        return queryForInts("select id from album where not present");
+    public List<Integer> getExpungeCandidates(@NonNull Instant scanDate) {
+        return queryForInts("select id from artist where last_scanned <> ? or not present", scanDate);
     }
 
-    public void expunge() {
-        int minId = queryForInt("select min(id) from album where not present", 0);
-        int maxId = queryForInt("select max(id) from album where not present", 0);
-
-        final int batchSize = 1000;
-        for (int id = minId; id <= maxId; id += batchSize) {
-            update("delete from album where id between ? and ? and not present", id, id + batchSize);
-        }
+    public void expunge(@NonNull Instant scanDate) {
+        update("delete from album where last_scanned <> ? or not present", scanDate);
     }
 
     public void starAlbum(int albumId, String username) {
