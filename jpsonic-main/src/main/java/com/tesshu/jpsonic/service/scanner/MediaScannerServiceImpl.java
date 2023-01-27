@@ -100,7 +100,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
         try {
 
-            procedure.parseAudio(scanDate);
+            procedure.parseFileStructure(scanDate);
             procedure.parsePodcast(scanDate);
             procedure.markNonPresent(scanDate);
 
@@ -121,8 +121,8 @@ public class MediaScannerServiceImpl implements MediaScannerService {
             procedure.runStats(scanDate);
 
         } catch (ExecutionException e) {
-            scannerState.unlockScanning();
             ConcurrentUtils.handleCauseUnchecked(e);
+            scannerState.unlockScanning();
             if (scannerState.isDestroy()) {
                 LOG.info("Interrupted to scan media library.");
                 procedure.createScanEvent(scanDate, ScanEventType.DESTROYED, null);

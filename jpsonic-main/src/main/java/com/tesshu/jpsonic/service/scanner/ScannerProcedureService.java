@@ -153,7 +153,7 @@ public class ScannerProcedureService {
         createScanEvent(scanDate, ScanEventType.BEFORE_SCAN, null);
     }
 
-    void parseAudio(@NonNull Instant scanDate) throws ExecutionException {
+    void parseFileStructure(@NonNull Instant scanDate) throws ExecutionException {
         for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders()) {
             MediaFile root = wmfs.getMediaFile(scanDate, musicFolder.toPath());
             if (root != null) {
@@ -182,8 +182,6 @@ public class ScannerProcedureService {
             file.setFolder(folderPath);
             wmfs.updateFolder(file);
         }
-
-        indexManager.index(file);
 
         if (file.isDirectory()) {
             for (MediaFile child : wmfs.getChildrenOf(scanDate, file, true)) {
@@ -341,8 +339,6 @@ public class ScannerProcedureService {
             file.setFolder(folderPath);
             wmfs.updateFolder(file);
         }
-
-        indexManager.index(file);
 
         if (file.isDirectory()) {
             for (MediaFile child : wmfs.getChildrenOf(scanDate, file, true)) {

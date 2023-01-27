@@ -28,6 +28,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -52,6 +53,7 @@ import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
+import com.tesshu.jpsonic.service.search.IndexManager;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -74,11 +76,12 @@ public class WritableMediaFileService {
     private final SettingsService settingsService;
     private final SecurityService securityService;
     private final JapaneseReadingUtils readingUtils;
+    private final IndexManager indexManager;
 
     public WritableMediaFileService(MediaFileDao mediaFileDao, ScannerStateService scannerStateService,
             MediaFileService mediaFileService, AlbumDao albumDao, MediaFileCache mediaFileCache,
             MetaDataParserFactory metaDataParserFactory, SettingsService settingsService,
-            SecurityService securityService, JapaneseReadingUtils readingUtils) {
+            SecurityService securityService, JapaneseReadingUtils readingUtils, IndexManager indexManager) {
         super();
         this.mediaFileDao = mediaFileDao;
         this.scannerState = scannerStateService;
@@ -89,6 +92,7 @@ public class WritableMediaFileService {
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.readingUtils = readingUtils;
+        this.indexManager = indexManager;
     }
 
     /**
@@ -131,12 +135,12 @@ public class WritableMediaFileService {
 
         MediaFile registered = mediaFileDao.getMediaFile(path.toString());
         if (registered != null) {
-            registered = checkLastModified(scanDate, registered);
-            mediaFileCache.put(path, registered);
-            return registered;
+            Optional<MediaFile> op = checkLastModified(scanDate, registered);
+            op.ifPresent(m -> mediaFileCache.put(path, m));
+            return op.get();
         }
 
-        return createMediaFile(scanDate, path);
+        return createMediaFile(scanDate, path).get();
     }
 
     boolean isSchemeLastModified() {
@@ -159,11 +163,10 @@ public class WritableMediaFileService {
 
         Map<String, MediaFile> stored = mediaFileDao.getChildrenOf(parent.getPathString()).stream()
                 .collect(Collectors.toMap(mf -> mf.getPathString(), mf -> mf));
-
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(parent.toPath())) {
             for (Path childPath : ds) {
-                if (mediaFileService.includeMediaFile(childPath) && stored.remove(childPath.toString()) == null) {
-                    createMediaFile(scanDate, childPath);
+                if (mediaFileService.includeMediaFile(childPath)) {
+                    updateChild(stored, childPath, scanDate);
                 }
             }
         } catch (IOException e) {
@@ -178,6 +181,20 @@ public class WritableMediaFileService {
         mediaFileDao.updateChildrenLastUpdated(parent.getPathString(), parent.getChanged());
     }
 
+    void updateChild(@NonNull Map<String, MediaFile> stored, @NonNull Path childPath, @NonNull Instant scanDate) {
+        MediaFile child = stored.get(childPath.toString());
+        if (child == null) {
+            if (mediaFileDao.exists(childPath)) {
+                refreshMediaFile(scanDate, mediaFileDao.getMediaFile(childPath))
+                        .ifPresent(m -> stored.remove(m.getPathString()));
+            } else {
+                createMediaFile(scanDate, childPath).ifPresent(m -> stored.remove(m.getPathString()));
+            }
+        } else {
+            checkLastModified(scanDate, child).ifPresent(m -> stored.remove(m.getPathString()));
+        }
+    }
+
     List<MediaFile> getChildrenOf(@NonNull Instant scanDate, @NonNull MediaFile parent, boolean fileOnly) {
 
         List<MediaFile> result = new ArrayList<>();
@@ -185,56 +202,48 @@ public class WritableMediaFileService {
             return result;
         }
 
-        // Make sure children are stored and up-to-date in the database.
         updateChildren(scanDate, parent);
 
         for (MediaFile child : mediaFileDao.getChildrenOf(parent.getPathString())) {
-            MediaFile checked = checkLastModified(scanDate, child);
-            if (checked.isDirectory() && !fileOnly && mediaFileService.includeMediaFile(checked.toPath())) {
-                result.add(checked);
+            if (child.isDirectory() && !fileOnly && mediaFileService.includeMediaFile(child.toPath())) {
+                result.add(child);
             }
-            if (checked.isFile() && fileOnly && mediaFileService.includeMediaFile(checked.toPath())) {
-                result.add(checked);
+            if (child.isFile() && fileOnly && mediaFileService.includeMediaFile(child.toPath())) {
+                result.add(child);
             }
         }
 
         return result;
     }
 
-    MediaFile checkLastModified(@NonNull Instant scanDate, @NonNull final MediaFile mediaFile) {
-
+    Optional<MediaFile> checkLastModified(@NonNull Instant scanDate, @NonNull final MediaFile mediaFile) {
         if (mediaFile.getVersion() >= MediaFileDao.VERSION) {
             switch (settingsService.getFileModifiedCheckScheme()) {
             case LAST_MODIFIED:
                 if (settingsService.isIgnoreFileTimestamps() && !FAR_PAST.equals(mediaFile.getLastScanned())) {
-                    return mediaFile;
+                    return Optional.of(mediaFile);
                 } else if (!settingsService.isIgnoreFileTimestamps()
                         && !mediaFile.getChanged().isBefore(getLastModified(scanDate, mediaFile.toPath()))
                         && !FAR_PAST.equals(mediaFile.getLastScanned())) {
-                    return mediaFile;
+                    return Optional.of(mediaFile);
                 }
                 break;
             case LAST_SCANNED:
                 if (!FAR_PAST.equals(mediaFile.getLastScanned())) {
-                    return mediaFile;
+                    return Optional.of(mediaFile);
                 }
                 break;
             default:
                 break;
             }
         }
-
-        MediaFile registered = mediaFileDao.getMediaFile(mediaFile.getPathString());
-        if (registered == null) {
-            return createMediaFile(scanDate, mediaFile.toPath());
-        }
-        return refreshMediaFile(scanDate, registered);
+        return refreshMediaFile(scanDate, mediaFile);
     }
 
     Instant getLastModified(@NonNull Instant scanDate, @NonNull Path path) {
         if (isSchemeLastModified()) {
             try {
-                return Files.getLastModifiedTime(path).toInstant();
+                return Files.getLastModifiedTime(path).toInstant().truncatedTo(ChronoUnit.MILLIS);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -243,13 +252,16 @@ public class WritableMediaFileService {
     }
 
     @SuppressLint(value = "NULL_DEREFERENCE", justification = "False positive. parseMediaFile is NonNull")
-    MediaFile createMediaFile(@NonNull Instant scanDate, @NonNull Path path) {
-        return mediaFileDao.createMediaFile(parseMediaFile(scanDate, path, false));
+    Optional<MediaFile> createMediaFile(@NonNull Instant scanDate, @NonNull Path path) {
+        MediaFile created = mediaFileDao.createMediaFile(parseMediaFile(scanDate, path, null));
+        if (created != null && created.getMediaType() != MediaType.ALBUM) {
+            indexManager.index(created);
+        }
+        return Optional.ofNullable(created);
     }
 
     @NonNull
-    private MediaFile parseMediaFile(@NonNull Instant scanDate, @NonNull Path path, boolean refresh) {
-        MediaFile registered = refresh ? mediaFileDao.getMediaFile(path.toString()) : null;
+    MediaFile parseMediaFile(@NonNull Instant scanDate, @NonNull Path path, MediaFile registered) {
         MediaFile mediaFile = instanceOf(scanDate, path, registered);
         if (Files.isDirectory(path)) {
             applyDirectory(path, mediaFile, scanDate);
@@ -317,9 +329,8 @@ public class WritableMediaFileService {
             to.setComposer(metaData.getComposer());
             to.setComposerSort(metaData.getComposerSort());
             to.setComposerSortRaw(metaData.getComposerSort());
-            readingUtils.analyze(to);
-            to.setLastScanned(scanDate);
         }
+
         String format = StringUtils.trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(to.getPathString())));
         to.setFormat(format);
         try {
@@ -328,6 +339,9 @@ public class WritableMediaFileService {
             throw new UncheckedIOException(e);
         }
         to.setMediaType(getMediaType(to));
+
+        readingUtils.analyze(to);
+        to.setLastScanned(scanDate);
     }
 
     private void applyDirectory(@NonNull Path dirPath, @NonNull MediaFile to, @NonNull Instant scanDate) {
@@ -387,6 +401,7 @@ public class WritableMediaFileService {
 
     void updateFolder(@NonNull final MediaFile file) {
         mediaFileDao.updateFolder(file.getPathString(), file.getFolder());
+        indexManager.index(file);
     }
 
     void updateOrder(@NonNull final MediaFile file) {
@@ -402,16 +417,15 @@ public class WritableMediaFileService {
         refreshMediaFile(newScanDate(), mediaFile);
     }
 
-    /**
-     * Refreshing of registered media files. This process involves for parsing the file and re-searching cover art.
-     */
     @SuppressLint(value = "NULL_DEREFERENCE", justification = "False positive. parseMediaFile is NonNull")
-    MediaFile refreshMediaFile(@NonNull Instant scanDate, @NonNull MediaFile registered) {
-        Path registeredPath = registered.toPath();
-        MediaFile parsed = parseMediaFile(scanDate, registeredPath, true);
-        mediaFileDao.updateMediaFile(parsed);
-        mediaFileCache.remove(registeredPath);
-        return parsed;
+    Optional<MediaFile> refreshMediaFile(@NonNull Instant scanDate, @NonNull MediaFile registered) {
+        MediaFile parsed = parseMediaFile(scanDate, registered.toPath(), registered);
+        MediaFile updated = mediaFileDao.updateMediaFile(parsed);
+        if (updated != null && updated.getMediaType() != MediaType.ALBUM) {
+            indexManager.index(updated);
+        }
+        mediaFileCache.remove(parsed.toPath());
+        return Optional.ofNullable(updated);
     }
 
     // Updateable even during scanning

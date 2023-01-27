@@ -114,13 +114,13 @@ class SortProcedureServiceTest {
             assertNull(songs.get(0).getArtistSort());
 
             assertEquals("file2", songs.get(1).getName());
-            assertEquals("中山晋平", songs.get(1).getAlbumArtist());
+            assertEquals("近衛秀麿", songs.get(1).getAlbumArtist());
             assertNull(songs.get(1).getAlbumArtistSort());
             assertEquals("中山晋平", songs.get(1).getArtist());
             assertNull(songs.get(1).getArtistSort());
 
             assertEquals("file3", songs.get(2).getName());
-            assertEquals("ARTIST", songs.get(2).getAlbumArtist());
+            assertEquals("近衛秀麿", songs.get(2).getAlbumArtist());
             assertNull(songs.get(2).getAlbumArtistSort());
             assertEquals("ARTIST", songs.get(2).getArtist());
             assertNull(songs.get(2).getArtistSort());
@@ -165,14 +165,14 @@ class SortProcedureServiceTest {
             assertEquals("コノエヒデマロ", songs.get(0).getArtistSort());
 
             assertEquals("file2", songs.get(1).getName());
-            assertEquals("中山晋平", songs.get(1).getAlbumArtist());
-            assertEquals("ナカヤマシンペイ", songs.get(1).getAlbumArtistSort());
+            assertEquals("近衛秀麿", songs.get(1).getAlbumArtist());
+            assertEquals("コノエヒデマロ", songs.get(1).getAlbumArtistSort());
             assertEquals("中山晋平", songs.get(1).getArtist());
             assertEquals("ナカヤマシンペイ", songs.get(1).getArtistSort());
 
             assertEquals("file3", songs.get(2).getName());
-            assertEquals("ARTIST", songs.get(2).getAlbumArtist());
-            assertEquals("ARTIST", songs.get(2).getAlbumArtistSort());
+            assertEquals("近衛秀麿", songs.get(2).getAlbumArtist());
+            assertEquals("コノエヒデマロ", songs.get(2).getAlbumArtistSort());
             assertEquals("ARTIST", songs.get(2).getArtist());
             assertEquals("ARTIST", songs.get(2).getArtistSort());
             assertEquals("世阿弥", songs.get(2).getComposer());
@@ -455,9 +455,9 @@ class SortProcedureServiceTest {
             assertEquals("case04", songs.get(4).getArtist());
             assertEquals("case04", songs.get(4).getArtistReading());
             assertEquals("artistH", songs.get(4).getArtistSort());
-            assertEquals("case04", songs.get(4).getAlbumArtist());
-            assertEquals("case04", songs.get(4).getAlbumArtistReading());
-            assertEquals("artistH", songs.get(4).getAlbumArtistSort());
+            assertEquals("ARTIST", songs.get(4).getAlbumArtist());
+            assertEquals("ARTIST", songs.get(4).getAlbumArtistReading());
+            assertEquals("ARTIST", songs.get(4).getAlbumArtistSort());
             assertEquals("case04", songs.get(4).getComposer());
             assertEquals("artistH", songs.get(4).getComposerSort());
 
@@ -515,9 +515,9 @@ class SortProcedureServiceTest {
             assertEquals("case07", songs.get(10).getArtist());
             assertEquals("case07", songs.get(10).getArtistReading());
             assertEquals("artistN", songs.get(10).getArtistSort());
-            assertEquals("case07", songs.get(10).getAlbumArtist());
-            assertEquals("case07", songs.get(10).getAlbumArtistReading());
-            assertEquals("artistN", songs.get(10).getAlbumArtistSort());
+            assertEquals("ARTIST", songs.get(10).getAlbumArtist());
+            assertEquals("ARTIST", songs.get(10).getAlbumArtistReading());
+            assertEquals("ARTIST", songs.get(10).getAlbumArtistSort());
             assertEquals("case07", songs.get(10).getComposer());
             assertEquals("artistN", songs.get(10).getComposerSort());
 
