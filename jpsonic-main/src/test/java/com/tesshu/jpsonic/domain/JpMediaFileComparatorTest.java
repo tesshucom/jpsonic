@@ -135,7 +135,6 @@ class JpMediaFileComparatorTest {
                 assertEquals(0, sortAlbumsByYear.compare(file1, file1));
                 assertEquals(0, sortAlbumsByYear.compare(file2, file2));
             }
-
         }
 
         @Test
@@ -163,6 +162,31 @@ class JpMediaFileComparatorTest {
             MediaFile file2 = new MediaFile();
             file2.setPathString("path2");
             file2.setMediaType(MediaType.MUSIC);
+
+            assertEquals(-1, alphabetical.compare(file1, file2));
+            assertEquals(1, alphabetical.compare(file2, file1));
+            assertEquals(0, sortAlbumsByYear.compare(file1, file1));
+            assertEquals(0, sortAlbumsByYear.compare(file2, file2));
+        }
+
+        @Test
+        void testComparePathForDirectory() {
+            MediaFile file1 = new MediaFile();
+            file1.setPathString("path1");
+            file1.setMediaType(MediaType.DIRECTORY);
+            file1.setArtistReading("reading");
+            MediaFile file2 = new MediaFile();
+            file2.setPathString("path2");
+            file2.setMediaType(MediaType.DIRECTORY);
+            file2.setArtistReading("reading");
+
+            assertEquals(-1, alphabetical.compare(file1, file2));
+            assertEquals(1, alphabetical.compare(file2, file1));
+            assertEquals(0, sortAlbumsByYear.compare(file1, file1));
+            assertEquals(0, sortAlbumsByYear.compare(file2, file2));
+
+            file1.setArtistReading("reading1");
+            file2.setArtistReading("reading2");
 
             assertEquals(-1, alphabetical.compare(file1, file2));
             assertEquals(1, alphabetical.compare(file2, file1));
@@ -207,66 +231,6 @@ class JpMediaFileComparatorTest {
     class CompareDirectoryTest {
 
         @Test
-        void testCompareForPath() {
-            MediaFile file1 = new MediaFile();
-            file1.setPathString("path1");
-            MediaFile file2 = new MediaFile();
-            file2.setPathString("path2");
-
-            assertEquals("path1", file1.getName());
-            assertEquals("path2", file2.getName());
-            assertEquals(-1, alphabetical.compareDirectory(file1, file2));
-            assertEquals(1, alphabetical.compareDirectory(file2, file1));
-        }
-
-        @Test
-        void testCompareForTitle() {
-            MediaFile file1 = new MediaFile();
-            file1.setPathString("path1");
-            file1.setTitle("title1");
-            MediaFile file2 = new MediaFile();
-            file2.setPathString("path2");
-            file2.setTitle("title2");
-
-            assertEquals("title1", file1.getName());
-            assertEquals("title2", file2.getName());
-            assertEquals(-1, alphabetical.compareDirectory(file1, file2));
-            assertEquals(1, alphabetical.compareDirectory(file2, file1));
-        }
-
-        @Test
-        void testCompareForSameTitle() {
-            MediaFile file1 = new MediaFile();
-            file1.setPathString("path1");
-            file1.setTitle("title");
-            MediaFile file2 = new MediaFile();
-            file2.setPathString("path2");
-            file2.setTitle("title");
-
-            assertEquals("title", file1.getName());
-            assertEquals("title", file2.getName());
-            assertEquals(-1, alphabetical.compareDirectory(file1, file2));
-            assertEquals(1, alphabetical.compareDirectory(file2, file1));
-            assertEquals(0, alphabetical.compareDirectory(file1, file1));
-            assertEquals(0, alphabetical.compareDirectory(file2, file2));
-        }
-
-        @Test
-        void testCompareForSameTitleAndPath() {
-            MediaFile file1 = new MediaFile();
-            file1.setPathString("path");
-            MediaFile file2 = new MediaFile();
-            file2.setPathString("path");
-
-            file1.setTitle("title");
-            assertEquals("title", file1.getName());
-            file2.setTitle("title");
-            assertEquals("title", file2.getName());
-            assertEquals(0, alphabetical.compareDirectory(file1, file2));
-            assertEquals(0, alphabetical.compareDirectory(file2, file1));
-        }
-
-        @Test
         void testCompareForAlbumReading() {
             MediaFile file1 = new MediaFile();
             file1.setPathString("path1");
@@ -276,16 +240,16 @@ class JpMediaFileComparatorTest {
             assertEquals("path2", file2.getName());
 
             file1.setMediaType(MediaType.ALBUM);
-            assertEquals(-1, alphabetical.compareDirectory(file1, file2));
-            assertEquals(1, alphabetical.compareDirectory(file2, file1));
+            assertEquals(0, alphabetical.compareDirectory(file1, file2));
+            assertEquals(0, alphabetical.compareDirectory(file2, file1));
 
             file2.setMediaType(MediaType.ALBUM);
-            assertEquals(-1, alphabetical.compareDirectory(file1, file2));
-            assertEquals(1, alphabetical.compareDirectory(file2, file1));
+            assertEquals(0, alphabetical.compareDirectory(file1, file2));
+            assertEquals(0, alphabetical.compareDirectory(file2, file1));
 
             file1.setAlbumReading("albumReading1");
-            assertEquals(-1, alphabetical.compareDirectory(file1, file2));
-            assertEquals(1, alphabetical.compareDirectory(file2, file1));
+            assertEquals(0, alphabetical.compareDirectory(file1, file2));
+            assertEquals(0, alphabetical.compareDirectory(file2, file1));
 
             file2.setAlbumReading("albumReading2");
             assertEquals(-1, alphabetical.compareDirectory(file1, file2));
@@ -304,16 +268,16 @@ class JpMediaFileComparatorTest {
             assertEquals("path2", file2.getName());
 
             file1.setMediaType(MediaType.DIRECTORY);
-            assertEquals(-1, alphabetical.compareDirectory(file1, file2));
-            assertEquals(1, alphabetical.compareDirectory(file2, file1));
+            assertEquals(0, alphabetical.compareDirectory(file1, file2));
+            assertEquals(0, alphabetical.compareDirectory(file2, file1));
 
             file2.setMediaType(MediaType.DIRECTORY);
-            assertEquals(-1, alphabetical.compareDirectory(file1, file2));
-            assertEquals(1, alphabetical.compareDirectory(file2, file1));
+            assertEquals(0, alphabetical.compareDirectory(file1, file2));
+            assertEquals(0, alphabetical.compareDirectory(file2, file1));
 
             file1.setArtistReading("artistReading1");
-            assertEquals(-1, alphabetical.compareDirectory(file1, file2));
-            assertEquals(1, alphabetical.compareDirectory(file2, file1));
+            assertEquals(1, alphabetical.compareDirectory(file1, file2));
+            assertEquals(-1, alphabetical.compareDirectory(file2, file1));
 
             file2.setArtistReading("artistReading2");
             assertEquals(-1, alphabetical.compareDirectory(file1, file2));

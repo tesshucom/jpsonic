@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.domain;
 
+import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.text.Collator;
@@ -58,14 +59,14 @@ class JpMediaFileComparator implements MediaFileComparator {
         }
 
         // Sort albums by year
-        if (sortAlbumsByYear && a.isAlbum() && b.isAlbum()) {
+        if (sortAlbumsByYear && a.isAlbum()) {
             i = nullSafeCompare(a.getYear(), b.getYear(), false);
             if (i != 0) {
                 return i;
             }
         }
 
-        if (a.isDirectory() && b.isDirectory()) {
+        if (a.isDirectory()) {
             i = compareDirectory(a, b);
             if (i != 0) {
                 return i;
@@ -103,18 +104,11 @@ class JpMediaFileComparator implements MediaFileComparator {
         return 0;
     }
 
-    @SuppressWarnings("PMD.ConfusingTernary") // false positive
-    int compareDirectory(@NonNull MediaFile a, @NonNull MediaFile b) {
-        int n;
+    int compareDirectory(MediaFile a, MediaFile b) {
         if (a.isAlbum() && b.isAlbum() && !isEmpty(a.getAlbumReading()) && !isEmpty(b.getAlbumReading())) {
-            n = comparator.compare(a.getAlbumReading(), b.getAlbumReading());
-        } else if (!a.isAlbum() && !b.isAlbum() && !isEmpty(a.getArtistReading()) && !isEmpty(b.getArtistReading())) {
-            n = comparator.compare(a.getArtistReading(), b.getArtistReading());
-        } else {
-            n = comparator.compare(a.getName(), b.getName());
+            return comparator.compare(a.getAlbumReading(), b.getAlbumReading());
         }
-        return n == 0 ? comparator.compare(a.getPathString(), b.getPathString()) : n; // To make it consistent to
-        // MediaFile.equals()
+        return comparator.compare(defaultString(a.getArtistReading()), defaultString(b.getArtistReading()));
     }
 
     <T extends Comparable<T>> int nullSafeCompare(@Nullable T a, @Nullable T b, boolean nullIsSmaller) {
