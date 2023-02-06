@@ -110,6 +110,7 @@ public class ScanEvent {
         BEFORE_SCAN,
 
         PARSE_FILE_STRUCTURE,
+        PARSE_VIDEO,
         PARSED_COUNT,
         MARK_NON_PRESENT,
 

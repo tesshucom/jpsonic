@@ -56,8 +56,8 @@ import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.metadata.MetaData;
-import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
+import com.tesshu.jpsonic.service.metadata.VideoParser;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -69,7 +69,6 @@ import org.mockito.Mockito;
 class WritableMediaFileServiceTest {
 
     private MediaFileDao mediaFileDao;
-    private MetaDataParserFactory metaDataParserFactory;
     private SettingsService settingsService;
     private SecurityService securityService;
     private WritableMediaFileService writableMediaFileService;
@@ -79,15 +78,17 @@ class WritableMediaFileServiceTest {
         mediaFileDao = mock(MediaFileDao.class);
         settingsService = mock(SettingsService.class);
         securityService = mock(SecurityService.class);
+
+        MusicParser musicParser = new MusicParser(settingsService, mock(MusicFolderService.class));
+
         MediaFileCache mediaFileCache = mock(MediaFileCache.class);
         MediaFileService mediaFileService = new MediaFileService(settingsService, mock(MusicFolderService.class),
                 securityService, mediaFileCache, mediaFileDao, mock(JpsonicComparators.class));
         AlbumDao albumDao = mock(AlbumDao.class);
-        metaDataParserFactory = mock(MetaDataParserFactory.class);
         JapaneseReadingUtils readingUtils = mock(JapaneseReadingUtils.class);
         writableMediaFileService = new WritableMediaFileService(mediaFileDao, mock(ScannerStateService.class),
-                mediaFileService, albumDao, mediaFileCache, metaDataParserFactory, settingsService, securityService,
-                readingUtils, mock(IndexManager.class));
+                mediaFileService, albumDao, mediaFileCache, musicParser, mock(VideoParser.class), settingsService,
+                securityService, readingUtils, mock(IndexManager.class));
 
         Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(Collections.emptyList());
         Mockito.when(settingsService.getMusicFileTypesAsArray()).thenReturn(Arrays.asList("mp3"));
@@ -679,7 +680,6 @@ class WritableMediaFileServiceTest {
             assertTrue(writableMediaFileService.isSchemeLastModified());
 
             // Newly created case
-            Mockito.when(metaDataParserFactory.getParser(path)).thenReturn(null);
             Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(Collections.emptyList());
 
             Instant scanStart = now();
@@ -703,30 +703,30 @@ class WritableMediaFileServiceTest {
             assertNull(mediaFile.getComment());
 
             // Update case
-            // mediaFile.setPlayCount(100);
-            // Instant lastPlayed = now();
-            // mediaFile.setLastPlayed(lastPlayed);
-            // mediaFile.setComment("comment");
-            // Mockito.when(mediaFileDao.getMediaFile(mediaFile.getPathString())).thenReturn(mediaFile);
-            //
-            // Mockito.clearInvocations(mediaFileDao);
-            // mediaFileCaptor = ArgumentCaptor.forClass(MediaFile.class);
-            // Mockito.when(mediaFileDao.createMediaFile(mediaFileCaptor.capture())).thenReturn(null);
-            //
-            // Instant statsUpdated = now();
-            // writableMediaFileService.createMediaFile(statsUpdated, path);
-            // Mockito.verify(mediaFileDao, Mockito.times(1)).createMediaFile(Mockito.any(MediaFile.class));
-            // mediaFile = mediaFileCaptor.getValue();
-            //
-            // assertEquals(Files.getLastModifiedTime(mediaFile.toPath()).toMillis(),
-            // mediaFile.getChanged().toEpochMilli());
-            // assertEquals(Files.getLastModifiedTime(mediaFile.toPath()).toMillis(),
-            // mediaFile.getCreated().toEpochMilli());
-            // assertEquals(FAR_PAST, mediaFile.getLastScanned());
-            // assertEquals(FAR_PAST, mediaFile.getChildrenLastUpdated());
-            // assertEquals(100, mediaFile.getPlayCount());
-            // assertEquals(lastPlayed.toEpochMilli(), mediaFile.getLastPlayed().toEpochMilli());
-            // assertEquals("comment", mediaFile.getComment());
+            mediaFile.setPlayCount(100);
+            Instant lastPlayed = now();
+            mediaFile.setLastPlayed(lastPlayed);
+            mediaFile.setComment("comment");
+            Mockito.when(mediaFileDao.getMediaFile(mediaFile.getPathString())).thenReturn(mediaFile);
+
+            Mockito.clearInvocations(mediaFileDao);
+            mediaFileCaptor = ArgumentCaptor.forClass(MediaFile.class);
+            Mockito.when(mediaFileDao.updateMediaFile(mediaFileCaptor.capture())).thenReturn(null);
+
+            Instant statsUpdated = now();
+            writableMediaFileService.refreshMediaFile(statsUpdated, mediaFile);
+            Mockito.verify(mediaFileDao, Mockito.times(1)).updateMediaFile(Mockito.any(MediaFile.class));
+            mediaFile = mediaFileCaptor.getValue();
+
+            assertEquals(Files.getLastModifiedTime(mediaFile.toPath()).toMillis(),
+                    mediaFile.getChanged().toEpochMilli());
+            assertEquals(Files.getLastModifiedTime(mediaFile.toPath()).toMillis(),
+                    mediaFile.getCreated().toEpochMilli());
+            assertEquals(statsUpdated, mediaFile.getLastScanned());
+            assertEquals(FAR_PAST, mediaFile.getChildrenLastUpdated());
+            assertEquals(100, mediaFile.getPlayCount());
+            assertEquals(lastPlayed.toEpochMilli(), mediaFile.getLastPlayed().toEpochMilli());
+            assertEquals("comment", mediaFile.getComment());
 
             // Scheme.LAST == SCANNED
             Mockito.when(settingsService.getFileModifiedCheckScheme()).thenReturn(FileModifiedCheckScheme.LAST_SCANNED);
@@ -774,8 +774,6 @@ class WritableMediaFileServiceTest {
             final Instant scanStart = now();
 
             // Newly created case
-            MusicParser musicParser = new MusicParser(mock(SettingsService.class), null);
-            Mockito.when(metaDataParserFactory.getParser(path)).thenReturn(musicParser);
             Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(Collections.emptyList());
 
             MediaFile mediaFile = writableMediaFileService.createMediaFile(now(), path).get();
@@ -806,8 +804,6 @@ class WritableMediaFileServiceTest {
             final Instant scanStart = now();
 
             // Newly created case
-            MusicParser musicParser = new MusicParser(null, null);
-            Mockito.when(metaDataParserFactory.getParser(path)).thenReturn(musicParser);
             Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(Collections.emptyList());
 
             MediaFile mediaFile = writableMediaFileService.createMediaFile(scanStart, path).get();
@@ -830,9 +826,7 @@ class WritableMediaFileServiceTest {
         void testApplyDirWithChild() throws URISyntaxException {
             MusicParser musicParser = mock(MusicParser.class);
             Mockito.when(musicParser.getMetaData(Mockito.any(Path.class))).thenReturn(new MetaData());
-            Mockito.when(metaDataParserFactory.getParser(Mockito.any(Path.class))).thenReturn(musicParser);
             Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(Collections.emptyList());
-            Mockito.when(settingsService.getMusicFileTypesAsArray()).thenReturn(Arrays.asList("mp3"));
             Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
 
             Path dir = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004");

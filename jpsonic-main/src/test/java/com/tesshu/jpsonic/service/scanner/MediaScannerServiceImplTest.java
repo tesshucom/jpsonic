@@ -70,6 +70,8 @@ import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.metadata.MusicParser;
+import com.tesshu.jpsonic.service.metadata.VideoParser;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.service.search.IndexType;
 import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
@@ -127,8 +129,8 @@ class MediaScannerServiceImplTest {
             utils = mock(SortProcedureService.class);
             scannerStateService = new ScannerStateServiceImpl(mock(StaticsDao.class));
             writableMediaFileService = new WritableMediaFileService(mediaFileDao, scannerStateService, mediaFileService,
-                    albumDao, mock(MediaFileCache.class), null, settingsService, mock(SecurityService.class), null,
-                    mock(IndexManager.class));
+                    albumDao, mock(MediaFileCache.class), mock(MusicParser.class), mock(VideoParser.class),
+                    settingsService, mock(SecurityService.class), null, mock(IndexManager.class));
             scannerProcedureService = new ScannerProcedureService(settingsService, mock(MusicFolderService.class),
                     indexManager, mediaFileService, writableMediaFileService, mock(PlaylistService.class), mediaFileDao,
                     artistDao, albumDao, mock(StaticsDao.class), utils, scannerStateService, mock(Ehcache.class),

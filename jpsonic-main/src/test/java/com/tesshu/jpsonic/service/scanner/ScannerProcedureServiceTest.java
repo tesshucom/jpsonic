@@ -39,7 +39,8 @@ import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
+import com.tesshu.jpsonic.service.metadata.MusicParser;
+import com.tesshu.jpsonic.service.metadata.VideoParser;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import net.sf.ehcache.Ehcache;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,7 +63,7 @@ class ScannerProcedureServiceTest {
         AlbumDao albumDao = mock(AlbumDao.class);
         staticsDao = mock(StaticsDao.class);
         WritableMediaFileService writableMediaFileService = new WritableMediaFileService(mediaFileDao, null,
-                mediaFileService, albumDao, null, mock(MetaDataParserFactory.class), settingsService,
+                mediaFileService, albumDao, null, mock(MusicParser.class), mock(VideoParser.class), settingsService,
                 mock(SecurityService.class), mock(JapaneseReadingUtils.class), mock(IndexManager.class));
         scannerProcedureService = new ScannerProcedureService(settingsService, mock(MusicFolderService.class),
                 mock(IndexManager.class), mediaFileService, writableMediaFileService, mock(PlaylistService.class),

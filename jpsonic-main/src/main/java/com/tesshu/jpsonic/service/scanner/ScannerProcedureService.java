@@ -202,6 +202,27 @@ public class ScannerProcedureService {
         }
     }
 
+    void parseVideo(@NonNull Instant scanDate) throws ExecutionException {
+        List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
+        List<MediaFile> videos = mediaFileDao.getUnparsedVideos(ACQUISITION_MAX, folders);
+        int countUpdate = 0;
+        while (!videos.isEmpty()) {
+            for (MediaFile video : videos) {
+                interruptIfCancelled();
+                MediaFile updated = mediaFileDao.updateMediaFile(wmfs.parseVideo(scanDate, video));
+                if (updated != null) {
+                    indexManager.index(updated);
+                    countUpdate++;
+                }
+                scannerState.incrementScanCount();
+                writeParsedCount(scanDate, video);
+            }
+            interruptIfCancelled();
+            videos = mediaFileDao.getUnparsedVideos(ACQUISITION_MAX, folders);
+        }
+        createScanEvent(scanDate, ScanEventType.PARSE_VIDEO, String.format("Parsed(%d)", countUpdate));
+    }
+
     private MediaFile albumOf(@NonNull Instant scanDate, @NonNull MediaFile fetchedFirstChild,
             @NonNull MediaFile registered) {
         registered.setArtist(fetchedFirstChild.getAlbumArtist());

@@ -461,6 +461,14 @@ public class MediaFileDao extends AbstractDao {
                 + "and present and genre = :genre limit :count offset :offset", rowMapper, args);
     }
 
+    public List<MediaFile> getUnparsedVideos(final int count, final List<MusicFolder> musicFolders) {
+        if (musicFolders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return query("select " + QUERY_COLUMNS + " from media_file where type = ? and last_scanned = ? limit ?",
+                rowMapper, MediaFile.MediaType.VIDEO.name(), FAR_FUTURE, count);
+    }
+
     public List<MediaFile> getChangedId3Artists(final int count, List<MusicFolder> folders, boolean withPodcast) {
         if (folders.isEmpty()) {
             return Collections.emptyList();

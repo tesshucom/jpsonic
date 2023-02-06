@@ -53,8 +53,8 @@ import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.metadata.MetaData;
-import com.tesshu.jpsonic.service.metadata.MetaDataParser;
-import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
+import com.tesshu.jpsonic.service.metadata.MusicParser;
+import com.tesshu.jpsonic.service.metadata.VideoParser;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -74,7 +74,9 @@ public class WritableMediaFileService {
     private final MediaFileService mediaFileService;
     private final AlbumDao albumDao;
     private final MediaFileCache mediaFileCache;
-    private final MetaDataParserFactory metaDataParserFactory;
+    private final MusicParser musicParser;
+    private final VideoParser videoParser;
+
     private final SettingsService settingsService;
     private final SecurityService securityService;
     private final JapaneseReadingUtils readingUtils;
@@ -82,7 +84,7 @@ public class WritableMediaFileService {
 
     public WritableMediaFileService(MediaFileDao mediaFileDao, ScannerStateService scannerStateService,
             MediaFileService mediaFileService, AlbumDao albumDao, MediaFileCache mediaFileCache,
-            MetaDataParserFactory metaDataParserFactory, SettingsService settingsService,
+            MusicParser musicParser, VideoParser videoParser, SettingsService settingsService,
             SecurityService securityService, JapaneseReadingUtils readingUtils, IndexManager indexManager) {
         super();
         this.mediaFileDao = mediaFileDao;
@@ -90,7 +92,8 @@ public class WritableMediaFileService {
         this.mediaFileService = mediaFileService;
         this.albumDao = albumDao;
         this.mediaFileCache = mediaFileCache;
-        this.metaDataParserFactory = metaDataParserFactory;
+        this.musicParser = musicParser;
+        this.videoParser = videoParser;
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.readingUtils = readingUtils;
@@ -314,9 +317,9 @@ public class WritableMediaFileService {
     }
 
     private void applyFile(@NonNull Path path, @NonNull MediaFile to, @NonNull Instant scanDate) {
-        MetaDataParser parser = metaDataParserFactory.getParser(path);
-        if (parser != null) {
-            MetaData metaData = parser.getMetaData(path);
+
+        if (musicParser.isApplicable(path)) {
+            MetaData metaData = musicParser.getMetaData(path);
             to.setArtist(metaData.getArtist());
             to.setAlbumArtist(metaData.getAlbumArtist());
             to.setAlbumName(metaData.getAlbumName());
@@ -328,8 +331,6 @@ public class WritableMediaFileService {
             to.setDurationSeconds(metaData.getDurationSeconds());
             to.setBitRate(metaData.getBitRate());
             to.setVariableBitRate(metaData.isVariableBitRate());
-            to.setHeight(metaData.getHeight());
-            to.setWidth(metaData.getWidth());
             to.setTitleSort(metaData.getTitleSort());
             to.setAlbumSort(metaData.getAlbumSort());
             to.setAlbumSortRaw(metaData.getAlbumSort());
@@ -342,6 +343,13 @@ public class WritableMediaFileService {
             to.setComposer(metaData.getComposer());
             to.setComposerSort(metaData.getComposerSort());
             to.setComposerSortRaw(metaData.getComposerSort());
+            readingUtils.analyze(to);
+            to.setLastScanned(scanDate);
+        } else if (videoParser.isApplicable(path)) {
+            to.setLastScanned(FAR_FUTURE);
+        } else {
+            readingUtils.analyze(to);
+            to.setLastScanned(scanDate);
         }
 
         String format = StringUtils.trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(to.getPathString())));
@@ -352,9 +360,6 @@ public class WritableMediaFileService {
             throw new UncheckedIOException(e);
         }
         to.setMediaType(getMediaType(to));
-
-        readingUtils.analyze(to);
-        to.setLastScanned(scanDate);
     }
 
     private void applyDirectory(@NonNull Path dirPath, @NonNull MediaFile to, @NonNull Instant scanDate) {
@@ -392,6 +397,45 @@ public class WritableMediaFileService {
             return MediaFile.MediaType.AUDIOBOOK;
         }
         return MediaFile.MediaType.MUSIC;
+    }
+
+    @NonNull
+    MediaFile parseVideo(@NonNull Instant scanDate, MediaFile registered) {
+        Path path = registered.toPath();
+        /*
+         * See #1368.If we limit yourself to ffprobe, we can handle Sort and MusicBrainz. Currently, MP4 ... old
+         * QuickTime format specification range is used considering versatility. That is the lowest common multiple.
+         */
+        if (videoParser.isApplicable(path)) {
+            MetaData metaData = videoParser.getMetaData(path);
+            registered.setArtist(metaData.getArtist());
+            registered.setAlbumArtist(metaData.getAlbumArtist());
+            registered.setAlbumName(metaData.getAlbumName());
+            registered.setTitle(metaData.getTitle());
+            registered.setDiscNumber(metaData.getDiscNumber());
+            registered.setTrackNumber(metaData.getTrackNumber());
+            registered.setGenre(metaData.getGenre());
+            registered.setYear(metaData.getYear());
+            registered.setDurationSeconds(metaData.getDurationSeconds());
+            registered.setBitRate(metaData.getBitRate()); // ffprobe Only!
+            registered.setHeight(metaData.getHeight());
+            registered.setWidth(metaData.getWidth());
+            // registered.setTitleSort(metaData.getTitleSort());
+            // registered.setAlbumSort(metaData.getAlbumSort());
+            // registered.setAlbumSortRaw(metaData.getAlbumSort());
+            // registered.setArtistSort(metaData.getArtistSort());
+            // registered.setArtistSortRaw(metaData.getArtistSort());
+            // registered.setAlbumArtistSort(metaData.getAlbumArtistSort());
+            // registered.setAlbumArtistSortRaw(metaData.getAlbumArtistSort());
+            // registered.setMusicBrainzReleaseId(metaData.getMusicBrainzReleaseId());
+            // registered.setMusicBrainzRecordingId(metaData.getMusicBrainzRecordingId());
+            registered.setComposer(metaData.getComposer());
+            // registered.setComposerSort(metaData.getComposerSort());
+            // registered.setComposerSortRaw(metaData.getComposerSort());
+        }
+        readingUtils.analyze(registered);
+        registered.setLastScanned(scanDate);
+        return registered;
     }
 
     void updateFolder(@NonNull final MediaFile file) {
