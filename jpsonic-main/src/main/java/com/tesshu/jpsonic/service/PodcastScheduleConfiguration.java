@@ -23,6 +23,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -90,7 +91,7 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
         }
 
         @Override
-        public java.util.Date nextExecutionTime(TriggerContext triggerContext) {
+        public Date nextExecutionTime(TriggerContext triggerContext) {
 
             int hoursBetween = this.settingsService.getPodcastUpdateInterval();
             if (hoursBetween == -1) {
@@ -119,7 +120,7 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
                 LOG.info(msg, nextTimeString);
             }
 
-            return java.util.Date.from(nextTime);
+            return Date.from(nextTime);
         }
     }
 }

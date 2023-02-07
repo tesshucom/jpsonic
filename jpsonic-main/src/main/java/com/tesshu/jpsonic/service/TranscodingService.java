@@ -23,6 +23,7 @@ package com.tesshu.jpsonic.service;
 
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -456,7 +457,7 @@ public class TranscodingService {
         }
 
         List<String> commands = Arrays.asList(splitCommand(command));
-        commands.set(0, getTranscodeDirectory().toString() + java.io.File.separatorChar + commands.get(0));
+        commands.set(0, getTranscodeDirectory().toString() + File.separatorChar + commands.get(0));
 
         Path tmpFile = null;
         for (int i = 1; i < commands.size(); i++) {

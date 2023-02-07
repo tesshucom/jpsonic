@@ -30,6 +30,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 
 import ch.qos.logback.classic.Level;
 import com.tesshu.jpsonic.TestCaseUtils;
@@ -120,7 +121,7 @@ class PodcastScheduleConfigurationTest {
             assertEquals(firstTimeExpected.getMinute(), firstDateTime.getMinute());
 
             // Operation check at the second and subsequent startups
-            Mockito.when(triggerContext.lastCompletionTime()).thenReturn(java.util.Date.from(firstTime));
+            Mockito.when(triggerContext.lastCompletionTime()).thenReturn(Date.from(firstTime));
             LocalDateTime secondDateTime = Instant.ofEpochMilli(trigger.nextExecutionTime(triggerContext).getTime())
                     .atZone(ZoneId.systemDefault()).toLocalDateTime();
             LocalDateTime secondExpected = firstTimeExpected.plus(hourOfweek, ChronoUnit.HOURS);
@@ -177,7 +178,7 @@ class PodcastScheduleConfigurationTest {
             assertEquals(firstTimeExpected.getMinute(), firstDateTime.getMinute());
 
             // Operation check at the second and subsequent startups
-            Mockito.when(triggerContext.lastCompletionTime()).thenReturn(java.util.Date.from(firstTime));
+            Mockito.when(triggerContext.lastCompletionTime()).thenReturn(Date.from(firstTime));
             LocalDateTime secondDateTime = Instant.ofEpochMilli(trigger.nextExecutionTime(triggerContext).getTime())
                     .atZone(ZoneId.systemDefault()).toLocalDateTime();
 

@@ -28,6 +28,7 @@ import java.util.HashMap;
  * In these two points, the policies of legacy implementation are not unified.
  * If solved , most impls can be replaced with Map.of(...) after Java8.
  */
+@SuppressWarnings("UnnecessarilyFullyQualified")
 public final class LegacyMap {
 
     private LegacyMap() {

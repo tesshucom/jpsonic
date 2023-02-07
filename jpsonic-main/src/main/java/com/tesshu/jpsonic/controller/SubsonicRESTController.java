@@ -120,6 +120,7 @@ import org.subsonic.restapi.ArtistsID3;
 import org.subsonic.restapi.Bookmarks;
 import org.subsonic.restapi.Child;
 import org.subsonic.restapi.Directory;
+import org.subsonic.restapi.Genres;
 import org.subsonic.restapi.Index;
 import org.subsonic.restapi.IndexID3;
 import org.subsonic.restapi.Indexes;
@@ -400,7 +401,7 @@ public class SubsonicRESTController {
     @RequestMapping({ "/getGenres", "/getGenres.view" })
     public void getGenres(HttpServletRequest req, HttpServletResponse response) {
         HttpServletRequest request = wrapRequest(req);
-        org.subsonic.restapi.Genres genres = new org.subsonic.restapi.Genres();
+        Genres genres = new Genres();
 
         for (com.tesshu.jpsonic.domain.Genre genre : searchService.getGenres(false)) {
             org.subsonic.restapi.Genre g = new org.subsonic.restapi.Genre();
@@ -1947,6 +1948,7 @@ public class SubsonicRESTController {
         writeEmptyResponse(request, response);
     }
 
+    @SuppressWarnings("UnnecessarilyFullyQualified")
     @RequestMapping({ "/getPlayQueue", "/getPlayQueue.view" })
     public void getPlayQueue(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException {

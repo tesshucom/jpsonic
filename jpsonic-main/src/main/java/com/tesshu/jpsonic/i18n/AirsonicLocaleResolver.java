@@ -40,6 +40,7 @@ import org.springframework.stereotype.Service;
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("UnnecessarilyFullyQualified")
 @Service
 public class AirsonicLocaleResolver implements org.springframework.web.servlet.LocaleResolver {
 

@@ -21,6 +21,7 @@
 
 package com.tesshu.jpsonic.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.FileAlreadyExistsException;
@@ -67,9 +68,9 @@ public final class FileUtil {
         }
         Path parentFileName = parent.getFileName();
         if (parentFileName == null) {
-            return java.io.File.separator + fileName.toString();
+            return File.separator + fileName.toString();
         }
-        return parentFileName.toString() + java.io.File.separator + fileName.toString();
+        return parentFileName.toString() + File.separator + fileName.toString();
     }
 
     public static @Nullable Path createDirectories(@NonNull Path dir) {

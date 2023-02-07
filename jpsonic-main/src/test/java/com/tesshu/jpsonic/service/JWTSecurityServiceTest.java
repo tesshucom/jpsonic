@@ -34,6 +34,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.stream.Stream;
 
 import com.auth0.jwt.JWT;
@@ -154,8 +155,7 @@ class JWTSecurityServiceTest {
         @Test
         void testInvalidClaim() {
             final String token = JWT.create()
-                    .withExpiresAt(java.util.Date
-                            .from(ZonedDateTime.of(LocalDateTime.now(), ZoneId.systemDefault()).toInstant()))
+                    .withExpiresAt(Date.from(ZonedDateTime.of(LocalDateTime.now(), ZoneId.systemDefault()).toInstant()))
                     .sign(Algorithm.HMAC256(KEY));
             Throwable t = assertThrows(BadCredentialsException.class, () -> JWTSecurityService.verify(KEY, token));
             assertInstanceOf(InvalidClaimException.class, t.getCause());

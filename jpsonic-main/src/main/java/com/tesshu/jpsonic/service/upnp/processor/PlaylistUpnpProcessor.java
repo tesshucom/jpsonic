@@ -34,6 +34,7 @@ import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
+import com.tesshu.jpsonic.util.PlayerUtils;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
 import org.fourthline.cling.support.model.container.Container;
@@ -85,7 +86,7 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor<Playlist, MediaF
     public List<Playlist> getItems(long offset, long maxResults) {
         // Currently sorting on the Java side(Using sublist because less affected).
         List<Playlist> playlists = playlistService.getAllPlaylists();
-        return com.tesshu.jpsonic.util.PlayerUtils.subList(playlists, offset, maxResults);
+        return PlayerUtils.subList(playlists, offset, maxResults);
     }
 
     @Override
