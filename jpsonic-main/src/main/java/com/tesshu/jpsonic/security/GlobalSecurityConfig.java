@@ -173,20 +173,28 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
             http
                 .addFilter(new WebAsyncManagerIntegrationFilter())
                 .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
-                .securityMatcher("/ext/**").csrf()
+                .securityMatchers((matchers) -> matchers
+                        .requestMatchers(
+                                antMatcher("/ext/**")))
+                    .csrf()
                     .requireCsrfProtectionMatcher(csrfSecurityRequestMatcher)
                 .and().headers()
                     .frameOptions().sameOrigin()
-                .and().authorizeHttpRequests()
-                    .requestMatchers(
-                            antMatcher("/ext/stream/**"),
-                            antMatcher("/ext/coverArt*"),
-                            antMatcher("/ext/share/**"),
-                            antMatcher("/ext/hls/**"))
+                // .and().authorizeHttpRequests((authz) -> authz
+                //     .requestMatchers(
+                //         antMatcher("/ext/stream/**"),
+                //         antMatcher("/ext/coverArt*"),
+                //         antMatcher("/ext/share/**"),
+                //         antMatcher("/ext/hls/**"))
+                //         .hasAnyRole("TEMP", "USER")
+                //         .anyRequest()
+                //         .authenticated())
+                .and().authorizeRequests()
+                    .antMatchers("/ext/stream/**", "/ext/coverArt*", "/ext/share/**", "/ext/hls/**")
                     .hasAnyRole("TEMP", "USER")
-                .and().sessionManagement()
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and().exceptionHandling()
+                .and().sessionManagement((sessions) -> sessions
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling()
                 .and().securityContext()
                 .and().requestCache()
                 .and().anonymous()
