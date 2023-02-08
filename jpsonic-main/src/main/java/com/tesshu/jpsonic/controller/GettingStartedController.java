@@ -22,6 +22,7 @@
 package com.tesshu.jpsonic.controller;
 
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -51,16 +52,11 @@ public class GettingStartedController {
     @ModelAttribute
     protected void formBackingObject(HttpServletRequest request, Model model) {
         GettingStartedCommand command = new GettingStartedCommand();
-
-        Locale[] locales = settingsService.getAvailableLocales();
-        String[] localeStrings = new String[locales.length];
-        for (int i = 0; i < locales.length; i++) {
-            localeStrings[i] = locales[i].getDisplayName(locales[i]);
-            if (settingsService.getLocale().equals(locales[i])) {
-                command.setLocaleIndex(String.valueOf(i));
-            }
-        }
-        command.setLocales(localeStrings);
+        settingsService.getAvailableLocales().stream().filter(locale -> locale.equals(settingsService.getLocale()))
+                .findFirst().ifPresent(locale -> command
+                        .setLocaleIndex(String.valueOf(settingsService.getAvailableLocales().indexOf(locale))));
+        command.setLocales(settingsService.getAvailableLocales().stream().map(locale -> locale.getDisplayName())
+                .collect(Collectors.toList()));
         model.addAttribute(Attributes.Model.Command.VALUE, command);
         model.addAttribute("runningAsRoot", "root".equals(System.getProperty("user.name")));
     }
@@ -79,7 +75,7 @@ public class GettingStartedController {
     protected ModelAndView post(@ModelAttribute(Attributes.Model.Command.VALUE) GettingStartedCommand command,
             RedirectAttributes redirectAttributes) {
         int localeIndex = Integer.parseInt(command.getLocaleIndex());
-        Locale locale = settingsService.getAvailableLocales()[localeIndex];
+        Locale locale = settingsService.getAvailableLocales().get(localeIndex);
         boolean isReload = !settingsService.getLocale().equals(locale);
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), isReload);
         settingsService.setLocale(locale);

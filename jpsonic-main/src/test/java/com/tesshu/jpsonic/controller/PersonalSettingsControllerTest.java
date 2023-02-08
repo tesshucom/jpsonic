@@ -81,6 +81,7 @@ class PersonalSettingsControllerTest {
 
     @BeforeEach
     public void setup() throws ExecutionException {
+        settingsService.setLocale(Locale.US);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -96,7 +97,7 @@ class PersonalSettingsControllerTest {
         PersonalSettingsCommand command = (PersonalSettingsCommand) modelAndView.getModelMap()
                 .get(Attributes.Model.Command.VALUE);
         assertEquals("random", command.getAlbumListId());
-        assertEquals(10, command.getAlbumLists().length);
+        assertEquals(10, command.getAlbumLists().size());
         assertTrue(command.isAlternativeDrawer());
         assertTrue(command.isAssignAccesskeyToNumber());
         assertTrue(command.isAutoHidePlayQueue());
@@ -127,8 +128,8 @@ class PersonalSettingsControllerTest {
         assertNull(command.getLastFmUsername());
         assertFalse(command.isListenBrainzEnabled());
         assertNull(command.getListenBrainzToken());
-        assertEquals("-1", command.getLocaleIndex());
-        assertEquals(28, command.getLocales().length);
+        assertEquals("2", command.getLocaleIndex());
+        assertEquals(28, command.getLocales().size());
         assertNotNull(command.getMainVisibility());
         assertFalse(command.isNowPlayingAllowed());
         assertFalse(command.isOpenDetailIndex());
@@ -165,7 +166,7 @@ class PersonalSettingsControllerTest {
         assertEquals(SpeechToTextLangScheme.DEFAULT, command.getSpeechToTextLangScheme());
         assertNotNull(command.getTabletSettings());
         assertEquals("-1", command.getThemeIndex());
-        assertEquals(20, command.getThemes().length);
+        assertEquals(20, command.getThemes().size());
         assertEquals(ServiceMockUtils.ADMIN_NAME, command.getUser().getUsername());
         assertFalse(command.isUseRadio());
         assertFalse(command.isVoiceInputEnabled());
@@ -289,7 +290,7 @@ class PersonalSettingsControllerTest {
             assertNotNull(command.getIetf()); // Depends on the test environment
 
             UserSettings userSettings = securityService.getUserSettings(ServiceMockUtils.ADMIN_NAME);
-            assertNull(userSettings.getLocale());
+            assertEquals(Locale.US, userSettings.getLocale());
             assertEquals(SpeechToTextLangScheme.DEFAULT.name(), userSettings.getSpeechLangSchemeName());
             assertNull(userSettings.getThemeId());
             assertFalse(settingsService.isOthersPlayingEnabled());

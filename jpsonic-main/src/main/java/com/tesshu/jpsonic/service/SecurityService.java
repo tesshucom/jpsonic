@@ -193,7 +193,7 @@ public class SecurityService implements UserDetailsService {
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     // [AvoidInstantiatingObjectsInLoops] (SimpleGrantedAuthority)
     public List<GrantedAuthority> getGrantedAuthorities(String username) {
-        String[] roles = userDao.getRolesForUser(username);
+        List<String> roles = userDao.getRolesForUser(username);
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("IS_AUTHENTICATED_ANONYMOUSLY"));
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));

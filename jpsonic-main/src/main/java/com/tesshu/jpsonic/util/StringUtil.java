@@ -37,6 +37,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -211,9 +212,9 @@ public final class StringUtil {
      *
      * @return Array of elements.
      */
-    public static @NonNull String[] split(String input) {
+    public static List<String> split(String input) {
         if (input == null) {
-            return new String[0];
+            return Collections.emptyList();
         }
 
         List<String> result = new ArrayList<>();
@@ -226,7 +227,7 @@ public final class StringUtil {
             }
         }
 
-        return result.toArray(new String[0]);
+        return Collections.unmodifiableList(result);
     }
 
     /**
@@ -241,7 +242,7 @@ public final class StringUtil {
      * @throws IOException
      *             If an I/O error occurs.
      */
-    public static String[] readLines(@NonNull InputStream in) throws IOException {
+    public static List<String> readLines(@NonNull InputStream in) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
             List<String> result = new ArrayList<>();
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
@@ -250,7 +251,7 @@ public final class StringUtil {
                     result.add(trimed);
                 }
             }
-            return result.toArray(new String[0]);
+            return result;
         }
     }
 

@@ -24,9 +24,11 @@ package com.tesshu.jpsonic.controller;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -85,33 +87,25 @@ public class PersonalSettingsController {
         PersonalSettingsCommand command = new PersonalSettingsCommand();
 
         User user = securityService.getCurrentUserStrict(request);
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setUser(user);
 
         // Language and theme
 
         // - Default language
         command.setLocaleIndex("-1");
-        Locale[] locales = settingsService.getAvailableLocales();
-        String[] localeStrings = new String[locales.length];
-        for (int i = 0; i < locales.length; i++) {
-            localeStrings[i] = locales[i].getDisplayName(locales[i]);
-            if (locales[i].equals(userSettings.getLocale())) {
-                command.setLocaleIndex(String.valueOf(i));
-            }
-        }
-        command.setLocales(localeStrings);
+        settingsService.getAvailableLocales().stream().filter(locale -> locale.equals(settingsService.getLocale()))
+                .findFirst().ifPresent(locale -> command
+                        .setLocaleIndex(String.valueOf(settingsService.getAvailableLocales().indexOf(locale))));
+        command.setLocales(settingsService.getAvailableLocales().stream().map(locale -> locale.getDisplayName())
+                .collect(Collectors.toList()));
 
         // - Theme
+        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setThemeIndex("-1");
         List<Theme> themes = SettingsService.getAvailableThemes();
-        command.setThemes(themes.toArray(new Theme[0]));
-        for (int i = 0; i < themes.size(); i++) {
-            if (themes.get(i).getId().equals(userSettings.getThemeId())) {
-                command.setThemeIndex(String.valueOf(i));
-                break;
-            }
-        }
+        command.setThemes(themes);
+        themes.stream().filter(theme -> theme.getId().equals(userSettings.getThemeId())).findFirst()
+                .ifPresent(theme -> command.setThemeIndex(String.valueOf(themes.indexOf(theme))));
 
         // - Font
         WebFontUtils.setToCommand(userSettings, command);
@@ -126,7 +120,7 @@ public class PersonalSettingsController {
         command.setTabletSettings(securityService.createDefaultTabletUserSettings(""));
         command.setSmartphoneSettings(securityService.createDefaultSmartphoneUserSettings(""));
         command.setKeyboardShortcutsEnabled(userSettings.isKeyboardShortcutsEnabled());
-        command.setAlbumLists(AlbumListType.values());
+        command.setAlbumLists(Arrays.asList(AlbumListType.values()));
         command.setAlbumListId(userSettings.getDefaultAlbumList().getId());
         command.setPutMenuInDrawer(userSettings.isPutMenuInDrawer());
         command.setShowIndex(userSettings.isShowIndex());
@@ -229,7 +223,7 @@ public class PersonalSettingsController {
         int localeIndex = Integer.parseInt(command.getLocaleIndex());
         Locale locale = null;
         if (localeIndex != -1) {
-            locale = settingsService.getAvailableLocales()[localeIndex];
+            locale = settingsService.getAvailableLocales().get(localeIndex);
         }
         settings.setLocale(locale);
 

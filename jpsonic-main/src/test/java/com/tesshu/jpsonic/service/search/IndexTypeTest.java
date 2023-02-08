@@ -36,7 +36,7 @@ class IndexTypeTest {
     @Order(1)
     void testLength() {
         for (IndexType type : IndexType.values()) {
-            assertEquals(type.getFields().length, type.getBoosts().size() + 1, type.name());
+            assertEquals(type.getFields().size(), type.getBoosts().size() + 1, type.name());
         }
     }
 

@@ -303,8 +303,7 @@ public class TranscodingService {
                 // Detected source to target format match for video
                 return transcoding;
             }
-            Arrays.stream(transcoding.getSourceFormatsAsArray())
-                    .filter(sourceFormat -> sourceFormat.equalsIgnoreCase(suffix))
+            transcoding.getSourceFormatsAsList().stream().filter(sourceFormat -> sourceFormat.equalsIgnoreCase(suffix))
                     .filter(sourceFormat -> isTranscoderInstalled(transcoding))
                     .forEach(s -> applicableTranscodings.add(transcoding));
         }
@@ -520,7 +519,7 @@ public class TranscodingService {
             if (mediaFile == null) {
                 return true;
             }
-            for (String sourceFormat : transcoding.getSourceFormatsAsArray()) {
+            for (String sourceFormat : transcoding.getSourceFormatsAsList()) {
                 if (sourceFormat.equalsIgnoreCase(mediaFile.getFormat())) {
                     return true;
                 }
@@ -543,7 +542,7 @@ public class TranscodingService {
             return true;
         }
 
-        String executable = StringUtil.split(step)[0];
+        String executable = StringUtil.split(step).get(0);
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(getTranscodeDirectory())) {
             for (Path child : ds) {
                 Path filename = child.getFileName();

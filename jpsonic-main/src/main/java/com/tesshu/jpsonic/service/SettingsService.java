@@ -25,6 +25,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -35,7 +36,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
@@ -86,6 +86,7 @@ public class SettingsService {
     private static final Path JPSONIC_HOME_WINDOWS = Path.of("c:/jpsonic");
     private static final Path JPSONIC_HOME_OTHER = Path.of("/var/jpsonic");
     private static final Pair<Integer> ENV_UPNP_PORT = Pair.of("UPNP_PORT", -1);
+    private static final String CONSECUTIVE_WHITESPACE = "\\s+";
 
     // Array of obsolete keys. Used to clean property file.
     private static final List<String> OBSOLETE_KEYS = Arrays.asList("PortForwardingPublicPort",
@@ -103,18 +104,18 @@ public class SettingsService {
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
     private static List<Theme> themes;
-    private static Locale[] locales;
-    private static String[] coverArtFileTypes;
-    private static String[] excludedCoverArts;
-    private static String[] musicFileTypes;
-    private static String[] videoFileTypes;
+    private static List<Locale> locales;
+    private static List<String> coverArtFileTypes;
+    private static List<String> excludedCoverArts;
+    private static List<String> musicFileTypes;
+    private static List<String> videoFileTypes;
 
     private final ApacheCommonsConfigurationService configurationService;
     private final UPnPSubnet uPnPSubnet;
 
     private Pattern excludePattern;
     private Locale locale;
-    private String[] ignoredArticles;
+    private List<String> ignoredArticles;
 
     public SettingsService(ApacheCommonsConfigurationService configurationService, UPnPSubnet uPnPSubnet) {
         super();
@@ -236,16 +237,6 @@ public class SettingsService {
         } else {
             configurationService.setProperty(p.key, value);
         }
-    }
-
-    private String[] toStringArray(String s) {
-        List<String> result = new ArrayList<>();
-        StringTokenizer tokenizer = new StringTokenizer(s, " ");
-        while (tokenizer.hasMoreTokens()) {
-            result.add(tokenizer.nextToken());
-        }
-
-        return result.toArray(new String[0]);
     }
 
     public long getSettingsChanged() {
@@ -383,22 +374,18 @@ public class SettingsService {
         setProperty(SettingsConstants.MusicFolder.Others.IGNORE_FILE_TIMESTAMPS_FOR_EACH_ALBUM, b);
     }
 
-    public Locale[] getAvailableLocales() {
+    public List<Locale> getAvailableLocales() {
         synchronized (LOCKS.get(LocksKeys.LOCALES)) {
             if (locales == null) {
-                List<Locale> l = new ArrayList<>();
+                locales = new ArrayList<>();
                 try (InputStream in = SettingsService.class.getResourceAsStream(LOCALES_FILE)) {
-                    String[] lines = StringUtil.readLines(in);
-                    for (String line : lines) {
-                        l.add(StringUtil.parseLocale(line));
+                    for (String line : StringUtil.readLines(in)) {
+                        locales.add(StringUtil.parseLocale(line));
                     }
-                } catch (IOException x) {
-                    if (LOG.isErrorEnabled()) {
-                        LOG.error("Failed to resolve list of locales.", x);
-                    }
-                    l.add(Locale.ENGLISH);
+                } catch (IOException e) {
+                    locales.add(Locale.ENGLISH);
+                    throw new UncheckedIOException(e);
                 }
-                locales = l.toArray(new Locale[0]);
             }
             return locales;
         }
@@ -444,13 +431,12 @@ public class SettingsService {
     public static List<Theme> getAvailableThemes() {
         synchronized (LOCKS.get(LocksKeys.THEMES)) {
             if (themes == null) {
-                List<Theme> l = new ArrayList<>();
+                themes = new ArrayList<>();
                 try (InputStream in = SettingsService.class.getResourceAsStream(THEMES_FILE)) {
-                    String[] lines = StringUtil.readLines(in);
-                    for (String line : lines) {
-                        String[] elements = StringUtil.split(line);
-                        if (elements.length == ELEMENT_COUNT_IN_LINE_OF_THEME) {
-                            l.add(new Theme(elements[0], elements[1]));
+                    for (String line : StringUtil.readLines(in)) {
+                        List<String> elements = StringUtil.split(line);
+                        if (elements.size() == ELEMENT_COUNT_IN_LINE_OF_THEME) {
+                            themes.add(new Theme(elements.get(0), elements.get(1)));
                         } else {
                             if (LOG.isWarnEnabled()) {
                                 LOG.warn("Failed to parse theme from line: [" + line + "].");
@@ -458,12 +444,9 @@ public class SettingsService {
                         }
                     }
                 } catch (IOException e) {
-                    if (LOG.isErrorEnabled()) {
-                        LOG.error("Failed to resolve list of themes.", e);
-                    }
-                    l.add(new Theme("default", "Jpsonic default"));
+                    themes.add(new Theme("default", "Jpsonic default"));
+                    throw new UncheckedIOException(e);
                 }
-                themes = Collections.unmodifiableList(l);
             }
             return themes;
         }
@@ -501,13 +484,13 @@ public class SettingsService {
         setProperty(SettingsConstants.General.Index.IGNORED_ARTICLES, s);
     }
 
-    public String[] getIgnoredArticlesAsArray() {
+    public List<String> getIgnoredArticlesAsArray() {
         synchronized (LOCKS.get(LocksKeys.ARTICLES)) {
             String articles = getIgnoredArticles();
             if (isEmpty(articles)) {
-                return new String[0];
+                return Collections.emptyList();
             } else {
-                ignoredArticles = Arrays.asList(articles.split("\\s+")).toArray(new String[0]);
+                ignoredArticles = Arrays.asList(articles.split(CONSECUTIVE_WHITESPACE));
             }
             return ignoredArticles;
         }
@@ -687,10 +670,10 @@ public class SettingsService {
         }
     }
 
-    public String[] getMusicFileTypesAsArray() {
+    public List<String> getMusicFileTypesAsArray() {
         synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
             if (musicFileTypes == null) {
-                musicFileTypes = toStringArray(getMusicFileTypes());
+                musicFileTypes = Arrays.asList(getDefaultMusicFileTypes().split(CONSECUTIVE_WHITESPACE));
             }
             return musicFileTypes;
         }
@@ -714,10 +697,10 @@ public class SettingsService {
         }
     }
 
-    public String[] getVideoFileTypesAsArray() {
+    public List<String> getVideoFileTypesAsArray() {
         synchronized (LOCKS.get(LocksKeys.VIDEO_FILE)) {
             if (videoFileTypes == null) {
-                videoFileTypes = toStringArray(getVideoFileTypes());
+                videoFileTypes = Arrays.asList(getVideoFileTypes().split(CONSECUTIVE_WHITESPACE));
             }
             return videoFileTypes;
         }
@@ -741,10 +724,10 @@ public class SettingsService {
         }
     }
 
-    public String[] getCoverArtFileTypesAsArray() {
+    public List<String> getCoverArtFileTypesAsArray() {
         synchronized (LOCKS.get(LocksKeys.COVER_ART)) {
             if (coverArtFileTypes == null) {
-                coverArtFileTypes = toStringArray(getCoverArtFileTypes());
+                coverArtFileTypes = Arrays.asList(getCoverArtFileTypes().split(CONSECUTIVE_WHITESPACE));
             }
             return coverArtFileTypes;
         }
@@ -768,10 +751,10 @@ public class SettingsService {
         }
     }
 
-    public String[] getExcludedCoverArtsAsArray() {
+    public List<String> getExcludedCoverArtsAsArray() {
         synchronized (LOCKS.get(LocksKeys.EXCLUDED_COVER_ART)) {
             if (excludedCoverArts == null) {
-                excludedCoverArts = toStringArray(getExcludedCoverArts());
+                excludedCoverArts = Arrays.asList(getDefaultExcludedCoverArts().split(CONSECUTIVE_WHITESPACE));
             }
             return excludedCoverArts;
         }
@@ -801,7 +784,7 @@ public class SettingsService {
         setProperty(SettingsConstants.General.Extension.SHORTCUTS, s);
     }
 
-    public String[] getShortcutsAsArray() {
+    public List<String> getShortcutsAsArray() {
         return StringUtil.split(getShortcuts());
     }
 

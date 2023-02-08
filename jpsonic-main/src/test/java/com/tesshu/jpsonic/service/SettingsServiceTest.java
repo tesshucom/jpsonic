@@ -290,7 +290,7 @@ class SettingsServiceTest {
 
     @Test
     void testGetIgnoredArticlesAsArray() {
-        assertEquals(6, settingsService.getIgnoredArticlesAsArray().length);
+        assertEquals(6, settingsService.getIgnoredArticlesAsArray().size());
     }
 
     @Test
@@ -300,7 +300,7 @@ class SettingsServiceTest {
 
     @Test
     void testGetShortcutsAsArray() {
-        assertEquals(2, settingsService.getShortcutsAsArray().length);
+        assertEquals(2, settingsService.getShortcutsAsArray().size());
     }
 
     @Test
@@ -316,8 +316,8 @@ class SettingsServiceTest {
 
     @Test
     void testGetMusicFileTypesAsArray() {
-        assertEquals(19, settingsService.getMusicFileTypesAsArray().length);
-        assertEquals(19, settingsService.getMusicFileTypesAsArray().length); // Cashed path
+        assertEquals(19, settingsService.getMusicFileTypesAsArray().size());
+        assertEquals(19, settingsService.getMusicFileTypesAsArray().size()); // Cashed path
     }
 
     @Test
@@ -327,8 +327,8 @@ class SettingsServiceTest {
 
     @Test
     void testGetVideoFileTypesAsArray() {
-        assertEquals(13, settingsService.getVideoFileTypesAsArray().length);
-        assertEquals(13, settingsService.getVideoFileTypesAsArray().length); // Cashed path
+        assertEquals(13, settingsService.getVideoFileTypesAsArray().size());
+        assertEquals(13, settingsService.getVideoFileTypesAsArray().size()); // Cashed path
     }
 
     @Test
@@ -339,8 +339,8 @@ class SettingsServiceTest {
 
     @Test
     void testGetCoverArtFileTypesAsArray() {
-        assertEquals(8, settingsService.getCoverArtFileTypesAsArray().length);
-        assertEquals(8, settingsService.getCoverArtFileTypesAsArray().length); // Cashed path
+        assertEquals(8, settingsService.getCoverArtFileTypesAsArray().size());
+        assertEquals(8, settingsService.getCoverArtFileTypesAsArray().size()); // Cashed path
     }
 
     @Test
@@ -350,8 +350,8 @@ class SettingsServiceTest {
 
     @Test
     void testGetExcludedCoverArtsAsArray() {
-        assertEquals(4, settingsService.getExcludedCoverArtsAsArray().length);
-        assertEquals(4, settingsService.getExcludedCoverArtsAsArray().length); // Cashed path
+        assertEquals(4, settingsService.getExcludedCoverArtsAsArray().size());
+        assertEquals(4, settingsService.getExcludedCoverArtsAsArray().size()); // Cashed path
     }
 
     @Test
@@ -578,8 +578,8 @@ class SettingsServiceTest {
 
     @Test
     void testGetAvailableLocales() {
-        assertEquals(28, settingsService.getAvailableLocales().length);
-        assertEquals(28, settingsService.getAvailableLocales().length); // Cashed path
+        assertEquals(28, settingsService.getAvailableLocales().size());
+        assertEquals(28, settingsService.getAvailableLocales().size()); // Cashed path
     }
 
     @Test

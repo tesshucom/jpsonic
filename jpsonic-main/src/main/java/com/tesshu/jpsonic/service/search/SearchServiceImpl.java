@@ -479,10 +479,10 @@ public class SearchServiceImpl implements SearchService {
         }
 
         try {
-            SortField[] sortFields = Arrays.stream(IndexType.ALBUM_ID3.getFields())
-                    .map(n -> new SortField(n, SortField.Type.STRING)).toArray(SortField[]::new);
+            Sort sort = new Sort(IndexType.ALBUM_ID3.getFields().stream()
+                    .map(n -> new SortField(n, SortField.Type.STRING)).toArray(SortField[]::new));
             Query query = queryFactory.getAlbumId3sByGenres(genres, musicFolders);
-            TopDocs topDocs = searcher.search(query, offset + count, new Sort(sortFields));
+            TopDocs topDocs = searcher.search(query, offset + count, sort);
 
             int totalHits = util.round.apply(topDocs.totalHits.value);
             int start = Math.min(offset, totalHits);

@@ -21,6 +21,7 @@ package com.tesshu.jpsonic.service.upnp.processor;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -105,7 +106,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> {
         container.setParentID(getRootId());
         container.setTitle(album.getName());
         if (album.getArtist() != null) {
-            container.setArtists(getAlbumArtists(album.getArtist()));
+            container.setArtists(getAlbumArtists(album.getArtist()).toArray(new PersonWithRole[0]));
         }
         return container;
     }
@@ -179,8 +180,8 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> {
         didl.addItem(getDispatcher().getMediaFileProcessor().createItem(child));
     }
 
-    public final PersonWithRole[] getAlbumArtists(String artist) {
-        return new PersonWithRole[] { new PersonWithRole(artist) };
+    public final List<PersonWithRole> getAlbumArtists(String artist) {
+        return Arrays.asList(new PersonWithRole(artist));
     }
 
     public URI createAlbumArtURI(Album album) {

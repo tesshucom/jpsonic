@@ -25,6 +25,7 @@ import java.util.AbstractMap;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import com.tesshu.jpsonic.util.LegacyMap;
@@ -96,7 +97,7 @@ public enum IndexType {
     private final Map<String, Float> boosts;
 
     @SuppressWarnings("ImmutableEnumChecker")
-    private final String[] fields;
+    private final List<String> fields;
 
     /**
      * Define the field's applied boost value when searching IndexType.
@@ -134,7 +135,7 @@ public enum IndexType {
     }
 
     IndexType(String[] fieldNames, Map<String, Float> boosts) {
-        this.fields = fieldNames.clone();
+        this.fields = Arrays.asList(fieldNames);
         this.boosts = boosts;
     }
 
@@ -158,7 +159,7 @@ public enum IndexType {
      *
      * @since legacy
      */
-    public String[] getFields() {
+    public List<String> getFields() {
         return fields;
     }
 

@@ -86,7 +86,8 @@ class QueryFactoryTest {
                     FieldNamesConstants.TITLE_READING, //
                     FieldNamesConstants.ARTIST, //
                     FieldNamesConstants.ARTIST_READING };
-            assertArrayEquals(notContainsComposer, queryFactory.filterFields(IndexType.SONG.getFields(), false));
+            assertArrayEquals(notContainsComposer,
+                    queryFactory.filterFields(IndexType.SONG.getFields(), false).toArray(new String[0]));
 
             Mockito.when(settingsService.isSearchComposer()).thenReturn(true);
             String[] containsComposer = { FieldNamesConstants.TITLE, //
@@ -95,7 +96,8 @@ class QueryFactoryTest {
                     FieldNamesConstants.ARTIST_READING, //
                     FieldNamesConstants.COMPOSER, //
                     FieldNamesConstants.COMPOSER_READING };
-            assertArrayEquals(containsComposer, queryFactory.filterFields(IndexType.SONG.getFields(), true));
+            assertArrayEquals(containsComposer,
+                    queryFactory.filterFields(IndexType.SONG.getFields(), true).toArray(new String[0]));
         }
 
         @Test
@@ -106,18 +108,21 @@ class QueryFactoryTest {
                     FieldNamesConstants.TITLE_READING, //
                     FieldNamesConstants.ARTIST, //
                     FieldNamesConstants.ARTIST_READING };
-            assertArrayEquals(notRomanize, queryFactory.filterFields(IndexType.SONG.getFields(), false));
+            assertArrayEquals(notRomanize,
+                    queryFactory.filterFields(IndexType.SONG.getFields(), false).toArray(new String[0]));
 
             Mockito.when(settingsService.getIndexSchemeName())
                     .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
-            assertArrayEquals(notRomanize, queryFactory.filterFields(IndexType.SONG.getFields(), false));
+            assertArrayEquals(notRomanize,
+                    queryFactory.filterFields(IndexType.SONG.getFields(), false).toArray(new String[0]));
 
             Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
             String[] romanize = { FieldNamesConstants.TITLE, //
                     FieldNamesConstants.TITLE_READING, //
                     FieldNamesConstants.ARTIST, //
                     FieldNamesConstants.ARTIST_READING, FieldNamesConstants.ARTIST_READING_ROMANIZED };
-            assertArrayEquals(romanize, queryFactory.filterFields(IndexType.SONG.getFields(), false));
+            assertArrayEquals(romanize,
+                    queryFactory.filterFields(IndexType.SONG.getFields(), false).toArray(new String[0]));
 
             // and Composer
             Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.NATIVE_JAPANESE.name());
@@ -127,11 +132,13 @@ class QueryFactoryTest {
                     FieldNamesConstants.ARTIST_READING, //
                     FieldNamesConstants.COMPOSER, //
                     FieldNamesConstants.COMPOSER_READING };
-            assertArrayEquals(notRomanizeAndCmp, queryFactory.filterFields(IndexType.SONG.getFields(), true));
+            assertArrayEquals(notRomanizeAndCmp,
+                    queryFactory.filterFields(IndexType.SONG.getFields(), true).toArray(new String[0]));
 
             Mockito.when(settingsService.getIndexSchemeName())
                     .thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
-            assertArrayEquals(notRomanizeAndCmp, queryFactory.filterFields(IndexType.SONG.getFields(), true));
+            assertArrayEquals(notRomanizeAndCmp,
+                    queryFactory.filterFields(IndexType.SONG.getFields(), true).toArray(new String[0]));
 
             Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
             String[] romanizeAndCmp = { FieldNamesConstants.TITLE, //
@@ -142,7 +149,8 @@ class QueryFactoryTest {
                     FieldNamesConstants.COMPOSER, //
                     FieldNamesConstants.COMPOSER_READING, //
                     FieldNamesConstants.COMPOSER_READING_ROMANIZED };
-            assertArrayEquals(romanizeAndCmp, queryFactory.filterFields(IndexType.SONG.getFields(), true));
+            assertArrayEquals(romanizeAndCmp,
+                    queryFactory.filterFields(IndexType.SONG.getFields(), true).toArray(new String[0]));
         }
     }
 

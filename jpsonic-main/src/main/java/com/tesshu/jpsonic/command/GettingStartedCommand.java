@@ -19,17 +19,19 @@
 
 package com.tesshu.jpsonic.command;
 
+import java.util.List;
+
 public class GettingStartedCommand {
 
-    private String[] locales;
+    private List<String> locales;
     private String localeIndex = "0";
 
-    public String[] getLocales() {
+    public List<String> getLocales() {
         return locales;
     }
 
-    public void setLocales(String... locales) {
-        this.locales = locales.clone();
+    public void setLocales(List<String> locales) {
+        this.locales = locales;
     }
 
     public String getLocaleIndex() {

@@ -24,6 +24,7 @@ package com.tesshu.jpsonic.controller;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -96,22 +97,15 @@ public class GeneralSettingsController {
 
         // Language and theme
         List<Theme> themes = SettingsService.getAvailableThemes();
-        command.setThemes(themes.toArray(new Theme[0]));
-        for (int i = 0; i < themes.size(); i++) {
-            if (settingsService.getThemeId().equals(themes.get(i).getId())) {
-                command.setThemeIndex(String.valueOf(i));
-                break;
-            }
-        }
-        Locale[] locales = settingsService.getAvailableLocales();
-        String[] localeStrings = new String[locales.length];
-        for (int i = 0; i < locales.length; i++) {
-            localeStrings[i] = locales[i].getDisplayName(locales[i]);
-            if (settingsService.getLocale().equals(locales[i])) {
-                command.setLocaleIndex(String.valueOf(i));
-            }
-        }
-        command.setLocales(localeStrings);
+        themes.stream().filter(theme -> theme.getId().equals(settingsService.getThemeId())).findFirst()
+                .ifPresent(theme -> command.setThemeIndex(String.valueOf(themes.indexOf(theme))));
+        command.setThemes(themes);
+
+        List<Locale> locales = settingsService.getAvailableLocales();
+        locales.stream().filter(locale -> locale.equals(settingsService.getLocale())).findFirst()
+                .ifPresent(locale -> command.setLocaleIndex(String.valueOf(locales.indexOf(locale))));
+        command.setLocales(locales.stream().map(locale -> locale.getDisplayName()).collect(Collectors.toList()));
+
         command.setIndexScheme(IndexScheme.of(settingsService.getIndexSchemeName()));
 
         // Index settings
@@ -195,7 +189,7 @@ public class GeneralSettingsController {
         int themeIndex = Integer.parseInt(command.getThemeIndex());
         Theme theme = SettingsService.getAvailableThemes().get(themeIndex);
         int localeIndex = Integer.parseInt(command.getLocaleIndex());
-        Locale locale = settingsService.getAvailableLocales()[localeIndex];
+        Locale locale = settingsService.getAvailableLocales().get(localeIndex);
 
         /*
          * To transition the mainframe after reloading the entire web page, not a simple transition. (Compare before
