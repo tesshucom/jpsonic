@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -89,7 +90,7 @@ public class MediaScannerScheduleConfiguration implements SchedulingConfigurer {
                 }
                 mediaScannerService.scanLibrary();
             }
-            return java.util.Date.from(nextTime);
+            return Date.from(nextTime);
         };
 
         registrar.addTriggerTask(new ScanLibraryTask(mediaScannerService), trigger);

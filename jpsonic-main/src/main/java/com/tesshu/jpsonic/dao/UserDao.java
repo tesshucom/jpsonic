@@ -213,14 +213,9 @@ public class UserDao extends AbstractDao {
      *
      * @return Roles the user is granted.
      */
-    public String[] getRolesForUser(String username) {
+    public List<String> getRolesForUser(String username) {
         String sql = "select r.name from role r, user_role ur " + "where ur.username=? and ur.role_id=r.id";
-        List<?> roles = getJdbcTemplate().queryForList(sql, String.class, new Object[] { username });
-        String[] result = new String[roles.size()];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = (String) roles.get(i);
-        }
-        return result;
+        return getJdbcTemplate().queryForList(sql, String.class, new Object[] { username });
     }
 
     /**

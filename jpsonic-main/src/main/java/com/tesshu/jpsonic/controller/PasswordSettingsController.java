@@ -27,6 +27,7 @@ import com.tesshu.jpsonic.command.PasswordSettingsCommand;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.validator.PasswordSettingsValidator;
+import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
@@ -44,7 +45,7 @@ import org.springframework.web.servlet.view.RedirectView;
  *
  * @author Sindre Mehus
  */
-@org.springframework.stereotype.Controller
+@Controller
 @RequestMapping({ "/passwordSettings", "/passwordSettings.view" })
 public class PasswordSettingsController {
 

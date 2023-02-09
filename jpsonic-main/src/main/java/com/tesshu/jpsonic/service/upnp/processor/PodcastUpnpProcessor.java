@@ -40,6 +40,7 @@ import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
+import com.tesshu.jpsonic.util.PlayerUtils;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
@@ -137,7 +138,7 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor<PodcastChannel, P
 
     @Override
     public List<PodcastChannel> getItems(long offset, long maxResults) {
-        return com.tesshu.jpsonic.util.PlayerUtils.subList(podcastService.getAllChannels(), offset, maxResults);
+        return PlayerUtils.subList(podcastService.getAllChannels(), offset, maxResults);
     }
 
     @Override
@@ -152,8 +153,7 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor<PodcastChannel, P
 
     @Override
     public List<PodcastEpisode> getChildren(PodcastChannel channel, long offset, long maxResults) {
-        return com.tesshu.jpsonic.util.PlayerUtils.subList(podcastService.getEpisodes(channel.getId()), offset,
-                maxResults);
+        return PlayerUtils.subList(podcastService.getEpisodes(channel.getId()), offset, maxResults);
     }
 
     @Override

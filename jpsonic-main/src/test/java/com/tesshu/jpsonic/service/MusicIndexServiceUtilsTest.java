@@ -62,24 +62,25 @@ class MusicIndexServiceUtilsTest {
         Mockito.when(settingsService.getLocale()).thenReturn(Locale.ENGLISH);
 
         assertEquals("abcde, \u0069", // i
-                musicIndexServiceUtils.createSortableName("\u0130 abcde", // İ
-                        "\u0069", // i
-                        "\u0131")); // ı
+                musicIndexServiceUtils.createSortableName(//
+                        "\u0130 abcde", // İ
+                        Arrays.asList("\u0069", // i
+                                "\u0131"))); // ı
 
         assertEquals("abcde, \u0130", // İ
                 musicIndexServiceUtils.createSortableName("\u0130 abcde", // İ
-                        "\u0130", // İ
-                        "\u0049")); // I
+                        Arrays.asList("\u0130", // İ
+                                "\u0049"))); // I
 
         assertEquals("abcde, \u0069", // i
                 musicIndexServiceUtils.createSortableName("\u0049 abcde", // I
-                        "\u0069", // i
-                        "\u0131")); // ı
+                        Arrays.asList("\u0069", // i
+                                "\u0131"))); // ı
 
         assertEquals("abcde, \u0130", // İ
                 musicIndexServiceUtils.createSortableName("\u0049 abcde", // I
-                        "\u0130", // İ
-                        "\u0049")); // I
+                        Arrays.asList("\u0130", // İ
+                                "\u0049"))); // I
     }
 
     @Test

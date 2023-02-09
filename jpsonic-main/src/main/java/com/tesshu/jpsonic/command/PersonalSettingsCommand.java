@@ -44,10 +44,10 @@ public class PersonalSettingsCommand extends SettingsPageCommons {
     // Language and theme
     // - Default language
     private String localeIndex;
-    private String[] locales;
+    private List<String> locales;
     // - Theme
     private String themeIndex;
-    private Theme[] themes;
+    private List<Theme> themes;
     // - Font
     private FontScheme fontScheme;
     private String fontFamily;
@@ -63,7 +63,7 @@ public class PersonalSettingsCommand extends SettingsPageCommons {
     private UserSettings smartphoneSettings;
     private boolean keyboardShortcutsEnabled;
     private String albumListId;
-    private AlbumListType[] albumLists;
+    private List<AlbumListType> albumLists;
     private boolean putMenuInDrawer;
     private boolean showIndex;
     private boolean closeDrawer;
@@ -141,12 +141,12 @@ public class PersonalSettingsCommand extends SettingsPageCommons {
         this.localeIndex = localeIndex;
     }
 
-    public String[] getLocales() {
+    public List<String> getLocales() {
         return locales;
     }
 
-    public void setLocales(String... locales) {
-        this.locales = locales.clone();
+    public void setLocales(List<String> locales) {
+        this.locales = locales;
     }
 
     public String getThemeIndex() {
@@ -157,13 +157,13 @@ public class PersonalSettingsCommand extends SettingsPageCommons {
         this.themeIndex = themeIndex;
     }
 
-    public Theme[] getThemes() {
+    public List<Theme> getThemes() {
         return themes;
     }
 
-    public void setThemes(Theme... themes) {
+    public void setThemes(List<Theme> themes) {
         if (themes != null) {
-            this.themes = themes.clone();
+            this.themes = themes;
         }
     }
 
@@ -263,12 +263,12 @@ public class PersonalSettingsCommand extends SettingsPageCommons {
         this.albumListId = albumListId;
     }
 
-    public AlbumListType[] getAlbumLists() {
+    public List<AlbumListType> getAlbumLists() {
         return albumLists;
     }
 
-    public void setAlbumLists(AlbumListType... albumLists) {
-        this.albumLists = albumLists.clone();
+    public void setAlbumLists(List<AlbumListType> albumLists) {
+        this.albumLists = albumLists;
     }
 
     public boolean isPutMenuInDrawer() {

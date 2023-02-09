@@ -46,6 +46,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
+import org.fourthline.cling.support.model.PersonWithRole;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.GenreContainer;
 import org.fourthline.cling.support.model.container.MusicAlbum;
@@ -131,7 +132,8 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
             MusicAlbum container = new MusicAlbum();
             container.setAlbumArtURIs(new URI[] { getDispatcher().getMediaFileProcessor().createAlbumArtURI(item) });
             if (item.getArtist() != null) {
-                container.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(item.getArtist()));
+                container.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(item.getArtist())
+                        .toArray(new PersonWithRole[0]));
             }
             container.setDescription(item.getComment());
             applyId(item, container);

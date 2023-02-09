@@ -21,6 +21,7 @@
 
 package com.tesshu.jpsonic.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
@@ -31,6 +32,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -231,7 +233,7 @@ public class InternalHelpController {
         map.put("localeLang", System.getenv("LANG"));
         map.put("localeLcAll", System.getenv("LC_ALL"));
         map.put("localeDefaultCharset", Charset.defaultCharset().toString());
-        map.put("localeDefaultZoneOffset", java.time.ZoneOffset.systemDefault());
+        map.put("localeDefaultZoneOffset", ZoneOffset.systemDefault());
 
         map.put("localeFileEncodingSupportsUtf8", doesLocaleSupportUtf8(System.getProperty("file.encoding")));
         map.put("localeLangSupportsUtf8", doesLocaleSupportUtf8(System.getenv("LANG")));
@@ -389,7 +391,7 @@ public class InternalHelpController {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     private Path lookForExecutable(String executableName) {
-        for (String path : System.getenv("PATH").split(java.io.File.pathSeparator, -1)) {
+        for (String path : System.getenv("PATH").split(File.pathSeparator, -1)) {
             Path file = Path.of(path, executableName);
             if (Files.exists(file)) {
                 if (LOG.isDebugEnabled()) {

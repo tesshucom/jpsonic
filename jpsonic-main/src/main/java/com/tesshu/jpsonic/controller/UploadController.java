@@ -63,6 +63,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -72,7 +73,7 @@ import org.springframework.web.servlet.ModelAndView;
  *
  * @author Sindre Mehus
  */
-@org.springframework.stereotype.Controller
+@Controller
 @RequestMapping({ "/upload", "/upload.view" })
 public class UploadController {
 

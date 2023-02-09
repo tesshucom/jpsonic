@@ -26,6 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.dao.MediaFileDao;
@@ -51,10 +53,10 @@ class MediaFileServiceTest {
         mediaFileService = new MediaFileService(settingsService, mock(MusicFolderService.class), securityService,
                 mock(MediaFileCache.class), mediaFileDao, mock(JpsonicComparators.class));
 
-        Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(new String[0]);
-        Mockito.when(settingsService.getMusicFileTypesAsArray()).thenReturn(new String[] { "mp3" });
+        Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(Collections.emptyList());
+        Mockito.when(settingsService.getMusicFileTypesAsArray()).thenReturn(Arrays.asList("mp3"));
         Mockito.when(settingsService.getExcludedCoverArtsAsArray())
-                .thenReturn(new String[] { "AlbumArtSmall.jpg", "small.jpg", "large.jpg" });
+                .thenReturn(Arrays.asList("AlbumArtSmall.jpg", "small.jpg", "large.jpg"));
         Mockito.when(securityService.isReadAllowed(Mockito.any(Path.class))).thenReturn(true);
     }
 

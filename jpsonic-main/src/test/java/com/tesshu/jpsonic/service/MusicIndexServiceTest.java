@@ -66,7 +66,7 @@ class MusicIndexServiceTest {
         settingsService = mock(SettingsService.class);
         String articles = SettingsConstants.General.Index.IGNORED_ARTICLES.defaultValue;
         Mockito.when(settingsService.getIgnoredArticles()).thenReturn(articles);
-        Mockito.when(settingsService.getIgnoredArticlesAsArray()).thenReturn(articles.split("\\s+"));
+        Mockito.when(settingsService.getIgnoredArticlesAsArray()).thenReturn(Arrays.asList(articles.split("\\s+")));
         Mockito.when(settingsService.getIndexString())
                 .thenReturn(SettingsConstants.General.Index.INDEX_STRING.defaultValue);
         String language = SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE.defaultValue;

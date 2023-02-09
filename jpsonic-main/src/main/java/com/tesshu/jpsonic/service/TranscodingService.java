@@ -23,6 +23,7 @@ package com.tesshu.jpsonic.service;
 
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -302,8 +303,7 @@ public class TranscodingService {
                 // Detected source to target format match for video
                 return transcoding;
             }
-            Arrays.stream(transcoding.getSourceFormatsAsArray())
-                    .filter(sourceFormat -> sourceFormat.equalsIgnoreCase(suffix))
+            transcoding.getSourceFormatsAsList().stream().filter(sourceFormat -> sourceFormat.equalsIgnoreCase(suffix))
                     .filter(sourceFormat -> isTranscoderInstalled(transcoding))
                     .forEach(s -> applicableTranscodings.add(transcoding));
         }
@@ -456,7 +456,7 @@ public class TranscodingService {
         }
 
         List<String> commands = Arrays.asList(splitCommand(command));
-        commands.set(0, getTranscodeDirectory().toString() + java.io.File.separatorChar + commands.get(0));
+        commands.set(0, getTranscodeDirectory().toString() + File.separatorChar + commands.get(0));
 
         Path tmpFile = null;
         for (int i = 1; i < commands.size(); i++) {
@@ -519,7 +519,7 @@ public class TranscodingService {
             if (mediaFile == null) {
                 return true;
             }
-            for (String sourceFormat : transcoding.getSourceFormatsAsArray()) {
+            for (String sourceFormat : transcoding.getSourceFormatsAsList()) {
                 if (sourceFormat.equalsIgnoreCase(mediaFile.getFormat())) {
                     return true;
                 }
@@ -542,7 +542,7 @@ public class TranscodingService {
             return true;
         }
 
-        String executable = StringUtil.split(step)[0];
+        String executable = StringUtil.split(step).get(0);
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(getTranscodeDirectory())) {
             for (Path child : ds) {
                 Path filename = child.getFileName();

@@ -47,6 +47,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
+import org.fourthline.cling.support.model.PersonWithRole;
 import org.fourthline.cling.support.model.Res;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.MusicAlbum;
@@ -113,7 +114,8 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
             MusicAlbum container = new MusicAlbum();
             container.setAlbumArtURIs(new URI[] { createAlbumArtURI(item) });
             if (item.getArtist() != null) {
-                container.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(item.getArtist()));
+                container.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(item.getArtist())
+                        .toArray(new PersonWithRole[0]));
             }
             container.setDescription(item.getComment());
             applyId(item, container);
@@ -204,7 +206,8 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
         item.setTitle(song.getTitle());
         item.setAlbum(song.getAlbumName());
         if (song.getArtist() != null) {
-            item.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(song.getArtist()));
+            item.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(song.getArtist())
+                    .toArray(new PersonWithRole[0]));
         }
         Integer year = song.getYear();
         if (year != null) {

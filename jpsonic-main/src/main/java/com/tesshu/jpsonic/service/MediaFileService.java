@@ -250,9 +250,9 @@ public class MediaFileService {
 
         BiPredicate<Path, BasicFileAttributes> coverArtNamePredicate = (child, attrs) -> Files.isRegularFile(child)
                 && child.getFileName().toString().charAt(0) != '.'
-                && Stream.of(settingsService.getExcludedCoverArtsAsArray())
+                && settingsService.getExcludedCoverArtsAsArray().stream()
                         .noneMatch(excluded -> StringUtils.endsWithIgnoreCase(child.getFileName().toString(), excluded))
-                && Stream.of(settingsService.getCoverArtFileTypesAsArray())
+                && settingsService.getCoverArtFileTypesAsArray().stream()
                         .anyMatch(type -> StringUtils.endsWithIgnoreCase(child.getFileName().toString(), type));
 
         try (Stream<Path> results = Files.find(parent, 1, coverArtNamePredicate)) {

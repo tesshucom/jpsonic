@@ -38,7 +38,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  */
 public class PlayerSettingsCommand extends SettingsPageCommons {
 
-    private Player[] players;
+    private List<Player> players;
     private Integer playerId;
     private boolean admin;
     private boolean sameSegment;
@@ -63,14 +63,12 @@ public class PlayerSettingsCommand extends SettingsPageCommons {
     // for view page control
     private boolean useExternalPlayer;
 
-    public Player[] getPlayers() {
+    public List<Player> getPlayers() {
         return players;
     }
 
-    public void setPlayers(Player... players) {
-        if (players != null) {
-            this.players = players.clone();
-        }
+    public void setPlayers(List<Player> players) {
+        this.players = players;
     }
 
     public Integer getPlayerId() {

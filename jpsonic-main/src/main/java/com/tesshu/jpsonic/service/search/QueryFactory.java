@@ -24,9 +24,9 @@ package com.tesshu.jpsonic.service.search;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
@@ -107,9 +107,9 @@ public class QueryFactory {
      *
      * @return Final search target field
      */
-    String[] filterFields(String[] fields, boolean includeComposer) {
+    List<String> filterFields(List<String> fields, boolean includeComposer) {
         IndexScheme scheme = IndexScheme.of(settingsService.getIndexSchemeName());
-        return Arrays.stream(fields) //
+        return fields.stream() //
                 .filter(field -> includeComposer || !(FieldNamesConstants.COMPOSER.equals(field) //
                         || FieldNamesConstants.COMPOSER_READING.equals(field) //
                         || FieldNamesConstants.COMPOSER_READING_ROMANIZED.equals(field)))
@@ -117,7 +117,7 @@ public class QueryFactory {
                         && !(FieldNamesConstants.ARTIST_READING_ROMANIZED.equals(field) //
                                 || FieldNamesConstants.COMPOSER_READING_ROMANIZED.equals(field))
                         || scheme == IndexScheme.ROMANIZED_JAPANESE)
-                .toArray(String[]::new);
+                .collect(Collectors.toList());
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (PhraseQuery, Term) Not reusable
@@ -151,11 +151,11 @@ public class QueryFactory {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (BoostQuery) Not reusable
-    private Optional<Query> createPhraseQuery(@NonNull String[] fieldNames, boolean includeComposer,
+    private Optional<Query> createPhraseQuery(List<String> fieldNames, boolean includeComposer,
             @NonNull String queryString, @NonNull IndexType indexType) throws IOException {
 
-        String[] targetFields = filterFields(fieldNames, includeComposer);
-        if (targetFields.length == 0) {
+        List<String> targetFields = filterFields(fieldNames, includeComposer);
+        if (targetFields.isEmpty()) {
             return Optional.empty();
         }
 
@@ -172,7 +172,7 @@ public class QueryFactory {
     }
 
     // Called by UPnP
-    public Optional<Query> createPhraseQuery(@NonNull String[] targetFields, @NonNull String queryString,
+    public Optional<Query> createPhraseQuery(List<String> targetFields, @NonNull String queryString,
             @NonNull IndexType indexType) throws IOException {
         return createPhraseQuery(targetFields, settingsService.isSearchComposer(), queryString, indexType);
     }

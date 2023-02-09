@@ -21,6 +21,8 @@
 
 package com.tesshu.jpsonic.command;
 
+import java.util.List;
+
 import com.tesshu.jpsonic.controller.GeneralSettingsController;
 import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.Theme;
@@ -33,9 +35,9 @@ import com.tesshu.jpsonic.domain.Theme;
 public class GeneralSettingsCommand extends SettingsPageCommons {
 
     // Language and theme
-    private Theme[] themes;
+    private List<Theme> themes;
     private String themeIndex = "0";
-    private String[] locales;
+    private List<String> locales;
     private String localeIndex = "0";
     private IndexScheme indexScheme;
 
@@ -95,14 +97,12 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private String welcomeMessage;
     private String loginMessage;
 
-    public Theme[] getThemes() {
+    public List<Theme> getThemes() {
         return themes;
     }
 
-    public void setThemes(Theme... themes) {
-        if (themes != null) {
-            this.themes = themes.clone();
-        }
+    public void setThemes(List<Theme> themes) {
+        this.themes = themes;
     }
 
     public String getThemeIndex() {
@@ -113,12 +113,12 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
         this.themeIndex = themeIndex;
     }
 
-    public String[] getLocales() {
+    public List<String> getLocales() {
         return locales;
     }
 
-    public void setLocales(String... locales) {
-        this.locales = locales.clone();
+    public void setLocales(List<String> locales) {
+        this.locales = locales;
     }
 
     public String getLocaleIndex() {

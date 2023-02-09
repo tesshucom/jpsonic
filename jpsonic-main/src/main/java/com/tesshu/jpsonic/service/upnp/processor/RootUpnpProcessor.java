@@ -24,6 +24,7 @@ import java.util.List;
 
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
+import com.tesshu.jpsonic.util.PlayerUtils;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.WriteStatus;
 import org.fourthline.cling.support.model.container.Container;
@@ -106,7 +107,7 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
             containers.add(getDispatcher().getPodcastProcessor().createRootContainer());
         }
 
-        return com.tesshu.jpsonic.util.PlayerUtils.subList(containers, offset, maxResults);
+        return PlayerUtils.subList(containers, offset, maxResults);
     }
 
     private void addIndexContainer(List<Container> containers) {
@@ -167,7 +168,7 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
 
     @Override
     public List<Container> getChildren(Container item, long offset, long maxResults) {
-        return com.tesshu.jpsonic.util.PlayerUtils.subList(getChildren(item), offset, maxResults);
+        return PlayerUtils.subList(getChildren(item), offset, maxResults);
     }
 
     @Override

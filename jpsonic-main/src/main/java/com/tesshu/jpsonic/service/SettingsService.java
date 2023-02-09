@@ -25,6 +25,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -35,9 +36,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.StringTokenizer;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
@@ -69,23 +69,21 @@ import org.springframework.stereotype.Service;
 public class SettingsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SettingsService.class);
-    private static final Map<LocksKeys, Object> LOCKS;
 
     private enum LocksKeys {
         HOME, MUSIC_FILE, VIDEO_FILE, COVER_ART, EXCLUDED_COVER_ART, THEMES, LOCALES, LOCALE, ARTICLES
     }
 
-    static {
-        Map<LocksKeys, Object> m = new ConcurrentHashMap<>();
-        Arrays.stream(LocksKeys.values()).forEach(k -> m.put(k, new Object()));
-        LOCKS = Collections.unmodifiableMap(m);
-    }
+    @SuppressWarnings("PMD.UseConcurrentHashMap") // Already thread-safe
+    private static final Map<LocksKeys, Object> LOCKS = Collections
+            .unmodifiableMap(Arrays.stream(LocksKeys.values()).collect(Collectors.toMap(k -> k, k -> new Object())));
 
     private static final String LOCALES_FILE = "/com/tesshu/jpsonic/i18n/locales.txt";
     private static final String THEMES_FILE = "/com/tesshu/jpsonic/theme/themes.txt";
     private static final Path JPSONIC_HOME_WINDOWS = Path.of("c:/jpsonic");
     private static final Path JPSONIC_HOME_OTHER = Path.of("/var/jpsonic");
     private static final Pair<Integer> ENV_UPNP_PORT = Pair.of("UPNP_PORT", -1);
+    private static final String CONSECUTIVE_WHITESPACE = "\\s+";
 
     // Array of obsolete keys. Used to clean property file.
     private static final List<String> OBSOLETE_KEYS = Arrays.asList("PortForwardingPublicPort",
@@ -102,19 +100,19 @@ public class SettingsService {
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
-    private static List<Theme> themes;
-    private static Locale[] locales;
-    private static String[] coverArtFileTypes;
-    private static String[] excludedCoverArts;
-    private static String[] musicFileTypes;
-    private static String[] videoFileTypes;
+    private static List<Theme> themes = new ArrayList<>();
+    private static List<Locale> locales = new ArrayList<>();
+    private static List<String> coverArtFileTypes = new ArrayList<>();
+    private static List<String> excludedCoverArts = new ArrayList<>();
+    private static List<String> musicFileTypes = new ArrayList<>();
+    private static List<String> videoFileTypes = new ArrayList<>();
+    private static List<String> ignoredArticles = new ArrayList<>();
 
     private final ApacheCommonsConfigurationService configurationService;
     private final UPnPSubnet uPnPSubnet;
 
     private Pattern excludePattern;
     private Locale locale;
-    private String[] ignoredArticles;
 
     public SettingsService(ApacheCommonsConfigurationService configurationService, UPnPSubnet uPnPSubnet) {
         super();
@@ -238,16 +236,6 @@ public class SettingsService {
         }
     }
 
-    private String[] toStringArray(String s) {
-        List<String> result = new ArrayList<>();
-        StringTokenizer tokenizer = new StringTokenizer(s, " ");
-        while (tokenizer.hasMoreTokens()) {
-            result.add(tokenizer.nextToken());
-        }
-
-        return result.toArray(new String[0]);
-    }
-
     public long getSettingsChanged() {
         return getLong(SettingsConstants.SETTINGS_CHANGED);
     }
@@ -315,10 +303,7 @@ public class SettingsService {
         return getString(SettingsConstants.MusicFolder.Exclusion.EXCLUDE_PATTERN_STRING);
     }
 
-    @SuppressWarnings("PMD.NullAssignment")
-    /*
-     * [NullAssignment](excludePattern) Intentional allocation to clear cache. [ConfusingTernary] false positive
-     */
+    @SuppressWarnings("PMD.NullAssignment") // (excludePattern) Intentional allocation to clear cache
     private void compileExcludePattern() {
         if (getExcludePatternString() != null && !StringUtils.isAllBlank(getExcludePatternString())) {
             excludePattern = Pattern.compile(getExcludePatternString());
@@ -383,22 +368,17 @@ public class SettingsService {
         setProperty(SettingsConstants.MusicFolder.Others.IGNORE_FILE_TIMESTAMPS_FOR_EACH_ALBUM, b);
     }
 
-    public Locale[] getAvailableLocales() {
+    public List<Locale> getAvailableLocales() {
         synchronized (LOCKS.get(LocksKeys.LOCALES)) {
-            if (locales == null) {
-                List<Locale> l = new ArrayList<>();
+            if (locales.isEmpty()) {
                 try (InputStream in = SettingsService.class.getResourceAsStream(LOCALES_FILE)) {
-                    String[] lines = StringUtil.readLines(in);
-                    for (String line : lines) {
-                        l.add(StringUtil.parseLocale(line));
+                    for (String line : StringUtil.readLines(in)) {
+                        locales.add(StringUtil.parseLocale(line));
                     }
-                } catch (IOException x) {
-                    if (LOG.isErrorEnabled()) {
-                        LOG.error("Failed to resolve list of locales.", x);
-                    }
-                    l.add(Locale.ENGLISH);
+                } catch (IOException e) {
+                    locales.add(Locale.ENGLISH);
+                    throw new UncheckedIOException(e);
                 }
-                locales = l.toArray(new Locale[0]);
             }
             return locales;
         }
@@ -443,14 +423,12 @@ public class SettingsService {
      */
     public static List<Theme> getAvailableThemes() {
         synchronized (LOCKS.get(LocksKeys.THEMES)) {
-            if (themes == null) {
-                List<Theme> l = new ArrayList<>();
+            if (themes.isEmpty()) {
                 try (InputStream in = SettingsService.class.getResourceAsStream(THEMES_FILE)) {
-                    String[] lines = StringUtil.readLines(in);
-                    for (String line : lines) {
-                        String[] elements = StringUtil.split(line);
-                        if (elements.length == ELEMENT_COUNT_IN_LINE_OF_THEME) {
-                            l.add(new Theme(elements[0], elements[1]));
+                    for (String line : StringUtil.readLines(in)) {
+                        List<String> elements = StringUtil.split(line);
+                        if (elements.size() == ELEMENT_COUNT_IN_LINE_OF_THEME) {
+                            themes.add(new Theme(elements.get(0), elements.get(1)));
                         } else {
                             if (LOG.isWarnEnabled()) {
                                 LOG.warn("Failed to parse theme from line: [" + line + "].");
@@ -458,12 +436,9 @@ public class SettingsService {
                         }
                     }
                 } catch (IOException e) {
-                    if (LOG.isErrorEnabled()) {
-                        LOG.error("Failed to resolve list of themes.", e);
-                    }
-                    l.add(new Theme("default", "Jpsonic default"));
+                    themes.add(new Theme("default", "Jpsonic default"));
+                    throw new UncheckedIOException(e);
                 }
-                themes = Collections.unmodifiableList(l);
             }
             return themes;
         }
@@ -493,21 +468,17 @@ public class SettingsService {
         return getString(SettingsConstants.General.Index.IGNORED_ARTICLES);
     }
 
-    @SuppressWarnings("PMD.NullAssignment") // (ignoredArticles) Intentional allocation to register null
     public void setIgnoredArticles(String s) {
         synchronized (LOCKS.get(LocksKeys.ARTICLES)) {
-            ignoredArticles = null;
+            setProperty(SettingsConstants.General.Index.IGNORED_ARTICLES, s);
+            ignoredArticles.clear();
         }
-        setProperty(SettingsConstants.General.Index.IGNORED_ARTICLES, s);
     }
 
-    public String[] getIgnoredArticlesAsArray() {
+    public List<String> getIgnoredArticlesAsArray() {
         synchronized (LOCKS.get(LocksKeys.ARTICLES)) {
-            String articles = getIgnoredArticles();
-            if (isEmpty(articles)) {
-                return new String[0];
-            } else {
-                ignoredArticles = Arrays.asList(articles.split("\\s+")).toArray(new String[0]);
+            if (ignoredArticles.isEmpty() && !isEmpty(getIgnoredArticles())) {
+                ignoredArticles = Arrays.asList(getIgnoredArticles().split(CONSECUTIVE_WHITESPACE));
             }
             return ignoredArticles;
         }
@@ -679,18 +650,17 @@ public class SettingsService {
         return SettingsConstants.General.Extension.MUSIC_FILE_TYPES.defaultValue;
     }
 
-    @SuppressWarnings("PMD.NullAssignment") // (musicFileTypes) Intentional allocation to clear cache
     public void setMusicFileTypes(String s) {
         synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
             setProperty(SettingsConstants.General.Extension.MUSIC_FILE_TYPES, s);
-            musicFileTypes = null;
+            musicFileTypes.clear();
         }
     }
 
-    public String[] getMusicFileTypesAsArray() {
+    public List<String> getMusicFileTypesAsArray() {
         synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
-            if (musicFileTypes == null) {
-                musicFileTypes = toStringArray(getMusicFileTypes());
+            if (musicFileTypes.isEmpty() && !isEmpty(getDefaultMusicFileTypes())) {
+                musicFileTypes = Arrays.asList(getDefaultMusicFileTypes().split(CONSECUTIVE_WHITESPACE));
             }
             return musicFileTypes;
         }
@@ -706,18 +676,17 @@ public class SettingsService {
         return SettingsConstants.General.Extension.VIDEO_FILE_TYPES.defaultValue;
     }
 
-    @SuppressWarnings("PMD.NullAssignment") // (videoFileTypes) Intentional allocation to clear cache
     public void setVideoFileTypes(String s) {
         synchronized (LOCKS.get(LocksKeys.VIDEO_FILE)) {
             setProperty(SettingsConstants.General.Extension.VIDEO_FILE_TYPES, s);
-            videoFileTypes = null;
+            videoFileTypes.clear();
         }
     }
 
-    public String[] getVideoFileTypesAsArray() {
+    public List<String> getVideoFileTypesAsArray() {
         synchronized (LOCKS.get(LocksKeys.VIDEO_FILE)) {
-            if (videoFileTypes == null) {
-                videoFileTypes = toStringArray(getVideoFileTypes());
+            if (videoFileTypes.isEmpty()) {
+                videoFileTypes = Arrays.asList(getVideoFileTypes().split(CONSECUTIVE_WHITESPACE));
             }
             return videoFileTypes;
         }
@@ -733,18 +702,17 @@ public class SettingsService {
         return SettingsConstants.General.Extension.COVER_ART_FILE_TYPES.defaultValue;
     }
 
-    @SuppressWarnings("PMD.NullAssignment") // (coverArtFileTypes) Intentional allocation to clear cache
     public void setCoverArtFileTypes(String s) {
         synchronized (LOCKS.get(LocksKeys.COVER_ART)) {
             setProperty(SettingsConstants.General.Extension.COVER_ART_FILE_TYPES, s);
-            coverArtFileTypes = null;
+            coverArtFileTypes.clear();
         }
     }
 
-    public String[] getCoverArtFileTypesAsArray() {
+    public List<String> getCoverArtFileTypesAsArray() {
         synchronized (LOCKS.get(LocksKeys.COVER_ART)) {
-            if (coverArtFileTypes == null) {
-                coverArtFileTypes = toStringArray(getCoverArtFileTypes());
+            if (coverArtFileTypes.isEmpty() && !isEmpty(getCoverArtFileTypes())) {
+                coverArtFileTypes = Arrays.asList(getCoverArtFileTypes().split(CONSECUTIVE_WHITESPACE));
             }
             return coverArtFileTypes;
         }
@@ -760,18 +728,17 @@ public class SettingsService {
         return SettingsConstants.General.Extension.EXCLUDED_COVER_ART.defaultValue;
     }
 
-    @SuppressWarnings("PMD.NullAssignment") // (coverArtFileTypes) Intentional allocation to clear cache
     public void setExcludedCoverArts(String s) {
         synchronized (LOCKS.get(LocksKeys.EXCLUDED_COVER_ART)) {
             setProperty(SettingsConstants.General.Extension.EXCLUDED_COVER_ART, s);
-            excludedCoverArts = null;
+            excludedCoverArts.clear();
         }
     }
 
-    public String[] getExcludedCoverArtsAsArray() {
+    public List<String> getExcludedCoverArtsAsArray() {
         synchronized (LOCKS.get(LocksKeys.EXCLUDED_COVER_ART)) {
-            if (excludedCoverArts == null) {
-                excludedCoverArts = toStringArray(getExcludedCoverArts());
+            if (excludedCoverArts.isEmpty()) {
+                excludedCoverArts = Arrays.asList(getDefaultExcludedCoverArts().split(CONSECUTIVE_WHITESPACE));
             }
             return excludedCoverArts;
         }
@@ -801,7 +768,7 @@ public class SettingsService {
         setProperty(SettingsConstants.General.Extension.SHORTCUTS, s);
     }
 
-    public String[] getShortcutsAsArray() {
+    public List<String> getShortcutsAsArray() {
         return StringUtil.split(getShortcuts());
     }
 

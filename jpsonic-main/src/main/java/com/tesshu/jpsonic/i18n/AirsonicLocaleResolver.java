@@ -21,10 +21,7 @@
 
 package com.tesshu.jpsonic.i18n;
 
-import java.util.Arrays;
 import java.util.Locale;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,14 +37,12 @@ import org.springframework.stereotype.Service;
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("UnnecessarilyFullyQualified")
 @Service
 public class AirsonicLocaleResolver implements org.springframework.web.servlet.LocaleResolver {
 
     private final SecurityService securityService;
     private final SettingsService settingsService;
-    private final Object lock = new Object();
-
-    private Set<Locale> locales;
 
     public AirsonicLocaleResolver(SecurityService securityService, SettingsService settingsService) {
         super();
@@ -98,21 +93,8 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
         return localeExists(locale) ? locale : Locale.ENGLISH;
     }
 
-    /**
-     * Returns whether the given locale exists.
-     *
-     * @param locale
-     *            The locale.
-     *
-     * @return Whether the locale exists.
-     */
     private boolean localeExists(Locale locale) {
-        synchronized (lock) {
-            if (locales == null) {
-                locales = Arrays.stream(settingsService.getAvailableLocales()).collect(Collectors.toSet());
-            }
-        }
-        return locales.contains(locale);
+        return settingsService.getAvailableLocales().contains(locale);
     }
 
     @Override
