@@ -16,4 +16,6 @@ disableTools = [ "JSHint", "Rubocop" ]
 #   Also conflicts with own rule ObjectEqualsForPrimitives)
 # - [Error Prone: UnnecessarilyFullyQualified]
 #   It causes noise in code auto-generated with ANTLR.
-ignoreRules = [ "OperatorPrecedence", "UnnecessaryParentheses", "YodaCondition", "UnnecessarilyFullyQualified" ]
+# - [Infer: NULLPTR_DEREFERENCE]
+#   Everything will be false positive. Re-verify when the tool matures a little more.
+ignoreRules = [ "OperatorPrecedence", "UnnecessaryParentheses", "YodaCondition", "UnnecessarilyFullyQualified", "NULLPTR_DEREFERENCE" ]
