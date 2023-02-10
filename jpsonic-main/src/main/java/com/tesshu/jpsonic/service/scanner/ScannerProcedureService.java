@@ -181,13 +181,6 @@ public class ScannerProcedureService {
             writeParsedCount(scanDate, file);
         }
 
-        // TODO Suspicious code
-        String folderPath = folder.getPathString();
-        if (!folderPath.equals(file.getFolder())) {
-            file.setFolder(folderPath);
-            wmfs.updateFolder(file);
-        }
-
         if (file.isDirectory()) {
             for (MediaFile child : wmfs.getChildrenOf(scanDate, file, true)) {
                 scanFile(scanDate, folder, child);
@@ -473,13 +466,6 @@ public class ScannerProcedureService {
         interruptIfCancelled();
         scannerState.incrementScanCount();
         writeParsedCount(scanDate, file);
-
-        // Update the root folder if it has changed.
-        String folderPath = folder.getPathString();
-        if (!folderPath.equals(file.getFolder())) {
-            file.setFolder(folderPath);
-            wmfs.updateFolder(file);
-        }
 
         if (file.isDirectory()) {
             for (MediaFile child : wmfs.getChildrenOf(scanDate, file, true)) {

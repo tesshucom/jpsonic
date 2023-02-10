@@ -438,11 +438,6 @@ public class WritableMediaFileService {
         return registered;
     }
 
-    void updateFolder(@NonNull final MediaFile file) {
-        mediaFileDao.updateFolder(file.getPathString(), file.getFolder());
-        indexManager.index(file);
-    }
-
     void updateOrder(@NonNull final MediaFile file) {
         mediaFileDao.updateOrder(file.getPathString(), file.getOrder());
     }

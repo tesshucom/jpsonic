@@ -27,6 +27,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -53,7 +54,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 /**
  * Provides security-related services for authentication and authorization.
@@ -503,7 +503,18 @@ public class SecurityService implements UserDetailsService {
             return false;
         }
 
-        // Convert slashes.
-        return StringUtils.startsWithIgnoreCase(file.replace('\\', '/'), folder.replace('\\', '/'));
+        Iterator<Path> fileIterator = Path.of(file).iterator();
+        Iterator<Path> folderIterator = Path.of(folder).iterator();
+        while (folderIterator.hasNext() && fileIterator.hasNext()) {
+            String prefix = fileIterator.next().toString();
+            String suffix = folderIterator.next().toString();
+            if (prefix.length() != suffix.length()) {
+                return false;
+            }
+            if (!prefix.regionMatches(true, 0, suffix, 0, suffix.length())) {
+                return false;
+            }
+        }
+        return true;
     }
 }

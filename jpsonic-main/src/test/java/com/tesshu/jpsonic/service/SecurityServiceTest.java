@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
@@ -36,12 +36,16 @@ import com.tesshu.jpsonic.controller.WebFontUtils;
 import com.tesshu.jpsonic.dao.UserDao;
 import com.tesshu.jpsonic.domain.AlbumListType;
 import com.tesshu.jpsonic.domain.FontScheme;
+import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.util.PathValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.mockito.Mockito;
 
 /**
@@ -213,9 +217,10 @@ class SecurityServiceTest {
         assertThrows(IllegalArgumentException.class, () -> service.isWriteAllowed(null));
         assertThrows(IllegalArgumentException.class, () -> service.isWriteAllowed(Path.of("/")));
         assertFalse(service.isWriteAllowed(Path.of("")));
-        Mockito.when(musicFolderService.getAllMusicFolders(false, true)).thenReturn(Collections.emptyList());
+        Mockito.when(musicFolderService.getAllMusicFolders(false, true))
+                .thenReturn(Arrays.asList(new MusicFolder("/test", "test", true, null)));
         Mockito.when(settingsService.getPodcastFolder()).thenReturn("");
-        assertTrue(service.isWriteAllowed(Path.of("cover.jpg")));
+        assertTrue(service.isWriteAllowed(Path.of("/test/cover.jpg")));
     }
 
     @Nested
@@ -224,14 +229,17 @@ class SecurityServiceTest {
         @Test
         void testIsFileInFolder() {
 
-            assertTrue(service.isFileInFolder("/music/foo.mp3", "\\"));
-            assertTrue(service.isFileInFolder("/music/foo.mp3", "/"));
+            /*
+             * The parameters of this function are not completely free strings. Any file/folder strings will be filtered
+             * to PathValidator#validateFolderPath. (Sub-paths with string patterns that cannot be registered in
+             * MusicFolder will not be generated during scanning.)
+             */
+            PathValidator.validateFolderPath("\\").ifPresent(folder -> Assertions.fail());
+            PathValidator.validateFolderPath("/").ifPresent(folder -> Assertions.fail());
+            PathValidator.validateFolderPath("\\music").ifPresent(folder -> Assertions.fail());
+            PathValidator.validateFolderPath("\\music\\").ifPresent(folder -> Assertions.fail());
 
             assertTrue(service.isFileInFolder("/music/foo.mp3", "/music"));
-            assertTrue(service.isFileInFolder("\\music\\foo.mp3", "/music"));
-            assertTrue(service.isFileInFolder("/music/foo.mp3", "\\music"));
-            assertTrue(service.isFileInFolder("/music/foo.mp3", "\\music\\"));
-
             assertFalse(service.isFileInFolder("", "/tmp"));
             assertFalse(service.isFileInFolder("foo.mp3", "/tmp"));
             assertFalse(service.isFileInFolder("/music/foo.mp3", "/tmp"));
@@ -249,6 +257,10 @@ class SecurityServiceTest {
             assertFalse(service.isFileInFolder("..\\music/foo", "/music"));
             assertFalse(service.isFileInFolder("/music\\../foo", "/music"));
             assertFalse(service.isFileInFolder("/music/..\\bar/../foo", "/music"));
+
+            // Number of characters and number of layers
+            assertFalse(service.isFileInFolder("/musik/foo.mp3", "/music"));
+            assertFalse(service.isFileInFolder("/music/sub/sub.mp3", "/music/sub/sub/sub"));
         }
 
         /*
@@ -263,15 +275,27 @@ class SecurityServiceTest {
                     "/\u0069\u0131")); // iı
         }
 
+        /*
+         * In the previous implementation, the pattern that misjudgment by startwith occurs.
+         */
         @Test
-        void testEmbeddedPathString() {
+        @EnabledOnOs(OS.LINUX)
+        void testEmbeddedPathString4Linux() {
             assertTrue(service.isFileInFolder("/music/foo.mp3", "/music"));
             assertFalse(service.isFileInFolder("/music/foo.mp3", "/music2"));
-            assertTrue(service.isFileInFolder("/music2/foo.mp3", "/music")); // TODO Should be fixed
+            assertFalse(service.isFileInFolder("/music2/foo.mp3", "/music"));
             assertTrue(service.isFileInFolder("/music2/foo.mp3", "/music2"));
+        }
+
+        /*
+         * In the previous implementation, the pattern that misjudgment by startwith occurs.
+         */
+        @Test
+        @EnabledOnOs(OS.WINDOWS)
+        void testEmbeddedPathString4Win() {
             assertTrue(service.isFileInFolder("C:\\music\\foo.mp3", "C:\\music"));
             assertFalse(service.isFileInFolder("C:\\music\\foo.mp3", "C:\\music2"));
-            assertTrue(service.isFileInFolder("C:\\music2\\foo.mp3", "C:\\music")); // TODO Should be fixed
+            assertFalse(service.isFileInFolder("C:\\music2\\foo.mp3", "C:\\music"));
             assertTrue(service.isFileInFolder("C:\\music2\\foo.mp3", "C:\\music2"));
         }
     }

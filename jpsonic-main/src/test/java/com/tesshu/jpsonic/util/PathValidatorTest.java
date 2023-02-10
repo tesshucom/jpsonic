@@ -101,6 +101,8 @@ class PathValidatorTest {
         @ValidatePathDecisions.Results.Empty
         void c04() {
             assertTrue(PathValidator.validateFolderPath("/").isEmpty());
+            assertTrue(PathValidator.validateFolderPath("\\").isEmpty());
+            assertTrue(PathValidator.validateFolderPath("\\\\test").isEmpty());
         }
 
         @Test
