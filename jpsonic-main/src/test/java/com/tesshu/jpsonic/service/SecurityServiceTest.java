@@ -262,5 +262,17 @@ class SecurityServiceTest {
             assertTrue(service.isFileInFolder("/\u0130\u0049/foo.mp3", // İI
                     "/\u0069\u0131")); // iı
         }
+
+        @Test
+        void testEmbeddedPathString() {
+            assertTrue(service.isFileInFolder("/music/foo.mp3", "/music"));
+            assertFalse(service.isFileInFolder("/music/foo.mp3", "/music2"));
+            assertTrue(service.isFileInFolder("/music2/foo.mp3", "/music")); // TODO Should be fixed
+            assertTrue(service.isFileInFolder("/music2/foo.mp3", "/music2"));
+            assertTrue(service.isFileInFolder("C:\\music\\foo.mp3", "C:\\music"));
+            assertFalse(service.isFileInFolder("C:\\music\\foo.mp3", "C:\\music2"));
+            assertTrue(service.isFileInFolder("C:\\music2\\foo.mp3", "C:\\music")); // TODO Should be fixed
+            assertTrue(service.isFileInFolder("C:\\music2\\foo.mp3", "C:\\music2"));
+        }
     }
 }

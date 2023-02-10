@@ -181,7 +181,7 @@ public class ScannerProcedureService {
             writeParsedCount(scanDate, file);
         }
 
-        // Update the root folder if it has changed.
+        // TODO Suspicious code
         String folderPath = folder.getPathString();
         if (!folderPath.equals(file.getFolder())) {
             file.setFolder(folderPath);

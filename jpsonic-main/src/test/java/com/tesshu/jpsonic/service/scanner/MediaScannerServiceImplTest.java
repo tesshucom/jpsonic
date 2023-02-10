@@ -523,6 +523,9 @@ class MediaScannerServiceImplTest {
          */
         @Test
         void testScanLibrary() {
+
+            // Test case ported from a legacy server.
+
             musicFolderDao.getAllMusicFolders()
                     .forEach(musicFolder -> musicFolderDao.deleteMusicFolder(musicFolder.getId()));
             MusicFolderTestDataUtils.getTestMusicFolders().forEach(musicFolderDao::createMusicFolder);
@@ -579,6 +582,23 @@ class MediaScannerServiceImplTest {
             if (LOG.isInfoEnabled()) {
                 LOG.info("End");
             }
+
+            // Add below with Jpsonic. Whether MediaFile#folder is registered correctly.
+            Map<String, MusicFolder> folders = musicFolderDao.getAllMusicFolders().stream()
+                    .collect(Collectors.toMap(m -> m.getName(), m -> m));
+            Map<String, MediaFile> albums = mediaFileDao
+                    .getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolderDao.getAllMusicFolders()).stream()
+                    .collect(Collectors.toMap(m -> m.getName(), m -> m));
+            assertEquals(5, albums.size());
+            assertEquals(folders.get("Music").getPathString(),
+                    albums.get("_DIR_ Céline Frisch- Café Zimmermann - Bach- Goldberg Variations, Canons [Disc 1]")
+                            .getFolder());
+            assertEquals(folders.get("Music").getPathString(),
+                    albums.get("_DIR_ Ravel - Chamber Music With Voice").getFolder());
+            assertEquals(folders.get("Music").getPathString(),
+                    albums.get("_DIR_ Ravel - Complete Piano Works").getFolder());
+            assertEquals(folders.get("Music").getPathString(), albums.get("_DIR_ Sackcloth 'n' Ashes").getFolder());
+            assertEquals(folders.get("Music2").getPathString(), albums.get("_DIR_ chrome hoof - 2004").getFolder());
         }
 
         private void logRecords(Map<String, Integer> records) {
