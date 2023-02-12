@@ -120,49 +120,6 @@
 </details>
 
 <details>
-    <summary class="
-        <c:choose>
-            <c:when test='${model.dbMediaFilesInNonPresentMusicFoldersCount == 0 and model.dbMediaFilesWithMusicFolderMismatchCount == 0}'>
-                statusOK
-            </c:when>
-            <c:otherwise>
-                statusNG
-            </c:otherwise>
-        </c:choose>
-    ">
-        <fmt:message key="internalhelp.databaseconsistency"/>
-    </summary>
-    <ul>
-        <li>
-            <c:choose>
-                <c:when test="${model.dbMediaFilesInNonPresentMusicFoldersCount == 0}">
-                    <fmt:message key="internalhelp.mediafilesinnonpresentmusicfoldercount.ok"/>
-                </c:when>
-                <c:otherwise>
-                    <fmt:message key="internalhelp.mediafilesinnonpresentmusicfoldercount.warn"/>
-                </c:otherwise>
-            </c:choose>
-        </li>
-        <li>
-            <c:choose>
-                <c:when test="${model.dbMediaFilesWithMusicFolderMismatchCount == 0}">
-                    <fmt:message key="internalhelp.mediafileswithmusicfoldermismatchcount.ok"/>
-                </c:when>
-                <c:otherwise>
-                    <fmt:message key="internalhelp.mediafileswithmusicfoldermismatchcount.warn"/>
-                </c:otherwise>
-            </c:choose>
-        </li>
-    </ul>
-    <dl>
-        <dt><fmt:message key="internalhelp.mediafilesinnonpresentmusicfoldercount"/></dt>
-        <dd>${model.dbMediaFilesInNonPresentMusicFoldersCount}</dd>
-        <dt><fmt:message key="internalhelp.mediafileswithmusicfoldermismatchcount"/></dt>
-        <dd>${model.dbMediaFilesWithMusicFolderMismatchCount}</dd>
-    </dl>
-</details>
-
-<details>
     <c:set var="failCount" value="0" scope="page" />
     <c:forEach var="musicFolderStatistics" items="${model.fsMusicFolderStatistics}">
         <c:if test="${!musicFolderStatistics.value.readable}">

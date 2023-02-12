@@ -46,7 +46,6 @@ import javax.servlet.http.HttpServletRequest;
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.dao.DaoHelper;
-import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
@@ -95,15 +94,14 @@ public class InternalHelpController {
     private final DaoHelper daoHelper;
     private final AnalyzerFactory analyzerFactory;
     private final MusicFolderDao musicFolderDao;
-    private final MediaFileDao mediaFileDao;
     private final TranscodingService transcodingService;
     private final Environment environment;
     private final StaticsDao staticsDao;
 
     public InternalHelpController(VersionService versionService, SettingsService settingsService,
             SecurityService securityService, IndexManager indexManager, DaoHelper daoHelper,
-            AnalyzerFactory analyzerFactory, MusicFolderDao musicFolderDao, MediaFileDao mediaFileDao,
-            TranscodingService transcodingService, Environment environment, StaticsDao staticsDao) {
+            AnalyzerFactory analyzerFactory, MusicFolderDao musicFolderDao, TranscodingService transcodingService,
+            Environment environment, StaticsDao staticsDao) {
         super();
         this.versionService = versionService;
         this.settingsService = settingsService;
@@ -112,7 +110,6 @@ public class InternalHelpController {
         this.daoHelper = daoHelper;
         this.analyzerFactory = analyzerFactory;
         this.musicFolderDao = musicFolderDao;
-        this.mediaFileDao = mediaFileDao;
         this.transcodingService = transcodingService;
         this.environment = environment;
         this.staticsDao = staticsDao;
@@ -330,14 +327,6 @@ public class InternalHelpController {
                 .queryForObject("SELECT count(DISTINCT artist) FROM media_file WHERE present", Long.class));
         map.put("dbMediaFileDistinctAlbumArtistCount", daoHelper.getJdbcTemplate()
                 .queryForObject("SELECT count(DISTINCT album_artist) FROM media_file WHERE present", Long.class));
-
-        map.put("dbMediaFilesInNonPresentMusicFoldersCount",
-                mediaFileDao.getFilesInNonPresentMusicFoldersCount(Arrays.asList(settingsService.getPodcastFolder())));
-        map.put("dbMediaFilesInNonPresentMusicFoldersSample",
-                mediaFileDao.getFilesInNonPresentMusicFolders(10, Arrays.asList(settingsService.getPodcastFolder())));
-
-        map.put("dbMediaFilesWithMusicFolderMismatchCount", mediaFileDao.getFilesWithMusicFolderMismatchCount());
-        map.put("dbMediaFilesWithMusicFolderMismatchSample", mediaFileDao.getFilesWithMusicFolderMismatch(10));
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (FileStatistics) Not reusable
