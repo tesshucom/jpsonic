@@ -572,8 +572,8 @@ class SettingsServiceTest {
 
     @Test
     void testGetAvailableThemes() {
-        assertEquals(20, SettingsService.getAvailableThemes().size());
-        assertEquals(20, SettingsService.getAvailableThemes().size()); // Cashed path
+        assertEquals(21, SettingsService.getAvailableThemes().size());
+        assertEquals(21, SettingsService.getAvailableThemes().size()); // Cashed path
     }
 
     @Test
