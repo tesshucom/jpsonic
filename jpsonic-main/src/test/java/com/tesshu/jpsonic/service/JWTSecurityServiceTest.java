@@ -92,7 +92,9 @@ class JWTSecurityServiceTest {
 
         @Test
         void testVerify() {
-            Instant current = now();
+            // Now() is too tight for a test case and gives an error.
+            Instant current = now().plus(1, ChronoUnit.SECONDS);
+
             String token = JWTSecurityService.createToken(KEY, PATH, current);
             DecodedJWT decoded = JWTSecurityService.verify(KEY, token);
 
