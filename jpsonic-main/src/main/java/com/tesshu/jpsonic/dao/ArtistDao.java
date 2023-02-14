@@ -183,10 +183,6 @@ public class ArtistDao extends AbstractDao {
                 + "order by starred_artist.created desc limit :count offset :offset", rowMapper, args);
     }
 
-    public void markPresent(String artistName, Instant lastScanned) {
-        update("update artist set present=?, last_scanned = ? where name=?", true, lastScanned, artistName);
-    }
-
     public void iterateLastScanned(@NonNull Instant scanDate, boolean withPodcast) {
         String query = "update artist set present = ?, last_scanned = ? "
                 + "where artist.id in(select distinct artist.id from artist "

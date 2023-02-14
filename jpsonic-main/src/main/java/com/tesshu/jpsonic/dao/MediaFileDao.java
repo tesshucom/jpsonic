@@ -837,10 +837,6 @@ public class MediaFileDao extends AbstractDao {
         update("update media_file set last_scanned = ? where present and id = ?", lastScanned, id);
     }
 
-    public void markPresent(String path, Instant lastScanned) {
-        update("update media_file set present=?, last_scanned = ? where path=?", true, lastScanned, path);
-    }
-
     public void markNonPresent(Instant lastScanned) {
         int minId = queryForInt("select min(id) from media_file where last_scanned < ? and present", 0, lastScanned);
         int maxId = queryForInt("select max(id) from media_file where last_scanned < ? and present", 0, lastScanned);

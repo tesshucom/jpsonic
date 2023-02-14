@@ -160,6 +160,7 @@ public class ScannerProcedureService {
         for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders()) {
             MediaFile root = wmfs.getMediaFile(scanDate, musicFolder.toPath());
             if (root != null) {
+                mediaFileDao.updateLastScanned(root.getId(), scanDate);
                 scanFile(scanDate, musicFolder, root);
             }
         }
@@ -188,10 +189,6 @@ public class ScannerProcedureService {
             for (MediaFile child : wmfs.getChildrenOf(scanDate, file, false)) {
                 scanFile(scanDate, folder, child);
             }
-        }
-
-        if (!FAR_FUTURE.equals(file.getLastScanned())) {
-            mediaFileDao.markPresent(file.getPathString(), scanDate);
         }
     }
 
@@ -453,6 +450,7 @@ public class ScannerProcedureService {
         Path podcastFolder = Path.of(settingsService.getPodcastFolder());
         MediaFile root = wmfs.getMediaFile(scanDate, podcastFolder);
         if (root != null) {
+            mediaFileDao.updateLastScanned(root.getId(), scanDate);
             MusicFolder dummy = new MusicFolder(podcastFolder.toString(), null, true, null);
             scanPodcast(scanDate, dummy, root);
             createScanEvent(scanDate, ScanEventType.PARSE_PODCAST, null);
@@ -475,9 +473,6 @@ public class ScannerProcedureService {
                 scanPodcast(scanDate, folder, child);
             }
         }
-
-        mediaFileDao.markPresent(file.getPathString(), scanDate);
-        artistDao.markPresent(file.getAlbumArtist(), scanDate);
     }
 
     void markNonPresent(@NonNull Instant scanDate) {
