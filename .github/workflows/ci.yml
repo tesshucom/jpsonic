@@ -136,7 +136,7 @@ jobs:
     name: JDK${{ matrix.java }} on ubuntu-latest
     strategy:
       matrix:
-        java: [ 18 ]
+        java: [ 18, 19 ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
