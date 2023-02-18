@@ -511,6 +511,7 @@ public class ScannerProcedureService {
     void updateGenreMaster(@NonNull Instant scanDate) {
         List<Genre> genres = mediaFileDao.getGenreCounts();
         mediaFileDao.updateGenres(genres);
+        indexManager.expungeGenreOtherThan(genres);
         createScanEvent(scanDate, ScanEventType.UPDATE_GENRE_MASTER, null);
     }
 

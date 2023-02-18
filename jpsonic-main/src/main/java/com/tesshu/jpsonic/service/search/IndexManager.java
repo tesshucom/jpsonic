@@ -42,6 +42,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 
+import com.tesshu.jpsonic.ThreadSafe;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
@@ -150,6 +151,7 @@ public class IndexManager {
         scannerState.setReady();
     }
 
+    @ThreadSafe(enableChecks = false) // False positive. writers#get#updateDocument is atomic.
     public void index(Album album) {
         Term primarykey = DocumentFactory.createPrimarykey(album);
         Document document = documentFactory.createAlbumId3Document(album);
@@ -162,6 +164,7 @@ public class IndexManager {
         }
     }
 
+    @ThreadSafe(enableChecks = false) // False positive. writers#get#updateDocument is atomic.
     public void index(Artist artist, MusicFolder musicFolder) {
         Term primarykey = DocumentFactory.createPrimarykey(artist);
         Document document = documentFactory.createArtistId3Document(artist, musicFolder);
@@ -174,6 +177,7 @@ public class IndexManager {
         }
     }
 
+    @ThreadSafe(enableChecks = false) // False positive. writers#get#updateDocument is atomic.
     public void index(MediaFile mediaFile) {
         Term primarykey = DocumentFactory.createPrimarykey(mediaFile);
         try {
@@ -189,9 +193,9 @@ public class IndexManager {
             }
             String genre = mediaFile.getGenre();
             if (!isEmpty(genre)) {
-                primarykey = DocumentFactory.createPrimarykey(genre.hashCode());
+                Term genrekey = DocumentFactory.createPrimarykey(genre);
                 Document document = documentFactory.createGenreDocument(mediaFile);
-                writers.get(IndexType.GENRE).updateDocument(primarykey, document);
+                writers.get(IndexType.GENRE).updateDocument(genrekey, document);
             }
         } catch (IOException x) {
             if (LOG.isErrorEnabled()) {
@@ -200,12 +204,12 @@ public class IndexManager {
         }
     }
 
+    @ThreadSafe(enableChecks = false) // False positive. Protected by a thread lock. No concurrent access.
     public void startIndexing() {
         try {
             for (IndexType indexType : IndexType.values()) {
                 writers.put(indexType, createIndexWriter(indexType));
             }
-            clearGenreMaster();
         } catch (IOException e) {
             LOG.error("Failed to create search index.", e);
         }
@@ -223,16 +227,7 @@ public class IndexManager {
         }
     }
 
-    private void clearGenreMaster() {
-        try {
-            writers.get(IndexType.GENRE).deleteAll();
-            writers.get(IndexType.GENRE).flush();
-            clearMultiGenreMaster();
-        } catch (IOException e) {
-            LOG.error("Failed to clear genre index.", e);
-        }
-    }
-
+    @ThreadSafe(enableChecks = false) // False positive. writers#get#deleteDocuments is atomic.
     public void expunge() {
 
         Term[] primarykeys = mediaFileDao.getArtistExpungeCandidates().stream().map(DocumentFactory::createPrimarykey)
@@ -260,6 +255,7 @@ public class IndexManager {
         }
     }
 
+    @ThreadSafe(enableChecks = false) // False positive. writers#get#deleteDocuments is atomic.
     public void expungeArtistId3(@NonNull List<Integer> expungeCandidates) {
         Term[] primarykeys = expungeCandidates.stream().map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
         try {
@@ -269,12 +265,69 @@ public class IndexManager {
         }
     }
 
+    @ThreadSafe(enableChecks = false) // False positive. writers#get#deleteDocuments is atomic.
     public void expungeAlbum(List<Integer> candidates) {
         Term[] primarykeys = candidates.stream().map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
         try {
             writers.get(IndexType.ALBUM_ID3).deleteDocuments(primarykeys);
         } catch (IOException e) {
             LOG.error("Failed to delete albumId3 doc.", e);
+        }
+    }
+
+    @SuppressWarnings({ "PMD.AvoidCatchingGenericException" }) // lucene/HighFreqTerms#getHighFreqTerms
+    public void expungeGenreOtherThan(List<Genre> existing) {
+        synchronized (genreLock) {
+
+            // This method is executed during scanning.
+
+            try {
+                if (existing.isEmpty()) {
+                    writers.get(IndexType.GENRE).deleteAll();
+                    writers.get(IndexType.GENRE).flush();
+                    clearMultiGenreMaster();
+                    return;
+                }
+            } catch (IOException e) {
+                LOG.error("Failed to clear genre index.", e);
+            }
+
+            // Stop indexing to get Searcher.
+            stopIndexing(IndexType.GENRE);
+            IndexSearcher genreSearcher = getSearcher(IndexType.GENRE);
+            if (genreSearcher == null) {
+                return;
+            }
+
+            try {
+                Collection<String> fields = FieldInfos.getIndexedFields(genreSearcher.getIndexReader());
+                if (fields.isEmpty()) {
+                    return;
+                }
+
+                TermStats[] stats = HighFreqTerms.getHighFreqTerms(genreSearcher.getIndexReader(),
+                        HighFreqTerms.DEFAULT_NUMTERMS, FieldNamesConstants.GENRE,
+                        new HighFreqTerms.DocFreqComparator());
+                List<String> indexedNames = Arrays.stream(stats).map(t -> t.termtext.utf8ToString())
+                        .collect(Collectors.toList());
+                List<String> existingNames = existing.stream().map(g -> g.getName()).collect(Collectors.toList());
+                Term[] primarykeys = indexedNames.stream().filter(name -> !existingNames.contains(name))
+                        .map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
+
+                // Reopen Writer for editing.
+                writers.put(IndexType.GENRE, createIndexWriter(IndexType.GENRE));
+                writers.get(IndexType.GENRE).deleteDocuments(primarykeys);
+
+            } catch (IOException e) {
+                LOG.error("Failed to expunge genre index.", e);
+            } catch (Exception e) {
+                LOG.info("The genre field may not exist.");
+            } finally {
+                release(IndexType.GENRE, genreSearcher);
+            }
+
+            // Don't call it asynchronously. Genre is required for subsequent processing of the scan.
+            refreshMultiGenreMaster();
         }
     }
 

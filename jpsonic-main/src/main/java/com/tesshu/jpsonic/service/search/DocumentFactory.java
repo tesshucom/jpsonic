@@ -162,6 +162,10 @@ public class DocumentFactory {
         return new Term(FieldNamesConstants.ID, Integer.toString(id));
     }
 
+    public static final Term createPrimarykey(String id) {
+        return new Term(FieldNamesConstants.ID, id);
+    }
+
     public static final Term createPrimarykey(Album album) {
         return createPrimarykey(album.getId());
     }
