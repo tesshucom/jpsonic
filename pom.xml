@@ -24,7 +24,7 @@
         <jetty.version>10.0.11</jetty.version>
         <jetty-jsp.version>10.0.11</jetty-jsp.version>
         <pmd.version>6.54.0</pmd.version>
-        <log4j.version>2.19.0</log4j.version>
+        <log4j.version>2.20.0</log4j.version>
         <logback.version>1.2.11</logback.version>
         <slf4j.version>1.7.36</slf4j.version>
         <antlr.version>4.11.1</antlr.version>
