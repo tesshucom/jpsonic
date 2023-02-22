@@ -27,7 +27,7 @@
         <log4j.version>2.20.0</log4j.version>
         <logback.version>1.2.11</logback.version>
         <slf4j.version>1.7.36</slf4j.version>
-        <antlr.version>4.11.1</antlr.version>
+        <antlr.version>4.12.0</antlr.version>
         <docker.container.repo>jpsonic/jpsonic</docker.container.repo>
     </properties>
 
