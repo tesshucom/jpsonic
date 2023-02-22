@@ -24,7 +24,7 @@
         <jetty.version>10.0.11</jetty.version>
         <jetty-jsp.version>10.0.11</jetty-jsp.version>
         <pmd.version>6.54.0</pmd.version>
-        <log4j.version>2.19.0</log4j.version>
+        <log4j.version>2.20.0</log4j.version>
         <logback.version>1.2.11</logback.version>
         <slf4j.version>1.7.36</slf4j.version>
         <antlr.version>4.11.1</antlr.version>
@@ -110,37 +110,37 @@
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-acl</artifactId>
-                <version>5.8.1</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.2</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-config</artifactId>
-                <version>5.8.1</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.2</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-core</artifactId>
-                <version>5.8.1</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.2</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-crypto</artifactId>
-                <version>5.7.6</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.7.7</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-taglibs</artifactId>
-                <version>5.8.1</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.2</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-ldap</artifactId>
-                <version>5.8.1</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.2</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
-                <version>5.8.1</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.2</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
 
             <!-- Spring Boot is slow to fix CVE, so some libraries will be overridden. -->
@@ -226,7 +226,7 @@
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
                 <scope>compile</scope>
-                <version>3.30.0</version>
+                <version>3.31.0</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
