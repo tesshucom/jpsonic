@@ -57,6 +57,7 @@ import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
+import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.io.FilenameUtils;
@@ -117,6 +118,8 @@ public class PodcastServiceImpl implements PodcastService {
     private final MetaDataParserFactory metaDataParserFactory;
     private final ThreadPoolTaskExecutor podcastDownloadExecutor;
     private final ThreadPoolTaskExecutor podcastRefreshExecutor;
+    private final ScannerStateServiceImpl scannerState;
+    private final IndexManager indexManager;
 
     private final AtomicBoolean destroy = new AtomicBoolean();
     private final Object episodesLock = new Object();
@@ -125,7 +128,8 @@ public class PodcastServiceImpl implements PodcastService {
     public PodcastServiceImpl(PodcastDao podcastDao, SettingsService settingsService, SecurityService securityService,
             MediaFileService mediaFileService, WritableMediaFileService writableMediaFileService,
             MetaDataParserFactory metaDataParserFactory, ThreadPoolTaskExecutor podcastDownloadExecutor,
-            ThreadPoolTaskExecutor podcastRefreshExecutor) {
+            ThreadPoolTaskExecutor podcastRefreshExecutor, ScannerStateServiceImpl scannerState,
+            IndexManager indexManager) {
         this.podcastDao = podcastDao;
         this.settingsService = settingsService;
         this.securityService = securityService;
@@ -134,6 +138,8 @@ public class PodcastServiceImpl implements PodcastService {
         this.metaDataParserFactory = metaDataParserFactory;
         this.podcastDownloadExecutor = podcastDownloadExecutor;
         this.podcastRefreshExecutor = podcastRefreshExecutor;
+        this.scannerState = scannerState;
+        this.indexManager = indexManager;
     }
 
     @PostConstruct
@@ -330,11 +336,17 @@ public class PodcastServiceImpl implements PodcastService {
 
     private void doRefreshChannel(PodcastChannel channel, boolean downloadEpisodes) {
 
+        if (!scannerState.tryScanningLock()) {
+            return;
+        }
+        indexManager.startIndexing();
+
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             channel.setStatus(PodcastStatus.DOWNLOADING);
             channel.setErrorMessage(null);
             podcastDao.updateChannel(channel);
-            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(2 * 60 * 1000) // 2 minutes
+            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(2 * 60 * 1000) // 2
+                                                                                                  // minutes
                     .setSocketTimeout(10 * 60 * 1000) // 10 minutes
                     .build();
             HttpGet method = new HttpGet(URI.create(channel.getUrl()));
@@ -370,6 +382,9 @@ public class PodcastServiceImpl implements PodcastService {
             channel.setStatus(PodcastStatus.ERROR);
             channel.setErrorMessage(getErrorMessage(ioe));
             podcastDao.updateChannel(channel);
+        } finally {
+            indexManager.stopIndexing();
+            scannerState.unlockScanning();
         }
 
         if (downloadEpisodes) {
@@ -570,11 +585,14 @@ public class PodcastServiceImpl implements PodcastService {
     }
 
     private HttpGet createHttpGet(String url) {
-        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(2 * 60 * 1000) // 2 minutes
+        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(2 * 60 * 1000) // 2
+                                                                                              // minutes
                 .setSocketTimeout(10 * 60 * 1000) // 10 minutes
-                // Workaround HttpClient circular redirects, which some feeds use (with query parameters)
+                // Workaround HttpClient circular redirects, which some feeds use (with query
+                // parameters)
                 .setCircularRedirectsAllowed(true)
-                // Workaround HttpClient not understanding latest RFC-compliant cookie 'expires' attributes
+                // Workaround HttpClient not understanding latest RFC-compliant cookie 'expires'
+                // attributes
                 .setCookieSpec(CookieSpecs.STANDARD).build();
         HttpGet method = new HttpGet(URI.create(url));
         method.setConfig(requestConfig);
@@ -606,6 +624,11 @@ public class PodcastServiceImpl implements PodcastService {
         }
 
         synchronized (episodesLock) {
+
+            if (!scannerState.tryScanningLock()) {
+                return;
+            }
+            indexManager.startIndexing();
 
             if (isEpisodeDeleted(episode)) {
                 writeInfo("Podcast " + episode.getUrl() + " was deleted. Aborting download.");
@@ -657,6 +680,9 @@ public class PodcastServiceImpl implements PodcastService {
                 }
             } catch (IOException e) {
                 consumeDownloadError(episode, e);
+            } finally {
+                indexManager.stopIndexing();
+                scannerState.unlockScanning();
             }
         }
     }

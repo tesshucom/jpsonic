@@ -163,8 +163,7 @@ public class ScannerProcedureService {
                 scanFile(scanDate, musicFolder, root);
             }
         }
-        String comment = String.format("%d files checked or parsed.", scannerState.getScanCount());
-        createScanEvent(scanDate, ScanEventType.PARSE_FILE_STRUCTURE, comment);
+        createScanEvent(scanDate, ScanEventType.PARSE_FILE_STRUCTURE, null);
     }
 
     private void interruptIfCancelled() throws ExecutionException {
@@ -445,7 +444,8 @@ public class ScannerProcedureService {
         mediaFileDao.markNonPresent(scanDate);
         writeInfo("Marking non-present artists.");
         artistDao.markNonPresent(scanDate);
-        createScanEvent(scanDate, ScanEventType.MARK_NON_PRESENT, null);
+        String comment = String.format("%d files checked or parsed.", scannerState.getScanCount());
+        createScanEvent(scanDate, ScanEventType.MARK_NON_PRESENT, comment);
     }
 
     void updateAlbumCounts(@NonNull Instant scanDate) {
