@@ -39,11 +39,11 @@ public final class PathValidator {
      * Returns a path string pointing to the music, playlist, and podcast folders, if acceptable. otherwise empty.
      */
     public static Optional<String> validateFolderPath(String folderPath) {
-        if (folderPath == null || !isNoTraversal(folderPath)) {
+        if (folderPath == null || !isNoTraversal(folderPath) || folderPath.charAt(0) == '\\') {
             return Optional.empty();
         }
         try {
-            Path path = Path.of(folderPath); // lgtm [java/path-injection]
+            Path path = Path.of(folderPath);
             if (path.getFileName() == null) {
                 return Optional.empty();
             }

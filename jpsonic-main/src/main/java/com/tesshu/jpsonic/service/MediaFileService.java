@@ -190,7 +190,7 @@ public class MediaFileService {
         return !isExcluded(candidate) && (Files.isDirectory(candidate) || isAudioFile(suffix) || isVideoFile(suffix));
     }
 
-    private boolean isAudioFile(String suffix) {
+    public boolean isAudioFile(String suffix) {
         for (String type : settingsService.getMusicFileTypesAsArray()) {
             if (type.equalsIgnoreCase(suffix)) {
                 return true;

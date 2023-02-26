@@ -29,8 +29,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.lang.annotation.Documented;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.MusicFolderTestDataUtils;
 import com.tesshu.jpsonic.command.MusicFolderSettingsCommand;
@@ -212,7 +214,7 @@ class MusicFolderSettingsControllerTest {
                 now());
         MusicFolderInfo musicFolderInfo1 = new MusicFolderInfo(musicFolder1);
         musicFolderInfo1.setDelete(true);
-        MusicFolder musicFolder2 = new MusicFolder(MusicFolderTestDataUtils.resolveMusic2FolderPath(), null, true,
+        MusicFolder musicFolder2 = new MusicFolder(MusicFolderTestDataUtils.resolveMusic2FolderPath(), "Music2", true,
                 now());
         MusicFolderInfo musicFolderInfo2 = new MusicFolderInfo(musicFolder2);
         command.setMusicFolders(Arrays.asList(musicFolderInfo1, musicFolderInfo2));
@@ -223,7 +225,7 @@ class MusicFolderSettingsControllerTest {
         MusicFolderInfo musicFolderInfo3 = new MusicFolderInfo(musicFolder3);
         musicFolderInfo3.setPath(null);
         // Cases that do not (already) exist. Update will be executed but will be ignored in Dao.
-        MusicFolder musicFolder4 = new MusicFolder("/Unknown", null, true, now());
+        MusicFolder musicFolder4 = new MusicFolder("UnknownPath", "Music4", true, now());
         MusicFolderInfo musicFolderInfo4 = new MusicFolderInfo(musicFolder4);
 
         command.setMusicFolders(Arrays.asList(musicFolderInfo1, musicFolderInfo2, musicFolderInfo3, musicFolderInfo4));
@@ -237,8 +239,11 @@ class MusicFolderSettingsControllerTest {
         controller.post(command, redirectAttributes);
 
         assertEquals(captorDelete.getValue(), musicFolder1.getId());
-        assertEquals(captorUpdate.getValue(), musicFolder2);
         assertEquals(2, captorUpdate.getAllValues().size());
+        Map<String, MusicFolder> updateCalled = captorUpdate.getAllValues().stream()
+                .collect(Collectors.toMap(m -> m.getName(), m -> m));
+        assertEquals(MusicFolderTestDataUtils.resolveMusic2FolderPath(), updateCalled.get("Music2").getPathString());
+        assertEquals("UnknownPath", updateCalled.get("Music4").getPathString());
     }
 
     @Test

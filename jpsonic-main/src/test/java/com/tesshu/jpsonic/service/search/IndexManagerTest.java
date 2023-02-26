@@ -34,8 +34,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.RatingDao;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -71,12 +69,6 @@ class IndexManagerTest extends AbstractNeedsScan {
 
     @Autowired
     private MediaFileDao mediaFileDao;
-
-    @Autowired
-    private ArtistDao artistDao;
-
-    @Autowired
-    private AlbumDao albumDao;
 
     @Autowired
     private MediaScannerService mediaScannerService;
@@ -155,7 +147,7 @@ class IndexManagerTest extends AbstractNeedsScan {
         List<Integer> candidates = mediaFileDao.getArtistExpungeCandidates();
         assertEquals(0, candidates.size());
 
-        result.getMediaFiles().forEach(a -> mediaFileDao.deleteMediaFile(a.getPathString()));
+        result.getMediaFiles().forEach(a -> mediaFileDao.deleteMediaFile(a.getId()));
 
         candidates = mediaFileDao.getArtistExpungeCandidates();
         assertEquals(1, candidates.size());
@@ -168,7 +160,7 @@ class IndexManagerTest extends AbstractNeedsScan {
         candidates = mediaFileDao.getAlbumExpungeCandidates();
         assertEquals(0, candidates.size());
 
-        result.getMediaFiles().forEach(a -> mediaFileDao.deleteMediaFile(a.getPathString()));
+        result.getMediaFiles().forEach(a -> mediaFileDao.deleteMediaFile(a.getId()));
 
         candidates = mediaFileDao.getAlbumExpungeCandidates();
         assertEquals(1, candidates.size());
@@ -187,7 +179,7 @@ class IndexManagerTest extends AbstractNeedsScan {
         candidates = mediaFileDao.getSongExpungeCandidates();
         assertEquals(0, candidates.size());
 
-        result.getMediaFiles().forEach(a -> mediaFileDao.deleteMediaFile(a.getPathString()));
+        result.getMediaFiles().forEach(a -> mediaFileDao.deleteMediaFile(a.getId()));
 
         candidates = mediaFileDao.getSongExpungeCandidates();
         assertEquals(2, candidates.size());
@@ -197,26 +189,10 @@ class IndexManagerTest extends AbstractNeedsScan {
         assertEquals(1, result.getArtists().size());
         assertEquals("_DIR_ Ravel", result.getArtists().get(0).getName());
 
-        candidates = artistDao.getExpungeCandidates();
-        assertEquals(0, candidates.size());
-
-        artistDao.markNonPresent(now());
-
-        candidates = artistDao.getExpungeCandidates();
-        assertEquals(4, candidates.size());
-
         // albumId3
         result = searchService.search(criteriaAlbumId3);
         assertEquals(1, result.getAlbums().size());
         assertEquals("Complete Piano Works", result.getAlbums().get(0).getName());
-
-        candidates = albumDao.getExpungeCandidates();
-        assertEquals(0, candidates.size());
-
-        albumDao.markNonPresent(now());
-
-        candidates = albumDao.getExpungeCandidates();
-        assertEquals(4, candidates.size());
 
         /* Does not scan, only expunges the index. */
         mediaScannerService.expunge();

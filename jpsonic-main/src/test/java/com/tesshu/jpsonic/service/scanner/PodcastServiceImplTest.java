@@ -36,7 +36,7 @@ class PodcastServiceImplTest {
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        podcastService = new PodcastServiceImpl(null, null, null, null, null, null, null, null);
+        podcastService = new PodcastServiceImpl(null, null, null, null, null, null, null, null, null, null);
     }
 
     private ZonedDateTime toJST(String date) {

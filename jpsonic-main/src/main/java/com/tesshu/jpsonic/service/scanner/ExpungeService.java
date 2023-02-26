@@ -2,8 +2,6 @@ package com.tesshu.jpsonic.service.scanner;
 
 import java.time.Instant;
 
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.RatingDao;
 import com.tesshu.jpsonic.dao.StaticsDao.ScanLogType;
@@ -23,20 +21,15 @@ public class ExpungeService {
 
     private final ScannerStateServiceImpl scannerState;
     private final IndexManager indexManager;
-    private final ArtistDao artistDao;
-    private final AlbumDao albumDao;
     private final MediaFileDao mediaFileDao;
     private final RatingDao ratingDao;
     private final ScannerProcedureService procedure;
 
-    public ExpungeService(ScannerStateServiceImpl scannerStateService, IndexManager indexManager, ArtistDao artistDao,
-            AlbumDao albumDao, MediaFileDao mediaFileDao, RatingDao ratingDao,
-            ScannerProcedureService scannerProcedure) {
+    public ExpungeService(ScannerStateServiceImpl scannerStateService, IndexManager indexManager,
+            MediaFileDao mediaFileDao, RatingDao ratingDao, ScannerProcedureService scannerProcedure) {
         super();
         this.scannerState = scannerStateService;
         this.indexManager = indexManager;
-        this.artistDao = artistDao;
-        this.albumDao = albumDao;
         this.mediaFileDao = mediaFileDao;
         this.ratingDao = ratingDao;
         this.procedure = scannerProcedure;
@@ -58,12 +51,15 @@ public class ExpungeService {
         } else {
             // to be before dao#expunge
             indexManager.startIndexing();
+
+            procedure.iterateAlbumId3(scanDate, procedure.isPodcastInMusicFolders());
+            procedure.iterateArtistId3(scanDate, procedure.isPodcastInMusicFolders());
+
             indexManager.expunge();
+
             indexManager.stopIndexing();
 
             // to be after indexManager#expunge
-            artistDao.expunge();
-            albumDao.expunge();
             mediaFileDao.expunge();
             mediaFileDao.checkpoint();
 

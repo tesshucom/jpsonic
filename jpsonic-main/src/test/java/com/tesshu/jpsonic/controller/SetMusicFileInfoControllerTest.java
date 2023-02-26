@@ -32,9 +32,11 @@ import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
+import com.tesshu.jpsonic.service.metadata.MusicParser;
+import com.tesshu.jpsonic.service.metadata.VideoParser;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
+import com.tesshu.jpsonic.service.search.IndexManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -69,8 +71,8 @@ class SetMusicFileInfoControllerTest {
         scannerStateService = mock(ScannerStateServiceImpl.class);
         WritableMediaFileService writableMediaFileService = new WritableMediaFileService(mediaFileDao,
                 scannerStateService, mock(MediaFileService.class), mock(AlbumDao.class), mock(MediaFileCache.class),
-                mock(MetaDataParserFactory.class), mock(SettingsService.class), mock(SecurityService.class),
-                mock(JapaneseReadingUtils.class));
+                mock(MusicParser.class), mock(VideoParser.class), mock(SettingsService.class),
+                mock(SecurityService.class), mock(JapaneseReadingUtils.class), mock(IndexManager.class));
         controller = new SetMusicFileInfoController(mediaFileService, writableMediaFileService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
