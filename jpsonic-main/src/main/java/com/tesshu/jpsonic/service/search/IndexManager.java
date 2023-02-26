@@ -49,6 +49,7 @@ import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
@@ -178,7 +179,7 @@ public class IndexManager {
     }
 
     @ThreadSafe(enableChecks = false) // False positive. writers#get#updateDocument is atomic.
-    public void index(MediaFile mediaFile) {
+    public void index(@NonNull MediaFile mediaFile) {
         Term primarykey = DocumentFactory.createPrimarykey(mediaFile);
         try {
             if (mediaFile.isFile()) {
@@ -192,7 +193,7 @@ public class IndexManager {
                 writers.get(IndexType.ARTIST).updateDocument(primarykey, document);
             }
             String genre = mediaFile.getGenre();
-            if (!isEmpty(genre)) {
+            if (!isEmpty(genre) && mediaFile.getMediaType() != MediaType.PODCAST) {
                 Term genrekey = DocumentFactory.createPrimarykey(genre);
                 Document document = documentFactory.createGenreDocument(mediaFile);
                 writers.get(IndexType.GENRE).updateDocument(genrekey, document);
