@@ -6,6 +6,7 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
@@ -139,18 +140,21 @@ public class ScannerProcedureService {
 
     void beforeScan(@NonNull Instant scanDate) {
 
+        indexManager.startIndexing();
+
         // TODO To be fixed in v111.6.0
         if (settingsService.isIgnoreFileTimestampsNext()) {
+            indexManager.expungeGenreOtherThan(Collections.emptyList());
             mediaFileDao.resetLastScanned();
             settingsService.setIgnoreFileTimestampsNext(false);
             settingsService.save();
         } else if (settingsService.isIgnoreFileTimestamps()) {
+            indexManager.expungeGenreOtherThan(Collections.emptyList());
             mediaFileDao.resetLastScanned();
         }
 
         indexCache.removeAll();
         mediaFileCache.setEnabled(false);
-        indexManager.startIndexing();
         mediaFileCache.removeAll();
 
         createScanEvent(scanDate, ScanEventType.BEFORE_SCAN, null);
