@@ -141,6 +141,7 @@ final class SettingsConstants {
             static final Pair<Boolean> USE_JSONP = Pair.of("UseJsonp", false);
             static final Pair<Boolean> USE_REMOVING_TRACK_FROM_ID3TITLE = Pair.of("UseRemovingTrackFromId3Title",
                     false);
+            static final Pair<Boolean> USE_CLEAN_UP = Pair.of("UseCleanUp", false);
 
             private Legacy() {
             }

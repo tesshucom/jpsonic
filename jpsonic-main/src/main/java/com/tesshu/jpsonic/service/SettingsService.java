@@ -640,6 +640,14 @@ public class SettingsService {
         setProperty(SettingsConstants.General.Legacy.USE_REMOVING_TRACK_FROM_ID3TITLE, b);
     }
 
+    public boolean isUseCleanUp() {
+        return getBoolean(SettingsConstants.General.Legacy.USE_CLEAN_UP);
+    }
+
+    public void setUseCleanUp(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.USE_CLEAN_UP, b);
+    }
+
     public String getMusicFileTypes() {
         synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
             return getString(SettingsConstants.General.Extension.MUSIC_FILE_TYPES);

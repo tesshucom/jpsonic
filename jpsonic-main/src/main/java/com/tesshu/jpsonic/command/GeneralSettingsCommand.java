@@ -75,6 +75,7 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean useCopyOfAsciiUnprintable;
     private boolean useJsonp;
     private boolean useRemovingTrackFromId3Title;
+    private boolean useCleanUp;
 
     // Extensions and shortcuts
     private String musicFileTypes;
@@ -351,6 +352,14 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setUseRemovingTrackFromId3Title(boolean useRemovingTrackFromId3Title) {
         this.useRemovingTrackFromId3Title = useRemovingTrackFromId3Title;
+    }
+
+    public boolean isUseCleanUp() {
+        return useCleanUp;
+    }
+
+    public void setUseCleanUp(boolean useCleanUp) {
+        this.useCleanUp = useCleanUp;
     }
 
     public String getMusicFileTypes() {

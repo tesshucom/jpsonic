@@ -758,6 +758,21 @@ class SettingsServiceTest {
     }
 
     @Test
+    void testIsUseJsonp() {
+        assertFalse(settingsService.isUseJsonp());
+    }
+
+    @Test
+    void testIsUseRemovingTrackFromId3Title() {
+        assertFalse(settingsService.isUseRemovingTrackFromId3Title());
+    }
+
+    @Test
+    void testIsUseCleanUp() {
+        assertFalse(settingsService.isUseCleanUp());
+    }
+
+    @Test
     void testGetSmtpEncryption() {
         assertEquals("None", settingsService.getSmtpEncryption());
     }
