@@ -100,7 +100,7 @@ public class MediaFileDao extends AbstractDao {
         return queryOne("select " + QUERY_COLUMNS + " from media_file where path=?", rowMapper, path);
     }
 
-    public MediaFile getMediaFile(@NonNull Path path) {
+    public @Nullable MediaFile getMediaFile(@NonNull Path path) {
         return queryOne("select " + QUERY_COLUMNS + " from media_file where path=?", rowMapper, path.toString());
     }
 
@@ -166,6 +166,10 @@ public class MediaFileDao extends AbstractDao {
 
     public boolean exists(Path path) {
         return 0 < queryForInt("select count(path) from media_file where path = ?", 0, path.toString());
+    }
+
+    public boolean existsNonPresent() {
+        return 0 < queryForInt("select count(*) from media_file where not present", 1);
     }
 
     public @Nullable MediaFile createMediaFile(MediaFile file) {

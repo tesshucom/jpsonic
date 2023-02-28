@@ -157,6 +157,12 @@ public class ScannerProcedureService {
         mediaFileCache.setEnabled(false);
         mediaFileCache.removeAll();
 
+        if (!settingsService.isUseCleanUp() && mediaFileDao.existsNonPresent()) {
+            // If useCleanUp=false(default), Clean-up can be managed by Scan processes.
+            // Removing present=false in advance can reduce the number of subsequent queries issued.
+            expungeFileStructure();
+        }
+
         createScanEvent(scanDate, ScanEventType.BEFORE_SCAN, null);
     }
 
