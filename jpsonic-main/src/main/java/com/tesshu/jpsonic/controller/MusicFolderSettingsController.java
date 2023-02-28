@@ -105,7 +105,8 @@ public class MusicFolderSettingsController {
                 settingsService.isIgnoreFileTimestamps() || settingsService.isIgnoreFileTimestampsNext());
         command.setInterval(String.valueOf(settingsService.getIndexCreationInterval()));
         command.setHour(String.valueOf(settingsService.getIndexCreationHour()));
-
+        command.setUseCleanUp(settingsService.isUseCleanUp());
+        
         // Exclusion settings
         command.setExcludePatternString(settingsService.getExcludePatternString());
         command.setIgnoreSymLinks(settingsService.isIgnoreSymLinks());
