@@ -103,7 +103,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
             procedure.parseFileStructure(scanDate);
             procedure.parseVideo(scanDate);
             procedure.parsePodcast(scanDate);
-            procedure.markNonPresent(scanDate);
+            procedure.iterateFileStructure(scanDate);
 
             procedure.parseAlbum(scanDate);
             procedure.updateSortOfAlbum(scanDate);

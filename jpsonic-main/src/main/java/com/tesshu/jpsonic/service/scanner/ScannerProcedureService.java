@@ -217,6 +217,24 @@ public class ScannerProcedureService {
         createScanEvent(scanDate, ScanEventType.PARSE_VIDEO, String.format("Parsed(%d)", countUpdate));
     }
 
+    void expungeFileStructure() {
+        indexManager.expunge(mediaFileDao.getArtistExpungeCandidates(), mediaFileDao.getAlbumExpungeCandidates(),
+                mediaFileDao.getSongExpungeCandidates());
+        mediaFileDao.expunge();
+    }
+
+    @Transactional
+    public void iterateFileStructure(@NonNull Instant scanDate) {
+        if (settingsService.isUseCleanUp()) {
+            return;
+        }
+        writeInfo("Marking non-present files.");
+        mediaFileDao.markNonPresent(scanDate);
+        expungeFileStructure();
+        String comment = String.format("%d files checked or parsed.", scannerState.getScanCount());
+        createScanEvent(scanDate, ScanEventType.CLEAN_UP_FILE_STRUCTURE, comment);
+    }
+
     private MediaFile albumOf(@NonNull Instant scanDate, @NonNull MediaFile fetchedFirstChild,
             @NonNull MediaFile registered) {
         registered.setArtist(fetchedFirstChild.getAlbumArtist());
@@ -239,7 +257,7 @@ public class ScannerProcedureService {
     }
 
     @Transactional
-    void iterateAlbumId3(@NonNull Instant scanDate, boolean withPodcast) {
+    public void iterateAlbumId3(@NonNull Instant scanDate, boolean withPodcast) {
         albumDao.iterateLastScanned(scanDate, withPodcast);
         indexManager.expungeAlbum(albumDao.getExpungeCandidates(scanDate));
         albumDao.expunge(scanDate);
@@ -395,7 +413,7 @@ public class ScannerProcedureService {
     }
 
     @Transactional
-    void iterateArtistId3(@NonNull Instant scanDate, boolean withPodcast) {
+    public void iterateArtistId3(@NonNull Instant scanDate, boolean withPodcast) {
         artistDao.iterateLastScanned(scanDate, withPodcast);
         indexManager.expungeArtistId3(artistDao.getExpungeCandidates(scanDate));
         artistDao.expunge(scanDate);
@@ -477,13 +495,6 @@ public class ScannerProcedureService {
                 scanPodcast(scanDate, folder, child);
             }
         }
-    }
-
-    void markNonPresent(@NonNull Instant scanDate) {
-        writeInfo("Marking non-present files.");
-        mediaFileDao.markNonPresent(scanDate);
-        String comment = String.format("%d files checked or parsed.", scannerState.getScanCount());
-        createScanEvent(scanDate, ScanEventType.MARK_NON_PRESENT, comment);
     }
 
     void updateAlbumCounts(@NonNull Instant scanDate) {

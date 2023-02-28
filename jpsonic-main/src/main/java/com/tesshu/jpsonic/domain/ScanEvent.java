@@ -112,7 +112,7 @@ public class ScanEvent {
         PARSE_FILE_STRUCTURE,
         PARSE_VIDEO,
         PARSED_COUNT,
-        MARK_NON_PRESENT,
+        CLEAN_UP_FILE_STRUCTURE,
 
         PARSE_ALBUM,
         UPDATE_SORT_OF_ALBUM,
