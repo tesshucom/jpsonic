@@ -478,7 +478,7 @@ public class SettingsService {
     public List<String> getIgnoredArticlesAsArray() {
         synchronized (LOCKS.get(LocksKeys.ARTICLES)) {
             if (ignoredArticles.isEmpty() && !isEmpty(getIgnoredArticles())) {
-                ignoredArticles = Arrays.asList(getIgnoredArticles().split(CONSECUTIVE_WHITESPACE));
+                ignoredArticles.addAll(Arrays.asList(getIgnoredArticles().split(CONSECUTIVE_WHITESPACE)));
             }
             return ignoredArticles;
         }
@@ -660,7 +660,7 @@ public class SettingsService {
     public List<String> getMusicFileTypesAsArray() {
         synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
             if (musicFileTypes.isEmpty() && !isEmpty(getDefaultMusicFileTypes())) {
-                musicFileTypes = Arrays.asList(getDefaultMusicFileTypes().split(CONSECUTIVE_WHITESPACE));
+                musicFileTypes.addAll(Arrays.asList(getDefaultMusicFileTypes().split(CONSECUTIVE_WHITESPACE)));
             }
             return musicFileTypes;
         }
@@ -686,7 +686,7 @@ public class SettingsService {
     public List<String> getVideoFileTypesAsArray() {
         synchronized (LOCKS.get(LocksKeys.VIDEO_FILE)) {
             if (videoFileTypes.isEmpty()) {
-                videoFileTypes = Arrays.asList(getVideoFileTypes().split(CONSECUTIVE_WHITESPACE));
+                videoFileTypes.addAll(Arrays.asList(getVideoFileTypes().split(CONSECUTIVE_WHITESPACE)));
             }
             return videoFileTypes;
         }
@@ -712,7 +712,7 @@ public class SettingsService {
     public List<String> getCoverArtFileTypesAsArray() {
         synchronized (LOCKS.get(LocksKeys.COVER_ART)) {
             if (coverArtFileTypes.isEmpty() && !isEmpty(getCoverArtFileTypes())) {
-                coverArtFileTypes = Arrays.asList(getCoverArtFileTypes().split(CONSECUTIVE_WHITESPACE));
+                coverArtFileTypes.addAll(Arrays.asList(getCoverArtFileTypes().split(CONSECUTIVE_WHITESPACE)));
             }
             return coverArtFileTypes;
         }
@@ -738,7 +738,7 @@ public class SettingsService {
     public List<String> getExcludedCoverArtsAsArray() {
         synchronized (LOCKS.get(LocksKeys.EXCLUDED_COVER_ART)) {
             if (excludedCoverArts.isEmpty()) {
-                excludedCoverArts = Arrays.asList(getDefaultExcludedCoverArts().split(CONSECUTIVE_WHITESPACE));
+                excludedCoverArts.addAll(Arrays.asList(getDefaultExcludedCoverArts().split(CONSECUTIVE_WHITESPACE)));
             }
             return excludedCoverArts;
         }
