@@ -548,7 +548,7 @@ public class IndexManager {
             TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
             int totalHits = util.round.apply(topDocs.totalHits.value);
             for (int i = 0; i < totalHits; i++) {
-                IndexableField[] fields = searcher.doc(topDocs.scoreDocs[i].doc)
+                IndexableField[] fields = searcher.storedFields().document(topDocs.scoreDocs[i].doc)
                         .getFields(FieldNamesConstants.GENRE_KEY);
                 if (!isEmpty(fields)) {
                     List<String> fieldValues = Arrays.stream(fields).map(IndexableField::stringValue)
