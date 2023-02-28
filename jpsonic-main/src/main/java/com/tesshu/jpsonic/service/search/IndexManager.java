@@ -336,7 +336,7 @@ public class IndexManager {
      * Close Writer of all indexes and update SearcherManager. Called at the end of the Scan flow.
      */
     public void stopIndexing() {
-        Arrays.asList(IndexType.values()).forEach(indexType -> stopIndexing(indexType));
+        Arrays.asList(IndexType.values()).forEach(this::stopIndexing);
         clearMultiGenreMaster();
     }
 
@@ -348,6 +348,9 @@ public class IndexManager {
         boolean isUpdate = false;
         // close
         try (IndexWriter writer = writers.get(type)) {
+            if (writer == null) {
+                return;
+            }
             isUpdate = -1 != writers.get(type).commit();
             writer.close();
             writers.remove(type);

@@ -54,7 +54,6 @@ import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.VersionService;
-import com.tesshu.jpsonic.service.search.AnalyzerFactory;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.service.search.IndexType;
 import com.tesshu.jpsonic.spring.DatabaseConfiguration.ProfileNameConstants;
@@ -62,9 +61,9 @@ import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -92,7 +91,6 @@ public class InternalHelpController {
     private final SecurityService securityService;
     private final IndexManager indexManager;
     private final DaoHelper daoHelper;
-    private final AnalyzerFactory analyzerFactory;
     private final MusicFolderDao musicFolderDao;
     private final TranscodingService transcodingService;
     private final Environment environment;
@@ -100,15 +98,14 @@ public class InternalHelpController {
 
     public InternalHelpController(VersionService versionService, SettingsService settingsService,
             SecurityService securityService, IndexManager indexManager, DaoHelper daoHelper,
-            AnalyzerFactory analyzerFactory, MusicFolderDao musicFolderDao, TranscodingService transcodingService,
-            Environment environment, StaticsDao staticsDao) {
+            MusicFolderDao musicFolderDao, TranscodingService transcodingService, Environment environment,
+            StaticsDao staticsDao) {
         super();
         this.versionService = versionService;
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.indexManager = indexManager;
         this.daoHelper = daoHelper;
-        this.analyzerFactory = analyzerFactory;
         this.musicFolderDao = musicFolderDao;
         this.transcodingService = transcodingService;
         this.environment = environment;
@@ -198,10 +195,7 @@ public class InternalHelpController {
             }
         }
         map.put("indexStatistics", indexStats);
-
-        try (Analyzer analyzer = analyzerFactory.getAnalyzer()) {
-            map.put("indexLuceneVersion", analyzer.getVersion().toString());
-        }
+        map.put("indexLuceneVersion", Version.getPackageImplementationVersion());
     }
 
     /**
