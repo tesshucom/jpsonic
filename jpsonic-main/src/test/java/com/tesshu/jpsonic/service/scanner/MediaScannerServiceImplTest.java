@@ -779,10 +779,6 @@ class MediaScannerServiceImplTest {
             // Exec scan
             TestCaseUtils.execScan(mediaScannerService);
 
-            song = mediaFileDao.getMediaFile(this.song.toString());
-            assertNotNull(song);
-            assertFalse(song.isPresent());
-            mediaScannerService.expunge();
             assertNull(mediaFileDao.getMediaFile(this.song.toString()));
             song = mediaFileDao.getMediaFile(movedSong.toString());
             assertNotNull(song);
@@ -837,9 +833,7 @@ class MediaScannerServiceImplTest {
             musicFolderService.updateMusicFolder(folder);
             TestCaseUtils.execScan(mediaScannerService);
 
-            song = mediaFileDao.getMediaFile(this.song.toString());
-            assertEquals(this.song, song.toPath());
-            assertFalse(song.isPresent());
+            assertNull(mediaFileDao.getMediaFile(this.song.toString()));
 
             folder.setEnabled(true);
             musicFolderService.updateMusicFolder(folder);

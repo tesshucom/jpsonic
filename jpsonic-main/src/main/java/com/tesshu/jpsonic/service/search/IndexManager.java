@@ -44,7 +44,6 @@ import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.ThreadSafe;
-import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;
@@ -110,7 +109,6 @@ public class IndexManager {
 
     private final AnalyzerFactory analyzerFactory;
     private final DocumentFactory documentFactory;
-    private final MediaFileDao mediaFileDao;
     private final QueryFactory queryFactory;
     private final SearchServiceUtilities util;
     private final JpsonicComparators comparators;
@@ -129,13 +127,12 @@ public class IndexManager {
         return Path.of(getRootIndexDirectory().toString(), indexType.toString().toLowerCase(Locale.ENGLISH));
     }
 
-    public IndexManager(AnalyzerFactory analyzerFactory, DocumentFactory documentFactory, MediaFileDao mediaFileDao,
-            QueryFactory queryFactory, SearchServiceUtilities util, JpsonicComparators comparators,
-            SettingsService settingsService, ScannerStateServiceImpl scannerState) {
+    public IndexManager(AnalyzerFactory analyzerFactory, DocumentFactory documentFactory, QueryFactory queryFactory,
+            SearchServiceUtilities util, JpsonicComparators comparators, SettingsService settingsService,
+            ScannerStateServiceImpl scannerState) {
         super();
         this.analyzerFactory = analyzerFactory;
         this.documentFactory = documentFactory;
-        this.mediaFileDao = mediaFileDao;
         this.queryFactory = queryFactory;
         this.util = util;
         this.comparators = comparators;
@@ -230,26 +227,23 @@ public class IndexManager {
     }
 
     @ThreadSafe(enableChecks = false) // False positive. writers#get#deleteDocuments is atomic.
-    public void expunge() {
+    public void expunge(List<Integer> artistIds, List<Integer> albumIds, List<Integer> songIds) {
 
-        Term[] primarykeys = mediaFileDao.getArtistExpungeCandidates().stream().map(DocumentFactory::createPrimarykey)
-                .toArray(Term[]::new);
+        Term[] primarykeys = artistIds.stream().map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
         try {
             writers.get(IndexType.ARTIST).deleteDocuments(primarykeys);
         } catch (IOException e) {
             LOG.error("Failed to delete artist doc.", e);
         }
 
-        primarykeys = mediaFileDao.getAlbumExpungeCandidates().stream().map(DocumentFactory::createPrimarykey)
-                .toArray(Term[]::new);
+        primarykeys = albumIds.stream().map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
         try {
             writers.get(IndexType.ALBUM).deleteDocuments(primarykeys);
         } catch (IOException e) {
             LOG.error("Failed to delete album doc.", e);
         }
 
-        primarykeys = mediaFileDao.getSongExpungeCandidates().stream().map(DocumentFactory::createPrimarykey)
-                .toArray(Term[]::new);
+        primarykeys = songIds.stream().map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
         try {
             writers.get(IndexType.SONG).deleteDocuments(primarykeys);
         } catch (IOException e) {

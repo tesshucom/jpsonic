@@ -86,7 +86,6 @@ $(function() {
 
         <div class="submits">
             <input type="submit" value="<fmt:message key='more.upload.ok'/>" ${model.scanning ? 'disabled' : ''}/>
-            <input type="button" onClick="location.href='nowPlaying.view'" value="<fmt:message key='common.cancel'/>"/>
         </div>
 
     </form>

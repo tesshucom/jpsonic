@@ -49,21 +49,16 @@ public class ExpungeService {
         if (scannerState.neverScanned()) {
             LOG.warn("The scan has never completed yet. No cleanup is performed.");
         } else {
-            // to be before dao#expunge
-            indexManager.startIndexing();
 
+            indexManager.startIndexing();
             procedure.iterateAlbumId3(scanDate, procedure.isPodcastInMusicFolders());
             procedure.iterateArtistId3(scanDate, procedure.isPodcastInMusicFolders());
-
-            indexManager.expunge();
-
+            procedure.expungeFileStructure();
             indexManager.stopIndexing();
 
-            // to be after indexManager#expunge
-            mediaFileDao.expunge();
             mediaFileDao.checkpoint();
 
-            // to be after mediaFileDao#expunge
+            // to be after expungeFileStructure
             ratingDao.expunge();
         }
 

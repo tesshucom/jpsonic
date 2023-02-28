@@ -260,6 +260,12 @@ function resetExtension() {
                 <label for="useRemovingTrackFromId3Title"><fmt:message key="generalsettings.useremovingtrackfromid3title"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="useremovingtrackfromid3title"/></c:import>
             </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="useCleanUp" id="useCleanUp"/>
+                <label for="useCleanUp"><fmt:message key="generalsettings.usecleanup"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="usecleanup"/></c:import>
+            </dd>
         </dl>
     </details>
 
@@ -339,7 +345,6 @@ function resetExtension() {
 
     <div class="submits">
         <input type="submit" value="<fmt:message key='common.save'/>">
-        <input type="button" onClick="location.href='nowPlaying.view'" value="<fmt:message key='common.cancel'/>"/>
     </div>
 </form:form>
 

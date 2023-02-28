@@ -195,12 +195,18 @@ public class WritableMediaFileService {
         }
     }
 
+    @SuppressLint(value = "NULL_DEREFERENCE", justification = "False positive. getMediaFile is Nullable, but pre-checked.")
     Optional<MediaFile> createOrUpdateChild(@Nullable MediaFile child, @NonNull Path childPath,
             @NonNull Instant scanDate) {
         if (child == null) {
-            if (mediaFileDao.exists(childPath)) {
-                return refreshMediaFile(scanDate, mediaFileDao.getMediaFile(childPath));
+            if (settingsService.isUseCleanUp()) {
+                if (mediaFileDao.exists(childPath)) {
+                    return refreshMediaFile(scanDate, mediaFileDao.getMediaFile(childPath));
+                } else {
+                    return createMediaFile(scanDate, childPath);
+                }
             } else {
+                // @see ScannerProcedureService#beforeScan
                 return createMediaFile(scanDate, childPath);
             }
         } else {

@@ -44,6 +44,7 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
     private boolean fullScanNext;
     private String interval;
     private String hour;
+    private boolean useCleanUp;
 
     // Exclusion settings
     private String excludePatternString;
@@ -95,6 +96,14 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
     public void setHour(String hour) {
         this.hour = hour;
+    }
+
+    public boolean isUseCleanUp() {
+        return useCleanUp;
+    }
+
+    public void setUseCleanUp(boolean useCleanUp) {
+        this.useCleanUp = useCleanUp;
     }
 
     public String getExcludePatternString() {

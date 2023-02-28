@@ -134,19 +134,21 @@ document.addEventListener('DOMContentLoaded', function () {
                     </c:forEach>
                 </form:select>
             </dd>
-            <dt><fmt:message key='musicfoldersettings.expunge'/><c:import url="helpToolTip.jsp"><c:param name="topic" value="expunge"/></c:import></dt>
-            <dd>
-                <div>
-                    <c:choose>
-                        <c:when test='${command.scanning}'>
-                            <input type="button" onClick="location.href='musicFolderSettings.view?expunge=true'" value="<fmt:message key='musicfoldersettings.doexpunge'/>" disabled/>
-                        </c:when>
-                        <c:otherwise>
-                            <input type="button" onClick="location.href='musicFolderSettings.view?expunge=true'" value="<fmt:message key='musicfoldersettings.doexpunge'/>"/>
-                        </c:otherwise>
-                    </c:choose>
-                </div>
-            </dd>
+            <c:if test='${command.useCleanUp}'>
+                <dt><fmt:message key='musicfoldersettings.expunge'/><c:import url="helpToolTip.jsp"><c:param name="topic" value="expunge"/></c:import></dt>
+                <dd>
+                    <div>
+                        <c:choose>
+                            <c:when test='${command.scanning}'>
+                                <input type="button" onClick="location.href='musicFolderSettings.view?expunge=true'" value="<fmt:message key='musicfoldersettings.doexpunge'/>" disabled/>
+                            </c:when>
+                            <c:otherwise>
+                                <input type="button" onClick="location.href='musicFolderSettings.view?expunge=true'" value="<fmt:message key='musicfoldersettings.doexpunge'/>"/>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                </dd>
+            </c:if>
         </dl>
     </details>
 
@@ -210,7 +212,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 <input type="submit" value="<fmt:message key='common.save'/>"/>
             </c:otherwise>
         </c:choose>
-        <input type="button" onClick="location.href='nowPlaying.view'" value="<fmt:message key='common.cancel'/>"/>
     </div>
 
 </form:form>

@@ -288,7 +288,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     <div class="submits">
         <input type="submit" value="<fmt:message key='common.save'/>">
-        <input type="button" onClick="location.href='nowPlaying.view'" value="<fmt:message key='common.cancel'/>"/>
     </div>
 
 </form:form>
