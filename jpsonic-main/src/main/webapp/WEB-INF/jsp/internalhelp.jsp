@@ -69,57 +69,6 @@
 </details>
 
 <details>
-    <summary class="
-        <c:choose>
-            <c:when test='${model.dbMediaFileAlbumNonPresentCount + model.dbMediaFileDirectoryNonPresentCount + model.dbMediaFileMusicNonPresentCount + model.dbMediaFilePodcastNonPresentCount == 0}'>
-                statusOK
-            </c:when>
-            <c:otherwise>
-                statusNG
-            </c:otherwise>
-        </c:choose>
-    ">
-        <fmt:message key="internalhelp.unnecessarydata"/>
-    </summary>
-    <ul>
-        <li>
-            <c:choose>
-                    <c:when test="${model.dbMediaFileAlbumNonPresentCount + model.dbMediaFileDirectoryNonPresentCount + model.dbMediaFileMusicNonPresentCount + model.dbMediaFilePodcastNonPresentCount == 0}">
-                    <fmt:message key="internalhelp.dbnonpresent.ok"/>
-                </c:when>
-                <c:otherwise>
-                    <fmt:message key="internalhelp.dbnonpresent.warn"/>
-                </c:otherwise>
-            </c:choose>
-        </li>
-    </ul>
-    <dl>
-        <dt><fmt:message key="internalhelp.musicdeletedcount"/></dt>
-        <dd>${model.dbMediaFileMusicNonPresentCount}</dd>
-        <dt><fmt:message key="internalhelp.podcastdeletedcount"/></dt>
-        <dd>${model.dbMediaFilePodcastNonPresentCount}</dd>
-        <dt><fmt:message key="internalhelp.directorydeletedcount"/></dt>
-        <dd>${model.dbMediaFileDirectoryNonPresentCount}</dd>
-        <dt><fmt:message key="internalhelp.albumdeletedcount"/></dt>
-        <dd>${model.dbMediaFileAlbumNonPresentCount}</dd>
-        <dt><fmt:message key="internalhelp.musiccount"/></dt>
-        <dd>${model.dbMediaFileMusicPresentCount}</dd>
-        <dt><fmt:message key="internalhelp.podcastcount"/></dt>
-        <dd>${model.dbMediaFilePodcastPresentCount}</dd>
-        <dt><fmt:message key="internalhelp.directorycount"/></dt>
-        <dd>${model.dbMediaFileDirectoryPresentCount}</dd>
-        <dt><fmt:message key="internalhelp.albumcount"/></dt>
-        <dd>${model.dbMediaFileAlbumPresentCount}</dd>
-        <dt><fmt:message key="internalhelp.distinctalbumcount"/></dt>
-        <dd>${model.dbMediaFileDistinctAlbumCount}</dd>
-        <dt><fmt:message key="internalhelp.distinctartistcount"/></dt>
-        <dd>${model.dbMediaFileDistinctArtistCount}</dd>
-        <dt><fmt:message key="internalhelp.distinctalbumartistcount"/></dt>
-        <dd>${model.dbMediaFileDistinctAlbumArtistCount}</dd>
-    </dl>
-</details>
-
-<details>
     <c:set var="failCount" value="0" scope="page" />
     <c:forEach var="musicFolderStatistics" items="${model.fsMusicFolderStatistics}">
         <c:if test="${!musicFolderStatistics.value.readable}">

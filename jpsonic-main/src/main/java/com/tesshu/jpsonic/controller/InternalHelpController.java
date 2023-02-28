@@ -274,7 +274,6 @@ public class InternalHelpController {
         }
 
         putDatabaseLegacyInfoTo(map);
-        putDatabaseTableInfoTo(map);
     }
 
     private void putDatabaseLegacyInfoTo(Map<String, Object> map) {
@@ -294,33 +293,6 @@ public class InternalHelpController {
             map.put("dbIsLegacy", false);
         }
 
-    }
-
-    private void putDatabaseTableInfoTo(Map<String, Object> map) {
-        map.put("dbMediaFileMusicNonPresentCount", daoHelper.getJdbcTemplate()
-                .queryForObject("SELECT count(*) FROM media_file WHERE NOT present AND type = 'MUSIC'", Long.class));
-        map.put("dbMediaFilePodcastNonPresentCount", daoHelper.getJdbcTemplate()
-                .queryForObject("SELECT count(*) FROM media_file WHERE NOT present AND type = 'PODCAST'", Long.class));
-        map.put("dbMediaFileDirectoryNonPresentCount", daoHelper.getJdbcTemplate().queryForObject(
-                "SELECT count(*) FROM media_file WHERE NOT present AND type = 'DIRECTORY'", Long.class));
-        map.put("dbMediaFileAlbumNonPresentCount", daoHelper.getJdbcTemplate()
-                .queryForObject("SELECT count(*) FROM media_file wheRE NOT present AND type = 'ALBUM'", Long.class));
-
-        map.put("dbMediaFileMusicPresentCount", daoHelper.getJdbcTemplate()
-                .queryForObject("SELECT count(*) FROM media_file WHERE present AND type = 'MUSIC'", Long.class));
-        map.put("dbMediaFilePodcastPresentCount", daoHelper.getJdbcTemplate()
-                .queryForObject("SELECT count(*) FROM media_file WHERE present AND type = 'PODCAST'", Long.class));
-        map.put("dbMediaFileDirectoryPresentCount", daoHelper.getJdbcTemplate()
-                .queryForObject("SELECT count(*) FROM media_file WHERE present AND type = 'DIRECTORY'", Long.class));
-        map.put("dbMediaFileAlbumPresentCount", daoHelper.getJdbcTemplate()
-                .queryForObject("SELECT count(*) FROM media_file WHERE present AND type = 'ALBUM'", Long.class));
-
-        map.put("dbMediaFileDistinctAlbumCount", daoHelper.getJdbcTemplate()
-                .queryForObject("SELECT count(DISTINCT album) FROM media_file WHERE present", Long.class));
-        map.put("dbMediaFileDistinctArtistCount", daoHelper.getJdbcTemplate()
-                .queryForObject("SELECT count(DISTINCT artist) FROM media_file WHERE present", Long.class));
-        map.put("dbMediaFileDistinctAlbumArtistCount", daoHelper.getJdbcTemplate()
-                .queryForObject("SELECT count(DISTINCT album_artist) FROM media_file WHERE present", Long.class));
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (FileStatistics) Not reusable
