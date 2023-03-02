@@ -77,7 +77,7 @@ function resetExtension() {
         </dl>
     </details>
 
-    <details open>
+    <details ${isOpen}>
         <summary class="jpsonic"><fmt:message key="generalsettings.indexsettings"/></summary>
         <c:if test="${command.showOutlineHelp}">
             <div class="outlineHelp">

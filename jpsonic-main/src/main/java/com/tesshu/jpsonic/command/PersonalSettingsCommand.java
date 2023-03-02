@@ -75,6 +75,12 @@ public class PersonalSettingsCommand extends SettingsPageCommons {
     private boolean simpleDisplay;
     private boolean queueFollowingSongs;
     private boolean showCurrentSongInfo;
+
+    // Column to be displayed
+    private UserSettings.Visibility mainVisibility;
+    private UserSettings.Visibility playlistVisibility;
+
+    // Additional display features
     private boolean songNotificationEnabled;
     private boolean voiceInputEnabled;
     private SpeechToTextLangScheme speechToTextLangScheme;
@@ -83,12 +89,6 @@ public class PersonalSettingsCommand extends SettingsPageCommons {
     private String ietfDisplayDefault;
     private boolean openDetailStar;
     private boolean openDetailIndex;
-
-    // Column to be displayed
-    private UserSettings.Visibility mainVisibility;
-    private UserSettings.Visibility playlistVisibility;
-
-    // Additional display features
     private boolean nowPlayingAllowed;
     private boolean othersPlayingEnabled;
     private boolean showNowPlayingEnabled;
@@ -359,6 +359,22 @@ public class PersonalSettingsCommand extends SettingsPageCommons {
         this.showCurrentSongInfo = showCurrentSongInfo;
     }
 
+    public UserSettings.Visibility getMainVisibility() {
+        return mainVisibility;
+    }
+
+    public void setMainVisibility(UserSettings.Visibility mainVisibility) {
+        this.mainVisibility = mainVisibility;
+    }
+
+    public UserSettings.Visibility getPlaylistVisibility() {
+        return playlistVisibility;
+    }
+
+    public void setPlaylistVisibility(UserSettings.Visibility playlistVisibility) {
+        this.playlistVisibility = playlistVisibility;
+    }
+
     public void setSongNotificationEnabled(boolean songNotificationEnabled) {
         this.songNotificationEnabled = songNotificationEnabled;
     }
@@ -421,22 +437,6 @@ public class PersonalSettingsCommand extends SettingsPageCommons {
 
     public void setOpenDetailIndex(boolean openDetailIndex) {
         this.openDetailIndex = openDetailIndex;
-    }
-
-    public UserSettings.Visibility getMainVisibility() {
-        return mainVisibility;
-    }
-
-    public void setMainVisibility(UserSettings.Visibility mainVisibility) {
-        this.mainVisibility = mainVisibility;
-    }
-
-    public UserSettings.Visibility getPlaylistVisibility() {
-        return playlistVisibility;
-    }
-
-    public void setPlaylistVisibility(UserSettings.Visibility playlistVisibility) {
-        this.playlistVisibility = playlistVisibility;
     }
 
     public boolean isNowPlayingAllowed() {
