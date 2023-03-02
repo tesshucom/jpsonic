@@ -41,10 +41,11 @@ document.addEventListener('DOMContentLoaded', function () {
 </c:import>
 
 <form method="post" action="transcodingSettings.view">
+    <c:set var="isOpen" value='${model.isOpenDetailSetting ? "open" : ""}' />
     <sec:csrfInput />
 
     <c:if test="${not empty model.transcodings}">
-        <details ${model.isOpenDetailSetting ? "open" : ""}>
+        <details ${isOpen}>
             <summary><fmt:message key="transcodingsettings.registered"/></summary>
 
             <c:if test="${model.showOutlineHelp}">
@@ -99,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
         </details>
     </c:if>
 
-    <details ${empty model.transcodings ? "" : "open"}>
+    <details ${isOpen}>
         <summary class="jpsonic"><fmt:message key="transcodingsettings.preferred"/></summary>
 
         <div class="actions">
@@ -171,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function () {
         </dl>
    </details>
 
-    <details ${model.isOpenDetailSetting ? "open" : ""}>
+    <details ${isOpen}>
         <summary><fmt:message key="transcodingsettings.add"/></summary>
 
         <table class="tabular transcoding">
@@ -202,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function () {
         </table>
     </details>
 
-    <details ${model.isOpenDetailSetting ? "open" : ""}>
+    <details ${isOpen}>
         <summary><fmt:message key="advancedsettings.hlscommand" /></summary>
         <div class="hls">
             <input type="text" name="hlsCommand" value="${model.hlsCommand}" />

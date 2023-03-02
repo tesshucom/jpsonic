@@ -133,6 +133,12 @@ public class PersonalSettingsController {
         command.setSimpleDisplay(userSettings.isSimpleDisplay());
         command.setQueueFollowingSongs(userSettings.isQueueFollowingSongs());
         command.setShowCurrentSongInfo(userSettings.isShowCurrentSongInfo());
+
+        // Column to be displayed
+        command.setMainVisibility(userSettings.getMainVisibility());
+        command.setPlaylistVisibility(userSettings.getPlaylistVisibility());
+
+        // Additional display features
         command.setSongNotificationEnabled(userSettings.isSongNotificationEnabled());
         command.setVoiceInputEnabled(userSettings.isVoiceInputEnabled());
         command.setSpeechToTextLangScheme(SpeechToTextLangScheme.of(userSettings.getSpeechLangSchemeName()));
@@ -153,12 +159,6 @@ public class PersonalSettingsController {
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setOpenDetailIndex(userSettings.isOpenDetailIndex());
         command.setOpenDetailStar(userSettings.isOpenDetailStar());
-
-        // Column to be displayed
-        command.setMainVisibility(userSettings.getMainVisibility());
-        command.setPlaylistVisibility(userSettings.getPlaylistVisibility());
-
-        // Additional display features
         command.setNowPlayingAllowed(userSettings.isNowPlayingAllowed());
         command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
         command.setShowNowPlayingEnabled(userSettings.isShowNowPlayingEnabled());
@@ -253,6 +253,12 @@ public class PersonalSettingsController {
         settings.setSimpleDisplay(command.isSimpleDisplay());
         settings.setQueueFollowingSongs(command.isQueueFollowingSongs());
         settings.setShowCurrentSongInfo(command.isShowCurrentSongInfo());
+
+        // Column to be displayed
+        settings.setMainVisibility(command.getMainVisibility());
+        settings.setPlaylistVisibility(command.getPlaylistVisibility());
+
+        // Additional display features
         settings.setSongNotificationEnabled(command.isSongNotificationEnabled());
         settings.setVoiceInputEnabled(command.isVoiceInputEnabled());
         settings.setSpeechLangSchemeName(command.getSpeechToTextLangScheme().name());
@@ -261,12 +267,6 @@ public class PersonalSettingsController {
         } else if (StringUtils.isNotBlank(command.getIetf()) && command.getIetf().matches("[a-zA-Z\\-\\_]+")) {
             settings.setIetf(command.getIetf());
         }
-
-        // Column to be displayed
-        settings.setMainVisibility(command.getMainVisibility());
-        settings.setPlaylistVisibility(command.getPlaylistVisibility());
-
-        // Additional display features
         settings.setNowPlayingAllowed(command.isNowPlayingAllowed());
         settings.setShowNowPlayingEnabled(
                 settingsService.isOthersPlayingEnabled() && command.isShowNowPlayingEnabled());
