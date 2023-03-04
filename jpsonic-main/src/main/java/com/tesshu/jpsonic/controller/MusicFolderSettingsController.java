@@ -130,7 +130,7 @@ public class MusicFolderSettingsController {
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
 
-    private List<MusicFolderSettingsCommand.MusicFolderInfo> wrap(List<MusicFolder> musicFolders) {
+    List<MusicFolderSettingsCommand.MusicFolderInfo> wrap(List<MusicFolder> musicFolders) {
         var folders = musicFolders.stream().map(MusicFolderSettingsCommand.MusicFolderInfo::new)
                 .collect(Collectors.toCollection(ArrayList::new));
         if (settingsService.isRedundantFolderCheck()) {
@@ -159,7 +159,12 @@ public class MusicFolderSettingsController {
                 toMusicFolder(musicFolderInfo).ifPresent(folder -> musicFolderService.updateMusicFolder(folder));
             }
         }
-        toMusicFolder(command.getNewMusicFolder()).ifPresent(folder -> musicFolderService.createMusicFolder(folder));
+        toMusicFolder(command.getNewMusicFolder()).ifPresent(newFolder -> {
+            if (musicFolderService.getAllMusicFolders(false, true).stream()
+                    .noneMatch(oldFolder -> oldFolder.getPathString().equals(newFolder.getPathString()))) {
+                musicFolderService.createMusicFolder(newFolder);
+            }
+        });
 
         // Run a scan
         settingsService.setIndexCreationInterval(Integer.parseInt(command.getInterval()));
@@ -194,8 +199,8 @@ public class MusicFolderSettingsController {
         }
 
         Path newPath = Path.of(validated.get());
-        if (musicFolderService.getAllMusicFolders(true, true).stream()
-                .anyMatch(old -> old.toPath().startsWith(newPath) || newPath.startsWith(old.toPath()))) {
+        if (musicFolderService.getAllMusicFolders(true, true).stream().anyMatch(old -> !old.toPath().equals(newPath)
+                && (old.toPath().startsWith(newPath) || newPath.startsWith(old.toPath())))) {
             return Optional.empty();
         }
 

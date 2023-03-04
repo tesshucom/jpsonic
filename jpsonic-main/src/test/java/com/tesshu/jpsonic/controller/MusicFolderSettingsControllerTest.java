@@ -67,7 +67,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@SuppressWarnings("PMD.TooManyStaticImports")
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MusicFolderSettingsControllerTest {
 
@@ -190,12 +190,17 @@ class MusicFolderSettingsControllerTest {
         MusicFolderInfo musicFolderInfo = new MusicFolderInfo(musicFolder);
         command.setNewMusicFolder(musicFolderInfo);
 
+        // success case
         ArgumentCaptor<MusicFolder> captor = ArgumentCaptor.forClass(MusicFolder.class);
         Mockito.doNothing().when(musicFolderService).createMusicFolder(captor.capture());
-
-        RedirectAttributes redirectAttributes = Mockito.mock(RedirectAttributes.class);
-        controller.post(command, redirectAttributes);
+        controller.post(command, Mockito.mock(RedirectAttributes.class));
         assertEquals(captor.getValue(), musicFolder);
+
+        // double registration
+        Mockito.clearInvocations(musicFolderService);
+        Mockito.when(musicFolderService.getAllMusicFolders(false, true)).thenReturn(Arrays.asList(musicFolder));
+        controller.post(command, Mockito.mock(RedirectAttributes.class));
+        Mockito.verify(musicFolderService, Mockito.never()).createMusicFolder(Mockito.nullable(MusicFolder.class));
     }
 
     @Test
@@ -388,6 +393,10 @@ class MusicFolderSettingsControllerTest {
                             @interface NonDuplication {
 
                             }
+
+                            @interface Equals {
+
+                            }
                         }
                     }
 
@@ -481,11 +490,25 @@ class MusicFolderSettingsControllerTest {
         }
 
         @Test
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal.Equals
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.NonNull
+        @ToMusicFolderDecisions.Results.NotEmpty
+        void c06() {
+            List<MusicFolder> oldMusicFolders = Arrays.asList(new MusicFolder(0, "/jpsonic", "old", false, null));
+            Mockito.when(musicFolderService.getAllMusicFolders(true, true)).thenReturn(oldMusicFolders);
+            MusicFolderInfo info = new MusicFolderInfo();
+            String path = "/jpsonic";
+            info.setPath(path);
+            info.setName("name");
+            assertFalse(controller.toMusicFolder(info).isEmpty());
+        }
+
+        @Test
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal.NonDuplication
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.Null
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.DirName.NonNull
         @ToMusicFolderDecisions.Results.NotEmpty
-        void c06() {
+        void c07() {
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "foo/bar";
             info.setPath(path);
@@ -497,7 +520,7 @@ class MusicFolderSettingsControllerTest {
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.Null
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.DirName.Null
         @ToMusicFolderDecisions.Results.Empty
-        void c07() {
+        void c08() {
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "/";
             info.setPath(path);
@@ -510,7 +533,7 @@ class MusicFolderSettingsControllerTest {
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.DirName.Null
         @ToMusicFolderDecisions.Results.Empty
         @EnabledOnOs(OS.WINDOWS)
-        void c08() {
+        void c09() {
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "/:";
             info.setPath(path);
