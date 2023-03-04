@@ -648,6 +648,14 @@ public class SettingsService {
         setProperty(SettingsConstants.General.Legacy.USE_CLEAN_UP, b);
     }
 
+    public boolean isRedundantFolderCheck() {
+        return getBoolean(SettingsConstants.General.Legacy.REDUNDANT_FOLDER_CHECK);
+    }
+
+    public void setRedundantFolderCheck(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.REDUNDANT_FOLDER_CHECK, b);
+    }
+
     public String getMusicFileTypes() {
         synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
             return getString(SettingsConstants.General.Extension.MUSIC_FILE_TYPES);

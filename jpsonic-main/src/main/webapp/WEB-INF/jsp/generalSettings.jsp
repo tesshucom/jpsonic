@@ -266,6 +266,12 @@ function resetExtension() {
                 <label for="useCleanUp"><fmt:message key="generalsettings.usecleanup"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="usecleanup"/></c:import>
             </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="redundantFolderCheck" id="redundantFolderCheck"/>
+                <label for="redundantFolderCheck"><fmt:message key="generalsettings.redundantfoldercheck"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="redundantfoldercheck"/></c:import>
+            </dd>
         </dl>
     </details>
 

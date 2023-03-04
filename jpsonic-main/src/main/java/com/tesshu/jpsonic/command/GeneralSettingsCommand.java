@@ -76,6 +76,7 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean useJsonp;
     private boolean useRemovingTrackFromId3Title;
     private boolean useCleanUp;
+    private boolean redundantFolderCheck;
 
     // Extensions and shortcuts
     private String musicFileTypes;
@@ -360,6 +361,14 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setUseCleanUp(boolean useCleanUp) {
         this.useCleanUp = useCleanUp;
+    }
+
+    public boolean isRedundantFolderCheck() {
+        return redundantFolderCheck;
+    }
+
+    public void setRedundantFolderCheck(boolean redundantFolderCheck) {
+        this.redundantFolderCheck = redundantFolderCheck;
     }
 
     public String getMusicFileTypes() {

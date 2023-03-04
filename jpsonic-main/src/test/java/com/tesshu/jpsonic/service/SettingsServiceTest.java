@@ -773,6 +773,11 @@ class SettingsServiceTest {
     }
 
     @Test
+    void testIsRedundantFolderCheck() {
+        assertFalse(settingsService.isRedundantFolderCheck());
+    }
+
+    @Test
     void testGetSmtpEncryption() {
         assertEquals("None", settingsService.getSmtpEncryption());
     }

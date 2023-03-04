@@ -143,6 +143,7 @@ public class GeneralSettingsController {
         command.setUseJsonp(settingsService.isUseJsonp());
         command.setUseRemovingTrackFromId3Title(settingsService.isUseRemovingTrackFromId3Title());
         command.setUseCleanUp(settingsService.isUseCleanUp());
+        command.setRedundantFolderCheck(settingsService.isRedundantFolderCheck());
 
         // Extensions and shortcuts
         command.setMusicFileTypes(settingsService.getMusicFileTypes());
@@ -246,6 +247,7 @@ public class GeneralSettingsController {
         settingsService.setUseJsonp(command.isUseJsonp());
         settingsService.setUseRemovingTrackFromId3Title(command.isUseRemovingTrackFromId3Title());
         settingsService.setUseCleanUp(command.isUseCleanUp());
+        settingsService.setRedundantFolderCheck(command.isRedundantFolderCheck());
 
         // Extensions and shortcuts
         settingsService.setMusicFileTypes(command.getMusicFileTypes());
