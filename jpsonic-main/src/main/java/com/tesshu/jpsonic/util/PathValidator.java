@@ -24,6 +24,8 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+
 public final class PathValidator {
 
     private static final Pattern NO_TRAVERSAL = Pattern.compile("^(?!.*(\\.\\./|\\.\\.\\\\)).*$");
@@ -39,7 +41,7 @@ public final class PathValidator {
      * Returns a path string pointing to the music, playlist, and podcast folders, if acceptable. otherwise empty.
      */
     public static Optional<String> validateFolderPath(String folderPath) {
-        if (folderPath == null || !isNoTraversal(folderPath) || folderPath.charAt(0) == '\\') {
+        if (StringUtils.trimToNull(folderPath) == null || !isNoTraversal(folderPath) || folderPath.charAt(0) == '\\') {
             return Optional.empty();
         }
         try {
