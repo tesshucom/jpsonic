@@ -3,12 +3,14 @@ package com.tesshu.jpsonic.service.scanner;
 import static com.tesshu.jpsonic.util.PlayerUtils.FAR_FUTURE;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Function;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
@@ -164,6 +166,33 @@ public class ScannerProcedureService {
         }
 
         createScanEvent(scanDate, ScanEventType.BEFORE_SCAN, null);
+    }
+
+    void checkMudicFolders(@NonNull Instant scanDate) {
+        LongAdder notExist = new LongAdder();
+        LongAdder enabled = new LongAdder();
+        musicFolderService.getAllMusicFolders(false, true).forEach(folder -> {
+            Path folderPath = folder.toPath();
+            if (!(Files.exists(folderPath) && Files.isDirectory(folderPath))) {
+                notExist.increment();
+                if (folder.isEnabled()) {
+                    folder.setEnabled(false);
+                    folder.setChanged(scanDate);
+                    musicFolderService.updateMusicFolder(folder);
+                    enabled.increment();
+                }
+            }
+        });
+        String comment = "All registered music folders exist.";
+        if (notExist.intValue() > 0) {
+            comment = String.format(
+                    "(%d) music folders that do not exist are registered. (%d) music folders changed to enabled.",
+                    notExist.intValue(), enabled.intValue());
+            if (LOG.isWarnEnabled()) {
+                LOG.warn(comment);
+            }
+        }
+        createScanEvent(scanDate, ScanEventType.MUSIC_FOLDER_CHECK, comment);
     }
 
     void parseFileStructure(@NonNull Instant scanDate) throws ExecutionException {

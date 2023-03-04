@@ -100,6 +100,8 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
         try {
 
+            procedure.checkMudicFolders(scanDate);
+
             procedure.parseFileStructure(scanDate);
             procedure.parseVideo(scanDate);
             procedure.parsePodcast(scanDate);

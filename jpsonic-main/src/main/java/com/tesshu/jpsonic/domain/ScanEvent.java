@@ -109,6 +109,8 @@ public class ScanEvent {
 
         BEFORE_SCAN,
 
+        MUSIC_FOLDER_CHECK,
+
         PARSE_FILE_STRUCTURE,
         PARSE_VIDEO,
         PARSED_COUNT,
