@@ -27,6 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.annotation.Documented;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -514,5 +516,31 @@ class MusicFolderSettingsControllerTest {
             info.setPath(path);
             assertTrue(controller.toMusicFolder(info).isEmpty());
         }
+    }
+
+    @Test
+    void testWrap() throws URISyntaxException {
+        Mockito.when(settingsService.isRedundantFolderCheck()).thenReturn(false);
+
+        MusicFolder folder = new MusicFolder("/dummy", "Music", true, null);
+        List<MusicFolder> folders = Arrays.asList(folder);
+        var infos = controller.wrap(folders);
+        assertEquals(1, infos.size());
+        assertTrue(infos.get(0).isEnabled());
+
+        Mockito.when(settingsService.isRedundantFolderCheck()).thenReturn(true);
+        infos = controller.wrap(folders);
+        assertEquals(1, infos.size());
+        assertFalse(infos.get(0).isExisting());
+
+        Path file = Path.of(MusicFolderSettingsControllerTest.class.getResource("/MEDIAS/piano.mp3").toURI());
+        infos = controller.wrap(Arrays.asList(new MusicFolder(file.toString(), "Music", true, null)));
+        assertEquals(1, infos.size());
+        assertFalse(infos.get(0).isExisting());
+
+        Path dir = Path.of(MusicFolderSettingsControllerTest.class.getResource("/MEDIAS/Music").toURI());
+        infos = controller.wrap(Arrays.asList(new MusicFolder(dir.toString(), "Music", true, null)));
+        assertEquals(1, infos.size());
+        assertTrue(infos.get(0).isExisting());
     }
 }

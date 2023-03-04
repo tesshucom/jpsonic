@@ -23,6 +23,7 @@ package com.tesshu.jpsonic.controller;
 
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -130,8 +131,15 @@ public class MusicFolderSettingsController {
     }
 
     private List<MusicFolderSettingsCommand.MusicFolderInfo> wrap(List<MusicFolder> musicFolders) {
-        return musicFolders.stream().map(MusicFolderSettingsCommand.MusicFolderInfo::new)
+        var folders = musicFolders.stream().map(MusicFolderSettingsCommand.MusicFolderInfo::new)
                 .collect(Collectors.toCollection(ArrayList::new));
+        if (settingsService.isRedundantFolderCheck()) {
+            folders.forEach(folder -> {
+                Path path = Path.of(folder.getPath());
+                folder.setExisting(Files.exists(path) && Files.isDirectory(path));
+            });
+        }
+        return folders;
     }
 
     @GetMapping

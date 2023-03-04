@@ -21,7 +21,6 @@
 
 package com.tesshu.jpsonic.command;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -169,7 +168,7 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
             enabled = musicFolder.isEnabled();
             Path folderPath = musicFolder.toPath();
             path = folderPath.toString();
-            existing = Files.exists(folderPath) && Files.isDirectory(folderPath);
+            existing = true;
         }
 
         public MusicFolderInfo() {
@@ -220,5 +219,8 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
             return existing;
         }
 
+        public void setExisting(boolean existing) {
+            this.existing = existing;
+        }
     }
 }
