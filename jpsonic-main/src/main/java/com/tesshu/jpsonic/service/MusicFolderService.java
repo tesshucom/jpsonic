@@ -20,17 +20,22 @@
 package com.tesshu.jpsonic.service;
 
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import net.sf.ehcache.Ehcache;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Service;
 
+/**
+ * The class containing MusicFolder-related methods extracted from the legacy server's SettingsService.
+ */
 @Service
 public class MusicFolderService {
 
@@ -38,77 +43,44 @@ public class MusicFolderService {
     private List<MusicFolder> cachedMusicFolders;
 
     private final MusicFolderDao musicFolderDao;
+    private final SettingsService settingsService;
     private final Ehcache indexCache;
     private final Object lock = new Object();
 
-    public MusicFolderService(MusicFolderDao musicFolderDao, Ehcache indexCache) {
+    public MusicFolderService(MusicFolderDao musicFolderDao, SettingsService settingsService, Ehcache indexCache) {
         this.musicFolderDao = musicFolderDao;
+        this.settingsService = settingsService;
         this.indexCache = indexCache;
         cachedUserFolders = new ConcurrentHashMap<>();
     }
 
-    /**
-     * Returns all music folders. Non-existing and disabled folders are not included.
-     *
-     * @return Possibly empty list of all music folders.
-     */
     public List<MusicFolder> getAllMusicFolders() {
-        return getAllMusicFolders(false, false);
+        return getAllMusicFolders(false, !settingsService.isRedundantFolderCheck());
     }
 
-    /**
-     * Returns all music folders.
-     *
-     * @param includeDisabled
-     *            Whether to include disabled folders.
-     * @param includeNonExisting
-     *            Whether to include non-existing folders.
-     *
-     * @return Possibly empty list of all music folders.
-     */
     public List<MusicFolder> getAllMusicFolders(boolean includeDisabled, boolean includeNonExisting) {
         synchronized (lock) {
             if (cachedMusicFolders == null) {
                 cachedMusicFolders = musicFolderDao.getAllMusicFolders();
             }
-
-            List<MusicFolder> result = new ArrayList<>(cachedMusicFolders.size());
-            for (MusicFolder folder : cachedMusicFolders) {
-                if ((includeDisabled || folder.isEnabled()) && (includeNonExisting || Files.exists(folder.toPath()))) {
-                    result.add(folder);
-                }
-            }
-            return result;
+            return cachedMusicFolders.stream().filter(folder -> includeDisabled || folder.isEnabled())
+                    .filter(folder -> includeNonExisting || Files.exists(folder.toPath())).collect(Collectors.toList());
         }
     }
 
-    /**
-     * Returns all music folders a user have access to. Non-existing and disabled folders are not included.
-     *
-     * @return Possibly empty list of music folders.
-     */
-    public List<MusicFolder> getMusicFoldersForUser(String username) {
+    public List<MusicFolder> getMusicFoldersForUser(@NonNull String username) {
         synchronized (lock) {
             List<MusicFolder> result = cachedUserFolders.get(username);
             if (result == null) {
                 result = musicFolderDao.getMusicFoldersForUser(username);
-                result.retainAll(getAllMusicFolders(false, false));
+                result.retainAll(getAllMusicFolders());
                 cachedUserFolders.put(username, result);
             }
             return result;
         }
     }
 
-    /**
-     * Returns all music folders a user have access to. Non-existing and disabled folders are not included.
-     *
-     * @param selectedMusicFolderId
-     *            If non-null and included in the list of allowed music folders, this methods returns a list of only
-     *            this music folder.
-     *
-     * @return Possibly empty list of music folders.
-     */
-    public List<MusicFolder> getMusicFoldersForUser(String username, Integer selectedMusicFolderId) {
+    public List<MusicFolder> getMusicFoldersForUser(@NonNull String username, @Nullable Integer selectedMusicFolderId) {
         List<MusicFolder> allowed = getMusicFoldersForUser(username);
         if (selectedMusicFolderId == null) {
             return allowed;
@@ -117,7 +89,7 @@ public class MusicFolderService {
         return allowed.contains(selected) ? Collections.singletonList(selected) : Collections.emptyList();
     }
 
-    public void setMusicFoldersForUser(String username, List<Integer> musicFolderIds) {
+    public void setMusicFoldersForUser(@NonNull String username, List<Integer> musicFolderIds) {
         musicFolderDao.setMusicFoldersForUser(username, musicFolderIds);
         synchronized (lock) {
             cachedUserFolders.remove(username);
@@ -125,53 +97,21 @@ public class MusicFolderService {
         indexCache.removeAll();
     }
 
-    /**
-     * Returns the music folder with the given ID.
-     *
-     * @param id
-     *            The ID.
-     *
-     * @return The music folder with the given ID, or <code>null</code> if not found.
-     */
-    public MusicFolder getMusicFolderById(Integer id) {
-        List<MusicFolder> all = getAllMusicFolders();
-        for (MusicFolder folder : all) {
-            if (id.equals(folder.getId())) {
-                return folder;
-            }
-        }
-        return null;
+    public @Nullable MusicFolder getMusicFolderById(int id) {
+        return getAllMusicFolders().stream().filter(folder -> folder.getId().equals(id)).findFirst().orElse(null);
     }
 
-    /**
-     * Creates a new music folder.
-     *
-     * @param musicFolder
-     *            The music folder to create.
-     */
-    public void createMusicFolder(MusicFolder musicFolder) {
+    public void createMusicFolder(@NonNull MusicFolder musicFolder) {
         musicFolderDao.createMusicFolder(musicFolder);
         clearMusicFolderCache();
     }
 
-    /**
-     * Deletes the music folder with the given ID.
-     *
-     * @param id
-     *            The ID of the music folder to delete.
-     */
-    public void deleteMusicFolder(Integer id) {
+    public void deleteMusicFolder(int id) {
         musicFolderDao.deleteMusicFolder(id);
         clearMusicFolderCache();
     }
 
-    /**
-     * Updates the given music folder.
-     *
-     * @param musicFolder
-     *            The music folder to update.
-     */
-    public void updateMusicFolder(MusicFolder musicFolder) {
+    public void updateMusicFolder(@NonNull MusicFolder musicFolder) {
         musicFolderDao.updateMusicFolder(musicFolder);
         clearMusicFolderCache();
     }

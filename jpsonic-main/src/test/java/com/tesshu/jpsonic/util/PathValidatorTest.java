@@ -80,6 +80,7 @@ class PathValidatorTest {
         @ValidatePathDecisions.Results.Empty
         void c01() {
             assertTrue(PathValidator.validateFolderPath(null).isEmpty());
+            assertTrue(PathValidator.validateFolderPath("").isEmpty());
         }
 
         @Test

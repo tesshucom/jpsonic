@@ -142,6 +142,7 @@ final class SettingsConstants {
             static final Pair<Boolean> USE_REMOVING_TRACK_FROM_ID3TITLE = Pair.of("UseRemovingTrackFromId3Title",
                     false);
             static final Pair<Boolean> USE_CLEAN_UP = Pair.of("UseCleanUp", false);
+            static final Pair<Boolean> REDUNDANT_FOLDER_CHECK = Pair.of("RedundantFolderCheck", false);
 
             private Legacy() {
             }
