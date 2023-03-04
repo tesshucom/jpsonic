@@ -43,17 +43,19 @@ public class MusicFolderService {
     private List<MusicFolder> cachedMusicFolders;
 
     private final MusicFolderDao musicFolderDao;
+    private final SettingsService settingsService;
     private final Ehcache indexCache;
     private final Object lock = new Object();
 
-    public MusicFolderService(MusicFolderDao musicFolderDao, Ehcache indexCache) {
+    public MusicFolderService(MusicFolderDao musicFolderDao, SettingsService settingsService, Ehcache indexCache) {
         this.musicFolderDao = musicFolderDao;
+        this.settingsService = settingsService;
         this.indexCache = indexCache;
         cachedUserFolders = new ConcurrentHashMap<>();
     }
 
     public List<MusicFolder> getAllMusicFolders() {
-        return getAllMusicFolders(false, false);
+        return getAllMusicFolders(false, !settingsService.isRedundantFolderCheck());
     }
 
     public List<MusicFolder> getAllMusicFolders(boolean includeDisabled, boolean includeNonExisting) {

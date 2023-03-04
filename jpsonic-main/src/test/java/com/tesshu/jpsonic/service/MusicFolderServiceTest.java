@@ -45,6 +45,7 @@ import org.mockito.Mockito;
 class MusicFolderServiceTest {
 
     private MusicFolderDao musicFolderDao;
+    private SettingsService settingsService;
     private Ehcache indexCache;
     private MusicFolderService musicFolderService;
 
@@ -53,8 +54,11 @@ class MusicFolderServiceTest {
     @BeforeEach
     public void setup() throws ExecutionException, URISyntaxException {
         musicFolderDao = mock(MusicFolderDao.class);
+        settingsService = mock(SettingsService.class);
+        Mockito.when(settingsService.isRedundantFolderCheck()).thenReturn(false);
+
         indexCache = mock(Ehcache.class);
-        musicFolderService = new MusicFolderService(musicFolderDao, indexCache);
+        musicFolderService = new MusicFolderService(musicFolderDao, settingsService, indexCache);
 
         MusicFolder m1 = new MusicFolder(1, "/dummy/path", "Disabled&NonExisting", false, null);
         MusicFolder m2 = new MusicFolder(2, "/dummy/path", "Enabled&NonExisting", true, null);
@@ -91,10 +95,20 @@ class MusicFolderServiceTest {
 
     @Test
     @GetAllMusicFoldersDecisions.Conditions.IncludeDisabled.False
-    @GetAllMusicFoldersDecisions.Conditions.IncludeNonExisting.False
-    // Same as GetAllMusicFoldersDisabledExistingTest#c01
+    @GetAllMusicFoldersDecisions.Conditions.IncludeNonExisting.True
+    // Same as GetAllMusicFoldersDisabledExistingTest#c03 if redundantFolderCheck = false, otherwise same as c01
     void testGetAllMusicFolders() {
+
+        // Files.exists is never called
+        Mockito.when(settingsService.isRedundantFolderCheck()).thenReturn(false);
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
+        assertEquals(2, folders.size());
+        assertEquals("Enabled&NonExisting", folders.get(0).getName());
+        assertEquals("Enabled&Existing", folders.get(1).getName());
+
+        // Files.exists will be called 2 times
+        Mockito.when(settingsService.isRedundantFolderCheck()).thenReturn(true);
+        folders = musicFolderService.getAllMusicFolders();
         assertEquals(1, folders.size());
         assertEquals("Enabled&Existing", folders.get(0).getName());
     }
@@ -163,8 +177,8 @@ class MusicFolderServiceTest {
 
     @Nested
     @GetAllMusicFoldersDecisions.Conditions.IncludeDisabled.False
-    @GetAllMusicFoldersDecisions.Conditions.IncludeNonExisting.False
-    // Same as GetAllMusicFoldersDisabledExistingTest#c01
+    @GetAllMusicFoldersDecisions.Conditions.IncludeNonExisting.True
+    // Same as GetAllMusicFoldersDisabledExistingTest#c03 if redundantFolderCheck = false, otherwise same as c01
     class GetMusicFoldersForUserUsernameTest {
 
         @BeforeEach
@@ -175,7 +189,7 @@ class MusicFolderServiceTest {
         }
 
         @Test
-        // Files.exists will be called 2 times
+        // Files.exists will be called 2 times (Never called if redundantFolderCheck = false)
         void testEnabledExisting() {
             List<MusicFolder> folders = musicFolderService.getMusicFoldersForUser(USER_NAME);
             assertEquals(1, folders.size());
@@ -183,7 +197,7 @@ class MusicFolderServiceTest {
         }
 
         @Test
-        // Files.exists will be called 2 times
+        // Files.exists will be called 2 times (Never called if redundantFolderCheck = false)
         void testCached() {
             List<MusicFolder> folders = musicFolderService.getMusicFoldersForUser(USER_NAME);
             assertEquals(1, folders.size());
@@ -197,8 +211,8 @@ class MusicFolderServiceTest {
 
     @Nested
     @GetAllMusicFoldersDecisions.Conditions.IncludeDisabled.False
-    @GetAllMusicFoldersDecisions.Conditions.IncludeNonExisting.False
-    // Same as GetAllMusicFoldersDisabledExistingTest#c01
+    @GetAllMusicFoldersDecisions.Conditions.IncludeNonExisting.True
+    // Same as GetAllMusicFoldersDisabledExistingTest#c03 if redundantFolderCheck = false, otherwise same as c01
     class GetMusicFoldersForUserUsernameFolderIdTest {
 
         @BeforeEach
@@ -209,7 +223,7 @@ class MusicFolderServiceTest {
         }
 
         @Test
-        // Files.exists will be called 2 times
+        // Files.exists will be called 2 times (Never called if redundantFolderCheck = false)
         void testAllowed() {
             List<MusicFolder> folders = musicFolderService.getMusicFoldersForUser(USER_NAME, null);
             assertEquals(1, folders.size());
@@ -224,21 +238,21 @@ class MusicFolderServiceTest {
         }
 
         @Test
-        // Files.exists will be called 4 times
+        // Files.exists will be called 4 times (Never called if redundantFolderCheck = false)
         void testEnabledNonExisting() {
             List<MusicFolder> folders = musicFolderService.getMusicFoldersForUser(USER_NAME, 2);
             assertEquals(0, folders.size());
         }
 
         @Test
-        // Files.exists will be called 4 times
+        // Files.exists will be called 4 times (Never called if redundantFolderCheck = false)
         void testDisabledExisting() {
             List<MusicFolder> folders = musicFolderService.getMusicFoldersForUser(USER_NAME, 3);
             assertEquals(0, folders.size());
         }
 
         @Test
-        // Files.exists will be called 4 times
+        // Files.exists will be called 4 times (Never called if redundantFolderCheck = false)
         void testEnabledExisting() {
             List<MusicFolder> folders = musicFolderService.getMusicFoldersForUser(USER_NAME, 4);
             assertEquals(1, folders.size());
@@ -257,29 +271,30 @@ class MusicFolderServiceTest {
     @Nested
     @GetAllMusicFoldersDecisions.Conditions.IncludeDisabled.False
     @GetAllMusicFoldersDecisions.Conditions.IncludeNonExisting.False
-    // Same as GetAllMusicFoldersDisabledExistingTest#c01
+    // Same as GetAllMusicFoldersDisabledExistingTest#c03 if redundantFolderCheck = false, otherwise same as c01
     class GetMusicFolderByIdTest {
 
         @Test
-        // Files.exists will be called 2 times
+        // Files.exists will be called 2 times (Never called if redundantFolderCheck = false)
         void testDisabledNonExisting() {
             assertNull(musicFolderService.getMusicFolderById(1));
         }
 
         @Test
-        // Files.exists will be called 2 times
+        // Files.exists will be called 2 times (Never called if redundantFolderCheck = false)
         void testEnabledNonExisting() {
-            assertNull(musicFolderService.getMusicFolderById(2));
+            MusicFolder folder = musicFolderService.getMusicFolderById(2);
+            assertEquals("Enabled&NonExisting", folder.getName());
         }
 
         @Test
-        // Files.exists will be called 2 times
+        // Files.exists will be called 2 times (Never called if redundantFolderCheck = false)
         void testDisabledExisting() {
             assertNull(musicFolderService.getMusicFolderById(3));
         }
 
         @Test
-        // Files.exists will be called 2 times
+        // Files.exists will be called 2 times (Never called if redundantFolderCheck = false)
         void testEnabledExisting() {
             MusicFolder folder = musicFolderService.getMusicFolderById(4);
             assertEquals("Enabled&Existing", folder.getName());
