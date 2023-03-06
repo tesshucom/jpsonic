@@ -28,12 +28,14 @@ import java.io.UncheckedIOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
@@ -55,9 +57,11 @@ import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
+import com.tesshu.jpsonic.service.metadata.ParserUtils;
 import com.tesshu.jpsonic.service.metadata.VideoParser;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -157,22 +161,33 @@ public class WritableMediaFileService {
         return FileModifiedCheckScheme.LAST_SCANNED == settingsService.getFileModifiedCheckScheme();
     }
 
-    void updateChildren(@NonNull Instant scanDate, @NonNull MediaFile parent) {
+    boolean isSkipUpdateChildren(@NonNull MediaFile parent) {
+        return isSchemeLastScaned() //
+                && parent.getMediaType() == MediaType.ALBUM && !FAR_PAST.equals(parent.getChildrenLastUpdated());
+    }
 
-        if (isSchemeLastScaned() //
-                && parent.getMediaType() == MediaType.ALBUM && !FAR_PAST.equals(parent.getChildrenLastUpdated())) {
-            return;
+    Optional<Path> updateChildren(@NonNull Instant scanDate, @NonNull MediaFile parent) {
+
+        if (isSkipUpdateChildren(parent)) {
+            return Optional.empty();
         }
 
         Map<String, MediaFile> stored = mediaFileDao.getChildrenOf(parent.getPathString()).stream()
                 .collect(Collectors.toMap(mf -> mf.getPathString(), mf -> mf));
-        LongAdder updateCount = new LongAdder();
 
+        LongAdder updateCount = new LongAdder();
+        CoverArtDetector coverArtDetector = new CoverArtDetector(mediaFileService);
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(parent.toPath())) {
             for (Path childPath : ds) {
+
+                coverArtDetector.setChildFilePath(childPath);
+
                 if (!mediaFileService.includeMediaFile(childPath)) {
                     continue;
                 }
+
+                coverArtDetector.setMediaFilePath(childPath);
+
                 MediaFile child = stored.get(childPath.toString());
                 stored.remove(childPath.toString());
                 createOrUpdateChild(child, childPath, scanDate).ifPresentOrElse(result -> updateCount.increment(),
@@ -194,6 +209,7 @@ public class WritableMediaFileService {
             mediaFileDao.updateChildrenLastUpdated(parent.getPathString(),
                     parent.getMediaType() == MediaType.ALBUM ? FAR_FUTURE : parent.getChanged());
         }
+        return coverArtDetector.getCoverArtAvailable();
     }
 
     @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "False positive. getMediaFile is pre-checked and thread safe here.")
@@ -223,7 +239,15 @@ public class WritableMediaFileService {
             return result;
         }
 
-        updateChildren(scanDate, parent);
+        updateChildren(scanDate, parent).ifPresentOrElse(covrerArtPath -> {
+            if (!Objects.equals(parent.getCoverArtPathString(), covrerArtPath.toString())) {
+                mediaFileDao.updateCoverArtPath(parent.getPathString(), covrerArtPath.toString());
+            }
+        }, () -> {
+            if (parent.getPathString() != null) {
+                mediaFileDao.updateCoverArtPath(parent.getPathString(), null);
+            }
+        });
 
         for (MediaFile child : mediaFileDao.getChildrenOf(parent.getPathString())) {
             if (child.isDirectory() && !fileOnly && mediaFileService.includeMediaFile(child.toPath())) {
@@ -522,6 +546,38 @@ public class WritableMediaFileService {
         mediaFileDao.resetLastScanned(album.getId());
         for (MediaFile child : mediaFileDao.getChildrenOf(album.getPathString())) {
             mediaFileDao.resetLastScanned(child.getId());
+        }
+    }
+
+    private static class CoverArtDetector {
+
+        private final MediaFileService mediaFileService;
+        private Path coverArtAvailable;
+        private Path firstCoverArtEmbeddable;
+
+        public CoverArtDetector(MediaFileService mediaFileService) {
+            this.mediaFileService = mediaFileService;
+        }
+
+        void setChildFilePath(Path childPath) {
+            try {
+                if (coverArtAvailable == null && mediaFileService.isAvailableCoverArtPath(childPath,
+                        Files.readAttributes(childPath, BasicFileAttributes.class))) {
+                    coverArtAvailable = childPath;
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+
+        void setMediaFilePath(Path childPath) {
+            if (firstCoverArtEmbeddable == null && ParserUtils.isEmbeddedArtworkApplicable(childPath)) {
+                firstCoverArtEmbeddable = childPath;
+            }
+        }
+
+        Optional<Path> getCoverArtAvailable() {
+            return Optional.ofNullable(ObjectUtils.defaultIfNull(coverArtAvailable, firstCoverArtEmbeddable));
         }
     }
 }

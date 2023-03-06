@@ -285,8 +285,6 @@ public class ScannerProcedureService {
         registered.setCreated(lastModified);
         registered.setLastScanned(scanDate);
         registered.setPresent(true);
-        mediaFileService.findCoverArt(registered.toPath())
-                .ifPresent(coverArtPath -> registered.setCoverArtPathString(coverArtPath.toString()));
         readingUtils.analyze(registered);
         return registered;
     }
@@ -377,12 +375,7 @@ public class ScannerProcedureService {
         album.setGenre(song.getGenre());
         album.setCreated(song.getChanged());
         album.setMusicBrainzReleaseId(song.getMusicBrainzReleaseId());
-        if (registered != null) {
-            album.setCoverArtPath(registered.getCoverArtPath());
-        } else {
-            mediaFileService.findCoverArt(song.getParent())
-                    .ifPresent(coverArtPath -> album.setCoverArtPath(coverArtPath.toString()));
-        }
+        mediaFileService.getParent(song).ifPresent(parent -> album.setCoverArtPath(parent.getCoverArtPathString()));
         album.setLastScanned(scanDate);
         album.setPresent(true);
         return album;
@@ -434,14 +427,14 @@ public class ScannerProcedureService {
         createScanEvent(scanDate, ScanEventType.REFRESH_ALBUM_ID3, comment);
     }
 
-    private Artist artistId3Of(@NonNull Instant scanDate, int folderId, @NonNull MediaFile song,
+    private Artist artistId3Of(@NonNull Instant scanDate, int folderId, @NonNull MediaFile artistId3,
             @Nullable Artist registered) {
         Artist artist = registered == null ? new Artist() : registered;
         artist.setFolderId(folderId);
-        artist.setName(song.getAlbumArtist());
-        artist.setReading(song.getAlbumArtistReading());
-        artist.setSort(song.getAlbumArtistSort());
-        mediaFileService.getParent(song).ifPresent(parent -> artist.setCoverArtPath(parent.getCoverArtPathString()));
+        artist.setName(artistId3.getAlbumArtist());
+        artist.setReading(artistId3.getAlbumArtistReading());
+        artist.setSort(artistId3.getAlbumArtistSort());
+        artist.setCoverArtPath(artistId3.getCoverArtPathString());
         artist.setLastScanned(scanDate);
         artist.setPresent(true);
         return artist;
@@ -461,39 +454,39 @@ public class ScannerProcedureService {
         iterateArtistId3(scanDate, withPodcast);
 
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
-        Function<MediaFile, MusicFolder> toMusicFolder = (song) -> folders.stream()
-                .filter(f -> f.getPathString().equals(song.getFolder())).findFirst().get();
+        Function<MediaFile, MusicFolder> toMusicFolder = (mediaFile) -> folders.stream()
+                .filter(f -> f.getPathString().equals(mediaFile.getFolder())).findFirst().get();
 
-        List<MediaFile> songs = mediaFileDao.getChangedId3Artists(ACQUISITION_MAX, folders, withPodcast);
+        List<MediaFile> artistId3s = mediaFileDao.getChangedId3Artists(ACQUISITION_MAX, folders, withPodcast);
         int countUpdate = 0;
-        while (!songs.isEmpty()) {
-            for (MediaFile song : songs) {
+        while (!artistId3s.isEmpty()) {
+            for (MediaFile artistId3 : artistId3s) {
                 interruptIfCancelled();
                 Artist created = artistDao
-                        .updateArtist(artistId3Of(scanDate, toMusicFolder.apply(song).getId(), song, null));
+                        .updateArtist(artistId3Of(scanDate, toMusicFolder.apply(artistId3).getId(), artistId3, null));
                 if (created != null) {
-                    indexManager.index(created, toMusicFolder.apply(song));
+                    indexManager.index(created, toMusicFolder.apply(artistId3));
                     countUpdate++;
                 }
             }
             interruptIfCancelled();
-            songs = mediaFileDao.getChangedId3Artists(ACQUISITION_MAX, folders, withPodcast);
+            artistId3s = mediaFileDao.getChangedId3Artists(ACQUISITION_MAX, folders, withPodcast);
         }
 
-        songs = mediaFileDao.getUnregisteredId3Artists(ACQUISITION_MAX, folders, withPodcast);
+        artistId3s = mediaFileDao.getUnregisteredId3Artists(ACQUISITION_MAX, folders, withPodcast);
         int countNew = 0;
-        while (!songs.isEmpty()) {
-            for (MediaFile song : songs) {
+        while (!artistId3s.isEmpty()) {
+            for (MediaFile artistId3 : artistId3s) {
                 interruptIfCancelled();
                 Artist created = artistDao
-                        .createArtist(artistId3Of(scanDate, toMusicFolder.apply(song).getId(), song, null));
+                        .createArtist(artistId3Of(scanDate, toMusicFolder.apply(artistId3).getId(), artistId3, null));
                 if (created != null) {
-                    indexManager.index(created, toMusicFolder.apply(song));
+                    indexManager.index(created, toMusicFolder.apply(artistId3));
                     countNew++;
                 }
             }
             interruptIfCancelled();
-            songs = mediaFileDao.getUnregisteredId3Artists(ACQUISITION_MAX, folders, withPodcast);
+            artistId3s = mediaFileDao.getUnregisteredId3Artists(ACQUISITION_MAX, folders, withPodcast);
         }
 
         String comment = String.format("Update(%d)/New(%d)", countUpdate, countNew);

@@ -33,9 +33,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.function.BiPredicate;
 import java.util.stream.Stream;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -246,16 +246,21 @@ public class MediaFileService {
                 : Path.of(parent.getCoverArtPathString());
     }
 
-    public Optional<Path> findCoverArt(Path parent) {
-
-        BiPredicate<Path, BasicFileAttributes> coverArtNamePredicate = (child, attrs) -> Files.isRegularFile(child)
-                && child.getFileName().toString().charAt(0) != '.'
+    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "False positive.")
+    public boolean isAvailableCoverArtPath(Path path, BasicFileAttributes attrs) {
+        if (path == null || path.getFileName() == null) {
+            return false;
+        }
+        String fileName = path.getFileName().toString();
+        return attrs.isRegularFile() && fileName.charAt(0) != '.'
                 && settingsService.getExcludedCoverArtsAsArray().stream()
-                        .noneMatch(excluded -> StringUtils.endsWithIgnoreCase(child.getFileName().toString(), excluded))
+                        .noneMatch(excluded -> StringUtils.endsWithIgnoreCase(fileName, excluded))
                 && settingsService.getCoverArtFileTypesAsArray().stream()
-                        .anyMatch(type -> StringUtils.endsWithIgnoreCase(child.getFileName().toString(), type));
+                        .anyMatch(type -> StringUtils.endsWithIgnoreCase(fileName, type));
+    }
 
-        try (Stream<Path> results = Files.find(parent, 1, coverArtNamePredicate)) {
+    public Optional<Path> findCoverArt(Path parent) {
+        try (Stream<Path> results = Files.find(parent, 1, this::isAvailableCoverArtPath)) {
             Optional<Path> coverArt = results.findFirst();
             if (!coverArt.isEmpty()) {
                 return coverArt;
