@@ -611,6 +611,7 @@ public class ScannerProcedureService {
     void afterScan(@NonNull Instant scanDate) {
         mediaFileCache.setEnabled(true);
         indexManager.stopIndexing();
+        indexCache.removeAll();
         sortProcedure.clearMemoryCache();
         createScanEvent(scanDate, ScanEventType.AFTER_SCAN, null);
     }
