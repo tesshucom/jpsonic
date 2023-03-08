@@ -168,6 +168,7 @@ public class TopController {
             }
         });
         selectedItem.ifPresent(v -> map.put("selectedItem", v));
+        selectedItem.ifPresent(v -> map.put("scanning", scannerStateService.isScanning()));
 
         return new ModelAndView("top", "model", map);
     }
