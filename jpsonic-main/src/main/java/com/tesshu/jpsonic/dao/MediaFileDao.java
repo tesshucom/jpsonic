@@ -502,16 +502,15 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("types", getValidTypes4ID3(withPodcast), "count", count, "folders",
                 MusicFolder.toPathList(folders));
-        String query = "select distinct mf.folder, mf.album_artist, mf.album_artist_reading, mf.album_artist_sort, mf_ar.cover_art_path from media_file mf "
+        String query = "select distinct mf.folder, mf.album_artist, mf.album_artist_reading, mf.album_artist_sort, mf_ar.cover_art_path from "
+                + "(select distinct album_artist, min(music_folder.id) as music_folder_id from media_file join music_folder on music_folder.path = folder where album_artist is not null group by album_artist) first_fetch "
+                + "join music_folder on first_fetch.music_folder_id = music_folder.id "
+                + "join media_file mf on mf.album_artist = first_fetch.album_artist and music_folder.path = mf.folder "
                 + "left join artist on artist.name = mf.album_artist "
-                + "join music_folder on mf.folder = music_folder.path "
                 + "join media_file mf_al on mf_al.path = mf.parent_path "
                 + "join media_file mf_ar on mf_ar.path = mf_al.parent_path "
-                + "join (select album_artist, min(music_folder.id) as music_folder_id from media_file join music_folder "
-                + "on music_folder.path = folder where album_artist is not null group by album_artist) first_fetch "
-                + "on first_fetch.music_folder_id = music_folder.id "
-                + "where mf.present and mf.album_artist is not null and mf.type in (:types) "
-                + "and artist.name is null and mf.folder in (:folders) limit :count";
+                + "where artist.name is null and mf.folder in (:folders) "
+                + "and mf.present and mf.album_artist is not null and mf.type in (:types) ";
         return namedQuery(query, artistId3Mapper, args);
     }
 
