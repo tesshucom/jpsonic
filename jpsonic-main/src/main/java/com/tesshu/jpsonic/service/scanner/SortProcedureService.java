@@ -121,7 +121,7 @@ public class SortProcedureService {
         return updateSortOfArtist(candidates);
     }
 
-    void updateOrderOfAlbumID3() {
+    int updateOrderOfAlbumID3() {
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
         List<Album> albums = jAlbumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folders);
         albums.sort(comparators.albumOrderByAlpha());
@@ -129,9 +129,10 @@ public class SortProcedureService {
         for (Album album : albums) {
             albumDao.updateOrder(album.getArtist(), album.getName(), i++);
         }
+        return i;
     }
 
-    void updateOrderOfArtistID3() {
+    int updateOrderOfArtistID3() {
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
         List<Artist> artists = jArtistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
         artists.sort(comparators.artistOrderByAlpha());
@@ -139,9 +140,10 @@ public class SortProcedureService {
         for (Artist artist : artists) {
             artistDao.updateOrder(artist.getName(), i++);
         }
+        return i;
     }
 
-    void updateOrderOfArtist() {
+    int updateOrderOfArtist() {
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
         List<MediaFile> artists = jMediaFileDao.getArtistAll(folders);
         artists.sort(comparators.mediaFileOrderByAlpha());
@@ -150,9 +152,10 @@ public class SortProcedureService {
             artist.setOrder(i++);
             writableMediaFileService.updateOrder(artist);
         }
+        return i;
     }
 
-    void updateOrderOfAlbum() {
+    int updateOrderOfAlbum() {
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
         List<MediaFile> albums = mediaFileService.getAlphabeticalAlbums(0, Integer.MAX_VALUE, true, folders);
         albums.sort(comparators.mediaFileOrderByAlpha());
@@ -161,6 +164,7 @@ public class SortProcedureService {
             album.setOrder(i++);
             writableMediaFileService.updateOrder(album);
         }
+        return i;
     }
 
     void updateOrderOfSongs(MediaFile album) {
