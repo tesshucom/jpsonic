@@ -488,8 +488,11 @@ public class MediaFileDao extends AbstractDao {
                 + "join media_file mf_ar on mf_al.parent_path = mf_ar.path "
                 + "where mf.present and mf.album_artist is not null and mf.type in (:types) and mf.folder in (:folders) "
                 // Diff comparison
-                + "and (mf.album_artist_reading <> ar.reading " // album_artist_reading
-                + "or mf.album_artist_sort <> ar.sort " // album_artist_sort
+                + "and ((mf.album_artist_reading is null and ar.reading is not null) " // album_artist_reading
+                + "or (mf.album_artist_reading is not null and ar.reading is null) "
+                + "or mf.album_artist_reading <> ar.reading "
+                + "or (mf.album_artist_sort is null and ar.sort is not null) " // album_artist_sort
+                + "or (mf.album_artist_sort is not null and ar.sort is null) " + "or mf.album_artist_sort <> ar.sort "
                 + "or (mf_ar.cover_art_path is not null and ar.cover_art_path is null) " // cover_art_path
                 + "or (mf_ar.cover_art_path is null and ar.cover_art_path is not null) "
                 + "or mf_ar.cover_art_path <> ar.cover_art_path) limit :count";

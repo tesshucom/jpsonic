@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
@@ -544,8 +545,15 @@ public class ScannerProcedureService {
             return;
         }
         interruptIfCancelled();
-        sortProcedure.updateSortOfArtist();
-        createScanEvent(scanDate, ScanEventType.UPDATE_SORT_OF_ARTIST, null);
+        List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
+        List<Integer> merged = sortProcedure.mergeSortOfArtist(folders);
+        List<Integer> copied = sortProcedure.copySortOfArtist(folders);
+        List<Integer> compensated = sortProcedure.compensateSortOfArtist(folders);
+        Stream.concat(Stream.concat(merged.stream(), copied.stream()), compensated.stream())
+                .map(id -> mediaFileService.getMediaFile(id)).forEach(mediaFile -> indexManager.index(mediaFile));
+        String comment = String.format("Merged(%d)/Copied(%d)/Compensated(%d)", merged.size(), copied.size(),
+                compensated.size());
+        createScanEvent(scanDate, ScanEventType.UPDATE_SORT_OF_ARTIST, comment);
     }
 
     void updateSortOfAlbum(@NonNull Instant scanDate) throws ExecutionException {
@@ -553,8 +561,15 @@ public class ScannerProcedureService {
             return;
         }
         interruptIfCancelled();
-        sortProcedure.updateSortOfAlbum(musicFolderService.getAllMusicFolders());
-        createScanEvent(scanDate, ScanEventType.UPDATE_SORT_OF_ALBUM, null);
+        List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
+        List<Integer> merged = sortProcedure.mergeSortOfAlbum(folders);
+        List<Integer> copied = sortProcedure.copySortOfAlbum(folders);
+        List<Integer> compensated = sortProcedure.compensateSortOfAlbum(folders);
+        Stream.concat(Stream.concat(merged.stream(), copied.stream()), compensated.stream())
+                .map(id -> mediaFileService.getMediaFile(id)).forEach(mediaFile -> indexManager.index(mediaFile));
+        String comment = String.format("Merged(%d)/Copied(%d)/Compensated(%d)", merged.size(), copied.size(),
+                compensated.size());
+        createScanEvent(scanDate, ScanEventType.UPDATE_SORT_OF_ALBUM, comment);
     }
 
     void updateOrderOfArtist(@NonNull Instant scanDate) throws ExecutionException {
