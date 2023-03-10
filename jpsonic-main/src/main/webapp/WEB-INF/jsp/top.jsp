@@ -213,29 +213,31 @@ window.onOpenDialogVideoPlayer = function(videoUrl) {
         <c:if test="${not empty model.indexedArtists}">
             <ul class="jps-index">
                 <c:forEach items="${model.indexedArtists}" var="entry" varStatus="status">
-                    <c:set var="accesskey" value="${fn:escapeXml(entry.key.index)}" />
-                    <c:if test="${model.assignAccesskeyToNumber}">
-                        <c:set var="accesskey" value="${status.index%5 == 0 ? Integer.toString(status.index/5) : null}" />
+                    <c:if test="${!model.scanning or (model.scanning and entry.key.index ne '#')}">
+                        <c:set var="accesskey" value="${fn:escapeXml(entry.key.index)}" />
+                        <c:if test="${model.assignAccesskeyToNumber}">
+                            <c:set var="accesskey" value="${status.index%5 == 0 ? Integer.toString(status.index/5) : null}" />
+                        </c:if>
+                        <c:choose>
+                            <c:when test="${!empty accesskey}">
+                                <li><a href="#${index.index}" accesskey="${fn:escapeXml(accesskey)}" class="jps-index-key">${fn:escapeXml(entry.key.index)}</a>
+                            </c:when>
+                            <c:otherwise>
+                                <li><a href="#${index.index}" class="jps-index-key">${fn:escapeXml(entry.key.index)}</a>
+                            </c:otherwise>
+                        </c:choose>
+                        <ul>
+                            <c:forEach items="${entry.value}" var="artist" varStatus="loop">
+                                <sub:url value="main.view" var="mainUrl">
+                                    <c:forEach items="${artist.mediaFiles}" var="mediaFile">
+                                        <sub:param name="id" value="${mediaFile.id}" />
+                                    </c:forEach>
+                                </sub:url>
+                                <li><a target="main" href="${mainUrl}" title="${artist.sortableName}"><str:truncateNicely upper="${18}" lower="${25}">${fn:escapeXml(artist.name)}</str:truncateNicely></a></li>
+                            </c:forEach>
+                        </ul>
+                        </li>
                     </c:if>
-                    <c:choose>
-                        <c:when test="${!empty accesskey}">
-                            <li><a href="#${index.index}" accesskey="${fn:escapeXml(accesskey)}" class="jps-index-key">${fn:escapeXml(entry.key.index)}</a>
-                        </c:when>
-                        <c:otherwise>
-                            <li><a href="#${index.index}" class="jps-index-key">${fn:escapeXml(entry.key.index)}</a>
-                        </c:otherwise>
-                    </c:choose>
-                    <ul>
-                        <c:forEach items="${entry.value}" var="artist" varStatus="loop">
-                            <sub:url value="main.view" var="mainUrl">
-                                <c:forEach items="${artist.mediaFiles}" var="mediaFile">
-                                    <sub:param name="id" value="${mediaFile.id}" />
-                                </c:forEach>
-                            </sub:url>
-                            <li><a target="main" href="${mainUrl}" title="${artist.sortableName}"><str:truncateNicely upper="${18}" lower="${25}">${fn:escapeXml(artist.name)}</str:truncateNicely></a></li>
-                        </c:forEach>
-                    </ul>
-                    </li>
                 </c:forEach>
                 <c:if test="${not empty model.singleSongs}">
                     <li><a target="main" href="home.view?listType=index" class="jps-index-key">more</a></li>

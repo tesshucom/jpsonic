@@ -65,7 +65,6 @@ public class MediaFileDao extends AbstractDao {
             + "artist_sort_raw, album_sort_raw, album_artist_sort_raw, composer_sort_raw, media_file_order";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
     private static final String GENRE_COLUMNS = "name, song_count, album_count";
-    private static final String ARTIST_ID3_COLUMNS = "folder, album_artist, album_artist_reading, album_artist_sort, cover_art_path";
 
     // Expected maximum number of album child elements (can be expanded)
     private static final int ALBUM_CHILD_MAX = 10_000;
@@ -479,17 +478,24 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("types", getValidTypes4ID3(withPodcast), "count", count, "folders",
                 MusicFolder.toPathList(folders));
-        String query = "select distinct " + prefix(ARTIST_ID3_COLUMNS, "mf") + " from media_file mf "
-                + "left join artist ar on ar.name = mf.album_artist join music_folder m_folder on mf.folder = m_folder.path "
-                + "join (select album_artist, min(music_folder.id) as music_folder_id from media_file "
-                + "join music_folder on music_folder.path = folder where album_artist is not null group by album_artist) first_fetch "
+        String query = "select distinct mf.folder, mf.album_artist, mf.album_artist_reading, mf.album_artist_sort, mf_ar.cover_art_path from media_file mf "
+                + "join artist ar on ar.name = mf.album_artist "
+                + "join music_folder m_folder on mf.folder = m_folder.path "
+                + "join (select album_artist, min(music_folder.id) as music_folder_id from media_file join music_folder "
+                + "on music_folder.path = folder where album_artist is not null group by album_artist) first_fetch "
                 + "on first_fetch.music_folder_id = m_folder.id and first_fetch.album_artist = mf.album_artist "
-                + "where mf.present and mf.album_artist is not null and type in (:types) and mf.folder in (:folders) "
+                + "join media_file mf_al on mf.parent_path = mf_al.path "
+                + "join media_file mf_ar on mf_al.parent_path = mf_ar.path "
+                + "where mf.present and mf.album_artist is not null and mf.type in (:types) and mf.folder in (:folders) "
                 // Diff comparison
-                + "and (mf.album_artist_reading <> ar.reading " // album_artist_reading
-                + "or mf.album_artist_sort <> ar.sort) " // album_artist_sort
-                // cover_art_path (pending)
-                + "limit :count";
+                + "and ((mf.album_artist_reading is null and ar.reading is not null) " // album_artist_reading
+                + "or (mf.album_artist_reading is not null and ar.reading is null) "
+                + "or mf.album_artist_reading <> ar.reading "
+                + "or (mf.album_artist_sort is null and ar.sort is not null) " // album_artist_sort
+                + "or (mf.album_artist_sort is not null and ar.sort is null) " + "or mf.album_artist_sort <> ar.sort "
+                + "or (mf_ar.cover_art_path is not null and ar.cover_art_path is null) " // cover_art_path
+                + "or (mf_ar.cover_art_path is null and ar.cover_art_path is not null) "
+                + "or mf_ar.cover_art_path <> ar.cover_art_path) limit :count";
         return namedQuery(query, artistId3Mapper, args);
     }
 
@@ -499,14 +505,15 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("types", getValidTypes4ID3(withPodcast), "count", count, "folders",
                 MusicFolder.toPathList(folders));
-        String query = "select distinct " + prefix(ARTIST_ID3_COLUMNS, "mf") + " from media_file mf "
+        String query = "select distinct mf.folder, mf.album_artist, mf.album_artist_reading, mf.album_artist_sort, mf_ar.cover_art_path from "
+                + "(select distinct album_artist, min(music_folder.id) as music_folder_id from media_file join music_folder on music_folder.path = folder where album_artist is not null group by album_artist) first_fetch "
+                + "join music_folder on first_fetch.music_folder_id = music_folder.id "
+                + "join media_file mf on mf.album_artist = first_fetch.album_artist and music_folder.path = mf.folder "
                 + "left join artist on artist.name = mf.album_artist "
-                + "join music_folder on mf.folder = music_folder.path "
-                + "join (select album_artist, min(music_folder.id) as music_folder_id from media_file join music_folder "
-                + "on music_folder.path = folder where album_artist is not null group by album_artist) first_fetch "
-                + "on first_fetch.music_folder_id = music_folder.id "
-                + "where mf.present and mf.album_artist is not null and type in (:types) "
-                + "and artist.name is null and mf.folder in (:folders) limit :count";
+                + "join media_file mf_al on mf_al.path = mf.parent_path "
+                + "join media_file mf_ar on mf_ar.path = mf_al.parent_path "
+                + "where artist.name is null and mf.folder in (:folders) "
+                + "and mf.present and mf.album_artist is not null and mf.type in (:types) ";
         return namedQuery(query, artistId3Mapper, args);
     }
 
@@ -590,7 +597,8 @@ public class MediaFileDao extends AbstractDao {
                 + "mf_fetched.parent_path <> al.path " // path
                 + "or mf_fetched.changed <> al.created " // changed
                 + "or mf_folder.id <> al.folder_id " // folder_id
-                // cover_art_path (pending)
+                + "or (mf_al.cover_art_path is not null and al.cover_art_path is null) or (mf_al.cover_art_path is null and al.cover_art_path is not null) "
+                + "or mf_al.cover_art_path <> al.cover_art_path " // cover_art_path
                 + "or (mf_fetched.year is not null and al.year is null) or mf_fetched.year <> al.year " // year
                 + "or (mf_fetched.genre is not null and al.genre is null) or mf_fetched.genre <> al.genre " // genre
                 + "or (mf_fetched.album_artist_reading is not null and al.artist_reading is null) or mf_fetched.album_artist_reading <> al.artist_reading " // artist_reading

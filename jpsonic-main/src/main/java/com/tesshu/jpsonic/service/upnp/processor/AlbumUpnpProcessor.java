@@ -51,7 +51,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> {
 
-    public static final String ALL_BY_ARTIST = "allByArtist";
     public static final String ALL_RECENT_ID3 = "allRecentId3";
 
     private final UpnpProcessorUtil util;
@@ -124,7 +123,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> {
     @Override
     public Album getItemById(String id) {
         Album returnValue;
-        if (id.startsWith(ALL_BY_ARTIST) || ALL_RECENT_ID3.equalsIgnoreCase(id)) {
+        if (ALL_RECENT_ID3.equalsIgnoreCase(id)) {
             returnValue = new Album();
             returnValue.setId(-1);
             returnValue.setComment(id);
@@ -145,11 +144,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> {
                 album.getName());
         if (album.getId() == -1) {
             List<Album> albums;
-            if (album.getComment().startsWith(ALL_BY_ARTIST)) {
-                ArtistUpnpProcessor ap = getDispatcher().getArtistProcessor();
-                albums = ap.getChildren(ap.getItemById(album.getComment().replaceAll(ALL_BY_ARTIST + "_", "")), offset,
-                        maxResults);
-            } else if (ALL_RECENT_ID3.equalsIgnoreCase(album.getComment())) {
+            if (ALL_RECENT_ID3.equalsIgnoreCase(album.getComment())) {
                 albums = getDispatcher().getRecentAlbumId3Processor().getItems(offset, maxResults);
             } else {
                 albums = new ArrayList<>();

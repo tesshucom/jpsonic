@@ -107,20 +107,20 @@ public class MediaScannerServiceImpl implements MediaScannerService {
             procedure.parsePodcast(scanDate);
             procedure.iterateFileStructure(scanDate);
 
-            procedure.parseAlbum(scanDate);
-            procedure.updateSortOfAlbum(scanDate);
-            procedure.updateOrderOfAlbum(scanDate);
-            procedure.updateSortOfArtist(scanDate);
-            procedure.updateOrderOfArtist(scanDate);
+            boolean parsedAlbum = procedure.parseAlbum(scanDate);
+            boolean updatedSortOfAlbum = procedure.updateSortOfAlbum(scanDate);
+            procedure.updateOrderOfAlbum(scanDate, parsedAlbum || updatedSortOfAlbum);
+            boolean updatedSortOfArtist = procedure.updateSortOfArtist(scanDate);
+            procedure.updateOrderOfArtist(scanDate, parsedAlbum || updatedSortOfArtist);
 
             if (LOG.isInfoEnabled()) {
                 LOG.info("Scanned media library with " + scannerState.getScanCount() + " entries.");
             }
 
-            procedure.refleshAlbumID3(scanDate);
-            procedure.updateOrderOfAlbumID3(scanDate);
-            procedure.refleshArtistId3(scanDate);
-            procedure.updateOrderOfArtistId3(scanDate);
+            boolean refleshedAlbumId3 = procedure.refleshAlbumId3(scanDate);
+            procedure.updateOrderOfAlbumId3(scanDate, refleshedAlbumId3);
+            boolean refleshedArtistId3 = procedure.refleshArtistId3(scanDate);
+            procedure.updateOrderOfArtistId3(scanDate, refleshedArtistId3);
 
             procedure.updateAlbumCounts(scanDate);
             procedure.updateGenreMaster(scanDate);

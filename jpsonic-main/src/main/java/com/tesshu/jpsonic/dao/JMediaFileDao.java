@@ -66,11 +66,6 @@ public class JMediaFileDao extends AbstractDao {
         update("update media_file set media_file_order = -1");
     }
 
-    public void clearArtistReadingOfDirectory() {
-        update("update media_file set artist_reading = null, artist_sort = null where present and type=?",
-                MediaType.DIRECTORY.name());
-    }
-
     public List<MediaFile> getAlbumsByGenre(final int offset, final int count, final List<String> genres,
             final List<MusicFolder> musicFolders) {
 

@@ -409,7 +409,7 @@ public class AlbumDao extends AbstractDao {
     }
 
     public List<Integer> getExpungeCandidates(@NonNull Instant scanDate) {
-        return queryForInts("select id from artist where last_scanned <> ? or not present", scanDate);
+        return queryForInts("select id from album where last_scanned <> ? or not present", scanDate);
     }
 
     public void expunge(@NonNull Instant scanDate) {

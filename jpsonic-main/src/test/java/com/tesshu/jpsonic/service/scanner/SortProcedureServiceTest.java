@@ -23,6 +23,7 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -70,6 +71,9 @@ class SortProcedureServiceTest {
 
         @Autowired
         private JArtistDao artistDao;
+
+        @Autowired
+        private ScannerProcedureService scannerProcedureService;
 
         @Autowired
         private SortProcedureService sortProcedureService;
@@ -152,7 +156,11 @@ class SortProcedureServiceTest {
             assertNull(artistID3s.get(3).getSort());
 
             // Execution of Complementary Processing
+            Instant scanDate = scannerStateService.getScanDate();
+            scannerProcedureService.beforeScan(scanDate);
             sortProcedureService.compensateSortOfArtist(musicFolders);
+            scannerProcedureService.refleshArtistId3(scanDate);
+            scannerProcedureService.afterScan(scanDate);
 
             artist = artists.get(0);
             assertEquals("ARTIST", artist.getName());
