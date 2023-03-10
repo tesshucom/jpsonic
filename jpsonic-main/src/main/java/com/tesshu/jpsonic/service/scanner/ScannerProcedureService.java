@@ -155,7 +155,6 @@ public class ScannerProcedureService {
             settingsService.setIgnoreFileTimestampsNext(false);
             settingsService.save();
         } else if (settingsService.isIgnoreFileTimestamps()) {
-            indexManager.expungeGenreOtherThan(Collections.emptyList());
             mediaFileDao.resetLastScanned();
         }
 
@@ -257,8 +256,9 @@ public class ScannerProcedureService {
     }
 
     void expungeFileStructure() {
-        indexManager.expunge(mediaFileDao.getArtistExpungeCandidates(), mediaFileDao.getAlbumExpungeCandidates(),
-                mediaFileDao.getSongExpungeCandidates());
+        mediaFileDao.getArtistExpungeCandidates().forEach(indexManager::expungeArtist);
+        mediaFileDao.getAlbumExpungeCandidates().forEach(indexManager::expungeAlbum);
+        mediaFileDao.getSongExpungeCandidates().forEach(indexManager::expungeSong);
         mediaFileDao.expunge();
     }
 
@@ -296,7 +296,7 @@ public class ScannerProcedureService {
     @Transactional
     public void iterateAlbumId3(@NonNull Instant scanDate, boolean withPodcast) {
         albumDao.iterateLastScanned(scanDate, withPodcast);
-        indexManager.expungeAlbum(albumDao.getExpungeCandidates(scanDate));
+        indexManager.expungeAlbumId3(albumDao.getExpungeCandidates(scanDate));
         albumDao.expunge(scanDate);
     }
 

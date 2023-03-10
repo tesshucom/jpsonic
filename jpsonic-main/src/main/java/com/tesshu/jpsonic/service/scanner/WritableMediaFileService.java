@@ -202,14 +202,32 @@ public class WritableMediaFileService {
             throw new UncheckedIOException(e);
         }
 
-        stored.values().stream().filter(m -> mediaFileDao.deleteMediaFile(m.getId()) > 0)
-                .forEach(m -> updateCount.increment());
+        stored.values().stream().filter(m -> mediaFileDao.deleteMediaFile(m.getId()) > 0).forEach(m -> {
+            deleteMediafileIndex(m);
+            updateCount.increment();
+        });
 
         if (updateCount.intValue() > 0) {
             mediaFileDao.updateChildrenLastUpdated(parent.getPathString(),
                     parent.getMediaType() == MediaType.ALBUM ? FAR_FUTURE : parent.getChanged());
         }
         return coverArtDetector.getCoverArtAvailable();
+    }
+
+    private void deleteMediafileIndex(MediaFile mediaFile) {
+        switch (mediaFile.getMediaType()) {
+        case DIRECTORY:
+            indexManager.expungeArtist(mediaFile.getId());
+            break;
+        case ALBUM:
+            indexManager.expungeAlbum(mediaFile.getId());
+            break;
+        case MUSIC:
+            indexManager.expungeSong(mediaFile.getId());
+            break;
+        default:
+            break;
+        }
     }
 
     @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "False positive. getMediaFile is pre-checked and thread safe here.")

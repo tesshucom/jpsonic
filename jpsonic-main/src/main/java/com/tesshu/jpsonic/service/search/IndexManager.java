@@ -227,25 +227,27 @@ public class IndexManager {
     }
 
     @ThreadSafe(enableChecks = false) // False positive. writers#get#deleteDocuments is atomic.
-    public void expunge(List<Integer> artistIds, List<Integer> albumIds, List<Integer> songIds) {
-
-        Term[] primarykeys = artistIds.stream().map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
+    public void expungeArtist(int id) {
         try {
-            writers.get(IndexType.ARTIST).deleteDocuments(primarykeys);
+            writers.get(IndexType.ARTIST).deleteDocuments(DocumentFactory.createPrimarykey(id));
         } catch (IOException e) {
             LOG.error("Failed to delete artist doc.", e);
         }
+    }
 
-        primarykeys = albumIds.stream().map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
+    @ThreadSafe(enableChecks = false) // False positive. writers#get#deleteDocuments is atomic.
+    public void expungeAlbum(int id) {
         try {
-            writers.get(IndexType.ALBUM).deleteDocuments(primarykeys);
+            writers.get(IndexType.ALBUM).deleteDocuments(DocumentFactory.createPrimarykey(id));
         } catch (IOException e) {
             LOG.error("Failed to delete album doc.", e);
         }
+    }
 
-        primarykeys = songIds.stream().map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
+    @ThreadSafe(enableChecks = false) // False positive. writers#get#deleteDocuments is atomic.
+    public void expungeSong(int id) {
         try {
-            writers.get(IndexType.SONG).deleteDocuments(primarykeys);
+            writers.get(IndexType.SONG).deleteDocuments(DocumentFactory.createPrimarykey(id));
         } catch (IOException e) {
             LOG.error("Failed to delete song doc.", e);
         }
@@ -262,7 +264,7 @@ public class IndexManager {
     }
 
     @ThreadSafe(enableChecks = false) // False positive. writers#get#deleteDocuments is atomic.
-    public void expungeAlbum(List<Integer> candidates) {
+    public void expungeAlbumId3(List<Integer> candidates) {
         Term[] primarykeys = candidates.stream().map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
         try {
             writers.get(IndexType.ALBUM_ID3).deleteDocuments(primarykeys);
