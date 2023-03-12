@@ -10,6 +10,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -71,6 +72,8 @@ public class ScannerProcedureService {
 
     private static final int ACQUISITION_MAX = 10;
 
+    private final AtomicBoolean cancel = new AtomicBoolean();
+
     public ScannerProcedureService(SettingsService settingsService, MusicFolderService musicFolderService,
             IndexManager indexManager, MediaFileService mediaFileService, WritableMediaFileService wmfs,
             PlaylistService playlistService, MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao,
@@ -92,6 +95,14 @@ public class ScannerProcedureService {
         this.indexCache = indexCache;
         this.mediaFileCache = mediaFileCache;
         this.readingUtils = readingUtils;
+    }
+
+    public boolean isCancel() {
+        return cancel.get();
+    }
+
+    public void setCancel(boolean b) {
+        cancel.set(true);
     }
 
     private void writeInfo(@NonNull String msg) {

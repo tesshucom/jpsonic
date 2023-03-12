@@ -23,14 +23,15 @@ package com.tesshu.jpsonic.service.scanner;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Documented;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -101,6 +102,32 @@ class MediaScannerServiceImplTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaScannerServiceImplTest.class);
 
+    @Documented
+    private @interface TryCancelDecisions {
+        @interface Conditions {
+            @interface IsScanning {
+                @interface True {
+                    @interface OwnLock {
+                    }
+
+                    @interface OthersLock {
+                    }
+                }
+
+                @interface False {
+                }
+            }
+        }
+
+        @interface Result {
+            @interface False {
+            }
+
+            @interface True {
+            }
+        }
+    }
+
     @Nested
     class UnitTest {
 
@@ -161,6 +188,47 @@ class MediaScannerServiceImplTest {
                     mock(ExpungeService.class), executor);
             mediaScannerService.scanLibrary();
             executor.shutdown();
+        }
+
+        @Nested
+        class SetCancelTest {
+
+            @Test
+            @TryCancelDecisions.Conditions.IsScanning.False
+            @TryCancelDecisions.Result.False
+            void c01() {
+                assertFalse(mediaScannerService.isCancel());
+                mediaScannerService.tryCancel();
+                assertTrue(mediaScannerService.isCancel());
+            }
+
+            @Test
+            @TryCancelDecisions.Conditions.IsScanning.True.OwnLock
+            @TryCancelDecisions.Result.True
+            void c02() {
+                scannerStateService.setReady();
+                assertTrue(scannerStateService.tryScanningLock());
+                assertTrue(mediaScannerService.isScanning());
+                assertFalse(mediaScannerService.isCancel());
+                mediaScannerService.tryCancel();
+                assertTrue(mediaScannerService.isCancel());
+            }
+
+            @Test
+            @TryCancelDecisions.Conditions.IsScanning.True.OthersLock
+            @TryCancelDecisions.Result.True
+            void c03() throws InterruptedException {
+                scannerStateService.setReady();
+                ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+                executor.initialize();
+                executor.submit(() -> scannerStateService.tryScanningLock());
+                Thread.sleep(50);
+                assertTrue(scannerStateService.isScanning());
+                assertFalse(mediaScannerService.isCancel());
+                mediaScannerService.tryCancel();
+                assertTrue(mediaScannerService.isCancel());
+                executor.shutdown();
+            }
         }
     }
 

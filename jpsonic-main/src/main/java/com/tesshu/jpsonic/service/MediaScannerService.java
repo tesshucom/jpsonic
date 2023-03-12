@@ -25,6 +25,20 @@ package com.tesshu.jpsonic.service;
 public interface MediaScannerService extends ScannerStateService {
 
     /**
+     * Returns whether a media library scan is currently in the process of being canceled.
+     *
+     * @since jpsonic
+     */
+    boolean isCancel();
+
+    /**
+     * Attempt to cancel a scan if it is running.
+     *
+     * @since jpsonic
+     */
+    void tryCancel();
+
+    /**
      * Scans the media library. The scanning is done asynchronously, i.e., this method returns immediately.
      *
      * @since airsonic

@@ -48,6 +48,8 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     private final ExpungeService expungeService;
     private final ThreadPoolTaskExecutor scanExecutor;
 
+    private final Object cancelLock = new Object();
+
     public MediaScannerServiceImpl(ScannerStateServiceImpl scannerState, ScannerProcedureService procedure,
             ExpungeService expungeService, ThreadPoolTaskExecutor scanExecutor) {
         super();
@@ -65,6 +67,20 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     @Override
     public boolean isScanning() {
         return scannerState.isScanning();
+    }
+
+    @Override
+    public boolean isCancel() {
+        return procedure.isCancel();
+    }
+
+    @Override
+    public void tryCancel() {
+        synchronized (cancelLock) {
+            if (isScanning()) {
+                procedure.setCancel(true);
+            }
+        }
     }
 
     @Override
@@ -147,7 +163,10 @@ public class MediaScannerServiceImpl implements MediaScannerService {
             LOG.info("Completed media library scan.");
             procedure.createScanEvent(scanDate, ScanEventType.FINISHED, null);
             procedure.rotateScanLog();
-            scannerState.unlockScanning();
+            synchronized (cancelLock) {
+                scannerState.unlockScanning();
+                procedure.setCancel(false);
+            }
         }
     }
 }
