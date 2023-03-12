@@ -199,7 +199,7 @@ class MediaScannerServiceImplTest {
             void c01() {
                 assertFalse(mediaScannerService.isCancel());
                 mediaScannerService.tryCancel();
-                assertTrue(mediaScannerService.isCancel());
+                assertFalse(mediaScannerService.isCancel());
             }
 
             @Test

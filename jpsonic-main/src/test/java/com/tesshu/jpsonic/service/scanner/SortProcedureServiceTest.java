@@ -34,6 +34,7 @@ import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.dao.JArtistDao;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
+import com.tesshu.jpsonic.dao.StaticsDao.ScanLogType;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -156,9 +157,10 @@ class SortProcedureServiceTest {
             assertNull(artistID3s.get(3).getSort());
 
             // Execution of Complementary Processing
-            Instant scanDate = scannerStateService.getScanDate();
+            Instant scanDate = now();
+            scannerProcedureService.createScanLog(scanDate, ScanLogType.SCAN_ALL);
             scannerProcedureService.beforeScan(scanDate);
-            sortProcedureService.compensateSortOfArtist(musicFolders);
+            scannerProcedureService.updateSortOfArtist(scanDate);
             scannerProcedureService.refleshArtistId3(scanDate);
             scannerProcedureService.afterScan(scanDate);
 
