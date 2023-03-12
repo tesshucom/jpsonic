@@ -106,7 +106,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     </c:if>
                     <c:choose>
                         <c:when test='${command.scanning}'>
-                            <input type="button" onClick="location.href='musicFolderSettings.view?scanNow=true'" value="<fmt:message key='musicfoldersettings.doscan'/>" disabled/>
+                            <c:set var="cancelDisabled" value='${command.cancel ? "disabled" : ""}' />
+                            <input type="button" onClick="location.href='musicFolderSettings.view?scanCancel=true'" value="<fmt:message key='common.cancel'/>" ${cancelDisabled}/>
                         </c:when>
                         <c:otherwise>
                             <input type="button" onClick="top.onStartScanning();location.href='musicFolderSettings.view?scanNow=true'" value="<fmt:message key='musicfoldersettings.doscan'/>"/>

@@ -85,17 +85,23 @@ public class MusicFolderSettingsController {
     @ModelAttribute
     protected void formBackingObject(HttpServletRequest request,
             @RequestParam(value = Attributes.Request.NameConstants.SCAN_NOW, required = false) String scanNow,
+            @RequestParam(value = Attributes.Request.NameConstants.SCAN_CANCEL, required = false) String scanCancel,
             @RequestParam(value = Attributes.Request.NameConstants.EXPUNGE, required = false) String expunge,
             @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast, Model model) {
 
-        MusicFolderSettingsCommand command = new MusicFolderSettingsCommand();
         if (!ObjectUtils.isEmpty(scanNow)) {
             musicFolderService.clearMusicFolderCache();
             mediaScannerService.scanLibrary();
         }
+        if (!ObjectUtils.isEmpty(scanCancel)) {
+            mediaScannerService.tryCancel();
+
+        }
         if (!ObjectUtils.isEmpty(expunge)) {
             mediaScannerService.expunge();
         }
+
+        MusicFolderSettingsCommand command = new MusicFolderSettingsCommand();
 
         // Specify folder
         command.setMusicFolders(wrap(musicFolderService.getAllMusicFolders(true, true)));
@@ -126,6 +132,7 @@ public class MusicFolderSettingsController {
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setScanning(mediaScannerService.isScanning());
+        command.setCancel(mediaScannerService.isCancel());
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }

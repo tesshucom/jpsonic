@@ -56,6 +56,7 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
     // for view page control
     private boolean useRefresh;
+    private boolean cancel;
 
     public List<MusicFolderInfo> getMusicFolders() {
         return musicFolders;
@@ -151,6 +152,14 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
     public void setUseRefresh(boolean useRefresh) {
         this.useRefresh = useRefresh;
+    }
+
+    public boolean isCancel() {
+        return cancel;
+    }
+
+    public void setCancel(boolean cancel) {
+        this.cancel = cancel;
     }
 
     public static class MusicFolderInfo {

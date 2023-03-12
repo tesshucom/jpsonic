@@ -264,6 +264,7 @@ public class Attributes {
             public static final String REFRESH = "refresh";
             public static final String S = "s";
             public static final String SCAN_NOW = "scanNow";
+            public static final String SCAN_CANCEL = "scanCancel";
             public static final String SETTINGS_ROLE = "settingsRole";
             public static final String SHARE_ROLE = "shareRole";
             public static final String SHOW_ALL = "showAll";
