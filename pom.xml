@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>111.5.20</version>
+    <version>111.5.21</version>
     <name>Jpsonic</name>
     <packaging>pom</packaging>
     <organization>
