@@ -61,6 +61,8 @@ import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.ScanEvent;
+import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.domain.SearchResult;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
@@ -137,6 +139,7 @@ class MediaScannerServiceImplTest {
         private AlbumDao albumDao;
         private MediaFileService mediaFileService;
         private MediaFileDao mediaFileDao;
+        private StaticsDao staticsDao;
         private ScannerStateServiceImpl scannerStateService;
         private ThreadPoolTaskExecutor executor;
         private SortProcedureService utils;
@@ -154,16 +157,17 @@ class MediaScannerServiceImplTest {
             albumDao = mock(AlbumDao.class);
             executor = mock(ThreadPoolTaskExecutor.class);
             utils = mock(SortProcedureService.class);
-            scannerStateService = new ScannerStateServiceImpl(mock(StaticsDao.class));
+            staticsDao = mock(StaticsDao.class);
+            scannerStateService = new ScannerStateServiceImpl(staticsDao);
             writableMediaFileService = new WritableMediaFileService(mediaFileDao, scannerStateService, mediaFileService,
                     albumDao, mock(MediaFileCache.class), mock(MusicParser.class), mock(VideoParser.class),
                     settingsService, mock(SecurityService.class), null, mock(IndexManager.class));
             scannerProcedureService = new ScannerProcedureService(settingsService, mock(MusicFolderService.class),
                     indexManager, mediaFileService, writableMediaFileService, mock(PlaylistService.class), mediaFileDao,
-                    artistDao, albumDao, mock(StaticsDao.class), utils, scannerStateService, mock(Ehcache.class),
+                    artistDao, albumDao, staticsDao, utils, scannerStateService, mock(Ehcache.class),
                     mock(MediaFileCache.class), mock(JapaneseReadingUtils.class));
             mediaScannerService = new MediaScannerServiceImpl(scannerStateService, scannerProcedureService,
-                    mock(ExpungeService.class), executor);
+                    mock(ExpungeService.class), staticsDao, executor);
         }
 
         @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert") // It doesn't seem to be able to capture
@@ -183,9 +187,8 @@ class MediaScannerServiceImplTest {
             poolConf.setMaxPoolSize("1");
             ExecutorConfiguration executorConf = new ExecutorConfiguration(poolConf);
             final ThreadPoolTaskExecutor executor = executorConf.scanExecutor();
-
             mediaScannerService = new MediaScannerServiceImpl(scannerStateService, scannerProcedureService,
-                    mock(ExpungeService.class), executor);
+                    mock(ExpungeService.class), mock(StaticsDao.class), executor);
             mediaScannerService.scanLibrary();
             executor.shutdown();
         }
@@ -228,6 +231,46 @@ class MediaScannerServiceImplTest {
                 mediaScannerService.tryCancel();
                 assertTrue(mediaScannerService.isCancel());
                 executor.shutdown();
+            }
+        }
+
+        @Nested
+        class GetLastScanAllEventTypeTest {
+
+            /* If scanning is in progress, recovery is expected, so previous results are not returned. */
+            @Test
+            void testWithScanning() {
+                scannerStateService.setReady();
+                assertTrue(scannerStateService.tryScanningLock());
+                assertTrue(mediaScannerService.getLastScanEventType().isEmpty());
+            }
+
+            /* No results are returned if a scan has not been run. */
+            @Test
+            void testNeverScanned() {
+                assertFalse(mediaScannerService.isScanning());
+                Mockito.when(staticsDao.isNeverScanned()).thenReturn(true);
+                assertTrue(mediaScannerService.getLastScanEventType().isEmpty());
+            }
+
+            /* A record may not have been recorded if the scan was interrupted by an unchecked exception. */
+            @Test
+            void testNoRecords() {
+                assertFalse(mediaScannerService.isScanning());
+                Mockito.when(staticsDao.isNeverScanned()).thenReturn(false);
+                assertFalse(mediaScannerService.getLastScanEventType().isEmpty());
+                assertEquals(ScanEventType.FAILED, mediaScannerService.getLastScanEventType().get());
+            }
+
+            /* If the scan ran to completion, it would have logged FINISHED, DESTROYED, or CANCELED. */
+            @Test
+            void testWithRecords() {
+                assertFalse(mediaScannerService.isScanning());
+                Mockito.when(staticsDao.isNeverScanned()).thenReturn(false);
+                ScanEvent success = new ScanEvent(null, null, ScanEventType.FINISHED, 0L, 0L, 0L, null);
+                Mockito.when(staticsDao.getLastScanAllStatuses()).thenReturn(Arrays.asList(success));
+                assertFalse(mediaScannerService.getLastScanEventType().isEmpty());
+                assertEquals(ScanEventType.FINISHED, mediaScannerService.getLastScanEventType().get());
             }
         }
     }
@@ -576,6 +619,8 @@ class MediaScannerServiceImplTest {
         private ScannerProcedureService procedure;
         @Autowired
         private ExpungeService expungeService;
+        @Autowired
+        private StaticsDao staticsDao;
 
         private MediaScannerService mediaScannerService;
 
@@ -583,7 +628,7 @@ class MediaScannerServiceImplTest {
         public void setup() {
             ThreadPoolTaskExecutor scanExecutor = ServiceMockUtils.mockNoAsyncTaskExecutor();
             mediaScannerService = new MediaScannerServiceImpl(scannerStateService, procedure, expungeService,
-                    scanExecutor);
+                    staticsDao, scanExecutor);
         }
 
         /**
@@ -605,6 +650,7 @@ class MediaScannerServiceImplTest {
                 TestCaseUtils.execScan(mediaScannerService);
                 globalTimerContext.stop();
             }
+            assertEquals(ScanEventType.FINISHED, mediaScannerService.getLastScanEventType().get());
 
             logRecords(TestCaseUtils.recordsInAllTables(daoHelper));
 

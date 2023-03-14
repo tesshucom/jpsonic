@@ -31,6 +31,7 @@ import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.dao.DaoHelper;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
+import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -84,6 +85,8 @@ public abstract class AbstractNeedsScan implements NeedsScan {
     private ScannerProcedureService procedure;
     @Autowired
     private ExpungeService expungeService;
+    @Autowired
+    private StaticsDao staticsDao;
 
     private final ThreadPoolTaskExecutor scanExecutor = ServiceMockUtils.mockNoAsyncTaskExecutor();
 
@@ -91,7 +94,8 @@ public abstract class AbstractNeedsScan implements NeedsScan {
 
     @PostConstruct
     public void init() {
-        mediaScannerService = new MediaScannerServiceImpl(scannerStateService, procedure, expungeService, scanExecutor);
+        mediaScannerService = new MediaScannerServiceImpl(scannerStateService, procedure, expungeService, staticsDao,
+                scanExecutor);
     }
 
     public interface BeforeScan extends Supplier<Boolean> {

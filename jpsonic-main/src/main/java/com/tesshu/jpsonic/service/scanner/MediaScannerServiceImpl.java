@@ -22,8 +22,12 @@
 package com.tesshu.jpsonic.service.scanner;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 
+import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.dao.StaticsDao.ScanLogType;
+import com.tesshu.jpsonic.domain.ScanEvent;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import org.slf4j.Logger;
@@ -44,16 +48,18 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     private final ScannerStateServiceImpl scannerState;
     private final ScannerProcedureService procedure;
     private final ExpungeService expungeService;
+    private final StaticsDao staticsDao;
     private final ThreadPoolTaskExecutor scanExecutor;
 
     private final Object cancelLock = new Object();
 
     public MediaScannerServiceImpl(ScannerStateServiceImpl scannerState, ScannerProcedureService procedure,
-            ExpungeService expungeService, ThreadPoolTaskExecutor scanExecutor) {
+            ExpungeService expungeService, StaticsDao staticsDao, ThreadPoolTaskExecutor scanExecutor) {
         super();
         this.scannerState = scannerState;
         this.procedure = procedure;
         this.expungeService = expungeService;
+        this.staticsDao = staticsDao;
         this.scanExecutor = scanExecutor;
     }
 
@@ -84,6 +90,18 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     @Override
     public long getScanCount() {
         return scannerState.getScanCount();
+    }
+
+    @Override
+    public Optional<ScanEventType> getLastScanEventType() {
+        if (isScanning() || neverScanned()) {
+            return Optional.empty();
+        }
+        List<ScanEvent> scanEvent = staticsDao.getLastScanAllStatuses();
+        if (scanEvent.isEmpty()) {
+            return Optional.of(ScanEventType.FAILED);
+        }
+        return Optional.of(scanEvent.get(0).getType());
     }
 
     @Override
