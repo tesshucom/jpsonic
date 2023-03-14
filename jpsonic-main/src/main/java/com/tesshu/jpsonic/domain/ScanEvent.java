@@ -28,7 +28,7 @@ public class ScanEvent {
 
     private Instant startDate;
     private Instant executed;
-    private String type;
+    private ScanEventType type;
     private long maxMemory;
     private long totalMemory;
     private long freeMemory;
@@ -39,7 +39,7 @@ public class ScanEvent {
         super();
         this.startDate = startDate;
         this.executed = executed;
-        this.type = type.name();
+        this.type = type;
         setMaxMemory(maxMemory);
         setTotalMemory(totalMemory);
         setFreeMemory(freeMemory);
@@ -62,11 +62,11 @@ public class ScanEvent {
         this.executed = executed;
     }
 
-    public String getType() {
+    public ScanEventType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(ScanEventType type) {
         this.type = type;
     }
 
@@ -106,36 +106,28 @@ public class ScanEvent {
         FINISHED,
         FAILED,
         DESTROYED,
+        CANCELED,
 
         BEFORE_SCAN,
-
         MUSIC_FOLDER_CHECK,
-
         PARSE_FILE_STRUCTURE,
-        PARSE_VIDEO,
         PARSED_COUNT,
+        PARSE_VIDEO,
+        PARSE_PODCAST,
         CLEAN_UP_FILE_STRUCTURE,
-
         PARSE_ALBUM,
         UPDATE_SORT_OF_ALBUM,
         UPDATE_ORDER_OF_ALBUM,
         UPDATE_SORT_OF_ARTIST,
         UPDATE_ORDER_OF_ARTIST,
-
         REFRESH_ALBUM_ID3,
         UPDATE_ORDER_OF_ALBUM_ID3,
         REFRESH_ARTIST_ID3,
         UPDATE_ORDER_OF_ARTIST_ID3,
-
-        PARSE_PODCAST,
-
         UPDATE_ALBUM_COUNTS,
         UPDATE_GENRE_MASTER,
-
         RUN_STATS,
-
         IMPORT_PLAYLISTS,
-
         CHECKPOINT,
         AFTER_SCAN
     }

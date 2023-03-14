@@ -6,6 +6,7 @@
 <%@ include file="head.jsp" %>
 <%@ include file="jquery.jsp" %>
 <%@ page import="com.tesshu.jpsonic.domain.FileModifiedCheckScheme" %>
+<%@ page import="com.tesshu.jpsonic.domain.ScanEvent.ScanEventType" %>
 
 <script>
 function init() {
@@ -93,20 +94,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     <details open>
         <summary><fmt:message key="musicfoldersettings.execscan"/></summary>
-        <c:if test="${command.scanning}">
-            <strong><fmt:message key="musicfoldersettings.nowscanning"/></strong>
-        </c:if>
         <dl>
             <dt><fmt:message key='musicfoldersettings.scannow'/><c:import url="helpToolTip.jsp"><c:param name="topic" value="scanMediaFolders"/></c:import></dt>
             <dd>
                 <div>
-                    <c:if test='${command.fullScanNext}'>
-                        <strong><fmt:message key="musicfoldersettings.fullscannext"/></strong>
-                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="fullscannext"/></c:import>
-                    </c:if>
+                    <c:choose>
+                        <c:when test="${command.scanning}">
+                            <strong><fmt:message key="musicfoldersettings.nowscanning"/></strong>
+                        </c:when>
+                        <c:when test='${not command.scanning and command.ignoreFileTimestamps}'>
+                            <strong><fmt:message key="musicfoldersettings.fullscannext"/></strong>
+                        </c:when>
+                        <c:when test='${not empty command.lastScanEventType and command.lastScanEventType.name() ne "FINISHED"}'>
+                            <strong><fmt:message key="musicfoldersettings.scaneventtype.${fn:toLowerCase(command.lastScanEventType.name())}"/></strong>
+                        </c:when>
+                    </c:choose>
                     <c:choose>
                         <c:when test='${command.scanning}'>
-                            <input type="button" onClick="location.href='musicFolderSettings.view?scanNow=true'" value="<fmt:message key='musicfoldersettings.doscan'/>" disabled/>
+                            <c:set var="cancelDisabled" value='${command.cancel ? "disabled" : ""}' />
+                            <input type="button" onClick="location.href='musicFolderSettings.view?scanCancel=true'" value="<fmt:message key='common.cancel'/>" ${cancelDisabled}/>
                         </c:when>
                         <c:otherwise>
                             <input type="button" onClick="top.onStartScanning();location.href='musicFolderSettings.view?scanNow=true'" value="<fmt:message key='musicfoldersettings.doscan'/>"/>
@@ -168,7 +174,11 @@ document.addEventListener('DOMContentLoaded', function () {
         </dl>
     </details>
 
-    <details ${isOpen}>
+    <details 
+        <c:choose>
+            <c:when test='${command.ignoreFileTimestamps}'>open</c:when>
+            <c:otherwise>${isOpen}</c:otherwise>
+        </c:choose>>
         <summary class="jpsonic"><fmt:message key="musicfoldersettings.other"/></summary>
         <dl class="single">
             <dt class="scheme">
@@ -187,7 +197,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         <c:if test='${"LAST_MODIFIED" eq scheme}'>
                             <li class="subItem">
                                 <form:checkbox path="ignoreFileTimestamps" cssClass="checkbox" id="ignoreFileTimestamps"/>
+                                <c:if test='${command.ignoreFileTimestamps}'><strong></c:if>
                                 <form:label path="ignoreFileTimestamps"><fmt:message key="musicfoldersettings.ignorefiletimestamps"/></form:label>
+                                <c:if test='${command.ignoreFileTimestamps}'></strong></c:if>
                                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="ignorefiletimestamps"/></c:import>
                             </li>
                         </c:if>

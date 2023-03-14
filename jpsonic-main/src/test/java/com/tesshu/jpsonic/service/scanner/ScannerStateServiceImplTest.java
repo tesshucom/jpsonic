@@ -20,15 +20,24 @@
 package com.tesshu.jpsonic.service.scanner;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.lang.annotation.Documented;
+import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.dao.StaticsDao;
+import com.tesshu.jpsonic.util.PlayerUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 class ScannerStateServiceImplTest {
 
     private StaticsDao staticsDao;
@@ -47,6 +56,222 @@ class ScannerStateServiceImplTest {
 
         Mockito.when(staticsDao.isNeverScanned()).thenReturn(false);
         assertFalse(scannerStateService.neverScanned());
+    }
+
+    @Documented
+    private @interface TryScanningLockDecisions {
+        @interface Conditions {
+            @interface Ready {
+                @interface False {
+                }
+
+                @interface True {
+                }
+            }
+
+            @interface Destroy {
+                @interface False {
+                }
+
+                @interface True {
+                }
+            }
+
+            @interface IsScanning {
+                @interface False {
+                }
+
+                @interface True {
+                }
+            }
+        }
+
+        @interface Result {
+            @interface False {
+            }
+
+            @interface True {
+            }
+        }
+    }
+
+    @Nested
+    class TryScanningLockTest {
+
+        @Test
+        @TryScanningLockDecisions.Conditions.Ready.False
+        @TryScanningLockDecisions.Result.False
+        void c01() {
+            assertFalse(scannerStateService.tryScanningLock());
+        }
+
+        @Test
+        @TryScanningLockDecisions.Conditions.Ready.True
+        @TryScanningLockDecisions.Conditions.Destroy.True
+        @TryScanningLockDecisions.Result.False
+        void c02() {
+            scannerStateService.setReady();
+            scannerStateService.preDestroy();
+            assertTrue(scannerStateService.isDestroy());
+            assertFalse(scannerStateService.tryScanningLock());
+        }
+
+        @Test
+        @TryScanningLockDecisions.Conditions.Ready.True
+        @TryScanningLockDecisions.Conditions.Destroy.False
+        @TryScanningLockDecisions.Conditions.IsScanning.True
+        @TryScanningLockDecisions.Result.False
+        void c03() throws InterruptedException {
+            scannerStateService.setReady();
+            assertFalse(scannerStateService.isDestroy());
+            ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+            executor.initialize();
+            executor.submit(() -> scannerStateService.tryScanningLock());
+            Thread.sleep(50);
+            assertTrue(scannerStateService.isScanning());
+            assertFalse(scannerStateService.tryScanningLock());
+            executor.shutdown();
+        }
+
+        @Test
+        @TryScanningLockDecisions.Conditions.Ready.True
+        @TryScanningLockDecisions.Conditions.Destroy.False
+        @TryScanningLockDecisions.Conditions.IsScanning.False
+        @TryScanningLockDecisions.Result.True
+        void c04() throws InterruptedException, ExecutionException {
+            scannerStateService.setReady();
+            assertFalse(scannerStateService.isDestroy());
+            assertFalse(scannerStateService.isScanning());
+            assertTrue(scannerStateService.tryScanningLock());
+            assertTrue(scannerStateService.tryScanningLock());
+        }
+    }
+
+    @Documented
+    private @interface GetScanDateDecisions {
+        @interface Conditions {
+            @interface IsScanning {
+                @interface False {
+                }
+
+                @interface True {
+                }
+            }
+        }
+
+        @interface Result {
+            @interface EqFarPast {
+            }
+
+            @interface NeFarPast {
+            }
+        }
+    }
+
+    @Nested
+    class GetScanDateTest {
+
+        @Test
+        @GetScanDateDecisions.Conditions.IsScanning.False
+        @GetScanDateDecisions.Result.EqFarPast
+        void c01() {
+            assertFalse(scannerStateService.isScanning());
+            assertEquals(PlayerUtils.FAR_PAST, scannerStateService.getScanDate());
+        }
+
+        @Test
+        @GetScanDateDecisions.Conditions.IsScanning.True
+        @GetScanDateDecisions.Result.NeFarPast
+        void c02() {
+            scannerStateService.setReady();
+            assertTrue(scannerStateService.tryScanningLock());
+            assertTrue(scannerStateService.isScanning());
+            assertNotEquals(PlayerUtils.FAR_PAST, scannerStateService.getScanDate());
+            scannerStateService.unlockScanning();
+            assertFalse(scannerStateService.isScanning());
+            assertEquals(PlayerUtils.FAR_PAST, scannerStateService.getScanDate());
+        }
+    }
+
+    @Documented
+    private @interface UnlockScanningDecisions {
+        @interface Conditions {
+            @interface IsScanning {
+                @interface False {
+                }
+
+                @interface True {
+                    @interface OthersLock {
+                    }
+
+                    @interface OwnLock {
+                    }
+                }
+            }
+        }
+
+        @interface Result {
+            @interface IllegalMonitorStateException {
+            }
+
+            @interface Success {
+                @interface ScanDateEqFarPast {
+                }
+
+                @interface ScanCountEqZero {
+                };
+            }
+        }
+    }
+
+    @Nested
+    class UnlockScanningTest {
+
+        @Test
+        @UnlockScanningDecisions.Conditions.IsScanning.False
+        @UnlockScanningDecisions.Result.IllegalMonitorStateException
+        // (Unreachable case)
+        void c01() {
+            assertFalse(scannerStateService.isScanning());
+            assertThatExceptionOfType(IllegalMonitorStateException.class)
+                    .isThrownBy(() -> scannerStateService.unlockScanning()).withNoCause();
+        }
+
+        @Test
+        @UnlockScanningDecisions.Conditions.IsScanning.True.OthersLock
+        @UnlockScanningDecisions.Result.IllegalMonitorStateException
+        // (Unreachable case)
+        void c02() throws InterruptedException {
+            scannerStateService.setReady();
+            assertFalse(scannerStateService.isDestroy());
+            ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+            executor.initialize();
+            executor.submit(() -> scannerStateService.tryScanningLock());
+            Thread.sleep(50);
+            assertTrue(scannerStateService.isScanning());
+            assertThatExceptionOfType(IllegalMonitorStateException.class)
+                    .isThrownBy(() -> scannerStateService.unlockScanning()).withNoCause();
+            executor.shutdown();
+        }
+
+        @Test
+        @UnlockScanningDecisions.Conditions.IsScanning.True.OwnLock
+        @UnlockScanningDecisions.Result.Success.ScanDateEqFarPast
+        @UnlockScanningDecisions.Result.Success.ScanCountEqZero
+        void c03() {
+            assertFalse(scannerStateService.isScanning());
+            scannerStateService.setReady();
+            assertTrue(scannerStateService.tryScanningLock());
+            assertTrue(scannerStateService.isScanning());
+
+            assertNotEquals(PlayerUtils.FAR_PAST, scannerStateService.getScanDate());
+            scannerStateService.incrementScanCount();
+            assertEquals(1, scannerStateService.getScanCount());
+
+            scannerStateService.unlockScanning();
+            assertEquals(PlayerUtils.FAR_PAST, scannerStateService.getScanDate());
+            assertEquals(0, scannerStateService.getScanCount());
+        }
     }
 
     @Test

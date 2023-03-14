@@ -21,9 +21,14 @@ package com.tesshu.jpsonic.dao;
 
 import java.sql.ResultSet;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.ScanEvent;
+import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
+import com.tesshu.jpsonic.util.LegacyMap;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.jdbc.core.RowMapper;
@@ -32,6 +37,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class StaticsDao extends AbstractDao {
 
+    private final RowMapper<ScanEvent> scanEventMapper = (ResultSet rs, int rowNum) -> {
+        return new ScanEvent(nullableInstantOf(rs.getTimestamp(1)), nullableInstantOf(rs.getTimestamp(2)),
+                ScanEventType.valueOf(rs.getString(3)), rs.getLong(4), rs.getLong(5), rs.getLong(6), rs.getString(7));
+    };
     private final RowMapper<MediaLibraryStatistics> libStatsMapper = (ResultSet rs, int rowNum) -> {
         return new MediaLibraryStatistics(nullableInstantOf(rs.getTimestamp(1)), rs.getInt(2), rs.getInt(3),
                 rs.getInt(4), rs.getInt(5), rs.getLong(6), rs.getLong(7));
@@ -51,7 +60,7 @@ public class StaticsDao extends AbstractDao {
 
     public void createScanEvent(@NonNull ScanEvent scanEvent) {
         update("insert into scan_event (start_date, executed, type, max_memory, total_memory, free_memory, comment) values(?, ?, ?, ?, ?, ?, ?)",
-                scanEvent.getStartDate(), scanEvent.getExecuted(), scanEvent.getType(), scanEvent.getMaxMemory(),
+                scanEvent.getStartDate(), scanEvent.getExecuted(), scanEvent.getType().name(), scanEvent.getMaxMemory(),
                 scanEvent.getTotalMemory(), scanEvent.getFreeMemory(), scanEvent.getComment());
     }
 
@@ -78,6 +87,15 @@ public class StaticsDao extends AbstractDao {
                 + "song_count, total_size, total_duration) values (?, ?, ?, ?, ?, ?, ?)";
         update(sql, stats.getExecuted(), stats.getFolderId(), stats.getArtistCount(), stats.getAlbumCount(),
                 stats.getSongCount(), stats.getTotalSize(), stats.getTotalDuration());
+    }
+
+    public List<ScanEvent> getLastScanAllStatuses() {
+        Map<String, Object> args = LegacyMap.of("eventTypes", Arrays.asList(ScanEventType.FINISHED.name(),
+                ScanEventType.DESTROYED.name(), ScanEventType.CANCELED.name()), "logType", ScanLogType.SCAN_ALL.name());
+        String sql = "select event.* from scan_event event "
+                + "join (select start_date from scan_log where type = :logType order by start_date desc limit 1) last_log "
+                + "on last_log.start_date = event.start_date where type in (:eventTypes)";
+        return namedQuery(sql, scanEventMapper, args);
     }
 
     public enum ScanLogType {

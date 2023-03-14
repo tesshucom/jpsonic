@@ -22,12 +22,15 @@
 package com.tesshu.jpsonic.service.scanner;
 
 import java.time.Instant;
-import java.util.concurrent.ExecutionException;
+import java.util.List;
+import java.util.Optional;
 
+import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.dao.StaticsDao.ScanLogType;
+import com.tesshu.jpsonic.domain.ScanEvent;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.MediaScannerService;
-import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.DependsOn;
@@ -46,14 +49,18 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     private final ScannerStateServiceImpl scannerState;
     private final ScannerProcedureService procedure;
     private final ExpungeService expungeService;
+    private final StaticsDao staticsDao;
     private final ThreadPoolTaskExecutor scanExecutor;
 
+    private final Object cancelLock = new Object();
+
     public MediaScannerServiceImpl(ScannerStateServiceImpl scannerState, ScannerProcedureService procedure,
-            ExpungeService expungeService, ThreadPoolTaskExecutor scanExecutor) {
+            ExpungeService expungeService, StaticsDao staticsDao, ThreadPoolTaskExecutor scanExecutor) {
         super();
         this.scannerState = scannerState;
         this.procedure = procedure;
         this.expungeService = expungeService;
+        this.staticsDao = staticsDao;
         this.scanExecutor = scanExecutor;
     }
 
@@ -68,8 +75,34 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     }
 
     @Override
+    public boolean isCancel() {
+        return procedure.isCancel();
+    }
+
+    @Override
+    public void tryCancel() {
+        synchronized (cancelLock) {
+            if (isScanning()) {
+                procedure.setCancel(true);
+            }
+        }
+    }
+
+    @Override
     public long getScanCount() {
         return scannerState.getScanCount();
+    }
+
+    @Override
+    public Optional<ScanEventType> getLastScanEventType() {
+        if (isScanning() || neverScanned()) {
+            return Optional.empty();
+        }
+        List<ScanEvent> scanEvent = staticsDao.getLastScanAllStatuses();
+        if (scanEvent.isEmpty()) {
+            return Optional.of(ScanEventType.FAILED);
+        }
+        return Optional.of(scanEvent.get(0).getType());
     }
 
     @Override
@@ -98,56 +131,64 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
         procedure.beforeScan(scanDate);
 
-        try {
+        procedure.checkMudicFolders(scanDate);
 
-            procedure.checkMudicFolders(scanDate);
+        procedure.parseFileStructure(scanDate);
+        procedure.parseVideo(scanDate);
+        procedure.parsePodcast(scanDate);
+        procedure.iterateFileStructure(scanDate);
 
-            procedure.parseFileStructure(scanDate);
-            procedure.parseVideo(scanDate);
-            procedure.parsePodcast(scanDate);
-            procedure.iterateFileStructure(scanDate);
+        MutableBoolean lastScanFailed = new MutableBoolean(false);
+        getLastScanEventType().ifPresent(type -> lastScanFailed.setValue(type != ScanEventType.FINISHED));
 
-            boolean parsedAlbum = procedure.parseAlbum(scanDate);
-            boolean updatedSortOfAlbum = procedure.updateSortOfAlbum(scanDate);
-            procedure.updateOrderOfAlbum(scanDate, parsedAlbum || updatedSortOfAlbum);
-            boolean updatedSortOfArtist = procedure.updateSortOfArtist(scanDate);
-            procedure.updateOrderOfArtist(scanDate, parsedAlbum || updatedSortOfArtist);
+        boolean parsedAlbum = procedure.parseAlbum(scanDate);
+        boolean updatedSortOfAlbum = procedure.updateSortOfAlbum(scanDate);
+        boolean toBeSorted = lastScanFailed.getValue() || parsedAlbum || updatedSortOfAlbum;
+        procedure.updateOrderOfAlbum(scanDate, toBeSorted);
+        boolean updatedSortOfArtist = procedure.updateSortOfArtist(scanDate);
+        toBeSorted = lastScanFailed.getValue() || parsedAlbum || updatedSortOfArtist;
+        procedure.updateOrderOfArtist(scanDate, toBeSorted);
 
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Scanned media library with " + scannerState.getScanCount() + " entries.");
-            }
-
-            boolean refleshedAlbumId3 = procedure.refleshAlbumId3(scanDate);
-            procedure.updateOrderOfAlbumId3(scanDate, refleshedAlbumId3);
-            boolean refleshedArtistId3 = procedure.refleshArtistId3(scanDate);
-            procedure.updateOrderOfArtistId3(scanDate, refleshedArtistId3);
-
-            procedure.updateAlbumCounts(scanDate);
-            procedure.updateGenreMaster(scanDate);
-
-            procedure.runStats(scanDate);
-
-        } catch (ExecutionException e) {
-            ConcurrentUtils.handleCauseUnchecked(e);
-            scannerState.unlockScanning();
-            if (scannerState.isDestroy()) {
-                LOG.info("Interrupted to scan media library.");
-                procedure.createScanEvent(scanDate, ScanEventType.DESTROYED, null);
-            } else if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to scan media library.", e);
-                procedure.createScanEvent(scanDate, ScanEventType.FAILED, null);
-            }
-        } finally {
-            procedure.afterScan(scanDate);
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Scanned media library with " + scannerState.getScanCount() + " entries.");
         }
 
-        if (!scannerState.isDestroy()) {
+        boolean refleshedAlbumId3 = procedure.refleshAlbumId3(scanDate);
+        toBeSorted = lastScanFailed.getValue() || refleshedAlbumId3;
+        procedure.updateOrderOfAlbumId3(scanDate, toBeSorted);
+
+        boolean refleshedArtistId3 = procedure.refleshArtistId3(scanDate);
+        toBeSorted = lastScanFailed.getValue() || refleshedArtistId3;
+        procedure.updateOrderOfArtistId3(scanDate, toBeSorted);
+
+        boolean toBeCounted = lastScanFailed.getValue() || refleshedAlbumId3 || refleshedArtistId3;
+        procedure.updateAlbumCounts(scanDate, toBeCounted);
+
+        procedure.updateGenreMaster(scanDate);
+
+        procedure.runStats(scanDate);
+
+        procedure.afterScan(scanDate);
+
+        if (scannerState.isDestroy()) {
+            LOG.warn("The scan was stopped due to the shutdown.");
+            procedure.createScanEvent(scanDate, ScanEventType.DESTROYED, null);
+            return;
+        } else if (isCancel()) {
+            LOG.warn("The scan was stopped due to cancellation.");
+            procedure.createScanEvent(scanDate, ScanEventType.CANCELED, null);
+        } else {
             procedure.importPlaylists(scanDate);
             procedure.checkpoint(scanDate);
             LOG.info("Completed media library scan.");
             procedure.createScanEvent(scanDate, ScanEventType.FINISHED, null);
-            procedure.rotateScanLog();
+        }
+
+        procedure.rotateScanLog();
+
+        synchronized (cancelLock) {
             scannerState.unlockScanning();
+            procedure.setCancel(false);
         }
     }
 }

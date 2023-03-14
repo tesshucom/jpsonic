@@ -27,6 +27,7 @@ import java.util.List;
 import com.tesshu.jpsonic.controller.MusicFolderSettingsController;
 import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 
 /**
  * Command used in {@link MusicFolderSettingsController}.
@@ -40,7 +41,7 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
     private MusicFolderInfo newMusicFolder;
 
     // Run a scan
-    private boolean fullScanNext;
+    private ScanEventType lastScanEventType;
     private String interval;
     private String hour;
     private boolean useCleanUp;
@@ -56,6 +57,7 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
     // for view page control
     private boolean useRefresh;
+    private boolean cancel;
 
     public List<MusicFolderInfo> getMusicFolders() {
         return musicFolders;
@@ -73,12 +75,12 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
         this.newMusicFolder = newMusicFolder;
     }
 
-    public boolean isFullScanNext() {
-        return fullScanNext;
+    public ScanEventType getLastScanEventType() {
+        return lastScanEventType;
     }
 
-    public void setFullScanNext(boolean fullScanNext) {
-        this.fullScanNext = fullScanNext;
+    public void setLastScanEventType(ScanEventType lastScanEventType) {
+        this.lastScanEventType = lastScanEventType;
     }
 
     public String getInterval() {
@@ -151,6 +153,14 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
     public void setUseRefresh(boolean useRefresh) {
         this.useRefresh = useRefresh;
+    }
+
+    public boolean isCancel() {
+        return cancel;
+    }
+
+    public void setCancel(boolean cancel) {
+        this.cancel = cancel;
     }
 
     public static class MusicFolderInfo {

@@ -33,7 +33,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.MusicFolderTestDataUtils;
@@ -47,7 +46,6 @@ import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
@@ -251,43 +249,6 @@ class MusicFolderSettingsControllerTest {
                 .collect(Collectors.toMap(m -> m.getName(), m -> m));
         assertEquals(MusicFolderTestDataUtils.resolveMusic2FolderPath(), updateCalled.get("Music2").getPathString());
         assertEquals("UnknownPath", updateCalled.get("Music4").getPathString());
-    }
-
-    @Test
-    @Order(10)
-    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
-    void testIfFullScanNext() throws Exception {
-
-        @SuppressWarnings("PMD.AvoidCatchingGenericException") // springframework/MockMvc#perform
-        Supplier<MusicFolderSettingsCommand> supplier = () -> {
-            try {
-                return (MusicFolderSettingsCommand) mockMvc
-                        .perform(MockMvcRequestBuilders.get("/" + ViewName.MUSIC_FOLDER_SETTINGS.value())).andReturn()
-                        .getModelAndView().getModelMap().get(Attributes.Model.Command.VALUE);
-            } catch (Exception e) {
-                Assertions.fail();
-            }
-            return null;
-        };
-
-        // Basically should be false.
-        MusicFolderSettingsCommand command = supplier.get();
-        assertFalse(command.isFullScanNext());
-
-        // Full scan if any property of IgnoreFileTimestamps* is true.
-        Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
-        Mockito.when(settingsService.isIgnoreFileTimestampsNext()).thenReturn(false);
-        assertTrue(supplier.get().isFullScanNext());
-        Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
-        Mockito.when(settingsService.isIgnoreFileTimestampsNext()).thenReturn(true);
-        assertTrue(supplier.get().isFullScanNext());
-
-        /*
-         * IgnoreFileTimestamps is intentionally set by the user from the web page. IgnoreFileTimestamps is a hidden
-         * option on legacy servers and was kept private due to the difficulty of understanding it. (The cases to use
-         * are very limited.) IgnoreFileTimestampsNext is set when it is needed for server processing, not the user.
-         * "Next" is set to false once scan has been performed.
-         */
     }
 
     @Test

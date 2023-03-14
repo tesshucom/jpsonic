@@ -19,10 +19,38 @@
 
 package com.tesshu.jpsonic.service;
 
+import java.util.Optional;
+
+import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
+
 /**
  * MediaScanner interface.
  */
 public interface MediaScannerService extends ScannerStateService {
+
+    /**
+     * Returns whether a media library scan is currently in the process of being canceled.
+     *
+     * @since jpsonic
+     */
+    boolean isCancel();
+
+    /**
+     * Attempt to cancel a scan if it is running.
+     *
+     * @since jpsonic
+     */
+    void tryCancel();
+
+    /**
+     * Returns the status of whether the previous scan was successful.
+     *
+     * @return Returns the status of the last completed scan. Empty if neverScanned or scanning is true, otherwise
+     *         FINISHED, FAILED, DESTROYED, CANCELED.
+     *
+     * @since jpsonic
+     */
+    Optional<ScanEventType> getLastScanEventType();
 
     /**
      * Scans the media library. The scanning is done asynchronously, i.e., this method returns immediately.

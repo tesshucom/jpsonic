@@ -107,6 +107,9 @@ dl.single {
     > div {
       text-align: right;
       vertical-align: middle;
+      > input[type="button"] {
+        margin-top: -2px;
+      }
     }
   }
 }

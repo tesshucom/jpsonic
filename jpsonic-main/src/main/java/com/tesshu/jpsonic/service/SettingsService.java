@@ -96,7 +96,8 @@ public class SettingsService {
             "database.config.embed.url", "database.config.embed.username", "database.config.embed.password",
             "database.config.jndi.name", "database.usertable.quote", "ShowJavaJukebox", "AnonymousTranscoding",
             "UseSonos", "SearchMethodLegacy", "SearchMethodChanged", "FastCacheEnabled", "UseRefresh", "ShowRefresh",
-            "VerboseLogStart", "VerboseLogScanning", "VerboseLogPlaying", "VerboseLogShutdown");
+            "VerboseLogStart", "VerboseLogScanning", "VerboseLogPlaying", "VerboseLogShutdown",
+            "IgnoreFileTimestampsNext");
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
@@ -350,14 +351,6 @@ public class SettingsService {
 
     public void setIgnoreFileTimestamps(boolean b) {
         setProperty(SettingsConstants.MusicFolder.Others.IGNORE_FILE_TIMESTAMPS, b);
-    }
-
-    public boolean isIgnoreFileTimestampsNext() {
-        return getBoolean(SettingsConstants.MusicFolder.Others.IGNORE_FILE_TIMESTAMPS_NEXT);
-    }
-
-    public void setIgnoreFileTimestampsNext(boolean b) {
-        setProperty(SettingsConstants.MusicFolder.Others.IGNORE_FILE_TIMESTAMPS_NEXT, b);
     }
 
     public boolean isIgnoreFileTimestampsForEachAlbum() {

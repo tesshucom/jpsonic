@@ -80,7 +80,7 @@ class ScannerProcedureServiceTest {
         Mockito.when(settingsService.isUseScanEvents()).thenReturn(false);
         scannerProcedureService.createScanEvent(startDate, ScanEventType.FINISHED, null);
         Mockito.verify(staticsDao, Mockito.times(1)).createScanEvent(Mockito.any(ScanEvent.class));
-        scannerProcedureService.createScanEvent(startDate, ScanEventType.FAILED, null);
+        scannerProcedureService.createScanEvent(startDate, ScanEventType.CANCELED, null);
         Mockito.verify(staticsDao, Mockito.times(2)).createScanEvent(Mockito.any(ScanEvent.class));
         scannerProcedureService.createScanEvent(startDate, ScanEventType.DESTROYED, null);
         Mockito.verify(staticsDao, Mockito.times(3)).createScanEvent(Mockito.any(ScanEvent.class));
@@ -93,7 +93,7 @@ class ScannerProcedureServiceTest {
         Mockito.clearInvocations(staticsDao);
         scannerProcedureService.createScanEvent(startDate, ScanEventType.FINISHED, null);
         Mockito.verify(staticsDao, Mockito.times(1)).createScanEvent(Mockito.any(ScanEvent.class));
-        scannerProcedureService.createScanEvent(startDate, ScanEventType.FAILED, null);
+        scannerProcedureService.createScanEvent(startDate, ScanEventType.CANCELED, null);
         Mockito.verify(staticsDao, Mockito.times(2)).createScanEvent(Mockito.any(ScanEvent.class));
         scannerProcedureService.createScanEvent(startDate, ScanEventType.DESTROYED, null);
         Mockito.verify(staticsDao, Mockito.times(3)).createScanEvent(Mockito.any(ScanEvent.class));
