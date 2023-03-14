@@ -230,6 +230,9 @@ public class ScannerProcedureService {
                 scanFile(scanDate, musicFolder, root);
             }
         }
+        if (isInterrupted()) {
+            return;
+        }
         createScanEvent(scanDate, ScanEventType.PARSE_FILE_STRUCTURE, null);
     }
 
@@ -605,8 +608,12 @@ public class ScannerProcedureService {
         }
     }
 
-    void updateAlbumCounts(@NonNull Instant scanDate) {
+    void updateAlbumCounts(@NonNull Instant scanDate, boolean toBeCounted) {
         if (isInterrupted()) {
+            return;
+        }
+        if (!toBeCounted) {
+            createScanEvent(scanDate, ScanEventType.UPDATE_ALBUM_COUNTS, MSG_UNNECESSARY);
             return;
         }
         for (Artist artist : artistDao.getAlbumCounts()) {

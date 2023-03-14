@@ -30,6 +30,7 @@ import com.tesshu.jpsonic.dao.StaticsDao.ScanLogType;
 import com.tesshu.jpsonic.domain.ScanEvent;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.MediaScannerService;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.DependsOn;
@@ -137,22 +138,32 @@ public class MediaScannerServiceImpl implements MediaScannerService {
         procedure.parsePodcast(scanDate);
         procedure.iterateFileStructure(scanDate);
 
+        MutableBoolean lastScanFailed = new MutableBoolean(false);
+        getLastScanEventType().ifPresent(type -> lastScanFailed.setValue(type != ScanEventType.FINISHED));
+
         boolean parsedAlbum = procedure.parseAlbum(scanDate);
         boolean updatedSortOfAlbum = procedure.updateSortOfAlbum(scanDate);
-        procedure.updateOrderOfAlbum(scanDate, parsedAlbum || updatedSortOfAlbum);
+        boolean toBeSorted = lastScanFailed.getValue() || parsedAlbum || updatedSortOfAlbum;
+        procedure.updateOrderOfAlbum(scanDate, toBeSorted);
         boolean updatedSortOfArtist = procedure.updateSortOfArtist(scanDate);
-        procedure.updateOrderOfArtist(scanDate, parsedAlbum || updatedSortOfArtist);
+        toBeSorted = lastScanFailed.getValue() || parsedAlbum || updatedSortOfArtist;
+        procedure.updateOrderOfArtist(scanDate, toBeSorted);
 
         if (LOG.isInfoEnabled()) {
             LOG.info("Scanned media library with " + scannerState.getScanCount() + " entries.");
         }
 
         boolean refleshedAlbumId3 = procedure.refleshAlbumId3(scanDate);
-        procedure.updateOrderOfAlbumId3(scanDate, refleshedAlbumId3);
-        boolean refleshedArtistId3 = procedure.refleshArtistId3(scanDate);
-        procedure.updateOrderOfArtistId3(scanDate, refleshedArtistId3);
+        toBeSorted = lastScanFailed.getValue() || refleshedAlbumId3;
+        procedure.updateOrderOfAlbumId3(scanDate, toBeSorted);
 
-        procedure.updateAlbumCounts(scanDate);
+        boolean refleshedArtistId3 = procedure.refleshArtistId3(scanDate);
+        toBeSorted = lastScanFailed.getValue() || refleshedArtistId3;
+        procedure.updateOrderOfArtistId3(scanDate, toBeSorted);
+
+        boolean toBeCounted = lastScanFailed.getValue() || refleshedAlbumId3 || refleshedArtistId3;
+        procedure.updateAlbumCounts(scanDate, toBeCounted);
+
         procedure.updateGenreMaster(scanDate);
 
         procedure.runStats(scanDate);
