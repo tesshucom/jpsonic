@@ -177,13 +177,8 @@ public class ScannerProcedureService {
 
         indexManager.startIndexing();
 
-        // TODO To be fixed in v111.6.0
-        if (settingsService.isIgnoreFileTimestampsNext()) {
+        if (settingsService.isIgnoreFileTimestamps()) {
             indexManager.expungeGenreOtherThan(Collections.emptyList());
-            mediaFileDao.resetLastScanned();
-            settingsService.setIgnoreFileTimestampsNext(false);
-            settingsService.save();
-        } else if (settingsService.isIgnoreFileTimestamps()) {
             mediaFileDao.resetLastScanned();
         }
 

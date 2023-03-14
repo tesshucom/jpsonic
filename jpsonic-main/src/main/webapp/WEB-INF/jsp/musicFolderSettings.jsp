@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <c:when test="${command.scanning}">
                             <strong><fmt:message key="musicfoldersettings.nowscanning"/></strong>
                         </c:when>
-                        <c:when test='${not command.scanning and command.fullScanNext}'>
+                        <c:when test='${not command.scanning and command.ignoreFileTimestamps}'>
                             <strong><fmt:message key="musicfoldersettings.fullscannext"/></strong>
                         </c:when>
                         <c:when test='${not empty command.lastScanEventType and command.lastScanEventType.name() ne "FINISHED"}'>
@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     <details 
         <c:choose>
-            <c:when test='${command.fullScanNext}'>open</c:when>
+            <c:when test='${command.ignoreFileTimestamps}'>open</c:when>
             <c:otherwise>${isOpen}</c:otherwise>
         </c:choose>>
         <summary class="jpsonic"><fmt:message key="musicfoldersettings.other"/></summary>
@@ -197,9 +197,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         <c:if test='${"LAST_MODIFIED" eq scheme}'>
                             <li class="subItem">
                                 <form:checkbox path="ignoreFileTimestamps" cssClass="checkbox" id="ignoreFileTimestamps"/>
-                                <c:if test='${command.fullScanNext}'><strong></c:if>
+                                <c:if test='${command.ignoreFileTimestamps}'><strong></c:if>
                                 <form:label path="ignoreFileTimestamps"><fmt:message key="musicfoldersettings.ignorefiletimestamps"/></form:label>
-                                <c:if test='${command.fullScanNext}'></strong></c:if>
+                                <c:if test='${command.ignoreFileTimestamps}'></strong></c:if>
                                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="ignorefiletimestamps"/></c:import>
                             </li>
                         </c:if>

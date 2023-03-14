@@ -41,7 +41,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
     private MusicFolderInfo newMusicFolder;
 
     // Run a scan
-    private boolean fullScanNext;
     private ScanEventType lastScanEventType;
     private String interval;
     private String hour;
@@ -74,14 +73,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
     public void setNewMusicFolder(MusicFolderInfo newMusicFolder) {
         this.newMusicFolder = newMusicFolder;
-    }
-
-    public boolean isFullScanNext() {
-        return fullScanNext;
-    }
-
-    public void setFullScanNext(boolean fullScanNext) {
-        this.fullScanNext = fullScanNext;
     }
 
     public ScanEventType getLastScanEventType() {

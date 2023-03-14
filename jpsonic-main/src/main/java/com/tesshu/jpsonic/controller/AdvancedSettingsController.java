@@ -197,7 +197,7 @@ public class AdvancedSettingsController {
             return;
         }
 
-        settingsService.setIgnoreFileTimestampsNext(true);
+        settingsService.setIgnoreFileTimestamps(true);
         settingsService.setIndexSchemeName(scheme.name());
 
         if (scheme == IndexScheme.NATIVE_JAPANESE) {

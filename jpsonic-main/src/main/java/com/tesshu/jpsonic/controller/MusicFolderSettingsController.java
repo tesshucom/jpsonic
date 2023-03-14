@@ -108,8 +108,6 @@ public class MusicFolderSettingsController {
         command.setNewMusicFolder(new MusicFolderSettingsCommand.MusicFolderInfo());
 
         // Run a scan
-        command.setFullScanNext(
-                settingsService.isIgnoreFileTimestamps() || settingsService.isIgnoreFileTimestampsNext());
         mediaScannerService.getLastScanEventType().ifPresent(type -> command.setLastScanEventType(type));
         command.setInterval(String.valueOf(settingsService.getIndexCreationInterval()));
         command.setHour(String.valueOf(settingsService.getIndexCreationHour()));
