@@ -110,6 +110,7 @@ public class MusicFolderSettingsController {
         // Run a scan
         command.setFullScanNext(
                 settingsService.isIgnoreFileTimestamps() || settingsService.isIgnoreFileTimestampsNext());
+        mediaScannerService.getLastScanEventType().ifPresent(type -> command.setLastScanEventType(type));
         command.setInterval(String.valueOf(settingsService.getIndexCreationInterval()));
         command.setHour(String.valueOf(settingsService.getIndexCreationHour()));
         command.setUseCleanUp(settingsService.isUseCleanUp());
