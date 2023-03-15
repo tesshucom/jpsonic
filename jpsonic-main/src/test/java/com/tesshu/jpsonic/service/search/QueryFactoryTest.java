@@ -163,12 +163,9 @@ class QueryFactoryTest {
         assertEquals("(tit:\"cats and dogs\"~1)^6.0 (art:\"cats and dogs\"~1)^4.0 (artR:\"cats and dogs\"~1)^4.2",
                 queryFactory.createPhraseQuery(IndexType.SONG.getFields(), "Cats and Dogs", IndexType.SONG).get()
                         .toString());
-
-        // XXX Yes! Comment out because PMD causes an error!
-
-        // assertEquals(
-        // "(tit:\"いぬ と ねこ\"~1)^6.0 (titR:\"いぬ ぬと とね ねこ\"~1)^6.2 (art:\"いぬ と ねこ\"~1)^4.0 (artR:\"いぬ ぬと とね ねこ\"~1)^4.2",
-        // queryFactory.createPhraseQuery(IndexType.SONG.getFields(), "いぬとねこ", IndexType.SONG).toString());
+        assertEquals(
+                "(tit:\"いぬ と ねこ\"~1)^6.0 (titR:\"いぬ ぬと とね ねこ\"~1)^6.2 (art:\"いぬ と ねこ\"~1)^4.0 (artR:\"いぬ ぬと とね ねこ\"~1)^4.2",
+                queryFactory.createPhraseQuery(IndexType.SONG.getFields(), "いぬとねこ", IndexType.SONG).get().toString());
     }
 
     @Test
@@ -185,25 +182,17 @@ class QueryFactoryTest {
                 queryFactory.searchByPhrase("Cats and Dogs", false, SINGLE_FOLDERS, IndexType.ALBUM_ID3).toString());
         assertEquals("+(art:\"cats and dogs\"~1 (artR:\"cats and dogs\"~1)^2.2) +(fId:" + FID1 + ")",
                 queryFactory.searchByPhrase("Cats and Dogs", false, SINGLE_FOLDERS, IndexType.ARTIST_ID3).toString());
-
-        // XXX Yes! Comment out because PMD causes an error!
-
-        // assertEquals(
-        // "+((tit:\"いぬ と ねこ\"~1)^6.0 (titR:\"いぬ ぬと とね ねこ\"~1)^6.2 (art:\"いぬ と ねこ\"~1)^4.0 (artR:\"いぬ ぬと とね ねこ\"~1)^4.2)
-        // +(f:"
-        // + PATH1 + ")",
-        // queryFactory.searchByPhrase("いぬとねこ", false, SINGLE_FOLDERS, IndexType.SONG).toString());
+        assertEquals(
+                "+((tit:\"いぬ と ねこ\"~1)^6.0 (titR:\"いぬ ぬと とね ねこ\"~1)^6.2 (art:\"いぬ と ねこ\"~1)^4.0 (artR:\"いぬ ぬと とね ねこ\"~1)^4.2)"
+                        + " +(f:" + PATH1 + ")",
+                queryFactory.searchByPhrase("いぬとねこ", false, SINGLE_FOLDERS, IndexType.SONG).toString());
 
         Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.WITHOUT_JP_LANG_PROCESSING.name());
         queryFactory = new QueryFactory(settingsService, new AnalyzerFactory(settingsService));
-
-        // XXX Yes! Comment out because PMD causes an error!
-
-        // assertEquals(
-        // "+((tit:\"い ぬ と ね こ\"~1)^6.0 (titR:\"いぬ ぬと とね ねこ\"~1)^6.2 (art:\"い ぬ と ね こ\"~1)^4.0 (artR:\"いぬ ぬと とね
-        // ねこ\"~1)^4.2) +(f:"
-        // + PATH1 + ")",
-        // queryFactory.searchByPhrase("いぬとねこ", false, SINGLE_FOLDERS, IndexType.SONG).toString());
+        assertEquals(
+                "+((tit:\"い ぬ と ね こ\"~1)^6.0 (titR:\"いぬ ぬと とね ねこ\"~1)^6.2 (art:\"い ぬ と ね こ\"~1)^4.0 (artR:\"いぬ ぬと とね ねこ\"~1)^4.2) +(f:"
+                        + PATH1 + ")",
+                queryFactory.searchByPhrase("いぬとねこ", false, SINGLE_FOLDERS, IndexType.SONG).toString());
 
         Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.ROMANIZED_JAPANESE.name());
         queryFactory = new QueryFactory(settingsService, new AnalyzerFactory(settingsService));
