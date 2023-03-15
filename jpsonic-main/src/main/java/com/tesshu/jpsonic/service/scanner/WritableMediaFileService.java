@@ -493,8 +493,9 @@ public class WritableMediaFileService {
     }
 
     /*
-     * TODO To be fixed in v111.6.0 #1927. Used for some tag updates. Note that it only updates the tags and does not
-     * take into account the completeness of the scan.
+     * TODO To be fixed in v111.7.0 later #1925. Used for some tag updates. Note that it only updates the tags and does
+     * not take into account the completeness of the scan. Strictly speaking, processing equivalent to partial scan is
+     * required.
      */
     @Deprecated
     void refreshMediaFile(@NonNull MediaFile mediaFile) {
