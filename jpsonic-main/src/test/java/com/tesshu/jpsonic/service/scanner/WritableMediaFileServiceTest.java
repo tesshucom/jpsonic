@@ -765,38 +765,42 @@ class WritableMediaFileServiceTest {
                     writableMediaFileService.getLastModified(now, path));
         }
 
-        @SuppressWarnings("PMD.DetachedTestCase") // TODO To be fixed in v111.6.0 #1925.
+        @Test
         void testApplyFile() throws URISyntaxException {
-            Path path = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
-            assertFalse(Files.isDirectory(path));
             assertTrue(writableMediaFileService.isSchemeLastModified());
 
             final Instant scanStart = now();
 
             // Newly created case
             Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(Collections.emptyList());
+            ArgumentCaptor<MediaFile> mfCaptor = ArgumentCaptor.forClass(MediaFile.class);
+            Mockito.doReturn(null).when(mediaFileDao).createMediaFile(mfCaptor.capture());
 
-            MediaFile mediaFile = writableMediaFileService.createMediaFile(now(), path).get();
+            Path path = createPath("/MEDIAS/Music2/_DIR_ chrome hoof - 2004/10 telegraph hill.mp3");
+            assertFalse(Files.isDirectory(path));
+            writableMediaFileService.createMediaFile(now(), path);
+            MediaFile mediaFile = mfCaptor.getValue();
 
             assertThat("Because the parsed time is recorded.", mediaFile.getLastScanned().toEpochMilli(),
                     greaterThan(scanStart.toEpochMilli()));
             assertEquals(FAR_PAST.toEpochMilli(), mediaFile.getChildrenLastUpdated().toEpochMilli());
 
             // Update case
-            Mockito.when(mediaFileDao.getMediaFile(path.toString())).thenReturn(mediaFile);
+            Mockito.when(mediaFileDao.createMediaFile(mediaFile)).thenReturn(mediaFile);
             mediaFile = writableMediaFileService.createMediaFile(now(), path).get();
             assertThat("Because the parsed time is set.", mediaFile.getLastScanned().toEpochMilli(),
                     greaterThan(scanStart.toEpochMilli()));
             assertEquals(FAR_PAST.toEpochMilli(), mediaFile.getChildrenLastUpdated().toEpochMilli());
 
             // With statistics
-            mediaFile = writableMediaFileService.createMediaFile(scanStart, path).get();
-            assertEquals(mediaFile.getLastScanned().toEpochMilli(), scanStart.toEpochMilli(),
-                    "Because the scanStart-time is set.");
-            assertEquals(FAR_PAST.toEpochMilli(), mediaFile.getChildrenLastUpdated().toEpochMilli());
+            // mediaFile = writableMediaFileService.createMediaFile(scanStart, path).get();
+            // assertEquals(mediaFile.getLastScanned().toEpochMilli(), scanStart.toEpochMilli(),
+            // "Because the scanStart-time is set.");
+            // assertEquals(FAR_PAST.toEpochMilli(),
+            // mediaFile.getChildrenLastUpdated().toEpochMilli());
         }
 
-        @SuppressWarnings("PMD.DetachedTestCase") // TODO To be fixed in v111.6.0 #1925.
+        @Test
         void testApplyDirWithoutChild() throws URISyntaxException {
             Path path = createPath("/MEDIAS/Music2");
             assertTrue(Files.isDirectory(path));
@@ -805,24 +809,28 @@ class WritableMediaFileServiceTest {
 
             // Newly created case
             Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(Collections.emptyList());
-
-            MediaFile mediaFile = writableMediaFileService.createMediaFile(scanStart, path).get();
-            assertEquals(FAR_PAST.toEpochMilli(), mediaFile.getLastScanned().toEpochMilli());
+            ArgumentCaptor<MediaFile> mfCaptor = ArgumentCaptor.forClass(MediaFile.class);
+            Mockito.doReturn(null).when(mediaFileDao).createMediaFile(mfCaptor.capture());
+            writableMediaFileService.createMediaFile(scanStart, path);
+            MediaFile mediaFile = mfCaptor.getValue();
+            assertEquals(scanStart.toEpochMilli(), mediaFile.getLastScanned().toEpochMilli());
             assertEquals(FAR_PAST.toEpochMilli(), mediaFile.getChildrenLastUpdated().toEpochMilli());
 
             // Update case
             Mockito.when(mediaFileDao.getMediaFile(path.toString())).thenReturn(mediaFile);
-            mediaFile = writableMediaFileService.createMediaFile(scanStart, path).get();
-            assertEquals(FAR_PAST.toEpochMilli(), mediaFile.getLastScanned().toEpochMilli());
+            Mockito.doReturn(null).when(mediaFileDao).createMediaFile(mfCaptor.capture());
+            writableMediaFileService.createMediaFile(scanStart, path);
+            mediaFile = mfCaptor.getValue();
+            assertEquals(scanStart.toEpochMilli(), mediaFile.getLastScanned().toEpochMilli());
             assertEquals(FAR_PAST.toEpochMilli(), mediaFile.getChildrenLastUpdated().toEpochMilli());
 
             // With statistics
-            mediaFile = writableMediaFileService.createMediaFile(scanStart, path).get();
-            assertEquals(FAR_PAST.toEpochMilli(), mediaFile.getLastScanned().toEpochMilli());
-            assertEquals(FAR_PAST.toEpochMilli(), mediaFile.getChildrenLastUpdated().toEpochMilli());
+            // mediaFile = writableMediaFileService.createMediaFile(scanStart, path).get();
+            // assertEquals(FAR_PAST.toEpochMilli(), mediaFile.getLastScanned().toEpochMilli());
+            // assertEquals(FAR_PAST.toEpochMilli(), mediaFile.getChildrenLastUpdated().toEpochMilli());
         }
 
-        @SuppressWarnings("PMD.DetachedTestCase") // TODO To be fixed in v111.6.0 #1925.
+        @Test
         void testApplyDirWithChild() throws URISyntaxException {
             MusicParser musicParser = mock(MusicParser.class);
             Mockito.when(musicParser.getMetaData(Mockito.any(Path.class))).thenReturn(new MetaData());
@@ -840,8 +848,8 @@ class WritableMediaFileServiceTest {
 
             writableMediaFileService.createMediaFile(scanStart, dir);
 
-            // Because firstChild is parsed
-            Mockito.verify(musicParser, Mockito.times(1)).getMetaData(Mockito.any(Path.class));
+            // Because firstChild is NOT parsed(v111.6.0)
+            Mockito.verify(musicParser, Mockito.never()).getMetaData(Mockito.any(Path.class));
 
             /*
              * Because firstChild is registered. Since firstChild is registered at this time, firstChild will not be
@@ -851,8 +859,8 @@ class WritableMediaFileServiceTest {
             // [Windows] assertEquals("02 eyes like dull hazlenuts", mediaFileCaptor.getValue().getName());
             // [Linux] assertEquals("10 telegraph hill", mediaFileCaptor.getValue().getName());
 
-            // 3times [parent, firstChild(before create), firstChild(after create)]
-            Mockito.verify(mediaFileDao, Mockito.times(3)).getMediaFile(pathsCaptor.capture());
+            // never(v111.6.0)
+            Mockito.verify(mediaFileDao, Mockito.never()).getMediaFile(pathsCaptor.capture());
         }
     }
 
