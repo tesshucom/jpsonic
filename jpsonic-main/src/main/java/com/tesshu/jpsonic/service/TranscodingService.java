@@ -158,7 +158,6 @@ public class TranscodingService {
      * @return All active transcodings for the player.
      */
     public List<Transcoding> getTranscodingsForPlayer(@NonNull Player player) {
-        // FIXME - This should probably check isTranscodingInstalled()
         return transcodingDao.getTranscodingsForPlayer(player.getId());
     }
 
