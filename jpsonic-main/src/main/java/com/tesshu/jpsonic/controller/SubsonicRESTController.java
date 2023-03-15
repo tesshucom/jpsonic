@@ -1102,17 +1102,6 @@ public class SubsonicRESTController {
         }
         playlistService.updatePlaylist(playlist);
 
-        // TODO: Add later
-        // for (String usernameToAdd : ServletRequestUtils.getStringParameters(request, "usernameToAdd")) {
-        // if (securityService.getUserByName(usernameToAdd) != null) {
-        // playlistService.addPlaylistUser(id, usernameToAdd);
-        // }
-        // }
-        // for (String usernameToRemove : ServletRequestUtils.getStringParameters(request, "usernameToRemove")) {
-        // if (securityService.getUserByName(usernameToRemove) != null) {
-        // playlistService.deletePlaylistUser(id, usernameToRemove);
-        // }
-        // }
         List<MediaFile> songs = playlistService.getFilesInPlaylist(id);
         int[] toRemove = ServletRequestUtils.getIntParameters(request, Attributes.Request.SONG_INDEX_TO_REMOVE.value());
         int[] toAdd = ServletRequestUtils.getIntParameters(request, Attributes.Request.SONG_ID_TO_ADD.value());
@@ -1286,7 +1275,6 @@ public class SubsonicRESTController {
 
         int size = ServletRequestUtils.getIntParameter(request, Attributes.Request.SIZE.value(), 10);
         size = Math.max(0, Math.min(size, 500));
-        // TODO #252
         List<String> genres = null;
         String genre = ServletRequestUtils.getStringParameter(request, Attributes.Request.GENRE.value());
         if (null != genre) {

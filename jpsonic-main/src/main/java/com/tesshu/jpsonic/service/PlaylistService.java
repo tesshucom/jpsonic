@@ -204,7 +204,6 @@ public class PlaylistService {
     public Playlist importPlaylist(String username, String playlistName, String fileName, InputStream inputStream,
             Playlist existingPlaylist) throws ExecutionException {
 
-        // TODO: handle other encodings
         SpecificPlaylist inputSpecificPlaylist;
         try {
             inputSpecificPlaylist = SpecificPlaylistFactory.getInstance().readFrom(inputStream, "UTF-8");

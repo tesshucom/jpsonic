@@ -104,8 +104,7 @@ public class MusicIndexService {
             for (MusicFolder musicFolder : musicFoldersToUse) {
                 Path shortcutPath = Path.of(musicFolder.getPathString(), shortcut);
                 if (Files.exists(shortcutPath)) {
-                    result.add(mediaFileService.getMediaFile(shortcutPath)); // TODO refresh ?
-                    // result.add(mediaFileService.getMediaFile(shortcutPath, true));
+                    result.add(mediaFileService.getMediaFile(shortcutPath));
                 }
             }
         }

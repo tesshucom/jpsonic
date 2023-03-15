@@ -54,7 +54,6 @@ import org.springframework.test.annotation.DirtiesContext;
  */
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
-// TODO Separate classes that require DirtiesContext from those that don't
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public abstract class AbstractNeedsScan implements NeedsScan {
 
