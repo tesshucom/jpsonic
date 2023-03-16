@@ -944,13 +944,13 @@ class MediaScannerServiceImplTest {
 
             MusicFolder folder = musicFolders.get(0);
             folder.setEnabled(false);
-            musicFolderService.updateMusicFolder(folder);
+            musicFolderService.updateMusicFolder(now(), folder);
             TestCaseUtils.execScan(mediaScannerService);
 
             assertNull(mediaFileDao.getMediaFile(this.song.toString()));
 
             folder.setEnabled(true);
-            musicFolderService.updateMusicFolder(folder);
+            musicFolderService.updateMusicFolder(now(), folder);
             TestCaseUtils.execScan(mediaScannerService);
 
             song = mediaFileDao.getMediaFile(this.song.toString());

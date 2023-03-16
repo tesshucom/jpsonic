@@ -108,6 +108,10 @@ public class ScanEvent {
         DESTROYED,
         CANCELED,
 
+        FOLDER_CREATE,
+        FOLDER_DELETE,
+        FOLDER_UPDATE,
+        
         BEFORE_SCAN,
         MUSIC_FOLDER_CHECK,
         PARSE_FILE_STRUCTURE,

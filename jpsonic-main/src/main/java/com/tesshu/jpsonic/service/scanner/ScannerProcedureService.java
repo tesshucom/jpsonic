@@ -146,7 +146,8 @@ public class ScannerProcedureService {
     }
 
     void createScanLog(@NonNull Instant scanDate, @NonNull ScanLogType logType) {
-        if (logType == ScanLogType.SCAN_ALL || logType == ScanLogType.EXPUNGE || settingsService.isUseScanLog()) {
+        if (logType == ScanLogType.SCAN_ALL || logType == ScanLogType.EXPUNGE || logType == ScanLogType.FOLDER_CHANGED
+                || settingsService.isUseScanLog()) {
             staticsDao.createScanLog(scanDate, logType);
         }
     }
@@ -205,7 +206,7 @@ public class ScannerProcedureService {
                 if (folder.isEnabled()) {
                     folder.setEnabled(false);
                     folder.setChanged(scanDate);
-                    musicFolderService.updateMusicFolder(folder);
+                    musicFolderService.updateMusicFolder(scanDate, folder);
                     enabled.increment();
                 }
             }

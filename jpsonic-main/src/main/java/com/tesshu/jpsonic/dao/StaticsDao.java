@@ -19,6 +19,8 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.util.PlayerUtils.now;
+
 import java.sql.ResultSet;
 import java.time.Instant;
 import java.util.Arrays;
@@ -33,6 +35,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class StaticsDao extends AbstractDao {
@@ -50,12 +53,27 @@ public class StaticsDao extends AbstractDao {
         super(daoHelper);
     }
 
+    @Transactional
+    public void createFolderLog(@NonNull Instant executed, @NonNull ScanEventType type) {
+        Instant result = queryForInstant("select start_date from scan_log where start_date = ? and type = ?", null,
+                executed, ScanLogType.FOLDER_CHANGED.name());
+        if (result == null) {
+            createScanLog(executed, ScanLogType.FOLDER_CHANGED);
+        }
+        createScanEvent(new ScanEvent(executed, now(), type, null, null, null, null));
+    }
+
     public void createScanLog(@NonNull Instant scanDate, @NonNull ScanLogType type) {
         update("insert into scan_log (start_date, type) values (?, ?)", scanDate, type.name());
     }
 
     public void deleteBefore(Instant retention) {
-        update("delete from scan_log where start_date < ?", retention);
+        String query = "delete from scan_log where type = ? and (start_date <> (select start_date from scan_log "
+                + "where type = ? order by start_date desc limit 1)) and start_date < ?";
+        update(query, ScanLogType.SCAN_ALL.name(), ScanLogType.SCAN_ALL.name(), retention);
+        update(query, ScanLogType.FOLDER_CHANGED.name(), ScanLogType.FOLDER_CHANGED.name(), retention);
+        update("delete from scan_log where (type <> ? and type <> ?) and start_date < ?", ScanLogType.SCAN_ALL.name(),
+                ScanLogType.FOLDER_CHANGED.name(), retention);
     }
 
     public void createScanEvent(@NonNull ScanEvent scanEvent) {
@@ -65,8 +83,12 @@ public class StaticsDao extends AbstractDao {
     }
 
     public void deleteOtherThanLatest() {
-        update("delete from scan_log where start_date not in(select start_date from scan_log "
-                + "where type = 'SCAN_ALL' order by start_date desc limit 1)");
+        String query = "delete from scan_log where type = ? and start_date <> (select start_date from scan_log "
+                + "where type = ? order by start_date desc limit 1)";
+        update(query, ScanLogType.SCAN_ALL.name(), ScanLogType.SCAN_ALL.name());
+        update(query, ScanLogType.FOLDER_CHANGED.name(), ScanLogType.FOLDER_CHANGED.name());
+        update("delete from scan_log where (type <> ? and type <> ?)", ScanLogType.SCAN_ALL.name(),
+                ScanLogType.FOLDER_CHANGED.name());
     }
 
     public @Nullable MediaLibraryStatistics getRecentMediaLibraryStatistics() {
@@ -99,6 +121,6 @@ public class StaticsDao extends AbstractDao {
     }
 
     public enum ScanLogType {
-        SCAN_ALL, EXPUNGE, PODCAST_REFRESH_ALL
+        SCAN_ALL, EXPUNGE, PODCAST_REFRESH_ALL, FOLDER_CHANGED
     }
 }

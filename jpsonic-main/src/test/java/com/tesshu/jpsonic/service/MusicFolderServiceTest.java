@@ -34,7 +34,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.dao.MusicFolderDao;
+import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.util.PlayerUtils;
 import net.sf.ehcache.Ehcache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -58,7 +60,8 @@ class MusicFolderServiceTest {
         Mockito.when(settingsService.isRedundantFolderCheck()).thenReturn(false);
 
         indexCache = mock(Ehcache.class);
-        musicFolderService = new MusicFolderService(musicFolderDao, settingsService, indexCache);
+        musicFolderService = new MusicFolderService(musicFolderDao, mock(StaticsDao.class), settingsService,
+                indexCache);
 
         MusicFolder m1 = new MusicFolder(1, "/dummy/path", "Disabled&NonExisting", false, null);
         MusicFolder m2 = new MusicFolder(2, "/dummy/path", "Enabled&NonExisting", true, null);
@@ -303,21 +306,21 @@ class MusicFolderServiceTest {
 
     @Test
     void testCreateMusicFolder() {
-        musicFolderService.createMusicFolder(null);
+        musicFolderService.createMusicFolder(PlayerUtils.now(), null);
         Mockito.verify(musicFolderDao, Mockito.times(1)).createMusicFolder(Mockito.nullable(MusicFolder.class));
         Mockito.verify(indexCache, Mockito.times(1)).removeAll();
     }
 
     @Test
     void testDeleteMusicFolder() {
-        musicFolderService.deleteMusicFolder(-1);
+        musicFolderService.deleteMusicFolder(PlayerUtils.now(), -1);
         Mockito.verify(musicFolderDao, Mockito.times(1)).deleteMusicFolder(Mockito.nullable(Integer.class));
         Mockito.verify(indexCache, Mockito.times(1)).removeAll();
     }
 
     @Test
     void testUpdateMusicFolder() {
-        musicFolderService.updateMusicFolder(null);
+        musicFolderService.updateMusicFolder(PlayerUtils.now(), null);
         Mockito.verify(musicFolderDao, Mockito.times(1)).updateMusicFolder(Mockito.nullable(MusicFolder.class));
         Mockito.verify(indexCache, Mockito.times(1)).removeAll();
     }
