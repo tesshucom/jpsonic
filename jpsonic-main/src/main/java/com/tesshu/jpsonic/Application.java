@@ -64,7 +64,7 @@ import org.springframework.util.ReflectionUtils;
 
 @SpringBootApplication(exclude = { JmxAutoConfiguration.class, JdbcTemplateAutoConfiguration.class,
         DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class,
-        MultipartAutoConfiguration.class, // TODO: update to use spring boot builtin multipart support
+        MultipartAutoConfiguration.class,
         LiquibaseAutoConfiguration.class }, scanBasePackages = { "com.tesshu.jpsonic", "com.tesshu.jpsonic" })
 @EnableScheduling
 public class Application extends SpringBootServletInitializer

@@ -106,9 +106,9 @@ public class WritableMediaFileService {
     }
 
     /**
-     * Use of this method suggests imperfect workflow design.
+     * Logic that relies on this method needs to be rewritten since v111.7.0. It suggests imperfect workflow design.
      *
-     * @deprecated Spec subject to change
+     * @deprecated Use the date logged should be used instead of now()
      */
     @Deprecated
     Instant newScanDate() {
@@ -116,7 +116,7 @@ public class WritableMediaFileService {
     }
 
     /**
-     * Will be removed in v111.7.0. Use of this method suggests imperfect workflow design.
+     * Logic that relies on this method needs to be rewritten since v111.7.0. It suggests imperfect workflow design.
      *
      * @deprecated Use MediaFileService#getMediaFile if use the cache, otherwise use
      *             WritableMediaFileService#getMediaFile(Instant, Path)
@@ -128,12 +128,10 @@ public class WritableMediaFileService {
     }
 
     /**
-     * Will be removed in v111.7.0.
-     *
-     * @deprecated Only used on top nodes in scans. So creating a top-level node is necessary and there should be no
-     *             need to provide a multipurpose method.
+     * Returns a Mediafile for the directory or file indicated by path. Logic using this method was used outside of the
+     * normal scan flow in legacy code. Therefore, special data may be created. In particular, the record lifecycle and
+     * format should be scrutinized.
      */
-    @Deprecated
     @Nullable
     MediaFile getMediaFile(@NonNull Instant scanDate, @Nullable Path path) {
 
@@ -493,8 +491,9 @@ public class WritableMediaFileService {
     }
 
     /*
-     * TODO To be fixed in v111.6.0 #1927. Used for some tag updates. Note that it only updates the tags and does not
-     * take into account the completeness of the scan.
+     * TODO To be fixed in v111.7.0 later #1925. Used for some tag updates. Note that it only updates the tags and does
+     * not take into account the completeness of the scan. Strictly speaking, processing equivalent to partial scan is
+     * required.
      */
     @Deprecated
     void refreshMediaFile(@NonNull MediaFile mediaFile) {

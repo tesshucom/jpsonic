@@ -157,16 +157,7 @@ class SearchServiceTest {
                     IndexType.SONG);
             result = searchService.search(searchCriteria);
 
-            assertEquals(0, // XXX
-                    // Legacy
-                    // ->
-                    // Phrase
-                    // Fix
-                    // for
-                    // missing
-                    // cases
-                    // (#491)
-                    result.getTotalHits(),
+            assertEquals(0, result.getTotalHits(),
                     "(11) Specify album '" + searchCriteria.getQuery() + "' as query, total Hits is");
             assertEquals(0, result.getArtists().size(),
                     "(12) Specify album '" + searchCriteria.getQuery() + "', and get a song. Artist SIZE is");
@@ -174,18 +165,6 @@ class SearchServiceTest {
                     "(13) Specify album '" + searchCriteria.getQuery() + "', and get a song. Album SIZE is");
             assertEquals(0, result.getMediaFiles().size(),
                     "(14) Specify album '" + searchCriteria.getQuery() + "', and get a song. MediaFile SIZE is");
-            // XXX Legacy -> Phrase Fix for missing cases (#491)
-            // assertEquals("(15) Specify album '" + searchCriteria.getQuery() + "', and get songs. The first song is
-            // ", "01 - Gaspard de la Nuit - i. Ondine", result.getMediaFiles().get(0).getTitle());
-            // assertEquals("(16) Specify album '" + searchCriteria.getQuery() + "', and get songs. The second song
-            // is ", "02 - Gaspard de la Nuit - ii. Le Gibet", result.getMediaFiles().get(1).getTitle());
-            // if ("01 - Gaspard de la Nuit - i. Ondine".equals(result.getMediaFiles().get(0).getName())) {
-            // assertEquals("02 - Gaspard de la Nuit - ii. Le Gibet", result.getMediaFiles().get(1).getName());
-            // } else if ("02 - Gaspard de la Nuit - ii. Le Gibet".equals(result.getMediaFiles().get(0).getName())) {
-            // assertEquals("01 - Gaspard de la Nuit - i. Ondine", result.getMediaFiles().get(1).getName());
-            // } else {
-            // fail("Search results are not correct.");
-            // }
 
             // *** testGetRandomSongs() ***
 
@@ -263,25 +242,8 @@ class SearchServiceTest {
             searchCriteria = director.construct("ID 3 ARTIST", offset, count, false, allMusicFolders,
                     IndexType.ARTIST_ID3);
             result = searchService.search(searchCriteria);
-            assertEquals(3, // XXX Legacy(4) ->
-                    // Phrase(3) Accuracy
-                    // was improved by
-                    // considering the
-                    // word order
-                    result.getTotalHits(), "(29) Specify '" + searchCriteria.getQuery() + "', total Hits is");
-            assertEquals(3, // XXX
-                            // Legacy(4)
-                            // ->
-                            // Phrase(3)
-                            // Accuracy
-                            // was
-                            // improved
-                            // by
-                            // considering
-                            // the
-                            // word
-                            // order
-                    result.getArtists().size(),
+            assertEquals(3, result.getTotalHits(), "(29) Specify '" + searchCriteria.getQuery() + "', total Hits is");
+            assertEquals(3, result.getArtists().size(),
                     "(30) Specify '" + searchCriteria.getQuery() + "', and get an artists. Artist SIZE is ");
             assertEquals(0, result.getAlbums().size(),
                     "(31) Specify '" + searchCriteria.getQuery() + "', and get a artists. Album SIZE is ");
@@ -301,11 +263,7 @@ class SearchServiceTest {
              * duplicates. And ALBUMARTIST must be returned correctly.)
              */
             l = result.getArtists().stream().filter(a -> a.getName().startsWith("_ID3_ALBUMARTIST_")).count();
-            assertEquals(0L, l, "(34) Artist whose name is \"_ID3_ARTIST_\" is 1 records."); // XXX Legacy(1L) ->
-                                                                                             // Phrase(0L) Any
-                                                                                             // deficiencies in the
-                                                                                             // test? Healthy on the
-                                                                                             // web.
+            assertEquals(0L, l, "(34) Artist whose name is \"_ID3_ARTIST_\" is 1 records.");
 
             /*
              * Below is a simple loop test. How long is the total time?
@@ -609,7 +567,7 @@ class SearchServiceTest {
          * Legacy can not search all these genres. (Strictly speaking, the genre field is not created at index
          * creation.)
          *
-         * // XXX 3.x -> 8.x : Do the process more strictly.
+         * // 3.x -> 8.x : Do the process more strictly.
          *
          * - Values ​​that can be cross-referenced with DB are stored in the index. - Search is also possible with
          * user's readable value (file tag value). - However, there is an exception in parentheses.
@@ -626,27 +584,27 @@ class SearchServiceTest {
             );
 
             List<MediaFile> songs = searchService.getRandomSongs(simpleStringCriteria.apply("+"));
-            assertEquals(1, songs.size()); // XXX 3.x -> 8.x : Searchable
+            assertEquals(1, songs.size()); // Searchable
             assertEquals("+", songs.get(0).getGenre());
             assertEquals("Query Escape Requires 1", songs.get(0).getTitle());
 
             songs = searchService.getRandomSongs(simpleStringCriteria.apply("-"));
-            assertEquals(1, songs.size()); // XXX 3.x -> 8.x : Searchable
+            assertEquals(1, songs.size()); // Searchable
             assertEquals("-", songs.get(0).getGenre());
             assertEquals("Query Escape Requires 2", songs.get(0).getTitle());
 
             songs = searchService.getRandomSongs(simpleStringCriteria.apply("&&"));
-            assertEquals(1, songs.size()); // XXX 3.x -> 8.x : Searchable
+            assertEquals(1, songs.size()); // Searchable
             assertEquals("&&", songs.get(0).getGenre());
             assertEquals("Query Escape Requires 3", songs.get(0).getTitle());
 
             songs = searchService.getRandomSongs(simpleStringCriteria.apply("||"));
-            assertEquals(1, songs.size()); // XXX 3.x -> 8.x : Searchable
+            assertEquals(1, songs.size()); // Searchable
             assertEquals("||", songs.get(0).getGenre());
             assertEquals("Query Escape Requires 4", songs.get(0).getTitle());
 
             /*
-             * // XXX 3.x -> 8.x : Brackets ()
+             * // 3.x -> 8.x : Brackets ()
              *
              * Lucene can handle these. However, brackets are specially parsed before the index creation process.
              *
@@ -659,91 +617,80 @@ class SearchServiceTest {
             assertEquals(0, songs.size());
 
             /*
-             * // XXX 3.x -> 8.x : Brackets {}[]
+             * // 3.x -> 8.x : Brackets {}[]
              *
              * Lucene can handle these. However, brackets are specially parsed before the index creation process.
              *
              * This can be done with a filter that performs the reverse process on the input values ​​when searching. As
              * a result, the values ​​stored in the file can be retrieved by search.
-             *
-             * @see AnalyzerFactory <<<<<<<
-             * HEAD:jpsonic-main/src/test/java/org/airsonic/player/service/search/SearchServiceSpecialGenreTestCase.java
-             *
-             *
-             * =======
-             *
-             * >>>>> >>>>>>>
-             * ec426fc:airsonic-main/src/test/java/org/airsonic/player/service/search/SearchServiceSpecialGenreTestCase.
-             * java
              */
             songs = searchService.getRandomSongs(simpleStringCriteria.apply("{}"));
-            assertEquals(1, songs.size()); // XXX 3.x -> 8.x : Searchable
+            assertEquals(1, songs.size()); // Searchable
             /*
              * This is the result of the tag parser and domain value. It is different from the tag value in file.
              */
             assertEquals("{ }", songs.get(0).getGenre());
             assertEquals("Query Escape Requires 7", songs.get(0).getTitle());
             songs = searchService.getRandomSongs(simpleStringCriteria.apply("{ }"));
-            assertEquals(1, songs.size()); // XXX 3.x -> 8.x : Searchable
+            assertEquals(1, songs.size()); // Searchable
             assertEquals("Query Escape Requires 7", songs.get(0).getTitle());
 
             songs = searchService.getRandomSongs(simpleStringCriteria.apply("[]"));
-            assertEquals(1, songs.size()); // XXX 3.x -> 8.x : Searchable
+            assertEquals(1, songs.size()); // Searchable
             /*
              * This is the result of the tag parser and domain value. It is different from the tag value in file.
              */
             assertEquals("[ ]", songs.get(0).getGenre());
             assertEquals("Query Escape Requires 8", songs.get(0).getTitle());
             songs = searchService.getRandomSongs(simpleStringCriteria.apply("[ ]"));
-            assertEquals(1, songs.size()); // XXX 3.x -> 8.x : Searchable
+            assertEquals(1, songs.size()); // Searchable
             assertEquals("Query Escape Requires 8", songs.get(0).getTitle());
             // <<<<<
 
             songs = searchService.getRandomSongs(simpleStringCriteria.apply("^"));
-            assertEquals(1, songs.size()); // XXX 3.x -> 8.x : Searchable
+            assertEquals(1, songs.size()); // Searchable
             assertEquals("^", songs.get(0).getGenre());
             assertEquals("Query Escape Requires 9", songs.get(0).getTitle());
 
             songs = searchService.getRandomSongs(simpleStringCriteria.apply("\""));
-            assertEquals(1, songs.size()); // XXX 3.x -> 8.x : Searchable
+            assertEquals(1, songs.size()); // Searchable
             assertEquals("\"", songs.get(0).getGenre());
             assertEquals("Query Escape Requires 10", songs.get(0).getTitle());
 
             songs = searchService.getRandomSongs(simpleStringCriteria.apply("~"));
-            assertEquals(1, songs.size()); // XXX 3.x -> 8.x : Searchable
+            assertEquals(1, songs.size()); // Searchable
             assertEquals("~", songs.get(0).getGenre());
             assertEquals("Query Escape Requires 11", songs.get(0).getTitle());
 
             songs = searchService.getRandomSongs(simpleStringCriteria.apply("*"));
-            assertEquals(1, songs.size()); // XXX 3.x -> 8.x : Searchable
+            assertEquals(1, songs.size()); // Searchable
             assertEquals("*", songs.get(0).getGenre());
             assertEquals("Query Escape Requires 12", songs.get(0).getTitle());
 
             songs = searchService.getRandomSongs(simpleStringCriteria.apply("?"));
-            assertEquals(1, songs.size()); // XXX 3.x -> 8.x : Searchable
+            assertEquals(1, songs.size()); // Searchable
             assertEquals("?", songs.get(0).getGenre());
             assertEquals("Query Escape Requires 13", songs.get(0).getTitle());
 
             songs = searchService.getRandomSongs(simpleStringCriteria.apply(":"));
-            assertEquals(1, songs.size()); // XXX 3.x -> 8.x : Searchable
+            assertEquals(1, songs.size()); // Searchable
             assertEquals(":", songs.get(0).getGenre());
             assertEquals("Query Escape Requires 14", songs.get(0).getTitle());
 
             songs = searchService.getRandomSongs(simpleStringCriteria.apply("\\"));
-            assertEquals(1, songs.size()); // XXX 3.x -> 8.x : Searchable
+            assertEquals(1, songs.size()); // Searchable
             assertEquals("\\", songs.get(0).getGenre());
             assertEquals("Query Escape Requires 15", songs.get(0).getTitle());
 
             songs = searchService.getRandomSongs(simpleStringCriteria.apply("/"));
-            assertEquals(1, songs.size()); // XXX 3.x -> 8.x : Searchable
+            assertEquals(1, songs.size()); // Searchable
             assertEquals("/", songs.get(0).getGenre());
             assertEquals("Query Escape Requires 16", songs.get(0).getTitle());
 
         }
 
         /*
-         * Jaudiotagger applies special treatment to bracket (FILE17). XXX 3.x -> 8.x : Specification of genre search
-         * became more natural.
+         * 3.x -> 8.x : Specification of genre search. Jaudiotagger applies special treatment to bracket (FILE17).
          */
         @Test
         void testBrackets() {
@@ -828,7 +775,7 @@ class SearchServiceTest {
                     getMusicFolders() // musicFolders
             );
 
-            // XXX 3.x -> 8.x : Do the process more strictly.
+            // 3.x -> 8.x : Do the process more strictly.
             List<MediaFile> songs = searchService
                     .getRandomSongs(simpleStringCriteria.apply("{'“『【【】】[︴○◎@ $〒→+]ＦＵＬＬ－ＷＩＤＴＨCæsar's"));
             assertEquals(1, songs.size());
@@ -955,32 +902,31 @@ class SearchServiceTest {
             // search rather than a term prefix match.
             assertEquals(0, result.getTotalHits(), "Williams hit by \"will\" ");
 
-            // XXX legacy -> phrase
             criteria = director.construct("williams", offset, count, false, folders, IndexType.ARTIST_ID3);
             result = searchService.search(criteria);
             assertEquals(1, result.getTotalHits(), "Williams hit by \"williams\" ");
 
             criteria = director.construct("the", offset, count, false, folders, IndexType.SONG);
             result = searchService.search(criteria);
-            // XXX 3.x -> 8.x : The filter is properly applied to the input(Stopward)
+            // 3.x -> 8.x : The filter is properly applied to the input(Stopward)
             assertEquals(0, result.getTotalHits(), "Theater hit by \"the\" ");
 
             criteria = director.construct("willi", offset, count, false, folders, IndexType.ARTIST_ID3);
             result = searchService.search(criteria);
-            // XXX 3.x -> 8.x : Normal forward matching => This case does not hit because it is a phrase search rather
+            // 3.x -> 8.x : Normal forward matching => This case does not hit because it is a phrase search rather
             // than
             // a term prefix match.
             assertEquals(0, result.getTotalHits(), "Williams hit by \"Williams\" ");
 
             criteria = director.construct("thea", offset, count, false, folders, IndexType.SONG);
             result = searchService.search(criteria);
-            // XXX 3.x -> 8.x : Normal forward matching
+            // 3.x -> 8.x : Normal forward matching
             assertEquals(0, result.getTotalHits(), "Theater hit by \"thea\" "); // => This case does not hit
                                                                                 // because
             // it is a phrase search rather than
             // a term prefix match.
 
-            // XXX legacy -> phrase
+            // legacy -> phrase
             criteria = director.construct("theater", offset, count, false, folders, IndexType.SONG);
             result = searchService.search(criteria);
             assertEquals(1, result.getTotalHits(), "Theater hit by \"theater\" ");

@@ -204,8 +204,6 @@ public class UPnPService {
      */
     private LocalDevice createMediaServerDevice() throws ExecutionException {
 
-        // TODO: DLNACaps
-
         @SuppressWarnings("unchecked")
         LocalService<CustomContentDirectory> directoryservice = new AnnotationLocalServiceBinder()
                 .read(CustomContentDirectory.class);

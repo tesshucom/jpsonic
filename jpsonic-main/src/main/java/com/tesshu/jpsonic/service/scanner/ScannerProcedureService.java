@@ -222,14 +222,18 @@ public class ScannerProcedureService {
         createScanEvent(scanDate, ScanEventType.MUSIC_FOLDER_CHECK, comment);
     }
 
-    void parseFileStructure(@NonNull Instant scanDate) {
-        for (MusicFolder musicFolder : musicFolderService.getAllMusicFolders()) {
-            MediaFile root = wmfs.getMediaFile(scanDate, musicFolder.toPath());
-            if (root != null) {
-                mediaFileDao.updateLastScanned(root.getId(), scanDate);
-                scanFile(scanDate, musicFolder, root);
-            }
+    Optional<MediaFile> getRootDirectory(@NonNull Instant scanDate, Path path) {
+        MediaFile root = wmfs.getMediaFile(scanDate, path);
+        if (root != null) {
+            mediaFileDao.updateLastScanned(root.getId(), scanDate);
+            return Optional.of(root);
         }
+        return Optional.empty();
+    }
+
+    void parseFileStructure(@NonNull Instant scanDate) {
+        musicFolderService.getAllMusicFolders().forEach(folder -> getRootDirectory(scanDate, folder.toPath())
+                .ifPresent(root -> scanFile(scanDate, folder, root)));
         if (isInterrupted()) {
             return;
         }
@@ -580,17 +584,15 @@ public class ScannerProcedureService {
         if (settingsService.getPodcastFolder() == null) {
             return;
         }
-        Path podcastFolder = Path.of(settingsService.getPodcastFolder());
-        MediaFile root = wmfs.getMediaFile(scanDate, podcastFolder);
-        if (root != null) {
-            mediaFileDao.updateLastScanned(root.getId(), scanDate);
-            MusicFolder dummy = new MusicFolder(podcastFolder.toString(), null, true, null);
+        Path path = Path.of(settingsService.getPodcastFolder());
+        MusicFolder dummy = new MusicFolder(path.toString(), null, true, null);
+        getRootDirectory(scanDate, path).ifPresent(root -> {
             scanPodcast(scanDate, dummy, root);
             createScanEvent(scanDate, ScanEventType.PARSE_PODCAST, null);
-        }
+        });
     }
 
-    // TODO To be fixed in v111.7.0 #1927
+    // TODO To be fixed in v111.7.0 later #1925
     void scanPodcast(@NonNull Instant scanDate, @NonNull MusicFolder folder, @NonNull MediaFile file) {
         if (isInterrupted()) {
             return;

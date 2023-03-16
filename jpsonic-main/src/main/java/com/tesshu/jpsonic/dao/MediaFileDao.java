@@ -760,12 +760,11 @@ public class MediaFileDao extends AbstractDao {
 
         Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toPathList(criteria.getMusicFolders()),
                 "username", username, "fromYear", criteria.getFromYear(), "toYear", criteria.getToYear(), "genres",
-                criteria.getGenres(), // TODO to be revert
-                "minLastPlayed", criteria.getMinLastPlayedDate(), "maxLastPlayed", criteria.getMaxLastPlayedDate(),
-                "minAlbumRating", criteria.getMinAlbumRating(), "maxAlbumRating", criteria.getMaxAlbumRating(),
-                "minPlayCount", criteria.getMinPlayCount(), "maxPlayCount", criteria.getMaxPlayCount(), "starred",
-                criteria.isShowStarredSongs(), "unstarred", criteria.isShowUnstarredSongs(), "format",
-                criteria.getFormat());
+                criteria.getGenres(), "minLastPlayed", criteria.getMinLastPlayedDate(), "maxLastPlayed",
+                criteria.getMaxLastPlayedDate(), "minAlbumRating", criteria.getMinAlbumRating(), "maxAlbumRating",
+                criteria.getMaxAlbumRating(), "minPlayCount", criteria.getMinPlayCount(), "maxPlayCount",
+                criteria.getMaxPlayCount(), "starred", criteria.isShowStarredSongs(), "unstarred",
+                criteria.isShowUnstarredSongs(), "format", criteria.getFormat());
 
         return namedQuery(queryBuilder.build(), rowMapper, args);
     }

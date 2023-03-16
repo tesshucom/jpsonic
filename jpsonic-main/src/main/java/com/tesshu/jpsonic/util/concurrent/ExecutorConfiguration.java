@@ -35,7 +35,6 @@ import org.springframework.scheduling.concurrent.DefaultManagedAwareThreadFactor
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
-// TODO #833 Scalability considerations
 @Configuration
 @EnableAsync
 public class ExecutorConfiguration {
