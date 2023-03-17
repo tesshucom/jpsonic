@@ -192,7 +192,7 @@ public class IndexManager {
             }
             String genre = mediaFile.getGenre();
             if (!isEmpty(genre) && mediaFile.getMediaType() != MediaType.PODCAST) {
-                Term genrekey = DocumentFactory.createPrimarykey(genre);
+                Term genrekey = DocumentFactory.createPrimarykey(genre.hashCode());
                 Document document = documentFactory.createGenreDocument(mediaFile);
                 writers.get(IndexType.GENRE).updateDocument(genrekey, document);
             }
@@ -310,6 +310,7 @@ public class IndexManager {
                         .collect(Collectors.toList());
                 List<String> existingNames = existing.stream().map(g -> g.getName()).collect(Collectors.toList());
                 Term[] primarykeys = indexedNames.stream().filter(name -> !existingNames.contains(name))
+                        .map(name -> name.hashCode())
                         .map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
 
                 // Reopen Writer for editing.
