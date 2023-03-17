@@ -55,9 +55,8 @@ public class StaticsDao extends AbstractDao {
 
     @Transactional
     public void createFolderLog(@NonNull Instant executed, @NonNull ScanEventType type) {
-        Instant result = queryForInstant("select start_date from scan_log where start_date = ? and type = ?", null,
-                executed, ScanLogType.FOLDER_CHANGED.name());
-        if (result == null) {
+        boolean exist = queryForInt("select count(*) from scan_log where start_date = ?", 0, executed) > 0;
+        if (!exist) {
             createScanLog(executed, ScanLogType.FOLDER_CHANGED);
         }
         createScanEvent(new ScanEvent(executed, now(), type, null, null, null, null));
@@ -68,12 +67,12 @@ public class StaticsDao extends AbstractDao {
     }
 
     public void deleteBefore(Instant retention) {
-        String query = "delete from scan_log where type = ? and (start_date <> (select start_date from scan_log "
-                + "where type = ? order by start_date desc limit 1)) and start_date < ?";
-        update(query, ScanLogType.SCAN_ALL.name(), ScanLogType.SCAN_ALL.name(), retention);
-        update(query, ScanLogType.FOLDER_CHANGED.name(), ScanLogType.FOLDER_CHANGED.name(), retention);
-        update("delete from scan_log where (type <> ? and type <> ?) and start_date < ?", ScanLogType.SCAN_ALL.name(),
-                ScanLogType.FOLDER_CHANGED.name(), retention);
+        update("delete from scan_log where type = ? and (start_date <> (select start_date from scan_log "
+                + "where type = ? order by start_date desc limit 1)) and start_date < ?", ScanLogType.SCAN_ALL.name(),
+                ScanLogType.SCAN_ALL.name(), retention);
+        update("delete from scan_log where type <> ? and start_date < ?", ScanLogType.SCAN_ALL.name(), retention);
+        update("delete from scan_event where (type=? or type=? or type=?)", ScanEventType.FOLDER_CREATE.name(),
+                ScanEventType.FOLDER_DELETE.name(), ScanEventType.FOLDER_UPDATE.name());
     }
 
     public void createScanEvent(@NonNull ScanEvent scanEvent) {
@@ -83,12 +82,12 @@ public class StaticsDao extends AbstractDao {
     }
 
     public void deleteOtherThanLatest() {
-        String query = "delete from scan_log where type = ? and start_date <> (select start_date from scan_log "
-                + "where type = ? order by start_date desc limit 1)";
-        update(query, ScanLogType.SCAN_ALL.name(), ScanLogType.SCAN_ALL.name());
-        update(query, ScanLogType.FOLDER_CHANGED.name(), ScanLogType.FOLDER_CHANGED.name());
-        update("delete from scan_log where (type <> ? and type <> ?)", ScanLogType.SCAN_ALL.name(),
-                ScanLogType.FOLDER_CHANGED.name());
+        update("delete from scan_log where type = ? and start_date <> (select start_date from scan_log "
+                + "where type = ? order by start_date desc limit 1)", ScanLogType.SCAN_ALL.name(),
+                ScanLogType.SCAN_ALL.name());
+        update("delete from scan_log where type <> ?", ScanLogType.SCAN_ALL.name());
+        update("delete from scan_event where (type=? or type=? or type=?)", ScanEventType.FOLDER_CREATE.name(),
+                ScanEventType.FOLDER_DELETE.name(), ScanEventType.FOLDER_UPDATE.name());
     }
 
     public @Nullable MediaLibraryStatistics getRecentMediaLibraryStatistics() {
@@ -102,6 +101,16 @@ public class StaticsDao extends AbstractDao {
 
     public boolean isNeverScanned() {
         return queryForInt("select count(*) from scan_log where type='SCAN_ALL'", 0) == 0;
+    }
+
+    public boolean isfolderChangedSinceLastScan() {
+        Map<String, Object> args = LegacyMap.of("folderChanges", Arrays.asList(ScanEventType.FOLDER_CREATE.name(),
+                ScanEventType.FOLDER_DELETE.name(), ScanEventType.FOLDER_UPDATE.name()), "scanAll",
+                ScanLogType.SCAN_ALL.name());
+        return namedQueryForInt(
+                "select count(*) from scan_event events where type in (:folderChanges) and events.start_date > "
+                        + "(select start_date from scan_log where type = :scanAll order by start_date desc limit 1)",
+                0, args) > 0;
     }
 
     public void createMediaLibraryStatistics(MediaLibraryStatistics stats) {
