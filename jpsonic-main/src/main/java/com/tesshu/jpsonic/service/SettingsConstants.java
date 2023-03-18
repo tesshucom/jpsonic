@@ -140,6 +140,8 @@ final class SettingsConstants {
                     false);
             static final Pair<Boolean> USE_CLEAN_UP = Pair.of("UseCleanUp", false);
             static final Pair<Boolean> REDUNDANT_FOLDER_CHECK = Pair.of("RedundantFolderCheck", false);
+            static final Pair<Boolean> SHOW_INDEX_DETAILS = Pair.of("ShowIndexDetails", false);
+            static final Pair<Boolean> SHOW_DB_DETAILS = Pair.of("ShowDBDetails", false);
 
             private Legacy() {
             }

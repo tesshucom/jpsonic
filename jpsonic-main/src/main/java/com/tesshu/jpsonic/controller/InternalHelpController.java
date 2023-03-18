@@ -155,6 +155,9 @@ public class InternalHelpController {
         gatherTranscodingInfo(map);
         gatherLocaleInfo(map);
 
+        map.put("showIndexDetails", settingsService.isShowIndexDetails());
+        map.put("showDBDetails", settingsService.isShowDBDetails());
+
         return new ModelAndView("internalhelp", "model", map);
     }
 
@@ -178,6 +181,11 @@ public class InternalHelpController {
      * [AvoidInstantiatingObjectsInLoops] (IndexStatistics) Not reusable
      */
     private void gatherIndexInfo(Map<String, Object> map) {
+        map.put("indexLuceneVersion", Version.getPackageImplementationVersion());
+        if (!settingsService.isShowIndexDetails()) {
+            return;
+        }
+
         SortedMap<String, IndexStatistics> indexStats = new TreeMap<>();
         for (IndexType indexType : IndexType.values()) {
             IndexStatistics stat = new IndexStatistics();
@@ -195,7 +203,6 @@ public class InternalHelpController {
             }
         }
         map.put("indexStatistics", indexStats);
-        map.put("indexLuceneVersion", Version.getPackageImplementationVersion());
     }
 
     /**
@@ -242,6 +249,10 @@ public class InternalHelpController {
             map.put("dbDriverName", conn.getMetaData().getDriverName());
             map.put("dbDriverVersion", conn.getMetaData().getDriverVersion());
             map.put("dbServerVersion", conn.getMetaData().getDatabaseProductVersion());
+
+            if (!settingsService.isShowDBDetails()) {
+                return;
+            }
 
             // Gather information for existing database tables
             try (ResultSet resultSet = conn.getMetaData().getTables(null, null, "%", null)) {

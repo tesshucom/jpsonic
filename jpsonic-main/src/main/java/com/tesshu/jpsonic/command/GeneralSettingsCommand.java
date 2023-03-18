@@ -73,6 +73,8 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean useRemovingTrackFromId3Title;
     private boolean useCleanUp;
     private boolean redundantFolderCheck;
+    private boolean showIndexDetails;
+    private boolean showDBDetails;
 
     // Extensions and shortcuts
     private String musicFileTypes;
@@ -333,6 +335,22 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setRedundantFolderCheck(boolean redundantFolderCheck) {
         this.redundantFolderCheck = redundantFolderCheck;
+    }
+
+    public boolean isShowIndexDetails() {
+        return showIndexDetails;
+    }
+
+    public void setShowIndexDetails(boolean showIndexDetails) {
+        this.showIndexDetails = showIndexDetails;
+    }
+
+    public boolean isShowDBDetails() {
+        return showDBDetails;
+    }
+
+    public void setShowDBDetails(boolean showDBDetails) {
+        this.showDBDetails = showDBDetails;
     }
 
     public String getMusicFileTypes() {

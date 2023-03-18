@@ -625,6 +625,22 @@ public class SettingsService {
         setProperty(SettingsConstants.General.Legacy.REDUNDANT_FOLDER_CHECK, b);
     }
 
+    public boolean isShowIndexDetails() {
+        return getBoolean(SettingsConstants.General.Legacy.SHOW_INDEX_DETAILS);
+    }
+
+    public void setShowIndexDetails(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.SHOW_INDEX_DETAILS, b);
+    }
+
+    public boolean isShowDBDetails() {
+        return getBoolean(SettingsConstants.General.Legacy.SHOW_DB_DETAILS);
+    }
+
+    public void setShowDBDetails(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.SHOW_DB_DETAILS, b);
+    }
+
     public String getMusicFileTypes() {
         synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
             return getString(SettingsConstants.General.Extension.MUSIC_FILE_TYPES);

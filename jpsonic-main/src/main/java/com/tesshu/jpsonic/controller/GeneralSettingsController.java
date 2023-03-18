@@ -140,6 +140,8 @@ public class GeneralSettingsController {
         command.setUseRemovingTrackFromId3Title(settingsService.isUseRemovingTrackFromId3Title());
         command.setUseCleanUp(settingsService.isUseCleanUp());
         command.setRedundantFolderCheck(settingsService.isRedundantFolderCheck());
+        command.setShowIndexDetails(settingsService.isShowIndexDetails());
+        command.setShowDBDetails(settingsService.isShowDBDetails());
 
         // Extensions and shortcuts
         command.setMusicFileTypes(settingsService.getMusicFileTypes());
@@ -242,6 +244,8 @@ public class GeneralSettingsController {
         settingsService.setUseRemovingTrackFromId3Title(command.isUseRemovingTrackFromId3Title());
         settingsService.setUseCleanUp(command.isUseCleanUp());
         settingsService.setRedundantFolderCheck(command.isRedundantFolderCheck());
+        settingsService.setShowIndexDetails(command.isShowIndexDetails());
+        settingsService.setShowDBDetails(command.isShowDBDetails());
 
         // Extensions and shortcuts
         settingsService.setMusicFileTypes(command.getMusicFileTypes());

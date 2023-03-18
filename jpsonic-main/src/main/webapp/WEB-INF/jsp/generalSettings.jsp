@@ -258,6 +258,21 @@ function resetExtension() {
                 <label for="redundantFolderCheck"><fmt:message key="generalsettings.redundantfoldercheck"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="redundantfoldercheck"/></c:import>
             </dd>
+
+            <dt></dt>
+            <dd>
+                <form:checkbox path="showIndexDetails" id="showIndexDetails"/>
+                <label for="showIndexDetails"><fmt:message key="generalsettings.showindexdetails"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="showindexdetails"/></c:import>
+            </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="showDBDetails" id="showDBDetails"/>
+                <label for="showDBDetails"><fmt:message key="generalsettings.showdbdetails"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="showdbdetails"/></c:import>
+            </dd>
+
+
         </dl>
     </details>
 
