@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.lang.annotation.Documented;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -190,7 +191,7 @@ class MusicFolderSettingsControllerTest {
 
         // success case
         ArgumentCaptor<MusicFolder> captor = ArgumentCaptor.forClass(MusicFolder.class);
-        Mockito.doNothing().when(musicFolderService).createMusicFolder(captor.capture());
+        Mockito.doNothing().when(musicFolderService).createMusicFolder(Mockito.any(Instant.class), captor.capture());
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         assertEquals(captor.getValue(), musicFolder);
 
@@ -198,7 +199,8 @@ class MusicFolderSettingsControllerTest {
         Mockito.clearInvocations(musicFolderService);
         Mockito.when(musicFolderService.getAllMusicFolders(false, true)).thenReturn(Arrays.asList(musicFolder));
         controller.post(command, Mockito.mock(RedirectAttributes.class));
-        Mockito.verify(musicFolderService, Mockito.never()).createMusicFolder(Mockito.nullable(MusicFolder.class));
+        Mockito.verify(musicFolderService, Mockito.never()).createMusicFolder(Mockito.any(Instant.class),
+                Mockito.nullable(MusicFolder.class));
     }
 
     @Test
@@ -236,9 +238,11 @@ class MusicFolderSettingsControllerTest {
         command.setMusicFolders(Arrays.asList(musicFolderInfo1, musicFolderInfo2, musicFolderInfo3, musicFolderInfo4));
 
         ArgumentCaptor<Integer> captorDelete = ArgumentCaptor.forClass(int.class);
-        Mockito.doNothing().when(musicFolderService).deleteMusicFolder(captorDelete.capture());
+        Mockito.doNothing().when(musicFolderService).deleteMusicFolder(Mockito.any(Instant.class),
+                captorDelete.capture());
         ArgumentCaptor<MusicFolder> captorUpdate = ArgumentCaptor.forClass(MusicFolder.class);
-        Mockito.doNothing().when(musicFolderService).updateMusicFolder(captorUpdate.capture());
+        Mockito.doNothing().when(musicFolderService).updateMusicFolder(Mockito.any(Instant.class),
+                captorUpdate.capture());
 
         RedirectAttributes redirectAttributes = Mockito.mock(RedirectAttributes.class);
         controller.post(command, redirectAttributes);

@@ -93,8 +93,8 @@ public abstract class AbstractNeedsScan implements NeedsScan {
 
     @PostConstruct
     public void init() {
-        mediaScannerService = new MediaScannerServiceImpl(scannerStateService, procedure, expungeService, staticsDao,
-                scanExecutor);
+        mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService, procedure,
+                expungeService, staticsDao, scanExecutor);
     }
 
     public interface BeforeScan extends Supplier<Boolean> {

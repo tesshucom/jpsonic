@@ -25,6 +25,7 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -157,18 +158,21 @@ public class MusicFolderSettingsController {
     protected ModelAndView post(@ModelAttribute(Attributes.Model.Command.VALUE) MusicFolderSettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
+        Instant executed = now();
+
         // Specify folder
         for (MusicFolderSettingsCommand.MusicFolderInfo musicFolderInfo : command.getMusicFolders()) {
             if (musicFolderInfo.isDelete()) {
-                musicFolderService.deleteMusicFolder(musicFolderInfo.getId());
+                musicFolderService.deleteMusicFolder(executed, musicFolderInfo.getId());
             } else {
-                toMusicFolder(musicFolderInfo).ifPresent(folder -> musicFolderService.updateMusicFolder(folder));
+                toMusicFolder(musicFolderInfo)
+                        .ifPresent(folder -> musicFolderService.updateMusicFolder(executed, folder));
             }
         }
         toMusicFolder(command.getNewMusicFolder()).ifPresent(newFolder -> {
             if (musicFolderService.getAllMusicFolders(false, true).stream()
                     .noneMatch(oldFolder -> oldFolder.getPathString().equals(newFolder.getPathString()))) {
-                musicFolderService.createMusicFolder(newFolder);
+                musicFolderService.createMusicFolder(executed, newFolder);
             }
         });
 

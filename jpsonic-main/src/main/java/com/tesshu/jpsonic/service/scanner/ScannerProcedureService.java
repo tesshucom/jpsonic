@@ -146,7 +146,8 @@ public class ScannerProcedureService {
     }
 
     void createScanLog(@NonNull Instant scanDate, @NonNull ScanLogType logType) {
-        if (logType == ScanLogType.SCAN_ALL || logType == ScanLogType.EXPUNGE || settingsService.isUseScanLog()) {
+        if (logType == ScanLogType.SCAN_ALL || logType == ScanLogType.EXPUNGE || logType == ScanLogType.FOLDER_CHANGED
+                || settingsService.isUseScanLog()) {
             staticsDao.createScanLog(scanDate, logType);
         }
     }
@@ -205,16 +206,14 @@ public class ScannerProcedureService {
                 if (folder.isEnabled()) {
                     folder.setEnabled(false);
                     folder.setChanged(scanDate);
-                    musicFolderService.updateMusicFolder(folder);
+                    musicFolderService.updateMusicFolder(scanDate, folder);
                     enabled.increment();
                 }
             }
         });
         String comment = "All registered music folders exist.";
         if (notExist.intValue() > 0) {
-            comment = String.format(
-                    "(%d) music folders that do not exist are registered. (%d) music folders changed to enabled.",
-                    notExist.intValue(), enabled.intValue());
+            comment = String.format("(%d) music folders changed to enabled.", notExist.intValue());
             if (LOG.isWarnEnabled()) {
                 LOG.warn(comment);
             }
@@ -610,11 +609,11 @@ public class ScannerProcedureService {
         }
     }
 
-    void updateAlbumCounts(@NonNull Instant scanDate, boolean toBeCounted) {
+    void updateAlbumCounts(@NonNull Instant scanDate, boolean skippable) {
         if (isInterrupted()) {
             return;
         }
-        if (!toBeCounted) {
+        if (skippable) {
             createScanEvent(scanDate, ScanEventType.UPDATE_ALBUM_COUNTS, MSG_UNNECESSARY);
             return;
         }
@@ -710,7 +709,7 @@ public class ScannerProcedureService {
         return updated;
     }
 
-    void updateOrderOfArtist(@NonNull Instant scanDate, boolean toBeSorted) {
+    void updateOrderOfArtist(@NonNull Instant scanDate, boolean skippable) {
         if (isInterrupted()) {
             return;
         }
@@ -718,7 +717,7 @@ public class ScannerProcedureService {
             createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ARTIST, MSG_SKIP);
             return;
         }
-        if (!toBeSorted) {
+        if (skippable) {
             createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ARTIST, MSG_UNNECESSARY);
             return;
         }
@@ -727,7 +726,7 @@ public class ScannerProcedureService {
         createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ARTIST, comment);
     }
 
-    void updateOrderOfAlbum(@NonNull Instant scanDate, boolean toBeSorted) {
+    void updateOrderOfAlbum(@NonNull Instant scanDate, boolean skippable) {
         if (isInterrupted()) {
             return;
         }
@@ -735,7 +734,7 @@ public class ScannerProcedureService {
             createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ALBUM, MSG_SKIP);
             return;
         }
-        if (!toBeSorted) {
+        if (skippable) {
             createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ALBUM, MSG_UNNECESSARY);
             return;
         }
@@ -744,7 +743,7 @@ public class ScannerProcedureService {
         createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ALBUM, comment);
     }
 
-    void updateOrderOfArtistId3(@NonNull Instant scanDate, boolean toBeSorted) {
+    void updateOrderOfArtistId3(@NonNull Instant scanDate, boolean skippable) {
         if (isInterrupted()) {
             return;
         }
@@ -752,7 +751,7 @@ public class ScannerProcedureService {
             createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ARTIST_ID3, MSG_SKIP);
             return;
         }
-        if (!toBeSorted) {
+        if (skippable) {
             createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ARTIST_ID3, MSG_UNNECESSARY);
             return;
         }
@@ -761,7 +760,7 @@ public class ScannerProcedureService {
         createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ARTIST_ID3, comment);
     }
 
-    void updateOrderOfAlbumId3(@NonNull Instant scanDate, boolean toBeSorted) {
+    void updateOrderOfAlbumId3(@NonNull Instant scanDate, boolean skippable) {
         if (isInterrupted()) {
             return;
         }
@@ -769,7 +768,7 @@ public class ScannerProcedureService {
             createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ALBUM_ID3, MSG_SKIP);
             return;
         }
-        if (!toBeSorted) {
+        if (skippable) {
             createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ALBUM_ID3, MSG_UNNECESSARY);
             return;
         }

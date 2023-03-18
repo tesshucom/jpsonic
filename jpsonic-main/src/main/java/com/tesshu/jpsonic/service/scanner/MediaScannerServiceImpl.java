@@ -30,6 +30,7 @@ import com.tesshu.jpsonic.dao.StaticsDao.ScanLogType;
 import com.tesshu.jpsonic.domain.ScanEvent;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.MediaScannerService;
+import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaScannerService.class);
 
+    private final SettingsService settingsService;
     private final ScannerStateServiceImpl scannerState;
     private final ScannerProcedureService procedure;
     private final ExpungeService expungeService;
@@ -54,9 +56,11 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
     private final Object cancelLock = new Object();
 
-    public MediaScannerServiceImpl(ScannerStateServiceImpl scannerState, ScannerProcedureService procedure,
-            ExpungeService expungeService, StaticsDao staticsDao, ThreadPoolTaskExecutor scanExecutor) {
+    public MediaScannerServiceImpl(SettingsService settingsService, ScannerStateServiceImpl scannerState,
+            ScannerProcedureService procedure, ExpungeService expungeService, StaticsDao staticsDao,
+            ThreadPoolTaskExecutor scanExecutor) {
         super();
+        this.settingsService = settingsService;
         this.scannerState = scannerState;
         this.procedure = procedure;
         this.expungeService = expungeService;
@@ -95,14 +99,31 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
     @Override
     public Optional<ScanEventType> getLastScanEventType() {
-        if (isScanning() || neverScanned()) {
+        return getLastScanEventType(true);
+    }
+
+    private Optional<ScanEventType> getLastScanEventType(boolean scanningCheck) {
+        if (scanningCheck && isScanning() || neverScanned()) {
             return Optional.empty();
         }
-        List<ScanEvent> scanEvent = staticsDao.getLastScanAllStatuses();
-        if (scanEvent.isEmpty()) {
+        List<ScanEvent> scanEvents = staticsDao.getLastScanAllStatuses();
+        if (scanEvents.isEmpty()) {
             return Optional.of(ScanEventType.FAILED);
         }
-        return Optional.of(scanEvent.get(0).getType());
+        return Optional.of(scanEvents.get(0).getType());
+    }
+
+    boolean isOptionalProcessSkippable() {
+        MutableBoolean skippable = new MutableBoolean(!settingsService.isIgnoreFileTimestamps());
+        if (skippable.isTrue()) {
+            getLastScanEventType(false).ifPresentOrElse(
+                    type -> skippable.setValue(ScanEventType.FINISHED.compareTo(type) == 0),
+                    () -> skippable.setValue(false));
+        }
+        if (skippable.isTrue()) {
+            skippable.setValue(!staticsDao.isfolderChangedSinceLastScan());
+        }
+        return skippable.booleanValue();
     }
 
     @Override
@@ -127,10 +148,10 @@ public class MediaScannerServiceImpl implements MediaScannerService {
         LOG.info("Starting to scan media library.");
         Instant scanDate = scannerState.getScanDate();
 
+        boolean skippable = isOptionalProcessSkippable();
         procedure.createScanLog(scanDate, ScanLogType.SCAN_ALL);
 
         procedure.beforeScan(scanDate);
-
         procedure.checkMudicFolders(scanDate);
 
         procedure.parseFileStructure(scanDate);
@@ -138,31 +159,23 @@ public class MediaScannerServiceImpl implements MediaScannerService {
         procedure.parsePodcast(scanDate);
         procedure.iterateFileStructure(scanDate);
 
-        MutableBoolean lastScanFailed = new MutableBoolean(false);
-        getLastScanEventType().ifPresent(type -> lastScanFailed.setValue(type != ScanEventType.FINISHED));
-
         boolean parsedAlbum = procedure.parseAlbum(scanDate);
         boolean updatedSortOfAlbum = procedure.updateSortOfAlbum(scanDate);
-        boolean toBeSorted = lastScanFailed.getValue() || parsedAlbum || updatedSortOfAlbum;
-        procedure.updateOrderOfAlbum(scanDate, toBeSorted);
+        procedure.updateOrderOfAlbum(scanDate, skippable && !parsedAlbum && !updatedSortOfAlbum);
         boolean updatedSortOfArtist = procedure.updateSortOfArtist(scanDate);
-        toBeSorted = lastScanFailed.getValue() || parsedAlbum || updatedSortOfArtist;
-        procedure.updateOrderOfArtist(scanDate, toBeSorted);
+        procedure.updateOrderOfArtist(scanDate, skippable && !parsedAlbum && !updatedSortOfArtist);
 
         if (LOG.isInfoEnabled()) {
             LOG.info("Scanned media library with " + scannerState.getScanCount() + " entries.");
         }
 
         boolean refleshedAlbumId3 = procedure.refleshAlbumId3(scanDate);
-        toBeSorted = lastScanFailed.getValue() || refleshedAlbumId3;
-        procedure.updateOrderOfAlbumId3(scanDate, toBeSorted);
+        procedure.updateOrderOfAlbumId3(scanDate, skippable && !refleshedAlbumId3);
 
         boolean refleshedArtistId3 = procedure.refleshArtistId3(scanDate);
-        toBeSorted = lastScanFailed.getValue() || refleshedArtistId3;
-        procedure.updateOrderOfArtistId3(scanDate, toBeSorted);
+        procedure.updateOrderOfArtistId3(scanDate, skippable && !refleshedArtistId3);
 
-        boolean toBeCounted = lastScanFailed.getValue() || refleshedAlbumId3 || refleshedArtistId3;
-        procedure.updateAlbumCounts(scanDate, toBeCounted);
+        procedure.updateAlbumCounts(scanDate, skippable && !refleshedAlbumId3 && !refleshedArtistId3);
 
         procedure.updateGenreMaster(scanDate);
 

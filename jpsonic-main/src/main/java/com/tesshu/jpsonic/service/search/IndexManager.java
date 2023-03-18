@@ -157,9 +157,7 @@ public class IndexManager {
         try {
             writers.get(IndexType.ALBUM_ID3).updateDocument(primarykey, document);
         } catch (IOException e) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Failed to create search index for " + album, e);
-            }
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -169,10 +167,8 @@ public class IndexManager {
         Document document = documentFactory.createArtistId3Document(artist, musicFolder);
         try {
             writers.get(IndexType.ARTIST_ID3).updateDocument(primarykey, document);
-        } catch (IOException x) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Failed to create search index for " + artist, x);
-            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -192,14 +188,12 @@ public class IndexManager {
             }
             String genre = mediaFile.getGenre();
             if (!isEmpty(genre) && mediaFile.getMediaType() != MediaType.PODCAST) {
-                Term genrekey = DocumentFactory.createPrimarykey(genre);
+                Term genrekey = DocumentFactory.createPrimarykey(genre.hashCode());
                 Document document = documentFactory.createGenreDocument(mediaFile);
                 writers.get(IndexType.GENRE).updateDocument(genrekey, document);
             }
-        } catch (IOException x) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Failed to create search index for " + mediaFile, x);
-            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -210,7 +204,7 @@ public class IndexManager {
                 writers.put(indexType, createIndexWriter(indexType));
             }
         } catch (IOException e) {
-            LOG.error("Failed to create search index.", e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -231,7 +225,7 @@ public class IndexManager {
         try {
             writers.get(IndexType.ARTIST).deleteDocuments(DocumentFactory.createPrimarykey(id));
         } catch (IOException e) {
-            LOG.error("Failed to delete artist doc.", e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -240,7 +234,7 @@ public class IndexManager {
         try {
             writers.get(IndexType.ALBUM).deleteDocuments(DocumentFactory.createPrimarykey(id));
         } catch (IOException e) {
-            LOG.error("Failed to delete album doc.", e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -249,7 +243,7 @@ public class IndexManager {
         try {
             writers.get(IndexType.SONG).deleteDocuments(DocumentFactory.createPrimarykey(id));
         } catch (IOException e) {
-            LOG.error("Failed to delete song doc.", e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -259,7 +253,7 @@ public class IndexManager {
         try {
             writers.get(IndexType.ARTIST_ID3).deleteDocuments(primarykeys);
         } catch (IOException e) {
-            LOG.error("Failed to delete artistId3 doc.", e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -269,7 +263,7 @@ public class IndexManager {
         try {
             writers.get(IndexType.ALBUM_ID3).deleteDocuments(primarykeys);
         } catch (IOException e) {
-            LOG.error("Failed to delete albumId3 doc.", e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -287,7 +281,7 @@ public class IndexManager {
                     return;
                 }
             } catch (IOException e) {
-                LOG.error("Failed to clear genre index.", e);
+                throw new UncheckedIOException(e);
             }
 
             // Stop indexing to get Searcher.
@@ -310,14 +304,14 @@ public class IndexManager {
                         .collect(Collectors.toList());
                 List<String> existingNames = existing.stream().map(g -> g.getName()).collect(Collectors.toList());
                 Term[] primarykeys = indexedNames.stream().filter(name -> !existingNames.contains(name))
-                        .map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
+                        .map(name -> name.hashCode()).map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
 
                 // Reopen Writer for editing.
                 writers.put(IndexType.GENRE, createIndexWriter(IndexType.GENRE));
                 writers.get(IndexType.GENRE).deleteDocuments(primarykeys);
 
             } catch (IOException e) {
-                LOG.error("Failed to expunge genre index.", e);
+                throw new UncheckedIOException(e);
             } catch (Exception e) {
                 LOG.info("The genre field may not exist.");
             } finally {
@@ -344,38 +338,28 @@ public class IndexManager {
             "RCN_REDUNDANT_NULLCHECK_OF_NULL_VALU" }, justification = "spotbugs/spotbugs#1338")
     private void stopIndexing(IndexType type) {
 
-        boolean isUpdate = false;
         // close
         try (IndexWriter writer = writers.get(type)) {
             if (writer == null) {
                 return;
             }
-            isUpdate = -1 != writers.get(type).commit();
+            writers.get(type).commit();
             writer.close();
             writers.remove(type);
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Success to create or update search index : [" + type + "]");
-            }
         } catch (IOException e) {
             writers.remove(type);
-            LOG.error("Failed to create search index.", e);
+            throw new UncheckedIOException(e);
         }
 
         // refresh reader as index may have been written
-        if (isUpdate && searchers.containsKey(type)) {
+        if (searchers.containsKey(type)) {
             try {
                 searchers.get(type).maybeRefresh();
-                if (LOG.isTraceEnabled()) {
-                    LOG.trace("SearcherManager has been refreshed : [" + type + "]");
-                }
             } catch (IOException e) {
-                if (LOG.isErrorEnabled()) {
-                    LOG.error("Failed to refresh SearcherManager : [" + type + "]", e);
-                }
                 searchers.remove(type);
+                throw new UncheckedIOException(e);
             }
         }
-
     }
 
     /**
@@ -427,8 +411,8 @@ public class IndexManager {
                 try {
                     searchers.get(indexType).release(indexSearcher);
                 } catch (IOException e) {
-                    LOG.error("Failed to release IndexSearcher.", e);
                     searchers.remove(indexType);
+                    throw new UncheckedIOException(e);
                 }
             } else {
                 try {
@@ -440,7 +424,7 @@ public class IndexManager {
                         indexSearcher.getIndexReader().close();
                     }
                 } catch (IOException e) {
-                    LOG.warn("Failed to release. IndexSearcher has been closed.", e);
+                    throw new UncheckedIOException(e);
                 }
             }
         }
@@ -560,7 +544,7 @@ public class IndexManager {
                 }
             }
         } catch (IOException e) {
-            LOG.error("Failed to execute Lucene search.", e);
+            throw new UncheckedIOException(e);
         } finally {
             release(IndexType.GENRE, searcher);
         }
@@ -658,7 +642,7 @@ public class IndexManager {
                 }
             }
         } catch (IOException e) {
-            LOG.error("Failed to execute Lucene search.", e);
+            throw new UncheckedIOException(e);
         } finally {
             release(IndexType.GENRE, genreSearcher);
             release(IndexType.SONG, songSearcher);

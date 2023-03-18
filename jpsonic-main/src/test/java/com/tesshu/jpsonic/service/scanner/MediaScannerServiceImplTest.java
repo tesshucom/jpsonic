@@ -130,6 +130,54 @@ class MediaScannerServiceImplTest {
         }
     }
 
+    @Documented
+    private @interface IsOptionalProcessSkippableDecisions {
+
+        @interface Conditions {
+            @interface IgnoreFileTimestamps {
+                @interface False {
+                }
+
+                @interface True {
+                }
+            }
+
+            @interface LastScanEventType {
+                @interface NotPresent {
+
+                }
+
+                @interface Present {
+                    @interface ScanEventType {
+                        @interface EqFinished {
+                        }
+
+                        @interface NeFinished {
+                        }
+                    }
+                }
+            }
+
+            @interface FolderChangedSinceLastScan {
+                @interface True {
+                }
+
+                @interface False {
+                }
+            }
+
+        }
+
+        @interface Result {
+            @interface False {
+            }
+
+            @interface True {
+            }
+        }
+
+    }
+
     @Nested
     class UnitTest {
 
@@ -166,8 +214,8 @@ class MediaScannerServiceImplTest {
                     indexManager, mediaFileService, writableMediaFileService, mock(PlaylistService.class), mediaFileDao,
                     artistDao, albumDao, staticsDao, utils, scannerStateService, mock(Ehcache.class),
                     mock(MediaFileCache.class), mock(JapaneseReadingUtils.class));
-            mediaScannerService = new MediaScannerServiceImpl(scannerStateService, scannerProcedureService,
-                    mock(ExpungeService.class), staticsDao, executor);
+            mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
+                    scannerProcedureService, mock(ExpungeService.class), staticsDao, executor);
         }
 
         @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert") // It doesn't seem to be able to capture
@@ -187,8 +235,8 @@ class MediaScannerServiceImplTest {
             poolConf.setMaxPoolSize("1");
             ExecutorConfiguration executorConf = new ExecutorConfiguration(poolConf);
             final ThreadPoolTaskExecutor executor = executorConf.scanExecutor();
-            mediaScannerService = new MediaScannerServiceImpl(scannerStateService, scannerProcedureService,
-                    mock(ExpungeService.class), mock(StaticsDao.class), executor);
+            mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
+                    scannerProcedureService, mock(ExpungeService.class), mock(StaticsDao.class), executor);
             mediaScannerService.scanLibrary();
             executor.shutdown();
         }
@@ -235,7 +283,7 @@ class MediaScannerServiceImplTest {
         }
 
         @Nested
-        class GetLastScanAllEventTypeTest {
+        class GetLastScanEventTypeTest {
 
             /* If scanning is in progress, recovery is expected, so previous results are not returned. */
             @Test
@@ -271,6 +319,65 @@ class MediaScannerServiceImplTest {
                 Mockito.when(staticsDao.getLastScanAllStatuses()).thenReturn(Arrays.asList(success));
                 assertFalse(mediaScannerService.getLastScanEventType().isEmpty());
                 assertEquals(ScanEventType.FINISHED, mediaScannerService.getLastScanEventType().get());
+            }
+        }
+
+        @Nested
+        class IsOptionalProcessSkippableTest {
+
+            @Test
+            @IsOptionalProcessSkippableDecisions.Conditions.IgnoreFileTimestamps.True
+            @IsOptionalProcessSkippableDecisions.Result.False
+            void c01() {
+                Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
+                assertFalse(mediaScannerService.isOptionalProcessSkippable());
+            }
+
+            @Test
+            @IsOptionalProcessSkippableDecisions.Conditions.IgnoreFileTimestamps.False
+            @IsOptionalProcessSkippableDecisions.Conditions.LastScanEventType.NotPresent
+            @IsOptionalProcessSkippableDecisions.Result.False
+            void c02() {
+                Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
+                Mockito.when(staticsDao.isNeverScanned()).thenReturn(true);
+                assertFalse(mediaScannerService.isOptionalProcessSkippable());
+            }
+
+            @Test
+            @IsOptionalProcessSkippableDecisions.Conditions.IgnoreFileTimestamps.False
+            @IsOptionalProcessSkippableDecisions.Conditions.LastScanEventType.Present.ScanEventType.NeFinished
+            @IsOptionalProcessSkippableDecisions.Result.False
+            void c03() {
+                Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
+                Mockito.when(staticsDao.getLastScanAllStatuses()).thenReturn(
+                        Arrays.asList(new ScanEvent(null, null, ScanEventType.CANCELED, null, null, null, null)));
+                assertFalse(mediaScannerService.isOptionalProcessSkippable());
+            }
+
+            @Test
+            @IsOptionalProcessSkippableDecisions.Conditions.IgnoreFileTimestamps.False
+            @IsOptionalProcessSkippableDecisions.Conditions.LastScanEventType.Present.ScanEventType.EqFinished
+            @IsOptionalProcessSkippableDecisions.Conditions.FolderChangedSinceLastScan.True
+            @IsOptionalProcessSkippableDecisions.Result.False
+            void c04() {
+                Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
+                Mockito.when(staticsDao.getLastScanAllStatuses()).thenReturn(
+                        Arrays.asList(new ScanEvent(null, null, ScanEventType.FINISHED, null, null, null, null)));
+                Mockito.when(staticsDao.isfolderChangedSinceLastScan()).thenReturn(true);
+                assertFalse(mediaScannerService.isOptionalProcessSkippable());
+            }
+
+            @Test
+            @IsOptionalProcessSkippableDecisions.Conditions.IgnoreFileTimestamps.False
+            @IsOptionalProcessSkippableDecisions.Conditions.LastScanEventType.Present.ScanEventType.EqFinished
+            @IsOptionalProcessSkippableDecisions.Conditions.FolderChangedSinceLastScan.False
+            @IsOptionalProcessSkippableDecisions.Result.True
+            void c05() {
+                Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
+                Mockito.when(staticsDao.getLastScanAllStatuses()).thenReturn(
+                        Arrays.asList(new ScanEvent(null, null, ScanEventType.FINISHED, null, null, null, null)));
+                Mockito.when(staticsDao.isfolderChangedSinceLastScan()).thenReturn(false);
+                assertTrue(mediaScannerService.isOptionalProcessSkippable());
             }
         }
     }
@@ -602,7 +709,8 @@ class MediaScannerServiceImplTest {
         private MusicFolderDao musicFolderDao;
         @Autowired
         private DaoHelper daoHelper;
-
+        @Autowired
+        private SettingsService settingsService;
         @Autowired
         private MusicFolderService musicFolderService;
         @Autowired
@@ -627,8 +735,8 @@ class MediaScannerServiceImplTest {
         @BeforeEach
         public void setup() {
             ThreadPoolTaskExecutor scanExecutor = ServiceMockUtils.mockNoAsyncTaskExecutor();
-            mediaScannerService = new MediaScannerServiceImpl(scannerStateService, procedure, expungeService,
-                    staticsDao, scanExecutor);
+            mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService, procedure,
+                    expungeService, staticsDao, scanExecutor);
         }
 
         /**
@@ -944,13 +1052,15 @@ class MediaScannerServiceImplTest {
 
             MusicFolder folder = musicFolders.get(0);
             folder.setEnabled(false);
-            musicFolderService.updateMusicFolder(folder);
+            musicFolderService.updateMusicFolder(now(), folder);
+            Thread.sleep(10);
             TestCaseUtils.execScan(mediaScannerService);
 
             assertNull(mediaFileDao.getMediaFile(this.song.toString()));
 
             folder.setEnabled(true);
-            musicFolderService.updateMusicFolder(folder);
+            musicFolderService.updateMusicFolder(now(), folder);
+            Thread.sleep(10);
             TestCaseUtils.execScan(mediaScannerService);
 
             song = mediaFileDao.getMediaFile(this.song.toString());

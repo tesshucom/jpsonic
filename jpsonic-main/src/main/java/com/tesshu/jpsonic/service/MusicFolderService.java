@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.service;
 
 import java.nio.file.Files;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,7 +28,9 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.dao.MusicFolderDao;
+import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import net.sf.ehcache.Ehcache;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -43,12 +46,15 @@ public class MusicFolderService {
     private List<MusicFolder> cachedMusicFolders;
 
     private final MusicFolderDao musicFolderDao;
+    private final StaticsDao staticsDao;
     private final SettingsService settingsService;
     private final Ehcache indexCache;
     private final Object lock = new Object();
 
-    public MusicFolderService(MusicFolderDao musicFolderDao, SettingsService settingsService, Ehcache indexCache) {
+    public MusicFolderService(MusicFolderDao musicFolderDao, StaticsDao staticsDao, SettingsService settingsService,
+            Ehcache indexCache) {
         this.musicFolderDao = musicFolderDao;
+        this.staticsDao = staticsDao;
         this.settingsService = settingsService;
         this.indexCache = indexCache;
         cachedUserFolders = new ConcurrentHashMap<>();
@@ -101,18 +107,21 @@ public class MusicFolderService {
         return getAllMusicFolders().stream().filter(folder -> folder.getId().equals(id)).findFirst().orElse(null);
     }
 
-    public void createMusicFolder(@NonNull MusicFolder musicFolder) {
+    public void createMusicFolder(@NonNull Instant executed, @NonNull MusicFolder musicFolder) {
         musicFolderDao.createMusicFolder(musicFolder);
+        staticsDao.createFolderLog(executed, ScanEventType.FOLDER_CREATE);
         clearMusicFolderCache();
     }
 
-    public void deleteMusicFolder(int id) {
+    public void deleteMusicFolder(@NonNull Instant executed, int id) {
         musicFolderDao.deleteMusicFolder(id);
+        staticsDao.createFolderLog(executed, ScanEventType.FOLDER_DELETE);
         clearMusicFolderCache();
     }
 
-    public void updateMusicFolder(@NonNull MusicFolder musicFolder) {
+    public void updateMusicFolder(@NonNull Instant executed, @NonNull MusicFolder musicFolder) {
         musicFolderDao.updateMusicFolder(musicFolder);
+        staticsDao.createFolderLog(executed, ScanEventType.FOLDER_UPDATE);
         clearMusicFolderCache();
     }
 
