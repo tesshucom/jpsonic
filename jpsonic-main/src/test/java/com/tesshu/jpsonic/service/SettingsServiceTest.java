@@ -511,16 +511,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsSortAlphanum() {
-        assertTrue(settingsService.isSortAlphanum());
-    }
-
-    @Test
-    void testIsSortStrict() {
-        assertTrue(settingsService.isSortStrict());
-    }
-
-    @Test
     void testIsSearchComposer() {
         assertFalse(settingsService.isSearchComposer());
     }
@@ -846,6 +836,16 @@ class SettingsServiceTest {
     @Test
     void testIsDeleteDiacritic() {
         assertTrue(settingsService.isDeleteDiacritic());
+    }
+
+    @Test
+    void testIsSortAlphanum() {
+        assertTrue(settingsService.isSortAlphanum());
+    }
+
+    @Test
+    void testIsSortStrict() {
+        assertTrue(settingsService.isSortStrict());
     }
 
     @Test

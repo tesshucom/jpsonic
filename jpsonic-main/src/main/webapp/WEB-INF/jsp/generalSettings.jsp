@@ -17,8 +17,6 @@ function resetSortSettings() {
     $('[name="sortAlbumsByYear"]').prop('checked', ${command.defaultSortAlbumsByYear});
     $('[name="sortGenresByAlphabet"]').prop('checked', ${command.defaultSortGenresByAlphabet});
     $('[name="prohibitSortVarious"]').prop('checked', ${command.defaultProhibitSortVarious});
-    $('[name="sortAlphanum"]').prop('checked', ${command.defaultSortAlphanum});
-    $('[name="sortStrict"]').prop('checked', ${command.defaultSortStrict});
 }
 function resetExtension() {
     $("#musicFileTypes").val('${command.defaultMusicFileTypes}');
@@ -150,18 +148,6 @@ function resetExtension() {
                 <form:checkbox path="prohibitSortVarious" id="prohibitSortVarious"/>
                 <label for="prohibitSortVarious"><fmt:message key="generalsettings.prohibitsortvarious"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="prohibitsortvarious"/></c:import>
-            </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="sortAlphanum" id="sortAlphanum"/>
-                <label for="sortAlphanum"><fmt:message key="generalsettings.sortalphanum"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="sortalphanum"/></c:import>
-            </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="sortStrict" id="sortStrict"/>
-                <label for="sortStrict"><fmt:message key="generalsettings.sortstrict"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="sortstrict"/></c:import>
             </dd>
         </dl>
     </details>

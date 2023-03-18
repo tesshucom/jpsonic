@@ -105,6 +105,10 @@ public class AdvancedSettingsController {
         // Danger Zone
         command.setIndexScheme(IndexScheme.valueOf(settingsService.getIndexSchemeName()));
         command.setForceInternalValueInsteadOfTags(settingsService.isForceInternalValueInsteadOfTags());
+        command.setSortAlphanum(settingsService.isSortAlphanum());
+        command.setSortStrict(settingsService.isSortStrict());
+        command.setDefaultSortAlphanum(SettingsService.isDefaultSortAlphanum());
+        command.setDefaultSortStrict(SettingsService.isDefaultSortStrict());
 
         // for view page control
         command.setUseRadio(settingsService.isUseRadio());
@@ -213,5 +217,8 @@ public class AdvancedSettingsController {
             settingsService.setDeleteDiacritic(false);
             settingsService.setIgnoreFullWidth(false);
         }
+
+        settingsService.setSortAlphanum(command.isSortAlphanum());
+        settingsService.setSortStrict(command.isSortStrict());
     }
 }

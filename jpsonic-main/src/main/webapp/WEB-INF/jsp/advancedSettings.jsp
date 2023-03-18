@@ -262,7 +262,7 @@ document.addEventListener('DOMContentLoaded', function () {
         </c:if>
 
         <summary class="jpsonic"><strong>Danger Zone</strong></summary>
-        <dl class="single">
+        <dl>
             <dt><strong><fmt:message key="advancedsettings.indexscheme"/></strong></dt>
             <dd class="scheme">
                 <ul class="playerSettings">
@@ -282,6 +282,18 @@ document.addEventListener('DOMContentLoaded', function () {
                         </li>
                     </c:forEach>
                 </ul>
+            </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="sortAlphanum" id="sortAlphanum"/>
+                <label for="sortAlphanum"><fmt:message key="generalsettings.sortalphanum"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="sortalphanum"/></c:import>
+            </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="sortStrict" id="sortStrict"/>
+                <label for="sortStrict"><fmt:message key="generalsettings.sortstrict"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="sortstrict"/></c:import>
             </dd>
         </dl>
     </details>

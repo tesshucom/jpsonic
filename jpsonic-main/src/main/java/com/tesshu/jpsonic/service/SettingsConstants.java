@@ -113,8 +113,6 @@ final class SettingsConstants {
             static final Pair<Boolean> ALBUMS_BY_YEAR = Pair.of("SortAlbumsByYear", true);
             static final Pair<Boolean> GENRES_BY_ALPHABET = Pair.of("SortGenresByAlphabet", true);
             static final Pair<Boolean> PROHIBIT_SORT_VARIOUS = Pair.of("ProhibitSortVarious", true);
-            static final Pair<Boolean> ALPHANUM = Pair.of("SortAlphanum", true);
-            static final Pair<Boolean> STRICT = Pair.of("SortStrict", true);
 
             private Sort() {
             }
@@ -251,6 +249,15 @@ final class SettingsConstants {
             private Index() {
             }
         }
+
+        static class Sort {
+            static final Pair<Boolean> ALPHANUM = Pair.of("SortAlphanum", true);
+            static final Pair<Boolean> STRICT = Pair.of("SortStrict", true);
+
+            private Sort() {
+            }
+        }
+
     }
 
     static class Podcast {

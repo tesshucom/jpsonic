@@ -120,13 +120,9 @@ public class GeneralSettingsController {
         command.setSortAlbumsByYear(settingsService.isSortAlbumsByYear());
         command.setSortGenresByAlphabet(settingsService.isSortGenresByAlphabet());
         command.setProhibitSortVarious(settingsService.isProhibitSortVarious());
-        command.setSortAlphanum(settingsService.isSortAlphanum());
-        command.setSortStrict(settingsService.isSortStrict());
         command.setDefaultSortAlbumsByYear(SettingsService.isDefaultSortAlbumsByYear());
         command.setDefaultSortGenresByAlphabet(SettingsService.isDefaultSortGenresByAlphabet());
         command.setDefaultProhibitSortVarious(SettingsService.isDefaultProhibitSortVarious());
-        command.setDefaultSortAlphanum(SettingsService.isDefaultSortAlphanum());
-        command.setDefaultSortStrict(SettingsService.isDefaultSortStrict());
 
         // Search settings
         command.setSearchComposer(settingsService.isSearchComposer());
@@ -226,8 +222,6 @@ public class GeneralSettingsController {
         settingsService.setSortAlbumsByYear(command.isSortAlbumsByYear());
         settingsService.setSortGenresByAlphabet(command.isSortGenresByAlphabet());
         settingsService.setProhibitSortVarious(command.isProhibitSortVarious());
-        settingsService.setSortAlphanum(command.isSortAlphanum());
-        settingsService.setSortStrict(command.isSortStrict());
 
         // Search settings
         settingsService.setSearchComposer(command.isSearchComposer());
