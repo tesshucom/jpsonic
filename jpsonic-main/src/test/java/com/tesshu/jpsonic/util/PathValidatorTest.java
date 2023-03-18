@@ -51,13 +51,16 @@ class PathValidatorTest {
                     @interface Root {
                     }
 
-                    @interface Invalid {
-                    }
-
                     @interface Traversal {
                     }
 
                     @interface NonTraversal {
+                    }
+
+                    @interface BackSlashe {
+                    }
+
+                    @interface DoubleBackSlashes {
                     }
                 }
             }
@@ -107,11 +110,39 @@ class PathValidatorTest {
         }
 
         @Test
-        @ValidatePathDecisions.Conditions.Path.NonNull.Invalid
+        @ValidatePathDecisions.Conditions.Path.NonNull.BackSlashe
         @ValidatePathDecisions.Results.Empty
         @EnabledOnOs(OS.WINDOWS)
         void c05() {
             assertTrue(PathValidator.validateFolderPath("/:").isEmpty());
+            assertTrue(PathValidator.validateFolderPath("\\:").isEmpty());
+        }
+
+        @Test
+        @ValidatePathDecisions.Conditions.Path.NonNull.BackSlashe
+        @ValidatePathDecisions.Results.NotEmpty
+        @EnabledOnOs(OS.LINUX)
+        void c06() {
+            assertFalse(PathValidator.validateFolderPath("/:").isEmpty());
+            assertTrue(PathValidator.validateFolderPath("\\:").isEmpty());
+        }
+
+        @Test
+        @ValidatePathDecisions.Conditions.Path.NonNull.DoubleBackSlashes
+        @ValidatePathDecisions.Results.NotEmpty
+        @EnabledOnOs(OS.WINDOWS)
+        void c07() {
+            assertFalse(PathValidator.validateFolderPath("\\\\192.168.1.1/shared/testDirectory").isEmpty());
+            assertTrue(PathValidator.validateFolderPath("\\\\192.168.1.1\\shared").isEmpty());
+        }
+
+        @Test
+        @ValidatePathDecisions.Conditions.Path.NonNull.DoubleBackSlashes
+        @ValidatePathDecisions.Results.Empty
+        @EnabledOnOs(OS.LINUX)
+        void c08() {
+            assertTrue(PathValidator.validateFolderPath("\\\\192.168.1.1/shared/testDirectory").isEmpty());
+            assertTrue(PathValidator.validateFolderPath("\\\\192.168.1.1\\shared").isEmpty());
         }
     }
 }
