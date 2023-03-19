@@ -18,6 +18,22 @@ function resetSortSettings() {
     $('[name="sortGenresByAlphabet"]').prop('checked', ${command.defaultSortGenresByAlphabet});
     $('[name="prohibitSortVarious"]').prop('checked', ${command.defaultProhibitSortVarious});
 }
+function resetLegacyFeatures() {
+    $('[name="showServerLog"]').prop('checked', false);
+    $('[name="showStatus"]').prop('checked', false);
+    $('[name="othersPlayingEnabled"]').prop('checked', false);
+    $('[name="showRememberMe"]').prop('checked', false);
+    $('[name="publishPodcast"]').prop('checked', false);
+    $('[name="useRadio"]').prop('checked', false);
+    $('[name="useExternalPlayer"]').prop('checked', false);
+    $('[name="useCopyOfAsciiUnprintable"]').prop('checked', false);
+    $('[name="useJsonp"]').prop('checked', false);
+    $('[name="useRemovingTrackFromId3Title"]').prop('checked', false);
+    $('[name="useCleanUp"]').prop('checked', false);
+    $('[name="redundantFolderCheck"]').prop('checked', false);
+    $('[name="showIndexDetails"]').prop('checked', false);
+    $('[name="showDBDetails"]').prop('checked', false);
+}
 function resetExtension() {
     $("#musicFileTypes").val('${command.defaultMusicFileTypes}');
     $("#videoFileTypes").val('${command.defaultVideoFileTypes}');
@@ -179,6 +195,12 @@ function resetExtension() {
     <details ${isOpen}>
         <summary class="jpsonic"><fmt:message key="generalsettings.infrequent"/></summary>
 
+        <div class="actions">
+            <ul class="controls">
+                <li><a href="javascript:resetLegacyFeatures()" title="<fmt:message key='common.reset'/>" class="control reset"><fmt:message key="common.reset"/></a></li>
+            </ul>
+        </div>
+
         <c:if test="${command.showOutlineHelp}">
             <div class="outlineHelp">
                 <fmt:message key="generalsettings.infrequentoutline"/>
@@ -230,7 +252,7 @@ function resetExtension() {
             </dd>
             <dt></dt>
             <dd>
-                <form:checkbox path="useCopyOfAsciiUnprintable" id="usecopyofasciiunprintable"/>
+                <form:checkbox path="useCopyOfAsciiUnprintable" id="useCopyOfAsciiUnprintable"/>
                 <label for="useCopyOfAsciiUnprintable"><fmt:message key="generalsettings.usecopyofasciiunprintable"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="usecopyofasciiunprintable"/></c:import>
             </dd>
@@ -258,7 +280,6 @@ function resetExtension() {
                 <label for="redundantFolderCheck"><fmt:message key="generalsettings.redundantfoldercheck"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="redundantfoldercheck"/></c:import>
             </dd>
-
             <dt></dt>
             <dd>
                 <form:checkbox path="showIndexDetails" id="showIndexDetails"/>
@@ -271,8 +292,6 @@ function resetExtension() {
                 <label for="showDBDetails"><fmt:message key="generalsettings.showdbdetails"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="showdbdetails"/></c:import>
             </dd>
-
-
         </dl>
     </details>
 

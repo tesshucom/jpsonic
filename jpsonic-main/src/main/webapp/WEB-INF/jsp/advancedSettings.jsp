@@ -14,6 +14,14 @@ function resetBandwidth() {
     $('[name="bufferSize"]').prop("selectedIndex", 1);
 }
 
+function resetScanLog() {
+    $("#usescanlog").prop('checked', false);
+    $("#scanlogretention").prop('disabled', true);
+    $("#scanlogretention").val(-1);
+    $("#usescanevents").prop({'disabled': true, 'checked': false});
+    $("#measurememory").prop({'disabled': true, 'checked': false});
+}
+
 function onUseScanLogStateChanged() {
     if($("#usescanlog").prop("checked")){
         $("#scanlogretention").prop('disabled', false);
@@ -203,6 +211,12 @@ document.addEventListener('DOMContentLoaded', function () {
     </details>
 
     <details ${isOpen}>
+
+        <div class="actions">
+            <ul class="controls">
+                <li><a href="javascript:resetScanLog()" title="<fmt:message key='common.reset'/>" class="control reset"><fmt:message key="common.reset"/></a></li>
+            </ul>
+        </div>
 
         <c:if test="${command.showOutlineHelp}">
             <div class="outlineHelp">
