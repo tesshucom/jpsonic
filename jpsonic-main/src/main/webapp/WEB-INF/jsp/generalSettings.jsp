@@ -7,6 +7,8 @@
 <%@ page import="com.tesshu.jpsonic.domain.IndexScheme" %>
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script>
+const scanning = ${command.scanning};
+
 function setDefaultIndexString() {
     document.getElementById("index").value = "${command.defaultIndexString}";
 }
@@ -28,13 +30,18 @@ function resetLegacyFeatures() {
     $('[name="useExternalPlayer"]').prop('checked', false);
     $('[name="useCopyOfAsciiUnprintable"]').prop('checked', false);
     $('[name="useJsonp"]').prop('checked', false);
-    $('[name="useRemovingTrackFromId3Title"]').prop('checked', false);
-    $('[name="useCleanUp"]').prop('checked', false);
-    $('[name="redundantFolderCheck"]').prop('checked', false);
+    if(!scanning) {
+        $('[name="useRemovingTrackFromId3Title"]').prop('checked', false);
+        $('[name="useCleanUp"]').prop('checked', false);
+        $('[name="redundantFolderCheck"]').prop('checked', false);
+    }
     $('[name="showIndexDetails"]').prop('checked', false);
     $('[name="showDBDetails"]').prop('checked', false);
 }
 function resetExtension() {
+    if(scanning) {
+        return;
+    }
     $("#musicFileTypes").val('${command.defaultMusicFileTypes}');
     $("#videoFileTypes").val('${command.defaultVideoFileTypes}');
     $("#coverArtFileTypes").val('${command.defaultCoverArtFileTypes}');
@@ -264,19 +271,19 @@ function resetExtension() {
             </dd>
             <dt></dt>
             <dd>
-                <form:checkbox path="useRemovingTrackFromId3Title" id="useRemovingTrackFromId3Title"/>
+                <form:checkbox path="useRemovingTrackFromId3Title" id="useRemovingTrackFromId3Title" disabled="${command.scanning}"/>
                 <label for="useRemovingTrackFromId3Title"><fmt:message key="generalsettings.useremovingtrackfromid3title"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="useremovingtrackfromid3title"/></c:import>
             </dd>
             <dt></dt>
             <dd>
-                <form:checkbox path="useCleanUp" id="useCleanUp"/>
+                <form:checkbox path="useCleanUp" id="useCleanUp" disabled="${command.scanning}"/>
                 <label for="useCleanUp"><fmt:message key="generalsettings.usecleanup"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="usecleanup"/></c:import>
             </dd>
             <dt></dt>
             <dd>
-                <form:checkbox path="redundantFolderCheck" id="redundantFolderCheck"/>
+                <form:checkbox path="redundantFolderCheck" id="redundantFolderCheck" disabled="${command.scanning}"/>
                 <label for="redundantFolderCheck"><fmt:message key="generalsettings.redundantfoldercheck"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="redundantfoldercheck"/></c:import>
             </dd>
@@ -307,32 +314,32 @@ function resetExtension() {
         <dl>
             <dt><fmt:message key="generalsettings.musicmask"/></dt>
             <dd>
-                <form:input path="musicFileTypes"/>
+                <form:input path="musicFileTypes" disabled="${command.scanning}"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="musicmask"/></c:import>
             </dd>
             <dt><fmt:message key="generalsettings.videomask"/></dt>
             <dd>
-                <form:input path="videoFileTypes"/>
+                <form:input path="videoFileTypes" disabled="${command.scanning}"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="videomask"/></c:import>
             </dd>
             <dt><fmt:message key="generalsettings.coverartmask"/></dt>
             <dd>
-                <form:input path="coverArtFileTypes"/>
+                <form:input path="coverArtFileTypes" disabled="${command.scanning}"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="coverartmask"/></c:import>
             </dd>
             <dt><fmt:message key="generalsettings.coverarttoexclude"/></dt>
             <dd>
-                <form:input path="excludedCoverArts"/>
+                <form:input path="excludedCoverArts" disabled="${command.scanning}"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="coverarttoexclude"/></c:import>
             </dd>
             <dt><fmt:message key="generalsettings.playlistfolder"/></dt>
             <dd>
-                <form:input path="playlistFolder"/>
+                <form:input path="playlistFolder" disabled="${command.scanning}"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="playlistfolder"/></c:import>
             </dd>
             <dt><fmt:message key="generalsettings.shortcuts"/></dt>
             <dd>
-                <form:input path="shortcuts"/>
+                <form:input path="shortcuts" disabled="${command.scanning}"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="shortcuts"/></c:import>
             </dd>
         </dl>

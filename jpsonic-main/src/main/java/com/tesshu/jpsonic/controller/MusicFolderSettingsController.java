@@ -158,6 +158,11 @@ public class MusicFolderSettingsController {
     protected ModelAndView post(@ModelAttribute(Attributes.Model.Command.VALUE) MusicFolderSettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
+        final ModelAndView result = new ModelAndView(new RedirectView(ViewName.MUSIC_FOLDER_SETTINGS.value()));
+        if (mediaScannerService.isScanning()) {
+            return result;
+        }
+
         Instant executed = now();
 
         // Specify folder
@@ -198,7 +203,7 @@ public class MusicFolderSettingsController {
         // for view page control
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
 
-        return new ModelAndView(new RedirectView(ViewName.MUSIC_FOLDER_SETTINGS.value()));
+        return result;
     }
 
     @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Validated.")

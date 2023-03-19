@@ -7,6 +7,7 @@
 <%@ page import="com.tesshu.jpsonic.domain.IndexScheme" %>
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script>
+const scanning = ${command.scanning};
 
 function resetBandwidth() {
     $('[name="downloadLimit"]').val(0);
@@ -15,6 +16,9 @@ function resetBandwidth() {
 }
 
 function resetScanLog() {
+    if(scanning) {
+        return;
+    }
     $("#usescanlog").prop('checked', false);
     $("#scanlogretention").prop('disabled', true);
     $("#scanlogretention").val(-1);
@@ -23,7 +27,10 @@ function resetScanLog() {
 }
 
 function onUseScanLogStateChanged() {
-    if($("#usescanlog").prop("checked")){
+    if(scanning) {
+        return;
+    }
+	if($("#usescanlog").prop("checked")){
         $("#scanlogretention").prop('disabled', false);
         $("#usescanevents").prop({'disabled': false});
         $("#measurememory").prop({'disabled': false});
@@ -228,13 +235,13 @@ document.addEventListener('DOMContentLoaded', function () {
         <dl>
             <dt></dt>
             <dd>
-                <form:checkbox path="useScanLog" id="usescanlog"/>
+                <form:checkbox path="useScanLog" id="usescanlog" disabled="${command.scanning}"/>
                 <label for="usescanlog"><fmt:message key="advancedsettings.usescanlog"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="usescanlog"/></c:import>
             </dd>
             <dt><fmt:message key="advancedsettings.scanlogretention"/></dt>
             <dd>
-                <form:select path="scanLogRetention" id="scanlogretention">
+                <form:select path="scanLogRetention" id="scanlogretention" disabled="${command.scanning}">
                     <fmt:message key="advancedsettings.retentionmin" var="latest"/>
                     <fmt:message key="advancedsettings.retention" var="week">
                         <fmt:param value="7" />
@@ -254,13 +261,13 @@ document.addEventListener('DOMContentLoaded', function () {
             </dd>
             <dt></dt>
             <dd>
-                <form:checkbox path="useScanEvents" id="usescanevents"/>
+                <form:checkbox path="useScanEvents" id="usescanevents" disabled="${command.scanning}"/>
                 <label for="usescanevents"><fmt:message key="advancedsettings.usescanevents"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="usescanevents"/></c:import>
             </dd>
             <dt></dt>
             <dd>
-                <form:checkbox path="measureMemory" id="measurememory"/>
+                <form:checkbox path="measureMemory" id="measurememory" disabled="${command.scanning}"/>
                 <label for="measurememory"><fmt:message key="advancedsettings.measurememory"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="measurememory"/></c:import>
             </dd>
@@ -283,12 +290,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     <c:forEach items="${IndexScheme.values()}" var="indexScheme" varStatus="status">
                         <li>
                             <form:radiobutton class="technologyRadio" id="radio1-${status.count}" path="indexScheme" value="${indexScheme}"
-                                checked="${indexScheme eq command.indexScheme.name() ? 'checked' : ''}"/>
+                                checked="${indexScheme eq command.indexScheme.name() ? 'checked' : ''}" disabled="${command.scanning}"/>
                             <label for="radio1-${status.count}"><fmt:message key="advancedsettings.indexscheme.${fn:toLowerCase(indexScheme)}"/></label>
                             <c:import url="helpToolTip.jsp"><c:param name="topic" value="${fn:toLowerCase(indexScheme)}" /></c:import>
                             <c:if test='${"ROMANIZED_JAPANESE" eq indexScheme}'>
                                 <li class="subItem">
-                                    <form:checkbox path="forceInternalValueInsteadOfTags" id="forceInternalValueInsteadOfTags" cssClass="checkbox"/>
+                                    <form:checkbox path="forceInternalValueInsteadOfTags" id="forceInternalValueInsteadOfTags" cssClass="checkbox" disabled="${command.scanning}"/>
                                     <label for="forceInternalValueInsteadOfTags"><fmt:message key="advancedsettings.forceinternalvalueinsteadoftags"/></label>
                                     <c:import url="helpToolTip.jsp"><c:param name="topic" value="forceinternalvalueinsteadoftags"/></c:import>
                                 </li>
@@ -299,13 +306,13 @@ document.addEventListener('DOMContentLoaded', function () {
             </dd>
             <dt></dt>
             <dd>
-                <form:checkbox path="sortAlphanum" id="sortAlphanum"/>
+                <form:checkbox path="sortAlphanum" id="sortAlphanum" disabled="${command.scanning}"/>
                 <label for="sortAlphanum"><fmt:message key="generalsettings.sortalphanum"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="sortalphanum"/></c:import>
             </dd>
             <dt></dt>
             <dd>
-                <form:checkbox path="sortStrict" id="sortStrict"/>
+                <form:checkbox path="sortStrict" id="sortStrict" disabled="${command.scanning}"/>
                 <label for="sortStrict"><fmt:message key="generalsettings.sortstrict"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="sortstrict"/></c:import>
             </dd>
