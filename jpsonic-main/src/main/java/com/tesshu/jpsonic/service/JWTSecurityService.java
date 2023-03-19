@@ -50,7 +50,7 @@ public class JWTSecurityService {
     private static final Logger LOG = LoggerFactory.getLogger(JWTSecurityService.class);
     public static final String JWT_PARAM_NAME = "jwt";
     public static final String CLAIM_PATH = "path";
-    public static final int DEFAULT_DAYS_VALID_FOR = 7; // TODO make this configurable
+    public static final int DEFAULT_DAYS_VALID_FOR = 7;
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
     public static final int WITH_FILE_EXTENSION = 4;
 

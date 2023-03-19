@@ -42,6 +42,8 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.PostConstruct;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tesshu.jpsonic.domain.Version;
 import org.apache.commons.lang3.StringUtils;
@@ -78,8 +80,6 @@ public class VersionService {
      */
     private static final long LAST_VERSION_FETCH_INTERVAL = 7L * 24L * 3600L * 1000L; // One week
 
-    private final SettingsService settingsService;
-
     private final Object latestLock = new Object();
     private final Object localVersionLock = new Object();
     private final Object localBuildDateLock = new Object();
@@ -96,9 +96,12 @@ public class VersionService {
      */
     private long lastVersionFetched;
 
-    public VersionService(SettingsService settingsService) {
-        super();
-        this.settingsService = settingsService;
+    @PostConstruct
+    public void init() {
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Starting Jpsonic " + getLocalVersion() + " (" + getLocalBuildNumber() + "), Java: "
+                    + System.getProperty("java.version") + ", OS: " + System.getProperty("os.name"));
+        }
     }
 
     /**
@@ -110,9 +113,6 @@ public class VersionService {
         synchronized (localVersionLock) {
             if (localVersion == null) {
                 localVersion = new Version(readLineFromResource("/version.txt"));
-                if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
-                    LOG.info("Resolved local Jpsonic version to: " + localVersion);
-                }
             }
             return localVersion;
         }

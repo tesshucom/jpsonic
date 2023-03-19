@@ -23,7 +23,6 @@ package com.tesshu.jpsonic.service.metadata;
 
 import java.nio.file.Path;
 import java.util.Locale;
-import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -46,7 +45,7 @@ public class VideoParser extends MetaDataParser {
     private final FFprobe ffprobe;
 
     public VideoParser(SettingsService settingsService, MusicFolderService musicFolderService, FFprobe ffprobe) {
-        super();
+        super(settingsService);
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
         this.ffprobe = ffprobe;
@@ -103,7 +102,7 @@ public class VideoParser extends MetaDataParser {
             return false;
         }
         String format = extension.toLowerCase(Locale.ENGLISH);
-        return Stream.of(settingsService.getVideoFileTypesAsArray())
+        return settingsService.getVideoFileTypesAsArray().stream()
                 .anyMatch(type -> format.equals(type.toLowerCase(Locale.ENGLISH)));
     }
 }

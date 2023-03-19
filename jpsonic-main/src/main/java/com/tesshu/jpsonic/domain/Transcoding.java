@@ -21,6 +21,7 @@
 
 package com.tesshu.jpsonic.domain;
 
+import java.util.List;
 import java.util.Objects;
 
 import com.tesshu.jpsonic.util.StringUtil;
@@ -117,7 +118,7 @@ public class Transcoding {
         return sourceFormats;
     }
 
-    public String[] getSourceFormatsAsArray() {
+    public List<String> getSourceFormatsAsList() {
         return StringUtil.split(sourceFormats);
     }
 

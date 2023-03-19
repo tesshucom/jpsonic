@@ -29,11 +29,11 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PlayStatus;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.service.AvatarService;
-import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.StatusService;
+import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -54,7 +54,7 @@ class NowPlayingServiceTest {
         Mockito.when(statusService.getPlayStatuses()).thenReturn(Arrays.asList(playStatus));
 
         nowPlayingService = new NowPlayingService(mock(SecurityService.class), mock(PlayerService.class), statusService,
-                mock(MediaScannerService.class), mock(AvatarService.class), AjaxMockUtils.mock(AjaxHelper.class));
+                mock(ScannerStateServiceImpl.class), mock(AvatarService.class), AjaxMockUtils.mock(AjaxHelper.class));
     }
 
     @Test

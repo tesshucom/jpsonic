@@ -27,6 +27,7 @@ import java.sql.SQLException;
 import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
 
+import ch.qos.logback.classic.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -73,13 +74,13 @@ public class LegacyHsqlDaoHelper extends GenericDaoHelper {
                 try (Connection conn = DataSourceUtils.getConnection(dataSource)) {
                     jdbcTemplate.execute("SHUTDOWN");
                 }
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Database shutdown complete.");
-                }
+                // Force log level change
+                ((ch.qos.logback.classic.Logger) LOG).setLevel(Level.INFO);
+                LOG.info("Embedded database shutdown complete.");
             }
         } catch (SQLException e) {
             if (LOG.isErrorEnabled()) {
-                LOG.error("Database shutdown failed", e);
+                LOG.error("Embedded database shutdown failed", e);
             }
         }
     }

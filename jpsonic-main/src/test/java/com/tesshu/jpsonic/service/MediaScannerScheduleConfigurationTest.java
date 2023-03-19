@@ -29,6 +29,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 
 import ch.qos.logback.classic.Level;
 import com.tesshu.jpsonic.TestCaseUtils;
@@ -116,10 +117,9 @@ class MediaScannerScheduleConfigurationTest {
 
             Trigger trigger = task.getTrigger();
             TriggerContext triggerContext = mock(TriggerContext.class);
-            Mockito.when(settingsService.isVerboseLogStart()).thenReturn(true);
 
             // Operation check at the first startup
-            java.util.Date firstTime = trigger.nextExecutionTime(triggerContext);
+            Date firstTime = trigger.nextExecutionTime(triggerContext);
             LocalDateTime firstDateTime = Instant.ofEpochMilli(firstTime.getTime()).atZone(ZoneId.systemDefault())
                     .toLocalDateTime();
             assertEquals(now.plus(1, ChronoUnit.DAYS).getDayOfMonth(), firstDateTime.getDayOfMonth());

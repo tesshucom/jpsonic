@@ -34,10 +34,10 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.domain.PodcastEpisode;
-import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -64,7 +64,7 @@ class PodcastChannelsControllerTest {
         Mockito.when(podcastService.getNewestEpisodes(10)).thenReturn(Arrays.asList(episode));
 
         mockMvc = MockMvcBuilders.standaloneSetup(new PodcastChannelsController(mock(SecurityService.class),
-                podcastService, mock(MediaScannerService.class), mock(ViewAsListSelector.class))).build();
+                podcastService, mock(ScannerStateServiceImpl.class), mock(ViewAsListSelector.class))).build();
     }
 
     @SuppressWarnings("unchecked")

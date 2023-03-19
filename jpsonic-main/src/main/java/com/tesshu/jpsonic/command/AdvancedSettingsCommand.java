@@ -31,12 +31,6 @@ import com.tesshu.jpsonic.domain.IndexScheme;
  */
 public class AdvancedSettingsCommand extends SettingsPageCommons {
 
-    // Logging control
-    private boolean verboseLogStart;
-    private boolean verboseLogScanning;
-    private boolean verboseLogPlaying;
-    private boolean verboseLogShutdown;
-
     // Bandwidth control
     private String downloadLimit;
     private String uploadLimit;
@@ -64,41 +58,19 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
     private String recaptchaSiteKey;
     private String recaptchaSecretKey;
 
+    // Scan log
+    private boolean useScanLog;
+    private int scanLogRetention;
+    private boolean useScanEvents;
+    private boolean measureMemory;
+
     // Danger Zone
     private IndexScheme indexScheme;
     private boolean forceInternalValueInsteadOfTags;
-
-    public boolean isVerboseLogStart() {
-        return verboseLogStart;
-    }
-
-    public void setVerboseLogStart(boolean verboseLogStart) {
-        this.verboseLogStart = verboseLogStart;
-    }
-
-    public boolean isVerboseLogScanning() {
-        return verboseLogScanning;
-    }
-
-    public void setVerboseLogScanning(boolean verboseLogScanning) {
-        this.verboseLogScanning = verboseLogScanning;
-    }
-
-    public boolean isVerboseLogPlaying() {
-        return verboseLogPlaying;
-    }
-
-    public void setVerboseLogPlaying(boolean verboseLogPlaying) {
-        this.verboseLogPlaying = verboseLogPlaying;
-    }
-
-    public boolean isVerboseLogShutdown() {
-        return verboseLogShutdown;
-    }
-
-    public void setVerboseLogShutdown(boolean verboseLogShutdown) {
-        this.verboseLogShutdown = verboseLogShutdown;
-    }
+    private boolean sortAlphanum;
+    private boolean sortStrict;
+    private boolean defaultSortAlphanum;
+    private boolean defaultSortStrict;
 
     public String getDownloadLimit() {
         return downloadLimit;
@@ -252,6 +224,38 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
         this.recaptchaSecretKey = recaptchaSecretKey;
     }
 
+    public boolean isUseScanLog() {
+        return useScanLog;
+    }
+
+    public void setUseScanLog(boolean useScanLog) {
+        this.useScanLog = useScanLog;
+    }
+
+    public int getScanLogRetention() {
+        return scanLogRetention;
+    }
+
+    public void setScanLogRetention(int scanLogRetention) {
+        this.scanLogRetention = scanLogRetention;
+    }
+
+    public boolean isUseScanEvents() {
+        return useScanEvents;
+    }
+
+    public void setUseScanEvents(boolean useScanEvents) {
+        this.useScanEvents = useScanEvents;
+    }
+
+    public boolean isMeasureMemory() {
+        return measureMemory;
+    }
+
+    public void setMeasureMemory(boolean measureMemory) {
+        this.measureMemory = measureMemory;
+    }
+
     public IndexScheme getIndexScheme() {
         return indexScheme;
     }
@@ -266,5 +270,37 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
 
     public void setForceInternalValueInsteadOfTags(boolean forceInternalValueInsteadOfTags) {
         this.forceInternalValueInsteadOfTags = forceInternalValueInsteadOfTags;
+    }
+
+    public boolean isSortAlphanum() {
+        return sortAlphanum;
+    }
+
+    public void setSortAlphanum(boolean sortAlphanum) {
+        this.sortAlphanum = sortAlphanum;
+    }
+
+    public boolean isSortStrict() {
+        return sortStrict;
+    }
+
+    public void setSortStrict(boolean sortStrict) {
+        this.sortStrict = sortStrict;
+    }
+
+    public boolean isDefaultSortAlphanum() {
+        return defaultSortAlphanum;
+    }
+
+    public void setDefaultSortAlphanum(boolean defaultSortAlphanum) {
+        this.defaultSortAlphanum = defaultSortAlphanum;
+    }
+
+    public boolean isDefaultSortStrict() {
+        return defaultSortStrict;
+    }
+
+    public void setDefaultSortStrict(boolean defaultSortStrict) {
+        this.defaultSortStrict = defaultSortStrict;
     }
 }

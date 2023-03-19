@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.MediaScannerService;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
@@ -57,15 +57,15 @@ public class EditTagsController {
     private final SecurityService securityService;
     private final MetaDataParserFactory metaDataParserFactory;
     private final MediaFileService mediaFileService;
-    private final MediaScannerService mediaScannerService;
+    private final ScannerStateService scannerStateService;
 
     public EditTagsController(SecurityService securityService, MetaDataParserFactory metaDataParserFactory,
-            MediaFileService mediaFileService, MediaScannerService mediaScannerService) {
+            MediaFileService mediaFileService, ScannerStateService scannerStateService) {
         super();
         this.securityService = securityService;
         this.metaDataParserFactory = metaDataParserFactory;
         this.mediaFileService = mediaFileService;
-        this.mediaScannerService = mediaScannerService;
+        this.scannerStateService = scannerStateService;
     }
 
     @GetMapping
@@ -73,7 +73,7 @@ public class EditTagsController {
 
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile dir = mediaFileService.getMediaFileStrict(id);
-        List<MediaFile> files = mediaFileService.getChildrenOf(dir, true, false, true, false);
+        List<MediaFile> files = mediaFileService.getChildrenOf(dir, true, false);
 
         Map<String, Object> map = LegacyMap.of();
         if (!files.isEmpty()) {
@@ -83,7 +83,7 @@ public class EditTagsController {
             map.put("defaultGenre", files.get(0).getGenre());
         }
         map.put("allGenres", ParserUtils.getID3V1Genres());
-        map.put("scanning", mediaScannerService.isScanning());
+        map.put("scanning", scannerStateService.isScanning());
 
         List<ParsedSong> parsedSongs = new ArrayList<>();
         for (int i = 0; i < files.size(); i++) {

@@ -66,7 +66,7 @@ class MusicIndexServiceTest {
         settingsService = mock(SettingsService.class);
         String articles = SettingsConstants.General.Index.IGNORED_ARTICLES.defaultValue;
         Mockito.when(settingsService.getIgnoredArticles()).thenReturn(articles);
-        Mockito.when(settingsService.getIgnoredArticlesAsArray()).thenReturn(articles.split("\\s+"));
+        Mockito.when(settingsService.getIgnoredArticlesAsArray()).thenReturn(Arrays.asList(articles.split("\\s+")));
         Mockito.when(settingsService.getIndexString())
                 .thenReturn(SettingsConstants.General.Index.INDEX_STRING.defaultValue);
         String language = SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE.defaultValue;
@@ -83,8 +83,7 @@ class MusicIndexServiceTest {
 
     @Test
     void testGetIndexedArtistsListOfMusicFolderBoolean() {
-        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class), Mockito.anyBoolean()))
-                .thenReturn(new MediaFile());
+        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(new MediaFile());
         MediaFile child1 = new MediaFile();
         child1.setTitle("The Flipper's Guitar");
         child1.setPathString("path1");
@@ -93,11 +92,11 @@ class MusicIndexServiceTest {
         child2.setPathString("path2");
         List<MediaFile> children = Arrays.asList(child1, child2);
         Mockito.when(mediaFileService.getChildrenOf(Mockito.any(MediaFile.class), Mockito.anyBoolean(),
-                Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(children);
+                Mockito.anyBoolean())).thenReturn(children);
         MusicFolder folder = new MusicFolder(0, "path", "name", true, now());
 
         SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> indexedArtists = musicIndexService
-                .getIndexedArtists(Arrays.asList(folder), false);
+                .getIndexedArtists(Arrays.asList(folder));
         assertEquals(2, indexedArtists.size());
         Iterator<MusicIndex> iterator = indexedArtists.keySet().iterator();
         MusicIndex musicIndex = iterator.next();
@@ -151,7 +150,7 @@ class MusicIndexServiceTest {
         List<Artist> artists = Arrays.asList(artist1, artist2);
 
         SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> indexedArtists = musicIndexService
-                .getIndexedArtists(artists);
+                .getIndexedId3Artists(artists);
         assertEquals(2, indexedArtists.size());
         Iterator<MusicIndex> iterator = indexedArtists.keySet().iterator();
         MusicIndex musicIndex = iterator.next();
@@ -164,8 +163,7 @@ class MusicIndexServiceTest {
 
     @Test
     void testGetMusicFolderContent() {
-        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class), Mockito.anyBoolean()))
-                .thenReturn(new MediaFile());
+        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(new MediaFile());
         MediaFile child1 = new MediaFile();
         child1.setTitle("The Flipper's Guitar");
         child1.setPathString("path1");
@@ -178,13 +176,11 @@ class MusicIndexServiceTest {
         song.setPathString("path3");
         List<MediaFile> songs = Arrays.asList(song);
         Mockito.when(mediaFileService.getChildrenOf(Mockito.any(MediaFile.class), Mockito.anyBoolean(),
-                Mockito.anyBoolean(), Mockito.anyBoolean(), Mockito.anyBoolean())).thenReturn(children)
-                .thenReturn(songs).thenThrow(new RuntimeException("Fail"));
-        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class), Mockito.anyBoolean()))
-                .thenReturn(new MediaFile());
+                Mockito.anyBoolean())).thenReturn(children).thenReturn(songs).thenThrow(new RuntimeException("Fail"));
+        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(new MediaFile());
         MusicFolder folder = new MusicFolder(0, "path", "name", true, now());
 
-        MusicFolderContent content = musicIndexService.getMusicFolderContent(Arrays.asList(folder), false);
+        MusicFolderContent content = musicIndexService.getMusicFolderContent(Arrays.asList(folder));
         assertEquals(2, content.getIndexedArtists().size());
         Iterator<MusicIndex> iterator = content.getIndexedArtists().keySet().iterator();
         MusicIndex musicIndex = iterator.next();
@@ -209,13 +205,13 @@ class MusicIndexServiceTest {
         mediaFile.setId(0);
         mediaFile.setPathString(path.toString());
 
-        Mockito.when(mediaFileService.getMediaFile(path, true)).thenReturn(null);
-        musicIndexService.getSingleSongs(musicFolders, false);
-        Mockito.verify(mediaFileService, Mockito.never()).getChildrenOf(mediaFile, true, false, true, true);
+        Mockito.when(mediaFileService.getMediaFile(path)).thenReturn(null);
+        musicIndexService.getSingleSongs(musicFolders);
+        Mockito.verify(mediaFileService, Mockito.never()).getChildrenOf(mediaFile, true, false);
 
-        Mockito.when(mediaFileService.getMediaFile(path, true)).thenReturn(mediaFile);
-        musicIndexService.getSingleSongs(musicFolders, false);
-        Mockito.verify(mediaFileService, Mockito.times(1)).getChildrenOf(mediaFile, true, false, true, true);
+        Mockito.when(mediaFileService.getMediaFile(path)).thenReturn(mediaFile);
+        musicIndexService.getSingleSongs(musicFolders);
+        Mockito.verify(mediaFileService, Mockito.times(1)).getChildrenOf(mediaFile, true, false);
     }
 
     @Test
@@ -225,7 +221,7 @@ class MusicIndexServiceTest {
         MediaFile song = new MediaFile();
         song.setTitle("Files directly under the shortcut directory");
         song.setPathString("path");
-        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class), Mockito.anyBoolean())).thenReturn(song);
+        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(song);
         MusicFolder folder = new MusicFolder(
                 Path.of(MusicIndexServiceTest.class.getResource("/MEDIAS").toURI()).toString(), "Music", true, now());
 

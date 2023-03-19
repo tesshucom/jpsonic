@@ -102,17 +102,8 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor<Artist, Album> {
 
     @Override
     public List<Album> getChildren(Artist artist, long offset, long maxResults) {
-        List<Album> albums = getDispatcher().getAlbumProcessor().getAlbumsForArtist(artist.getName(),
-                offset > 1 ? offset - 1 : offset, 0L == offset ? maxResults - 1 : maxResults,
+        return getDispatcher().getAlbumProcessor().getAlbumsForArtist(artist.getName(), offset, maxResults,
                 util.isSortAlbumsByYear(artist.getName()), util.getGuestMusicFolders());
-        if (albums.size() > 1 && 0L == offset) {
-            Album firstElement = new Album();
-            firstElement.setName(util.getResource("dlna.element.allalbums"));
-            firstElement.setId(-1);
-            firstElement.setComment(AlbumUpnpProcessor.ALL_BY_ARTIST + "_" + artist.getId());
-            albums.add(0, firstElement);
-        }
-        return albums;
     }
 
     @Override

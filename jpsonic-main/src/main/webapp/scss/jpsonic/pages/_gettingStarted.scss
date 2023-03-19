@@ -7,6 +7,13 @@
         content: counter(count) ". ";
         counter-increment: count;
       }
+      form {
+        display: inline-block;
+        vertical-align: middle;
+        select {
+          margin-top: -5px;
+        }
+      }
     }
   }
 }

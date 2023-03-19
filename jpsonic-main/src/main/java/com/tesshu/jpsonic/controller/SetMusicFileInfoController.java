@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -44,10 +45,13 @@ import org.springframework.web.servlet.view.RedirectView;
 public class SetMusicFileInfoController {
 
     private final MediaFileService mediaFileService;
+    private final WritableMediaFileService writableMediaFileService;
 
-    public SetMusicFileInfoController(MediaFileService mediaFileService) {
+    public SetMusicFileInfoController(MediaFileService mediaFileService,
+            WritableMediaFileService writableMediaFileService) {
         super();
         this.mediaFileService = mediaFileService;
+        this.writableMediaFileService = writableMediaFileService;
     }
 
     @PostMapping
@@ -60,9 +64,9 @@ public class SetMusicFileInfoController {
         if ("comment".equals(action)) {
             mediaFile.setComment(
                     StringEscapeUtils.escapeHtml4(request.getParameter(Attributes.Request.COMMENT.value())));
-            mediaFileService.updateMediaFile(mediaFile);
+            writableMediaFileService.updateComment(mediaFile);
         } else if ("resetLastScanned".equals(action)) {
-            mediaFileService.resetLastScanned(mediaFile);
+            writableMediaFileService.resetLastScanned(mediaFile);
         }
 
         String url = ViewName.MAIN.value() + "?" + Attributes.Request.ID.value() + "=" + id;

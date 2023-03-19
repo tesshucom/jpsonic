@@ -101,6 +101,7 @@ public class PlaylistDao extends AbstractDao {
         playlist.setId(id);
     }
 
+    @Transactional
     public void setFilesInPlaylist(int id, List<MediaFile> files) {
         update("delete from playlist_file where playlist_id=?", id);
         int duration = 0;

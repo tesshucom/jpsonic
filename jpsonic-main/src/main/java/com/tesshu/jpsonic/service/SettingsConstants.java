@@ -61,7 +61,6 @@ final class SettingsConstants {
         static class Scan {
             static final Pair<Integer> INDEX_CREATION_INTERVAL = Pair.of("IndexCreationInterval", 1);
             static final Pair<Integer> INDEX_CREATION_HOUR = Pair.of("IndexCreationHour", 3);
-            static final Pair<Boolean> SHOW_REFRESH = Pair.of("ShowRefresh", false);
 
             private Scan() {
             }
@@ -79,7 +78,6 @@ final class SettingsConstants {
             static final Pair<String> FILE_MODIFIED_CHECK_SCHEME_NAME = Pair.of("FileModifiedCheckSchemeName",
                     FileModifiedCheckScheme.LAST_MODIFIED.name());
             static final Pair<Boolean> IGNORE_FILE_TIMESTAMPS = Pair.of("IgnoreFileTimestamps", false);
-            static final Pair<Boolean> IGNORE_FILE_TIMESTAMPS_NEXT = Pair.of("IgnoreFileTimestampsNext", false);
             static final Pair<Boolean> IGNORE_FILE_TIMESTAMPS_FOR_EACH_ALBUM = Pair
                     .of("IgnoreFileTimestampsForEachAlbum", false);
 
@@ -115,8 +113,6 @@ final class SettingsConstants {
             static final Pair<Boolean> ALBUMS_BY_YEAR = Pair.of("SortAlbumsByYear", true);
             static final Pair<Boolean> GENRES_BY_ALPHABET = Pair.of("SortGenresByAlphabet", true);
             static final Pair<Boolean> PROHIBIT_SORT_VARIOUS = Pair.of("ProhibitSortVarious", true);
-            static final Pair<Boolean> ALPHANUM = Pair.of("SortAlphanum", true);
-            static final Pair<Boolean> STRICT = Pair.of("SortStrict", true);
 
             private Sort() {
             }
@@ -138,9 +134,14 @@ final class SettingsConstants {
             static final Pair<Boolean> PUBLISH_PODCAST = Pair.of("PublishPodcast", false);
             static final Pair<Boolean> USE_RADIO = Pair.of("UseRadio", false);
             static final Pair<Boolean> USE_EXTERNAL_PLAYER = Pair.of("UseExternalPlayer", false);
-            static final Pair<Boolean> USE_REFRESH = Pair.of("UseRefresh", false);
             static final Pair<Boolean> USE_COPY_OF_ASCII_UNPRINTABLE = Pair.of("UseCopyOfAsciiUnprintable", false);
             static final Pair<Boolean> USE_JSONP = Pair.of("UseJsonp", false);
+            static final Pair<Boolean> USE_REMOVING_TRACK_FROM_ID3TITLE = Pair.of("UseRemovingTrackFromId3Title",
+                    false);
+            static final Pair<Boolean> USE_CLEAN_UP = Pair.of("UseCleanUp", false);
+            static final Pair<Boolean> REDUNDANT_FOLDER_CHECK = Pair.of("RedundantFolderCheck", false);
+            static final Pair<Boolean> SHOW_INDEX_DETAILS = Pair.of("ShowIndexDetails", false);
+            static final Pair<Boolean> SHOW_DB_DETAILS = Pair.of("ShowDBDetails", false);
 
             private Legacy() {
             }
@@ -153,6 +154,9 @@ final class SettingsConstants {
                     "flv avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts webm");
             static final Pair<String> COVER_ART_FILE_TYPES = Pair.of("CoverArtFileTypes2",
                     "cover.jpg cover.png cover.gif folder.jpg jpg jpeg gif png");
+            static final Pair<String> EXCLUDED_COVER_ART = Pair.of("ExcludedCoverArt",
+                    "folder.jpg AlbumArtSmall.jpg small.jpg large.jpg");
+
             static final Pair<String> PLAYLIST_FOLDER = Pair.of("PlaylistFolder",
                     PlayerUtils.getDefaultPlaylistFolder());
             static final Pair<String> SHORTCUTS = Pair.of("Shortcuts", "\"New Incoming\" Podcast");
@@ -179,16 +183,6 @@ final class SettingsConstants {
     static class Advanced {
 
         private Advanced() {
-        }
-
-        static class VerboseLog {
-            static final Pair<Boolean> START = Pair.of("VerboseLogStart", true);
-            static final Pair<Boolean> SCANNING = Pair.of("VerboseLogScanning", true);
-            static final Pair<Boolean> PLAYING = Pair.of("VerboseLogPlaying", true);
-            static final Pair<Boolean> SHUTDOWN = Pair.of("VerboseLogShutdown", true);
-
-            private VerboseLog() {
-            }
         }
 
         static class Bandwidth {
@@ -236,6 +230,16 @@ final class SettingsConstants {
             }
         }
 
+        static class ScanLog {
+            static final Pair<Boolean> USE_SCAN_LOG = Pair.of("UseScanLog", false);
+            static final Pair<Integer> SCAN_LOG_RETENTION = Pair.of("ScanLogRetention", -1);
+            static final Pair<Boolean> USE_SCAN_EVENTS = Pair.of("UseScanEvents", false);
+            static final Pair<Boolean> MEASURE_MEMORY = Pair.of("MeasureMemory", false);
+
+            private ScanLog() {
+            }
+        }
+
         static class Index {
             static final Pair<String> INDEX_SCHEME_NAME = Pair.of("IndexSchemeName",
                     IndexScheme.NATIVE_JAPANESE.name());
@@ -247,6 +251,15 @@ final class SettingsConstants {
             private Index() {
             }
         }
+
+        static class Sort {
+            static final Pair<Boolean> ALPHANUM = Pair.of("SortAlphanum", true);
+            static final Pair<Boolean> STRICT = Pair.of("SortStrict", true);
+
+            private Sort() {
+            }
+        }
+
     }
 
     static class Podcast {

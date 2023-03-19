@@ -34,11 +34,12 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
+import com.tesshu.jpsonic.dao.RatingDao;
+import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SearchResult;
+import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.FileUtil;
@@ -70,10 +71,12 @@ class IndexManagerTest extends AbstractNeedsScan {
     private MediaFileDao mediaFileDao;
 
     @Autowired
-    private ArtistDao artistDao;
+    private MediaScannerService mediaScannerService;
 
     @Autowired
-    private AlbumDao albumDao;
+    private RatingDao ratingDao;
+
+    private static final String USER_NAME = "admin";
 
     @Override
     public List<MusicFolder> getMusicFolders() {
@@ -85,7 +88,35 @@ class IndexManagerTest extends AbstractNeedsScan {
 
     @BeforeEach
     public void setup() {
-        populateDatabaseOnlyOnce();
+        populateDatabaseOnlyOnce(() -> {
+            return true;
+        }, () -> {
+
+            // #1842 Airsonic does not implement Rating expunge
+
+            List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, true, musicFolders);
+            assertEquals(4, albums.size());
+
+            albums.forEach(m -> ratingDao.setRatingForUser(USER_NAME, m, 1));
+            assertEquals(4, ratingDao.getRatedAlbumCount(USER_NAME, musicFolders));
+            int ratingsCount = ratingDao.getJdbcTemplate().queryForObject(
+                    "select count(*) from user_rating where user_rating.username = ?", Integer.class, USER_NAME);
+            assertEquals(4, ratingsCount, "Because explicitly registered 4 Ratings.");
+
+            // Register a dummy rate (reproduce old path data by moving files)
+            MediaFile dummyMediaFile = new MediaFile();
+            dummyMediaFile.setPathString("oldPath");
+            ratingDao.setRatingForUser(USER_NAME, dummyMediaFile, 1);
+
+            assertEquals(4, ratingDao.getRatedAlbumCount(USER_NAME, musicFolders),
+                    "Because the SELECT condition only references real paths.");
+            ratingsCount = ratingDao.getJdbcTemplate().queryForObject(
+                    "select count(*) from user_rating where user_rating.username = ?", Integer.class, USER_NAME);
+            assertEquals(5, ratingsCount, "Because counted directly, including non-existent paths.");
+
+            return true;
+        });
+
     }
 
     @Test
@@ -116,7 +147,7 @@ class IndexManagerTest extends AbstractNeedsScan {
         List<Integer> candidates = mediaFileDao.getArtistExpungeCandidates();
         assertEquals(0, candidates.size());
 
-        result.getMediaFiles().forEach(a -> mediaFileDao.deleteMediaFile(a.getPathString()));
+        result.getMediaFiles().forEach(a -> mediaFileDao.deleteMediaFile(a.getId()));
 
         candidates = mediaFileDao.getArtistExpungeCandidates();
         assertEquals(1, candidates.size());
@@ -129,7 +160,7 @@ class IndexManagerTest extends AbstractNeedsScan {
         candidates = mediaFileDao.getAlbumExpungeCandidates();
         assertEquals(0, candidates.size());
 
-        result.getMediaFiles().forEach(a -> mediaFileDao.deleteMediaFile(a.getPathString()));
+        result.getMediaFiles().forEach(a -> mediaFileDao.deleteMediaFile(a.getId()));
 
         candidates = mediaFileDao.getAlbumExpungeCandidates();
         assertEquals(1, candidates.size());
@@ -148,7 +179,7 @@ class IndexManagerTest extends AbstractNeedsScan {
         candidates = mediaFileDao.getSongExpungeCandidates();
         assertEquals(0, candidates.size());
 
-        result.getMediaFiles().forEach(a -> mediaFileDao.deleteMediaFile(a.getPathString()));
+        result.getMediaFiles().forEach(a -> mediaFileDao.deleteMediaFile(a.getId()));
 
         candidates = mediaFileDao.getSongExpungeCandidates();
         assertEquals(2, candidates.size());
@@ -158,31 +189,13 @@ class IndexManagerTest extends AbstractNeedsScan {
         assertEquals(1, result.getArtists().size());
         assertEquals("_DIR_ Ravel", result.getArtists().get(0).getName());
 
-        candidates = artistDao.getExpungeCandidates();
-        assertEquals(0, candidates.size());
-
-        artistDao.markNonPresent(now());
-
-        candidates = artistDao.getExpungeCandidates();
-        assertEquals(4, candidates.size());
-
         // albumId3
         result = searchService.search(criteriaAlbumId3);
         assertEquals(1, result.getAlbums().size());
         assertEquals("Complete Piano Works", result.getAlbums().get(0).getName());
 
-        candidates = albumDao.getExpungeCandidates();
-        assertEquals(0, candidates.size());
-
-        albumDao.markNonPresent(now());
-
-        candidates = albumDao.getExpungeCandidates();
-        assertEquals(4, candidates.size());
-
         /* Does not scan, only expunges the index. */
-        indexManager.startIndexing();
-        indexManager.expunge();
-        indexManager.stopIndexing(indexManager.getStatistics());
+        mediaScannerService.expunge();
 
         /*
          * Subsequent search results. Results can also be confirmed with Luke.
@@ -203,6 +216,11 @@ class IndexManagerTest extends AbstractNeedsScan {
         result = searchService.search(criteriaAlbumId3);
         assertEquals(0, result.getAlbums().size());
 
+        // See this#setup
+        assertEquals(3, ratingDao.getRatedAlbumCount(USER_NAME, musicFolders), "Because one album has been deleted.");
+        int ratingsCount = ratingDao.getJdbcTemplate().queryForObject(
+                "select count(*) from user_rating where user_rating.username = ?", Integer.class, USER_NAME);
+        assertEquals(3, ratingsCount, "Will be removed, including oldPath");
     }
 
     @Test

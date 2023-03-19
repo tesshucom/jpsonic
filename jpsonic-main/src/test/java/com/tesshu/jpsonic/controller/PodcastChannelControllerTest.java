@@ -35,10 +35,11 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.domain.PodcastChannel;
 import com.tesshu.jpsonic.domain.PodcastEpisode;
-import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PodcastService;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
+import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -65,7 +66,7 @@ class PodcastChannelControllerTest {
                 null);
         Mockito.when(podcastService.getEpisodes(channelId)).thenReturn(Arrays.asList(episode));
         mockMvc = MockMvcBuilders.standaloneSetup(new PodcastChannelController(mock(SecurityService.class),
-                mock(MediaScannerService.class), podcastService)).build();
+                mock(ScannerStateServiceImpl.class), podcastService)).build();
     }
 
     @SuppressWarnings("unchecked")
@@ -95,7 +96,7 @@ class PodcastChannelControllerTest {
         episode.setPublishDate(now);
         Mockito.when(podcastService.getEpisodes(channelId)).thenReturn(Arrays.asList(episode));
         mockMvc = MockMvcBuilders.standaloneSetup(new PodcastChannelController(mock(SecurityService.class),
-                mock(MediaScannerService.class), podcastService)).build();
+                mock(ScannerStateService.class), podcastService)).build();
         result = mockMvc
                 .perform(MockMvcRequestBuilders.get("/" + ViewName.PODCAST_CHANNEL.value())
                         .param(Attributes.Request.ID.value(), Integer.toString(channelId)))

@@ -96,7 +96,7 @@ public class PlayerSettingsController {
 
         PlayerSettingsCommand command = new PlayerSettingsCommand();
         List<Player> players = getPlayers(request);
-        command.setPlayers(players.stream().toArray(Player[]::new));
+        command.setPlayers(players);
         User user = securityService.getCurrentUserStrict(request);
         command.setAdmin(user.isAdminRole());
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));

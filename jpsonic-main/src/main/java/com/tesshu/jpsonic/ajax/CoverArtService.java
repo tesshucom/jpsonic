@@ -37,6 +37,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -63,13 +64,15 @@ public class CoverArtService {
 
     private final SecurityService securityService;
     private final MediaFileService mediaFileService;
+    private final WritableMediaFileService writableMediaFileService;
     private final LastFmService lastFmService;
 
     public CoverArtService(SecurityService securityService, MediaFileService mediaFileService,
-            LastFmService lastFmService) {
+            WritableMediaFileService writableMediaFileService, LastFmService lastFmService) {
         super();
         this.securityService = securityService;
         this.mediaFileService = mediaFileService;
+        this.writableMediaFileService = writableMediaFileService;
         this.lastFmService = lastFmService;
     }
 
@@ -132,7 +135,7 @@ public class CoverArtService {
                 MediaFile dir = mediaFileService.getMediaFileStrict(pathString);
 
                 // Refresh database.
-                mediaFileService.refreshMediaFile(dir);
+                writableMediaFileService.refreshCoverArt(dir);
                 dir = mediaFileService.getMediaFileStrict(dir.getId());
 
                 // Rename existing cover files if new cover file is not the preferred.
@@ -163,7 +166,7 @@ public class CoverArtService {
             }
             if (renamed) {
                 // Must refresh again.
-                mediaFileService.refreshMediaFile(dir);
+                writableMediaFileService.refreshCoverArt(dir);
                 dir = mediaFileService.getMediaFileStrict(dir.getId());
             }
         }

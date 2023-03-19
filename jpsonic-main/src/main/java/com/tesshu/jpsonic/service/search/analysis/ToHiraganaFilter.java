@@ -22,6 +22,7 @@ package com.tesshu.jpsonic.service.search.analysis;
 import java.io.IOException;
 
 import com.ibm.icu.text.Replaceable;
+import com.ibm.icu.text.RuleBasedTransliterator;
 import com.ibm.icu.text.Transliterator;
 import com.ibm.icu.text.UTF16;
 import com.ibm.icu.text.UnicodeSet;
@@ -49,7 +50,7 @@ public final class ToHiraganaFilter extends TokenFilter {
         this.position = new Transliterator.Position();
         this.termAtt = addAttribute(CharTermAttribute.class);
         this.replaceableAttribute = new ReplaceableTermAttribute();
-        if (transform.getFilter() == null && transform instanceof com.ibm.icu.text.RuleBasedTransliterator) {
+        if (transform.getFilter() == null && transform instanceof RuleBasedTransliterator) {
             final UnicodeSet sourceSet = transform.getSourceSet();
             if (!sourceSet.isEmpty()) {
                 transform.setFilter(sourceSet);

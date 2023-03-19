@@ -160,7 +160,7 @@ public class PlayerService {
         }
     }
 
-    private Player findOrCreatePlayer(HttpServletRequest request, boolean remoteControlEnabled) {
+    private @NonNull Player findOrCreatePlayer(HttpServletRequest request, boolean remoteControlEnabled) {
         String username = securityService.getCurrentUsername(request);
         Player player = findPlayer(request, remoteControlEnabled, username);
 

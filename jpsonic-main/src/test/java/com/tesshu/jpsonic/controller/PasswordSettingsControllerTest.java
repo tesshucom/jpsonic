@@ -25,11 +25,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.command.PasswordSettingsCommand;
+import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.validator.PasswordSettingsValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -42,11 +46,13 @@ class PasswordSettingsControllerTest {
 
     private MockMvc mockMvc;
 
+    private SecurityService securityService;
+
     @BeforeEach
     public void setup() throws ExecutionException {
+        securityService = mock(SecurityService.class);
         mockMvc = MockMvcBuilders
-                .standaloneSetup(
-                        new PasswordSettingsController(mock(SecurityService.class), new PasswordSettingsValidator()))
+                .standaloneSetup(new PasswordSettingsController(securityService, new PasswordSettingsValidator()))
                 .build();
     }
 
@@ -59,5 +65,36 @@ class PasswordSettingsControllerTest {
 
         ModelAndView modelAndView = result.getModelAndView();
         assertEquals("passwordSettings", modelAndView.getViewName());
+    }
+
+    @Test
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    void testPost() throws Exception {
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/passwordSettings.view"))
+                .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
+        assertNotNull(result);
+
+        ModelAndView modelAndView = result.getModelAndView();
+        PasswordSettingsCommand command = (PasswordSettingsCommand) modelAndView.getModelMap()
+                .get(Attributes.Model.Command.VALUE);
+        assertNotNull(command);
+
+        String newPass = "newPass";
+        command.setPassword(newPass);
+        command.setConfirmPassword(newPass);
+
+        User user = new User("user", "pass", "email");
+        Mockito.when(securityService.getUserByNameStrict(command.getUsername())).thenReturn(user);
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        ArgumentCaptor<String> passCaptor = ArgumentCaptor.forClass(String.class);
+        Mockito.doNothing().when(securityService).updatePassword(userCaptor.capture(), passCaptor.capture(),
+                Mockito.anyBoolean());
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/passwordSettings.view").flashAttr(Attributes.Model.Command.VALUE,
+                command)).andExpect(MockMvcResultMatchers.status().is3xxRedirection());
+
+        assertEquals(user, userCaptor.getValue());
+        assertEquals(newPass, passCaptor.getValue());
     }
 }

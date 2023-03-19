@@ -20,7 +20,6 @@
 package com.tesshu.jpsonic.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -67,9 +66,9 @@ public class MusicIndexServiceUtils {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (MusicIndex.~) Not reusable
-    public List<MusicIndex.SortableArtistWithArtist> createSortableArtists(List<Artist> artists) {
+    public List<MusicIndex.SortableArtistWithArtist> createSortableId3Artists(List<Artist> artists) {
         List<MusicIndex.SortableArtistWithArtist> result = new ArrayList<>();
-        String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
+        List<String> ignoredArticles = settingsService.getIgnoredArticlesAsArray();
         Comparator<SortableArtist> c = comparators.sortableArtistOrder();
         for (Artist artist : artists) {
             String sortableName = createSortableName(utils.createIndexableName(artist), ignoredArticles);
@@ -79,21 +78,20 @@ public class MusicIndexServiceUtils {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (MusicIndex.~) Not reusable
-    public List<MusicIndex.SortableArtistWithMediaFiles> createSortableArtists(List<MusicFolder> folders,
-            boolean refresh) {
-        String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
-        String[] shortcuts = settingsService.getShortcutsAsArray();
+    public List<MusicIndex.SortableArtistWithMediaFiles> createSortableArtists(List<MusicFolder> folders) {
+        List<String> ignoredArticles = settingsService.getIgnoredArticlesAsArray();
+        List<String> shortcuts = settingsService.getShortcutsAsArray();
         SortedMap<String, MusicIndex.SortableArtistWithMediaFiles> artistMap = new TreeMap<>();
-        Set<String> shortcutSet = new HashSet<>(Arrays.asList(shortcuts));
+        Set<String> shortcutSet = new HashSet<>(shortcuts);
 
         Comparator<SortableArtist> c = comparators.sortableArtistOrder();
         for (MusicFolder folder : folders) {
 
-            MediaFile root = mediaFileService.getMediaFile(folder.toPath(), !refresh);
+            MediaFile root = mediaFileService.getMediaFile(folder.toPath());
             if (root == null) {
                 continue;
             }
-            List<MediaFile> children = mediaFileService.getChildrenOf(root, false, true, true, !refresh);
+            List<MediaFile> children = mediaFileService.getChildrenOf(root, false, true);
             for (MediaFile child : children) {
                 if (shortcutSet.contains(child.getName())) {
                     continue;
@@ -112,7 +110,7 @@ public class MusicIndexServiceUtils {
         return new ArrayList<>(artistMap.values());
     }
 
-    String createSortableName(String name, String... ignoredArticles) {
+    String createSortableName(String name, List<String> ignoredArticles) {
         for (String article : ignoredArticles) {
             if (StringUtils.startsWithIgnoreCase(name, article + " ")) {
                 return name.substring(article.length() + 1) + ", " + article;

@@ -26,8 +26,8 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.domain.PodcastEpisode;
 import com.tesshu.jpsonic.domain.PodcastStatus;
-import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PodcastService;
+import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -44,7 +44,7 @@ import org.springframework.web.bind.ServletRequestBindingException;
 class PodcastReceiverAdminControllerTest {
 
     private PodcastService podcastService;
-    private MediaScannerService mediaScannerService;
+    private ScannerStateServiceImpl scannerStateService;
     private PodcastReceiverAdminController controller;
 
     private MockMvc mockMvc;
@@ -52,8 +52,8 @@ class PodcastReceiverAdminControllerTest {
     @BeforeEach
     public void setup() throws ExecutionException {
         podcastService = mock(PodcastService.class);
-        mediaScannerService = mock(MediaScannerService.class);
-        controller = new PodcastReceiverAdminController(podcastService, mediaScannerService);
+        scannerStateService = mock(ScannerStateServiceImpl.class);
+        controller = new PodcastReceiverAdminController(podcastService, scannerStateService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -165,7 +165,7 @@ class PodcastReceiverAdminControllerTest {
                     .thenReturn(Integer.toString(episodeId));
             Mockito.when(req.getParameter(Attributes.Request.REFRESH.value())).thenReturn(Integer.toString(channelId));
 
-            Mockito.when(mediaScannerService.isScanning()).thenReturn(true);
+            Mockito.when(scannerStateService.isScanning()).thenReturn(true);
             controller.get(req);
 
             Mockito.verify(podcastService, Mockito.never()).createChannel(url);

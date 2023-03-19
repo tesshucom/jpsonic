@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>111.5.22</version>
+    <version>111.6.0-SNAPSHOT</version>
     <name>Jpsonic</name>
     <packaging>pom</packaging>
     <organization>
@@ -674,6 +674,10 @@
                     <configXmlFile>${project.basedir}/jpsonic-main/formatter.xml</configXmlFile>
                     <encoding>UTF-8</encoding>
                     <lineEnding>LF</lineEnding>
+					<excludes>
+						<exclude>com/tesshu/jpsonic/security/GlobalSecurityConfig.java</exclude>
+						<exclude>com/tesshu/jpsonic/domain/ScanEvent.java</exclude>
+					</excludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -865,21 +869,10 @@
                 <test.excludes>
                     <!--
                         The following tests should be run locally due to heavy scanning load.
-                        (Due to the high processing cost of scanning,
-                         tests with large amounts of IO and advance data changes are not suitable for Travis)
 
-                        mvn clean test -DfailIfNoTests=false  -Dtest=com/tesshu/jpsonic/*/*.java
-                        mvn clean test -DfailIfNoTests=false  -Dtest=org/airsonic/player/service/search/*.java
-
-                        Or run alone.
+                        mvn clean test -DfailIfNoTests=false -Dtest=SortProcedureServiceTest*
                     -->
-                    com.tesshu.jpsonic.domain.JpsonicComparatorsIntegrationTest,
-                    com.tesshu.jpsonic.service.MediaScannerServiceTest$UpdateAlbumTest,
-                    com.tesshu.jpsonic.service.MediaScannerServiceTest$GetChildrenOfTest,
-                    com.tesshu.jpsonic.service.MediaScannerServiceUtilsTest$CompensateSortOfArtistTest,
-                    com.tesshu.jpsonic.service.MediaScannerServiceUtilsTest$CopySortOfArtistTest,
-                    com.tesshu.jpsonic.service.MediaScannerServiceUtilsTest$MergeSortOfArtistTest,
-                    com.tesshu.jpsonic.service.MediaScannerServiceUtilsTest$UpdateSortOfAlbumTest,
+                    com.tesshu.jpsonic.service.scanner.SortProcedureServiceTest*,
                     **/Abstract*Test.java
                 </test.excludes>
             </properties>

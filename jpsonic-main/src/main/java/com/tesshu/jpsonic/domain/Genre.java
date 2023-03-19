@@ -55,14 +55,6 @@ public class Genre {
         return albumCount;
     }
 
-    public void incrementAlbumCount() {
-        albumCount++;
-    }
-
-    public void incrementSongCount() {
-        songCount++;
-    }
-
     public String getReading() {
         return reading;
     }
@@ -70,5 +62,4 @@ public class Genre {
     public void setReading(String reading) {
         this.reading = reading;
     }
-
 }

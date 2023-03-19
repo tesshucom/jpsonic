@@ -103,7 +103,8 @@ public class SearchServiceImpl implements SearchService {
             int end = Math.min(start + count, totalHits);
 
             for (int i = start; i < end; i++) {
-                util.addIfAnyMatch(result, criteria.getIndexType(), searcher.doc(topDocs.scoreDocs[i].doc));
+                util.addIfAnyMatch(result, criteria.getIndexType(),
+                        searcher.storedFields().document(topDocs.scoreDocs[i].doc));
             }
 
             if (settingsService.isOutputSearchQuery() && LOG.isInfoEnabled()) {
@@ -153,21 +154,21 @@ public class SearchServiceImpl implements SearchService {
             if (IndexType.ARTIST_ID3 == indexType) {
                 ParamSearchResult<Artist> artistResult = new ParamSearchResult<>();
                 for (int i = start; i < end; i++) {
-                    Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
+                    Document doc = searcher.storedFields().document(topDocs.scoreDocs[i].doc);
                     util.addIgnoreNull(artistResult, indexType, util.getId.apply(doc), Artist.class);
                 }
                 artistResult.getItems().forEach(a -> result.getItems().add((T) a));
             } else if (IndexType.ALBUM_ID3 == indexType) {
                 ParamSearchResult<Album> albumResult = new ParamSearchResult<>();
                 for (int i = start; i < end; i++) {
-                    Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
+                    Document doc = searcher.storedFields().document(topDocs.scoreDocs[i].doc);
                     util.addIgnoreNull(albumResult, indexType, util.getId.apply(doc), Album.class);
                 }
                 albumResult.getItems().forEach(a -> result.getItems().add((T) a));
             } else if (IndexType.SONG == indexType) {
                 ParamSearchResult<MediaFile> songResult = new ParamSearchResult<>();
                 for (int i = start; i < end; i++) {
-                    Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
+                    Document doc = searcher.storedFields().document(topDocs.scoreDocs[i].doc);
                     util.addIgnoreNull(songResult, indexType, util.getId.apply(doc), MediaFile.class);
                 }
                 songResult.getItems().forEach(a -> result.getItems().add((T) a));
@@ -218,7 +219,7 @@ public class SearchServiceImpl implements SearchService {
         List<D> result = new ArrayList<>();
         while (!docs.isEmpty() && result.size() < count) {
             int randomPos = util.nextInt.apply(docs.size());
-            Document document = searcher.doc(docs.get(randomPos));
+            Document document = searcher.storedFields().document(docs.get(randomPos));
             id2ListCallBack.accept(result, util.getId.apply(document));
             docs.remove(randomPos);
         }
@@ -275,7 +276,7 @@ public class SearchServiceImpl implements SearchService {
             List<Integer> ids = new ArrayList<>();
             while (!docs.isEmpty() && ids.size() < casheMax) {
                 int randomPos = util.nextInt.apply(docs.size());
-                Document document = searcher.doc(docs.get(randomPos));
+                Document document = searcher.storedFields().document(docs.get(randomPos));
                 ids.add(util.getId.apply(document));
                 docs.remove(randomPos);
             }
@@ -409,7 +410,7 @@ public class SearchServiceImpl implements SearchService {
             List<Integer> ids = new ArrayList<>();
             while (!docs.isEmpty() && ids.size() < casheMax) {
                 int randomPos = util.nextInt.apply(docs.size());
-                Document document = searcher.doc(docs.get(randomPos));
+                Document document = searcher.storedFields().document(docs.get(randomPos));
                 ids.add(util.getId.apply(document));
                 docs.remove(randomPos);
             }
@@ -479,17 +480,17 @@ public class SearchServiceImpl implements SearchService {
         }
 
         try {
-            SortField[] sortFields = Arrays.stream(IndexType.ALBUM_ID3.getFields())
-                    .map(n -> new SortField(n, SortField.Type.STRING)).toArray(SortField[]::new);
+            Sort sort = new Sort(IndexType.ALBUM_ID3.getFields().stream()
+                    .map(n -> new SortField(n, SortField.Type.STRING)).toArray(SortField[]::new));
             Query query = queryFactory.getAlbumId3sByGenres(genres, musicFolders);
-            TopDocs topDocs = searcher.search(query, offset + count, new Sort(sortFields));
+            TopDocs topDocs = searcher.search(query, offset + count, sort);
 
             int totalHits = util.round.apply(topDocs.totalHits.value);
             int start = Math.min(offset, totalHits);
             int end = Math.min(start + count, totalHits);
 
             for (int i = start; i < end; i++) {
-                Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
+                Document doc = searcher.storedFields().document(topDocs.scoreDocs[i].doc);
                 util.addAlbumId3IfAnyMatch(result, util.getId.apply(doc));
             }
 

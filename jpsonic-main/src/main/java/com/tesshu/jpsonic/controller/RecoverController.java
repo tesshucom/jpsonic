@@ -91,13 +91,10 @@ public class RecoverController {
                 int index = random.nextInt(SYMBOLS.length());
                 sb.append(SYMBOLS.charAt(index));
             }
-            String password = sb.toString();
-
-            if (emailPassword(password, user.getUsername(), user.getEmail())) {
+            String newPass = sb.toString();
+            if (sendEmail(user.getUsername(), user.getEmail())) {
                 map.put("sentTo", user.getEmail());
-                user.setLdapAuthenticated(false);
-                user.setPassword(password);
-                securityService.updateUser(user);
+                securityService.updatePassword(user, newPass, false);
             } else {
                 map.put(Attributes.Model.ERROR.getValue(), "recover.error.sendfailed");
             }
@@ -129,16 +126,16 @@ public class RecoverController {
     }
 
     /*
-     * e-mail user new password via configured Smtp server
+     * e-mail user via configured Smtp server
      */
-    private boolean emailPassword(String password, String username, String email) {
+    private boolean sendEmail(String username, String email) {
         /* Default to protocol smtp when SmtpEncryption is set to "None" */
 
         if (settingsService.getSmtpServer() == null || settingsService.getSmtpServer().isEmpty()) {
             LOG.warn("Can not send email; no Smtp server configured.");
             return false;
         }
-        return recoverService.emailPassword(password, username, email);
+        return recoverService.sendEmail(username, email);
     }
 
 }

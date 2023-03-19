@@ -9,7 +9,7 @@
 <body class="mainframe settings">
 
 <c:import url="helpHeader.jsp">
-	<c:param name="cat" value="internalhelp"/>
+    <c:param name="cat" value="internalhelp"/>
     <c:param name="isAdmin" value="${model.admin}"/>
     <c:param name="showStatus" value="${model.showStatus}"/>
 </c:import>
@@ -65,100 +65,6 @@
             <dt><fmt:message key="internalhelp.dblogsize"/></dt>
             <dd>${model.dbLogSize}</dd>
         </c:if>
-    </dl>
-</details>
-
-<details>
-    <summary class="
-        <c:choose>
-            <c:when test='${model.dbMediaFileAlbumNonPresentCount + model.dbMediaFileDirectoryNonPresentCount + model.dbMediaFileMusicNonPresentCount + model.dbMediaFilePodcastNonPresentCount == 0}'>
-                statusOK
-            </c:when>
-            <c:otherwise>
-                statusNG
-            </c:otherwise>
-        </c:choose>
-    ">
-        <fmt:message key="internalhelp.unnecessarydata"/>
-    </summary>
-    <ul>
-        <li>
-            <c:choose>
-                    <c:when test="${model.dbMediaFileAlbumNonPresentCount + model.dbMediaFileDirectoryNonPresentCount + model.dbMediaFileMusicNonPresentCount + model.dbMediaFilePodcastNonPresentCount == 0}">
-                    <fmt:message key="internalhelp.dbnonpresent.ok"/>
-                </c:when>
-                <c:otherwise>
-                    <fmt:message key="internalhelp.dbnonpresent.warn"/>
-                </c:otherwise>
-            </c:choose>
-        </li>
-    </ul>
-    <dl>
-        <dt><fmt:message key="internalhelp.musicdeletedcount"/></dt>
-        <dd>${model.dbMediaFileMusicNonPresentCount}</dd>
-        <dt><fmt:message key="internalhelp.podcastdeletedcount"/></dt>
-        <dd>${model.dbMediaFilePodcastNonPresentCount}</dd>
-        <dt><fmt:message key="internalhelp.directorydeletedcount"/></dt>
-        <dd>${model.dbMediaFileDirectoryNonPresentCount}</dd>
-        <dt><fmt:message key="internalhelp.albumdeletedcount"/></dt>
-        <dd>${model.dbMediaFileAlbumNonPresentCount}</dd>
-        <dt><fmt:message key="internalhelp.musiccount"/></dt>
-        <dd>${model.dbMediaFileMusicPresentCount}</dd>
-        <dt><fmt:message key="internalhelp.podcastcount"/></dt>
-        <dd>${model.dbMediaFilePodcastPresentCount}</dd>
-        <dt><fmt:message key="internalhelp.directorycount"/></dt>
-        <dd>${model.dbMediaFileDirectoryPresentCount}</dd>
-        <dt><fmt:message key="internalhelp.albumcount"/></dt>
-        <dd>${model.dbMediaFileAlbumPresentCount}</dd>
-        <dt><fmt:message key="internalhelp.distinctalbumcount"/></dt>
-        <dd>${model.dbMediaFileDistinctAlbumCount}</dd>
-        <dt><fmt:message key="internalhelp.distinctartistcount"/></dt>
-        <dd>${model.dbMediaFileDistinctArtistCount}</dd>
-        <dt><fmt:message key="internalhelp.distinctalbumartistcount"/></dt>
-        <dd>${model.dbMediaFileDistinctAlbumArtistCount}</dd>
-    </dl>
-</details>
-
-<details>
-    <summary class="
-        <c:choose>
-            <c:when test='${model.dbMediaFilesInNonPresentMusicFoldersCount == 0 and model.dbMediaFilesWithMusicFolderMismatchCount == 0}'>
-                statusOK
-            </c:when>
-            <c:otherwise>
-                statusNG
-            </c:otherwise>
-        </c:choose>
-    ">
-        <fmt:message key="internalhelp.databaseconsistency"/>
-    </summary>
-    <ul>
-        <li>
-            <c:choose>
-                <c:when test="${model.dbMediaFilesInNonPresentMusicFoldersCount == 0}">
-                    <fmt:message key="internalhelp.mediafilesinnonpresentmusicfoldercount.ok"/>
-                </c:when>
-                <c:otherwise>
-                    <fmt:message key="internalhelp.mediafilesinnonpresentmusicfoldercount.warn"/>
-                </c:otherwise>
-            </c:choose>
-        </li>
-        <li>
-            <c:choose>
-                <c:when test="${model.dbMediaFilesWithMusicFolderMismatchCount == 0}">
-                    <fmt:message key="internalhelp.mediafileswithmusicfoldermismatchcount.ok"/>
-                </c:when>
-                <c:otherwise>
-                    <fmt:message key="internalhelp.mediafileswithmusicfoldermismatchcount.warn"/>
-                </c:otherwise>
-            </c:choose>
-        </li>
-    </ul>
-    <dl>
-        <dt><fmt:message key="internalhelp.mediafilesinnonpresentmusicfoldercount"/></dt>
-        <dd>${model.dbMediaFilesInNonPresentMusicFoldersCount}</dd>
-        <dt><fmt:message key="internalhelp.mediafileswithmusicfoldermismatchcount"/></dt>
-        <dd>${model.dbMediaFilesWithMusicFolderMismatchCount}</dd>
     </dl>
 </details>
 
@@ -329,7 +235,7 @@
     </dl>
 </details>
 
-<details>
+<details open>
     <summary class="statusOK">
         <fmt:message key="internalhelp.statistics"/>
     </summary>
@@ -341,7 +247,12 @@
         <dt><fmt:message key="internalhelp.songcount"/></dt>
         <dd>${model.statSongCount}</dd>
         <dt><fmt:message key="internalhelp.lastscandate"/></dt>
-        <dd>${model.statLastScanDate}</dd>
+        <dd>
+            <c:if test="${not empty model.statLastScanDate}">
+                <fmt:parseDate value="${model.statLastScanDate}" type="both" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" />
+                <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd HH:mm:ss" />
+            </c:if>
+        </dd>
         <dt><fmt:message key="internalhelp.totaldurationseconds"/></dt>
         <dd>${model.statTotalDurationSeconds}</dd>
         <dt><fmt:message key="internalhelp.totalsizebytes"/></dt>
@@ -349,33 +260,37 @@
     </dl>
 </details>
 
-<details>
-    <summary class="statusOK">
-        <fmt:message key="internalhelp.indexdetails"/>
-    </summary>
-    <dl>
-        <c:forEach var="stat" items="${model.indexStatistics}">
-                <dt><fmt:message key="internalhelp.indexdeletedcount"><fmt:param value="${stat.value.name}"/></fmt:message></dt>
-                <dd>${stat.value.deletedCount}</dd>
-        </c:forEach>
-        <c:forEach var="stat" items="${model.indexStatistics}">
-                <dt><fmt:message key="internalhelp.indexcount"><fmt:param value="${stat.value.name}"/></fmt:message></dt>
-                <dd>${stat.value.count}</dd>
-        </c:forEach>
-    </dl>
-</details>
+<c:if test="${model.showIndexDetails}">
+    <details>
+        <summary class="statusOK">
+            <fmt:message key="internalhelp.indexdetails"/>
+        </summary>
+        <dl>
+            <c:forEach var="stat" items="${model.indexStatistics}">
+                    <dt><fmt:message key="internalhelp.indexdeletedcount"><fmt:param value="${stat.value.name}"/></fmt:message></dt>
+                    <dd>${stat.value.deletedCount}</dd>
+            </c:forEach>
+            <c:forEach var="stat" items="${model.indexStatistics}">
+                    <dt><fmt:message key="internalhelp.indexcount"><fmt:param value="${stat.value.name}"/></fmt:message></dt>
+                    <dd>${stat.value.count}</dd>
+            </c:forEach>
+        </dl>
+    </details>
+</c:if>
 
-<details>
-    <summary class="statusOK">
-        <fmt:message key="internalhelp.databasedetails"/>
-    </summary>
-    <dl>
-        <c:forEach var="tableCount" items="${model.dbTableCount}">
-            <dt><fmt:message key="internalhelp.tablecount"><fmt:param value="${tableCount.key}"/></fmt:message></dt>
-            <dd>${tableCount.value}</dd>
-        </c:forEach>
-    </dl>
-</details>
+<c:if test="${model.showDBDetails}">
+    <details>
+        <summary class="statusOK">
+            <fmt:message key="internalhelp.databasedetails"/>
+        </summary>
+        <dl>
+            <c:forEach var="tableCount" items="${model.dbTableCount}">
+                <dt><fmt:message key="internalhelp.tablecount"><fmt:param value="${tableCount.key}"/></fmt:message></dt>
+                <dd>${tableCount.value}</dd>
+            </c:forEach>
+        </dl>
+    </details>
+</c:if>
 
 <div class="submits">
     <input type="button" onClick="location.href='internalhelp.view?'" value="<fmt:message key='common.refresh'/>" />

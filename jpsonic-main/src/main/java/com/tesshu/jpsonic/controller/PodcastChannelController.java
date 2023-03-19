@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.domain.CoverArtScheme;
-import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PodcastService;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -50,14 +50,14 @@ import org.springframework.web.servlet.ModelAndView;
 public class PodcastChannelController {
 
     private final SecurityService securityService;
-    private final MediaScannerService mediaScannerService;
+    private final ScannerStateService scannerStateService;
     private final PodcastService podcastService;
 
-    public PodcastChannelController(SecurityService securityService, MediaScannerService mediaScannerService,
+    public PodcastChannelController(SecurityService securityService, ScannerStateService scannerStateService,
             PodcastService podcastService) {
         super();
         this.securityService = securityService;
-        this.mediaScannerService = mediaScannerService;
+        this.scannerStateService = scannerStateService;
         this.podcastService = podcastService;
     }
 
@@ -72,7 +72,7 @@ public class PodcastChannelController {
                         podcastService.getChannel(channelId), "episodes",
                         podcastService.getEpisodes(channelId).stream().map(PodcastEpisode::new)
                                 .collect(Collectors.toList()),
-                        "coverArtSize", CoverArtScheme.LARGE.getSize(), "scanning", mediaScannerService.isScanning()));
+                        "coverArtSize", CoverArtScheme.LARGE.getSize(), "scanning", scannerStateService.isScanning()));
         return result;
     }
 

@@ -73,12 +73,12 @@ public final class TranscodeInputStream extends InputStream {
      */
     @SuppressWarnings("PMD.NullAssignment")
     public TranscodeInputStream(ProcessBuilder processBuilder, @Nullable final InputStream in, @Nullable Path tmpFile,
-            Executor executor, boolean isVerboseLogPlaying) throws IOException {
+            Executor executor) throws IOException {
         super();
         this.executor = executor;
         this.tmpFile = isEmpty(tmpFile) ? null : new AtomicReference<>(tmpFile);
 
-        if (isVerboseLogPlaying && LOG.isInfoEnabled()) {
+        if (LOG.isInfoEnabled()) {
             StringBuilder buf = new StringBuilder("Starting transcoder: ");
             for (String s : processBuilder.command()) {
                 buf.append('[').append(s).append("] ");

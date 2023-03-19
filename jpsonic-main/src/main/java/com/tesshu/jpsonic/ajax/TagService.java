@@ -27,10 +27,11 @@ import java.util.concurrent.CompletionException;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.MediaScannerService;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.metadata.MetaData;
 import com.tesshu.jpsonic.service.metadata.MetaDataParser;
 import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
+import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -50,14 +51,16 @@ public class TagService {
 
     private final MetaDataParserFactory metaDataParserFactory;
     private final MediaFileService mediaFileService;
-    private final MediaScannerService mediaScannerService;
+    private final WritableMediaFileService writableMediaFileService;
+    private final ScannerStateService scannerStateService;
 
     public TagService(MetaDataParserFactory metaDataParserFactory, MediaFileService mediaFileService,
-            MediaScannerService mediaScannerService) {
+            WritableMediaFileService writableMediaFileService, ScannerStateService scannerStateService) {
         super();
         this.metaDataParserFactory = metaDataParserFactory;
         this.mediaFileService = mediaFileService;
-        this.mediaScannerService = mediaScannerService;
+        this.writableMediaFileService = writableMediaFileService;
+        this.scannerStateService = scannerStateService;
     }
 
     /**
@@ -86,7 +89,7 @@ public class TagService {
             String yearStr, String genreStr) {
 
         MediaFile file = mediaFileService.getMediaFileStrict(id);
-        if (file == null || mediaScannerService.isScanning()) {
+        if (file == null || scannerStateService.isScanning()) {
             return "SKIPPED";
         }
 
@@ -128,9 +131,7 @@ public class TagService {
             }
             return e.getMessage();
         }
-        mediaFileService.refreshMediaFile(file);
-        file = mediaFileService.getMediaFileStrict(file.getId());
-        mediaFileService.getParent(file).ifPresent(parent -> mediaFileService.refreshMediaFile(parent));
+        writableMediaFileService.updateTags(file);
         return "UPDATED";
     }
 

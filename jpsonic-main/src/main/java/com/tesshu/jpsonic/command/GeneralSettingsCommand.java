@@ -21,6 +21,8 @@
 
 package com.tesshu.jpsonic.command;
 
+import java.util.List;
+
 import com.tesshu.jpsonic.controller.GeneralSettingsController;
 import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.Theme;
@@ -33,9 +35,9 @@ import com.tesshu.jpsonic.domain.Theme;
 public class GeneralSettingsCommand extends SettingsPageCommons {
 
     // Language and theme
-    private Theme[] themes;
+    private List<Theme> themes;
     private String themeIndex = "0";
-    private String[] locales;
+    private List<String> locales;
     private String localeIndex = "0";
     private IndexScheme indexScheme;
 
@@ -51,13 +53,9 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean sortAlbumsByYear;
     private boolean sortGenresByAlphabet;
     private boolean prohibitSortVarious;
-    private boolean sortAlphanum;
-    private boolean sortStrict;
     private boolean defaultSortAlbumsByYear;
     private boolean defaultSortGenresByAlphabet;
     private boolean defaultProhibitSortVarious;
-    private boolean defaultSortAlphanum;
-    private boolean defaultSortStrict;
 
     // Search settings
     private boolean searchComposer;
@@ -70,19 +68,25 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean showRememberMe;
     private boolean publishPodcast;
     private boolean useExternalPlayer;
-    private boolean useRefresh;
     private boolean useCopyOfAsciiUnprintable;
     private boolean useJsonp;
+    private boolean useRemovingTrackFromId3Title;
+    private boolean useCleanUp;
+    private boolean redundantFolderCheck;
+    private boolean showIndexDetails;
+    private boolean showDBDetails;
 
     // Extensions and shortcuts
     private String musicFileTypes;
     private String videoFileTypes;
     private String coverArtFileTypes;
+    private String excludedCoverArts;
     private String playlistFolder;
     private String shortcuts;
     private String defaultMusicFileTypes;
     private String defaultVideoFileTypes;
     private String defaultCoverArtFileTypes;
+    private String defaultExcludedCoverArts;
     private String defaultPlaylistFolder;
     private String defaultShortcuts;
 
@@ -93,14 +97,12 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private String welcomeMessage;
     private String loginMessage;
 
-    public Theme[] getThemes() {
+    public List<Theme> getThemes() {
         return themes;
     }
 
-    public void setThemes(Theme... themes) {
-        if (themes != null) {
-            this.themes = themes.clone();
-        }
+    public void setThemes(List<Theme> themes) {
+        this.themes = themes;
     }
 
     public String getThemeIndex() {
@@ -111,12 +113,12 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
         this.themeIndex = themeIndex;
     }
 
-    public String[] getLocales() {
+    public List<String> getLocales() {
         return locales;
     }
 
-    public void setLocales(String... locales) {
-        this.locales = locales.clone();
+    public void setLocales(List<String> locales) {
+        this.locales = locales;
     }
 
     public String getLocaleIndex() {
@@ -207,22 +209,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
         this.prohibitSortVarious = prohibitSortVarious;
     }
 
-    public boolean isSortAlphanum() {
-        return sortAlphanum;
-    }
-
-    public void setSortAlphanum(boolean sortAlphanum) {
-        this.sortAlphanum = sortAlphanum;
-    }
-
-    public boolean isSortStrict() {
-        return sortStrict;
-    }
-
-    public void setSortStrict(boolean sortStrict) {
-        this.sortStrict = sortStrict;
-    }
-
     public boolean isDefaultSortAlbumsByYear() {
         return defaultSortAlbumsByYear;
     }
@@ -245,22 +231,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setDefaultProhibitSortVarious(boolean defaultProhibitSortVarious) {
         this.defaultProhibitSortVarious = defaultProhibitSortVarious;
-    }
-
-    public boolean isDefaultSortAlphanum() {
-        return defaultSortAlphanum;
-    }
-
-    public void setDefaultSortAlphanum(boolean defaultSortAlphanum) {
-        this.defaultSortAlphanum = defaultSortAlphanum;
-    }
-
-    public boolean isDefaultSortStrict() {
-        return defaultSortStrict;
-    }
-
-    public void setDefaultSortStrict(boolean defaultSortStrict) {
-        this.defaultSortStrict = defaultSortStrict;
     }
 
     public boolean isSearchComposer() {
@@ -327,14 +297,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
         this.useExternalPlayer = useExternalPlayer;
     }
 
-    public boolean isUseRefresh() {
-        return useRefresh;
-    }
-
-    public void setUseRefresh(boolean useRefresh) {
-        this.useRefresh = useRefresh;
-    }
-
     public boolean isUseCopyOfAsciiUnprintable() {
         return useCopyOfAsciiUnprintable;
     }
@@ -349,6 +311,46 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setUseJsonp(boolean useJsonp) {
         this.useJsonp = useJsonp;
+    }
+
+    public boolean isUseRemovingTrackFromId3Title() {
+        return useRemovingTrackFromId3Title;
+    }
+
+    public void setUseRemovingTrackFromId3Title(boolean useRemovingTrackFromId3Title) {
+        this.useRemovingTrackFromId3Title = useRemovingTrackFromId3Title;
+    }
+
+    public boolean isUseCleanUp() {
+        return useCleanUp;
+    }
+
+    public void setUseCleanUp(boolean useCleanUp) {
+        this.useCleanUp = useCleanUp;
+    }
+
+    public boolean isRedundantFolderCheck() {
+        return redundantFolderCheck;
+    }
+
+    public void setRedundantFolderCheck(boolean redundantFolderCheck) {
+        this.redundantFolderCheck = redundantFolderCheck;
+    }
+
+    public boolean isShowIndexDetails() {
+        return showIndexDetails;
+    }
+
+    public void setShowIndexDetails(boolean showIndexDetails) {
+        this.showIndexDetails = showIndexDetails;
+    }
+
+    public boolean isShowDBDetails() {
+        return showDBDetails;
+    }
+
+    public void setShowDBDetails(boolean showDBDetails) {
+        this.showDBDetails = showDBDetails;
     }
 
     public String getMusicFileTypes() {
@@ -373,6 +375,14 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setCoverArtFileTypes(String coverArtFileTypes) {
         this.coverArtFileTypes = coverArtFileTypes;
+    }
+
+    public String getExcludedCoverArts() {
+        return excludedCoverArts;
+    }
+
+    public void setExcludedCoverArts(String excludedCoverArts) {
+        this.excludedCoverArts = excludedCoverArts;
     }
 
     public String getPlaylistFolder() {
@@ -413,6 +423,14 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setDefaultCoverArtFileTypes(String defaultCoverArtFileTypes) {
         this.defaultCoverArtFileTypes = defaultCoverArtFileTypes;
+    }
+
+    public String getDefaultExcludedCoverArts() {
+        return defaultExcludedCoverArts;
+    }
+
+    public void setDefaultExcludedCoverArts(String defaultExcludedCoverArts) {
+        this.defaultExcludedCoverArts = defaultExcludedCoverArts;
     }
 
     public String getDefaultPlaylistFolder() {

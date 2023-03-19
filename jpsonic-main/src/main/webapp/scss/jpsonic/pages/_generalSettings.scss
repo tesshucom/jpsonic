@@ -16,6 +16,9 @@
   input#coverArtFileTypes {
     @include dlInputWidth(15);
   }
+  input#excludedCoverArts {
+    @include dlInputWidth(15);
+  }
   input#playlistFolder {
     @include dlInputWidth(15);
   }

@@ -45,7 +45,6 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ParamSearchResult;
 import com.tesshu.jpsonic.domain.SearchResult;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.spring.EhcacheConfiguration.RandomCacheKey;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -87,7 +86,6 @@ public class SearchServiceUtilities {
      * is used instead of Dao until you are sure you need to use mediaFileDao.
      */
     private final MediaFileService mediaFileService;
-    private final SettingsService settingsService;
 
     public Function<Integer, Integer> nextInt = (range) -> random.nextInt(range);
 
@@ -122,14 +120,13 @@ public class SearchServiceUtilities {
     };
 
     public SearchServiceUtilities(ArtistDao artistDao, AlbumDao albumDao, Ehcache searchCache, Ehcache randomCache,
-            MediaFileService mediaFileService, SettingsService settingsService) {
+            MediaFileService mediaFileService) {
         super();
         this.artistDao = artistDao;
         this.albumDao = albumDao;
         this.searchCache = searchCache;
         this.randomCache = randomCache;
         this.mediaFileService = mediaFileService;
-        this.settingsService = settingsService;
     }
 
     @SuppressFBWarnings(value = "PREDICTABLE_RANDOM", justification = "The Random class is only used if the native random number generator is not available")
@@ -137,18 +134,18 @@ public class SearchServiceUtilities {
     public void postConstruct() {
         try {
             random = SecureRandom.getInstance("NativePRNG");
-            if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+            if (LOG.isInfoEnabled()) {
                 LOG.info("NativePRNG is used to create a random list of songs.");
             }
         } catch (NoSuchAlgorithmException e) {
             try {
                 random = SecureRandom.getInstance("SHA1PRNG");
-                if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+                if (LOG.isInfoEnabled()) {
                     LOG.info("SHA1PRNG is used to create a random list of songs.");
                 }
             } catch (NoSuchAlgorithmException e1) {
                 random = new Random(Instant.now().toEpochMilli());
-                if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+                if (LOG.isInfoEnabled()) {
                     LOG.info("NativePRNG and SHA1PRNG cannot be used on this platform.");
                 }
             }
