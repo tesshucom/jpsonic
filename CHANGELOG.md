@@ -3,7 +3,82 @@
 # jpsonic/jpsonic
 # -->
 
-## v111.5.0
+## v111.6.0
+
+#### Bug fixes
+
+  * Fix validation during pass registration ([#1708](https://github.com/tesshucom/jpsonic/issues/1708)) ([#1709](https://github.com/tesshucom/jpsonic/issues/1709))
+  * Fix wrong context path property name in docker ([#1866](https://github.com/tesshucom/jpsonic/issues/1866))
+  * Fix not to include password in password reset notification ([#1893](https://github.com/tesshucom/jpsonic/issues/1893))
+  * Fix to show correct minutes when over 60 minutes in podcasts ([#1895](https://github.com/tesshucom/jpsonic/issues/1895))
+  * Fix bug that occurred in certain languages on the welcome page ([#1896](https://github.com/tesshucom/jpsonic/issues/1896))
+  * Fix bug that the first digits of song titles were removed in certain case ([#1900](https://github.com/tesshucom/jpsonic/issues/1900))
+  * Fix scan date format for about pages ([#1919](https://github.com/tesshucom/jpsonic/issues/1919))
+  * Fix bug that Postgres cannot be used ([#1949](https://github.com/tesshucom/jpsonic/issues/1949))
+  * Fix Roles glitch ([#1956](https://github.com/tesshucom/jpsonic/issues/1956))
+  * Fix m3u and JSP degradation ([#1974](https://github.com/tesshucom/jpsonic/issues/1974))
+  * Fix the comparison method violates general contract ([#2014](https://github.com/tesshucom/jpsonic/issues/2014))
+  * Remove 'Database Consistency' from Internal Details page ([#2030](https://github.com/tesshucom/jpsonic/issues/2030))
+  * Fix not to index podcast genres ([#2060](https://github.com/tesshucom/jpsonic/issues/2060))
+
+#### Enhancement
+
+  * Add Jsonp to Suppressed legacy features ([#1888](https://github.com/tesshucom/jpsonic/issues/1888))
+  * Remove ETag ([#1894](https://github.com/tesshucom/jpsonic/issues/1894))
+  * Add log option to docker ([#1897](https://github.com/tesshucom/jpsonic/issues/1897))
+  * Add option to exclude specific cover art files ([#1952](https://github.com/tesshucom/jpsonic/issues/1952))
+  * Add table for MediaLibraryStatistics ([#1954](https://github.com/tesshucom/jpsonic/issues/1954))
+  * Fix not to allow duplicate paths in music folder ([#1966](https://github.com/tesshucom/jpsonic/issues/1966))
+  * Change the log specification ([#1978](https://github.com/tesshucom/jpsonic/issues/1978))
+  * Clean up automatically ([#2067](https://github.com/tesshucom/jpsonic/issues/2067))
+  * Improve music folder existence check ([#2073](https://github.com/tesshucom/jpsonic/issues/2073))
+  * Add scan cancel button ([#2081](https://github.com/tesshucom/jpsonic/issues/2081))
+  * Web page minor fixes
+    * Small cleanup of items on the settings page ([#2069](https://github.com/tesshucom/jpsonic/issues/2069))
+    * Add control according to specification to Webpage / Fix help ([#2089](https://github.com/tesshucom/jpsonic/issues/2089))
+  * The scanning workflow architect will be improved
+    * Split MediaScannerService ([#1922](https://github.com/tesshucom/jpsonic/issues/1922))
+	* Split MediaFileService into R and CUD ([#1941](https://github.com/tesshucom/jpsonic/issues/1941))
+	* Remove Refresh Button ([#1944](https://github.com/tesshucom/jpsonic/issues/1944))
+	* Improve scan initiation flow ([#1955](https://github.com/tesshucom/jpsonic/issues/1955))
+	* Fix ExpungeService ([#1967](https://github.com/tesshucom/jpsonic/issues/1967))
+	* Split MediaFileDao#createOrUpdateMediaFile ([#1984](https://github.com/tesshucom/jpsonic/issues/1984))
+	* Subdivide the scanning loop process ([#2041](https://github.com/tesshucom/jpsonic/issues/2041))
+	* Improve skip scan process ([#2088](https://github.com/tesshucom/jpsonic/issues/2088))
+	* Add missing processing to scan ([#2105](https://github.com/tesshucom/jpsonic/issues/2105))
+
+#### Update Libs
+
+  * Bump Lucene from 8.11.2 to 9.5.0 ([#2061](https://github.com/tesshucom/jpsonic/issues/2061))
+  * [#1722](https://github.com/tesshucom/jpsonic/issues/1722)
+  * [#1729](https://github.com/tesshucom/jpsonic/issues/1729)
+  * [#1776](https://github.com/tesshucom/jpsonic/issues/1776)
+  * [#1815](https://github.com/tesshucom/jpsonic/issues/1815)
+  * [#1867](https://github.com/tesshucom/jpsonic/issues/1867)
+  * [#1892](https://github.com/tesshucom/jpsonic/issues/1892)
+  * [#1931](https://github.com/tesshucom/jpsonic/issues/1931)
+  * [#1946](https://github.com/tesshucom/jpsonic/issues/1946)
+  * [#1972](https://github.com/tesshucom/jpsonic/issues/1972)
+  * [#1988](https://github.com/tesshucom/jpsonic/issues/1988)
+  * [#1990](https://github.com/tesshucom/jpsonic/issues/1990)
+  * [#2003](https://github.com/tesshucom/jpsonic/issues/2003)
+  * [#2036](https://github.com/tesshucom/jpsonic/issues/2036)
+  * [#2052](https://github.com/tesshucom/jpsonic/issues/2052)
+  * [#2059](https://github.com/tesshucom/jpsonic/issues/2059)
+  * [#2080](https://github.com/tesshucom/jpsonic/issues/2080)
+  * [#2090](https://github.com/tesshucom/jpsonic/issues/2090)
+
+#### Maintenance
+
+  * Remove LGTM ([#1700](https://github.com/tesshucom/jpsonic/issues/1700))
+  * Some refactoring ([#1901](https://github.com/tesshucom/jpsonic/issues/1901))
+  * Minor fixes in workflow ([#1951](https://github.com/tesshucom/jpsonic/issues/1951))
+  * Clean up sonatype warnings ([#2029](https://github.com/tesshucom/jpsonic/issues/2029))
+  * Add JDK19 to verification ([#2034](https://github.com/tesshucom/jpsonic/issues/2034))
+  * Organize todo comments ([#2085](https://github.com/tesshucom/jpsonic/issues/2085))
+
+<details>
+<summary>v111.5.0</summary>
 
 #### Enhancement
   * Update Libs (#1646, #1650, #1660, #1669, #1682, #1690)
@@ -16,6 +91,7 @@
   * Accept non zero-fill numeric values in Podcast ([#1687](https://github.com/tesshucom/jpsonic/issues/1687))
   * Add ZoneOffset to Internal help page ([#1689](https://github.com/tesshucom/jpsonic/issues/1689))
 
+</details>
 <details>
 <summary>v111.4.0</summary>
 
