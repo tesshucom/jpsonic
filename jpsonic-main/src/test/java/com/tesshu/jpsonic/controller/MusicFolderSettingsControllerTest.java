@@ -84,7 +84,7 @@ class MusicFolderSettingsControllerTest {
         musicFolderService = mock(MusicFolderService.class);
         mediaScannerService = mock(MediaScannerService.class);
         controller = new MusicFolderSettingsController(settingsService, musicFolderService, mock(SecurityService.class),
-                mediaScannerService, mock(ShareService.class));
+                mediaScannerService, mock(ShareService.class), mock(OutlineHelpSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 

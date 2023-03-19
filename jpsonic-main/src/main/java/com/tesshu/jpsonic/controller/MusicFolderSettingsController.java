@@ -72,15 +72,18 @@ public class MusicFolderSettingsController {
     private final SecurityService securityService;
     private final MediaScannerService mediaScannerService;
     private final ShareService shareService;
+    private final OutlineHelpSelector outlineHelpSelector;
 
     public MusicFolderSettingsController(SettingsService settingsService, MusicFolderService musicFolderService,
-            SecurityService securityService, MediaScannerService mediaScannerService, ShareService shareService) {
+            SecurityService securityService, MediaScannerService mediaScannerService, ShareService shareService,
+            OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
         this.mediaScannerService = mediaScannerService;
         this.shareService = shareService;
+        this.outlineHelpSelector = outlineHelpSelector;
     }
 
     @ModelAttribute
@@ -129,6 +132,7 @@ public class MusicFolderSettingsController {
         command.setShareCount(shareService.getAllShares().size());
 
         User user = securityService.getCurrentUserStrict(request);
+        command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setScanning(mediaScannerService.isScanning());
