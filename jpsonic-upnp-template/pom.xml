@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.tesshu.jpsonic.player</groupId>
         <artifactId>jpsonic</artifactId>
-        <version>111.5.21</version>
+        <version>111.5.22</version>
     </parent>
 
     <dependencies>
