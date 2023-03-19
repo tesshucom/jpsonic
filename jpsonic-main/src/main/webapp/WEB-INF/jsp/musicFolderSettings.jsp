@@ -30,6 +30,14 @@ document.addEventListener('DOMContentLoaded', function () {
         $("#ignoreFileTimestamps").prop({'disabled': true, 'checked': false});
         $("#ignoreFileTimestampsForEachAlbum").prop({'disabled': true, 'checked': true});
     });
+    $("#interval").on('change', function(e) {
+    	if ($(this).val() == -1) {
+            $("#intervalHour").prop({'disabled': true});
+    		$("#intervalHour option[value='3']").prop('selected', true);
+    	} else {
+            $("#intervalHour").prop({'disabled': false});
+    	}
+    });
 }, false);
 
 </script>
@@ -122,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function () {
             </dd>
             <dt><fmt:message key="musicfoldersettings.scan"/></dt>
             <dd>
-                <form:select path="interval">
+                <form:select path="interval" id="interval">
                     <fmt:message key="musicfoldersettings.interval.never" var="never"/>
                     <fmt:message key="musicfoldersettings.interval.one" var="one"/>
                     <form:option value="-1" label="${never}"/>
@@ -133,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <form:option value="${interval}" label="${many}"/>
                     </c:forTokens>
                 </form:select>
-                <form:select path="hour">
+                <form:select path="hour" id="intervalHour">
                     <c:forEach begin="0" end="23" var="hour">
                         <fmt:message key="musicfoldersettings.hour" var="hourLabel"><fmt:param value="${hour}"/></fmt:message>
                         <form:option value="${hour}" label="${hourLabel}"/>
