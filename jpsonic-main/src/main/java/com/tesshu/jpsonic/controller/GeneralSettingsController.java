@@ -34,6 +34,7 @@ import com.tesshu.jpsonic.domain.Theme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.PlayerService;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
@@ -79,15 +80,18 @@ public class GeneralSettingsController {
     private final ShareService shareService;
     private final PlayerService playerService;
     private final OutlineHelpSelector outlineHelpSelector;
+    private final ScannerStateService scannerStateService;
 
     public GeneralSettingsController(SettingsService settingsService, SecurityService securityService,
-            ShareService shareService, PlayerService playerService, OutlineHelpSelector outlineHelpSelector) {
+            ShareService shareService, PlayerService playerService, OutlineHelpSelector outlineHelpSelector,
+            ScannerStateService scannerStateService) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.shareService = shareService;
         this.playerService = playerService;
         this.outlineHelpSelector = outlineHelpSelector;
+        this.scannerStateService = scannerStateService;
     }
 
     @ModelAttribute
@@ -120,13 +124,9 @@ public class GeneralSettingsController {
         command.setSortAlbumsByYear(settingsService.isSortAlbumsByYear());
         command.setSortGenresByAlphabet(settingsService.isSortGenresByAlphabet());
         command.setProhibitSortVarious(settingsService.isProhibitSortVarious());
-        command.setSortAlphanum(settingsService.isSortAlphanum());
-        command.setSortStrict(settingsService.isSortStrict());
         command.setDefaultSortAlbumsByYear(SettingsService.isDefaultSortAlbumsByYear());
         command.setDefaultSortGenresByAlphabet(SettingsService.isDefaultSortGenresByAlphabet());
         command.setDefaultProhibitSortVarious(SettingsService.isDefaultProhibitSortVarious());
-        command.setDefaultSortAlphanum(SettingsService.isDefaultSortAlphanum());
-        command.setDefaultSortStrict(SettingsService.isDefaultSortStrict());
 
         // Search settings
         command.setSearchComposer(settingsService.isSearchComposer());
@@ -144,6 +144,8 @@ public class GeneralSettingsController {
         command.setUseRemovingTrackFromId3Title(settingsService.isUseRemovingTrackFromId3Title());
         command.setUseCleanUp(settingsService.isUseCleanUp());
         command.setRedundantFolderCheck(settingsService.isRedundantFolderCheck());
+        command.setShowIndexDetails(settingsService.isShowIndexDetails());
+        command.setShowDBDetails(settingsService.isShowDBDetails());
 
         // Extensions and shortcuts
         command.setMusicFileTypes(settingsService.getMusicFileTypes());
@@ -174,6 +176,7 @@ public class GeneralSettingsController {
         command.setShareCount(shareService.getAllShares().size());
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
+        command.setScanning(scannerStateService.isScanning());
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
@@ -226,8 +229,6 @@ public class GeneralSettingsController {
         settingsService.setSortAlbumsByYear(command.isSortAlbumsByYear());
         settingsService.setSortGenresByAlphabet(command.isSortGenresByAlphabet());
         settingsService.setProhibitSortVarious(command.isProhibitSortVarious());
-        settingsService.setSortAlphanum(command.isSortAlphanum());
-        settingsService.setSortStrict(command.isSortStrict());
 
         // Search settings
         settingsService.setSearchComposer(command.isSearchComposer());
@@ -245,18 +246,24 @@ public class GeneralSettingsController {
         }
         settingsService.setUseCopyOfAsciiUnprintable(PlayerUtils.isWindows() && command.isUseCopyOfAsciiUnprintable());
         settingsService.setUseJsonp(command.isUseJsonp());
-        settingsService.setUseRemovingTrackFromId3Title(command.isUseRemovingTrackFromId3Title());
-        settingsService.setUseCleanUp(command.isUseCleanUp());
-        settingsService.setRedundantFolderCheck(command.isRedundantFolderCheck());
+        if (!scannerStateService.isScanning()) {
+            settingsService.setUseRemovingTrackFromId3Title(command.isUseRemovingTrackFromId3Title());
+            settingsService.setUseCleanUp(command.isUseCleanUp());
+            settingsService.setRedundantFolderCheck(command.isRedundantFolderCheck());
+        }
+        settingsService.setShowIndexDetails(command.isShowIndexDetails());
+        settingsService.setShowDBDetails(command.isShowDBDetails());
 
         // Extensions and shortcuts
-        settingsService.setMusicFileTypes(command.getMusicFileTypes());
-        settingsService.setVideoFileTypes(command.getVideoFileTypes());
-        settingsService.setCoverArtFileTypes(command.getCoverArtFileTypes());
-        settingsService.setExcludedCoverArts(command.getExcludedCoverArts());
-        PathValidator.validateFolderPath(command.getPlaylistFolder())
-                .ifPresent(folderPath -> settingsService.setPlaylistFolder(folderPath));
-        settingsService.setShortcuts(command.getShortcuts());
+        if (!scannerStateService.isScanning()) {
+            settingsService.setMusicFileTypes(command.getMusicFileTypes());
+            settingsService.setVideoFileTypes(command.getVideoFileTypes());
+            settingsService.setCoverArtFileTypes(command.getCoverArtFileTypes());
+            settingsService.setExcludedCoverArts(command.getExcludedCoverArts());
+            PathValidator.validateFolderPath(command.getPlaylistFolder())
+                    .ifPresent(folderPath -> settingsService.setPlaylistFolder(folderPath));
+            settingsService.setShortcuts(command.getShortcuts());
+        }
 
         // Welcom message
         settingsService.setGettingStartedEnabled(command.isGettingStartedEnabled());

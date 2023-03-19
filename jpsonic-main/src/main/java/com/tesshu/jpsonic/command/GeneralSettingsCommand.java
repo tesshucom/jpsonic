@@ -53,13 +53,9 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean sortAlbumsByYear;
     private boolean sortGenresByAlphabet;
     private boolean prohibitSortVarious;
-    private boolean sortAlphanum;
-    private boolean sortStrict;
     private boolean defaultSortAlbumsByYear;
     private boolean defaultSortGenresByAlphabet;
     private boolean defaultProhibitSortVarious;
-    private boolean defaultSortAlphanum;
-    private boolean defaultSortStrict;
 
     // Search settings
     private boolean searchComposer;
@@ -77,6 +73,8 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean useRemovingTrackFromId3Title;
     private boolean useCleanUp;
     private boolean redundantFolderCheck;
+    private boolean showIndexDetails;
+    private boolean showDBDetails;
 
     // Extensions and shortcuts
     private String musicFileTypes;
@@ -211,22 +209,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
         this.prohibitSortVarious = prohibitSortVarious;
     }
 
-    public boolean isSortAlphanum() {
-        return sortAlphanum;
-    }
-
-    public void setSortAlphanum(boolean sortAlphanum) {
-        this.sortAlphanum = sortAlphanum;
-    }
-
-    public boolean isSortStrict() {
-        return sortStrict;
-    }
-
-    public void setSortStrict(boolean sortStrict) {
-        this.sortStrict = sortStrict;
-    }
-
     public boolean isDefaultSortAlbumsByYear() {
         return defaultSortAlbumsByYear;
     }
@@ -249,22 +231,6 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setDefaultProhibitSortVarious(boolean defaultProhibitSortVarious) {
         this.defaultProhibitSortVarious = defaultProhibitSortVarious;
-    }
-
-    public boolean isDefaultSortAlphanum() {
-        return defaultSortAlphanum;
-    }
-
-    public void setDefaultSortAlphanum(boolean defaultSortAlphanum) {
-        this.defaultSortAlphanum = defaultSortAlphanum;
-    }
-
-    public boolean isDefaultSortStrict() {
-        return defaultSortStrict;
-    }
-
-    public void setDefaultSortStrict(boolean defaultSortStrict) {
-        this.defaultSortStrict = defaultSortStrict;
     }
 
     public boolean isSearchComposer() {
@@ -369,6 +335,22 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setRedundantFolderCheck(boolean redundantFolderCheck) {
         this.redundantFolderCheck = redundantFolderCheck;
+    }
+
+    public boolean isShowIndexDetails() {
+        return showIndexDetails;
+    }
+
+    public void setShowIndexDetails(boolean showIndexDetails) {
+        this.showIndexDetails = showIndexDetails;
+    }
+
+    public boolean isShowDBDetails() {
+        return showDBDetails;
+    }
+
+    public void setShowDBDetails(boolean showDBDetails) {
+        this.showDBDetails = showDBDetails;
     }
 
     public String getMusicFileTypes() {

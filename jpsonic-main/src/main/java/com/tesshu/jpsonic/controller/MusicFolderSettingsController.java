@@ -72,15 +72,18 @@ public class MusicFolderSettingsController {
     private final SecurityService securityService;
     private final MediaScannerService mediaScannerService;
     private final ShareService shareService;
+    private final OutlineHelpSelector outlineHelpSelector;
 
     public MusicFolderSettingsController(SettingsService settingsService, MusicFolderService musicFolderService,
-            SecurityService securityService, MediaScannerService mediaScannerService, ShareService shareService) {
+            SecurityService securityService, MediaScannerService mediaScannerService, ShareService shareService,
+            OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
         this.mediaScannerService = mediaScannerService;
         this.shareService = shareService;
+        this.outlineHelpSelector = outlineHelpSelector;
     }
 
     @ModelAttribute
@@ -129,6 +132,7 @@ public class MusicFolderSettingsController {
         command.setShareCount(shareService.getAllShares().size());
 
         User user = securityService.getCurrentUserStrict(request);
+        command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setScanning(mediaScannerService.isScanning());
@@ -157,6 +161,11 @@ public class MusicFolderSettingsController {
     @PostMapping
     protected ModelAndView post(@ModelAttribute(Attributes.Model.Command.VALUE) MusicFolderSettingsCommand command,
             RedirectAttributes redirectAttributes) {
+
+        final ModelAndView result = new ModelAndView(new RedirectView(ViewName.MUSIC_FOLDER_SETTINGS.value()));
+        if (mediaScannerService.isScanning()) {
+            return result;
+        }
 
         Instant executed = now();
 
@@ -198,7 +207,7 @@ public class MusicFolderSettingsController {
         // for view page control
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
 
-        return new ModelAndView(new RedirectView(ViewName.MUSIC_FOLDER_SETTINGS.value()));
+        return result;
     }
 
     @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", justification = "Validated.")

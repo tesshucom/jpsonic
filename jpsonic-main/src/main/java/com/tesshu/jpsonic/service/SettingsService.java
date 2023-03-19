@@ -513,30 +513,6 @@ public class SettingsService {
         return SettingsConstants.General.Sort.PROHIBIT_SORT_VARIOUS.defaultValue;
     }
 
-    public boolean isSortAlphanum() {
-        return getBoolean(SettingsConstants.General.Sort.ALPHANUM);
-    }
-
-    public void setSortAlphanum(boolean b) {
-        setProperty(SettingsConstants.General.Sort.ALPHANUM, b);
-    }
-
-    public static boolean isDefaultSortAlphanum() {
-        return SettingsConstants.General.Sort.ALPHANUM.defaultValue;
-    }
-
-    public boolean isSortStrict() {
-        return getBoolean(SettingsConstants.General.Sort.STRICT);
-    }
-
-    public void setSortStrict(boolean b) {
-        setProperty(SettingsConstants.General.Sort.STRICT, b);
-    }
-
-    public static boolean isDefaultSortStrict() {
-        return SettingsConstants.General.Sort.STRICT.defaultValue;
-    }
-
     public boolean isSearchComposer() {
         return getBoolean(SettingsConstants.General.Search.SEARCH_COMPOSER);
     }
@@ -647,6 +623,22 @@ public class SettingsService {
 
     public void setRedundantFolderCheck(boolean b) {
         setProperty(SettingsConstants.General.Legacy.REDUNDANT_FOLDER_CHECK, b);
+    }
+
+    public boolean isShowIndexDetails() {
+        return getBoolean(SettingsConstants.General.Legacy.SHOW_INDEX_DETAILS);
+    }
+
+    public void setShowIndexDetails(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.SHOW_INDEX_DETAILS, b);
+    }
+
+    public boolean isShowDBDetails() {
+        return getBoolean(SettingsConstants.General.Legacy.SHOW_DB_DETAILS);
+    }
+
+    public void setShowDBDetails(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.SHOW_DB_DETAILS, b);
     }
 
     public String getMusicFileTypes() {
@@ -1059,6 +1051,30 @@ public class SettingsService {
 
     public void setDeleteDiacritic(boolean b) {
         setProperty(SettingsConstants.Advanced.Index.DELETE_DIACRITIC, b);
+    }
+
+    public boolean isSortAlphanum() {
+        return getBoolean(SettingsConstants.Advanced.Sort.ALPHANUM);
+    }
+
+    public void setSortAlphanum(boolean b) {
+        setProperty(SettingsConstants.Advanced.Sort.ALPHANUM, b);
+    }
+
+    public static boolean isDefaultSortAlphanum() {
+        return SettingsConstants.Advanced.Sort.ALPHANUM.defaultValue;
+    }
+
+    public boolean isSortStrict() {
+        return getBoolean(SettingsConstants.Advanced.Sort.STRICT);
+    }
+
+    public void setSortStrict(boolean b) {
+        setProperty(SettingsConstants.Advanced.Sort.STRICT, b);
+    }
+
+    public static boolean isDefaultSortStrict() {
+        return SettingsConstants.Advanced.Sort.STRICT.defaultValue;
     }
 
     public String getPodcastFolder() {

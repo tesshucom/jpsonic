@@ -29,6 +29,7 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.command.AdvancedSettingsCommand;
 import com.tesshu.jpsonic.domain.IndexScheme;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -59,7 +60,7 @@ class AdvancedSettingsControllerTest {
     public void setup() throws ExecutionException {
         settingsService = mock(SettingsService.class);
         controller = new AdvancedSettingsController(settingsService, mock(SecurityService.class),
-                mock(ShareService.class), mock(OutlineHelpSelector.class));
+                mock(ShareService.class), mock(OutlineHelpSelector.class), mock(ScannerStateService.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 

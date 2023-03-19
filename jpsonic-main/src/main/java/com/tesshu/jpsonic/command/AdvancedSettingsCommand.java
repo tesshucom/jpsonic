@@ -67,6 +67,10 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
     // Danger Zone
     private IndexScheme indexScheme;
     private boolean forceInternalValueInsteadOfTags;
+    private boolean sortAlphanum;
+    private boolean sortStrict;
+    private boolean defaultSortAlphanum;
+    private boolean defaultSortStrict;
 
     public String getDownloadLimit() {
         return downloadLimit;
@@ -266,5 +270,37 @@ public class AdvancedSettingsCommand extends SettingsPageCommons {
 
     public void setForceInternalValueInsteadOfTags(boolean forceInternalValueInsteadOfTags) {
         this.forceInternalValueInsteadOfTags = forceInternalValueInsteadOfTags;
+    }
+
+    public boolean isSortAlphanum() {
+        return sortAlphanum;
+    }
+
+    public void setSortAlphanum(boolean sortAlphanum) {
+        this.sortAlphanum = sortAlphanum;
+    }
+
+    public boolean isSortStrict() {
+        return sortStrict;
+    }
+
+    public void setSortStrict(boolean sortStrict) {
+        this.sortStrict = sortStrict;
+    }
+
+    public boolean isDefaultSortAlphanum() {
+        return defaultSortAlphanum;
+    }
+
+    public void setDefaultSortAlphanum(boolean defaultSortAlphanum) {
+        this.defaultSortAlphanum = defaultSortAlphanum;
+    }
+
+    public boolean isDefaultSortStrict() {
+        return defaultSortStrict;
+    }
+
+    public void setDefaultSortStrict(boolean defaultSortStrict) {
+        this.defaultSortStrict = defaultSortStrict;
     }
 }

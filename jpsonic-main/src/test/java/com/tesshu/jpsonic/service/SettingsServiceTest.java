@@ -511,16 +511,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsSortAlphanum() {
-        assertTrue(settingsService.isSortAlphanum());
-    }
-
-    @Test
-    void testIsSortStrict() {
-        assertTrue(settingsService.isSortStrict());
-    }
-
-    @Test
     void testIsSearchComposer() {
         assertFalse(settingsService.isSearchComposer());
     }
@@ -773,6 +763,16 @@ class SettingsServiceTest {
     }
 
     @Test
+    void testIsShowIndexDetails() {
+        assertFalse(settingsService.isRedundantFolderCheck());
+    }
+
+    @Test
+    void testIsShowDBDetails() {
+        assertFalse(settingsService.isRedundantFolderCheck());
+    }
+
+    @Test
     void testGetSmtpEncryption() {
         assertEquals("None", settingsService.getSmtpEncryption());
     }
@@ -846,6 +846,16 @@ class SettingsServiceTest {
     @Test
     void testIsDeleteDiacritic() {
         assertTrue(settingsService.isDeleteDiacritic());
+    }
+
+    @Test
+    void testIsSortAlphanum() {
+        assertTrue(settingsService.isSortAlphanum());
+    }
+
+    @Test
+    void testIsSortStrict() {
+        assertTrue(settingsService.isSortStrict());
     }
 
     @Test

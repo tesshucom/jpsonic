@@ -27,6 +27,7 @@ import com.tesshu.jpsonic.command.AdvancedSettingsCommand;
 import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
@@ -58,14 +59,17 @@ public class AdvancedSettingsController {
     private final SecurityService securityService;
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
+    private final ScannerStateService scannerStateService;
 
     public AdvancedSettingsController(SettingsService settingsService, SecurityService securityService,
-            ShareService shareService, OutlineHelpSelector outlineHelpSelector) {
+            ShareService shareService, OutlineHelpSelector outlineHelpSelector,
+            ScannerStateService scannerStateService) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.shareService = shareService;
         this.outlineHelpSelector = outlineHelpSelector;
+        this.scannerStateService = scannerStateService;
     }
 
     @GetMapping
@@ -105,6 +109,10 @@ public class AdvancedSettingsController {
         // Danger Zone
         command.setIndexScheme(IndexScheme.valueOf(settingsService.getIndexSchemeName()));
         command.setForceInternalValueInsteadOfTags(settingsService.isForceInternalValueInsteadOfTags());
+        command.setSortAlphanum(settingsService.isSortAlphanum());
+        command.setSortStrict(settingsService.isSortStrict());
+        command.setDefaultSortAlphanum(SettingsService.isDefaultSortAlphanum());
+        command.setDefaultSortStrict(SettingsService.isDefaultSortStrict());
 
         // for view page control
         command.setUseRadio(settingsService.isUseRadio());
@@ -113,6 +121,7 @@ public class AdvancedSettingsController {
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
+        command.setScanning(scannerStateService.isScanning());
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
         return "advancedSettings";
@@ -161,10 +170,14 @@ public class AdvancedSettingsController {
         }
 
         // Scan log
-        setScanLog(command);
+        if (!scannerStateService.isScanning()) {
+            setScanLog(command);
+        }
 
         // Danger Zone
-        setDangerZone(command);
+        if (!scannerStateService.isScanning()) {
+            setDangerZone(command);
+        }
 
         settingsService.save();
 
@@ -213,5 +226,8 @@ public class AdvancedSettingsController {
             settingsService.setDeleteDiacritic(false);
             settingsService.setIgnoreFullWidth(false);
         }
+
+        settingsService.setSortAlphanum(command.isSortAlphanum());
+        settingsService.setSortStrict(command.isSortStrict());
     }
 }
