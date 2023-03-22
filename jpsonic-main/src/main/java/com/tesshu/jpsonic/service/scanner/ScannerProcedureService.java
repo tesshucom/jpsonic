@@ -709,6 +709,15 @@ public class ScannerProcedureService {
         return updated;
     }
 
+    void updateOrderOfSongsDirectlyUnderMusicfolder(@NonNull Instant scanDate) {
+        if (isInterrupted()) {
+            return;
+        }
+        musicFolderService.getAllMusicFolders().forEach(
+                folder -> sortProcedure.updateOrderOfSongs(mediaFileService.getMediaFile(folder.getPathString())));
+        createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_SONG, null);
+    }
+
     void updateOrderOfArtist(@NonNull Instant scanDate, boolean skippable) {
         if (isInterrupted()) {
             return;

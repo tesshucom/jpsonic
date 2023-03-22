@@ -167,8 +167,8 @@ public class SortProcedureService {
         return i;
     }
 
-    void updateOrderOfSongs(MediaFile album) {
-        List<MediaFile> songs = mediaFileDao.getChildrenOf(album.getPathString()).stream()
+    void updateOrderOfSongs(MediaFile parent) {
+        List<MediaFile> songs = mediaFileDao.getChildrenOf(parent.getPathString()).stream()
                 .filter(child -> mediaFileService.isAudioFile(child.getFormat())
                         || mediaFileService.isVideoFile(child.getFormat()))
                 .collect(Collectors.toList());
