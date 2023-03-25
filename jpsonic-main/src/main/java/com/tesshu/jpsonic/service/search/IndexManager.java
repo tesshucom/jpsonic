@@ -35,30 +35,28 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.dao.ArtistDao;
-import com.tesshu.jpsonic.dao.MediaFileDao;
+import javax.annotation.PostConstruct;
+
+import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.ThreadSafe;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import com.tesshu.jpsonic.util.FileUtil;
-import com.tesshu.jpsonic.util.PlayerUtils;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.FieldInfos;
 import org.apache.lucene.index.IndexNotFoundException;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexableField;
@@ -96,7 +94,7 @@ public class IndexManager {
      * of AnalyzerFactory, DocumentFactory or the class that they use.
      *
      */
-    private static final int INDEX_VERSION = 25;
+    private static final int INDEX_VERSION = 26;
 
     /**
      * Literal name of index top directory.
@@ -111,13 +109,12 @@ public class IndexManager {
 
     private final AnalyzerFactory analyzerFactory;
     private final DocumentFactory documentFactory;
-    private final MediaFileDao mediaFileDao;
-    private final ArtistDao artistDao;
-    private final AlbumDao albumDao;
     private final QueryFactory queryFactory;
     private final SearchServiceUtilities util;
     private final JpsonicComparators comparators;
     private final SettingsService settingsService;
+    private final ScannerStateServiceImpl scannerState;
+
     private final Map<IndexType, SearcherManager> searchers;
     private final Map<IndexType, IndexWriter> writers;
     private final Map<GenreSort, List<Genre>> multiGenreMaster;
@@ -130,49 +127,53 @@ public class IndexManager {
         return Path.of(getRootIndexDirectory().toString(), indexType.toString().toLowerCase(Locale.ENGLISH));
     }
 
-    public IndexManager(AnalyzerFactory analyzerFactory, DocumentFactory documentFactory, MediaFileDao mediaFileDao,
-            ArtistDao artistDao, AlbumDao albumDao, QueryFactory queryFactory, SearchServiceUtilities util,
-            JpsonicComparators comparators, SettingsService settingsService) {
+    public IndexManager(AnalyzerFactory analyzerFactory, DocumentFactory documentFactory, QueryFactory queryFactory,
+            SearchServiceUtilities util, JpsonicComparators comparators, SettingsService settingsService,
+            ScannerStateServiceImpl scannerState) {
         super();
         this.analyzerFactory = analyzerFactory;
         this.documentFactory = documentFactory;
-        this.mediaFileDao = mediaFileDao;
-        this.artistDao = artistDao;
-        this.albumDao = albumDao;
         this.queryFactory = queryFactory;
         this.util = util;
         this.comparators = comparators;
         this.settingsService = settingsService;
+        this.scannerState = scannerState;
         searchers = new ConcurrentHashMap<>();
         writers = new ConcurrentHashMap<>();
         multiGenreMaster = new ConcurrentHashMap<>();
     }
 
+    @PostConstruct
+    public void init() {
+        deleteOldIndexFiles();
+        initializeIndexDirectory();
+        scannerState.setReady();
+    }
+
+    @ThreadSafe(enableChecks = false) // False positive. writers#get#updateDocument is atomic.
     public void index(Album album) {
         Term primarykey = DocumentFactory.createPrimarykey(album);
         Document document = documentFactory.createAlbumId3Document(album);
         try {
             writers.get(IndexType.ALBUM_ID3).updateDocument(primarykey, document);
         } catch (IOException e) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Failed to create search index for " + album, e);
-            }
+            throw new UncheckedIOException(e);
         }
     }
 
+    @ThreadSafe(enableChecks = false) // False positive. writers#get#updateDocument is atomic.
     public void index(Artist artist, MusicFolder musicFolder) {
         Term primarykey = DocumentFactory.createPrimarykey(artist);
         Document document = documentFactory.createArtistId3Document(artist, musicFolder);
         try {
             writers.get(IndexType.ARTIST_ID3).updateDocument(primarykey, document);
-        } catch (IOException x) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Failed to create search index for " + artist, x);
-            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
-    public void index(MediaFile mediaFile) {
+    @ThreadSafe(enableChecks = false) // False positive. writers#get#updateDocument is atomic.
+    public void index(@NonNull MediaFile mediaFile) {
         Term primarykey = DocumentFactory.createPrimarykey(mediaFile);
         try {
             if (mediaFile.isFile()) {
@@ -186,26 +187,24 @@ public class IndexManager {
                 writers.get(IndexType.ARTIST).updateDocument(primarykey, document);
             }
             String genre = mediaFile.getGenre();
-            if (!isEmpty(genre)) {
-                primarykey = DocumentFactory.createPrimarykey(genre.hashCode());
+            if (!isEmpty(genre) && mediaFile.getMediaType() != MediaType.PODCAST) {
+                Term genrekey = DocumentFactory.createPrimarykey(genre.hashCode());
                 Document document = documentFactory.createGenreDocument(mediaFile);
-                writers.get(IndexType.GENRE).updateDocument(primarykey, document);
+                writers.get(IndexType.GENRE).updateDocument(genrekey, document);
             }
-        } catch (IOException x) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Failed to create search index for " + mediaFile, x);
-            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
+    @ThreadSafe(enableChecks = false) // False positive. Protected by a thread lock. No concurrent access.
     public void startIndexing() {
         try {
             for (IndexType indexType : IndexType.values()) {
                 writers.put(indexType, createIndexWriter(indexType));
             }
-            clearGenreMaster();
         } catch (IOException e) {
-            LOG.error("Failed to create search index.", e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -221,146 +220,158 @@ public class IndexManager {
         }
     }
 
-    private void clearGenreMaster() {
+    @ThreadSafe(enableChecks = false) // False positive. writers#get#deleteDocuments is atomic.
+    public void expungeArtist(int id) {
         try {
-            writers.get(IndexType.GENRE).deleteAll();
-            writers.get(IndexType.GENRE).flush();
-            clearMultiGenreMaster();
+            writers.get(IndexType.ARTIST).deleteDocuments(DocumentFactory.createPrimarykey(id));
         } catch (IOException e) {
-            LOG.error("Failed to clear genre index.", e);
+            throw new UncheckedIOException(e);
         }
     }
 
-    public void expunge() {
-
-        Term[] primarykeys = mediaFileDao.getArtistExpungeCandidates().stream().map(DocumentFactory::createPrimarykey)
-                .toArray(Term[]::new);
+    @ThreadSafe(enableChecks = false) // False positive. writers#get#deleteDocuments is atomic.
+    public void expungeAlbum(int id) {
         try {
-            writers.get(IndexType.ARTIST).deleteDocuments(primarykeys);
+            writers.get(IndexType.ALBUM).deleteDocuments(DocumentFactory.createPrimarykey(id));
         } catch (IOException e) {
-            LOG.error("Failed to delete artist doc.", e);
+            throw new UncheckedIOException(e);
         }
+    }
 
-        primarykeys = mediaFileDao.getAlbumExpungeCandidates().stream().map(DocumentFactory::createPrimarykey)
-                .toArray(Term[]::new);
+    @ThreadSafe(enableChecks = false) // False positive. writers#get#deleteDocuments is atomic.
+    public void expungeSong(int id) {
         try {
-            writers.get(IndexType.ALBUM).deleteDocuments(primarykeys);
+            writers.get(IndexType.SONG).deleteDocuments(DocumentFactory.createPrimarykey(id));
         } catch (IOException e) {
-            LOG.error("Failed to delete album doc.", e);
+            throw new UncheckedIOException(e);
         }
+    }
 
-        primarykeys = mediaFileDao.getSongExpungeCandidates().stream().map(DocumentFactory::createPrimarykey)
-                .toArray(Term[]::new);
-        try {
-            writers.get(IndexType.SONG).deleteDocuments(primarykeys);
-        } catch (IOException e) {
-            LOG.error("Failed to delete song doc.", e);
-        }
-
-        primarykeys = artistDao.getExpungeCandidates().stream().map(DocumentFactory::createPrimarykey)
-                .toArray(Term[]::new);
+    @ThreadSafe(enableChecks = false) // False positive. writers#get#deleteDocuments is atomic.
+    public void expungeArtistId3(@NonNull List<Integer> expungeCandidates) {
+        Term[] primarykeys = expungeCandidates.stream().map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
         try {
             writers.get(IndexType.ARTIST_ID3).deleteDocuments(primarykeys);
         } catch (IOException e) {
-            LOG.error("Failed to delete artistId3 doc.", e);
+            throw new UncheckedIOException(e);
         }
+    }
 
-        primarykeys = albumDao.getExpungeCandidates().stream().map(DocumentFactory::createPrimarykey)
-                .toArray(Term[]::new);
+    @ThreadSafe(enableChecks = false) // False positive. writers#get#deleteDocuments is atomic.
+    public void expungeAlbumId3(List<Integer> candidates) {
+        Term[] primarykeys = candidates.stream().map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
         try {
             writers.get(IndexType.ALBUM_ID3).deleteDocuments(primarykeys);
         } catch (IOException e) {
-            LOG.error("Failed to delete albumId3 doc.", e);
+            throw new UncheckedIOException(e);
         }
+    }
 
+    @SuppressWarnings({ "PMD.AvoidCatchingGenericException" }) // lucene/HighFreqTerms#getHighFreqTerms
+    public void expungeGenreOtherThan(List<Genre> existing) {
+        synchronized (genreLock) {
+
+            // This method is executed during scanning.
+
+            try {
+                if (existing.isEmpty()) {
+                    writers.get(IndexType.GENRE).deleteAll();
+                    writers.get(IndexType.GENRE).flush();
+                    clearMultiGenreMaster();
+                    return;
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+
+            // Stop indexing to get Searcher.
+            stopIndexing(IndexType.GENRE);
+            IndexSearcher genreSearcher = getSearcher(IndexType.GENRE);
+            if (genreSearcher == null) {
+                return;
+            }
+
+            try {
+                Collection<String> fields = FieldInfos.getIndexedFields(genreSearcher.getIndexReader());
+                if (fields.isEmpty()) {
+                    return;
+                }
+
+                TermStats[] stats = HighFreqTerms.getHighFreqTerms(genreSearcher.getIndexReader(),
+                        HighFreqTerms.DEFAULT_NUMTERMS, FieldNamesConstants.GENRE,
+                        new HighFreqTerms.DocFreqComparator());
+                List<String> indexedNames = Arrays.stream(stats).map(t -> t.termtext.utf8ToString())
+                        .collect(Collectors.toList());
+                List<String> existingNames = existing.stream().map(g -> g.getName()).collect(Collectors.toList());
+                Term[] primarykeys = indexedNames.stream().filter(name -> !existingNames.contains(name))
+                        .map(name -> name.hashCode()).map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
+
+                // Reopen Writer for editing.
+                writers.put(IndexType.GENRE, createIndexWriter(IndexType.GENRE));
+                writers.get(IndexType.GENRE).deleteDocuments(primarykeys);
+
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            } catch (Exception e) {
+                LOG.info("The genre field may not exist.");
+            } finally {
+                release(IndexType.GENRE, genreSearcher);
+            }
+
+            // Don't call it asynchronously. Genre is required for subsequent processing of the scan.
+            refreshMultiGenreMaster();
+        }
+    }
+
+    @ThreadSafe(enableChecks = false) // False positive. Absolutely not concurrent.
+    @SuppressWarnings("PMD.CloseResource") // False positive. Do not close.
+    public void deleteAll() {
+        for (IndexWriter writer : writers.values()) {
+            try {
+                writer.deleteAll();
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
     }
 
     /**
      * Close Writer of all indexes and update SearcherManager. Called at the end of the Scan flow.
      */
-    public void stopIndexing(MediaLibraryStatistics statistics) {
-        Arrays.asList(IndexType.values()).forEach(indexType -> stopIndexing(indexType, statistics));
+    public void stopIndexing() {
+        Arrays.asList(IndexType.values()).forEach(this::stopIndexing);
         clearMultiGenreMaster();
     }
 
     /**
      * Close Writer of specified index and refresh SearcherManager.
      */
-    private void stopIndexing(IndexType type, MediaLibraryStatistics statistics) {
+    @SuppressFBWarnings(value = { "NP_LOAD_OF_KNOWN_NULL_VALUE",
+            "RCN_REDUNDANT_NULLCHECK_OF_NULL_VALU" }, justification = "spotbugs/spotbugs#1338")
+    private void stopIndexing(IndexType type) {
 
-        boolean isUpdate = false;
         // close
         try (IndexWriter writer = writers.get(type)) {
-            Map<String, String> userData = PlayerUtils.objectToStringMap(statistics);
-            writer.setLiveCommitData(userData.entrySet());
-            isUpdate = -1 != writers.get(type).commit();
+            if (writer == null) {
+                return;
+            }
+            writers.get(type).commit();
             writer.close();
             writers.remove(type);
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Success to create or update search index : [" + type + "]");
-            }
         } catch (IOException e) {
             writers.remove(type);
-            LOG.error("Failed to create search index.", e);
+            throw new UncheckedIOException(e);
         }
 
         // refresh reader as index may have been written
-        if (isUpdate && searchers.containsKey(type)) {
+        if (searchers.containsKey(type)) {
             try {
                 searchers.get(type).maybeRefresh();
-                if (LOG.isTraceEnabled()) {
-                    LOG.trace("SearcherManager has been refreshed : [" + type + "]");
-                }
             } catch (IOException e) {
-                if (LOG.isErrorEnabled()) {
-                    LOG.error("Failed to refresh SearcherManager : [" + type + "]", e);
-                }
                 searchers.remove(type);
+                throw new UncheckedIOException(e);
             }
         }
-
-    }
-
-    /**
-     * Return the MediaLibraryStatistics saved on commit in the index. Ensures that each index reports the same data. On
-     * invalid indices, returns null.
-     */
-    @SuppressWarnings("PMD.CloseResource")
-    /*
-     * False positive. SearcherManager inherits Closeable but ensures each searcher is closed only once all threads have
-     * finished using it. No explicit close is done here.
-     */
-    public @Nullable MediaLibraryStatistics getStatistics() {
-        MediaLibraryStatistics stats = null;
-        for (IndexType indexType : IndexType.values()) {
-            IndexSearcher searcher = getSearcher(indexType);
-            if (searcher == null) {
-                return null;
-            }
-            IndexReader indexReader = searcher.getIndexReader();
-            if (!(indexReader instanceof DirectoryReader)) {
-                return null;
-            }
-            try {
-                Map<String, String> userData = ((DirectoryReader) indexReader).getIndexCommit().getUserData();
-                MediaLibraryStatistics currentStats = PlayerUtils.stringMapToValidObject(MediaLibraryStatistics.class,
-                        userData);
-                if (stats == null) {
-                    stats = currentStats;
-                } else if (!Objects.equals(stats, currentStats)) {
-                    // Index type had differing stats data
-                    return null;
-                }
-            } catch (IOException | IllegalArgumentException e) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Exception encountered while fetching index commit data", e);
-                }
-                return null;
-            } finally {
-                release(indexType, searcher);
-            }
-        }
-        return stats;
     }
 
     /**
@@ -394,14 +405,14 @@ public class IndexManager {
                     return null;
                 }
             }
-        }
-        try {
-            SearcherManager manager = searchers.get(indexType);
-            if (!isEmpty(manager)) {
-                return searchers.get(indexType).acquire();
+            try {
+                SearcherManager manager = searchers.get(indexType);
+                if (!isEmpty(manager)) {
+                    return searchers.get(indexType).acquire();
+                }
+            } catch (ClassCastException | IOException e) {
+                LOG.warn("Failed to acquire IndexSearcher.", e);
             }
-        } catch (ClassCastException | IOException e) {
-            LOG.warn("Failed to acquire IndexSearcher.", e);
         }
         return null;
     }
@@ -412,8 +423,8 @@ public class IndexManager {
                 try {
                     searchers.get(indexType).release(indexSearcher);
                 } catch (IOException e) {
-                    LOG.error("Failed to release IndexSearcher.", e);
                     searchers.remove(indexType);
+                    throw new UncheckedIOException(e);
                 }
             } else {
                 try {
@@ -425,7 +436,7 @@ public class IndexManager {
                         indexSearcher.getIndexReader().close();
                     }
                 } catch (IOException e) {
-                    LOG.warn("Failed to release. IndexSearcher has been closed.", e);
+                    throw new UncheckedIOException(e);
                 }
             }
         }
@@ -436,7 +447,7 @@ public class IndexManager {
      * with lucene) are deleted. If there is no index directory, initialize the directory. If the index directory exists
      * and is not the current version, initialize the directory.
      */
-    public void deleteOldIndexFiles() {
+    void deleteOldIndexFiles() {
         deleteLegacyFiles();
         deleteOldFiles();
     }
@@ -487,11 +498,11 @@ public class IndexManager {
     /**
      * Create a directory corresponding to the current index version.
      */
-    public void initializeIndexDirectory() {
+    void initializeIndexDirectory() {
         // Check if Index is current version
         if (Files.exists(getRootIndexDirectory())) {
             // Index of current version already exists
-            if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+            if (LOG.isInfoEnabled()) {
                 LOG.info("Index was found (index version {}). ", INDEX_VERSION);
             }
         } else if (FileUtil.createDirectories(getRootIndexDirectory()) == null) {
@@ -532,7 +543,7 @@ public class IndexManager {
             TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
             int totalHits = util.round.apply(topDocs.totalHits.value);
             for (int i = 0; i < totalHits; i++) {
-                IndexableField[] fields = searcher.doc(topDocs.scoreDocs[i].doc)
+                IndexableField[] fields = searcher.storedFields().document(topDocs.scoreDocs[i].doc)
                         .getFields(FieldNamesConstants.GENRE_KEY);
                 if (!isEmpty(fields)) {
                     List<String> fieldValues = Arrays.stream(fields).map(IndexableField::stringValue)
@@ -545,7 +556,7 @@ public class IndexManager {
                 }
             }
         } catch (IOException e) {
-            LOG.error("Failed to execute Lucene search.", e);
+            throw new UncheckedIOException(e);
         } finally {
             release(IndexType.GENRE, searcher);
         }
@@ -643,7 +654,7 @@ public class IndexManager {
                 }
             }
         } catch (IOException e) {
-            LOG.error("Failed to execute Lucene search.", e);
+            throw new UncheckedIOException(e);
         } finally {
             release(IndexType.GENRE, genreSearcher);
             release(IndexType.SONG, songSearcher);

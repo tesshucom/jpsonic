@@ -600,7 +600,7 @@ class TranscodingServiceTest {
             Transcoding transcoding = transcodingService.getTranscoding(mediaFile, player, preferredTargetFormat, hls);
             Assertions.assertNotNull(transcoding.getId());
             assertEquals(Transcodings.MP3.getName(), transcoding.getName());
-            assertTrue(Arrays.stream(transcoding.getSourceFormatsAsArray()).anyMatch(f -> FMT_FLAC.equals(f)));
+            assertTrue(transcoding.getSourceFormatsAsList().stream().anyMatch(f -> FMT_FLAC.equals(f)));
             assertEquals(FMT_MP3, transcoding.getTargetFormat());
 
         }
@@ -622,7 +622,7 @@ class TranscodingServiceTest {
             Transcoding transcoding = transcodingService.getTranscoding(mediaFile, player, preferredTargetFormat, hls);
             Assertions.assertNotNull(transcoding.getId());
             assertEquals(Transcodings.MP3.getName(), transcoding.getName());
-            assertTrue(Arrays.stream(transcoding.getSourceFormatsAsArray()).anyMatch(f -> FMT_FLAC.equals(f)));
+            assertTrue(transcoding.getSourceFormatsAsList().stream().anyMatch(f -> FMT_FLAC.equals(f)));
             assertEquals(FMT_MP3, transcoding.getTargetFormat());
         }
 
@@ -661,7 +661,7 @@ class TranscodingServiceTest {
             Transcoding transcoding = transcodingService.getTranscoding(mediaFile, player, preferredTargetFormat, hls);
             Assertions.assertNotNull(transcoding.getId());
             assertEquals(Transcodings.FLV.getName(), transcoding.getName());
-            assertTrue(Arrays.stream(transcoding.getSourceFormatsAsArray()).anyMatch(f -> FMT_MPEG.equals(f)));
+            assertTrue(transcoding.getSourceFormatsAsList().stream().anyMatch(f -> FMT_MPEG.equals(f)));
             assertEquals(FMT_FLV, transcoding.getTargetFormat());
         }
 
@@ -683,7 +683,7 @@ class TranscodingServiceTest {
             Transcoding transcoding = transcodingService.getTranscoding(mediaFile, player, preferredTargetFormat, hls);
             Assertions.assertNotNull(transcoding.getId());
             assertEquals(Transcodings.FLV.getName(), transcoding.getName());
-            assertFalse(Arrays.stream(transcoding.getSourceFormatsAsArray()).allMatch(f -> FMT_FLV.equals(f)));
+            assertFalse(transcoding.getSourceFormatsAsList().stream().allMatch(f -> FMT_FLV.equals(f)));
             assertEquals(FMT_FLV, transcoding.getTargetFormat());
         }
     }

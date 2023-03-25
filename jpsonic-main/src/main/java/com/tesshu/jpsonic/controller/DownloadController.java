@@ -41,6 +41,7 @@ import java.util.zip.ZipOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PlayQueue;
 import com.tesshu.jpsonic.domain.Player;
@@ -132,7 +133,6 @@ public class DownloadController {
                     : ServletRequestUtils.getIntParameters(request, Attributes.Request.I.value());
 
             if (mediaFile != null) {
-                response.setIntHeader("ETag", mediaFile.getId());
                 response.setHeader("Accept-Ranges", "bytes");
             }
 
@@ -181,7 +181,7 @@ public class DownloadController {
         if (mediaFile.isFile()) {
             downloadFile(response, status, mediaFile.toPath(), range);
         } else {
-            List<MediaFile> children = mediaFileService.getChildrenOf(mediaFile, true, false, true);
+            List<MediaFile> children = mediaFileService.getChildrenOf(mediaFile, true, false);
             String zipFileName = FilenameUtils.getBaseName(mediaFile.getPathString()) + ".zip";
             Path coverArtPath = indexes == null && mediaFile.getCoverArtPathString() != null
                     ? Path.of(mediaFile.getCoverArtPathString()) : null;
@@ -215,6 +215,7 @@ public class DownloadController {
      * @throws IOException
      *             If an I/O error occurs.
      */
+    @SuppressLint(value = "PULSE_RESOURCE_LEAK", justification = "Close of response#outputStream is transferred to the container (Servlet API)")
     private void downloadFile(HttpServletResponse response, TransferStatus status, Path path, HttpRange range)
             throws IOException {
         writeLog("Starting to download", FileUtil.getShortPath(path), status.getPlayer());
@@ -273,6 +274,7 @@ public class DownloadController {
      * @param zipFileName
      *            The name of the resulting zip file. @throws IOException If an I/O error occurs.
      */
+    @SuppressLint(value = "PULSE_RESOURCE_LEAK", justification = "Close of response#outputStream is transferred to the container (Servlet API)")
     private void downloadFiles(HttpServletResponse response, TransferStatus status, List<MediaFile> files,
             int[] indexes, Path coverArtPath, HttpRange range, String zipFileName) throws IOException {
         if (indexes != null && indexes.length == 1) {

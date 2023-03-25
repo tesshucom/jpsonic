@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.tesshu.jpsonic.domain.MusicFolder;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
@@ -111,7 +112,7 @@ public class MusicFolderDao extends AbstractDao {
      * @param musicFolder
      *            The music folder to update.
      */
-    public void updateMusicFolder(MusicFolder musicFolder) {
+    public void updateMusicFolder(@NonNull MusicFolder musicFolder) {
         String sql = "update music_folder set path=?, name=?, enabled=?, changed=? where id=?";
         update(sql, musicFolder.getPathString(), musicFolder.getName(), musicFolder.isEnabled(),
                 musicFolder.getChanged(), musicFolder.getId());

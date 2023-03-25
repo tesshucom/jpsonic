@@ -262,26 +262,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsVerboseLogStart() {
-        assertTrue(settingsService.isVerboseLogStart());
-    }
-
-    @Test
-    void testIsVerboseLogScanning() {
-        assertTrue(settingsService.isVerboseLogScanning());
-    }
-
-    @Test
-    void testIsVerboseLogPlaying() {
-        assertTrue(settingsService.isVerboseLogPlaying());
-    }
-
-    @Test
-    void testIsVerboseLogShutdown() {
-        assertTrue(settingsService.isVerboseLogShutdown());
-    }
-
-    @Test
     void testGetDefaultIndexString() {
         assertEquals(
                 "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ) "
@@ -310,7 +290,7 @@ class SettingsServiceTest {
 
     @Test
     void testGetIgnoredArticlesAsArray() {
-        assertEquals(6, settingsService.getIgnoredArticlesAsArray().length);
+        assertEquals(6, settingsService.getIgnoredArticlesAsArray().size());
     }
 
     @Test
@@ -320,7 +300,7 @@ class SettingsServiceTest {
 
     @Test
     void testGetShortcutsAsArray() {
-        assertEquals(2, settingsService.getShortcutsAsArray().length);
+        assertEquals(2, settingsService.getShortcutsAsArray().size());
     }
 
     @Test
@@ -336,8 +316,8 @@ class SettingsServiceTest {
 
     @Test
     void testGetMusicFileTypesAsArray() {
-        assertEquals(19, settingsService.getMusicFileTypesAsArray().length);
-        assertEquals(19, settingsService.getMusicFileTypesAsArray().length); // Cashed path
+        assertEquals(19, settingsService.getMusicFileTypesAsArray().size());
+        assertEquals(19, settingsService.getMusicFileTypesAsArray().size()); // Cashed path
     }
 
     @Test
@@ -347,8 +327,8 @@ class SettingsServiceTest {
 
     @Test
     void testGetVideoFileTypesAsArray() {
-        assertEquals(13, settingsService.getVideoFileTypesAsArray().length);
-        assertEquals(13, settingsService.getVideoFileTypesAsArray().length); // Cashed path
+        assertEquals(13, settingsService.getVideoFileTypesAsArray().size());
+        assertEquals(13, settingsService.getVideoFileTypesAsArray().size()); // Cashed path
     }
 
     @Test
@@ -359,8 +339,19 @@ class SettingsServiceTest {
 
     @Test
     void testGetCoverArtFileTypesAsArray() {
-        assertEquals(8, settingsService.getCoverArtFileTypesAsArray().length);
-        assertEquals(8, settingsService.getCoverArtFileTypesAsArray().length); // Cashed path
+        assertEquals(8, settingsService.getCoverArtFileTypesAsArray().size());
+        assertEquals(8, settingsService.getCoverArtFileTypesAsArray().size()); // Cashed path
+    }
+
+    @Test
+    void testGetExcludedCoverArts() {
+        assertEquals("AlbumArtSmall.jpg small.jpg large.jpg", settingsService.getExcludedCoverArts());
+    }
+
+    @Test
+    void testGetExcludedCoverArtsAsArray() {
+        assertEquals(3, settingsService.getExcludedCoverArtsAsArray().size());
+        assertEquals(3, settingsService.getExcludedCoverArtsAsArray().size()); // Cashed path
     }
 
     @Test
@@ -394,11 +385,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsShowRefresh() {
-        assertFalse(settingsService.isShowRefresh());
-    }
-
-    @Test
     void testGetFileModifiedCheckSchemeName() {
         assertEquals(FileModifiedCheckScheme.LAST_MODIFIED.name(), settingsService.getFileModifiedCheckSchemeName());
     }
@@ -411,11 +397,6 @@ class SettingsServiceTest {
     @Test
     void testIsIgnoreFileTimestampsForEachAlbum() {
         assertFalse(settingsService.isIgnoreFileTimestampsForEachAlbum());
-    }
-
-    @Test
-    void testIsIgnoreFileTimestampsNext() {
-        assertFalse(settingsService.isIgnoreFileTimestampsNext());
     }
 
     @Test
@@ -530,16 +511,6 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsSortAlphanum() {
-        assertTrue(settingsService.isSortAlphanum());
-    }
-
-    @Test
-    void testIsSortStrict() {
-        assertTrue(settingsService.isSortStrict());
-    }
-
-    @Test
     void testIsSearchComposer() {
         assertFalse(settingsService.isSearchComposer());
     }
@@ -586,14 +557,14 @@ class SettingsServiceTest {
 
     @Test
     void testGetAvailableThemes() {
-        assertEquals(20, SettingsService.getAvailableThemes().size());
-        assertEquals(20, SettingsService.getAvailableThemes().size()); // Cashed path
+        assertEquals(21, SettingsService.getAvailableThemes().size());
+        assertEquals(21, SettingsService.getAvailableThemes().size()); // Cashed path
     }
 
     @Test
     void testGetAvailableLocales() {
-        assertEquals(28, settingsService.getAvailableLocales().length);
-        assertEquals(28, settingsService.getAvailableLocales().length); // Cashed path
+        assertEquals(28, settingsService.getAvailableLocales().size());
+        assertEquals(28, settingsService.getAvailableLocales().size()); // Cashed path
     }
 
     @Test
@@ -767,13 +738,38 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsUseRefresh() {
-        assertFalse(settingsService.isUseRefresh());
+    void testIsUseCopyOfAsciiUnprintable() {
+        assertFalse(settingsService.isUseCopyOfAsciiUnprintable());
     }
 
     @Test
-    void testIsUseCopyOfAsciiUnprintable() {
-        assertFalse(settingsService.isUseCopyOfAsciiUnprintable());
+    void testIsUseJsonp() {
+        assertFalse(settingsService.isUseJsonp());
+    }
+
+    @Test
+    void testIsUseRemovingTrackFromId3Title() {
+        assertFalse(settingsService.isUseRemovingTrackFromId3Title());
+    }
+
+    @Test
+    void testIsUseCleanUp() {
+        assertFalse(settingsService.isUseCleanUp());
+    }
+
+    @Test
+    void testIsRedundantFolderCheck() {
+        assertFalse(settingsService.isRedundantFolderCheck());
+    }
+
+    @Test
+    void testIsShowIndexDetails() {
+        assertFalse(settingsService.isRedundantFolderCheck());
+    }
+
+    @Test
+    void testIsShowDBDetails() {
+        assertFalse(settingsService.isRedundantFolderCheck());
     }
 
     @Test
@@ -813,6 +809,26 @@ class SettingsServiceTest {
     }
 
     @Test
+    void testIsUseScanLog() {
+        assertFalse(settingsService.isUseScanLog());
+    }
+
+    @Test
+    void testGetScanLogRetention() {
+        assertEquals(-1, settingsService.getScanLogRetention());
+    }
+
+    @Test
+    void testIsUseScanEvents() {
+        assertFalse(settingsService.isUseScanEvents());
+    }
+
+    @Test
+    void testIsMeasureMemory() {
+        assertFalse(settingsService.isMeasureMemory());
+    }
+
+    @Test
     void testGetIndexSchemeName() {
         assertEquals(IndexScheme.NATIVE_JAPANESE.name(), settingsService.getIndexSchemeName());
     }
@@ -830,6 +846,16 @@ class SettingsServiceTest {
     @Test
     void testIsDeleteDiacritic() {
         assertTrue(settingsService.isDeleteDiacritic());
+    }
+
+    @Test
+    void testIsSortAlphanum() {
+        assertTrue(settingsService.isSortAlphanum());
+    }
+
+    @Test
+    void testIsSortStrict() {
+        assertTrue(settingsService.isSortStrict());
     }
 
     @Test

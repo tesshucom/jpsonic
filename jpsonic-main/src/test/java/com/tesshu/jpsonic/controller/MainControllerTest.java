@@ -91,7 +91,7 @@ class MainControllerTest {
         Mockito.when(mediaFileService.getMediaFile(artistId)).thenReturn(artist);
         Mockito.when(mediaFileService.isRoot(artist)).thenReturn(false);
         Mockito.when(securityService.isFolderAccessAllowed(artist, ServiceMockUtils.ADMIN_NAME)).thenReturn(true);
-        Mockito.when(mediaFileService.getChildrenOf(artist, true, true, true)).thenReturn(Arrays.asList(album));
+        Mockito.when(mediaFileService.getChildrenOf(artist, true, true)).thenReturn(Arrays.asList(album));
         Mockito.when(mediaFileService.getParentOf(artist)).thenReturn(root);
 
         album = new MediaFile();
@@ -108,7 +108,7 @@ class MainControllerTest {
         Mockito.when(mediaFileService.getMediaFile(albumId)).thenReturn(album);
         Mockito.when(mediaFileService.isRoot(album)).thenReturn(false);
         Mockito.when(securityService.isFolderAccessAllowed(album, ServiceMockUtils.ADMIN_NAME)).thenReturn(true);
-        Mockito.when(mediaFileService.getChildrenOf(artist, true, true, true)).thenReturn(Arrays.asList(album));
+        Mockito.when(mediaFileService.getChildrenOf(artist, true, true)).thenReturn(Arrays.asList(album));
 
         song = new MediaFile();
         int songId = 400;
@@ -122,7 +122,7 @@ class MainControllerTest {
         Mockito.when(mediaFileService.getMediaFile(songId)).thenReturn(song);
         Mockito.when(mediaFileService.isRoot(song)).thenReturn(false);
         Mockito.when(mediaFileService.getParentOf(song)).thenReturn(album);
-        Mockito.when(mediaFileService.getChildrenOf(album, true, true, true)).thenReturn(Arrays.asList(song));
+        Mockito.when(mediaFileService.getChildrenOf(album, true, true)).thenReturn(Arrays.asList(song));
     }
 
     @SuppressWarnings("unchecked")

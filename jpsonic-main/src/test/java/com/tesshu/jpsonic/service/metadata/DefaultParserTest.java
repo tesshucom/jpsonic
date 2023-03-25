@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.nio.file.Path;
 
 import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +35,7 @@ class DefaultParserTest {
 
     @BeforeEach
     void setUp() {
-        defaultParser = new DefaultParser(mock(MusicFolderService.class));
+        defaultParser = new DefaultParser(mock(SettingsService.class), mock(MusicFolderService.class));
     }
 
     @Test

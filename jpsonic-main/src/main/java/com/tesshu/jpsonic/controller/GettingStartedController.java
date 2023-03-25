@@ -21,14 +21,21 @@
 
 package com.tesshu.jpsonic.controller;
 
+import java.util.Locale;
+import java.util.stream.Collectors;
+
 import javax.servlet.http.HttpServletRequest;
 
+import com.tesshu.jpsonic.command.GettingStartedCommand;
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.util.LegacyMap;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
@@ -42,17 +49,37 @@ public class GettingStartedController {
         this.settingsService = settingsService;
     }
 
+    @ModelAttribute
+    protected void formBackingObject(HttpServletRequest request, Model model) {
+        GettingStartedCommand command = new GettingStartedCommand();
+        settingsService.getAvailableLocales().stream().filter(locale -> locale.equals(settingsService.getLocale()))
+                .findFirst().ifPresent(locale -> command
+                        .setLocaleIndex(String.valueOf(settingsService.getAvailableLocales().indexOf(locale))));
+        command.setLocales(settingsService.getAvailableLocales().stream().map(locale -> locale.getDisplayName())
+                .collect(Collectors.toList()));
+        model.addAttribute(Attributes.Model.Command.VALUE, command);
+        model.addAttribute("runningAsRoot", "root".equals(System.getProperty("user.name")));
+    }
+
     @GetMapping
     public ModelAndView get(HttpServletRequest request) {
-
         if (request.getParameter(Attributes.Request.HIDE.value()) != null) {
             settingsService.setGettingStartedEnabled(false);
             settingsService.save();
             return new ModelAndView(new RedirectView(ViewName.HOME.value()));
         }
-
-        return new ModelAndView("gettingStarted", "model",
-                LegacyMap.of("runningAsRoot", "root".equals(System.getProperty("user.name"))));
+        return new ModelAndView("gettingStarted");
     }
 
+    @PostMapping
+    protected ModelAndView post(@ModelAttribute(Attributes.Model.Command.VALUE) GettingStartedCommand command,
+            RedirectAttributes redirectAttributes) {
+        int localeIndex = Integer.parseInt(command.getLocaleIndex());
+        Locale locale = settingsService.getAvailableLocales().get(localeIndex);
+        boolean isReload = !settingsService.getLocale().equals(locale);
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), isReload);
+        settingsService.setLocale(locale);
+        settingsService.save();
+        return new ModelAndView(new RedirectView(ViewName.GETTING_STARTED.value()));
+    }
 }

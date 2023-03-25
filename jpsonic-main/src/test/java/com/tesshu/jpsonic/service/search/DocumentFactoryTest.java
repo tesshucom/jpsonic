@@ -231,6 +231,12 @@ class DocumentFactoryTest {
         final MediaFile file = new MediaFile();
         assertNull(file.getMediaType(), "MediaType is a required item.");
         assertThrows(NullPointerException.class, () -> documentFactory.createSongDocument(file));
+
+        MediaFile podcast = new MediaFile();
+        podcast.setFolder("folder");
+        podcast.setMediaType(MediaType.PODCAST);
+        document = documentFactory.createSongDocument(podcast);
+        assertNull(document.get(FieldNamesConstants.GENRE));
     }
 
     @Test

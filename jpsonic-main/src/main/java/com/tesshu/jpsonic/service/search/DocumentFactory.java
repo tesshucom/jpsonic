@@ -48,6 +48,7 @@ import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.lucene.document.Document;
@@ -160,6 +161,10 @@ public class DocumentFactory {
 
     public static final Term createPrimarykey(Integer id) {
         return new Term(FieldNamesConstants.ID, Integer.toString(id));
+    }
+
+    public static final Term createPrimarykey(String id) {
+        return new Term(FieldNamesConstants.ID, id);
     }
 
     public static final Term createPrimarykey(Album album) {
@@ -284,7 +289,9 @@ public class DocumentFactory {
         applyFieldValue(doc, COMPOSER, mediaFile.getComposer());
         acceptComposerReading(doc, mediaFile.getComposer(), mediaFile.getComposerSortRaw(),
                 mediaFile.getComposerSort());
-        applyGenre(doc, mediaFile.getGenre());
+        if (mediaFile.getMediaType() != MediaType.PODCAST) {
+            applyGenre(doc, mediaFile.getGenre());
+        }
         applyFieldYear(doc, YEAR, mediaFile.getYear());
         applyFieldFolderPath(doc, mediaFile.getFolder());
         return doc;

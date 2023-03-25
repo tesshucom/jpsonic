@@ -31,11 +31,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.tesshu.jpsonic.domain.Artist;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.util.LegacyMap;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Provides database services for artists.
@@ -102,38 +104,32 @@ public class ArtistDao extends AbstractDao {
         return queryOne("select " + QUERY_COLUMNS + " from artist where id=?", rowMapper, id);
     }
 
-    /**
-     * Creates or updates an artist.
-     *
-     * @param artist
-     *            The artist to create/update.
-     */
-    @Transactional
-    public void createOrUpdateArtist(Artist artist) {
+    public @Nullable Artist updateArtist(Artist artist) {
         String sql = "update artist set " + "cover_art_path=?," + "album_count=?," + "last_scanned=?," + "present=?,"
-                + "folder_id=?,"
-                // JP >>>>
-                + "sort=?, " + "reading=?," + "artist_order=? " // <<<< JP
-                + "where name=?";
-
-        int n = update(sql, artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
-                artist.isPresent(), artist.getFolderId(),
-                // JP >>>>
-                artist.getSort(), artist.getReading(), artist.getOrder(), // <<<< JP
+                + "folder_id=?, sort=?, " + "reading=?," + "artist_order=? where name=?";
+        int c = update(sql, artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
+                artist.isPresent(), artist.getFolderId(), artist.getSort(), artist.getReading(), artist.getOrder(),
                 artist.getName());
-
-        if (n == 0) {
-            update("insert into artist (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
-                    artist.getName(), artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
-                    artist.isPresent(), artist.getFolderId(),
-                    // JP >>>>
-                    artist.getSort(), artist.getReading(), -1); // <<<< JP
+        if (c > 0) {
+            return artist;
         }
+        return null;
+    }
 
+    public @Nullable Artist createArtist(Artist artist) {
+        int c = update("insert into artist (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
+                artist.getName(), artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
+                artist.isPresent(), artist.getFolderId(), artist.getSort(), artist.getReading(), -1);
         Integer id = queryForInt("select id from artist where name=?", null, artist.getName());
-        if (id != null) {
+        if (c > 0 && id != null) {
             artist.setId(id);
+            return artist;
         }
+        return null;
+    }
+
+    public void updateOrder(String name, int order) {
+        update("update artist set artist_order=? where name=?", order, name);
     }
 
     /**
@@ -187,33 +183,33 @@ public class ArtistDao extends AbstractDao {
                 + "order by starred_artist.created desc limit :count offset :offset", rowMapper, args);
     }
 
-    public void markPresent(String artistName, Instant lastScanned) {
-        update("update artist set present=?, last_scanned = ? where name=?", true, lastScanned, artistName);
-    }
-
-    public void markNonPresent(Instant lastScanned) {
-        int minId = queryForInt("select min(id) from artist where last_scanned < ? and present", 0, lastScanned);
-        int maxId = queryForInt("select max(id) from artist where last_scanned < ? and present", 0, lastScanned);
-
-        final int batchSize = 1000;
-        for (int id = minId; id <= maxId; id += batchSize) {
-            update("update artist set present=false where id between ? and ? and last_scanned < ? and present", id,
-                    id + batchSize, lastScanned);
+    public void iterateLastScanned(@NonNull Instant scanDate, boolean withPodcast) {
+        String query = "update artist set present = ?, last_scanned = ? "
+                + "where artist.id in(select distinct artist.id from artist "
+                + "join media_file on (media_file.type = ? or media_file.type = ? "
+                + (withPodcast ? "or media_file.type = ?" : "") + ") "
+                + "and artist.name = media_file.album_artist and media_file.present)";
+        if (withPodcast) {
+            update(query, true, scanDate, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name(), MediaType.PODCAST.name());
+        } else {
+            update(query, true, scanDate, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name());
         }
     }
 
-    public List<Integer> getExpungeCandidates() {
-        return queryForInts("select id from artist where not present");
+    public List<Integer> getExpungeCandidates(@NonNull Instant scanDate) {
+        return queryForInts(
+                "select id from artist where last_scanned <> ? or not present or "
+                        + "name not in (select distinct album_artist from media_file where present "
+                        + "and media_file.type = ? or media_file.type = ? or media_file.type = ?)",
+                scanDate, MediaType.MUSIC.name(), MediaType.PODCAST.name(), MediaType.AUDIOBOOK.name());
     }
 
-    public void expunge() {
-        int minId = queryForInt("select min(id) from artist where not present", 0);
-        int maxId = queryForInt("select max(id) from artist where not present", 0);
+    public void expunge(@NonNull Instant scanDate) {
+        update("delete from artist where last_scanned <> ? or not present", scanDate);
+    }
 
-        final int batchSize = 1000;
-        for (int id = minId; id <= maxId; id += batchSize) {
-            update("delete from artist where id between ? and ? and not present", id, id + batchSize);
-        }
+    public void setNonPresentAll() {
+        update("update artist set present = ?", false);
     }
 
     public void starArtist(int artistId, String username) {
@@ -230,6 +226,17 @@ public class ArtistDao extends AbstractDao {
                 username);
     }
 
+    public List<Artist> getAlbumCounts() {
+        return query(
+                "select artist.id, count(album.id) as album_count from artist join album on artist.name = album.artist "
+                        + "group by artist.id, artist.name",
+                new ArtistCountMapper());
+    }
+
+    public void updateAlbumCount(int id, int count) {
+        update("update artist set album_count=? where id=?", count, id);
+    }
+
     private static class ArtistMapper implements RowMapper<Artist> {
         @Override
         public Artist mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -237,6 +244,13 @@ public class ArtistDao extends AbstractDao {
                     nullableInstantOf(rs.getTimestamp(5)), rs.getBoolean(6), rs.getInt(7),
                     // JP >>>>
                     rs.getString(8), rs.getString(9), rs.getInt(10)); // <<<< JP
+        }
+    }
+
+    private static class ArtistCountMapper implements RowMapper<Artist> {
+        @Override
+        public Artist mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new Artist(rs.getInt(1), null, null, rs.getInt(2), null, false, null, null, null, -1);
         }
     }
 

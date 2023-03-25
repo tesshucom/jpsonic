@@ -31,7 +31,10 @@ import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
+import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.StatusService;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,13 +54,15 @@ public class NowPlayingController {
     private final PlayerService playerService;
     private final StatusService statusService;
     private final MediaFileService mediaFileService;
+    private final SecurityService securityService;
 
     public NowPlayingController(PlayerService playerService, StatusService statusService,
-            MediaFileService mediaFileService) {
+            MediaFileService mediaFileService, SecurityService securityService) {
         super();
         this.playerService = playerService;
         this.statusService = statusService;
         this.mediaFileService = mediaFileService;
+        this.securityService = securityService;
     }
 
     @GetMapping
@@ -65,9 +70,7 @@ public class NowPlayingController {
             throws ServletRequestBindingException {
 
         Player player = playerService.getPlayer(request, response);
-        List<TransferStatus> statuses = statusService.getStreamStatusesForPlayer(player);
-
-        MediaFile current = statuses.isEmpty() ? null : mediaFileService.getMediaFile(statuses.get(0).toPath());
+        MediaFile current = getNowPlayingFile(player);
         MediaFile dir = current == null ? null : mediaFileService.getParentOf(current);
 
         String url;
@@ -78,5 +81,12 @@ public class NowPlayingController {
         }
 
         return new ModelAndView(new RedirectView(url));
+    }
+
+    @Nullable
+    MediaFile getNowPlayingFile(@NonNull Player player) {
+        List<TransferStatus> statuses = statusService.getStreamStatusesForPlayer(player);
+        return statuses.isEmpty() || !securityService.isReadAllowed(statuses.get(0).toPath()) ? null
+                : mediaFileService.getMediaFile(statuses.get(0).toPath());
     }
 }

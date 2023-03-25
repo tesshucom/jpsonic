@@ -116,7 +116,6 @@ public final class TestCaseUtils {
      * Scans the music library * @param mediaScannerService
      */
     public static void execScan(MediaScannerService mediaScannerService) {
-        // TODO create a synchronous scan
         mediaScannerService.scanLibrary();
 
         while (mediaScannerService.isScanning()) {

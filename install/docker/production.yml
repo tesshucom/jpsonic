@@ -63,6 +63,9 @@ services:
      # Whether to log the logo at startup. [OFF|CONSOLE|LOG]
      BANNER_MODE: 'OFF'
 
+     # Granularity of output logs. [ERROR|WARN|INFO|DEBUG|TRACE]
+     LOG_LEVEL: 'WARN'
+
      # Whether to scan at startup. False is recommended for Docker.
      SCAN_ON_BOOT: 'false'
 

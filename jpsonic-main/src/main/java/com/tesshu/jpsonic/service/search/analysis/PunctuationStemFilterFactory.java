@@ -21,8 +21,8 @@ package com.tesshu.jpsonic.service.search.analysis;
 
 import java.util.Map;
 
+import org.apache.lucene.analysis.TokenFilterFactory;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.util.TokenFilterFactory;
 
 public class PunctuationStemFilterFactory extends TokenFilterFactory {
 

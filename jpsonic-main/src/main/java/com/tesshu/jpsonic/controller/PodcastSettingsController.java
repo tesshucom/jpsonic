@@ -22,7 +22,7 @@
 package com.tesshu.jpsonic.controller;
 
 import com.tesshu.jpsonic.command.PodcastSettingsCommand;
-import com.tesshu.jpsonic.service.MediaScannerService;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.PathValidator;
 import org.springframework.stereotype.Controller;
@@ -45,12 +45,12 @@ import org.springframework.web.servlet.view.RedirectView;
 public class PodcastSettingsController {
 
     private final SettingsService settingsService;
-    private final MediaScannerService mediaScannerService;
+    private final ScannerStateService scannerStateService;
 
-    public PodcastSettingsController(SettingsService settingsService, MediaScannerService mediaScannerService) {
+    public PodcastSettingsController(SettingsService settingsService, ScannerStateService scannerStateService) {
         super();
         this.settingsService = settingsService;
-        this.mediaScannerService = mediaScannerService;
+        this.scannerStateService = scannerStateService;
     }
 
     @GetMapping
@@ -63,7 +63,7 @@ public class PodcastSettingsController {
         command.setFolder(settingsService.getPodcastFolder());
 
         // for view page control
-        command.setScanning(mediaScannerService.isScanning());
+        command.setScanning(scannerStateService.isScanning());
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
         return "podcastSettings";
@@ -74,7 +74,7 @@ public class PodcastSettingsController {
             @ModelAttribute(Attributes.Model.Command.VALUE) PodcastSettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
-        if (!mediaScannerService.isScanning()) {
+        if (!scannerStateService.isScanning()) {
             settingsService.setPodcastUpdateInterval(Integer.parseInt(command.getInterval()));
             settingsService.setPodcastEpisodeRetentionCount(Integer.parseInt(command.getEpisodeRetentionCount()));
             settingsService.setPodcastEpisodeDownloadCount(Integer.parseInt(command.getEpisodeDownloadCount()));

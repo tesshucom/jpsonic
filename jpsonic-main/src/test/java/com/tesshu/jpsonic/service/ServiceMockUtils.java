@@ -36,6 +36,7 @@ import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.mockito.Mockito;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 public final class ServiceMockUtils {
 
@@ -94,7 +95,7 @@ public final class ServiceMockUtils {
             String country = SettingsConstants.General.ThemeAndLang.LOCALE_COUNTRY.defaultValue;
             String variant = SettingsConstants.General.ThemeAndLang.LOCALE_VARIANT.defaultValue;
             Locale locale = new Locale(language, country, variant);
-            Mockito.when(settingsService.getAvailableLocales()).thenReturn(new Locale[] { locale });
+            Mockito.when(settingsService.getAvailableLocales()).thenReturn(Arrays.asList(locale));
             Mockito.when(settingsService.getLocale()).thenReturn(locale);
             Mockito.when(settingsService.getIndexString())
                     .thenReturn(SettingsConstants.General.Index.INDEX_STRING.defaultValue);
@@ -105,18 +106,18 @@ public final class ServiceMockUtils {
             Mockito.when(settingsService.getShortcutsAsArray())
                     .thenReturn(StringUtil.split(SettingsConstants.General.Extension.SHORTCUTS.defaultValue));
             Mockito.when(settingsService.isGettingStartedEnabled()).thenReturn(false);
-            Mockito.when(settingsService.getFileModifiedCheckSchemeName())
-                    .thenReturn(FileModifiedCheckScheme.LAST_MODIFIED.name());
+            Mockito.when(settingsService.getFileModifiedCheckScheme())
+                    .thenReturn(FileModifiedCheckScheme.LAST_MODIFIED);
             Mockito.when(settingsService.getJWTKey()).thenReturn("SomeKey");
             Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.NATIVE_JAPANESE.name());
             Mockito.when(settingsService.isIgnoreFullWidth()).thenReturn(true);
             Mockito.when(settingsService.isDeleteDiacritic()).thenReturn(true);
             Mockito.when(settingsService.getDefaultPlaylistFolder())
                     .thenReturn(SettingsConstants.General.Extension.PLAYLIST_FOLDER.defaultValue);
-            Mockito.when(settingsService.getCoverArtFileTypesAsArray())
-                    .thenReturn(SettingsConstants.General.Extension.COVER_ART_FILE_TYPES.defaultValue.split(" "));
-            Mockito.when(settingsService.getIgnoredArticlesAsArray())
-                    .thenReturn(SettingsConstants.General.Index.IGNORED_ARTICLES.defaultValue.split(" "));
+            Mockito.when(settingsService.getCoverArtFileTypesAsArray()).thenReturn(
+                    Arrays.asList(SettingsConstants.General.Extension.COVER_ART_FILE_TYPES.defaultValue.split(" ")));
+            Mockito.when(settingsService.getIgnoredArticlesAsArray()).thenReturn(
+                    Arrays.asList(SettingsConstants.General.Index.IGNORED_ARTICLES.defaultValue.split(" ")));
             mock = settingsService;
         } else if (AirsonicLocaleResolver.class == classToMock) {
             String language = SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE.defaultValue;
@@ -136,4 +137,17 @@ public final class ServiceMockUtils {
         return (T) mock;
     }
 
+    /**
+     * Non-asynchronous executor, mainly used for testing scans. JUnit forks the execution thread to its own worker
+     * thread to continue processing, which is incompatible with some threading logic. There are some workarounds, but
+     * this is the simplest. (However, asynchronous operation check needs to be done separately)
+     */
+    public static ThreadPoolTaskExecutor mockNoAsyncTaskExecutor() {
+        ThreadPoolTaskExecutor executor = Mockito.mock(ThreadPoolTaskExecutor.class);
+        Mockito.doAnswer((invocation) -> {
+            ((Runnable) invocation.getArguments()[0]).run();
+            return null;
+        }).when(executor).execute(Mockito.any(Runnable.class));
+        return executor;
+    }
 }

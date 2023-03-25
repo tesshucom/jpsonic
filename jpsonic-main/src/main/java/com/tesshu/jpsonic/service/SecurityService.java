@@ -27,6 +27,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -41,7 +42,6 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
-import net.sf.ehcache.Ehcache;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -54,7 +54,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 /**
  * Provides security-related services for authentication and authorization.
@@ -69,15 +68,12 @@ public class SecurityService implements UserDetailsService {
     private final UserDao userDao;
     private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
-    private final Ehcache userCache;
 
-    public SecurityService(UserDao userDao, SettingsService settingsService, MusicFolderService musicFolderService,
-            Ehcache userCache) {
+    public SecurityService(UserDao userDao, SettingsService settingsService, MusicFolderService musicFolderService) {
         super();
         this.userDao = userDao;
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
-        this.userCache = userCache;
     }
 
     /**
@@ -197,7 +193,7 @@ public class SecurityService implements UserDetailsService {
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     // [AvoidInstantiatingObjectsInLoops] (SimpleGrantedAuthority)
     public List<GrantedAuthority> getGrantedAuthorities(String username) {
-        String[] roles = userDao.getRolesForUser(username);
+        List<String> roles = userDao.getRolesForUser(username);
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("IS_AUTHENTICATED_ANONYMOUSLY"));
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
@@ -333,7 +329,6 @@ public class SecurityService implements UserDetailsService {
         if (LOG.isInfoEnabled()) {
             LOG.info("Deleted user " + username);
         }
-        userCache.remove(username);
     }
 
     /**
@@ -344,7 +339,10 @@ public class SecurityService implements UserDetailsService {
      */
     public void updateUser(User user) {
         userDao.updateUser(user);
-        userCache.remove(user.getUsername());
+    }
+
+    public void updatePassword(User user, String newPass, boolean ldapAuthenticated) {
+        userDao.updatePassword(user, newPass, ldapAuthenticated);
     }
 
     /**
@@ -364,12 +362,9 @@ public class SecurityService implements UserDetailsService {
         if (user == null) {
             return;
         }
-
-        user.setBytesStreamed(user.getBytesStreamed() + bytesStreamedDelta);
-        user.setBytesDownloaded(user.getBytesDownloaded() + bytesDownloadedDelta);
-        user.setBytesUploaded(user.getBytesUploaded() + bytesUploadedDelta);
-
-        userDao.updateUser(user);
+        userDao.updateUserByteCounts(user.getBytesStreamed() + bytesStreamedDelta,
+                user.getBytesDownloaded() + bytesDownloadedDelta, user.getBytesUploaded() + bytesUploadedDelta,
+                user.getUsername());
     }
 
     /**
@@ -508,7 +503,18 @@ public class SecurityService implements UserDetailsService {
             return false;
         }
 
-        // Convert slashes.
-        return StringUtils.startsWithIgnoreCase(file.replace('\\', '/'), folder.replace('\\', '/'));
+        Iterator<Path> fileIterator = Path.of(file).iterator();
+        Iterator<Path> folderIterator = Path.of(folder).iterator();
+        while (folderIterator.hasNext() && fileIterator.hasNext()) {
+            String prefix = fileIterator.next().toString();
+            String suffix = folderIterator.next().toString();
+            if (prefix.length() != suffix.length()) {
+                return false;
+            }
+            if (!prefix.regionMatches(true, 0, suffix, 0, suffix.length())) {
+                return false;
+            }
+        }
+        return true;
     }
 }

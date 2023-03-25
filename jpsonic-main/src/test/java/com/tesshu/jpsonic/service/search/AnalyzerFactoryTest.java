@@ -178,7 +178,7 @@ class AnalyzerFactoryTest {
 
             String query = "{'“『【【】】[︴○◎@ $〒→+]";
             assertEquals(0, toTermString(query).size());
-            Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
+            Arrays.stream(IndexType.values()).flatMap(i -> i.getFields().stream()).forEach(n -> {
                 List<String> terms = toTermString(n, query);
                 switch (n) {
                 case FieldNamesConstants.FOLDER:
@@ -461,7 +461,7 @@ class AnalyzerFactoryTest {
             String genreExpected = "{'\"『【【】】[○◎@ $〒→+]";
 
             assertEquals(0, toTermString(query).size());
-            Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
+            Arrays.stream(IndexType.values()).flatMap(i -> i.getFields().stream()).forEach(n -> {
                 List<String> terms = toTermString(n, query);
                 switch (n) {
                 // Do nothing

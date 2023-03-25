@@ -26,9 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.command.PodcastSettingsCommand;
-import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -44,13 +44,13 @@ class PodcastSettingsControllerTest {
 
     private MockMvc mockMvc;
     private SettingsService settingsService;
-    private MediaScannerService mediaScannerService;
+    private ScannerStateServiceImpl scannerStateService;
 
     @BeforeEach
     public void setup() throws ExecutionException {
         settingsService = mock(SettingsService.class);
-        mediaScannerService = mock(MediaScannerService.class);
-        mockMvc = MockMvcBuilders.standaloneSetup(new PodcastSettingsController(settingsService, mediaScannerService))
+        scannerStateService = mock(ScannerStateServiceImpl.class);
+        mockMvc = MockMvcBuilders.standaloneSetup(new PodcastSettingsController(settingsService, scannerStateService))
                 .build();
     }
 
@@ -91,7 +91,7 @@ class PodcastSettingsControllerTest {
         Mockito.verify(settingsService, Mockito.times(1)).save();
         Mockito.clearInvocations(settingsService);
 
-        Mockito.when(mediaScannerService.isScanning()).thenReturn(true);
+        Mockito.when(scannerStateService.isScanning()).thenReturn(true);
         result = mockMvc
                 .perform(MockMvcRequestBuilders.post("/" + ViewName.PODCAST_SETTINGS.value())
                         .flashAttr(Attributes.Model.Command.VALUE, command))

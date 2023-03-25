@@ -24,8 +24,8 @@ import static org.apache.lucene.analysis.standard.StandardTokenizer.MAX_TOKEN_LE
 import java.util.Map;
 
 import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.TokenizerFactory;
 import org.apache.lucene.analysis.util.CharTokenizer;
-import org.apache.lucene.analysis.util.TokenizerFactory;
 import org.apache.lucene.util.AttributeFactory;
 
 public class GenreTokenizerFactory extends TokenizerFactory {

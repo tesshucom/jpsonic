@@ -1292,7 +1292,7 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
             SearchCriteria criteria = director.construct("10", 0, Integer.MAX_VALUE, false, MUSIC_FOLDERS,
                     IndexType.ARTIST);
             SearchResult result = searchService.search(criteria);
-            List<MediaFile> files = mediaFileService.getChildrenOf(result.getMediaFiles().get(0), true, true, true);
+            List<MediaFile> files = mediaFileService.getChildrenOf(result.getMediaFiles().get(0), true, true);
             List<String> albums = files.stream().map(MediaFile::getName).collect(Collectors.toList());
             assertTrue(JpsonicComparatorsTestUtils.validateNaturalList(albums));
         }
@@ -1304,7 +1304,7 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         void testGetIndexedArtists() {
             List<MusicFolder> musicFoldersToUse = Arrays.asList(MUSIC_FOLDERS.get(0));
             SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> m = musicIndexService
-                    .getIndexedArtists(musicFoldersToUse, true);
+                    .getIndexedArtists(musicFoldersToUse);
             List<String> artists = m.values().stream().flatMap(Collection::stream)
                     .flatMap(files -> files.getMediaFiles().stream()).map(MediaFile::getName)
                     .collect(Collectors.toList());
