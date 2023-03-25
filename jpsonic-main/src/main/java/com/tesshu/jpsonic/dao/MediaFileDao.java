@@ -478,15 +478,21 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("types", getValidTypes4ID3(withPodcast), "count", count, "folders",
                 MusicFolder.toPathList(folders));
-        String query = "select distinct mf.folder, mf.album_artist, mf.album_artist_reading, mf.album_artist_sort, mf_ar.cover_art_path from media_file mf "
-                + "join artist ar on ar.name = mf.album_artist "
-                + "join music_folder m_folder on mf.folder = m_folder.path "
-                + "join (select album_artist, min(music_folder.id) as music_folder_id from media_file join music_folder "
-                + "on music_folder.path = folder where album_artist is not null group by album_artist) first_fetch "
-                + "on first_fetch.music_folder_id = m_folder.id and first_fetch.album_artist = mf.album_artist "
-                + "join media_file mf_al on mf.parent_path = mf_al.path "
-                + "join media_file mf_ar on mf_al.parent_path = mf_ar.path "
-                + "where mf.present and mf.album_artist is not null and mf.type in (:types) and mf.folder in (:folders) "
+
+        String query = "select distinct music_folder.path as folder, first_fetch.album_artist, first_fetch.album_artist_reading, first_fetch.album_artist_sort, mf_ar.cover_art_path "
+                + "from (select distinct mf.album_artist, mf.album_artist_reading, mf.album_artist_sort, min(music_folder.id) as folder_id, min(mf_ar.media_file_order) as mf_ar_order "
+                + "from media_file mf join music_folder on mf.present and mf.type in (:types) and mf.album_artist is not null "
+                + "and mf.folder = music_folder.path and music_folder.enabled and mf.folder in (:folders) "
+                + "left join artist ar on ar.name = mf.album_artist "
+                + "join media_file mf_al on mf_al.path = mf.parent_path and ar.name is not null "
+                + "left join media_file mf_ar on mf_ar.path = mf_al.parent_path "
+                + "group by mf.album_artist, mf.album_artist_reading, mf.album_artist_sort) first_fetch "
+                + "join media_file mf on mf.album_artist = first_fetch.album_artist "
+                + "join music_folder on music_folder.id = first_fetch.folder_id "
+                + "left join artist ar on ar.name = mf.album_artist "
+                + "join media_file mf_al on mf_al.path = mf.parent_path "
+                + "left join media_file mf_ar on mf_ar.path = mf_al.parent_path "
+                + "where mf_ar.media_file_order = first_fetch.mf_ar_order "
                 // Diff comparison
                 + "and ((mf.album_artist_reading is null and ar.reading is not null) " // album_artist_reading
                 + "or (mf.album_artist_reading is not null and ar.reading is null) "
@@ -505,15 +511,20 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("types", getValidTypes4ID3(withPodcast), "count", count, "folders",
                 MusicFolder.toPathList(folders));
-        String query = "select distinct mf.folder, mf.album_artist, mf.album_artist_reading, mf.album_artist_sort, mf_ar.cover_art_path from "
-                + "(select distinct album_artist, min(music_folder.id) as music_folder_id from media_file join music_folder on music_folder.path = folder where album_artist is not null group by album_artist) first_fetch "
-                + "join music_folder on first_fetch.music_folder_id = music_folder.id "
-                + "join media_file mf on mf.album_artist = first_fetch.album_artist and music_folder.path = mf.folder "
-                + "left join artist on artist.name = mf.album_artist "
+        String query = "select distinct music_folder.path as folder, first_fetch.album_artist, first_fetch.album_artist_reading, first_fetch.album_artist_sort, mf_ar.cover_art_path "
+                + "from (select distinct mf.album_artist, mf.album_artist_reading, mf.album_artist_sort, min(music_folder.id) as folder_id, min(mf_ar.media_file_order) as mf_ar_order "
+                + "from media_file mf join music_folder on mf.present and mf.type in (:types) and mf.album_artist is not null "
+                + "and mf.folder = music_folder.path and music_folder.enabled and mf.folder in (:folders) "
+                + "left join artist ar on ar.name = mf.album_artist "
+                + "join media_file mf_al on mf_al.path = mf.parent_path and ar.name is null "
+                + "left join media_file mf_ar on mf_ar.path = mf_al.parent_path "
+                + "group by mf.album_artist, mf.album_artist_reading, mf.album_artist_sort) first_fetch "
+                + "join media_file mf on mf.album_artist = first_fetch.album_artist "
+                + "join music_folder on music_folder.id = first_fetch.folder_id "
+                + "left join artist ar on ar.name = mf.album_artist "
                 + "join media_file mf_al on mf_al.path = mf.parent_path "
-                + "join media_file mf_ar on mf_ar.path = mf_al.parent_path "
-                + "where artist.name is null and mf.folder in (:folders) "
-                + "and mf.present and mf.album_artist is not null and mf.type in (:types) ";
+                + "left join media_file mf_ar on mf_ar.path = mf_al.parent_path "
+                + "where mf_ar.media_file_order = first_fetch.mf_ar_order limit :count ";
         return namedQuery(query, artistId3Mapper, args);
     }
 

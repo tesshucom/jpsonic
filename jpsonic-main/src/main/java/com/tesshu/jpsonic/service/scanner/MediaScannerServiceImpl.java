@@ -164,6 +164,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
         procedure.updateOrderOfAlbum(scanDate, skippable && !parsedAlbum && !updatedSortOfAlbum);
         boolean updatedSortOfArtist = procedure.updateSortOfArtist(scanDate);
         procedure.updateOrderOfArtist(scanDate, skippable && !parsedAlbum && !updatedSortOfArtist);
+        procedure.updateOrderOfSongsDirectlyUnderMusicfolder(scanDate);
 
         if (LOG.isInfoEnabled()) {
             LOG.info("Scanned media library with " + scannerState.getScanCount() + " entries.");

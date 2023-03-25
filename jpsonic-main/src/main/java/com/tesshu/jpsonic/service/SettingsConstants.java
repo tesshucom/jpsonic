@@ -155,8 +155,7 @@ final class SettingsConstants {
             static final Pair<String> COVER_ART_FILE_TYPES = Pair.of("CoverArtFileTypes2",
                     "cover.jpg cover.png cover.gif folder.jpg jpg jpeg gif png");
             static final Pair<String> EXCLUDED_COVER_ART = Pair.of("ExcludedCoverArt",
-                    "folder.jpg AlbumArtSmall.jpg small.jpg large.jpg");
-
+                    "AlbumArtSmall.jpg small.jpg large.jpg");
             static final Pair<String> PLAYLIST_FOLDER = Pair.of("PlaylistFolder",
                     PlayerUtils.getDefaultPlaylistFolder());
             static final Pair<String> SHORTCUTS = Pair.of("Shortcuts", "\"New Incoming\" Podcast");

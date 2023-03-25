@@ -345,13 +345,13 @@ class SettingsServiceTest {
 
     @Test
     void testGetExcludedCoverArts() {
-        assertEquals("folder.jpg AlbumArtSmall.jpg small.jpg large.jpg", settingsService.getExcludedCoverArts());
+        assertEquals("AlbumArtSmall.jpg small.jpg large.jpg", settingsService.getExcludedCoverArts());
     }
 
     @Test
     void testGetExcludedCoverArtsAsArray() {
-        assertEquals(4, settingsService.getExcludedCoverArtsAsArray().size());
-        assertEquals(4, settingsService.getExcludedCoverArtsAsArray().size()); // Cashed path
+        assertEquals(3, settingsService.getExcludedCoverArtsAsArray().size());
+        assertEquals(3, settingsService.getExcludedCoverArtsAsArray().size()); // Cashed path
     }
 
     @Test

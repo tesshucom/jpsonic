@@ -26,13 +26,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Stream;
 
+import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
@@ -179,8 +179,10 @@ public class ScannerProcedureService {
         indexManager.startIndexing();
 
         if (settingsService.isIgnoreFileTimestamps()) {
-            indexManager.expungeGenreOtherThan(Collections.emptyList());
             mediaFileDao.resetLastScanned();
+            artistDao.setNonPresentAll();
+            albumDao.setNonPresentAll();
+            indexManager.deleteAll();
         }
 
         indexCache.removeAll();
@@ -707,6 +709,16 @@ public class ScannerProcedureService {
                 compensated.size());
         createScanEvent(scanDate, ScanEventType.UPDATE_SORT_OF_ALBUM, comment);
         return updated;
+    }
+
+    @SuppressLint(value = "NULL_DEREFERENCE", justification = "False positive. getMediaFile is NonNull here.")
+    void updateOrderOfSongsDirectlyUnderMusicfolder(@NonNull Instant scanDate) {
+        if (isInterrupted()) {
+            return;
+        }
+        musicFolderService.getAllMusicFolders().forEach(
+                folder -> sortProcedure.updateOrderOfSongs(mediaFileService.getMediaFile(folder.getPathString())));
+        createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_SONG, null);
     }
 
     void updateOrderOfArtist(@NonNull Instant scanDate, boolean skippable) {

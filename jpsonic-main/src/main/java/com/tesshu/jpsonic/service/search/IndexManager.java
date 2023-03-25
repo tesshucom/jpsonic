@@ -323,6 +323,18 @@ public class IndexManager {
         }
     }
 
+    @ThreadSafe(enableChecks = false) // False positive. Absolutely not concurrent.
+    @SuppressWarnings("PMD.CloseResource") // False positive. Do not close.
+    public void deleteAll() {
+        for (IndexWriter writer : writers.values()) {
+            try {
+                writer.deleteAll();
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+    }
+
     /**
      * Close Writer of all indexes and update SearcherManager. Called at the end of the Scan flow.
      */
