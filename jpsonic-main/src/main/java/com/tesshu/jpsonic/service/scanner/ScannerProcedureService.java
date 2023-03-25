@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Stream;
 
+import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
@@ -710,6 +711,7 @@ public class ScannerProcedureService {
         return updated;
     }
 
+    @SuppressLint(value = "NULL_DEREFERENCE", justification = "False positive. getMediaFile is NonNull here.")
     void updateOrderOfSongsDirectlyUnderMusicfolder(@NonNull Instant scanDate) {
         if (isInterrupted()) {
             return;
