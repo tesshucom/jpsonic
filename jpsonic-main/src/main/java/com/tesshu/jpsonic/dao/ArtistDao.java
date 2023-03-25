@@ -208,6 +208,10 @@ public class ArtistDao extends AbstractDao {
         update("delete from artist where last_scanned <> ? or not present", scanDate);
     }
 
+    public void setNonPresentAll() {
+        update("update artist set present = ?", false);
+    }
+
     public void starArtist(int artistId, String username) {
         unstarArtist(artistId, username);
         update("insert into starred_artist(artist_id, username, created) values (?,?,?)", artistId, username, now());

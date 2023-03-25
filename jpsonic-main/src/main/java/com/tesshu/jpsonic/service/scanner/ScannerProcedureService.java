@@ -26,7 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -179,8 +178,10 @@ public class ScannerProcedureService {
         indexManager.startIndexing();
 
         if (settingsService.isIgnoreFileTimestamps()) {
-            indexManager.expungeGenreOtherThan(Collections.emptyList());
             mediaFileDao.resetLastScanned();
+            artistDao.setNonPresentAll();
+            albumDao.setNonPresentAll();
+            indexManager.deleteAll();
         }
 
         indexCache.removeAll();

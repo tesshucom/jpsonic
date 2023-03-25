@@ -416,6 +416,10 @@ public class AlbumDao extends AbstractDao {
         update("delete from album where last_scanned <> ? or not present", scanDate);
     }
 
+    public void setNonPresentAll() {
+        update("update album set present = ?", false);
+    }
+
     public void starAlbum(int albumId, String username) {
         unstarAlbum(albumId, username);
         update("insert into starred_album(album_id, username, created) values (?,?,?)", albumId, username, now());
