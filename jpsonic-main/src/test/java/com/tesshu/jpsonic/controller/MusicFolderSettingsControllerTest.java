@@ -27,9 +27,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.annotation.Documented;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.MusicFolderTestDataUtils;
 import com.tesshu.jpsonic.command.MusicFolderSettingsCommand;
@@ -42,7 +47,6 @@ import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
@@ -62,7 +66,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@SuppressWarnings("PMD.TooManyStaticImports")
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MusicFolderSettingsControllerTest {
 
@@ -80,7 +84,7 @@ class MusicFolderSettingsControllerTest {
         musicFolderService = mock(MusicFolderService.class);
         mediaScannerService = mock(MediaScannerService.class);
         controller = new MusicFolderSettingsController(settingsService, musicFolderService, mock(SecurityService.class),
-                mediaScannerService, mock(ShareService.class));
+                mediaScannerService, mock(ShareService.class), mock(OutlineHelpSelector.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -185,12 +189,18 @@ class MusicFolderSettingsControllerTest {
         MusicFolderInfo musicFolderInfo = new MusicFolderInfo(musicFolder);
         command.setNewMusicFolder(musicFolderInfo);
 
+        // success case
         ArgumentCaptor<MusicFolder> captor = ArgumentCaptor.forClass(MusicFolder.class);
-        Mockito.doNothing().when(musicFolderService).createMusicFolder(captor.capture());
-
-        RedirectAttributes redirectAttributes = Mockito.mock(RedirectAttributes.class);
-        controller.post(command, redirectAttributes);
+        Mockito.doNothing().when(musicFolderService).createMusicFolder(Mockito.any(Instant.class), captor.capture());
+        controller.post(command, Mockito.mock(RedirectAttributes.class));
         assertEquals(captor.getValue(), musicFolder);
+
+        // double registration
+        Mockito.clearInvocations(musicFolderService);
+        Mockito.when(musicFolderService.getAllMusicFolders(false, true)).thenReturn(Arrays.asList(musicFolder));
+        controller.post(command, Mockito.mock(RedirectAttributes.class));
+        Mockito.verify(musicFolderService, Mockito.never()).createMusicFolder(Mockito.any(Instant.class),
+                Mockito.nullable(MusicFolder.class));
     }
 
     @Test
@@ -211,7 +221,7 @@ class MusicFolderSettingsControllerTest {
                 now());
         MusicFolderInfo musicFolderInfo1 = new MusicFolderInfo(musicFolder1);
         musicFolderInfo1.setDelete(true);
-        MusicFolder musicFolder2 = new MusicFolder(MusicFolderTestDataUtils.resolveMusic2FolderPath(), null, true,
+        MusicFolder musicFolder2 = new MusicFolder(MusicFolderTestDataUtils.resolveMusic2FolderPath(), "Music2", true,
                 now());
         MusicFolderInfo musicFolderInfo2 = new MusicFolderInfo(musicFolder2);
         command.setMusicFolders(Arrays.asList(musicFolderInfo1, musicFolderInfo2));
@@ -222,59 +232,27 @@ class MusicFolderSettingsControllerTest {
         MusicFolderInfo musicFolderInfo3 = new MusicFolderInfo(musicFolder3);
         musicFolderInfo3.setPath(null);
         // Cases that do not (already) exist. Update will be executed but will be ignored in Dao.
-        MusicFolder musicFolder4 = new MusicFolder("/Unknown", null, true, now());
+        MusicFolder musicFolder4 = new MusicFolder("UnknownPath", "Music4", true, now());
         MusicFolderInfo musicFolderInfo4 = new MusicFolderInfo(musicFolder4);
 
         command.setMusicFolders(Arrays.asList(musicFolderInfo1, musicFolderInfo2, musicFolderInfo3, musicFolderInfo4));
 
         ArgumentCaptor<Integer> captorDelete = ArgumentCaptor.forClass(int.class);
-        Mockito.doNothing().when(musicFolderService).deleteMusicFolder(captorDelete.capture());
+        Mockito.doNothing().when(musicFolderService).deleteMusicFolder(Mockito.any(Instant.class),
+                captorDelete.capture());
         ArgumentCaptor<MusicFolder> captorUpdate = ArgumentCaptor.forClass(MusicFolder.class);
-        Mockito.doNothing().when(musicFolderService).updateMusicFolder(captorUpdate.capture());
+        Mockito.doNothing().when(musicFolderService).updateMusicFolder(Mockito.any(Instant.class),
+                captorUpdate.capture());
 
         RedirectAttributes redirectAttributes = Mockito.mock(RedirectAttributes.class);
         controller.post(command, redirectAttributes);
 
         assertEquals(captorDelete.getValue(), musicFolder1.getId());
-        assertEquals(captorUpdate.getValue(), musicFolder2);
         assertEquals(2, captorUpdate.getAllValues().size());
-    }
-
-    @Test
-    @Order(10)
-    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
-    void testIfFullScanNext() throws Exception {
-
-        @SuppressWarnings("PMD.AvoidCatchingGenericException") // springframework/MockMvc#perform
-        Supplier<MusicFolderSettingsCommand> supplier = () -> {
-            try {
-                return (MusicFolderSettingsCommand) mockMvc
-                        .perform(MockMvcRequestBuilders.get("/" + ViewName.MUSIC_FOLDER_SETTINGS.value())).andReturn()
-                        .getModelAndView().getModelMap().get(Attributes.Model.Command.VALUE);
-            } catch (Exception e) {
-                Assertions.fail();
-            }
-            return null;
-        };
-
-        // Basically should be false.
-        MusicFolderSettingsCommand command = supplier.get();
-        assertFalse(command.isFullScanNext());
-
-        // Full scan if any property of IgnoreFileTimestamps* is true.
-        Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(true);
-        Mockito.when(settingsService.isIgnoreFileTimestampsNext()).thenReturn(false);
-        assertTrue(supplier.get().isFullScanNext());
-        Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
-        Mockito.when(settingsService.isIgnoreFileTimestampsNext()).thenReturn(true);
-        assertTrue(supplier.get().isFullScanNext());
-
-        /*
-         * IgnoreFileTimestamps is intentionally set by the user from the web page. IgnoreFileTimestamps is a hidden
-         * option on legacy servers and was kept private due to the difficulty of understanding it. (The cases to use
-         * are very limited.) IgnoreFileTimestampsNext is set when it is needed for server processing, not the user.
-         * "Next" is set to false once scan has been performed.
-         */
+        Map<String, MusicFolder> updateCalled = captorUpdate.getAllValues().stream()
+                .collect(Collectors.toMap(m -> m.getName(), m -> m));
+        assertEquals(MusicFolderTestDataUtils.resolveMusic2FolderPath(), updateCalled.get("Music2").getPathString());
+        assertEquals("UnknownPath", updateCalled.get("Music4").getPathString());
     }
 
     @Test
@@ -368,6 +346,22 @@ class MusicFolderSettingsControllerTest {
                         }
 
                         @interface NonTraversal {
+
+                            @interface OldPathStartWithNewPath {
+
+                            }
+
+                            @interface NewPathStartWithOldPath {
+
+                            }
+
+                            @interface NonDuplication {
+
+                            }
+
+                            @interface Equals {
+
+                            }
                         }
                     }
 
@@ -422,10 +416,37 @@ class MusicFolderSettingsControllerTest {
         }
 
         @Test
-        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal.OldPathStartWithNewPath
+        @ToMusicFolderDecisions.Results.Empty
+        void c03() {
+            List<MusicFolder> oldMusicFolders = Arrays.asList(new MusicFolder(0, "/jpsonic", "old", false, null));
+            Mockito.when(musicFolderService.getAllMusicFolders(true, true)).thenReturn(oldMusicFolders);
+            MusicFolderInfo info = new MusicFolderInfo();
+            String path = "/jpsonic/subDirectory";
+            info.setPath(path);
+            assertTrue(controller.toMusicFolder(info).isEmpty());
+        }
+
+        @Test
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal.NewPathStartWithOldPath
+        @ToMusicFolderDecisions.Results.Empty
+        void c04() {
+            List<MusicFolder> oldMusicFolders = Arrays
+                    .asList(new MusicFolder(0, "/jpsonic/subDirectory", "old", false, null));
+            Mockito.when(musicFolderService.getAllMusicFolders(true, true)).thenReturn(oldMusicFolders);
+            MusicFolderInfo info = new MusicFolderInfo();
+            String path = "/jpsonic";
+            info.setPath(path);
+            assertTrue(controller.toMusicFolder(info).isEmpty());
+        }
+
+        @Test
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal.NonDuplication
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.NonNull
         @ToMusicFolderDecisions.Results.NotEmpty
-        void c03() {
+        void c05() {
+            List<MusicFolder> oldMusicFolders = Arrays.asList(new MusicFolder(0, "/jpsonic", "old", false, null));
+            Mockito.when(musicFolderService.getAllMusicFolders(true, true)).thenReturn(oldMusicFolders);
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "foo/bar";
             info.setPath(path);
@@ -434,11 +455,25 @@ class MusicFolderSettingsControllerTest {
         }
 
         @Test
-        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal.Equals
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.NonNull
+        @ToMusicFolderDecisions.Results.NotEmpty
+        void c06() {
+            List<MusicFolder> oldMusicFolders = Arrays.asList(new MusicFolder(0, "/jpsonic", "old", false, null));
+            Mockito.when(musicFolderService.getAllMusicFolders(true, true)).thenReturn(oldMusicFolders);
+            MusicFolderInfo info = new MusicFolderInfo();
+            String path = "/jpsonic";
+            info.setPath(path);
+            info.setName("name");
+            assertFalse(controller.toMusicFolder(info).isEmpty());
+        }
+
+        @Test
+        @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal.NonDuplication
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.Null
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.DirName.NonNull
         @ToMusicFolderDecisions.Results.NotEmpty
-        void c04() {
+        void c07() {
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "foo/bar";
             info.setPath(path);
@@ -450,7 +485,7 @@ class MusicFolderSettingsControllerTest {
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.Null
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.DirName.Null
         @ToMusicFolderDecisions.Results.Empty
-        void c05() {
+        void c08() {
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "/";
             info.setPath(path);
@@ -463,11 +498,37 @@ class MusicFolderSettingsControllerTest {
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.DirName.Null
         @ToMusicFolderDecisions.Results.Empty
         @EnabledOnOs(OS.WINDOWS)
-        void c06() {
+        void c09() {
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "/:";
             info.setPath(path);
             assertTrue(controller.toMusicFolder(info).isEmpty());
         }
+    }
+
+    @Test
+    void testWrap() throws URISyntaxException {
+        Mockito.when(settingsService.isRedundantFolderCheck()).thenReturn(false);
+
+        MusicFolder folder = new MusicFolder("/dummy", "Music", true, null);
+        List<MusicFolder> folders = Arrays.asList(folder);
+        var infos = controller.wrap(folders);
+        assertEquals(1, infos.size());
+        assertTrue(infos.get(0).isEnabled());
+
+        Mockito.when(settingsService.isRedundantFolderCheck()).thenReturn(true);
+        infos = controller.wrap(folders);
+        assertEquals(1, infos.size());
+        assertFalse(infos.get(0).isExisting());
+
+        Path file = Path.of(MusicFolderSettingsControllerTest.class.getResource("/MEDIAS/piano.mp3").toURI());
+        infos = controller.wrap(Arrays.asList(new MusicFolder(file.toString(), "Music", true, null)));
+        assertEquals(1, infos.size());
+        assertFalse(infos.get(0).isExisting());
+
+        Path dir = Path.of(MusicFolderSettingsControllerTest.class.getResource("/MEDIAS/Music").toURI());
+        infos = controller.wrap(Arrays.asList(new MusicFolder(dir.toString(), "Music", true, null)));
+        assertEquals(1, infos.size());
+        assertTrue(infos.get(0).isExisting());
     }
 }

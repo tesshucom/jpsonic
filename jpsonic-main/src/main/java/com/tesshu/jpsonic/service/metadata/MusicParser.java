@@ -36,6 +36,7 @@ import java.util.logging.LogManager;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.FileUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -86,8 +87,8 @@ public class MusicParser extends MetaDataParser {
 
     private final MusicFolderService musicFolderService;
 
-    public MusicParser(MusicFolderService musicFolderService) {
-        super();
+    public MusicParser(SettingsService settingsService, MusicFolderService musicFolderService) {
+        super(settingsService);
         this.musicFolderService = musicFolderService;
         try {
             LogManager.getLogManager().reset();

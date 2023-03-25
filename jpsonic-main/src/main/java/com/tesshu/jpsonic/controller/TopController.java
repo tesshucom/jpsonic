@@ -43,9 +43,9 @@ import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.service.InternetRadioService;
-import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.MusicIndexService;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.VersionService;
@@ -80,21 +80,21 @@ public class TopController {
     private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
-    private final MediaScannerService mediaScannerService;
+    private final ScannerStateService scannerStateService;
     private final MusicIndexService musicIndexService;
     private final VersionService versionService;
     private final InternetRadioService internetRadioService;
     private final AirsonicLocaleResolver localeResolver;
 
     public TopController(SettingsService settingsService, MusicFolderService musicFolderService,
-            SecurityService securityService, MediaScannerService mediaScannerService,
+            SecurityService securityService, ScannerStateService scannerStateService,
             MusicIndexService musicIndexService, VersionService versionService,
             InternetRadioService internetRadioService, AirsonicLocaleResolver localeResolver) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
         this.securityService = securityService;
-        this.mediaScannerService = mediaScannerService;
+        this.scannerStateService = scannerStateService;
         this.musicIndexService = musicIndexService;
         this.versionService = versionService;
         this.internetRadioService = internetRadioService;
@@ -119,7 +119,6 @@ public class TopController {
         map.put("showAvatar", userSettings.getAvatarScheme() != AvatarScheme.NONE);
         map.put("showIndex", userSettings.isShowIndex());
         map.put("putMenuInDrawer", userSettings.isPutMenuInDrawer());
-        map.put("showRefresh", settingsService.isShowRefresh());
         map.put("assignAccesskeyToNumber", userSettings.isAssignAccesskeyToNumber());
         map.put("voiceInputEnabled", userSettings.isVoiceInputEnabled());
         map.put("useRadio", settingsService.isUseRadio());
@@ -131,12 +130,6 @@ public class TopController {
             map.put("voiceInputLocale", userSettings.getIetf());
         } else {
             map.put("voiceInputLocale", localeResolver.resolveLocale(request).getLanguage());
-        }
-
-        boolean refresh = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.REFRESH.value(), false)
-                && !mediaScannerService.isScanning();
-        if (refresh) {
-            musicFolderService.clearMusicFolderCache();
         }
 
         String username = securityService.getCurrentUsernameStrict(request);
@@ -164,7 +157,7 @@ public class TopController {
         }
         map.put("brand", SettingsService.getBrand());
 
-        MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFoldersToUse, refresh);
+        MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFoldersToUse);
         map.put("indexedArtists", musicFolderContent.getIndexedArtists());
         map.put("singleSongs", musicFolderContent.getSingleSongs());
         map.put("indexes", musicFolderContent.getIndexedArtists().keySet());
@@ -175,6 +168,7 @@ public class TopController {
             }
         });
         selectedItem.ifPresent(v -> map.put("selectedItem", v));
+        selectedItem.ifPresent(v -> map.put("scanning", scannerStateService.isScanning()));
 
         return new ModelAndView("top", "model", map);
     }
@@ -194,7 +188,7 @@ public class TopController {
     public long getLastModified(HttpServletRequest request) throws ServletRequestBindingException {
         saveSelectedMusicFolder(request);
 
-        if (mediaScannerService.isScanning()) {
+        if (scannerStateService.isScanning()) {
             return -1L;
         }
 

@@ -34,8 +34,6 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 import org.springframework.beans.factory.annotation.Autowired;
 
 class RecentAlbumId3UpnpProcessorTest extends AbstractNeedsScan {
@@ -103,7 +101,6 @@ class RecentAlbumId3UpnpProcessorTest extends AbstractNeedsScan {
 
     }
 
-    @EnabledOnOs(OS.WINDOWS)
     @Test
     void testGetChildSizeOf() {
         List<Album> albums = processor.getItems(1, 1);

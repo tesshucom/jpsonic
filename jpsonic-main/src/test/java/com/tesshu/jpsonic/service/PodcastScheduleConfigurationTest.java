@@ -30,6 +30,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 
 import ch.qos.logback.classic.Level;
 import com.tesshu.jpsonic.TestCaseUtils;
@@ -50,15 +51,15 @@ class PodcastScheduleConfigurationTest {
     private SettingsService settingsService;
     private PodcastService podcastService;
     private PodcastScheduleConfiguration configuration;
-    private MediaScannerService mediaScannerService;
+    private ScannerStateService scannerStateService;
 
     @BeforeEach
     public void setup() throws URISyntaxException {
         settingsService = mock(SettingsService.class);
         podcastService = mock(PodcastService.class);
-        mediaScannerService = mock(MediaScannerService.class);
+        scannerStateService = mock(ScannerStateService.class);
         configuration = new PodcastScheduleConfiguration(mock(TaskScheduler.class), settingsService, podcastService,
-                mediaScannerService);
+                scannerStateService);
         TestCaseUtils.setLogLevel(PodcastScheduleConfiguration.class, Level.TRACE);
     }
 
@@ -102,7 +103,6 @@ class PodcastScheduleConfigurationTest {
 
             Trigger trigger = task.getTrigger();
             TriggerContext triggerContext = mock(TriggerContext.class);
-            Mockito.when(settingsService.isVerboseLogStart()).thenReturn(true);
 
             // Do nothing
             Mockito.when(settingsService.getPodcastUpdateInterval()).thenReturn(-1);
@@ -121,7 +121,7 @@ class PodcastScheduleConfigurationTest {
             assertEquals(firstTimeExpected.getMinute(), firstDateTime.getMinute());
 
             // Operation check at the second and subsequent startups
-            Mockito.when(triggerContext.lastCompletionTime()).thenReturn(java.util.Date.from(firstTime));
+            Mockito.when(triggerContext.lastCompletionTime()).thenReturn(Date.from(firstTime));
             LocalDateTime secondDateTime = Instant.ofEpochMilli(trigger.nextExecutionTime(triggerContext).getTime())
                     .atZone(ZoneId.systemDefault()).toLocalDateTime();
             LocalDateTime secondExpected = firstTimeExpected.plus(hourOfweek, ChronoUnit.HOURS);
@@ -139,7 +139,7 @@ class PodcastScheduleConfigurationTest {
         @Test
         void testExecutionTimeDuringScan() {
 
-            Mockito.when(mediaScannerService.isScanning()).thenReturn(true);
+            Mockito.when(scannerStateService.isScanning()).thenReturn(true);
 
             ScheduledTaskRegistrar registrar = new ScheduledTaskRegistrar();
             configuration.configureTasks(registrar);
@@ -160,7 +160,6 @@ class PodcastScheduleConfigurationTest {
 
             Trigger trigger = task.getTrigger();
             TriggerContext triggerContext = mock(TriggerContext.class);
-            Mockito.when(settingsService.isVerboseLogStart()).thenReturn(true);
 
             // Do nothing
             Mockito.when(settingsService.getPodcastUpdateInterval()).thenReturn(-1);
@@ -179,7 +178,7 @@ class PodcastScheduleConfigurationTest {
             assertEquals(firstTimeExpected.getMinute(), firstDateTime.getMinute());
 
             // Operation check at the second and subsequent startups
-            Mockito.when(triggerContext.lastCompletionTime()).thenReturn(java.util.Date.from(firstTime));
+            Mockito.when(triggerContext.lastCompletionTime()).thenReturn(Date.from(firstTime));
             LocalDateTime secondDateTime = Instant.ofEpochMilli(trigger.nextExecutionTime(triggerContext).getTime())
                     .atZone(ZoneId.systemDefault()).toLocalDateTime();
 

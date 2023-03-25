@@ -113,19 +113,19 @@ class ArtistUpnpProcessorTest extends AbstractNeedsScan {
         List<Album> children = artistUpnpProcessor.getChildren(artists.get(0), 0, 10);
         for (int i = 0; i < children.size(); i++) {
             if (0 != i) {
-                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i - 1), children.get(i).getName());
+                assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i), children.get(i).getName());
             }
         }
 
         children = artistUpnpProcessor.getChildren(artists.get(0), 10, 10);
         for (int i = 0; i < children.size(); i++) {
-            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10 - 1), children.get(i).getName());
+            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10), children.get(i).getName());
         }
 
         children = artistUpnpProcessor.getChildren(artists.get(0), 20, 100);
-        assertEquals(12, children.size()); //
+        assertEquals(11, children.size());
         for (int i = 0; i < children.size(); i++) {
-            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20 - 1), children.get(i).getName());
+            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20), children.get(i).getName());
         }
 
     }
@@ -146,19 +146,19 @@ class ArtistUpnpProcessorTest extends AbstractNeedsScan {
 
         for (int i = 0; i < children.size(); i++) {
             if (0 != i) {
-                assertEquals(reversedByYear.get(i - 1), children.get(i).getName());
+                assertEquals(reversedByYear.get(i), children.get(i).getName());
             }
         }
 
         children = artistUpnpProcessor.getChildren(artists.get(0), 10, 10);
         for (int i = 0; i < children.size(); i++) {
-            assertEquals(reversedByYear.get(i + 10 - 1), children.get(i).getName());
+            assertEquals(reversedByYear.get(i + 10), children.get(i).getName());
         }
 
         children = artistUpnpProcessor.getChildren(artists.get(0), 20, 100);
-        assertEquals(12, children.size()); //
+        assertEquals(11, children.size());
         for (int i = 0; i < children.size(); i++) {
-            assertEquals(reversedByYear.get(i + 20 - 1), children.get(i).getName());
+            assertEquals(reversedByYear.get(i + 20), children.get(i).getName());
         }
 
     }

@@ -21,6 +21,7 @@
 
 package com.tesshu.jpsonic.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
@@ -30,6 +31,8 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,15 +46,14 @@ import javax.servlet.http.HttpServletRequest;
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.dao.DaoHelper;
-import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
+import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.VersionService;
-import com.tesshu.jpsonic.service.search.AnalyzerFactory;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.service.search.IndexType;
 import com.tesshu.jpsonic.spring.DatabaseConfiguration.ProfileNameConstants;
@@ -59,9 +61,9 @@ import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -89,27 +91,25 @@ public class InternalHelpController {
     private final SecurityService securityService;
     private final IndexManager indexManager;
     private final DaoHelper daoHelper;
-    private final AnalyzerFactory analyzerFactory;
     private final MusicFolderDao musicFolderDao;
-    private final MediaFileDao mediaFileDao;
     private final TranscodingService transcodingService;
     private final Environment environment;
+    private final StaticsDao staticsDao;
 
     public InternalHelpController(VersionService versionService, SettingsService settingsService,
             SecurityService securityService, IndexManager indexManager, DaoHelper daoHelper,
-            AnalyzerFactory analyzerFactory, MusicFolderDao musicFolderDao, MediaFileDao mediaFileDao,
-            TranscodingService transcodingService, Environment environment) {
+            MusicFolderDao musicFolderDao, TranscodingService transcodingService, Environment environment,
+            StaticsDao staticsDao) {
         super();
         this.versionService = versionService;
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.indexManager = indexManager;
         this.daoHelper = daoHelper;
-        this.analyzerFactory = analyzerFactory;
         this.musicFolderDao = musicFolderDao;
-        this.mediaFileDao = mediaFileDao;
         this.transcodingService = transcodingService;
         this.environment = environment;
+        this.staticsDao = staticsDao;
     }
 
     @GetMapping
@@ -155,19 +155,22 @@ public class InternalHelpController {
         gatherTranscodingInfo(map);
         gatherLocaleInfo(map);
 
+        map.put("showIndexDetails", settingsService.isShowIndexDetails());
+        map.put("showDBDetails", settingsService.isShowDBDetails());
+
         return new ModelAndView("internalhelp", "model", map);
     }
 
     private void gatherScanInfo(Map<String, Object> map) {
         // Airsonic scan statistics
-        MediaLibraryStatistics stats = indexManager.getStatistics();
+        MediaLibraryStatistics stats = staticsDao.getRecentMediaLibraryStatistics();
         if (stats != null) {
             map.put("statAlbumCount", stats.getAlbumCount());
             map.put("statArtistCount", stats.getArtistCount());
             map.put("statSongCount", stats.getSongCount());
-            map.put("statLastScanDate", stats.getScanDate());
-            map.put("statTotalDurationSeconds", stats.getTotalDurationInSeconds());
-            map.put("statTotalLengthBytes", FileUtil.byteCountToDisplaySize(stats.getTotalLengthInBytes()));
+            map.put("statLastScanDate", stats.getExecuted().atZone(ZoneId.systemDefault()).toLocalDateTime());
+            map.put("statTotalDurationSeconds", stats.getTotalDuration());
+            map.put("statTotalLengthBytes", FileUtil.byteCountToDisplaySize(stats.getTotalSize()));
         }
     }
 
@@ -178,6 +181,11 @@ public class InternalHelpController {
      * [AvoidInstantiatingObjectsInLoops] (IndexStatistics) Not reusable
      */
     private void gatherIndexInfo(Map<String, Object> map) {
+        map.put("indexLuceneVersion", Version.getPackageImplementationVersion());
+        if (!settingsService.isShowIndexDetails()) {
+            return;
+        }
+
         SortedMap<String, IndexStatistics> indexStats = new TreeMap<>();
         for (IndexType indexType : IndexType.values()) {
             IndexStatistics stat = new IndexStatistics();
@@ -195,10 +203,6 @@ public class InternalHelpController {
             }
         }
         map.put("indexStatistics", indexStats);
-
-        try (Analyzer analyzer = analyzerFactory.getAnalyzer()) {
-            map.put("indexLuceneVersion", analyzer.getVersion().toString());
-        }
     }
 
     /**
@@ -227,7 +231,7 @@ public class InternalHelpController {
         map.put("localeLang", System.getenv("LANG"));
         map.put("localeLcAll", System.getenv("LC_ALL"));
         map.put("localeDefaultCharset", Charset.defaultCharset().toString());
-        map.put("localeDefaultZoneOffset", java.time.ZoneOffset.systemDefault());
+        map.put("localeDefaultZoneOffset", ZoneOffset.systemDefault());
 
         map.put("localeFileEncodingSupportsUtf8", doesLocaleSupportUtf8(System.getProperty("file.encoding")));
         map.put("localeLangSupportsUtf8", doesLocaleSupportUtf8(System.getenv("LANG")));
@@ -245,6 +249,10 @@ public class InternalHelpController {
             map.put("dbDriverName", conn.getMetaData().getDriverName());
             map.put("dbDriverVersion", conn.getMetaData().getDriverVersion());
             map.put("dbServerVersion", conn.getMetaData().getDatabaseProductVersion());
+
+            if (!settingsService.isShowDBDetails()) {
+                return;
+            }
 
             // Gather information for existing database tables
             try (ResultSet resultSet = conn.getMetaData().getTables(null, null, "%", null)) {
@@ -277,7 +285,6 @@ public class InternalHelpController {
         }
 
         putDatabaseLegacyInfoTo(map);
-        putDatabaseTableInfoTo(map);
     }
 
     private void putDatabaseLegacyInfoTo(Map<String, Object> map) {
@@ -297,41 +304,6 @@ public class InternalHelpController {
             map.put("dbIsLegacy", false);
         }
 
-    }
-
-    private void putDatabaseTableInfoTo(Map<String, Object> map) {
-        map.put("dbMediaFileMusicNonPresentCount", daoHelper.getJdbcTemplate()
-                .queryForObject("SELECT count(*) FROM media_file WHERE NOT present AND type = 'MUSIC'", Long.class));
-        map.put("dbMediaFilePodcastNonPresentCount", daoHelper.getJdbcTemplate()
-                .queryForObject("SELECT count(*) FROM media_file WHERE NOT present AND type = 'PODCAST'", Long.class));
-        map.put("dbMediaFileDirectoryNonPresentCount", daoHelper.getJdbcTemplate().queryForObject(
-                "SELECT count(*) FROM media_file WHERE NOT present AND type = 'DIRECTORY'", Long.class));
-        map.put("dbMediaFileAlbumNonPresentCount", daoHelper.getJdbcTemplate()
-                .queryForObject("SELECT count(*) FROM media_file wheRE NOT present AND type = 'ALBUM'", Long.class));
-
-        map.put("dbMediaFileMusicPresentCount", daoHelper.getJdbcTemplate()
-                .queryForObject("SELECT count(*) FROM media_file WHERE present AND type = 'MUSIC'", Long.class));
-        map.put("dbMediaFilePodcastPresentCount", daoHelper.getJdbcTemplate()
-                .queryForObject("SELECT count(*) FROM media_file WHERE present AND type = 'PODCAST'", Long.class));
-        map.put("dbMediaFileDirectoryPresentCount", daoHelper.getJdbcTemplate()
-                .queryForObject("SELECT count(*) FROM media_file WHERE present AND type = 'DIRECTORY'", Long.class));
-        map.put("dbMediaFileAlbumPresentCount", daoHelper.getJdbcTemplate()
-                .queryForObject("SELECT count(*) FROM media_file WHERE present AND type = 'ALBUM'", Long.class));
-
-        map.put("dbMediaFileDistinctAlbumCount", daoHelper.getJdbcTemplate()
-                .queryForObject("SELECT count(DISTINCT album) FROM media_file WHERE present", Long.class));
-        map.put("dbMediaFileDistinctArtistCount", daoHelper.getJdbcTemplate()
-                .queryForObject("SELECT count(DISTINCT artist) FROM media_file WHERE present", Long.class));
-        map.put("dbMediaFileDistinctAlbumArtistCount", daoHelper.getJdbcTemplate()
-                .queryForObject("SELECT count(DISTINCT album_artist) FROM media_file WHERE present", Long.class));
-
-        map.put("dbMediaFilesInNonPresentMusicFoldersCount",
-                mediaFileDao.getFilesInNonPresentMusicFoldersCount(Arrays.asList(settingsService.getPodcastFolder())));
-        map.put("dbMediaFilesInNonPresentMusicFoldersSample",
-                mediaFileDao.getFilesInNonPresentMusicFolders(10, Arrays.asList(settingsService.getPodcastFolder())));
-
-        map.put("dbMediaFilesWithMusicFolderMismatchCount", mediaFileDao.getFilesWithMusicFolderMismatchCount());
-        map.put("dbMediaFilesWithMusicFolderMismatchSample", mediaFileDao.getFilesWithMusicFolderMismatch(10));
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (FileStatistics) Not reusable
@@ -385,7 +357,7 @@ public class InternalHelpController {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     private Path lookForExecutable(String executableName) {
-        for (String path : System.getenv("PATH").split(java.io.File.pathSeparator, -1)) {
+        for (String path : System.getenv("PATH").split(File.pathSeparator, -1)) {
             Path file = Path.of(path, executableName);
             if (Files.exists(file)) {
                 if (LOG.isDebugEnabled()) {

@@ -23,6 +23,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.text.Collator;
 import java.util.Comparator;
+import java.util.function.Supplier;
 
 import com.tesshu.jpsonic.domain.MusicIndex.SortableArtist;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -143,6 +144,43 @@ public class JpsonicComparators {
             default:
                 return 0;
             }
+        };
+    }
+
+    private static class LazyPathComparator implements Comparator<MediaFile> {
+
+        private final Supplier<Collator> supplier;
+        private Collator collator;
+
+        public LazyPathComparator(Supplier<Collator> supplier) {
+            this.supplier = supplier;
+        }
+
+        @Override
+        public int compare(MediaFile o1, MediaFile o2) {
+            if (collator == null) {
+                collator = supplier.get();
+            }
+            return collator.compare(o1.getPathString(), o2.getPathString());
+        }
+    }
+
+    public Comparator<MediaFile> songsDefault() {
+        final LazyPathComparator comparator = new LazyPathComparator(() -> createCollator());
+        return (a, b) -> {
+            Integer trackA = a.getTrackNumber();
+            Integer trackB = b.getTrackNumber();
+            if (trackA == null) {
+                trackA = 0;
+            }
+            if (trackB == null) {
+                trackB = 0;
+            }
+            int compare = trackA.compareTo(trackB);
+            if (compare != 0) {
+                return compare;
+            }
+            return comparator.compare(a, b);
         };
     }
 

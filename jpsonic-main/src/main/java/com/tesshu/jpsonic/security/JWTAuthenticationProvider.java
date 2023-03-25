@@ -66,7 +66,6 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
         Claim path = token.getClaim(JWTSecurityService.CLAIM_PATH);
         authentication.setAuthenticated(true);
 
-        // TODO:AD This is super unfortunate, but not sure there is a better way when using JSP
         if (StringUtils.contains(authentication.getRequestedPath(), "/WEB-INF/jsp/")) {
             LOG.warn("BYPASSING AUTH FOR WEB-INF page");
         } else if (!roughlyEqual(path.asString(), authentication.getRequestedPath())) {

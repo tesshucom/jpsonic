@@ -119,12 +119,12 @@ public class UPnPService {
     public void ensureServiceStopped() {
         running.getAndUpdate(isRunning -> {
             if (deligate != null && isRunning) {
-                if (settingsService.isVerboseLogShutdown() && LOG.isInfoEnabled()) {
+                if (LOG.isInfoEnabled()) {
                     LOG.info("Shutting down UPnP service...");
                 }
                 deligate.getRegistry().removeAllLocalDevices();
                 deligate.shutdown();
-                if (settingsService.isVerboseLogShutdown() && LOG.isInfoEnabled()) {
+                if (LOG.isInfoEnabled()) {
                     LOG.info("Shutting down UPnP service - Done!");
                 }
             }
@@ -134,16 +134,16 @@ public class UPnPService {
     }
 
     private void startService() {
-        if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+        if (LOG.isInfoEnabled()) {
             LOG.info("Starting UPnP service...");
         }
         createService();
         if (0 < SettingsService.getDefaultUPnPPort()) {
-            if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+            if (LOG.isInfoEnabled()) {
                 LOG.info("Successfully started UPnP service on port {}!", SettingsService.getDefaultUPnPPort());
             }
         } else {
-            if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+            if (LOG.isInfoEnabled()) {
                 LOG.info("Starting UPnP service - Done!");
             }
         }
@@ -182,7 +182,7 @@ public class UPnPService {
             ensureServiceStarted();
             try {
                 deligate.getRegistry().addDevice(createMediaServerDevice());
-                if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+                if (LOG.isInfoEnabled()) {
                     LOG.info("Enabling UPnP media server [{}]({})", settingsService.getDlnaServerName(),
                             settingsService.getDlnaBaseLANURL());
                 }
@@ -203,8 +203,6 @@ public class UPnPService {
      * false positive
      */
     private LocalDevice createMediaServerDevice() throws ExecutionException {
-
-        // TODO: DLNACaps
 
         @SuppressWarnings("unchecked")
         LocalService<CustomContentDirectory> directoryservice = new AnnotationLocalServiceBinder()

@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.codec.DecoderException;
@@ -140,16 +141,16 @@ class StringUtilTest {
         doTestSplit("u2 \"rem", "u2", "\"rem");
         doTestSplit("\"", "\"");
 
-        assertEquals(0, StringUtil.split("").length);
-        assertEquals(0, StringUtil.split(" ").length);
-        assertEquals(0, StringUtil.split(null).length);
+        assertEquals(0, StringUtil.split("").size());
+        assertEquals(0, StringUtil.split(" ").size());
+        assertEquals(0, StringUtil.split(null).size());
     }
 
     private void doTestSplit(String input, String... expected) {
-        String[] actual = StringUtil.split(input);
-        assertEquals(expected.length, actual.length, "Wrong number of elements.");
+        List<String> actual = StringUtil.split(input);
+        assertEquals(expected.length, actual.size(), "Wrong number of elements.");
         for (int i = 0; i < expected.length; i++) {
-            assertEquals(expected[i], actual[i], "Wrong criteria.");
+            assertEquals(expected[i], actual.get(i), "Wrong criteria.");
         }
     }
 

@@ -26,6 +26,7 @@ import java.nio.file.Path;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MusicFolderService;
+import com.tesshu.jpsonic.service.SettingsService;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
@@ -40,8 +41,8 @@ public class DefaultParser extends MetaDataParser {
 
     private final MusicFolderService musicFolderService;
 
-    public DefaultParser(MusicFolderService musicFolderService) {
-        super();
+    public DefaultParser(SettingsService settingsService, MusicFolderService musicFolderService) {
+        super(settingsService);
         this.musicFolderService = musicFolderService;
     }
 

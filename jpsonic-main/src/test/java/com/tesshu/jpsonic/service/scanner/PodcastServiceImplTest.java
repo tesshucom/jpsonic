@@ -17,7 +17,7 @@
  * (C) 2021 tesshucom
  */
 
-package com.tesshu.jpsonic.service;
+package com.tesshu.jpsonic.service.scanner;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,13 +30,13 @@ import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class PodcastServiceTest {
+class PodcastServiceImplTest {
 
-    private PodcastService podcastService;
+    private PodcastServiceImpl podcastService;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        podcastService = new PodcastService(null, null, null, null, null, null, null);
+        podcastService = new PodcastServiceImpl(null, null, null, null, null, null, null, null, null, null);
     }
 
     private ZonedDateTime toJST(String date) {
@@ -64,5 +64,21 @@ class PodcastServiceTest {
 
         // Accept non zero-fill-numeric values
         assertEquals("2022-09-09 08:07:05", fmt.format(toJST("Fri, 9 Sep 2022 8:7:5 JST")));
+    }
+
+    @Test
+    void testFormatDuration() {
+
+        /*
+         * itunes:duration - Duration of the episode, in one of the following formats: 1:10:00, 10:00, 1800. In the
+         * first two formats the values for hours, minutes, or seconds cannot exceed two digits each.
+         */
+        assertNull(podcastService.formatDuration(null));
+        assertEquals("1:10:00", podcastService.formatDuration("1:10:00"));
+        assertEquals("10:00", podcastService.formatDuration("10:00"));
+        assertEquals("0:59", podcastService.formatDuration("59"));
+        assertEquals("1:00", podcastService.formatDuration("60"));
+        assertEquals("59:59", podcastService.formatDuration("3599"));
+        assertEquals("1:00:00", podcastService.formatDuration("3600"));
     }
 }

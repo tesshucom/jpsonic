@@ -204,7 +204,6 @@ public class PlaylistService {
     public Playlist importPlaylist(String username, String playlistName, String fileName, InputStream inputStream,
             Playlist existingPlaylist) throws ExecutionException {
 
-        // TODO: handle other encodings
         SpecificPlaylist inputSpecificPlaylist;
         try {
             inputSpecificPlaylist = SpecificPlaylistFactory.getInstance().readFrom(inputStream, "UTF-8");
@@ -279,16 +278,6 @@ public class PlaylistService {
     }
 
     public void importPlaylists() {
-        if (settingsService.isVerboseLogScanning() && LOG.isInfoEnabled()) {
-            LOG.info("Starting playlist import.");
-        }
-        doImportPlaylists();
-        if (settingsService.isVerboseLogScanning() && LOG.isInfoEnabled()) {
-            LOG.info("Completed playlist import.");
-        }
-    }
-
-    private void doImportPlaylists() {
         String playlistFolderPath = settingsService.getPlaylistFolder();
         if (playlistFolderPath == null) {
             return;

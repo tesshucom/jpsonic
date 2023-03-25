@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 /**
  * Created by remi on 17/01/17.
  */
+@SuppressWarnings("UnnecessarilyFullyQualified")
 @Service
 public class MetricsManager {
 

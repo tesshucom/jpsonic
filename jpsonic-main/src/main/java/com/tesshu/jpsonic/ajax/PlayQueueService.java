@@ -254,7 +254,7 @@ public class PlayQueueService {
             boolean queueFollowingSongs = securityService.getUserSettings(username).isQueueFollowingSongs();
             if (queueFollowingSongs) {
                 mediaFileService.getParent(mediaFile).ifPresentOrElse(parent -> {
-                    List<MediaFile> children = mediaFileService.getChildrenOf(parent, true, false, true);
+                    List<MediaFile> children = mediaFileService.getChildrenOf(parent, true, false);
                     if (!children.isEmpty()) {
                         int index = children.indexOf(mediaFile);
                         songs.addAll(children.subList(index, children.size()));
@@ -460,7 +460,7 @@ public class PlayQueueService {
 
         List<MediaFile> songs = new ArrayList<>();
         for (MediaFile album : albums) {
-            songs.addAll(mediaFileService.getChildrenOf(album, true, false, false));
+            songs.addAll(mediaFileService.getChildrenWithoutSortOf(album, true, false));
         }
         Collections.shuffle(songs);
         songs = songs.subList(0, Math.min(40, songs.size()));

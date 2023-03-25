@@ -24,9 +24,11 @@ package com.tesshu.jpsonic.controller;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -85,33 +87,25 @@ public class PersonalSettingsController {
         PersonalSettingsCommand command = new PersonalSettingsCommand();
 
         User user = securityService.getCurrentUserStrict(request);
-        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setUser(user);
 
         // Language and theme
 
         // - Default language
         command.setLocaleIndex("-1");
-        Locale[] locales = settingsService.getAvailableLocales();
-        String[] localeStrings = new String[locales.length];
-        for (int i = 0; i < locales.length; i++) {
-            localeStrings[i] = locales[i].getDisplayName(locales[i]);
-            if (locales[i].equals(userSettings.getLocale())) {
-                command.setLocaleIndex(String.valueOf(i));
-            }
-        }
-        command.setLocales(localeStrings);
+        settingsService.getAvailableLocales().stream().filter(locale -> locale.equals(settingsService.getLocale()))
+                .findFirst().ifPresent(locale -> command
+                        .setLocaleIndex(String.valueOf(settingsService.getAvailableLocales().indexOf(locale))));
+        command.setLocales(settingsService.getAvailableLocales().stream().map(locale -> locale.getDisplayName())
+                .collect(Collectors.toList()));
 
         // - Theme
+        UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         command.setThemeIndex("-1");
         List<Theme> themes = SettingsService.getAvailableThemes();
-        command.setThemes(themes.toArray(new Theme[0]));
-        for (int i = 0; i < themes.size(); i++) {
-            if (themes.get(i).getId().equals(userSettings.getThemeId())) {
-                command.setThemeIndex(String.valueOf(i));
-                break;
-            }
-        }
+        command.setThemes(themes);
+        themes.stream().filter(theme -> theme.getId().equals(userSettings.getThemeId())).findFirst()
+                .ifPresent(theme -> command.setThemeIndex(String.valueOf(themes.indexOf(theme))));
 
         // - Font
         WebFontUtils.setToCommand(userSettings, command);
@@ -126,7 +120,7 @@ public class PersonalSettingsController {
         command.setTabletSettings(securityService.createDefaultTabletUserSettings(""));
         command.setSmartphoneSettings(securityService.createDefaultSmartphoneUserSettings(""));
         command.setKeyboardShortcutsEnabled(userSettings.isKeyboardShortcutsEnabled());
-        command.setAlbumLists(AlbumListType.values());
+        command.setAlbumLists(Arrays.asList(AlbumListType.values()));
         command.setAlbumListId(userSettings.getDefaultAlbumList().getId());
         command.setPutMenuInDrawer(userSettings.isPutMenuInDrawer());
         command.setShowIndex(userSettings.isShowIndex());
@@ -139,6 +133,12 @@ public class PersonalSettingsController {
         command.setSimpleDisplay(userSettings.isSimpleDisplay());
         command.setQueueFollowingSongs(userSettings.isQueueFollowingSongs());
         command.setShowCurrentSongInfo(userSettings.isShowCurrentSongInfo());
+
+        // Column to be displayed
+        command.setMainVisibility(userSettings.getMainVisibility());
+        command.setPlaylistVisibility(userSettings.getPlaylistVisibility());
+
+        // Additional display features
         command.setSongNotificationEnabled(userSettings.isSongNotificationEnabled());
         command.setVoiceInputEnabled(userSettings.isVoiceInputEnabled());
         command.setSpeechToTextLangScheme(SpeechToTextLangScheme.of(userSettings.getSpeechLangSchemeName()));
@@ -159,12 +159,6 @@ public class PersonalSettingsController {
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         command.setOpenDetailIndex(userSettings.isOpenDetailIndex());
         command.setOpenDetailStar(userSettings.isOpenDetailStar());
-
-        // Column to be displayed
-        command.setMainVisibility(userSettings.getMainVisibility());
-        command.setPlaylistVisibility(userSettings.getPlaylistVisibility());
-
-        // Additional display features
         command.setNowPlayingAllowed(userSettings.isNowPlayingAllowed());
         command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
         command.setShowNowPlayingEnabled(userSettings.isShowNowPlayingEnabled());
@@ -229,7 +223,7 @@ public class PersonalSettingsController {
         int localeIndex = Integer.parseInt(command.getLocaleIndex());
         Locale locale = null;
         if (localeIndex != -1) {
-            locale = settingsService.getAvailableLocales()[localeIndex];
+            locale = settingsService.getAvailableLocales().get(localeIndex);
         }
         settings.setLocale(locale);
 
@@ -259,6 +253,12 @@ public class PersonalSettingsController {
         settings.setSimpleDisplay(command.isSimpleDisplay());
         settings.setQueueFollowingSongs(command.isQueueFollowingSongs());
         settings.setShowCurrentSongInfo(command.isShowCurrentSongInfo());
+
+        // Column to be displayed
+        settings.setMainVisibility(command.getMainVisibility());
+        settings.setPlaylistVisibility(command.getPlaylistVisibility());
+
+        // Additional display features
         settings.setSongNotificationEnabled(command.isSongNotificationEnabled());
         settings.setVoiceInputEnabled(command.isVoiceInputEnabled());
         settings.setSpeechLangSchemeName(command.getSpeechToTextLangScheme().name());
@@ -267,12 +267,6 @@ public class PersonalSettingsController {
         } else if (StringUtils.isNotBlank(command.getIetf()) && command.getIetf().matches("[a-zA-Z\\-\\_]+")) {
             settings.setIetf(command.getIetf());
         }
-
-        // Column to be displayed
-        settings.setMainVisibility(command.getMainVisibility());
-        settings.setPlaylistVisibility(command.getPlaylistVisibility());
-
-        // Additional display features
         settings.setNowPlayingAllowed(command.isNowPlayingAllowed());
         settings.setShowNowPlayingEnabled(
                 settingsService.isOthersPlayingEnabled() && command.isShowNowPlayingEnabled());

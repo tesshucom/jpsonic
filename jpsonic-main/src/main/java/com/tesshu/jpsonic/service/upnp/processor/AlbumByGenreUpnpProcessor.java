@@ -36,6 +36,7 @@ import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
+import org.fourthline.cling.support.model.PersonWithRole;
 import org.fourthline.cling.support.model.SortCriterion;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.GenreContainer;
@@ -93,7 +94,8 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor<MediaFile, M
         MusicAlbum container = new MusicAlbum();
         container.setAlbumArtURIs(new URI[] { getDispatcher().getMediaFileProcessor().createAlbumArtURI(item) });
         if (item.getArtist() != null) {
-            container.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(item.getArtist()));
+            container.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(item.getArtist())
+                    .toArray(new PersonWithRole[0]));
         }
         container.setDescription(item.getComment());
         container.setId(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR

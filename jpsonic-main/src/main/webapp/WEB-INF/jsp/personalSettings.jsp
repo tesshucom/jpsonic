@@ -41,12 +41,6 @@ function setSettings4DesktopPC() {
     $('#assignAccesskeyToNumber').prop('checked', ${command.defaultSettings.assignAccesskeyToNumber});
     $('#simpleDisplay').prop('checked', ${command.defaultSettings.simpleDisplay});
     $('#queueFollowingSongs').prop('checked', ${command.defaultSettings.queueFollowingSongs});
-    $('#openDetailSetting').prop('checked', ${command.defaultSettings.openDetailSetting});
-    $('#openDetailStar').prop('checked', ${command.defaultSettings.openDetailStar});
-    $('#openDetailIndex').prop('checked', ${command.defaultSettings.openDetailIndex});
-    $('#voiceInputEnabled').prop('checked', ${command.defaultSettings.voiceInputEnabled});
-    $("#ietf").val('${command.ietfDefault}');
-    $('#songNotificationEnabled').prop('checked', ${command.defaultSettings.songNotificationEnabled});
     $('#showCurrentSongInfo').prop('checked', ${command.defaultSettings.showCurrentSongInfo});
     speechEngineLangSelectEnabled(false);
 }
@@ -64,12 +58,6 @@ function setSettings4Tablet() {
     $('#assignAccesskeyToNumber').prop('checked', ${command.tabletSettings.assignAccesskeyToNumber});
     $('#simpleDisplay').prop('checked', ${command.tabletSettings.simpleDisplay});
     $('#queueFollowingSongs').prop('checked', ${command.tabletSettings.queueFollowingSongs});
-    $('#openDetailSetting').prop('checked', ${command.tabletSettings.openDetailSetting});
-    $('#openDetailStar').prop('checked', ${command.tabletSettings.openDetailStar});
-    $('#openDetailIndex').prop('checked', ${command.tabletSettings.openDetailIndex});
-    $('#voiceInputEnabled').prop('checked', ${command.tabletSettings.voiceInputEnabled});
-    $("#ietf").val('${command.ietfDefault}');
-    $('#songNotificationEnabled').prop('checked', ${command.tabletSettings.songNotificationEnabled});
     $('#showCurrentSongInfo').prop('checked', ${command.tabletSettings.showCurrentSongInfo});
     speechEngineLangSelectEnabled(true);
 }
@@ -87,12 +75,6 @@ function setSettings4Smartphone() {
     $('#assignAccesskeyToNumber').prop('checked', ${command.smartphoneSettings.assignAccesskeyToNumber});
     $('#simpleDisplay').prop('checked', ${command.smartphoneSettings.simpleDisplay});
     $('#queueFollowingSongs').prop('checked', ${command.smartphoneSettings.queueFollowingSongs});
-    $('#openDetailSetting').prop('checked', ${command.smartphoneSettings.openDetailSetting});
-    $('#openDetailStar').prop('checked', ${command.smartphoneSettings.openDetailStar});
-    $('#openDetailIndex').prop('checked', ${command.smartphoneSettings.openDetailIndex});
-    $('#voiceInputEnabled').prop('checked', ${command.smartphoneSettings.voiceInputEnabled});
-    $("#ietf").val('${command.ietfDefault}');
-    $('#songNotificationEnabled').prop('checked', ${command.smartphoneSettings.songNotificationEnabled});
     $('#showCurrentSongInfo').prop('checked', ${command.smartphoneSettings.showCurrentSongInfo});
     speechEngineLangSelectEnabled(true);
 }
@@ -121,6 +103,15 @@ function resetDisplay() {
 }
 
 function resetAdditionalDisplay() {
+    $('[name="songNotificationEnabled"]').prop('checked', ${command.defaultSettings.songNotificationEnabled});
+    $('[name="voiceInputEnabled"]').prop('checked', ${command.defaultSettings.voiceInputEnabled});
+    $("#ietf").val('${command.ietfDefault}');
+    $("#ietf").prop('disabled', true);
+    $("#radio2-DEFAULT").prop('disabled', true);
+    $("#radio2-BCP47").prop('disabled', true);
+    $('[name="openDetailSetting"]').prop('checked', ${command.defaultSettings.openDetailSetting});
+    $('[name="openDetailStar"]').prop('checked', ${command.defaultSettings.openDetailStar});
+    $('[name="openDetailIndex"]').prop('checked', ${command.defaultSettings.openDetailIndex});
     $('[name="showNowPlayingEnabled"]').prop('checked', ${command.defaultSettings.showNowPlayingEnabled});
     $('[name="nowPlayingAllowed"]').prop('checked', ${command.defaultSettings.nowPlayingAllowed});
     $('[name="showArtistInfoEnabled"]').prop('checked', ${command.defaultSettings.showArtistInfoEnabled});
@@ -383,56 +374,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 <form:checkbox path="showCurrentSongInfo" id="showCurrentSongInfo" />
                 <label for="showCurrentSongInfo"><fmt:message key="personalsettings.showcurrentsonginfo"/></label>
             </dd>
-
-            <dt><fmt:message key="personalsettings.notification"/></dt>
-            <dd>
-                <form:checkbox path="songNotificationEnabled" id="songNotificationEnabled" />
-                <label for="songNotificationEnabled"><fmt:message key="personalsettings.songnotification"/></label>
-            </dd>
-
-            <dt><fmt:message key="personalsettings.speechrecognition"/></dt>
-            <dd>
-                <form:checkbox path="voiceInputEnabled" id="voiceInputEnabled" />
-                <label for="voiceInputEnabled"><fmt:message key="personalsettings.voiceinputenabled"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="voiceinputenabled"/></c:import>
-            </dd>
-            <dt><fmt:message key="personalsettings.speechenginelang"/></dt>
-            <dd>
-                <ul class="playerSettings">
-                    <c:forEach items="${SpeechToTextLangScheme.values()}" var="scheme">
-                        <c:set var="speechLangSchemeName">
-                            <fmt:message key="personalsettings.speechenginelang.${fn:toLowerCase(scheme)}"/>
-                        </c:set>
-                        <li>
-                            <form:radiobutton class="technologyRadio" id="radio2-${scheme}" path="speechToTextLangScheme" value="${scheme}"
-                                checked="${scheme eq command.speechToTextLangScheme ? 'checked' : ''}"
-                                disabled="${!command.voiceInputEnabled}"/>
-                            <label for="radio2-${scheme}">${speechLangSchemeName}</label>
-                            <c:if test="${scheme eq 'DEFAULT'}">
-                                  - ${command.ietfDisplayDefault}
-                            </c:if>
-                            <c:if test="${scheme eq 'BCP47'}">                
-                                <form:input path="ietf" id="ietf" disabled="${command.speechToTextLangScheme eq 'DEFAULT'}"/>
-                            </c:if>
-                        </li>
-                    </c:forEach>
-                </ul>
-            </dd>
-            <dt><fmt:message key="personalsettings.summary"/></dt>
-            <dd>
-                <form:checkbox path="openDetailSetting" id="openDetailSetting" />
-                <label for="openDetailSetting"><fmt:message key="personalsettings.summary.opensettings"/></label>
-            </dd>
-            <dt><fmt:message key="personalsettings.summary"/></dt>
-            <dd>
-                <form:checkbox path="openDetailStar" id="openDetailStar" />
-                <label for="openDetailStar"><fmt:message key="personalsettings.summary.openstars"/></label>
-            </dd>
-            <dt><fmt:message key="personalsettings.summary"/></dt>
-            <dd>
-                <form:checkbox path="openDetailIndex" id="openDetailIndex" />
-                <label for="openDetailIndex"><fmt:message key="personalsettings.summary.openindexes"/></label>
-            </dd>
         </dl>
     </details>
 
@@ -529,6 +470,55 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         </c:if>
         <dl>
+            <dt><fmt:message key="personalsettings.notification"/></dt>
+            <dd>
+                <form:checkbox path="songNotificationEnabled" id="songNotificationEnabled" />
+                <label for="songNotificationEnabled"><fmt:message key="personalsettings.songnotification"/></label>
+            </dd>
+
+            <dt><fmt:message key="personalsettings.speechrecognition"/></dt>
+            <dd>
+                <form:checkbox path="voiceInputEnabled" id="voiceInputEnabled" />
+                <label for="voiceInputEnabled"><fmt:message key="personalsettings.voiceinputenabled"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="voiceinputenabled"/></c:import>
+            </dd>
+            <dt><fmt:message key="personalsettings.speechenginelang"/></dt>
+            <dd>
+                <ul class="playerSettings">
+                    <c:forEach items="${SpeechToTextLangScheme.values()}" var="scheme">
+                        <c:set var="speechLangSchemeName">
+                            <fmt:message key="personalsettings.speechenginelang.${fn:toLowerCase(scheme)}"/>
+                        </c:set>
+                        <li>
+                            <form:radiobutton class="technologyRadio" id="radio2-${scheme}" path="speechToTextLangScheme" value="${scheme}"
+                                checked="${scheme eq command.speechToTextLangScheme ? 'checked' : ''}"
+                                disabled="${!command.voiceInputEnabled}"/>
+                            <label for="radio2-${scheme}">${speechLangSchemeName}</label>
+                            <c:if test="${scheme eq 'DEFAULT'}">
+                                  - ${command.ietfDisplayDefault}
+                            </c:if>
+                            <c:if test="${scheme eq 'BCP47'}">                
+                                <form:input path="ietf" id="ietf" disabled="${command.speechToTextLangScheme eq 'DEFAULT'}"/>
+                            </c:if>
+                        </li>
+                    </c:forEach>
+                </ul>
+            </dd>
+            <dt><fmt:message key="personalsettings.summary"/></dt>
+            <dd>
+                <form:checkbox path="openDetailSetting" id="openDetailSetting" />
+                <label for="openDetailSetting"><fmt:message key="personalsettings.summary.opensettings"/></label>
+            </dd>
+            <dt><fmt:message key="personalsettings.summary"/></dt>
+            <dd>
+                <form:checkbox path="openDetailStar" id="openDetailStar" />
+                <label for="openDetailStar"><fmt:message key="personalsettings.summary.openstars"/></label>
+            </dd>
+            <dt><fmt:message key="personalsettings.summary"/></dt>
+            <dd>
+                <form:checkbox path="openDetailIndex" id="openDetailIndex" />
+                <label for="openDetailIndex"><fmt:message key="personalsettings.summary.openindexes"/></label>
+            </dd>
             <dt></dt>
             <dd>
                 <form:checkbox path="nowPlayingAllowed" id="nowPlayingAllowed" />
@@ -721,7 +711,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     <div class="submits">
         <input type="submit" value="<fmt:message key='common.save'/>"/>
-        <input type="button" onClick="location.href='nowPlaying.view'" value="<fmt:message key='common.cancel'/>"/>
     </div>
 
 </form:form>

@@ -39,6 +39,7 @@ import com.tesshu.jpsonic.service.JMediaFileService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
+import org.fourthline.cling.support.model.PersonWithRole;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.MusicAlbum;
 import org.fourthline.cling.support.model.container.MusicArtist;
@@ -120,7 +121,8 @@ public class ArtistByFolderUpnpProcessor
             container.setParentID(getRootId());
             container.setTitle(item.getName());
             if (item.getAlbum().getArtist() != null) {
-                container.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(item.getAlbum().getArtist()));
+                container.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(item.getAlbum().getArtist())
+                        .toArray(new PersonWithRole[0]));
             }
             return container;
         } else {

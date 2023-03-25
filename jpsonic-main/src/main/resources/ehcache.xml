@@ -214,15 +214,6 @@ used with JMX monitors.
            overflowToDisk="false"
            statistics="true"/>
 
-    <cache name="userCache"
-           maxElementsInMemory="1000"
-           eternal="false"
-           timeToIdleSeconds="172800"
-           timeToLiveSeconds="172800"
-           overflowToDisk="false"
-           diskSpoolBufferSizeMB="1"
-           statistics="true"/>
-
     <cache name="searchCache"
            maxElementsInMemory="30"
            eternal="false"

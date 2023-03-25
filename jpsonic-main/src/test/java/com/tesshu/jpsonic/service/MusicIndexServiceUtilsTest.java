@@ -62,24 +62,25 @@ class MusicIndexServiceUtilsTest {
         Mockito.when(settingsService.getLocale()).thenReturn(Locale.ENGLISH);
 
         assertEquals("abcde, \u0069", // i
-                musicIndexServiceUtils.createSortableName("\u0130 abcde", // İ
-                        "\u0069", // i
-                        "\u0131")); // ı
+                musicIndexServiceUtils.createSortableName(//
+                        "\u0130 abcde", // İ
+                        Arrays.asList("\u0069", // i
+                                "\u0131"))); // ı
 
         assertEquals("abcde, \u0130", // İ
                 musicIndexServiceUtils.createSortableName("\u0130 abcde", // İ
-                        "\u0130", // İ
-                        "\u0049")); // I
+                        Arrays.asList("\u0130", // İ
+                                "\u0049"))); // I
 
         assertEquals("abcde, \u0069", // i
                 musicIndexServiceUtils.createSortableName("\u0049 abcde", // I
-                        "\u0069", // i
-                        "\u0131")); // ı
+                        Arrays.asList("\u0069", // i
+                                "\u0131"))); // ı
 
         assertEquals("abcde, \u0130", // İ
                 musicIndexServiceUtils.createSortableName("\u0049 abcde", // I
-                        "\u0130", // İ
-                        "\u0049")); // I
+                        Arrays.asList("\u0130", // İ
+                                "\u0049"))); // I
     }
 
     @Test
@@ -93,12 +94,12 @@ class MusicIndexServiceUtilsTest {
         mediaFile.setId(0);
         mediaFile.setPathString(path.toString());
 
-        Mockito.when(mediaFileService.getMediaFile(path, true)).thenReturn(null);
-        musicIndexServiceUtils.createSortableArtists(musicFolders, false);
-        Mockito.verify(mediaFileService, Mockito.never()).getChildrenOf(mediaFile, false, true, true, true);
+        Mockito.when(mediaFileService.getMediaFile(path)).thenReturn(null);
+        musicIndexServiceUtils.createSortableArtists(musicFolders);
+        Mockito.verify(mediaFileService, Mockito.never()).getChildrenOf(mediaFile, false, true);
 
-        Mockito.when(mediaFileService.getMediaFile(path, true)).thenReturn(mediaFile);
-        musicIndexServiceUtils.createSortableArtists(musicFolders, false);
-        Mockito.verify(mediaFileService, Mockito.times(1)).getChildrenOf(mediaFile, false, true, true, true);
+        Mockito.when(mediaFileService.getMediaFile(path)).thenReturn(mediaFile);
+        musicIndexServiceUtils.createSortableArtists(musicFolders);
+        Mockito.verify(mediaFileService, Mockito.times(1)).getChildrenOf(mediaFile, false, true);
     }
 }

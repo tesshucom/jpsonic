@@ -194,6 +194,17 @@ public class UserDao extends AbstractDao {
         writeRoles(user);
     }
 
+    public void updatePassword(User user, String newPass, boolean ldapAuthenticated) {
+        String sql = "update " + getUserTable() + " set password=?, ldap_authenticated=? where username=?";
+        update(sql, newPass, ldapAuthenticated, user.getUsername());
+    }
+
+    public void updateUserByteCounts(long bytesStreamed, long bytesDownloaded, long bytesUploaded, String username) {
+        String sql = "update " + getUserTable()
+                + " set bytes_streamed=?, bytes_downloaded=?, bytes_uploaded=? where username=?";
+        update(sql, bytesStreamed, bytesDownloaded, bytesUploaded, username);
+    }
+
     /**
      * Returns the name of the roles for the given user.
      *
@@ -202,14 +213,9 @@ public class UserDao extends AbstractDao {
      *
      * @return Roles the user is granted.
      */
-    public String[] getRolesForUser(String username) {
+    public List<String> getRolesForUser(String username) {
         String sql = "select r.name from role r, user_role ur " + "where ur.username=? and ur.role_id=r.id";
-        List<?> roles = getJdbcTemplate().queryForList(sql, String.class, new Object[] { username });
-        String[] result = new String[roles.size()];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = (String) roles.get(i);
-        }
-        return result;
+        return getJdbcTemplate().queryForList(sql, String.class, new Object[] { username });
     }
 
     /**

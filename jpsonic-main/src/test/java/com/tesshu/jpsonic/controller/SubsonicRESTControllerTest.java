@@ -79,6 +79,7 @@ import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -90,6 +91,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -136,6 +138,7 @@ class SubsonicRESTControllerTest {
             securityService = mock(SecurityService.class);
             final PlayerService playerService = mock(PlayerService.class);
             final MediaFileService mediaFileService = mock(MediaFileService.class);
+            final WritableMediaFileService writableMediaFileService = mock(WritableMediaFileService.class);
             final LastFmService lastFmService = mock(LastFmService.class);
             final MusicIndexService musicIndexService = mock(MusicIndexService.class);
             final TranscodingService transcodingService = mock(TranscodingService.class);
@@ -165,9 +168,9 @@ class SubsonicRESTControllerTest {
             final CoverArtLogic logic = mock(CoverArtLogic.class);
             final SearchCriteriaDirector director = mock(SearchCriteriaDirector.class);
             controller = new SubsonicRESTController(settingsService, musicFolderService, securityService, playerService,
-                    mediaFileService, lastFmService, musicIndexService, transcodingService, downloadController,
-                    coverArtController, avatarController, userSettingsController, topController, statusService,
-                    streamController, hlsController, shareService, playlistService, lyricsService,
+                    mediaFileService, writableMediaFileService, lastFmService, musicIndexService, transcodingService,
+                    downloadController, coverArtController, avatarController, userSettingsController, topController,
+                    statusService, streamController, hlsController, shareService, playlistService, lyricsService,
                     audioScrobblerService, podcastService, ratingService, searchService, internetRadioService,
                     mediaFileDao, artistDao, albumDao, bookmarkService, playQueueDao, mediaScannerService,
                     airsonicLocaleResolver, logic, director);
@@ -314,7 +317,8 @@ class SubsonicRESTControllerTest {
                         .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                         .andExpect(MockMvcResultMatchers.status().isOk())
                         .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
-                        .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
+                        .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion)).andExpect(
+                                MockMvcResultMatchers.header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
 
                 mvc.perform(MockMvcRequestBuilders.get("/rest/ping.view").param(Attributes.Request.V.value(), apiVerion)
                         .param(Attributes.Request.C.value(), CLIENT_NAME)
@@ -323,8 +327,18 @@ class SubsonicRESTControllerTest {
                         .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
                         .andExpect(MockMvcResultMatchers.status().isOk())
                         .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_OK))
-                        .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion));
+                        .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion)).andExpect(
+                                MockMvcResultMatchers.header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
 
+                mvc.perform(MockMvcRequestBuilders.get("/rest/ping").param(Attributes.Request.V.value(), apiVerion)
+                        .param(Attributes.Request.C.value(), CLIENT_NAME)
+                        .param(Attributes.Request.U.value(), ServiceMockUtils.ADMIN_NAME)
+                        .param(Attributes.Request.P.value(), "Bad password")
+                        .param(Attributes.Request.F.value(), EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(MockMvcResultMatchers.status().isOk())
+                        .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_STATUS).value(JSON_VALUE_FAILED))
+                        .andExpect(MockMvcResultMatchers.jsonPath(JSON_PATH_VERSION).value(apiVerion)).andExpect(
+                                MockMvcResultMatchers.header().doesNotExist(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN));
             } catch (Exception e) {
                 Assertions.fail();
                 throw new ExecutionException(e);

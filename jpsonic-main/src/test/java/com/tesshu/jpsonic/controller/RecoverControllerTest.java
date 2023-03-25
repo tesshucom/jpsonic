@@ -345,7 +345,7 @@ class RecoverControllerTest {
         Mockito.when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
                 .thenReturn(new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, ADMIN_MAIL));
         Mockito.when(settingsService.getSmtpServer()).thenReturn("dummySMTP");
-        Mockito.when(recoverService.emailPassword(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(false);
+        Mockito.when(recoverService.sendEmail(Mockito.any(), Mockito.any())).thenReturn(false);
 
         MockHttpServletRequest req = new MockHttpServletRequest();
         req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ServiceMockUtils.ADMIN_NAME);
@@ -377,7 +377,7 @@ class RecoverControllerTest {
         Mockito.when(recoverService.getUserByUsernameOrEmail(Mockito.any()))
                 .thenReturn(new User(ServiceMockUtils.ADMIN_NAME, ServiceMockUtils.ADMIN_NAME, ADMIN_MAIL));
         Mockito.when(settingsService.getSmtpServer()).thenReturn("dummySMTP");
-        Mockito.when(recoverService.emailPassword(Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(true);
+        Mockito.when(recoverService.sendEmail(Mockito.any(), Mockito.any())).thenReturn(true);
 
         MockHttpServletRequest req = new MockHttpServletRequest();
         req.addParameter(Attributes.Request.USERNAME_OR_EMAIL.value(), ServiceMockUtils.ADMIN_NAME);
@@ -389,6 +389,7 @@ class RecoverControllerTest {
         assertEquals(ServiceMockUtils.ADMIN_NAME, model.get(Attributes.Request.USERNAME_OR_EMAIL.value()));
         assertEquals(RECAPTCHA_SITE_KEY, model.get(ATTR_SITE_KEY));
         Assertions.assertFalse(model.containsKey(Attributes.Request.ERROR.value()));
-        Mockito.verify(securityService, Mockito.times(1)).updateUser(Mockito.any());
+        Mockito.verify(securityService, Mockito.times(1)).updatePassword(Mockito.any(User.class), Mockito.anyString(),
+                Mockito.anyBoolean());
     }
 }

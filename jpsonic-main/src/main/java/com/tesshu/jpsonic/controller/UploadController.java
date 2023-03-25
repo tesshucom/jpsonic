@@ -44,8 +44,8 @@ import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.domain.User;
-import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.PlayerService;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.StatusService;
@@ -63,6 +63,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -72,7 +73,7 @@ import org.springframework.web.servlet.ModelAndView;
  *
  * @author Sindre Mehus
  */
-@org.springframework.stereotype.Controller
+@Controller
 @RequestMapping({ "/upload", "/upload.view" })
 public class UploadController {
 
@@ -85,23 +86,23 @@ public class UploadController {
     private final PlayerService playerService;
     private final StatusService statusService;
     private final SettingsService settingsService;
-    private final MediaScannerService mediaScannerService;
+    private final ScannerStateService scannerStateService;
 
     public UploadController(SecurityService securityService, PlayerService playerService, StatusService statusService,
-            SettingsService settingsService, MediaScannerService mediaScannerService) {
+            SettingsService settingsService, ScannerStateService scannerStateService) {
         super();
         this.securityService = securityService;
         this.playerService = playerService;
         this.statusService = statusService;
         this.settingsService = settingsService;
-        this.mediaScannerService = mediaScannerService;
+        this.scannerStateService = scannerStateService;
     }
 
     @PostMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
 
         Map<String, Object> model = LegacyMap.of();
-        if (mediaScannerService.isScanning()) {
+        if (scannerStateService.isScanning()) {
             model.put("exception", new IllegalArgumentException("Currently scanning. Please try again after a while."));
             return new ModelAndView("upload", "model", model);
         }

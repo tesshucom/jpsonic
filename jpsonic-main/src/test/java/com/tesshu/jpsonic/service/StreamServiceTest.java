@@ -45,6 +45,7 @@ import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.VideoTranscodingSettings;
 import com.tesshu.jpsonic.io.PlayQueueInputStream;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
+import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
@@ -62,7 +63,7 @@ class StreamServiceTest {
 
     private StatusService statusService;
     private PlaylistService playlistService;
-    SettingsService settingsService;
+    private SettingsService settingsService;
     private SecurityService securityService;
     private MediaFileService mediaFileService;
     private StreamService streamService;
@@ -75,7 +76,8 @@ class StreamServiceTest {
         settingsService = mock(SettingsService.class);
         mediaFileService = mock(MediaFileService.class);
         streamService = new StreamService(statusService, playlistService, securityService, settingsService,
-                mock(TranscodingService.class), null, mediaFileService, null, null);
+                mock(TranscodingService.class), null, mediaFileService, mock(WritableMediaFileService.class), null,
+                null);
     }
 
     @Test

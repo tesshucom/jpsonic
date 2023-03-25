@@ -77,7 +77,7 @@ class PlayerServiceTest {
         Mockito.when(transcodingService.getAllTranscodings()).thenReturn(transcodings);
         MusicFolderService musicFolderService = mock(MusicFolderService.class);
         playerService = new PlayerService(playerDao, null, settingsService,
-                new SecurityService(userDao, null, musicFolderService, null), transcodingService);
+                new SecurityService(userDao, null, musicFolderService), transcodingService);
     }
 
     @Test

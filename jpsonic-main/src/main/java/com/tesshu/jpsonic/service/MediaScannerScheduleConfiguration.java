@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -77,7 +78,7 @@ public class MediaScannerScheduleConfiguration implements SchedulingConfigurer {
             Instant lastTime = Optional.ofNullable(triggerContext.lastCompletionTime()).filter(Objects::nonNull)
                     .map(d -> d.toInstant()).orElse(null);
             Instant nextTime = lastTime == null ? createFirstTime() : lastTime.plus(1L, ChronoUnit.DAYS);
-            if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+            if (LOG.isInfoEnabled()) {
                 LOG.info("Daily auto library scan was scheduled. (Next {})", DateTimeFormatter
                         .ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault()).format(nextTime));
             }
@@ -89,7 +90,7 @@ public class MediaScannerScheduleConfiguration implements SchedulingConfigurer {
                 }
                 mediaScannerService.scanLibrary();
             }
-            return java.util.Date.from(nextTime);
+            return Date.from(nextTime);
         };
 
         registrar.addTriggerTask(new ScanLibraryTask(mediaScannerService), trigger);

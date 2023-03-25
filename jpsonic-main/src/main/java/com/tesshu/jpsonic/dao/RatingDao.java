@@ -30,6 +30,7 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Provides database services for ratings.
@@ -79,6 +80,7 @@ public class RatingDao extends AbstractDao {
      * @param rating
      *            The rating between 1 and 5, or <code>null</code> to remove the rating.
      */
+    @Transactional
     public void setRatingForUser(String username, MediaFile mediaFile, Integer rating) {
         if (rating != null && (rating < 1 || rating > 5)) {
             return;
@@ -137,5 +139,10 @@ public class RatingDao extends AbstractDao {
                         + "and media_file.type = :type " + "and media_file.present "
                         + "and media_file.folder in (:folders) " + "and user_rating.username = :username",
                 0, args);
+    }
+
+    public void expunge() {
+        update("delete from user_rating where path in (select  user_rating.path from user_rating "
+                + "left join media_file on media_file.path = user_rating.path where media_file.path is null)");
     }
 }

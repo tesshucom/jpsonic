@@ -124,7 +124,7 @@ public class MainController {
 
         // children
         List<MediaFile> children = mediaFiles.size() == 1 // children
-                ? mediaFileService.getChildrenOf(dir, true, true, true) // expected code
+                ? mediaFileService.getChildrenOf(dir, true, true) // expected code
                 : getMultiFolderChildren(mediaFiles); // Suspicion of dead code
         mediaFileService.populateStarredDate(children, username);
         map.put("files", children.stream().filter(MediaFile::isFile).collect(Collectors.toList()));
@@ -298,7 +298,7 @@ public class MainController {
                     m = parent;
                 }
             }
-            result.addAll(mediaFileService.getChildrenOf(m, true, true, true));
+            result.addAll(mediaFileService.getChildrenOf(m, true, true));
         }
         return new ArrayList<>(result);
     }
@@ -323,7 +323,7 @@ public class MainController {
 
         MediaFile parent = mediaFileService.getParentOf(dir);
         if (!mediaFileService.isRoot(parent)) {
-            List<MediaFile> siblings = mediaFileService.getChildrenOf(parent, false, true, true);
+            List<MediaFile> siblings = mediaFileService.getChildrenOf(parent, false, true);
             result.addAll(siblings.stream().filter(sibling -> sibling.isAlbum() && !sibling.equals(dir))
                     .collect(Collectors.toList()));
         }

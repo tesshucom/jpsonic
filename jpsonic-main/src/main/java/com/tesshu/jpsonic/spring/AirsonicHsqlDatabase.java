@@ -21,9 +21,10 @@
 
 package com.tesshu.jpsonic.spring;
 
+import liquibase.database.core.HsqlDatabase;
 import liquibase.exception.DatabaseException;
 
-public class AirsonicHsqlDatabase extends liquibase.database.core.HsqlDatabase {
+public class AirsonicHsqlDatabase extends HsqlDatabase {
 
     public static final int CURRENT_SUPPORTED_MAJOR_VERSION = 2;
 

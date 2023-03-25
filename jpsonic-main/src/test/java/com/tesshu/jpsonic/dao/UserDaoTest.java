@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
@@ -182,19 +183,19 @@ class UserDaoTest {
         user.setSettingsRole(true);
         userDao.createUser(user);
 
-        String[] roles = userDao.getRolesForUser("sindre");
-        assertEquals(5, roles.length, "Wrong number of roles.");
-        assertEquals("admin", roles[0], "Wrong role.");
-        assertEquals("comment", roles[1], "Wrong role.");
-        assertEquals("podcast", roles[2], "Wrong role.");
-        assertEquals("stream", roles[3], "Wrong role.");
-        assertEquals("settings", roles[4], "Wrong role.");
+        List<String> roles = userDao.getRolesForUser("sindre");
+        assertEquals(5, roles.size(), "Wrong number of roles.");
+        assertEquals("admin", roles.get(0), "Wrong role.");
+        assertEquals("comment", roles.get(1), "Wrong role.");
+        assertEquals("podcast", roles.get(2), "Wrong role.");
+        assertEquals("stream", roles.get(3), "Wrong role.");
+        assertEquals("settings", roles.get(4), "Wrong role.");
     }
 
     @Test
     void testCreateDefaultUserSettingsWithNonExist() throws ExecutionException {
         assertNull(userDao.getUserSettings("sindre"), "Error in getUserSettings.");
-        SecurityService mockService = new SecurityService(Mockito.mock(UserDao.class), null, null, null);
+        SecurityService mockService = new SecurityService(Mockito.mock(UserDao.class), null, null);
         UserSettings userSettings = mockService.getUserSettings("sindre");
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> userDao.updateUserSettings(userSettings));
     }
@@ -204,7 +205,7 @@ class UserDaoTest {
         userDao.createUser(new User("sindre", "secret", null));
         assertNull(userDao.getUserSettings("sindre"), "Error in getUserSettings.");
 
-        SecurityService mockService = new SecurityService(Mockito.mock(UserDao.class), null, null, null);
+        SecurityService mockService = new SecurityService(Mockito.mock(UserDao.class), null, null);
         userDao.updateUserSettings(mockService.getUserSettings("sindre"));
 
         UserSettings userSettings = userDao.getUserSettings("sindre");

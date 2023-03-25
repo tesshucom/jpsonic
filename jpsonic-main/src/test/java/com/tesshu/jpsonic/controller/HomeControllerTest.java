@@ -41,14 +41,15 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.RatingService;
+import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -72,7 +73,7 @@ class HomeControllerTest {
     public void setup() throws ExecutionException {
         mockMvc = MockMvcBuilders
                 .standaloneSetup(new HomeController(mock(SettingsService.class), mock(SecurityService.class),
-                        mock(MusicFolderService.class), mock(MediaScannerService.class), mock(RatingService.class),
+                        mock(MusicFolderService.class), mock(ScannerStateServiceImpl.class), mock(RatingService.class),
                         mock(MediaFileService.class), mock(SearchService.class), mock(MusicIndexService.class)))
                 .build();
     }
@@ -97,7 +98,7 @@ class HomeControllerTest {
         private SettingsService settingsService;
         private SecurityService securityService;
         private MusicFolderService musicFolderService;
-        private MediaScannerService mediaScannerService;
+        private ScannerStateService scannerStateService;
         private RatingService ratingService;
         private MediaFileService mediaFileService;
         private SearchService searchService;
@@ -109,12 +110,12 @@ class HomeControllerTest {
             settingsService = mock(SettingsService.class);
             securityService = mock(SecurityService.class);
             musicFolderService = mock(MusicFolderService.class);
-            mediaScannerService = mock(MediaScannerService.class);
+            scannerStateService = mock(ScannerStateService.class);
             ratingService = mock(RatingService.class);
             mediaFileService = mock(MediaFileService.class);
             searchService = mock(SearchService.class);
             musicIndexService = mock(MusicIndexService.class);
-            controller = new HomeController(settingsService, securityService, musicFolderService, mediaScannerService,
+            controller = new HomeController(settingsService, securityService, musicFolderService, scannerStateService,
                     ratingService, mediaFileService, searchService, musicIndexService);
         }
 
@@ -236,10 +237,10 @@ class HomeControllerTest {
             List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, "", "name", false, now()));
             Mockito.when(musicFolderService.getMusicFoldersForUser(anyString(), Mockito.nullable(Integer.class)))
                     .thenReturn(musicFolders);
-            Mockito.when(musicIndexService.getMusicFolderContent(musicFolders, false))
+            Mockito.when(musicIndexService.getMusicFolderContent(musicFolders))
                     .thenReturn(new MusicFolderContent(new TreeMap<>(), Collections.emptyList()));
             controller.handleRequestInternal(req);
-            Mockito.verify(musicIndexService, Mockito.times(1)).getMusicFolderContent(musicFolders, false);
+            Mockito.verify(musicIndexService, Mockito.times(1)).getMusicFolderContent(musicFolders);
         }
     }
 }

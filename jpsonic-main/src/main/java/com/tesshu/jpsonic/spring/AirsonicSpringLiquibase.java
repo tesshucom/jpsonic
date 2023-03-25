@@ -32,15 +32,17 @@ import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.OfflineConnection;
+import liquibase.database.core.HsqlDatabase;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.exception.LiquibaseException;
+import liquibase.integration.spring.SpringLiquibase;
 import liquibase.resource.ResourceAccessor;
 import liquibase.ui.LoggerUIService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AirsonicSpringLiquibase extends liquibase.integration.spring.SpringLiquibase {
+public class AirsonicSpringLiquibase extends SpringLiquibase {
 
     private static final Logger LOG = LoggerFactory.getLogger(AirsonicSpringLiquibase.class);
 
@@ -100,7 +102,7 @@ public class AirsonicSpringLiquibase extends liquibase.integration.spring.Spring
     }
 
     private void removeCurrentHsqlDb(List<Database> implementedDatabases) {
-        implementedDatabases.removeIf(db -> db instanceof liquibase.database.core.HsqlDatabase);
+        implementedDatabases.removeIf(db -> db instanceof HsqlDatabase);
     }
 
 }

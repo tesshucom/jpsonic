@@ -9,6 +9,7 @@
 jpsonic "Jpsonic"
 jpsonic_gray "Gray"
 jpsonic_dark "Dark"
+jpsonic_vivamagenta "Viva Magenta"
 jpsonic_veryperi "Very Peri"
 jpsonic_illuminating "Illuminating"
 jpsonic_ponder "Classic Blue"

@@ -51,6 +51,7 @@ import net.sf.ehcache.Element;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
+import org.fourthline.cling.support.model.PersonWithRole;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.GenreContainer;
 import org.fourthline.cling.support.model.container.MusicAlbum;
@@ -139,7 +140,8 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
             album.setId(id);
             container.setAlbumArtURIs(new URI[] { getDispatcher().getAlbumProcessor().createAlbumArtURI(album) });
             if (item.getArtist() != null) {
-                container.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(item.getArtist()));
+                container.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(item.getArtist())
+                        .toArray(new PersonWithRole[0]));
             }
             container.setDescription(item.getComment());
             applyParentId(item, container);
@@ -256,7 +258,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
                 List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE,
                         util.getGuestMusicFolders());
                 SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> indexedArtists = musicIndexService
-                        .getIndexedArtists(artists);
+                        .getIndexedId3Artists(artists);
                 final Function<Artist, ArtistID3> toId3 = (a) -> {
                     ArtistID3 result = new ArtistID3();
                     result.setId(createArtistId(a.getId()));

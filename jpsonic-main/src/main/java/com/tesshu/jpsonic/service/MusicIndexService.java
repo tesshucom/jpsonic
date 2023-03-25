@@ -66,35 +66,33 @@ public class MusicIndexService {
      *
      * @param folders
      *            The music folders.
-     * @param refresh
-     *            Whether to look for updates by checking the last-modified timestamp of the music folders.
      *
      * @return A map from music indexes to sets of artists that are direct children of this music file.
      */
     public SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> getIndexedArtists(
-            List<MusicFolder> folders, boolean refresh) {
-        List<MusicIndex.SortableArtistWithMediaFiles> artists = createSortableArtists(folders, refresh);
+            List<MusicFolder> folders) {
+        List<MusicIndex.SortableArtistWithMediaFiles> artists = createSortableArtists(folders);
         return sortArtists(artists);
     }
 
-    public SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> getIndexedArtists(List<Artist> artists) {
-        List<MusicIndex.SortableArtistWithArtist> sortableArtists = createSortableArtists(artists);
+    public SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> getIndexedId3Artists(List<Artist> artists) {
+        List<MusicIndex.SortableArtistWithArtist> sortableArtists = createSortableId3Artists(artists);
         return sortArtists(sortableArtists);
     }
 
-    public MusicFolderContent getMusicFolderContent(List<MusicFolder> musicFoldersToUse, boolean refresh) {
+    public MusicFolderContent getMusicFolderContent(List<MusicFolder> musicFoldersToUse) {
         SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> indexedArtists = getIndexedArtists(
-                musicFoldersToUse, refresh);
-        List<MediaFile> singleSongs = getSingleSongs(musicFoldersToUse, refresh);
+                musicFoldersToUse);
+        List<MediaFile> singleSongs = getSingleSongs(musicFoldersToUse);
         return new MusicFolderContent(indexedArtists, singleSongs);
     }
 
-    List<MediaFile> getSingleSongs(List<MusicFolder> folders, boolean refresh) {
+    List<MediaFile> getSingleSongs(List<MusicFolder> folders) {
         List<MediaFile> result = new ArrayList<>();
         for (MusicFolder folder : folders) {
-            MediaFile parent = mediaFileService.getMediaFile(folder.toPath(), !refresh);
+            MediaFile parent = mediaFileService.getMediaFile(folder.toPath());
             if (parent != null) {
-                result.addAll(mediaFileService.getChildrenOf(parent, true, false, true, !refresh));
+                result.addAll(mediaFileService.getChildrenOf(parent, true, false));
             }
         }
         return result;
@@ -106,7 +104,7 @@ public class MusicIndexService {
             for (MusicFolder musicFolder : musicFoldersToUse) {
                 Path shortcutPath = Path.of(musicFolder.getPathString(), shortcut);
                 if (Files.exists(shortcutPath)) {
-                    result.add(mediaFileService.getMediaFile(shortcutPath, true));
+                    result.add(mediaFileService.getMediaFile(shortcutPath));
                 }
             }
         }
@@ -188,13 +186,12 @@ public class MusicIndexService {
     }
 
     // JP >>>>
-    private List<MusicIndex.SortableArtistWithMediaFiles> createSortableArtists(List<MusicFolder> folders,
-            boolean refresh) {
-        return utils.createSortableArtists(folders, refresh);
+    private List<MusicIndex.SortableArtistWithMediaFiles> createSortableArtists(List<MusicFolder> folders) {
+        return utils.createSortableArtists(folders);
     }
 
-    private List<MusicIndex.SortableArtistWithArtist> createSortableArtists(List<Artist> artists) {
-        return utils.createSortableArtists(artists);
+    private List<MusicIndex.SortableArtistWithArtist> createSortableId3Artists(List<Artist> artists) {
+        return utils.createSortableId3Artists(artists);
     }
     // <<<< JP
 

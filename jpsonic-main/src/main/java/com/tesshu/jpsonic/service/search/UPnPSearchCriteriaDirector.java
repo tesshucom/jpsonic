@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import com.tesshu.jpsonic.domain.Album;
@@ -105,7 +106,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
     private final QueryFactory queryFactory;
     private final UpnpProcessorUtil upnpUtil;
-    private final List<String[]> enteredSearchFields = new ArrayList<>();
+    private final List<List<String>> enteredSearchFields = new ArrayList<>();
 
     private BooleanQuery.Builder mediaTypeQueryBuilder;
     private BooleanQuery.Builder propExpQueryBuilder;
@@ -420,7 +421,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         // Nothing is currently done.
     }
 
-    private String[] purseSearchFields(String upnpProp) {
+    private List<String> purseSearchFields(String upnpProp) {
         List<String> fieldName = new ArrayList<>();
         switch (upnpProp) {
 
@@ -474,7 +475,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
             break;
         }
 
-        return fieldName.toArray(String[]::new);
+        return fieldName;
     }
 
     @Override
@@ -484,15 +485,16 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         notice(3 != children.size(), "The number of child elements of ClassRelExp is incorrect.");
 
         final String subject = children.get(0).getText();
-        String[] searchFields = purseSearchFields(subject);
-        if (enteredSearchFields.stream().anyMatch(s -> Arrays.equals(searchFields, s))) {
+        List<String> searchFields = purseSearchFields(subject);
+
+        if (enteredSearchFields.stream().anyMatch(s -> Objects.deepEquals(searchFields, s))) {
             return;
         }
         enteredSearchFields.add(searchFields);
 
         final String complement = children.get(2).getText();
 
-        notice(0 == searchFields.length && !UPNP_PROP_ALBUM.equals(subject),
+        notice(searchFields.isEmpty() && !UPNP_PROP_ALBUM.equals(subject),
                 "Unexpected PropertyExpContext. -> " + subject);
 
         try {
@@ -724,7 +726,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         // Nothing is currently done.
     }
 
-    private Optional<Query> createMultiFieldQuery(final String[] fields, final String query) throws IOException {
+    private Optional<Query> createMultiFieldQuery(final List<String> fields, final String query) throws IOException {
         return queryFactory.createPhraseQuery(fields, query, getIndexType());
     }
 

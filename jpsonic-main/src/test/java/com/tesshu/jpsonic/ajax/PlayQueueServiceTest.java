@@ -178,7 +178,7 @@ class PlayQueueServiceTest {
             song2.setId(2);
             song2.setPathString("song2");
             List<MediaFile> children = List.of(song1, song2);
-            Mockito.when(mediaFileService.getChildrenOf(parent, true, false, true)).thenReturn(children);
+            Mockito.when(mediaFileService.getChildrenOf(parent, true, false)).thenReturn(children);
             Mockito.when(mediaFileService.getMediaFileStrict(song1.getId())).thenReturn(song1);
             assertNotNull(playQueueService.play(song1.getId()));
         }
