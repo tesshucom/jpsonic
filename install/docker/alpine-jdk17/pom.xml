@@ -5,7 +5,7 @@
     <parent>
         <relativePath>../../../pom.xml</relativePath>
         <artifactId>jpsonic</artifactId>
-        <version>111.6.0</version>
+        <version>112.0.0-SNAPSHOT</version>
         <groupId>com.tesshu.jpsonic.player</groupId>
     </parent>
     <packaging>pom</packaging>
