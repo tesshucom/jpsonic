@@ -626,7 +626,8 @@ public class PlayQueueService {
         return convert(request, player, false);
     }
 
-    public PlayQueueInfo removeMany(int... indexes) throws ServletRequestBindingException {
+    @SuppressWarnings("PMD.UseVarargs") // Don't use varargs in Ajax
+    public PlayQueueInfo removeMany(int[] indexes) throws ServletRequestBindingException {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         HttpServletResponse response = ajaxHelper.getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
@@ -636,7 +637,8 @@ public class PlayQueueService {
         return convert(request, player, false);
     }
 
-    public PlayQueueInfo rearrange(int... indexes) throws ServletRequestBindingException {
+    @SuppressWarnings("PMD.UseVarargs") // Don't use varargs in Ajax
+    public PlayQueueInfo rearrange(int[] indexes) throws ServletRequestBindingException {
         HttpServletRequest request = ajaxHelper.getHttpServletRequest();
         HttpServletResponse response = ajaxHelper.getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
