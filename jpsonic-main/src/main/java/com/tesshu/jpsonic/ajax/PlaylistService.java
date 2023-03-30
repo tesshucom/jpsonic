@@ -240,7 +240,8 @@ public class PlaylistService {
         return getPlaylist(id);
     }
 
-    public PlaylistInfo rearrange(int id, int... indexes) {
+    @SuppressWarnings("PMD.UseVarargs") // Don't use varargs in Ajax
+    public PlaylistInfo rearrange(int id, int[] indexes) {
         List<MediaFile> files = deligate.getFilesInPlaylist(id, true);
         MediaFile[] newFiles = new MediaFile[files.size()];
         for (int i = 0; i < indexes.length; i++) {
