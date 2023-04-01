@@ -35,7 +35,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.command.MusicFolderSettingsCommand;
-import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
@@ -113,6 +112,7 @@ public class MusicFolderSettingsController {
 
         // Run a scan
         mediaScannerService.getLastScanEventType().ifPresent(type -> command.setLastScanEventType(type));
+        command.setIgnoreFileTimestamps(settingsService.isIgnoreFileTimestamps());
         command.setInterval(String.valueOf(settingsService.getIndexCreationInterval()));
         command.setHour(String.valueOf(settingsService.getIndexCreationHour()));
         command.setUseCleanUp(settingsService.isUseCleanUp());
@@ -120,11 +120,6 @@ public class MusicFolderSettingsController {
         // Exclusion settings
         command.setExcludePatternString(settingsService.getExcludePatternString());
         command.setIgnoreSymLinks(settingsService.isIgnoreSymLinks());
-
-        // Other operations
-        command.setFileModifiedCheckScheme(settingsService.getFileModifiedCheckScheme());
-        command.setIgnoreFileTimestamps(settingsService.isIgnoreFileTimestamps());
-        command.setIgnoreFileTimestampsForEachAlbum(settingsService.isIgnoreFileTimestampsForEachAlbum());
 
         // for view page control
         command.setUseRadio(settingsService.isUseRadio());
@@ -186,21 +181,13 @@ public class MusicFolderSettingsController {
         });
 
         // Run a scan
+        settingsService.setIgnoreFileTimestamps(command.isIgnoreFileTimestamps());
         settingsService.setIndexCreationInterval(Integer.parseInt(command.getInterval()));
         settingsService.setIndexCreationHour(Integer.parseInt(command.getHour()));
 
         // Exclusion settings
         settingsService.setExcludePatternString(command.getExcludePatternString());
         settingsService.setIgnoreSymLinks(command.isIgnoreSymLinks());
-
-        // Other operations
-        settingsService.setFileModifiedCheckSchemeName(command.getFileModifiedCheckScheme().name());
-        settingsService
-                .setIgnoreFileTimestamps(FileModifiedCheckScheme.LAST_MODIFIED == command.getFileModifiedCheckScheme()
-                        && command.isIgnoreFileTimestamps());
-        settingsService.setIgnoreFileTimestampsForEachAlbum(
-                FileModifiedCheckScheme.LAST_SCANNED == command.getFileModifiedCheckScheme()
-                        || command.isIgnoreFileTimestampsForEachAlbum());
 
         settingsService.save();
 

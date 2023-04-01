@@ -36,7 +36,6 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.NeedsHome;
-import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.PreferredFormatSheme;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
@@ -375,6 +374,11 @@ class SettingsServiceTest {
     }
 
     @Test
+    void testIsIgnoreFileTimestamps() {
+        assertFalse(settingsService.isIgnoreFileTimestamps());
+    }
+
+    @Test
     void testGetIndexCreationInterval() {
         assertEquals(1, settingsService.getIndexCreationInterval(), "Wrong default index creation interval.");
     }
@@ -382,21 +386,6 @@ class SettingsServiceTest {
     @Test
     void testGetIndexCreationHour() {
         assertEquals(3, settingsService.getIndexCreationHour(), "Wrong default index creation hour.");
-    }
-
-    @Test
-    void testGetFileModifiedCheckSchemeName() {
-        assertEquals(FileModifiedCheckScheme.LAST_MODIFIED.name(), settingsService.getFileModifiedCheckSchemeName());
-    }
-
-    @Test
-    void testIsIgnoreFileTimestamps() {
-        assertFalse(settingsService.isIgnoreFileTimestamps());
-    }
-
-    @Test
-    void testIsIgnoreFileTimestampsForEachAlbum() {
-        assertFalse(settingsService.isIgnoreFileTimestampsForEachAlbum());
     }
 
     @Test

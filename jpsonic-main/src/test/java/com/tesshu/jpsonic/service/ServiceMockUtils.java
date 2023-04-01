@@ -26,7 +26,6 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.dao.TranscodingDao;
-import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.Transcoding;
@@ -106,8 +105,6 @@ public final class ServiceMockUtils {
             Mockito.when(settingsService.getShortcutsAsArray())
                     .thenReturn(StringUtil.split(SettingsConstants.General.Extension.SHORTCUTS.defaultValue));
             Mockito.when(settingsService.isGettingStartedEnabled()).thenReturn(false);
-            Mockito.when(settingsService.getFileModifiedCheckScheme())
-                    .thenReturn(FileModifiedCheckScheme.LAST_MODIFIED);
             Mockito.when(settingsService.getJWTKey()).thenReturn("SomeKey");
             Mockito.when(settingsService.getIndexSchemeName()).thenReturn(IndexScheme.NATIVE_JAPANESE.name());
             Mockito.when(settingsService.isIgnoreFullWidth()).thenReturn(true);
