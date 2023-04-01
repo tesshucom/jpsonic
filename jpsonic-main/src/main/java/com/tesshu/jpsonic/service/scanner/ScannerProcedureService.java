@@ -325,9 +325,8 @@ public class ScannerProcedureService {
         registered.setAlbumSortRaw(fetchedFirstChild.getAlbumSort());
         registered.setYear(fetchedFirstChild.getYear());
         registered.setGenre(fetchedFirstChild.getGenre());
-        Instant lastModified = wmfs.getLastModified(scanDate, registered.toPath());
-        registered.setChanged(lastModified);
-        registered.setCreated(lastModified);
+        registered.setChanged(registered.getChanged());
+        registered.setCreated(registered.getChanged());
         registered.setLastScanned(scanDate);
         registered.setPresent(true);
         readingUtils.analyze(registered);

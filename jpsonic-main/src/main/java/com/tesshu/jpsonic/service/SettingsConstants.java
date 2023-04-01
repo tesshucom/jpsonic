@@ -19,7 +19,6 @@
 
 package com.tesshu.jpsonic.service;
 
-import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.PreferredFormatSheme;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
@@ -59,6 +58,7 @@ final class SettingsConstants {
     static class MusicFolder {
 
         static class Scan {
+            static final Pair<Boolean> IGNORE_FILE_TIMESTAMPS = Pair.of("IgnoreFileTimestamps", false);
             static final Pair<Integer> INDEX_CREATION_INTERVAL = Pair.of("IndexCreationInterval", 1);
             static final Pair<Integer> INDEX_CREATION_HOUR = Pair.of("IndexCreationHour", 3);
 
@@ -71,17 +71,6 @@ final class SettingsConstants {
             static final Pair<Boolean> IGNORE_SYMLINKS = Pair.of("IgnoreSymLinks", false);
 
             private Exclusion() {
-            }
-        }
-
-        static class Others {
-            static final Pair<String> FILE_MODIFIED_CHECK_SCHEME_NAME = Pair.of("FileModifiedCheckSchemeName",
-                    FileModifiedCheckScheme.LAST_MODIFIED.name());
-            static final Pair<Boolean> IGNORE_FILE_TIMESTAMPS = Pair.of("IgnoreFileTimestamps", false);
-            static final Pair<Boolean> IGNORE_FILE_TIMESTAMPS_FOR_EACH_ALBUM = Pair
-                    .of("IgnoreFileTimestampsForEachAlbum", false);
-
-            private Others() {
             }
         }
 

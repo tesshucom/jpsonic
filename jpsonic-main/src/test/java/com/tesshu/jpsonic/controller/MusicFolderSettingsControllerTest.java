@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
 import com.tesshu.jpsonic.MusicFolderTestDataUtils;
 import com.tesshu.jpsonic.command.MusicFolderSettingsCommand;
 import com.tesshu.jpsonic.command.MusicFolderSettingsCommand.MusicFolderInfo;
-import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -265,66 +264,17 @@ class MusicFolderSettingsControllerTest {
                 .getModelAndView().getModelMap().get(Attributes.Model.Command.VALUE);
         assertFalse(command.isIgnoreFileTimestamps());
 
-        // IgnoreFileTimestamps is enabled only when the check method is LAST_MODIFIED.
-        command.setFileModifiedCheckScheme(FileModifiedCheckScheme.LAST_MODIFIED);
         command.setIgnoreFileTimestamps(true);
         ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(Boolean.class);
         Mockito.doNothing().when(settingsService).setIgnoreFileTimestamps(captor.capture());
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         assertTrue(captor.getValue());
 
-        // Disabled if LAST_SCANNED is specified.
-        command.setFileModifiedCheckScheme(FileModifiedCheckScheme.LAST_SCANNED);
-        command.setIgnoreFileTimestamps(true);
         captor = ArgumentCaptor.forClass(Boolean.class);
         Mockito.doNothing().when(settingsService).setIgnoreFileTimestamps(captor.capture());
-        command.setIgnoreFileTimestamps(true);
+        command.setIgnoreFileTimestamps(false);
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         assertFalse(captor.getValue());
-    }
-
-    @Test
-    @Order(12)
-    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
-    void testIfIgnoreFileTimestampsForEachAlbum() throws Exception {
-
-        MusicFolderSettingsCommand command = (MusicFolderSettingsCommand) mockMvc
-                .perform(MockMvcRequestBuilders.get("/" + ViewName.MUSIC_FOLDER_SETTINGS.value())).andReturn()
-                .getModelAndView().getModelMap().get(Attributes.Model.Command.VALUE);
-        assertFalse(command.isIgnoreFileTimestampsForEachAlbum());
-
-        /*
-         * isIgnoreFileTimestampsForEachAlbum is a flag to show the scan-force-button on the album page. Default is
-         * false.
-         */
-        ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(Boolean.class);
-        Mockito.doNothing().when(settingsService).setIgnoreFileTimestampsForEachAlbum(captor.capture());
-        mockMvc.perform(MockMvcRequestBuilders.post("/" + ViewName.MUSIC_FOLDER_SETTINGS.value())
-                .flashAttr(Attributes.Model.Command.VALUE, command)).andExpect(MockMvcResultMatchers.status().isFound())
-                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.MUSIC_FOLDER_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().is3xxRedirection());
-        assertFalse(captor.getValue());
-
-        /*
-         * Forced scanning each album can coexist with traditional scanning specifications. Show button if
-         * IgnoreFileTimestampsForEachAlbum is true.
-         */
-        command.setIgnoreFileTimestampsForEachAlbum(true);
-        command.setFileModifiedCheckScheme(FileModifiedCheckScheme.LAST_MODIFIED);
-        captor = ArgumentCaptor.forClass(Boolean.class);
-        Mockito.doNothing().when(settingsService).setIgnoreFileTimestampsForEachAlbum(captor.capture());
-        controller.post(command, Mockito.mock(RedirectAttributes.class));
-        assertTrue(captor.getValue());
-
-        /*
-         * Depending on the scan check method, it is necessary to always display a button on the album page.
-         */
-        command.setIgnoreFileTimestampsForEachAlbum(false);
-        command.setFileModifiedCheckScheme(FileModifiedCheckScheme.LAST_SCANNED);
-        captor = ArgumentCaptor.forClass(Boolean.class);
-        Mockito.doNothing().when(settingsService).setIgnoreFileTimestampsForEachAlbum(captor.capture());
-        controller.post(command, Mockito.mock(RedirectAttributes.class));
-        assertTrue(captor.getValue());
     }
 
     @Documented

@@ -25,7 +25,6 @@ import java.nio.file.Path;
 import java.util.List;
 
 import com.tesshu.jpsonic.controller.MusicFolderSettingsController;
-import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 
@@ -42,6 +41,7 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
     // Run a scan
     private ScanEventType lastScanEventType;
+    private boolean ignoreFileTimestamps;
     private String interval;
     private String hour;
     private boolean useCleanUp;
@@ -49,11 +49,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
     // Exclusion settings
     private String excludePatternString;
     private boolean ignoreSymLinks;
-
-    // Other operations
-    private FileModifiedCheckScheme fileModifiedCheckScheme;
-    private boolean ignoreFileTimestamps;
-    private boolean ignoreFileTimestampsForEachAlbum;
 
     // for view page control
     private boolean useRefresh;
@@ -81,6 +76,14 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
     public void setLastScanEventType(ScanEventType lastScanEventType) {
         this.lastScanEventType = lastScanEventType;
+    }
+
+    public boolean isIgnoreFileTimestamps() {
+        return ignoreFileTimestamps;
+    }
+
+    public void setIgnoreFileTimestamps(boolean ignoreFileTimes) {
+        this.ignoreFileTimestamps = ignoreFileTimes;
     }
 
     public String getInterval() {
@@ -121,30 +124,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
     public void setIgnoreSymLinks(boolean ignoreSymLinks) {
         this.ignoreSymLinks = ignoreSymLinks;
-    }
-
-    public FileModifiedCheckScheme getFileModifiedCheckScheme() {
-        return fileModifiedCheckScheme;
-    }
-
-    public void setFileModifiedCheckScheme(FileModifiedCheckScheme fileModifiedCheckScheme) {
-        this.fileModifiedCheckScheme = fileModifiedCheckScheme;
-    }
-
-    public boolean isIgnoreFileTimestamps() {
-        return ignoreFileTimestamps;
-    }
-
-    public void setIgnoreFileTimestamps(boolean ignoreFileTimes) {
-        this.ignoreFileTimestamps = ignoreFileTimes;
-    }
-
-    public boolean isIgnoreFileTimestampsForEachAlbum() {
-        return ignoreFileTimestampsForEachAlbum;
-    }
-
-    public void setIgnoreFileTimestampsForEachAlbum(boolean ignoreFileTimestampsForEachAlbum) {
-        this.ignoreFileTimestampsForEachAlbum = ignoreFileTimestampsForEachAlbum;
     }
 
     public boolean isUseRefresh() {

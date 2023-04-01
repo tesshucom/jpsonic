@@ -40,7 +40,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
-import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.Theme;
 import com.tesshu.jpsonic.service.SettingsConstants.Pair;
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
@@ -97,7 +96,7 @@ public class SettingsService {
             "database.config.jndi.name", "database.usertable.quote", "ShowJavaJukebox", "AnonymousTranscoding",
             "UseSonos", "SearchMethodLegacy", "SearchMethodChanged", "FastCacheEnabled", "UseRefresh", "ShowRefresh",
             "VerboseLogStart", "VerboseLogScanning", "VerboseLogPlaying", "VerboseLogShutdown",
-            "IgnoreFileTimestampsNext");
+            "IgnoreFileTimestampsNext", "FileModifiedCheckSchemeName", "IgnoreFileTimestampsForEachAlbum");
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
@@ -272,6 +271,14 @@ public class SettingsService {
         save(true);
     }
 
+    public boolean isIgnoreFileTimestamps() {
+        return getBoolean(SettingsConstants.MusicFolder.Scan.IGNORE_FILE_TIMESTAMPS);
+    }
+
+    public void setIgnoreFileTimestamps(boolean b) {
+        setProperty(SettingsConstants.MusicFolder.Scan.IGNORE_FILE_TIMESTAMPS, b);
+    }
+
     /**
      * Returns the number of days between automatic index creation, of -1 if automatic index creation is disabled.
      */
@@ -331,34 +338,6 @@ public class SettingsService {
 
     public void setIgnoreSymLinks(boolean b) {
         setProperty(SettingsConstants.MusicFolder.Exclusion.IGNORE_SYMLINKS, b);
-    }
-
-    public String getFileModifiedCheckSchemeName() {
-        return getString(SettingsConstants.MusicFolder.Others.FILE_MODIFIED_CHECK_SCHEME_NAME);
-    }
-
-    public FileModifiedCheckScheme getFileModifiedCheckScheme() {
-        return FileModifiedCheckScheme.valueOf(getFileModifiedCheckSchemeName());
-    }
-
-    public void setFileModifiedCheckSchemeName(String s) {
-        setProperty(SettingsConstants.MusicFolder.Others.FILE_MODIFIED_CHECK_SCHEME_NAME, s);
-    }
-
-    public boolean isIgnoreFileTimestamps() {
-        return getBoolean(SettingsConstants.MusicFolder.Others.IGNORE_FILE_TIMESTAMPS);
-    }
-
-    public void setIgnoreFileTimestamps(boolean b) {
-        setProperty(SettingsConstants.MusicFolder.Others.IGNORE_FILE_TIMESTAMPS, b);
-    }
-
-    public boolean isIgnoreFileTimestampsForEachAlbum() {
-        return getBoolean(SettingsConstants.MusicFolder.Others.IGNORE_FILE_TIMESTAMPS_FOR_EACH_ALBUM);
-    }
-
-    public void setIgnoreFileTimestampsForEachAlbum(boolean b) {
-        setProperty(SettingsConstants.MusicFolder.Others.IGNORE_FILE_TIMESTAMPS_FOR_EACH_ALBUM, b);
     }
 
     public List<Locale> getAvailableLocales() {
