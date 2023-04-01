@@ -21,20 +21,24 @@
 
 package com.tesshu.jpsonic.spring;
 
+import static com.tesshu.jpsonic.service.SettingsService.getDefaultJDBCPassword;
+import static com.tesshu.jpsonic.service.SettingsService.getDefaultJDBCUrl;
+import static com.tesshu.jpsonic.service.SettingsService.getDefaultJDBCUsername;
+
 import java.nio.file.Path;
 import java.util.Map;
 
 import javax.sql.DataSource;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.DaoHelper;
 import com.tesshu.jpsonic.dao.GenericDaoHelper;
 import com.tesshu.jpsonic.dao.LegacyHsqlDaoHelper;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.PlayerUtils;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import liquibase.integration.spring.SpringLiquibase;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -86,16 +90,25 @@ public class DatabaseConfiguration {
         return new GenericDaoHelper(dataSource);
     }
 
+    private HikariConfig createConfig(String driver, String url, String user, String pass) {
+        HikariConfig config = new HikariConfig();
+        config.setDriverClassName(driver);
+        config.setJdbcUrl(url);
+        config.setUsername(user);
+        config.setPassword(pass);
+        config.setConnectionTimeout(60_000);
+        config.setMinimumIdle(0);
+        config.setMaximumPoolSize(8);
+        config.setMaxLifetime(1_800_000);
+        config.setIdleTimeout(300_000);
+        return config;
+    }
+
     @Bean
     @Profile(ProfileNameConstants.LEGACY)
-    @SuppressFBWarnings(value = "HARD_CODE_PASSWORD", justification = "The hard-coded fixed strings is used for embedded-hsqldb passwords.")
     public DataSource legacyDataSource() {
-        BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setDriverClassName("org.hsqldb.jdbcDriver");
-        dataSource.setUrl(SettingsService.getDefaultJDBCUrl());
-        dataSource.setUsername(SettingsService.getDefaultJDBCUsername());
-        dataSource.setPassword(SettingsService.getDefaultJDBCPassword());
-        return dataSource;
+        return new HikariDataSource(createConfig("org.hsqldb.jdbc.JDBCDriver", getDefaultJDBCUrl(),
+                getDefaultJDBCUsername(), getDefaultJDBCPassword()));
     }
 
     @SuppressWarnings("PMD.UseObjectForClearerAPI") // Because it's spring API
@@ -104,12 +117,7 @@ public class DatabaseConfiguration {
     public DataSource embedDataSource(@Value("${DatabaseConfigEmbedDriver}") String driver,
             @Value("${DatabaseConfigEmbedUrl}") String url, @Value("${DatabaseConfigEmbedUsername}") String username,
             @Value("${DatabaseConfigEmbedPassword}") String password) {
-        BasicDataSource basicDataSource = new BasicDataSource();
-        basicDataSource.setDriverClassName(driver);
-        basicDataSource.setUrl(url);
-        basicDataSource.setUsername(username);
-        basicDataSource.setPassword(password);
-        return basicDataSource;
+        return new HikariDataSource(createConfig(driver, url, username, password));
     }
 
     @Bean
