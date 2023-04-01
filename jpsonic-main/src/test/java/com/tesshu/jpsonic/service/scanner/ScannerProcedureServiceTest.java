@@ -35,7 +35,6 @@ import com.tesshu.jpsonic.domain.ScanEvent;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -65,7 +64,7 @@ class ScannerProcedureServiceTest {
         WritableMediaFileService writableMediaFileService = new WritableMediaFileService(mediaFileDao, null,
                 mediaFileService, albumDao, null, mock(MusicParser.class), mock(VideoParser.class), settingsService,
                 mock(SecurityService.class), mock(JapaneseReadingUtils.class), mock(IndexManager.class));
-        scannerProcedureService = new ScannerProcedureService(settingsService, mock(MusicFolderService.class),
+        scannerProcedureService = new ScannerProcedureService(settingsService, mock(MusicFolderServiceImpl.class),
                 mock(IndexManager.class), mediaFileService, writableMediaFileService, mock(PlaylistService.class),
                 mediaFileDao, mock(ArtistDao.class), albumDao, staticsDao, mock(SortProcedureService.class),
                 new ScannerStateServiceImpl(staticsDao), mock(Ehcache.class), mock(MediaFileCache.class),

@@ -67,7 +67,6 @@ import com.tesshu.jpsonic.domain.SearchResult;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MediaScannerService;
-import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -210,7 +209,7 @@ class MediaScannerServiceImplTest {
             writableMediaFileService = new WritableMediaFileService(mediaFileDao, scannerStateService, mediaFileService,
                     albumDao, mock(MediaFileCache.class), mock(MusicParser.class), mock(VideoParser.class),
                     settingsService, mock(SecurityService.class), null, mock(IndexManager.class));
-            scannerProcedureService = new ScannerProcedureService(settingsService, mock(MusicFolderService.class),
+            scannerProcedureService = new ScannerProcedureService(settingsService, mock(MusicFolderServiceImpl.class),
                     indexManager, mediaFileService, writableMediaFileService, mock(PlaylistService.class), mediaFileDao,
                     artistDao, albumDao, staticsDao, utils, scannerStateService, mock(Ehcache.class),
                     mock(MediaFileCache.class), mock(JapaneseReadingUtils.class));
@@ -712,7 +711,7 @@ class MediaScannerServiceImplTest {
         @Autowired
         private SettingsService settingsService;
         @Autowired
-        private MusicFolderService musicFolderService;
+        private MusicFolderServiceImpl musicFolderService;
         @Autowired
         private MediaFileService mediaFileService;
         @Autowired

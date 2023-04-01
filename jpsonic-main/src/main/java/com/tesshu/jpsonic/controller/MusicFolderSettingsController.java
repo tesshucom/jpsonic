@@ -39,10 +39,10 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MediaScannerService;
-import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
 import com.tesshu.jpsonic.util.PathValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -67,13 +67,13 @@ import org.springframework.web.servlet.view.RedirectView;
 public class MusicFolderSettingsController {
 
     private final SettingsService settingsService;
-    private final MusicFolderService musicFolderService;
+    private final MusicFolderServiceImpl musicFolderService;
     private final SecurityService securityService;
     private final MediaScannerService mediaScannerService;
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public MusicFolderSettingsController(SettingsService settingsService, MusicFolderService musicFolderService,
+    public MusicFolderSettingsController(SettingsService settingsService, MusicFolderServiceImpl musicFolderService,
             SecurityService securityService, MediaScannerService mediaScannerService, ShareService shareService,
             OutlineHelpSelector outlineHelpSelector) {
         super();

@@ -17,7 +17,7 @@
  * (C) 2023 tesshucom
  */
 
-package com.tesshu.jpsonic.service;
+package com.tesshu.jpsonic.service.scanner;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.Assert.assertNull;
@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import net.sf.ehcache.Ehcache;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,7 +50,7 @@ class MusicFolderServiceTest {
     private MusicFolderDao musicFolderDao;
     private SettingsService settingsService;
     private Ehcache indexCache;
-    private MusicFolderService musicFolderService;
+    private MusicFolderServiceImpl musicFolderService;
 
     private static final String USER_NAME = "user";
 
@@ -60,7 +61,7 @@ class MusicFolderServiceTest {
         Mockito.when(settingsService.isRedundantFolderCheck()).thenReturn(false);
 
         indexCache = mock(Ehcache.class);
-        musicFolderService = new MusicFolderService(musicFolderDao, mock(StaticsDao.class), settingsService,
+        musicFolderService = new MusicFolderServiceImpl(musicFolderDao, mock(StaticsDao.class), settingsService,
                 indexCache);
 
         MusicFolder m1 = new MusicFolder(1, "/dummy/path", "Disabled&NonExisting", false, null);

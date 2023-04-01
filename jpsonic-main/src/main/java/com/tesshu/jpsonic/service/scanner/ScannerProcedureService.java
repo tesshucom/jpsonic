@@ -49,7 +49,6 @@ import com.tesshu.jpsonic.domain.ScanEvent;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.IndexManager;
@@ -73,7 +72,7 @@ public class ScannerProcedureService {
     private static final Logger LOG = LoggerFactory.getLogger(ScannerProcedureService.class);
 
     private final SettingsService settingsService;
-    private final MusicFolderService musicFolderService;
+    private final MusicFolderServiceImpl musicFolderService;
     private final IndexManager indexManager;
     private final MediaFileService mediaFileService;
     private final WritableMediaFileService wmfs;
@@ -92,7 +91,7 @@ public class ScannerProcedureService {
 
     private final AtomicBoolean cancel = new AtomicBoolean();
 
-    public ScannerProcedureService(SettingsService settingsService, MusicFolderService musicFolderService,
+    public ScannerProcedureService(SettingsService settingsService, MusicFolderServiceImpl musicFolderService,
             IndexManager indexManager, MediaFileService mediaFileService, WritableMediaFileService wmfs,
             PlaylistService playlistService, MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao,
             StaticsDao staticsDao, SortProcedureService sortProcedure, ScannerStateServiceImpl scannerStateService,
