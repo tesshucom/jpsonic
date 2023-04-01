@@ -50,14 +50,16 @@ public class MusicFolderServiceImpl implements MusicFolderService {
     private final MusicFolderDao musicFolderDao;
     private final StaticsDao staticsDao;
     private final SettingsService settingsService;
+    private final ScannerStateServiceImpl scannerStateService;
     private final Ehcache indexCache;
     private final Object lock = new Object();
 
     public MusicFolderServiceImpl(MusicFolderDao musicFolderDao, StaticsDao staticsDao, SettingsService settingsService,
-            Ehcache indexCache) {
+            ScannerStateServiceImpl scannerStateService, Ehcache indexCache) {
         this.musicFolderDao = musicFolderDao;
         this.staticsDao = staticsDao;
         this.settingsService = settingsService;
+        this.scannerStateService = scannerStateService;
         this.indexCache = indexCache;
         cachedUserFolders = new ConcurrentHashMap<>();
     }
@@ -116,21 +118,30 @@ public class MusicFolderServiceImpl implements MusicFolderService {
     }
 
     public void createMusicFolder(@NonNull Instant executed, @NonNull MusicFolder musicFolder) {
-        musicFolderDao.createMusicFolder(musicFolder);
-        staticsDao.createFolderLog(executed, ScanEventType.FOLDER_CREATE);
-        clearMusicFolderCache();
+        if (scannerStateService.tryScanningLock()) {
+            musicFolderDao.createMusicFolder(musicFolder);
+            staticsDao.createFolderLog(executed, ScanEventType.FOLDER_CREATE);
+            clearMusicFolderCache();
+            scannerStateService.unlockScanning();
+        }
     }
 
     public void deleteMusicFolder(@NonNull Instant executed, int id) {
-        musicFolderDao.deleteMusicFolder(id);
-        staticsDao.createFolderLog(executed, ScanEventType.FOLDER_DELETE);
-        clearMusicFolderCache();
+        if (scannerStateService.tryScanningLock()) {
+            musicFolderDao.deleteMusicFolder(id);
+            staticsDao.createFolderLog(executed, ScanEventType.FOLDER_DELETE);
+            clearMusicFolderCache();
+            scannerStateService.unlockScanning();
+        }
     }
 
     public void updateMusicFolder(@NonNull Instant executed, @NonNull MusicFolder musicFolder) {
-        musicFolderDao.updateMusicFolder(musicFolder);
-        staticsDao.createFolderLog(executed, ScanEventType.FOLDER_UPDATE);
-        clearMusicFolderCache();
+        if (scannerStateService.tryScanningLock()) {
+            musicFolderDao.updateMusicFolder(musicFolder);
+            staticsDao.createFolderLog(executed, ScanEventType.FOLDER_UPDATE);
+            clearMusicFolderCache();
+            scannerStateService.unlockScanning();
+        }
     }
 
     @SuppressWarnings("PMD.NullAssignment") // (cachedMusicFolders) Intentional allocation to clear cache

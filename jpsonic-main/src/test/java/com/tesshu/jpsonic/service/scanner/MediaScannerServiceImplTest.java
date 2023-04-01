@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -1043,7 +1044,7 @@ class MediaScannerServiceImplTest {
          * performance barrier.
          */
         @Test
-        void testRestoreUpdate() throws URISyntaxException, IOException, InterruptedException {
+        void testRestoreUpdate() throws URISyntaxException, IOException, InterruptedException, ExecutionException {
 
             MediaFile song = mediaFileDao.getMediaFile(this.song.toString());
             assertEquals(this.song, song.toPath());
@@ -1051,20 +1052,24 @@ class MediaScannerServiceImplTest {
 
             MusicFolder folder = musicFolders.get(0);
             folder.setEnabled(false);
-            musicFolderService.updateMusicFolder(now(), folder);
-            Thread.sleep(10);
+
+            ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+            executor.initialize();
+            executor.submit(() -> musicFolderService.updateMusicFolder(now(), folder)).get();
+
             TestCaseUtils.execScan(mediaScannerService);
 
             assertNull(mediaFileDao.getMediaFile(this.song.toString()));
 
             folder.setEnabled(true);
-            musicFolderService.updateMusicFolder(now(), folder);
-            Thread.sleep(10);
+            executor.submit(() -> musicFolderService.updateMusicFolder(now(), folder)).get();
             TestCaseUtils.execScan(mediaScannerService);
 
             song = mediaFileDao.getMediaFile(this.song.toString());
             assertEquals(this.song, song.toPath());
             assertTrue(song.isPresent());
+
+            executor.shutdown();
         }
     }
 }

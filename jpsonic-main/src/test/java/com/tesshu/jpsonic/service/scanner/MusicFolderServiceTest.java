@@ -59,10 +59,11 @@ class MusicFolderServiceTest {
         musicFolderDao = mock(MusicFolderDao.class);
         settingsService = mock(SettingsService.class);
         Mockito.when(settingsService.isRedundantFolderCheck()).thenReturn(false);
-
+        ScannerStateServiceImpl scannerStateService = mock(ScannerStateServiceImpl.class);
+        Mockito.when(scannerStateService.tryScanningLock()).thenReturn(true);
         indexCache = mock(Ehcache.class);
         musicFolderService = new MusicFolderServiceImpl(musicFolderDao, mock(StaticsDao.class), settingsService,
-                indexCache);
+                scannerStateService, indexCache);
 
         MusicFolder m1 = new MusicFolder(1, "/dummy/path", "Disabled&NonExisting", false, null);
         MusicFolder m2 = new MusicFolder(2, "/dummy/path", "Enabled&NonExisting", true, null);
