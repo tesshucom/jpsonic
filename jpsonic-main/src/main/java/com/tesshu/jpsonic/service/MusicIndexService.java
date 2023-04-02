@@ -22,7 +22,6 @@
 package com.tesshu.jpsonic.service;
 
 import java.io.Serializable;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -100,11 +99,13 @@ public class MusicIndexService {
 
     public List<MediaFile> getShortcuts(List<MusicFolder> musicFoldersToUse) {
         List<MediaFile> result = new ArrayList<>();
-        for (String shortcut : settingsService.getShortcutsAsArray()) {
+        for (String shortcuts : settingsService.getShortcutsAsArray()) {
             for (MusicFolder musicFolder : musicFoldersToUse) {
-                Path shortcutPath = Path.of(musicFolder.getPathString(), shortcut);
-                if (Files.exists(shortcutPath)) {
-                    result.add(mediaFileService.getMediaFile(shortcutPath));
+                Path shortcutPath = Path.of(musicFolder.getPathString(), shortcuts);
+                MediaFile shortcut = mediaFileService.getMediaFile(shortcutPath);
+                if (shortcut != null && mediaFileService.getChildrenOf(shortcut, true, true).size() > 0
+                        && !result.contains(shortcut)) {
+                    result.add(shortcut);
                 }
             }
         }
