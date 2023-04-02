@@ -23,6 +23,7 @@ import static com.tesshu.jpsonic.util.PlayerUtils.FAR_PAST;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.time.Instant;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
@@ -88,7 +89,16 @@ public class ScannerStateServiceImpl implements ScannerStateService {
         if (!ready.get() || destroy.get()) {
             return false;
         }
-        boolean acquired = scanningLock.tryLock();
+
+        boolean acquired;
+        try {
+            acquired = scanningLock.tryLock(1500L, TimeUnit.MILLISECONDS);
+            if (acquired) {
+                Thread.sleep(1);
+            }
+        } catch (InterruptedException e) {
+            acquired = false;
+        }
         if (acquired) {
             scanDate = now();
             scanCount.reset();

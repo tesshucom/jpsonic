@@ -41,11 +41,11 @@ import com.tesshu.jpsonic.command.MusicFolderSettingsCommand;
 import com.tesshu.jpsonic.command.MusicFolderSettingsCommand.MusicFolderInfo;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MediaScannerService;
-import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
@@ -72,7 +72,7 @@ class MusicFolderSettingsControllerTest {
     private static final String VIEW_NAME = "musicFolderSettings";
 
     private SettingsService settingsService;
-    private MusicFolderService musicFolderService;
+    private MusicFolderServiceImpl musicFolderService;
     private MediaScannerService mediaScannerService;
     private MusicFolderSettingsController controller;
     private MockMvc mockMvc;
@@ -80,7 +80,7 @@ class MusicFolderSettingsControllerTest {
     @BeforeEach
     public void setup() throws ExecutionException {
         settingsService = mock(SettingsService.class);
-        musicFolderService = mock(MusicFolderService.class);
+        musicFolderService = mock(MusicFolderServiceImpl.class);
         mediaScannerService = mock(MediaScannerService.class);
         controller = new MusicFolderSettingsController(settingsService, musicFolderService, mock(SecurityService.class),
                 mediaScannerService, mock(ShareService.class), mock(OutlineHelpSelector.class));
