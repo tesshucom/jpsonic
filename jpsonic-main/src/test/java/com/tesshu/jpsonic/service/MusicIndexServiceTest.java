@@ -218,15 +218,23 @@ class MusicIndexServiceTest {
     void testGetShortcuts() throws URISyntaxException {
         Mockito.when(settingsService.getShortcutsAsArray())
                 .thenReturn(StringUtil.split(SettingsConstants.General.Extension.SHORTCUTS.defaultValue + " Metadata"));
-        MediaFile song = new MediaFile();
-        song.setTitle("Files directly under the shortcut directory");
-        song.setPathString("path");
-        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(song);
         MusicFolder folder = new MusicFolder(
-                Path.of(MusicIndexServiceTest.class.getResource("/MEDIAS").toURI()).toString(), "Music", true, now());
+                Path.of(MusicIndexServiceTest.class.getResource("/MEDIAS/Music").toURI()).toString(), "Music", true,
+                now());
+        assertEquals(0, musicIndexService.getShortcuts(Arrays.asList(folder)).size());
 
-        List<MediaFile> shortcuts = musicIndexService.getShortcuts(Arrays.asList(folder));
-        assertEquals(1, shortcuts.size());
+        MediaFile artist = new MediaFile();
+        artist.setPathString("path");
+        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(artist);
+        assertEquals(0, musicIndexService.getShortcuts(Arrays.asList(folder)).size());
+
+        artist.setPathString(
+                Path.of(MusicIndexServiceTest.class.getResource("/MEDIAS/Music/_DIR_ Ravel").toURI()).toString());
+        assertEquals(0, musicIndexService.getShortcuts(Arrays.asList(folder)).size());
+
+        List<MediaFile> children = Arrays.asList(new MediaFile());
+        Mockito.when(mediaFileService.getChildrenOf(artist, true, true)).thenReturn(children);
+        assertEquals(1, musicIndexService.getShortcuts(Arrays.asList(folder)).size());
     }
 
     @Test
