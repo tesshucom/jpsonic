@@ -134,6 +134,8 @@ public class TopController {
 
         String username = securityService.getCurrentUsernameStrict(request);
         List<MusicFolder> allMusicFolders = musicFolderService.getMusicFoldersForUser(username);
+        boolean musicFolderChanged = saveSelectedMusicFolder(request);
+        map.put("musicFolderChanged", musicFolderChanged);
         MusicFolder selectedMusicFolder = securityService.getSelectedMusicFolder(username);
         List<MusicFolder> musicFoldersToUse = selectedMusicFolder == null ? allMusicFolders
                 : Collections.singletonList(selectedMusicFolder);
@@ -144,8 +146,6 @@ public class TopController {
         map.put("shortcuts", musicIndexService.getShortcuts(musicFoldersToUse));
         map.put("partyMode", userSettings.isPartyModeEnabled());
         map.put("alternativeDrawer", userSettings.isAlternativeDrawer());
-        boolean musicFolderChanged = saveSelectedMusicFolder(request);
-        map.put("musicFolderChanged", musicFolderChanged);
 
         if (userSettings.isFinalVersionNotificationEnabled() && versionService.isNewFinalVersionAvailable()) {
             map.put("newVersionAvailable", true);
