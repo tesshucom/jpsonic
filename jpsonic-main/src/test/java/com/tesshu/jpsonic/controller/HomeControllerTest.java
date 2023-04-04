@@ -234,7 +234,7 @@ class HomeControllerTest {
             MockHttpServletRequest req = mock(MockHttpServletRequest.class);
             Mockito.when(req.getParameter(Attributes.Request.LIST_TYPE.value()))
                     .thenReturn(AlbumListType.INDEX.getId());
-            List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, "", "name", false, now()));
+            List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder("", "name", false, now()));
             Mockito.when(musicFolderService.getMusicFoldersForUser(anyString(), Mockito.nullable(Integer.class)))
                     .thenReturn(musicFolders);
             Mockito.when(musicIndexService.getMusicFolderContent(musicFolders))

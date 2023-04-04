@@ -148,6 +148,7 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
         private String path;
         private String name;
         private boolean enabled;
+        private Integer folderOrder;
         private boolean delete;
         private boolean existing;
 
@@ -194,6 +195,14 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
         public void setEnabled(boolean enabled) {
             this.enabled = enabled;
+        }
+
+        public Integer getFolderOrder() {
+            return folderOrder;
+        }
+
+        public void setFolderOrder(Integer folderOrder) {
+            this.folderOrder = folderOrder;
         }
 
         public boolean isDelete() {

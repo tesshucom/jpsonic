@@ -217,7 +217,7 @@ class MusicFolderSettingsControllerTest {
         assertNotNull(command);
 
         MusicFolder musicFolder1 = new MusicFolder(99, MusicFolderTestDataUtils.resolveMusicFolderPath(), "Music", true,
-                now());
+                now(), 1);
         MusicFolderInfo musicFolderInfo1 = new MusicFolderInfo(musicFolder1);
         musicFolderInfo1.setDelete(true);
         MusicFolder musicFolder2 = new MusicFolder(MusicFolderTestDataUtils.resolveMusic2FolderPath(), "Music2", true,
@@ -369,7 +369,7 @@ class MusicFolderSettingsControllerTest {
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal.OldPathStartWithNewPath
         @ToMusicFolderDecisions.Results.Empty
         void c03() {
-            List<MusicFolder> oldMusicFolders = Arrays.asList(new MusicFolder(0, "/jpsonic", "old", false, null));
+            List<MusicFolder> oldMusicFolders = Arrays.asList(new MusicFolder(0, "/jpsonic", "old", false, null, 0));
             Mockito.when(musicFolderService.getAllMusicFolders(true, true)).thenReturn(oldMusicFolders);
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "/jpsonic/subDirectory";
@@ -382,7 +382,7 @@ class MusicFolderSettingsControllerTest {
         @ToMusicFolderDecisions.Results.Empty
         void c04() {
             List<MusicFolder> oldMusicFolders = Arrays
-                    .asList(new MusicFolder(0, "/jpsonic/subDirectory", "old", false, null));
+                    .asList(new MusicFolder(0, "/jpsonic/subDirectory", "old", false, null, 0));
             Mockito.when(musicFolderService.getAllMusicFolders(true, true)).thenReturn(oldMusicFolders);
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "/jpsonic";
@@ -395,7 +395,7 @@ class MusicFolderSettingsControllerTest {
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.NonNull
         @ToMusicFolderDecisions.Results.NotEmpty
         void c05() {
-            List<MusicFolder> oldMusicFolders = Arrays.asList(new MusicFolder(0, "/jpsonic", "old", false, null));
+            List<MusicFolder> oldMusicFolders = Arrays.asList(new MusicFolder(0, "/jpsonic", "old", false, null, 0));
             Mockito.when(musicFolderService.getAllMusicFolders(true, true)).thenReturn(oldMusicFolders);
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "foo/bar";
@@ -409,7 +409,7 @@ class MusicFolderSettingsControllerTest {
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.NonNull
         @ToMusicFolderDecisions.Results.NotEmpty
         void c06() {
-            List<MusicFolder> oldMusicFolders = Arrays.asList(new MusicFolder(0, "/jpsonic", "old", false, null));
+            List<MusicFolder> oldMusicFolders = Arrays.asList(new MusicFolder(0, "/jpsonic", "old", false, null, 0));
             Mockito.when(musicFolderService.getAllMusicFolders(true, true)).thenReturn(oldMusicFolders);
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "/jpsonic";

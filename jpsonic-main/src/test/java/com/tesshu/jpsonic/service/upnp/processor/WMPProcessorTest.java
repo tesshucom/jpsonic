@@ -148,7 +148,7 @@ class WMPProcessorTest {
             m.setPathString("path2");
             m.setTitle("dummy title");
             List<MediaFile> songs = Arrays.asList(m);
-            MusicFolder mf = new MusicFolder(0, "path3", "dummy", true, null);
+            MusicFolder mf = new MusicFolder(0, "path3", "dummy", true, null, 0);
             List<MusicFolder> folders = Arrays.asList(mf);
             Mockito.when(util.getGuestMusicFolders()).thenReturn(folders);
             Mockito.when(mediaFileService.getSongs(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyList()))
@@ -193,7 +193,7 @@ class WMPProcessorTest {
             m.setPathString("path5");
             m.setTitle("dummy title");
             List<MediaFile> songs = Arrays.asList(m);
-            MusicFolder mf = new MusicFolder(0, "path6", "dummy", true, null);
+            MusicFolder mf = new MusicFolder(0, "path6", "dummy", true, null, 0);
             List<MusicFolder> folders = Arrays.asList(mf);
             Mockito.when(util.getGuestMusicFolders()).thenReturn(folders);
             Mockito.when(mediaFileService.getVideos(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyList()))

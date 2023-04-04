@@ -65,7 +65,7 @@ class SortProcedureServiceTest {
     class CompensateSortOfArtistTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
-                resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Compensation"), "Duplicate", true, now()));
+                resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Compensation"), "Duplicate", true, now(), 1));
 
         @Autowired
         private JMediaFileDao mediaFileDao;
@@ -225,8 +225,8 @@ class SortProcedureServiceTest {
     @Order(3)
     class CopySortOfArtistTest extends AbstractNeedsScan {
 
-        private final List<MusicFolder> musicFolders = Arrays.asList(
-                new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Copy"), "Duplicate", true, now()));
+        private final List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
+                resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Copy"), "Duplicate", true, now(), 1));
 
         @Autowired
         private JMediaFileDao mediaFileDao;
@@ -283,8 +283,8 @@ class SortProcedureServiceTest {
     @Order(1)
     class MergeSortOfArtistTest extends AbstractNeedsScan {
 
-        private final List<MusicFolder> musicFolders = Arrays.asList(
-                new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Merge"), "Duplicate", true, now()));
+        private final List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
+                resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Merge"), "Duplicate", true, now(), 1));
 
         @Autowired
         private JMediaFileDao jMediaFileDao;
@@ -767,8 +767,8 @@ class SortProcedureServiceTest {
     @Order(4)
     class UpdateSortOfAlbumTest extends AbstractNeedsScan {
 
-        private final List<MusicFolder> musicFolders = Arrays
-                .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/AlbumSort"), "Duplicate", true, now()));
+        private final List<MusicFolder> musicFolders = Arrays.asList(
+                new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/AlbumSort"), "Duplicate", true, now(), 1));
         @Autowired
         private MediaFileDao mediaFileDao;
 

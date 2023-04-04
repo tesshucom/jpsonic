@@ -65,14 +65,14 @@ class MusicFolderServiceTest {
         musicFolderService = new MusicFolderServiceImpl(musicFolderDao, mock(StaticsDao.class), settingsService,
                 scannerStateService, indexCache);
 
-        MusicFolder m1 = new MusicFolder(1, "/dummy/path", "Disabled&NonExisting", false, null);
-        MusicFolder m2 = new MusicFolder(2, "/dummy/path", "Enabled&NonExisting", true, null);
+        MusicFolder m1 = new MusicFolder(1, "/dummy/path", "Disabled&NonExisting", false, null, 0);
+        MusicFolder m2 = new MusicFolder(2, "/dummy/path", "Enabled&NonExisting", true, null, 1);
         Path existingPath1 = Path.of(MusicFolderServiceTest.class.getResource("/MEDIAS/Music").toURI());
         assertTrue(Files.exists(existingPath1));
-        MusicFolder m3 = new MusicFolder(3, existingPath1.toString(), "Disabled&Existing", false, null);
+        MusicFolder m3 = new MusicFolder(3, existingPath1.toString(), "Disabled&Existing", false, null, 3);
         Path existingPath2 = Path.of(MusicFolderServiceTest.class.getResource("/MEDIAS/Music2").toURI());
         assertTrue(Files.exists(existingPath2));
-        MusicFolder m4 = new MusicFolder(4, existingPath2.toString(), "Enabled&Existing", true, null);
+        MusicFolder m4 = new MusicFolder(4, existingPath2.toString(), "Enabled&Existing", true, null, 4);
         List<MusicFolder> folders = Arrays.asList(m1, m2, m3, m4);
         Mockito.when(musicFolderDao.getAllMusicFolders()).thenReturn(folders);
     }

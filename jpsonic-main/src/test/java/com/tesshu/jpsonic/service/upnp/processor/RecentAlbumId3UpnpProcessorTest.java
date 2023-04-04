@@ -39,7 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 class RecentAlbumId3UpnpProcessorTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Albums"), "Albums", true, now()));
+            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Albums"), "Albums", true, now(), 1));
 
     @Autowired
     private RecentAlbumId3UpnpProcessor processor;
