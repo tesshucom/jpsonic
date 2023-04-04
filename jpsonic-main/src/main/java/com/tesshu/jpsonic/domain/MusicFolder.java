@@ -41,17 +41,20 @@ public class MusicFolder implements Serializable {
     private String name;
     private boolean enabled;
     private Instant changed;
+    private Integer folderOrder;
 
-    public MusicFolder(Integer id, String pathString, String name, boolean enabled, Instant changed) {
+    public MusicFolder(Integer id, String pathString, String name, boolean enabled, Instant changed,
+            Integer folderOrder) {
         this.id = id;
         this.pathString = pathString;
         this.name = name;
         this.enabled = enabled;
         this.changed = changed;
+        this.folderOrder = folderOrder;
     }
 
     public MusicFolder(String pathString, String name, boolean enabled, Instant changed) {
-        this(null, pathString, name, enabled, changed);
+        this(null, pathString, name, enabled, changed, null);
     }
 
     public Integer getId() {
@@ -92,6 +95,14 @@ public class MusicFolder implements Serializable {
 
     public void setChanged(Instant changed) {
         this.changed = changed;
+    }
+
+    public int getFolderOrder() {
+        return folderOrder;
+    }
+
+    public void setFolderOrder(int folderOrder) {
+        this.folderOrder = folderOrder;
     }
 
     @Override

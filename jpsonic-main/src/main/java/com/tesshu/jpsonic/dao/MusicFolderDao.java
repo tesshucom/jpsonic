@@ -41,7 +41,7 @@ import org.springframework.stereotype.Repository;
 public class MusicFolderDao extends AbstractDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(MusicFolderDao.class);
-    private static final String INSERT_COLUMNS = "path, name, enabled, changed";
+    private static final String INSERT_COLUMNS = "path, name, enabled, changed, folder_order";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final MusicFolderRowMapper rowMapper;
@@ -80,7 +80,8 @@ public class MusicFolderDao extends AbstractDao {
      *            The music folder to create.
      */
     public void createMusicFolder(MusicFolder musicFolder) {
-        String sql = "insert into music_folder (" + INSERT_COLUMNS + ") values (?, ?, ?, ?)";
+        String sql = "insert into music_folder (" + INSERT_COLUMNS
+                + ") values (?, ?, ?, ?, (select count(*) from music_folder))";
         update(sql, musicFolder.getPathString(), musicFolder.getName(), musicFolder.isEnabled(),
                 musicFolder.getChanged());
 
@@ -113,9 +114,9 @@ public class MusicFolderDao extends AbstractDao {
      *            The music folder to update.
      */
     public void updateMusicFolder(@NonNull MusicFolder musicFolder) {
-        String sql = "update music_folder set path=?, name=?, enabled=?, changed=? where id=?";
+        String sql = "update music_folder set path=?, name=?, enabled=?, changed=?, folder_order=? where id=?";
         update(sql, musicFolder.getPathString(), musicFolder.getName(), musicFolder.isEnabled(),
-                musicFolder.getChanged(), musicFolder.getId());
+                musicFolder.getChanged(), musicFolder.getFolderOrder(), musicFolder.getId());
     }
 
     public List<MusicFolder> getMusicFoldersForUser(String username) {
@@ -135,7 +136,7 @@ public class MusicFolderDao extends AbstractDao {
         @Override
         public MusicFolder mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new MusicFolder(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getBoolean(4),
-                    nullableInstantOf(rs.getTimestamp(5)));
+                    nullableInstantOf(rs.getTimestamp(5)), rs.getInt(6));
         }
     }
 

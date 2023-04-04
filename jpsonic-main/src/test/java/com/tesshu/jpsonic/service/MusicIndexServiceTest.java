@@ -93,7 +93,7 @@ class MusicIndexServiceTest {
         List<MediaFile> children = Arrays.asList(child1, child2);
         Mockito.when(mediaFileService.getChildrenOf(Mockito.any(MediaFile.class), Mockito.anyBoolean(),
                 Mockito.anyBoolean())).thenReturn(children);
-        MusicFolder folder = new MusicFolder(0, "path", "name", true, now());
+        MusicFolder folder = new MusicFolder(0, "path", "name", true, now(), 0);
 
         SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> indexedArtists = musicIndexService
                 .getIndexedArtists(Arrays.asList(folder));
@@ -178,7 +178,7 @@ class MusicIndexServiceTest {
         Mockito.when(mediaFileService.getChildrenOf(Mockito.any(MediaFile.class), Mockito.anyBoolean(),
                 Mockito.anyBoolean())).thenReturn(children).thenReturn(songs).thenThrow(new RuntimeException("Fail"));
         Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(new MediaFile());
-        MusicFolder folder = new MusicFolder(0, "path", "name", true, now());
+        MusicFolder folder = new MusicFolder(0, "path", "name", true, now(), 0);
 
         MusicFolderContent content = musicIndexService.getMusicFolderContent(Arrays.asList(folder));
         assertEquals(2, content.getIndexedArtists().size());
