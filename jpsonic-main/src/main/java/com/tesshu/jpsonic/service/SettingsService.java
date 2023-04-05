@@ -1338,8 +1338,7 @@ public class SettingsService {
     }
 
     public DataSourceConfigType getDatabaseConfigType() {
-        String raw = getString(SettingsConstants.Database.TYPE);
-        return DataSourceConfigType.valueOf(StringUtils.upperCase(raw));
+        return DataSourceConfigType.of(getString(SettingsConstants.Database.TYPE));
     }
 
     public void setDatabaseConfigType(DataSourceConfigType t) {
@@ -1410,6 +1409,6 @@ public class SettingsService {
         setDatabaseConfigJNDIName(SettingsConstants.Database.JNDI_NAME.defaultValue);
         setDatabaseMysqlVarcharMaxlength(SettingsConstants.Database.MYSQL_VARCHAR_MAXLENGTH.defaultValue);
         setDatabaseUsertableQuote(SettingsConstants.Database.USERTABLE_QUOTE.defaultValue);
-        setDatabaseConfigType(DataSourceConfigType.valueOf(SettingsConstants.Database.TYPE.defaultValue));
+        setDatabaseConfigType(DataSourceConfigType.of(SettingsConstants.Database.TYPE.defaultValue));
     }
 }

@@ -59,8 +59,8 @@ public class DatabaseConfiguration {
 
     public static class ProfileNameConstants {
 
-        public static final String LEGACY = "legacy";
-        public static final String EMBED = "embed";
+        public static final String HOST = "host";
+        public static final String URL = "url";
         public static final String JNDI = "jndi";
 
         private ProfileNameConstants() {
@@ -79,8 +79,8 @@ public class DatabaseConfiguration {
     @Bean
     @DependsOn("liquibase")
     public DaoHelper legacyDaoHelper(DataSource dataSource) {
-        return environment.acceptsProfiles(Profiles.of(ProfileNameConstants.LEGACY))
-                ? new LegacyHsqlDaoHelper(dataSource) : new GenericDaoHelper(dataSource);
+        return environment.acceptsProfiles(Profiles.of(ProfileNameConstants.HOST)) ? new LegacyHsqlDaoHelper(dataSource)
+                : new GenericDaoHelper(dataSource);
     }
 
     @Bean
@@ -105,7 +105,7 @@ public class DatabaseConfiguration {
     }
 
     @Bean
-    @Profile(ProfileNameConstants.LEGACY)
+    @Profile(ProfileNameConstants.HOST)
     public DataSource legacyDataSource() {
         return new HikariDataSource(createConfig("org.hsqldb.jdbc.JDBCDriver", getDefaultJDBCUrl(),
                 getDefaultJDBCUsername(), getDefaultJDBCPassword()));
@@ -113,7 +113,7 @@ public class DatabaseConfiguration {
 
     @SuppressWarnings("PMD.UseObjectForClearerAPI") // Because it's spring API
     @Bean
-    @Profile(ProfileNameConstants.EMBED)
+    @Profile(ProfileNameConstants.URL)
     public DataSource embedDataSource(@Value("${DatabaseConfigEmbedDriver}") String driver,
             @Value("${DatabaseConfigEmbedUrl}") String url, @Value("${DatabaseConfigEmbedUsername}") String username,
             @Value("${DatabaseConfigEmbedPassword}") String password) {

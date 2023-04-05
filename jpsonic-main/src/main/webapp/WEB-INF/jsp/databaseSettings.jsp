@@ -13,8 +13,8 @@
             if (objToShow.length) {
                 objToShow.show();
             }
-            if(value != 'LEGACY') {
-                $("#nonLEGACYDatabaseOptions").show();
+            if(value != 'HOST') {
+                $("#nonHOSTDatabaseOptions").show();
             }
         }
 
@@ -53,15 +53,15 @@
         <dt><fmt:message key="databasesettings.configtype"/></dt>
         <dd>
             <form:select path="configType" id="configType">
-	            <form:option value="LEGACY" label="Legacy"/>
-	            <form:option value="EMBED" label="Embedded JDBC"/>
+	            <form:option value="HOST" label="HOST(HSQLDB)"/>
+	            <form:option value="URL" label="URL"/>
 	            <form:option value="JNDI" label="JNDI"/>
 	        </form:select>
 	        <c:import url="helpToolTip.jsp"><c:param name="topic" value="databaseConfigType"/></c:import>
         </dd>
     </dl>
 
-    <dl id="EMBEDDatabaseOptions" class="hideawayDatabaseOptions">
+    <dl id="URLDatabaseOptions" class="hideawayDatabaseOptions">
         <dt><fmt:message key="databasesettings.embeddriver"/></dt>
         <dd>
             <form:input path="embedDriver"/>
@@ -80,7 +80,7 @@
         <dd><form:input path="JNDIName"/><c:import url="helpToolTip.jsp"><c:param name="topic" value="jndiname"/></c:import></dd>
     </dl>
 
-    <dl id="nonLEGACYDatabaseOptions" class="hideawayDatabaseOptions">
+    <dl id="nonHOSTDatabaseOptions" class="hideawayDatabaseOptions">
         <dt><fmt:message key="databasesettings.mysqlvarcharmaxlength"/></dt>
         <dd>
             <form:input path="mysqlVarcharMaxlength"/>

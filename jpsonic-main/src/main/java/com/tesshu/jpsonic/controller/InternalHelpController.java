@@ -288,7 +288,7 @@ public class InternalHelpController {
     }
 
     private void putDatabaseLegacyInfoTo(Map<String, Object> map) {
-        if (environment.acceptsProfiles(Profiles.of(ProfileNameConstants.LEGACY))) {
+        if (environment.acceptsProfiles(Profiles.of(ProfileNameConstants.HOST))) {
             map.put("dbIsLegacy", true);
             Path dbDirectory = Path.of(SettingsService.getJpsonicHome().toString(), "db");
             map.put("dbDirectorySizeBytes", Files.exists(dbDirectory) ? FileUtil.sizeOfDirectory(dbDirectory) : 0);
