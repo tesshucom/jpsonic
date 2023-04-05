@@ -46,7 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 class ArtistUpnpProcessorTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, now()));
+            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, now(), 1));
 
     @Autowired
     private ArtistUpnpProcessor artistUpnpProcessor;

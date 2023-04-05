@@ -81,7 +81,7 @@ class IndexManagerTest extends AbstractNeedsScan {
     @Override
     public List<MusicFolder> getMusicFolders() {
         if (ObjectUtils.isEmpty(musicFolders)) {
-            musicFolders = Arrays.asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now()));
+            musicFolders = Arrays.asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now(), 1));
         }
         return musicFolders;
     }

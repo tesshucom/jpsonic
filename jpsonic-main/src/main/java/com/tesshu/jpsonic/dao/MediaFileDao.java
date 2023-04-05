@@ -69,7 +69,7 @@ public class MediaFileDao extends AbstractDao {
     // Expected maximum number of album child elements (can be expanded)
     private static final int ALBUM_CHILD_MAX = 10_000;
 
-    private static final int JP_VERSION = 8;
+    private static final int JP_VERSION = 9;
     public static final int VERSION = 4 + JP_VERSION;
 
     private final RowMapper<MediaFile> rowMapper;
