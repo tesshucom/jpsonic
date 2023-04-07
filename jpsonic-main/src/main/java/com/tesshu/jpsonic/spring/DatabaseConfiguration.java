@@ -55,6 +55,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 public class DatabaseConfiguration {
 
+    public static final long DS_CONNECTION_TIMEOUT = 60_000;
+    public static final int DS_MINIMUM_IDLE = 0;
+    public static final int DS_MAXIMUM_POOLSIZE = 8;
+    public static final long DS_MAX_LIFE_TIME = 1_800_000;
+    public static final long DS_IDLE_TIMEOUT = 300_000;
+
     private final Environment environment;
 
     public static class ProfileNameConstants {
@@ -96,11 +102,11 @@ public class DatabaseConfiguration {
         config.setJdbcUrl(url);
         config.setUsername(user);
         config.setPassword(pass);
-        config.setConnectionTimeout(60_000);
-        config.setMinimumIdle(0);
-        config.setMaximumPoolSize(8);
-        config.setMaxLifetime(1_800_000);
-        config.setIdleTimeout(300_000);
+        config.setConnectionTimeout(DS_CONNECTION_TIMEOUT);
+        config.setMinimumIdle(DS_MINIMUM_IDLE);
+        config.setMaximumPoolSize(DS_MAXIMUM_POOLSIZE);
+        config.setMaxLifetime(DS_MAX_LIFE_TIME);
+        config.setIdleTimeout(DS_IDLE_TIMEOUT);
         return config;
     }
 
