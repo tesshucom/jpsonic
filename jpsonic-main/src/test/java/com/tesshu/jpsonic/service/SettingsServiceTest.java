@@ -849,7 +849,7 @@ class SettingsServiceTest {
 
     @Test
     void testGetDatabaseConfigType() {
-        assertEquals(DataSourceConfigType.LEGACY, settingsService.getDatabaseConfigType());
+        assertEquals(DataSourceConfigType.HOST, settingsService.getDatabaseConfigType());
     }
 
     @Test

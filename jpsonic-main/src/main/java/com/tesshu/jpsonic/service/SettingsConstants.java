@@ -328,7 +328,7 @@ final class SettingsConstants {
     }
 
     static class Database {
-        static final Pair<String> TYPE = Pair.of("DatabaseConfigType", DataSourceConfigType.LEGACY.name());
+        static final Pair<String> TYPE = Pair.of("DatabaseConfigType", DataSourceConfigType.HOST.name());
         static final Pair<String> EMBED_DRIVER = Pair.of("DatabaseConfigEmbedDriver", null);
         static final Pair<String> EMBED_URL = Pair.of("DatabaseConfigEmbedUrl", null);
         static final Pair<String> EMBED_USERNAME = Pair.of("DatabaseConfigEmbedUsername", null);

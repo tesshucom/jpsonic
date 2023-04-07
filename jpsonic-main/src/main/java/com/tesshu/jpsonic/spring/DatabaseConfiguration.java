@@ -55,12 +55,18 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 public class DatabaseConfiguration {
 
+    public static final long DS_CONNECTION_TIMEOUT = 60_000;
+    public static final int DS_MINIMUM_IDLE = 0;
+    public static final int DS_MAXIMUM_POOLSIZE = 8;
+    public static final long DS_MAX_LIFE_TIME = 1_800_000;
+    public static final long DS_IDLE_TIMEOUT = 300_000;
+
     private final Environment environment;
 
     public static class ProfileNameConstants {
 
-        public static final String LEGACY = "legacy";
-        public static final String EMBED = "embed";
+        public static final String HOST = "host";
+        public static final String URL = "url";
         public static final String JNDI = "jndi";
 
         private ProfileNameConstants() {
@@ -79,8 +85,8 @@ public class DatabaseConfiguration {
     @Bean
     @DependsOn("liquibase")
     public DaoHelper legacyDaoHelper(DataSource dataSource) {
-        return environment.acceptsProfiles(Profiles.of(ProfileNameConstants.LEGACY))
-                ? new LegacyHsqlDaoHelper(dataSource) : new GenericDaoHelper(dataSource);
+        return environment.acceptsProfiles(Profiles.of(ProfileNameConstants.HOST)) ? new LegacyHsqlDaoHelper(dataSource)
+                : new GenericDaoHelper(dataSource);
     }
 
     @Bean
@@ -96,16 +102,16 @@ public class DatabaseConfiguration {
         config.setJdbcUrl(url);
         config.setUsername(user);
         config.setPassword(pass);
-        config.setConnectionTimeout(60_000);
-        config.setMinimumIdle(0);
-        config.setMaximumPoolSize(8);
-        config.setMaxLifetime(1_800_000);
-        config.setIdleTimeout(300_000);
+        config.setConnectionTimeout(DS_CONNECTION_TIMEOUT);
+        config.setMinimumIdle(DS_MINIMUM_IDLE);
+        config.setMaximumPoolSize(DS_MAXIMUM_POOLSIZE);
+        config.setMaxLifetime(DS_MAX_LIFE_TIME);
+        config.setIdleTimeout(DS_IDLE_TIMEOUT);
         return config;
     }
 
     @Bean
-    @Profile(ProfileNameConstants.LEGACY)
+    @Profile(ProfileNameConstants.HOST)
     public DataSource legacyDataSource() {
         return new HikariDataSource(createConfig("org.hsqldb.jdbc.JDBCDriver", getDefaultJDBCUrl(),
                 getDefaultJDBCUsername(), getDefaultJDBCPassword()));
@@ -113,7 +119,7 @@ public class DatabaseConfiguration {
 
     @SuppressWarnings("PMD.UseObjectForClearerAPI") // Because it's spring API
     @Bean
-    @Profile(ProfileNameConstants.EMBED)
+    @Profile(ProfileNameConstants.URL)
     public DataSource embedDataSource(@Value("${DatabaseConfigEmbedDriver}") String driver,
             @Value("${DatabaseConfigEmbedUrl}") String url, @Value("${DatabaseConfigEmbedUsername}") String username,
             @Value("${DatabaseConfigEmbedPassword}") String password) {
