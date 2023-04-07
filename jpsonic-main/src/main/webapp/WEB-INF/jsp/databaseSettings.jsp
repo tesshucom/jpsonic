@@ -134,8 +134,8 @@ $(document).ready(function () {
 
 <c:if test="${command.showOutlineHelp}">
     <div class="outlineHelp">
-        <strong><fmt:message key="databasettings.restartRequired"/></strong><br>
-        <fmt:message key="databasesettings.moreinfo"/>
+        <fmt:message key="databasesettings.moreinfo"/><br>
+        <strong><fmt:message key="databasettings.restartRequired"/></strong>
     </div>
 </c:if>
 
@@ -155,6 +155,13 @@ $(document).ready(function () {
 
     <details id="helper" class="helper">
         <summary class="jpsonic">Resource Settings Helper</summary>
+
+		<c:if test="${command.showOutlineHelp}">
+		    <div class="outlineHelp">
+		        <fmt:message key="databasesettings.helperoutline"/><br>
+		    </div>
+		</c:if>
+
         <dl>
             <dt>Database Host</dt>
             <dd><input type="text" id="helperHost"></dd>
@@ -177,7 +184,7 @@ $(document).ready(function () {
                     <li><a href="javascript:updateHelperContent('MySQL');">MySQL</a></li>
                 </ul>
             </dd>
-            <dt class="jndiHelperItem">JNDI Resource</dt>
+            <dt class="jndiHelperItem">JNDI Resource<c:import url="helpToolTip.jsp"><c:param name="topic" value="jndiresource"/></c:import></dt>
             <dd class="jndiHelperItem">
                 <textarea id="jndiResource" rows="12"></textarea>
             </dt>
