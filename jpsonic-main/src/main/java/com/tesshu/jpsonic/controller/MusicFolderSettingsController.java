@@ -90,8 +90,8 @@ public class MusicFolderSettingsController {
             @RequestParam(value = Attributes.Request.NameConstants.SCAN_NOW, required = false) String scanNow,
             @RequestParam(value = Attributes.Request.NameConstants.SCAN_CANCEL, required = false) String scanCancel,
             @RequestParam(value = Attributes.Request.NameConstants.EXPUNGE, required = false) String expunge,
+            @RequestParam(value = Attributes.Request.NameConstants.UPWARD, required = false) Integer id,
             @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast, Model model) {
-
         if (!ObjectUtils.isEmpty(scanNow)) {
             musicFolderService.clearMusicFolderCache();
             mediaScannerService.scanLibrary();
@@ -102,6 +102,9 @@ public class MusicFolderSettingsController {
         }
         if (!ObjectUtils.isEmpty(expunge)) {
             mediaScannerService.expunge();
+        }
+        if (!ObjectUtils.isEmpty(id)) {
+            musicFolderService.updateMusicFolderOrder(now(), id);
         }
 
         MusicFolderSettingsCommand command = new MusicFolderSettingsCommand();

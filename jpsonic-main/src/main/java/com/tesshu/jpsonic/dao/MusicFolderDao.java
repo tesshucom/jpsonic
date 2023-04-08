@@ -61,7 +61,7 @@ public class MusicFolderDao extends AbstractDao {
      * @return Possibly empty list of all music folders.
      */
     public List<MusicFolder> getAllMusicFolders() {
-        String sql = "select " + QUERY_COLUMNS + " from music_folder";
+        String sql = "select " + QUERY_COLUMNS + " from music_folder order by enabled desc, folder_order";
         return query(sql, rowMapper);
     }
 
@@ -83,7 +83,7 @@ public class MusicFolderDao extends AbstractDao {
      */
     public void createMusicFolder(MusicFolder musicFolder) {
         String sql = "insert into music_folder (" + INSERT_COLUMNS
-                + ") values (?, ?, ?, ?, (select count(*) from music_folder))";
+                + ") values (?, ?, ?, ?, (select count(*) + 1 from music_folder))";
         update(sql, musicFolder.getPathString(), musicFolder.getName(), musicFolder.isEnabled(),
                 musicFolder.getChanged());
 
@@ -125,7 +125,8 @@ public class MusicFolderDao extends AbstractDao {
 
     public List<MusicFolder> getMusicFoldersForUser(String username) {
         String sql = "select " + prefix(QUERY_COLUMNS, "music_folder") + " from music_folder, music_folder_user "
-                + "where music_folder.id = music_folder_user.music_folder_id and music_folder_user.username = ?";
+                + "where music_folder.id = music_folder_user.music_folder_id and music_folder_user.username = ? "
+                + "order by enabled desc, folder_order";
         return query(sql, rowMapper, username);
     }
 
