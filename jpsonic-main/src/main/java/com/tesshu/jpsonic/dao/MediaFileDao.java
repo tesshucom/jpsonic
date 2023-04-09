@@ -480,7 +480,7 @@ public class MediaFileDao extends AbstractDao {
                 MusicFolder.toPathList(folders));
 
         String query = "select distinct music_folder.path as folder, first_fetch.album_artist, first_fetch.album_artist_reading, first_fetch.album_artist_sort, mf_ar.cover_art_path "
-                + "from (select distinct mf.album_artist, mf.album_artist_reading, mf.album_artist_sort, min(music_folder.id) as folder_id, min(mf_ar.media_file_order) as mf_ar_order "
+                + "from (select distinct mf.album_artist, mf.album_artist_reading, mf.album_artist_sort, min(music_folder.folder_order) as folder_order, min(mf_ar.media_file_order) as mf_ar_order "
                 + "from media_file mf join music_folder on mf.present and mf.type in (:types) and mf.album_artist is not null "
                 + "and mf.folder = music_folder.path and music_folder.enabled and mf.folder in (:folders) "
                 + "left join artist ar on ar.name = mf.album_artist "
@@ -488,7 +488,7 @@ public class MediaFileDao extends AbstractDao {
                 + "left join media_file mf_ar on mf_ar.path = mf_al.parent_path "
                 + "group by mf.album_artist, mf.album_artist_reading, mf.album_artist_sort) first_fetch "
                 + "join media_file mf on mf.album_artist = first_fetch.album_artist "
-                + "join music_folder on music_folder.id = first_fetch.folder_id "
+                + "join music_folder on music_folder.folder_order = first_fetch.folder_order "
                 + "left join artist ar on ar.name = mf.album_artist "
                 + "join media_file mf_al on mf_al.path = mf.parent_path "
                 + "left join media_file mf_ar on mf_ar.path = mf_al.parent_path "
@@ -512,7 +512,7 @@ public class MediaFileDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of("types", getValidTypes4ID3(withPodcast), "count", count, "folders",
                 MusicFolder.toPathList(folders));
         String query = "select distinct music_folder.path as folder, first_fetch.album_artist, first_fetch.album_artist_reading, first_fetch.album_artist_sort, mf_ar.cover_art_path "
-                + "from (select distinct mf.album_artist, mf.album_artist_reading, mf.album_artist_sort, min(music_folder.id) as folder_id, min(mf_ar.media_file_order) as mf_ar_order "
+                + "from (select distinct mf.album_artist, mf.album_artist_reading, mf.album_artist_sort, min(music_folder.folder_order) as folder_order, min(mf_ar.media_file_order) as mf_ar_order "
                 + "from media_file mf join music_folder on mf.present and mf.type in (:types) and mf.album_artist is not null "
                 + "and mf.folder = music_folder.path and music_folder.enabled and mf.folder in (:folders) "
                 + "left join artist ar on ar.name = mf.album_artist "
@@ -520,7 +520,7 @@ public class MediaFileDao extends AbstractDao {
                 + "left join media_file mf_ar on mf_ar.path = mf_al.parent_path "
                 + "group by mf.album_artist, mf.album_artist_reading, mf.album_artist_sort) first_fetch "
                 + "join media_file mf on mf.album_artist = first_fetch.album_artist "
-                + "join music_folder on music_folder.id = first_fetch.folder_id "
+                + "join music_folder on music_folder.folder_order = first_fetch.folder_order "
                 + "left join artist ar on ar.name = mf.album_artist "
                 + "join media_file mf_al on mf_al.path = mf.parent_path "
                 + "left join media_file mf_ar on mf_ar.path = mf_al.parent_path "
@@ -591,16 +591,19 @@ public class MediaFileDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of("types", getValidTypes4ID3(withPodcast), "count", count, "folders",
                 MusicFolder.toPathList(musicFolders), "childMax", ALBUM_CHILD_MAX);
         String query = "select " + prefix(QUERY_COLUMNS, "mf_fetched") + " from (select registered.* from "
-                + "(select mf.*, mf.album as mf_album, mf.album_artist as mf_album_artist, mf_al.media_file_order al_order, mf.media_file_order as mf_order from media_file mf "
+                + "(select mf.*, mf.album as mf_album, mf.album_artist as mf_album_artist, music_folder.folder_order, "
+                + "mf_al.media_file_order al_order, mf.media_file_order as mf_order from media_file mf "
+                + "join music_folder on music_folder.path = mf.folder "
                 + "join media_file mf_al on mf_al.path = mf.parent_path) registered "
                 + "join (select album, album_artist, min(file_order) as file_order from "
-                + "(select mf.album, mf.album_artist, mf_al.media_file_order * :childMax + mf.media_file_order as file_order from media_file mf "
+                + "(select mf.album, mf.album_artist, mf_al.media_file_order * :childMax + mf.media_file_order + music_folder.folder_order * :childMax as file_order from media_file mf "
                 + "join album al on al.name = mf.album and al.artist = mf.album_artist "
+                + "join music_folder on music_folder.path = mf.folder "
                 + "join media_file mf_al on mf_al.path = mf.parent_path "
                 + "where mf.folder in (:folders) and mf.present and mf.type in (:types)) registered "
                 + "group by album, album_artist) fetched "
                 + "on fetched.album = mf_album and fetched.album_artist = mf_album_artist "
-                + "and fetched.file_order = registered.al_order * :childMax + registered.mf_order) mf_fetched "
+                + "and fetched.file_order = registered.al_order * :childMax + registered.mf_order + registered.folder_order * :childMax * 10) mf_fetched "
                 + "join music_folder mf_folder on mf_fetched.folder = mf_folder.path "
                 + "join album al on al.name = mf_fetched.album and al.artist = mf_fetched.album_artist "
                 + "join media_file mf_al on mf_al.path = mf_fetched.parent_path and mf_fetched.present and ("
@@ -629,17 +632,20 @@ public class MediaFileDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of("types", getValidTypes4ID3(withPodcast), "count", count, "folders",
                 MusicFolder.toPathList(musicFolders), "childMax", ALBUM_CHILD_MAX);
         String query = "select " + prefix(QUERY_COLUMNS, "unregistered") + " from "
-                + "(select mf.*, mf.album as mf_album, mf.album_artist as mf_album_artist, mf_al.media_file_order al_order, mf.media_file_order as mf_order from media_file mf "
+                + "(select mf.*, mf.album as mf_album, mf.album_artist as mf_album_artist, music_folder.folder_order, "
+                + "mf_al.media_file_order al_order, mf.media_file_order as mf_order from media_file mf "
+                + "join music_folder on music_folder.path = mf.folder "
                 + "join media_file mf_al on mf_al.path = mf.parent_path) unregistered "
                 + "join (select album, album_artist, min(file_order) as file_order from "
-                + "(select mf.album, mf.album_artist, mf_al.media_file_order * :childMax + mf.media_file_order as file_order from media_file mf "
+                + "(select mf.album, mf.album_artist, mf_al.media_file_order * :childMax + mf.media_file_order + music_folder.folder_order * :childMax * 10 as file_order from media_file mf "
                 + "left join album al on al.name = mf.album and al.artist = mf.album_artist "
+                + "join music_folder on music_folder.path = mf.folder "
                 + "join media_file mf_al on mf_al.path = mf.parent_path "
                 + "where mf.folder in (:folders) and mf.present and mf.type in (:types) "
                 + "and mf.album is not null and mf.album_artist is not null and al.name is null and al.artist is null) gap "
                 + "group by album, album_artist) fetched "
                 + "on fetched.album = mf_album and fetched.album_artist = mf_album_artist "
-                + "and fetched.file_order = unregistered.al_order * :childMax + unregistered.mf_order limit :count";
+                + "and fetched.file_order = unregistered.al_order * :childMax + unregistered.mf_order + unregistered.folder_order * :childMax * 10 limit :count";
         return namedQuery(query, rowMapper, args);
     }
 
