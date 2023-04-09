@@ -543,6 +543,11 @@ section > details > summary > h1 {
 .control.force-scan {
   @include createButton("\f42d", 20px);
 }
+
+td > .control.up {
+  @include createButton("\f28B", 18px, -.06em, -.20em);
+}
+
 // used in createSearchButton
 $icon-height: 26px;
 $icon-width: 40px;

@@ -158,6 +158,7 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
             enabled = musicFolder.isEnabled();
             Path folderPath = musicFolder.toPath();
             path = folderPath.toString();
+            folderOrder = musicFolder.getFolderOrder();
             existing = true;
         }
 

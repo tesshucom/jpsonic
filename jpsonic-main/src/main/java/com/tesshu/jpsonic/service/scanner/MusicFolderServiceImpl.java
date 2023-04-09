@@ -120,6 +120,12 @@ public class MusicFolderServiceImpl implements MusicFolderService {
     public void createMusicFolder(@NonNull Instant executed, @NonNull MusicFolder musicFolder) {
         if (scannerStateService.tryScanningLock()) {
             musicFolderDao.createMusicFolder(musicFolder);
+            List<MusicFolder> folders = getAllMusicFolders(false, false);
+            for (int i = 0; i < folders.size(); i++) {
+                MusicFolder folder = folders.get(i);
+                folder.setFolderOrder(i);
+                musicFolderDao.updateMusicFolder(folder);
+            }
             staticsDao.createFolderLog(executed, ScanEventType.FOLDER_CREATE);
             clearMusicFolderCache();
             scannerStateService.unlockScanning();
@@ -140,6 +146,30 @@ public class MusicFolderServiceImpl implements MusicFolderService {
             musicFolderDao.updateMusicFolder(musicFolder);
             staticsDao.createFolderLog(executed, ScanEventType.FOLDER_UPDATE);
             clearMusicFolderCache();
+            scannerStateService.unlockScanning();
+        }
+    }
+
+    public void updateMusicFolderOrder(@NonNull Instant executed, int folderId) {
+        if (scannerStateService.tryScanningLock()) {
+            List<MusicFolder> folders = getAllMusicFolders(false, false);
+            int position = -1;
+            for (int i = 0; i < folders.size(); i++) {
+                if (folderId == folders.get(i).getId()) {
+                    position = i;
+                    break;
+                }
+            }
+            if (0 < position) {
+                Collections.swap(folders, position - 1, position);
+                for (int i = 0; i < folders.size(); i++) {
+                    MusicFolder folder = folders.get(i);
+                    folder.setFolderOrder(i);
+                    musicFolderDao.updateMusicFolder(folder);
+                }
+                staticsDao.createFolderLog(executed, ScanEventType.FOLDER_UPDATE);
+                clearMusicFolderCache();
+            }
             scannerStateService.unlockScanning();
         }
     }

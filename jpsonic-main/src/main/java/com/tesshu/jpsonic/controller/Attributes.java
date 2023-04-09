@@ -293,6 +293,7 @@ public class Attributes {
             public static final String TYPE = "type";
             public static final String U = "u";
             public static final String UPLOAD_ROLE = "uploadRole";
+            public static final String UPWARD = "upward";
             public static final String URL = "url";
             public static final String USER = "user";
             public static final String USERINDEX = "userIndex";
