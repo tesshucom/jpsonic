@@ -171,7 +171,7 @@ public class InternalHelpController {
             stats.stream().filter(stat -> stat.getFolderId() == folder.getId()).findFirst().ifPresent(stat -> {
                 StatsVO vo = new StatsVO(LocalDateTime.ofInstant(stat.getExecuted(), ZoneId.systemDefault()),
                         folder.getName(), stat.getArtistCount(), stat.getAlbumCount(), stat.getSongCount(),
-                        StringUtil.formatDurationHMMSS(stat.getTotalDuration()),
+                        stat.getVideoCount(), StringUtil.formatDurationHMMSS(stat.getTotalDuration()),
                         FileUtil.byteCountToDisplaySize(stat.getTotalSize()));
                 result.add(vo);
             });
@@ -526,17 +526,19 @@ public class InternalHelpController {
         private final int artistCount;
         private final int albumCount;
         private final int songCount;
+        private final int videoCount;
         private final String size;
         private final String duration;
 
         public StatsVO(LocalDateTime executed, String folderName, int artistCount, int albumCount, int songCount,
-                String size, String duration) {
+                int videoCount, String size, String duration) {
             super();
             this.executed = executed;
             this.folderName = folderName;
             this.artistCount = artistCount;
             this.albumCount = albumCount;
             this.songCount = songCount;
+            this.videoCount = videoCount;
             this.size = size;
             this.duration = duration;
         }
@@ -559,6 +561,10 @@ public class InternalHelpController {
 
         public int getSongCount() {
             return songCount;
+        }
+
+        public int getVideoCount() {
+            return videoCount;
         }
 
         public String getSize() {

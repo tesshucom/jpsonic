@@ -45,7 +45,7 @@ public class StaticsDao extends AbstractDao {
     };
     private final RowMapper<MediaLibraryStatistics> libStatsMapper = (ResultSet rs, int rowNum) -> {
         return new MediaLibraryStatistics(nullableInstantOf(rs.getTimestamp(1)), rs.getInt(2), rs.getInt(3),
-                rs.getInt(4), rs.getInt(5), rs.getLong(6), rs.getLong(7));
+                rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getLong(7), rs.getLong(8));
     };
 
     public StaticsDao(DaoHelper daoHelper) {
@@ -90,7 +90,7 @@ public class StaticsDao extends AbstractDao {
     }
 
     public List<MediaLibraryStatistics> getRecentMediaLibraryStatistics() {
-        String sql = "select start_date, folder_id, artist_count, album_count,song_count, total_size, total_duration "
+        String sql = "select start_date, folder_id, artist_count, album_count, song_count, video_count, total_size, total_duration "
                 + "from media_library_statistics where start_date = (select max(start_date) from scan_log where type = 'SCAN_ALL')";
         return query(sql, libStatsMapper);
     }
@@ -111,9 +111,9 @@ public class StaticsDao extends AbstractDao {
 
     public void createMediaLibraryStatistics(MediaLibraryStatistics stats) {
         String sql = "insert into media_library_statistics (start_date, folder_id, artist_count, album_count, "
-                + "song_count, total_size, total_duration) values (?, ?, ?, ?, ?, ?, ?)";
+                + "song_count, video_count, total_size, total_duration) values (?, ?, ?, ?, ?, ?, ?, ?)";
         update(sql, stats.getExecuted(), stats.getFolderId(), stats.getArtistCount(), stats.getAlbumCount(),
-                stats.getSongCount(), stats.getTotalSize(), stats.getTotalDuration());
+                stats.getSongCount(), stats.getVideoCount(), stats.getTotalSize(), stats.getTotalDuration());
     }
 
     public List<ScanEvent> getLastScanAllStatuses() {

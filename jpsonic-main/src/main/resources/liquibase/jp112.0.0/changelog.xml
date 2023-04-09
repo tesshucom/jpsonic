@@ -17,4 +17,16 @@
             </column>
         </addColumn>
     </changeSet>
+	<changeSet id="add-video-count-to-stats" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="media_library_statistics" columnName="video_count" />
+            </not>
+        </preConditions>
+        <addColumn tableName="media_library_statistics">
+            <column name="video_count" type="int" defaultValue="0">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

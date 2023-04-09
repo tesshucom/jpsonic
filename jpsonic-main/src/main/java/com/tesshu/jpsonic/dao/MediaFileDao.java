@@ -799,20 +799,25 @@ public class MediaFileDao extends AbstractDao {
     public int getAlbumCount(MusicFolder folder) {
         return queryForInt(
                 "select count(*) from media_file " + "right join music_folder on music_folder.path = media_file.folder "
-                        + "where present and folder = ? and type = 'ALBUM'",
-                0, folder.getPathString());
+                        + "where present and folder = ? and type = ?",
+                0, folder.getPathString(), MediaFile.MediaType.ALBUM.name());
     }
 
     public int getArtistCount(MusicFolder folder) {
         return queryForInt(
                 "select count(*) from media_file " + "right join music_folder on music_folder.path = media_file.folder "
-                        + "where present and folder = ? and type = 'DIRECTORY' and media_file.path <> folder",
-                0, folder.getPathString());
+                        + "where present and folder = ? and type = ? and media_file.path <> folder",
+                0, folder.getPathString(), MediaFile.MediaType.DIRECTORY.name());
     }
 
     public int getSongCount(MusicFolder folder) {
-        return queryForInt("select count(*) from media_file where present and folder = ? and type = 'MUSIC'", 0,
-                folder.getPathString());
+        return queryForInt("select count(*) from media_file where present and folder = ? and type = ?", 0,
+                folder.getPathString(), MediaFile.MediaType.MUSIC.name());
+    }
+
+    public int getVideoCount(MusicFolder folder) {
+        return queryForInt("select count(*) from media_file where present and folder = ? and type = ?", 0,
+                folder.getPathString(), MediaFile.MediaType.VIDEO.name());
     }
 
     public int getPlayedAlbumCount(final List<MusicFolder> musicFolders) {

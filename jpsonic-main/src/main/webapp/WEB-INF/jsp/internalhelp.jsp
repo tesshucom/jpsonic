@@ -253,6 +253,7 @@
                     <th><fmt:message key="internalhelp.artistcount"/></th>
                     <th><fmt:message key="internalhelp.albumcount"/></th>
                     <th><fmt:message key="internalhelp.songcount"/></th>
+                    <th><fmt:message key="internalhelp.videocount"/></th>
                     <th><fmt:message key="internalhelp.totaldurationseconds"/></th>
                     <th><fmt:message key="internalhelp.totalsizebytes"/></th>
                 </tr>
@@ -264,6 +265,7 @@
                         <td>${stat.artistCount}</td>
                         <td>${stat.albumCount}</td>
                         <td>${stat.songCount}</td>
+                        <td>${stat.videoCount}</td>
                         <td>${stat.size}</td>
                         <td>${stat.duration}</td>
                     </tr>
