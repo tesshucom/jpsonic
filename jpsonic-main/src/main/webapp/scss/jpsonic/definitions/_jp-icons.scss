@@ -255,6 +255,9 @@
   color: transparent !important;
 
   @include createButton;
+  &.disabled {
+    background: $jp-color-dark-gray;
+  }
 }
 
 .home .ratings {
