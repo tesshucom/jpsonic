@@ -32,7 +32,6 @@ import com.tesshu.jpsonic.domain.ScanEvent;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,13 +89,10 @@ public class StaticsDao extends AbstractDao {
                 ScanEventType.FOLDER_DELETE.name(), ScanEventType.FOLDER_UPDATE.name());
     }
 
-    public @Nullable MediaLibraryStatistics getRecentMediaLibraryStatistics() {
-        String sql = "select start_date, folder_id, sum(artist_count) as artist_count, sum(album_count) as album_count, "
-                + "sum(song_count) as song_count, sum(total_size) as total_size, sum(total_duration) as total_duration "
-                + "from media_library_statistics "
-                + "where start_date = (select max(start_date) from scan_log where type = 'SCAN_ALL') "
-                + "group by start_date, folder_id, artist_count, album_count, song_count, total_size, total_duration";
-        return queryOne(sql, libStatsMapper);
+    public List<MediaLibraryStatistics> getRecentMediaLibraryStatistics() {
+        String sql = "select start_date, folder_id, artist_count, album_count,song_count, total_size, total_duration "
+                + "from media_library_statistics where start_date = (select max(start_date) from scan_log where type = 'SCAN_ALL')";
+        return query(sql, libStatsMapper);
     }
 
     public boolean isNeverScanned() {

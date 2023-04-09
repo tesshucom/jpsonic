@@ -31,6 +31,7 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -46,10 +47,10 @@ import javax.servlet.http.HttpServletRequest;
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.dao.DaoHelper;
-import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
@@ -59,6 +60,7 @@ import com.tesshu.jpsonic.service.search.IndexType;
 import com.tesshu.jpsonic.spring.DatabaseConfiguration.ProfileNameConstants;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
+import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.index.IndexReader;
@@ -89,24 +91,24 @@ public class InternalHelpController {
     private final VersionService versionService;
     private final SettingsService settingsService;
     private final SecurityService securityService;
+    private final MusicFolderService musicFolderService;
     private final IndexManager indexManager;
     private final DaoHelper daoHelper;
-    private final MusicFolderDao musicFolderDao;
     private final TranscodingService transcodingService;
     private final Environment environment;
     private final StaticsDao staticsDao;
 
     public InternalHelpController(VersionService versionService, SettingsService settingsService,
-            SecurityService securityService, IndexManager indexManager, DaoHelper daoHelper,
-            MusicFolderDao musicFolderDao, TranscodingService transcodingService, Environment environment,
+            SecurityService securityService, MusicFolderService musicFolderService, IndexManager indexManager,
+            DaoHelper daoHelper, TranscodingService transcodingService, Environment environment,
             StaticsDao staticsDao) {
         super();
         this.versionService = versionService;
         this.settingsService = settingsService;
         this.securityService = securityService;
+        this.musicFolderService = musicFolderService;
         this.indexManager = indexManager;
         this.daoHelper = daoHelper;
-        this.musicFolderDao = musicFolderDao;
         this.transcodingService = transcodingService;
         this.environment = environment;
         this.staticsDao = staticsDao;
@@ -148,7 +150,7 @@ public class InternalHelpController {
         map.put("logFile", logFile);
 
         // Gather internal information
-        gatherScanInfo(map);
+        gatherStats(map);
         gatherIndexInfo(map);
         gatherDatabaseInfo(map);
         gatherFilesystemInfo(map);
@@ -161,17 +163,20 @@ public class InternalHelpController {
         return new ModelAndView("internalhelp", "model", map);
     }
 
-    private void gatherScanInfo(Map<String, Object> map) {
-        // Airsonic scan statistics
-        MediaLibraryStatistics stats = staticsDao.getRecentMediaLibraryStatistics();
-        if (stats != null) {
-            map.put("statAlbumCount", stats.getAlbumCount());
-            map.put("statArtistCount", stats.getArtistCount());
-            map.put("statSongCount", stats.getSongCount());
-            map.put("statLastScanDate", stats.getExecuted().atZone(ZoneId.systemDefault()).toLocalDateTime());
-            map.put("statTotalDurationSeconds", stats.getTotalDuration());
-            map.put("statTotalLengthBytes", FileUtil.byteCountToDisplaySize(stats.getTotalSize()));
-        }
+    private void gatherStats(Map<String, Object> map) {
+        List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
+        List<MediaLibraryStatistics> stats = staticsDao.getRecentMediaLibraryStatistics();
+        List<StatsVO> result = new ArrayList<>();
+        folders.forEach(folder -> {
+            stats.stream().filter(stat -> stat.getFolderId() == folder.getId()).findFirst().ifPresent(stat -> {
+                StatsVO vo = new StatsVO(LocalDateTime.ofInstant(stat.getExecuted(), ZoneId.systemDefault()),
+                        folder.getName(), stat.getArtistCount(), stat.getAlbumCount(), stat.getSongCount(),
+                        StringUtil.formatDurationHMMSS(stat.getTotalDuration()),
+                        FileUtil.byteCountToDisplaySize(stat.getTotalSize()));
+                result.add(vo);
+            });
+        });
+        map.put("stats", result);
     }
 
     @SuppressWarnings({ "PMD.CloseResource", "PMD.AvoidInstantiatingObjectsInLoops" })
@@ -323,7 +328,7 @@ public class InternalHelpController {
             throw new UncheckedIOException(e);
         }
         SortedMap<String, FileStatistics> fsMusicFolderStatistics = new TreeMap<>();
-        for (MusicFolder folder : musicFolderDao.getAllMusicFolders()) {
+        for (MusicFolder folder : musicFolderService.getAllMusicFolders()) {
             FileStatistics stat = new FileStatistics();
             stat.setFromPath(folder.toPath());
             stat.setName(folder.getName());
@@ -511,6 +516,57 @@ public class InternalHelpController {
             this.setReadable(Files.isReadable(path));
             this.setWritable(Files.isWritable(path));
             this.setExecutable(Files.isExecutable(path));
+        }
+    }
+
+    public static class StatsVO {
+
+        private final LocalDateTime executed;
+        private final String folderName;
+        private final int artistCount;
+        private final int albumCount;
+        private final int songCount;
+        private final String size;
+        private final String duration;
+
+        public StatsVO(LocalDateTime executed, String folderName, int artistCount, int albumCount, int songCount,
+                String size, String duration) {
+            super();
+            this.executed = executed;
+            this.folderName = folderName;
+            this.artistCount = artistCount;
+            this.albumCount = albumCount;
+            this.songCount = songCount;
+            this.size = size;
+            this.duration = duration;
+        }
+
+        public LocalDateTime getExecuted() {
+            return executed;
+        }
+
+        public String getFolderName() {
+            return folderName;
+        }
+
+        public int getArtistCount() {
+            return artistCount;
+        }
+
+        public int getAlbumCount() {
+            return albumCount;
+        }
+
+        public int getSongCount() {
+            return songCount;
+        }
+
+        public String getSize() {
+            return size;
+        }
+
+        public String getDuration() {
+            return duration;
         }
     }
 }
