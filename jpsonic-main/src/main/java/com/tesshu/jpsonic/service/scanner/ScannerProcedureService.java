@@ -798,6 +798,7 @@ public class ScannerProcedureService {
             stats.setArtistCount(mediaFileDao.getArtistCount(folder));
             stats.setAlbumCount(mediaFileDao.getAlbumCount(folder));
             stats.setSongCount(mediaFileDao.getSongCount(folder));
+            stats.setVideoCount(mediaFileDao.getVideoCount(folder));
             stats.setTotalDuration(mediaFileDao.getTotalSeconds(folder));
             stats.setTotalSize(mediaFileDao.getTotalBytes(folder));
             staticsDao.createMediaLibraryStatistics(stats);
