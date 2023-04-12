@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.domain;
 
 import java.time.Instant;
+import java.util.Arrays;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -108,6 +109,8 @@ public class ScanEvent {
         DESTROYED,
         CANCELED,
 
+        UNKNOWN,
+        
         FOLDER_CREATE,
         FOLDER_DELETE,
         FOLDER_UPDATE,
@@ -134,6 +137,11 @@ public class ScanEvent {
         RUN_STATS,
         IMPORT_PLAYLISTS,
         CHECKPOINT,
-        AFTER_SCAN
+        AFTER_SCAN;
+
+        public static ScanEventType of(String name) {
+            return Arrays.stream(values()).filter(t -> t.name().equals(name)).findFirst()
+                    .orElseGet(() -> UNKNOWN);
+        }
     }
 }

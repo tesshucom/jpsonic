@@ -265,6 +265,7 @@ public class Attributes {
             public static final String S = "s";
             public static final String SCAN_NOW = "scanNow";
             public static final String SCAN_CANCEL = "scanCancel";
+            public static final String SHOW_SCANNED_COUNT = "showScannedCount";
             public static final String SETTINGS_ROLE = "settingsRole";
             public static final String SHARE_ROLE = "shareRole";
             public static final String SHOW_ALL = "showAll";
@@ -278,6 +279,7 @@ public class Attributes {
             public static final String SONG_OFFSET = "songOffset";
             public static final String SONG_RATING = "songRating";
             public static final String SOURCE_FORMATS = "sourceFormats";
+            public static final String START_DATE = "startDate";
             public static final String STEP1 = "step1";
             public static final String STEP2 = "step2";
             public static final String STREAM_ROLE = "streamRole";

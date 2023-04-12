@@ -37,7 +37,6 @@ import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.StaticsDao;
-import com.tesshu.jpsonic.dao.StaticsDao.ScanLogType;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;
@@ -47,6 +46,7 @@ import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ScanEvent;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
+import com.tesshu.jpsonic.domain.ScanLog.ScanLogType;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlaylistService;
@@ -824,5 +824,15 @@ public class ScannerProcedureService {
     void checkpoint(@NonNull Instant scanDate) {
         mediaFileDao.checkpoint();
         createScanEvent(scanDate, ScanEventType.CHECKPOINT, null);
+    }
+
+    void success(@NonNull Instant scanDate) {
+        try {
+            Thread.sleep(1);
+            LOG.info("Completed media library scan.");
+            createScanEvent(scanDate, ScanEventType.FINISHED, null);
+        } catch (InterruptedException e) {
+            createScanEvent(scanDate, ScanEventType.FAILED, null);
+        }
     }
 }

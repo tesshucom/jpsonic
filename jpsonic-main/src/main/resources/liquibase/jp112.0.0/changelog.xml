@@ -5,7 +5,7 @@
 
     <changeSet id="drop-music-file-info" author="tesshucom">  
         <preConditions onFail="MARK_RAN">
-			<tableExists tableName="music_file_info"/>
+            <tableExists tableName="music_file_info"/>
         </preConditions>
         <dropTable tableName="music_file_info" cascadeConstraints="true"/>
         <rollback></rollback>
@@ -17,7 +17,7 @@
             </column>
         </addColumn>
     </changeSet>
-	<changeSet id="add-video-count-to-stats" author="tesshucom">
+    <changeSet id="add-video-count-to-stats" author="tesshucom">
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="media_library_statistics" columnName="video_count" />
@@ -25,6 +25,18 @@
         </preConditions>
         <addColumn tableName="media_library_statistics">
             <column name="video_count" type="int" defaultValue="0">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-show_scanned_count" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="show_scanned_count" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="show_scanned_count" type="boolean" defaultValueBoolean="false">
                 <constraints nullable="false" />
             </column>
         </addColumn>

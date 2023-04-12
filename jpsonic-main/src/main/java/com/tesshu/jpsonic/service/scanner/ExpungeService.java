@@ -4,8 +4,8 @@ import java.time.Instant;
 
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.RatingDao;
-import com.tesshu.jpsonic.dao.StaticsDao.ScanLogType;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
+import com.tesshu.jpsonic.domain.ScanLog.ScanLogType;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

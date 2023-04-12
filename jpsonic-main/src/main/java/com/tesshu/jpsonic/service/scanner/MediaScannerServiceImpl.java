@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.Optional;
 
 import com.tesshu.jpsonic.dao.StaticsDao;
-import com.tesshu.jpsonic.dao.StaticsDao.ScanLogType;
 import com.tesshu.jpsonic.domain.ScanEvent;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
+import com.tesshu.jpsonic.domain.ScanLog.ScanLogType;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -194,8 +194,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
         } else {
             procedure.importPlaylists(scanDate);
             procedure.checkpoint(scanDate);
-            LOG.info("Completed media library scan.");
-            procedure.createScanEvent(scanDate, ScanEventType.FINISHED, null);
+            procedure.success(scanDate);
         }
 
         procedure.rotateScanLog();
