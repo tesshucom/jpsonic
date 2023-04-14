@@ -59,14 +59,16 @@ public class ScanLogController {
     private final SecurityService securityService;
     private final ScannerStateService scannerStateService;
     private final StaticsDao staticsDao;
+    private final OutlineHelpSelector outlineHelpSelector;
 
     public ScanLogController(SettingsService settingsService, SecurityService securityService,
-            ScannerStateService scannerStateService, StaticsDao staticsDao) {
+            ScannerStateService scannerStateService, StaticsDao staticsDao, OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.scannerStateService = scannerStateService;
         this.staticsDao = staticsDao;
+        this.outlineHelpSelector = outlineHelpSelector;
     }
 
     @GetMapping
@@ -78,6 +80,7 @@ public class ScanLogController {
 
         model.put("brand", SettingsService.getBrand());
         model.put("admin", securityService.isAdmin(securityService.getCurrentUserStrict(request).getUsername()));
+
         model.put("scanning", scannerStateService.isScanning());
         model.put("showStatus", settingsService.isShowStatus());
 
@@ -93,6 +96,8 @@ public class ScanLogController {
         model.put("startDate", selectedStartDate);
 
         User user = securityService.getCurrentUserStrict(request);
+        model.put("showOutlineHelp", outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
+
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
         if (userSettings.isShowScannedCount() != Boolean.valueOf(reqShowCount)) {
             userSettings.setShowScannedCount(Boolean.valueOf(reqShowCount));

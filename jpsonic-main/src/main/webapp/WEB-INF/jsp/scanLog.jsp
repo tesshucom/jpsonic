@@ -24,13 +24,26 @@ function refreshScanLogs() {
     <c:param name="showStatus" value="${model.showStatus}"/>
 </c:import>
 
+<c:import url="outlineHelpSelector.jsp">
+    <c:param name="targetView" value="scanlog.view"/>
+    <c:param name="showOutlineHelp" value="${model.showOutlineHelp}"/>
+</c:import>
+
+
+<c:set var="showHelp" value='${model.showOutlineHelp}' />
+<c:if test="${showHelp}">
+    <div class="outlineHelp">
+        <fmt:message key="scanlog.scanlogoutline"/>
+    </div>
+</c:if>
+
 <c:choose>
     <c:when test="${empty model.scanLogs}">
-        <p><fmt:message key="playersettings.noplayers"/></p>
+        <p><fmt:message key="scanlog.noscanlogs"/></p>
     </c:when>
     <c:otherwise>
         <dl class="topSelectorContainer2">
-            <dt>Scan start time</dt>
+            <dt><fmt:message key="scanlog.starttime"/></dt>
             <dd>
                 <select name="scanlogs" onchange="refreshScanLogs()">
                     <c:forEach items="${model.scanLogs}" var="scanLog">
@@ -45,10 +58,11 @@ function refreshScanLogs() {
                     <a href="javaScript:refreshScanLogs()" class="control reflesh" alt="${refresh}">${refresh}</a>
                 </c:if>
             </dd>
-	        <dt></dt>
-	        <dd>
-	            <input type="checkbox" name="showScannedCount" ${model.showScannedCount ? 'checked' : ''}  onchange="refreshScanLogs()"/> Show Scanned Count
-	        </dd>
+            <dt></dt>
+            <dd>
+                <input type="checkbox" name="showScannedCount" ${model.showScannedCount ? 'checked' : ''}  onchange="refreshScanLogs()"/>
+                <fmt:message key="scanlog.showscannedcount"/>
+            </dd>
         </dl>
     </c:otherwise>
 </c:choose>
@@ -57,9 +71,9 @@ function refreshScanLogs() {
     <caption>Duration All : ${model.scanEventsDuration}</caption>
     <thead>
         <tr>
+            <th>Type</th>
             <th>End time</th>
             <th>Duration</th>
-            <th>Type</th>
             <th>Max</th>
             <th>Total</th>
             <th>Used</th>
@@ -69,12 +83,16 @@ function refreshScanLogs() {
     <tbody>
         <c:forEach items="${model.scanEvents}" var="scanEvent" varStatus="loopStatus">
             <tr>
+                <td>${scanEvent.type}
+                    <c:if test="${showHelp}">
+                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="scanlog_${fn:toLowerCase(scanEvent.type)}"/></c:import>
+                    </c:if>           
+                </td>
                 <td>
                     <fmt:parseDate value="${scanEvent.executed}" type="both" pattern="yyyy-MM-dd'T'HH:mm:ss.SSS" var="parsedDate" />
                     <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd HH:mm:ss.SSS" />
                 </td>
                 <td>${scanEvent.duration}</td>
-                <td>${scanEvent.type}</td>
                 <td>${scanEvent.maxMemory}</td>
                 <td>${scanEvent.totalMemory}</td>
                 <td>${scanEvent.usedMemory}</td>

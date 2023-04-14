@@ -46,6 +46,9 @@
       &:nth-child(7) {
         text-align: left;
       }
+      div[class$="help"] {
+        overflow: inherit;
+      }
     }
   }
 }
