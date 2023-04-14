@@ -116,22 +116,26 @@ public class ScanLogController {
     }
 
     private List<ScanEventVO> createScanEvents(@NonNull LocalDateTime selectedStartDate, boolean showScannedCount) {
+        @SuppressWarnings("deprecation")
         List<ScanEventVO> scanEvents = staticsDao
                 .getScanEvents(selectedStartDate.atZone(ZoneOffset.systemDefault()).toInstant()).stream()
-                .filter(scanEvent -> scanEvent.getType() != ScanEventType.PARSED_COUNT || showScannedCount)
+                .filter(scanEvent -> showScannedCount || scanEvent.getType() != ScanEventType.SCANNED_COUNT
+                        && scanEvent.getType() != ScanEventType.PARSED_COUNT)
                 .map(ScanEventVO::new).collect(Collectors.toList());
         setDurations(selectedStartDate, scanEvents);
         return scanEvents;
     }
 
+    @SuppressWarnings("deprecation")
     private void setStatus(@NonNull LocalDateTime lastStartDate, ScanLogVO scanLog) {
         final ScanEventType lastEventType = staticsDao
                 .getLastScanEventType(scanLog.getStartDate().atZone(ZoneOffset.systemDefault()).toInstant());
         switch (lastEventType) {
-        case FINISHED:
+        case SUCCESS:
         case FAILED:
         case DESTROYED:
         case CANCELED:
+        case FINISHED:
             scanLog.setStatus(lastEventType.name());
             break;
         default:

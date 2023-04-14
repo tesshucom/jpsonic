@@ -104,21 +104,21 @@ public class ScanEvent {
     }
 
     public enum ScanEventType {
-        FINISHED,
+        SUCCESS,
         FAILED,
         DESTROYED,
         CANCELED,
 
         UNKNOWN,
-        
+
         FOLDER_CREATE,
         FOLDER_DELETE,
         FOLDER_UPDATE,
-        
+
         BEFORE_SCAN,
         MUSIC_FOLDER_CHECK,
         PARSE_FILE_STRUCTURE,
-        PARSED_COUNT,
+        SCANNED_COUNT,
         PARSE_VIDEO,
         PARSE_PODCAST,
         CLEAN_UP_FILE_STRUCTURE,
@@ -137,7 +137,13 @@ public class ScanEvent {
         RUN_STATS,
         IMPORT_PLAYLISTS,
         CHECKPOINT,
-        AFTER_SCAN;
+        AFTER_SCAN,
+
+        // Obsolete reserved word. don't use
+        @Deprecated
+        FINISHED,
+        @Deprecated
+        PARSED_COUNT;
 
         public static ScanEventType of(String name) {
             return Arrays.stream(values()).filter(t -> t.name().equals(name)).findFirst()

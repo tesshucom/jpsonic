@@ -141,7 +141,7 @@ public class ScannerProcedureService {
             LOG.trace("Scanning file {}", file.toPath());
         }
 
-        createScanEvent(scanDate, ScanEventType.PARSED_COUNT, msg);
+        createScanEvent(scanDate, ScanEventType.SCANNED_COUNT, msg);
     }
 
     void createScanLog(@NonNull Instant scanDate, @NonNull ScanLogType logType) {
@@ -161,7 +161,7 @@ public class ScannerProcedureService {
     }
 
     void createScanEvent(@NonNull Instant scanDate, @NonNull ScanEventType logType, @Nullable String comment) {
-        if (!(logType == ScanEventType.FINISHED || logType == ScanEventType.DESTROYED
+        if (!(logType == ScanEventType.SUCCESS || logType == ScanEventType.DESTROYED
                 || logType == ScanEventType.CANCELED) && !settingsService.isUseScanEvents()) {
             return;
         }
@@ -830,7 +830,7 @@ public class ScannerProcedureService {
         try {
             Thread.sleep(1);
             LOG.info("Completed media library scan.");
-            createScanEvent(scanDate, ScanEventType.FINISHED, null);
+            createScanEvent(scanDate, ScanEventType.SUCCESS, null);
         } catch (InterruptedException e) {
             createScanEvent(scanDate, ScanEventType.FAILED, null);
         }

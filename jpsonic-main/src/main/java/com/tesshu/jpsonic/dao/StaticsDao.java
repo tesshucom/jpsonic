@@ -142,8 +142,11 @@ public class StaticsDao extends AbstractDao {
     }
 
     public List<ScanEvent> getLastScanAllStatuses() {
-        Map<String, Object> args = LegacyMap.of("eventTypes", Arrays.asList(ScanEventType.FINISHED.name(),
-                ScanEventType.DESTROYED.name(), ScanEventType.CANCELED.name()), "logType", ScanLogType.SCAN_ALL.name());
+        @SuppressWarnings("deprecation")
+        Map<String, Object> args = LegacyMap.of("eventTypes",
+                Arrays.asList(ScanEventType.SUCCESS.name(), ScanEventType.FINISHED.name(),
+                        ScanEventType.DESTROYED.name(), ScanEventType.CANCELED.name()),
+                "logType", ScanLogType.SCAN_ALL.name());
         String sql = "select event.* from scan_event event "
                 + "join (select start_date from scan_log where type = :logType order by start_date desc limit 1) last_log "
                 + "on last_log.start_date = event.start_date where type in (:eventTypes)";

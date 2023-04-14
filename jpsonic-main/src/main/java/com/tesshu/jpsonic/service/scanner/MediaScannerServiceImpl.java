@@ -117,7 +117,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
         MutableBoolean skippable = new MutableBoolean(!settingsService.isIgnoreFileTimestamps());
         if (skippable.isTrue()) {
             getLastScanEventType(false).ifPresentOrElse(
-                    type -> skippable.setValue(ScanEventType.FINISHED.compareTo(type) == 0),
+                    type -> skippable.setValue(ScanEventType.SUCCESS.compareTo(type) == 0),
                     () -> skippable.setValue(false));
         }
         if (skippable.isTrue()) {

@@ -62,7 +62,7 @@ public class ExpungeService {
             ratingDao.expunge();
         }
 
-        procedure.createScanEvent(scanDate, ScanEventType.FINISHED, null);
+        procedure.createScanEvent(scanDate, ScanEventType.SUCCESS, null);
         procedure.rotateScanLog();
         scannerState.unlockScanning();
     }
