@@ -19,7 +19,6 @@
 
 package com.tesshu.jpsonic.service.scanner;
 
-import static com.tesshu.jpsonic.util.PlayerUtils.FAR_FUTURE;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.nio.file.Files;
@@ -42,6 +41,7 @@ import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ScanEvent;
@@ -249,7 +249,7 @@ public class ScannerProcedureService {
         if (isInterrupted()) {
             return;
         }
-        if (!FAR_FUTURE.equals(file.getLastScanned()) && !FAR_FUTURE.equals(file.getChildrenLastUpdated())) {
+        if (file.getMediaType() != MediaType.VIDEO) {
             scannerState.incrementScanCount();
             writeParsedCount(scanDate, file);
         }
@@ -358,8 +358,6 @@ public class ScannerProcedureService {
                     indexManager.index(updated);
                     countUpdate++;
                 }
-                scannerState.incrementScanCount();
-                writeParsedCount(scanDate, registered);
             }
             registereds = mediaFileDao.getChangedAlbums(ACQUISITION_MAX, folders);
         }
@@ -385,8 +383,6 @@ public class ScannerProcedureService {
                     indexManager.index(updated);
                     countNew++;
                 }
-                scannerState.incrementScanCount();
-                writeParsedCount(scanDate, registered);
             }
             registereds = mediaFileDao.getUnparsedAlbums(ACQUISITION_MAX, folders);
         }
