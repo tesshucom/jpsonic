@@ -305,6 +305,7 @@ public class ScannerProcedureService {
             return;
         }
         if (settingsService.isUseCleanUp()) {
+            createScanEvent(scanDate, ScanEventType.CLEAN_UP_FILE_STRUCTURE, MSG_SKIP);
             return;
         }
         writeInfo("Marking non-present files.");
