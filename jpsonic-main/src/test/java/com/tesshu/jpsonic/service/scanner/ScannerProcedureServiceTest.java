@@ -77,7 +77,7 @@ class ScannerProcedureServiceTest {
 
         // Log only mandary events if useScanEvents=false
         Mockito.when(settingsService.isUseScanEvents()).thenReturn(false);
-        scannerProcedureService.createScanEvent(startDate, ScanEventType.FINISHED, null);
+        scannerProcedureService.createScanEvent(startDate, ScanEventType.SUCCESS, null);
         Mockito.verify(staticsDao, Mockito.times(1)).createScanEvent(Mockito.any(ScanEvent.class));
         scannerProcedureService.createScanEvent(startDate, ScanEventType.CANCELED, null);
         Mockito.verify(staticsDao, Mockito.times(2)).createScanEvent(Mockito.any(ScanEvent.class));
@@ -90,7 +90,7 @@ class ScannerProcedureServiceTest {
         // Log all events if useScanEvents=true
         Mockito.when(settingsService.isUseScanEvents()).thenReturn(true);
         Mockito.clearInvocations(staticsDao);
-        scannerProcedureService.createScanEvent(startDate, ScanEventType.FINISHED, null);
+        scannerProcedureService.createScanEvent(startDate, ScanEventType.SUCCESS, null);
         Mockito.verify(staticsDao, Mockito.times(1)).createScanEvent(Mockito.any(ScanEvent.class));
         scannerProcedureService.createScanEvent(startDate, ScanEventType.CANCELED, null);
         Mockito.verify(staticsDao, Mockito.times(2)).createScanEvent(Mockito.any(ScanEvent.class));

@@ -315,10 +315,10 @@ class MediaScannerServiceImplTest {
             void testWithRecords() {
                 assertFalse(mediaScannerService.isScanning());
                 Mockito.when(staticsDao.isNeverScanned()).thenReturn(false);
-                ScanEvent success = new ScanEvent(null, null, ScanEventType.FINISHED, 0L, 0L, 0L, null);
+                ScanEvent success = new ScanEvent(null, null, ScanEventType.SUCCESS, 0L, 0L, 0L, null);
                 Mockito.when(staticsDao.getLastScanAllStatuses()).thenReturn(Arrays.asList(success));
                 assertFalse(mediaScannerService.getLastScanEventType().isEmpty());
-                assertEquals(ScanEventType.FINISHED, mediaScannerService.getLastScanEventType().get());
+                assertEquals(ScanEventType.SUCCESS, mediaScannerService.getLastScanEventType().get());
             }
         }
 
@@ -362,7 +362,7 @@ class MediaScannerServiceImplTest {
             void c04() {
                 Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
                 Mockito.when(staticsDao.getLastScanAllStatuses()).thenReturn(
-                        Arrays.asList(new ScanEvent(null, null, ScanEventType.FINISHED, null, null, null, null)));
+                        Arrays.asList(new ScanEvent(null, null, ScanEventType.SUCCESS, null, null, null, null)));
                 Mockito.when(staticsDao.isfolderChangedSinceLastScan()).thenReturn(true);
                 assertFalse(mediaScannerService.isOptionalProcessSkippable());
             }
@@ -375,7 +375,7 @@ class MediaScannerServiceImplTest {
             void c05() {
                 Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
                 Mockito.when(staticsDao.getLastScanAllStatuses()).thenReturn(
-                        Arrays.asList(new ScanEvent(null, null, ScanEventType.FINISHED, null, null, null, null)));
+                        Arrays.asList(new ScanEvent(null, null, ScanEventType.SUCCESS, null, null, null, null)));
                 Mockito.when(staticsDao.isfolderChangedSinceLastScan()).thenReturn(false);
                 assertTrue(mediaScannerService.isOptionalProcessSkippable());
             }
@@ -758,7 +758,7 @@ class MediaScannerServiceImplTest {
                 TestCaseUtils.execScan(mediaScannerService);
                 globalTimerContext.stop();
             }
-            assertEquals(ScanEventType.FINISHED, mediaScannerService.getLastScanEventType().get());
+            assertEquals(ScanEventType.SUCCESS, mediaScannerService.getLastScanEventType().get());
 
             logRecords(TestCaseUtils.recordsInAllTables(daoHelper));
 

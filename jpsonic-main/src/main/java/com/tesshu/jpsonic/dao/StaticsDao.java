@@ -30,6 +30,8 @@ import java.util.Map;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.ScanEvent;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
+import com.tesshu.jpsonic.domain.ScanLog;
+import com.tesshu.jpsonic.domain.ScanLog.ScanLogType;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.jdbc.core.RowMapper;
@@ -39,9 +41,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class StaticsDao extends AbstractDao {
 
+    private final RowMapper<ScanLog> scanLogMapper = (ResultSet rs, int rowNum) -> {
+        return new ScanLog(nullableInstantOf(rs.getTimestamp(1)), ScanLogType.valueOf(rs.getString(2)));
+    };
     private final RowMapper<ScanEvent> scanEventMapper = (ResultSet rs, int rowNum) -> {
         return new ScanEvent(nullableInstantOf(rs.getTimestamp(1)), nullableInstantOf(rs.getTimestamp(2)),
-                ScanEventType.valueOf(rs.getString(3)), rs.getLong(4), rs.getLong(5), rs.getLong(6), rs.getString(7));
+                ScanEventType.of(rs.getString(3)), rs.getLong(4), rs.getLong(5), rs.getLong(6), rs.getString(7));
     };
     private final RowMapper<MediaLibraryStatistics> libStatsMapper = (ResultSet rs, int rowNum) -> {
         return new MediaLibraryStatistics(nullableInstantOf(rs.getTimestamp(1)), rs.getInt(2), rs.getInt(3),
@@ -59,6 +64,11 @@ public class StaticsDao extends AbstractDao {
             createScanLog(executed, ScanLogType.FOLDER_CHANGED);
         }
         createScanEvent(new ScanEvent(executed, now(), type, null, null, null, null));
+    }
+
+    public List<ScanLog> getScanLog(ScanLogType type) {
+        return query("select start_date, type from scan_log where type=? order by start_date desc", scanLogMapper,
+                type.name());
     }
 
     public void createScanLog(@NonNull Instant scanDate, @NonNull ScanLogType type) {
@@ -116,16 +126,30 @@ public class StaticsDao extends AbstractDao {
                 stats.getSongCount(), stats.getVideoCount(), stats.getTotalSize(), stats.getTotalDuration());
     }
 
+    public List<ScanEvent> getScanEvents(@NonNull Instant scanDate) {
+        String sql = "select start_date, executed, type, max_memory, total_memory, free_memory, comment "
+                + "from scan_event where start_date = ? order by executed";
+        return query(sql, scanEventMapper, scanDate);
+    }
+
+    public ScanEventType getLastScanEventType(@NonNull Instant startDate) {
+        String sql = "select type from scan_event where start_date=? order by executed desc limit 1";
+        List<String> result = queryForStrings(sql, startDate);
+        if (result.isEmpty()) {
+            return ScanEventType.UNKNOWN;
+        }
+        return ScanEventType.of(result.get(0));
+    }
+
     public List<ScanEvent> getLastScanAllStatuses() {
-        Map<String, Object> args = LegacyMap.of("eventTypes", Arrays.asList(ScanEventType.FINISHED.name(),
-                ScanEventType.DESTROYED.name(), ScanEventType.CANCELED.name()), "logType", ScanLogType.SCAN_ALL.name());
+        @SuppressWarnings("deprecation")
+        Map<String, Object> args = LegacyMap.of("eventTypes",
+                Arrays.asList(ScanEventType.SUCCESS.name(), ScanEventType.FINISHED.name(),
+                        ScanEventType.DESTROYED.name(), ScanEventType.CANCELED.name()),
+                "logType", ScanLogType.SCAN_ALL.name());
         String sql = "select event.* from scan_event event "
                 + "join (select start_date from scan_log where type = :logType order by start_date desc limit 1) last_log "
                 + "on last_log.start_date = event.start_date where type in (:eventTypes)";
         return namedQuery(sql, scanEventMapper, args);
-    }
-
-    public enum ScanLogType {
-        SCAN_ALL, EXPUNGE, PODCAST_REFRESH_ALL, FOLDER_CHANGED
     }
 }

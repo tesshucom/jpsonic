@@ -19,7 +19,6 @@
 
 package com.tesshu.jpsonic.service.scanner;
 
-import static com.tesshu.jpsonic.util.PlayerUtils.FAR_FUTURE;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.nio.file.Files;
@@ -37,16 +36,17 @@ import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.StaticsDao;
-import com.tesshu.jpsonic.dao.StaticsDao.ScanLogType;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ScanEvent;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
+import com.tesshu.jpsonic.domain.ScanLog.ScanLogType;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlaylistService;
@@ -141,7 +141,7 @@ public class ScannerProcedureService {
             LOG.trace("Scanning file {}", file.toPath());
         }
 
-        createScanEvent(scanDate, ScanEventType.PARSED_COUNT, msg);
+        createScanEvent(scanDate, ScanEventType.SCANNED_COUNT, msg);
     }
 
     void createScanLog(@NonNull Instant scanDate, @NonNull ScanLogType logType) {
@@ -161,7 +161,7 @@ public class ScannerProcedureService {
     }
 
     void createScanEvent(@NonNull Instant scanDate, @NonNull ScanEventType logType, @Nullable String comment) {
-        if (!(logType == ScanEventType.FINISHED || logType == ScanEventType.DESTROYED
+        if (!(logType == ScanEventType.SUCCESS || logType == ScanEventType.DESTROYED
                 || logType == ScanEventType.CANCELED) && !settingsService.isUseScanEvents()) {
             return;
         }
@@ -249,7 +249,7 @@ public class ScannerProcedureService {
         if (isInterrupted()) {
             return;
         }
-        if (!FAR_FUTURE.equals(file.getLastScanned()) && !FAR_FUTURE.equals(file.getChildrenLastUpdated())) {
+        if (file.getMediaType() != MediaType.VIDEO) {
             scannerState.incrementScanCount();
             writeParsedCount(scanDate, file);
         }
@@ -305,6 +305,7 @@ public class ScannerProcedureService {
             return;
         }
         if (settingsService.isUseCleanUp()) {
+            createScanEvent(scanDate, ScanEventType.CLEAN_UP_FILE_STRUCTURE, MSG_SKIP);
             return;
         }
         writeInfo("Marking non-present files.");
@@ -357,8 +358,6 @@ public class ScannerProcedureService {
                     indexManager.index(updated);
                     countUpdate++;
                 }
-                scannerState.incrementScanCount();
-                writeParsedCount(scanDate, registered);
             }
             registereds = mediaFileDao.getChangedAlbums(ACQUISITION_MAX, folders);
         }
@@ -384,8 +383,6 @@ public class ScannerProcedureService {
                     indexManager.index(updated);
                     countNew++;
                 }
-                scannerState.incrementScanCount();
-                writeParsedCount(scanDate, registered);
             }
             registereds = mediaFileDao.getUnparsedAlbums(ACQUISITION_MAX, folders);
         }
@@ -824,5 +821,15 @@ public class ScannerProcedureService {
     void checkpoint(@NonNull Instant scanDate) {
         mediaFileDao.checkpoint();
         createScanEvent(scanDate, ScanEventType.CHECKPOINT, null);
+    }
+
+    void success(@NonNull Instant scanDate) {
+        try {
+            Thread.sleep(1);
+            LOG.info("Completed media library scan.");
+            createScanEvent(scanDate, ScanEventType.SUCCESS, null);
+        } catch (InterruptedException e) {
+            createScanEvent(scanDate, ScanEventType.FAILED, null);
+        }
     }
 }
