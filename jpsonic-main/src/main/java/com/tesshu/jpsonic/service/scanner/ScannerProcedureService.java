@@ -179,8 +179,8 @@ public class ScannerProcedureService {
 
         if (settingsService.isIgnoreFileTimestamps()) {
             mediaFileDao.resetLastScanned();
-            artistDao.setNonPresentAll();
-            albumDao.setNonPresentAll();
+            artistDao.deleteAll();
+            albumDao.deleteAll();
             indexManager.deleteAll();
         }
 
