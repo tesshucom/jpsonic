@@ -25,6 +25,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -54,6 +55,9 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 @RequestMapping({ "/scanlog", "/scanlog.view" })
 public class ScanLogController {
+
+    private static final DateTimeFormatter DATE_AND_OPTIONAL_MILLI_TIME = DateTimeFormatter
+            .ofPattern("yyyy-MM-dd HH:mm:ss[.SSS]");
 
     private final SettingsService settingsService;
     private final SecurityService securityService;
@@ -177,17 +181,23 @@ public class ScanLogController {
     public static class ScanLogVO {
 
         private final LocalDateTime startDate;
+        private final String startDateStr;
         private final ScanLogType type;
         private String status;
 
         ScanLogVO(@NonNull ScanLog scanLog) {
             super();
             this.startDate = LocalDateTime.ofInstant(scanLog.getStartDate(), ZoneId.systemDefault());
+            this.startDateStr = DATE_AND_OPTIONAL_MILLI_TIME.format(startDate);
             this.type = scanLog.getType();
         }
 
         public LocalDateTime getStartDate() {
             return startDate;
+        }
+
+        public String getStartDateStr() {
+            return startDateStr;
         }
 
         public ScanLogType getType() {
@@ -206,6 +216,7 @@ public class ScanLogController {
     public static class ScanEventVO {
 
         private final LocalDateTime executed;
+        private final String executedStr;
         private final ScanEventType type;
         private final String maxMemory;
         private final String totalMemory;
@@ -216,6 +227,7 @@ public class ScanLogController {
         public ScanEventVO(@NonNull ScanEvent scanEvent) {
             super();
             this.executed = LocalDateTime.ofInstant(scanEvent.getExecuted(), ZoneId.systemDefault());
+            this.executedStr = DATE_AND_OPTIONAL_MILLI_TIME.format(executed);
             this.type = scanEvent.getType();
             this.maxMemory = scanEvent.getMaxMemory() > 0 ? FileUtil.byteCountToDisplaySize(scanEvent.getMaxMemory())
                     : "-";
@@ -228,6 +240,10 @@ public class ScanLogController {
 
         public LocalDateTime getExecuted() {
             return executed;
+        }
+
+        public String getExecutedStr() {
+            return executedStr;
         }
 
         public ScanEventType getType() {

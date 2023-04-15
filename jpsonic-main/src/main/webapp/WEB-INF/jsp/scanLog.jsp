@@ -48,8 +48,7 @@ function refreshScanLogs() {
                 <select name="scanlogs" onchange="refreshScanLogs()">
                     <c:forEach items="${model.scanLogs}" var="scanLog">
                         <option ${model.startDate eq scanLog.startDate ? "selected" : ""} value="${scanLog.startDate}">
-                            <fmt:parseDate value="${scanLog.startDate}" type="both" pattern="yyyy-MM-dd'T'HH:mm:ss.SSS" var="parsedDate" />
-                            <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd HH:mm:ss.SSS" /> [ ${scanLog.status} ]
+                            ${scanLog.startDateStr} [ ${scanLog.status} ]
                         </option> 
                     </c:forEach>
                 </select>
@@ -88,10 +87,7 @@ function refreshScanLogs() {
                         <c:import url="helpToolTip.jsp"><c:param name="topic" value="scanlog_${fn:toLowerCase(scanEvent.type)}"/></c:import>
                     </c:if>           
                 </td>
-                <td>
-                    <fmt:parseDate value="${scanEvent.executed}" type="both" pattern="yyyy-MM-dd'T'HH:mm:ss.SSS" var="parsedDate" />
-                    <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd HH:mm:ss.SSS" />
-                </td>
+                <td>${scanEvent.executedStr}</td>
                 <td>${scanEvent.duration}</td>
                 <td>${scanEvent.maxMemory}</td>
                 <td>${scanEvent.totalMemory}</td>
