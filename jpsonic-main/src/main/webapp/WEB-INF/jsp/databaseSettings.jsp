@@ -42,11 +42,11 @@ function updateHelperContent(name) {
     var driverName;
     if(name == 'Postgres') {
         driverName = driverNamePostgres;
-        $("#mysqlVarcharMaxlength").val("");
+        $("#mysqlVarcharMaxlength").val("0");
         $("#usertableQuote").val("\"");
     } else if(name == 'PGJDBC-NG') {
         driverName = driverNamePgJdbcNg;
-        $("#mysqlVarcharMaxlength").val("");
+        $("#mysqlVarcharMaxlength").val("0");
         $("#usertableQuote").val("\"");
     } else if(name == 'MariaDB') {
         driverName = driverNameMariaDB;
