@@ -37,6 +37,7 @@ import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.StatusService;
+import com.tesshu.jpsonic.service.scanner.ScannerProcedureService;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -59,16 +60,19 @@ public class NowPlayingService {
     private final PlayerService playerService;
     private final StatusService statusService;
     private final ScannerStateService scannerStateService;
+    private final ScannerProcedureService scannerProcedureService;
     private final AvatarService avatarService;
     private final AjaxHelper ajaxHelper;
 
     public NowPlayingService(SecurityService securityService, PlayerService playerService, StatusService statusService,
-            ScannerStateService scannerStateService, AvatarService avatarService, AjaxHelper ajaxHelper) {
+            ScannerStateService scannerStateService, ScannerProcedureService scannerProcedureService,
+            AvatarService avatarService, AjaxHelper ajaxHelper) {
         super();
         this.securityService = securityService;
         this.playerService = playerService;
         this.statusService = statusService;
         this.scannerStateService = scannerStateService;
+        this.scannerProcedureService = scannerProcedureService;
         this.avatarService = avatarService;
         this.ajaxHelper = ajaxHelper;
     }
@@ -98,7 +102,14 @@ public class NowPlayingService {
      * Returns media folder scanning status.
      */
     public ScanInfo getScanningStatus() {
-        return new ScanInfo(scannerStateService.isScanning(), (int) scannerStateService.getScanCount());
+        ScanInfo info = new ScanInfo(scannerStateService.isScanning(), (int) scannerStateService.getScanCount());
+        scannerProcedureService.getScanPhaseInfo().ifPresent(phaseInfo -> {
+            info.setPhase(phaseInfo.getPhase());
+            info.setPhaseMax(phaseInfo.getPhaseMax());
+            info.setPhaseName(phaseInfo.getPhaseName());
+            info.setThread(phaseInfo.getThread());
+        });
+        return info;
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (NowPlayingInfo) Not reusable
