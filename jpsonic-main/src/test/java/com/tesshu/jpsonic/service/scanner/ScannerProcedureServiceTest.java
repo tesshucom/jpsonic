@@ -46,6 +46,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
 class ScannerProcedureServiceTest {
@@ -68,7 +69,7 @@ class ScannerProcedureServiceTest {
                 mock(IndexManager.class), mediaFileService, writableMediaFileService, mock(PlaylistService.class),
                 mediaFileDao, mock(ArtistDao.class), albumDao, staticsDao, mock(SortProcedureService.class),
                 new ScannerStateServiceImpl(staticsDao), mock(Ehcache.class), mock(MediaFileCache.class),
-                mock(JapaneseReadingUtils.class));
+                mock(JapaneseReadingUtils.class), mock(ThreadPoolTaskExecutor.class));
     }
 
     @Test

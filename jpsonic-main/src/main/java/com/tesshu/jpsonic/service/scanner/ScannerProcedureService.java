@@ -25,10 +25,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.SuppressLint;
@@ -57,6 +59,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,6 +71,17 @@ public class ScannerProcedureService {
 
     private static final String MSG_SKIP = "Skipped by the settings.";
     private static final String MSG_UNNECESSARY = "Skipped as it is not needed.";
+
+    private static final List<ScanEventType> PHASE_ALL = Arrays.asList(ScanEventType.BEFORE_SCAN,
+            ScanEventType.MUSIC_FOLDER_CHECK, ScanEventType.PARSE_FILE_STRUCTURE, ScanEventType.PARSE_VIDEO,
+            ScanEventType.PARSE_PODCAST, ScanEventType.CLEAN_UP_FILE_STRUCTURE, ScanEventType.PARSE_ALBUM,
+            ScanEventType.UPDATE_SORT_OF_ALBUM, ScanEventType.UPDATE_ORDER_OF_ALBUM,
+            ScanEventType.UPDATE_SORT_OF_ARTIST, ScanEventType.UPDATE_ORDER_OF_ARTIST,
+            ScanEventType.UPDATE_ORDER_OF_SONG, ScanEventType.REFRESH_ALBUM_ID3,
+            ScanEventType.UPDATE_ORDER_OF_ALBUM_ID3, ScanEventType.REFRESH_ARTIST_ID3,
+            ScanEventType.UPDATE_ORDER_OF_ARTIST_ID3, ScanEventType.UPDATE_ALBUM_COUNTS,
+            ScanEventType.UPDATE_GENRE_MASTER, ScanEventType.RUN_STATS, ScanEventType.IMPORT_PLAYLISTS,
+            ScanEventType.CHECKPOINT, ScanEventType.AFTER_SCAN);
 
     private static final Logger LOG = LoggerFactory.getLogger(ScannerProcedureService.class);
 
@@ -86,6 +100,7 @@ public class ScannerProcedureService {
     private final Ehcache indexCache;
     private final MediaFileCache mediaFileCache;
     private final JapaneseReadingUtils readingUtils;
+    private final ThreadPoolTaskExecutor scanExecutor;
 
     private static final int ACQUISITION_MAX = 10;
 
@@ -95,7 +110,8 @@ public class ScannerProcedureService {
             IndexManager indexManager, MediaFileService mediaFileService, WritableMediaFileService wmfs,
             PlaylistService playlistService, MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao,
             StaticsDao staticsDao, SortProcedureService sortProcedure, ScannerStateServiceImpl scannerStateService,
-            Ehcache indexCache, MediaFileCache mediaFileCache, JapaneseReadingUtils readingUtils) {
+            Ehcache indexCache, MediaFileCache mediaFileCache, JapaneseReadingUtils readingUtils,
+            ThreadPoolTaskExecutor scanExecutor) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
@@ -112,6 +128,7 @@ public class ScannerProcedureService {
         this.indexCache = indexCache;
         this.mediaFileCache = mediaFileCache;
         this.readingUtils = readingUtils;
+        this.scanExecutor = scanExecutor;
     }
 
     public boolean isCancel() {
@@ -830,6 +847,53 @@ public class ScannerProcedureService {
             createScanEvent(scanDate, ScanEventType.SUCCESS, null);
         } catch (InterruptedException e) {
             createScanEvent(scanDate, ScanEventType.FAILED, null);
+        }
+    }
+
+    public Optional<ScanPhaseInfo> getScanPhaseInfo() {
+        if (!scannerState.isScanning()) {
+            return Optional.empty();
+        }
+        List<ScanEvent> scanEvents = staticsDao.getScanEvents(scannerState.getScanDate()).stream()
+                .filter(scanEvent -> PHASE_ALL.contains(scanEvent.getType())).collect(Collectors.toList());
+        if (scanEvents.isEmpty()) {
+            return Optional.empty();
+        }
+        ScanPhaseInfo info = new ScanPhaseInfo(scanEvents.size(), PHASE_ALL.size(),
+                scanEvents.size() < PHASE_ALL.size() ? PHASE_ALL.get(scanEvents.size()).name() : null,
+                scanExecutor.getActiveCount());
+        return Optional.of(info);
+    }
+
+    public static class ScanPhaseInfo {
+
+        private final int phase;
+        private final int phaseMax;
+        private final String phaseName;
+        private final int thread;
+
+        public ScanPhaseInfo(int phase, int phaseMax, String phaseName, int thread) {
+            super();
+            this.phase = phase;
+            this.phaseMax = phaseMax;
+            this.phaseName = phaseName;
+            this.thread = thread;
+        }
+
+        public int getPhase() {
+            return phase;
+        }
+
+        public int getPhaseMax() {
+            return phaseMax;
+        }
+
+        public String getPhaseName() {
+            return phaseName;
+        }
+
+        public int getThread() {
+            return thread;
         }
     }
 }

@@ -213,7 +213,7 @@ class MediaScannerServiceImplTest {
             scannerProcedureService = new ScannerProcedureService(settingsService, mock(MusicFolderServiceImpl.class),
                     indexManager, mediaFileService, writableMediaFileService, mock(PlaylistService.class), mediaFileDao,
                     artistDao, albumDao, staticsDao, utils, scannerStateService, mock(Ehcache.class),
-                    mock(MediaFileCache.class), mock(JapaneseReadingUtils.class));
+                    mock(MediaFileCache.class), mock(JapaneseReadingUtils.class), mock(ThreadPoolTaskExecutor.class));
             mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
                     scannerProcedureService, mock(ExpungeService.class), staticsDao, executor);
         }

@@ -6,7 +6,7 @@ input[type="checkbox"]#isScanning {
     display: flex;
     align-items: center;
     flex-flow: row nowrap;
-    justify-content: center;
+    justify-content: start;
     width: 360px;
     @media screen and (max-width: #{$jp-supplement-width-threshold}) {
       width: 120px;
@@ -15,11 +15,28 @@ input[type="checkbox"]#isScanning {
 }
 #scanningStatus {
   display: none;
+
+  a {
+    text-decoration: none;
+    &:link,
+    &:active,
+    &:visited,
+    &:link *,
+    &:active *,
+    &:visited * {
+      color: $jp-color-base4;
+    }
+    &:hover,
+    &:hover * {
+      color: $jp-color-complementary3;
+    }
+  }
+
   > .loader {
     position: relative;
-    width: 8px;
-    height: 8px;
-    margin: 0 20px 0 0;
+    width: 6px;
+    height: 6px;
+    margin: 0 20px 0 20px;
     border-radius: 50%;
     color: $jp-color-now-playing;
     font-size: 5px;
@@ -82,17 +99,27 @@ input[type="checkbox"]#isScanning {
         box-shadow: 0 -3em 0 0, 2em -2em 0 -1em, 3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, -2em 2em 0 0, -3em 0 0 0, -2em -2em 0 .2em;
       }
     }
+    .thread {
+      position: relative;
+      margin: -10px 0 0 -6px;
+      font-size: 16px;
+      font-weight: bold;
+    }
   }
-  > .message {
-    width: 3.44rem;
-    padding: 2px;
-    background-color: $jp-color-base3;
-    color: $jp-color-white;
-    font-size: .86rem;
-    text-align: right;
-    user-select: none;
 
-    @include border;
-    @include borderRadius;
+  .phase,
+  .phaseName,
+  .counter {
+    margin: 2px;
+    color: $jp-color-dark-gray;
+    font-size: .86rem;
+    font-weight: bold;
+  }
+
+  .phaseName,
+  .counter {
+    @media screen and (max-width: #{$jp-supplement-width-threshold}) {
+      display: none;
+    }
   }
 }
