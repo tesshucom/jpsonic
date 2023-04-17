@@ -41,4 +41,16 @@
             </column>
         </addColumn>
     </changeSet>
+    <changeSet id="add-max-thread-to-scan-event" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="scan_event" columnName="max_thread" />
+            </not>
+        </preConditions>
+        <addColumn tableName="scan_event">
+            <column name="max_thread" type="int" defaultValue="0">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

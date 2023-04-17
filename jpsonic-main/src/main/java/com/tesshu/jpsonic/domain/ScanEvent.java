@@ -33,10 +33,11 @@ public class ScanEvent {
     private long maxMemory;
     private long totalMemory;
     private long freeMemory;
+    private int maxThread;
     private String comment;
 
     public ScanEvent(@NonNull Instant startDate, @NonNull Instant executed, @NonNull ScanEventType type,
-            @Nullable Long maxMemory, @Nullable Long totalMemory, @Nullable Long freeMemory, @Nullable String comment) {
+            @Nullable Long maxMemory, @Nullable Long totalMemory, @Nullable Long freeMemory, @Nullable Integer maxThread, @Nullable String comment) {
         super();
         this.startDate = startDate;
         this.executed = executed;
@@ -44,6 +45,7 @@ public class ScanEvent {
         setMaxMemory(maxMemory);
         setTotalMemory(totalMemory);
         setFreeMemory(freeMemory);
+        setMaxThread(maxThread);
         this.comment = comment;
     }
 
@@ -93,6 +95,14 @@ public class ScanEvent {
 
     public final void setFreeMemory(Long freeMemory) {
         this.freeMemory = freeMemory == null ? -1 : freeMemory;
+    }
+
+    public int getMaxThread() {
+        return maxThread;
+    }
+
+    public final void setMaxThread(Integer maxThread) {
+        this.maxThread = maxThread == null ? -1 : maxThread;
     }
 
     public @Nullable String getComment() {

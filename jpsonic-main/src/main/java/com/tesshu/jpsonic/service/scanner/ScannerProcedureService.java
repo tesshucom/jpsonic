@@ -186,7 +186,8 @@ public class ScannerProcedureService {
         Long maxMemory = isMeasureMemory ? Runtime.getRuntime().maxMemory() : null;
         Long totalMemory = isMeasureMemory ? Runtime.getRuntime().totalMemory() : null;
         Long freeMemory = isMeasureMemory ? Runtime.getRuntime().freeMemory() : null;
-        ScanEvent scanEvent = new ScanEvent(scanDate, now(), logType, maxMemory, totalMemory, freeMemory, comment);
+        ScanEvent scanEvent = new ScanEvent(scanDate, now(), logType, maxMemory, totalMemory, freeMemory, null,
+                comment);
         staticsDao.createScanEvent(scanEvent);
     }
 
