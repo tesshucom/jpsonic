@@ -41,12 +41,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class StaticsDao extends AbstractDao {
 
+    private static final String EVENT_QUERY_COLUMNS = "start_date, executed, type, max_memory, total_memory, free_memory, max_thread, comment";
+
     private final RowMapper<ScanLog> scanLogMapper = (ResultSet rs, int rowNum) -> {
         return new ScanLog(nullableInstantOf(rs.getTimestamp(1)), ScanLogType.valueOf(rs.getString(2)));
     };
     private final RowMapper<ScanEvent> scanEventMapper = (ResultSet rs, int rowNum) -> {
         return new ScanEvent(nullableInstantOf(rs.getTimestamp(1)), nullableInstantOf(rs.getTimestamp(2)),
-                ScanEventType.of(rs.getString(3)), rs.getLong(4), rs.getLong(5), rs.getLong(6), rs.getString(7));
+                ScanEventType.of(rs.getString(3)), rs.getLong(4), rs.getLong(5), rs.getLong(6), rs.getInt(7),
+                rs.getString(8));
     };
     private final RowMapper<MediaLibraryStatistics> libStatsMapper = (ResultSet rs, int rowNum) -> {
         return new MediaLibraryStatistics(nullableInstantOf(rs.getTimestamp(1)), rs.getInt(2), rs.getInt(3),
@@ -63,7 +66,7 @@ public class StaticsDao extends AbstractDao {
         if (!exist) {
             createScanLog(executed, ScanLogType.FOLDER_CHANGED);
         }
-        createScanEvent(new ScanEvent(executed, now(), type, null, null, null, null));
+        createScanEvent(new ScanEvent(executed, now(), type, null, null, null, null, null));
     }
 
     public List<ScanLog> getScanLog(ScanLogType type) {
@@ -85,9 +88,10 @@ public class StaticsDao extends AbstractDao {
     }
 
     public void createScanEvent(@NonNull ScanEvent scanEvent) {
-        update("insert into scan_event (start_date, executed, type, max_memory, total_memory, free_memory, comment) values(?, ?, ?, ?, ?, ?, ?)",
+        update("insert into scan_event (" + EVENT_QUERY_COLUMNS + ") values(?, ?, ?, ?, ?, ?, ?, ?)",
                 scanEvent.getStartDate(), scanEvent.getExecuted(), scanEvent.getType().name(), scanEvent.getMaxMemory(),
-                scanEvent.getTotalMemory(), scanEvent.getFreeMemory(), scanEvent.getComment());
+                scanEvent.getTotalMemory(), scanEvent.getFreeMemory(), scanEvent.getMaxThread(),
+                scanEvent.getComment());
     }
 
     public void deleteOtherThanLatest() {
@@ -127,8 +131,7 @@ public class StaticsDao extends AbstractDao {
     }
 
     public List<ScanEvent> getScanEvents(@NonNull Instant scanDate) {
-        String sql = "select start_date, executed, type, max_memory, total_memory, free_memory, comment "
-                + "from scan_event where start_date = ? order by executed";
+        String sql = "select " + EVENT_QUERY_COLUMNS + " from scan_event where start_date = ? order by executed";
         return query(sql, scanEventMapper, scanDate);
     }
 
@@ -147,7 +150,7 @@ public class StaticsDao extends AbstractDao {
                 Arrays.asList(ScanEventType.SUCCESS.name(), ScanEventType.FINISHED.name(),
                         ScanEventType.DESTROYED.name(), ScanEventType.CANCELED.name()),
                 "logType", ScanLogType.SCAN_ALL.name());
-        String sql = "select event.* from scan_event event "
+        String sql = "select " + prefix(EVENT_QUERY_COLUMNS, "event") + " from scan_event event "
                 + "join (select start_date from scan_log where type = :logType order by start_date desc limit 1) last_log "
                 + "on last_log.start_date = event.start_date where type in (:eventTypes)";
         return namedQuery(sql, scanEventMapper, args);
