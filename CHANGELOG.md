@@ -3,7 +3,38 @@
 # jpsonic/jpsonic
 # -->
 
-## v111.6.0
+## v112.0.0
+
+#### Bug fixes
+
+  * Fix bug with Playque and Playlist sorting on web pages ([#2115](https://github.com/tesshucom/jpsonic/issues/2115))
+  * Fix bug in web page folder selection ([#2121](https://github.com/tesshucom/jpsonic/issues/2121))
+  * Fix bug that the ID3 search index may not be updated ([#2140](https://github.com/tesshucom/jpsonic/issues/2140))
+
+#### Enhancement
+
+  * Migrate from dbcp2 to HikariCP ([#2117](https://github.com/tesshucom/jpsonic/issues/2117))
+  * Change to acquire lock when editing MusicFolder ([#2119](https://github.com/tesshucom/jpsonic/issues/2119))
+  * Change the spec of Shortcuts acquisition ([#2120](https://github.com/tesshucom/jpsonic/issues/2120))
+  * Improve DB settings page ([#2128](https://github.com/tesshucom/jpsonic/issues/2128))
+  * Change that the order of MusicFolder can be changed ([#2132](https://github.com/tesshucom/jpsonic/issues/2132))
+  * Show statistics by directory ([#2133](https://github.com/tesshucom/jpsonic/issues/2133))
+  * Add a page to view the Scan log ([#2136](https://github.com/tesshucom/jpsonic/issues/2136))
+  * Change scan indicator on web page ([#2142](https://github.com/tesshucom/jpsonic/issues/2142))
+
+#### Update Libs
+
+  * Update Libs ([#2141](https://github.com/tesshucom/jpsonic/issues/2141))
+
+#### Maintenance
+
+  * Delete unused tables (music_file_info) ([#1958](https://github.com/tesshucom/jpsonic/issues/1958))
+  * Remove 'Manual management by explicit specification' ([#2118](https://github.com/tesshucom/jpsonic/issues/2118))
+  * Database scheme changes for v112.0.0 ([#2127](https://github.com/tesshucom/jpsonic/issues/2127))
+  * Add max_thread to scan_event table ([##2143](https://github.com/tesshucom/jpsonic/issues/#2143))
+
+<details>
+<summary>v111.6.0</summary>
 
 #### Bug fixes
 
@@ -77,6 +108,7 @@
   * Add JDK19 to verification ([#2034](https://github.com/tesshucom/jpsonic/issues/2034))
   * Organize todo comments ([#2085](https://github.com/tesshucom/jpsonic/issues/2085))
 
+</details>
 <details>
 <summary>v111.5.0</summary>
 
