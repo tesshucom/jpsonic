@@ -222,12 +222,10 @@ public class ScannerProcedureService {
             Path folderPath = folder.toPath();
             if (!(Files.exists(folderPath) && Files.isDirectory(folderPath))) {
                 notExist.increment();
-                if (folder.isEnabled()) {
-                    folder.setEnabled(false);
-                    folder.setChanged(scanDate);
-                    musicFolderService.updateMusicFolder(scanDate, folder);
-                    enabled.increment();
-                }
+                folder.setEnabled(false);
+                folder.setChanged(scanDate);
+                musicFolderService.updateMusicFolder(scanDate, folder);
+                enabled.increment();
             }
         });
         String comment = "All registered music folders exist.";
@@ -236,6 +234,17 @@ public class ScannerProcedureService {
             if (LOG.isWarnEnabled()) {
                 LOG.warn(comment);
             }
+        }
+
+        if (musicFolderService.getAllMusicFolders(false, true).stream()
+                .anyMatch(folder -> folder.getFolderOrder() == -1)) {
+            LongAdder order = new LongAdder();
+            musicFolderService.getAllMusicFolders(false, true).forEach(folder -> {
+                order.increment();
+                folder.setFolderOrder(order.intValue());
+                folder.setChanged(scanDate);
+                musicFolderService.updateMusicFolder(scanDate, folder);
+            });
         }
         createScanEvent(scanDate, ScanEventType.MUSIC_FOLDER_CHECK, comment);
     }
