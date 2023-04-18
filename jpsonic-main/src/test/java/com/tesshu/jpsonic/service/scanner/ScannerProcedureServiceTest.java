@@ -24,13 +24,18 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
+import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ScanEvent;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.MediaFileCache;
@@ -43,6 +48,7 @@ import com.tesshu.jpsonic.service.metadata.VideoParser;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import net.sf.ehcache.Ehcache;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -52,24 +58,61 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 class ScannerProcedureServiceTest {
 
     private SettingsService settingsService;
-    private ScannerProcedureService scannerProcedureService;
+    private MusicFolderServiceImpl musicFolderServiceImpl;
     private StaticsDao staticsDao;
+    private ScannerProcedureService scannerProcedureService;
 
     @BeforeEach
     public void setup() {
         settingsService = mock(SettingsService.class);
         MediaFileService mediaFileService = mock(MediaFileService.class);
+        musicFolderServiceImpl = mock(MusicFolderServiceImpl.class);
         MediaFileDao mediaFileDao = mock(MediaFileDao.class);
         AlbumDao albumDao = mock(AlbumDao.class);
         staticsDao = mock(StaticsDao.class);
         WritableMediaFileService writableMediaFileService = new WritableMediaFileService(mediaFileDao, null,
                 mediaFileService, albumDao, null, mock(MusicParser.class), mock(VideoParser.class), settingsService,
                 mock(SecurityService.class), mock(JapaneseReadingUtils.class), mock(IndexManager.class));
-        scannerProcedureService = new ScannerProcedureService(settingsService, mock(MusicFolderServiceImpl.class),
+        scannerProcedureService = new ScannerProcedureService(settingsService, musicFolderServiceImpl,
                 mock(IndexManager.class), mediaFileService, writableMediaFileService, mock(PlaylistService.class),
                 mediaFileDao, mock(ArtistDao.class), albumDao, staticsDao, mock(SortProcedureService.class),
                 new ScannerStateServiceImpl(staticsDao), mock(Ehcache.class), mock(MediaFileCache.class),
                 mock(JapaneseReadingUtils.class), mock(ThreadPoolTaskExecutor.class));
+    }
+
+    @Nested
+    class CheckMudicFoldersTest {
+
+        @Test
+        void testExistenceCheck() throws URISyntaxException {
+            MusicFolder existingFolder = new MusicFolder(1,
+                    Path.of(ScannerProcedureServiceTest.class.getResource("/MEDIAS/Music").toURI()).toString(),
+                    "Existing", true, now(), 1);
+            List<MusicFolder> folders = Arrays.asList(existingFolder);
+            Mockito.when(musicFolderServiceImpl.getAllMusicFolders(false, true)).thenReturn(folders);
+            Instant startDate = now();
+            scannerProcedureService.checkMudicFolders(startDate);
+            Mockito.verify(musicFolderServiceImpl, Mockito.never()).updateMusicFolder(startDate, existingFolder);
+
+            MusicFolder notExistingFolder = new MusicFolder(2, existingFolder.getPathString() + "99", "Not existing",
+                    true, now(), 2);
+            folders = Arrays.asList(existingFolder, notExistingFolder);
+            Mockito.when(musicFolderServiceImpl.getAllMusicFolders(false, true)).thenReturn(folders);
+            scannerProcedureService.checkMudicFolders(startDate);
+            Mockito.verify(musicFolderServiceImpl, Mockito.never()).updateMusicFolder(startDate, existingFolder);
+            Mockito.verify(musicFolderServiceImpl, Mockito.times(1)).updateMusicFolder(startDate, notExistingFolder);
+            Mockito.clearInvocations(musicFolderServiceImpl);
+
+            MusicFolder existingFile = new MusicFolder(3,
+                    Path.of(ScannerProcedureServiceTest.class.getResource("/MEDIAS/piano.mp3").toURI()).toString(),
+                    "Existing file", true, now(), 3);
+            folders = Arrays.asList(existingFolder, notExistingFolder, existingFile);
+            Mockito.when(musicFolderServiceImpl.getAllMusicFolders(false, true)).thenReturn(folders);
+            scannerProcedureService.checkMudicFolders(startDate);
+            Mockito.verify(musicFolderServiceImpl, Mockito.never()).updateMusicFolder(startDate, existingFolder);
+            Mockito.verify(musicFolderServiceImpl, Mockito.times(1)).updateMusicFolder(startDate, notExistingFolder);
+            Mockito.verify(musicFolderServiceImpl, Mockito.times(1)).updateMusicFolder(startDate, existingFile);
+        }
     }
 
     @Test

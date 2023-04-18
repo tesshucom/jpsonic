@@ -222,12 +222,10 @@ public class ScannerProcedureService {
             Path folderPath = folder.toPath();
             if (!(Files.exists(folderPath) && Files.isDirectory(folderPath))) {
                 notExist.increment();
-                if (folder.isEnabled()) {
-                    folder.setEnabled(false);
-                    folder.setChanged(scanDate);
-                    musicFolderService.updateMusicFolder(scanDate, folder);
-                    enabled.increment();
-                }
+                folder.setEnabled(false);
+                folder.setChanged(scanDate);
+                musicFolderService.updateMusicFolder(scanDate, folder);
+                enabled.increment();
             }
         });
         String comment = "All registered music folders exist.";
