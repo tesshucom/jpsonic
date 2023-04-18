@@ -35,11 +35,11 @@ public enum DataSourceConfigType {
     }
 
     public static DataSourceConfigType of(String name) {
-        if (HOST.name().equals(name) || LEGACY.name().equals(name)) {
+        if (HOST.name().compareToIgnoreCase(name) == 0 || LEGACY.name().compareToIgnoreCase(name) == 0) {
             return HOST;
-        } else if (URL.name().equals(name) || EMBED.name().equals(name)) {
+        } else if (URL.name().compareToIgnoreCase(name) == 0 || EMBED.name().compareToIgnoreCase(name) == 0) {
             return URL;
-        } else if (JNDI.name().equals(name)) {
+        } else if (JNDI.name().compareToIgnoreCase(name) == 0) {
             return JNDI;
         }
         return HOST;
