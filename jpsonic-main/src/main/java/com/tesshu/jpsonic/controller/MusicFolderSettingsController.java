@@ -35,15 +35,14 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.command.MusicFolderSettingsCommand;
-import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MediaScannerService;
-import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
 import com.tesshu.jpsonic.util.PathValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -68,13 +67,13 @@ import org.springframework.web.servlet.view.RedirectView;
 public class MusicFolderSettingsController {
 
     private final SettingsService settingsService;
-    private final MusicFolderService musicFolderService;
+    private final MusicFolderServiceImpl musicFolderService;
     private final SecurityService securityService;
     private final MediaScannerService mediaScannerService;
     private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
-    public MusicFolderSettingsController(SettingsService settingsService, MusicFolderService musicFolderService,
+    public MusicFolderSettingsController(SettingsService settingsService, MusicFolderServiceImpl musicFolderService,
             SecurityService securityService, MediaScannerService mediaScannerService, ShareService shareService,
             OutlineHelpSelector outlineHelpSelector) {
         super();
@@ -91,8 +90,8 @@ public class MusicFolderSettingsController {
             @RequestParam(value = Attributes.Request.NameConstants.SCAN_NOW, required = false) String scanNow,
             @RequestParam(value = Attributes.Request.NameConstants.SCAN_CANCEL, required = false) String scanCancel,
             @RequestParam(value = Attributes.Request.NameConstants.EXPUNGE, required = false) String expunge,
+            @RequestParam(value = Attributes.Request.NameConstants.UPWARD, required = false) Integer id,
             @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast, Model model) {
-
         if (!ObjectUtils.isEmpty(scanNow)) {
             musicFolderService.clearMusicFolderCache();
             mediaScannerService.scanLibrary();
@@ -104,6 +103,9 @@ public class MusicFolderSettingsController {
         if (!ObjectUtils.isEmpty(expunge)) {
             mediaScannerService.expunge();
         }
+        if (!ObjectUtils.isEmpty(id)) {
+            musicFolderService.updateMusicFolderOrder(now(), id);
+        }
 
         MusicFolderSettingsCommand command = new MusicFolderSettingsCommand();
 
@@ -113,6 +115,7 @@ public class MusicFolderSettingsController {
 
         // Run a scan
         mediaScannerService.getLastScanEventType().ifPresent(type -> command.setLastScanEventType(type));
+        command.setIgnoreFileTimestamps(settingsService.isIgnoreFileTimestamps());
         command.setInterval(String.valueOf(settingsService.getIndexCreationInterval()));
         command.setHour(String.valueOf(settingsService.getIndexCreationHour()));
         command.setUseCleanUp(settingsService.isUseCleanUp());
@@ -120,11 +123,6 @@ public class MusicFolderSettingsController {
         // Exclusion settings
         command.setExcludePatternString(settingsService.getExcludePatternString());
         command.setIgnoreSymLinks(settingsService.isIgnoreSymLinks());
-
-        // Other operations
-        command.setFileModifiedCheckScheme(settingsService.getFileModifiedCheckScheme());
-        command.setIgnoreFileTimestamps(settingsService.isIgnoreFileTimestamps());
-        command.setIgnoreFileTimestampsForEachAlbum(settingsService.isIgnoreFileTimestampsForEachAlbum());
 
         // for view page control
         command.setUseRadio(settingsService.isUseRadio());
@@ -186,21 +184,13 @@ public class MusicFolderSettingsController {
         });
 
         // Run a scan
+        settingsService.setIgnoreFileTimestamps(command.isIgnoreFileTimestamps());
         settingsService.setIndexCreationInterval(Integer.parseInt(command.getInterval()));
         settingsService.setIndexCreationHour(Integer.parseInt(command.getHour()));
 
         // Exclusion settings
         settingsService.setExcludePatternString(command.getExcludePatternString());
         settingsService.setIgnoreSymLinks(command.isIgnoreSymLinks());
-
-        // Other operations
-        settingsService.setFileModifiedCheckSchemeName(command.getFileModifiedCheckScheme().name());
-        settingsService
-                .setIgnoreFileTimestamps(FileModifiedCheckScheme.LAST_MODIFIED == command.getFileModifiedCheckScheme()
-                        && command.isIgnoreFileTimestamps());
-        settingsService.setIgnoreFileTimestampsForEachAlbum(
-                FileModifiedCheckScheme.LAST_SCANNED == command.getFileModifiedCheckScheme()
-                        || command.isIgnoreFileTimestampsForEachAlbum());
 
         settingsService.save();
 
@@ -227,6 +217,7 @@ public class MusicFolderSettingsController {
         if (name == null) {
             name = newPath.getFileName().toString();
         }
-        return Optional.of(new MusicFolder(info.getId(), validated.get(), name, info.isEnabled(), now()));
+        return Optional.of(
+                new MusicFolder(info.getId(), validated.get(), name, info.isEnabled(), now(), info.getFolderOrder()));
     }
 }

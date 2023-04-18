@@ -112,20 +112,29 @@ window.callPassiveScanningStatus = function() {
 }
 
 function getScanningStatusCallback(scanInfo) {
+    
     let finished = $("#isScanning").prop('checked') && !scanInfo.scanning;
     $("#isScanning").prop('checked', scanInfo.scanning);
-    $("#scanningStatus .message").text(scanInfo.count);
+    $("#scanningStatus .counter").text(' (' + scanInfo.scanningCount + ')');
+    $("#scanningStatus .counter").css("display", scanInfo.phaseName == 'PARSE_FILE_STRUCTURE' ? 'contents' : 'none');
+    if(scanInfo.phase != -1) {
+        $("#scanningStatus .phase").text("[" + scanInfo.phase + "/" + scanInfo.phaseMax + "]");
+        $("#scanningStatus .phaseName").text(scanInfo.phaseName);
+    }
+    $("#scanningStatus .thread").text(scanInfo.thread > 0 ? 'x' + scanInfo.thread : '');
+    const delay = ${model.user.settingsRole ? 4000 : 10000};
     if (scanInfo.scanning) {
-        setTimeout("callScanningStatus()", ${model.user.settingsRole ? "3000" : "10000"});
+       setTimeout("callScanningStatus()", delay);
     } else {
         if (finished) {
             retryCallScanningStatus = false;
+            $("#scanningStatus .phase").text('');
             if (document.getElementById("main").contentDocument.location.pathname.split("/").pop().startsWith("musicFolderSettings")) {
                 document.getElementById("main").contentDocument.location = "musicFolderSettings.view";
             }
             $('#main').toastmessage("showNoticeToast", "<fmt:message key='main.scanend'/>");
         } else if(retryCallScanningStatus) {
-            setTimeout("callScanningStatus()", 1000);
+            setTimeout("callScanningStatus()", 2000);
         }
     }
 }
@@ -333,8 +342,16 @@ window.onOpenDialogVideoPlayer = function(videoUrl) {
         <%-- scanning --%>
         <input type="checkbox" id="isScanning" class="jps-input-scanning"/>
         <div id="scanningStatus">
-            <div class="loader" title="<fmt:message key='main.scanning'/>"></div>
-            <div class="message" title="<fmt:message key='main.scannedfiles'/>"></div>
+            <div class="loader" title="<fmt:message key='main.scanning'/>">
+                <div class="thread"></div>
+            </div>
+            <c:if test="${model.user.adminRole}">
+                <a href="scanlog.view" target="main" title="<fmt:message key='settingsheader.scanlog'/>">
+            </c:if>
+                <span class="phase"></span><span class="phaseName"></span><span class="counter" title="<fmt:message key='main.scannedfiles'/>"></span>
+            <c:if test="${model.user.adminRole}">
+                </a>
+            </c:if>
         </div>
         <%-- search --%>
         <form method="post" action="search.view" target="main" name="searchForm">

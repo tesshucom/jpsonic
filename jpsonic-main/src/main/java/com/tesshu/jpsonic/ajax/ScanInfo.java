@@ -29,18 +29,55 @@ package com.tesshu.jpsonic.ajax;
 public class ScanInfo {
 
     private final boolean scanning;
-    private final int count;
+    private final int scanningCount;
+    private int phase = -1;
+    private int phaseMax = -1;
+    private String phaseName;
+    private int thread = -1;
 
-    public ScanInfo(boolean scanning, int count) {
+    public ScanInfo(boolean scanning, int scanningCount) {
+        super();
         this.scanning = scanning;
-        this.count = count;
+        this.scanningCount = scanningCount;
     }
 
     public boolean isScanning() {
         return scanning;
     }
 
-    public int getCount() {
-        return count;
+    public int getScanningCount() {
+        return scanningCount;
+    }
+
+    public int getPhase() {
+        return phase;
+    }
+
+    public void setPhase(int phase) {
+        this.phase = phase;
+    }
+
+    public int getPhaseMax() {
+        return phaseMax;
+    }
+
+    public void setPhaseMax(int phaseMax) {
+        this.phaseMax = phaseMax;
+    }
+
+    public String getPhaseName() {
+        return phaseName;
+    }
+
+    public void setPhaseName(String phaseName) {
+        this.phaseName = phaseName;
+    }
+
+    public int getThread() {
+        return thread;
+    }
+
+    public void setThread(int thread) {
+        this.thread = thread;
     }
 }

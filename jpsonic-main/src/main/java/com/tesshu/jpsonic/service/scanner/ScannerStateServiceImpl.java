@@ -23,6 +23,7 @@ import static com.tesshu.jpsonic.util.PlayerUtils.FAR_PAST;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.time.Instant;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
@@ -32,6 +33,7 @@ import javax.annotation.PreDestroy;
 import com.tesshu.jpsonic.ThreadSafe;
 import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.service.ScannerStateService;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.stereotype.Service;
 
 /**
@@ -88,7 +90,16 @@ public class ScannerStateServiceImpl implements ScannerStateService {
         if (!ready.get() || destroy.get()) {
             return false;
         }
-        boolean acquired = scanningLock.tryLock();
+
+        boolean acquired;
+        try {
+            acquired = scanningLock.tryLock(1500L, TimeUnit.MILLISECONDS);
+            if (acquired) {
+                Thread.sleep(1);
+            }
+        } catch (InterruptedException e) {
+            acquired = false;
+        }
         if (acquired) {
             scanDate = now();
             scanCount.reset();
@@ -100,6 +111,7 @@ public class ScannerStateServiceImpl implements ScannerStateService {
      * Use only within the thread that acquired the lock.
      */
     @ThreadSafe(enableChecks = false)
+    @NonNull
     Instant getScanDate() {
         return scanDate;
     }

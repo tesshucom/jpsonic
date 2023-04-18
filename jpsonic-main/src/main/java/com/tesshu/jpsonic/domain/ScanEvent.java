@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.domain;
 
 import java.time.Instant;
+import java.util.Arrays;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -32,10 +33,11 @@ public class ScanEvent {
     private long maxMemory;
     private long totalMemory;
     private long freeMemory;
+    private int maxThread;
     private String comment;
 
     public ScanEvent(@NonNull Instant startDate, @NonNull Instant executed, @NonNull ScanEventType type,
-            @Nullable Long maxMemory, @Nullable Long totalMemory, @Nullable Long freeMemory, @Nullable String comment) {
+            @Nullable Long maxMemory, @Nullable Long totalMemory, @Nullable Long freeMemory, @Nullable Integer maxThread, @Nullable String comment) {
         super();
         this.startDate = startDate;
         this.executed = executed;
@@ -43,6 +45,7 @@ public class ScanEvent {
         setMaxMemory(maxMemory);
         setTotalMemory(totalMemory);
         setFreeMemory(freeMemory);
+        setMaxThread(maxThread);
         this.comment = comment;
     }
 
@@ -94,6 +97,14 @@ public class ScanEvent {
         this.freeMemory = freeMemory == null ? -1 : freeMemory;
     }
 
+    public int getMaxThread() {
+        return maxThread;
+    }
+
+    public final void setMaxThread(Integer maxThread) {
+        this.maxThread = maxThread == null ? -1 : maxThread;
+    }
+
     public @Nullable String getComment() {
         return comment;
     }
@@ -103,19 +114,21 @@ public class ScanEvent {
     }
 
     public enum ScanEventType {
-        FINISHED,
+        SUCCESS,
         FAILED,
         DESTROYED,
         CANCELED,
 
+        UNKNOWN,
+
         FOLDER_CREATE,
         FOLDER_DELETE,
         FOLDER_UPDATE,
-        
+
         BEFORE_SCAN,
         MUSIC_FOLDER_CHECK,
         PARSE_FILE_STRUCTURE,
-        PARSED_COUNT,
+        SCANNED_COUNT,
         PARSE_VIDEO,
         PARSE_PODCAST,
         CLEAN_UP_FILE_STRUCTURE,
@@ -134,6 +147,17 @@ public class ScanEvent {
         RUN_STATS,
         IMPORT_PLAYLISTS,
         CHECKPOINT,
-        AFTER_SCAN
+        AFTER_SCAN,
+
+        // Obsolete reserved word. don't use
+        @Deprecated
+        FINISHED,
+        @Deprecated
+        PARSED_COUNT;
+
+        public static ScanEventType of(String name) {
+            return Arrays.stream(values()).filter(t -> t.name().equals(name)).findFirst()
+                    .orElseGet(() -> UNKNOWN);
+        }
     }
 }

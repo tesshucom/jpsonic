@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.tesshu.jpsonic.player</groupId>
         <artifactId>jpsonic</artifactId>
-        <version>111.6.2</version>
+        <version>112.0.0-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -80,6 +80,17 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.zaxxer</groupId>
+                    <artifactId>HikariCP</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>5.0.1</version><!--$NO-MVN-MAN-VER$-->
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -181,19 +192,6 @@
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
             <scope>runtime</scope>
-        </dependency>
-
-        <!-- connection pool manager, fixes #860 (external database performance) -->  
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-dbcp2</artifactId>
-            <!-- this wants to pull in commons-logging v1.2 which conflicts with other dependencies -->
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
@@ -593,6 +591,11 @@
             <artifactId>postgresql</artifactId>
             <version>42.6.0</version><!--$NO-MVN-MAN-VER$-->
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.impossibl.pgjdbc-ng</groupId>
+            <artifactId>pgjdbc-ng</artifactId>
+            <version>0.8.9</version>
         </dependency>
         <dependency>
             <groupId>com.mysql</groupId>

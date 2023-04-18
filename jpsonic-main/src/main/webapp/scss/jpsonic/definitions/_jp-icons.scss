@@ -255,6 +255,9 @@
   color: transparent !important;
 
   @include createButton;
+  &.disabled {
+    background: $jp-color-dark-gray;
+  }
 }
 
 .home .ratings {
@@ -543,6 +546,28 @@ section > details > summary > h1 {
 .control.force-scan {
   @include createButton("\f42d", 20px);
 }
+
+td > .control.up {
+  @include createButton("\f28B", 18px, -.06em, -.20em);
+}
+
+dd > .control.reflesh {
+  position: relative;
+  top: 4px;
+  left: 4px;
+  width: 22px;
+  height: 22px;
+  margin: -4px;
+
+  @include createButton("\f49c", 18px);
+  &::before {
+    position: absolute;
+    top: -2px;
+    left: -4px;
+    transform: scale(-1, 1) rotate(90deg);
+  }
+}
+
 // used in createSearchButton
 $icon-height: 26px;
 $icon-width: 40px;

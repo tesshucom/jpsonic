@@ -21,6 +21,8 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -41,7 +43,7 @@ import org.springframework.stereotype.Repository;
 public class MusicFolderDao extends AbstractDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(MusicFolderDao.class);
-    private static final String INSERT_COLUMNS = "path, name, enabled, changed";
+    private static final String INSERT_COLUMNS = "path, name, enabled, changed, folder_order";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final MusicFolderRowMapper rowMapper;
@@ -59,7 +61,7 @@ public class MusicFolderDao extends AbstractDao {
      * @return Possibly empty list of all music folders.
      */
     public List<MusicFolder> getAllMusicFolders() {
-        String sql = "select " + QUERY_COLUMNS + " from music_folder";
+        String sql = "select " + QUERY_COLUMNS + " from music_folder order by enabled desc, folder_order";
         return query(sql, rowMapper);
     }
 
@@ -80,7 +82,8 @@ public class MusicFolderDao extends AbstractDao {
      *            The music folder to create.
      */
     public void createMusicFolder(MusicFolder musicFolder) {
-        String sql = "insert into music_folder (" + INSERT_COLUMNS + ") values (?, ?, ?, ?)";
+        String sql = "insert into music_folder (" + INSERT_COLUMNS
+                + ") values (?, ?, ?, ?, (select count(*) + 1 from music_folder))";
         update(sql, musicFolder.getPathString(), musicFolder.getName(), musicFolder.isEnabled(),
                 musicFolder.getChanged());
 
@@ -113,14 +116,17 @@ public class MusicFolderDao extends AbstractDao {
      *            The music folder to update.
      */
     public void updateMusicFolder(@NonNull MusicFolder musicFolder) {
-        String sql = "update music_folder set path=?, name=?, enabled=?, changed=? where id=?";
+        String sql = "update music_folder set path=?, name=?, enabled=?, changed=?, folder_order=? where id=?";
         update(sql, musicFolder.getPathString(), musicFolder.getName(), musicFolder.isEnabled(),
-                musicFolder.getChanged(), musicFolder.getId());
+                musicFolder.getChanged(),
+                defaultIfNull(musicFolder.getFolderOrder(), queryForInt("select count(*) from music_folder", -1)),
+                musicFolder.getId());
     }
 
     public List<MusicFolder> getMusicFoldersForUser(String username) {
         String sql = "select " + prefix(QUERY_COLUMNS, "music_folder") + " from music_folder, music_folder_user "
-                + "where music_folder.id = music_folder_user.music_folder_id and music_folder_user.username = ?";
+                + "where music_folder.id = music_folder_user.music_folder_id and music_folder_user.username = ? "
+                + "order by enabled desc, folder_order";
         return query(sql, rowMapper, username);
     }
 
@@ -135,7 +141,7 @@ public class MusicFolderDao extends AbstractDao {
         @Override
         public MusicFolder mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new MusicFolder(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getBoolean(4),
-                    nullableInstantOf(rs.getTimestamp(5)));
+                    nullableInstantOf(rs.getTimestamp(5)), rs.getInt(6));
         }
     }
 

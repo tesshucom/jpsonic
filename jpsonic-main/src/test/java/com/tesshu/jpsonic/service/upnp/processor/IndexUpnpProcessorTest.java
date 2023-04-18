@@ -74,7 +74,7 @@ class IndexUpnpProcessorTest {
 
         @Test
         void testRefreshIndex() {
-            List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, "", "name", true, now()));
+            List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, "", "name", true, now(), 0));
             Mockito.when(util.getGuestMusicFolders()).thenReturn(musicFolders);
             Mockito.when(musicIndexService.getMusicFolderContent(musicFolders))
                     .thenReturn(new MusicFolderContent(new TreeMap<>(), Collections.emptyList()));
@@ -88,7 +88,7 @@ class IndexUpnpProcessorTest {
     class IntegrationTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays
-                .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, now()));
+                .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, now(), 1));
 
         @Autowired
         private IndexUpnpProcessor indexUpnpProcessor;

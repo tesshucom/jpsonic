@@ -34,11 +34,11 @@ import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.dao.JArtistDao;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.dao.StaticsDao.ScanLogType;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.ScanLog.ScanLogType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.Nested;
@@ -65,7 +65,7 @@ class SortProcedureServiceTest {
     class CompensateSortOfArtistTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
-                resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Compensation"), "Duplicate", true, now()));
+                resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Compensation"), "Duplicate", true, now(), 1));
 
         @Autowired
         private JMediaFileDao mediaFileDao;
@@ -225,8 +225,8 @@ class SortProcedureServiceTest {
     @Order(3)
     class CopySortOfArtistTest extends AbstractNeedsScan {
 
-        private final List<MusicFolder> musicFolders = Arrays.asList(
-                new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Copy"), "Duplicate", true, now()));
+        private final List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
+                resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Copy"), "Duplicate", true, now(), 1));
 
         @Autowired
         private JMediaFileDao mediaFileDao;
@@ -283,8 +283,8 @@ class SortProcedureServiceTest {
     @Order(1)
     class MergeSortOfArtistTest extends AbstractNeedsScan {
 
-        private final List<MusicFolder> musicFolders = Arrays.asList(
-                new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Merge"), "Duplicate", true, now()));
+        private final List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
+                resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Merge"), "Duplicate", true, now(), 1));
 
         @Autowired
         private JMediaFileDao jMediaFileDao;
@@ -767,8 +767,8 @@ class SortProcedureServiceTest {
     @Order(4)
     class UpdateSortOfAlbumTest extends AbstractNeedsScan {
 
-        private final List<MusicFolder> musicFolders = Arrays
-                .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/AlbumSort"), "Duplicate", true, now()));
+        private final List<MusicFolder> musicFolders = Arrays.asList(
+                new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/AlbumSort"), "Duplicate", true, now(), 1));
         @Autowired
         private MediaFileDao mediaFileDao;
 

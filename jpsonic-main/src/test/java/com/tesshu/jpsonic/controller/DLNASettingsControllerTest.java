@@ -159,7 +159,7 @@ class DLNASettingsControllerTest {
          * Always false if all folders are not allowed. Because the genre count is a statistical result for all
          * directories.
          */
-        List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, "", null, true, null));
+        List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder("", null, true, null));
         Mockito.when(musicFolderService.getAllMusicFolders()).thenReturn(musicFolders);
         Mockito.when(musicFolderService.getMusicFoldersForUser(User.USERNAME_GUEST)).thenReturn(musicFolders);
 

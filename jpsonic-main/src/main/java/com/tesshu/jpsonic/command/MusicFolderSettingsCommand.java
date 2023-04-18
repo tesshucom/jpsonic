@@ -25,7 +25,6 @@ import java.nio.file.Path;
 import java.util.List;
 
 import com.tesshu.jpsonic.controller.MusicFolderSettingsController;
-import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 
@@ -42,6 +41,7 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
     // Run a scan
     private ScanEventType lastScanEventType;
+    private boolean ignoreFileTimestamps;
     private String interval;
     private String hour;
     private boolean useCleanUp;
@@ -49,11 +49,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
     // Exclusion settings
     private String excludePatternString;
     private boolean ignoreSymLinks;
-
-    // Other operations
-    private FileModifiedCheckScheme fileModifiedCheckScheme;
-    private boolean ignoreFileTimestamps;
-    private boolean ignoreFileTimestampsForEachAlbum;
 
     // for view page control
     private boolean useRefresh;
@@ -81,6 +76,14 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
     public void setLastScanEventType(ScanEventType lastScanEventType) {
         this.lastScanEventType = lastScanEventType;
+    }
+
+    public boolean isIgnoreFileTimestamps() {
+        return ignoreFileTimestamps;
+    }
+
+    public void setIgnoreFileTimestamps(boolean ignoreFileTimes) {
+        this.ignoreFileTimestamps = ignoreFileTimes;
     }
 
     public String getInterval() {
@@ -123,30 +126,6 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
         this.ignoreSymLinks = ignoreSymLinks;
     }
 
-    public FileModifiedCheckScheme getFileModifiedCheckScheme() {
-        return fileModifiedCheckScheme;
-    }
-
-    public void setFileModifiedCheckScheme(FileModifiedCheckScheme fileModifiedCheckScheme) {
-        this.fileModifiedCheckScheme = fileModifiedCheckScheme;
-    }
-
-    public boolean isIgnoreFileTimestamps() {
-        return ignoreFileTimestamps;
-    }
-
-    public void setIgnoreFileTimestamps(boolean ignoreFileTimes) {
-        this.ignoreFileTimestamps = ignoreFileTimes;
-    }
-
-    public boolean isIgnoreFileTimestampsForEachAlbum() {
-        return ignoreFileTimestampsForEachAlbum;
-    }
-
-    public void setIgnoreFileTimestampsForEachAlbum(boolean ignoreFileTimestampsForEachAlbum) {
-        this.ignoreFileTimestampsForEachAlbum = ignoreFileTimestampsForEachAlbum;
-    }
-
     public boolean isUseRefresh() {
         return useRefresh;
     }
@@ -169,6 +148,7 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
         private String path;
         private String name;
         private boolean enabled;
+        private Integer folderOrder;
         private boolean delete;
         private boolean existing;
 
@@ -178,6 +158,7 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
             enabled = musicFolder.isEnabled();
             Path folderPath = musicFolder.toPath();
             path = folderPath.toString();
+            folderOrder = musicFolder.getFolderOrder();
             existing = true;
         }
 
@@ -215,6 +196,14 @@ public class MusicFolderSettingsCommand extends SettingsPageCommons {
 
         public void setEnabled(boolean enabled) {
             this.enabled = enabled;
+        }
+
+        public Integer getFolderOrder() {
+            return folderOrder;
+        }
+
+        public void setFolderOrder(Integer folderOrder) {
+            this.folderOrder = folderOrder;
         }
 
         public boolean isDelete() {

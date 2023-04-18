@@ -46,7 +46,6 @@ import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
@@ -151,24 +150,7 @@ public class WritableMediaFileService {
         return createMediaFile(scanDate, path).get();
     }
 
-    boolean isSchemeLastModified() {
-        return FileModifiedCheckScheme.LAST_MODIFIED == settingsService.getFileModifiedCheckScheme();
-    }
-
-    boolean isSchemeLastScaned() {
-        return FileModifiedCheckScheme.LAST_SCANNED == settingsService.getFileModifiedCheckScheme();
-    }
-
-    boolean isSkipUpdateChildren(@NonNull MediaFile parent) {
-        return isSchemeLastScaned() //
-                && parent.getMediaType() == MediaType.ALBUM && !FAR_PAST.equals(parent.getChildrenLastUpdated());
-    }
-
     Optional<Path> updateChildren(@NonNull Instant scanDate, @NonNull MediaFile parent) {
-
-        if (isSkipUpdateChildren(parent)) {
-            return Optional.empty();
-        }
 
         Map<String, MediaFile> stored = mediaFileDao.getChildrenOf(parent.getPathString()).stream()
                 .collect(Collectors.toMap(mf -> mf.getPathString(), mf -> mf));
@@ -281,37 +263,23 @@ public class WritableMediaFileService {
         if (scanDate.equals(mediaFile.getLastScanned()) || FAR_FUTURE.equals(mediaFile.getLastScanned())) {
             return Optional.empty();
         } else if (mediaFile.getVersion() >= MediaFileDao.VERSION) {
-            switch (settingsService.getFileModifiedCheckScheme()) {
-            case LAST_MODIFIED:
-                if (settingsService.isIgnoreFileTimestamps() && !FAR_PAST.equals(mediaFile.getLastScanned())) {
-                    return Optional.empty();
-                } else if (!settingsService.isIgnoreFileTimestamps()
-                        && !mediaFile.getChanged().isBefore(getLastModified(scanDate, mediaFile.toPath()))
-                        && !FAR_PAST.equals(mediaFile.getLastScanned())) {
-                    return Optional.empty();
-                }
-                break;
-            case LAST_SCANNED:
-                if (!FAR_PAST.equals(mediaFile.getLastScanned())) {
-                    return Optional.empty();
-                }
-                break;
-            default:
-                break;
+            if (settingsService.isIgnoreFileTimestamps() && !FAR_PAST.equals(mediaFile.getLastScanned())) {
+                return Optional.empty();
+            } else if (!settingsService.isIgnoreFileTimestamps()
+                    && !mediaFile.getChanged().isBefore(getLastModified(mediaFile.toPath()))
+                    && !FAR_PAST.equals(mediaFile.getLastScanned())) {
+                return Optional.empty();
             }
         }
         return refreshMediaFile(scanDate, mediaFile);
     }
 
-    Instant getLastModified(@NonNull Instant scanDate, @NonNull Path path) {
-        if (isSchemeLastModified()) {
-            try {
-                return Files.getLastModifiedTime(path).toInstant().truncatedTo(ChronoUnit.MILLIS);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+    Instant getLastModified(@NonNull Path path) {
+        try {
+            return Files.getLastModifiedTime(path).toInstant().truncatedTo(ChronoUnit.MILLIS);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        return scanDate;
     }
 
     @SuppressLint(value = "NULL_DEREFERENCE", justification = "False positive. parseMediaFile is NonNull")
@@ -325,7 +293,7 @@ public class WritableMediaFileService {
 
     @NonNull
     MediaFile parseMediaFile(@NonNull Instant scanDate, @NonNull Path path, MediaFile registered) {
-        MediaFile mediaFile = instanceOf(scanDate, path, registered);
+        MediaFile mediaFile = instanceOf(path, registered);
         if (Files.isDirectory(path)) {
             applyDirectory(path, mediaFile, scanDate);
         } else {
@@ -334,13 +302,12 @@ public class WritableMediaFileService {
         return mediaFile;
     }
 
-    private @NonNull MediaFile instanceOf(@NonNull Instant scanDate, @NonNull Path path,
-            @Nullable MediaFile registered) {
+    private @NonNull MediaFile instanceOf(@NonNull Path path, @Nullable MediaFile registered) {
         MediaFile mediaFile = new MediaFile();
 
         mediaFile.setId(registered == null ? 0 : registered.getId());
 
-        Instant lastModified = getLastModified(scanDate, path);
+        Instant lastModified = getLastModified(path);
         mediaFile.setChanged(lastModified);
         mediaFile.setCreated(lastModified);
 

@@ -21,20 +21,24 @@
 
 package com.tesshu.jpsonic.spring;
 
+import static com.tesshu.jpsonic.service.SettingsService.getDefaultJDBCPassword;
+import static com.tesshu.jpsonic.service.SettingsService.getDefaultJDBCUrl;
+import static com.tesshu.jpsonic.service.SettingsService.getDefaultJDBCUsername;
+
 import java.nio.file.Path;
 import java.util.Map;
 
 import javax.sql.DataSource;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.DaoHelper;
 import com.tesshu.jpsonic.dao.GenericDaoHelper;
 import com.tesshu.jpsonic.dao.LegacyHsqlDaoHelper;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.PlayerUtils;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import liquibase.integration.spring.SpringLiquibase;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -51,12 +55,18 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 public class DatabaseConfiguration {
 
+    public static final long DS_CONNECTION_TIMEOUT = 60_000;
+    public static final int DS_MINIMUM_IDLE = 0;
+    public static final int DS_MAXIMUM_POOLSIZE = 8;
+    public static final long DS_MAX_LIFE_TIME = 1_800_000;
+    public static final long DS_IDLE_TIMEOUT = 300_000;
+
     private final Environment environment;
 
     public static class ProfileNameConstants {
 
-        public static final String LEGACY = "legacy";
-        public static final String EMBED = "embed";
+        public static final String HOST = "host";
+        public static final String URL = "url";
         public static final String JNDI = "jndi";
 
         private ProfileNameConstants() {
@@ -75,8 +85,8 @@ public class DatabaseConfiguration {
     @Bean
     @DependsOn("liquibase")
     public DaoHelper legacyDaoHelper(DataSource dataSource) {
-        return environment.acceptsProfiles(Profiles.of(ProfileNameConstants.LEGACY))
-                ? new LegacyHsqlDaoHelper(dataSource) : new GenericDaoHelper(dataSource);
+        return environment.acceptsProfiles(Profiles.of(ProfileNameConstants.HOST)) ? new LegacyHsqlDaoHelper(dataSource)
+                : new GenericDaoHelper(dataSource);
     }
 
     @Bean
@@ -86,30 +96,34 @@ public class DatabaseConfiguration {
         return new GenericDaoHelper(dataSource);
     }
 
+    private HikariConfig createConfig(String driver, String url, String user, String pass) {
+        HikariConfig config = new HikariConfig();
+        config.setDriverClassName(driver);
+        config.setJdbcUrl(url);
+        config.setUsername(user);
+        config.setPassword(pass);
+        config.setConnectionTimeout(DS_CONNECTION_TIMEOUT);
+        config.setMinimumIdle(DS_MINIMUM_IDLE);
+        config.setMaximumPoolSize(DS_MAXIMUM_POOLSIZE);
+        config.setMaxLifetime(DS_MAX_LIFE_TIME);
+        config.setIdleTimeout(DS_IDLE_TIMEOUT);
+        return config;
+    }
+
     @Bean
-    @Profile(ProfileNameConstants.LEGACY)
-    @SuppressFBWarnings(value = "HARD_CODE_PASSWORD", justification = "The hard-coded fixed strings is used for embedded-hsqldb passwords.")
+    @Profile(ProfileNameConstants.HOST)
     public DataSource legacyDataSource() {
-        BasicDataSource dataSource = new BasicDataSource();
-        dataSource.setDriverClassName("org.hsqldb.jdbcDriver");
-        dataSource.setUrl(SettingsService.getDefaultJDBCUrl());
-        dataSource.setUsername(SettingsService.getDefaultJDBCUsername());
-        dataSource.setPassword(SettingsService.getDefaultJDBCPassword());
-        return dataSource;
+        return new HikariDataSource(createConfig("org.hsqldb.jdbc.JDBCDriver", getDefaultJDBCUrl(),
+                getDefaultJDBCUsername(), getDefaultJDBCPassword()));
     }
 
     @SuppressWarnings("PMD.UseObjectForClearerAPI") // Because it's spring API
     @Bean
-    @Profile(ProfileNameConstants.EMBED)
+    @Profile(ProfileNameConstants.URL)
     public DataSource embedDataSource(@Value("${DatabaseConfigEmbedDriver}") String driver,
             @Value("${DatabaseConfigEmbedUrl}") String url, @Value("${DatabaseConfigEmbedUsername}") String username,
             @Value("${DatabaseConfigEmbedPassword}") String password) {
-        BasicDataSource basicDataSource = new BasicDataSource();
-        basicDataSource.setDriverClassName(driver);
-        basicDataSource.setUrl(url);
-        basicDataSource.setUsername(username);
-        basicDataSource.setPassword(password);
-        return basicDataSource;
+        return new HikariDataSource(createConfig(driver, url, username, password));
     }
 
     @Bean

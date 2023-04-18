@@ -52,13 +52,8 @@ public class CustomPropertySourceConfigurer
     }
 
     private void addDataSourceProfile(ConfigurableWebApplicationContext ctx) {
-        DataSourceConfigType dataSourceConfigType;
         String rawType = ctx.getEnvironment().getProperty(DATASOURCE_CONFIG_TYPE);
-        if (StringUtils.isNotBlank(rawType)) {
-            dataSourceConfigType = DataSourceConfigType.valueOf(StringUtils.upperCase(rawType));
-        } else {
-            dataSourceConfigType = DataSourceConfigType.LEGACY;
-        }
+        DataSourceConfigType dataSourceConfigType = DataSourceConfigType.of(rawType);
         String dataSourceTypeProfile = StringUtils.lowerCase(dataSourceConfigType.name());
         List<String> existingProfiles = Stream.of(ctx.getEnvironment().getActiveProfiles())
                 .collect(Collectors.toList());

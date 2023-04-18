@@ -91,7 +91,7 @@ public class DatabaseSettingsController {
             settingsService.resetDatabaseToDefault();
             settingsService.setDatabaseConfigType(command.getConfigType());
             switch (command.getConfigType()) {
-            case EMBED:
+            case URL:
                 settingsService.setDatabaseConfigEmbedDriver(command.getEmbedDriver());
                 settingsService.setDatabaseConfigEmbedUrl(command.getEmbedUrl());
                 settingsService.setDatabaseConfigEmbedPassword(command.getEmbedPassword());
@@ -100,11 +100,11 @@ public class DatabaseSettingsController {
             case JNDI:
                 settingsService.setDatabaseConfigJNDIName(command.getJNDIName());
                 break;
-            case LEGACY:
+            case HOST:
             default:
                 break;
             }
-            if (command.getConfigType() != DataSourceConfigType.LEGACY) {
+            if (command.getConfigType() != DataSourceConfigType.HOST) {
                 settingsService.setDatabaseMysqlVarcharMaxlength(command.getMysqlVarcharMaxlength());
                 settingsService.setDatabaseUsertableQuote(command.getUsertableQuote());
             }

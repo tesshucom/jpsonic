@@ -241,7 +241,7 @@ class SubsonicRESTControllerTest {
     class IntegreationTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays
-                .asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now()));
+                .asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now(), 1));
 
         @Autowired
         private MockMvc mvc;
