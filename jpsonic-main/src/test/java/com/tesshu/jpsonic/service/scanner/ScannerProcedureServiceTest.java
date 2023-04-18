@@ -113,6 +113,36 @@ class ScannerProcedureServiceTest {
             Mockito.verify(musicFolderServiceImpl, Mockito.times(1)).updateMusicFolder(startDate, notExistingFolder);
             Mockito.verify(musicFolderServiceImpl, Mockito.times(1)).updateMusicFolder(startDate, existingFile);
         }
+
+        @Test
+        void testOrderCheck() throws URISyntaxException {
+            MusicFolder orderedFolder = new MusicFolder(1,
+                    Path.of(ScannerProcedureServiceTest.class.getResource("/MEDIAS/Music").toURI()).toString(),
+                    "Ordered", true, now(), 1);
+            List<MusicFolder> folders = Arrays.asList(orderedFolder);
+            Mockito.when(musicFolderServiceImpl.getAllMusicFolders(false, true)).thenReturn(folders);
+            Instant startDate = now();
+            scannerProcedureService.checkMudicFolders(startDate);
+            Mockito.verify(musicFolderServiceImpl, Mockito.never()).updateMusicFolder(startDate, orderedFolder);
+            Mockito.clearInvocations(musicFolderServiceImpl);
+
+            MusicFolder notOrderedFolder1 = new MusicFolder(2,
+                    Path.of(ScannerProcedureServiceTest.class.getResource("/MEDIAS/Music2").toURI()).toString(),
+                    "Music2", true, now(), -1);
+            MusicFolder notOrderedFolder2 = new MusicFolder(3,
+                    Path.of(ScannerProcedureServiceTest.class.getResource("/MEDIAS/Music3").toURI()).toString(),
+                    "Music3", true, now(), -1);
+            folders = Arrays.asList(orderedFolder, notOrderedFolder1, notOrderedFolder2);
+            Mockito.when(musicFolderServiceImpl.getAllMusicFolders(false, true)).thenReturn(folders);
+            ArgumentCaptor<MusicFolder> folderCaptor = ArgumentCaptor.forClass(MusicFolder.class);
+            Mockito.doNothing().when(musicFolderServiceImpl).updateMusicFolder(Mockito.any(Instant.class),
+                    folderCaptor.capture());
+            scannerProcedureService.checkMudicFolders(startDate);
+            assertEquals(3, folderCaptor.getAllValues().size());
+            assertEquals(1, folderCaptor.getAllValues().get(0).getFolderOrder());
+            assertEquals(2, folderCaptor.getAllValues().get(1).getFolderOrder());
+            assertEquals(3, folderCaptor.getAllValues().get(2).getFolderOrder());
+        }
     }
 
     @Test

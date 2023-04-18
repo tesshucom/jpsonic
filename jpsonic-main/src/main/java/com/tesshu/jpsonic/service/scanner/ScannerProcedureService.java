@@ -235,6 +235,17 @@ public class ScannerProcedureService {
                 LOG.warn(comment);
             }
         }
+
+        if (musicFolderService.getAllMusicFolders(false, true).stream()
+                .anyMatch(folder -> folder.getFolderOrder() == -1)) {
+            LongAdder order = new LongAdder();
+            musicFolderService.getAllMusicFolders(false, true).forEach(folder -> {
+                order.increment();
+                folder.setFolderOrder(order.intValue());
+                folder.setChanged(scanDate);
+                musicFolderService.updateMusicFolder(scanDate, folder);
+            });
+        }
         createScanEvent(scanDate, ScanEventType.MUSIC_FOLDER_CHECK, comment);
     }
 
