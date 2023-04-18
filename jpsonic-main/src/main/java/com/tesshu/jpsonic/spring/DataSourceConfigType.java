@@ -35,7 +35,9 @@ public enum DataSourceConfigType {
     }
 
     public static DataSourceConfigType of(String name) {
-        if (HOST.name().compareToIgnoreCase(name) == 0 || LEGACY.name().compareToIgnoreCase(name) == 0) {
+        if (name == null) {
+            return HOST;
+        } else if (HOST.name().compareToIgnoreCase(name) == 0 || LEGACY.name().compareToIgnoreCase(name) == 0) {
             return HOST;
         } else if (URL.name().compareToIgnoreCase(name) == 0 || EMBED.name().compareToIgnoreCase(name) == 0) {
             return URL;
