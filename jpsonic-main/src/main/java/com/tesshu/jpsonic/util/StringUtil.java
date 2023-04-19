@@ -174,7 +174,7 @@ public final class StringUtil {
     /**
      * Formats a duration with minutes and seconds, e.g., "4:34" or "93:45"
      */
-    public static String formatDurationMSS(int seconds) {
+    public static String formatDurationMSS(long seconds) {
         if (seconds < 0) {
             throw new IllegalArgumentException("seconds must be >= 0");
         }
@@ -184,9 +184,9 @@ public final class StringUtil {
     /**
      * Formats a duration with H:MM:SS, e.g., "1:33:45"
      */
-    public static String formatDurationHMMSS(final int sec) {
-        int seconds = sec;
-        int hours = seconds / 3600;
+    public static String formatDurationHMMSS(final long sec) {
+        long seconds = sec;
+        long hours = seconds == 0 ? 0 : seconds / 3600;
         seconds -= hours * 3600;
         return String.format("%d:%s%s", hours, seconds < 600 ? "0" : "", formatDurationMSS(seconds));
     }

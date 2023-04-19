@@ -55,7 +55,7 @@ class UploadEntryControllerTest {
     public void setup() throws ExecutionException, URISyntaxException {
         List<MusicFolder> musicFolders = Arrays.asList(
                 new MusicFolder(1, Path.of(UploadEntryControllerTest.class.getResource("/MEDIAS").toURI()).toString(),
-                        "MEDIAS", true, now()));
+                        "MEDIAS", true, now(), 1));
         MusicFolderService musicFolderService = mock(MusicFolderService.class);
         Mockito.when(musicFolderService.getMusicFoldersForUser(ServiceMockUtils.ADMIN_NAME)).thenReturn(musicFolders);
         mockMvc = MockMvcBuilders.standaloneSetup(new UploadEntryController(musicFolderService,

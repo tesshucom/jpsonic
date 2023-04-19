@@ -37,7 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 class JAlbumDaoTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Compare"), "Albums", true, now()));
+            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Compare"), "Albums", true, now(), 1));
 
     @Autowired
     private AlbumDao albumDao;

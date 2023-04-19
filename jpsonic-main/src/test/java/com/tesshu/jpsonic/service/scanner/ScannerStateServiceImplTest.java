@@ -121,13 +121,12 @@ class ScannerStateServiceImplTest {
         @TryScanningLockDecisions.Conditions.Destroy.False
         @TryScanningLockDecisions.Conditions.IsScanning.True
         @TryScanningLockDecisions.Result.False
-        void c03() throws InterruptedException {
+        void c03() throws InterruptedException, ExecutionException {
             scannerStateService.setReady();
             assertFalse(scannerStateService.isDestroy());
             ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
             executor.initialize();
-            executor.submit(() -> scannerStateService.tryScanningLock());
-            Thread.sleep(50);
+            executor.submit(() -> scannerStateService.tryScanningLock()).get();
             assertTrue(scannerStateService.isScanning());
             assertFalse(scannerStateService.tryScanningLock());
             executor.shutdown();
@@ -138,7 +137,7 @@ class ScannerStateServiceImplTest {
         @TryScanningLockDecisions.Conditions.Destroy.False
         @TryScanningLockDecisions.Conditions.IsScanning.False
         @TryScanningLockDecisions.Result.True
-        void c04() throws InterruptedException, ExecutionException {
+        void c04() {
             scannerStateService.setReady();
             assertFalse(scannerStateService.isDestroy());
             assertFalse(scannerStateService.isScanning());
@@ -241,13 +240,12 @@ class ScannerStateServiceImplTest {
         @UnlockScanningDecisions.Conditions.IsScanning.True.OthersLock
         @UnlockScanningDecisions.Result.IllegalMonitorStateException
         // (Unreachable case)
-        void c02() throws InterruptedException {
+        void c02() throws InterruptedException, ExecutionException {
             scannerStateService.setReady();
             assertFalse(scannerStateService.isDestroy());
             ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
             executor.initialize();
-            executor.submit(() -> scannerStateService.tryScanningLock());
-            Thread.sleep(50);
+            executor.submit(() -> scannerStateService.tryScanningLock()).get();
             assertTrue(scannerStateService.isScanning());
             assertThatExceptionOfType(IllegalMonitorStateException.class)
                     .isThrownBy(() -> scannerStateService.unlockScanning()).withNoCause();

@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -67,7 +68,6 @@ import com.tesshu.jpsonic.domain.SearchResult;
 import com.tesshu.jpsonic.service.MediaFileCache;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MediaScannerService;
-import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -210,10 +210,10 @@ class MediaScannerServiceImplTest {
             writableMediaFileService = new WritableMediaFileService(mediaFileDao, scannerStateService, mediaFileService,
                     albumDao, mock(MediaFileCache.class), mock(MusicParser.class), mock(VideoParser.class),
                     settingsService, mock(SecurityService.class), null, mock(IndexManager.class));
-            scannerProcedureService = new ScannerProcedureService(settingsService, mock(MusicFolderService.class),
+            scannerProcedureService = new ScannerProcedureService(settingsService, mock(MusicFolderServiceImpl.class),
                     indexManager, mediaFileService, writableMediaFileService, mock(PlaylistService.class), mediaFileDao,
                     artistDao, albumDao, staticsDao, utils, scannerStateService, mock(Ehcache.class),
-                    mock(MediaFileCache.class), mock(JapaneseReadingUtils.class));
+                    mock(MediaFileCache.class), mock(JapaneseReadingUtils.class), mock(ThreadPoolTaskExecutor.class));
             mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
                     scannerProcedureService, mock(ExpungeService.class), staticsDao, executor);
         }
@@ -315,10 +315,10 @@ class MediaScannerServiceImplTest {
             void testWithRecords() {
                 assertFalse(mediaScannerService.isScanning());
                 Mockito.when(staticsDao.isNeverScanned()).thenReturn(false);
-                ScanEvent success = new ScanEvent(null, null, ScanEventType.FINISHED, 0L, 0L, 0L, null);
+                ScanEvent success = new ScanEvent(null, null, ScanEventType.SUCCESS, 0L, 0L, 0L, null, null);
                 Mockito.when(staticsDao.getLastScanAllStatuses()).thenReturn(Arrays.asList(success));
                 assertFalse(mediaScannerService.getLastScanEventType().isEmpty());
-                assertEquals(ScanEventType.FINISHED, mediaScannerService.getLastScanEventType().get());
+                assertEquals(ScanEventType.SUCCESS, mediaScannerService.getLastScanEventType().get());
             }
         }
 
@@ -350,7 +350,7 @@ class MediaScannerServiceImplTest {
             void c03() {
                 Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
                 Mockito.when(staticsDao.getLastScanAllStatuses()).thenReturn(
-                        Arrays.asList(new ScanEvent(null, null, ScanEventType.CANCELED, null, null, null, null)));
+                        Arrays.asList(new ScanEvent(null, null, ScanEventType.CANCELED, null, null, null, null, null)));
                 assertFalse(mediaScannerService.isOptionalProcessSkippable());
             }
 
@@ -362,7 +362,7 @@ class MediaScannerServiceImplTest {
             void c04() {
                 Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
                 Mockito.when(staticsDao.getLastScanAllStatuses()).thenReturn(
-                        Arrays.asList(new ScanEvent(null, null, ScanEventType.FINISHED, null, null, null, null)));
+                        Arrays.asList(new ScanEvent(null, null, ScanEventType.SUCCESS, null, null, null, null, null)));
                 Mockito.when(staticsDao.isfolderChangedSinceLastScan()).thenReturn(true);
                 assertFalse(mediaScannerService.isOptionalProcessSkippable());
             }
@@ -375,7 +375,7 @@ class MediaScannerServiceImplTest {
             void c05() {
                 Mockito.when(settingsService.isIgnoreFileTimestamps()).thenReturn(false);
                 Mockito.when(staticsDao.getLastScanAllStatuses()).thenReturn(
-                        Arrays.asList(new ScanEvent(null, null, ScanEventType.FINISHED, null, null, null, null)));
+                        Arrays.asList(new ScanEvent(null, null, ScanEventType.SUCCESS, null, null, null, null, null)));
                 Mockito.when(staticsDao.isfolderChangedSinceLastScan()).thenReturn(false);
                 assertTrue(mediaScannerService.isOptionalProcessSkippable());
             }
@@ -397,10 +397,10 @@ class MediaScannerServiceImplTest {
         public List<MusicFolder> getMusicFolders() {
             if (ObjectUtils.isEmpty(musicFolders)) {
                 musicFolders = Arrays.asList(
-                        new MusicFolder(1, resolveBaseMediaPath("Scan/Id3LIFO"), "alphaBeticalProps", true, now()),
-                        new MusicFolder(2, resolveBaseMediaPath("Scan/Null"), "noTagFirstChild", true, now()),
+                        new MusicFolder(1, resolveBaseMediaPath("Scan/Id3LIFO"), "alphaBeticalProps", true, now(), 0),
+                        new MusicFolder(2, resolveBaseMediaPath("Scan/Null"), "noTagFirstChild", true, now(), 1),
                         new MusicFolder(3, resolveBaseMediaPath("Scan/Reverse"), "fileAndPropsNameInReverse", true,
-                                now()));
+                                now(), 2));
             }
             return musicFolders;
         }
@@ -551,7 +551,7 @@ class MediaScannerServiceImplTest {
             assertNotNull(FileUtil.createDirectories(artist));
             this.album = Path.of(artist.toString(), "ALBUM");
             assertNotNull(FileUtil.createDirectories(album));
-            this.musicFolders = Arrays.asList(new MusicFolder(1, tempDir.toString(), "musicFolder", true, now()));
+            this.musicFolders = Arrays.asList(new MusicFolder(1, tempDir.toString(), "musicFolder", true, now(), 1));
 
             // Copy the song file from the test resource. No tags are registered in this file.
             Path sample = Path.of(MediaScannerServiceImplTest.class
@@ -712,7 +712,7 @@ class MediaScannerServiceImplTest {
         @Autowired
         private SettingsService settingsService;
         @Autowired
-        private MusicFolderService musicFolderService;
+        private MusicFolderServiceImpl musicFolderService;
         @Autowired
         private MediaFileService mediaFileService;
         @Autowired
@@ -758,7 +758,7 @@ class MediaScannerServiceImplTest {
                 TestCaseUtils.execScan(mediaScannerService);
                 globalTimerContext.stop();
             }
-            assertEquals(ScanEventType.FINISHED, mediaScannerService.getLastScanEventType().get());
+            assertEquals(ScanEventType.SUCCESS, mediaScannerService.getLastScanEventType().get());
 
             logRecords(TestCaseUtils.recordsInAllTables(daoHelper));
 
@@ -868,7 +868,7 @@ class MediaScannerServiceImplTest {
                 IOUtils.copy(resource, Files.newOutputStream(musicPath));
             }
 
-            MusicFolder musicFolder = new MusicFolder(1, tempDirPath.toString(), "Music", true, now());
+            MusicFolder musicFolder = new MusicFolder(1, tempDirPath.toString(), "Music", true, now(), 1);
             musicFolderDao.createMusicFolder(musicFolder);
             musicFolderService.clearMusicFolderCache();
             TestCaseUtils.execScan(mediaScannerService);
@@ -888,7 +888,7 @@ class MediaScannerServiceImplTest {
 
             // Add the "Music3" folder to the database
             Path musicFolderPath = Path.of(MusicFolderTestDataUtils.resolveMusic3FolderPath());
-            MusicFolder musicFolder = new MusicFolder(1, musicFolderPath.toString(), "Music3", true, now());
+            MusicFolder musicFolder = new MusicFolder(1, musicFolderPath.toString(), "Music3", true, now(), 1);
             musicFolderDao.createMusicFolder(musicFolder);
             musicFolderService.clearMusicFolderCache();
             TestCaseUtils.execScan(mediaScannerService);
@@ -959,8 +959,8 @@ class MediaScannerServiceImplTest {
             assertNotNull(FileUtil.createDirectories(artist));
             this.album = Path.of(artist.toString(), "ALBUM");
             assertNotNull(FileUtil.createDirectories(album));
-            this.musicFolders = Arrays.asList(new MusicFolder(1, tempDir1.toString(), "musicFolder1", true, now()),
-                    new MusicFolder(2, tempDir2.toString(), "musicFolder2", true, now()));
+            this.musicFolders = Arrays.asList(new MusicFolder(1, tempDir1.toString(), "musicFolder1", true, now(), 0),
+                    new MusicFolder(2, tempDir2.toString(), "musicFolder2", true, now(), 1));
 
             Path sample = Path.of(MediaScannerServiceImplTest.class
                     .getResource("/MEDIAS/Scan/Timestamp/ARTIST/ALBUM/sample.mp3").toURI());
@@ -1028,7 +1028,7 @@ class MediaScannerServiceImplTest {
             assertNotNull(FileUtil.createDirectories(artist));
             Path album = Path.of(artist.toString(), "ALBUM");
             assertNotNull(FileUtil.createDirectories(album));
-            this.musicFolders = Arrays.asList(new MusicFolder(1, tempDir.toString(), "musicFolder1", true, now()));
+            this.musicFolders = Arrays.asList(new MusicFolder(1, tempDir.toString(), "musicFolder1", true, now(), 1));
             Path sample = Path.of(MediaScannerServiceImplTest.class
                     .getResource("/MEDIAS/Scan/Timestamp/ARTIST/ALBUM/sample.mp3").toURI());
             this.song = Path.of(album.toString(), "sample.mp3");
@@ -1044,7 +1044,7 @@ class MediaScannerServiceImplTest {
          * performance barrier.
          */
         @Test
-        void testRestoreUpdate() throws URISyntaxException, IOException, InterruptedException {
+        void testRestoreUpdate() throws URISyntaxException, IOException, InterruptedException, ExecutionException {
 
             MediaFile song = mediaFileDao.getMediaFile(this.song.toString());
             assertEquals(this.song, song.toPath());
@@ -1052,20 +1052,24 @@ class MediaScannerServiceImplTest {
 
             MusicFolder folder = musicFolders.get(0);
             folder.setEnabled(false);
-            musicFolderService.updateMusicFolder(now(), folder);
-            Thread.sleep(10);
+
+            ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+            executor.initialize();
+            executor.submit(() -> musicFolderService.updateMusicFolder(now(), folder)).get();
+
             TestCaseUtils.execScan(mediaScannerService);
 
             assertNull(mediaFileDao.getMediaFile(this.song.toString()));
 
             folder.setEnabled(true);
-            musicFolderService.updateMusicFolder(now(), folder);
-            Thread.sleep(10);
+            executor.submit(() -> musicFolderService.updateMusicFolder(now(), folder)).get();
             TestCaseUtils.execScan(mediaScannerService);
 
             song = mediaFileDao.getMediaFile(this.song.toString());
             assertEquals(this.song, song.toPath());
             assertTrue(song.isPresent());
+
+            executor.shutdown();
         }
     }
 }

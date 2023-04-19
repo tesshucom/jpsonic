@@ -75,8 +75,8 @@ class MediaFileUpnpProcessorTest {
             folder1.setMediaType(MediaType.DIRECTORY);
             Mockito.when(mediaFileService.getMediaFile(musicFolderPath1)).thenReturn(folder1);
 
-            Mockito.when(upnpProcessorUtil.getGuestMusicFolders())
-                    .thenReturn(Arrays.asList(new MusicFolder(0, musicFolderPath1.toString(), "Music", true, now())));
+            Mockito.when(upnpProcessorUtil.getGuestMusicFolders()).thenReturn(
+                    Arrays.asList(new MusicFolder(0, musicFolderPath1.toString(), "Music", true, now(), 0)));
             List<MediaFile> result = mediaFileUpnpProcessor.getItems(0, Integer.MAX_VALUE);
             Mockito.verify(mediaFileService, Mockito.times(1)).getMediaFile(Mockito.any(Path.class));
             assertEquals(0, result.size());
@@ -89,8 +89,8 @@ class MediaFileUpnpProcessorTest {
             Mockito.when(mediaFileService.getMediaFile(musicFolderPath2)).thenReturn(folder2);
 
             Mockito.when(upnpProcessorUtil.getGuestMusicFolders())
-                    .thenReturn(Arrays.asList(new MusicFolder(0, musicFolderPath1.toString(), "Music1", true, now()),
-                            new MusicFolder(1, musicFolderPath2.toString(), "Music2", true, now())));
+                    .thenReturn(Arrays.asList(new MusicFolder(0, musicFolderPath1.toString(), "Music1", true, now(), 0),
+                            new MusicFolder(1, musicFolderPath2.toString(), "Music2", true, now(), 1)));
             result = mediaFileUpnpProcessor.getItems(0, Integer.MAX_VALUE);
             Mockito.verify(mediaFileService, Mockito.times(2)).getMediaFile(Mockito.any(Path.class));
             assertEquals(2, result.size());
@@ -117,7 +117,7 @@ class MediaFileUpnpProcessorTest {
             musicFolders = Arrays.asList(new MusicFolder(1,
                     Path.of(MediaFileUpnpProcessorTest.class.getResource("/MEDIAS/Sort/Pagination/Artists").toURI())
                             .toString(),
-                    "Artists", true, now()));
+                    "Artists", true, now(), 1));
 
             setSortStrict(true);
             setSortAlphanum(true);

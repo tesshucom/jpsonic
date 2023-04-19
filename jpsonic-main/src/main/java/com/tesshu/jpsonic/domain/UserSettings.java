@@ -95,6 +95,7 @@ public class UserSettings {
     private String ietf;
     private String fontFamily;
     private int fontSize;
+    private boolean showScannedCount;
     // <<<< JP
 
     public UserSettings() {
@@ -601,6 +602,14 @@ public class UserSettings {
 
     public void setFontSize(int fontSize) {
         this.fontSize = fontSize;
+    }
+
+    public boolean isShowScannedCount() {
+        return showScannedCount;
+    }
+
+    public void setShowScannedCount(boolean showScannedCount) {
+        this.showScannedCount = showScannedCount;
     }
 
     /**

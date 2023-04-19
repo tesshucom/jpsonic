@@ -550,7 +550,7 @@ class SearchServiceTest {
         public List<MusicFolder> getMusicFolders() {
             if (isEmpty(musicFolders)) {
                 musicFolders = Arrays.asList(
-                        new MusicFolder(1, resolveBaseMediaPath("Search/SpecialGenre"), "accessible", true, now()));
+                        new MusicFolder(1, resolveBaseMediaPath("Search/SpecialGenre"), "accessible", true, now(), 1));
             }
             return musicFolders;
         }
@@ -815,11 +815,11 @@ class SearchServiceTest {
             if (isEmpty(musicFolders)) {
                 musicFolders = Arrays.asList(
                         new MusicFolder(1, resolveBaseMediaPath("Search/SpecialPath/accessible"), "accessible", true,
-                                now()),
+                                now(), 0),
                         new MusicFolder(2, resolveBaseMediaPath("Search/SpecialPath/accessible's"), "accessible's",
-                                true, now()),
+                                true, now(), 1),
                         new MusicFolder(3, resolveBaseMediaPath("Search/SpecialPath/accessible+s"), "accessible+s",
-                                true, now()));
+                                true, now(), 2));
             }
             return musicFolders;
         }
@@ -879,7 +879,7 @@ class SearchServiceTest {
         public List<MusicFolder> getMusicFolders() {
             if (isEmpty(musicFolders)) {
                 musicFolders = Arrays.asList(new MusicFolder(1, resolveBaseMediaPath("Search/StartWithStopwards"),
-                        "accessible", true, now()));
+                        "accessible", true, now(), 1));
             }
             return musicFolders;
         }

@@ -87,7 +87,7 @@ class UploadControllerTest {
     @WithMockUser(username = "admin")
     void testHandleRequestInternalWithFile(@TempDir Path tempDirPath) throws Exception {
 
-        MusicFolder musicFolder = new MusicFolder(Integer.valueOf(0), tempDirPath.toString(), "Incoming1", true, now());
+        MusicFolder musicFolder = new MusicFolder(0, tempDirPath.toString(), "Incoming1", true, now(), 1);
         musicFolderDao.createMusicFolder(musicFolder);
 
         URL url = UploadController.class.getResource(FILE_PATH);
@@ -115,7 +115,7 @@ class UploadControllerTest {
     @WithMockUser(username = "admin")
     void testHandleRequestInternalWithZip(@TempDir Path tempDirPath) throws Exception {
 
-        MusicFolder musicFolder = new MusicFolder(Integer.valueOf(1), tempDirPath.toString(), "Incoming2", true, now());
+        MusicFolder musicFolder = new MusicFolder(1, tempDirPath.toString(), "Incoming2", true, now(), 1);
         musicFolderDao.createMusicFolder(musicFolder);
 
         URL url = UploadController.class.getResource(ZIP_PATH);

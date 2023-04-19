@@ -257,27 +257,6 @@ function toggleComment() {
             <c:if test="${model.user.shareRole and model.showShare}">
                 <li><a title="<fmt:message key='main.sharealbum'/>" href="${shareUrl}" class="control share"><fmt:message key="main.sharealbum"/></a></li>
             </c:if>
-            <c:if test="${model.user.adminRole and model.ignoreFileTimestampsForEachAlbum}">
-                <li>
-                    <c:choose>
-                        <c:when test="${model.scanForcable}">
-                            <form method="post" action="setMusicFileInfo.view" name="resetLastScannedForm">
-                                <sec:csrfInput />
-                                <input type="hidden" name="action" value="resetLastScanned">
-                                <input type="hidden" name="id" value="${model.dir.id}">          
-                                <a title="<fmt:message key='main.forcescan'/>" href="javascript:document.resetLastScannedForm.submit()" class="control force-scan">
-                                    <fmt:message key="main.forcescan"/>
-                                </a>
-                            </form>
-                        </c:when>
-                        <c:otherwise>
-                            <span title="<fmt:message key='main.forcescanenabled'/>" class="control force-scan disabled">
-                                <fmt:message key="main.forcescanenabled"/>
-                            </span>
-                        </c:otherwise>                
-                    </c:choose>
-                </li>
-            </c:if>
         </ul>
     </c:if>
 

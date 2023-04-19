@@ -22,5 +22,28 @@
 package com.tesshu.jpsonic.spring;
 
 public enum DataSourceConfigType {
-    JNDI, EMBED, LEGACY
+    JNDI("jndi"), URL("url"), HOST("host"), EMBED("embed"), LEGACY("legacy");
+
+    private final String name;
+
+    DataSourceConfigType(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public static DataSourceConfigType of(String name) {
+        if (name == null) {
+            return HOST;
+        } else if (HOST.name().compareToIgnoreCase(name) == 0 || LEGACY.name().compareToIgnoreCase(name) == 0) {
+            return HOST;
+        } else if (URL.name().compareToIgnoreCase(name) == 0 || EMBED.name().compareToIgnoreCase(name) == 0) {
+            return URL;
+        } else if (JNDI.name().compareToIgnoreCase(name) == 0) {
+            return JNDI;
+        }
+        return HOST;
+    }
 }

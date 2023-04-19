@@ -208,7 +208,7 @@ public class Application extends SpringBootServletInitializer
     private static SpringApplicationBuilder doConfigure(SpringApplicationBuilder application) {
         application.application().addListeners((ApplicationListener<ApplicationPreparedEvent>) event -> {
             if (event.getApplicationContext().getEnvironment()
-                    .acceptsProfiles(Profiles.of(ProfileNameConstants.LEGACY))) {
+                    .acceptsProfiles(Profiles.of(ProfileNameConstants.HOST))) {
                 LegacyHsqlUtil.checkHsqldbDatabaseVersion();
             }
         });

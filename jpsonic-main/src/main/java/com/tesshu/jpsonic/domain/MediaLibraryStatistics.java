@@ -37,6 +37,7 @@ public class MediaLibraryStatistics {
     private int artistCount;
     private int albumCount;
     private int songCount;
+    private int videoCount;
     private long totalSize;
     private long totalDuration;
 
@@ -45,13 +46,14 @@ public class MediaLibraryStatistics {
     }
 
     public MediaLibraryStatistics(@NonNull Instant executed, int folderId, int artistCount, int albumCount,
-            int songCount, long totalSize, long totalDuration) {
+            int songCount, int videoCount, long totalSize, long totalDuration) {
         super();
         this.executed = executed;
         this.folderId = folderId;
         this.artistCount = artistCount;
         this.albumCount = albumCount;
         this.songCount = songCount;
+        this.videoCount = videoCount;
         this.totalSize = totalSize;
         this.totalDuration = totalDuration;
     }
@@ -94,6 +96,14 @@ public class MediaLibraryStatistics {
 
     public void setSongCount(int songCount) {
         this.songCount = songCount;
+    }
+
+    public int getVideoCount() {
+        return videoCount;
+    }
+
+    public void setVideoCount(int videoCount) {
+        this.videoCount = videoCount;
     }
 
     public long getTotalSize() {
