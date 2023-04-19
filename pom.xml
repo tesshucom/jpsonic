@@ -19,10 +19,10 @@
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jackson.version>2.14.2</jackson.version>
-        <tomcat.version>9.0.73</tomcat.version>
+        <tomcat.version>9.0.74</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
-        <jetty.version>10.0.11</jetty.version>
-        <jetty-jsp.version>10.0.11</jetty-jsp.version>
+        <jetty.version>10.0.15</jetty.version>
+        <jetty-jsp.version>10.0.15</jetty-jsp.version>
         <pmd.version>6.55.0</pmd.version>
         <log4j.version>2.20.0</log4j.version>
         <logback.version>1.2.11</logback.version>
@@ -110,37 +110,37 @@
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-acl</artifactId>
-                <version>5.8.2</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.3</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-config</artifactId>
-                <version>5.8.2</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.3</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-core</artifactId>
-                <version>5.8.2</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.3</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-crypto</artifactId>
-                <version>5.7.7</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.7.8</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-taglibs</artifactId>
-                <version>5.8.2</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.3</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-ldap</artifactId>
-                <version>5.8.2</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.3</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
-                <version>5.8.2</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.3</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
 
             <!-- Spring Boot is slow to fix CVE, so some libraries will be overridden. -->
@@ -425,7 +425,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>3.4.2</version>
+                    <version>3.4.3</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
