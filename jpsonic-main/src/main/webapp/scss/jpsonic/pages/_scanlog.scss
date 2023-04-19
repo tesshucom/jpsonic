@@ -1,0 +1,54 @@
+.mainframe.settings.scanlog.notMobile,
+.mainframe.settings.scanlog {
+  .topSelectorContainer2 {
+    width: calc(100vw - 60px);
+    margin: 30px 20px 0 20px;
+    @media screen and (min-width: $jp-supplement-width-threshold) {
+      width: calc(50vw - 60px);
+      margin: 30px 20px 0 calc((100vw - (50vw - 60px)) / 2);
+    }
+
+
+    dt {
+      background-color: $jp-color-base4;
+      color: $jp-color-white;
+      font-weight: 600;
+    }
+  }
+
+
+
+  table.tabular.scanevents {
+    width: calc(100vw - 60px);
+    margin: 30px 20px 0 20px;
+    @media screen and (min-width: $jp-supplement-width-threshold) {
+      width: calc(50vw - 60px);
+      margin: 30px 20px 0 calc((100vw - (50vw - 60px)) / 2);
+    }
+
+    td {
+      padding-right: 10px;
+
+      &:nth-child(1),
+      &:nth-child(3),
+      &:nth-child(7) {
+        font-size: .8rem;
+      }
+
+      &:nth-child(2),
+      &:nth-child(4),
+      &:nth-child(5),
+      &:nth-child(6) {
+        text-align: right;
+      }
+
+      &:nth-child(3),
+      &:nth-child(7) {
+        text-align: left;
+      }
+      div[class$="help"] {
+        overflow: inherit;
+      }
+    }
+  }
+}

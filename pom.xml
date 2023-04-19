@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>111.6.3</version>
+    <version>112.0.0-SNAPSHOT</version>
     <name>Jpsonic</name>
     <packaging>pom</packaging>
     <organization>
@@ -746,6 +746,7 @@
                                 <ignoredUnusedDeclaredDependency>com.mattbertolini:liquibase-slf4j:jar:*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.hsqldb:hsqldb:*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.postgresql:postgresql:jar:*</ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>com.impossibl.pgjdbc-ng:pgjdbc-ng:jar:*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>com.mysql:mysql-connector-j:jar:*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.mariadb.jdbc:mariadb-java-client:jar:*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:*</ignoredUnusedDeclaredDependency>

@@ -6,7 +6,7 @@
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script src="<c:url value='/script/jpsonic/onSceneChanged.js'/>"></script>
 </head>
-<body class="mainframe settings">
+<body class="mainframe settings internalhelp">
 
 <c:import url="helpHeader.jsp">
     <c:param name="cat" value="internalhelp"/>
@@ -235,29 +235,44 @@
     </dl>
 </details>
 
+
 <details open>
     <summary class="statusOK">
         <fmt:message key="internalhelp.statistics"/>
     </summary>
-    <dl>
-        <dt><fmt:message key="internalhelp.albumcount"/></dt>
-        <dd>${model.statAlbumCount}</dd>
-        <dt><fmt:message key="internalhelp.artistcount"/></dt>
-        <dd>${model.statArtistCount}</dd>
-        <dt><fmt:message key="internalhelp.songcount"/></dt>
-        <dd>${model.statSongCount}</dd>
-        <dt><fmt:message key="internalhelp.lastscandate"/></dt>
-        <dd>
-            <c:if test="${not empty model.statLastScanDate}">
-                <fmt:parseDate value="${model.statLastScanDate}" type="both" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" />
+    <c:if test="${model.stats.size() > 0}">
+        <table class="tabular stats">
+            <caption>
+                <fmt:message key="internalhelp.lastscandate"/> : 
+                <fmt:parseDate value="${model.stats[0].executed}" type="both" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" />
                 <fmt:formatDate value="${parsedDate}" pattern="yyyy-MM-dd HH:mm:ss" />
-            </c:if>
-        </dd>
-        <dt><fmt:message key="internalhelp.totaldurationseconds"/></dt>
-        <dd>${model.statTotalDurationSeconds}</dd>
-        <dt><fmt:message key="internalhelp.totalsizebytes"/></dt>
-        <dd>${model.statTotalLengthBytes}</dd>
-    </dl>
+            </caption>
+            <thead>
+                <tr>
+                    <th><fmt:message key="internalhelp.foldername"/></th>
+                    <th><fmt:message key="internalhelp.artistcount"/></th>
+                    <th><fmt:message key="internalhelp.albumcount"/></th>
+                    <th><fmt:message key="internalhelp.songcount"/></th>
+                    <th><fmt:message key="internalhelp.videocount"/></th>
+                    <th><fmt:message key="internalhelp.totaldurationseconds"/></th>
+                    <th><fmt:message key="internalhelp.totalsizebytes"/></th>
+                </tr>
+            </thead>
+            <tbody>
+                <c:forEach items="${model.stats}" var="stat" varStatus="loopStatus">
+                    <tr>
+                        <td>${stat.folderName}</td>
+                        <td>${stat.artistCount}</td>
+                        <td>${stat.albumCount}</td>
+                        <td>${stat.songCount}</td>
+                        <td>${stat.videoCount}</td>
+                        <td>${stat.size}</td>
+                        <td>${stat.duration}</td>
+                    </tr>
+                </c:forEach>
+            </tbody>
+        </table>
+    </c:if>
 </details>
 
 <c:if test="${model.showIndexDetails}">

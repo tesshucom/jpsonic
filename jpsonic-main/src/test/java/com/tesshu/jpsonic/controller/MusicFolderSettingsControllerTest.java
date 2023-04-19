@@ -39,14 +39,13 @@ import java.util.stream.Collectors;
 import com.tesshu.jpsonic.MusicFolderTestDataUtils;
 import com.tesshu.jpsonic.command.MusicFolderSettingsCommand;
 import com.tesshu.jpsonic.command.MusicFolderSettingsCommand.MusicFolderInfo;
-import com.tesshu.jpsonic.domain.FileModifiedCheckScheme;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MediaScannerService;
-import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
+import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
@@ -73,7 +72,7 @@ class MusicFolderSettingsControllerTest {
     private static final String VIEW_NAME = "musicFolderSettings";
 
     private SettingsService settingsService;
-    private MusicFolderService musicFolderService;
+    private MusicFolderServiceImpl musicFolderService;
     private MediaScannerService mediaScannerService;
     private MusicFolderSettingsController controller;
     private MockMvc mockMvc;
@@ -81,7 +80,7 @@ class MusicFolderSettingsControllerTest {
     @BeforeEach
     public void setup() throws ExecutionException {
         settingsService = mock(SettingsService.class);
-        musicFolderService = mock(MusicFolderService.class);
+        musicFolderService = mock(MusicFolderServiceImpl.class);
         mediaScannerService = mock(MediaScannerService.class);
         controller = new MusicFolderSettingsController(settingsService, musicFolderService, mock(SecurityService.class),
                 mediaScannerService, mock(ShareService.class), mock(OutlineHelpSelector.class));
@@ -218,7 +217,7 @@ class MusicFolderSettingsControllerTest {
         assertNotNull(command);
 
         MusicFolder musicFolder1 = new MusicFolder(99, MusicFolderTestDataUtils.resolveMusicFolderPath(), "Music", true,
-                now());
+                now(), 1);
         MusicFolderInfo musicFolderInfo1 = new MusicFolderInfo(musicFolder1);
         musicFolderInfo1.setDelete(true);
         MusicFolder musicFolder2 = new MusicFolder(MusicFolderTestDataUtils.resolveMusic2FolderPath(), "Music2", true,
@@ -265,66 +264,17 @@ class MusicFolderSettingsControllerTest {
                 .getModelAndView().getModelMap().get(Attributes.Model.Command.VALUE);
         assertFalse(command.isIgnoreFileTimestamps());
 
-        // IgnoreFileTimestamps is enabled only when the check method is LAST_MODIFIED.
-        command.setFileModifiedCheckScheme(FileModifiedCheckScheme.LAST_MODIFIED);
         command.setIgnoreFileTimestamps(true);
         ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(Boolean.class);
         Mockito.doNothing().when(settingsService).setIgnoreFileTimestamps(captor.capture());
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         assertTrue(captor.getValue());
 
-        // Disabled if LAST_SCANNED is specified.
-        command.setFileModifiedCheckScheme(FileModifiedCheckScheme.LAST_SCANNED);
-        command.setIgnoreFileTimestamps(true);
         captor = ArgumentCaptor.forClass(Boolean.class);
         Mockito.doNothing().when(settingsService).setIgnoreFileTimestamps(captor.capture());
-        command.setIgnoreFileTimestamps(true);
+        command.setIgnoreFileTimestamps(false);
         controller.post(command, Mockito.mock(RedirectAttributes.class));
         assertFalse(captor.getValue());
-    }
-
-    @Test
-    @Order(12)
-    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
-    void testIfIgnoreFileTimestampsForEachAlbum() throws Exception {
-
-        MusicFolderSettingsCommand command = (MusicFolderSettingsCommand) mockMvc
-                .perform(MockMvcRequestBuilders.get("/" + ViewName.MUSIC_FOLDER_SETTINGS.value())).andReturn()
-                .getModelAndView().getModelMap().get(Attributes.Model.Command.VALUE);
-        assertFalse(command.isIgnoreFileTimestampsForEachAlbum());
-
-        /*
-         * isIgnoreFileTimestampsForEachAlbum is a flag to show the scan-force-button on the album page. Default is
-         * false.
-         */
-        ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(Boolean.class);
-        Mockito.doNothing().when(settingsService).setIgnoreFileTimestampsForEachAlbum(captor.capture());
-        mockMvc.perform(MockMvcRequestBuilders.post("/" + ViewName.MUSIC_FOLDER_SETTINGS.value())
-                .flashAttr(Attributes.Model.Command.VALUE, command)).andExpect(MockMvcResultMatchers.status().isFound())
-                .andExpect(MockMvcResultMatchers.redirectedUrl(ViewName.MUSIC_FOLDER_SETTINGS.value()))
-                .andExpect(MockMvcResultMatchers.status().is3xxRedirection());
-        assertFalse(captor.getValue());
-
-        /*
-         * Forced scanning each album can coexist with traditional scanning specifications. Show button if
-         * IgnoreFileTimestampsForEachAlbum is true.
-         */
-        command.setIgnoreFileTimestampsForEachAlbum(true);
-        command.setFileModifiedCheckScheme(FileModifiedCheckScheme.LAST_MODIFIED);
-        captor = ArgumentCaptor.forClass(Boolean.class);
-        Mockito.doNothing().when(settingsService).setIgnoreFileTimestampsForEachAlbum(captor.capture());
-        controller.post(command, Mockito.mock(RedirectAttributes.class));
-        assertTrue(captor.getValue());
-
-        /*
-         * Depending on the scan check method, it is necessary to always display a button on the album page.
-         */
-        command.setIgnoreFileTimestampsForEachAlbum(false);
-        command.setFileModifiedCheckScheme(FileModifiedCheckScheme.LAST_SCANNED);
-        captor = ArgumentCaptor.forClass(Boolean.class);
-        Mockito.doNothing().when(settingsService).setIgnoreFileTimestampsForEachAlbum(captor.capture());
-        controller.post(command, Mockito.mock(RedirectAttributes.class));
-        assertTrue(captor.getValue());
     }
 
     @Documented
@@ -419,7 +369,7 @@ class MusicFolderSettingsControllerTest {
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal.OldPathStartWithNewPath
         @ToMusicFolderDecisions.Results.Empty
         void c03() {
-            List<MusicFolder> oldMusicFolders = Arrays.asList(new MusicFolder(0, "/jpsonic", "old", false, null));
+            List<MusicFolder> oldMusicFolders = Arrays.asList(new MusicFolder(0, "/jpsonic", "old", false, null, 0));
             Mockito.when(musicFolderService.getAllMusicFolders(true, true)).thenReturn(oldMusicFolders);
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "/jpsonic/subDirectory";
@@ -432,7 +382,7 @@ class MusicFolderSettingsControllerTest {
         @ToMusicFolderDecisions.Results.Empty
         void c04() {
             List<MusicFolder> oldMusicFolders = Arrays
-                    .asList(new MusicFolder(0, "/jpsonic/subDirectory", "old", false, null));
+                    .asList(new MusicFolder(0, "/jpsonic/subDirectory", "old", false, null, 0));
             Mockito.when(musicFolderService.getAllMusicFolders(true, true)).thenReturn(oldMusicFolders);
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "/jpsonic";
@@ -445,7 +395,7 @@ class MusicFolderSettingsControllerTest {
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.NonNull
         @ToMusicFolderDecisions.Results.NotEmpty
         void c05() {
-            List<MusicFolder> oldMusicFolders = Arrays.asList(new MusicFolder(0, "/jpsonic", "old", false, null));
+            List<MusicFolder> oldMusicFolders = Arrays.asList(new MusicFolder(0, "/jpsonic", "old", false, null, 0));
             Mockito.when(musicFolderService.getAllMusicFolders(true, true)).thenReturn(oldMusicFolders);
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "foo/bar";
@@ -459,7 +409,7 @@ class MusicFolderSettingsControllerTest {
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.NonNull
         @ToMusicFolderDecisions.Results.NotEmpty
         void c06() {
-            List<MusicFolder> oldMusicFolders = Arrays.asList(new MusicFolder(0, "/jpsonic", "old", false, null));
+            List<MusicFolder> oldMusicFolders = Arrays.asList(new MusicFolder(0, "/jpsonic", "old", false, null, 0));
             Mockito.when(musicFolderService.getAllMusicFolders(true, true)).thenReturn(oldMusicFolders);
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "/jpsonic";

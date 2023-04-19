@@ -172,7 +172,6 @@ public class MainController {
         map.put("showSibling", userSettings.isShowSibling());
         map.put("showAlbumActions", userSettings.isShowAlbumActions());
         map.put("useRadio", settingsService.isUseRadio());
-        map.put("ignoreFileTimestampsForEachAlbum", settingsService.isIgnoreFileTimestampsForEachAlbum());
 
         map.put("brand", SettingsService.getBrand());
         map.put("coverArtSizeMedium", CoverArtScheme.MEDIUM.getSize());

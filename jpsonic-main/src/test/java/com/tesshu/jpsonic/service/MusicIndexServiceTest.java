@@ -93,7 +93,7 @@ class MusicIndexServiceTest {
         List<MediaFile> children = Arrays.asList(child1, child2);
         Mockito.when(mediaFileService.getChildrenOf(Mockito.any(MediaFile.class), Mockito.anyBoolean(),
                 Mockito.anyBoolean())).thenReturn(children);
-        MusicFolder folder = new MusicFolder(0, "path", "name", true, now());
+        MusicFolder folder = new MusicFolder(0, "path", "name", true, now(), 0);
 
         SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> indexedArtists = musicIndexService
                 .getIndexedArtists(Arrays.asList(folder));
@@ -178,7 +178,7 @@ class MusicIndexServiceTest {
         Mockito.when(mediaFileService.getChildrenOf(Mockito.any(MediaFile.class), Mockito.anyBoolean(),
                 Mockito.anyBoolean())).thenReturn(children).thenReturn(songs).thenThrow(new RuntimeException("Fail"));
         Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(new MediaFile());
-        MusicFolder folder = new MusicFolder(0, "path", "name", true, now());
+        MusicFolder folder = new MusicFolder(0, "path", "name", true, now(), 0);
 
         MusicFolderContent content = musicIndexService.getMusicFolderContent(Arrays.asList(folder));
         assertEquals(2, content.getIndexedArtists().size());
@@ -218,15 +218,23 @@ class MusicIndexServiceTest {
     void testGetShortcuts() throws URISyntaxException {
         Mockito.when(settingsService.getShortcutsAsArray())
                 .thenReturn(StringUtil.split(SettingsConstants.General.Extension.SHORTCUTS.defaultValue + " Metadata"));
-        MediaFile song = new MediaFile();
-        song.setTitle("Files directly under the shortcut directory");
-        song.setPathString("path");
-        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(song);
         MusicFolder folder = new MusicFolder(
-                Path.of(MusicIndexServiceTest.class.getResource("/MEDIAS").toURI()).toString(), "Music", true, now());
+                Path.of(MusicIndexServiceTest.class.getResource("/MEDIAS/Music").toURI()).toString(), "Music", true,
+                now());
+        assertEquals(0, musicIndexService.getShortcuts(Arrays.asList(folder)).size());
 
-        List<MediaFile> shortcuts = musicIndexService.getShortcuts(Arrays.asList(folder));
-        assertEquals(1, shortcuts.size());
+        MediaFile artist = new MediaFile();
+        artist.setPathString("path");
+        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(artist);
+        assertEquals(0, musicIndexService.getShortcuts(Arrays.asList(folder)).size());
+
+        artist.setPathString(
+                Path.of(MusicIndexServiceTest.class.getResource("/MEDIAS/Music/_DIR_ Ravel").toURI()).toString());
+        assertEquals(0, musicIndexService.getShortcuts(Arrays.asList(folder)).size());
+
+        List<MediaFile> children = Arrays.asList(new MediaFile());
+        Mockito.when(mediaFileService.getChildrenOf(artist, true, true)).thenReturn(children);
+        assertEquals(1, musicIndexService.getShortcuts(Arrays.asList(folder)).size());
     }
 
     @Test
