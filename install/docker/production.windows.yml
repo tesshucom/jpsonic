@@ -3,7 +3,7 @@
 # You can easily start Jpsonic by changing the volume, port and so on.
 #
 # usege: 
-#   docker-compose -f production.yml up -d
+#   docker-compose -f production.windows.yml up -d
 #
 
 version: '3.9'
