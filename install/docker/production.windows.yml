@@ -1,5 +1,5 @@
 # 
-# This is a sample of Jpsonic boot configuration (on Win).
+# This is a JPSONIC boot configuration sample in Windows or in Mac or in Linux without UPnP.
 # You can easily start Jpsonic by changing the volume, port and so on.
 #
 # usege: 
@@ -17,6 +17,7 @@ services:
     # or Docker EE for Windows Server.
     # https://docs.docker.com/network/host/
     network_mode: 'bridge'
+    hostname: 'jpsonic'
 
     # <host>:<internal>
     # Please set "the port of host" properly.
@@ -24,11 +25,6 @@ services:
 
      # Port for Jpsonic. 
      - '8080:4040'
-
-     # Port for UPnP. Windows docker does not transfer UDP.
-     # If you want to use UPnP on Windows host, Docker is not recommended.
-     - '4041:4041'
-     - '1900:1900/udp'
 
      # Port for JMX. The "ea" tag image is required to use JMX.
      # - 3333:3333
