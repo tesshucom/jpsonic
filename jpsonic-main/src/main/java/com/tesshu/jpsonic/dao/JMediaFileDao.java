@@ -19,7 +19,6 @@
 
 package com.tesshu.jpsonic.dao;
 
-import static com.tesshu.jpsonic.dao.MediaFileDao.getGenreColoms;
 import static com.tesshu.jpsonic.dao.MediaFileDao.getQueryColoms;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -33,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -49,7 +47,6 @@ public class JMediaFileDao extends AbstractDao {
 
     private final MediaFileDao deligate;
     private final RowMapper<MediaFile> rowMapper;
-    private final RowMapper<Genre> genreRowMapper;
     private final RowMapper<MediaFile> iRowMapper;
     private final RowMapper<SortCandidate> sortCandidateMapper;
 
@@ -57,13 +54,8 @@ public class JMediaFileDao extends AbstractDao {
         super(daoHelper);
         this.deligate = deligate;
         rowMapper = deligate.getMediaFileMapper();
-        genreRowMapper = deligate.getGenreMapper();
         iRowMapper = new MediaFileInternalRowMapper(rowMapper);
         sortCandidateMapper = (rs, rowNum) -> new SortCandidate(rs.getString(1), rs.getString(2));
-    }
-
-    public void clearOrder() {
-        update("update media_file set media_file_order = -1");
     }
 
     public List<MediaFile> getAlbumsByGenre(final int offset, final int count, final List<String> genres,
@@ -77,11 +69,6 @@ public class JMediaFileDao extends AbstractDao {
         return namedQuery("select " + getQueryColoms() + " from media_file "
                 + "where type = :type and folder in (:folders) and present and genre in (:genres) "
                 + "order by media_file_order limit :count offset :offset", rowMapper, args);
-    }
-
-    public List<MediaFile> getAlphabeticalAlbums(final int offset, final int count, boolean byArtist,
-            final List<MusicFolder> musicFolders) {
-        return deligate.getAlphabeticalAlbums(offset, count, byArtist, musicFolders);
     }
 
     public List<MediaFile> getArtistAll(final List<MusicFolder> musicFolders) {
@@ -157,18 +144,6 @@ public class JMediaFileDao extends AbstractDao {
                 playlistId);
     }
 
-    /*
-     * Returns records where Sort does not match for the specified name and Sort. Takes a single argument because UNNEST
-     * is not available.
-     */
-    public List<MediaFile> getDirtySorts(SortCandidate candidates) {
-        Map<String, Object> args = LegacyMap.of("name", candidates.getName(), "sort", candidates.getSort());
-        return namedQuery("select " + getQueryColoms() + " from media_file " + "where "
-                + "    (artist = :name and (artist_sort <> :sort or artist_sort is null )) or "
-                + "    (album_artist = :name and (album_artist_sort <> :sort or album_artist_sort is null )) or "
-                + "    (composer = :name and (composer_sort <> :sort or composer_sort is null )) ", rowMapper, args);
-    }
-
     public List<MediaFile> getFilesInPlaylist(int playlistId) {
         return deligate.getFilesInPlaylist(playlistId);
 
@@ -178,16 +153,6 @@ public class JMediaFileDao extends AbstractDao {
         return query("select " + prefix(getQueryColoms(), "media_file") + " from playlist_file, media_file "
                 + "where media_file.id = playlist_file.media_file_id and playlist_file.playlist_id = ? and present "
                 + "order by playlist_file.id limit ? offset ?", rowMapper, playlistId, count, offset);
-    }
-
-    public List<Genre> getGenres(boolean sortByAlbum, long offset, long count) {
-        String orderBy = sortByAlbum ? "album_count" : "song_count";
-        return query("select " + getGenreColoms() + " from genre " + "order by " + orderBy + " desc limit ? offset ?",
-                genreRowMapper, count, offset);
-    }
-
-    public int getGenresCount() {
-        return queryForInt("select count(*) from genre", 0);
     }
 
     public MediaFile getMediaFile(int id) {

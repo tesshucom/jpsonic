@@ -23,19 +23,15 @@ package com.tesshu.jpsonic.dao;
 
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.util.LegacyMap;
@@ -82,41 +78,6 @@ public class AlbumDao extends AbstractDao {
     public @Nullable Album getAlbum(String artistName, String albumName) {
         return queryOne("select " + QUERY_COLUMNS + " from album where artist=? and name=?", rowMapper, artistName,
                 albumName);
-    }
-
-    /**
-     * Returns the album that the given file (most likely) is part of.
-     *
-     * @param file
-     *            The media file.
-     *
-     * @return The album or null.
-     */
-    public Album getAlbumForFile(MediaFile file) {
-
-        // First, get all albums with the correct album name (irrespective of artist).
-        List<Album> candidates = query("select " + QUERY_COLUMNS + " from album where name=?", rowMapper,
-                file.getAlbumName());
-        if (candidates.isEmpty()) {
-            return null;
-        }
-
-        // Look for album with the correct artist.
-        for (Album candidate : candidates) {
-            if (Objects.equals(candidate.getArtist(), file.getArtist()) && Files.exists(Path.of(candidate.getPath()))) {
-                return candidate;
-            }
-        }
-
-        // Look for album with the same path as the file.
-        for (Album candidate : candidates) {
-            if (Objects.equals(candidate.getPath(), file.getParentPathString())) {
-                return candidate;
-            }
-        }
-
-        // No appropriate album found.
-        return null;
     }
 
     public List<Album> getAlbumsForArtist(final String artist, final List<MusicFolder> musicFolders) {
@@ -333,31 +294,6 @@ public class AlbumDao extends AbstractDao {
                 + " from starred_album, album where album.id = starred_album.album_id and "
                 + "album.present and album.folder_id in (:folders) and starred_album.username = :username "
                 + "order by starred_album.created desc limit :count offset :offset", rowMapper, args);
-    }
-
-    /**
-     * Returns albums in a genre.
-     *
-     * @param offset
-     *            Number of albums to skip.
-     * @param count
-     *            Maximum number of albums to return.
-     * @param genre
-     *            The genre name.
-     * @param musicFolders
-     *            Only return albums from these folders.
-     *
-     * @return Albums in the genre.
-     */
-    public List<Album> getAlbumsByGenre(final int offset, final int count, final String genre,
-            final List<MusicFolder> musicFolders) {
-        if (musicFolders.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset",
-                offset, "genre", genre);
-        return namedQuery("select " + QUERY_COLUMNS + " from album where present and folder_id in (:folders) "
-                + "and genre = :genre limit :count offset :offset", rowMapper, args);
     }
 
     /**

@@ -225,10 +225,6 @@ public class MediaFileDao extends AbstractDao {
                 pathString);
     }
 
-    public void updateFolder(String pathString, String folder) {
-        update("update media_file set folder = ? where path=?", folder, pathString);
-    }
-
     public void updateOrder(String pathString, int order) {
         update("update media_file set media_file_order = ? where path=?", order, pathString);
     }
@@ -247,11 +243,6 @@ public class MediaFileDao extends AbstractDao {
 
     public int deleteMediaFile(int id) {
         return update("update media_file set present=false, children_last_updated=? where id=?", FAR_PAST, id);
-    }
-
-    public List<Genre> getGenres(boolean sortByAlbum) {
-        String orderBy = sortByAlbum ? "album_count" : "song_count";
-        return query("select " + GENRE_COLUMNS + " from genre order by " + orderBy + " desc", genreRowMapper);
     }
 
     public List<Genre> getGenreCounts() {
@@ -439,31 +430,6 @@ public class MediaFileDao extends AbstractDao {
         }
     }
 
-    /**
-     * Returns albums in a genre.
-     *
-     * @param offset
-     *            Number of albums to skip.
-     * @param count
-     *            Maximum number of albums to return.
-     * @param genre
-     *            The genre name.
-     * @param musicFolders
-     *            Only return albums in these folders.
-     *
-     * @return Albums in the genre.
-     */
-    public List<MediaFile> getAlbumsByGenre(final int offset, final int count, final String genre,
-            final List<MusicFolder> musicFolders) {
-        if (musicFolders.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.ALBUM.name(), "genre", genre, "folders",
-                MusicFolder.toPathList(musicFolders), "count", count, "offset", offset);
-        return namedQuery("select " + QUERY_COLUMNS + " from media_file where type = :type and folder in (:folders) "
-                + "and present and genre = :genre limit :count offset :offset", rowMapper, args);
-    }
-
     public List<MediaFile> getUnparsedVideos(final int count, final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
@@ -526,19 +492,6 @@ public class MediaFileDao extends AbstractDao {
                 + "left join media_file mf_ar on mf_ar.path = mf_al.parent_path "
                 + "where mf_ar.media_file_order = first_fetch.mf_ar_order limit :count ";
         return namedQuery(query, artistId3Mapper, args);
-    }
-
-    public List<MediaFile> getChangedOrNewAlbums(final int count, List<MusicFolder> folders) {
-        if (folders.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Map<String, Object> args = Map.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
-                MusicFolder.toPathList(folders), "future", FAR_FUTURE, "count", count);
-        return namedQuery("select distinct " + prefix(QUERY_COLUMNS, "parent")
-                + " from media_file parent join media_file child "
-                + "on parent.path = child.parent_path and child.album is not null and child.album_artist is not null "
-                + "where parent.type = :type and parent.children_last_updated = :future and parent.folder in (:folders) limit :count",
-                rowMapper, args);
     }
 
     public List<MediaFile> getChangedAlbums(final int count, final List<MusicFolder> folders) {

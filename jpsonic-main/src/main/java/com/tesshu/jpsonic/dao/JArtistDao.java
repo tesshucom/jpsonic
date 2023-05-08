@@ -19,17 +19,12 @@
 
 package com.tesshu.jpsonic.dao;
 
-import static java.util.stream.Collectors.toList;
-
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.SortCandidate;
 import com.tesshu.jpsonic.util.LegacyMap;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.stereotype.Repository;
 
 @Repository("jartistDao")
@@ -40,11 +35,6 @@ public class JArtistDao extends AbstractDao {
     public JArtistDao(DaoHelper daoHelper, ArtistDao deligate) {
         super(daoHelper);
         this.deligate = deligate;
-    }
-
-    public void clearOrder() {
-        update("update artist set artist_order = -1");
-        update("delete from artist where reading is null"); // #311
     }
 
     public List<Artist> getAlphabetialArtists(final int offset, final int count, final List<MusicFolder> musicFolders) {
@@ -66,24 +56,4 @@ public class JArtistDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders));
         return namedQueryForInt("select count(id) from artist " + "where present and folder_id in (:folders)", 0, args);
     }
-
-    public List<Integer> getSortOfArtistToBeFixed(@NonNull List<SortCandidate> candidates) {
-        if (candidates.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Map<String, Object> args = LegacyMap.of("names",
-                candidates.stream().map(SortCandidate::getName).collect(toList()), "sotes",
-                candidates.stream().map(SortCandidate::getSort).collect(toList()));
-        return namedQuery(
-                "select id from artist "
-                        + "where present and name in (:names) and (sort is null or sort not in(:sotes)) order by id",
-                (rs, rowNum) -> rs.getInt(1), args);
-    }
-
-    public void updateArtistSort(SortCandidate candidate) {
-        update("update artist set reading = ?, sort = ? "
-                + "where present and name = ? and (sort <> ? or sort is null)", candidate.getReading(),
-                candidate.getSort(), candidate.getName(), candidate.getSort());
-    }
-
 }

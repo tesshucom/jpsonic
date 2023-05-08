@@ -19,17 +19,13 @@
 
 package com.tesshu.jpsonic.dao;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.SortCandidate;
 import com.tesshu.jpsonic.util.LegacyMap;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.stereotype.Repository;
 
 @Repository("jalbumDao")
@@ -40,11 +36,6 @@ public class JAlbumDao extends AbstractDao {
     public JAlbumDao(DaoHelper daoHelper, AlbumDao deligate) {
         super(daoHelper);
         this.deligate = deligate;
-    }
-
-    public void clearOrder() {
-        update("update album set album_order = -1");
-        update("delete from album where name_reading is null or artist_reading is null "); // #311
     }
 
     public Album getAlbum(int id) {
@@ -87,43 +78,4 @@ public class JAlbumDao extends AbstractDao {
     public List<Album> getNewestAlbums(final int offset, final int count, final List<MusicFolder> musicFolders) {
         return deligate.getNewestAlbums(offset, count, musicFolders);
     }
-
-    public List<Integer> getSortOfAlbumToBeFixed(@NonNull List<SortCandidate> candidates) {
-        if (candidates.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Map<String, Object> args = LegacyMap.of("names",
-                candidates.stream().map(SortCandidate::getName).collect(toList()), "sotes",
-                candidates.stream().map(SortCandidate::getSort).collect(toList()));
-        return namedQuery(
-                "select id from album " + "where present and name in (:names) "
-                        + "and (name_sort is null or name_sort not in(:sotes)) order by id",
-                (rs, rowNum) -> rs.getInt(1), args);
-    }
-
-    public List<Integer> getSortOfArtistToBeFixed(@NonNull List<SortCandidate> candidates) {
-        if (candidates.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Map<String, Object> args = LegacyMap.of("names",
-                candidates.stream().map(SortCandidate::getName).collect(toList()), "sotes",
-                candidates.stream().map(SortCandidate::getSort).collect(toList()));
-        return namedQuery(
-                "select id from album " + "where present and artist in (:names) "
-                        + "    and (artist_sort is null or artist_sort not in(:sotes)) order by id",
-                (rs, rowNum) -> rs.getInt(1), args);
-    }
-
-    public void updateAlbumSort(SortCandidate candidate) {
-        update("update album set name_reading = ?, name_sort = ? "
-                + "where present and name = ? and (name_sort <> ? or name_sort is null)", candidate.getReading(),
-                candidate.getSort(), candidate.getName(), candidate.getSort());
-    }
-
-    public void updateArtistSort(SortCandidate candidate) {
-        update("update album set artist_reading = ?, artist_sort = ? "
-                + "where present and artist = ? and (artist_sort <> ? or artist_sort is null)", candidate.getReading(),
-                candidate.getSort(), candidate.getName(), candidate.getSort());
-    }
-
 }
