@@ -30,8 +30,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.JAlbumDao;
-import com.tesshu.jpsonic.dao.JArtistDao;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
@@ -71,7 +71,7 @@ class SortProcedureServiceTest {
         private JMediaFileDao mediaFileDao;
 
         @Autowired
-        private JArtistDao artistDao;
+        private ArtistDao artistDao;
 
         @Autowired
         private ScannerProcedureService scannerProcedureService;
@@ -232,7 +232,7 @@ class SortProcedureServiceTest {
         private JMediaFileDao mediaFileDao;
 
         @Autowired
-        private JArtistDao artistDao;
+        private ArtistDao artistDao;
 
         @Override
         public List<MusicFolder> getMusicFolders() {
@@ -290,7 +290,7 @@ class SortProcedureServiceTest {
         private JMediaFileDao jMediaFileDao;
 
         @Autowired
-        private JArtistDao artistDao;
+        private ArtistDao artistDao;
 
         @Autowired
         private JAlbumDao albumDao;

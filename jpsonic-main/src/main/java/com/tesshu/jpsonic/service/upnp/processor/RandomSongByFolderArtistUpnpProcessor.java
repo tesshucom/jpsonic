@@ -27,7 +27,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
-import com.tesshu.jpsonic.dao.JArtistDao;
+import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -52,14 +52,14 @@ public class RandomSongByFolderArtistUpnpProcessor
     private static final String TYPE_PREFIX_ARTIST = "artist:";
 
     private final UpnpProcessorUtil util;
-    private final JArtistDao artistDao;
+    private final ArtistDao artistDao;
     private final MusicFolderDao musicFolderDao;
     private final JMediaFileService mediaFileService;
     private final SearchService searchService;
     private final SettingsService settingsService;
 
     public RandomSongByFolderArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u,
-            JMediaFileService m, MusicFolderDao md, JArtistDao a, SearchService s, SettingsService ss) {
+            JMediaFileService m, MusicFolderDao md, ArtistDao a, SearchService s, SettingsService ss) {
         super(d, u);
         util = u;
         mediaFileService = m;

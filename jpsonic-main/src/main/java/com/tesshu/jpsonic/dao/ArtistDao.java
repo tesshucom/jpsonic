@@ -254,8 +254,11 @@ public class ArtistDao extends AbstractDao {
         }
     }
 
-    public String getQueryColoms() {
-        return QUERY_COLUMNS;
+    public int getArtistsCount(final List<MusicFolder> musicFolders) {
+        if (musicFolders.isEmpty()) {
+            return 0;
+        }
+        Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders));
+        return namedQueryForInt("select count(id) from artist " + "where present and folder_id in (:folders)", 0, args);
     }
-
 }
