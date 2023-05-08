@@ -22,7 +22,7 @@ package com.tesshu.jpsonic.service;
 import java.nio.file.Path;
 import java.util.List;
 
-import com.tesshu.jpsonic.dao.JMediaFileDao;
+import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -36,10 +36,10 @@ import org.springframework.stereotype.Service;
 @DependsOn({ "mediaFileDao", "mediaFileService" })
 public class JMediaFileService {
 
-    private final JMediaFileDao mediaFileDao;
+    private final MediaFileDao mediaFileDao;
     private final MediaFileService deligate;
 
-    public JMediaFileService(JMediaFileDao mediaFileDao, MediaFileService deligate) {
+    public JMediaFileService(MediaFileDao mediaFileDao, MediaFileService deligate) {
         super();
         this.mediaFileDao = mediaFileDao;
         this.deligate = deligate;

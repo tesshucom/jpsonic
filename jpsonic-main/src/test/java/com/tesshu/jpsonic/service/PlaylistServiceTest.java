@@ -18,8 +18,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.tesshu.jpsonic.dao.DaoHelper;
-import com.tesshu.jpsonic.dao.JMediaFileDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.PlaylistDao;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -54,10 +52,8 @@ class PlaylistServiceTest {
         @BeforeEach
         public void setup() {
             mediaFileDao = mock(MediaFileDao.class);
-            DaoHelper daoHelper = mock(DaoHelper.class);
-            JMediaFileDao jMediaFileDao = new JMediaFileDao(daoHelper, mediaFileDao);
             PlaylistDao jPlaylistDao = mock(PlaylistDao.class);
-            playlistService = new PlaylistService(jMediaFileDao, jPlaylistDao, mock(SecurityService.class),
+            playlistService = new PlaylistService(mediaFileDao, jPlaylistDao, mock(SecurityService.class),
                     mock(SettingsService.class), Arrays.asList(new DefaultPlaylistExportHandler(mediaFileDao)),
                     Collections.emptyList(), null);
         }
@@ -125,10 +121,8 @@ class PlaylistServiceTest {
         public void setup() {
             playlistDao = mock(PlaylistDao.class);
             mediaFileService = mock(MediaFileService.class);
-            DaoHelper daoHelper = mock(DaoHelper.class);
-            JMediaFileDao jMediaFileDao = new JMediaFileDao(daoHelper, mock(MediaFileDao.class));
             DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(mediaFileService);
-            playlistService = new PlaylistService(jMediaFileDao, playlistDao, mock(SecurityService.class),
+            playlistService = new PlaylistService(mock(MediaFileDao.class), playlistDao, mock(SecurityService.class),
                     mock(SettingsService.class), Collections.emptyList(), Arrays.asList(importHandler), null);
             actual = ArgumentCaptor.forClass(Playlist.class);
             medias = ArgumentCaptor.forClass(List.class);
@@ -293,10 +287,8 @@ class PlaylistServiceTest {
             playlistDao = mock(PlaylistDao.class);
             settingsService = mock(SettingsService.class);
             mediaFileService = mock(MediaFileService.class);
-            DaoHelper daoHelper = mock(DaoHelper.class);
-            JMediaFileDao jMediaFileDao = new JMediaFileDao(daoHelper, mock(MediaFileDao.class));
             DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(mediaFileService);
-            playlistService = new PlaylistService(jMediaFileDao, playlistDao, mock(SecurityService.class),
+            playlistService = new PlaylistService(mock(MediaFileDao.class), playlistDao, mock(SecurityService.class),
                     settingsService, Collections.emptyList(), Arrays.asList(importHandler), null);
         }
 
