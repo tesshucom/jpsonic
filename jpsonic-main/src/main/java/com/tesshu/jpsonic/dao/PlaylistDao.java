@@ -141,6 +141,10 @@ public class PlaylistDao extends AbstractDao {
                 playlist.getImportedFrom(), playlist.getId());
     }
 
+    public int getCountAll() {
+        return queryForInt("select count(id) from playlist", 0);
+    }
+
     private static class PlaylistMapper implements RowMapper<Playlist> {
         @Override
         public Playlist mapRow(ResultSet rs, int rowNum) throws SQLException {
