@@ -62,13 +62,12 @@ public class UserDao extends AbstractDao {
             + "party_mode_enabled, now_playing_allowed, avatar_scheme, system_avatar_id, changed, show_artist_info, auto_hide_play_queue, "
             + "view_as_list, default_album_list, queue_following_songs, show_side_bar, list_reload_delay, "
             + "keyboard_shortcuts_enabled, pagination_size, "
-            // JP >>>>
             + "main_composer, playlist_composer, close_drawer, close_play_queue, alternative_drawer, assign_accesskey_to_number, "
             + "open_detail_index, open_detail_setting, open_detail_star, show_index, "
             + "simple_display, show_sibling, show_rate, show_album_search, show_last_play, show_download, show_tag, show_comment, show_share, "
             + "show_change_coverart, show_top_songs, show_similar, show_album_actions, breadcrumb_index, put_menu_in_drawer, font_scheme_name, "
             + "show_outline_help, force_bio2eng, voice_input_enabled, show_current_song_info, speech_lang_scheme_name, ietf, "
-            + "font_family, font_size, show_scanned_count"; // <<<< JP
+            + "font_family, font_size, show_scanned_count";
     private static final int ROLE_ID_ADMIN = 1;
     private static final int ROLE_ID_DOWNLOAD = 2;
     private static final int ROLE_ID_UPLOAD = 3;
@@ -214,7 +213,7 @@ public class UserDao extends AbstractDao {
      * @return Roles the user is granted.
      */
     public List<String> getRolesForUser(String username) {
-        String sql = "select r.name from role r, user_role ur " + "where ur.username=? and ur.role_id=r.id";
+        String sql = "select r.name from role r, user_role ur where ur.username=? and ur.role_id=r.id";
         return getJdbcTemplate().queryForList(sql, String.class, new Object[] { username });
     }
 
@@ -261,19 +260,18 @@ public class UserDao extends AbstractDao {
                 settings.getChanged(), settings.isShowArtistInfoEnabled(), settings.isAutoHidePlayQueue(),
                 settings.isViewAsList(), settings.getDefaultAlbumList().getId(), settings.isQueueFollowingSongs(),
                 settings.isCloseDrawer(), 60 /* Unused listReloadDelay */, settings.isKeyboardShortcutsEnabled(),
-                settings.getPaginationSize(),
-                // JP >>>>
-                main.isComposerVisible(), playlist.isComposerVisible(), settings.isCloseDrawer(),
-                settings.isClosePlayQueue(), settings.isAlternativeDrawer(), settings.isAssignAccesskeyToNumber(),
-                settings.isOpenDetailIndex(), settings.isOpenDetailSetting(), settings.isOpenDetailStar(),
-                settings.isShowIndex(), settings.isSimpleDisplay(), settings.isShowSibling(), settings.isShowRate(),
-                settings.isShowAlbumSearch(), settings.isShowLastPlay(), settings.isShowDownload(),
-                settings.isShowTag(), settings.isShowComment(), settings.isShowShare(), settings.isShowChangeCoverArt(),
-                settings.isShowTopSongs(), settings.isShowSimilar(), settings.isShowAlbumActions(),
-                settings.isBreadcrumbIndex(), settings.isPutMenuInDrawer(), settings.getFontSchemeName(),
-                settings.isShowOutlineHelp(), settings.isForceBio2Eng(), settings.isVoiceInputEnabled(),
-                settings.isShowCurrentSongInfo(), settings.getSpeechLangSchemeName(), settings.getIetf(),
-                settings.getFontFamily(), settings.getFontSize(), settings.isShowScannedCount()); // <<<< JP
+                settings.getPaginationSize(), main.isComposerVisible(), playlist.isComposerVisible(),
+                settings.isCloseDrawer(), settings.isClosePlayQueue(), settings.isAlternativeDrawer(),
+                settings.isAssignAccesskeyToNumber(), settings.isOpenDetailIndex(), settings.isOpenDetailSetting(),
+                settings.isOpenDetailStar(), settings.isShowIndex(), settings.isSimpleDisplay(),
+                settings.isShowSibling(), settings.isShowRate(), settings.isShowAlbumSearch(),
+                settings.isShowLastPlay(), settings.isShowDownload(), settings.isShowTag(), settings.isShowComment(),
+                settings.isShowShare(), settings.isShowChangeCoverArt(), settings.isShowTopSongs(),
+                settings.isShowSimilar(), settings.isShowAlbumActions(), settings.isBreadcrumbIndex(),
+                settings.isPutMenuInDrawer(), settings.getFontSchemeName(), settings.isShowOutlineHelp(),
+                settings.isForceBio2Eng(), settings.isVoiceInputEnabled(), settings.isShowCurrentSongInfo(),
+                settings.getSpeechLangSchemeName(), settings.getIetf(), settings.getFontFamily(),
+                settings.getFontSize(), settings.isShowScannedCount());
     }
 
     private static String encrypt(String s) {
@@ -445,8 +443,6 @@ public class UserDao extends AbstractDao {
             col++; // Skip the now unused listReloadDelay
             settings.setKeyboardShortcutsEnabled(rs.getBoolean(col++));
             settings.setPaginationSize(rs.getInt(col++));
-
-            // JP >>>>
             settings.getMainVisibility().setComposerVisible(rs.getBoolean(col++));
             settings.getPlaylistVisibility().setComposerVisible(rs.getBoolean(col++));
             settings.setCloseDrawer(rs.getBoolean(col++));

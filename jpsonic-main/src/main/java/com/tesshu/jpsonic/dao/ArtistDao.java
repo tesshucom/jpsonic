@@ -49,8 +49,7 @@ import org.springframework.stereotype.Repository;
 public class ArtistDao extends AbstractDao {
 
     private static final String INSERT_COLUMNS = "name, cover_art_path, album_count, last_scanned, present, folder_id, "
-            // JP >>>>
-            + "sort, reading, artist_order"; // <<<< JP
+            + "sort, reading, artist_order";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final RowMapper<Artist> rowMapper;
@@ -60,29 +59,11 @@ public class ArtistDao extends AbstractDao {
         rowMapper = new ArtistMapper();
     }
 
-    /**
-     * Returns the artist with the given name.
-     *
-     * @param artistName
-     *            The artist name.
-     *
-     * @return The artist or null.
-     */
-    public Artist getArtist(String artistName) {
+    public @Nullable Artist getArtist(String artistName) {
         return queryOne("select " + QUERY_COLUMNS + " from artist where name=?", rowMapper, artistName);
     }
 
-    /**
-     * Returns the artist with the given name.
-     *
-     * @param artistName
-     *            The artist name.
-     * @param musicFolders
-     *            Only return artists that have at least one album in these folders.
-     *
-     * @return The artist or null.
-     */
-    public Artist getArtist(final String artistName, final List<MusicFolder> musicFolders) {
+    public @Nullable Artist getArtist(final String artistName, final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return null;
         }
@@ -92,21 +73,13 @@ public class ArtistDao extends AbstractDao {
                 rowMapper, args);
     }
 
-    /**
-     * Returns the artist with the given ID.
-     *
-     * @param id
-     *            The artist ID.
-     *
-     * @return The artist or null.
-     */
-    public Artist getArtist(int id) {
+    public @Nullable Artist getArtist(int id) {
         return queryOne("select " + QUERY_COLUMNS + " from artist where id=?", rowMapper, id);
     }
 
     public @Nullable Artist updateArtist(Artist artist) {
-        String sql = "update artist set " + "cover_art_path=?," + "album_count=?," + "last_scanned=?," + "present=?,"
-                + "folder_id=?, sort=?, " + "reading=?," + "artist_order=? where name=?";
+        String sql = "update artist set cover_art_path=?, album_count=?, last_scanned=?, present=?,"
+                + "folder_id=?, sort=?, reading=?, artist_order=? where name=?";
         int c = update(sql, artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
                 artist.isPresent(), artist.getFolderId(), artist.getSort(), artist.getReading(), artist.getOrder(),
                 artist.getName());
@@ -132,18 +105,6 @@ public class ArtistDao extends AbstractDao {
         update("update artist set artist_order=? where name=?", order, name);
     }
 
-    /**
-     * Returns artists in alphabetical order.
-     *
-     * @param offset
-     *            Number of artists to skip.
-     * @param count
-     *            Maximum number of artists to return.
-     * @param musicFolders
-     *            Only return artists that have at least one album in these folders.
-     *
-     * @return Artists in alphabetical order.
-     */
     public List<Artist> getAlphabetialArtists(final int offset, final int count, final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
@@ -155,20 +116,6 @@ public class ArtistDao extends AbstractDao {
                 + "order by artist_order, reading, name limit :count offset :offset", rowMapper, args);
     }
 
-    /**
-     * Returns the most recently starred artists.
-     *
-     * @param offset
-     *            Number of artists to skip.
-     * @param count
-     *            Maximum number of artists to return.
-     * @param username
-     *            Returns artists starred by this user.
-     * @param musicFolders
-     *            Only return artists that have at least one album in these folders.
-     *
-     * @return The most recently starred artists for this user.
-     */
     public List<Artist> getStarredArtists(final int offset, final int count, final String username,
             final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
@@ -179,7 +126,7 @@ public class ArtistDao extends AbstractDao {
 
         return namedQuery("select " + prefix(QUERY_COLUMNS, "artist") + " from starred_artist, artist "
                 + "where artist.id = starred_artist.artist_id and "
-                + "artist.present and starred_artist.username = :username and " + "artist.folder_id in (:folders) "
+                + "artist.present and starred_artist.username = :username and artist.folder_id in (:folders) "
                 + "order by starred_artist.created desc limit :count offset :offset", rowMapper, args);
     }
 
@@ -241,9 +188,8 @@ public class ArtistDao extends AbstractDao {
         @Override
         public Artist mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new Artist(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4),
-                    nullableInstantOf(rs.getTimestamp(5)), rs.getBoolean(6), rs.getInt(7),
-                    // JP >>>>
-                    rs.getString(8), rs.getString(9), rs.getInt(10)); // <<<< JP
+                    nullableInstantOf(rs.getTimestamp(5)), rs.getBoolean(6), rs.getInt(7), rs.getString(8),
+                    rs.getString(9), rs.getInt(10));
         }
     }
 
@@ -259,6 +205,6 @@ public class ArtistDao extends AbstractDao {
             return 0;
         }
         Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders));
-        return namedQueryForInt("select count(id) from artist " + "where present and folder_id in (:folders)", 0, args);
+        return namedQueryForInt("select count(id) from artist where present and folder_id in (:folders)", 0, args);
     }
 }

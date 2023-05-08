@@ -42,21 +42,11 @@ public class Album {
     private boolean present;
     private Integer folderId;
     private String musicBrainzReleaseId;
-
-    // JP >>>>
-
-    // Tags newly supported by Jpsonic.
     private String artistSort;
     private String nameSort;
-
-    // Cleansing or analysis results.
     private String artistReading;
     private String nameReading;
-
-    // Default is -1. Registered when scanning by if option selected.
     private int order;
-
-    // <<<< JP
 
     public Album() {
     }
@@ -64,9 +54,7 @@ public class Album {
     public Album(int id, String path, String name, String artist, int songCount, int durationSeconds,
             String coverArtPath, Integer year, String genre, int playCount, Instant lastPlayed, String comment,
             Instant created, Instant lastScanned, boolean present, Integer folderId, String musicBrainzReleaseId,
-            // JP >>>>
-            String artistSort, String nameSort, String artistReading, String nameReading, int order // <<<< JP
-    ) {
+            String artistSort, String nameSort, String artistReading, String nameReading, int order) {
         this.id = id;
         this.path = path;
         this.name = name;
@@ -84,13 +72,11 @@ public class Album {
         this.folderId = folderId;
         this.present = present;
         this.musicBrainzReleaseId = musicBrainzReleaseId;
-        // JP >>>>
         this.artistSort = artistSort;
         this.nameSort = nameSort;
         this.artistReading = artistReading;
         this.nameReading = nameReading;
         this.order = order;
-        // <<<< JP
     }
 
     public int getId() {
