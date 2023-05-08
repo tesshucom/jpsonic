@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutionException;
 
 import javax.annotation.PostConstruct;
 
-import com.tesshu.jpsonic.dao.JAlbumDao;
+import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
 import com.tesshu.jpsonic.service.JMediaFileService;
@@ -41,10 +41,10 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
     private static final int RECENT_COUNT = 51;
 
     private final UpnpProcessorUtil util;
-    private final JAlbumDao albumDao;
+    private final AlbumDao albumDao;
 
     public RecentAlbumId3UpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
-            JAlbumDao a, CoverArtLogic c) {
+            AlbumDao a, CoverArtLogic c) {
         super(d, u, m, a, c);
         this.util = u;
         this.albumDao = a;

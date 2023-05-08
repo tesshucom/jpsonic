@@ -90,6 +90,18 @@ public class AlbumDao extends AbstractDao {
                 + "order by album_order, name", rowMapper, args);
     }
 
+    public List<Album> getAlbumsForArtist(final long offset, final long count, final String artist, boolean byYear,
+            final List<MusicFolder> musicFolders) {
+        if (musicFolders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = LegacyMap.of("artist", artist, "folders", MusicFolder.toIdList(musicFolders),
+                "offset", offset, "count", count);
+        return namedQuery("select " + QUERY_COLUMNS + " from album "
+                + "where artist = :artist and present and folder_id in (:folders) " + "    order by "
+                + (byYear ? "year" : "album_order") + ", name limit :count offset :offset", rowMapper, args);
+    }
+
     public @Nullable Album createAlbum(Album album) {
         String query = "insert into album (" + INSERT_COLUMNS + ") " + "values (?, ?, ?, "
                 + "(select count(*) from media_file where parent_path = ? and (type=? or type=? or type=?)), "
@@ -370,6 +382,16 @@ public class AlbumDao extends AbstractDao {
                 username);
     }
 
+    public int getAlbumsCountForArtist(final String artist, final List<MusicFolder> musicFolders) {
+        if (musicFolders.isEmpty()) {
+            return 0;
+        }
+        Map<String, Object> args = LegacyMap.of("artist", artist, "folders", MusicFolder.toIdList(musicFolders));
+        return namedQueryForInt(
+                "select count(id) from album " + "where artist = :artist and present and folder_id in (:folders)", 0,
+                args);
+    }
+
     private static class AlbumMapper implements RowMapper<Album> {
         @Override
         public Album mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -381,13 +403,5 @@ public class AlbumDao extends AbstractDao {
                     // JP >>>>
                     rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21), rs.getInt(22)); // <<<< JP
         }
-    }
-
-    public RowMapper<Album> getAlbumMapper() {
-        return rowMapper;
-    }
-
-    public String getQueryColoms() {
-        return QUERY_COLUMNS;
     }
 }

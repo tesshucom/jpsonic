@@ -28,8 +28,8 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
-import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
@@ -57,12 +57,12 @@ public class ArtistByFolderUpnpProcessor
 
     private final UpnpProcessorUtil util;
     private final ArtistDao artistDao;
-    private final JAlbumDao albumDao;
+    private final AlbumDao albumDao;
     private final MusicFolderDao musicFolderDao;
     private final JMediaFileService mediaFileService;
 
     public ArtistByFolderUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
-            MusicFolderDao md, ArtistDao a, JAlbumDao al) {
+            MusicFolderDao md, ArtistDao a, AlbumDao al) {
         super(d, u);
         util = u;
         mediaFileService = m;

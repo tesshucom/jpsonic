@@ -36,8 +36,8 @@ import java.util.function.Function;
 
 import javax.annotation.PostConstruct;
 
+import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
-import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -74,7 +74,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     private final JMediaFileService mediaFileService;
     private final MusicIndexService musicIndexService;
     private final ArtistDao artistDao;
-    private final JAlbumDao albumDao;
+    private final AlbumDao albumDao;
     private final Ehcache indexCache;
     private final Object lock = new Object();
 
@@ -83,7 +83,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     private List<Id3Wrapper> topNodes;
 
     public IndexId3UpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
-            MusicIndexService mi, ArtistDao ad, JAlbumDao ald, Ehcache indexCache) {
+            MusicIndexService mi, ArtistDao ad, AlbumDao ald, Ehcache indexCache) {
         super(d, u);
         this.util = u;
         this.mediaFileService = m;

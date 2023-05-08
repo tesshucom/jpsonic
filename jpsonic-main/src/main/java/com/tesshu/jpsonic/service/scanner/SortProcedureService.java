@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
-import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
@@ -46,7 +45,7 @@ import org.springframework.stereotype.Service;
  * impact on sorting and searching accuracy.
  */
 @Service
-@DependsOn({ "musicFolderService", "jmediaFileDao", "artistDao", "jalbumDao", "japaneseReadingUtils", "indexManager",
+@DependsOn({ "musicFolderService", "jmediaFileDao", "artistDao", "albumDao", "japaneseReadingUtils", "indexManager",
         "jpsonicComparators" })
 public class SortProcedureService {
 
@@ -57,14 +56,12 @@ public class SortProcedureService {
     private final MediaFileDao mediaFileDao;
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
-    private final JAlbumDao jAlbumDao;
     private final JapaneseReadingUtils utils;
     private final JpsonicComparators comparators;
 
     public SortProcedureService(MusicFolderService musicFolderService, MediaFileService mediaFileService,
             WritableMediaFileService writableMediaFileService, JMediaFileDao jMediaFileDao, MediaFileDao mediaFileDao,
-            ArtistDao artistDao, AlbumDao albumDao, JAlbumDao jAlbumDao, JapaneseReadingUtils utils,
-            JpsonicComparators jpsonicComparator) {
+            ArtistDao artistDao, AlbumDao albumDao, JapaneseReadingUtils utils, JpsonicComparators jpsonicComparator) {
         super();
         this.musicFolderService = musicFolderService;
         this.mediaFileService = mediaFileService;
@@ -73,7 +70,6 @@ public class SortProcedureService {
         this.mediaFileDao = mediaFileDao;
         this.artistDao = artistDao;
         this.albumDao = albumDao;
-        this.jAlbumDao = jAlbumDao;
         this.utils = utils;
         this.comparators = jpsonicComparator;
     }
@@ -120,7 +116,7 @@ public class SortProcedureService {
 
     int updateOrderOfAlbumID3() {
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
-        List<Album> albums = jAlbumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folders);
+        List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folders);
         albums.sort(comparators.albumOrderByAlpha());
         int i = 0;
         for (Album album : albums) {

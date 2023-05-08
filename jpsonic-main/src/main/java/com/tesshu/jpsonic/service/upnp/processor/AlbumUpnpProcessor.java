@@ -28,7 +28,7 @@ import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.controller.ViewName;
-import com.tesshu.jpsonic.dao.JAlbumDao;
+import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -55,10 +55,10 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> {
 
     private final UpnpProcessorUtil util;
     private final JMediaFileService mediaFileService;
-    private final JAlbumDao albumDao;
+    private final AlbumDao albumDao;
     private final CoverArtLogic coverArtLogic;
 
-    public AlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, JAlbumDao a,
+    public AlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, AlbumDao a,
             CoverArtLogic c) {
         super(d, u);
         this.util = u;
