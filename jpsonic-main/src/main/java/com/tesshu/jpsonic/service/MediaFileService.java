@@ -39,6 +39,7 @@ import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
@@ -150,6 +151,10 @@ public class MediaFileService {
         List<MediaFile> result = getChildrenWithoutSortOf(parent, includeFiles, includeDir);
         result.sort(comparators.mediaFileOrder(parent));
         return result;
+    }
+
+    public List<MediaFile> getChildrenOf(MediaFile parent, long offset, long count, boolean byYear) {
+        return mediaFileDao.getChildrenOf(offset, count, parent.getPathString(), byYear);
     }
 
     public List<MediaFile> getChildrenWithoutSortOf(MediaFile parent, boolean includeFiles, boolean includeDir) {
@@ -342,7 +347,7 @@ public class MediaFileService {
         files.removeIf(MediaFile::isVideo);
     }
 
-    public Instant getMediaFileStarredDate(int id, String username) {
+    public @Nullable Instant getMediaFileStarredDate(int id, String username) {
         return mediaFileDao.getMediaFileStarredDate(id, username);
     }
 
@@ -367,5 +372,41 @@ public class MediaFileService {
 
     public int getStarredAlbumCount(String username, List<MusicFolder> musicFolders) {
         return mediaFileDao.getStarredAlbumCount(username, musicFolders);
+    }
+
+    public int getChildSizeOf(MediaFile mediaFile) {
+        return mediaFileDao.getChildSizeOf(mediaFile.getPathString());
+    }
+
+    public int getChildSizeOf(MusicFolder musicFolder) {
+        return mediaFileDao.getChildSizeOf(musicFolder.getPathString());
+    }
+
+    public long countSongs(List<MusicFolder> folders) {
+        return mediaFileDao.countMediaFile(MediaType.MUSIC, folders);
+    }
+
+    public List<MediaFile> getSongs(long count, long offset, List<MusicFolder> folders) {
+        return mediaFileDao.getMediaFile(MediaType.MUSIC, count, offset, folders);
+    }
+
+    public long countVideos(List<MusicFolder> folders) {
+        return mediaFileDao.countMediaFile(MediaType.VIDEO, folders);
+    }
+
+    public List<MediaFile> getVideos(long count, long offset, List<MusicFolder> folders) {
+        return mediaFileDao.getMediaFile(MediaType.VIDEO, count, offset, folders);
+    }
+
+    public int getSongsCountForAlbum(String albumArtist, String album) {
+        return mediaFileDao.getSongsCountForAlbum(albumArtist, album);
+    }
+
+    public List<MediaFile> getSongsForAlbum(final long offset, final long count, MediaFile album) {
+        return mediaFileDao.getSongsForAlbum(offset, count, album);
+    }
+
+    public List<MediaFile> getSongsForAlbum(final long offset, final long count, String albumArtist, String album) {
+        return mediaFileDao.getSongsForAlbum(offset, count, albumArtist, album);
     }
 }

@@ -38,8 +38,8 @@ import java.util.concurrent.ExecutionException;
 import chameleon.playlist.SpecificPlaylist;
 import chameleon.playlist.SpecificPlaylistFactory;
 import chameleon.playlist.SpecificPlaylistProvider;
-import com.tesshu.jpsonic.dao.JMediaFileDao;
-import com.tesshu.jpsonic.dao.JPlaylistDao;
+import com.tesshu.jpsonic.dao.MediaFileDao;
+import com.tesshu.jpsonic.dao.PlaylistDao;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PlayQueue;
@@ -71,15 +71,15 @@ public class PlaylistService {
 
     private static final String EXPORT_PLAYLIST_FORMAT = "m3u";
 
-    private final JMediaFileDao mediaFileDao;
-    private final JPlaylistDao playlistDao;
+    private final MediaFileDao mediaFileDao;
+    private final PlaylistDao playlistDao;
     private final SecurityService securityService;
     private final SettingsService settingsService;
     private final List<PlaylistExportHandler> exportHandlers;
     private final List<PlaylistImportHandler> importHandlers;
     private final JpsonicComparators comparators;
 
-    public PlaylistService(JMediaFileDao mediaFileDao, JPlaylistDao playlistDao, SecurityService securityService,
+    public PlaylistService(MediaFileDao mediaFileDao, PlaylistDao playlistDao, SecurityService securityService,
             SettingsService settingsService, List<PlaylistExportHandler> exportHandlers,
             List<PlaylistImportHandler> importHandlers, JpsonicComparators comparators) {
         this.mediaFileDao = mediaFileDao;

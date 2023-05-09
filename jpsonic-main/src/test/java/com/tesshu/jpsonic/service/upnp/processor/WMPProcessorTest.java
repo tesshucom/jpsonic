@@ -34,7 +34,7 @@ import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.service.MediaFileService;
 import org.apache.commons.lang3.StringUtils;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.AUTHOR;
@@ -48,14 +48,14 @@ import org.mockito.Mockito;
 @SuppressWarnings("PMD.TooManyStaticImports")
 class WMPProcessorTest {
 
-    private JMediaFileService mediaFileService;
+    private MediaFileService mediaFileService;
     private MediaFileUpnpProcessor mediaFileUpnpProcessor;
     private UpnpProcessorUtil util;
     private WMPProcessor wmpProcessor;
 
     @BeforeEach
     public void setup() {
-        mediaFileService = mock(JMediaFileService.class);
+        mediaFileService = mock(MediaFileService.class);
         mediaFileUpnpProcessor = mock(MediaFileUpnpProcessor.class);
         util = mock(UpnpProcessorUtil.class);
         wmpProcessor = new WMPProcessor(mediaFileService, mediaFileUpnpProcessor, util);

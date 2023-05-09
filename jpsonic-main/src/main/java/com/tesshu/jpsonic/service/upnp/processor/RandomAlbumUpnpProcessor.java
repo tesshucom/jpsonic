@@ -24,10 +24,10 @@ import java.util.concurrent.ExecutionException;
 
 import javax.annotation.PostConstruct;
 
-import com.tesshu.jpsonic.dao.JAlbumDao;
+import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
-import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
@@ -44,8 +44,8 @@ public class RandomAlbumUpnpProcessor extends AlbumUpnpProcessor {
     private final SearchService searchService;
     private final SettingsService settingsService;
 
-    public RandomAlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
-            JAlbumDao a, CoverArtLogic c, SearchService s, SettingsService ss) {
+    public RandomAlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, AlbumDao a,
+            CoverArtLogic c, SearchService s, SettingsService ss) {
         super(d, u, m, a, c);
         this.util = u;
         this.searchService = s;

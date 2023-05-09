@@ -62,8 +62,8 @@ public class PlaylistDao extends AbstractDao {
         List<Playlist> result1 = getWritablePlaylistsForUser(username);
         List<Playlist> result2 = query("select " + QUERY_COLUMNS + " from playlist where is_public", rowMapper);
         List<Playlist> result3 = query("select " + prefix(QUERY_COLUMNS, "playlist")
-                + " from playlist, playlist_user where " + "playlist.id = playlist_user.playlist_id and "
-                + "playlist.username != ? and " + "playlist_user.username = ?", rowMapper, username, username);
+                + " from playlist, playlist_user where playlist.id = playlist_user.playlist_id and "
+                + "playlist.username != ? and playlist_user.username = ?", rowMapper, username, username);
 
         // Put in sorted map to avoid duplicates.
         SortedMap<Integer, Playlist> map = new TreeMap<>();
@@ -139,6 +139,10 @@ public class PlaylistDao extends AbstractDao {
         update("update playlist set username=?, is_public=?, name=?, comment=?, changed=?, imported_from=? where id=?",
                 playlist.getUsername(), playlist.isShared(), playlist.getName(), playlist.getComment(), now(),
                 playlist.getImportedFrom(), playlist.getId());
+    }
+
+    public int getCountAll() {
+        return queryForInt("select count(id) from playlist", 0);
     }
 
     private static class PlaylistMapper implements RowMapper<Playlist> {

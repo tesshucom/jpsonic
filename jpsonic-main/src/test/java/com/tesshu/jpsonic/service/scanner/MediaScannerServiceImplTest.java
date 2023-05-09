@@ -791,7 +791,7 @@ class MediaScannerServiceImplTest {
                 LOG.info("--- *********************** ---");
             }
 
-            List<MediaFile> listeSongs = mediaFileDao.getSongsByGenre("Baroque Instrumental", 0, 0,
+            List<MediaFile> listeSongs = mediaFileDao.getSongsByGenre(Arrays.asList("Baroque Instrumental"), 0, 0,
                     musicFolderDao.getAllMusicFolders());
             assertEquals(2, listeSongs.size());
 

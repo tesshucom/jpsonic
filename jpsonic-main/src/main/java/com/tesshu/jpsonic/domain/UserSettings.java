@@ -62,7 +62,6 @@ public class UserSettings {
     private Instant changed = now();
     private int paginationSize;
 
-    // JP >>>>
     private boolean closeDrawer;
     private boolean closePlayQueue;
     private boolean alternativeDrawer;
@@ -96,7 +95,6 @@ public class UserSettings {
     private String fontFamily;
     private int fontSize;
     private boolean showScannedCount;
-    // <<<< JP
 
     public UserSettings() {
         defaultAlbumList = AlbumListType.RANDOM;
@@ -625,19 +623,14 @@ public class UserSettings {
         private boolean durationVisible;
         private boolean formatVisible;
         private boolean fileSizeVisible;
-        // JP >>>>
         private boolean composerVisible;
-        // <<<< JP
 
         public Visibility() {
         }
 
         public Visibility(boolean trackNumberVisible, boolean artistVisible, boolean albumVisible, boolean genreVisible,
                 boolean yearVisible, boolean bitRateVisible, boolean durationVisible, boolean formatVisible,
-                boolean fileSizeVisible,
-                // JP >>>>
-                boolean composerVisible // <<<< JP
-        ) {
+                boolean fileSizeVisible, boolean composerVisible) {
             this.trackNumberVisible = trackNumberVisible;
             this.artistVisible = artistVisible;
             this.albumVisible = albumVisible;
@@ -647,9 +640,7 @@ public class UserSettings {
             this.durationVisible = durationVisible;
             this.formatVisible = formatVisible;
             this.fileSizeVisible = fileSizeVisible;
-            // JP >>>>
             this.composerVisible = composerVisible;
-            // <<<< JP
         }
 
         public boolean isTrackNumberVisible() {

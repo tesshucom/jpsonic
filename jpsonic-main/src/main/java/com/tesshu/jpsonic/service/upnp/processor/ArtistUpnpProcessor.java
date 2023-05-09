@@ -27,7 +27,7 @@ import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.controller.ViewName;
-import com.tesshu.jpsonic.dao.JArtistDao;
+import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.CoverArtScheme;
@@ -48,10 +48,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class ArtistUpnpProcessor extends UpnpContentProcessor<Artist, Album> {
 
     private final UpnpProcessorUtil util;
-    private final JArtistDao artistDao;
+    private final ArtistDao artistDao;
     private final CoverArtLogic coverArtLogic;
 
-    public ArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JArtistDao a, CoverArtLogic c) {
+    public ArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, ArtistDao a, CoverArtLogic c) {
         super(d, u);
         this.util = u;
         this.artistDao = a;

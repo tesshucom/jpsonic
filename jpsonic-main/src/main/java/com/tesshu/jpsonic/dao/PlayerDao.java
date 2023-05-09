@@ -165,9 +165,9 @@ public class PlayerDao extends AbstractDao {
      *            The player to update.
      */
     public void updatePlayer(Player player) {
-        String sql = "update player set " + "name = ?," + "type = ?," + "username = ?," + "ip_address = ?,"
-                + "auto_control_enabled = ?," + "m3u_bom_enabled = ?," + "last_seen = ?," + "transcode_scheme = ?, "
-                + "dynamic_ip = ?, " + "technology = ?, " + "client_id = ?, " + "mixer = ? " + "where id = ?";
+        String sql = "update player set name = ?, type = ?, username = ?, ip_address = ?,"
+                + "auto_control_enabled = ?, m3u_bom_enabled = ?, last_seen = ?, transcode_scheme = ?, "
+                + "dynamic_ip = ?, technology = ?, client_id = ?, mixer = ? where id = ?";
         update(sql, player.getName(), player.getType(), player.getUsername(), player.getIpAddress(),
                 player.isAutoControlEnabled(), player.isM3uBomEnabled(), player.getLastSeen(),
                 player.getTranscodeScheme().name(), player.isDynamicIp(), player.getTechnology().name(),

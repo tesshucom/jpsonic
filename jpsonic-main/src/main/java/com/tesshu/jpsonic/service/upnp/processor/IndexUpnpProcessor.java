@@ -38,7 +38,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.domain.MusicIndex;
-import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import com.tesshu.jpsonic.spring.EhcacheConfiguration.IndexCacheKey;
@@ -61,7 +61,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     // Only on write (because it can be explicitly reloaded on the client and is less risky)
 
     private final UpnpProcessorUtil util;
-    private final JMediaFileService mediaFileService;
+    private final MediaFileService mediaFileService;
     private final MusicIndexService musicIndexService;
     private final Ehcache indexCache;
     private final Object lock = new Object();
@@ -71,7 +71,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     private List<MediaFile> topNodes;
 
     public IndexUpnpProcessor(@Lazy UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util,
-            JMediaFileService mediaFileService, MusicIndexService musicIndexService, Ehcache indexCache) {
+            MediaFileService mediaFileService, MusicIndexService musicIndexService, Ehcache indexCache) {
         super(dispatcher, util);
         this.util = util;
         this.mediaFileService = mediaFileService;
