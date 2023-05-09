@@ -42,7 +42,7 @@ import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicIndex;
-import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import com.tesshu.jpsonic.spring.EhcacheConfiguration.IndexCacheKey;
@@ -71,7 +71,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     private static final String TYPE_PREFIX_ALBUM = "album:";
 
     private final UpnpProcessorUtil util;
-    private final JMediaFileService mediaFileService;
+    private final MediaFileService mediaFileService;
     private final MusicIndexService musicIndexService;
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
@@ -82,7 +82,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     private Map<String, Id3Wrapper> indexesMap;
     private List<Id3Wrapper> topNodes;
 
-    public IndexId3UpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
+    public IndexId3UpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m,
             MusicIndexService mi, ArtistDao ad, AlbumDao ald, Ehcache indexCache) {
         super(d, u);
         this.util = u;

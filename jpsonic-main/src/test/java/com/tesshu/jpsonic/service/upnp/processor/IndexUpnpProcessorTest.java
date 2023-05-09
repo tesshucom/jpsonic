@@ -39,7 +39,7 @@ import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
-import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import net.sf.ehcache.Ehcache;
@@ -57,7 +57,7 @@ class IndexUpnpProcessorTest {
 
         private UpnpProcessDispatcher dispatcher;
         private UpnpProcessorUtil util;
-        private JMediaFileService mediaFileService;
+        private MediaFileService mediaFileService;
         private MusicIndexService musicIndexService;
         private Ehcache indexCache;
         private IndexUpnpProcessor processor;
@@ -66,7 +66,7 @@ class IndexUpnpProcessorTest {
         public void setup() {
             dispatcher = mock(UpnpProcessDispatcher.class);
             util = mock(UpnpProcessorUtil.class);
-            mediaFileService = mock(JMediaFileService.class);
+            mediaFileService = mock(MediaFileService.class);
             musicIndexService = mock(MusicIndexService.class);
             indexCache = mock(Ehcache.class);
             processor = new IndexUpnpProcessor(dispatcher, util, mediaFileService, musicIndexService, indexCache);

@@ -31,7 +31,7 @@ import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
@@ -49,7 +49,7 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor<MediaFile, M
 
     private final UpnpProcessorUtil util;
     private final SearchService searchService;
-    private final JMediaFileService mediaFileService;
+    private final MediaFileService mediaFileService;
 
     private MediaFile toMediaFile(Genre g) {
         MediaFile m = new MediaFile();
@@ -62,7 +62,7 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor<MediaFile, M
         return m;
     }
 
-    public AlbumByGenreUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
+    public AlbumByGenreUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m,
             SearchService s) {
         super(d, u);
         this.util = u;

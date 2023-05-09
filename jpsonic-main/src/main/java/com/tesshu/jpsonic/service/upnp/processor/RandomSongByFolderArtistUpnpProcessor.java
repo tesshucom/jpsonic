@@ -32,7 +32,7 @@ import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
@@ -54,12 +54,12 @@ public class RandomSongByFolderArtistUpnpProcessor
     private final UpnpProcessorUtil util;
     private final ArtistDao artistDao;
     private final MusicFolderDao musicFolderDao;
-    private final JMediaFileService mediaFileService;
+    private final MediaFileService mediaFileService;
     private final SearchService searchService;
     private final SettingsService settingsService;
 
-    public RandomSongByFolderArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u,
-            JMediaFileService m, MusicFolderDao md, ArtistDao a, SearchService s, SettingsService ss) {
+    public RandomSongByFolderArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m,
+            MusicFolderDao md, ArtistDao a, SearchService s, SettingsService ss) {
         super(d, u);
         util = u;
         mediaFileService = m;

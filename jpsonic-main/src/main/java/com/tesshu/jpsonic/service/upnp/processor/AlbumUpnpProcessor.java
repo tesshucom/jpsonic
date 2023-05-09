@@ -35,7 +35,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ParamSearchResult;
 import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
-import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.fourthline.cling.support.model.BrowseResult;
@@ -54,11 +54,11 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> {
     public static final String ALL_RECENT_ID3 = "allRecentId3";
 
     private final UpnpProcessorUtil util;
-    private final JMediaFileService mediaFileService;
+    private final MediaFileService mediaFileService;
     private final AlbumDao albumDao;
     private final CoverArtLogic coverArtLogic;
 
-    public AlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, AlbumDao a,
+    public AlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, AlbumDao a,
             CoverArtLogic c) {
         super(d, u);
         this.util = u;

@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
@@ -40,9 +40,9 @@ public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
     private static final int RECENT_COUNT = 50;
 
     private final UpnpProcessorUtil util;
-    private final JMediaFileService mediaFileService;
+    private final MediaFileService mediaFileService;
 
-    public RecentAlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
+    public RecentAlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m,
             PlayerService p) {
         super(d, u, m, p);
         this.util = u;

@@ -38,7 +38,7 @@ import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,13 +54,13 @@ class MediaFileUpnpProcessorTest {
     class UnitTest {
 
         private UpnpProcessorUtil upnpProcessorUtil;
-        private JMediaFileService mediaFileService;
+        private MediaFileService mediaFileService;
         private MediaFileUpnpProcessor mediaFileUpnpProcessor;
 
         @BeforeEach
         public void setup() {
             upnpProcessorUtil = mock(UpnpProcessorUtil.class);
-            mediaFileService = mock(JMediaFileService.class);
+            mediaFileService = mock(MediaFileService.class);
             mediaFileUpnpProcessor = new MediaFileUpnpProcessor(mock(UpnpProcessDispatcher.class), upnpProcessorUtil,
                     mediaFileService, mock(PlayerService.class));
         }

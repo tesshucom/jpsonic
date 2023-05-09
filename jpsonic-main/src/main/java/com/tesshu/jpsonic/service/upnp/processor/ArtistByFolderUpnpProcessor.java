@@ -35,7 +35,7 @@ import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
@@ -59,9 +59,9 @@ public class ArtistByFolderUpnpProcessor
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
     private final MusicFolderDao musicFolderDao;
-    private final JMediaFileService mediaFileService;
+    private final MediaFileService mediaFileService;
 
-    public ArtistByFolderUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
+    public ArtistByFolderUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m,
             MusicFolderDao md, ArtistDao a, AlbumDao al) {
         super(d, u);
         util = u;
