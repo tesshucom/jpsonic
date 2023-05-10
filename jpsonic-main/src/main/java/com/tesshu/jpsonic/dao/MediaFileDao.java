@@ -537,7 +537,7 @@ public class MediaFileDao extends AbstractDao {
                 + "join music_folder on music_folder.path = mf.folder "
                 + "join media_file mf_al on mf_al.path = mf.parent_path) registered "
                 + "join (select album, album_artist, min(file_order) as file_order from "
-                + "(select mf.album, mf.album_artist, mf_al.media_file_order * :childMax + mf.media_file_order + music_folder.folder_order * :childMax as file_order from media_file mf "
+                + "(select mf.album, mf.album_artist, mf_al.media_file_order * :childMax + mf.media_file_order + music_folder.folder_order * :childMax * 10 as file_order from media_file mf "
                 + "join album al on al.name = mf.album and al.artist = mf.album_artist "
                 + "join music_folder on music_folder.path = mf.folder "
                 + "join media_file mf_al on mf_al.path = mf.parent_path "
