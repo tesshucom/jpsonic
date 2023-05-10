@@ -79,10 +79,9 @@ public class ArtistDao extends AbstractDao {
 
     public @Nullable Artist updateArtist(Artist artist) {
         String sql = "update artist set cover_art_path=?, album_count=?, last_scanned=?, present=?,"
-                + "folder_id=?, sort=?, reading=?, artist_order=? where name=?";
+                + "folder_id=?, sort=?, reading=? where name=?";
         int c = update(sql, artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
-                artist.isPresent(), artist.getFolderId(), artist.getSort(), artist.getReading(), artist.getOrder(),
-                artist.getName());
+                artist.isPresent(), artist.getFolderId(), artist.getSort(), artist.getReading(), artist.getName());
         if (c > 0) {
             return artist;
         }
