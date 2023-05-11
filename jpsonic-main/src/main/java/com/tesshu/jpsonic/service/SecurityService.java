@@ -540,6 +540,6 @@ public class SecurityService implements UserDetailsService {
 
         // Exclude all hidden files starting with a single "." or "@eaDir" (thumbnail dir created on Synology devices).
         return !name.isEmpty() && name.charAt(0) == '.' && !name.startsWith("..") || name.startsWith("@eaDir")
-                || "Thumbs.db".equals(name);
+                || name.startsWith("@tmp") || "Thumbs.db".equals(name);
     }
 }
