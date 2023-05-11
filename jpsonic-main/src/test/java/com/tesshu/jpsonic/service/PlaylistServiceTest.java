@@ -325,16 +325,24 @@ class PlaylistServiceTest {
             mediaFile.setPathString(mf3.toString());
             Mockito.when(mediaFileService.getMediaFile(mf3)).thenReturn(mediaFile);
 
+            // Assuming Synology environment
+            Files.createDirectories(Path.of(tempDir.toString(), "@eaDir"));
+            Files.createDirectories(Path.of(tempDir.toString(), "@tmp"));
+            // Assuming Windows environment
+            Files.createFile(Path.of(tempDir.toString(), "Thumbs.db"));
+
             ArgumentCaptor<Playlist> playlistCatCaptor = ArgumentCaptor.forClass(Playlist.class);
             Mockito.doNothing().when(playlistDao).createPlaylist(playlistCatCaptor.capture());
+
             playlistService.importPlaylists();
 
             List<Playlist> captored = playlistCatCaptor.getAllValues();
             captored.sort((p1, p2) -> p1.getName().compareTo(p2.getName()));
-            assertEquals(3, playlistCatCaptor.getAllValues().size());
-            assertEquals("XSPF-mf1", captored.get(0).getName());
-            assertEquals("XSPF-mf2", captored.get(1).getName());
-            assertEquals("XSPF-mf3", captored.get(2).getName());
+            assertEquals(4, playlistCatCaptor.getAllValues().size());
+            assertEquals("Thumbs", captored.get(0).getName());
+            assertEquals("XSPF-mf1", captored.get(1).getName());
+            assertEquals("XSPF-mf2", captored.get(2).getName());
+            assertEquals("XSPF-mf3", captored.get(3).getName());
         }
     }
 }
