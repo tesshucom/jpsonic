@@ -48,8 +48,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
@@ -59,8 +57,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class MediaFileService {
-
-    private static final Logger LOG = LoggerFactory.getLogger(MediaFileService.class);
 
     private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
@@ -192,7 +188,8 @@ public class MediaFileService {
             return false;
         }
         String suffix = FilenameUtils.getExtension(fileName.toString()).toLowerCase(Locale.ENGLISH);
-        return !isExcluded(candidate) && (Files.isDirectory(candidate) || isAudioFile(suffix) || isVideoFile(suffix));
+        return !securityService.isExcluded(candidate)
+                && (Files.isDirectory(candidate) || isAudioFile(suffix) || isVideoFile(suffix));
     }
 
     public boolean isAudioFile(String suffix) {
@@ -211,31 +208,6 @@ public class MediaFileService {
             }
         }
         return false;
-    }
-
-    private boolean isExcluded(Path path) {
-        if (settingsService.isIgnoreSymLinks() && Files.isSymbolicLink(path)) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("excluding symbolic link " + path);
-            }
-            return true;
-        }
-        Path fileName = path.getFileName();
-        if (fileName == null) {
-            return true;
-        }
-        String name = fileName.toString();
-        if (settingsService.getExcludePattern() != null && settingsService.getExcludePattern().matcher(name).find()) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("excluding file which matches exclude pattern " + settingsService.getExcludePatternString()
-                        + ": " + path);
-            }
-            return true;
-        }
-
-        // Exclude all hidden files starting with a single "." or "@eaDir" (thumbnail dir created on Synology devices).
-        return !name.isEmpty() && name.charAt(0) == '.' && !name.startsWith("..") || name.startsWith("@eaDir")
-                || "Thumbs.db".equals(name);
     }
 
     public @Nullable Path getCoverArt(MediaFile mediaFile) {
