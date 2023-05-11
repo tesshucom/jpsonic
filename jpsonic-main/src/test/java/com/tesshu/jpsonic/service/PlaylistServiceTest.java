@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.PlaylistDao;
+import com.tesshu.jpsonic.dao.UserDao;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.service.playlist.DefaultPlaylistExportHandler;
@@ -287,8 +288,10 @@ class PlaylistServiceTest {
             playlistDao = mock(PlaylistDao.class);
             settingsService = mock(SettingsService.class);
             mediaFileService = mock(MediaFileService.class);
+            SecurityService securityService = new SecurityService(mock(UserDao.class), settingsService,
+                    mock(MusicFolderService.class));
             DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(mediaFileService);
-            playlistService = new PlaylistService(mock(MediaFileDao.class), playlistDao, mock(SecurityService.class),
+            playlistService = new PlaylistService(mock(MediaFileDao.class), playlistDao, securityService,
                     settingsService, Collections.emptyList(), Arrays.asList(importHandler), null);
         }
 
@@ -338,11 +341,10 @@ class PlaylistServiceTest {
 
             List<Playlist> captored = playlistCatCaptor.getAllValues();
             captored.sort((p1, p2) -> p1.getName().compareTo(p2.getName()));
-            assertEquals(4, playlistCatCaptor.getAllValues().size());
-            assertEquals("Thumbs", captored.get(0).getName());
-            assertEquals("XSPF-mf1", captored.get(1).getName());
-            assertEquals("XSPF-mf2", captored.get(2).getName());
-            assertEquals("XSPF-mf3", captored.get(3).getName());
+            assertEquals(3, playlistCatCaptor.getAllValues().size());
+            assertEquals("XSPF-mf1", captored.get(0).getName());
+            assertEquals("XSPF-mf2", captored.get(1).getName());
+            assertEquals("XSPF-mf3", captored.get(2).getName());
         }
     }
 }

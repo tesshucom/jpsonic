@@ -290,6 +290,11 @@ public class PlaylistService {
         List<Playlist> allPlaylists = playlistDao.getAllPlaylists();
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(playlistFolder)) {
             for (Path child : ds) {
+
+                if (securityService.isExcluded(child)) {
+                    continue;
+                }
+
                 try {
                     importPlaylistIfUpdated(child, allPlaylists);
                 } catch (ExecutionException e) {
