@@ -15,6 +15,11 @@ services:
     hostname: 'SynologyNAS'
     pid: host
 
+    # This image is automatically updated by watchtower.
+    # See docker-compose.watchtower.yml
+    labels:
+     - "com.centurylinklabs.watchtower.enable=true"
+
     volumes:
      # <host>:<internal>
      # Please rewrite "the path of host" appropriately.

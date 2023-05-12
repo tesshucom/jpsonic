@@ -1,0 +1,27 @@
+# 
+# This is a JPSONIC image auto-update sample in Synology DS220+ or in Linux with UPnP.
+# After starting Jpsonic with production.synology.yml,
+# you can easily update Jpsonic automatically by additionally setting up watchtower.
+#
+# usege: 
+#   docker-compose -f docker-compose.watchtower.yml up -d
+#
+
+version: "3"
+services:
+  watchtower:
+    image: containrrr/watchtower
+    container_name: 'watchtower'
+    environment:
+      - WATCHTOWER_INCLUDE_STOPPED=true
+      - WATCHTOWER_REVIVE_STOPPED=false
+      - WATCHTOWER_LABEL_ENABLE=1
+
+      # Please specify the appropriate timezone
+      - TZ=Asia/Tokyo
+
+      # At one o'clock every day. Write the appropriate value in cron style.
+      - WATCHTOWER_SCHEDULE=0 0 1 * * *
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
