@@ -66,37 +66,39 @@ function refreshScanLogs() {
     </c:otherwise>
 </c:choose>
 
-<table class="tabular scanevents">
-    <caption>Duration All : ${model.scanEventsDuration}</caption>
-    <thead>
-        <tr>
-            <th>Type</th>
-            <th>End time</th>
-            <th>Duration</th>
-            <th>Max</th>
-            <th>Total</th>
-            <th>Used</th>
-            <th>Comment</th>
-        </tr>
-    </thead>
-    <tbody>
-        <c:forEach items="${model.scanEvents}" var="scanEvent" varStatus="loopStatus">
+<c:if test="${not empty model.scanLogs}">
+    <table class="tabular scanevents">
+        <caption>Duration All : ${model.scanEventsDuration}</caption>
+        <thead>
             <tr>
-                <td>${scanEvent.type}
-                    <c:if test="${showHelp}">
-                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="scanlog_${fn:toLowerCase(scanEvent.type)}"/></c:import>
-                    </c:if>           
-                </td>
-                <td>${scanEvent.executedStr}</td>
-                <td>${scanEvent.duration}</td>
-                <td>${scanEvent.maxMemory}</td>
-                <td>${scanEvent.totalMemory}</td>
-                <td>${scanEvent.usedMemory}</td>
-                <td>${scanEvent.comment}</td>
+                <th>Type</th>
+                <th>End time</th>
+                <th>Duration</th>
+                <th>Max</th>
+                <th>Total</th>
+                <th>Used</th>
+                <th>Comment</th>
             </tr>
-        </c:forEach>
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            <c:forEach items="${model.scanEvents}" var="scanEvent" varStatus="loopStatus">
+                <tr>
+                    <td>${scanEvent.type}
+                        <c:if test="${showHelp}">
+                            <c:import url="helpToolTip.jsp"><c:param name="topic" value="scanlog_${fn:toLowerCase(scanEvent.type)}"/></c:import>
+                        </c:if>           
+                    </td>
+                    <td>${scanEvent.executedStr}</td>
+                    <td>${scanEvent.duration}</td>
+                    <td>${scanEvent.maxMemory}</td>
+                    <td>${scanEvent.totalMemory}</td>
+                    <td>${scanEvent.usedMemory}</td>
+                    <td>${scanEvent.comment}</td>
+                </tr>
+            </c:forEach>
+        </tbody>
+    </table>
+</c:if>
 
 </body>
 </html>
