@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.PlaylistDao;
+import com.tesshu.jpsonic.dao.UserDao;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.service.playlist.DefaultPlaylistExportHandler;
@@ -287,8 +288,10 @@ class PlaylistServiceTest {
             playlistDao = mock(PlaylistDao.class);
             settingsService = mock(SettingsService.class);
             mediaFileService = mock(MediaFileService.class);
+            SecurityService securityService = new SecurityService(mock(UserDao.class), settingsService,
+                    mock(MusicFolderService.class));
             DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(mediaFileService);
-            playlistService = new PlaylistService(mock(MediaFileDao.class), playlistDao, mock(SecurityService.class),
+            playlistService = new PlaylistService(mock(MediaFileDao.class), playlistDao, securityService,
                     settingsService, Collections.emptyList(), Arrays.asList(importHandler), null);
         }
 
@@ -325,8 +328,15 @@ class PlaylistServiceTest {
             mediaFile.setPathString(mf3.toString());
             Mockito.when(mediaFileService.getMediaFile(mf3)).thenReturn(mediaFile);
 
+            // Assuming Synology environment
+            Files.createDirectories(Path.of(tempDir.toString(), "@eaDir"));
+            Files.createDirectories(Path.of(tempDir.toString(), "@tmp"));
+            // Assuming Windows environment
+            Files.createFile(Path.of(tempDir.toString(), "Thumbs.db"));
+
             ArgumentCaptor<Playlist> playlistCatCaptor = ArgumentCaptor.forClass(Playlist.class);
             Mockito.doNothing().when(playlistDao).createPlaylist(playlistCatCaptor.capture());
+
             playlistService.importPlaylists();
 
             List<Playlist> captored = playlistCatCaptor.getAllValues();
