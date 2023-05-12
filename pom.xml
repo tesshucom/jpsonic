@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>112.0.2</version>
+    <version>112.0.3</version>
     <name>Jpsonic</name>
     <packaging>pom</packaging>
     <organization>
@@ -19,7 +19,7 @@
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jackson.version>2.15.0</jackson.version>
-        <tomcat.version>9.0.74</tomcat.version>
+        <tomcat.version>9.0.75</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
         <jetty.version>10.0.15</jetty.version>
         <jetty-jsp.version>10.0.15</jetty-jsp.version>
@@ -173,7 +173,7 @@
             <dependency>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-core</artifactId>
-                <version>4.21.1</version>
+                <version>4.22.0</version>
             </dependency>
 
             <!-- Fix convergence issues -->
@@ -226,7 +226,7 @@
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
                 <scope>compile</scope>
-                <version>3.33.0</version>
+                <version>3.34.0</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
@@ -459,7 +459,7 @@
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
                             <artifactId>checkstyle</artifactId>
-                            <version>10.10.0</version>
+                            <version>10.11.0</version>
                         </dependency>
                     </dependencies>
                     <configuration>
@@ -574,7 +574,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>3.1.0</version>
                     <configuration>
                         <excludes>${test.excludes}</excludes>
                     </configuration>
