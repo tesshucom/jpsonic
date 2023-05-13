@@ -97,9 +97,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> {
             container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + album.getComment());
         } else {
             container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + album.getId());
-            if (album.getCoverArtPath() != null) {
-                container.setAlbumArtURIs(new URI[] { createAlbumArtURI(album) });
-            }
+            container.setAlbumArtURIs(new URI[] { createAlbumArtURI(album) });
             container.setDescription(album.getComment());
         }
         container.setParentID(getRootId());

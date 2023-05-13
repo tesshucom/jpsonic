@@ -113,10 +113,8 @@ public class ArtistByFolderUpnpProcessor
         } else if (item.isAlbum()) {
             MusicAlbum container = new MusicAlbum();
             container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + item.getId());
-            if (item.getAlbum().getCoverArtPath() != null) {
-                container.setAlbumArtURIs(
-                        new URI[] { getDispatcher().getAlbumProcessor().createAlbumArtURI(item.getAlbum()) });
-            }
+            container.setAlbumArtURIs(
+                    new URI[] { getDispatcher().getAlbumProcessor().createAlbumArtURI(item.getAlbum()) });
             container.setDescription(item.getAlbum().getComment());
             container.setParentID(getRootId());
             container.setTitle(item.getName());
