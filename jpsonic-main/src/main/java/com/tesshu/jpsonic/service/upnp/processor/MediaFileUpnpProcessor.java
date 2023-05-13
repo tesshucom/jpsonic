@@ -128,6 +128,8 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
             }
             MusicArtist container = new MusicArtist();
             applyId(item, container);
+            item.getCoverArtPath().ifPresent(
+                    path -> container.setProperties(Arrays.asList(new ALBUM_ART_URI(createArtistArtURI(item)))));
             return container;
         }
         return null;
@@ -258,7 +260,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
         return StringUtil.formatDurationHMMSS(seconds) + ".0";
     }
 
-    public URI createArtistArtURI(MediaFile artist) {
+    public URI createArtistArtURI(@NonNull MediaFile artist) {
         return util.createURIWithToken(
                 UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
                         .queryParam("id", artist.getId()).queryParam("size", CoverArtScheme.LARGE.getSize()));

@@ -46,4 +46,6 @@ public interface Id3Wrapper {
 
     int getChildSize();
 
+    String getCoverArtPath();
+
 }
