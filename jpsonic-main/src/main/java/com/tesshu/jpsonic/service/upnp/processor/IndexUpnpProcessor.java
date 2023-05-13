@@ -24,6 +24,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,6 +47,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
+import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
 import org.fourthline.cling.support.model.PersonWithRole;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.GenreContainer;
@@ -145,6 +147,8 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         } else {
             MusicArtist container = new MusicArtist();
             applyId(item, container);
+            item.getCoverArtPath().ifPresent(path -> container.setProperties(Arrays
+                    .asList(new ALBUM_ART_URI(getDispatcher().getMediaFileProcessor().createArtistArtURI(item)))));
             return container;
         }
     }

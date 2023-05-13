@@ -151,8 +151,10 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
             MusicArtist container = new MusicArtist();
             Artist artist = new Artist();
             artist.setId(id);
-            URI uri = getDispatcher().getArtistProcessor().createArtistArtURI(artist);
-            container.setProperties(Arrays.asList(new ALBUM_ART_URI(uri)));
+            if (artist.getCoverArtPath() != null) {
+                container.setProperties(Arrays
+                        .asList(new ALBUM_ART_URI(getDispatcher().getArtistProcessor().createArtistArtURI(artist))));
+            }
             applyParentId(item, container);
             applyId(item, container);
             return container;
