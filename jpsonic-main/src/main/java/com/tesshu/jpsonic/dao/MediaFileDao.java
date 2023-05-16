@@ -533,27 +533,23 @@ public class MediaFileDao extends AbstractDao {
                 MusicFolder.toPathList(musicFolders), "childMax", ALBUM_CHILD_MAX);
         String query = "select " + prefix(QUERY_COLUMNS, "mf_fetched") + " from (select registered.* from "
                 + "(select mf.*, mf.album as mf_album, mf.album_artist as mf_album_artist, music_folder.folder_order, "
-                + "mf_al.media_file_order al_order, mf.media_file_order as mf_order from media_file mf "
+                + "mf_al.media_file_order al_order, mf.media_file_order as mf_order, "
+                + "music_folder.id as mf_folder_id, mf_al.cover_art_path as mf_al_cover_art_path from media_file mf "
                 + "join music_folder on music_folder.path = mf.folder "
                 + "join media_file mf_al on mf_al.path = mf.parent_path) registered "
-                + "join (select album, album_artist, min(file_order) as file_order from "
-                + "(select mf.album, mf.album_artist, mf_al.media_file_order * :childMax + mf.media_file_order + music_folder.folder_order * :childMax * 10 as file_order from media_file mf "
+                + "join (select mf.album, mf.album_artist, min(mf_al.media_file_order * :childMax + mf.media_file_order + music_folder.folder_order * :childMax * 10) as file_order from media_file mf "
                 + "join album al on al.name = mf.album and al.artist = mf.album_artist "
                 + "join music_folder on music_folder.path = mf.folder "
                 + "join media_file mf_al on mf_al.path = mf.parent_path "
-                + "where mf.folder in (:folders) and mf.present and mf.type in (:types)) registered "
-                + "group by album, album_artist) fetched "
-                + "on fetched.album = mf_album and fetched.album_artist = mf_album_artist "
-                + "and fetched.file_order = registered.al_order * :childMax + registered.mf_order + registered.folder_order * :childMax * 10) mf_fetched "
-                + "join music_folder mf_folder on mf_fetched.folder = mf_folder.path "
-                + "join album al on al.name = mf_fetched.album and al.artist = mf_fetched.album_artist "
-                + "join media_file mf_al on mf_al.path = mf_fetched.parent_path and mf_fetched.present and ("
+                + "where mf.present and mf.type in (:types) and mf.folder in (:folders) group by mf.album, mf.album_artist) fetched "
+                + "on fetched.album = mf_album and fetched.album_artist = mf_album_artist and fetched.file_order = registered.al_order * :childMax + registered.mf_order + registered.folder_order * :childMax * 10) mf_fetched "
+                + "join album al on al.name = mf_fetched.album and al.artist = mf_fetched.album_artist and ( "
                 // Diff comparison
                 + "mf_fetched.parent_path <> al.path " // path
                 + "or mf_fetched.changed <> al.created " // changed
-                + "or mf_folder.id <> al.folder_id " // folder_id
-                + "or (mf_al.cover_art_path is not null and al.cover_art_path is null) or (mf_al.cover_art_path is null and al.cover_art_path is not null) "
-                + "or mf_al.cover_art_path <> al.cover_art_path " // cover_art_path
+                + "or mf_folder_id <> al.folder_id " // folder_id
+                + "or (mf_al_cover_art_path is not null and al.cover_art_path is null) or (mf_al_cover_art_path is null and al.cover_art_path is not null) "
+                + "or mf_al_cover_art_path <> al.cover_art_path " // cover_art_path
                 + "or (mf_fetched.year is not null and al.year is null) or mf_fetched.year <> al.year " // year
                 + "or (mf_fetched.genre is not null and al.genre is null) or mf_fetched.genre <> al.genre " // genre
                 + "or (mf_fetched.album_artist_reading is not null and al.artist_reading is null) or mf_fetched.album_artist_reading <> al.artist_reading " // artist_reading
@@ -575,15 +571,13 @@ public class MediaFileDao extends AbstractDao {
         String query = "select " + prefix(QUERY_COLUMNS, "unregistered") + " from "
                 + "(select mf.*, mf.album as mf_album, mf.album_artist as mf_album_artist, music_folder.folder_order, "
                 + "mf_al.media_file_order al_order, mf.media_file_order as mf_order from media_file mf "
-                + "join music_folder on music_folder.path = mf.folder "
+                + "join music_folder on music_folder.enabled and music_folder.path = mf.folder "
                 + "join media_file mf_al on mf_al.path = mf.parent_path) unregistered "
-                + "join (select album, album_artist, min(file_order) as file_order from "
-                + "(select mf.album, mf.album_artist, mf_al.media_file_order * :childMax + mf.media_file_order + music_folder.folder_order * :childMax * 10 as file_order from media_file mf "
+                + "join (select album, album_artist, min(file_order) as file_order from ( "
+                + "select mf.album, mf.album_artist, mf_al.media_file_order * :childMax + mf.media_file_order + music_folder.folder_order * :childMax * 10 as file_order from media_file mf "
+                + "join music_folder on music_folder.enabled and mf.present and mf.type in (:types) and mf.folder in (:folders) and music_folder.path = mf.folder "
                 + "left join album al on al.name = mf.album and al.artist = mf.album_artist "
-                + "join music_folder on music_folder.path = mf.folder "
-                + "join media_file mf_al on mf_al.path = mf.parent_path "
-                + "where mf.folder in (:folders) and mf.present and mf.type in (:types) "
-                + "and mf.album is not null and mf.album_artist is not null and al.name is null and al.artist is null) gap "
+                + "join media_file mf_al on mf.album is not null and mf.album_artist is not null and al.name is null and al.artist is null and mf_al.path = mf.parent_path) gap "
                 + "group by album, album_artist) fetched "
                 + "on fetched.album = mf_album and fetched.album_artist = mf_album_artist "
                 + "and fetched.file_order = unregistered.al_order * :childMax + unregistered.mf_order + unregistered.folder_order * :childMax * 10 limit :count";
