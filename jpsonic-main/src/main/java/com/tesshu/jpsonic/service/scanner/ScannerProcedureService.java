@@ -102,7 +102,7 @@ public class ScannerProcedureService {
     private final JapaneseReadingUtils readingUtils;
     private final ThreadPoolTaskExecutor scanExecutor;
 
-    private static final int ACQUISITION_MAX = 10;
+    private static final int ACQUISITION_MAX = 10_000;
 
     private final AtomicBoolean cancel = new AtomicBoolean();
 

@@ -28,6 +28,21 @@ services:
      - '/volume1/Podcasts:/jpsonic/podcasts'
      - '/volume1/Playlists:/jpsonic/playlists'
 
+     # If you want to add a large number of music folders, please add more volumes
+     # - '/volume1/Music2:/jpsonic/music2'
+     # - '/volume1/Music3:/jpsonic/music3'
+
+    deploy:
+      resources:
+        limits:
+
+          # Jpsonic container is limited to 1Gb so that it can run on DS220+'s standard memory.
+          # Xmx512m is assigned by default, but with these settings,
+          # it is assumed that 100,000 songs can be scanned for music only.
+          # For larger libraries, increase Xmx and this setting by the same value.
+          # ie) memory: 1.5g at -Xmx1024
+          memory: 1g
+
     environment:
 
      # Set the jpsonic and upnp ports.
