@@ -4,6 +4,7 @@
 -->
 
 [![CI with CodeQL](https://github.com/tesshucom/jpsonic/workflows/CI/badge.svg)](https://github.com/tesshucom/jpsonic/actions?query=workflow%3ACI)
+[![Known Vulnerabilities](https://snyk.io/test/github/tesshucom/jpsonic/badge.svg)](https://snyk.io/test/github/tesshucom/jpsonic)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/7c127f864af74cf8954c691e87bea3e5)](https://www.codacy.com/gh/tesshucom/jpsonic/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tesshucom/jpsonic&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/7c127f864af74cf8954c691e87bea3e5)](https://www.codacy.com/gh/tesshucom/jpsonic/dashboard?utm_source=github.com&utm_medium=referral&utm_content=tesshucom/jpsonic&utm_campaign=Badge_Coverage)
 
