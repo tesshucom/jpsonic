@@ -615,12 +615,12 @@
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
-            <version>2.7.0</version>
+            <version>2.8.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-parser-audiovideo-module</artifactId>
-            <version>2.7.0</version>
+            <version>2.8.0</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -666,7 +666,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.7.11</version>
+                <version>2.7.12</version>
                 <configuration>
                     <mainClass>com.tesshu.jpsonic.Application</mainClass>
                     <layout>WAR</layout>
