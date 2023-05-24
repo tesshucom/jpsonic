@@ -146,6 +146,7 @@ public class GeneralSettingsController {
         command.setRedundantFolderCheck(settingsService.isRedundantFolderCheck());
         command.setShowIndexDetails(settingsService.isShowIndexDetails());
         command.setShowDBDetails(settingsService.isShowDBDetails());
+        command.setUseCast(settingsService.isUseCast());
 
         // Extensions and shortcuts
         command.setMusicFileTypes(settingsService.getMusicFileTypes());
@@ -253,6 +254,7 @@ public class GeneralSettingsController {
         }
         settingsService.setShowIndexDetails(command.isShowIndexDetails());
         settingsService.setShowDBDetails(command.isShowDBDetails());
+        settingsService.setUseCast(command.isUseCast());
 
         // Extensions and shortcuts
         if (!scannerStateService.isScanning()) {

@@ -620,6 +620,14 @@ public class SettingsService {
         setProperty(SettingsConstants.General.Legacy.SHOW_DB_DETAILS, b);
     }
 
+    public boolean isUseCast() {
+        return getBoolean(SettingsConstants.General.Legacy.USE_CAST);
+    }
+
+    public void setUseCast(boolean b) {
+        setProperty(SettingsConstants.General.Legacy.USE_CAST, b);
+    }
+
     public String getMusicFileTypes() {
         synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
             return getString(SettingsConstants.General.Extension.MUSIC_FILE_TYPES);

@@ -75,6 +75,7 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
     private boolean redundantFolderCheck;
     private boolean showIndexDetails;
     private boolean showDBDetails;
+    private boolean useCast;
 
     // Extensions and shortcuts
     private String musicFileTypes;
@@ -351,6 +352,14 @@ public class GeneralSettingsCommand extends SettingsPageCommons {
 
     public void setShowDBDetails(boolean showDBDetails) {
         this.showDBDetails = showDBDetails;
+    }
+
+    public boolean isUseCast() {
+        return useCast;
+    }
+
+    public void setUseCast(boolean useCast) {
+        this.useCast = useCast;
     }
 
     public String getMusicFileTypes() {
