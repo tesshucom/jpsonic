@@ -204,13 +204,6 @@ public class AdvancedSettingsController {
     private void setDangerZone(AdvancedSettingsCommand command) {
 
         IndexScheme scheme = command.getIndexScheme();
-        boolean changed = scheme != IndexScheme.valueOf(settingsService.getIndexSchemeName());
-
-        if (!changed) {
-            return;
-        }
-
-        settingsService.setIgnoreFileTimestamps(true);
         settingsService.setIndexSchemeName(scheme.name());
 
         if (scheme == IndexScheme.NATIVE_JAPANESE) {
