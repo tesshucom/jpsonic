@@ -37,6 +37,7 @@ function resetLegacyFeatures() {
     }
     $('[name="showIndexDetails"]').prop('checked', false);
     $('[name="showDBDetails"]').prop('checked', false);
+    $('[name="useCast"]').prop('checked', false);
 }
 function resetExtension() {
     if(scanning) {
@@ -298,6 +299,12 @@ function resetExtension() {
                 <form:checkbox path="showDBDetails" id="showDBDetails"/>
                 <label for="showDBDetails"><fmt:message key="generalsettings.showdbdetails"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="showdbdetails"/></c:import>
+            </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="useCast" id="useCast"/>
+                <label for="usecast"><fmt:message key="generalsettings.usecast"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="chromecast"/></c:import>
             </dd>
         </dl>
     </details>

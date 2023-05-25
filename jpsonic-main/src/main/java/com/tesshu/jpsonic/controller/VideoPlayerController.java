@@ -35,6 +35,7 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.NetworkUtils;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.springframework.stereotype.Controller;
@@ -57,13 +58,15 @@ public class VideoPlayerController {
     public static final int DEFAULT_BIT_RATE = 2000;
     private static final int[] BIT_RATES = { 200, 300, 400, 500, 700, 1000, 1200, 1500, 2000, 3000, 5000 };
 
+    private final SettingsService settingsService;
     private final SecurityService securityService;
     private final MediaFileService mediaFileService;
     private final PlayerService playerService;
 
-    public VideoPlayerController(SecurityService securityService, MediaFileService mediaFileService,
-            PlayerService playerService) {
+    public VideoPlayerController(SettingsService settingsService, SecurityService securityService,
+            MediaFileService mediaFileService, PlayerService playerService) {
         super();
+        this.settingsService = settingsService;
         this.securityService = securityService;
         this.mediaFileService = mediaFileService;
         this.playerService = playerService;
@@ -112,6 +115,8 @@ public class VideoPlayerController {
             map.put("parent", parent);
             map.put("navigateUpAllowed", !mediaFileService.isRoot(parent));
         }
+
+        map.put("useCast", settingsService.isUseCast());
 
         return new ModelAndView("videoPlayer", "model", map);
     }
