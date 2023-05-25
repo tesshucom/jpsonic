@@ -30,6 +30,7 @@ import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
+import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -46,11 +47,14 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping({ "/playQueue", "/playQueue.view" })
 public class PlayQueueController {
 
+    private final SettingsService settingsService;
     private final SecurityService securityService;
     private final PlayerService playerService;
 
-    public PlayQueueController(SecurityService securityService, PlayerService playerService) {
+    public PlayQueueController(SettingsService settingsService, SecurityService securityService,
+            PlayerService playerService) {
         super();
+        this.settingsService = settingsService;
         this.securityService = securityService;
         this.playerService = playerService;
     }
@@ -64,13 +68,7 @@ public class PlayQueueController {
         Player player = playerService.getPlayer(request, response);
 
         return new ModelAndView("playQueue", "model", LegacyMap.of("user", user, "player", player, "players",
-                playerService.getPlayersForUserAndClientId(user.getUsername(), null), "visibility",
-                userSettings.getPlaylistVisibility(), "closePlayQueue", userSettings.isClosePlayQueue(), "partyMode",
-                userSettings.isPartyModeEnabled(), "notify", userSettings.isSongNotificationEnabled(), "autoHide",
-                userSettings.isAutoHidePlayQueue(), "coverArtSize", CoverArtScheme.SMALL.getSize(), "showDownload",
-                userSettings.isShowDownload(), "showShare", userSettings.isShowShare(), "alternativeDrawer",
-                userSettings.isAlternativeDrawer(), "showAlbumActions", userSettings.isShowAlbumActions(),
-                "simpleDisplay", userSettings.isSimpleDisplay(), "playqueueQuickOpen",
-                userSettings.isAutoHidePlayQueue()));
+                playerService.getPlayersForUserAndClientId(user.getUsername(), null), "userSettings", userSettings,
+                "coverArtSize", CoverArtScheme.SMALL.getSize(), "useCast", settingsService.isUseCast()));
     }
 }

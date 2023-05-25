@@ -10,7 +10,9 @@
 <script src="<c:url value='/dwr/interface/playlistService.js'/>"></script>
 <script src="<c:url value='/dwr/util.js'/>"></script>
 <script src="<c:url value='/script/mediaelement/mediaelement-and-player.min.js'/>"></script>
-<script src="<c:url value='/script/playQueueCast.js'/>"></script>
+<c:if test="${model.useCast}">
+    <script src="<c:url value='/script/playQueueCast.js'/>"></script>
+</c:if>
 <script src="<c:url value='/script/jpsonic/truncate.js'/>"></script>
 <script src="<c:url value='/script/jpsonic/dialogs.js'/>"></script>
 </head>
@@ -40,8 +42,12 @@ var shuffleRadioEnabled = false;
 // Is the "internet radio" playing?
 var internetRadioEnabled = false;
 
-// Initialize the Cast player (ChromeCast support)
-var CastPlayer = new CastPlayer();
+const useCast = ${model.useCast};
+
+<c:if test="${model.useCast}">
+    // Initialize the Cast player (ChromeCast support)
+    var CastPlayer = new CastPlayer();
+</c:if>
 
 $(document).ready(function(){
 
@@ -162,7 +168,7 @@ $(document).ready(function(){
         },
         open: function() {top.$("#dspCancelButton").focus();}
     });
-    <c:if test="${model.playqueueQuickOpen}">
+    <c:if test="${model.userSettings.autoHidePlayQueue}">
         document.getElementById("playerView").addEventListener('dblclick', function (e) {
             onTogglePlayQueue();
         });
@@ -201,7 +207,7 @@ function onPlaying() {
     top.onChangeCurrentSong(currentSong);
     if (currentSong) {
         updateWindowTitle(currentSong);
-        <c:if test="${model.notify}">
+        <c:if test="${model.userSettings.songNotificationEnabled}">
             showNotification(currentSong);
         </c:if>
     }
@@ -238,7 +244,7 @@ function getPlayQueue() {
 
 function onClear() {
     var ok = true;
-<c:if test="${model.partyMode}">
+<c:if test="${model.userSettings.partyModeEnabled}">
     ok = confirm("<fmt:message key="playlist.confirmclear"/>");
 </c:if>
     if (ok) {
@@ -250,7 +256,7 @@ function onClear() {
  * Start/resume playing from the current playlist
  */
 function onStart() {
-    if (CastPlayer.castSession) {
+    if (useCast && CastPlayer.castSession) {
         CastPlayer.playCast();
     } else if ($('#audioPlayer').get(0)) {
         if ($('#audioPlayer').get(0).src) {
@@ -268,7 +274,7 @@ function onStart() {
  * Pause playing
  */
 window.onStop = function() {
-    if (CastPlayer.castSession) {
+    if (useCast && CastPlayer.castSession) {
         CastPlayer.pauseCast();
     } else if ($('#audioPlayer').get(0)) {
         $('#audioPlayer').get(0).pause();
@@ -283,7 +289,7 @@ window.onStop = function() {
  * FIXME: Only works for the Web player for now
  */
 window.onToggleStartStop = function() {
-    if (CastPlayer.castSession) {
+    if (useCast && CastPlayer.castSession) {
         var playing = CastPlayer.mediaSession && CastPlayer.mediaSession.playerState == chrome.cast.media.PlayerState.PLAYING;
         if (playing) onStop();
         else onStart();
@@ -301,7 +307,9 @@ function onGain(gain) {
 }
 function onCastVolumeChanged() {
     var value = parseInt($("#castVolume").slider("option", "value"));
-    CastPlayer.setCastVolume(value / 100, false);
+    if(useCast) {
+        CastPlayer.setCastVolume(value / 100, false);
+    }
 }
 
 /**
@@ -310,7 +318,7 @@ function onCastVolumeChanged() {
  * @param gain amount to add or remove from the current volume
  */
 window.onGainAdd = function(gain) {
-    if (CastPlayer.castSession) {
+    if (useCast && CastPlayer.castSession) {
         var volume = parseInt($("#castVolume").slider("option", "value")) + gain;
         if (volume > 100) volume = 100;
         if (volume < 0) volume = 0;
@@ -683,7 +691,9 @@ function prepareMediaElementPlayer(song, position) {
  */
 function loadCastPlayer(song, position, prepareOnly) {
     // Start playback immediately
-    CastPlayer.loadCastMedia(song, position);
+    if(useCast) {
+        CastPlayer.loadCastMedia(song, position);
+    }
     // The Cast player does not handle events, so we call the 'onPlaying' function manually.
     onPlaying();
 }
@@ -739,7 +749,7 @@ function preparePlayer(index, position) {
     currentStreamUrl = currentSong.streamUrl;
 
     // Run player-specific preparation code
-    if (CastPlayer.castSession) {
+    if (useCast && CastPlayer.castSession) {
         prepareCastPlayer(currentSong, position);
     } else {
         prepareMediaElementPlayer(currentSong, position);
@@ -765,7 +775,7 @@ function loadPlayer(index, position) {
     var song = preparePlayer(index, position);
     if (!song) return;
     // Run player-specific code to start playback
-    if (CastPlayer.castSession) {
+    if (useCast && CastPlayer.castSession) {
         loadCastPlayer(song, position);
     } else {
         loadMediaElementPlayer(song, position);
@@ -878,7 +888,7 @@ function downloadSelected() {
 window.onTogglePlayQueue = function() {
     let isQueueOpened = document.getElementById("isQueueOpened");
     window.top.setQueueOpened(!isQueueOpened.checked);
-    <c:if test="${model.alternativeDrawer}">
+    <c:if test="${model.userSettings.alternativeDrawer}">
         if(!isQueueOpened.checked){
               top.onCloseDrawer();
         }
@@ -894,7 +904,7 @@ function toggleElasticity() {
         $("#elasticity").attr("title", "<fmt:message key='playqueue.shrink'/>");
         $(".control .elasticity").text("<fmt:message key='playqueue.shrink'/>");
     } else {
-        document.getElementById("isElementUnderQueue").checked = !${model.showAlbumActions};
+        document.getElementById("isElementUnderQueue").checked = !${model.userSettings.showAlbumActions};
         $("#elasticity").attr("title", "<fmt:message key='playqueue.maximize'/>");
         $(".control .elasticity").text("<fmt:message key='playqueue.maximize'/>");
     }
@@ -908,7 +918,7 @@ window.onCloseQueue = function() {
 };
 
 window.onTryCloseQueue = function() {
-    <c:if test="${model.closePlayQueue}">
+    <c:if test="${model.userSettings.closePlayQueue}">
         if (document.getElementById("isQueueOpened").checked) {
             onTogglePlayQueue();
         }
@@ -936,21 +946,23 @@ window.onTryCloseQueue = function() {
         <span id="player">
             <audio id="audioPlayer" data-mejsoptions='{"alwaysShowControls": true, "enableKeyboard": false, "defaultAudioWidth": 400}' tabindex="-1" style="width:100%"/>
         </span>
-        <span id="castPlayer">
-            <span>
-                <span title="<fmt:message key='playqueue.play'/>" id="castPlay" onclick="CastPlayer.playCast()"><fmt:message key="playqueue.play"/></span>
-                <span title="<fmt:message key='playqueue.pause'/>" id="castPause" onclick="CastPlayer.pauseCast()"><fmt:message key="playqueue.pause"/></span>
-                <span title="<fmt:message key='playqueue.muteon'/>" id="castMuteOn" onclick="CastPlayer.castMuteOn()" class="control volume"><fmt:message key="playqueue.muteon"/></span>
-                <span title="<fmt:message key='playqueue.muteoff'/>" id="castMuteOff" onclick="CastPlayer.castMuteOff()"><fmt:message key="playqueue.muteoff"/></span>
+        <c:if test="${model.useCast}">
+            <span id="castPlayer">
+                <span>
+                    <span title="<fmt:message key='playqueue.play'/>" id="castPlay" onclick="CastPlayer.playCast()"><fmt:message key="playqueue.play"/></span>
+                    <span title="<fmt:message key='playqueue.pause'/>" id="castPause" onclick="CastPlayer.pauseCast()"><fmt:message key="playqueue.pause"/></span>
+                    <span title="<fmt:message key='playqueue.muteon'/>" id="castMuteOn" onclick="CastPlayer.castMuteOn()" class="control volume"><fmt:message key="playqueue.muteon"/></span>
+                    <span title="<fmt:message key='playqueue.muteoff'/>" id="castMuteOff" onclick="CastPlayer.castMuteOff()"><fmt:message key="playqueue.muteoff"/></span>
+                </span>
+                <span>
+                    <div id="castVolume"></div>
+                    <script>
+                        $("#castVolume").slider({max: 100, value: 50, animate: "fast", range: "min"});
+                        $("#castVolume").on("slidestop", onCastVolumeChanged);
+                    </script>
+                </span>
             </span>
-            <span>
-                <div id="castVolume"></div>
-                <script>
-                    $("#castVolume").slider({max: 100, value: 50, animate: "fast", range: "min"});
-                    $("#castVolume").on("slidestop", onCastVolumeChanged);
-                </script>
-            </span>
-        </span>
+        </c:if>
         <%--
         #622 Nodes that are not currently in use. Reimplement if necessary.
         <div title="Cast on" id="castOn" onclick="CastPlayer.launchCastApp()">
@@ -1000,16 +1012,16 @@ window.onTryCloseQueue = function() {
             </li>
             <li><a title="<fmt:message key='playlist.undo'/>" href="javascript:onUndo()" id="undoQueue" class="control undo"><fmt:message key="playlist.undo"/></a></li>
             <li><a title="<fmt:message key='playlist.save'/>" href="javascript:onSavePlaylist()" class="control saveas"><fmt:message key="playlist.save"/></a></li>
-            <c:if test="${model.user.downloadRole and model.showDownload}">
+            <c:if test="${model.user.downloadRole and model.userSettings.showDownload}">
                 <li><a title="<fmt:message key='main.downloadall'/>" href="javascript:location.href = 'download.view?player=${model.player.id}';" class="control download"><fmt:message key="main.downloadall"/></a></li>
             </c:if>
-            <c:if test="${model.user.shareRole and model.showShare}">
+            <c:if test="${model.user.shareRole and model.userSettings.showShare}">
                 <li><a title="<fmt:message key='main.sharealbum'/>" href="javascript:location.href = 'createShare.view?player=${model.player.id}&' + getSelectedIndexes();" target="main" class="control share"><fmt:message key="main.sharealbum"/></a></li>
             </c:if>
         </ul>
     </div>
 
-    <input type="checkbox" id="isElementUnderQueue" value="1" autofocus="false" tabindex="-1" ${model.showAlbumActions ? '' : 'checked'}/>
+    <input type="checkbox" id="isElementUnderQueue" value="1" autofocus="false" tabindex="-1" ${model.userSettings.showAlbumActions ? '' : 'checked'}/>
 
     <div class="queue-container">
         <p id="empty"><strong><fmt:message key="playlist.empty"/></strong></p>
@@ -1017,62 +1029,62 @@ window.onTryCloseQueue = function() {
         <c:set var="songClass" value="song" />
         <c:set var="albumClass" value="album" />
         <c:set var="artistClass" value="artist" />
-        <c:set var="suppl" value="${model.simpleDisplay ? 'supplement' : ''}" />
+        <c:set var="suppl" value="${model.userSettings.simpleDisplay ? 'supplement' : ''}" />
         <table class="tabular queue">
             <thead id="playQueueHeader">
                 <tr>
                     <th></th><%-- star --%>
-                    <c:if test="${model.showAlbumActions}">
+                    <c:if test="${model.userSettings.showAlbumActions}">
                         <th class="action"></th>
                     </c:if>
-                    <c:if test="${model.visibility.trackNumberVisible}"><th class="track"></th></c:if>
+                    <c:if test="${model.userSettings.playlistVisibility.trackNumberVisible}"><th class="track"></th></c:if>
                     <th class="${songClass}"><fmt:message key="common.fields.songtitle" /></th>
-                    <c:if test="${model.visibility.albumVisible}"><th class="${albumClass}"><fmt:message key="common.fields.album" /></th></c:if>
-                    <c:if test="${model.visibility.artistVisible}"><th class="${artistClass}"><fmt:message key="common.fields.artist" /></th></c:if>
-                    <c:if test="${model.visibility.composerVisible}"><th class="${suppl} composer"><fmt:message key="common.fields.composer" /></th></c:if>
-                    <c:if test="${model.visibility.genreVisible}"><th class="${suppl} genre"><fmt:message key="common.fields.genre" /></th></c:if>
-                    <c:if test="${model.visibility.yearVisible}"><th class="${suppl} year"></th></c:if>
-                    <c:if test="${model.visibility.formatVisible}"><th class="${suppl} format"></th></c:if>
-                    <c:if test="${model.visibility.fileSizeVisible}"><th class="${suppl} size"></th></c:if>
-                    <c:if test="${model.visibility.durationVisible}"><th class="${suppl} duration"></th></c:if>
-                    <c:if test="${model.visibility.bitRateVisible}"><th class="${suppl} bitrate"></th></c:if>
+                    <c:if test="${model.userSettings.playlistVisibility.albumVisible}"><th class="${albumClass}"><fmt:message key="common.fields.album" /></th></c:if>
+                    <c:if test="${model.userSettings.playlistVisibility.artistVisible}"><th class="${artistClass}"><fmt:message key="common.fields.artist" /></th></c:if>
+                    <c:if test="${model.userSettings.playlistVisibility.composerVisible}"><th class="${suppl} composer"><fmt:message key="common.fields.composer" /></th></c:if>
+                    <c:if test="${model.userSettings.playlistVisibility.genreVisible}"><th class="${suppl} genre"><fmt:message key="common.fields.genre" /></th></c:if>
+                    <c:if test="${model.userSettings.playlistVisibility.yearVisible}"><th class="${suppl} year"></th></c:if>
+                    <c:if test="${model.userSettings.playlistVisibility.formatVisible}"><th class="${suppl} format"></th></c:if>
+                    <c:if test="${model.userSettings.playlistVisibility.fileSizeVisible}"><th class="${suppl} size"></th></c:if>
+                    <c:if test="${model.userSettings.playlistVisibility.durationVisible}"><th class="${suppl} duration"></th></c:if>
+                    <c:if test="${model.userSettings.playlistVisibility.bitRateVisible}"><th class="${suppl} bitrate"></th></c:if>
                     <th></th><%-- delete --%>
                 </tr>
             </thead>
             <tbody id="playQueueBody">
                 <tr id="pattern">
                     <td><div title="<fmt:message key='main.starredon'/>" id="starSong" onclick="onStar(this.id.substring(8) - 1)" class="control star"><fmt:message key="main.starredon"/></div></td>
-                    <c:if test="${model.showAlbumActions}">
+                    <c:if test="${model.userSettings.showAlbumActions}">
                         <td class="action"><input type="checkbox" class="checkbox" id="songIndex"></td>
                     </c:if>
-                    <c:if test="${model.visibility.trackNumberVisible}"><td class="track"><span id="trackNumber">1</span></td></c:if>
+                    <c:if test="${model.userSettings.playlistVisibility.trackNumberVisible}"><td class="track"><span id="trackNumber">1</span></td></c:if>
                     <td class="${songClass}" id="playingStateReceiver">
                         <c:choose>
                             <c:when test="${model.player.externalWithPlaylist}"><span id="title">Title</span></c:when>
                             <c:otherwise><span><a id="titleUrl" href="javascript:void(0)">Title</a></span></c:otherwise>
                         </c:choose>
                     </td>
-                    <c:if test="${model.visibility.albumVisible}"><td class="${albumClass}"><a id="albumUrl" target="main"><span id="album">Album</span></a></td></c:if>
-                    <c:if test="${model.visibility.artistVisible}"><td class="${artistClass}"><span id="artist">Artist</span></td></c:if>
-                    <c:if test="${model.visibility.composerVisible}"><td class="${suppl} composer"><span id="composer">Composer</span></td></c:if>
-                    <c:if test="${model.visibility.genreVisible}"><td class="${suppl} genre"><span id="genre">Genre</span></td></c:if>
-                    <c:if test="${model.visibility.yearVisible}"><td class="${suppl} year"><span id="year">Year</span></td></c:if>
-                    <c:if test="${model.visibility.formatVisible}"><td class="${suppl} format"><span id="format">Format</span></td></c:if>
-                    <c:if test="${model.visibility.fileSizeVisible}"><td class="${suppl} size"><span id="fileSize">Format</span></td></c:if>
-                    <c:if test="${model.visibility.durationVisible}"><td class="${suppl} duration"><span id="duration">Duration</span></td></c:if>
-                    <c:if test="${model.visibility.bitRateVisible}"><td class="${suppl} bitrate"><span id="bitRate">Bit Rate</span></td></c:if>
+                    <c:if test="${model.userSettings.playlistVisibility.albumVisible}"><td class="${albumClass}"><a id="albumUrl" target="main"><span id="album">Album</span></a></td></c:if>
+                    <c:if test="${model.userSettings.playlistVisibility.artistVisible}"><td class="${artistClass}"><span id="artist">Artist</span></td></c:if>
+                    <c:if test="${model.userSettings.playlistVisibility.composerVisible}"><td class="${suppl} composer"><span id="composer">Composer</span></td></c:if>
+                    <c:if test="${model.userSettings.playlistVisibility.genreVisible}"><td class="${suppl} genre"><span id="genre">Genre</span></td></c:if>
+                    <c:if test="${model.userSettings.playlistVisibility.yearVisible}"><td class="${suppl} year"><span id="year">Year</span></td></c:if>
+                    <c:if test="${model.userSettings.playlistVisibility.formatVisible}"><td class="${suppl} format"><span id="format">Format</span></td></c:if>
+                    <c:if test="${model.userSettings.playlistVisibility.fileSizeVisible}"><td class="${suppl} size"><span id="fileSize">Format</span></td></c:if>
+                    <c:if test="${model.userSettings.playlistVisibility.durationVisible}"><td class="${suppl} duration"><span id="duration">Duration</span></td></c:if>
+                    <c:if test="${model.userSettings.playlistVisibility.bitRateVisible}"><td class="${suppl} bitrate"><span id="bitRate">Bit Rate</span></td></c:if>
                     <td class="remove"><div title="<fmt:message key='playlist.remove'/>" id="removeSong" onclick="onRemove(this.id.substring(10) - 1)" class="control minus"><fmt:message key='playlist.remove'/></div></td>
                 </tr>
             </tbody>
         </table>
     </div>
 
-    <c:if test="${model.showAlbumActions}">
+    <c:if test="${model.userSettings.showAlbumActions}">
         <div class="actions">
             <ul class="controls">
                 <li><a title="<fmt:message key='playlist.more.selectall'/> / <fmt:message key='playlist.more.selectnone'/>" href="javascript:toggleSelect()" class="control select-all"><fmt:message key='playlist.more.selectall'/> / <fmt:message key='playlist.more.selectnone'/></a></li>
                 <li><a title="<fmt:message key='playlist.remove'/>" href="javascript:onRemoveSelected()" class="control cross"><fmt:message key="playlist.remove"/></a></li>
-                <c:if test="${model.user.downloadRole and model.showDownload}">
+                <c:if test="${model.user.downloadRole and model.userSettings.showDownload}">
                     <li><a title="<fmt:message key='common.download'/>" href="javascript:downloadSelected()" class="control download"><fmt:message key='common.download'/></a></li>
                 </c:if>
                 <li><a title="<fmt:message key='playlist.append'/>" href="javascript:top.refShowPlaylist4Playqueue()" class="control export"><fmt:message key='playlist.append'/></a></li>
@@ -1083,12 +1095,14 @@ window.onTryCloseQueue = function() {
 
 <script>
     window['__onGCastApiAvailable'] = function(isAvailable) {
-        if (isAvailable) {
+        if (useCast && isAvailable) {
             CastPlayer.initializeCastPlayer();
         }
     };
 </script>
 
-<script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+<c:if test="${model.useCast}">
+    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
+</c:if>
 
 </body></html>

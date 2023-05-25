@@ -6,8 +6,9 @@
 <%@ include file="jquery.jsp" %>
 <script src="<c:url value='/dwr/engine.js'/>"></script>
 <script src="<c:url value='/dwr/interface/starService.js'/>"></script>
-<script src="<c:url value='/script/cast_sender-v1.js'/>"></script>
-
+<c:if test="${model.useCast}">
+    <script src="<c:url value='https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1'/>"></script>
+</c:if>
 <script>
 function toggleStar(mediaFileId, imageId) {
     if ("control star-fill" == $(imageId).attr('class')) {
@@ -62,10 +63,10 @@ $(document).ready(function(){
 });
 
 function hideControls(t) {
-	t.controls=false;
+    t.controls=false;
 }
 function showControls(t){
-	setTimeout(function(){t.controls=true;} ,500);
+    setTimeout(function(){t.controls=true;} ,500);
 }
 
 </script>
@@ -75,14 +76,16 @@ function showControls(t){
 <body class="mainframe videoPlayer" oncontextmenu="return false;">
 
     <div class="videoView">
-        <div id="overlay"><div id="overlay_text">Playing on Chromecast</div></div>
+        <c:if test="${model.useCast}">
+            <div id="overlay"><div id="overlay_text">Playing on Chromecast</div></div>
+        </c:if>
         <video
-        	id="videoPlayer"
-        	onplaying="hideControls(this)"
-        	onwaiting="showControls(this)"
-        	playsinline
-        	webkit-playsinline
-        	${model.user.downloadRole && model.isShowDownload ? '': 'controlsList="nodownload"'}
+            id="videoPlayer"
+            onplaying="hideControls(this)"
+            onwaiting="showControls(this)"
+            playsinline
+            webkit-playsinline
+            ${model.user.downloadRole && model.isShowDownload ? '': 'controlsList="nodownload"'}
         >
         </video>
     </div>
@@ -117,22 +120,24 @@ function showControls(t){
             </c:choose>
             <div id="share" class="control share" title="<fmt:message key='main.more.share'/>"></div>
             <div id="download" class="control download" title="<fmt:message key='common.download'/>"></div>
-            <div id="casticonactive" class="control cast-active" title="<fmt:message key='playqueue.caston'/>"></div>
-            <div id="casticonidle" class="control cast-idle" title="<fmt:message key='playqueue.castoff'/>"></div>
+            <c:if test="${model.useCast}">
+                <div id="casticonactive" class="control cast-active" title="<fmt:message key='playqueue.caston'/>"></div>
+                <div id="casticonidle" class="control cast-idle" title="<fmt:message key='playqueue.castoff'/>"></div>
+            </c:if>
             <div id="full-screen" class="control maximize" title="<fmt:message key='playqueue.maximize'/>"></div>
             <div id="pip" class="control pip" title="<fmt:message key='common.pip'/>"></div>
-	        <select name="bitrate_menu" id="bitrate_menu">
-	            <c:forEach items="${model.bitRates}" var="bitRate">
-	                <c:choose>
-	                    <c:when test="${bitRate eq model.defaultBitRate}">
-	                        <option selected="selected" value="${bitRate}">${bitRate} Kbps</option>
-	                    </c:when>
-	                    <c:otherwise>
-	                        <option value="${bitRate}">${bitRate} Kbps</option>
-	                    </c:otherwise>
-	                </c:choose>
-	            </c:forEach>
-	        </select>
+            <select name="bitrate_menu" id="bitrate_menu">
+                <c:forEach items="${model.bitRates}" var="bitRate">
+                    <c:choose>
+                        <c:when test="${bitRate eq model.defaultBitRate}">
+                            <option selected="selected" value="${bitRate}">${bitRate} Kbps</option>
+                        </c:when>
+                        <c:otherwise>
+                            <option value="${bitRate}">${bitRate} Kbps</option>
+                        </c:otherwise>
+                    </c:choose>
+                </c:forEach>
+            </select>
         </span>
     </div>
 
