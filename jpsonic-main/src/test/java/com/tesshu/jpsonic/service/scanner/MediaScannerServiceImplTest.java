@@ -1072,4 +1072,170 @@ class MediaScannerServiceImplTest {
             executor.shutdown();
         }
     }
+
+    @Nested
+    class StrictSortTest {
+
+        private SettingsService settingsService;
+        private IndexManager indexManager;
+        private ArtistDao artistDao;
+        private AlbumDao albumDao;
+        private MediaFileService mediaFileService;
+        private MediaFileDao mediaFileDao;
+        private StaticsDao staticsDao;
+        private ScannerStateServiceImpl scannerStateService;
+        private ThreadPoolTaskExecutor executor;
+        private SortProcedureService sortProcedureService;
+        private MusicFolderServiceImpl musicFolderService;
+        private ScannerProcedureService scannerProcedureService;
+        private WritableMediaFileService writableMediaFileService;
+        private MediaScannerServiceImpl mediaScannerService;
+
+        @BeforeEach
+        public void setup() {
+            settingsService = mock(SettingsService.class);
+            indexManager = mock(IndexManager.class);
+            mediaFileService = mock(MediaFileService.class);
+            mediaFileDao = mock(MediaFileDao.class);
+            artistDao = mock(ArtistDao.class);
+            albumDao = mock(AlbumDao.class);
+            executor = mock(ThreadPoolTaskExecutor.class);
+            sortProcedureService = mock(SortProcedureService.class);
+            staticsDao = mock(StaticsDao.class);
+            scannerStateService = mock(ScannerStateServiceImpl.class);
+            writableMediaFileService = new WritableMediaFileService(mediaFileDao, scannerStateService, mediaFileService,
+                    albumDao, mock(MediaFileCache.class), mock(MusicParser.class), mock(VideoParser.class),
+                    settingsService, mock(SecurityService.class), null, mock(IndexManager.class));
+            musicFolderService = mock(MusicFolderServiceImpl.class);
+            scannerProcedureService = new ScannerProcedureService(settingsService, musicFolderService, indexManager,
+                    mediaFileService, writableMediaFileService, mock(PlaylistService.class), mediaFileDao, artistDao,
+                    albumDao, staticsDao, sortProcedureService, scannerStateService, mock(Ehcache.class),
+                    mock(MediaFileCache.class), mock(JapaneseReadingUtils.class), mock(ThreadPoolTaskExecutor.class));
+            mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
+                    scannerProcedureService, mock(ExpungeService.class), staticsDao, executor);
+        }
+
+        @Test
+        void testDoScanLibraryWithSortStrict() {
+
+            Mockito.when(musicFolderService.getAllMusicFolders())
+                    .thenReturn(Arrays.asList(new MusicFolder(0, "path", "name", true, null, -1)));
+            Mockito.when(artistDao.getAlbumCounts()).thenReturn(Arrays.asList(new Artist()));
+
+            Mockito.when(scannerStateService.isEnableCleansing()).thenReturn(true);
+            Mockito.when(scannerStateService.tryScanningLock()).thenReturn(true);
+            Mockito.when(settingsService.isSortStrict()).thenReturn(true);
+
+            mediaScannerService.doScanLibrary();
+
+            // parseAlbum
+            Mockito.verify(mediaFileDao, Mockito.times(1)).getChangedAlbums(Mockito.anyInt(), Mockito.anyList());
+            Mockito.verify(mediaFileDao, Mockito.times(1)).getUnparsedAlbums(Mockito.anyInt(), Mockito.anyList());
+
+            // updateSortOfAlbum
+            Mockito.verify(sortProcedureService, Mockito.times(1)).mergeSortOfAlbum(Mockito.anyList());
+            Mockito.verify(sortProcedureService, Mockito.times(1)).copySortOfAlbum(Mockito.anyList());
+            Mockito.verify(sortProcedureService, Mockito.times(1)).compensateSortOfAlbum(Mockito.anyList());
+
+            // updateOrderOfAlbum
+            Mockito.verify(sortProcedureService, Mockito.times(1)).updateOrderOfAlbum();
+
+            // updateSortOfArtist
+            Mockito.verify(sortProcedureService, Mockito.times(1)).mergeSortOfArtist(Mockito.anyList());
+            Mockito.verify(sortProcedureService, Mockito.times(1)).copySortOfArtist(Mockito.anyList());
+            Mockito.verify(sortProcedureService, Mockito.times(1)).compensateSortOfArtist(Mockito.anyList());
+
+            // updateOrderOfArtist
+            Mockito.verify(sortProcedureService, Mockito.times(1)).updateOrderOfArtist();
+
+            // updateOrderOfSongsDirectlyUnderMusicfolder
+            Mockito.verify(sortProcedureService, Mockito.times(1))
+                    .updateOrderOfSongs(Mockito.nullable(MediaFile.class));
+
+            // refleshAlbumId3
+            Mockito.verify(mediaFileDao, Mockito.times(1)).getChangedId3Albums(Mockito.anyInt(), Mockito.anyList(),
+                    Mockito.anyBoolean());
+            Mockito.verify(mediaFileDao, Mockito.times(1)).getUnregisteredId3Albums(Mockito.anyInt(), Mockito.anyList(),
+                    Mockito.anyBoolean());
+
+            // updateOrderOfAlbumId3
+            Mockito.verify(sortProcedureService, Mockito.times(1)).updateOrderOfAlbumID3();
+
+            // refleshArtistId3
+            Mockito.verify(mediaFileDao, Mockito.times(1)).getChangedId3Artists(Mockito.anyInt(), Mockito.anyList(),
+                    Mockito.anyBoolean());
+            Mockito.verify(mediaFileDao, Mockito.times(1)).getUnregisteredId3Artists(Mockito.anyInt(),
+                    Mockito.anyList(), Mockito.anyBoolean());
+
+            // updateOrderOfArtistId3
+            Mockito.verify(sortProcedureService, Mockito.times(1)).updateOrderOfArtistID3();
+
+            // updateAlbumCounts
+            Mockito.verify(artistDao, Mockito.times(1)).updateAlbumCount(Mockito.anyInt(), Mockito.anyInt());
+        }
+
+        /**
+         * updateSortOfAlbum and updateSortOfArtist will be skipped if settingsService#sortStrict is false. On the other
+         * hand, from v112.0.0 onwards, updateOrder will be a mandatory process when data is updated. Because it is used
+         * for fetch in incremental updates.
+         */
+        @Test
+        void testDoScanLibraryWithoutSortStrict() {
+
+            Mockito.when(musicFolderService.getAllMusicFolders())
+                    .thenReturn(Arrays.asList(new MusicFolder(0, "path", "name", true, null, -1)));
+            Mockito.when(artistDao.getAlbumCounts()).thenReturn(Arrays.asList(new Artist()));
+
+            Mockito.when(scannerStateService.isEnableCleansing()).thenReturn(true);
+            Mockito.when(scannerStateService.tryScanningLock()).thenReturn(true);
+            Mockito.when(settingsService.isSortStrict()).thenReturn(false);
+
+            mediaScannerService.doScanLibrary();
+
+            // parseAlbum
+            Mockito.verify(mediaFileDao, Mockito.times(1)).getChangedAlbums(Mockito.anyInt(), Mockito.anyList());
+            Mockito.verify(mediaFileDao, Mockito.times(1)).getUnparsedAlbums(Mockito.anyInt(), Mockito.anyList());
+
+            // updateSortOfAlbum
+            Mockito.verify(sortProcedureService, Mockito.never()).mergeSortOfAlbum(Mockito.anyList());
+            Mockito.verify(sortProcedureService, Mockito.never()).copySortOfAlbum(Mockito.anyList());
+            Mockito.verify(sortProcedureService, Mockito.never()).compensateSortOfAlbum(Mockito.anyList());
+
+            // updateOrderOfAlbum
+            Mockito.verify(sortProcedureService, Mockito.times(1)).updateOrderOfAlbum();
+
+            // updateSortOfArtist
+            Mockito.verify(sortProcedureService, Mockito.never()).mergeSortOfArtist(Mockito.anyList());
+            Mockito.verify(sortProcedureService, Mockito.never()).copySortOfArtist(Mockito.anyList());
+            Mockito.verify(sortProcedureService, Mockito.never()).compensateSortOfArtist(Mockito.anyList());
+
+            // updateOrderOfArtist
+            Mockito.verify(sortProcedureService, Mockito.times(1)).updateOrderOfArtist();
+
+            // updateOrderOfSongsDirectlyUnderMusicfolder
+            Mockito.verify(sortProcedureService, Mockito.times(1))
+                    .updateOrderOfSongs(Mockito.nullable(MediaFile.class));
+
+            // refleshAlbumId3
+            Mockito.verify(mediaFileDao, Mockito.times(1)).getChangedId3Albums(Mockito.anyInt(), Mockito.anyList(),
+                    Mockito.anyBoolean());
+            Mockito.verify(mediaFileDao, Mockito.times(1)).getUnregisteredId3Albums(Mockito.anyInt(), Mockito.anyList(),
+                    Mockito.anyBoolean());
+
+            // updateOrderOfAlbumId3
+            Mockito.verify(sortProcedureService, Mockito.times(1)).updateOrderOfAlbumID3();
+
+            // refleshArtistId3
+            Mockito.verify(mediaFileDao, Mockito.times(1)).getChangedId3Artists(Mockito.anyInt(), Mockito.anyList(),
+                    Mockito.anyBoolean());
+            Mockito.verify(mediaFileDao, Mockito.times(1)).getUnregisteredId3Artists(Mockito.anyInt(),
+                    Mockito.anyList(), Mockito.anyBoolean());
+
+            // updateOrderOfArtistId3
+            Mockito.verify(sortProcedureService, Mockito.times(1)).updateOrderOfArtistID3();
+
+            // updateAlbumCounts
+            Mockito.verify(artistDao, Mockito.times(1)).updateAlbumCount(Mockito.anyInt(), Mockito.anyInt());
+        }
+    }
 }

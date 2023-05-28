@@ -662,8 +662,7 @@ public class ScannerProcedureService {
         if (isInterrupted()) {
             return parsed;
         }
-
-        if (!scannerState.isEnableCleansing()) {
+        if (!scannerState.isEnableCleansing() || !settingsService.isSortStrict()) {
             createScanEvent(scanDate, ScanEventType.UPDATE_SORT_OF_ARTIST, MSG_SKIP);
             return parsed;
         }
@@ -700,7 +699,7 @@ public class ScannerProcedureService {
             return updated;
         }
 
-        if (!scannerState.isEnableCleansing()) {
+        if (!scannerState.isEnableCleansing() || !settingsService.isSortStrict()) {
             createScanEvent(scanDate, ScanEventType.UPDATE_SORT_OF_ALBUM, MSG_SKIP);
             return updated;
         }
@@ -747,10 +746,6 @@ public class ScannerProcedureService {
         if (isInterrupted()) {
             return;
         }
-        if (!scannerState.isEnableCleansing() || !settingsService.isSortStrict()) {
-            createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ARTIST, MSG_SKIP);
-            return;
-        }
         if (skippable) {
             createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ARTIST, MSG_UNNECESSARY);
             return;
@@ -762,10 +757,6 @@ public class ScannerProcedureService {
 
     void updateOrderOfAlbum(@NonNull Instant scanDate, boolean skippable) {
         if (isInterrupted()) {
-            return;
-        }
-        if (!scannerState.isEnableCleansing() || !settingsService.isSortStrict()) {
-            createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ALBUM, MSG_SKIP);
             return;
         }
         if (skippable) {
@@ -781,10 +772,6 @@ public class ScannerProcedureService {
         if (isInterrupted()) {
             return;
         }
-        if (!scannerState.isEnableCleansing() || !settingsService.isSortStrict()) {
-            createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ARTIST_ID3, MSG_SKIP);
-            return;
-        }
         if (skippable) {
             createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ARTIST_ID3, MSG_UNNECESSARY);
             return;
@@ -796,10 +783,6 @@ public class ScannerProcedureService {
 
     void updateOrderOfAlbumId3(@NonNull Instant scanDate, boolean skippable) {
         if (isInterrupted()) {
-            return;
-        }
-        if (!scannerState.isEnableCleansing() || !settingsService.isSortStrict()) {
-            createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ALBUM_ID3, MSG_SKIP);
             return;
         }
         if (skippable) {
