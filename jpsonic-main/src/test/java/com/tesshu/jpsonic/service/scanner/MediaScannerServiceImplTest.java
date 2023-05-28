@@ -1174,6 +1174,11 @@ class MediaScannerServiceImplTest {
             Mockito.verify(artistDao, Mockito.times(1)).updateAlbumCount(Mockito.anyInt(), Mockito.anyInt());
         }
 
+        /**
+         * updateSortOfAlbum and updateSortOfArtist will be skipped if settingsService#sortStrict is false. On the other
+         * hand, from v112.0.0 onwards, updateOrder will be a mandatory process when data is updated. Because it is used
+         * for fetch in incremental updates.
+         */
         @Test
         void testDoScanLibraryWithoutSortStrict() {
 
@@ -1192,20 +1197,20 @@ class MediaScannerServiceImplTest {
             Mockito.verify(mediaFileDao, Mockito.times(1)).getUnparsedAlbums(Mockito.anyInt(), Mockito.anyList());
 
             // updateSortOfAlbum
-            Mockito.verify(sortProcedureService, Mockito.times(1)).mergeSortOfAlbum(Mockito.anyList());
-            Mockito.verify(sortProcedureService, Mockito.times(1)).copySortOfAlbum(Mockito.anyList());
-            Mockito.verify(sortProcedureService, Mockito.times(1)).compensateSortOfAlbum(Mockito.anyList());
+            Mockito.verify(sortProcedureService, Mockito.never()).mergeSortOfAlbum(Mockito.anyList());
+            Mockito.verify(sortProcedureService, Mockito.never()).copySortOfAlbum(Mockito.anyList());
+            Mockito.verify(sortProcedureService, Mockito.never()).compensateSortOfAlbum(Mockito.anyList());
 
             // updateOrderOfAlbum
-            Mockito.verify(sortProcedureService, Mockito.never()).updateOrderOfAlbum();
+            Mockito.verify(sortProcedureService, Mockito.times(1)).updateOrderOfAlbum();
 
             // updateSortOfArtist
-            Mockito.verify(sortProcedureService, Mockito.times(1)).mergeSortOfArtist(Mockito.anyList());
-            Mockito.verify(sortProcedureService, Mockito.times(1)).copySortOfArtist(Mockito.anyList());
-            Mockito.verify(sortProcedureService, Mockito.times(1)).compensateSortOfArtist(Mockito.anyList());
+            Mockito.verify(sortProcedureService, Mockito.never()).mergeSortOfArtist(Mockito.anyList());
+            Mockito.verify(sortProcedureService, Mockito.never()).copySortOfArtist(Mockito.anyList());
+            Mockito.verify(sortProcedureService, Mockito.never()).compensateSortOfArtist(Mockito.anyList());
 
             // updateOrderOfArtist
-            Mockito.verify(sortProcedureService, Mockito.never()).updateOrderOfArtist();
+            Mockito.verify(sortProcedureService, Mockito.times(1)).updateOrderOfArtist();
 
             // updateOrderOfSongsDirectlyUnderMusicfolder
             Mockito.verify(sortProcedureService, Mockito.times(1))
@@ -1218,7 +1223,7 @@ class MediaScannerServiceImplTest {
                     Mockito.anyBoolean());
 
             // updateOrderOfAlbumId3
-            Mockito.verify(sortProcedureService, Mockito.never()).updateOrderOfAlbumID3();
+            Mockito.verify(sortProcedureService, Mockito.times(1)).updateOrderOfAlbumID3();
 
             // refleshArtistId3
             Mockito.verify(mediaFileDao, Mockito.times(1)).getChangedId3Artists(Mockito.anyInt(), Mockito.anyList(),
@@ -1227,7 +1232,7 @@ class MediaScannerServiceImplTest {
                     Mockito.anyList(), Mockito.anyBoolean());
 
             // updateOrderOfArtistId3
-            Mockito.verify(sortProcedureService, Mockito.never()).updateOrderOfArtistID3();
+            Mockito.verify(sortProcedureService, Mockito.times(1)).updateOrderOfArtistID3();
 
             // updateAlbumCounts
             Mockito.verify(artistDao, Mockito.times(1)).updateAlbumCount(Mockito.anyInt(), Mockito.anyInt());
