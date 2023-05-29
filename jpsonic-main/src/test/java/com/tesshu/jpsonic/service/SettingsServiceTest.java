@@ -762,6 +762,11 @@ class SettingsServiceTest {
     }
 
     @Test
+    void testIsUseCast() {
+        assertFalse(settingsService.isUseCast());
+    }
+
+    @Test
     void testGetSmtpEncryption() {
         assertEquals("None", settingsService.getSmtpEncryption());
     }

@@ -18,11 +18,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.tesshu.jpsonic.dao.DaoHelper;
-import com.tesshu.jpsonic.dao.JMediaFileDao;
-import com.tesshu.jpsonic.dao.JPlaylistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.PlaylistDao;
+import com.tesshu.jpsonic.dao.UserDao;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.service.playlist.DefaultPlaylistExportHandler;
@@ -55,10 +53,8 @@ class PlaylistServiceTest {
         @BeforeEach
         public void setup() {
             mediaFileDao = mock(MediaFileDao.class);
-            DaoHelper daoHelper = mock(DaoHelper.class);
-            JMediaFileDao jMediaFileDao = new JMediaFileDao(daoHelper, mediaFileDao);
-            JPlaylistDao jPlaylistDao = new JPlaylistDao(daoHelper, mock(PlaylistDao.class));
-            playlistService = new PlaylistService(jMediaFileDao, jPlaylistDao, mock(SecurityService.class),
+            PlaylistDao jPlaylistDao = mock(PlaylistDao.class);
+            playlistService = new PlaylistService(mediaFileDao, jPlaylistDao, mock(SecurityService.class),
                     mock(SettingsService.class), Arrays.asList(new DefaultPlaylistExportHandler(mediaFileDao)),
                     Collections.emptyList(), null);
         }
@@ -126,11 +122,8 @@ class PlaylistServiceTest {
         public void setup() {
             playlistDao = mock(PlaylistDao.class);
             mediaFileService = mock(MediaFileService.class);
-            DaoHelper daoHelper = mock(DaoHelper.class);
-            JMediaFileDao jMediaFileDao = new JMediaFileDao(daoHelper, mock(MediaFileDao.class));
-            JPlaylistDao jPlaylistDao = new JPlaylistDao(daoHelper, playlistDao);
             DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(mediaFileService);
-            playlistService = new PlaylistService(jMediaFileDao, jPlaylistDao, mock(SecurityService.class),
+            playlistService = new PlaylistService(mock(MediaFileDao.class), playlistDao, mock(SecurityService.class),
                     mock(SettingsService.class), Collections.emptyList(), Arrays.asList(importHandler), null);
             actual = ArgumentCaptor.forClass(Playlist.class);
             medias = ArgumentCaptor.forClass(List.class);
@@ -295,11 +288,10 @@ class PlaylistServiceTest {
             playlistDao = mock(PlaylistDao.class);
             settingsService = mock(SettingsService.class);
             mediaFileService = mock(MediaFileService.class);
-            DaoHelper daoHelper = mock(DaoHelper.class);
-            JMediaFileDao jMediaFileDao = new JMediaFileDao(daoHelper, mock(MediaFileDao.class));
-            JPlaylistDao jPlaylistDao = new JPlaylistDao(daoHelper, playlistDao);
+            SecurityService securityService = new SecurityService(mock(UserDao.class), settingsService,
+                    mock(MusicFolderService.class));
             DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(mediaFileService);
-            playlistService = new PlaylistService(jMediaFileDao, jPlaylistDao, mock(SecurityService.class),
+            playlistService = new PlaylistService(mock(MediaFileDao.class), playlistDao, securityService,
                     settingsService, Collections.emptyList(), Arrays.asList(importHandler), null);
         }
 
@@ -336,8 +328,15 @@ class PlaylistServiceTest {
             mediaFile.setPathString(mf3.toString());
             Mockito.when(mediaFileService.getMediaFile(mf3)).thenReturn(mediaFile);
 
+            // Assuming Synology environment
+            Files.createDirectories(Path.of(tempDir.toString(), "@eaDir"));
+            Files.createDirectories(Path.of(tempDir.toString(), "@tmp"));
+            // Assuming Windows environment
+            Files.createFile(Path.of(tempDir.toString(), "Thumbs.db"));
+
             ArgumentCaptor<Playlist> playlistCatCaptor = ArgumentCaptor.forClass(Playlist.class);
             Mockito.doNothing().when(playlistDao).createPlaylist(playlistCatCaptor.capture());
+
             playlistService.importPlaylists();
 
             List<Playlist> captored = playlistCatCaptor.getAllValues();

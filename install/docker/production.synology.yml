@@ -1,9 +1,9 @@
 # 
-# This is a sample of Jpsonic boot configuration (on Win).
+# This is a JPSONIC boot configuration sample in Synology DS220+ or in Linux with UPnP.
 # You can easily start Jpsonic by changing the volume, port and so on.
 #
 # usege: 
-#   docker-compose -f production.yml up -d
+#   docker-compose -f production.synology.yml up -d
 #
 
 version: '3.9'
@@ -11,44 +11,45 @@ services:
   app:
     image: 'jpsonic/jpsonic:latest'
     container_name: 'jpsonic'
-
-    # The host networking driver only works on Linux hosts,
-    # and is not supported on Docker Desktop for Mac Docker Desktop for Windows,
-    # or Docker EE for Windows Server.
-    # https://docs.docker.com/network/host/
-    network_mode: 'bridge'
-
-    # <host>:<internal>
-    # Please set "the port of host" properly.
-    ports:
-
-     # Port for Jpsonic. 
-     - '8080:4040'
-
-     # Port for UPnP. Windows docker does not transfer UDP.
-     # If you want to use UPnP on Windows host, Docker is not recommended.
-     - '4041:4041'
-     - '1900:1900/udp'
-
-     # Port for JMX. The "ea" tag image is required to use JMX.
-     # - 3333:3333
-
+    network_mode: 'host'
+    hostname: 'SynologyNAS'
     pid: host
+
+    # This image is automatically updated by watchtower.
+    # See docker-compose.watchtower.yml
+    labels:
+     - "com.centurylinklabs.watchtower.enable=true"
+
     volumes:
      # <host>:<internal>
      # Please rewrite "the path of host" appropriately.
-     - '/c/tmp/jpsonic/data:/jpsonic/data'
-     - '/c/tmp/jpsonic/music:/jpsonic/music'
-     - '/c/tmp/jpsonic/podcasts:/jpsonic/podcasts'
-     - '/c/tmp/jpsonic/playlists:/jpsonic/playlists'
+     - '/volume1/docker/jpsonic-data:/jpsonic/data'
+     - '/volume1/Music:/jpsonic/music'
+     - '/volume1/Podcasts:/jpsonic/podcasts'
+     - '/volume1/Playlists:/jpsonic/playlists'
 
-    # If the UID/GUI is not correct, Jpsonic will not start.
-    # If you need to check the permissions of the data directory,
-    # rewrite the entrypoint and check it.
-    # 
-    # entrypoint: ls -n /jpsonic/data
+     # If you want to add a large number of music folders, please add more volumes
+     # - '/volume1/Music2:/jpsonic/music2'
+     # - '/volume1/Music3:/jpsonic/music3'
+
+    deploy:
+      resources:
+        limits:
+
+          # Jpsonic container is limited to 1Gb so that it can run on DS220+'s standard memory.
+          # Xmx512m is assigned by default, but with these settings,
+          # it is assumed that 100,000 songs can be scanned for music only.
+          # For larger libraries, increase Xmx and this setting by the same value.
+          # ie) memory: 1.5g at -Xmx1024
+          memory: 1g
 
     environment:
+
+     # Set the jpsonic and upnp ports.
+     # Containers share the host networking name space,
+     # so be careful not to overlap with existing ports.
+     JPSONIC_PORT: '4040'
+     UPNP_PORT: '4041'
 
      # Set the appropriate UID/GID.
      USER_ID: '0'

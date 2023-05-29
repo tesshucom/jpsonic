@@ -26,7 +26,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
-import com.tesshu.jpsonic.dao.JArtistDao;
+import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.SearchService;
@@ -43,11 +43,11 @@ import org.springframework.stereotype.Service;
 public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor<Artist, MediaFile> {
 
     private final UpnpProcessorUtil util;
-    private final JArtistDao artistDao;
+    private final ArtistDao artistDao;
     private final SearchService searchService;
     private final SettingsService settingsService;
 
-    public RandomSongByArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JArtistDao a,
+    public RandomSongByArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, ArtistDao a,
             SearchService s, SettingsService ss) {
         super(d, u);
         util = u;

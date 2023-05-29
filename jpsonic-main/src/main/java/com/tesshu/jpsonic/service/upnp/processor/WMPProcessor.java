@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -68,11 +68,11 @@ public class WMPProcessor {
      */
     private static final Pattern MS_QUERY_AUDIO_ITEM_SINGLE = Pattern.compile("dc:title = \"[0-9]+\"");
 
-    private final JMediaFileService mediaFileService;
+    private final MediaFileService mediaFileService;
     private final MediaFileUpnpProcessor mediaFileUpnpProcessor;
     private final UpnpProcessorUtil util;
 
-    public WMPProcessor(JMediaFileService mediaFileService, MediaFileUpnpProcessor mediaFileUpnpProcessor,
+    public WMPProcessor(MediaFileService mediaFileService, MediaFileUpnpProcessor mediaFileUpnpProcessor,
             UpnpProcessorUtil util) {
         super();
         this.mediaFileService = mediaFileService;

@@ -33,7 +33,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.SuppressLint;
-import com.tesshu.jpsonic.dao.JMediaFileDao;
+import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;
@@ -65,10 +65,10 @@ public class SearchServiceImpl implements SearchService {
     private final IndexManager indexManager;
     private final SearchServiceUtilities util;
     private final SettingsService settingsService;
-    private final JMediaFileDao mediaFileDao;
+    private final MediaFileDao mediaFileDao;
 
     public SearchServiceImpl(QueryFactory queryFactory, IndexManager indexManager, SearchServiceUtilities util,
-            SettingsService settingsService, JMediaFileDao mediaFileDao) {
+            SettingsService settingsService, MediaFileDao mediaFileDao) {
         super();
         this.queryFactory = queryFactory;
         this.indexManager = indexManager;

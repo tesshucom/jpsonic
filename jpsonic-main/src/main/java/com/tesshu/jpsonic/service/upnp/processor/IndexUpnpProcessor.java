@@ -24,6 +24,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,7 +39,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.domain.MusicIndex;
-import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import com.tesshu.jpsonic.spring.EhcacheConfiguration.IndexCacheKey;
@@ -46,6 +47,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
+import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
 import org.fourthline.cling.support.model.PersonWithRole;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.GenreContainer;
@@ -61,7 +63,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     // Only on write (because it can be explicitly reloaded on the client and is less risky)
 
     private final UpnpProcessorUtil util;
-    private final JMediaFileService mediaFileService;
+    private final MediaFileService mediaFileService;
     private final MusicIndexService musicIndexService;
     private final Ehcache indexCache;
     private final Object lock = new Object();
@@ -71,7 +73,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     private List<MediaFile> topNodes;
 
     public IndexUpnpProcessor(@Lazy UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util,
-            JMediaFileService mediaFileService, MusicIndexService musicIndexService, Ehcache indexCache) {
+            MediaFileService mediaFileService, MusicIndexService musicIndexService, Ehcache indexCache) {
         super(dispatcher, util);
         this.util = util;
         this.mediaFileService = mediaFileService;
@@ -145,6 +147,8 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         } else {
             MusicArtist container = new MusicArtist();
             applyId(item, container);
+            item.getCoverArtPath().ifPresent(path -> container.setProperties(Arrays
+                    .asList(new ALBUM_ART_URI(getDispatcher().getMediaFileProcessor().createArtistArtURI(item)))));
             return container;
         }
     }

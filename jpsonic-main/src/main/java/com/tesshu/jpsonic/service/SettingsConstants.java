@@ -131,6 +131,7 @@ final class SettingsConstants {
             static final Pair<Boolean> REDUNDANT_FOLDER_CHECK = Pair.of("RedundantFolderCheck", false);
             static final Pair<Boolean> SHOW_INDEX_DETAILS = Pair.of("ShowIndexDetails", false);
             static final Pair<Boolean> SHOW_DB_DETAILS = Pair.of("ShowDBDetails", false);
+            static final Pair<Boolean> USE_CAST = Pair.of("UseCast", false);
 
             private Legacy() {
             }

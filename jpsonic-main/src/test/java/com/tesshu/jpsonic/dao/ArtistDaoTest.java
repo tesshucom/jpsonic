@@ -34,13 +34,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-class JArtistDaoTest extends AbstractNeedsScan {
+class ArtistDaoTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
             .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Compare"), "Artists", true, now(), 1));
 
     @Autowired
-    private JArtistDao artistDao;
+    private ArtistDao artistDao;
 
     @Override
     public List<MusicFolder> getMusicFolders() {
