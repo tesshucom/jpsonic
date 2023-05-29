@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -43,7 +43,7 @@ public class RandomSongUpnpProcessor extends MediaFileUpnpProcessor {
     private final SearchService searchService;
     private final SettingsService settingsService;
 
-    public RandomSongUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
+    public RandomSongUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m,
             PlayerService p, SearchService s, SettingsService ss) {
         super(d, u, m, p);
         this.util = u;

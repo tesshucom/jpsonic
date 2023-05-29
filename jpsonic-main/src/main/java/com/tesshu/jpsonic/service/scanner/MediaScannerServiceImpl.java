@@ -136,7 +136,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
         scanExecutor.execute(this::doScanLibrary);
     }
 
-    private void doScanLibrary() {
+    void doScanLibrary() {
 
         if (!scannerState.tryScanningLock()) {
             if (LOG.isDebugEnabled()) {

@@ -28,14 +28,14 @@ import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.controller.ViewName;
-import com.tesshu.jpsonic.dao.JAlbumDao;
+import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ParamSearchResult;
 import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
-import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.fourthline.cling.support.model.BrowseResult;
@@ -54,11 +54,11 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> {
     public static final String ALL_RECENT_ID3 = "allRecentId3";
 
     private final UpnpProcessorUtil util;
-    private final JMediaFileService mediaFileService;
-    private final JAlbumDao albumDao;
+    private final MediaFileService mediaFileService;
+    private final AlbumDao albumDao;
     private final CoverArtLogic coverArtLogic;
 
-    public AlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, JAlbumDao a,
+    public AlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, AlbumDao a,
             CoverArtLogic c) {
         super(d, u);
         this.util = u;
@@ -97,9 +97,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> {
             container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + album.getComment());
         } else {
             container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + album.getId());
-            if (album.getCoverArtPath() != null) {
-                container.setAlbumArtURIs(new URI[] { createAlbumArtURI(album) });
-            }
+            container.setAlbumArtURIs(new URI[] { createAlbumArtURI(album) });
             container.setDescription(album.getComment());
         }
         container.setParentID(getRootId());

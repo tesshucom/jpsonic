@@ -66,7 +66,7 @@ public class RatingDao extends AbstractDao {
 
         String sql = "select user_rating.path from user_rating, media_file "
                 + "where user_rating.path=media_file.path and media_file.present and media_file.type = :type and media_file.folder in (:folders) "
-                + "group by user_rating.path " + "order by avg(rating) desc limit :count offset :offset";
+                + "group by user_rating.path order by avg(rating) desc limit :count offset :offset";
         return namedQueryForStrings(sql, args);
     }
 
@@ -134,11 +134,9 @@ public class RatingDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
                 MusicFolder.toPathList(musicFolders), "username", username);
-        return namedQueryForInt(
-                "select count(*) from user_rating, media_file " + "where media_file.path = user_rating.path "
-                        + "and media_file.type = :type " + "and media_file.present "
-                        + "and media_file.folder in (:folders) " + "and user_rating.username = :username",
-                0, args);
+        return namedQueryForInt("select count(*) from user_rating, media_file where media_file.path = user_rating.path "
+                + "and media_file.type = :type and media_file.present "
+                + "and media_file.folder in (:folders) and user_rating.username = :username", 0, args);
     }
 
     public void expunge() {

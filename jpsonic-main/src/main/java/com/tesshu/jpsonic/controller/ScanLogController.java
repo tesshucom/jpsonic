@@ -46,6 +46,7 @@ import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -90,14 +91,19 @@ public class ScanLogController {
 
         List<ScanLogVO> scanLogs = staticsDao.getScanLog(ScanLogType.SCAN_ALL).stream().map(ScanLogVO::new)
                 .collect(Collectors.toList());
-        LocalDateTime lastStartDate = scanLogs.get(0).getStartDate();
+
         if (!scanLogs.isEmpty()) {
+            LocalDateTime lastStartDate = scanLogs.get(0).getStartDate();
             scanLogs.forEach(scanLog -> setStatus(lastStartDate, scanLog));
         }
         model.put("scanLogs", scanLogs);
 
-        LocalDateTime selectedStartDate = isEmpty(reqStartDate) ? lastStartDate : LocalDateTime.parse(reqStartDate);
-        model.put("startDate", selectedStartDate);
+        @Nullable
+        LocalDateTime selectedStartDate = isEmpty(reqStartDate)
+                ? scanLogs.isEmpty() ? null : scanLogs.get(0).getStartDate() : LocalDateTime.parse(reqStartDate);
+        if (selectedStartDate != null) {
+            model.put("startDate", selectedStartDate);
+        }
 
         User user = securityService.getCurrentUserStrict(request);
         model.put("showOutlineHelp", outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
@@ -110,7 +116,7 @@ public class ScanLogController {
         boolean showScannedCount = userSettings.isShowScannedCount();
         model.put("showScannedCount", showScannedCount);
 
-        if (!scanLogs.isEmpty()) {
+        if (selectedStartDate != null) {
             List<ScanEventVO> scanEvents = createScanEvents(selectedStartDate, showScannedCount);
             model.put("scanEvents", scanEvents);
 

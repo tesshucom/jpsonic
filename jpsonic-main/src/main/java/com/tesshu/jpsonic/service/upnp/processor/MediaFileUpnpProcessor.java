@@ -37,7 +37,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ParamSearchResult;
 import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.service.JMediaFileService;
+import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
@@ -66,10 +66,10 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
     public static final int SINGLE_MUSIC_FOLDER = 1;
 
     private final UpnpProcessorUtil util;
-    private final JMediaFileService mediaFileService;
+    private final MediaFileService mediaFileService;
     private final PlayerService playerService;
 
-    public MediaFileUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
+    public MediaFileUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m,
             PlayerService p) {
         super(d, u);
         this.util = u;
@@ -128,6 +128,8 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
             }
             MusicArtist container = new MusicArtist();
             applyId(item, container);
+            item.getCoverArtPath().ifPresent(
+                    path -> container.setProperties(Arrays.asList(new ALBUM_ART_URI(createArtistArtURI(item)))));
             return container;
         }
         return null;
@@ -150,7 +152,10 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
         List<MusicFolder> allFolders = util.getGuestMusicFolders();
         List<MediaFile> returnValue = new ArrayList<>();
         if (allFolders.size() == SINGLE_MUSIC_FOLDER) {
-            returnValue = getChildren(mediaFileService.getMediaFile(allFolders.get(0).toPath()), offset, maxResults);
+            MediaFile folder = mediaFileService.getMediaFile(allFolders.get(0).toPath());
+            if (folder != null) {
+                returnValue = getChildren(folder, offset, maxResults);
+            }
         } else {
             for (int i = (int) offset; i < Math.min(allFolders.size(), offset + maxResults); i++) {
                 returnValue.add(mediaFileService.getMediaFile(allFolders.get(i).toPath()));
@@ -255,7 +260,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
         return StringUtil.formatDurationHMMSS(seconds) + ".0";
     }
 
-    public URI createArtistArtURI(MediaFile artist) {
+    public URI createArtistArtURI(@NonNull MediaFile artist) {
         return util.createURIWithToken(
                 UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
                         .queryParam("id", artist.getId()).queryParam("size", CoverArtScheme.LARGE.getSize()));

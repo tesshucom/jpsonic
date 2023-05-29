@@ -37,6 +37,13 @@ Since v110.2.0, conversion for Romanized Japanese has been supported to make it 
 
 Docker Image is <a href="https://hub.docker.com/r/jpsonic/jpsonic">jpsonic/jpsonic</a>.
 
+Usage
+-----
+
+ - The basic installation procedure is almost the same as [Airsonic](https://airsonic.github.io/docs/).
+ - Wiki has an instruction [Installation](https://github.com/jpsonic/jpsonic/wiki/Installation) / [Requirements](https://github.com/jpsonic/jpsonic/wiki/Requirements) for Jpsonic.
+ - A more detailed specification description can be found at the [author's site](https://tesshu.com/category/spec).
+
 Features
 -----------------
 
@@ -144,11 +151,6 @@ Noto CJK(Default)
 Noto has higher visibility, and even song names that combine several languages can be displayed in a well-balanced manner.　
 
 </details>
-
-Usage
------
-
-The basic installation procedure is almost the same as Airsonic. Please use the [Airsonic documentation](https://airsonic.github.io/docs/) for instructions on running Airsonic. A more detailed specification description can be found at the [author's site](https://tesshu.com/category/spec).
 
 History
 -----

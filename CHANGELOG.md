@@ -3,7 +3,39 @@
 # jpsonic/jpsonic
 # -->
 
-## v112.0.0
+## v112.1.0
+
+#### Bug fixes
+
+  * Fix that order to not be overwritten when updating ID3Artist images ([#2180](https://github.com/tesshucom/jpsonic/issues/2180))
+  * Fix bug that the image of ID3 was not changed even if the album image was added ([#2181](https://github.com/tesshucom/jpsonic/issues/2181))
+  * Fix excessive artist sort tag updates ([#2189](https://github.com/tesshucom/jpsonic/issues/2189))
+  * Fix bug that caused an error on the scan log page when not scanning ([#2190](https://github.com/tesshucom/jpsonic/issues/2190))
+  * Fix bug that prevented DangerZone settings from being updated unless the scan schema changed ([#2214](https://github.com/tesshucom/jpsonic/issues/2214))
+
+#### Enhancement
+
+  * Improve path validation when import playlists ([#2187](https://github.com/tesshucom/jpsonic/issues/2187))
+  * Full support for artist images with UPnP ([#2192](https://github.com/tesshucom/jpsonic/issues/2192))
+  * Suppress Chromecast Sender features on web pages ([#2216](https://github.com/tesshucom/jpsonic/issues/2216))
+  * Fix the setting to turn off the automatic correction features of the sort tag ([#2218](https://github.com/tesshucom/jpsonic/issues/2218))
+  * Change log level of o.e.jetty.io.AbstractConnection to ERROR ([#2217](https://github.com/tesshucom/jpsonic/issues/2217))
+
+#### Update Libs
+
+  * v112.0.1 : [Update Libs](https://github.com/tesshucom/jpsonic/pull/2166)
+  * v112.0.2 : [Update Libs](https://github.com/tesshucom/jpsonic/pull/2173)
+  * v112.0.3 : [Update Libs](https://github.com/tesshucom/jpsonic/pull/2188)
+  * v112.0.4 : [Update Libs](https://github.com/tesshucom/jpsonic/pull/2206)
+  * v112.0.5 : [Update Libs](https://github.com/tesshucom/jpsonic/pull/2219)
+
+#### Maintenance
+
+  * Provide production.synology.yml for Synology DS220+ ([#2175](https://github.com/tesshucom/jpsonic/issues/2175)) ([#2203](https://github.com/tesshucom/jpsonic/issues/2203)) ([#2184](https://github.com/tesshucom/jpsonic/issues/2184))
+  * Docker stress test with Synology DS220+ ([#1808](https://github.com/tesshucom/jpsonic/issues/1808))
+
+<details>
+<summary>v112.0.0</summary>
 
 #### Bug fixes
 
@@ -36,6 +68,7 @@
   * Database scheme changes for v112.0.0 ([#2127](https://github.com/tesshucom/jpsonic/issues/2127))
   * Add max_thread to scan_event table ([##2143](https://github.com/tesshucom/jpsonic/issues/#2143))
 
+</details>
 <details>
 <summary>v111.6.0</summary>
 

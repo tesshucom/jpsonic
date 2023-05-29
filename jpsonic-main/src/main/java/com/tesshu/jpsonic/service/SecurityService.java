@@ -517,4 +517,29 @@ public class SecurityService implements UserDetailsService {
         }
         return true;
     }
+
+    public boolean isExcluded(Path path) {
+        if (settingsService.isIgnoreSymLinks() && Files.isSymbolicLink(path)) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("excluding symbolic link " + path);
+            }
+            return true;
+        }
+        Path fileName = path.getFileName();
+        if (fileName == null) {
+            return true;
+        }
+        String name = fileName.toString();
+        if (settingsService.getExcludePattern() != null && settingsService.getExcludePattern().matcher(name).find()) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("excluding file which matches exclude pattern " + settingsService.getExcludePatternString()
+                        + ": " + path);
+            }
+            return true;
+        }
+
+        // Exclude all hidden files starting with a single "." or "@eaDir" (thumbnail dir created on Synology devices).
+        return !name.isEmpty() && name.charAt(0) == '.' && !name.startsWith("..") || name.startsWith("@eaDir")
+                || name.startsWith("@tmp") || "Thumbs.db".equals(name);
+    }
 }

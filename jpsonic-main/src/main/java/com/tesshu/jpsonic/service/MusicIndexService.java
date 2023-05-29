@@ -186,7 +186,6 @@ public class MusicIndexService {
         return result;
     }
 
-    // JP >>>>
     private List<MusicIndex.SortableArtistWithMediaFiles> createSortableArtists(List<MusicFolder> folders) {
         return utils.createSortableArtists(folders);
     }
@@ -194,7 +193,6 @@ public class MusicIndexService {
     private List<MusicIndex.SortableArtistWithArtist> createSortableId3Artists(List<Artist> artists) {
         return utils.createSortableId3Artists(artists);
     }
-    // <<<< JP
 
     /**
      * Returns the music index to which the given artist belongs.

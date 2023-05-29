@@ -366,15 +366,15 @@ jobs:
       - name: Boot test for ea (Within 30 sec)
         run: |
           mkdir -p /tmp/${{ matrix.tag }}
-          cp install/docker/production.yml /tmp/${{ matrix.tag }}
+          cp install/docker/production.windows.yml /tmp/${{ matrix.tag }}
           cd /tmp/${{ matrix.tag }}
           mkdir -p /tmp/${{ matrix.tag }}/jpsonic/data /tmp/${{ matrix.tag }}/jpsonic/music /tmp/${{ matrix.tag }}/jpsonic/podcasts /tmp/${{ matrix.tag }}/jpsonic/playlists
-          sed -i -e "s/image: 'jpsonic\/jpsonic:latest'/image: 'jpsonic\/jpsonic:${{ matrix.tag }}'/g" production.yml
-          sed -i -e "s/container_name: 'jpsonic'/container_name: 'jpsonic_${{ matrix.tag }}'/g" production.yml
-          sed -i -e "s/\/c\/tmp\/jpsonic/\/tmp\/${{ matrix.tag }}\/jpsonic/g" production.yml
-          cat production.yml
+          sed -i -e "s/image: 'jpsonic\/jpsonic:latest'/image: 'jpsonic\/jpsonic:${{ matrix.tag }}'/g" production.windows.yml
+          sed -i -e "s/container_name: 'jpsonic'/container_name: 'jpsonic_${{ matrix.tag }}'/g" production.windows.yml
+          sed -i -e "s/\/c\/tmp\/jpsonic/\/tmp\/${{ matrix.tag }}\/jpsonic/g" production.windows.yml
+          cat production.windows.yml
           set -x
-          docker-compose -f production.yml up -d
+          docker-compose -f production.windows.yml up -d
           for i in {1..30};do sleep 1;docker exec jpsonic_${{ matrix.tag }} bash -c "curl http://localhost:4040/rest/ping"&&break;done
   ##########################################################################
   run-docker4ea:
@@ -396,13 +396,13 @@ jobs:
       - name: Boot test for ea (Within 30 sec)
         run: |
           mkdir -p /tmp/${{ matrix.tag }}
-          cp install/docker/production.yml /tmp/${{ matrix.tag }}
+          cp install/docker/production.windows.yml /tmp/${{ matrix.tag }}
           cd /tmp/${{ matrix.tag }}
           mkdir -p /tmp/${{ matrix.tag }}/jpsonic/data /tmp/${{ matrix.tag }}/jpsonic/music /tmp/${{ matrix.tag }}/jpsonic/podcasts /tmp/${{ matrix.tag }}/jpsonic/playlists
-          sed -i -e "s/image: 'jpsonic\/jpsonic:latest'/image: 'jpsonic\/jpsonic:${{ matrix.tag }}'/g" production.yml
-          sed -i -e "s/container_name: 'jpsonic'/container_name: 'jpsonic_${{ matrix.tag }}'/g" production.yml
-          sed -i -e "s/\/c\/tmp\/jpsonic/\/tmp\/${{ matrix.tag }}\/jpsonic/g" production.yml
-          cat production.yml
+          sed -i -e "s/image: 'jpsonic\/jpsonic:latest'/image: 'jpsonic\/jpsonic:${{ matrix.tag }}'/g" production.windows.yml
+          sed -i -e "s/container_name: 'jpsonic'/container_name: 'jpsonic_${{ matrix.tag }}'/g" production.windows.yml
+          sed -i -e "s/\/c\/tmp\/jpsonic/\/tmp\/${{ matrix.tag }}\/jpsonic/g" production.windows.yml
+          cat production.windows.yml
           set -x
-          docker-compose -f production.yml up -d
+          docker-compose -f production.windows.yml up -d
           for i in {1..30};do sleep 1;docker exec jpsonic_${{ matrix.tag }} bash -c "curl http://localhost:4040/rest/ping"&&break;done
