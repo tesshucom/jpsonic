@@ -266,7 +266,7 @@ jobs:
           mkdir -p install/docker/alpine-jdk17/target/dependency
           mv jpsonic.war install/docker/alpine-jdk17/target/dependency
       - name: Release with Version Tag
-        if: "(github.ref == 'refs/heads/master' && contains(github.event.head_commit.message, 'Release'))"
+        if: "(github.ref == 'refs/heads/master')"
         run: |
           cd install/docker/alpine-jdk17
           sed -i -e "s/17-jdk-alpine/17-jre-alpine/g" Dockerfile
@@ -274,6 +274,12 @@ jobs:
           mvn -DdockerTag=${{ env.DOCKER_TAG }} package
           docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
           docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }} .
+          mvn -DdockerTag=${DOCKER_TAG%.*} package
+          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+          docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${DOCKER_TAG%.*} .
+          mvn -DdockerTag=${DOCKER_TAG%.*.*} package
+          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+          docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*} .
       - name: Release with Latest Tag
         if: github.ref == 'refs/heads/master'
         run: |
@@ -322,7 +328,7 @@ jobs:
           mkdir -p install/docker/jammy/target/dependency
           mv jpsonic.war install/docker/jammy/target/dependency
       - name: Release with Version Tag
-        if: "(github.ref == 'refs/heads/master' && contains(github.event.head_commit.message, 'Release'))"
+        if: "(github.ref == 'refs/heads/master')"
         run: |
           cd install/docker/jammy
           sed -i -e "s/17-jdk-jammy/17-jre-jammy/g" Dockerfile
@@ -330,6 +336,12 @@ jobs:
           mvn -DdockerTag=${{ env.DOCKER_TAG }}-jammy package
           docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
           docker buildx build --push --platform linux/arm64,linux/amd64,linux/arm/v7 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-jammy .
+          mvn -DdockerTag=${DOCKER_TAG%.*}-jammy package
+          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+          docker buildx build --push --platform linux/arm64,linux/amd64,linux/arm/v7 -t jpsonic/jpsonic:${DOCKER_TAG%.*}-jammy .
+          mvn -DdockerTag=${DOCKER_TAG%.*.*}-jammy package
+          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+          docker buildx build --push --platform linux/arm64,linux/amd64,linux/arm/v7 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*}-jammy .
       - name: Release with Latest Tag
         if: github.ref == 'refs/heads/master'
         run: |
