@@ -274,6 +274,12 @@ jobs:
           mvn -DdockerTag=${{ env.DOCKER_TAG }} package
           docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
           docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }} .
+          mvn -DdockerTag=${DOCKER_TAG%.*}-sandbox package
+          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+          docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${DOCKER_TAG%.*} .
+          mvn -DdockerTag=${DOCKER_TAG%.*.*} package
+          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+          docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*} .
       - name: Release with Latest Tag
         if: github.ref == 'refs/heads/master'
         run: |
@@ -330,6 +336,12 @@ jobs:
           mvn -DdockerTag=${{ env.DOCKER_TAG }}-jammy package
           docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
           docker buildx build --push --platform linux/arm64,linux/amd64,linux/arm/v7 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-jammy .
+          mvn -DdockerTag={DOCKER_TAG%.*}-jammy package
+          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+          docker buildx build --push --platform linux/arm64,linux/amd64,linux/arm/v7 -t jpsonic/jpsonic:${DOCKER_TAG%.*}-jammy .
+          mvn -DdockerTag=${DOCKER_TAG%.*.*}-jammy package
+          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+          docker buildx build --push --platform linux/arm64,linux/amd64,linux/arm/v7 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*}-jammy .
       - name: Release with Latest Tag
         if: github.ref == 'refs/heads/master'
         run: |
