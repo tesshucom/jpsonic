@@ -28,6 +28,7 @@ import static org.springframework.web.bind.ServletRequestUtils.getIntParameter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nullable;
@@ -362,7 +363,8 @@ public class StreamController {
     }
 
     private static void writeErrorLog(IOException e, HttpServletRequest req) {
-        if (LoggingExceptionResolver.isSuppressedException(e)) {
+        Throwable cause = e.getCause();
+        if (cause != null && cause instanceof TimeoutException || LoggingExceptionResolver.isSuppressedException(e)) {
             if (LOG.isTraceEnabled()) {
                 LOG.trace(req.getRemoteAddr() + ": Client unexpectedly closed connection while loading "
                         + req.getRemoteAddr() + " (" + PlayerUtils.getAnonymizedURLForRequest(req) + ")", e);
