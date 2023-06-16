@@ -23,7 +23,7 @@ package com.tesshu.jpsonic.domain;
 
 import java.time.Instant;
 
-public class Artist {
+public class Artist implements Orderable {
 
     private int id;
     private String name;
@@ -125,10 +125,12 @@ public class Artist {
         this.reading = reading;
     }
 
+    @Override
     public int getOrder() {
         return order;
     }
 
+    @Override
     public void setOrder(int order) {
         this.order = order;
     }
