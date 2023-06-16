@@ -19,6 +19,8 @@
 
 package com.tesshu.jpsonic.domain;
 
+import static org.apache.commons.lang3.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.text.Collator;
@@ -62,11 +64,13 @@ public class JpsonicComparators {
      * @return Comparator
      */
     public Comparator<Album> albumOrderByAlpha() {
-        return (o1, o2) -> {
-            if (-1 != o1.getOrder() && -1 != o2.getOrder()) {
-                return o1.getOrder() - o2.getOrder();
+        return new Comparator<Album>() {
+            private Collator collator = createCollator();
+
+            @Override
+            public int compare(Album o1, Album o2) {
+                return collator.compare(defaultString(o1.getNameReading()), defaultString(o2.getNameReading()));
             }
-            return createCollator().compare(o1.getNameReading(), o2.getNameReading());
         };
     }
 
@@ -76,11 +80,13 @@ public class JpsonicComparators {
      * @return Comparator
      */
     public Comparator<Artist> artistOrderByAlpha() {
-        return (o1, o2) -> {
-            if (-1 != o1.getOrder() && -1 != o2.getOrder()) {
-                return o1.getOrder() - o2.getOrder();
+        return new Comparator<Artist>() {
+            private Collator collator = createCollator();
+
+            @Override
+            public int compare(Artist o1, Artist o2) {
+                return collator.compare(defaultString(o1.getReading()), defaultString(o2.getReading()));
             }
-            return createCollator().compare(o1.getReading(), o2.getReading());
         };
     }
 
