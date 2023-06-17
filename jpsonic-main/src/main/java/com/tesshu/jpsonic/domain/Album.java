@@ -23,7 +23,7 @@ package com.tesshu.jpsonic.domain;
 
 import java.time.Instant;
 
-public class Album {
+public class Album implements Orderable {
 
     private int id;
     private String path;
@@ -247,10 +247,12 @@ public class Album {
         this.nameReading = nameReading;
     }
 
+    @Override
     public int getOrder() {
         return order;
     }
 
+    @Override
     public void setOrder(int order) {
         this.order = order;
     }

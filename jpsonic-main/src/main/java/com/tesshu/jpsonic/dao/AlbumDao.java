@@ -130,8 +130,8 @@ public class AlbumDao extends AbstractDao {
         return null;
     }
 
-    public void updateOrder(String artist, String name, int order) {
-        update("update album set album_order = ? where artist=? and name=?", order, artist, name);
+    public int updateOrder(String artist, String name, int order) {
+        return update("update album set album_order = ? where artist=? and name=?", order, artist, name);
     }
 
     public void updateCoverArtPath(String artist, String name, String coverArtPath) {
@@ -155,7 +155,7 @@ public class AlbumDao extends AbstractDao {
             orderBy = byArtist ? "LOWER(artist_reading), album_order, LOWER(name_reading)"
                     : "album_order, LOWER(name_reading)";
         } else {
-            orderBy = byArtist ? "artist_reading, album_order, name_reading" : "album_order, name_reading";
+            orderBy = byArtist ? "artist_reading, album_order" : "album_order";
         }
 
         return namedQuery("select " + QUERY_COLUMNS + " from album where present and folder_id in (:folders) "
