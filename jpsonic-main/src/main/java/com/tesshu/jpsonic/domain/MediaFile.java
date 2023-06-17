@@ -40,7 +40,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  *
  * @author Sindre Mehus
  */
-public class MediaFile {
+public class MediaFile implements Orderable {
 
     private int id;
     private String pathString;
@@ -579,10 +579,12 @@ public class MediaFile {
         this.composerSortRaw = composerSortRaw;
     }
 
+    @Override
     public int getOrder() {
         return order;
     }
 
+    @Override
     public void setOrder(int order) {
         this.order = order;
     }

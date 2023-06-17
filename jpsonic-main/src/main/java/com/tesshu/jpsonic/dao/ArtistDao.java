@@ -100,8 +100,8 @@ public class ArtistDao extends AbstractDao {
         return null;
     }
 
-    public void updateOrder(String name, int order) {
-        update("update artist set artist_order=? where name=?", order, name);
+    public int updateOrder(String name, int order) {
+        return update("update artist set artist_order=? where name=?", order, name);
     }
 
     public List<Artist> getAlphabetialArtists(final int offset, final int count, final List<MusicFolder> musicFolders) {
@@ -112,7 +112,7 @@ public class ArtistDao extends AbstractDao {
                 offset);
 
         return namedQuery("select " + QUERY_COLUMNS + " from artist where present and folder_id in (:folders) "
-                + "order by artist_order, reading, name limit :count offset :offset", rowMapper, args);
+                + "order by artist_order limit :count offset :offset", rowMapper, args);
     }
 
     public List<Artist> getStarredArtists(final int offset, final int count, final String username,

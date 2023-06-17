@@ -149,6 +149,13 @@ public class MediaFileDao extends AbstractDao {
                 + " limit ? offset ?", rowMapper, path, count, offset);
     }
 
+    public List<MediaFile> getChildrenWithOrderOf(String path) {
+        return query(
+                "select " + QUERY_COLUMNS
+                        + " from media_file where parent_path=? and present order by media_file_order",
+                rowMapper, path);
+    }
+
     public List<MediaFile> getFilesInPlaylist(int playlistId) {
         return query("select " + prefix(QUERY_COLUMNS, "media_file") + " from playlist_file, media_file where "
                 + "media_file.id = playlist_file.media_file_id and playlist_file.playlist_id = ? "
@@ -268,8 +275,8 @@ public class MediaFileDao extends AbstractDao {
                 pathString);
     }
 
-    public void updateOrder(String pathString, int order) {
-        update("update media_file set media_file_order = ? where path=?", order, pathString);
+    public int updateOrder(String pathString, int order) {
+        return update("update media_file set media_file_order = ? where path=?", order, pathString);
     }
 
     public void updateCoverArtPath(String pathString, String coverArtPath) {
@@ -369,13 +376,13 @@ public class MediaFileDao extends AbstractDao {
                 MusicFolder.toPathList(musicFolders), "count", count, "offset", offset);
         String namedQuery = "select " + QUERY_COLUMNS
                 + " from media_file where type = :type and folder in (:folders) and present "
-                + "order by media_file_order, album_reading limit :count offset :offset";
+                + "order by media_file_order limit :count offset :offset";
         if (byArtist) {
             namedQuery = "select distinct " + prefix(QUERY_COLUMNS, "al")
                     + ", ar.media_file_order as ar_order, al.media_file_order as al_order "
                     + "from media_file al join media_file ar on ar.path = al.parent_path "
                     + "where al.type = :type and al.folder in (:folders) and al.present "
-                    + "order by ar_order, al.artist_reading, al_order, al.album_reading limit :count offset :offset";
+                    + "order by ar_order, al_order limit :count offset :offset";
         }
 
         return namedQuery(namedQuery, rowMapper, args);
@@ -807,9 +814,8 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("type", MediaType.DIRECTORY.name(), "folders",
                 MusicFolder.toPathList(musicFolders));
-        return namedQuery(
-                "select " + QUERY_COLUMNS + " from media_file "
-                        + "where type = :type and folder in (:folders) and present and artist is not null",
+        return namedQuery("select " + QUERY_COLUMNS + " from media_file "
+                + "where type = :type and folder in (:folders) and present and artist is not null order by media_file_order",
                 rowMapper, args);
     }
 
