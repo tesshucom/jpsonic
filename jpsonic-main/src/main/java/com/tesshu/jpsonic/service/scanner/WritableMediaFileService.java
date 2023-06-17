@@ -453,8 +453,8 @@ public class WritableMediaFileService {
         return registered;
     }
 
-    void updateOrder(@NonNull final MediaFile file) {
-        mediaFileDao.updateOrder(file.getPathString(), file.getOrder());
+    int updateOrder(@NonNull final MediaFile file) {
+        return mediaFileDao.updateOrder(file.getPathString(), file.getOrder());
     }
 
     /*
