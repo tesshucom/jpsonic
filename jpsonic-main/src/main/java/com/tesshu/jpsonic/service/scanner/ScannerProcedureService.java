@@ -33,7 +33,6 @@ import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
@@ -732,14 +731,15 @@ public class ScannerProcedureService {
         return updated;
     }
 
-    @SuppressLint(value = "NULL_DEREFERENCE", justification = "False positive. getMediaFile is NonNull here.")
     void updateOrderOfSongsDirectlyUnderMusicfolder(@NonNull Instant scanDate) {
         if (isInterrupted()) {
             return;
         }
-        musicFolderService.getAllMusicFolders().forEach(
-                folder -> sortProcedure.updateOrderOfSongs(mediaFileService.getMediaFile(folder.getPathString())));
-        createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_SONG, null);
+        LongAdder count = new LongAdder();
+        musicFolderService.getAllMusicFolders().forEach(folder -> count
+                .add(sortProcedure.updateOrderOfSongs(mediaFileService.getMediaFileStrict(folder.getPathString()))));
+        String comment = String.format("Updated order of (%d) songs", count.intValue());
+        createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_SONG, comment);
     }
 
     void updateOrderOfArtist(@NonNull Instant scanDate, boolean skippable) {
@@ -777,7 +777,7 @@ public class ScannerProcedureService {
             return;
         }
         int count = sortProcedure.updateOrderOfArtistID3();
-        String comment = String.format("Updated order of (%d) ID3 albums.", count);
+        String comment = String.format("Updated order of (%d) ID3 artists.", count);
         createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ARTIST_ID3, comment);
     }
 

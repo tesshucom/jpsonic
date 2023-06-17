@@ -19,8 +19,11 @@
 
 package com.tesshu.jpsonic.service.scanner;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
@@ -32,6 +35,7 @@ import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.Orderable;
 import com.tesshu.jpsonic.domain.SortCandidate;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -111,61 +115,64 @@ public class SortProcedureService {
         return updateSortOfArtist(candidates);
     }
 
+    <T extends Orderable> List<T> getToBeOrderUpdate(List<T> list, Comparator<T> comparator) {
+        List<Integer> rawOrders = list.stream().map(Orderable::getOrder).collect(Collectors.toList());
+        Collections.sort(list, comparator);
+        List<T> result = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            if (i + 1 != rawOrders.get(i)) {
+                list.get(i).setOrder(i + 1);
+                result.add(list.get(i));
+            }
+        }
+        return result;
+    }
+
     int updateOrderOfAlbumID3() {
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
         List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folders);
-        albums.sort(comparators.albumOrderByAlpha());
-        int i = 0;
-        for (Album album : albums) {
-            albumDao.updateOrder(album.getArtist(), album.getName(), i++);
-        }
-        return i;
+        LongAdder count = new LongAdder();
+        getToBeOrderUpdate(albums, comparators.albumOrderByAlpha()).forEach(
+                album -> count.add(albumDao.updateOrder(album.getArtist(), album.getName(), album.getOrder())));
+        return count.intValue();
     }
 
     int updateOrderOfArtistID3() {
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
         List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
-        artists.sort(comparators.artistOrderByAlpha());
-        int i = 0;
-        for (Artist artist : artists) {
-            artistDao.updateOrder(artist.getName(), i++);
-        }
-        return i;
+        LongAdder count = new LongAdder();
+        getToBeOrderUpdate(artists, comparators.artistOrderByAlpha())
+                .forEach(artist -> count.add(artistDao.updateOrder(artist.getName(), artist.getOrder())));
+        return count.intValue();
     }
 
     int updateOrderOfArtist() {
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
         List<MediaFile> artists = mediaFileDao.getArtistAll(folders);
-        artists.sort(comparators.mediaFileOrderByAlpha());
-        int i = 0;
-        for (MediaFile artist : artists) {
-            artist.setOrder(i++);
-            writableMediaFileService.updateOrder(artist);
-        }
-        return i;
+        LongAdder count = new LongAdder();
+        getToBeOrderUpdate(artists, comparators.mediaFileOrderByAlpha())
+                .forEach(artist -> count.add(writableMediaFileService.updateOrder(artist)));
+        return count.intValue();
     }
 
     int updateOrderOfAlbum() {
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
-        List<MediaFile> albums = mediaFileService.getAlphabeticalAlbums(0, Integer.MAX_VALUE, true, folders);
-        albums.sort(comparators.mediaFileOrderByAlpha());
-        int i = 0;
-        for (MediaFile album : albums) {
-            album.setOrder(i++);
-            writableMediaFileService.updateOrder(album);
-        }
-        return i;
+        List<MediaFile> albums = mediaFileService.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, folders);
+        LongAdder count = new LongAdder();
+        getToBeOrderUpdate(albums, comparators.mediaFileOrderByAlpha())
+                .forEach(album -> count.add(writableMediaFileService.updateOrder(album)));
+        return count.intValue();
     }
 
-    void updateOrderOfSongs(MediaFile parent) {
-        List<MediaFile> songs = mediaFileDao.getChildrenOf(parent.getPathString()).stream()
+    int updateOrderOfSongs(MediaFile parent) {
+        List<MediaFile> songs = mediaFileDao.getChildrenWithOrderOf(parent.getPathString()).stream()
                 .filter(child -> mediaFileService.isAudioFile(child.getFormat())
                         || mediaFileService.isVideoFile(child.getFormat()))
                 .collect(Collectors.toList());
-        Collections.sort(songs, comparators.songsDefault());
-        for (int i = 0; i < songs.size(); i++) {
-            mediaFileDao.updateOrder(songs.get(i).getPathString(), i);
-        }
+        LongAdder count = new LongAdder();
+        getToBeOrderUpdate(songs, comparators.songsDefault())
+                .forEach(song -> count.add(writableMediaFileService.updateOrder(song)));
+        return count.intValue();
     }
 
     private List<Integer> updateSortOfAlbums(@NonNull List<SortCandidate> candidates) {

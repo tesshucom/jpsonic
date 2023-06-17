@@ -19,7 +19,7 @@
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jackson.version>2.15.2</jackson.version>
-        <tomcat.version>9.0.75</tomcat.version>
+        <tomcat.version>9.0.76</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
         <jetty.version>10.0.15</jetty.version>
         <jetty-jsp.version>10.0.15</jetty-jsp.version>
@@ -249,7 +249,7 @@
             <dependency>
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-runtime</artifactId>
-                <version>4.0.2</version>
+                <version>4.0.3</version>
             </dependency>
             <dependency>
                 <groupId>org.antlr</groupId>
@@ -440,7 +440,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
-                    <version>3.3.2</version>
+                    <version>3.4.0</version>
                     <configuration>
                         <failOnMissingWebXml>false</failOnMissingWebXml>
                         <archive>
@@ -549,7 +549,7 @@
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>8.2.1</version>
+                    <version>8.3.1</version>
                     <inherited>true</inherited>
                     <configuration>
                         <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
