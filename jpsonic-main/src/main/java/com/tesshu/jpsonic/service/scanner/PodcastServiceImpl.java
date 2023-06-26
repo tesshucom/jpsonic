@@ -500,14 +500,9 @@ public class PodcastServiceImpl implements PodcastService {
 
         for (Element episodeElement : episodeElements) {
 
-            String title = episodeElement.getChildTextTrim("title");
+            String title = StringUtil.removeMarkup(episodeElement.getChildTextTrim("title"));
             String duration = formatDuration(getITunesElement(episodeElement, "duration"));
-            String description = episodeElement.getChildTextTrim("description");
-            if (StringUtils.isBlank(description)) {
-                description = getITunesElement(episodeElement, "summary");
-            }
-            title = StringUtil.removeMarkup(title);
-            description = StringUtil.removeMarkup(description);
+            String description = getDescription(episodeElement);
 
             Element enclosure = episodeElement.getChild("enclosure");
             if (enclosure == null) {
@@ -517,6 +512,11 @@ public class PodcastServiceImpl implements PodcastService {
 
             String url = enclosure.getAttributeValue("url");
             url = sanitizeUrl(url);
+            if (!isAudioEpisode(url)) {
+                LOG.warn("Audio file specified in episode enclosure does not match extension for scanning : {}", url);
+                continue;
+            }
+
             if (getEpisodeByUrl(url) == null) {
                 Long length = null;
                 try {
@@ -535,6 +535,19 @@ public class PodcastServiceImpl implements PodcastService {
             }
         }
         return episodes;
+    }
+
+    boolean isAudioEpisode(String url) {
+        String suffix = FilenameUtils.getExtension(url);
+        return mediaFileService.isAudioFile(suffix);
+    }
+
+    private String getDescription(Element element) {
+        String description = element.getChildTextTrim("description");
+        if (StringUtils.isBlank(description)) {
+            description = getITunesElement(element, "summary");
+        }
+        return StringUtil.removeMarkup(description);
     }
 
     Instant parseDate(String s) {
