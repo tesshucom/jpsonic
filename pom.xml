@@ -173,7 +173,7 @@
             <dependency>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-core</artifactId>
-                <version>4.22.0</version>
+                <version>4.23.0</version>
             </dependency>
 
             <!-- Fix convergence issues -->
@@ -459,7 +459,7 @@
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
                             <artifactId>checkstyle</artifactId>
-                            <version>10.12.0</version>
+                            <version>10.12.1</version>
                         </dependency>
                     </dependencies>
                     <configuration>
