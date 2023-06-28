@@ -156,24 +156,10 @@ public class MediaFileDao extends AbstractDao {
                 rowMapper, path);
     }
 
-    public List<MediaFile> getFilesInPlaylist(int playlistId) {
-        return query("select " + prefix(QUERY_COLUMNS, "media_file") + " from playlist_file, media_file where "
-                + "media_file.id = playlist_file.media_file_id and playlist_file.playlist_id = ? "
-                + "order by playlist_file.id", rowMapper, playlistId);
-    }
-
     public List<MediaFile> getFilesInPlaylist(int playlistId, long offset, long count) {
         return query("select " + prefix(QUERY_COLUMNS, "media_file") + " from playlist_file, media_file "
                 + "where media_file.id = playlist_file.media_file_id and playlist_file.playlist_id = ? and present "
                 + "order by playlist_file.id limit ? offset ?", rowMapper, playlistId, count, offset);
-    }
-
-    public List<MediaFile> getSongsForAlbum(String artist, String album) {
-        return query(
-                "select " + QUERY_COLUMNS + " from media_file where album_artist=? and album=? and present "
-                        + "and type in (?,?,?) order by disc_number, track_number",
-                rowMapper, artist, album, MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.AUDIOBOOK.name(),
-                MediaFile.MediaType.PODCAST.name());
     }
 
     public List<MediaFile> getSongsForAlbum(final long offset, final long count, MediaFile album) {
@@ -696,13 +682,6 @@ public class MediaFileDao extends AbstractDao {
                 "select count(*) from media_file where type = :type and folder in (:folders) and present", 0, args);
     }
 
-    public int getAlbumCount(MusicFolder folder) {
-        return queryForInt(
-                "select count(*) from media_file right join music_folder on music_folder.path = media_file.folder "
-                        + "where present and folder = ? and type = ?",
-                0, folder.getPathString(), MediaFile.MediaType.ALBUM.name());
-    }
-
     public int getArtistCount(MusicFolder folder) {
         return queryForInt(
                 "select count(*) from media_file right join music_folder on music_folder.path = media_file.folder "
@@ -757,13 +736,13 @@ public class MediaFileDao extends AbstractDao {
                 username);
     }
 
-    public void resetLastScanned() {
-        update("update media_file set last_scanned = ?, children_last_updated = ? where present", FAR_PAST, FAR_PAST);
-    }
-
-    public void resetLastScanned(int id) {
-        update("update media_file set last_scanned = ?, children_last_updated = ? where present and id = ?", FAR_PAST,
-                FAR_PAST, id);
+    public void resetLastScanned(@Nullable Integer id) {
+        String query = "update media_file set last_scanned = ?, children_last_updated = ? where present";
+        if (id == null) {
+            update(query, FAR_PAST, FAR_PAST);
+        } else {
+            update(query + " and id = ?", FAR_PAST, FAR_PAST, id);
+        }
     }
 
     public void updateLastScanned(int id, Instant lastScanned) {

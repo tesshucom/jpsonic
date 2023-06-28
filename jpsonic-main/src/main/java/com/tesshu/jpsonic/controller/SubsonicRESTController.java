@@ -672,7 +672,7 @@ public class SubsonicRESTController {
         String username = user.getUsername();
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService.getMusicFoldersForUser(username);
         ArtistWithAlbumsID3 result = createJaxbArtist(new ArtistWithAlbumsID3(), artist, username);
-        for (Album album : albumDao.getAlbumsForArtist(artist.getName(), musicFolders)) {
+        for (Album album : albumDao.getAlbumsForArtist(0L, Integer.MAX_VALUE, artist.getName(), false, musicFolders)) {
             result.getAlbum().add(createJaxbAlbum(new AlbumID3(), album, username));
         }
 
@@ -735,7 +735,8 @@ public class SubsonicRESTController {
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
         AlbumWithSongsID3 result = createJaxbAlbum(new AlbumWithSongsID3(), album, username);
-        for (MediaFile mediaFile : mediaFileDao.getSongsForAlbum(album.getArtist(), album.getName())) {
+        for (MediaFile mediaFile : mediaFileDao.getSongsForAlbum(0L, Integer.MAX_VALUE, album.getArtist(),
+                album.getName())) {
             result.getSong().add(createJaxbChild(player, mediaFile, username));
         }
 

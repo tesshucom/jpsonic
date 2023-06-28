@@ -100,7 +100,7 @@ class PlaylistUpnpProcessorTest extends AbstractNeedsScan {
         List<Album> albums = albumUpnpProcessor.getItems(0, 100);
         assertEquals(61, albums.size());
         List<MediaFile> files = albums.stream()
-                .map(a -> mediaFileDao.getSongsForAlbum(a.getArtist(), a.getName()).get(0))
+                .map(a -> mediaFileDao.getSongsForAlbum(0L, Integer.MAX_VALUE, a.getArtist(), a.getName()).get(0))
                 .collect(Collectors.toList());
         assertEquals(61, files.size());
         playlistDao.setFilesInPlaylist(playlistUpnpProcessor.getItems(0, 1).get(0).getId(), files);

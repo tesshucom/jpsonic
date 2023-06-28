@@ -70,16 +70,6 @@ public class AlbumDao extends AbstractDao {
                 albumName);
     }
 
-    public List<Album> getAlbumsForArtist(final String artist, final List<MusicFolder> musicFolders) {
-        if (musicFolders.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Map<String, Object> args = LegacyMap.of("artist", artist, "folders", MusicFolder.toIdList(musicFolders));
-        return namedQuery("select " + QUERY_COLUMNS
-                + " from album where artist = :artist and present and folder_id in (:folders) "
-                + "order by album_order, name", rowMapper, args);
-    }
-
     public List<Album> getAlbumsForArtist(final long offset, final long count, final String artist, boolean byYear,
             final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
@@ -87,9 +77,9 @@ public class AlbumDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("artist", artist, "folders", MusicFolder.toIdList(musicFolders),
                 "offset", offset, "count", count);
-        return namedQuery("select " + QUERY_COLUMNS + " from album "
-                + "where artist = :artist and present and folder_id in (:folders) order by "
-                + (byYear ? "year" : "album_order") + ", name limit :count offset :offset", rowMapper, args);
+        return namedQuery("select " + QUERY_COLUMNS
+                + " from album where artist = :artist and present and folder_id in (:folders) order by "
+                + (byYear ? "year, " : "") + "album_order limit :count offset :offset", rowMapper, args);
     }
 
     public @Nullable Album createAlbum(Album album) {

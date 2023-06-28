@@ -61,7 +61,8 @@ class PlaylistServiceTest {
 
         @Test
         void testExportToM3U() throws Exception {
-            Mockito.when(mediaFileDao.getFilesInPlaylist(ArgumentMatchers.eq(23))).thenReturn(getPlaylistFiles());
+            Mockito.when(mediaFileDao.getFilesInPlaylist(ArgumentMatchers.eq(23), Mockito.anyLong(), Mockito.anyLong()))
+                    .thenReturn(getPlaylistFiles());
 
             try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
                 playlistService.exportPlaylist(23, outputStream);
