@@ -262,7 +262,7 @@ class SortProcedureServiceTest {
             List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPathString(), false);
             assertEquals(2, files.size());
             for (int i = 0; i < files.size(); i++) {
-                assertEquals(i, files.get(i).getOrder());
+                assertEquals(i + 1, files.get(i).getOrder());
             }
             files.sort((m1, m2) -> Integer.compare(m1.getOrder(), m2.getOrder()));
             assertEquals("file1", files.get(0).getName());
@@ -316,7 +316,7 @@ class SortProcedureServiceTest {
             List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
             assertEquals(3, artists.size());
             for (int i = 0; i < artists.size(); i++) {
-                assertEquals(i, artists.get(i).getOrder());
+                assertEquals(i + 1, artists.get(i).getOrder());
             }
             artists.sort((m1, m2) -> Integer.compare(m1.getOrder(), m2.getOrder()));
 
@@ -355,7 +355,7 @@ class SortProcedureServiceTest {
                     false);
             assertEquals(9, albums.size());
             for (int i = 0; i < albums.size(); i++) {
-                assertEquals(i, albums.get(i).getOrder());
+                assertEquals(i + 1, albums.get(i).getOrder());
             }
             albums.sort((m1, m2) -> Integer.compare(m1.getOrder(), m2.getOrder()));
 
@@ -612,7 +612,7 @@ class SortProcedureServiceTest {
                     .collect(Collectors.toList());
             assertEquals(2, songs.size());
             for (int i = 0; i < songs.size(); i++) {
-                assertEquals(i, songs.get(i).getOrder());
+                assertEquals(i + 1, songs.get(i).getOrder());
             }
             songs.sort((m1, m2) -> Integer.compare(m1.getOrder(), m2.getOrder()));
 
@@ -634,7 +634,7 @@ class SortProcedureServiceTest {
             List<Artist> artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
             assertEquals(12, artistID3s.size());
             for (int i = 0; i < artistID3s.size(); i++) {
-                assertEquals(i, artistID3s.get(i).getOrder());
+                assertEquals(i + 1, artistID3s.get(i).getOrder());
             }
             artistID3s.sort((m1, m2) -> Integer.compare(m1.getOrder(), m2.getOrder()));
 
@@ -694,7 +694,7 @@ class SortProcedureServiceTest {
             List<Album> albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, musicFolders);
             assertEquals(13, albumId3s.size());
             for (int i = 0; i < albumId3s.size(); i++) {
-                assertEquals(i, albumId3s.get(i).getOrder());
+                assertEquals(i + 1, albumId3s.get(i).getOrder());
             }
             albumId3s.sort((m1, m2) -> Integer.compare(m1.getOrder(), m2.getOrder()));
 
@@ -787,6 +787,13 @@ class SortProcedureServiceTest {
             populateDatabase();
         }
 
+        /**
+         * The test cases below are only valid when checked out and run locally. Because merging is a logic that takes
+         * into account file dates, it cannot be reproduced in the test on Github. This means that if the file dates are
+         * exactly the same, it is difficult to decide which one to use as a reference when merging. This is by design.
+         * Exactly identical file dates are rare cases. Additionally, it can be circumvented by the user modifying the
+         * sort tag accordingly.
+         */
         @Test
         void testUpdateSortOfAlbum() throws ExecutionException {
 
