@@ -62,7 +62,7 @@ public class DefaultPlaylistExportHandler implements PlaylistExportHandler {
 
     private Playlist createChameleonGenericPlaylistFromDBId(int id) {
         Playlist newPlaylist = new Playlist();
-        List<MediaFile> files = mediaFileDao.getFilesInPlaylist(id);
+        List<MediaFile> files = mediaFileDao.getFilesInPlaylist(id, 0L, Integer.MAX_VALUE);
         files.forEach(file -> {
             Media component = new Media();
             Content content = new Content(file.getPathString());

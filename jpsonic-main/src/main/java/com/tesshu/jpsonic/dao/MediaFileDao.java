@@ -135,7 +135,7 @@ public class MediaFileDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of("type", mediaType.name(), "count", count, "offset", offset, "folders",
                 MusicFolder.toPathList(folders));
         return namedQuery("select " + QUERY_COLUMNS
-                + " from media_file where present and type= :type and folder in(:folders)　order by media_file_order limit :count offset :offset",
+                + " from media_file where present and type= :type and folder in(:folders)　limit :count offset :offset",
                 rowMapper, args);
     }
 
@@ -144,9 +144,10 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public List<MediaFile> getChildrenOf(final long offset, final long count, String path, boolean byYear) {
-        String order = byYear ? "year" : "media_file_order";
-        return query("select " + QUERY_COLUMNS + " from media_file where parent_path=? and present order by " + order
-                + " limit ? offset ?", rowMapper, path, count, offset);
+        return query(
+                "select " + QUERY_COLUMNS + " from media_file where parent_path=? and present order by "
+                        + (byYear ? "year is null, year, " : "") + "media_file_order limit ? offset ?",
+                rowMapper, path, count, offset);
     }
 
     public List<MediaFile> getChildrenWithOrderOf(String path) {
@@ -156,24 +157,10 @@ public class MediaFileDao extends AbstractDao {
                 rowMapper, path);
     }
 
-    public List<MediaFile> getFilesInPlaylist(int playlistId) {
-        return query("select " + prefix(QUERY_COLUMNS, "media_file") + " from playlist_file, media_file where "
-                + "media_file.id = playlist_file.media_file_id and playlist_file.playlist_id = ? "
-                + "order by playlist_file.id", rowMapper, playlistId);
-    }
-
     public List<MediaFile> getFilesInPlaylist(int playlistId, long offset, long count) {
         return query("select " + prefix(QUERY_COLUMNS, "media_file") + " from playlist_file, media_file "
                 + "where media_file.id = playlist_file.media_file_id and playlist_file.playlist_id = ? and present "
                 + "order by playlist_file.id limit ? offset ?", rowMapper, playlistId, count, offset);
-    }
-
-    public List<MediaFile> getSongsForAlbum(String artist, String album) {
-        return query(
-                "select " + QUERY_COLUMNS + " from media_file where album_artist=? and album=? and present "
-                        + "and type in (?,?,?) order by disc_number, track_number",
-                rowMapper, artist, album, MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.AUDIOBOOK.name(),
-                MediaFile.MediaType.PODCAST.name());
     }
 
     public List<MediaFile> getSongsForAlbum(final long offset, final long count, MediaFile album) {
@@ -398,17 +385,15 @@ public class MediaFileDao extends AbstractDao {
                 offset);
 
         if (fromYear <= toYear) {
-            return namedQuery(
-                    "select " + QUERY_COLUMNS
-                            + " from media_file where type = :type and folder in (:folders) and present "
-                            + "and year between :fromYear and :toYear order by year limit :count offset :offset",
-                    rowMapper, args);
+            return namedQuery("select " + QUERY_COLUMNS
+                    + " from media_file where type = :type and folder in (:folders) and present "
+                    + "and year between :fromYear and :toYear "
+                    + "order by year, media_file_order limit :count offset :offset", rowMapper, args);
         } else {
-            return namedQuery(
-                    "select " + QUERY_COLUMNS
-                            + " from media_file where type = :type and folder in (:folders) and present "
-                            + "and year between :toYear and :fromYear order by year desc limit :count offset :offset",
-                    rowMapper, args);
+            return namedQuery("select " + QUERY_COLUMNS
+                    + " from media_file where type = :type and folder in (:folders) and present "
+                    + "and year between :toYear and :fromYear "
+                    + "order by year desc, media_file_order limit :count offset :offset", rowMapper, args);
         }
     }
 
@@ -696,13 +681,6 @@ public class MediaFileDao extends AbstractDao {
                 "select count(*) from media_file where type = :type and folder in (:folders) and present", 0, args);
     }
 
-    public int getAlbumCount(MusicFolder folder) {
-        return queryForInt(
-                "select count(*) from media_file right join music_folder on music_folder.path = media_file.folder "
-                        + "where present and folder = ? and type = ?",
-                0, folder.getPathString(), MediaFile.MediaType.ALBUM.name());
-    }
-
     public int getArtistCount(MusicFolder folder) {
         return queryForInt(
                 "select count(*) from media_file right join music_folder on music_folder.path = media_file.folder "
@@ -757,13 +735,13 @@ public class MediaFileDao extends AbstractDao {
                 username);
     }
 
-    public void resetLastScanned() {
-        update("update media_file set last_scanned = ?, children_last_updated = ? where present", FAR_PAST, FAR_PAST);
-    }
-
-    public void resetLastScanned(int id) {
-        update("update media_file set last_scanned = ?, children_last_updated = ? where present and id = ?", FAR_PAST,
-                FAR_PAST, id);
+    public void resetLastScanned(@Nullable Integer id) {
+        String query = "update media_file set last_scanned = ?, children_last_updated = ? where present";
+        if (id == null) {
+            update(query, FAR_PAST, FAR_PAST);
+        } else {
+            update(query + " and id = ?", FAR_PAST, FAR_PAST, id);
+        }
     }
 
     public void updateLastScanned(int id, Instant lastScanned) {
@@ -916,8 +894,7 @@ public class MediaFileDao extends AbstractDao {
          */
         List<MediaFile> tmpResult = namedQuery("select " + QUERY_COLUMNS + ", foo.irownum from (select "
                 + "        (select count(id) from media_file where id < boo.id and type = :type and album_artist = :artist) as irownum, boo.* "
-                + "    from (select * from media_file where type = :type "
-                + "        and album_artist = :artist order by media_file_order, album_artist, album) boo "
+                + "    from (select * from media_file where type = :type and album_artist = :artist) boo "
                 + ") as foo where foo.irownum in ( :randomRownum ) limit :limit ", iRowMapper, args);
 
         /* Restore the order lost in IN. */
