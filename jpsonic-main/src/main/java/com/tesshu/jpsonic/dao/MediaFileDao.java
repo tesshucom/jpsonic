@@ -135,7 +135,7 @@ public class MediaFileDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of("type", mediaType.name(), "count", count, "offset", offset, "folders",
                 MusicFolder.toPathList(folders));
         return namedQuery("select " + QUERY_COLUMNS
-                + " from media_file where present and type= :type and folder in(:folders)　order by media_file_order limit :count offset :offset",
+                + " from media_file where present and type= :type and folder in(:folders)　limit :count offset :offset",
                 rowMapper, args);
     }
 
@@ -895,8 +895,7 @@ public class MediaFileDao extends AbstractDao {
          */
         List<MediaFile> tmpResult = namedQuery("select " + QUERY_COLUMNS + ", foo.irownum from (select "
                 + "        (select count(id) from media_file where id < boo.id and type = :type and album_artist = :artist) as irownum, boo.* "
-                + "    from (select * from media_file where type = :type "
-                + "        and album_artist = :artist order by media_file_order, album_artist, album) boo "
+                + "    from (select * from media_file where type = :type and album_artist = :artist) boo "
                 + ") as foo where foo.irownum in ( :randomRownum ) limit :limit ", iRowMapper, args);
 
         /* Restore the order lost in IN. */
