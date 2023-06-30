@@ -77,9 +77,11 @@ public class AlbumDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("artist", artist, "folders", MusicFolder.toIdList(musicFolders),
                 "offset", offset, "count", count);
-        return namedQuery("select " + QUERY_COLUMNS
-                + " from album where artist = :artist and present and folder_id in (:folders) order by "
-                + (byYear ? "year, " : "") + "album_order limit :count offset :offset", rowMapper, args);
+        return namedQuery(
+                "select " + QUERY_COLUMNS
+                        + " from album where artist = :artist and present and folder_id in (:folders) order by "
+                        + (byYear ? "year is null, year, " : "") + "album_order limit :count offset :offset",
+                rowMapper, args);
     }
 
     public @Nullable Album createAlbum(Album album) {
@@ -222,15 +224,13 @@ public class AlbumDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset",
                 offset, "fromYear", fromYear, "toYear", toYear);
         if (fromYear <= toYear) {
-            return namedQuery(
-                    "select " + QUERY_COLUMNS + " from album where present and folder_id in (:folders) "
-                            + "and year between :fromYear and :toYear order by year limit :count offset :offset",
-                    rowMapper, args);
+            return namedQuery("select " + QUERY_COLUMNS + " from album where present and folder_id in (:folders) "
+                    + "and year between :fromYear and :toYear "
+                    + "order by year, album_order limit :count offset :offset", rowMapper, args);
         } else {
-            return namedQuery(
-                    "select " + QUERY_COLUMNS + " from album where present and folder_id in (:folders) "
-                            + "and year between :toYear and :fromYear order by year desc limit :count offset :offset",
-                    rowMapper, args);
+            return namedQuery("select " + QUERY_COLUMNS + " from album where present and folder_id in (:folders) "
+                    + "and year between :toYear and :fromYear "
+                    + "order by year desc, album_order limit :count offset :offset", rowMapper, args);
         }
     }
 

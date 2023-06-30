@@ -144,9 +144,10 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public List<MediaFile> getChildrenOf(final long offset, final long count, String path, boolean byYear) {
-        String order = byYear ? "year" : "media_file_order";
-        return query("select " + QUERY_COLUMNS + " from media_file where parent_path=? and present order by " + order
-                + " limit ? offset ?", rowMapper, path, count, offset);
+        return query(
+                "select " + QUERY_COLUMNS + " from media_file where parent_path=? and present order by "
+                        + (byYear ? "year is null, year, " : "") + "media_file_order limit ? offset ?",
+                rowMapper, path, count, offset);
     }
 
     public List<MediaFile> getChildrenWithOrderOf(String path) {
@@ -384,17 +385,15 @@ public class MediaFileDao extends AbstractDao {
                 offset);
 
         if (fromYear <= toYear) {
-            return namedQuery(
-                    "select " + QUERY_COLUMNS
-                            + " from media_file where type = :type and folder in (:folders) and present "
-                            + "and year between :fromYear and :toYear order by year limit :count offset :offset",
-                    rowMapper, args);
+            return namedQuery("select " + QUERY_COLUMNS
+                    + " from media_file where type = :type and folder in (:folders) and present "
+                    + "and year between :fromYear and :toYear "
+                    + "order by year, media_file_order limit :count offset :offset", rowMapper, args);
         } else {
-            return namedQuery(
-                    "select " + QUERY_COLUMNS
-                            + " from media_file where type = :type and folder in (:folders) and present "
-                            + "and year between :toYear and :fromYear order by year desc limit :count offset :offset",
-                    rowMapper, args);
+            return namedQuery("select " + QUERY_COLUMNS
+                    + " from media_file where type = :type and folder in (:folders) and present "
+                    + "and year between :toYear and :fromYear "
+                    + "order by year desc, media_file_order limit :count offset :offset", rowMapper, args);
         }
     }
 
