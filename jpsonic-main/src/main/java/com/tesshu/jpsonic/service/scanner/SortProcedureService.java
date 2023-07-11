@@ -110,9 +110,13 @@ public class SortProcedureService {
     }
 
     List<Integer> mergeSortOfArtist(List<MusicFolder> folders) {
-        List<SortCandidate> candidates = mediaFileDao.guessPersonsSorts(folders);
-        candidates.forEach(utils::analyze);
-        return updateSortOfArtist(candidates);
+        List<SortCandidate> candidatesWithoutId = mediaFileDao.guessPersonsSorts(folders);
+        if (candidatesWithoutId.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<SortCandidate> candidatesWithId = mediaFileDao.getSortOfArtistToBeFixedWithId(candidatesWithoutId);
+        candidatesWithId.forEach(utils::analyze);
+        return updateSortOfArtistWithId(candidatesWithId);
     }
 
     <T extends Orderable> List<T> getToBeOrderUpdate(List<T> list, Comparator<T> comparator) {

@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -967,6 +968,28 @@ public class MediaFileDao extends AbstractDao {
                         + "   and composer in (:names) and (composer_sort is null "
                         + "       or composer_sort not in(:sotes))) to_be_fixed order by id",
                 (rs, rowNum) -> rs.getInt(1), args);
+    }
+
+    public List<SortCandidate> getSortOfArtistToBeFixedWithId(@NonNull List<SortCandidate> candidates) {
+        if (candidates.isEmpty()) {
+            return Collections.emptyList();
+        }
+        String query = "select 0 as field, :name, :sote, id from media_file "
+                + "where type != :directory and album_artist = :name and album_artist_sort <> :sote and present "
+                + "union select 1 as field, :name, :sote, id from media_file "
+                + "where artist = :name and artist_sort <> :sote and present "
+                + "union select 2 as field, :name, :sote, id from media_file "
+                + "where type = :music and composer = :name and composer_sort <> :sote and present";
+        List<SortCandidate> result = new ArrayList<>();
+        Map<String, Object> args = new ConcurrentHashMap<>();
+        args.put("directory", MediaType.DIRECTORY.name());
+        args.put("music", MediaType.MUSIC.name());
+        candidates.forEach(candidate -> {
+            args.put("name", candidate.getName());
+            args.put("sote", candidate.getSort());
+            result.addAll(namedQuery(query, sortCandidateWithIdMapper, args));
+        });
+        return result;
     }
 
     public List<SortCandidate> getSortForAlbumWithoutSorts(List<MusicFolder> folders) {
