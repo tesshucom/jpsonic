@@ -98,9 +98,9 @@ public class SortProcedureService {
     }
 
     List<Integer> copySortOfArtist(List<MusicFolder> folders) {
-        List<SortCandidate> candidates = mediaFileDao.getCopyableSortForPersons(folders);
-        candidates.forEach(utils::analyze);
-        return updateSortOfArtist(candidates);
+        List<SortCandidate> candidatesWithId = mediaFileDao.getCopyableSortForPersons(folders);
+        candidatesWithId.forEach(utils::analyze);
+        return updateSortOfArtistWithId(candidatesWithId);
     }
 
     List<Integer> mergeSortOfAlbum(List<MusicFolder> folders) {
@@ -191,5 +191,13 @@ public class SortProcedureService {
         List<Integer> toBeFixed = mediaFileDao.getSortOfArtistToBeFixed(candidates);
         candidates.forEach(c -> mediaFileDao.updateArtistSort(c));
         return toBeFixed;
+    }
+
+    private List<Integer> updateSortOfArtistWithId(@NonNull List<SortCandidate> candidatesWithId) {
+        if (candidatesWithId.isEmpty()) {
+            return Collections.emptyList();
+        }
+        candidatesWithId.forEach(c -> mediaFileDao.updateArtistSortWithId(c));
+        return candidatesWithId.stream().map(SortCandidate::getId).collect(Collectors.toList());
     }
 }
