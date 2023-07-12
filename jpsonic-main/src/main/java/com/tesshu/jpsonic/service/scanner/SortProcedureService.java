@@ -86,9 +86,9 @@ public class SortProcedureService {
     }
 
     List<Integer> compensateSortOfArtist(List<MusicFolder> folders) {
-        List<SortCandidate> candidates = mediaFileDao.getSortForPersonWithoutSorts(folders);
-        candidates.forEach(utils::analyze);
-        return updateSortOfArtist(candidates);
+        List<SortCandidate> candidatesWithId = mediaFileDao.getSortForPersonWithoutSorts(folders);
+        candidatesWithId.forEach(utils::analyze);
+        return updateSortOfArtistWithId(candidatesWithId);
     }
 
     List<Integer> copySortOfAlbum(List<MusicFolder> folders) {
@@ -185,15 +185,6 @@ public class SortProcedureService {
         }
         List<Integer> toBeFixed = mediaFileDao.getSortOfAlbumToBeFixed(candidates);
         candidates.forEach(c -> mediaFileDao.updateAlbumSort(c));
-        return toBeFixed;
-    }
-
-    private List<Integer> updateSortOfArtist(@NonNull List<SortCandidate> candidates) {
-        if (candidates.isEmpty()) {
-            return Collections.emptyList();
-        }
-        List<Integer> toBeFixed = mediaFileDao.getSortOfArtistToBeFixed(candidates);
-        candidates.forEach(c -> mediaFileDao.updateArtistSort(c));
         return toBeFixed;
     }
 

@@ -931,14 +931,14 @@ public class MediaFileDao extends AbstractDao {
         Map<String, Object> args = Map.of("typeDirAndAlbum",
                 Arrays.asList(MediaType.DIRECTORY.name(), MediaType.ALBUM.name()), "folders",
                 MusicFolder.toPathList(folders));
-        String query = "select field, name, null as sort from("
-                + "select distinct 0 as field, album_artist as name from media_file "
-                + "where folder in (:folders) and present and type not in (:typeDirAndAlbum) and (album_artist is not null and album_artist_sort is null) "
-                + "union select distinct 1 as field, artist as name from media_file "
-                + "where folder in (:folders) and present and type not in (:typeDirAndAlbum) and (artist is not null and artist_sort is null) "
-                + "union select distinct 2 as field, composer as name from media_file "
-                + "where folder in (:folders) and present and type not in (:typeDirAndAlbum) and (composer is not null and composer_sort is null)) no_sorts";
-        return namedQuery(query, sortCandidateMapper, args);
+        String query = "select field, name, null as sort, id from("
+                + "select distinct 0 as field, album_artist as name, id from media_file "
+                + "where folder in (:folders) and present and type not in (:typeDirAndAlbum) and album_artist is not null and album_artist_sort is null "
+                + "union select distinct 1 as field, artist as name, id from media_file "
+                + "where folder in (:folders) and folder <> path and present and artist is not null and artist_sort is null "
+                + "union select distinct 2 as field, composer as name, id from media_file "
+                + "where folder in (:folders) and present and type not in (:typeDirAndAlbum) and composer is not null and composer_sort is null) no_sorts";
+        return namedQuery(query, sortCandidateWithIdMapper, args);
     }
 
     public List<Integer> getSortOfAlbumToBeFixed(List<SortCandidate> candidates) {
@@ -948,26 +948,6 @@ public class MediaFileDao extends AbstractDao {
         return namedQuery("select distinct id from media_file "
                 + "where present and album in (:names) and (album_sort is null or album_sort not in(:sotes))  "
                 + "order by id ", (rs, rowNum) -> rs.getInt(1), args);
-    }
-
-    public List<Integer> getSortOfArtistToBeFixed(@NonNull List<SortCandidate> candidates) {
-        if (candidates.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Map<String, Object> args = LegacyMap.of("names",
-                candidates.stream().map(SortCandidate::getName).collect(Collectors.toList()), "sotes",
-                candidates.stream().map(SortCandidate::getSort).collect(Collectors.toList()));
-        return namedQuery(
-                "select distinct id from (select id from media_file where present "
-                        + "   and artist in (:names) and (artist_sort is null "
-                        + "       or artist_sort not in(:sotes)) union select id "
-                        + "   from media_file where present and type not in ('DIERECTORY', 'ALBUM') "
-                        + "   and album_artist in (:names) and (album_artist_sort is null "
-                        + "       or album_artist_sort not in(:sotes)) union select id "
-                        + "   from media_file where present and type not in ('DIERECTORY', 'ALBUM') "
-                        + "   and composer in (:names) and (composer_sort is null "
-                        + "       or composer_sort not in(:sotes))) to_be_fixed order by id",
-                (rs, rowNum) -> rs.getInt(1), args);
     }
 
     public List<SortCandidate> getSortOfArtistToBeFixedWithId(@NonNull List<SortCandidate> candidates) {
