@@ -39,6 +39,7 @@ public class GenericDaoHelper implements DaoHelper {
     public GenericDaoHelper(DataSource dataSource) {
         this.dataSource = dataSource;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        jdbcTemplate.setFetchSize(10_000);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 

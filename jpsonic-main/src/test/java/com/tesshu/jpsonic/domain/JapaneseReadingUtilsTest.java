@@ -1143,7 +1143,7 @@ class JapaneseReadingUtilsTest {
 
         @Test
         void testNullSort() {
-            SortCandidate candidate = new SortCandidate(nameRaw, null);
+            SortCandidate candidate = new SortCandidate(-1, nameRaw, null);
             utils.analyze(candidate);
             assertEquals(nameRaw, candidate.getName());
             assertEquals(readingAnalyzedFromName, candidate.getReading());
@@ -1152,7 +1152,7 @@ class JapaneseReadingUtilsTest {
 
         @Test
         void testNotNullSort() {
-            SortCandidate candidate = new SortCandidate(nameRaw, sortRaw);
+            SortCandidate candidate = new SortCandidate(-1, nameRaw, sortRaw);
             utils.analyze(candidate);
             assertEquals(nameRaw, candidate.getName());
             assertEquals(readingAnalyzedFromSort, candidate.getReading());
