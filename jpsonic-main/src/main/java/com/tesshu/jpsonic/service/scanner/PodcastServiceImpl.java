@@ -792,11 +792,7 @@ public class PodcastServiceImpl implements PodcastService {
         filename = filename.substring(0, Math.min(filename.length(), 146));
 
         filename = StringUtil.fileSystemSafe(filename);
-        String extension = FilenameUtils.getExtension(filename);
-        filename = FilenameUtils.removeExtension(filename);
-        if (StringUtils.isBlank(extension)) {
-            extension = "mp3";
-        }
+        String extension = FilenameUtils.getExtension(episode.getUrl());
 
         Path channelDir = getChannelDirectory(channel);
         Path file = Path.of(channelDir.toString(), filename + "." + extension);

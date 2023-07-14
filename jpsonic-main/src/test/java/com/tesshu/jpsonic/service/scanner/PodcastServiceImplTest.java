@@ -150,7 +150,7 @@ class PodcastServiceImplTest {
 
         episode = new PodcastEpisode(epId, null, episodeUrl, null, episodeTitle, null, publishDate, null, null, null,
                 null, null);
-        fileName = channel.getTitle() + " - " + pubDateStr + " - " + epId + " - " + episodeTitle + ".mp3";
+        fileName = channel.getTitle() + " - " + pubDateStr + " - " + epId + " - " + episodeTitle + ".m4a";
         assertEquals(podcastFolder.toString() + File.separator + channelTitle + File.separator + fileName,
                 podcastService.getFile(channel, episode).toString());
 
@@ -159,7 +159,7 @@ class PodcastServiceImplTest {
 
         episode = new PodcastEpisode(epId, null, episodeUrl, null, episodeTitle, null, publishDate, null, null, null,
                 null, null);
-        fileName = channel.getTitle() + " - " + pubDateStr + " - " + epId + " - Star Wars Ep.1";
+        fileName = channel.getTitle() + " - " + pubDateStr + " - " + epId + " - Star Wars Ep.1.mp3";
         assertEquals(podcastFolder.toString() + File.separator + channelTitle + File.separator + fileName,
                 podcastService.getFile(channel, episode).toString());
     }
