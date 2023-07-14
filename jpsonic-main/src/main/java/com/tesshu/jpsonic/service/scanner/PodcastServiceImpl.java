@@ -783,7 +783,7 @@ public class PodcastServiceImpl implements PodcastService {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
-    private Path getFile(PodcastChannel channel, PodcastEpisode episode) {
+    Path getFile(PodcastChannel channel, PodcastEpisode episode) {
 
         String episodeDate = episode.getPublishDate() == null ? StringUtils.EMPTY : DateTimeFormatter
                 .ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault()).format(episode.getPublishDate());

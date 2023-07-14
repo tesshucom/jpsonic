@@ -25,31 +25,39 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.io.File;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.domain.PodcastChannel;
+import com.tesshu.jpsonic.domain.PodcastEpisode;
 import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-@SuppressWarnings("PMD.TooManyStaticImports")
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class PodcastServiceImplTest {
 
+    private SettingsService settingsService;
+    private SecurityService securityService;
     private PodcastServiceImpl podcastService;
 
     @BeforeEach
     public void setup() throws ExecutionException {
-        SettingsService settingsService = mock(SettingsService.class);
-        Mockito.when(settingsService.getMusicFileTypesAsArray()).thenReturn(Arrays.asList(
-                "mp3 ogg oga aac m4a m4b flac wav wma aif aiff aifc ape mpc shn mka opus dsf dsd".split("\\s+")));
+        settingsService = mock(SettingsService.class);
+        securityService = mock(SecurityService.class);
         MediaFileService mediaFlieService = new MediaFileService(settingsService, null, null, null, null, null);
-        podcastService = new PodcastServiceImpl(null, settingsService, null, mediaFlieService, null, null, null, null,
-                null, null);
+        podcastService = new PodcastServiceImpl(null, settingsService, securityService, mediaFlieService, null, null,
+                null, null, null, null);
     }
 
     private ZonedDateTime toJST(String date) {
@@ -97,6 +105,10 @@ class PodcastServiceImplTest {
 
     @Test
     void testIsAudioEpisode() {
+
+        Mockito.when(settingsService.getMusicFileTypesAsArray()).thenReturn(Arrays.asList(
+                "mp3 ogg oga aac m4a m4b flac wav wma aif aiff aifc ape mpc shn mka opus dsf dsd".split("\\s+")));
+
         assertTrue(podcastService.isAudioEpisode("http://tesshu.com/episode.mp3"));
         assertTrue(podcastService.isAudioEpisode("http://tesshu.com/episode.m4a"));
         assertTrue(podcastService.isAudioEpisode("http://tesshu.com/episode.ogg"));
@@ -108,5 +120,47 @@ class PodcastServiceImplTest {
         assertFalse(podcastService.isAudioEpisode("http://tesshu.com/withoutExtenssion/"));
         assertTrue(podcastService.isAudioEpisode("http://tesshu.com/episode.mp3?size=mid"));
         assertFalse(podcastService.isAudioEpisode("http://tesshu.com/episode.sh?size=mid"));
+    }
+
+    @Test
+    void testGetFile() throws URISyntaxException {
+
+        Path podcastFolder = Path
+                .of(PodcastServiceImplTest.class.getResource("/MEDIAS/Podcast").toURI());
+        Mockito.when(settingsService.getPodcastFolder()).thenReturn(podcastFolder.toString());
+        Mockito.when(securityService.isWriteAllowed(Mockito.any(Path.class))).thenReturn(true);
+
+        final String channelTitle = "chTitle";
+        final PodcastChannel channel = new PodcastChannel(null, null, channelTitle, null, null, null, null);
+        final int epId = 99;
+        final Instant publishDate = Instant.now();
+        final String pubDateStr = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
+                .format(publishDate);
+
+        String episodeTitle = "epTitle";
+        String episodeUrl = "http://tesshu.com/chTitle/epTitle.mp3";
+
+        PodcastEpisode episode = new PodcastEpisode(epId, null, episodeUrl, null, episodeTitle, null, publishDate, null,
+                null, null, null, null);
+        String fileName = channel.getTitle() + " - " + pubDateStr + " - " + epId + " - " + episodeTitle + ".mp3";
+        assertEquals(podcastFolder.toString() + File.separator + channelTitle + File.separator + fileName,
+                podcastService.getFile(channel, episode).toString());
+
+        episodeUrl = "http://tesshu.com/chTitle/epTitle.m4a";
+
+        episode = new PodcastEpisode(epId, null, episodeUrl, null, episodeTitle, null, publishDate, null, null, null,
+                null, null);
+        fileName = channel.getTitle() + " - " + pubDateStr + " - " + epId + " - " + episodeTitle + ".mp3";
+        assertEquals(podcastFolder.toString() + File.separator + channelTitle + File.separator + fileName,
+                podcastService.getFile(channel, episode).toString());
+
+        episodeUrl = "http://tesshu.com/Star+Wars/Star+Wars+Ep.1.mp3";
+        episodeTitle = "Star Wars Ep.1";
+
+        episode = new PodcastEpisode(epId, null, episodeUrl, null, episodeTitle, null, publishDate, null, null, null,
+                null, null);
+        fileName = channel.getTitle() + " - " + pubDateStr + " - " + epId + " - Star Wars Ep.1";
+        assertEquals(podcastFolder.toString() + File.separator + channelTitle + File.separator + fileName,
+                podcastService.getFile(channel, episode).toString());
     }
 }
