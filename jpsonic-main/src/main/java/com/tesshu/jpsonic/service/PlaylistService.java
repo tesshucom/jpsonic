@@ -150,7 +150,7 @@ public class PlaylistService {
     }
 
     public List<MediaFile> getFilesInPlaylist(int id, boolean includeNotPresent) {
-        List<MediaFile> files = mediaFileDao.getFilesInPlaylist(id);
+        List<MediaFile> files = mediaFileDao.getFilesInPlaylist(id, 0L, Integer.MAX_VALUE);
         if (includeNotPresent) {
             return files;
         }
