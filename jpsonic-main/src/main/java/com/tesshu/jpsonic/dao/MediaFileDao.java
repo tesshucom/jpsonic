@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -42,6 +43,7 @@ import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import com.tesshu.jpsonic.domain.SortCandidate;
+import com.tesshu.jpsonic.domain.SortCandidate.CandidateField;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -102,8 +104,10 @@ public class MediaFileDao extends AbstractDao {
             null, null, null, null, -1);
     private final RowMapper<Genre> genreRowMapper = (rs, rowNum) -> new Genre(rs.getString(1), rs.getInt(2),
             rs.getInt(3));
-    private final RowMapper<SortCandidate> sortCandidateMapper = (rs, rowNum) -> new SortCandidate(rs.getString(1),
-            rs.getString(2));
+    private final RowMapper<SortCandidate> sortCandidateMapper = (rs, rowNum) -> new SortCandidate(rs.getInt(1),
+            rs.getString(2), rs.getString(3));
+    private final RowMapper<SortCandidate> sortCandidateWithIdMapper = (rs, rowNum) -> new SortCandidate(rs.getInt(1),
+            rs.getString(2), rs.getString(3), rs.getInt(4));
 
     public MediaFileDao(DaoHelper daoHelper) {
         super(daoHelper);
@@ -135,7 +139,7 @@ public class MediaFileDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of("type", mediaType.name(), "count", count, "offset", offset, "folders",
                 MusicFolder.toPathList(folders));
         return namedQuery("select " + QUERY_COLUMNS
-                + " from media_file where present and type= :type and folder in(:folders)　order by media_file_order limit :count offset :offset",
+                + " from media_file where present and type= :type and folder in(:folders)　limit :count offset :offset",
                 rowMapper, args);
     }
 
@@ -144,9 +148,10 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public List<MediaFile> getChildrenOf(final long offset, final long count, String path, boolean byYear) {
-        String order = byYear ? "year" : "media_file_order";
-        return query("select " + QUERY_COLUMNS + " from media_file where parent_path=? and present order by " + order
-                + " limit ? offset ?", rowMapper, path, count, offset);
+        return query(
+                "select " + QUERY_COLUMNS + " from media_file where parent_path=? and present order by "
+                        + (byYear ? "year is null, year, " : "") + "media_file_order limit ? offset ?",
+                rowMapper, path, count, offset);
     }
 
     public List<MediaFile> getChildrenWithOrderOf(String path) {
@@ -156,24 +161,10 @@ public class MediaFileDao extends AbstractDao {
                 rowMapper, path);
     }
 
-    public List<MediaFile> getFilesInPlaylist(int playlistId) {
-        return query("select " + prefix(QUERY_COLUMNS, "media_file") + " from playlist_file, media_file where "
-                + "media_file.id = playlist_file.media_file_id and playlist_file.playlist_id = ? "
-                + "order by playlist_file.id", rowMapper, playlistId);
-    }
-
     public List<MediaFile> getFilesInPlaylist(int playlistId, long offset, long count) {
         return query("select " + prefix(QUERY_COLUMNS, "media_file") + " from playlist_file, media_file "
                 + "where media_file.id = playlist_file.media_file_id and playlist_file.playlist_id = ? and present "
                 + "order by playlist_file.id limit ? offset ?", rowMapper, playlistId, count, offset);
-    }
-
-    public List<MediaFile> getSongsForAlbum(String artist, String album) {
-        return query(
-                "select " + QUERY_COLUMNS + " from media_file where album_artist=? and album=? and present "
-                        + "and type in (?,?,?) order by disc_number, track_number",
-                rowMapper, artist, album, MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.AUDIOBOOK.name(),
-                MediaFile.MediaType.PODCAST.name());
     }
 
     public List<MediaFile> getSongsForAlbum(final long offset, final long count, MediaFile album) {
@@ -398,17 +389,15 @@ public class MediaFileDao extends AbstractDao {
                 offset);
 
         if (fromYear <= toYear) {
-            return namedQuery(
-                    "select " + QUERY_COLUMNS
-                            + " from media_file where type = :type and folder in (:folders) and present "
-                            + "and year between :fromYear and :toYear order by year limit :count offset :offset",
-                    rowMapper, args);
+            return namedQuery("select " + QUERY_COLUMNS
+                    + " from media_file where type = :type and folder in (:folders) and present "
+                    + "and year between :fromYear and :toYear "
+                    + "order by year, media_file_order limit :count offset :offset", rowMapper, args);
         } else {
-            return namedQuery(
-                    "select " + QUERY_COLUMNS
-                            + " from media_file where type = :type and folder in (:folders) and present "
-                            + "and year between :toYear and :fromYear order by year desc limit :count offset :offset",
-                    rowMapper, args);
+            return namedQuery("select " + QUERY_COLUMNS
+                    + " from media_file where type = :type and folder in (:folders) and present "
+                    + "and year between :toYear and :fromYear "
+                    + "order by year desc, media_file_order limit :count offset :offset", rowMapper, args);
         }
     }
 
@@ -696,13 +685,6 @@ public class MediaFileDao extends AbstractDao {
                 "select count(*) from media_file where type = :type and folder in (:folders) and present", 0, args);
     }
 
-    public int getAlbumCount(MusicFolder folder) {
-        return queryForInt(
-                "select count(*) from media_file right join music_folder on music_folder.path = media_file.folder "
-                        + "where present and folder = ? and type = ?",
-                0, folder.getPathString(), MediaFile.MediaType.ALBUM.name());
-    }
-
     public int getArtistCount(MusicFolder folder) {
         return queryForInt(
                 "select count(*) from media_file right join music_folder on music_folder.path = media_file.folder "
@@ -757,13 +739,13 @@ public class MediaFileDao extends AbstractDao {
                 username);
     }
 
-    public void resetLastScanned() {
-        update("update media_file set last_scanned = ?, children_last_updated = ? where present", FAR_PAST, FAR_PAST);
-    }
-
-    public void resetLastScanned(int id) {
-        update("update media_file set last_scanned = ?, children_last_updated = ? where present and id = ?", FAR_PAST,
-                FAR_PAST, id);
+    public void resetLastScanned(@Nullable Integer id) {
+        String query = "update media_file set last_scanned = ?, children_last_updated = ? where present";
+        if (id == null) {
+            update(query, FAR_PAST, FAR_PAST);
+        } else {
+            update(query + " and id = ?", FAR_PAST, FAR_PAST, id);
+        }
     }
 
     public void updateLastScanned(int id, Instant lastScanned) {
@@ -829,35 +811,37 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = Map.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
                 MusicFolder.toPathList(folders));
-        return namedQuery("select known.name , known.sort from (select distinct album as name from media_file "
-                + "where folder in (:folders) and present and type = :type and (album is not null and album_sort is null)) unknown "
-                + "join (select distinct album as name, album_sort as sort from media_file "
-                + "where folder in (:folders) and type = :type and album is not null and album_sort is not null and present) known "
-                + "on known.name = unknown.name ", sortCandidateMapper, args);
+        return namedQuery(
+                "select 3 as field, known.name , known.sort from (select distinct album as name from media_file "
+                        + "where folder in (:folders) and present and type = :type and (album is not null and album_sort is null)) unknown "
+                        + "join (select distinct album as name, album_sort as sort from media_file "
+                        + "where folder in (:folders) and type = :type and album is not null and album_sort is not null and present) known "
+                        + "on known.name = unknown.name ",
+                sortCandidateMapper, args);
     }
 
     public List<SortCandidate> getCopyableSortForPersons(List<MusicFolder> folders) {
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = Map.of("typeDirAndAlbum",
-                Arrays.asList(MediaType.DIRECTORY.name(), MediaType.ALBUM.name()), "typeMusic",
-                MediaFile.MediaType.MUSIC.name(), "folders", MusicFolder.toPathList(folders));
-        String query = "select known.name , known.sort from (select distinct artist as name from media_file "
-                + "where folder in (:folders) and present and type in (:typeDirAndAlbum) and (artist is not null and artist_sort is null) "
-                + "union select distinct album_artist as name from media_file "
-                + "where folder in (:folders) and present and type not in (:typeDirAndAlbum) and (album_artist is not null and album_artist_sort is null) "
-                + "union select distinct composer as name from media_file "
-                + "where folder in (:folders) and present and type not in (:typeDirAndAlbum) and (composer is not null and composer_sort is null)) unknown "
+        Map<String, Object> args = Map.of("folders", MusicFolder.toPathList(folders), "type",
+                MediaFile.MediaType.MUSIC.name());
+        String query = "select field, merged.name , merged.sort, id from ( "
+                + "select distinct 0 as field, album_artist as name, id from media_file "
+                + "where folder in (:folders) and present and album_artist is not null and album_artist_sort is null "
+                + "union select 1 as field, artist as name, id from media_file "
+                + "where folder in (:folders) and present and artist is not null and artist_sort is null "
+                + "union select distinct 2 as field, composer as name, id from media_file "
+                + "where folder in (:folders) and present and composer is not null and composer_sort is null) no_sort "
                 + "join (select distinct name, sort from "
                 + "(select distinct album_artist as name, album_artist_sort as sort from media_file "
-                + "where folder in (:folders) and type = :typeMusic and album_artist is not null and album_artist_sort is not null and present "
+                + "where folder in (:folders) and type = :type and album_artist is not null and album_artist_sort is not null and present "
                 + "union select distinct artist as name, artist_sort as sort from media_file "
-                + "where folder in (:folders) and type = :typeMusic and artist is not null and artist_sort is not null and present "
+                + "where folder in (:folders) and type = :type and artist is not null and artist_sort is not null and present "
                 + "union select distinct composer as name, composer_sort as sort from media_file "
-                + "where folder in (:folders) and type = :typeMusic and composer is not null and composer_sort is not null and present"
-                + ") person_union) known on known.name = unknown.name";
-        return namedQuery(query, sortCandidateMapper, args);
+                + "where folder in (:folders) and type = :type and composer is not null and composer_sort is not null and present "
+                + ") merged_union) merged on merged.name = no_sort.name";
+        return namedQuery(query, sortCandidateWithIdMapper, args);
     }
 
     public int getCountInPlaylist(int playlistId) {
@@ -916,8 +900,7 @@ public class MediaFileDao extends AbstractDao {
          */
         List<MediaFile> tmpResult = namedQuery("select " + QUERY_COLUMNS + ", foo.irownum from (select "
                 + "        (select count(id) from media_file where id < boo.id and type = :type and album_artist = :artist) as irownum, boo.* "
-                + "    from (select * from media_file where type = :type "
-                + "        and album_artist = :artist order by media_file_order, album_artist, album) boo "
+                + "    from (select * from media_file where type = :type and album_artist = :artist) boo "
                 + ") as foo where foo.irownum in ( :randomRownum ) limit :limit ", iRowMapper, args);
 
         /* Restore the order lost in IN. */
@@ -948,13 +931,14 @@ public class MediaFileDao extends AbstractDao {
         Map<String, Object> args = Map.of("typeDirAndAlbum",
                 Arrays.asList(MediaType.DIRECTORY.name(), MediaType.ALBUM.name()), "folders",
                 MusicFolder.toPathList(folders));
-        String query = "select name, null as sort from(select distinct artist as name from media_file "
-                + "where folder in (:folders) and present and type not in (:typeDirAndAlbum) and (artist is not null and artist_sort is null) "
-                + "union select distinct album_artist as name from media_file "
-                + "where folder in (:folders) and present and type not in (:typeDirAndAlbum) and (album_artist is not null and album_artist_sort is null) "
-                + "union select distinct composer as name from media_file "
-                + "where folder in (:folders) and present and type not in (:typeDirAndAlbum) and (composer is not null and composer_sort is null)) no_sorts";
-        return namedQuery(query, sortCandidateMapper, args);
+        String query = "select field, name, null as sort, id from("
+                + "select distinct 0 as field, album_artist as name, id from media_file "
+                + "where folder in (:folders) and present and type not in (:typeDirAndAlbum) and album_artist is not null and album_artist_sort is null "
+                + "union select distinct 1 as field, artist as name, id from media_file "
+                + "where folder in (:folders) and folder <> path and present and artist is not null and artist_sort is null "
+                + "union select distinct 2 as field, composer as name, id from media_file "
+                + "where folder in (:folders) and present and type not in (:typeDirAndAlbum) and composer is not null and composer_sort is null) no_sorts";
+        return namedQuery(query, sortCandidateWithIdMapper, args);
     }
 
     public List<Integer> getSortOfAlbumToBeFixed(List<SortCandidate> candidates) {
@@ -966,24 +950,26 @@ public class MediaFileDao extends AbstractDao {
                 + "order by id ", (rs, rowNum) -> rs.getInt(1), args);
     }
 
-    public List<Integer> getSortOfArtistToBeFixed(@NonNull List<SortCandidate> candidates) {
+    public List<SortCandidate> getSortOfArtistToBeFixedWithId(@NonNull List<SortCandidate> candidates) {
+        List<SortCandidate> result = new ArrayList<>();
         if (candidates.isEmpty()) {
-            return Collections.emptyList();
+            return result;
         }
-        Map<String, Object> args = LegacyMap.of("names",
-                candidates.stream().map(SortCandidate::getName).collect(Collectors.toList()), "sotes",
-                candidates.stream().map(SortCandidate::getSort).collect(Collectors.toList()));
-        return namedQuery(
-                "select distinct id from (select id from media_file where present "
-                        + "   and artist in (:names) and (artist_sort is null "
-                        + "       or artist_sort not in(:sotes)) union select id "
-                        + "   from media_file where present and type not in ('DIERECTORY', 'ALBUM') "
-                        + "   and album_artist in (:names) and (album_artist_sort is null "
-                        + "       or album_artist_sort not in(:sotes)) union select id "
-                        + "   from media_file where present and type not in ('DIERECTORY', 'ALBUM') "
-                        + "   and composer in (:names) and (composer_sort is null "
-                        + "       or composer_sort not in(:sotes))) to_be_fixed order by id",
-                (rs, rowNum) -> rs.getInt(1), args);
+        String query = "select 0 as field, :name, :sote, id from media_file "
+                + "where type != :directory and album_artist = :name and album_artist_sort <> :sote and present "
+                + "union select 1 as field, :name, :sote, id from media_file "
+                + "where artist = :name and artist_sort <> :sote and present "
+                + "union select 2 as field, :name, :sote, id from media_file "
+                + "where type = :music and composer = :name and composer_sort <> :sote and present";
+        Map<String, Object> args = new ConcurrentHashMap<>();
+        args.put("directory", MediaType.DIRECTORY.name());
+        args.put("music", MediaType.MUSIC.name());
+        candidates.forEach(candidate -> {
+            args.put("name", candidate.getName());
+            args.put("sote", candidate.getSort());
+            result.addAll(namedQuery(query, sortCandidateWithIdMapper, args));
+        });
+        return result;
     }
 
     public List<SortCandidate> getSortForAlbumWithoutSorts(List<MusicFolder> folders) {
@@ -992,7 +978,7 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = Map.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
                 MusicFolder.toPathList(folders));
-        return namedQuery("select distinct album as name, null as sort from media_file "
+        return namedQuery("select distinct 3 as field, album as name, null as sort from media_file "
                 + "where present and folder in (:folders) and type = :type and (album is not null and album_sort is null) ",
                 sortCandidateMapper, args);
     }
@@ -1004,7 +990,7 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = Map.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
                 MusicFolder.toPathList(folders));
-        List<SortCandidate> candidates = namedQuery("select name, sort, duplicates_with_changed.changed "
+        List<SortCandidate> candidates = namedQuery("select 3 as field, name, sort, duplicates_with_changed.changed "
                 + "from (select distinct album as name, album_sort as sort, changed from media_file m1 "
                 + "join (select name, count(sort) from ( select distinct album as name, album_sort as sort from media_file  "
                 + "where album is not null and album_sort is not null and folder in (:folders)) named_album group by name having 1 < count(sort)) duplicates "
@@ -1027,24 +1013,23 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("type", MediaType.MUSIC.name(), "folders",
                 MusicFolder.toPathList(folders));
-        String query = "select person_all_with_priority.name, sort, min(source) as source, max(changed) as changed from "
-                + "(select album_artist as name, album_artist_sort as sort, 1 as source, type, changed from media_file "
-                + "where folder in(:folders) and type = :type and album_artist is not null and album_artist_sort is not null and present "
-                + "union select artist as name, artist_sort as sort, 2 as source, type, changed from media_file "
-                + "where folder in(:folders) and type = :type and artist is not null and artist_sort is not null and present "
-                + "union select composer as name, composer_sort as sort, 3 as source, type, changed from media_file "
-                + "where folder in(:folders) and type = :type and composer is not null and composer_sort is not null and present) as person_all_with_priority "
-                + "join (select distinct name from "
-                + "(select album_artist as name, album_artist_sort as sort from media_file "
-                + "where folder in(:folders) and type = :type and album_artist is not null and album_artist_sort is not null and present "
+        String query = "select min(field) as field, person_all_with_priority.name, sort, max(changed) as changed from "
+                + "(select 0 as field, album_artist as name, album_artist_sort as sort, type, changed from media_file "
+                + "where folder in (:folders) and type = :type and album_artist is not null and album_artist_sort is not null and present "
+                + "union select 1 as field, artist as name, artist_sort as sort, type, changed from media_file "
+                + "where folder in (:folders) and type = :type and artist is not null and artist_sort is not null and present "
+                + "union select 2 as field, composer as name, composer_sort as sort, type, changed from media_file "
+                + "where folder in (:folders) and type = :type and composer is not null and composer_sort is not null and present) as person_all_with_priority "
+                + "join (select distinct name from (select album_artist as name, album_artist_sort as sort from media_file "
+                + "where folder in (:folders) and type = :type and album_artist is not null and album_artist_sort is not null and present "
                 + "union select artist as name, artist_sort as sort from media_file "
-                + "where folder in(:folders) and type = :type and artist is not null and artist_sort is not null and present "
+                + "where folder in (:folders) and type = :type and artist is not null and artist_sort is not null and present "
                 + "union select composer as name, composer_sort as sort from media_file "
-                + "where folder in(:folders) and type = :type and composer is not null and composer_sort is not null and present) person_union "
+                + "where folder in (:folders) and type = :type and composer is not null and composer_sort is not null and present) person_union "
                 + "group by name having 1 < count(sort)) as duplicate_names "
                 + "on person_all_with_priority.name = duplicate_names.name "
-                + "group by person_all_with_priority.name, sort "
-                + "order by person_all_with_priority.name, source, changed desc ";
+                + "group by field, person_all_with_priority.name, sort "
+                + "order by person_all_with_priority.name, field, changed desc";
         List<SortCandidate> candidates = namedQuery(query, sortCandidateMapper, args);
         candidates.forEach((candidate) -> {
             if (result.stream().noneMatch(r -> r.getName().equals(candidate.getName()))) {
@@ -1070,6 +1055,18 @@ public class MediaFileDao extends AbstractDao {
         update("update media_file set composer_sort = ? "
                 + "where present and type not in ('DIERECTORY', 'ALBUM') and composer = ? and (composer_sort is null or composer_sort <> ?)",
                 candidate.getSort(), candidate.getName(), candidate.getSort());
+    }
+
+    public void updateArtistSortWithId(SortCandidate candidate) {
+        if (candidate.getField() == CandidateField.ARTIST) {
+            update("update media_file set artist_reading = ?, artist_sort = ? where id = ?", candidate.getReading(),
+                    candidate.getSort(), candidate.getId());
+        } else if (candidate.getField() == CandidateField.ALBUM_ARTIST) {
+            update("update media_file set album_artist_reading = ?, album_artist_sort = ? where id = ?",
+                    candidate.getReading(), candidate.getSort(), candidate.getId());
+        } else if (candidate.getField() == CandidateField.COMPOSER) {
+            update("update media_file set composer_sort = ? where id = ?", candidate.getSort(), candidate.getId());
+        }
     }
 
     static class RandomSongsQueryBuilder {

@@ -195,7 +195,7 @@ public class ScannerProcedureService {
         indexManager.startIndexing();
 
         if (settingsService.isIgnoreFileTimestamps()) {
-            mediaFileDao.resetLastScanned();
+            mediaFileDao.resetLastScanned(null);
             artistDao.deleteAll();
             albumDao.deleteAll();
             indexManager.deleteAll();
@@ -803,7 +803,7 @@ public class ScannerProcedureService {
         for (MusicFolder folder : musicFolderService.getAllMusicFolders()) {
             stats.setFolderId(folder.getId());
             stats.setArtistCount(mediaFileDao.getArtistCount(folder));
-            stats.setAlbumCount(mediaFileDao.getAlbumCount(folder));
+            stats.setAlbumCount(mediaFileDao.getAlbumCount(Arrays.asList(folder)));
             stats.setSongCount(mediaFileDao.getSongCount(folder));
             stats.setVideoCount(mediaFileDao.getVideoCount(folder));
             stats.setTotalDuration(mediaFileDao.getTotalSeconds(folder));
