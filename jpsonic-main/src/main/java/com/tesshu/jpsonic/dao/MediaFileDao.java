@@ -567,11 +567,10 @@ public class MediaFileDao extends AbstractDao {
                 + "mf_al.media_file_order al_order, mf.media_file_order as mf_order from media_file mf "
                 + "join music_folder on music_folder.enabled and music_folder.path = mf.folder "
                 + "join media_file mf_al on mf_al.path = mf.parent_path) unregistered "
-                + "join (select album, album_artist, min(file_order) as file_order from ( "
-                + "select mf.album, mf.album_artist, mf_al.media_file_order * :childMax + mf.media_file_order + music_folder.folder_order * :childMax * 10 as file_order from media_file mf "
+                + "join (select mf.album, mf.album_artist, min(mf_al.media_file_order * :childMax + mf.media_file_order + music_folder.folder_order * :childMax * 10) as file_order from media_file mf "
                 + "join music_folder on music_folder.enabled and mf.present and mf.type in (:types) and mf.folder in (:folders) and music_folder.path = mf.folder "
                 + "left join album al on al.name = mf.album and al.artist = mf.album_artist "
-                + "join media_file mf_al on mf.album is not null and mf.album_artist is not null and al.name is null and al.artist is null and mf_al.path = mf.parent_path) gap "
+                + "join media_file mf_al on mf.album is not null and mf.album_artist is not null and al.name is null and al.artist is null and mf_al.path = mf.parent_path "
                 + "group by album, album_artist) fetched "
                 + "on fetched.album = mf_album and fetched.album_artist = mf_album_artist "
                 + "and fetched.file_order = unregistered.al_order * :childMax + unregistered.mf_order + unregistered.folder_order * :childMax * 10 limit :count";
