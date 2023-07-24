@@ -307,17 +307,6 @@ public class MediaFileDao extends AbstractDao {
         }
     }
 
-    public long getTotalBytes(MusicFolder folder) {
-        return queryForLong("select sum(file_size) from media_file where present and folder = ? and type = 'MUSIC'", 0L,
-                folder.getPathString());
-    }
-
-    public long getTotalSeconds(MusicFolder folder) {
-        return queryForLong(
-                "select sum(duration_seconds) from media_file where present and folder = ? and type = 'MUSIC'", 0L,
-                folder.getPathString());
-    }
-
     public List<MediaFile> getMostFrequentlyPlayedAlbums(final int offset, final int count,
             final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
@@ -567,11 +556,10 @@ public class MediaFileDao extends AbstractDao {
                 + "mf_al.media_file_order al_order, mf.media_file_order as mf_order from media_file mf "
                 + "join music_folder on music_folder.enabled and music_folder.path = mf.folder "
                 + "join media_file mf_al on mf_al.path = mf.parent_path) unregistered "
-                + "join (select album, album_artist, min(file_order) as file_order from ( "
-                + "select mf.album, mf.album_artist, mf_al.media_file_order * :childMax + mf.media_file_order + music_folder.folder_order * :childMax * 10 as file_order from media_file mf "
+                + "join (select mf.album, mf.album_artist, min(mf_al.media_file_order * :childMax + mf.media_file_order + music_folder.folder_order * :childMax * 10) as file_order from media_file mf "
                 + "join music_folder on music_folder.enabled and mf.present and mf.type in (:types) and mf.folder in (:folders) and music_folder.path = mf.folder "
                 + "left join album al on al.name = mf.album and al.artist = mf.album_artist "
-                + "join media_file mf_al on mf.album is not null and mf.album_artist is not null and al.name is null and al.artist is null and mf_al.path = mf.parent_path) gap "
+                + "join media_file mf_al on mf.album is not null and mf.album_artist is not null and al.name is null and al.artist is null and mf_al.path = mf.parent_path "
                 + "group by album, album_artist) fetched "
                 + "on fetched.album = mf_album and fetched.album_artist = mf_album_artist "
                 + "and fetched.file_order = unregistered.al_order * :childMax + unregistered.mf_order + unregistered.folder_order * :childMax * 10 limit :count";
@@ -683,23 +671,6 @@ public class MediaFileDao extends AbstractDao {
                 MusicFolder.toPathList(musicFolders));
         return namedQueryForInt(
                 "select count(*) from media_file where type = :type and folder in (:folders) and present", 0, args);
-    }
-
-    public int getArtistCount(MusicFolder folder) {
-        return queryForInt(
-                "select count(*) from media_file right join music_folder on music_folder.path = media_file.folder "
-                        + "where present and folder = ? and type = ? and media_file.path <> folder",
-                0, folder.getPathString(), MediaFile.MediaType.DIRECTORY.name());
-    }
-
-    public int getSongCount(MusicFolder folder) {
-        return queryForInt("select count(*) from media_file where present and folder = ? and type = ?", 0,
-                folder.getPathString(), MediaFile.MediaType.MUSIC.name());
-    }
-
-    public int getVideoCount(MusicFolder folder) {
-        return queryForInt("select count(*) from media_file where present and folder = ? and type = ?", 0,
-                folder.getPathString(), MediaFile.MediaType.VIDEO.name());
     }
 
     public int getPlayedAlbumCount(final List<MusicFolder> musicFolders) {
