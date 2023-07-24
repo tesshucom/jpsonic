@@ -27,7 +27,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
+import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ScanEvent;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.domain.ScanLog;
@@ -121,6 +123,25 @@ public class StaticsDao extends AbstractDao {
                 "select count(*) from scan_event events where type in (:folderChanges) and events.start_date > "
                         + "(select start_date from scan_log where type = :scanAll order by start_date desc limit 1)",
                 0, args) > 0;
+    }
+
+    public MediaLibraryStatistics gatherMediaLibraryStatistics(@NonNull Instant scanDate, MusicFolder folder) {
+        String query = "select (select id from music_folder where path = :folder) as folder_id, "
+                + "count(case when present and folder = :folder and type = :directory and media_file.path <> folder then 1 end) as artist_count, "
+                + "count(case when present and folder = :folder and type = :album then 1 end) as album_count, "
+                + "count(case when present and folder = :folder and type = :music then 1 end) as song_count, "
+                + "count(case when present and folder = :folder and type = :video then 1 end) as video_count, "
+                + "sum(case when present and folder = :folder and type = :music then file_size end) as total_size, "
+                + "sum(case when present and folder = :folder and type = :music then duration_seconds end) as total_duration "
+                + "from media_file ";
+        RowMapper<MediaLibraryStatistics> mapper = (ResultSet rs, int rowNum) -> {
+            return new MediaLibraryStatistics(scanDate, rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4),
+                    rs.getInt(5), rs.getLong(6), rs.getLong(7));
+        };
+        Map<String, Object> args = Map.of("folder", folder.getPathString(), "directory",
+                MediaFile.MediaType.DIRECTORY.name(), "album", MediaFile.MediaType.ALBUM.name(), "music",
+                MediaFile.MediaType.MUSIC.name(), "video", MediaFile.MediaType.VIDEO.name());
+        return namedQuery(query, mapper, args).get(0);
     }
 
     public void createMediaLibraryStatistics(MediaLibraryStatistics stats) {
