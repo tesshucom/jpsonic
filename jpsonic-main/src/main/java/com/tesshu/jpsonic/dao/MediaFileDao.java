@@ -307,17 +307,6 @@ public class MediaFileDao extends AbstractDao {
         }
     }
 
-    public long getTotalBytes(MusicFolder folder) {
-        return queryForLong("select sum(file_size) from media_file where present and folder = ? and type = 'MUSIC'", 0L,
-                folder.getPathString());
-    }
-
-    public long getTotalSeconds(MusicFolder folder) {
-        return queryForLong(
-                "select sum(duration_seconds) from media_file where present and folder = ? and type = 'MUSIC'", 0L,
-                folder.getPathString());
-    }
-
     public List<MediaFile> getMostFrequentlyPlayedAlbums(final int offset, final int count,
             final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
@@ -682,23 +671,6 @@ public class MediaFileDao extends AbstractDao {
                 MusicFolder.toPathList(musicFolders));
         return namedQueryForInt(
                 "select count(*) from media_file where type = :type and folder in (:folders) and present", 0, args);
-    }
-
-    public int getArtistCount(MusicFolder folder) {
-        return queryForInt(
-                "select count(*) from media_file right join music_folder on music_folder.path = media_file.folder "
-                        + "where present and folder = ? and type = ? and media_file.path <> folder",
-                0, folder.getPathString(), MediaFile.MediaType.DIRECTORY.name());
-    }
-
-    public int getSongCount(MusicFolder folder) {
-        return queryForInt("select count(*) from media_file where present and folder = ? and type = ?", 0,
-                folder.getPathString(), MediaFile.MediaType.MUSIC.name());
-    }
-
-    public int getVideoCount(MusicFolder folder) {
-        return queryForInt("select count(*) from media_file where present and folder = ? and type = ?", 0,
-                folder.getPathString(), MediaFile.MediaType.VIDEO.name());
     }
 
     public int getPlayedAlbumCount(final List<MusicFolder> musicFolders) {
