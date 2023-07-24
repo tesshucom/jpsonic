@@ -799,17 +799,10 @@ public class ScannerProcedureService {
             return;
         }
         writeInfo("Collecting media library statistics ...");
-        MediaLibraryStatistics stats = new MediaLibraryStatistics(scanDate);
-        for (MusicFolder folder : musicFolderService.getAllMusicFolders()) {
-            stats.setFolderId(folder.getId());
-            stats.setArtistCount(mediaFileDao.getArtistCount(folder));
-            stats.setAlbumCount(mediaFileDao.getAlbumCount(Arrays.asList(folder)));
-            stats.setSongCount(mediaFileDao.getSongCount(folder));
-            stats.setVideoCount(mediaFileDao.getVideoCount(folder));
-            stats.setTotalDuration(mediaFileDao.getTotalSeconds(folder));
-            stats.setTotalSize(mediaFileDao.getTotalBytes(folder));
+        musicFolderService.getAllMusicFolders().forEach(folder -> {
+            MediaLibraryStatistics stats = staticsDao.gatherMediaLibraryStatistics(scanDate, folder);
             staticsDao.createMediaLibraryStatistics(stats);
-        }
+        });
         createScanEvent(scanDate, ScanEventType.RUN_STATS, null);
     }
 
