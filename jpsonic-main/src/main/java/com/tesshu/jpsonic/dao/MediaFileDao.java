@@ -959,22 +959,18 @@ public class MediaFileDao extends AbstractDao {
         if (folders.isEmpty()) {
             return result;
         }
-        Map<String, Object> args = Map.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
-                MusicFolder.toPathList(folders));
-        List<SortCandidate> candidates = namedQuery("select 3 as field, name, sort, duplicates_with_changed.changed "
-                + "from (select distinct album as name, album_sort as sort, changed from media_file m1 "
-                + "join (select name, count(sort) from ( select distinct album as name, album_sort as sort from media_file  "
-                + "where album is not null and album_sort is not null and folder in (:folders)) named_album group by name having 1 < count(sort)) duplicates "
-                + "on m1.album = duplicates.name) duplicates_with_changed "
-                + "join media_file m on type = :type and folder in (:folders) and name = album "
-                + "group by name, sort, duplicates_with_changed.changed having max(m.changed) = duplicates_with_changed.changed",
-                sortCandidateMapper, args);
-        candidates.forEach((candidate) -> {
-            if (result.stream().noneMatch(r -> r.getName().equals(candidate.getName()))) {
-                result.add(candidate);
-            }
-        });
-        return result;
+        Map<String, Object> args = Map.of("folders", MusicFolder.toPathList(folders));
+        String query = "select 3 as field, source.album, source.album_sort, to_be_fixed.id from( "
+                + "select distinct with_changed.album, with_sort.album_sort from( "
+                + "select fetched.album, max(fetched.changed) as changed from (select album from ( "
+                + "select distinct album, album_sort as sort from media_file "
+                + "where album is not null and album_sort is not null and folder in (:folders)) named_album "
+                + "group by album having 1 < count(sort)) duplicates "
+                + "join media_file fetched on fetched.album = duplicates.album "
+                + "group by fetched.album) with_changed "
+                + "join media_file with_sort on with_sort.album = with_changed.album and with_changed.changed = with_sort.changed) source "
+                + "join media_file to_be_fixed on source.album = to_be_fixed.album and source.album_sort <> to_be_fixed.album_sort";
+        return namedQuery(query, sortCandidateWithIdMapper, args);
     }
 
     public List<SortCandidate> guessPersonsSorts(List<MusicFolder> folders) {
@@ -1014,6 +1010,11 @@ public class MediaFileDao extends AbstractDao {
         update("update media_file set album_reading = ?, album_sort = ? "
                 + "where present and album = ? and (album_sort is null or album_sort <> ?)", candidate.getReading(),
                 candidate.getSort(), candidate.getName(), candidate.getSort());
+    }
+
+    public void updateAlbumSortWithId(SortCandidate candidate) {
+        update("update media_file set album_reading = ?, album_sort = ? where present and id = ?",
+                candidate.getReading(), candidate.getSort(), candidate.getId());
     }
 
     public void updateArtistSort(SortCandidate candidate) {
