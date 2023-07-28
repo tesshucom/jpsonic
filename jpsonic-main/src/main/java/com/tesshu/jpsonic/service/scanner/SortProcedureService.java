@@ -92,9 +92,9 @@ public class SortProcedureService {
     }
 
     List<Integer> copySortOfAlbum(List<MusicFolder> folders) {
-        List<SortCandidate> candidates = mediaFileDao.getCopyableSortForAlbums(folders);
-        candidates.forEach(utils::analyze);
-        return updateSortOfAlbums(candidates);
+        List<SortCandidate> candidatesWithId = mediaFileDao.getCopyableSortForAlbums(folders);
+        candidatesWithId.forEach(utils::analyze);
+        return updateSortOfAlbumsWithId(candidatesWithId);
     }
 
     List<Integer> copySortOfArtist(List<MusicFolder> folders) {

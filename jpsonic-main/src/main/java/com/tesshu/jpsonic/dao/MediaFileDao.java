@@ -780,15 +780,14 @@ public class MediaFileDao extends AbstractDao {
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = Map.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
+        Map<String, Object> args = Map.of("type", MediaFile.MediaType.DIRECTORY.name(), "folders",
                 MusicFolder.toPathList(folders));
-        return namedQuery(
-                "select 3 as field, known.name , known.sort from (select distinct album as name from media_file "
-                        + "where folder in (:folders) and present and type = :type and (album is not null and album_sort is null)) unknown "
-                        + "join (select distinct album as name, album_sort as sort from media_file "
-                        + "where folder in (:folders) and type = :type and album is not null and album_sort is not null and present) known "
-                        + "on known.name = unknown.name ",
-                sortCandidateMapper, args);
+        return namedQuery("select 3 as field, known.name , known.sort, id from ( "
+                + "select distinct album as name, id from media_file "
+                + "where folder in (:folders) and present and album is not null and album_sort is null) unknown "
+                + "join (select distinct album as name, album_sort as sort from media_file "
+                + "where folder in (:folders) and type <> :type and album is not null and album_sort is not null and present) known "
+                + "on known.name = unknown.name ", sortCandidateWithIdMapper, args);
     }
 
     public List<SortCandidate> getCopyableSortForPersons(List<MusicFolder> folders) {
