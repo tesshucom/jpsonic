@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -911,15 +910,6 @@ public class MediaFileDao extends AbstractDao {
         return namedQuery(query, sortCandidateWithIdMapper, args);
     }
 
-    public List<Integer> getSortOfAlbumToBeFixed(List<SortCandidate> candidates) {
-        Map<String, Object> args = LegacyMap.of("names",
-                candidates.stream().map(SortCandidate::getName).collect(Collectors.toList()), "sotes",
-                candidates.stream().map(SortCandidate::getSort).collect(Collectors.toList()));
-        return namedQuery("select distinct id from media_file "
-                + "where present and album in (:names) and (album_sort is null or album_sort not in(:sotes))  "
-                + "order by id ", (rs, rowNum) -> rs.getInt(1), args);
-    }
-
     public List<SortCandidate> getSortOfArtistToBeFixedWithId(@NonNull List<SortCandidate> candidates) {
         List<SortCandidate> result = new ArrayList<>();
         if (candidates.isEmpty()) {
@@ -1005,27 +995,9 @@ public class MediaFileDao extends AbstractDao {
         return result;
     }
 
-    public void updateAlbumSort(SortCandidate candidate) {
-        update("update media_file set album_reading = ?, album_sort = ? "
-                + "where present and album = ? and (album_sort is null or album_sort <> ?)", candidate.getReading(),
-                candidate.getSort(), candidate.getName(), candidate.getSort());
-    }
-
     public void updateAlbumSortWithId(SortCandidate candidate) {
         update("update media_file set album_reading = ?, album_sort = ? where present and id = ?",
                 candidate.getReading(), candidate.getSort(), candidate.getId());
-    }
-
-    public void updateArtistSort(SortCandidate candidate) {
-        update("update media_file set artist_reading = ?, artist_sort = ? "
-                + "where present and artist = ? and (artist_sort is null or artist_sort <> ?)", candidate.getReading(),
-                candidate.getSort(), candidate.getName(), candidate.getSort());
-        update("update media_file set album_artist_reading = ?, album_artist_sort = ? "
-                + "where present and type not in ('DIERECTORY', 'ALBUM') and album_artist = ? and (album_artist_sort is null or album_artist_sort <> ?)",
-                candidate.getReading(), candidate.getSort(), candidate.getName(), candidate.getSort());
-        update("update media_file set composer_sort = ? "
-                + "where present and type not in ('DIERECTORY', 'ALBUM') and composer = ? and (composer_sort is null or composer_sort <> ?)",
-                candidate.getSort(), candidate.getName(), candidate.getSort());
     }
 
     public void updateArtistSortWithId(SortCandidate candidate) {

@@ -179,15 +179,6 @@ public class SortProcedureService {
         return count.intValue();
     }
 
-    private List<Integer> updateSortOfAlbums(@NonNull List<SortCandidate> candidates) {
-        if (candidates.isEmpty()) {
-            return Collections.emptyList();
-        }
-        List<Integer> toBeFixed = mediaFileDao.getSortOfAlbumToBeFixed(candidates);
-        candidates.forEach(c -> mediaFileDao.updateAlbumSort(c));
-        return toBeFixed;
-    }
-
     private List<Integer> updateSortOfAlbumsWithId(@NonNull List<SortCandidate> candidatesWithId) {
         if (candidatesWithId.isEmpty()) {
             return Collections.emptyList();
