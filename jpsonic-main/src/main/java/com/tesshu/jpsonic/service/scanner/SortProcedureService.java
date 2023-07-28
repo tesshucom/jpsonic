@@ -80,9 +80,9 @@ public class SortProcedureService {
     }
 
     List<Integer> compensateSortOfAlbum(List<MusicFolder> folders) {
-        List<SortCandidate> candidates = mediaFileDao.getSortForAlbumWithoutSorts(folders);
-        candidates.forEach(utils::analyze);
-        return updateSortOfAlbums(candidates);
+        List<SortCandidate> candidatesWithId = mediaFileDao.getSortForAlbumWithoutSorts(folders);
+        candidatesWithId.forEach(utils::analyze);
+        return updateSortOfAlbumsWithId(candidatesWithId);
     }
 
     List<Integer> compensateSortOfArtist(List<MusicFolder> folders) {

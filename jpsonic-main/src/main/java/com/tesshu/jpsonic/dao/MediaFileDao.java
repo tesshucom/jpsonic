@@ -946,11 +946,11 @@ public class MediaFileDao extends AbstractDao {
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = Map.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
+        Map<String, Object> args = Map.of("type", MediaType.DIRECTORY.name(), "folders",
                 MusicFolder.toPathList(folders));
-        return namedQuery("select distinct 3 as field, album as name, null as sort from media_file "
-                + "where present and folder in (:folders) and type = :type and (album is not null and album_sort is null) ",
-                sortCandidateMapper, args);
+        return namedQuery("select distinct 3 as field, album as name, null as sort, id from media_file "
+                + "where present and folder in (:folders) and type <> :type and (album is not null and album_sort is null) ",
+                sortCandidateWithIdMapper, args);
     }
 
     public List<SortCandidate> guessAlbumSorts(List<MusicFolder> folders) {
