@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>112.1.6</version>
+    <version>112.1.7</version>
     <name>Jpsonic</name>
     <packaging>pom</packaging>
     <organization>
@@ -83,7 +83,7 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>5.9.3</version>
+                <version>5.10.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -185,7 +185,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.12.0</version>
+                <version>3.13.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -856,6 +856,13 @@
             <id>release19</id>
             <properties>
                 <java.version>19</java.version>
+                <maven.compiler.release>${java.version}</maven.compiler.release>
+            </properties>
+        </profile>
+        <profile>
+            <id>release20</id>
+            <properties>
+                <java.version>20</java.version>
                 <maven.compiler.release>${java.version}</maven.compiler.release>
             </properties>
         </profile>

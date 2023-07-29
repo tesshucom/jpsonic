@@ -80,9 +80,9 @@ public class SortProcedureService {
     }
 
     List<Integer> compensateSortOfAlbum(List<MusicFolder> folders) {
-        List<SortCandidate> candidates = mediaFileDao.getSortForAlbumWithoutSorts(folders);
-        candidates.forEach(utils::analyze);
-        return updateSortOfAlbums(candidates);
+        List<SortCandidate> candidatesWithId = mediaFileDao.getSortForAlbumWithoutSorts(folders);
+        candidatesWithId.forEach(utils::analyze);
+        return updateSortOfAlbumsWithId(candidatesWithId);
     }
 
     List<Integer> compensateSortOfArtist(List<MusicFolder> folders) {
@@ -92,9 +92,9 @@ public class SortProcedureService {
     }
 
     List<Integer> copySortOfAlbum(List<MusicFolder> folders) {
-        List<SortCandidate> candidates = mediaFileDao.getCopyableSortForAlbums(folders);
-        candidates.forEach(utils::analyze);
-        return updateSortOfAlbums(candidates);
+        List<SortCandidate> candidatesWithId = mediaFileDao.getCopyableSortForAlbums(folders);
+        candidatesWithId.forEach(utils::analyze);
+        return updateSortOfAlbumsWithId(candidatesWithId);
     }
 
     List<Integer> copySortOfArtist(List<MusicFolder> folders) {
@@ -104,9 +104,9 @@ public class SortProcedureService {
     }
 
     List<Integer> mergeSortOfAlbum(List<MusicFolder> folders) {
-        List<SortCandidate> candidates = mediaFileDao.guessAlbumSorts(folders);
-        candidates.forEach(utils::analyze);
-        return updateSortOfAlbums(candidates);
+        List<SortCandidate> candidatesWithId = mediaFileDao.guessAlbumSorts(folders);
+        candidatesWithId.forEach(utils::analyze);
+        return updateSortOfAlbumsWithId(candidatesWithId);
     }
 
     List<Integer> mergeSortOfArtist(List<MusicFolder> folders) {
@@ -179,13 +179,12 @@ public class SortProcedureService {
         return count.intValue();
     }
 
-    private List<Integer> updateSortOfAlbums(@NonNull List<SortCandidate> candidates) {
-        if (candidates.isEmpty()) {
+    private List<Integer> updateSortOfAlbumsWithId(@NonNull List<SortCandidate> candidatesWithId) {
+        if (candidatesWithId.isEmpty()) {
             return Collections.emptyList();
         }
-        List<Integer> toBeFixed = mediaFileDao.getSortOfAlbumToBeFixed(candidates);
-        candidates.forEach(c -> mediaFileDao.updateAlbumSort(c));
-        return toBeFixed;
+        candidatesWithId.forEach(c -> mediaFileDao.updateAlbumSortWithId(c));
+        return candidatesWithId.stream().map(SortCandidate::getId).collect(Collectors.toList());
     }
 
     private List<Integer> updateSortOfArtistWithId(@NonNull List<SortCandidate> candidatesWithId) {
