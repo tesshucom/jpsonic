@@ -19,7 +19,6 @@
 
 package com.tesshu.jpsonic.service.scanner;
 
-import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -36,14 +35,9 @@ import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
-import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ScanLog.ScanLogType;
-import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.SettingsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.Nested;
@@ -814,60 +808,5 @@ class SortProcedureServiceTest {
             assertEquals(2L, albumId3s.stream().filter(a -> "albumD".equals(a.getNameSort())).count()); // merged
             assertEquals(1L, albumId3s.stream().filter(a -> "ニホンゴノアルバムメイ".equals(a.getNameSort())).count()); // compensated
         }
-    }
-
-    @Test
-    void testGetToBeOrderUpdate() {
-
-        MediaFile m1 = new MediaFile();
-        m1.setPathString("path1");
-        m1.setPresent(true);
-        m1.setOrder(1);
-        MediaFile m2 = new MediaFile();
-        m2.setPathString("path2");
-        m2.setPresent(true);
-        m2.setOrder(2);
-        MediaFile m3 = new MediaFile();
-        m3.setPathString("path3");
-        m3.setPresent(true);
-        m3.setOrder(3);
-
-        JapaneseReadingUtils readingUtils = mock(JapaneseReadingUtils.class);
-        JpsonicComparators comparators = new JpsonicComparators(mock(SettingsService.class), readingUtils);
-
-        SortProcedureService sortProcedureService = new SortProcedureService(mock(MusicFolderService.class),
-                mock(MediaFileService.class), mock(WritableMediaFileService.class), mock(MediaFileDao.class),
-                mock(ArtistDao.class), mock(AlbumDao.class), readingUtils, comparators);
-
-        List<MediaFile> result = sortProcedureService.getToBeOrderUpdate(Arrays.asList(m2, m3, m1),
-                comparators.songsDefault());
-        assertEquals(3, result.size());
-        assertEquals("path1", result.get(0).getPathString());
-        assertEquals("path2", result.get(1).getPathString());
-        assertEquals("path3", result.get(2).getPathString());
-        result = sortProcedureService.getToBeOrderUpdate(result, comparators.songsDefault());
-        assertEquals(0, result.size());
-
-        m1.setOrder(3);
-        m2.setOrder(2);
-        m3.setOrder(1);
-        result = sortProcedureService.getToBeOrderUpdate(Arrays.asList(m1, m2, m3), comparators.songsDefault());
-        assertEquals(2, result.size());
-        assertEquals("path1", result.get(0).getPathString());
-        assertEquals(1, result.get(0).getOrder());
-        assertEquals("path3", result.get(1).getPathString());
-        assertEquals(3, result.get(1).getOrder());
-
-        result = sortProcedureService.getToBeOrderUpdate(result, comparators.songsDefault());
-        assertEquals(1, result.size());
-        assertEquals("path3", result.get(0).getPathString());
-        assertEquals(2, result.get(0).getOrder());
-
-        result = sortProcedureService.getToBeOrderUpdate(result, comparators.songsDefault());
-        assertEquals(1, result.size());
-        assertEquals(1, result.get(0).getOrder());
-
-        result = sortProcedureService.getToBeOrderUpdate(result, comparators.songsDefault());
-        assertEquals(0, result.size());
     }
 }

@@ -25,7 +25,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -41,10 +44,12 @@ import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
+import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.Orderable;
 import com.tesshu.jpsonic.domain.ScanEvent;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.domain.ScanLog.ScanLogType;
@@ -99,6 +104,7 @@ public class ScannerProcedureService {
     private final Ehcache indexCache;
     private final MediaFileCache mediaFileCache;
     private final JapaneseReadingUtils readingUtils;
+    private final JpsonicComparators comparators;
     private final ThreadPoolTaskExecutor scanExecutor;
 
     private static final int ACQUISITION_MAX = 10_000;
@@ -110,7 +116,7 @@ public class ScannerProcedureService {
             PlaylistService playlistService, MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao,
             StaticsDao staticsDao, SortProcedureService sortProcedure, ScannerStateServiceImpl scannerStateService,
             Ehcache indexCache, MediaFileCache mediaFileCache, JapaneseReadingUtils readingUtils,
-            ThreadPoolTaskExecutor scanExecutor) {
+            JpsonicComparators comparators, ThreadPoolTaskExecutor scanExecutor) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
@@ -127,6 +133,7 @@ public class ScannerProcedureService {
         this.indexCache = indexCache;
         this.mediaFileCache = mediaFileCache;
         this.readingUtils = readingUtils;
+        this.comparators = comparators;
         this.scanExecutor = scanExecutor;
     }
 
@@ -366,6 +373,32 @@ public class ScannerProcedureService {
         albumDao.expunge(scanDate);
     }
 
+    <T extends Orderable> List<T> getToBeOrderUpdate(List<T> list, Comparator<T> comparator) {
+        List<Integer> rawOrders = list.stream().map(Orderable::getOrder).collect(Collectors.toList());
+        Collections.sort(list, comparator);
+        List<T> result = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            if (i + 1 != rawOrders.get(i)) {
+                list.get(i).setOrder(i + 1);
+                result.add(list.get(i));
+            }
+        }
+        return result;
+    }
+
+    int updateOrderOfSongs(MediaFile parent) {
+        if (parent == null) {
+            return 0;
+        }
+        List<MediaFile> songs = mediaFileDao.getChildrenWithOrderOf(parent.getPathString()).stream()
+                .filter(child -> mediaFileService.isAudioFile(child.getFormat())
+                        || mediaFileService.isVideoFile(child.getFormat()))
+                .collect(Collectors.toList());
+        LongAdder count = new LongAdder();
+        getToBeOrderUpdate(songs, comparators.songsDefault()).forEach(song -> count.add(wmfs.updateOrder(song)));
+        return count.intValue();
+    }
+
     private int updateAlbums(@NonNull Instant scanDate, List<MusicFolder> folders) {
         List<MediaFile> registereds = mediaFileDao.getChangedAlbums(ACQUISITION_MAX, folders);
         int countUpdate = 0;
@@ -374,7 +407,7 @@ public class ScannerProcedureService {
                 if (isInterrupted()) {
                     break;
                 }
-                sortProcedure.updateOrderOfSongs(registered);
+                updateOrderOfSongs(registered);
                 MediaFile fetchedFirstChild = mediaFileDao.getFetchedFirstChildOf(registered);
                 MediaFile album = fetchedFirstChild == null ? registered
                         : albumOf(scanDate, fetchedFirstChild, registered);
@@ -398,7 +431,7 @@ public class ScannerProcedureService {
                 if (isInterrupted()) {
                     break;
                 }
-                sortProcedure.updateOrderOfSongs(registered);
+                updateOrderOfSongs(registered);
                 MediaFile fetchedFirstChild = mediaFileDao.getFetchedFirstChildOf(registered);
                 MediaFile album = fetchedFirstChild == null ? registered
                         : albumOf(scanDate, fetchedFirstChild, registered);
@@ -736,8 +769,8 @@ public class ScannerProcedureService {
             return;
         }
         LongAdder count = new LongAdder();
-        musicFolderService.getAllMusicFolders().forEach(folder -> count
-                .add(sortProcedure.updateOrderOfSongs(mediaFileService.getMediaFileStrict(folder.getPathString()))));
+        musicFolderService.getAllMusicFolders().forEach(
+                folder -> count.add(updateOrderOfSongs(mediaFileService.getMediaFileStrict(folder.getPathString()))));
         String comment = String.format("Updated order of (%d) songs", count.intValue());
         createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_SONG, comment);
     }
@@ -750,9 +783,18 @@ public class ScannerProcedureService {
             createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ARTIST, MSG_UNNECESSARY);
             return;
         }
-        int count = sortProcedure.updateOrderOfArtist();
+        int count = updateOrderOfArtist();
         String comment = String.format("Updated order of (%d) artists", count);
         createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ARTIST, comment);
+    }
+
+    int updateOrderOfArtist() {
+        List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
+        List<MediaFile> artists = mediaFileDao.getArtistAll(folders);
+        LongAdder count = new LongAdder();
+        getToBeOrderUpdate(artists, comparators.mediaFileOrderByAlpha())
+                .forEach(artist -> count.add(wmfs.updateOrder(artist)));
+        return count.intValue();
     }
 
     void updateOrderOfAlbum(@NonNull Instant scanDate, boolean skippable) {
@@ -763,9 +805,18 @@ public class ScannerProcedureService {
             createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ALBUM, MSG_UNNECESSARY);
             return;
         }
-        int count = sortProcedure.updateOrderOfAlbum();
+        int count = updateOrderOfAlbum();
         String comment = String.format("Updated order of (%d) albums", count);
         createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ALBUM, comment);
+    }
+
+    int updateOrderOfAlbum() {
+        List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
+        List<MediaFile> albums = mediaFileService.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, folders);
+        LongAdder count = new LongAdder();
+        getToBeOrderUpdate(albums, comparators.mediaFileOrderByAlpha())
+                .forEach(album -> count.add(wmfs.updateOrder(album)));
+        return count.intValue();
     }
 
     void updateOrderOfArtistId3(@NonNull Instant scanDate, boolean skippable) {
@@ -776,9 +827,18 @@ public class ScannerProcedureService {
             createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ARTIST_ID3, MSG_UNNECESSARY);
             return;
         }
-        int count = sortProcedure.updateOrderOfArtistID3();
+        int count = updateOrderOfArtistID3();
         String comment = String.format("Updated order of (%d) ID3 artists.", count);
         createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ARTIST_ID3, comment);
+    }
+
+    int updateOrderOfArtistID3() {
+        List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
+        List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
+        LongAdder count = new LongAdder();
+        getToBeOrderUpdate(artists, comparators.artistOrderByAlpha())
+                .forEach(artist -> count.add(artistDao.updateOrder(artist.getName(), artist.getOrder())));
+        return count.intValue();
     }
 
     void updateOrderOfAlbumId3(@NonNull Instant scanDate, boolean skippable) {
@@ -789,9 +849,18 @@ public class ScannerProcedureService {
             createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ALBUM_ID3, MSG_UNNECESSARY);
             return;
         }
-        int count = sortProcedure.updateOrderOfAlbumID3();
+        int count = updateOrderOfAlbumID3();
         String comment = String.format("Updated order of (%d) ID3 albums.", count);
         createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ALBUM_ID3, comment);
+    }
+
+    int updateOrderOfAlbumID3() {
+        List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
+        List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folders);
+        LongAdder count = new LongAdder();
+        getToBeOrderUpdate(albums, comparators.albumOrderByAlpha()).forEach(
+                album -> count.add(albumDao.updateOrder(album.getArtist(), album.getName(), album.getOrder())));
+        return count.intValue();
     }
 
     void runStats(@NonNull Instant scanDate) {

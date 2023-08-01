@@ -35,6 +35,8 @@ import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
+import com.tesshu.jpsonic.domain.JpsonicComparators;
+import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ScanEvent;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
@@ -54,7 +56,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-@SuppressWarnings("PMD.TooManyStaticImports")
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class ScannerProcedureServiceTest {
 
     private SettingsService settingsService;
@@ -77,7 +79,7 @@ class ScannerProcedureServiceTest {
                 mock(IndexManager.class), mediaFileService, writableMediaFileService, mock(PlaylistService.class),
                 mediaFileDao, mock(ArtistDao.class), albumDao, staticsDao, mock(SortProcedureService.class),
                 new ScannerStateServiceImpl(staticsDao), mock(Ehcache.class), mock(MediaFileCache.class),
-                mock(JapaneseReadingUtils.class), mock(ThreadPoolTaskExecutor.class));
+                mock(JapaneseReadingUtils.class), mock(JpsonicComparators.class), mock(ThreadPoolTaskExecutor.class));
     }
 
     @Nested
@@ -186,5 +188,56 @@ class ScannerProcedureServiceTest {
         Mockito.doNothing().when(staticsDao).createScanEvent(eventCap.capture());
         scannerProcedureService.createScanEvent(startDate, ScanEventType.PARSE_FILE_STRUCTURE, null);
         assertNotEquals(-1, eventCap.getValue().getFreeMemory());
+    }
+
+    @Test
+    void testGetToBeOrderUpdate() {
+
+        MediaFile m1 = new MediaFile();
+        m1.setPathString("path1");
+        m1.setPresent(true);
+        m1.setOrder(1);
+        MediaFile m2 = new MediaFile();
+        m2.setPathString("path2");
+        m2.setPresent(true);
+        m2.setOrder(2);
+        MediaFile m3 = new MediaFile();
+        m3.setPathString("path3");
+        m3.setPresent(true);
+        m3.setOrder(3);
+
+        JapaneseReadingUtils readingUtils = mock(JapaneseReadingUtils.class);
+        JpsonicComparators comparators = new JpsonicComparators(mock(SettingsService.class), readingUtils);
+
+        List<MediaFile> result = scannerProcedureService.getToBeOrderUpdate(Arrays.asList(m2, m3, m1),
+                comparators.songsDefault());
+        assertEquals(3, result.size());
+        assertEquals("path1", result.get(0).getPathString());
+        assertEquals("path2", result.get(1).getPathString());
+        assertEquals("path3", result.get(2).getPathString());
+        result = scannerProcedureService.getToBeOrderUpdate(result, comparators.songsDefault());
+        assertEquals(0, result.size());
+
+        m1.setOrder(3);
+        m2.setOrder(2);
+        m3.setOrder(1);
+        result = scannerProcedureService.getToBeOrderUpdate(Arrays.asList(m1, m2, m3), comparators.songsDefault());
+        assertEquals(2, result.size());
+        assertEquals("path1", result.get(0).getPathString());
+        assertEquals(1, result.get(0).getOrder());
+        assertEquals("path3", result.get(1).getPathString());
+        assertEquals(3, result.get(1).getOrder());
+
+        result = scannerProcedureService.getToBeOrderUpdate(result, comparators.songsDefault());
+        assertEquals(1, result.size());
+        assertEquals("path3", result.get(0).getPathString());
+        assertEquals(2, result.get(0).getOrder());
+
+        result = scannerProcedureService.getToBeOrderUpdate(result, comparators.songsDefault());
+        assertEquals(1, result.size());
+        assertEquals(1, result.get(0).getOrder());
+
+        result = scannerProcedureService.getToBeOrderUpdate(result, comparators.songsDefault());
+        assertEquals(0, result.size());
     }
 }
