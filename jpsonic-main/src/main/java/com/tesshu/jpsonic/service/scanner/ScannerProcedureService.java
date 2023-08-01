@@ -855,14 +855,18 @@ public class ScannerProcedureService {
     }
 
     void runStats(@NonNull Instant scanDate) {
-        if (isInterrupted()) {
-            return;
-        }
         writeInfo("Collecting media library statistics ...");
-        musicFolderService.getAllMusicFolders().forEach(folder -> {
-            MediaLibraryStatistics stats = staticsDao.gatherMediaLibraryStatistics(scanDate, folder);
+        List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
+        for (int i = 0; i < folders.size(); i++) {
+            if (i % 4 == 0) {
+                repeatWait();
+                if (isInterrupted()) {
+                    return;
+                }
+            }
+            MediaLibraryStatistics stats = staticsDao.gatherMediaLibraryStatistics(scanDate, folders.get(i));
             staticsDao.createMediaLibraryStatistics(stats);
-        });
+        }
         createScanEvent(scanDate, ScanEventType.RUN_STATS, null);
     }
 
