@@ -705,6 +705,24 @@ public class ScannerProcedureService {
         createScanEvent(scanDate, ScanEventType.UPDATE_GENRE_MASTER, null);
     }
 
+    private void invokeUpdateIndex(List<Integer> merged, List<Integer> copied, List<Integer> compensated) {
+        List<Integer> ids = Stream
+                .concat(Stream.concat(merged.stream(), copied.stream()).distinct(), compensated.stream()).distinct()
+                .collect(Collectors.toList());
+        for (int i = 0; i < ids.size(); i++) {
+            indexManager.index(mediaFileService.getMediaFileStrict(ids.get(i)));
+            if (i % 10_000 == 0) {
+                repeatWait();
+                if (isInterrupted()) {
+                    LOG.warn(
+                            "Registration of the search index was interrupted. Rescanning with IgnoreTimestamp enabled is recommended.");
+                    break;
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings("PMD.PrematureDeclaration")
     boolean updateSortOfArtist(@NonNull Instant scanDate) {
         boolean updated = false;
         if (isInterrupted()) {
@@ -716,22 +734,27 @@ public class ScannerProcedureService {
         }
 
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
-        List<Integer> merged = sortProcedure.mergeSortOfArtist(folders);
-
+        final List<Integer> merged = sortProcedure.mergeSortOfArtist(folders);
+        repeatWait();
         if (isInterrupted()) {
             return updated;
         }
-        List<Integer> copied = sortProcedure.copySortOfArtist(folders);
 
+        final List<Integer> copied = sortProcedure.copySortOfArtist(folders);
+        repeatWait();
         if (isInterrupted()) {
             return updated;
         }
-        List<Integer> compensated = sortProcedure.compensateSortOfArtist(folders);
+
+        final List<Integer> compensated = sortProcedure.compensateSortOfArtist(folders);
+        repeatWait();
+        if (isInterrupted()) {
+            return updated;
+        }
 
         updated = !merged.isEmpty() || !copied.isEmpty() || !compensated.isEmpty();
         if (updated) {
-            Stream.concat(Stream.concat(merged.stream(), copied.stream()).distinct(), compensated.stream()).distinct()
-                    .map(id -> mediaFileService.getMediaFile(id)).forEach(mediaFile -> indexManager.index(mediaFile));
+            invokeUpdateIndex(merged, copied, compensated);
         }
 
         String comment = String.format("Merged(%d)/Copied(%d)/Compensated(%d)", merged.size(), copied.size(),
@@ -740,6 +763,7 @@ public class ScannerProcedureService {
         return updated;
     }
 
+    @SuppressWarnings("PMD.PrematureDeclaration")
     boolean updateSortOfAlbum(@NonNull Instant scanDate) {
         boolean updated = false;
         if (isInterrupted()) {
@@ -752,22 +776,27 @@ public class ScannerProcedureService {
         }
 
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
-        List<Integer> merged = sortProcedure.mergeSortOfAlbum(folders);
-
+        final List<Integer> merged = sortProcedure.mergeSortOfAlbum(folders);
+        repeatWait();
         if (isInterrupted()) {
             return updated;
         }
-        List<Integer> copied = sortProcedure.copySortOfAlbum(folders);
 
+        final List<Integer> copied = sortProcedure.copySortOfAlbum(folders);
+        repeatWait();
         if (isInterrupted()) {
             return updated;
         }
-        List<Integer> compensated = sortProcedure.compensateSortOfAlbum(folders);
+
+        final List<Integer> compensated = sortProcedure.compensateSortOfAlbum(folders);
+        repeatWait();
+        if (isInterrupted()) {
+            return updated;
+        }
 
         updated = !merged.isEmpty() || !copied.isEmpty() || !compensated.isEmpty();
         if (updated) {
-            Stream.concat(Stream.concat(merged.stream(), copied.stream()).distinct(), compensated.stream()).distinct()
-                    .map(id -> mediaFileService.getMediaFile(id)).forEach(mediaFile -> indexManager.index(mediaFile));
+            invokeUpdateIndex(merged, copied, compensated);
         }
 
         String comment = String.format("Merged(%d)/Copied(%d)/Compensated(%d)", merged.size(), copied.size(),
