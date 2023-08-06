@@ -706,39 +706,38 @@ public class ScannerProcedureService {
     }
 
     boolean updateSortOfArtist(@NonNull Instant scanDate) {
-        boolean parsed = false;
+        boolean updated = false;
         if (isInterrupted()) {
-            return parsed;
+            return updated;
         }
         if (!scannerState.isEnableCleansing() || !settingsService.isSortStrict()) {
             createScanEvent(scanDate, ScanEventType.UPDATE_SORT_OF_ARTIST, MSG_SKIP);
-            return parsed;
+            return updated;
         }
 
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
         List<Integer> merged = sortProcedure.mergeSortOfArtist(folders);
-        merged.stream().map(id -> mediaFileService.getMediaFile(id))
-                .forEach(mediaFile -> indexManager.index(mediaFile));
 
         if (isInterrupted()) {
-            return parsed;
+            return updated;
         }
         List<Integer> copied = sortProcedure.copySortOfArtist(folders);
-        copied.stream().map(id -> mediaFileService.getMediaFile(id))
-                .forEach(mediaFile -> indexManager.index(mediaFile));
 
         if (isInterrupted()) {
-            return parsed;
+            return updated;
         }
         List<Integer> compensated = sortProcedure.compensateSortOfArtist(folders);
-        compensated.stream().map(id -> mediaFileService.getMediaFile(id))
-                .forEach(mediaFile -> indexManager.index(mediaFile));
 
-        parsed = !merged.isEmpty() || !copied.isEmpty() || !compensated.isEmpty();
+        updated = !merged.isEmpty() || !copied.isEmpty() || !compensated.isEmpty();
+        if (updated) {
+            Stream.concat(Stream.concat(merged.stream(), copied.stream()).distinct(), compensated.stream()).distinct()
+                    .map(id -> mediaFileService.getMediaFile(id)).forEach(mediaFile -> indexManager.index(mediaFile));
+        }
+
         String comment = String.format("Merged(%d)/Copied(%d)/Compensated(%d)", merged.size(), copied.size(),
                 compensated.size());
         createScanEvent(scanDate, ScanEventType.UPDATE_SORT_OF_ARTIST, comment);
-        return parsed;
+        return updated;
     }
 
     boolean updateSortOfAlbum(@NonNull Instant scanDate) {
@@ -754,26 +753,23 @@ public class ScannerProcedureService {
 
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
         List<Integer> merged = sortProcedure.mergeSortOfAlbum(folders);
-        merged.stream().map(id -> mediaFileService.getMediaFile(id))
-                .forEach(mediaFile -> indexManager.index(mediaFile));
 
         if (isInterrupted()) {
             return updated;
         }
         List<Integer> copied = sortProcedure.copySortOfAlbum(folders);
-        copied.stream().map(id -> mediaFileService.getMediaFile(id))
-                .forEach(mediaFile -> indexManager.index(mediaFile));
 
         if (isInterrupted()) {
             return updated;
         }
         List<Integer> compensated = sortProcedure.compensateSortOfAlbum(folders);
-        compensated.stream().map(id -> mediaFileService.getMediaFile(id))
-                .forEach(mediaFile -> indexManager.index(mediaFile));
 
         updated = !merged.isEmpty() || !copied.isEmpty() || !compensated.isEmpty();
-        Stream.concat(Stream.concat(merged.stream(), copied.stream()), compensated.stream())
-                .map(id -> mediaFileService.getMediaFile(id)).forEach(mediaFile -> indexManager.index(mediaFile));
+        if (updated) {
+            Stream.concat(Stream.concat(merged.stream(), copied.stream()).distinct(), compensated.stream()).distinct()
+                    .map(id -> mediaFileService.getMediaFile(id)).forEach(mediaFile -> indexManager.index(mediaFile));
+        }
+
         String comment = String.format("Merged(%d)/Copied(%d)/Compensated(%d)", merged.size(), copied.size(),
                 compensated.size());
         createScanEvent(scanDate, ScanEventType.UPDATE_SORT_OF_ALBUM, comment);
