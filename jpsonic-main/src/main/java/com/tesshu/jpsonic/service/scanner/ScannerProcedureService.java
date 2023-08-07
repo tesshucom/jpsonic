@@ -598,17 +598,21 @@ public class ScannerProcedureService {
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
         List<MediaFile> artistId3s = mediaFileDao.getChangedId3Artists(ACQUISITION_MAX, folders, withPodcast);
         LongAdder countUpdate = new LongAdder();
-        while (!artistId3s.isEmpty() && !isInterrupted()) {
-            for (MediaFile artistId3 : artistId3s) {
-                if (isInterrupted()) {
-                    break;
-                }
-                getMusicFolder(artistId3).ifPresent(folder -> {
-                    Artist created = artistDao.updateArtist(artistId3Of(scanDate, folder.getId(), artistId3, null));
-                    if (created != null) {
-                        indexManager.index(created, folder);
-                        countUpdate.increment();
+        updateArtists: while (!artistId3s.isEmpty()) {
+            for (int i = 0; i < artistId3s.size(); i++) {
+                if (i % 15_000 == 0) {
+                    repeatWait();
+                    if (isInterrupted()) {
+                        break updateArtists;
                     }
+                }
+                MediaFile artistId3 = artistId3s.get(i);
+                getMusicFolder(artistId3).ifPresent(folder -> {
+                    Optional.ofNullable(artistDao.updateArtist(artistId3Of(scanDate, folder.getId(), artistId3, null)))
+                            .ifPresent(updated -> {
+                                indexManager.index(updated, folder);
+                                countUpdate.increment();
+                            });
                 });
             }
             artistId3s = mediaFileDao.getChangedId3Artists(ACQUISITION_MAX, folders, withPodcast);
@@ -620,17 +624,21 @@ public class ScannerProcedureService {
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
         List<MediaFile> artistId3s = mediaFileDao.getUnregisteredId3Artists(ACQUISITION_MAX, folders, withPodcast);
         LongAdder countNew = new LongAdder();
-        while (!artistId3s.isEmpty() && !isInterrupted()) {
-            for (MediaFile artistId3 : artistId3s) {
-                if (isInterrupted()) {
-                    break;
-                }
-                getMusicFolder(artistId3).ifPresent(folder -> {
-                    Artist created = artistDao.createArtist(artistId3Of(scanDate, folder.getId(), artistId3, null));
-                    if (created != null) {
-                        indexManager.index(created, folder);
-                        countNew.increment();
+        createArtists: while (!artistId3s.isEmpty()) {
+            for (int i = 0; i < artistId3s.size(); i++) {
+                if (i % 15_000 == 0) {
+                    repeatWait();
+                    if (isInterrupted()) {
+                        break createArtists;
                     }
+                }
+                MediaFile artistId3 = artistId3s.get(i);
+                getMusicFolder(artistId3).ifPresent(folder -> {
+                    Optional.ofNullable(artistDao.createArtist(artistId3Of(scanDate, folder.getId(), artistId3, null)))
+                            .ifPresent(created -> {
+                                indexManager.index(created, folder);
+                                countNew.increment();
+                            });
                 });
             }
             artistId3s = mediaFileDao.getUnregisteredId3Artists(ACQUISITION_MAX, folders, withPodcast);
