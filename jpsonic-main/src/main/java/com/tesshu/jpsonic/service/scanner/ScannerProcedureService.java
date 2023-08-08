@@ -337,8 +337,31 @@ public class ScannerProcedureService {
     void expungeFileStructure() {
         mediaFileDao.getArtistExpungeCandidates().forEach(indexManager::expungeArtist);
         mediaFileDao.getAlbumExpungeCandidates().forEach(indexManager::expungeAlbum);
-        mediaFileDao.getSongExpungeCandidates().forEach(indexManager::expungeSong);
-        mediaFileDao.expunge();
+        List<Integer> candidates = mediaFileDao.getSongExpungeCandidates();
+        for (int i = 0; i < candidates.size(); i++) {
+            indexManager.expungeSong(candidates.get(i));
+            if (i % 20_000 == 0) {
+                repeatWait();
+                if (isInterrupted()) {
+                    break;
+                }
+            }
+        }
+        int minId = mediaFileDao.getMinId();
+        int maxId = mediaFileDao.getMaxId();
+        final int batchSize = 1000;
+        LongAdder deleted = new LongAdder();
+        int threshold = 20_000;
+        for (int id = minId; id <= maxId; id += batchSize) {
+            deleted.add(mediaFileDao.expunge(id, id + batchSize));
+            if (deleted.intValue() > threshold) {
+                threshold += 20_000;
+                repeatWait();
+                if (isInterrupted()) {
+                    break;
+                }
+            }
+        }
     }
 
     @Transactional

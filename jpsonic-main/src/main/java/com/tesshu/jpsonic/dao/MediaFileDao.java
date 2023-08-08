@@ -750,14 +750,16 @@ public class MediaFileDao extends AbstractDao {
                 MediaFile.MediaType.AUDIOBOOK.name(), MediaFile.MediaType.VIDEO.name());
     }
 
-    public void expunge() {
-        int minId = queryForInt("select min(id) from media_file where not present", 0);
-        int maxId = queryForInt("select max(id) from media_file where not present", 0);
+    public int getMinId() {
+        return queryForInt("select min(id) from media_file where not present", 0);
+    }
 
-        final int batchSize = 1000;
-        for (int id = minId; id <= maxId; id += batchSize) {
-            update("delete from media_file where id between ? and ? and not present", id, id + batchSize);
-        }
+    public int getMaxId() {
+        return queryForInt("select max(id) from media_file where not present", 0);
+    }
+
+    public int expunge(int from, int to) {
+        return update("delete from media_file where id between ? and ? and not present", from, to);
     }
 
     public List<MediaFile> getArtistAll(final List<MusicFolder> musicFolders) {
