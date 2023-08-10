@@ -242,7 +242,7 @@ public class MediaFileDao extends AbstractDao {
                 + "composer=?, artist_sort=?, album_sort=?, title_sort=?, "
                 + "album_artist_sort=?, composer_sort=?, artist_reading=?, album_reading=?, "
                 + "album_artist_reading=?, artist_sort_raw=?, album_sort_raw=?, "
-                + "album_artist_sort_raw=?, composer_sort_raw=?, media_file_order=? where path=?";
+                + "album_artist_sort_raw=?, composer_sort_raw=?, media_file_order=? where id=?";
         int c = update(sql, file.getFolder(), file.getMediaType().name(), file.getFormat(), file.getTitle(),
                 file.getAlbumName(), file.getArtist(), file.getAlbumArtist(), file.getDiscNumber(),
                 file.getTrackNumber(), file.getYear(), file.getGenre(), file.getBitRate(), file.isVariableBitRate(),
@@ -253,7 +253,7 @@ public class MediaFileDao extends AbstractDao {
                 file.getComposer(), file.getArtistSort(), file.getAlbumSort(), file.getTitleSort(),
                 file.getAlbumArtistSort(), file.getComposerSort(), file.getArtistReading(), file.getAlbumReading(),
                 file.getAlbumArtistReading(), file.getArtistSortRaw(), file.getAlbumSortRaw(),
-                file.getAlbumArtistSortRaw(), file.getComposerSortRaw(), file.getOrder(), file.getPathString());
+                file.getAlbumArtistSortRaw(), file.getComposerSortRaw(), file.getOrder(), file.getId());
         if (c > 0) {
             return Optional.of(file);
         }
@@ -483,17 +483,6 @@ public class MediaFileDao extends AbstractDao {
                 MusicFolder.toPathList(folders), "future", FAR_FUTURE, "count", count);
         return namedQuery("select " + QUERY_COLUMNS
                 + " from media_file where type = :type and present and folder in (:folders) and last_scanned = :future limit :count",
-                rowMapper, args);
-    }
-
-    public @Nullable MediaFile getFetchedFirstChildOf(MediaFile album) {
-        Map<String, Object> args = Map.of("types",
-                Arrays.asList(MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.PODCAST.name(),
-                        MediaFile.MediaType.AUDIOBOOK.name(), MediaFile.MediaType.VIDEO.name()),
-                "albumpath", album.getPathString());
-        return namedQueryOne("select " + QUERY_COLUMNS + ", "
-                + "case when album_artist is null then 1 when album is null then 2 else 0 end is_valid "
-                + "from media_file where present and parent_path=:albumpath and type in (:types) order by is_valid, media_file_order limit 1",
                 rowMapper, args);
     }
 

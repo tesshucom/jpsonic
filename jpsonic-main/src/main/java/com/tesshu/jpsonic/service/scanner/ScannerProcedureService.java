@@ -426,27 +426,35 @@ public class ScannerProcedureService {
         return count.intValue();
     }
 
-    int updateOrderOfSongs(@NonNull Instant scanDate, MediaFile parent) {
+    @Nullable
+    MediaFile updateOrderOfSongs(@NonNull Instant scanDate, MediaFile parent) {
         if (parent == null) {
-            return 0;
+            return null;
         }
         List<MediaFile> songs = mediaFileDao.getChildrenWithOrderOf(parent.getPathString()).stream()
                 .filter(child -> mediaFileService.isAudioFile(child.getFormat())
                         || mediaFileService.isVideoFile(child.getFormat()))
                 .collect(Collectors.toList());
-        return invokeUpdateOrder(songs, comparators.songsDefault(), (song) -> wmfs.updateOrder(song));
+        if (songs.isEmpty()) {
+            return null;
+        }
+        invokeUpdateOrder(songs, comparators.songsDefault(), (song) -> wmfs.updateOrder(song));
+        return songs.get(0);
     }
 
     private int updateAlbums(@NonNull Instant scanDate, List<MusicFolder> folders) {
         List<MediaFile> registereds = mediaFileDao.getChangedAlbums(ACQUISITION_MAX, folders);
         LongAdder count = new LongAdder();
-        while (!registereds.isEmpty() && !isInterrupted()) {
-            for (MediaFile registered : registereds) {
-                if (isInterrupted()) {
-                    break;
+        updateAlbums: while (!registereds.isEmpty()) {
+            for (int i = 0; i < registereds.size(); i++) {
+                if (i % 1_000 == 0) {
+                    repeatWait();
+                    if (isInterrupted()) {
+                        break updateAlbums;
+                    }
                 }
-                updateOrderOfSongs(scanDate, registered);
-                MediaFile fetchedFirstChild = mediaFileDao.getFetchedFirstChildOf(registered);
+                MediaFile registered = registereds.get(i);
+                MediaFile fetchedFirstChild = updateOrderOfSongs(scanDate, registered);
                 MediaFile album = fetchedFirstChild == null ? registered
                         : albumOf(scanDate, fetchedFirstChild, registered);
                 album.setChildrenLastUpdated(scanDate);
@@ -463,13 +471,16 @@ public class ScannerProcedureService {
     private int createAlbums(@NonNull Instant scanDate, List<MusicFolder> folders) {
         List<MediaFile> registereds = mediaFileDao.getUnparsedAlbums(ACQUISITION_MAX, folders);
         LongAdder count = new LongAdder();
-        while (!registereds.isEmpty() && !isInterrupted()) {
-            for (MediaFile registered : registereds) {
-                if (isInterrupted()) {
-                    break;
+        createAlbums: while (!registereds.isEmpty()) {
+            for (int i = 0; i < registereds.size(); i++) {
+                if (i % 1_000 == 0) {
+                    repeatWait();
+                    if (isInterrupted()) {
+                        break createAlbums;
+                    }
                 }
-                updateOrderOfSongs(scanDate, registered);
-                MediaFile fetchedFirstChild = mediaFileDao.getFetchedFirstChildOf(registered);
+                MediaFile registered = registereds.get(i);
+                MediaFile fetchedFirstChild = updateOrderOfSongs(scanDate, registered);
                 MediaFile album = fetchedFirstChild == null ? registered
                         : albumOf(scanDate, fetchedFirstChild, registered);
                 album.setChildrenLastUpdated(scanDate);
@@ -841,11 +852,9 @@ public class ScannerProcedureService {
         if (isInterrupted()) {
             return;
         }
-        LongAdder count = new LongAdder();
-        musicFolderService.getAllMusicFolders().forEach(folder -> count
-                .add(updateOrderOfSongs(scanDate, mediaFileService.getMediaFileStrict(folder.getPathString()))));
-        String comment = String.format("Updated order of (%d) songs", count.intValue());
-        createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_SONG, comment);
+        musicFolderService.getAllMusicFolders().forEach(
+                folder -> updateOrderOfSongs(scanDate, mediaFileService.getMediaFileStrict(folder.getPathString())));
+        createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_SONG, null);
     }
 
     void updateOrderOfArtist(@NonNull Instant scanDate, boolean skippable) {
