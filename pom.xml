@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>112.1.7</version>
+    <version>112.1.8</version>
     <name>Jpsonic</name>
     <packaging>pom</packaging>
     <organization>
@@ -173,7 +173,7 @@
             <dependency>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-core</artifactId>
-                <version>4.23.0</version>
+                <version>4.23.1</version>
             </dependency>
 
             <!-- Fix convergence issues -->
@@ -226,7 +226,7 @@
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
                 <scope>compile</scope>
-                <version>3.36.0</version>
+                <version>3.37.0</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
@@ -459,7 +459,7 @@
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
                             <artifactId>checkstyle</artifactId>
-                            <version>10.12.1</version>
+                            <version>10.12.2</version>
                         </dependency>
                     </dependencies>
                     <configuration>
