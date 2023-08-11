@@ -232,7 +232,7 @@ public class MediaFileDao extends AbstractDao {
         return null;
     }
 
-    public @Nullable MediaFile updateMediaFile(MediaFile file) {
+    public Optional<MediaFile> updateMediaFile(MediaFile file) {
         String sql = "update media_file set folder=?, type=?, format=?, title=?, album=?, "
                 + "artist=?, album_artist=?, disc_number=?, track_number=?, year=?, genre=?, "
                 + "bit_rate=?, variable_bit_rate=?, duration_seconds=?, file_size=?, width=?, "
@@ -242,7 +242,7 @@ public class MediaFileDao extends AbstractDao {
                 + "composer=?, artist_sort=?, album_sort=?, title_sort=?, "
                 + "album_artist_sort=?, composer_sort=?, artist_reading=?, album_reading=?, "
                 + "album_artist_reading=?, artist_sort_raw=?, album_sort_raw=?, "
-                + "album_artist_sort_raw=?, composer_sort_raw=?, media_file_order=? where path=?";
+                + "album_artist_sort_raw=?, composer_sort_raw=?, media_file_order=? where id=?";
         int c = update(sql, file.getFolder(), file.getMediaType().name(), file.getFormat(), file.getTitle(),
                 file.getAlbumName(), file.getArtist(), file.getAlbumArtist(), file.getDiscNumber(),
                 file.getTrackNumber(), file.getYear(), file.getGenre(), file.getBitRate(), file.isVariableBitRate(),
@@ -253,11 +253,11 @@ public class MediaFileDao extends AbstractDao {
                 file.getComposer(), file.getArtistSort(), file.getAlbumSort(), file.getTitleSort(),
                 file.getAlbumArtistSort(), file.getComposerSort(), file.getArtistReading(), file.getAlbumReading(),
                 file.getAlbumArtistReading(), file.getArtistSortRaw(), file.getAlbumSortRaw(),
-                file.getAlbumArtistSortRaw(), file.getComposerSortRaw(), file.getOrder(), file.getPathString());
+                file.getAlbumArtistSortRaw(), file.getComposerSortRaw(), file.getOrder(), file.getId());
         if (c > 0) {
-            return file;
+            return Optional.of(file);
         }
-        return null;
+        return Optional.empty();
     }
 
     public void updateChildrenLastUpdated(String pathString, Instant childrenLastUpdated) {
@@ -265,8 +265,8 @@ public class MediaFileDao extends AbstractDao {
                 pathString);
     }
 
-    public int updateOrder(String pathString, int order) {
-        return update("update media_file set media_file_order = ? where path=?", order, pathString);
+    public int updateOrder(int id, int order) {
+        return update("update media_file set media_file_order = ? where id=?", order, id);
     }
 
     public void updateCoverArtPath(String pathString, String coverArtPath) {
@@ -483,17 +483,6 @@ public class MediaFileDao extends AbstractDao {
                 MusicFolder.toPathList(folders), "future", FAR_FUTURE, "count", count);
         return namedQuery("select " + QUERY_COLUMNS
                 + " from media_file where type = :type and present and folder in (:folders) and last_scanned = :future limit :count",
-                rowMapper, args);
-    }
-
-    public @Nullable MediaFile getFetchedFirstChildOf(MediaFile album) {
-        Map<String, Object> args = Map.of("types",
-                Arrays.asList(MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.PODCAST.name(),
-                        MediaFile.MediaType.AUDIOBOOK.name(), MediaFile.MediaType.VIDEO.name()),
-                "albumpath", album.getPathString());
-        return namedQueryOne("select " + QUERY_COLUMNS + ", "
-                + "case when album_artist is null then 1 when album is null then 2 else 0 end is_valid "
-                + "from media_file where present and parent_path=:albumpath and type in (:types) order by is_valid, media_file_order limit 1",
                 rowMapper, args);
     }
 
@@ -750,14 +739,16 @@ public class MediaFileDao extends AbstractDao {
                 MediaFile.MediaType.AUDIOBOOK.name(), MediaFile.MediaType.VIDEO.name());
     }
 
-    public void expunge() {
-        int minId = queryForInt("select min(id) from media_file where not present", 0);
-        int maxId = queryForInt("select max(id) from media_file where not present", 0);
+    public int getMinId() {
+        return queryForInt("select min(id) from media_file where not present", 0);
+    }
 
-        final int batchSize = 1000;
-        for (int id = minId; id <= maxId; id += batchSize) {
-            update("delete from media_file where id between ? and ? and not present", id, id + batchSize);
-        }
+    public int getMaxId() {
+        return queryForInt("select max(id) from media_file where not present", 0);
+    }
+
+    public int expunge(int from, int to) {
+        return update("delete from media_file where id between ? and ? and not present", from, to);
     }
 
     public List<MediaFile> getArtistAll(final List<MusicFolder> musicFolders) {

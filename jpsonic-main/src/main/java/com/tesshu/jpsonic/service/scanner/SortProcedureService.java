@@ -19,26 +19,15 @@
 
 package com.tesshu.jpsonic.service.scanner;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 
-import com.tesshu.jpsonic.dao.AlbumDao;
-import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
-import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
-import com.tesshu.jpsonic.domain.JpsonicComparators;
-import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.Orderable;
 import com.tesshu.jpsonic.domain.SortCandidate;
-import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.MusicFolderService;
+import org.apache.commons.lang3.exception.UncheckedException;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
@@ -52,31 +41,27 @@ import org.springframework.stereotype.Service;
         "jpsonicComparators" })
 public class SortProcedureService {
 
-    private final MusicFolderService musicFolderService;
-    private final MediaFileService mediaFileService;
-    private final WritableMediaFileService writableMediaFileService;
-    private final MediaFileDao mediaFileDao;
-    private final ArtistDao artistDao;
-    private final AlbumDao albumDao;
-    private final JapaneseReadingUtils utils;
-    private final JpsonicComparators comparators;
+    private static final int REPEAT_WAIT_MILLISECONDS = 50;
 
-    public SortProcedureService(MusicFolderService musicFolderService, MediaFileService mediaFileService,
-            WritableMediaFileService writableMediaFileService, MediaFileDao mediaFileDao, ArtistDao artistDao,
-            AlbumDao albumDao, JapaneseReadingUtils utils, JpsonicComparators jpsonicComparator) {
+    private final MediaFileDao mediaFileDao;
+    private final JapaneseReadingUtils utils;
+
+    public SortProcedureService(MediaFileDao mediaFileDao, JapaneseReadingUtils utils) {
         super();
-        this.musicFolderService = musicFolderService;
-        this.mediaFileService = mediaFileService;
-        this.writableMediaFileService = writableMediaFileService;
         this.mediaFileDao = mediaFileDao;
-        this.artistDao = artistDao;
-        this.albumDao = albumDao;
         this.utils = utils;
-        this.comparators = jpsonicComparator;
     }
 
     void clearMemoryCache() {
         utils.clear();
+    }
+
+    private void repeatWait() {
+        try {
+            Thread.sleep(REPEAT_WAIT_MILLISECONDS);
+        } catch (InterruptedException e) {
+            throw new UncheckedException(e);
+        }
     }
 
     List<Integer> compensateSortOfAlbum(List<MusicFolder> folders) {
@@ -119,71 +104,16 @@ public class SortProcedureService {
         return updateSortOfArtistWithId(candidatesWithId);
     }
 
-    <T extends Orderable> List<T> getToBeOrderUpdate(List<T> list, Comparator<T> comparator) {
-        List<Integer> rawOrders = list.stream().map(Orderable::getOrder).collect(Collectors.toList());
-        Collections.sort(list, comparator);
-        List<T> result = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++) {
-            if (i + 1 != rawOrders.get(i)) {
-                list.get(i).setOrder(i + 1);
-                result.add(list.get(i));
-            }
-        }
-        return result;
-    }
-
-    int updateOrderOfAlbumID3() {
-        List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
-        List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folders);
-        LongAdder count = new LongAdder();
-        getToBeOrderUpdate(albums, comparators.albumOrderByAlpha()).forEach(
-                album -> count.add(albumDao.updateOrder(album.getArtist(), album.getName(), album.getOrder())));
-        return count.intValue();
-    }
-
-    int updateOrderOfArtistID3() {
-        List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
-        List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
-        LongAdder count = new LongAdder();
-        getToBeOrderUpdate(artists, comparators.artistOrderByAlpha())
-                .forEach(artist -> count.add(artistDao.updateOrder(artist.getName(), artist.getOrder())));
-        return count.intValue();
-    }
-
-    int updateOrderOfArtist() {
-        List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
-        List<MediaFile> artists = mediaFileDao.getArtistAll(folders);
-        LongAdder count = new LongAdder();
-        getToBeOrderUpdate(artists, comparators.mediaFileOrderByAlpha())
-                .forEach(artist -> count.add(writableMediaFileService.updateOrder(artist)));
-        return count.intValue();
-    }
-
-    int updateOrderOfAlbum() {
-        List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
-        List<MediaFile> albums = mediaFileService.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, folders);
-        LongAdder count = new LongAdder();
-        getToBeOrderUpdate(albums, comparators.mediaFileOrderByAlpha())
-                .forEach(album -> count.add(writableMediaFileService.updateOrder(album)));
-        return count.intValue();
-    }
-
-    int updateOrderOfSongs(MediaFile parent) {
-        List<MediaFile> songs = mediaFileDao.getChildrenWithOrderOf(parent.getPathString()).stream()
-                .filter(child -> mediaFileService.isAudioFile(child.getFormat())
-                        || mediaFileService.isVideoFile(child.getFormat()))
-                .collect(Collectors.toList());
-        LongAdder count = new LongAdder();
-        getToBeOrderUpdate(songs, comparators.songsDefault())
-                .forEach(song -> count.add(writableMediaFileService.updateOrder(song)));
-        return count.intValue();
-    }
-
     private List<Integer> updateSortOfAlbumsWithId(@NonNull List<SortCandidate> candidatesWithId) {
         if (candidatesWithId.isEmpty()) {
             return Collections.emptyList();
         }
-        candidatesWithId.forEach(c -> mediaFileDao.updateAlbumSortWithId(c));
+        for (int i = 0; i < candidatesWithId.size(); i++) {
+            if (i % 20_000 == 0) {
+                repeatWait();
+            }
+            mediaFileDao.updateAlbumSortWithId(candidatesWithId.get(i));
+        }
         return candidatesWithId.stream().map(SortCandidate::getId).collect(Collectors.toList());
     }
 
@@ -191,7 +121,12 @@ public class SortProcedureService {
         if (candidatesWithId.isEmpty()) {
             return Collections.emptyList();
         }
-        candidatesWithId.forEach(c -> mediaFileDao.updateArtistSortWithId(c));
+        for (int i = 0; i < candidatesWithId.size(); i++) {
+            if (i % 20_000 == 0) {
+                repeatWait();
+            }
+            mediaFileDao.updateArtistSortWithId(candidatesWithId.get(i));
+        }
         return candidatesWithId.stream().map(SortCandidate::getId).collect(Collectors.toList());
     }
 }

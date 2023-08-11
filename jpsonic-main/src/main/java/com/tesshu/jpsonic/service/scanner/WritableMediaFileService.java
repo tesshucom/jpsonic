@@ -454,7 +454,7 @@ public class WritableMediaFileService {
     }
 
     int updateOrder(@NonNull final MediaFile file) {
-        return mediaFileDao.updateOrder(file.getPathString(), file.getOrder());
+        return mediaFileDao.updateOrder(file.getId(), file.getOrder());
     }
 
     /*
@@ -470,12 +470,14 @@ public class WritableMediaFileService {
     @SuppressLint(value = "NULL_DEREFERENCE", justification = "False positive. parseMediaFile is NonNull")
     Optional<MediaFile> refreshMediaFile(@NonNull Instant scanDate, @NonNull MediaFile registered) {
         MediaFile parsed = parseMediaFile(scanDate, registered.toPath(), registered);
-        MediaFile updated = mediaFileDao.updateMediaFile(parsed);
-        if (updated != null && updated.getMediaType() != MediaType.ALBUM) {
-            indexManager.index(updated);
-        }
+        Optional<MediaFile> updated = mediaFileDao.updateMediaFile(parsed);
+        updated.ifPresent(m -> {
+            if (m.getMediaType() != MediaType.ALBUM) {
+                indexManager.index(m);
+            }
+        });
         mediaFileCache.remove(parsed.toPath());
-        return Optional.ofNullable(updated);
+        return updated;
     }
 
     // Updateable even during scanning

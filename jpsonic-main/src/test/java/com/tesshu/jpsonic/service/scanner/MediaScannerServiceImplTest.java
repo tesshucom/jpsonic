@@ -60,6 +60,7 @@ import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
+import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ScanEvent;
@@ -213,7 +214,8 @@ class MediaScannerServiceImplTest {
             scannerProcedureService = new ScannerProcedureService(settingsService, mock(MusicFolderServiceImpl.class),
                     indexManager, mediaFileService, writableMediaFileService, mock(PlaylistService.class), mediaFileDao,
                     artistDao, albumDao, staticsDao, utils, scannerStateService, mock(Ehcache.class),
-                    mock(MediaFileCache.class), mock(JapaneseReadingUtils.class), mock(ThreadPoolTaskExecutor.class));
+                    mock(MediaFileCache.class), mock(JapaneseReadingUtils.class), mock(JpsonicComparators.class),
+                    mock(ThreadPoolTaskExecutor.class));
             mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
                     scannerProcedureService, mock(ExpungeService.class), staticsDao, executor);
         }
@@ -1090,6 +1092,7 @@ class MediaScannerServiceImplTest {
         private ScannerProcedureService scannerProcedureService;
         private WritableMediaFileService writableMediaFileService;
         private MediaScannerServiceImpl mediaScannerService;
+        private JpsonicComparators comparators;
 
         @BeforeEach
         public void setup() {
@@ -1107,10 +1110,12 @@ class MediaScannerServiceImplTest {
                     albumDao, mock(MediaFileCache.class), mock(MusicParser.class), mock(VideoParser.class),
                     settingsService, mock(SecurityService.class), null, mock(IndexManager.class));
             musicFolderService = mock(MusicFolderServiceImpl.class);
+            comparators = mock(JpsonicComparators.class);
             scannerProcedureService = new ScannerProcedureService(settingsService, musicFolderService, indexManager,
                     mediaFileService, writableMediaFileService, mock(PlaylistService.class), mediaFileDao, artistDao,
                     albumDao, staticsDao, sortProcedureService, scannerStateService, mock(Ehcache.class),
-                    mock(MediaFileCache.class), mock(JapaneseReadingUtils.class), mock(ThreadPoolTaskExecutor.class));
+                    mock(MediaFileCache.class), mock(JapaneseReadingUtils.class), comparators,
+                    mock(ThreadPoolTaskExecutor.class));
             mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
                     scannerProcedureService, mock(ExpungeService.class), staticsDao, executor);
         }
@@ -1137,20 +1142,16 @@ class MediaScannerServiceImplTest {
             Mockito.verify(sortProcedureService, Mockito.times(1)).copySortOfAlbum(Mockito.anyList());
             Mockito.verify(sortProcedureService, Mockito.times(1)).compensateSortOfAlbum(Mockito.anyList());
 
-            // updateOrderOfAlbum
-            Mockito.verify(sortProcedureService, Mockito.times(1)).updateOrderOfAlbum();
+            // (updateOrderOfAlbum)
+            // Mockito.verify(scannerProcedureService, Mockito.times(1)).updateOrderOfAlbum();
+            // (updateOrderOfArtist)
+            // Mockito.verify(scannerProcedureService, Mockito.times(1)).updateOrderOfArtist();
+            Mockito.verify(comparators, Mockito.times(2)).mediaFileOrderByAlpha();
 
             // updateSortOfArtist
             Mockito.verify(sortProcedureService, Mockito.times(1)).mergeSortOfArtist(Mockito.anyList());
             Mockito.verify(sortProcedureService, Mockito.times(1)).copySortOfArtist(Mockito.anyList());
             Mockito.verify(sortProcedureService, Mockito.times(1)).compensateSortOfArtist(Mockito.anyList());
-
-            // updateOrderOfArtist
-            Mockito.verify(sortProcedureService, Mockito.times(1)).updateOrderOfArtist();
-
-            // updateOrderOfSongsDirectlyUnderMusicfolder
-            Mockito.verify(sortProcedureService, Mockito.times(1))
-                    .updateOrderOfSongs(Mockito.nullable(MediaFile.class));
 
             // refleshAlbumId3
             Mockito.verify(mediaFileDao, Mockito.times(1)).getChangedId3Albums(Mockito.anyInt(), Mockito.anyList(),
@@ -1158,8 +1159,9 @@ class MediaScannerServiceImplTest {
             Mockito.verify(mediaFileDao, Mockito.times(1)).getUnregisteredId3Albums(Mockito.anyInt(), Mockito.anyList(),
                     Mockito.anyBoolean());
 
-            // updateOrderOfAlbumId3
-            Mockito.verify(sortProcedureService, Mockito.times(1)).updateOrderOfAlbumID3();
+            // (updateOrderOfAlbumId3)
+            // Mockito.verify(scannerProcedureService, Mockito.times(1)).updateOrderOfAlbumID3();
+            Mockito.verify(comparators, Mockito.times(1)).albumOrderByAlpha();
 
             // refleshArtistId3
             Mockito.verify(mediaFileDao, Mockito.times(1)).getChangedId3Artists(Mockito.anyInt(), Mockito.anyList(),
@@ -1167,17 +1169,17 @@ class MediaScannerServiceImplTest {
             Mockito.verify(mediaFileDao, Mockito.times(1)).getUnregisteredId3Artists(Mockito.anyInt(),
                     Mockito.anyList(), Mockito.anyBoolean());
 
-            // updateOrderOfArtistId3
-            Mockito.verify(sortProcedureService, Mockito.times(1)).updateOrderOfArtistID3();
+            // (updateOrderOfArtistId3)
+            // Mockito.verify(scannerProcedureService, Mockito.times(1)).updateOrderOfArtistID3();
+            Mockito.verify(comparators, Mockito.times(1)).artistOrderByAlpha();
 
             // updateAlbumCounts
             Mockito.verify(artistDao, Mockito.times(1)).updateAlbumCount(Mockito.anyInt(), Mockito.anyInt());
         }
 
         /**
-         * updateSortOfAlbum and updateSortOfArtist will be skipped if settingsService#sortStrict is false. On the other
-         * hand, from v112.0.0 onwards, updateOrder will be a mandatory process when data is updated. Because it is used
-         * for fetch in incremental updates.
+         * From v112.0.0 onwards, updateOrder will be a mandatory process when data is updated. Because it is used for
+         * fetch in incremental updates.
          */
         @Test
         void testDoScanLibraryWithoutSortStrict() {
@@ -1201,20 +1203,16 @@ class MediaScannerServiceImplTest {
             Mockito.verify(sortProcedureService, Mockito.never()).copySortOfAlbum(Mockito.anyList());
             Mockito.verify(sortProcedureService, Mockito.never()).compensateSortOfAlbum(Mockito.anyList());
 
-            // updateOrderOfAlbum
-            Mockito.verify(sortProcedureService, Mockito.times(1)).updateOrderOfAlbum();
-
             // updateSortOfArtist
             Mockito.verify(sortProcedureService, Mockito.never()).mergeSortOfArtist(Mockito.anyList());
             Mockito.verify(sortProcedureService, Mockito.never()).copySortOfArtist(Mockito.anyList());
             Mockito.verify(sortProcedureService, Mockito.never()).compensateSortOfArtist(Mockito.anyList());
 
-            // updateOrderOfArtist
-            Mockito.verify(sortProcedureService, Mockito.times(1)).updateOrderOfArtist();
-
-            // updateOrderOfSongsDirectlyUnderMusicfolder
-            Mockito.verify(sortProcedureService, Mockito.times(1))
-                    .updateOrderOfSongs(Mockito.nullable(MediaFile.class));
+            // (updateOrderOfAlbum)
+            // Mockito.verify(scannerProcedureService, Mockito.times(1)).updateOrderOfAlbum();
+            // (updateOrderOfArtist)
+            // Mockito.verify(scannerProcedureService, Mockito.times(1)).updateOrderOfArtist();
+            Mockito.verify(comparators, Mockito.times(2)).mediaFileOrderByAlpha();
 
             // refleshAlbumId3
             Mockito.verify(mediaFileDao, Mockito.times(1)).getChangedId3Albums(Mockito.anyInt(), Mockito.anyList(),
@@ -1222,8 +1220,9 @@ class MediaScannerServiceImplTest {
             Mockito.verify(mediaFileDao, Mockito.times(1)).getUnregisteredId3Albums(Mockito.anyInt(), Mockito.anyList(),
                     Mockito.anyBoolean());
 
-            // updateOrderOfAlbumId3
-            Mockito.verify(sortProcedureService, Mockito.times(1)).updateOrderOfAlbumID3();
+            // (updateOrderOfAlbumId3)
+            // Mockito.verify(scannerProcedureService, Mockito.times(1)).updateOrderOfAlbumID3();
+            Mockito.verify(comparators, Mockito.times(1)).albumOrderByAlpha();
 
             // refleshArtistId3
             Mockito.verify(mediaFileDao, Mockito.times(1)).getChangedId3Artists(Mockito.anyInt(), Mockito.anyList(),
@@ -1231,8 +1230,9 @@ class MediaScannerServiceImplTest {
             Mockito.verify(mediaFileDao, Mockito.times(1)).getUnregisteredId3Artists(Mockito.anyInt(),
                     Mockito.anyList(), Mockito.anyBoolean());
 
-            // updateOrderOfArtistId3
-            Mockito.verify(sortProcedureService, Mockito.times(1)).updateOrderOfArtistID3();
+            // (updateOrderOfArtistId3)
+            // Mockito.verify(scannerProcedureService, Mockito.times(1)).updateOrderOfArtistID3();
+            Mockito.verify(comparators, Mockito.times(1)).artistOrderByAlpha();
 
             // updateAlbumCounts
             Mockito.verify(artistDao, Mockito.times(1)).updateAlbumCount(Mockito.anyInt(), Mockito.anyInt());

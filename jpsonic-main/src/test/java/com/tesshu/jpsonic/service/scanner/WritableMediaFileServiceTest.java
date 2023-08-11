@@ -42,6 +42,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
@@ -192,7 +193,7 @@ class WritableMediaFileServiceTest {
             MediaFile mediaFile = createMediaFile(MediaFileDao.VERSION - 1);
             mediaFile.setPathString(dir.toString());
             Mockito.when(mediaFileDao.getMediaFile(mediaFile.getPathString())).thenReturn(mediaFile);
-            Mockito.when(mediaFileDao.updateMediaFile(mediaFile)).thenReturn(mediaFile);
+            Mockito.when(mediaFileDao.updateMediaFile(mediaFile)).thenReturn(Optional.of(mediaFile));
 
             try {
                 mediaFile.setChanged(Files.getLastModifiedTime(dir).toInstant());
@@ -224,7 +225,7 @@ class WritableMediaFileServiceTest {
             }
             mediaFile.setLastScanned(FAR_PAST);
             Mockito.when(mediaFileDao.getMediaFile(mediaFile.getPathString())).thenReturn(mediaFile);
-            Mockito.when(mediaFileDao.updateMediaFile(mediaFile)).thenReturn(mediaFile);
+            Mockito.when(mediaFileDao.updateMediaFile(mediaFile)).thenReturn(Optional.of(mediaFile));
 
             assertEquals(mediaFile.getChanged(), Files.getLastModifiedTime(mediaFile.toPath()).toInstant());
             assertEquals(FAR_PAST, mediaFile.getLastScanned());
@@ -295,7 +296,7 @@ class WritableMediaFileServiceTest {
             }
             mediaFile.setLastScanned(FAR_PAST);
             Mockito.when(mediaFileDao.getMediaFile(mediaFile.getPathString())).thenReturn(mediaFile);
-            Mockito.when(mediaFileDao.updateMediaFile(mediaFile)).thenReturn(mediaFile);
+            Mockito.when(mediaFileDao.updateMediaFile(mediaFile)).thenReturn(Optional.of(mediaFile));
 
             assertThat("Changed Lt LastModified", mediaFile.getChanged().toEpochMilli(),
                     lessThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
@@ -345,7 +346,7 @@ class WritableMediaFileServiceTest {
             }
             mediaFile.setLastScanned(FAR_PAST);
             Mockito.when(mediaFileDao.getMediaFile(mediaFile.getPathString())).thenReturn(mediaFile);
-            Mockito.when(mediaFileDao.updateMediaFile(mediaFile)).thenReturn(mediaFile);
+            Mockito.when(mediaFileDao.updateMediaFile(mediaFile)).thenReturn(Optional.of(mediaFile));
 
             assertEquals(mediaFile.getChanged().toEpochMilli(),
                     Files.getLastModifiedTime(mediaFile.toPath()).toMillis());
@@ -420,7 +421,7 @@ class WritableMediaFileServiceTest {
             }
             mediaFile.setLastScanned(FAR_PAST);
             Mockito.when(mediaFileDao.getMediaFile(mediaFile.getPathString())).thenReturn(mediaFile);
-            Mockito.when(mediaFileDao.updateMediaFile(mediaFile)).thenReturn(mediaFile);
+            Mockito.when(mediaFileDao.updateMediaFile(mediaFile)).thenReturn(Optional.of(mediaFile));
 
             assertThat("Changed Lt LastModified", mediaFile.getChanged().toEpochMilli(),
                     lessThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
@@ -446,7 +447,7 @@ class WritableMediaFileServiceTest {
             }
             mediaFile.setLastScanned(mediaFile.getChanged());
             Mockito.when(mediaFileDao.getMediaFile(mediaFile.getPathString())).thenReturn(mediaFile);
-            Mockito.when(mediaFileDao.updateMediaFile(mediaFile)).thenReturn(mediaFile);
+            Mockito.when(mediaFileDao.updateMediaFile(mediaFile)).thenReturn(Optional.of(mediaFile));
 
             assertThat("Changed Lt LastModified", mediaFile.getChanged().toEpochMilli(),
                     lessThan(Files.getLastModifiedTime(mediaFile.toPath()).toMillis()));
@@ -548,7 +549,7 @@ class WritableMediaFileServiceTest {
 
             Mockito.clearInvocations(mediaFileDao);
             mediaFileCaptor = ArgumentCaptor.forClass(MediaFile.class);
-            Mockito.when(mediaFileDao.updateMediaFile(mediaFileCaptor.capture())).thenReturn(null);
+            Mockito.when(mediaFileDao.updateMediaFile(mediaFileCaptor.capture())).thenReturn(Optional.empty());
 
             Instant statsUpdated = now();
             writableMediaFileService.refreshMediaFile(statsUpdated, mediaFile);
