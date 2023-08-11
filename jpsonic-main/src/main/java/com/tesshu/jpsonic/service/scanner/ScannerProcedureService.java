@@ -313,17 +313,16 @@ public class ScannerProcedureService {
         }
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
         List<MediaFile> videos = mediaFileDao.getUnparsedVideos(ACQUISITION_MAX, folders);
-        int countUpdate = 0;
+        LongAdder count = new LongAdder();
         while (!videos.isEmpty()) {
             for (MediaFile video : videos) {
                 if (isInterrupted()) {
                     break;
                 }
-                MediaFile updated = mediaFileDao.updateMediaFile(wmfs.parseVideo(scanDate, video));
-                if (updated != null) {
+                mediaFileDao.updateMediaFile(wmfs.parseVideo(scanDate, video)).ifPresent(updated -> {
                     indexManager.index(updated);
-                    countUpdate++;
-                }
+                    count.increment();
+                });
                 scannerState.incrementScanCount();
                 writeParsedCount(scanDate, video);
             }
@@ -332,7 +331,7 @@ public class ScannerProcedureService {
             }
             videos = mediaFileDao.getUnparsedVideos(ACQUISITION_MAX, folders);
         }
-        createScanEvent(scanDate, ScanEventType.PARSE_VIDEO, String.format("Parsed(%d)", countUpdate));
+        createScanEvent(scanDate, ScanEventType.PARSE_VIDEO, String.format("Parsed(%d)", count.intValue()));
     }
 
     void expungeFileStructure() {
@@ -417,7 +416,7 @@ public class ScannerProcedureService {
 
     private int updateAlbums(@NonNull Instant scanDate, List<MusicFolder> folders) {
         List<MediaFile> registereds = mediaFileDao.getChangedAlbums(ACQUISITION_MAX, folders);
-        int countUpdate = 0;
+        LongAdder count = new LongAdder();
         while (!registereds.isEmpty() && !isInterrupted()) {
             for (MediaFile registered : registereds) {
                 if (isInterrupted()) {
@@ -428,20 +427,19 @@ public class ScannerProcedureService {
                 MediaFile album = fetchedFirstChild == null ? registered
                         : albumOf(scanDate, fetchedFirstChild, registered);
                 album.setChildrenLastUpdated(scanDate);
-                MediaFile updated = mediaFileDao.updateMediaFile(album);
-                if (updated != null) {
+                mediaFileDao.updateMediaFile(album).ifPresent(updated -> {
                     indexManager.index(updated);
-                    countUpdate++;
-                }
+                    count.increment();
+                });
             }
             registereds = mediaFileDao.getChangedAlbums(ACQUISITION_MAX, folders);
         }
-        return countUpdate;
+        return count.intValue();
     }
 
     private int createAlbums(@NonNull Instant scanDate, List<MusicFolder> folders) {
         List<MediaFile> registereds = mediaFileDao.getUnparsedAlbums(ACQUISITION_MAX, folders);
-        int countNew = 0;
+        LongAdder count = new LongAdder();
         while (!registereds.isEmpty() && !isInterrupted()) {
             for (MediaFile registered : registereds) {
                 if (isInterrupted()) {
@@ -453,15 +451,14 @@ public class ScannerProcedureService {
                         : albumOf(scanDate, fetchedFirstChild, registered);
                 album.setChildrenLastUpdated(scanDate);
                 album.setLastScanned(scanDate);
-                MediaFile updated = mediaFileDao.updateMediaFile(album);
-                if (updated != null) {
+                mediaFileDao.updateMediaFile(album).ifPresent(updated -> {
                     indexManager.index(updated);
-                    countNew++;
-                }
+                    count.increment();
+                });
             }
             registereds = mediaFileDao.getUnparsedAlbums(ACQUISITION_MAX, folders);
         }
-        return countNew;
+        return count.intValue();
     }
 
     boolean parseAlbum(@NonNull Instant scanDate) {

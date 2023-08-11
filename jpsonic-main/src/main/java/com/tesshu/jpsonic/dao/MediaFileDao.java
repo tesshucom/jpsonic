@@ -232,7 +232,7 @@ public class MediaFileDao extends AbstractDao {
         return null;
     }
 
-    public @Nullable MediaFile updateMediaFile(MediaFile file) {
+    public Optional<MediaFile> updateMediaFile(MediaFile file) {
         String sql = "update media_file set folder=?, type=?, format=?, title=?, album=?, "
                 + "artist=?, album_artist=?, disc_number=?, track_number=?, year=?, genre=?, "
                 + "bit_rate=?, variable_bit_rate=?, duration_seconds=?, file_size=?, width=?, "
@@ -255,9 +255,9 @@ public class MediaFileDao extends AbstractDao {
                 file.getAlbumArtistReading(), file.getArtistSortRaw(), file.getAlbumSortRaw(),
                 file.getAlbumArtistSortRaw(), file.getComposerSortRaw(), file.getOrder(), file.getPathString());
         if (c > 0) {
-            return file;
+            return Optional.of(file);
         }
-        return null;
+        return Optional.empty();
     }
 
     public void updateChildrenLastUpdated(String pathString, Instant childrenLastUpdated) {
