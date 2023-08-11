@@ -100,8 +100,8 @@ public class ArtistDao extends AbstractDao {
         return null;
     }
 
-    public int updateOrder(String name, int order) {
-        return update("update artist set artist_order=? where name=?", order, name);
+    public int updateOrder(int id, int order) {
+        return update("update artist set artist_order=? where id=?", order, id);
     }
 
     public List<Artist> getAlphabetialArtists(final int offset, final int count, final List<MusicFolder> musicFolders) {
