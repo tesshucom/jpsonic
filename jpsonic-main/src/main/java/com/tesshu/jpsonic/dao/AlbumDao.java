@@ -122,8 +122,8 @@ public class AlbumDao extends AbstractDao {
         return null;
     }
 
-    public int updateOrder(String artist, String name, int order) {
-        return update("update album set album_order = ? where artist=? and name=?", order, artist, name);
+    public int updateOrder(int id, int order) {
+        return update("update album set album_order = ? where id=?", order, id);
     }
 
     public void updateCoverArtPath(String artist, String name, String coverArtPath) {
