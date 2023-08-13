@@ -24,11 +24,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -181,14 +179,17 @@ class PodcastServiceImplTest {
             final PodcastChannel channel = new PodcastChannel(null, null, channelTitle, null, null, null, null);
             final int epId = 99;
             final Instant publishDate = Instant.now();
+            final String pubDateStr = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
+                    .format(publishDate);
 
             String episodeTitle = "epTitle";
             String episodeUrl = "http://tesshu.com/chTitle/epTitle.mp3?size=mid";
 
             PodcastEpisode episode = new PodcastEpisode(epId, null, episodeUrl, null, episodeTitle, null, publishDate,
                     null, null, null, null, null);
-
-            assertThrows(InvalidPathException.class, () -> podcastService.getFile(channel, episode));
+            String fileName = channel.getTitle() + " - " + pubDateStr + " - " + epId + " - " + episodeTitle + ".mp3";
+            assertEquals(podcastFolder.toString() + File.separator + channelTitle + File.separator + fileName,
+                    podcastService.getFile(channel, episode).toString());
         }
     }
 }
