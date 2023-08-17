@@ -64,6 +64,7 @@ import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.UncheckedException;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.CookieSpecs;
@@ -538,17 +539,18 @@ public class PodcastServiceImpl implements PodcastService {
         return episodes;
     }
 
-    boolean isAudioEpisode(String url) {
-        String suffix;
+    private String getExtension(String url) {
         try {
             URI uri = new URI(url);
-            String withoutQuery = new URI(uri.getScheme(), uri.getAuthority(), uri.getPath(), null, uri.getFragment())
-                    .toString();
-            suffix = FilenameUtils.getExtension(withoutQuery);
+            return FilenameUtils.getExtension(
+                    new URI(uri.getScheme(), uri.getAuthority(), uri.getPath(), null, uri.getFragment()).toString());
         } catch (URISyntaxException e) {
-            return false;
+            throw new UncheckedException(e);
         }
-        return mediaFileService.isAudioFile(suffix);
+    }
+
+    boolean isAudioEpisode(String url) {
+        return mediaFileService.isAudioFile(getExtension(url));
     }
 
     private String getDescription(Element element) {
@@ -792,7 +794,7 @@ public class PodcastServiceImpl implements PodcastService {
         filename = filename.substring(0, Math.min(filename.length(), 146));
 
         filename = StringUtil.fileSystemSafe(filename);
-        String extension = FilenameUtils.getExtension(episode.getUrl());
+        String extension = getExtension(episode.getUrl());
 
         Path channelDir = getChannelDirectory(channel);
         Path file = Path.of(channelDir.toString(), filename + "." + extension);
