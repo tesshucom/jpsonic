@@ -3,7 +3,48 @@
 # jpsonic/jpsonic
 # -->
 
-## v112.1.0
+## v112.2.0
+
+#### Bug fixes
+
+  * Podcast download fixes
+    * Fix to download only podcast episodes with specified extensions ([#2271](https://github.com/tesshucom/jpsonic/issues/2271))
+    * Fix podcasts to be saved in the correct format ([#2281](https://github.com/tesshucom/jpsonic/issues/2281))
+    * Fix bugs that episodes with (URL)queries could not be downloaded ([#2312](https://github.com/tesshucom/jpsonic/issues/2312))
+  * Suppress SSDP warnings to not log network card info ([#2306](https://github.com/tesshucom/jpsonic/issues/2306))
+
+#### Enhancement
+
+  * Scan fixes
+    * Change Java startup options to those for G1 GC ([#2316](https://github.com/tesshucom/jpsonic/issues/2316))
+    * Eliminate waste of sort key generation ([#2252](https://github.com/tesshucom/jpsonic/issues/2252))
+    * Minor fixes related to Order by ([#2273](https://github.com/tesshucom/jpsonic/issues/2273))
+    * Improve UPDATE_SORT_OF_ARTIST ([#2280](https://github.com/tesshucom/jpsonic/issues/2280))
+    * Improve stats gathering ([#2295](https://github.com/tesshucom/jpsonic/issues/2295))
+    * Improve UPDATE_SORT_OF_ALBUM ([#2299](https://github.com/tesshucom/jpsonic/issues/2299))
+    * Add wait to scan thread ([#2308](https://github.com/tesshucom/jpsonic/issues/2308))
+  * Suppress TimeoutException so that the log does not become huge ([#2242](https://github.com/tesshucom/jpsonic/issues/2242))
+
+#### Maintenance
+
+  * Change JDK distribution used in CI from Adopt to Temurin ([#2315](https://github.com/tesshucom/jpsonic/issues/2315))
+  * Add Docker tag variations to facilitate automatic updates ([#2234](https://github.com/tesshucom/jpsonic/issues/2234))
+  * Docker stress test with Synology DS220+ (v112.2) ([#2310](https://github.com/tesshucom/jpsonic/issues/2310))
+
+#### Update Libs
+
+  - [v112.1.1](https://github.com/tesshucom/jpsonic/issues/2235)
+  - [v112.1.2](https://github.com/tesshucom/jpsonic/issues/2243)
+  - [v112.1.3](https://github.com/tesshucom/jpsonic/issues/2253)
+  - [v112.1.4](https://github.com/tesshucom/jpsonic/issues/2272)
+  - [v112.1.5](https://github.com/tesshucom/jpsonic/issues/2282)
+  - [v112.1.6](https://github.com/tesshucom/jpsonic/issues/2296)
+  - [v112.1.7](https://github.com/tesshucom/jpsonic/issues/2301)
+  - [v112.1.8](https://github.com/tesshucom/jpsonic/issues/2309)
+  - [v112.1.9](https://github.com/tesshucom/jpsonic/issues/2314)
+
+<details>
+<summary>v112.1.0</summary>
 
 #### Bug fixes
 
@@ -34,6 +75,7 @@
   * Provide production.synology.yml for Synology DS220+ ([#2175](https://github.com/tesshucom/jpsonic/issues/2175)) ([#2203](https://github.com/tesshucom/jpsonic/issues/2203)) ([#2184](https://github.com/tesshucom/jpsonic/issues/2184))
   * Docker stress test with Synology DS220+ ([#1808](https://github.com/tesshucom/jpsonic/issues/1808))
 
+</details>
 <details>
 <summary>v112.0.0</summary>
 
