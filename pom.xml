@@ -829,21 +829,14 @@
     </reporting>
     <profiles>
         <profile>
-            <id>release11</id>
-            <properties>
-                <java.version>11</java.version>
-                <maven.compiler.release>${java.version}</maven.compiler.release>
-            </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
-        <profile>
             <id>release17</id>
             <properties>
                 <java.version>17</java.version>
                 <maven.compiler.release>${java.version}</maven.compiler.release>
             </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
         </profile>
         <profile>
             <id>release18</id>
