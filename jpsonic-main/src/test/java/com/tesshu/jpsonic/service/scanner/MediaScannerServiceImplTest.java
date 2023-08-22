@@ -88,7 +88,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnJre;
+import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.JRE;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
@@ -566,9 +568,11 @@ class MediaScannerServiceImplTest {
             populateDatabase();
         }
 
-        // Flaky in Windows Server 2022 & JDK11 (#1645)
-        // Flaky in Ubunts & JDK11 (#1840)
-        @DisabledOnJre(JRE.JAVA_11)
+        /*
+         * On platforms with Timestamp disabled the result will be different from the case. Windows for home use will
+         * work fine.
+         */
+        @DisabledOnOs(OS.WINDOWS) // Windows Server 2022 & JDK17
         @Test
         void testBehavioralSpecForTagReflesh() throws URISyntaxException, IOException, InterruptedException {
 
