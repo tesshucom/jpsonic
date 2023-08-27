@@ -13,13 +13,13 @@
     </organization>
 
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <project.inceptionYear>2018</project.inceptionYear>
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jackson.version>2.15.2</jackson.version>
-        <tomcat.version>9.0.79</tomcat.version>
+        <tomcat.version>9.0.80</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
         <jetty.version>10.0.15</jetty.version>
         <jetty-jsp.version>10.0.15</jetty-jsp.version>
@@ -95,14 +95,14 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-junit-jupiter</artifactId>
-                <version>5.4.0</version>
+                <version>5.5.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <!-- Import dependency management from Spring Boot -->
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>2.7.14</version>
+                <version>2.7.15</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -110,17 +110,17 @@
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-acl</artifactId>
-                <version>5.8.5</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.6</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-config</artifactId>
-                <version>5.8.5</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.6</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-core</artifactId>
-                <version>5.8.5</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.6</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
@@ -130,17 +130,17 @@
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-taglibs</artifactId>
-                <version>5.8.5</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.6</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-ldap</artifactId>
-                <version>5.8.5</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.6</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
-                <version>5.8.5</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.6</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
 
             <!-- Spring Boot is slow to fix CVE, so some libraries will be overridden. -->
@@ -237,7 +237,7 @@
             <dependency>
                 <groupId>org.apache.ant</groupId>
                 <artifactId>ant</artifactId>
-                <version>1.10.13</version>
+                <version>1.10.14</version>
                 <scope>runtime</scope>
             </dependency>
             <dependency>
@@ -549,7 +549,7 @@
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>8.3.1</version>
+                    <version>8.4.0</version>
                     <inherited>true</inherited>
                     <configuration>
                         <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
@@ -762,7 +762,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.4.0</version>
                 <inherited>true</inherited>
                 <executions>
                     <execution>
@@ -829,21 +829,14 @@
     </reporting>
     <profiles>
         <profile>
-            <id>release11</id>
-            <properties>
-                <java.version>11</java.version>
-                <maven.compiler.release>${java.version}</maven.compiler.release>
-            </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
-        <profile>
             <id>release17</id>
             <properties>
                 <java.version>17</java.version>
                 <maven.compiler.release>${java.version}</maven.compiler.release>
             </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
         </profile>
         <profile>
             <id>release18</id>

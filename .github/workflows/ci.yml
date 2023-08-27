@@ -55,16 +55,16 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'temurin'
-        java-version: 11
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
+        java-version: 17
+    - name: Compile with Maven
+      run: mvn clean compile -Dmaven.test.skip=true -Dpmd.skip=true -Pjetty-embed -Prelease17
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
   ##########################################################################
-  verify-JDK11:
+  verify-JDK17:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-    name: JDK11 on ${{ matrix.os }}
+    name: JDK17 on ${{ matrix.os }}
     strategy:
       matrix:
         os: [ windows-latest, ubuntu-latest ]
@@ -76,7 +76,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: 11
+          java-version: 17
       - name: Set up ffmpeg
         id: ffmpeg
         uses: FedericoCarboni/setup-ffmpeg@v2
@@ -102,33 +102,6 @@ jobs:
       - name: Verify with Maven on Win
         if: contains(matrix.os, 'windows-latest')
         run: mvn -DfailIfNoTests=false -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" clean verify -B -Ptomcat-embed -Punit-test
-  ##########################################################################
-  verify-JDK17:
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-    name: JDK17 on ubuntu-latest
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Set up java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: 17
-      - name: Set up ffmpeg
-        id: ffmpeg
-        uses: FedericoCarboni/setup-ffmpeg@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2 
-      - name: Verify with Maven
-        run: mvn -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" clean verify -B -Ptomcat-embed -Prelease${{ matrix.java }} -Punit-test
   ##########################################################################
   verify-experiment:
     needs: pre_job
@@ -162,7 +135,7 @@ jobs:
   ##########################################################################
   send-coverage:
     name: Send coverage to Codacy
-    needs: [ verify-JDK11, verify-JDK17 ]
+    needs: [ verify-JDK17 ]
     if: "(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')"
     env:
       CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
@@ -185,11 +158,11 @@ jobs:
   ##########################################################################
   ship-war:
     if: "(github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop') && github.event_name != 'schedule'"
-    needs: [ verify-JDK11, verify-JDK17, verify-experiment ]
+    needs: [ verify-JDK17, verify-experiment ]
     name: Package with JDK ${{ matrix.java }} on ubuntu
     strategy:
       matrix:
-        java: [ 11, 17, 18, 19, 20 ]
+        java: [ 17, 18, 19, 20 ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
