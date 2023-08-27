@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.tesshu.jpsonic.player</groupId>
         <artifactId>jpsonic</artifactId>
-    <version>112.2.0</version>
+    <version>112.2.1</version>
     </parent>
 
     <properties>
@@ -260,8 +260,8 @@
         <dependency>
             <groupId>org.directwebremoting</groupId>
             <artifactId>dwr</artifactId>
-            <!-- Only 3.0.0-rc3-RELEASE is available. #1630 -->
-            <version>3.0.0-rc3-RELEASE</version>
+            <!-- Only 3.0.2-RELEASE is available. #1630 -->
+            <version>3.0.2-RELEASE</version>
         </dependency>
 
         <!--Needed by dwr-->
@@ -666,7 +666,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.7.14</version>
+                <version>2.7.15</version>
                 <configuration>
                     <mainClass>com.tesshu.jpsonic.Application</mainClass>
                     <layout>WAR</layout>
