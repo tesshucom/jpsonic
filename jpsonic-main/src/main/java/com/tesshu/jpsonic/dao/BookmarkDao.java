@@ -48,11 +48,7 @@ public class BookmarkDao extends AbstractDao {
         bookmarkRowMapper = new BookmarkRowMapper();
     }
 
-    /**
-     * Returns all bookmarks.
-     *
-     * @return Possibly empty list of all bookmarks.
-     */
+    @Deprecated
     public List<Bookmark> getBookmarks() {
         String sql = "select " + QUERY_COLUMNS + " from bookmark";
         return query(sql, bookmarkRowMapper);
