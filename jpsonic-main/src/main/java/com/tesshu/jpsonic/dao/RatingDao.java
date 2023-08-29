@@ -28,6 +28,7 @@ import java.util.Map;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.util.LegacyMap;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,85 +45,57 @@ public class RatingDao extends AbstractDao {
         super(daoHelper);
     }
 
-    /**
-     * Returns paths for the highest rated albums.
-     *
-     * @param offset
-     *            Number of albums to skip.
-     * @param count
-     *            Maximum number of albums to return.
-     * @param musicFolders
-     *            Only return albums in these folders.
-     *
-     * @return Paths for the highest rated albums.
-     */
     public List<String> getHighestRatedAlbums(final int offset, final int count, final List<MusicFolder> musicFolders) {
         if (count < 1 || musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-
         Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
                 MusicFolder.toPathList(musicFolders), "count", count, "offset", offset);
-
-        String sql = "select user_rating.path from user_rating, media_file "
-                + "where user_rating.path=media_file.path and media_file.present and media_file.type = :type and media_file.folder in (:folders) "
-                + "group by user_rating.path order by avg(rating) desc limit :count offset :offset";
+        String sql = """
+                select user_rating.path
+                from user_rating, media_file
+                where user_rating.path = media_file.path and media_file.present
+                        and media_file.type = :type and media_file.folder in (:folders)
+                group by user_rating.path
+                order by avg(rating) desc
+                limit :count offset :offset
+                """;
         return namedQueryForStrings(sql, args);
     }
 
-    /**
-     * Sets the rating for a media file and a given user.
-     *
-     * @param username
-     *            The user name.
-     * @param mediaFile
-     *            The media file.
-     * @param rating
-     *            The rating between 1 and 5, or <code>null</code> to remove the rating.
-     */
     @Transactional
     public void setRatingForUser(String username, MediaFile mediaFile, Integer rating) {
         if (rating != null && (rating < 1 || rating > 5)) {
             return;
         }
-
-        update("delete from user_rating where username=? and path=?", username, mediaFile.getPathString());
+        update("""
+                delete from user_rating
+                where username=? and path=?
+                """, username, mediaFile.getPathString());
         if (rating != null) {
             update("insert into user_rating values(?, ?, ?)", username, mediaFile.getPathString(), rating);
         }
     }
 
-    /**
-     * Returns the average rating for the given media file.
-     *
-     * @param mediaFile
-     *            The media file.
-     *
-     * @return The average rating, or <code>null</code> if no ratings are set.
-     */
-    public Double getAverageRating(MediaFile mediaFile) {
+    public @Nullable Double getAverageRating(MediaFile mediaFile) {
         try {
-            return getJdbcTemplate().queryForObject("select avg(rating) from user_rating where path=?", Double.class,
-                    new Object[] { mediaFile.getPathString() });
+            return getJdbcTemplate().queryForObject("""
+                    select avg(rating)
+                    from user_rating
+                    where path=?
+                    """, Double.class, new Object[] { mediaFile.getPathString() });
         } catch (EmptyResultDataAccessException x) {
             return null;
         }
     }
 
-    /**
-     * Returns the rating for the given user and media file.
-     *
-     * @param username
-     *            The user name.
-     * @param mediaFile
-     *            The media file.
-     *
-     * @return The rating, or <code>null</code> if no rating is set.
-     */
-    public Integer getRatingForUser(String username, MediaFile mediaFile) {
+    public @Nullable Integer getRatingForUser(String username, MediaFile mediaFile) {
         try {
-            return queryForInt("select rating from user_rating where username=? and path=?", null,
-                    new Object[] { username, mediaFile.getPathString() });
+            return queryForInt("""
+                    select rating
+                    from user_rating
+                    where username=? and path=?
+                    """, null, new Object[] { username, mediaFile.getPathString() });
         } catch (EmptyResultDataAccessException x) {
             return null;
         }
@@ -134,13 +107,24 @@ public class RatingDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
                 MusicFolder.toPathList(musicFolders), "username", username);
-        return namedQueryForInt("select count(*) from user_rating, media_file where media_file.path = user_rating.path "
-                + "and media_file.type = :type and media_file.present "
-                + "and media_file.folder in (:folders) and user_rating.username = :username", 0, args);
+        return namedQueryForInt("""
+                select count(*) from user_rating, media_file
+                where media_file.path = user_rating.path
+                        and media_file.type = :type and media_file.present
+                        and media_file.folder in (:folders)
+                        and user_rating.username = :username
+                """, 0, args);
     }
 
     public void expunge() {
-        update("delete from user_rating where path in (select  user_rating.path from user_rating "
-                + "left join media_file on media_file.path = user_rating.path where media_file.path is null)");
+        update("""
+                delete from user_rating
+                where path in
+                        (select user_rating.path
+                        from user_rating
+                        left join media_file
+                        on media_file.path = user_rating.path
+                        where media_file.path is null)
+                """);
     }
 }
