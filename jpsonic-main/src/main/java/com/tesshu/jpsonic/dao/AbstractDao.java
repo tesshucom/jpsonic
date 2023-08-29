@@ -200,8 +200,8 @@ public class AbstractDao {
     static @Nullable Object castArg(@Nullable Object arg) {
         if (arg == null) {
             return null;
-        } else if (arg instanceof Instant) {
-            return Timestamp.from((Instant) arg);
+        } else if (arg instanceof Instant dateTime) {
+            return Timestamp.from(dateTime);
         }
         return arg;
     }

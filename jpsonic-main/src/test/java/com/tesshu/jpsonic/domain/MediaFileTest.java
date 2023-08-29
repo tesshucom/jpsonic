@@ -23,6 +23,7 @@ package com.tesshu.jpsonic.domain;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URISyntaxException;
@@ -78,5 +79,22 @@ class MediaFileTest {
         mediaFile.setDurationSeconds(seconds);
         assertEquals(expected, mediaFile.getDurationString(), "Error in getDurationString().");
         return true;
+    }
+
+    @Test
+    void testEquals() {
+        MediaFile m1 = new MediaFile();
+        MediaFile m2 = null;
+        assertNotEquals(m1, m2);
+        m2 = new MediaFile();
+        assertNotEquals(m1, m2);
+        m1.setPathString("path");
+        assertNotEquals(m1, new Object());
+        assertNotEquals(m1, m2);
+        m2.setPathString("pass");
+        assertNotEquals(m1, m2);
+        m2.setPathString("path");
+        assertEquals(m1, m2);
+        assertEquals(m1, m1);
     }
 }

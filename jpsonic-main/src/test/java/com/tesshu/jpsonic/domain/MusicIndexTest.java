@@ -14,24 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2021 tesshucom
+ * (C) 2023 tesshucom
  */
 
-package com.tesshu.jpsonic.util.concurrent;
+package com.tesshu.jpsonic.domain;
 
-import java.util.concurrent.ExecutionException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-public final class ConcurrentUtils {
+import org.junit.jupiter.api.Test;
 
-    private ConcurrentUtils() {
-    }
+class MusicIndexTest {
 
-    public static void handleCauseUnchecked(final ExecutionException e) {
-        Throwable cause = e.getCause();
-        if (cause instanceof Error) {
-            throw (Error) cause;
-        } else if (cause instanceof RuntimeException runtimeException) {
-            throw runtimeException;
-        }
+    @Test
+    void testEquals() {
+        MusicIndex m1 = new MusicIndex("0");
+        MusicIndex m2 = null;
+        assertNotEquals(m1, m2);
+        assertNotEquals(m1, new Object());
+        m2 = new MusicIndex("1");
+        assertNotEquals(m1, m2);
+        m2 = new MusicIndex("0");
+        assertEquals(m1, m2);
+        assertEquals(m1, m2);
     }
 }

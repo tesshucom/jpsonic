@@ -27,6 +27,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+
 /**
  * A music index is a mapping from an index string to a list of prefixes. A complete index consists of a list of
  * <code>MusicIndex</code> instances.
@@ -57,7 +59,7 @@ public class MusicIndex implements Serializable {
      * @param index
      *            The index string, e.g., "A" or "The".
      */
-    public MusicIndex(String index) {
+    public MusicIndex(@NonNull String index) {
         this.index = index;
     }
 
@@ -102,14 +104,10 @@ public class MusicIndex implements Serializable {
     public boolean equals(Object o) {
         if (this == o) {
             return true;
+        } else if (o instanceof MusicIndex that) {
+            return Objects.equals(index, that.index);
         }
-        if (!(o instanceof MusicIndex)) {
-            return false;
-        }
-
-        final MusicIndex musicIndex = (MusicIndex) o;
-
-        return Objects.equals(index, musicIndex.index);
+        return false;
     }
 
     /**

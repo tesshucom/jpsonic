@@ -142,7 +142,7 @@ public class MusicParser extends MetaDataParser {
         Tag tag = af.getTag();
         if (isEmpty(tag)) {
             return metaData;
-        } else if (tag instanceof WavTag && !((WavTag) tag).isExistingId3Tag()) {
+        } else if (tag instanceof WavTag wavTag && !wavTag.isExistingId3Tag()) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("Only ID3 chunk is supported: {}", FileUtil.getShortPath(path));
             }

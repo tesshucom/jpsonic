@@ -220,7 +220,7 @@ public final class ParserUtils {
         Tag tag = af.getTag();
         if (isEmpty(tag)) {
             return Optional.empty();
-        } else if (tag instanceof WavTag && !((WavTag) tag).isExistingId3Tag()) {
+        } else if (tag instanceof WavTag wavTag && !wavTag.isExistingId3Tag()) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("Cover art is only supported in ID3 chunks: {}", getShortPath(path));
             }

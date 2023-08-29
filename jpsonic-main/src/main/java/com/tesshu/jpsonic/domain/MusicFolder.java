@@ -109,11 +109,12 @@ public class MusicFolder implements Serializable {
     public boolean equals(Object o) {
         if (this == o) {
             return true;
-        }
-        if (!(o instanceof MusicFolder)) {
+        } else if (id == null) {
             return false;
+        } else if (o instanceof MusicFolder that) {
+            return id.equals(that.id);
         }
-        return Objects.equals(id, ((MusicFolder) o).id);
+        return false;
     }
 
     @Override

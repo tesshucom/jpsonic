@@ -122,10 +122,9 @@ class AlphanumWrapper extends Collator {
         if (o == this) {
             return true;
         }
-        if (!(o instanceof AlphanumWrapper)) {
+        if (!(o instanceof AlphanumWrapper that)) {
             return false;
         }
-        AlphanumWrapper that = (AlphanumWrapper) o;
         return new EqualsBuilder().appendSuper(super.equals(that)).append(that, that.deligate).isEquals();
     }
 

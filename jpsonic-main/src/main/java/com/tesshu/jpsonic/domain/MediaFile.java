@@ -463,7 +463,14 @@ public class MediaFile implements Orderable {
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof MediaFile && ((MediaFile) o).pathString.equals(pathString);
+        if (this == o) {
+            return true;
+        } else if (pathString == null) {
+            return false;
+        } else if (o instanceof MediaFile that) {
+            return pathString.equals(that.pathString);
+        }
+        return false;
     }
 
     @Override
