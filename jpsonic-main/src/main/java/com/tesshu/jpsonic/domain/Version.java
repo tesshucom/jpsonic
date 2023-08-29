@@ -21,9 +21,12 @@
 
 package com.tesshu.jpsonic.domain;
 
+import java.util.Objects;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 /**
  * Represents the version number of Airsonic.
@@ -40,7 +43,7 @@ public class Version implements Comparable<Version> {
      * @param version
      *            A string of the format "1.27", "1.27.2" or "1.27.beta3".
      */
-    public Version(String version) {
+    public Version(@NonNull String version) {
         this.internalVersion = new DefaultArtifactVersion(version);
     }
 
@@ -62,11 +65,12 @@ public class Version implements Comparable<Version> {
      */
     @Override
     public boolean equals(Object o) {
-        if (o instanceof Version) {
-            return internalVersion.equals(((Version) o).internalVersion);
-        } else {
-            return false;
+        if (this == o) {
+            return true;
+        } else if (o instanceof Version that) {
+            return Objects.equals(internalVersion, that.internalVersion);
         }
+        return false;
     }
 
     /**

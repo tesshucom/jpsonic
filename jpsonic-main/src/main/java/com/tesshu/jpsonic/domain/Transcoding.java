@@ -22,7 +22,6 @@
 package com.tesshu.jpsonic.domain;
 
 import java.util.List;
-import java.util.Objects;
 
 import com.tesshu.jpsonic.util.StringUtil;
 
@@ -226,13 +225,12 @@ public class Transcoding {
     public boolean equals(Object o) {
         if (this == o) {
             return true;
-        }
-        if (!(o instanceof Transcoding)) {
+        } else if (id == null) {
             return false;
+        } else if (o instanceof Transcoding that) {
+            return id.equals(that.id);
         }
-
-        Transcoding that = (Transcoding) o;
-        return Objects.equals(id, that.id);
+        return false;
     }
 
     @Override

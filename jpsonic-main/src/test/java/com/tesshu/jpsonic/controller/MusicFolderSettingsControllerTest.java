@@ -192,7 +192,7 @@ class MusicFolderSettingsControllerTest {
         ArgumentCaptor<MusicFolder> captor = ArgumentCaptor.forClass(MusicFolder.class);
         Mockito.doNothing().when(musicFolderService).createMusicFolder(Mockito.any(Instant.class), captor.capture());
         controller.post(command, Mockito.mock(RedirectAttributes.class));
-        assertEquals(captor.getValue(), musicFolder);
+        assertEquals(captor.getValue().getId(), musicFolder.getId());
 
         // double registration
         Mockito.clearInvocations(musicFolderService);

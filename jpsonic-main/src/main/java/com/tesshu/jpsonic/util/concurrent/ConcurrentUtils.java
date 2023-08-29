@@ -30,8 +30,8 @@ public final class ConcurrentUtils {
         Throwable cause = e.getCause();
         if (cause instanceof Error) {
             throw (Error) cause;
-        } else if (cause instanceof RuntimeException) {
-            throw (RuntimeException) cause;
+        } else if (cause instanceof RuntimeException runtimeException) {
+            throw runtimeException;
         }
     }
 }

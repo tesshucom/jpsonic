@@ -93,8 +93,8 @@ public class BootstrapVerificationFilter implements Filter {
     }
 
     private void logServerInfo(ServletRequest req) {
-        if (!serverInfoLogged.getAndSet(true) && req instanceof HttpServletRequest) {
-            String serverInfo = ((HttpServletRequest) req).getSession().getServletContext().getServerInfo();
+        if (!serverInfoLogged.getAndSet(true) && req instanceof HttpServletRequest hsr) {
+            String serverInfo = hsr.getSession().getServletContext().getServerInfo();
             if (LOG.isInfoEnabled()) {
                 LOG.info("Servlet container: " + serverInfo);
             }

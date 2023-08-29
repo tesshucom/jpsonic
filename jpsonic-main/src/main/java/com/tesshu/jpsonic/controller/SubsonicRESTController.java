@@ -1424,24 +1424,13 @@ public class SubsonicRESTController {
     }
 
     private MediaType getMedyaType(MediaFile.MediaType mediaType) {
-        MediaType result = null;
-        switch (mediaType) {
-        case MUSIC:
-            result = MediaType.MUSIC;
-            break;
-        case PODCAST:
-            result = MediaType.PODCAST;
-            break;
-        case AUDIOBOOK:
-            result = MediaType.AUDIOBOOK;
-            break;
-        case VIDEO:
-            result = MediaType.VIDEO;
-            break;
-        default:
-            break;
-        }
-        return result;
+        return switch (mediaType) {
+        case MUSIC -> MediaType.MUSIC;
+        case PODCAST -> MediaType.PODCAST;
+        case AUDIOBOOK -> MediaType.AUDIOBOOK;
+        case VIDEO -> MediaType.VIDEO;
+        default -> null;
+        };
     }
 
     private String findCoverArt(MediaFile mediaFile, MediaFile parent) {

@@ -28,6 +28,7 @@ import java.util.List;
 import com.tesshu.jpsonic.domain.PodcastChannel;
 import com.tesshu.jpsonic.domain.PodcastEpisode;
 import com.tesshu.jpsonic.domain.PodcastStatus;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,10 +42,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class PodcastDao extends AbstractDao {
 
-    private static final String CHANNEL_INSERT_COLUMNS = "url, title, description, image_url, status, error_message";
+    private static final String CHANNEL_INSERT_COLUMNS = """
+            url, title, description, image_url, status, error_message\s
+            """;
     private static final String CHANNEL_QUERY_COLUMNS = "id, " + CHANNEL_INSERT_COLUMNS;
-    private static final String EPISODE_INSERT_COLUMNS = "channel_id, url, path, title, description, publish_date, "
-            + "duration, bytes_total, bytes_downloaded, status, error_message";
+    private static final String EPISODE_INSERT_COLUMNS = """
+            channel_id, url, path, title, description, publish_date,
+            duration, bytes_total, bytes_downloaded, status, error_message\s
+            """;
     private static final String EPISODE_QUERY_COLUMNS = "id, " + EPISODE_INSERT_COLUMNS;
 
     private final PodcastChannelRowMapper channelRowMapper;
@@ -56,14 +61,6 @@ public class PodcastDao extends AbstractDao {
         episodeRowMapper = new PodcastEpisodeRowMapper();
     }
 
-    /**
-     * Creates a new Podcast channel.
-     *
-     * @param channel
-     *            The Podcast channel to create.
-     *
-     * @return The ID of the newly created channel.
-     */
     @Transactional
     public int createChannel(PodcastChannel channel) {
         String sql = "insert into podcast_channel (" + CHANNEL_INSERT_COLUMNS + ") values ("
@@ -73,53 +70,37 @@ public class PodcastDao extends AbstractDao {
         return queryForInt("select max(id) from podcast_channel", -1);
     }
 
-    /**
-     * Returns all Podcast channels.
-     *
-     * @return Possibly empty list of all Podcast channels.
-     */
     public List<PodcastChannel> getAllChannels() {
-        String sql = "select " + CHANNEL_QUERY_COLUMNS + " from podcast_channel";
+        String sql = "select " + CHANNEL_QUERY_COLUMNS + "from podcast_channel";
         return query(sql, channelRowMapper);
     }
 
-    /**
-     * Returns a single Podcast channel.
-     */
-    public PodcastChannel getChannel(int channelId) {
-        String sql = "select " + CHANNEL_QUERY_COLUMNS + " from podcast_channel where id=?";
+    public @Nullable PodcastChannel getChannel(int channelId) {
+        String sql = "select " + CHANNEL_QUERY_COLUMNS + """
+                from podcast_channel
+                where id=?
+                """;
         return queryOne(sql, channelRowMapper, channelId);
     }
 
-    /**
-     * Updates the given Podcast channel.
-     *
-     * @param channel
-     *            The Podcast channel to update.
-     */
     public void updateChannel(PodcastChannel channel) {
-        String sql = "update podcast_channel set url=?, title=?, description=?, image_url=?, status=?, error_message=? where id=?";
+        String sql = """
+                update podcast_channel
+                set url=?, title=?, description=?, image_url=?, status=?, error_message=?
+                where id=?
+                """;
         update(sql, channel.getUrl(), channel.getTitle(), channel.getDescription(), channel.getImageUrl(),
                 channel.getStatus().name(), channel.getErrorMessage(), channel.getId());
     }
 
-    /**
-     * Deletes the Podcast channel with the given ID.
-     *
-     * @param id
-     *            The Podcast channel ID.
-     */
     public void deleteChannel(int id) {
-        String sql = "delete from podcast_channel where id=?";
+        String sql = """
+                delete from podcast_channel
+                where id=?
+                """;
         update(sql, id);
     }
 
-    /**
-     * Creates a new Podcast episode.
-     *
-     * @param episode
-     *            The Podcast episode to create.
-     */
     public void createEpisode(PodcastEpisode episode) {
         String sql = "insert into podcast_episode (" + EPISODE_INSERT_COLUMNS + ") values ("
                 + questionMarks(EPISODE_INSERT_COLUMNS) + ")";
@@ -128,73 +109,55 @@ public class PodcastDao extends AbstractDao {
                 episode.getBytesDownloaded(), episode.getStatus().name(), episode.getErrorMessage());
     }
 
-    /**
-     * Returns all Podcast episodes for a given channel.
-     *
-     * @return Possibly empty list of all Podcast episodes for the given channel, sorted in reverse chronological order
-     *         (newest episode first).
-     */
     public List<PodcastEpisode> getEpisodes(int channelId) {
-        String sql = "select " + EPISODE_QUERY_COLUMNS + " from podcast_episode where channel_id = ? "
-                + "and status != ? order by publish_date desc";
+        String sql = "select " + EPISODE_QUERY_COLUMNS + """
+                from podcast_episode
+                where channel_id = ? and status != ?
+                order by publish_date desc
+                """;
         return query(sql, episodeRowMapper, channelId, PodcastStatus.DELETED.name());
     }
 
-    /**
-     * Returns the N newest episodes.
-     *
-     * @return Possibly empty list of the newest Podcast episodes, sorted in reverse chronological order (newest episode
-     *         first).
-     */
     public List<PodcastEpisode> getNewestEpisodes(int count) {
-        String sql = "select " + EPISODE_QUERY_COLUMNS
-                + " from podcast_episode where status = ? and publish_date is not null "
-                + "order by publish_date desc limit ?";
+        String sql = "select " + EPISODE_QUERY_COLUMNS + """
+                from podcast_episode
+                where status = ? and publish_date is not null
+                order by publish_date desc
+                limit ?
+                """;
         return query(sql, episodeRowMapper, PodcastStatus.COMPLETED.name(), count);
     }
 
-    /**
-     * Returns the Podcast episode with the given ID.
-     *
-     * @param episodeId
-     *            The Podcast episode ID.
-     *
-     * @return The episode or <code>null</code> if not found.
-     */
-    public PodcastEpisode getEpisode(int episodeId) {
-        String sql = "select " + EPISODE_QUERY_COLUMNS + " from podcast_episode where id=?";
+    public @Nullable PodcastEpisode getEpisode(int episodeId) {
+        String sql = "select " + EPISODE_QUERY_COLUMNS + """
+                from podcast_episode
+                where id=?
+                """;
         return queryOne(sql, episodeRowMapper, episodeId);
     }
 
-    public PodcastEpisode getEpisodeByUrl(String url) {
+    public @Nullable PodcastEpisode getEpisodeByUrl(String url) {
         String sql = "select " + EPISODE_QUERY_COLUMNS + " from podcast_episode where url=?";
         return queryOne(sql, episodeRowMapper, url);
     }
 
-    /**
-     * Updates the given Podcast episode.
-     *
-     * @param episode
-     *            The Podcast episode to update.
-     *
-     * @return The number of episodes updated (zero or one).
-     */
     public int updateEpisode(PodcastEpisode episode) {
-        String sql = "update podcast_episode set url=?, path=?, title=?, description=?, publish_date=?, duration=?, "
-                + "bytes_total=?, bytes_downloaded=?, status=?, error_message=? where id=?";
+        String sql = """
+                update podcast_episode
+                set url=?, path=?, title=?, description=?, publish_date=?, duration=?,
+                        bytes_total=?, bytes_downloaded=?, status=?, error_message=?
+                where id=?
+                """;
         return update(sql, episode.getUrl(), episode.getPath(), episode.getTitle(), episode.getDescription(),
                 episode.getPublishDate(), episode.getDuration(), episode.getBytesTotal(), episode.getBytesDownloaded(),
                 episode.getStatus().name(), episode.getErrorMessage(), episode.getId());
     }
 
-    /**
-     * Deletes the Podcast episode with the given ID.
-     *
-     * @param id
-     *            The Podcast episode ID.
-     */
     public void deleteEpisode(int id) {
-        String sql = "delete from podcast_episode where id=?";
+        String sql = """
+                delete from podcast_episode
+                where id=?
+                """;
         update(sql, id);
     }
 

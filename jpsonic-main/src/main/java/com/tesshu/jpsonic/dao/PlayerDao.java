@@ -33,6 +33,7 @@ import com.tesshu.jpsonic.domain.PlayQueue;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.PlayerTechnology;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
@@ -49,8 +50,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class PlayerDao extends AbstractDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlayerDao.class);
-    private static final String INSERT_COLUMNS = "name, type, username, ip_address, auto_control_enabled, m3u_bom_enabled, "
-            + "last_seen, cover_art_scheme, transcode_scheme, dynamic_ip, technology, client_id, mixer";
+    private static final String INSERT_COLUMNS = """
+            name, type, username, ip_address, auto_control_enabled,
+            m3u_bom_enabled, last_seen, cover_art_scheme, transcode_scheme,
+            dynamic_ip, technology, client_id, mixer\s
+            """;
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final PlayerDaoPlayQueueFactory playerDaoPlayQueueFactory;
@@ -62,13 +66,8 @@ public class PlayerDao extends AbstractDao {
         playlists = new ConcurrentHashMap<>();
     }
 
-    /**
-     * Returns all players.
-     *
-     * @return Possibly empty list of all users.
-     */
     public List<Player> getAllPlayers() {
-        String sql = "select " + QUERY_COLUMNS + " from player";
+        String sql = "select " + QUERY_COLUMNS + "from player";
         return query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory));
     }
 
@@ -83,35 +82,30 @@ public class PlayerDao extends AbstractDao {
      *
      * @return All relevant players.
      */
-    public List<Player> getPlayersForUserAndClientId(String username, String clientId) {
+    public List<Player> getPlayersForUserAndClientId(String username, @Nullable String clientId) {
         if (clientId == null) {
-            String sql = "select " + QUERY_COLUMNS + " from player where username=? and client_id is null";
+            String sql = "select " + QUERY_COLUMNS + """
+                    from player
+                    where username=? and client_id is null
+                    """;
             return query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), username);
         } else {
-            String sql = "select " + QUERY_COLUMNS + " from player where username=? and client_id=?";
+            String sql = "select " + QUERY_COLUMNS + """
+                    from player
+                    where username=? and client_id=?
+                    """;
             return query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), username, clientId);
         }
     }
 
-    /**
-     * Returns the player with the given ID.
-     *
-     * @param id
-     *            The unique player ID.
-     *
-     * @return The player with the given ID, or <code>null</code> if no such player exists.
-     */
-    public Player getPlayerById(int id) {
-        String sql = "select " + QUERY_COLUMNS + " from player where id=?";
+    public @Nullable Player getPlayerById(int id) {
+        String sql = "select " + QUERY_COLUMNS + """
+                from player
+                where id=?
+                """;
         return queryOne(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), id);
     }
 
-    /**
-     * Creates a new player.
-     *
-     * @param player
-     *            The player to create.
-     */
     @Transactional
     public void createPlayer(Player player) {
         Integer existingMax = queryForInt("select max(id) from player", 0);
@@ -129,45 +123,35 @@ public class PlayerDao extends AbstractDao {
         }
     }
 
-    /**
-     * Deletes the player with the given ID.
-     *
-     * @param id
-     *            The player ID.
-     */
     public void deletePlayer(Integer id) {
-        String sql = "delete from player where id=?";
+        String sql = """
+                delete from
+                player where id=?
+                """;
         update(sql, id);
         playlists.remove(id);
     }
 
-    /**
-     * Delete players that haven't been used for the given number of days, and which is not given a name or is used by a
-     * REST client.
-     *
-     * @param days
-     *            Number of days.
-     */
     public void deleteOldPlayers(int days) {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, -days);
-        String sql = "delete from player where name is null and client_id is null and (last_seen is null or last_seen < ?)";
+        String sql = """
+                delete from player
+                where name is null and client_id is null and (last_seen is null or last_seen < ?)
+                """;
         int n = update(sql, cal.getTime());
         if (LOG.isInfoEnabled() && n > 0) {
             LOG.info("Deleted " + n + " player(s) that haven't been used after " + cal.getTime());
         }
     }
 
-    /**
-     * Updates the given player.
-     *
-     * @param player
-     *            The player to update.
-     */
     public void updatePlayer(Player player) {
-        String sql = "update player set name = ?, type = ?, username = ?, ip_address = ?,"
-                + "auto_control_enabled = ?, m3u_bom_enabled = ?, last_seen = ?, transcode_scheme = ?, "
-                + "dynamic_ip = ?, technology = ?, client_id = ?, mixer = ? where id = ?";
+        String sql = """
+                update player
+                set name = ?, type = ?, username = ?, ip_address = ?, auto_control_enabled = ?,
+                        m3u_bom_enabled = ?, last_seen = ?, transcode_scheme = ?,
+                        dynamic_ip = ?, technology = ?, client_id = ?, mixer = ? where id = ?
+                """;
         update(sql, player.getName(), player.getType(), player.getUsername(), player.getIpAddress(),
                 player.isAutoControlEnabled(), player.isM3uBomEnabled(), player.getLastSeen(),
                 player.getTranscodeScheme().name(), player.isDynamicIp(), player.getTechnology().name(),

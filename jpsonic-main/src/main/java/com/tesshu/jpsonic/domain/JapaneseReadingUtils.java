@@ -350,32 +350,21 @@ public class JapaneseReadingUtils {
         case ADVERB:
             return pron.concat(SPACE);
         case POSTPOSITIONAL_PARTICLE:
-            switch (level2) {
-            case CONJUNCTIVE_PARTICLE:
-                return pron.concat(SPACE);
-            case ADVERBIAL_PARTICLE:
-                return pron.concat(SPACE);
-            case SENTENCE_ENDING_PARTICLE:
-                return pron;
-            case MULTI_PARTICLE:
-                return pron;
-            default:
-                return SPACE.concat(pron).concat(SPACE);
-            }
+            return switch (level2) {
+            case CONJUNCTIVE_PARTICLE, ADVERBIAL_PARTICLE -> pron.concat(SPACE);
+            case SENTENCE_ENDING_PARTICLE, MULTI_PARTICLE -> pron;
+            default -> SPACE.concat(pron).concat(SPACE);
+            };
         case SYMBOL:
-            switch (level2) {
-            case COMMA:
-                return pron.concat(SPACE);
-            case PERIOD:
-                return pron.concat(SPACE);
-            default:
-                return pron;
-            }
+            return switch (level2) {
+            case COMMA, PERIOD -> pron.concat(SPACE);
+            default -> pron;
+            };
         case NOUN:
-            if (level2 == Tag.SUFFIX) {
-                return HYPHEN.concat(pron);
-            }
-            break;
+            return switch (level2) {
+            case SUFFIX -> HYPHEN.concat(pron);
+            default -> pron;
+            };
         default:
             break;
         }
