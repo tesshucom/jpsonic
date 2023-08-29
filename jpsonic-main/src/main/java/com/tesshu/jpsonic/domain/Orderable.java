@@ -19,7 +19,7 @@
 
 package com.tesshu.jpsonic.domain;
 
-public interface Orderable {
+public sealed interface Orderable permits Album, Artist, MediaFile {
 
     int getOrder();
 
