@@ -19,9 +19,23 @@
 
 package com.tesshu.jpsonic.domain;
 
-public sealed interface Orderable permits Album, Artist, MediaFile {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-    int getOrder();
+import org.junit.jupiter.api.Test;
 
-    void setOrder(int order);
+class MusicIndexTest {
+
+    @Test
+    void testEquals() {
+        MusicIndex m1 = new MusicIndex("0");
+        MusicIndex m2 = null;
+        assertNotEquals(m1, m2);
+        assertNotEquals(m1, new Object());
+        m2 = new MusicIndex("1");
+        assertNotEquals(m1, m2);
+        m2 = new MusicIndex("0");
+        assertEquals(m1, m2);
+        assertEquals(m1, m2);
+    }
 }

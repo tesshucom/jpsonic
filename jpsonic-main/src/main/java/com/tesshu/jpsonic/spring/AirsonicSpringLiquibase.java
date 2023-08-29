@@ -62,12 +62,14 @@ public class AirsonicSpringLiquibase extends SpringLiquibase {
             super.afterPropertiesSet();
         } catch (LiquibaseException e) {
             if (LOG.isErrorEnabled()) {
-                LOG.error("===============================================");
-                LOG.error("An exception occurred during database migration");
-                LOG.error("A rollback file has been generated at " + rollbackFile);
-                LOG.error("Execute it within your database to rollback any changes");
-                LOG.error("The exception is as follows\n", e);
-                LOG.error("===============================================");
+                LOG.error("""
+                        ===============================================
+                        An exception occurred during database migration
+                        A rollback file has been generated at %s
+                        Execute it within your database to rollback any changes
+                        The exception is as follows
+                        ===============================================
+                        """.formatted(rollbackFile.getAbsolutePath()), e);
             }
             throw e;
         }

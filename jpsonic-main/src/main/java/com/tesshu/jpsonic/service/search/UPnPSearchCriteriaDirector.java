@@ -424,8 +424,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
     private List<String> purseSearchFields(String upnpProp) {
         List<String> fieldName = new ArrayList<>();
         switch (upnpProp) {
-
-        case "dc:title":
+        case "dc:title" -> {
             if (Album.class == assignableClass) {
                 fieldName.add(FieldNamesConstants.ALBUM);
                 fieldName.add(FieldNamesConstants.ALBUM_READING);
@@ -436,45 +435,33 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
                 fieldName.add(FieldNamesConstants.TITLE);
                 fieldName.add(FieldNamesConstants.TITLE_READING);
             }
-            break;
-
-        case "upnp:artist":
-        case UPNP_PROP_ILLEGAL_ALBUM_ARTIST:
+        }
+        case "upnp:artist", UPNP_PROP_ILLEGAL_ALBUM_ARTIST -> {
             fieldName.add(FieldNamesConstants.ARTIST);
             fieldName.add(FieldNamesConstants.ARTIST_READING);
-            break;
-
-        case "dc:creator":
-        case "upnp:author":
+        }
+        case "dc:creator", "upnp:author" -> {
             fieldName.add(FieldNamesConstants.COMPOSER);
             fieldName.add(FieldNamesConstants.COMPOSER_READING);
-            break;
-
-        case "upnp:genre":
+        }
+        case "upnp:genre" -> {
             fieldName.add(FieldNamesConstants.GENRE);
-            break;
-
-        case UPNP_PROP_ALBUM:
+        }
+        case UPNP_PROP_ALBUM -> {
             if (Album.class == assignableClass) {
                 // Currently unreachable.
                 // (Searching the Album field of an AudioItem is not common.
-                // Because it is common to search for the container title of an album or musicAlbum.)
+                // Because it is common to search for the container title of an album or
+                // musicAlbum.)
                 // Therefore, Jpsonic does not have an "album" field for "song" search.
                 // (Increasing the number of fields leads to an increase in false searches)
                 fieldName.add(FieldNamesConstants.ALBUM);
                 fieldName.add(FieldNamesConstants.ALBUM_READING);
             }
-            break;
-
-        default:
-            /*
-             * Only the properties corresponding to the client application to be tested are added sequentially along
-             * with the operation check. Therefore, properties that have not been used will not be mapped and will be
-             * ignored. And non-standard properties(illegalProp) will be ignored.
-             */
-            break;
         }
-
+        default -> {
+        }
+        }
         return fieldName;
     }
 

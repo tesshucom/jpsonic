@@ -23,6 +23,7 @@ package com.tesshu.jpsonic.domain;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -91,5 +92,18 @@ class VersionTest {
         assertTrue(ver1.compareTo(ver2) < 0, "Error in compareTo().");
         assertTrue(ver2.compareTo(ver1) > 0, "Error in compareTo().");
         return true;
+    }
+
+    @Test
+    void testEquals() {
+        Version v1 = new Version("0");
+        Version v2 = null;
+        assertNotEquals(v1, v2);
+        assertNotEquals(v1, new Object());
+        v2 = new Version("1");
+        assertNotEquals(v1, v2);
+        v2 = new Version("0");
+        assertEquals(v1, v2);
+        assertEquals(v1, v1);
     }
 }

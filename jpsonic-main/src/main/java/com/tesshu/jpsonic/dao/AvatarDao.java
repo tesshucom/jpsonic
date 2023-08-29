@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.tesshu.jpsonic.domain.Avatar;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -37,7 +38,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class AvatarDao extends AbstractDao {
 
-    private static final String INSERT_COLUMNS = "name, created_date, mime_type, width, height, data";
+    private static final String INSERT_COLUMNS = """
+            name, created_date, mime_type, width, height, data\s
+            """;
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final AvatarRowMapper rowMapper;
@@ -47,39 +50,24 @@ public class AvatarDao extends AbstractDao {
         rowMapper = new AvatarRowMapper();
     }
 
-    /**
-     * Returns all system avatars.
-     *
-     * @return All system avatars.
-     */
     public List<Avatar> getAllSystemAvatars() {
-        String sql = "select " + QUERY_COLUMNS + " from system_avatar";
+        String sql = "select " + QUERY_COLUMNS + "from system_avatar";
         return query(sql, rowMapper);
     }
 
-    /**
-     * Returns the system avatar with the given ID.
-     *
-     * @param id
-     *            The system avatar ID.
-     *
-     * @return The avatar or <code>null</code> if not found.
-     */
-    public Avatar getSystemAvatar(int id) {
-        String sql = "select " + QUERY_COLUMNS + " from system_avatar where id=" + id;
-        return queryOne(sql, rowMapper);
+    public @Nullable Avatar getSystemAvatar(int id) {
+        String sql = "select " + QUERY_COLUMNS + """
+                from system_avatar
+                where id=?
+                """;
+        return queryOne(sql, rowMapper, id);
     }
 
-    /**
-     * Returns the custom avatar for the given user.
-     *
-     * @param username
-     *            The username.
-     *
-     * @return The avatar or <code>null</code> if not found.
-     */
-    public Avatar getCustomAvatar(String username) {
-        String sql = "select " + QUERY_COLUMNS + " from custom_avatar where username=?";
+    public @Nullable Avatar getCustomAvatar(String username) {
+        String sql = "select " + QUERY_COLUMNS + """
+                from custom_avatar
+                where username=?
+                """;
         return queryOne(sql, rowMapper, username);
     }
 
@@ -92,7 +80,10 @@ public class AvatarDao extends AbstractDao {
      *            The username.
      */
     public void setCustomAvatar(Avatar avatar, String username) {
-        String sql = "delete from custom_avatar where username=?";
+        String sql = """
+                delete from custom_avatar
+                where username=?
+                """;
         update(sql, username);
 
         if (avatar != null) {

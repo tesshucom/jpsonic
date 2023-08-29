@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.service.upnp;
 
-public interface Router {
+public sealed interface Router permits NATPMPRouter {
 
     /**
      * Adds a NAT entry on the UPNP device.

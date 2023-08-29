@@ -23,7 +23,7 @@ package com.tesshu.jpsonic.domain;
 
 import java.time.Instant;
 
-public class Album implements Orderable {
+public final class Album implements Orderable {
 
     private int id;
     private String path;
