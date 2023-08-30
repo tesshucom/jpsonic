@@ -122,7 +122,8 @@ public class HelpController {
 
     private static List<String> getLatestLogEntries(Path logFile) {
         List<String> lines = new ArrayList<>(LOG_LINES_TO_SHOW);
-        try (ReversedLinesFileReader reader = new ReversedLinesFileReader(logFile, Charset.defaultCharset())) {
+        try (ReversedLinesFileReader reader = ReversedLinesFileReader.builder().setPath(logFile)
+                .setCharset(Charset.defaultCharset()).get()) {
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 if (lines.size() >= LOG_LINES_TO_SHOW) {
                     break;
