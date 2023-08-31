@@ -142,8 +142,7 @@ public class InternalHelpController {
     }
 
     private String guessGCName() {
-        List<String> names = ManagementFactory.getGarbageCollectorMXBeans().stream()
-                .map(b -> b.getName()).toList();
+        List<String> names = ManagementFactory.getGarbageCollectorMXBeans().stream().map(b -> b.getName()).toList();
         if (names.contains("ZGC Cycles") && names.contains("ZGC Pauses")) {
             return "ZGC";
         } else if (names.contains("G1 Young Generation") && names.contains("G1 Old Generation")) {
