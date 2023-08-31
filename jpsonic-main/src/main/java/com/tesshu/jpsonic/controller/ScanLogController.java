@@ -42,7 +42,6 @@ import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -141,7 +140,6 @@ public class ScanLogController {
         return scanEvents;
     }
 
-    @SuppressWarnings("deprecation")
     private void setStatus(@NonNull LocalDateTime lastStartDate, ScanLogVO scanLog) {
         final ScanEventType lastEventType = staticsDao
                 .getLastScanEventType(scanLog.getStartDate().atZone(ZoneOffset.systemDefault()).toInstant());
@@ -224,9 +222,9 @@ public class ScanLogController {
         private final LocalDateTime executed;
         private final String executedStr;
         private final ScanEventType type;
-        private final String maxMemory;
-        private final String totalMemory;
-        private final String usedMemory;
+        private final long maxMemory;
+        private final long totalMemory;
+        private final long usedMemory;
         private final String comment;
         private String duration;
 
@@ -235,12 +233,9 @@ public class ScanLogController {
             this.executed = LocalDateTime.ofInstant(scanEvent.getExecuted(), ZoneId.systemDefault());
             this.executedStr = DATE_AND_OPTIONAL_MILLI_TIME.format(executed);
             this.type = scanEvent.getType();
-            this.maxMemory = scanEvent.getMaxMemory() > 0 ? FileUtil.byteCountToDisplaySize(scanEvent.getMaxMemory())
-                    : "-";
-            this.totalMemory = scanEvent.getTotalMemory() > 0
-                    ? FileUtil.byteCountToDisplaySize(scanEvent.getTotalMemory()) : "-";
-            this.usedMemory = scanEvent.getFreeMemory() > 0
-                    ? FileUtil.byteCountToDisplaySize(scanEvent.getTotalMemory() - scanEvent.getFreeMemory()) : "-";
+            this.maxMemory = scanEvent.getMaxMemory();
+            this.totalMemory = scanEvent.getTotalMemory();
+            this.usedMemory = scanEvent.getTotalMemory() - scanEvent.getFreeMemory();
             this.comment = scanEvent.getComment();
         }
 
@@ -256,15 +251,15 @@ public class ScanLogController {
             return type;
         }
 
-        public String getMaxMemory() {
+        public long getMaxMemory() {
             return maxMemory;
         }
 
-        public String getTotalMemory() {
+        public long getTotalMemory() {
             return totalMemory;
         }
 
-        public String getUsedMemory() {
+        public long getUsedMemory() {
             return usedMemory;
         }
 
