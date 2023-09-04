@@ -77,6 +77,7 @@ public class UserDao extends AbstractDao {
     private static final int ROLE_ID_PODCAST = 7;
     private static final int ROLE_ID_STREAM = 8;
     private static final int ROLE_ID_SETTINGS = 9;
+    private static final int ROLE_ID_JUKEBOX = 10;
     private static final int ROLE_ID_SHARE = 11;
     private static final int SINGLE_USER = 1;
 
@@ -308,8 +309,9 @@ public class UserDao extends AbstractDao {
             case ROLE_ID_PODCAST -> user.setPodcastRole(true);
             case ROLE_ID_STREAM -> user.setStreamRole(true);
             case ROLE_ID_SETTINGS -> user.setSettingsRole(true);
+            case ROLE_ID_JUKEBOX -> LOG.info("Discontinued role: {}", role);
             case ROLE_ID_SHARE -> user.setShareRole(true);
-            default -> LOG.warn("Unknown role: '" + role + '\'');
+            default -> LOG.warn("Unknown role: {}", role);
             }
         });
     }
