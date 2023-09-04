@@ -44,8 +44,6 @@
         <dd>Jpsonic ${versionString} &ndash; ${buildDateString}</dd>
         <dt><fmt:message key="help.buildnumber.title"/></dt>
         <dd>${model.buildNumber}</dd>
-        <dt><fmt:message key="help.server.title"/></dt>
-        <dd>${model.serverInfo} (<sub:formatBytes bytes="${model.usedMemory}"/> / <sub:formatBytes bytes="${model.totalMemory}"/>)</dd>
         <dt><fmt:message key="help.license.title"/></dt>
         <dd style="display: flex;align-items: center;">
             <div style="text-align: left;padding-right:10px;">
