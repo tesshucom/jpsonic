@@ -38,7 +38,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class PlayQueueDao extends AbstractDao {
 
-    private static final String INSERT_COLUMNS = "username, \"CURRENT\", position_millis, changed, changed_by";
+    private static final String INSERT_COLUMNS = """
+            username, \"CURRENT\", position_millis, changed, changed_by\s
+            """;
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final RowMapper<SavedPlayQueue> rowMapper;
@@ -50,20 +52,28 @@ public class PlayQueueDao extends AbstractDao {
 
     @Transactional
     public SavedPlayQueue getPlayQueue(String username) {
-        SavedPlayQueue playQueue = queryOne("select " + QUERY_COLUMNS + " from play_queue where username=?", rowMapper,
-                username);
+        SavedPlayQueue playQueue = queryOne("select " + QUERY_COLUMNS + """
+                from play_queue
+                where username=?
+                """, rowMapper, username);
         if (playQueue == null) {
             return null;
         }
-        List<Integer> mediaFileIds = queryForInts("select media_file_id from play_queue_file where play_queue_id = ?",
-                playQueue.getId());
+        List<Integer> mediaFileIds = queryForInts("""
+                select media_file_id
+                from play_queue_file
+                where play_queue_id = ?
+                """, playQueue.getId());
         playQueue.setMediaFileIds(mediaFileIds);
         return playQueue;
     }
 
     @Transactional
     public void savePlayQueue(SavedPlayQueue playQueue) {
-        update("delete from play_queue where username=?", playQueue.getUsername());
+        update("""
+                delete from play_queue
+                where username=?
+                """, playQueue.getUsername());
         update("insert into play_queue(" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
                 playQueue.getUsername(), playQueue.getCurrentMediaFileId(), playQueue.getPositionMillis(),
                 playQueue.getChanged(), playQueue.getChangedBy());
@@ -71,7 +81,10 @@ public class PlayQueueDao extends AbstractDao {
         playQueue.setId(id);
 
         for (Integer mediaFileId : playQueue.getMediaFileIds()) {
-            update("insert into play_queue_file(play_queue_id, media_file_id) values (?, ?)", id, mediaFileId);
+            update("""
+                    insert into play_queue_file(play_queue_id, media_file_id)
+                    values (?, ?)
+                    """, id, mediaFileId);
         }
     }
 

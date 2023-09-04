@@ -40,7 +40,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  *
  * @author Sindre Mehus
  */
-public class MediaFile implements Orderable {
+// Will change from non-sealed to final in the future.
+public non-sealed class MediaFile implements Orderable {
 
     private int id;
     private String pathString;
@@ -463,7 +464,14 @@ public class MediaFile implements Orderable {
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof MediaFile && ((MediaFile) o).pathString.equals(pathString);
+        if (this == o) {
+            return true;
+        } else if (pathString == null) {
+            return false;
+        } else if (o instanceof MediaFile that) {
+            return pathString.equals(that.pathString);
+        }
+        return false;
     }
 
     @Override

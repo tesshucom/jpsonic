@@ -298,47 +298,22 @@ public class UserDao extends AbstractDao {
     private void readRoles(User user) {
         String sql = "select role_id from user_role where username=?";
         List<?> roles = getJdbcTemplate().queryForList(sql, Integer.class, new Object[] { user.getUsername() });
-        for (Object role : roles) {
+        roles.forEach(role -> {
             switch ((Integer) role) {
-            case ROLE_ID_ADMIN:
-                user.setAdminRole(true);
-                break;
-            case ROLE_ID_DOWNLOAD:
-                user.setDownloadRole(true);
-                break;
-            case ROLE_ID_UPLOAD:
-                user.setUploadRole(true);
-                break;
-            case ROLE_ID_PLAYLIST:
-                user.setPlaylistRole(true);
-                break;
-            case ROLE_ID_COVER_ART:
-                user.setCoverArtRole(true);
-                break;
-            case ROLE_ID_COMMENT:
-                user.setCommentRole(true);
-                break;
-            case ROLE_ID_PODCAST:
-                user.setPodcastRole(true);
-                break;
-            case ROLE_ID_STREAM:
-                user.setStreamRole(true);
-                break;
-            case ROLE_ID_SETTINGS:
-                user.setSettingsRole(true);
-                break;
-            case ROLE_ID_JUKEBOX:
-                break;
-            case ROLE_ID_SHARE:
-                user.setShareRole(true);
-                break;
-            default:
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Unknown role: '" + role + '\'');
-                }
-                break;
+            case ROLE_ID_ADMIN -> user.setAdminRole(true);
+            case ROLE_ID_DOWNLOAD -> user.setDownloadRole(true);
+            case ROLE_ID_UPLOAD -> user.setUploadRole(true);
+            case ROLE_ID_PLAYLIST -> user.setPlaylistRole(true);
+            case ROLE_ID_COVER_ART -> user.setCoverArtRole(true);
+            case ROLE_ID_COMMENT -> user.setCommentRole(true);
+            case ROLE_ID_PODCAST -> user.setPodcastRole(true);
+            case ROLE_ID_STREAM -> user.setStreamRole(true);
+            case ROLE_ID_SETTINGS -> user.setSettingsRole(true);
+            case ROLE_ID_JUKEBOX -> LOG.info("Discontinued role: {}", role);
+            case ROLE_ID_SHARE -> user.setShareRole(true);
+            default -> LOG.warn("Unknown role: {}", role);
             }
-        }
+        });
     }
 
     @SuppressWarnings("PMD.NPathComplexity") // It's not particularly difficult, so you can leave it as it is.

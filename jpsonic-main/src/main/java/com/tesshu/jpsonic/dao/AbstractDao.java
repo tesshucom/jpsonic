@@ -80,9 +80,9 @@ public class AbstractDao {
     }
 
     protected static String prefix(String columns, String prefix) {
-        List<String> l = Arrays.asList(columns.split(", "));
+        List<String> l = Arrays.asList(columns.replaceAll("\n", " ").split(", "));
         l.replaceAll(s -> prefix + "." + s);
-        return String.join(", ", l);
+        return String.join(", ", l).trim().concat(" ");
     }
 
     @SuppressFBWarnings(value = "SQL_INJECTION_SPRING_JDBC", justification = "False positive. find-sec-bugs#385")
@@ -200,8 +200,8 @@ public class AbstractDao {
     static @Nullable Object castArg(@Nullable Object arg) {
         if (arg == null) {
             return null;
-        } else if (arg instanceof Instant) {
-            return Timestamp.from((Instant) arg);
+        } else if (arg instanceof Instant dateTime) {
+            return Timestamp.from(dateTime);
         }
         return arg;
     }

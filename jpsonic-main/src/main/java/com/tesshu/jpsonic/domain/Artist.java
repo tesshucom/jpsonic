@@ -23,7 +23,7 @@ package com.tesshu.jpsonic.domain;
 
 import java.time.Instant;
 
-public class Artist implements Orderable {
+public final class Artist implements Orderable {
 
     private int id;
     private String name;

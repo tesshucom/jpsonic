@@ -101,9 +101,15 @@ public class RecoverService {
             message.setFrom(new InternetAddress(settingsService.getSmtpFrom()));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
             message.setSubject("Jpsonic Password");
-            message.setText("Hi there!\n\n"
-                    + "You have requested to reset your Jpsonic password.  Please find your new login details below.\n\n"
-                    + "Username: " + username + "\n" + "Password: ******\n\n");
+            message.setText("""
+                    Hi there!
+
+                    You have requested to reset your Jpsonic password. Please find your new login details below.
+
+                    Username: %s
+                    Password: ******
+
+                    """.formatted(username));
             message.setSentDate(Date.from(now()));
 
             try (Transport trans = session.getTransport(prot)) {

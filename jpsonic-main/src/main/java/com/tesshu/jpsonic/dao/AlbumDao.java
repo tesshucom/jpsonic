@@ -49,9 +49,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class AlbumDao extends AbstractDao {
 
-    private static final String INSERT_COLUMNS = "path, name, artist, song_count, duration_seconds, cover_art_path, "
-            + "year, genre, play_count, last_played, comment, created, last_scanned, present, "
-            + "folder_id, mb_release_id, artist_sort, name_sort, artist_reading, name_reading, album_order";
+    private static final String INSERT_COLUMNS = """
+            path, name, artist, song_count, duration_seconds, cover_art_path, year, genre,
+            play_count, last_played, comment, created, last_scanned, present, folder_id,
+            mb_release_id, artist_sort, name_sort, artist_reading, name_reading, album_order\s
+            """;
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final RowMapper<Album> rowMapper;
@@ -62,12 +64,17 @@ public class AlbumDao extends AbstractDao {
     }
 
     public @Nullable Album getAlbum(int id) {
-        return queryOne("select " + QUERY_COLUMNS + " from album where id=?", rowMapper, id);
+        return queryOne("select " + QUERY_COLUMNS + """
+                from album
+                where id=?
+                """, rowMapper, id);
     }
 
     public @Nullable Album getAlbum(String artistName, String albumName) {
-        return queryOne("select " + QUERY_COLUMNS + " from album where artist=? and name=?", rowMapper, artistName,
-                albumName);
+        return queryOne("select " + QUERY_COLUMNS + """
+                from album
+                where artist=? and name=?
+                """, rowMapper, artistName, albumName);
     }
 
     public List<Album> getAlbumsForArtist(final long offset, final long count, final String artist, boolean byYear,
@@ -77,18 +84,26 @@ public class AlbumDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("artist", artist, "folders", MusicFolder.toIdList(musicFolders),
                 "offset", offset, "count", count);
-        return namedQuery(
-                "select " + QUERY_COLUMNS
-                        + " from album where artist = :artist and present and folder_id in (:folders) order by "
-                        + (byYear ? "year is null, year, " : "") + "album_order limit :count offset :offset",
-                rowMapper, args);
+        String orderWithYear = byYear ? "year is null, year, " : "";
+        return namedQuery("select " + QUERY_COLUMNS + """
+                from album
+                where artist = :artist and present and folder_id in (:folders)
+                order by %s album_order
+                limit :count offset :offset
+                """.formatted(orderWithYear), rowMapper, args);
     }
 
     public @Nullable Album createAlbum(Album album) {
-        String query = "insert into album (" + INSERT_COLUMNS + ") values (?, ?, ?, "
-                + "(select count(*) from media_file where parent_path = ? and (type=? or type=? or type=?)), "
-                + "(select sum(duration_seconds) from media_file where parent_path = ? and (type=? or type=? or type=?)), "
-                + "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String query = "insert into album (" + INSERT_COLUMNS + """
+                ) values (?, ?, ?,
+                        (select count(*)
+                            from media_file
+                            where parent_path = ? and (type=? or type=? or type=?)),
+                        (select sum(duration_seconds)
+                            from media_file
+                            where parent_path = ? and (type=? or type=? or type=?)),
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """;
         int c = update(query, album.getPath(), album.getName(), album.getArtist(), album.getPath(),
                 MediaType.MUSIC.name(), MediaType.PODCAST.name(), MediaType.AUDIOBOOK.name(), album.getPath(),
                 MediaType.MUSIC.name(), MediaType.PODCAST.name(), MediaType.AUDIOBOOK.name(), album.getCoverArtPath(),
@@ -103,12 +118,22 @@ public class AlbumDao extends AbstractDao {
     }
 
     public @Nullable Album updateAlbum(Album album) {
-        String sql = "update album set path=?, "
-                + "song_count= (select count(*) from media_file where parent_path = ? and (type=? or type=? or type=?)),"
-                + "duration_seconds= (select sum(duration_seconds) from media_file where parent_path = ? and (type=? or type=? or type=?)),"
-                + "cover_art_path=?, year=?, genre=?, play_count=?, last_played=?, comment=?, created=?,"
-                + "last_scanned=?, present=?, folder_id=?, mb_release_id=?, artist_sort=?, "
-                + "name_sort=?, artist_reading=?, name_reading=?, album_order=?  where artist=? and name=?";
+        String sql = """
+                update album
+                set path=?,
+                        song_count=
+                                (select count(*)
+                                from media_file
+                                where parent_path = ? and (type=? or type=? or type=?)),
+                        duration_seconds=
+                                (select sum(duration_seconds)
+                                from media_file
+                                where parent_path = ? and (type=? or type=? or type=?)),
+                        cover_art_path=?, year=?, genre=?, play_count=?, last_played=?,
+                        comment=?, created=?, last_scanned=?, present=?, folder_id=?,
+                        mb_release_id=?, artist_sort=?, name_sort=?, artist_reading=?,
+                        name_reading=?, album_order=?  where artist=? and name=?
+                """;
         int c = update(sql, album.getPath(), album.getPath(), MediaType.MUSIC.name(), MediaType.PODCAST.name(),
                 MediaType.AUDIOBOOK.name(), album.getPath(), MediaType.MUSIC.name(), MediaType.PODCAST.name(),
                 MediaType.AUDIOBOOK.name(), album.getCoverArtPath(), album.getYear(), album.getGenre(),
@@ -123,16 +148,27 @@ public class AlbumDao extends AbstractDao {
     }
 
     public int updateOrder(int id, int order) {
-        return update("update album set album_order = ? where id=?", order, id);
+        return update("""
+                update album
+                set album_order = ?
+                where id=?
+                """, order, id);
     }
 
     public void updateCoverArtPath(String artist, String name, String coverArtPath) {
-        update("update album set cover_art_path = ? where artist=? and name=?", coverArtPath, artist, name);
+        update("""
+                update album
+                set cover_art_path = ?
+                where artist=? and name=?
+                """, coverArtPath, artist, name);
     }
 
     public void updatePlayCount(String artist, String name, Instant lastPlayed, int playCount) {
-        update("update album set last_played = ?, play_count = ? where artist=? and name=?", lastPlayed, playCount,
-                artist, name);
+        update("""
+                update album
+                set last_played = ?, play_count = ?
+                where artist=? and name=?
+                """, lastPlayed, playCount, artist, name);
     }
 
     public List<Album> getAlphabeticalAlbums(final int offset, final int count, boolean byArtist, boolean ignoreCase,
@@ -142,16 +178,20 @@ public class AlbumDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset",
                 offset);
-        String orderBy;
+        String order;
         if (ignoreCase) {
-            orderBy = byArtist ? "LOWER(artist_reading), album_order, LOWER(name_reading)"
+            order = byArtist ? "LOWER(artist_reading), album_order, LOWER(name_reading)"
                     : "album_order, LOWER(name_reading)";
         } else {
-            orderBy = byArtist ? "artist_reading, album_order" : "album_order";
+            order = byArtist ? "artist_reading, album_order" : "album_order";
         }
 
-        return namedQuery("select " + QUERY_COLUMNS + " from album where present and folder_id in (:folders) "
-                + "order by " + orderBy + " limit :count offset :offset", rowMapper, args);
+        return namedQuery("select " + QUERY_COLUMNS + """
+                from album
+                where present and folder_id in (:folders)
+                order by %s
+                limit :count offset :offset
+                """.formatted(order), rowMapper, args);
     }
 
     public int getAlbumCount(final List<MusicFolder> musicFolders) {
@@ -160,8 +200,11 @@ public class AlbumDao extends AbstractDao {
         }
         List<Integer> ids = musicFolders.stream().map(MusicFolder::getId).collect(Collectors.toList());
         Map<String, Object> args = LegacyMap.of("folders", ids);
-        Integer result = getNamedParameterJdbcTemplate().queryForObject(
-                "select count(*) from album where present and folder_id in (:folders)", args, Integer.class);
+        Integer result = getNamedParameterJdbcTemplate().queryForObject("""
+                select count(*)
+                from album
+                where present and folder_id in (:folders)
+                """, args, Integer.class);
         if (result != null) {
             return result;
         }
@@ -175,10 +218,12 @@ public class AlbumDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset",
                 offset);
-        return namedQuery(
-                "select " + QUERY_COLUMNS + " from album where play_count > 0 and present and folder_id in (:folders) "
-                        + "order by play_count desc limit :count offset :offset",
-                rowMapper, args);
+        return namedQuery("select " + QUERY_COLUMNS + """
+                from album
+                where play_count > 0 and present and folder_id in (:folders)
+                order by play_count desc
+                limit :count offset :offset
+                """, rowMapper, args);
     }
 
     public List<Album> getMostRecentlyPlayedAlbums(final int offset, final int count,
@@ -188,9 +233,12 @@ public class AlbumDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset",
                 offset);
-        return namedQuery("select " + QUERY_COLUMNS
-                + " from album where last_played is not null and present and folder_id in (:folders) "
-                + "order by last_played desc limit :count offset :offset", rowMapper, args);
+        return namedQuery("select " + QUERY_COLUMNS + """
+                from album
+                where last_played is not null and present and folder_id in (:folders)
+                order by last_played desc
+                limit :count offset :offset
+                """, rowMapper, args);
     }
 
     public List<Album> getNewestAlbums(final int offset, final int count, final List<MusicFolder> musicFolders) {
@@ -199,8 +247,12 @@ public class AlbumDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset",
                 offset);
-        return namedQuery("select " + QUERY_COLUMNS + " from album where present and folder_id in (:folders) "
-                + "order by created desc limit :count offset :offset", rowMapper, args);
+        return namedQuery("select " + QUERY_COLUMNS + """
+                from album
+                where present and folder_id in (:folders)
+                order by created desc
+                limit :count offset :offset
+                """, rowMapper, args);
     }
 
     public List<Album> getStarredAlbums(final int offset, final int count, final String username,
@@ -210,10 +262,13 @@ public class AlbumDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset",
                 offset, "username", username);
-        return namedQuery("select " + prefix(QUERY_COLUMNS, "album")
-                + " from starred_album, album where album.id = starred_album.album_id and "
-                + "album.present and album.folder_id in (:folders) and starred_album.username = :username "
-                + "order by starred_album.created desc limit :count offset :offset", rowMapper, args);
+        return namedQuery("select " + prefix(QUERY_COLUMNS, "album") + """
+                from starred_album, album
+                where album.id = starred_album.album_id and album.present
+                        and album.folder_id in (:folders) and starred_album.username = :username
+                order by starred_album.created desc
+                limit :count offset :offset
+                """, rowMapper, args);
     }
 
     public List<Album> getAlbumsByYear(final int offset, final int count, final int fromYear, final int toYear,
@@ -224,21 +279,34 @@ public class AlbumDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset",
                 offset, "fromYear", fromYear, "toYear", toYear);
         if (fromYear <= toYear) {
-            return namedQuery("select " + QUERY_COLUMNS + " from album where present and folder_id in (:folders) "
-                    + "and year between :fromYear and :toYear "
-                    + "order by year, album_order limit :count offset :offset", rowMapper, args);
+            return namedQuery("select " + QUERY_COLUMNS + """
+                    from album
+                    where present and folder_id in (:folders) and year between :fromYear and :toYear
+                    order by year, album_order limit :count offset :offset
+                    """, rowMapper, args);
         } else {
-            return namedQuery("select " + QUERY_COLUMNS + " from album where present and folder_id in (:folders) "
-                    + "and year between :toYear and :fromYear "
-                    + "order by year desc, album_order limit :count offset :offset", rowMapper, args);
+            return namedQuery("select " + QUERY_COLUMNS + """
+                    from album
+                    where present and folder_id in (:folders) and year between :toYear and :fromYear
+                    order by year desc, album_order
+                    limit :count offset :offset
+                    """, rowMapper, args);
         }
     }
 
     public void iterateLastScanned(@NonNull Instant scanDate, boolean withPodcast) {
-        String query = "update album set last_scanned = ?, present = ? "
-                + "where id in (select distinct al.id from album al join media_file child "
-                + "on child.present and child.album = al.name and child.album_artist = al.artist "
-                + "and (child.type=? or child.type=? " + (withPodcast ? "or child.type=?" : "") + ")) ";
+        String podcastQuery = withPodcast ? "or child.type=?" : "";
+        String query = """
+                update album
+                set last_scanned = ?, present = ?
+                where id in
+                        (select distinct al.id
+                            from album al
+                            join media_file child
+                            on child.present and child.album = al.name
+                                    and child.album_artist = al.artist
+                                    and (child.type=? or child.type=? %s))
+                """.formatted(podcastQuery);
         if (withPodcast) {
             update(query, scanDate, true, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name(), MediaType.PODCAST.name());
         } else {
@@ -247,11 +315,18 @@ public class AlbumDao extends AbstractDao {
     }
 
     public List<Integer> getExpungeCandidates(@NonNull Instant scanDate) {
-        return queryForInts("select id from album where last_scanned <> ? or not present", scanDate);
+        return queryForInts("""
+                select id
+                from album
+                where last_scanned <> ? or not present
+                """, scanDate);
     }
 
     public void expunge(@NonNull Instant scanDate) {
-        update("delete from album where last_scanned <> ? or not present", scanDate);
+        update("""
+                delete from album
+                where last_scanned <> ? or not present
+                """, scanDate);
     }
 
     public void deleteAll() {
@@ -260,16 +335,25 @@ public class AlbumDao extends AbstractDao {
 
     public void starAlbum(int albumId, String username) {
         unstarAlbum(albumId, username);
-        update("insert into starred_album(album_id, username, created) values (?,?,?)", albumId, username, now());
+        update("""
+                insert into starred_album(album_id, username, created)
+                values (?,?,?)
+                """, albumId, username, now());
     }
 
     public void unstarAlbum(int albumId, String username) {
-        update("delete from starred_album where album_id=? and username=?", albumId, username);
+        update("""
+                delete from starred_album
+                where album_id=? and username=?
+                """, albumId, username);
     }
 
     public Instant getAlbumStarredDate(int albumId, String username) {
-        return queryForInstant("select created from starred_album where album_id=? and username=?", null, albumId,
-                username);
+        return queryForInstant("""
+                select created
+                from starred_album
+                where album_id=? and username=?
+                """, null, albumId, username);
     }
 
     public int getAlbumsCountForArtist(final String artist, final List<MusicFolder> musicFolders) {
@@ -277,8 +361,11 @@ public class AlbumDao extends AbstractDao {
             return 0;
         }
         Map<String, Object> args = LegacyMap.of("artist", artist, "folders", MusicFolder.toIdList(musicFolders));
-        return namedQueryForInt(
-                "select count(id) from album where artist = :artist and present and folder_id in (:folders)", 0, args);
+        return namedQueryForInt("""
+                select count(id)
+                from album
+                where artist = :artist and present and folder_id in (:folders)
+                """, 0, args);
     }
 
     private static class AlbumMapper implements RowMapper<Album> {

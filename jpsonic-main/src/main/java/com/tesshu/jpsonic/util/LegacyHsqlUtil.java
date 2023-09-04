@@ -92,16 +92,20 @@ public final class LegacyHsqlUtil {
                     .asSubclass(JDBCDriver.class).getDeclaredConstructor().newInstance();
             driverVersion = String.format("%d.%d", driver.getMajorVersion(), driver.getMinorVersion());
             if (driver.getMajorVersion() != AirsonicHsqlDatabase.CURRENT_SUPPORTED_MAJOR_VERSION) {
-                LOG.warn(
-                        "HSQLDB database driver version {} is untested ; trying to connect anyway, this may upgrade the database from version {}",
-                        driverVersion, currentVersion);
+                LOG.warn("""
+                        HSQLDB database driver version {} is untested.
+                        Trying to connect anyway,
+                        this may upgrade the database from version {}
+                        """, driverVersion, currentVersion);
                 return;
             }
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
                 | NoSuchMethodException | SecurityException | ClassNotFoundException e) {
-            LOG.warn(
-                    "HSQLDB database driver version cannot be determined ; trying to connect anyway, this may upgrade the database from version {}",
-                    currentVersion, e);
+            LOG.warn("""
+                    HSQLDB database driver version cannot be determined.
+                    Trying to connect anyway,
+                    this may upgrade the database from version {}
+                    """, currentVersion, e);
             return;
         }
 
@@ -110,12 +114,14 @@ public final class LegacyHsqlUtil {
             return;
         } else if (UPGRADE_NEEDED_VERSION1.equals(currentVersion) || UPGRADE_NEEDED_VERSION2.equals(currentVersion)) {
             if (LOG.isInfoEnabled()) {
-                LOG.info("HSQLDB database upgrade needed, from version {} to {}", currentVersion, driverVersion);
-                LOG.info(" *");
-                LOG.info(" * This version of Jpsonic does not support HSQLDB 1.x. ");
-                LOG.info(" * Please run with v110.x once to use automatic conversion.");
-                LOG.info(" * https://github.com/jpsonic/jpsonic/releases/tag/v110.2.0");
-                LOG.info(" *");
+                LOG.info("""
+                        HSQLDB database upgrade needed, from version {} to {}.
+                         *
+                         * This version of Jpsonic does not support HSQLDB 1.x.
+                         * Please run with v110.x once to use automatic conversion.
+                         * https://github.com/jpsonic/jpsonic/releases/tag/v110.2.0
+                         *
+                        """, currentVersion, driverVersion);
             }
             return;
         } else {

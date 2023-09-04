@@ -79,8 +79,7 @@ public class XspfPlaylistImportHandler implements PlaylistImportHandler {
     }
 
     private @Nullable MediaFile getMediaFile(StringContainer sc) {
-        if (sc instanceof Location) {
-            Location location = (Location) sc;
+        if (sc instanceof Location location) {
             try {
                 if (sc.getText() != null) {
                     MediaFile mediaFile = mediaFileService.getMediaFile(Path.of(location.getText()));
