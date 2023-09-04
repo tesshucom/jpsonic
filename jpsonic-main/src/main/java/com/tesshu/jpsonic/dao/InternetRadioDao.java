@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.tesshu.jpsonic.domain.InternetRadio;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
@@ -40,7 +41,9 @@ import org.springframework.stereotype.Repository;
 public class InternetRadioDao extends AbstractDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(InternetRadioDao.class);
-    private static final String INSERT_COLUMNS = "name, stream_url, homepage_url, enabled, changed";
+    private static final String INSERT_COLUMNS = """
+            name, stream_url, homepage_url, enabled, changed\s
+            """;
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final InternetRadioRowMapper rowMapper;
@@ -50,35 +53,19 @@ public class InternetRadioDao extends AbstractDao {
         rowMapper = new InternetRadioRowMapper();
     }
 
-    /**
-     * Returns the internet radio station with the given ID.
-     *
-     * @param id
-     *            The unique internet radio station ID.
-     *
-     * @return The internet radio station with the given ID, or <code>null</code> if no such internet radio exists.
-     */
-    public InternetRadio getInternetRadioById(int id) {
-        String sql = "select " + QUERY_COLUMNS + " from internet_radio where id=?";
+    public @Nullable InternetRadio getInternetRadioById(int id) {
+        String sql = "select " + QUERY_COLUMNS + """
+                from internet_radio
+                where id=?
+                """;
         return queryOne(sql, rowMapper, id);
     }
 
-    /**
-     * Returns all internet radio stations.
-     *
-     * @return Possibly empty list of all internet radio stations.
-     */
     public List<InternetRadio> getAllInternetRadios() {
         String sql = "select " + QUERY_COLUMNS + " from internet_radio";
         return query(sql, rowMapper);
     }
 
-    /**
-     * Creates a new internet radio station.
-     *
-     * @param radio
-     *            The internet radio station to create.
-     */
     public void createInternetRadio(InternetRadio radio) {
         String sql = "insert into internet_radio (" + INSERT_COLUMNS + ") values (?, ?, ?, ?, ?)";
         update(sql, radio.getName(), radio.getStreamUrl(), radio.getHomepageUrl(), radio.isEnabled(),
@@ -88,28 +75,23 @@ public class InternetRadioDao extends AbstractDao {
         }
     }
 
-    /**
-     * Deletes the internet radio station with the given ID.
-     *
-     * @param id
-     *            The internet radio station ID.
-     */
     public void deleteInternetRadio(Integer id) {
-        String sql = "delete from internet_radio where id=?";
+        String sql = """
+                delete from internet_radio
+                where id=?
+                """;
         update(sql, id);
         if (LOG.isInfoEnabled()) {
             LOG.info("Deleted internet radio station with ID " + id);
         }
     }
 
-    /**
-     * Updates the given internet radio station.
-     *
-     * @param radio
-     *            The internet radio station to update.
-     */
     public void updateInternetRadio(InternetRadio radio) {
-        String sql = "update internet_radio set name=?, stream_url=?, homepage_url=?, enabled=?, changed=? where id=?";
+        String sql = """
+                update internet_radio
+                set name=?, stream_url=?, homepage_url=?, enabled=?, changed=?
+                where id=?
+                """;
         update(sql, radio.getName(), radio.getStreamUrl(), radio.getHomepageUrl(), radio.isEnabled(),
                 radio.getChanged(), radio.getId());
     }
@@ -121,5 +103,4 @@ public class InternetRadioDao extends AbstractDao {
                     nullableInstantOf(rs.getTimestamp(6)));
         }
     }
-
 }

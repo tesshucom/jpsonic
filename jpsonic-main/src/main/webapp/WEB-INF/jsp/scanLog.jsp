@@ -90,9 +90,9 @@ function refreshScanLogs() {
                     </td>
                     <td>${scanEvent.executedStr}</td>
                     <td>${scanEvent.duration}</td>
-                    <td>${scanEvent.maxMemory}</td>
-                    <td>${scanEvent.totalMemory}</td>
-                    <td>${scanEvent.usedMemory}</td>
+                    <td><sub:formatBytes bytes="${scanEvent.maxMemory}"/></td>
+                    <td><sub:formatBytes bytes="${scanEvent.totalMemory}"/></td>
+                    <td><sub:formatBytes bytes="${scanEvent.usedMemory}"/></td>
                     <td>${scanEvent.comment}</td>
                 </tr>
             </c:forEach>

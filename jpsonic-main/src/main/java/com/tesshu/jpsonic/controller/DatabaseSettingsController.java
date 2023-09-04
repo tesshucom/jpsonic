@@ -90,20 +90,16 @@ public class DatabaseSettingsController {
         if (!bindingResult.hasErrors()) {
             settingsService.resetDatabaseToDefault();
             settingsService.setDatabaseConfigType(command.getConfigType());
-            switch (command.getConfigType()) {
-            case URL:
+
+            if (command.getConfigType() == DataSourceConfigType.URL) {
                 settingsService.setDatabaseConfigEmbedDriver(command.getEmbedDriver());
                 settingsService.setDatabaseConfigEmbedUrl(command.getEmbedUrl());
                 settingsService.setDatabaseConfigEmbedPassword(command.getEmbedPassword());
                 settingsService.setDatabaseConfigEmbedUsername(command.getEmbedUsername());
-                break;
-            case JNDI:
+            } else if (command.getConfigType() == DataSourceConfigType.JNDI) {
                 settingsService.setDatabaseConfigJNDIName(command.getJNDIName());
-                break;
-            case HOST:
-            default:
-                break;
             }
+
             if (command.getConfigType() != DataSourceConfigType.HOST) {
                 settingsService.setDatabaseMysqlVarcharMaxlength(command.getMysqlVarcharMaxlength());
                 settingsService.setDatabaseUsertableQuote(command.getUsertableQuote());

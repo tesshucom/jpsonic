@@ -24,6 +24,7 @@ package com.tesshu.jpsonic.controller;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
@@ -45,7 +46,6 @@ import java.util.TreeMap;
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
-import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.dao.DaoHelper;
 import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
@@ -54,14 +54,12 @@ import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.service.VersionService;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.service.search.IndexType;
 import com.tesshu.jpsonic.spring.DatabaseConfiguration.ProfileNameConstants;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
-import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
@@ -85,25 +83,21 @@ import org.springframework.web.servlet.ModelAndView;
 public class InternalHelpController {
 
     private static final Logger LOG = LoggerFactory.getLogger(InternalHelpController.class);
-    private static final int LOG_LINES_TO_SHOW = 50;
     private static final String TABLE_TYPE_TABLE = "table";
 
-    private final VersionService versionService;
     private final SettingsService settingsService;
-    private final SecurityService securityService;
     private final MusicFolderService musicFolderService;
+    private final SecurityService securityService;
     private final IndexManager indexManager;
     private final DaoHelper daoHelper;
     private final TranscodingService transcodingService;
     private final Environment environment;
     private final StaticsDao staticsDao;
 
-    public InternalHelpController(VersionService versionService, SettingsService settingsService,
-            SecurityService securityService, MusicFolderService musicFolderService, IndexManager indexManager,
-            DaoHelper daoHelper, TranscodingService transcodingService, Environment environment,
-            StaticsDao staticsDao) {
+    public InternalHelpController(SettingsService settingsService, SecurityService securityService,
+            MusicFolderService musicFolderService, IndexManager indexManager, DaoHelper daoHelper,
+            TranscodingService transcodingService, Environment environment, StaticsDao staticsDao) {
         super();
-        this.versionService = versionService;
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.musicFolderService = musicFolderService;
@@ -115,52 +109,50 @@ public class InternalHelpController {
     }
 
     @GetMapping
-    @SuppressLint(value = "CROSS_SITE_SCRIPTING", justification = "False positive. VersionService reads static local files.")
     protected ModelAndView handleRequestInternal(HttpServletRequest request) {
         Map<String, Object> map = LegacyMap.of();
 
+        map.put("brand", SettingsService.getBrand());
         map.put("admin", securityService.isAdmin(securityService.getCurrentUserStrict(request).getUsername()));
         map.put("showStatus", settingsService.isShowStatus());
 
-        if (versionService.isNewFinalVersionAvailable()) {
-            map.put("newVersionAvailable", true);
-            map.put("latestVersion", versionService.getLatestFinalVersion());
-        } else if (versionService.isNewBetaVersionAvailable()) {
-            map.put("newVersionAvailable", true);
-            map.put("latestVersion", versionService.getLatestBetaVersion());
-        }
-
-        long totalMemory = Runtime.getRuntime().totalMemory();
-        long freeMemory = Runtime.getRuntime().freeMemory();
-
-        String serverInfo = request.getSession().getServletContext().getServerInfo() + ", java "
-                + System.getProperty("java.version") + ", " + System.getProperty("os.name");
-
-        map.put("user", securityService.getCurrentUserStrict(request));
-        map.put("brand", SettingsService.getBrand());
-        map.put("localVersion", versionService.getLocalVersion());
-        map.put("buildDate", versionService.getLocalBuildDate());
-        map.put("buildNumber", versionService.getLocalBuildNumber());
-        map.put("serverInfo", serverInfo);
-        map.put("usedMemory", totalMemory - freeMemory);
-        map.put("totalMemory", totalMemory);
-        Path logFile = SettingsService.getLogFile();
-        List<String> latestLogEntries = getLatestLogEntries(logFile);
-        map.put("logEntries", latestLogEntries);
-        map.put("logFile", logFile);
-
         // Gather internal information
-        gatherStats(map);
-        gatherIndexInfo(map);
+        gatherPlatfomInfo(request, map);
         gatherDatabaseInfo(map);
         gatherFilesystemInfo(map);
         gatherTranscodingInfo(map);
         gatherLocaleInfo(map);
+        gatherIndexInfo(map);
+        gatherStats(map);
 
         map.put("showIndexDetails", settingsService.isShowIndexDetails());
         map.put("showDBDetails", settingsService.isShowDBDetails());
 
         return new ModelAndView("internalhelp", "model", map);
+    }
+
+    private void gatherPlatfomInfo(HttpServletRequest request, Map<String, Object> map) {
+        map.put("osName", System.getProperty("os.name"));
+        map.put("javaVersion", System.getProperty("java.version"));
+        map.put("applicationServer", request.getSession().getServletContext().getServerInfo());
+        long totalMemory = Runtime.getRuntime().totalMemory();
+        map.put("totalMemory", totalMemory);
+        map.put("usedMemory", totalMemory - Runtime.getRuntime().freeMemory());
+        map.put("gc", guessGCName());
+    }
+
+    private String guessGCName() {
+        List<String> names = ManagementFactory.getGarbageCollectorMXBeans().stream().map(b -> b.getName()).toList();
+        if (names.contains("ZGC Cycles") && names.contains("ZGC Pauses")) {
+            return "ZGC";
+        } else if (names.contains("G1 Young Generation") && names.contains("G1 Old Generation")) {
+            return "G1GC";
+        } else if (names.contains("PS MarkSweep") && names.contains("PS Scavenge")) {
+            return "ParallelGC";
+        } else if (names.contains("Copy") && names.contains("MarkSweepCompact")) {
+            return "SerialGC";
+        }
+        return null;
     }
 
     private void gatherStats(Map<String, Object> map) {
@@ -340,24 +332,6 @@ public class InternalHelpController {
     private void gatherTranscodingInfo(Map<String, Object> map) {
         map.put("fsFfprobeInfo", gatherStatisticsForTranscodingExecutable("ffprobe"));
         map.put("fsFfmpegInfo", gatherStatisticsForTranscodingExecutable("ffmpeg"));
-    }
-
-    private static List<String> getLatestLogEntries(Path logFile) {
-        List<String> result = new ArrayList<>(LOG_LINES_TO_SHOW);
-        try (ReversedLinesFileReader reader = new ReversedLinesFileReader(logFile, Charset.defaultCharset())) {
-            for (String current = reader.readLine(); current != null; current = reader.readLine()) {
-                if (result.size() >= LOG_LINES_TO_SHOW) {
-                    break;
-                }
-                result.add(0, current);
-            }
-            return result;
-        } catch (IOException e) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Could not open log file " + logFile, e);
-            }
-            return result;
-        }
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable

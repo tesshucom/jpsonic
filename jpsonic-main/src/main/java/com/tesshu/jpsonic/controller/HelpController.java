@@ -87,11 +87,6 @@ public class HelpController {
             map.put("latestVersion", versionService.getLatestBetaVersion());
         }
 
-        long totalMemory = Runtime.getRuntime().totalMemory();
-        long freeMemory = Runtime.getRuntime().freeMemory();
-
-        String serverInfo = request.getSession().getServletContext().getServerInfo() + ", java "
-                + System.getProperty("java.version") + ", " + System.getProperty("os.name");
         User user = securityService.getCurrentUserStrict(request);
         map.put("user", user);
         map.put("admin", securityService.isAdmin(user.getUsername()));
@@ -99,9 +94,6 @@ public class HelpController {
         map.put("localVersion", versionService.getLocalVersion());
         map.put("buildDate", versionService.getLocalBuildDate());
         map.put("buildNumber", versionService.getLocalBuildNumber());
-        map.put("serverInfo", serverInfo);
-        map.put("usedMemory", totalMemory - freeMemory);
-        map.put("totalMemory", totalMemory);
         Path logFile = SettingsService.getLogFile();
         if (Files.exists(logFile)) {
             List<String> latestLogEntries = getLatestLogEntries(logFile);
@@ -122,7 +114,8 @@ public class HelpController {
 
     private static List<String> getLatestLogEntries(Path logFile) {
         List<String> lines = new ArrayList<>(LOG_LINES_TO_SHOW);
-        try (ReversedLinesFileReader reader = new ReversedLinesFileReader(logFile, Charset.defaultCharset())) {
+        try (ReversedLinesFileReader reader = ReversedLinesFileReader.builder().setPath(logFile)
+                .setCharset(Charset.defaultCharset()).get()) {
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 if (lines.size() >= LOG_LINES_TO_SHOW) {
                     break;

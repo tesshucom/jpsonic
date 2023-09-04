@@ -38,7 +38,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class TranscodingDao extends AbstractDao {
 
-    private static final String INSERT_COLUMNS = "name, source_formats, target_format, step1, step2, step3, default_active";
+    private static final String INSERT_COLUMNS = """
+            name, source_formats, target_format, step1, step2, step3, default_active\s
+            """;
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final TranscodingRowMapper rowMapper;
@@ -48,59 +50,41 @@ public class TranscodingDao extends AbstractDao {
         rowMapper = new TranscodingRowMapper();
     }
 
-    /**
-     * Returns all transcodings.
-     *
-     * @return Possibly empty list of all transcodings.
-     */
     public List<Transcoding> getAllTranscodings() {
-        String sql = "select " + QUERY_COLUMNS + " from transcoding2";
+        String sql = "select " + QUERY_COLUMNS + "from transcoding2";
         return query(sql, rowMapper);
     }
 
-    /**
-     * Returns all active transcodings for the given player.
-     *
-     * @param playerId
-     *            The player ID.
-     *
-     * @return All active transcodings for the player.
-     */
     public List<Transcoding> getTranscodingsForPlayer(Integer playerId) {
-        String sql = "select " + QUERY_COLUMNS + " from transcoding2, player_transcoding2 "
-                + "where player_transcoding2.player_id = ? "
-                + "and   player_transcoding2.transcoding_id = transcoding2.id";
+        String sql = "select " + QUERY_COLUMNS + """
+                from transcoding2, player_transcoding2
+                where player_transcoding2.player_id = ?
+                        and player_transcoding2.transcoding_id = transcoding2.id
+                """;
         return query(sql, rowMapper, playerId);
     }
 
-    /**
-     * Sets the list of active transcodings for the given player.
-     *
-     * @param playerId
-     *            The player ID.
-     * @param transcodingIds
-     *            ID's of the active transcodings.
-     */
     @Transactional
     public void setTranscodingsForPlayer(Integer playerId, int... transcodingIds) {
-        update("delete from player_transcoding2 where player_id = ?", playerId);
-        String sql = "insert into player_transcoding2(player_id, transcoding_id) values (?, ?)";
+        update("""
+                delete from player_transcoding2
+                where player_id = ?
+                """, playerId);
+        String sql = """
+                insert into player_transcoding2(player_id, transcoding_id)
+                values (?, ?)
+                """;
         for (int transcodingId : transcodingIds) {
             update(sql, playerId, transcodingId);
         }
     }
 
-    /**
-     * Creates a new transcoding.
-     *
-     * @param transcoding
-     *            The transcoding to create.
-     *
-     * @return registered ID that is assumed to be registered
-     */
     @Transactional
     public int createTranscoding(Transcoding transcoding) {
-        Integer existingMax = queryForInt("select max(id) from transcoding2", 0);
+        Integer existingMax = queryForInt("""
+                select max(id)
+                from transcoding2
+                """, 0);
         int registered = existingMax + 1;
         transcoding.setId(registered);
         String sql = "insert into transcoding2 (" + QUERY_COLUMNS + ") values (" + questionMarks(QUERY_COLUMNS) + ")";
@@ -110,26 +94,21 @@ public class TranscodingDao extends AbstractDao {
         return registered;
     }
 
-    /**
-     * Deletes the transcoding with the given ID.
-     *
-     * @param id
-     *            The transcoding ID.
-     */
     public void deleteTranscoding(Integer id) {
-        String sql = "delete from transcoding2 where id=?";
+        String sql = """
+                delete from transcoding2
+                where id=?
+                """;
         update(sql, id);
     }
 
-    /**
-     * Updates the given transcoding.
-     *
-     * @param transcoding
-     *            The transcoding to update.
-     */
     public void updateTranscoding(Transcoding transcoding) {
-        String sql = "update transcoding2 set name=?, source_formats=?, target_format=?, "
-                + "step1=?, step2=?, step3=?, default_active=? where id=?";
+        String sql = """
+                update transcoding2
+                set name=?, source_formats=?, target_format=?,
+                        step1=?, step2=?, step3=?, default_active=?
+                where id=?
+                """;
         update(sql, transcoding.getName(), transcoding.getSourceFormats(), transcoding.getTargetFormat(),
                 transcoding.getStep1(), transcoding.getStep2(), transcoding.getStep3(), transcoding.isDefaultActive(),
                 transcoding.getId());

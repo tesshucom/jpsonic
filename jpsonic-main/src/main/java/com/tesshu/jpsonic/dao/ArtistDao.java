@@ -48,8 +48,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class ArtistDao extends AbstractDao {
 
-    private static final String INSERT_COLUMNS = "name, cover_art_path, album_count, last_scanned, present, folder_id, "
-            + "sort, reading, artist_order";
+    private static final String INSERT_COLUMNS = """
+            name, cover_art_path, album_count, last_scanned, present, folder_id,
+            sort, reading, artist_order\s
+            """;
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final RowMapper<Artist> rowMapper;
@@ -60,7 +62,10 @@ public class ArtistDao extends AbstractDao {
     }
 
     public @Nullable Artist getArtist(String artistName) {
-        return queryOne("select " + QUERY_COLUMNS + " from artist where name=?", rowMapper, artistName);
+        return queryOne("select " + QUERY_COLUMNS + """
+                from artist
+                where name=?
+                """, rowMapper, artistName);
     }
 
     public @Nullable Artist getArtist(final String artistName, final List<MusicFolder> musicFolders) {
@@ -69,17 +74,26 @@ public class ArtistDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("name", artistName, "folders", MusicFolder.toIdList(musicFolders));
 
-        return namedQueryOne("select " + QUERY_COLUMNS + " from artist where name = :name and folder_id in (:folders)",
-                rowMapper, args);
+        return namedQueryOne("select " + QUERY_COLUMNS + """
+                from artist
+                where name = :name and folder_id in (:folders)
+                """, rowMapper, args);
     }
 
     public @Nullable Artist getArtist(int id) {
-        return queryOne("select " + QUERY_COLUMNS + " from artist where id=?", rowMapper, id);
+        return queryOne("select " + QUERY_COLUMNS + """
+                from artist
+                where id=?
+                """, rowMapper, id);
     }
 
     public @Nullable Artist updateArtist(Artist artist) {
-        String sql = "update artist set cover_art_path=?, album_count=?, last_scanned=?, present=?,"
-                + "folder_id=?, sort=?, reading=? where name=?";
+        String sql = """
+                update artist
+                set cover_art_path=?, album_count=?, last_scanned=?, present=?,
+                        folder_id=?, sort=?, reading=?
+                where name=?
+                """;
         int c = update(sql, artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
                 artist.isPresent(), artist.getFolderId(), artist.getSort(), artist.getReading(), artist.getName());
         if (c > 0) {
@@ -92,7 +106,11 @@ public class ArtistDao extends AbstractDao {
         int c = update("insert into artist (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
                 artist.getName(), artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
                 artist.isPresent(), artist.getFolderId(), artist.getSort(), artist.getReading(), -1);
-        Integer id = queryForInt("select id from artist where name=?", null, artist.getName());
+        Integer id = queryForInt("""
+                select id
+                from artist
+                where name=?
+                """, null, artist.getName());
         if (c > 0 && id != null) {
             artist.setId(id);
             return artist;
@@ -101,7 +119,11 @@ public class ArtistDao extends AbstractDao {
     }
 
     public int updateOrder(int id, int order) {
-        return update("update artist set artist_order=? where id=?", order, id);
+        return update("""
+                update artist
+                set artist_order=?
+                where id=?
+                """, order, id);
     }
 
     public List<Artist> getAlphabetialArtists(final int offset, final int count, final List<MusicFolder> musicFolders) {
@@ -111,8 +133,12 @@ public class ArtistDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset",
                 offset);
 
-        return namedQuery("select " + QUERY_COLUMNS + " from artist where present and folder_id in (:folders) "
-                + "order by artist_order limit :count offset :offset", rowMapper, args);
+        return namedQuery("select " + QUERY_COLUMNS + """
+                from artist
+                where present and folder_id in (:folders)
+                order by artist_order
+                limit :count offset :offset
+                """, rowMapper, args);
     }
 
     public List<Artist> getStarredArtists(final int offset, final int count, final String username,
@@ -123,18 +149,27 @@ public class ArtistDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders), "username", username,
                 "count", count, "offset", offset);
 
-        return namedQuery("select " + prefix(QUERY_COLUMNS, "artist") + " from starred_artist, artist "
-                + "where artist.id = starred_artist.artist_id and "
-                + "artist.present and starred_artist.username = :username and artist.folder_id in (:folders) "
-                + "order by starred_artist.created desc limit :count offset :offset", rowMapper, args);
+        return namedQuery("select " + prefix(QUERY_COLUMNS, "artist") + """
+                from starred_artist, artist
+                where artist.id = starred_artist.artist_id and artist.present
+                        and starred_artist.username = :username and artist.folder_id in (:folders)
+                order by starred_artist.created desc limit :count offset :offset
+                """, rowMapper, args);
     }
 
     public void iterateLastScanned(@NonNull Instant scanDate, boolean withPodcast) {
-        String query = "update artist set present = ?, last_scanned = ? "
-                + "where artist.id in(select distinct artist.id from artist "
-                + "join media_file on (media_file.type = ? or media_file.type = ? "
-                + (withPodcast ? "or media_file.type = ?" : "") + ") "
-                + "and artist.name = media_file.album_artist and media_file.present)";
+        String podcastQuery = withPodcast ? "or media_file.type = ?" : "";
+        String query = """
+                update artist
+                set present = ?, last_scanned = ?
+                where artist.id in
+                        (select distinct artist.id
+                        from artist
+                        join media_file
+                        on (media_file.type = ? or media_file.type = ? %s)
+                                and artist.name = media_file.album_artist
+                                and media_file.present)
+                """.formatted(podcastQuery);
         if (withPodcast) {
             update(query, true, scanDate, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name(), MediaType.PODCAST.name());
         } else {
@@ -143,15 +178,21 @@ public class ArtistDao extends AbstractDao {
     }
 
     public List<Integer> getExpungeCandidates(@NonNull Instant scanDate) {
-        return queryForInts(
-                "select id from artist where last_scanned <> ? or not present or "
-                        + "name not in (select distinct album_artist from media_file where present "
-                        + "and media_file.type = ? or media_file.type = ? or media_file.type = ?)",
-                scanDate, MediaType.MUSIC.name(), MediaType.PODCAST.name(), MediaType.AUDIOBOOK.name());
+        return queryForInts("""
+                select id from artist
+                where last_scanned <> ? or not present or name not in
+                        (select distinct album_artist
+                        from media_file
+                        where present and media_file.type = ? or
+                                media_file.type = ? or media_file.type = ?)
+                """, scanDate, MediaType.MUSIC.name(), MediaType.PODCAST.name(), MediaType.AUDIOBOOK.name());
     }
 
     public void expunge(@NonNull Instant scanDate) {
-        update("delete from artist where last_scanned <> ? or not present", scanDate);
+        update("""
+                delete from artist
+                where last_scanned <> ? or not present
+                """, scanDate);
     }
 
     public void deleteAll() {
@@ -160,27 +201,43 @@ public class ArtistDao extends AbstractDao {
 
     public void starArtist(int artistId, String username) {
         unstarArtist(artistId, username);
-        update("insert into starred_artist(artist_id, username, created) values (?,?,?)", artistId, username, now());
+        update("""
+                insert into starred_artist(artist_id, username, created)
+                values (?,?,?)
+                """, artistId, username, now());
     }
 
     public void unstarArtist(int artistId, String username) {
-        update("delete from starred_artist where artist_id=? and username=?", artistId, username);
+        update("""
+                delete from starred_artist
+                where artist_id=? and username=?
+                """, artistId, username);
     }
 
-    public Instant getArtistStarredDate(int artistId, String username) {
-        return queryForInstant("select created from starred_artist where artist_id=? and username=?", null, artistId,
-                username);
+    public @Nullable Instant getArtistStarredDate(int artistId, String username) {
+        return queryForInstant("""
+                select created
+                from starred_artist
+                where artist_id=? and username=?
+                """, null, artistId, username);
     }
 
     public List<Artist> getAlbumCounts() {
-        return query(
-                "select artist.id, count(album.id) as album_count from artist join album on artist.name = album.artist "
-                        + "group by artist.id, artist.name",
-                new ArtistCountMapper());
+        return query("""
+                select artist.id, count(album.id) as album_count
+                from artist
+                join album
+                on artist.name = album.artist
+                group by artist.id, artist.name
+                """, new ArtistCountMapper());
     }
 
     public void updateAlbumCount(int id, int count) {
-        update("update artist set album_count=? where id=?", count, id);
+        update("""
+                update artist
+                set album_count=?
+                where id=?
+                """, count, id);
     }
 
     private static class ArtistMapper implements RowMapper<Artist> {
@@ -204,6 +261,10 @@ public class ArtistDao extends AbstractDao {
             return 0;
         }
         Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders));
-        return namedQueryForInt("select count(id) from artist where present and folder_id in (:folders)", 0, args);
+        return namedQueryForInt("""
+                select count(id)
+                from artist
+                where present and folder_id in (:folders)
+                """, 0, args);
     }
 }

@@ -38,7 +38,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class BookmarkDao extends AbstractDao {
 
-    private static final String INSERT_COLUMNS = "media_file_id, position_millis, username, comment, created, changed";
+    private static final String INSERT_COLUMNS = """
+            media_file_id, position_millis, username, comment, created, changed\s
+            """;
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final BookmarkRowMapper bookmarkRowMapper;
@@ -48,52 +50,48 @@ public class BookmarkDao extends AbstractDao {
         bookmarkRowMapper = new BookmarkRowMapper();
     }
 
-    /**
-     * Returns all bookmarks.
-     *
-     * @return Possibly empty list of all bookmarks.
-     */
+    @Deprecated
     public List<Bookmark> getBookmarks() {
-        String sql = "select " + QUERY_COLUMNS + " from bookmark";
+        String sql = "select " + QUERY_COLUMNS + "from bookmark";
         return query(sql, bookmarkRowMapper);
     }
 
-    /**
-     * Returns all bookmarks for a given user.
-     *
-     * @return Possibly empty list of all bookmarks for the user.
-     */
     public List<Bookmark> getBookmarks(String username) {
-        String sql = "select " + QUERY_COLUMNS + " from bookmark where username=?";
+        String sql = "select " + QUERY_COLUMNS + """
+                from bookmark
+                where username=?
+                """;
         return query(sql, bookmarkRowMapper, username);
     }
 
-    /**
-     * Creates or updates a bookmark. If created, the ID of the bookmark will be set by this method.
-     */
     @Transactional
     public void createOrUpdateBookmark(Bookmark bookmark) {
-        int n = update(
-                "update bookmark set position_millis=?, comment=?, changed=? where media_file_id=? and username=?",
-                bookmark.getPositionMillis(), bookmark.getComment(), bookmark.getChanged(), bookmark.getMediaFileId(),
-                bookmark.getUsername());
+        int n = update("""
+                update bookmark
+                set position_millis=?, comment=?, changed=?
+                where media_file_id=? and username=?
+                """, bookmark.getPositionMillis(), bookmark.getComment(), bookmark.getChanged(),
+                bookmark.getMediaFileId(), bookmark.getUsername());
 
         if (n == 0) {
             update("insert into bookmark (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
                     bookmark.getMediaFileId(), bookmark.getPositionMillis(), bookmark.getUsername(),
                     bookmark.getComment(), bookmark.getCreated(), bookmark.getChanged());
-            int id = queryForInt("select id from bookmark where media_file_id=? and username=?", 0,
-                    bookmark.getMediaFileId(), bookmark.getUsername());
+            int id = queryForInt("""
+                    select id
+                    from bookmark
+                    where media_file_id=? and username=?
+                    """, 0, bookmark.getMediaFileId(), bookmark.getUsername());
             bookmark.setId(id);
         }
     }
 
-    /**
-     * Deletes the bookmark for the given username and media file.
-     */
     @Transactional
     public void deleteBookmark(String username, int mediaFileId) {
-        update("delete from bookmark where username=? and media_file_id=?", username, mediaFileId);
+        update("""
+                delete from bookmark
+                where username=? and media_file_id=?
+                """, username, mediaFileId);
     }
 
     private static class BookmarkRowMapper implements RowMapper<Bookmark> {

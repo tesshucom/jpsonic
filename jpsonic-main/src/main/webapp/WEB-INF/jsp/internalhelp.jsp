@@ -16,6 +16,33 @@
 
 <details>
     <summary class="
+            <c:choose>
+                <c:when test='${not empty model.gc}'>
+                    statusOK
+                </c:when>
+                <c:otherwise>
+                    statusNG
+                </c:otherwise>
+            </c:choose>
+        ">
+        <fmt:message key="internalhelp.platforminfo"/>
+    </summary>
+    <dl>
+        <dt><fmt:message key="internalhelp.osname"/></dt>
+        <dd>${model.osName}</dd>
+        <dt><fmt:message key="internalhelp.javaversion"/></dt>
+        <dd>${model.javaVersion}</dd>
+        <dt><fmt:message key="internalhelp.applicationserver"/></dt>
+        <dd>${model.applicationServer}</dd>
+        <dt><fmt:message key="internalhelp.memory"/></dt>
+        <dd><sub:formatBytes bytes="${model.usedMemory}"/> / <sub:formatBytes bytes="${model.totalMemory}"/></dd>
+        <dt><fmt:message key="internalhelp.gc"/></dt>
+        <dd>${model.gc}</dd>
+    </dl>
+</details>
+
+<details>
+    <summary class="
         <c:choose>
             <c:when test='${model.dbIsLegacy}'>
                 <c:choose>
