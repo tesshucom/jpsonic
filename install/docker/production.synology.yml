@@ -1,14 +1,13 @@
-# 
+#
 # This is a JPSONIC boot configuration sample in Synology DS220+ or in Linux with UPnP.
 # You can easily start Jpsonic by changing the volume, port and so on.
 #
 # usage: 
 #   docker-compose -f production.synology.yml up -d
 #
-# @since v112.2.0
+# @since v112.2.2
 #
 
-version: '3.9'
 services:
   app:
     image: 'jpsonic/jpsonic:latest'
@@ -30,19 +29,40 @@ services:
      - '/volume1/Podcasts:/jpsonic/podcasts'
      - '/volume1/Playlists:/jpsonic/playlists'
 
-     # If you want to add a large number of music folders, please add more volumes
-     # - '/volume1/Music2:/jpsonic/music2'
-     # - '/volume1/Music3:/jpsonic/music3'
+    # If you want to add a large number of music folders, add more volumes.
+    # Please add <internal> from Settings pages as Music foldres after login.
+    #
+    # - '/volume1/Music2:/jpsonic/music2'
+    # - '/volume1/Music3:/jpsonic/music3'
 
-    deploy:
-      resources:
-        limits:
-
-          # Jpsonic container is limited to 1Gb so that it can run on DS220+'s standard memory.
-          # Add 512m to the number assigned to -Xmx. See 'JAVA_OPTS'.
-          memory: 1g
+    # Jpsonic container is limited to 1Gb so that it can run on DS220+'s standard memory.
+    # Please change this depending on the number of songs in your library.
+    # Note that you need to change both Java and Docker memory settings.
+    #
+    # ---------------------------------------------------------
+    # Songs count    Java(Xms, Xmx)  Docker(mem_limit)
+    # 70K            512m            896m
+    # 100K           640m            1024m
+    # 130K           768m            1152m
+    # 200K           1024m           1.5g
+    # 300K           1280m           1.75g
+    # 400K           1536m           2g
+    # ---------------------------------------------------------
+    mem_limit: 1024m
+    mem_swappiness: 1
 
     environment:
+     # Specify the appropriate Java options.
+     #
+     # When using a CPU with lower performance than DS220+(Intel Celeron J4025),
+     # please remove the -XX:+UseG1GC Option. Or specify -XX:+UseSerialGC.
+     # Jpsonic has been tested for both Serial GC and G1 GC.
+
+     JAVA_OPTS: >
+       -Xms640m
+       -Xmx640m
+       -XX:+UseG1GC
+       -XX:MaxGCPauseMillis=500
 
      # Set the jpsonic and upnp ports.
      # Containers share the host networking name space,
@@ -76,52 +96,6 @@ services:
      # You can override the MIME of DSD according to your device.
      MIME_DSF: 'audio/x-dsd'
      MIME_DFF: 'audio/x-dsd'
-
-     # Specify the appropriate Java options.
-     # If you are using a pure DLNA player (not UPnP) and have problems, remove XX:MaxGCPauseMillis.
-     # Note, however, that scanning will be slightly slower.
-
-     # The following settings are standard settings. 100K songs or less.
-     # Specify 1g for Docker memory.
-     JAVA_OPTS: '-Xms512m -Xmx512m -XX:MaxGCPauseMillis=500'
-
-     # 70K-10K songs (Maybe just a little faster). Specify 1.25g for Docker memory.
-     # JAVA_OPTS: '-Xms768m -Xmx768m -XX:MaxGCPauseMillis=500'
-
-     # 200K songs or less. Specify 1.5g for Docker memory.
-     # JAVA_OPTS: '-Xms1024m -Xmx1024m -XX:MaxGCPauseMillis=500'
-
-     # 300K songs or less. Specify 1.75g for Docker memory.
-     # JAVA_OPTS: '-Xms1280m -Xmx1280m -XX:MaxGCPauseMillis=500'
-
-     # 400K songs or less. Specify 2g for Docker memory.
-     # JAVA_OPTS: '-Xms1536m -Xmx1536m -XX:MaxGCPauseMillis=500'
-
-     #　Option example when using JMX. The "ea" tag image is required to use JMX.
-     #　For VisualVM, you need to specify the port in File-Add JMX Connection.
-     #　e.g. localhost:3333
-     #
-     # JAVA_OPTS: >
-     #   -Xms512m
-     #   -Xmx512m
-     #   -XX:MaxGCPauseMillis=500
-     #   -Dcom.sun.management.jmxremote
-     #   -Dcom.sun.management.jmxremote.port=3333
-     #   -Dcom.sun.management.jmxremote.rmi.port=3333
-     #   -Dcom.sun.management.jmxremote.local.only=false
-     #   -Dcom.sun.management.jmxremote.ssl=false
-     #   -Dcom.sun.management.jmxremote.authenticate=false
-     #   -Djava.rmi.server.hostname=localhost
-
-     # If you want to perform long-term profiling such as scan performance adjustment,
-     # it is a good idea to output GC Log.
-     # See Universal GC Log Analyzer (https://gceasy.io/)
-     #
-     # JAVA_OPTS: >
-     #   -Xms512m
-     #   -Xmx512m
-     #   -XX:MaxGCPauseMillis=500
-     #   -Xlog:gc*:file=/jpsonic/data/jpsonic_gc.log:time,level,tags:filecount=0'
 
     # Usually no need to change.
     # Unlike other Sonic servers, Jpsonic has a graceful shutdown implemented.
