@@ -21,13 +21,13 @@
         <jackson.version>2.15.2</jackson.version>
         <tomcat.version>9.0.80</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
-        <jetty.version>10.0.15</jetty.version>
+        <jetty.version>10.0.16</jetty.version>
         <jetty-jsp.version>10.0.15</jetty-jsp.version>
         <pmd.version>6.55.0</pmd.version>
         <log4j.version>2.20.0</log4j.version>
         <logback.version>1.2.11</logback.version>
         <slf4j.version>1.7.36</slf4j.version>
-        <antlr.version>4.11.1</antlr.version>
+        <antlr.version>4.13.1</antlr.version>
         <docker.container.repo>jpsonic/jpsonic</docker.container.repo>
     </properties>
 
@@ -173,7 +173,7 @@
             <dependency>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-core</artifactId>
-                <version>4.23.1</version>
+                <version>4.23.2</version>
             </dependency>
 
             <!-- Fix convergence issues -->
@@ -231,7 +231,7 @@
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
                 <artifactId>ecj</artifactId>
-                <version>3.33.0</version>
+                <version>3.35.0</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -762,7 +762,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.4.0</version>
+                <version>3.4.1</version>
                 <inherited>true</inherited>
                 <executions>
                     <execution>
