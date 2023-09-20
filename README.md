@@ -6,7 +6,7 @@
 [![CI with CodeQL](https://github.com/tesshucom/jpsonic/workflows/CI/badge.svg)](https://github.com/tesshucom/jpsonic/actions?query=workflow%3ACI)
 [![Known Vulnerabilities](https://snyk.io/test/github/tesshucom/jpsonic/badge.svg)](https://snyk.io/test/github/tesshucom/jpsonic)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/7c127f864af74cf8954c691e87bea3e5)](https://www.codacy.com/gh/tesshucom/jpsonic/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tesshucom/jpsonic&amp;utm_campaign=Badge_Grade)
-[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/7c127f864af74cf8954c691e87bea3e5)](https://www.codacy.com/gh/tesshucom/jpsonic/dashboard?utm_source=github.com&utm_medium=referral&utm_content=tesshucom/jpsonic&utm_campaign=Badge_Coverage)
+[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/7c127f864af74cf8954c691e87bea3e5)](https://app.codacy.com/gh/tesshucom/jpsonic/dashboard)
 
 Jpsonic
 ========
@@ -35,13 +35,11 @@ Jpsonic is a free, web-based media streamer, an [Airsonic](https://github.com/ai
 
 Since v110.2.0, conversion for Romanized Japanese has been supported to make it easier for non-native Japanese people to handle Japanese. And it is also possible to bypass Japanese processing and use it like a general Subdonic server.
 
-Docker Image is <a href="https://hub.docker.com/r/jpsonic/jpsonic">jpsonic/jpsonic</a>.
-
 Usage
 -----
 
- - The basic installation procedure is almost the same as [Airsonic](https://airsonic.github.io/docs/).
- - Wiki has an instruction [Installation](https://github.com/jpsonic/jpsonic/wiki/Installation) / [Requirements](https://github.com/jpsonic/jpsonic/wiki/Requirements) for Jpsonic.
+ - Wiki has an instruction [Installation](https://github.com/jpsonic/jpsonic/wiki/Installation) / [Requirements ‐ Memory configuration](https://github.com/jpsonic/jpsonic/wiki/Requirements-%E2%80%90-Memory-configuration) for Jpsonic.
+ - Docker Image is <a href="https://hub.docker.com/r/jpsonic/jpsonic">jpsonic/jpsonic</a>.
  - A more detailed specification description can be found at the [author's site](https://tesshu.com/category/spec).
 
 Features
