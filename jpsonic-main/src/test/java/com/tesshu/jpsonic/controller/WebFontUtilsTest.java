@@ -73,10 +73,14 @@ class WebFontUtilsTest {
         command.setFontScheme(FontScheme.JP_EMBED);
         WebFontUtils.setToSettings(command, settings);
         WebFontUtils.setToRequest(settings, request);
-        assertEquals(request.getAttribute(FONT_FACE_KEY),
-                "@font-face {" + "font-family: \"Kazesawa-Regular\";" + "src: "
-                        + "url(\"/fonts/kazesawa/Kazesawa-Regular.woff\") format(\"woff\"), "
-                        + "url(\"/fonts/kazesawa/Kazesawa-Regular.ttf\") format(\"truetype\");" + "}");
+        assertEquals(request.getAttribute(FONT_FACE_KEY), """
+                @font-face {\
+                font-family: "Kazesawa-Regular";\
+                src: \
+                url("/fonts/kazesawa/Kazesawa-Regular.woff") format("woff"), \
+                url("/fonts/kazesawa/Kazesawa-Regular.ttf") format("truetype");\
+                }\
+                """);
         assertEquals(request.getAttribute(FONT_SIZE_KEY), WebFontUtils.DEFAULT_JP_FONT_SIZE);
         assertEquals(request.getAttribute(FONT_FAMILY_KEY),
                 WebFontUtils.JP_FONT_NAME + ", " + WebFontUtils.DEFAULT_FONT_FAMILY);

@@ -226,8 +226,10 @@ class SearchServiceTest {
             List<Album> allAlbums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, true, true, allMusicFolders);
             assertEquals(5, allAlbums.size(), "(26) Get all albums with Dao.");
             List<MediaFile> allRandomAlbums = searchService.getRandomAlbums(Integer.MAX_VALUE, allMusicFolders);
-            assertEquals(5, allRandomAlbums.size(),
-                    "(27) Specify Integer.MAX_VALUE as the upper limit," + "and randomly acquire albums(file struct).");
+            assertEquals(5, allRandomAlbums.size(), """
+                    (27) Specify Integer.MAX_VALUE as the upper limit,\
+                    and randomly acquire albums(file struct).\
+                    """);
 
             /*
              * Acquisition of maximum number(5).

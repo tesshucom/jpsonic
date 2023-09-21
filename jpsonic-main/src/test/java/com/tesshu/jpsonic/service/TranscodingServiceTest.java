@@ -109,10 +109,12 @@ class TranscodingServiceTest {
 
     @BeforeEach
     public void setup() throws ExecutionException, URISyntaxException {
-        realPath = Path.of(TranscodingServiceTest.class.getResource(
-                "/MEDIAS/Music/_DIR_ Céline Frisch- Café Zimmermann - Bach- Goldberg Variations, Canons [Disc 1]"
-                        + "/01 - Bach- Goldberg Variations, BWV 988 - Aria.flac")
-                .toURI()).toString();
+        realPath = Path.of(TranscodingServiceTest.class.getResource("""
+                /MEDIAS\
+                /Music\
+                /_DIR_ Céline Frisch- Café Zimmermann - Bach- Goldberg Variations, Canons [Disc 1]\
+                /01 - Bach- Goldberg Variations, BWV 988 - Aria.flac\
+                """).toURI()).toString();
         transcodingDao = mock(TranscodingDao.class);
         securityService = mock(SecurityService.class);
         Mockito.when(securityService.getUserSettings(Mockito.nullable(String.class))).thenReturn(new UserSettings());

@@ -826,9 +826,10 @@ public class UPnPSearchCriteriaDirectorTest {
         @DirectorDecisions.Result.Criteria.AssignableClass.Album
         @Test
         public void m02() {
-            UPnPSearchCriteria criteria = director.construct(0, 50,
-                    "(upnp:class = \"object.container.album.musicAlbum\") "
-                            + "and (dc:title contains \"test\" or dc:creator contains \"test\" or upnp:artist contains \"test\" )");
+            UPnPSearchCriteria criteria = director.construct(0, 50, """
+                    (upnp:class = "object.container.album.musicAlbum") \
+                    and (dc:title contains "test" or dc:creator contains "test" or upnp:artist contains "test" )\
+                    """);
             assertEquals(com.tesshu.jpsonic.domain.Album.class, criteria.getAssignableClass());
             assertEquals(
                     "+(((alb:\"test\"~1)^4.0) (cmp:\"test\"~1 cmpR:\"test\"~1) (art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(fId:1)",
@@ -843,9 +844,10 @@ public class UPnPSearchCriteriaDirectorTest {
         @Test
         public void m03() {
             Mockito.when(settingsService.isSearchComposer()).thenReturn(false);
-            UPnPSearchCriteria criteria = director.construct(0, 50,
-                    "(upnp:class = \"object.container.album.musicAlbum\") "
-                            + "and (dc:title contains \"test\" or dc:creator contains \"test\" or upnp:artist contains \"test\" )");
+            UPnPSearchCriteria criteria = director.construct(0, 50, """
+                    (upnp:class = "object.container.album.musicAlbum") \
+                    and (dc:title contains "test" or dc:creator contains "test" or upnp:artist contains "test" )\
+                    """);
             assertEquals(com.tesshu.jpsonic.domain.Album.class, criteria.getAssignableClass());
             assertEquals("+(((alb:\"test\"~1)^4.0) (art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(fId:1)",
                     criteria.getParsedQuery().toString());
@@ -859,14 +861,16 @@ public class UPnPSearchCriteriaDirectorTest {
         @Test
         public void m04() {
             UPnPSearchCriteria criteria = director.construct(0, 50,
-                    "(upnp:class derivedfrom \"object.item.audioItem\" or upnp:class derivedfrom \"object.item.videoItem \") " //
-                            + "and (dc:title contains \"test\" " //
-                            + "or dc:creator contains \"test\" " //
-                            + "or upnp:artist contains \"test\" " //
-                            + "or upnp:albumArtist contains \"test\" " //
-                            + "or upnp:album contains \"test\" " //
-                            + "or upnp:author contains \"test\" " //
-                            + "or upnp:genre contains \"test\" )");
+                    """
+                            (upnp:class derivedfrom "object.item.audioItem" or upnp:class derivedfrom "object.item.videoItem ") \
+                            and (dc:title contains "test" \
+                            or dc:creator contains "test" \
+                            or upnp:artist contains "test" \
+                            or upnp:albumArtist contains "test" \
+                            or upnp:album contains "test" \
+                            or upnp:author contains "test" \
+                            or upnp:genre contains "test" )\
+                            """);
             assertEquals(com.tesshu.jpsonic.domain.MediaFile.class, criteria.getAssignableClass());
             assertEquals("+(((tit:\"test\"~1)^6.0) " //
                     + "(cmp:\"test\"~1 (cmpR:\"test\"~1)^2.2) " //
@@ -885,14 +889,16 @@ public class UPnPSearchCriteriaDirectorTest {
         public void m05() {
             Mockito.when(settingsService.isSearchComposer()).thenReturn(false);
             UPnPSearchCriteria criteria = director.construct(0, 50,
-                    "(upnp:class derivedfrom \"object.item.audioItem\" or upnp:class derivedfrom \"object.item.videoItem \") " //
-                            + "and (dc:title contains \"test\" " //
-                            + "or dc:creator contains \"test\" " //
-                            + "or upnp:artist contains \"test\" " //
-                            + "or upnp:albumArtist contains \"test\" " //
-                            + "or upnp:album contains \"test\" " //
-                            + "or upnp:author contains \"test\" " //
-                            + "or upnp:genre contains \"test\" )");
+                    """
+                            (upnp:class derivedfrom "object.item.audioItem" or upnp:class derivedfrom "object.item.videoItem ") \
+                            and (dc:title contains "test" \
+                            or dc:creator contains "test" \
+                            or upnp:artist contains "test" \
+                            or upnp:albumArtist contains "test" \
+                            or upnp:album contains "test" \
+                            or upnp:author contains "test" \
+                            or upnp:genre contains "test" )\
+                            """);
             assertEquals(com.tesshu.jpsonic.domain.MediaFile.class, criteria.getAssignableClass());
             assertEquals("+(((tit:\"test\"~1)^6.0) " //
                     + "((art:\"test\"~1)^4.0 (artR:\"test\"~1)^4.2) " //
@@ -998,9 +1004,10 @@ public class UPnPSearchCriteriaDirectorTest {
         @Test
         public void k02() {
             // This case is a query that doesn't make much sense to Jpsonic
-            UPnPSearchCriteria criteria = director.construct(0, 50,
-                    "upnp:class derivedfrom \"object.container.person.musicArtist\" "
-                            + "and dc:title contains \"test\" and upnp:genre contains \"classical\"");
+            UPnPSearchCriteria criteria = director.construct(0, 50, """
+                    upnp:class derivedfrom "object.container.person.musicArtist" \
+                    and dc:title contains "test" and upnp:genre contains "classical"\
+                    """);
             assertEquals(com.tesshu.jpsonic.domain.Artist.class, criteria.getAssignableClass());
             assertEquals("+((art:\"test\"~1 (artR:\"test\"~1)^2.2)) +(fId:1)", criteria.getParsedQuery().toString());
         }
