@@ -270,7 +270,7 @@ public class InternalHelpController {
                         continue; // Table schema
                     }
                     Long tableCount = daoHelper.getJdbcTemplate()
-                            .queryForObject(String.format("SELECT count(*) FROM %s", tableName), Long.class);
+                            .queryForObject("SELECT count(*) FROM %s".formatted(tableName), Long.class);
                     dbTableCount.put(tableName, tableCount);
                 }
                 map.put("dbTableCount", dbTableCount);
@@ -354,7 +354,7 @@ public class InternalHelpController {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     private Path lookForTranscodingExecutable(String executableName) {
-        for (String name : Arrays.asList(executableName, String.format("%s.exe", executableName))) {
+        for (String name : Arrays.asList(executableName, "%s.exe".formatted(executableName))) {
             Path executableLocation = Path.of(transcodingService.getTranscodeDirectory().toString(), name);
             if (Files.exists(executableLocation)) {
                 return executableLocation;
