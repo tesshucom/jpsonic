@@ -261,6 +261,7 @@ class SecurityServiceTest {
             // Number of characters and number of layers
             assertFalse(service.isFileInFolder("/musik/foo.mp3", "/music"));
             assertFalse(service.isFileInFolder("/music/sub/sub.mp3", "/music/sub/sub/sub"));
+            assertFalse(service.isFileInFolder("/".concat("A".repeat(1001)), "/music"));
         }
 
         /*
