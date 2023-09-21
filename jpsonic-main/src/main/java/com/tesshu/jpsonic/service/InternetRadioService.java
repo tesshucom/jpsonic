@@ -448,7 +448,7 @@ public class InternetRadioService {
                 if (maxRedirects > 0 && redirectCount > maxRedirects) {
                     connection.disconnect();
                     throw new PlaylistHasTooManyRedirects(
-                            String.format("Too many redirects (%d) for URL %s", redirectCount, url));
+                            "Too many redirects (%d) for URL %s".formatted(redirectCount, url));
                 }
 
                 // Reconnect to the new URL.

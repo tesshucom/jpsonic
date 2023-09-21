@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -68,6 +69,8 @@ public class SecurityService implements UserDetailsService {
     private final UserDao userDao;
     private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
+
+    private static final Pattern DOTS_IN_SLASH = Pattern.compile(".*(/|\\\\)\\.\\.(/|\\\\|$).*");
 
     public SecurityService(UserDao userDao, SettingsService settingsService, MusicFolderService musicFolderService) {
         super();
@@ -497,9 +500,13 @@ public class SecurityService implements UserDetailsService {
     protected boolean isFileInFolder(final String file, final String folder) {
         if (isEmpty(file)) {
             return false;
+        } else if (file.length() > 1_000 && LOG.isWarnEnabled()) {
+            LOG.warn("File path exceeds 1000 characters　:{}",
+                    file.substring(0, 10) + " ... " + file.substring(file.length() - 10, file.length()));
         }
+
         // Deny access if file contains ".." surrounded by slashes (or end of line).
-        if (file.matches(".*(/|\\\\)\\.\\.(/|\\\\|$).*")) {
+        if (DOTS_IN_SLASH.matcher(file).matches()) {
             return false;
         }
 

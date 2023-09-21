@@ -1454,9 +1454,11 @@ public class MediaFileDao extends AbstractDao {
         Optional<String> getIfJoinStarred() {
             boolean joinStarred = criteria.isShowStarredSongs() ^ criteria.isShowUnstarredSongs();
             if (joinStarred) {
-                return Optional
-                        .of(" left outer join starred_media_file on media_file.id = starred_media_file.media_file_id"
-                                + " and starred_media_file.username = :username");
+                return Optional.of("""
+                        \sleft outer join starred_media_file \
+                        on media_file.id = starred_media_file.media_file_id \
+                        and starred_media_file.username = :username\
+                        """);
             }
             return Optional.empty();
         }
@@ -1464,10 +1466,13 @@ public class MediaFileDao extends AbstractDao {
         Optional<String> getIfJoinAlbumRating() {
             boolean joinAlbumRating = criteria.getMinAlbumRating() != null || criteria.getMaxAlbumRating() != null;
             if (joinAlbumRating) {
-                return Optional.of(" left outer join media_file media_album on media_album.type = 'ALBUM'"
-                        + " and media_album.album = media_file.album and media_album.artist = media_file.artist "
-                        + "left outer join user_rating on user_rating.path = media_album.path"
-                        + " and user_rating.username = :username");
+                return Optional.of("""
+                         left outer join media_file media_album \
+                        on media_album.type = 'ALBUM' and media_album.album = media_file.album \
+                        and media_album.artist = media_file.artist \
+                        left outer join user_rating \
+                        on user_rating.path = media_album.path and user_rating.username = :username\
+                        """);
             }
             return Optional.empty();
         }

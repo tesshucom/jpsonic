@@ -141,8 +141,8 @@ class LegacyDatabaseStartupTest {
     private static boolean copyResourcesRecursively(final URL originUrl, final Path destination) {
         try {
             final URLConnection urlConnection = originUrl.openConnection();
-            if (urlConnection instanceof JarURLConnection) {
-                return copyJarResourcesRecursively(destination, (JarURLConnection) urlConnection);
+            if (urlConnection instanceof JarURLConnection connection) {
+                return copyJarResourcesRecursively(destination, connection);
             } else {
                 try {
                     return copyFilesRecusively(Path.of(originUrl.toURI()), destination);
