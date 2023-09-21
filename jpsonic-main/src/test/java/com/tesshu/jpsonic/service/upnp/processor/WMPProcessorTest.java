@@ -136,9 +136,11 @@ class WMPProcessorTest {
         void testAudio() {
             BrowseResult result = wmpProcessor.getBrowseResult(
                     "upnp:class derivedfrom \"object.item.audioItem\" and @refID exists false", "*", 0, 0);
-            assertEquals("<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\" "
-                    + "xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:sec=\"http://www.sec.co.kr/\" "
-                    + "xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\"/>", result.getResult());
+            assertEquals("""
+                    <DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" \
+                    xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:sec="http://www.sec.co.kr/" \
+                    xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/"/>\
+                    """, result.getResult());
             assertEquals(0, result.getCount().getValue());
             assertEquals(0, result.getTotalMatches().getValue());
 
@@ -166,12 +168,14 @@ class WMPProcessorTest {
                     "upnp:class derivedfrom \"object.item.audioItem\" and @refID exists false", "*", 1, 1);
 
             assertEquals(
-                    "<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" "
-                            + "xmlns:sec=\"http://www.sec.co.kr/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">"
-                            + "<item id=\"0\" parentID=\"200\" restricted=\"1\"><dc:title>dummy title</dc:title>"
-                            + "<upnp:class>object.item.audioItem.musicTrack</upnp:class>"
-                            + "<upnp:originalTrackNumber/><upnp:albumArtURI/><upnp:album/>"
-                            + "<dc:description/></item></DIDL-Lite>",
+                    """
+                            <DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" xmlns:dc="http://purl.org/dc/elements/1.1/" \
+                            xmlns:sec="http://www.sec.co.kr/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">\
+                            <item id="0" parentID="200" restricted="1"><dc:title>dummy title</dc:title>\
+                            <upnp:class>object.item.audioItem.musicTrack</upnp:class>\
+                            <upnp:originalTrackNumber/><upnp:albumArtURI/><upnp:album/>\
+                            <dc:description/></item></DIDL-Lite>\
+                            """,
                     result.getResult());
             assertEquals(1, result.getCount().getValue());
             assertEquals(20, result.getTotalMatches().getValue());
@@ -181,9 +185,11 @@ class WMPProcessorTest {
         void testVideo() {
             BrowseResult result = wmpProcessor.getBrowseResult(
                     "upnp:class derivedfrom \"object.item.videoItem\" and @refID exists false", "*", 0, 0);
-            assertEquals("<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\" "
-                    + "xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:sec=\"http://www.sec.co.kr/\" "
-                    + "xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\"/>", result.getResult());
+            assertEquals("""
+                    <DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" \
+                    xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:sec="http://www.sec.co.kr/" \
+                    xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/"/>\
+                    """, result.getResult());
             assertEquals(0, result.getCount().getValue());
             assertEquals(0, result.getTotalMatches().getValue());
 
@@ -211,11 +217,14 @@ class WMPProcessorTest {
                     "upnp:class derivedfrom \"object.item.videoItem\" and @refID exists false", "*", 1, 1);
 
             assertEquals(
-                    "<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" "
-                            + "xmlns:sec=\"http://www.sec.co.kr/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">"
-                            + "<item id=\"0\" parentID=\"200\" restricted=\"1\"><dc:title>dummy title</dc:title>"
-                            + "<upnp:class>object.item.videoItem</upnp:class>" + "<upnp:albumArtURI/>"
-                            + "<dc:description/></item></DIDL-Lite>",
+                    """
+                            <DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" xmlns:dc="http://purl.org/dc/elements/1.1/" \
+                            xmlns:sec="http://www.sec.co.kr/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">\
+                            <item id="0" parentID="200" restricted="1"><dc:title>dummy title</dc:title>\
+                            <upnp:class>object.item.videoItem</upnp:class>\
+                            <upnp:albumArtURI/>\
+                            <dc:description/></item></DIDL-Lite>\
+                            """,
                     result.getResult());
             assertEquals(1, result.getCount().getValue());
             assertEquals(20, result.getTotalMatches().getValue());
@@ -245,11 +254,13 @@ class WMPProcessorTest {
             Mockito.when(mediaFileService.getParentOf(m)).thenReturn(parent);
             BrowseResult result = wmpProcessor.getBrowseResult("dc:title = \"99\"", "*", 0, 0);
             assertEquals(
-                    "<DIDL-Lite xmlns=\"urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/\" xmlns:dc=\"http://purl.org/dc/elements/1.1/\" "
-                            + "xmlns:sec=\"http://www.sec.co.kr/\" xmlns:upnp=\"urn:schemas-upnp-org:metadata-1-0/upnp/\">"
-                            + "<item id=\"99\" parentID=\"200\" restricted=\"1\"><dc:title>dummy title</dc:title>"
-                            + "<upnp:class>object.item.audioItem.musicTrack</upnp:class><upnp:originalTrackNumber/><upnp:albumArtURI/><upnp:album/>"
-                            + "<dc:description/></item></DIDL-Lite>",
+                    """
+                            <DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" xmlns:dc="http://purl.org/dc/elements/1.1/" \
+                            xmlns:sec="http://www.sec.co.kr/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">\
+                            <item id="99" parentID="200" restricted="1"><dc:title>dummy title</dc:title>\
+                            <upnp:class>object.item.audioItem.musicTrack</upnp:class><upnp:originalTrackNumber/><upnp:albumArtURI/><upnp:album/>\
+                            <dc:description/></item></DIDL-Lite>\
+                            """,
                     result.getResult());
             assertEquals(1, result.getCount().getValue());
             assertEquals(1, result.getTotalMatches().getValue());

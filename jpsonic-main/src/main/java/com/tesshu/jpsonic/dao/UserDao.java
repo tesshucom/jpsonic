@@ -52,22 +52,28 @@ public class UserDao extends AbstractDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserDao.class);
     private static final String USER_COLUMNS = "username, password, email, ldap_authenticated, bytes_streamed, bytes_downloaded, bytes_uploaded";
-    private static final String USER_SETTINGS_COLUMNS = "username, locale, theme_id, final_version_notification, beta_version_notification, "
-            + "song_notification, main_track_number, main_artist, main_album, main_genre, "
-            + "main_year, main_bit_rate, main_duration, main_format, main_file_size, "
-            + "playlist_track_number, playlist_artist, playlist_album, playlist_genre, "
-            + "playlist_year, playlist_bit_rate, playlist_duration, playlist_format, playlist_file_size, "
-            + "last_fm_enabled, last_fm_username, last_fm_password, listenbrainz_enabled, listenbrainz_token, "
-            + "transcode_scheme, show_now_playing, selected_music_folder_id, "
-            + "party_mode_enabled, now_playing_allowed, avatar_scheme, system_avatar_id, changed, show_artist_info, auto_hide_play_queue, "
-            + "view_as_list, default_album_list, queue_following_songs, show_side_bar, list_reload_delay, "
-            + "keyboard_shortcuts_enabled, pagination_size, "
-            + "main_composer, playlist_composer, close_drawer, close_play_queue, alternative_drawer, assign_accesskey_to_number, "
-            + "open_detail_index, open_detail_setting, open_detail_star, show_index, "
-            + "simple_display, show_sibling, show_rate, show_album_search, show_last_play, show_download, show_tag, show_comment, show_share, "
-            + "show_change_coverart, show_top_songs, show_similar, show_album_actions, breadcrumb_index, put_menu_in_drawer, font_scheme_name, "
-            + "show_outline_help, force_bio2eng, voice_input_enabled, show_current_song_info, speech_lang_scheme_name, ietf, "
-            + "font_family, font_size, show_scanned_count";
+    private static final String USER_SETTINGS_COLUMNS = """
+            username, locale, theme_id, final_version_notification, beta_version_notification,
+            song_notification, main_track_number, main_artist, main_album, main_genre,
+            main_year, main_bit_rate, main_duration, main_format, main_file_size,
+            playlist_track_number, playlist_artist, playlist_album, playlist_genre,
+            playlist_year, playlist_bit_rate, playlist_duration, playlist_format,
+            playlist_file_size, last_fm_enabled, last_fm_username, last_fm_password,
+            listenbrainz_enabled, listenbrainz_token, transcode_scheme, show_now_playing,
+            selected_music_folder_id, party_mode_enabled, now_playing_allowed,
+            avatar_scheme, system_avatar_id, changed, show_artist_info, auto_hide_play_queue,
+            view_as_list, default_album_list, queue_following_songs, show_side_bar,
+            list_reload_delay, keyboard_shortcuts_enabled, pagination_size,
+            main_composer, playlist_composer, close_drawer, close_play_queue,
+            alternative_drawer, assign_accesskey_to_number, open_detail_index,
+            open_detail_setting, open_detail_star, show_index,
+            simple_display, show_sibling, show_rate, show_album_search, show_last_play,
+            show_download, show_tag, show_comment, show_share, show_change_coverart,
+            show_top_songs, show_similar, show_album_actions, breadcrumb_index,
+            put_menu_in_drawer, font_scheme_name, show_outline_help, force_bio2eng,
+            voice_input_enabled, show_current_song_info, speech_lang_scheme_name, ietf,
+            font_family, font_size, show_scanned_count\s
+            """;
     private static final int ROLE_ID_ADMIN = 1;
     private static final int ROLE_ID_DOWNLOAD = 2;
     private static final int ROLE_ID_UPLOAD = 3;

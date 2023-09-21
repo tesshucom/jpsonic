@@ -60,11 +60,17 @@ class InternetRadioServiceTest {
     private static final String TEST_STREAM_URL_2 = "http://example.com/stream2";
     private static final String TEST_STREAM_URL_3 = "http://example.com/stream3";
     private static final String TEST_STREAM_URL_4 = "http://example.com/stream4";
-    private static final String TEST_STREAM_PLAYLIST_CONTENTS_1 = "http://example.com/stream1\n"
-            + "http://example.com/stream2\n";
-    private static final String TEST_STREAM_PLAYLIST_CONTENTS_2 = "#EXTM3U\n"
-            + "#EXTINF:123, Sample artist - Sample title\n" + "http://example.com/stream3\n"
-            + "#EXTINF:321,Example Artist - Example title\n" + "http://example.com/stream4\n";
+    private static final String TEST_STREAM_PLAYLIST_CONTENTS_1 = """
+            http://example.com/stream1
+            http://example.com/stream2
+            """;
+    private static final String TEST_STREAM_PLAYLIST_CONTENTS_2 = """
+            #EXTM3U
+            #EXTINF:123, Sample artist - Sample title
+            http://example.com/stream3
+            #EXTINF:321,Example Artist - Example title
+            http://example.com/stream4
+            """;
 
     private InternetRadio radio1;
     private InternetRadio radioMove;
