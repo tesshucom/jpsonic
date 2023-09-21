@@ -238,7 +238,7 @@ public class ScannerProcedureService {
         });
         String comment = "All registered music folders exist.";
         if (notExist.intValue() > 0) {
-            comment = String.format("(%d) music folders changed to enabled.", notExist.intValue());
+            comment = "(%d) music folders changed to enabled.".formatted(notExist.intValue());
             if (LOG.isWarnEnabled()) {
                 LOG.warn(comment);
             }
@@ -331,7 +331,7 @@ public class ScannerProcedureService {
             }
             videos = mediaFileDao.getUnparsedVideos(ACQUISITION_MAX, folders);
         }
-        createScanEvent(scanDate, ScanEventType.PARSE_VIDEO, String.format("Parsed(%d)", count.intValue()));
+        createScanEvent(scanDate, ScanEventType.PARSE_VIDEO, "Parsed(%d)".formatted(count.intValue()));
     }
 
     void expungeFileStructure() {
@@ -376,7 +376,7 @@ public class ScannerProcedureService {
         writeInfo("Marking non-present files.");
         mediaFileDao.markNonPresent(scanDate);
         expungeFileStructure();
-        String comment = String.format("%d files checked or parsed.", scannerState.getScanCount());
+        String comment = "%d files checked or parsed.".formatted(scannerState.getScanCount());
         createScanEvent(scanDate, ScanEventType.CLEAN_UP_FILE_STRUCTURE, comment);
     }
 
@@ -503,7 +503,7 @@ public class ScannerProcedureService {
         int countUpdate = updateAlbums(scanDate, folders);
         int countNew = createAlbums(scanDate, folders);
         boolean parsed = countUpdate > 0 || countNew > 0;
-        String comment = String.format("Update(%d)/New(%d)", countUpdate, countNew);
+        String comment = "Update(%d)/New(%d)".formatted(countUpdate, countNew);
         createScanEvent(scanDate, ScanEventType.PARSE_ALBUM, comment);
         return parsed;
     }
@@ -600,7 +600,7 @@ public class ScannerProcedureService {
         iterateAlbumId3(scanDate, withPodcast);
         int countUpdate = updateAlbumId3s(scanDate, withPodcast);
         int countNew = createAlbumId3s(scanDate, withPodcast);
-        String comment = String.format("Update(%d)/New(%d)", countUpdate, countNew);
+        String comment = "Update(%d)/New(%d)".formatted(countUpdate, countNew);
         createScanEvent(scanDate, ScanEventType.REFRESH_ALBUM_ID3, comment);
         return countUpdate > 0 || countNew > 0;
     }
@@ -686,7 +686,7 @@ public class ScannerProcedureService {
         iterateArtistId3(scanDate, withPodcast);
         int countUpdate = updateArtistId3s(scanDate, withPodcast);
         int countNew = createArtistId3s(scanDate, withPodcast);
-        String comment = String.format("Update(%d)/New(%d)", countUpdate, countNew);
+        String comment = "Update(%d)/New(%d)".formatted(countUpdate, countNew);
         createScanEvent(scanDate, ScanEventType.REFRESH_ARTIST_ID3, comment);
         return countUpdate > 0 || countNew > 0;
     }
@@ -800,7 +800,7 @@ public class ScannerProcedureService {
             invokeUpdateIndex(merged, copied, compensated);
         }
 
-        String comment = String.format("Merged(%d)/Copied(%d)/Compensated(%d)", merged.size(), copied.size(),
+        String comment = "Merged(%d)/Copied(%d)/Compensated(%d)".formatted(merged.size(), copied.size(),
                 compensated.size());
         createScanEvent(scanDate, ScanEventType.UPDATE_SORT_OF_ARTIST, comment);
         return updated;
@@ -842,7 +842,7 @@ public class ScannerProcedureService {
             invokeUpdateIndex(merged, copied, compensated);
         }
 
-        String comment = String.format("Merged(%d)/Copied(%d)/Compensated(%d)", merged.size(), copied.size(),
+        String comment = "Merged(%d)/Copied(%d)/Compensated(%d)".formatted(merged.size(), copied.size(),
                 compensated.size());
         createScanEvent(scanDate, ScanEventType.UPDATE_SORT_OF_ALBUM, comment);
         return updated;
@@ -869,7 +869,7 @@ public class ScannerProcedureService {
         List<MediaFile> artists = mediaFileDao.getArtistAll(folders);
         int count = invokeUpdateOrder(artists, comparators.mediaFileOrderByAlpha(),
                 (artist) -> wmfs.updateOrder(artist));
-        String comment = String.format("Updated order of (%d) artists", count);
+        String comment = "Updated order of (%d) artists".formatted(count);
         createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ARTIST, comment);
     }
 
@@ -884,7 +884,7 @@ public class ScannerProcedureService {
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
         List<MediaFile> albums = mediaFileService.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, folders);
         int count = invokeUpdateOrder(albums, comparators.mediaFileOrderByAlpha(), (album) -> wmfs.updateOrder(album));
-        String comment = String.format("Updated order of (%d) albums", count);
+        String comment = "Updated order of (%d) albums".formatted(count);
         createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ALBUM, comment);
     }
 
@@ -900,7 +900,7 @@ public class ScannerProcedureService {
         List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
         int count = invokeUpdateOrder(artists, comparators.artistOrderByAlpha(),
                 (artist) -> artistDao.updateOrder(artist.getId(), artist.getOrder()));
-        String comment = String.format("Updated order of (%d) ID3 artists.", count);
+        String comment = "Updated order of (%d) ID3 artists.".formatted(count);
         createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ARTIST_ID3, comment);
     }
 
@@ -916,7 +916,7 @@ public class ScannerProcedureService {
         List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folders);
         int count = invokeUpdateOrder(albums, comparators.albumOrderByAlpha(),
                 (album) -> albumDao.updateOrder(album.getId(), album.getOrder()));
-        String comment = String.format("Updated order of (%d) ID3 albums.", count);
+        String comment = "Updated order of (%d) ID3 albums.".formatted(count);
         createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ALBUM_ID3, comment);
     }
 
