@@ -239,7 +239,7 @@ public class MediaFileService {
     public Optional<Path> findCoverArt(Path parent) {
         try (Stream<Path> results = Files.find(parent, 1, this::isAvailableCoverArtPath)) {
             Optional<Path> coverArt = results.findFirst();
-            if (!coverArt.isEmpty()) {
+            if (coverArt.isPresent()) {
                 return coverArt;
             }
         } catch (IOException e) {

@@ -46,25 +46,32 @@ class MediaFileDaoTest {
 
         // Below is a test of MediaFileDao#RandomSongsQueryBuilder
 
-        private static final String SELECT = "select media_file.id, media_file.path, media_file.folder, media_file.type, "
-                + "media_file.format, media_file.title, media_file.album, media_file.artist, media_file.album_artist, "
-                + "media_file.disc_number, media_file.track_number, media_file.year, media_file.genre, "
-                + "media_file.bit_rate, media_file.variable_bit_rate, media_file.duration_seconds, "
-                + "media_file.file_size, media_file.width, media_file.height, media_file.cover_art_path, "
-                + "media_file.parent_path, media_file.play_count, media_file.last_played, media_file.comment, "
-                + "media_file.created, media_file.changed, media_file.last_scanned, media_file.children_last_updated, "
-                + "media_file.present, media_file.version, media_file.mb_release_id, media_file.mb_recording_id, "
-                + "media_file.composer, media_file.artist_sort, media_file.album_sort, media_file.title_sort, "
-                + "media_file.album_artist_sort, media_file.composer_sort, media_file.artist_reading, "
-                + "media_file.album_reading, media_file.album_artist_reading, media_file.artist_sort_raw, "
-                + "media_file.album_sort_raw, media_file.album_artist_sort_raw, media_file.composer_sort_raw, "
-                + "media_file.media_file_order from media_file";
-        private static final String CONDITION_JOIN1 = " left outer join starred_media_file "
-                + "on media_file.id = starred_media_file.media_file_id and starred_media_file.username = :username";
-        private static final String CONDITION_JOIN2 = " left outer join media_file media_album "
-                + "on media_album.type = 'ALBUM' and media_album.album = media_file.album "
-                + "and media_album.artist = media_file.artist " + "left outer join user_rating "
-                + "on user_rating.path = media_album.path and user_rating.username = :username";
+        private static final String SELECT = """
+                select media_file.id, media_file.path, media_file.folder, media_file.type, \
+                media_file.format, media_file.title, media_file.album, media_file.artist, media_file.album_artist, \
+                media_file.disc_number, media_file.track_number, media_file.year, media_file.genre, \
+                media_file.bit_rate, media_file.variable_bit_rate, media_file.duration_seconds, \
+                media_file.file_size, media_file.width, media_file.height, media_file.cover_art_path, \
+                media_file.parent_path, media_file.play_count, media_file.last_played, media_file.comment, \
+                media_file.created, media_file.changed, media_file.last_scanned, media_file.children_last_updated, \
+                media_file.present, media_file.version, media_file.mb_release_id, media_file.mb_recording_id, \
+                media_file.composer, media_file.artist_sort, media_file.album_sort, media_file.title_sort, \
+                media_file.album_artist_sort, media_file.composer_sort, media_file.artist_reading, \
+                media_file.album_reading, media_file.album_artist_reading, media_file.artist_sort_raw, \
+                media_file.album_sort_raw, media_file.album_artist_sort_raw, media_file.composer_sort_raw, \
+                media_file.media_file_order from media_file\
+                """;
+        private static final String CONDITION_JOIN1 = """
+                 left outer join starred_media_file \
+                on media_file.id = starred_media_file.media_file_id and starred_media_file.username = :username\
+                """;
+        private static final String CONDITION_JOIN2 = """
+                 left outer join media_file media_album \
+                on media_album.type = 'ALBUM' and media_album.album = media_file.album \
+                and media_album.artist = media_file.artist \
+                left outer join user_rating \
+                on user_rating.path = media_album.path and user_rating.username = :username\
+                """;
         private static final String WHERE = " where media_file.present and media_file.type = 'MUSIC'";
         private static final String ORDER_LIMIT = " order by rand() limit 0";
         private static final String CONDITION_SHOW_STARRED_SONGS = " and starred_media_file.id is not null";
