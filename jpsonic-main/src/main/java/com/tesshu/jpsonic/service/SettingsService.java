@@ -96,7 +96,8 @@ public class SettingsService {
             "database.config.jndi.name", "database.usertable.quote", "ShowJavaJukebox", "AnonymousTranscoding",
             "UseSonos", "SearchMethodLegacy", "SearchMethodChanged", "FastCacheEnabled", "UseRefresh", "ShowRefresh",
             "VerboseLogStart", "VerboseLogScanning", "VerboseLogPlaying", "VerboseLogShutdown",
-            "IgnoreFileTimestampsNext", "FileModifiedCheckSchemeName", "IgnoreFileTimestampsForEachAlbum");
+            "IgnoreFileTimestampsNext", "FileModifiedCheckSchemeName", "IgnoreFileTimestampsForEachAlbum",
+            "BufferSize");
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
