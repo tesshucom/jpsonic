@@ -21,9 +21,9 @@
 
 package com.tesshu.jpsonic.dao;
 
-import static com.tesshu.jpsonic.dao.DaoUtils.nullableInstantOf;
-import static com.tesshu.jpsonic.dao.DaoUtils.prefix;
-import static com.tesshu.jpsonic.dao.DaoUtils.questionMarks;
+import static com.tesshu.jpsonic.dao.base.DaoUtils.nullableInstantOf;
+import static com.tesshu.jpsonic.dao.base.DaoUtils.prefix;
+import static com.tesshu.jpsonic.dao.base.DaoUtils.questionMarks;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.sql.ResultSet;
@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.Playlist;
 import org.checkerframework.checker.nullness.qual.Nullable;

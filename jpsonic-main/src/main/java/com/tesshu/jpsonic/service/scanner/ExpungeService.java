@@ -3,7 +3,7 @@ package com.tesshu.jpsonic.service.scanner;
 import java.time.Instant;
 
 import com.tesshu.jpsonic.dao.RatingDao;
-import com.tesshu.jpsonic.dao.TemplateWrapper;
+import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.domain.ScanLog.ScanLogType;
 import com.tesshu.jpsonic.service.search.IndexManager;

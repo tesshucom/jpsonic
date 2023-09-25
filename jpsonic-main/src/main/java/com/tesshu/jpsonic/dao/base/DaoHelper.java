@@ -19,7 +19,7 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.dao;
+package com.tesshu.jpsonic.dao.base;
 
 import javax.sql.DataSource;
 

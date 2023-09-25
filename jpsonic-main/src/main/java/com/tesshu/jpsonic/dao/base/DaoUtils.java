@@ -17,7 +17,7 @@
  * (C) 2023 tesshucom
  */
 
-package com.tesshu.jpsonic.dao;
+package com.tesshu.jpsonic.dao.base;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -27,21 +27,21 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-final class DaoUtils {
+public final class DaoUtils {
 
     private DaoUtils() {
     }
 
-    static @Nullable Instant nullableInstantOf(Timestamp timestamp) {
+    public static @Nullable Instant nullableInstantOf(Timestamp timestamp) {
         return timestamp == null ? null : timestamp.toInstant();
     }
 
-    static String questionMarks(String columns) {
+    public static String questionMarks(String columns) {
         int numberOfColumns = StringUtils.countMatches(columns, ",") + 1;
         return StringUtils.repeat("?", ", ", numberOfColumns);
     }
 
-    static String prefix(String columns, String prefix) {
+    public static String prefix(String columns, String prefix) {
         List<String> l = Arrays.asList(columns.replaceAll("\n", " ").split(", "));
         l.replaceAll(s -> prefix + "." + s);
         return String.join(", ", l).trim().concat(" ");

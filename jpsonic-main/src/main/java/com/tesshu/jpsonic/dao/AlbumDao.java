@@ -21,8 +21,8 @@
 
 package com.tesshu.jpsonic.dao;
 
-import static com.tesshu.jpsonic.dao.DaoUtils.nullableInstantOf;
-import static com.tesshu.jpsonic.dao.DaoUtils.prefix;
+import static com.tesshu.jpsonic.dao.base.DaoUtils.nullableInstantOf;
+import static com.tesshu.jpsonic.dao.base.DaoUtils.prefix;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.sql.ResultSet;
@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;

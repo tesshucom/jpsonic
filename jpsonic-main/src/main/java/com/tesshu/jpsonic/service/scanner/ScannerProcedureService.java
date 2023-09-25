@@ -40,7 +40,7 @@ import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.StaticsDao;
-import com.tesshu.jpsonic.dao.TemplateWrapper;
+import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;

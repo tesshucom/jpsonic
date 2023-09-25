@@ -21,14 +21,15 @@
 
 package com.tesshu.jpsonic.dao;
 
-import static com.tesshu.jpsonic.dao.DaoUtils.nullableInstantOf;
-import static com.tesshu.jpsonic.dao.DaoUtils.prefix;
+import static com.tesshu.jpsonic.dao.base.DaoUtils.nullableInstantOf;
+import static com.tesshu.jpsonic.dao.base.DaoUtils.prefix;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;

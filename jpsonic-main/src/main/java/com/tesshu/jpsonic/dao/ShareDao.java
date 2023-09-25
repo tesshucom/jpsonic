@@ -21,8 +21,8 @@
 
 package com.tesshu.jpsonic.dao;
 
-import static com.tesshu.jpsonic.dao.DaoUtils.nullableInstantOf;
-import static com.tesshu.jpsonic.dao.DaoUtils.questionMarks;
+import static com.tesshu.jpsonic.dao.base.DaoUtils.nullableInstantOf;
+import static com.tesshu.jpsonic.dao.base.DaoUtils.questionMarks;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.Share;
 import com.tesshu.jpsonic.util.LegacyMap;

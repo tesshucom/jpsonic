@@ -34,7 +34,7 @@ import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.StaticsDao;
-import com.tesshu.jpsonic.dao.TemplateWrapper;
+import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;

@@ -19,7 +19,7 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.dao;
+package com.tesshu.jpsonic.dao.base;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -70,7 +70,7 @@ public class TemplateWrapper {
     }
 
     @SuppressFBWarnings(value = "SQL_INJECTION_SPRING_JDBC", justification = "False positive. find-sec-bugs#385")
-    protected int update(String sql, Object... args) {
+    public int update(String sql, Object... args) {
         long t = System.nanoTime();
         LOG.trace("Executing query: [{}]", sql);
         int result = getJdbcTemplate().update(sql, castArgs(args));
@@ -89,42 +89,42 @@ public class TemplateWrapper {
     }
 
     @SuppressFBWarnings(value = "SQL_INJECTION_SPRING_JDBC", justification = "False positive. find-sec-bugs#385")
-    protected <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) {
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) {
         long t = System.nanoTime();
         List<T> result = getJdbcTemplate().query(sql, rowMapper, castArgs(args));
         writeLog(sql, t);
         return result;
     }
 
-    protected <T> List<T> namedQuery(String sql, RowMapper<T> rowMapper, Map<String, Object> args) {
+    public <T> List<T> namedQuery(String sql, RowMapper<T> rowMapper, Map<String, Object> args) {
         long t = System.nanoTime();
         List<T> result = getNamedParameterJdbcTemplate().query(sql, castArgs(args), rowMapper);
         writeLog(sql, t);
         return result;
     }
 
-    protected List<String> queryForStrings(String sql, Object... args) {
+    public List<String> queryForStrings(String sql, Object... args) {
         long t = System.nanoTime();
         List<String> result = getJdbcTemplate().queryForList(sql, String.class, castArgs(args));
         writeLog(sql, t);
         return result;
     }
 
-    protected List<Integer> queryForInts(String sql, Object... args) {
+    public List<Integer> queryForInts(String sql, Object... args) {
         long t = System.nanoTime();
         List<Integer> result = getJdbcTemplate().queryForList(sql, Integer.class, castArgs(args));
         writeLog(sql, t);
         return result;
     }
 
-    protected List<String> namedQueryForStrings(String sql, Map<String, Object> args) {
+    public List<String> namedQueryForStrings(String sql, Map<String, Object> args) {
         long t = System.nanoTime();
         List<String> result = getNamedParameterJdbcTemplate().queryForList(sql, castArgs(args), String.class);
         writeLog(sql, t);
         return result;
     }
 
-    protected Integer queryForInt(String sql, Integer defaultValue, Object... args) {
+    public Integer queryForInt(String sql, Integer defaultValue, Object... args) {
         long t = System.nanoTime();
         List<Integer> list = getJdbcTemplate().queryForList(sql, Integer.class, castArgs(args));
         Integer result = list.isEmpty() ? defaultValue : list.get(0) == null ? defaultValue : list.get(0);
@@ -132,7 +132,7 @@ public class TemplateWrapper {
         return result;
     }
 
-    protected Integer namedQueryForInt(String sql, Integer defaultValue, Map<String, Object> args) {
+    public Integer namedQueryForInt(String sql, Integer defaultValue, Map<String, Object> args) {
         long t = System.nanoTime();
         List<Integer> list = getNamedParameterJdbcTemplate().queryForList(sql, castArgs(args), Integer.class);
         Integer result = list.isEmpty() ? defaultValue : list.get(0) == null ? defaultValue : list.get(0);
@@ -140,7 +140,7 @@ public class TemplateWrapper {
         return result;
     }
 
-    protected Instant queryForInstant(String sql, Instant defaultValue, Object... args) {
+    public Instant queryForInstant(String sql, Instant defaultValue, Object... args) {
         long startTimeNano = System.nanoTime();
         Instant result = getJdbcTemplate().queryForList(sql, Timestamp.class, castArgs(args)).stream()
                 .filter(Objects::nonNull).findFirst().map(t -> t.toInstant()).orElse(defaultValue);
@@ -157,12 +157,12 @@ public class TemplateWrapper {
         return result;
     }
 
-    protected @Nullable <T> T queryOne(String sql, RowMapper<T> rowMapper, Object... args) {
+    public @Nullable <T> T queryOne(String sql, RowMapper<T> rowMapper, Object... args) {
         List<T> list = query(sql, rowMapper, castArgs(args));
         return list.isEmpty() ? null : list.get(0);
     }
 
-    protected <T> T namedQueryOne(String sql, RowMapper<T> rowMapper, Map<String, Object> args) {
+    public <T> T namedQueryOne(String sql, RowMapper<T> rowMapper, Map<String, Object> args) {
         List<T> list = namedQuery(sql, rowMapper, castArgs(args));
         return list.isEmpty() ? null : list.get(0);
     }

@@ -36,7 +36,7 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.RatingDao;
-import com.tesshu.jpsonic.dao.TemplateWrapper;
+import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SearchResult;

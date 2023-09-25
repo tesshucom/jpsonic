@@ -32,6 +32,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.dao.base.GenericDaoHelper;
 import com.tesshu.jpsonic.domain.AvatarScheme;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.User;

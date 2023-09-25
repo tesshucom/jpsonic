@@ -21,9 +21,9 @@
 
 package com.tesshu.jpsonic.dao;
 
-import static com.tesshu.jpsonic.dao.DaoUtils.nullableInstantOf;
-import static com.tesshu.jpsonic.dao.DaoUtils.prefix;
-import static com.tesshu.jpsonic.dao.DaoUtils.questionMarks;
+import static com.tesshu.jpsonic.dao.base.DaoUtils.nullableInstantOf;
+import static com.tesshu.jpsonic.dao.base.DaoUtils.prefix;
+import static com.tesshu.jpsonic.dao.base.DaoUtils.questionMarks;
 import static com.tesshu.jpsonic.util.PlayerUtils.FAR_FUTURE;
 import static com.tesshu.jpsonic.util.PlayerUtils.FAR_PAST;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
@@ -39,6 +39,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 
+import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
