@@ -23,7 +23,6 @@ package com.tesshu.jpsonic.dao;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +32,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
-import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -41,19 +39,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Component;
 
-/**
- * Abstract superclass for all DAO's.
- *
- * @author Sindre Mehus
- */
-public class AbstractDao {
+@Component
+public class TemplateWrapper {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractDao.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TemplateWrapper.class);
 
     private final DaoHelper daoHelper;
 
-    public AbstractDao(DaoHelper daoHelper) {
+    public TemplateWrapper(DaoHelper daoHelper) {
         super();
         this.daoHelper = daoHelper;
     }
@@ -72,17 +67,6 @@ public class AbstractDao {
      */
     public NamedParameterJdbcTemplate getNamedParameterJdbcTemplate() {
         return daoHelper.getNamedParameterJdbcTemplate();
-    }
-
-    protected String questionMarks(String columns) {
-        int numberOfColumns = StringUtils.countMatches(columns, ",") + 1;
-        return StringUtils.repeat("?", ", ", numberOfColumns);
-    }
-
-    protected static String prefix(String columns, String prefix) {
-        List<String> l = Arrays.asList(columns.replaceAll("\n", " ").split(", "));
-        l.replaceAll(s -> prefix + "." + s);
-        return String.join(", ", l).trim().concat(" ");
     }
 
     @SuppressFBWarnings(value = "SQL_INJECTION_SPRING_JDBC", justification = "False positive. find-sec-bugs#385")
@@ -184,7 +168,8 @@ public class AbstractDao {
     }
 
     static @Nullable Object[] castArgs(@Nullable Object... args) {
-        return args == null ? null : Stream.of(args).map(AbstractDao::castArg).collect(Collectors.toList()).toArray();
+        return args == null ? null
+                : Stream.of(args).map(TemplateWrapper::castArg).collect(Collectors.toList()).toArray();
     }
 
     @SuppressWarnings("PMD.UseConcurrentHashMap") // Explicit use of null
@@ -204,10 +189,6 @@ public class AbstractDao {
             return Timestamp.from(dateTime);
         }
         return arg;
-    }
-
-    protected static @Nullable Instant nullableInstantOf(Timestamp timestamp) {
-        return timestamp == null ? null : timestamp.toInstant();
     }
 
     public void checkpoint() {

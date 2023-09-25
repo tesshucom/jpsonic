@@ -21,6 +21,9 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.dao.DaoUtils.nullableInstantOf;
+import static com.tesshu.jpsonic.dao.DaoUtils.questionMarks;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -48,10 +51,13 @@ import org.springframework.transaction.annotation.Transactional;
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
 @Repository
 @Transactional
-public class UserDao extends AbstractDao {
+public class UserDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserDao.class);
-    private static final String USER_COLUMNS = "username, password, email, ldap_authenticated, bytes_streamed, bytes_downloaded, bytes_uploaded";
+    private static final String USER_COLUMNS = """
+            username, password, email, ldap_authenticated, \
+            bytes_streamed, bytes_downloaded, bytes_uploaded
+            """;
     private static final String USER_SETTINGS_COLUMNS = """
             username, locale, theme_id, final_version_notification, beta_version_notification,
             song_notification, main_track_number, main_artist, main_album, main_genre,
@@ -87,12 +93,13 @@ public class UserDao extends AbstractDao {
     private static final int ROLE_ID_SHARE = 11;
     private static final int SINGLE_USER = 1;
 
+    private final TemplateWrapper template;
     private final String userTableQuote;
     private final UserRowMapper userRowMapper;
     private final UserSettingsRowMapper userSettingsRowMapper;
 
-    public UserDao(DaoHelper daoHelper, String userTableQuote) {
-        super(daoHelper);
+    public UserDao(TemplateWrapper templateWrapper, String userTableQuote) {
+        template = templateWrapper;
         this.userTableQuote = userTableQuote;
         userRowMapper = new UserRowMapper();
         userSettingsRowMapper = new UserSettingsRowMapper();
@@ -115,7 +122,7 @@ public class UserDao extends AbstractDao {
         } else {
             sql = "select " + USER_COLUMNS + " from " + getUserTable() + " where UPPER(username)=UPPER(?)";
         }
-        List<User> users = query(sql, userRowMapper, username);
+        List<User> users = template.query(sql, userRowMapper, username);
         User user = null;
         if (users.size() == SINGLE_USER) {
             user = users.iterator().next();
@@ -138,7 +145,7 @@ public class UserDao extends AbstractDao {
      */
     public User getUserByEmail(String email) {
         String sql = "select " + USER_COLUMNS + " from " + getUserTable() + " where email=?";
-        User user = queryOne(sql, userRowMapper, email);
+        User user = template.queryOne(sql, userRowMapper, email);
         if (user != null) {
             readRoles(user);
         }
@@ -152,7 +159,7 @@ public class UserDao extends AbstractDao {
      */
     public List<User> getAllUsers() {
         String sql = "select " + USER_COLUMNS + " from " + getUserTable();
-        List<User> users = query(sql, userRowMapper);
+        List<User> users = template.query(sql, userRowMapper);
         users.forEach(this::readRoles);
         return users;
     }
@@ -166,8 +173,9 @@ public class UserDao extends AbstractDao {
     public void createUser(User user) {
         String sql = "insert into " + getUserTable() + " (" + USER_COLUMNS + ") values (" + questionMarks(USER_COLUMNS)
                 + ')';
-        update(sql, user.getUsername(), encrypt(user.getPassword()), user.getEmail(), user.isLdapAuthenticated(),
-                user.getBytesStreamed(), user.getBytesDownloaded(), user.getBytesUploaded());
+        template.update(sql, user.getUsername(), encrypt(user.getPassword()), user.getEmail(),
+                user.isLdapAuthenticated(), user.getBytesStreamed(), user.getBytesDownloaded(),
+                user.getBytesUploaded());
         writeRoles(user);
     }
 
@@ -178,9 +186,9 @@ public class UserDao extends AbstractDao {
      *            The username.
      */
     public void deleteUser(String username) {
-        update("delete from user_role where username=?", username);
-        update("delete from player where username=?", username);
-        update("delete from " + getUserTable() + " where username=?", username);
+        template.update("delete from user_role where username=?", username);
+        template.update("delete from player where username=?", username);
+        template.update("delete from " + getUserTable() + " where username=?", username);
     }
 
     /**
@@ -194,20 +202,20 @@ public class UserDao extends AbstractDao {
         String sql = "update " + getUserTable()
                 + " set password=?, email=?, ldap_authenticated=?, bytes_streamed=?, bytes_downloaded=?, bytes_uploaded=? "
                 + "where username=?";
-        update(sql, encrypt(user.getPassword()), user.getEmail(), user.isLdapAuthenticated(), user.getBytesStreamed(),
-                user.getBytesDownloaded(), user.getBytesUploaded(), user.getUsername());
+        template.update(sql, encrypt(user.getPassword()), user.getEmail(), user.isLdapAuthenticated(),
+                user.getBytesStreamed(), user.getBytesDownloaded(), user.getBytesUploaded(), user.getUsername());
         writeRoles(user);
     }
 
     public void updatePassword(User user, String newPass, boolean ldapAuthenticated) {
         String sql = "update " + getUserTable() + " set password=?, ldap_authenticated=? where username=?";
-        update(sql, newPass, ldapAuthenticated, user.getUsername());
+        template.update(sql, newPass, ldapAuthenticated, user.getUsername());
     }
 
     public void updateUserByteCounts(long bytesStreamed, long bytesDownloaded, long bytesUploaded, String username) {
         String sql = "update " + getUserTable()
                 + " set bytes_streamed=?, bytes_downloaded=?, bytes_uploaded=? where username=?";
-        update(sql, bytesStreamed, bytesDownloaded, bytesUploaded, username);
+        template.update(sql, bytesStreamed, bytesDownloaded, bytesUploaded, username);
     }
 
     /**
@@ -220,7 +228,7 @@ public class UserDao extends AbstractDao {
      */
     public List<String> getRolesForUser(String username) {
         String sql = "select r.name from role r, user_role ur where ur.username=? and ur.role_id=r.id";
-        return getJdbcTemplate().queryForList(sql, String.class, new Object[] { username });
+        return template.getJdbcTemplate().queryForList(sql, String.class, new Object[] { username });
     }
 
     /**
@@ -233,7 +241,7 @@ public class UserDao extends AbstractDao {
      */
     public UserSettings getUserSettings(String username) {
         String sql = "select " + USER_SETTINGS_COLUMNS + " from user_settings where username=?";
-        return queryOne(sql, userSettingsRowMapper, username);
+        return template.queryOne(sql, userSettingsRowMapper, username);
     }
 
     /**
@@ -244,23 +252,23 @@ public class UserDao extends AbstractDao {
      */
     @SuppressFBWarnings(value = "SQL_INJECTION_SPRING_JDBC", justification = "False positive. find-sec-bugs#385")
     public void updateUserSettings(UserSettings settings) {
-        update("delete from user_settings where username=?", settings.getUsername());
+        template.update("delete from user_settings where username=?", settings.getUsername());
 
         String sql = "insert into user_settings (" + USER_SETTINGS_COLUMNS + ") values ("
                 + questionMarks(USER_SETTINGS_COLUMNS) + ')';
         String locale = settings.getLocale() == null ? null : settings.getLocale().toString();
         UserSettings.Visibility main = settings.getMainVisibility();
         UserSettings.Visibility playlist = settings.getPlaylistVisibility();
-        update(sql, settings.getUsername(), locale, settings.getThemeId(), settings.isFinalVersionNotificationEnabled(),
-                settings.isBetaVersionNotificationEnabled(), settings.isSongNotificationEnabled(),
-                main.isTrackNumberVisible(), main.isArtistVisible(), main.isAlbumVisible(), main.isGenreVisible(),
-                main.isYearVisible(), main.isBitRateVisible(), main.isDurationVisible(), main.isFormatVisible(),
-                main.isFileSizeVisible(), playlist.isTrackNumberVisible(), playlist.isArtistVisible(),
-                playlist.isAlbumVisible(), playlist.isGenreVisible(), playlist.isYearVisible(),
-                playlist.isBitRateVisible(), playlist.isDurationVisible(), playlist.isFormatVisible(),
-                playlist.isFileSizeVisible(), settings.isLastFmEnabled(), settings.getLastFmUsername(),
-                encrypt(settings.getLastFmPassword()), settings.isListenBrainzEnabled(),
-                settings.getListenBrainzToken(), settings.getTranscodeScheme().name(),
+        template.update(sql, settings.getUsername(), locale, settings.getThemeId(),
+                settings.isFinalVersionNotificationEnabled(), settings.isBetaVersionNotificationEnabled(),
+                settings.isSongNotificationEnabled(), main.isTrackNumberVisible(), main.isArtistVisible(),
+                main.isAlbumVisible(), main.isGenreVisible(), main.isYearVisible(), main.isBitRateVisible(),
+                main.isDurationVisible(), main.isFormatVisible(), main.isFileSizeVisible(),
+                playlist.isTrackNumberVisible(), playlist.isArtistVisible(), playlist.isAlbumVisible(),
+                playlist.isGenreVisible(), playlist.isYearVisible(), playlist.isBitRateVisible(),
+                playlist.isDurationVisible(), playlist.isFormatVisible(), playlist.isFileSizeVisible(),
+                settings.isLastFmEnabled(), settings.getLastFmUsername(), encrypt(settings.getLastFmPassword()),
+                settings.isListenBrainzEnabled(), settings.getListenBrainzToken(), settings.getTranscodeScheme().name(),
                 settings.isShowNowPlayingEnabled(), settings.getSelectedMusicFolderId(), settings.isPartyModeEnabled(),
                 settings.isNowPlayingAllowed(), settings.getAvatarScheme().name(), settings.getSystemAvatarId(),
                 settings.getChanged(), settings.isShowArtistInfoEnabled(), settings.isAutoHidePlayQueue(),
@@ -303,7 +311,8 @@ public class UserDao extends AbstractDao {
 
     private void readRoles(User user) {
         String sql = "select role_id from user_role where username=?";
-        List<?> roles = getJdbcTemplate().queryForList(sql, Integer.class, new Object[] { user.getUsername() });
+        List<?> roles = template.getJdbcTemplate().queryForList(sql, Integer.class,
+                new Object[] { user.getUsername() });
         roles.forEach(role -> {
             switch ((Integer) role) {
             case ROLE_ID_ADMIN -> user.setAdminRole(true);
@@ -324,7 +333,7 @@ public class UserDao extends AbstractDao {
 
     @SuppressWarnings("PMD.NPathComplexity") // It's not particularly difficult, so you can leave it as it is.
     private void writeRoles(User user) {
-        update("delete from user_role where username=?", user.getUsername());
+        template.update("delete from user_role where username=?", user.getUsername());
         if (user.isAdminRole()) {
             updateRole(user.getUsername(), ROLE_ID_ADMIN);
         }
@@ -358,7 +367,7 @@ public class UserDao extends AbstractDao {
     }
 
     private void updateRole(String username, Integer role) {
-        update("insert into user_role (username, role_id) values(?, ?)", username, role);
+        template.update("insert into user_role (username, role_id) values(?, ?)", username, role);
     }
 
     private static class UserRowMapper implements RowMapper<User> {

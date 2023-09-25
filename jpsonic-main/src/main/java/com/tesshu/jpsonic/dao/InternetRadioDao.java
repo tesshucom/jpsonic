@@ -21,6 +21,8 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.dao.DaoUtils.nullableInstantOf;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -38,7 +40,7 @@ import org.springframework.stereotype.Repository;
  * @author Sindre Mehus
  */
 @Repository
-public class InternetRadioDao extends AbstractDao {
+public class InternetRadioDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(InternetRadioDao.class);
     private static final String INSERT_COLUMNS = """
@@ -46,10 +48,11 @@ public class InternetRadioDao extends AbstractDao {
             """;
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
+    private final TemplateWrapper template;
     private final InternetRadioRowMapper rowMapper;
 
-    public InternetRadioDao(DaoHelper daoHelper) {
-        super(daoHelper);
+    public InternetRadioDao(TemplateWrapper templateWrapper) {
+        template = templateWrapper;
         rowMapper = new InternetRadioRowMapper();
     }
 
@@ -58,17 +61,17 @@ public class InternetRadioDao extends AbstractDao {
                 from internet_radio
                 where id=?
                 """;
-        return queryOne(sql, rowMapper, id);
+        return template.queryOne(sql, rowMapper, id);
     }
 
     public List<InternetRadio> getAllInternetRadios() {
         String sql = "select " + QUERY_COLUMNS + " from internet_radio";
-        return query(sql, rowMapper);
+        return template.query(sql, rowMapper);
     }
 
     public void createInternetRadio(InternetRadio radio) {
         String sql = "insert into internet_radio (" + INSERT_COLUMNS + ") values (?, ?, ?, ?, ?)";
-        update(sql, radio.getName(), radio.getStreamUrl(), radio.getHomepageUrl(), radio.isEnabled(),
+        template.update(sql, radio.getName(), radio.getStreamUrl(), radio.getHomepageUrl(), radio.isEnabled(),
                 radio.getChanged());
         if (LOG.isInfoEnabled()) {
             LOG.info("Created internet radio station " + radio.getName());
@@ -80,7 +83,7 @@ public class InternetRadioDao extends AbstractDao {
                 delete from internet_radio
                 where id=?
                 """;
-        update(sql, id);
+        template.update(sql, id);
         if (LOG.isInfoEnabled()) {
             LOG.info("Deleted internet radio station with ID " + id);
         }
@@ -92,7 +95,7 @@ public class InternetRadioDao extends AbstractDao {
                 set name=?, stream_url=?, homepage_url=?, enabled=?, changed=?
                 where id=?
                 """;
-        update(sql, radio.getName(), radio.getStreamUrl(), radio.getHomepageUrl(), radio.isEnabled(),
+        template.update(sql, radio.getName(), radio.getStreamUrl(), radio.getHomepageUrl(), radio.isEnabled(),
                 radio.getChanged(), radio.getId());
     }
 

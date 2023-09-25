@@ -21,6 +21,9 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.dao.DaoUtils.nullableInstantOf;
+import static com.tesshu.jpsonic.dao.DaoUtils.questionMarks;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
@@ -47,7 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
 @Repository
-public class PlayerDao extends AbstractDao {
+public class PlayerDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlayerDao.class);
     private static final String INSERT_COLUMNS = """
@@ -57,18 +60,19 @@ public class PlayerDao extends AbstractDao {
             """;
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
+    private final TemplateWrapper template;
     private final PlayerDaoPlayQueueFactory playerDaoPlayQueueFactory;
     private final Map<Integer, PlayQueue> playlists;
 
-    public PlayerDao(DaoHelper daoHelper, PlayerDaoPlayQueueFactory playerDaoPlayQueueFactory) {
-        super(daoHelper);
+    public PlayerDao(TemplateWrapper templateWrapper, PlayerDaoPlayQueueFactory playerDaoPlayQueueFactory) {
+        template = templateWrapper;
         this.playerDaoPlayQueueFactory = playerDaoPlayQueueFactory;
         playlists = new ConcurrentHashMap<>();
     }
 
     public List<Player> getAllPlayers() {
         String sql = "select " + QUERY_COLUMNS + "from player";
-        return query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory));
+        return template.query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory));
     }
 
     /**
@@ -88,13 +92,13 @@ public class PlayerDao extends AbstractDao {
                     from player
                     where username=? and client_id is null
                     """;
-            return query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), username);
+            return template.query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), username);
         } else {
             String sql = "select " + QUERY_COLUMNS + """
                     from player
                     where username=? and client_id=?
                     """;
-            return query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), username, clientId);
+            return template.query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), username, clientId);
         }
     }
 
@@ -103,17 +107,17 @@ public class PlayerDao extends AbstractDao {
                 from player
                 where id=?
                 """;
-        return queryOne(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), id);
+        return template.queryOne(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), id);
     }
 
     @Transactional
     public void createPlayer(Player player) {
-        Integer existingMax = queryForInt("select max(id) from player", 0);
+        Integer existingMax = template.queryForInt("select max(id) from player", 0);
         int id = existingMax + 1;
         player.setId(id);
         String sql = "insert into player (" + QUERY_COLUMNS + ") values (" + questionMarks(QUERY_COLUMNS) + ")";
-        update(sql, player.getId(), player.getName(), player.getType(), player.getUsername(), player.getIpAddress(),
-                player.isAutoControlEnabled(), player.isM3uBomEnabled(), player.getLastSeen(),
+        template.update(sql, player.getId(), player.getName(), player.getType(), player.getUsername(),
+                player.getIpAddress(), player.isAutoControlEnabled(), player.isM3uBomEnabled(), player.getLastSeen(),
                 CoverArtScheme.MEDIUM.name(), player.getTranscodeScheme().name(), player.isDynamicIp(),
                 player.getTechnology().name(), player.getClientId(), null);
         addPlaylist(player, playlists, playerDaoPlayQueueFactory);
@@ -128,7 +132,7 @@ public class PlayerDao extends AbstractDao {
                 delete from
                 player where id=?
                 """;
-        update(sql, id);
+        template.update(sql, id);
         playlists.remove(id);
     }
 
@@ -139,7 +143,7 @@ public class PlayerDao extends AbstractDao {
                 delete from player
                 where name is null and client_id is null and (last_seen is null or last_seen < ?)
                 """;
-        int n = update(sql, cal.getTime());
+        int n = template.update(sql, cal.getTime());
         if (LOG.isInfoEnabled() && n > 0) {
             LOG.info("Deleted " + n + " player(s) that haven't been used after " + cal.getTime());
         }
@@ -152,7 +156,7 @@ public class PlayerDao extends AbstractDao {
                         m3u_bom_enabled = ?, last_seen = ?, transcode_scheme = ?,
                         dynamic_ip = ?, technology = ?, client_id = ?, mixer = ? where id = ?
                 """;
-        update(sql, player.getName(), player.getType(), player.getUsername(), player.getIpAddress(),
+        template.update(sql, player.getName(), player.getType(), player.getUsername(), player.getIpAddress(),
                 player.isAutoControlEnabled(), player.isM3uBomEnabled(), player.getLastSeen(),
                 player.getTranscodeScheme().name(), player.isDynamicIp(), player.getTechnology().name(),
                 player.getClientId(), null, player.getId());

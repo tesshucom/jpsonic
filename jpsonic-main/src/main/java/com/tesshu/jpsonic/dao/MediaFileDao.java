@@ -21,6 +21,9 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.dao.DaoUtils.nullableInstantOf;
+import static com.tesshu.jpsonic.dao.DaoUtils.prefix;
+import static com.tesshu.jpsonic.dao.DaoUtils.questionMarks;
 import static com.tesshu.jpsonic.util.PlayerUtils.FAR_FUTURE;
 import static com.tesshu.jpsonic.util.PlayerUtils.FAR_PAST;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
@@ -57,9 +60,9 @@ import org.springframework.util.ObjectUtils;
  *
  * @author Sindre Mehus
  */
-@SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 @Repository
-public class MediaFileDao extends AbstractDao {
+public class MediaFileDao {
 
     private static final String INSERT_COLUMNS = """
             path, folder, type, format, title, album, artist, album_artist, disc_number,
@@ -79,6 +82,7 @@ public class MediaFileDao extends AbstractDao {
     private static final int JP_VERSION = 9;
     public static final int VERSION = 4 + JP_VERSION;
 
+    private final TemplateWrapper template;
     private final RowMapper<MediaFile> rowMapper = (resultSet, rowNum) -> new MediaFile(resultSet.getInt(1),
             resultSet.getString(2), resultSet.getString(3), MediaFile.MediaType.valueOf(resultSet.getString(4)),
             resultSet.getString(5), resultSet.getString(6), resultSet.getString(7), resultSet.getString(8),
@@ -111,8 +115,8 @@ public class MediaFileDao extends AbstractDao {
     private final RowMapper<SortCandidate> sortCandidateWithIdMapper = (rs, rowNum) -> new SortCandidate(rs.getInt(1),
             rs.getString(2), rs.getString(3), rs.getInt(4));
 
-    public MediaFileDao(DaoHelper daoHelper) {
-        super(daoHelper);
+    public MediaFileDao(TemplateWrapper templateWrapper) {
+        template = templateWrapper;
         iRowMapper = (resultSet, rowNum) -> {
             MediaFile mediaFile = rowMapper.mapRow(resultSet, rowNum);
             if (mediaFile != null) {
@@ -123,18 +127,19 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public @Nullable MediaFile getMediaFile(String path) {
-        return queryOne("select " + QUERY_COLUMNS + """
+        return template.queryOne("select " + QUERY_COLUMNS + """
                 from media_file
                 where path=?
                 """, rowMapper, path);
     }
 
     public @Nullable MediaFile getMediaFile(@NonNull Path path) {
-        return queryOne("select " + QUERY_COLUMNS + " from media_file where path=?", rowMapper, path.toString());
+        return template.queryOne("select " + QUERY_COLUMNS + " from media_file where path=?", rowMapper,
+                path.toString());
     }
 
     public @Nullable MediaFile getMediaFile(int id) {
-        return queryOne("select " + QUERY_COLUMNS + """
+        return template.queryOne("select " + QUERY_COLUMNS + """
                 from media_file
                 where id=?
                 """, rowMapper, id);
@@ -146,7 +151,7 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("type", mediaType.name(), "count", count, "offset", offset, "folders",
                 MusicFolder.toPathList(folders));
-        return namedQuery("select " + QUERY_COLUMNS + """
+        return template.namedQuery("select " + QUERY_COLUMNS + """
                 from media_file
                 where present and type= :type and folder in(:folders)
                 limit :count offset :offset
@@ -154,7 +159,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public List<MediaFile> getChildrenOf(String path) {
-        return query("select " + QUERY_COLUMNS + """
+        return template.query("select " + QUERY_COLUMNS + """
                 from media_file
                 where parent_path=? and present
                 """, rowMapper, path);
@@ -162,7 +167,7 @@ public class MediaFileDao extends AbstractDao {
 
     public List<MediaFile> getChildrenOf(final long offset, final long count, String path, boolean byYear) {
         String order = (byYear ? "year is null, year, " : "") + "media_file_order";
-        return query("select " + QUERY_COLUMNS + """
+        return template.query("select " + QUERY_COLUMNS + """
                 from media_file
                 where parent_path=? and present
                 order by %s
@@ -171,7 +176,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public List<MediaFile> getChildrenWithOrderOf(String path) {
-        return query("select " + QUERY_COLUMNS + """
+        return template.query("select " + QUERY_COLUMNS + """
                 from media_file
                 where parent_path=? and present
                 order by media_file_order
@@ -179,7 +184,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public List<MediaFile> getFilesInPlaylist(int playlistId, long offset, long count) {
-        return query("select " + prefix(QUERY_COLUMNS, "media_file") + """
+        return template.query("select " + prefix(QUERY_COLUMNS, "media_file") + """
                 from playlist_file, media_file
                 where media_file.id = playlist_file.media_file_id
                         and playlist_file.playlist_id = ? and present
@@ -189,7 +194,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public List<MediaFile> getSongsForAlbum(final long offset, final long count, MediaFile album) {
-        return query("select " + QUERY_COLUMNS + """
+        return template.query("select " + QUERY_COLUMNS + """
                 from media_file
                 where parent_path=? and present and type in (?,?,?)
                 order by track_number
@@ -199,7 +204,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public List<MediaFile> getSongsForAlbum(final long offset, final long count, String albumArtist, String album) {
-        return query("select " + QUERY_COLUMNS + """
+        return template.query("select " + QUERY_COLUMNS + """
                 from media_file
                 where album_artist=? and album=? and present and type in (?,?,?)
                 order by track_number
@@ -214,7 +219,7 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.VIDEO.name(), "folders",
                 MusicFolder.toPathList(musicFolders), "count", count, "offset", offset);
-        return namedQuery("select " + QUERY_COLUMNS + """
+        return template.namedQuery("select " + QUERY_COLUMNS + """
                 from media_file
                 where type = :type and present and folder in (:folders)
                 order by title
@@ -228,14 +233,14 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.DIRECTORY.name(), "name", name, "folders",
                 MusicFolder.toPathList(musicFolders));
-        return namedQueryOne("select " + QUERY_COLUMNS + """
+        return template.namedQueryOne("select " + QUERY_COLUMNS + """
                 from media_file
                 where type = :type and artist = :name and present and folder in (:folders)
                 """, rowMapper, args);
     }
 
     public boolean exists(Path path) {
-        return 0 < queryForInt("""
+        return 0 < template.queryForInt("""
                 select count(path)
                 from media_file
                 where path = ?
@@ -243,7 +248,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public boolean existsNonPresent() {
-        return 0 < queryForInt("""
+        return 0 < template.queryForInt("""
                 select count(*)
                 from media_file
                 where not present
@@ -251,7 +256,8 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public @Nullable MediaFile createMediaFile(MediaFile file) {
-        int c = update("insert into media_file (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
+        int c = template.update(
+                "insert into media_file (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
                 file.getPathString(), file.getFolder(), file.getMediaType().name(), file.getFormat(), file.getTitle(),
                 file.getAlbumName(), file.getArtist(), file.getAlbumArtist(), file.getDiscNumber(),
                 file.getTrackNumber(), file.getYear(), file.getGenre(), file.getBitRate(), file.isVariableBitRate(),
@@ -263,7 +269,7 @@ public class MediaFileDao extends AbstractDao {
                 file.getTitleSort(), file.getAlbumArtistSort(), file.getComposerSort(), file.getArtistReading(),
                 file.getAlbumReading(), file.getAlbumArtistReading(), file.getArtistSortRaw(), file.getAlbumSortRaw(),
                 file.getAlbumArtistSortRaw(), file.getComposerSortRaw(), file.getOrder());
-        Integer id = queryForInt("""
+        Integer id = template.queryForInt("""
                 select id
                 from media_file
                 where path=?
@@ -290,7 +296,7 @@ public class MediaFileDao extends AbstractDao {
                         album_artist_sort_raw=?, composer_sort_raw=?, media_file_order=?
                 where id=?
                 """;
-        int c = update(sql, file.getFolder(), file.getMediaType().name(), file.getFormat(), file.getTitle(),
+        int c = template.update(sql, file.getFolder(), file.getMediaType().name(), file.getFormat(), file.getTitle(),
                 file.getAlbumName(), file.getArtist(), file.getAlbumArtist(), file.getDiscNumber(),
                 file.getTrackNumber(), file.getYear(), file.getGenre(), file.getBitRate(), file.isVariableBitRate(),
                 file.getDurationSeconds(), file.getFileSize(), file.getWidth(), file.getHeight(),
@@ -308,7 +314,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public void updateChildrenLastUpdated(String pathString, Instant childrenLastUpdated) {
-        update("""
+        template.update("""
                 update media_file
                 set children_last_updated = ?, present=?
                 where path=?
@@ -316,7 +322,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public int updateOrder(int id, int order) {
-        return update("""
+        return template.update("""
                 update media_file
                 set media_file_order = ?
                 where id=?
@@ -324,7 +330,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public void updateCoverArtPath(String pathString, String coverArtPath) {
-        update("""
+        template.update("""
                 update media_file
                 set cover_art_path = ?
                 where path=?
@@ -332,7 +338,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public void updatePlayCount(String pathString, Instant lastPlayed, int playCount) {
-        update("""
+        template.update("""
                 update media_file
                 set last_played = ?, play_count = ?
                 where path=?
@@ -340,7 +346,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public void updateComment(String pathString, String comment) {
-        update("""
+        template.update("""
                 update media_file
                 set comment = ?
                 where path=?
@@ -348,7 +354,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public int deleteMediaFile(int id) {
-        return update("""
+        return template.update("""
                 update media_file
                 set present=false, children_last_updated=?
                 where id=?
@@ -357,7 +363,7 @@ public class MediaFileDao extends AbstractDao {
 
     public List<Genre> getGenreCounts() {
         Map<String, Object> args = Map.of("album", MediaType.ALBUM.name(), "music", MediaType.MUSIC.name());
-        return namedQuery("""
+        return template.namedQuery("""
                 select song_genre.name, song_count, album_count
                 from
                     (select genres.name, count(*) as song_count
@@ -383,9 +389,9 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public void updateGenres(List<Genre> genres) {
-        update("delete from genre");
+        template.update("delete from genre");
         for (Genre genre : genres) {
-            update("""
+            template.update("""
                     insert into genre(name, song_count, album_count)
                     values(?, ?, ?)
                     """, genre.getName(), genre.getSongCount(), genre.getAlbumCount());
@@ -400,7 +406,7 @@ public class MediaFileDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
                 MusicFolder.toPathList(musicFolders), "count", count, "offset", offset);
 
-        return namedQuery("select " + QUERY_COLUMNS + """
+        return template.namedQuery("select " + QUERY_COLUMNS + """
                 from media_file
                 where type = :type and play_count > 0 and present and folder in (:folders)
                 order by play_count desc
@@ -415,7 +421,7 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
                 MusicFolder.toPathList(musicFolders), "count", count, "offset", offset);
-        return namedQuery("select " + QUERY_COLUMNS + """
+        return template.namedQuery("select " + QUERY_COLUMNS + """
                 from media_file
                 where type = :type and last_played is not null
                         and present and folder in (:folders)
@@ -431,7 +437,7 @@ public class MediaFileDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
                 MusicFolder.toPathList(musicFolders), "count", count, "offset", offset);
 
-        return namedQuery("select " + QUERY_COLUMNS + """
+        return template.namedQuery("select " + QUERY_COLUMNS + """
                 from media_file
                 where type = :type and folder in (:folders) and present
                 order by created desc
@@ -464,7 +470,7 @@ public class MediaFileDao extends AbstractDao {
                     """;
         }
 
-        return namedQuery(namedQuery, rowMapper, args);
+        return template.namedQuery(namedQuery, rowMapper, args);
     }
 
     public List<MediaFile> getAlbumsByYear(final int offset, final int count, final int fromYear, final int toYear,
@@ -477,7 +483,7 @@ public class MediaFileDao extends AbstractDao {
                 offset);
 
         if (fromYear <= toYear) {
-            return namedQuery("select " + QUERY_COLUMNS + """
+            return template.namedQuery("select " + QUERY_COLUMNS + """
                     from media_file
                     where type = :type and folder in (:folders) and present
                             and year between :fromYear and :toYear
@@ -485,7 +491,7 @@ public class MediaFileDao extends AbstractDao {
                     limit :count offset :offset
                     """, rowMapper, args);
         } else {
-            return namedQuery("select " + QUERY_COLUMNS + """
+            return template.namedQuery("select " + QUERY_COLUMNS + """
                     from media_file
                     where type = :type and folder in (:folders) and present
                             and year between :toYear and :fromYear
@@ -503,7 +509,7 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("type", MediaType.ALBUM.name(), "genres", genres, "folders",
                 MusicFolder.toPathList(musicFolders), "count", count, "offset", offset);
-        return namedQuery("select " + QUERY_COLUMNS + """
+        return template.namedQuery("select " + QUERY_COLUMNS + """
                 from media_file
                 where type = :type and folder in (:folders) and present and genre in (:genres)
                 order by media_file_order
@@ -515,7 +521,7 @@ public class MediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        return query("select " + QUERY_COLUMNS + """
+        return template.query("select " + QUERY_COLUMNS + """
                 from media_file
                 where type = ? and last_scanned = ?
                 limit ?
@@ -570,7 +576,7 @@ public class MediaFileDao extends AbstractDao {
                         or mf_ar.cover_art_path <> ar.cover_art_path)
                 limit :count
                 """;
-        return namedQuery(query, artistId3Mapper, args);
+        return template.namedQuery(query, artistId3Mapper, args);
     }
 
     public List<MediaFile> getUnregisteredId3Artists(final int count, List<MusicFolder> folders, boolean withPodcast) {
@@ -612,7 +618,7 @@ public class MediaFileDao extends AbstractDao {
                         + music_folder.folder_order * :childMax * 10 = first_fetch.file_order
                 limit :count
                 """;
-        return namedQuery(query, artistId3Mapper, args);
+        return template.namedQuery(query, artistId3Mapper, args);
     }
 
     public List<MediaFile> getChangedAlbums(final int count, final List<MusicFolder> folders) {
@@ -621,7 +627,7 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = Map.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
                 MusicFolder.toPathList(folders), "future", FAR_FUTURE, "count", count);
-        return namedQuery("select " + QUERY_COLUMNS + """
+        return template.namedQuery("select " + QUERY_COLUMNS + """
                 from media_file
                 where type = :type and present and folder in (:folders)
                         and children_last_updated = :future
@@ -635,7 +641,7 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = Map.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
                 MusicFolder.toPathList(folders), "future", FAR_FUTURE, "count", count);
-        return namedQuery("select " + QUERY_COLUMNS + """
+        return template.namedQuery("select " + QUERY_COLUMNS + """
                 from media_file
                 where type = :type and present and folder in (:folders) and last_scanned = :future
                 limit :count
@@ -718,7 +724,7 @@ public class MediaFileDao extends AbstractDao {
                             or mf_fetched.mb_release_id <> al.mb_release_id)
                 limit :count
                 """;
-        return namedQuery(query, rowMapper, args);
+        return template.namedQuery(query, rowMapper, args);
     }
 
     public List<MediaFile> getUnregisteredId3Albums(final int count, List<MusicFolder> musicFolders,
@@ -757,7 +763,7 @@ public class MediaFileDao extends AbstractDao {
                             + unregistered.mf_order + unregistered.folder_order * :childMax * 10
                 limit :count
                 """;
-        return namedQuery(query, rowMapper, args);
+        return template.namedQuery(query, rowMapper, args);
     }
 
     public List<MediaFile> getSongsByGenre(final List<String> genres, final int offset, final int count,
@@ -768,7 +774,7 @@ public class MediaFileDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of("types",
                 Arrays.asList(MediaType.MUSIC.name(), MediaType.PODCAST.name(), MediaType.AUDIOBOOK.name()), "genres",
                 genres, "count", count, "offset", offset, "folders", MusicFolder.toPathList(musicFolders));
-        return namedQuery("select " + prefix(QUERY_COLUMNS, "s") + """
+        return template.namedQuery("select " + prefix(QUERY_COLUMNS, "s") + """
                 from media_file s
                 join media_file al
                 on s.parent_path = al.path join media_file ar on al.parent_path = ar.path
@@ -780,7 +786,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public List<MediaFile> getSongsByArtist(String artist, int offset, int count) {
-        return query("select " + QUERY_COLUMNS + """
+        return template.query("select " + QUERY_COLUMNS + """
                 from media_file
                 where type in (?,?,?) and artist=? and present
                 limit ? offset ?
@@ -795,7 +801,7 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("artist", artist, "title", title, "type",
                 MediaFile.MediaType.MUSIC.name(), "folders", MusicFolder.toPathList(musicFolders));
-        return namedQueryOne("select " + QUERY_COLUMNS + """
+        return template.namedQueryOne("select " + QUERY_COLUMNS + """
                 from media_file
                 where artist = :artist and title = :title
                         and type = :type and present and folder in (:folders)
@@ -809,7 +815,7 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
                 MusicFolder.toPathList(musicFolders), "username", username, "count", count, "offset", offset);
-        return namedQuery("select " + prefix(QUERY_COLUMNS, "m") + """
+        return template.namedQuery("select " + prefix(QUERY_COLUMNS, "m") + """
                 from starred_media_file, media_file m
                 where m.id = starred_media_file.media_file_id and m.present
                         and m.type = :type and m.folder in (:folders)
@@ -826,7 +832,7 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.DIRECTORY.name(), "folders",
                 MusicFolder.toPathList(musicFolders), "username", username, "count", count, "offset", offset);
-        return namedQuery("select " + prefix(QUERY_COLUMNS, "m") + """
+        return template.namedQuery("select " + prefix(QUERY_COLUMNS, "m") + """
                 from starred_media_file, media_file m
                 where m.id = starred_media_file.media_file_id and m.present
                         and m.type = :type and starred_media_file.username = :username
@@ -846,7 +852,7 @@ public class MediaFileDao extends AbstractDao {
                         MediaFile.MediaType.AUDIOBOOK.name(), MediaFile.MediaType.VIDEO.name()),
                 "folders", MusicFolder.toPathList(musicFolders), "username", username, "count", count, "offset",
                 offset);
-        return namedQuery("select " + prefix(QUERY_COLUMNS, "m") + """
+        return template.namedQuery("select " + prefix(QUERY_COLUMNS, "m") + """
                 from starred_media_file, media_file m
                 where m.id = starred_media_file.media_file_id and m.present and m.type in (:types)
                         and starred_media_file.username = :username and m.folder in (:folders)
@@ -871,7 +877,7 @@ public class MediaFileDao extends AbstractDao {
                 criteria.getMaxPlayCount(), "starred", criteria.isShowStarredSongs(), "unstarred",
                 criteria.isShowUnstarredSongs(), "format", criteria.getFormat());
 
-        return namedQuery(queryBuilder.build(), rowMapper, args);
+        return template.namedQuery(queryBuilder.build(), rowMapper, args);
     }
 
     public int getAlbumCount(final List<MusicFolder> musicFolders) {
@@ -880,7 +886,7 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
                 MusicFolder.toPathList(musicFolders));
-        return namedQueryForInt("""
+        return template.namedQueryForInt("""
                 select count(*)
                 from media_file
                 where type = :type and folder in (:folders) and present
@@ -893,7 +899,7 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
                 MusicFolder.toPathList(musicFolders));
-        return namedQueryForInt("""
+        return template.namedQueryForInt("""
                 select count(*)
                 from media_file
                 where type = :type and play_count > 0 and present and folder in (:folders)
@@ -906,7 +912,7 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
                 MusicFolder.toPathList(musicFolders), "username", username);
-        return namedQueryForInt("""
+        return template.namedQueryForInt("""
                 select count(*)
                 from starred_media_file, media_file
                 where media_file.id = starred_media_file.media_file_id
@@ -919,14 +925,14 @@ public class MediaFileDao extends AbstractDao {
     @Transactional
     public void starMediaFile(int id, String username) {
         unstarMediaFile(id, username);
-        update("""
+        template.update("""
                 insert into starred_media_file(media_file_id, username, created)
                 values (?,?,?)
                 """, id, username, now());
     }
 
     public void unstarMediaFile(int id, String username) {
-        update("""
+        template.update("""
                 delete from
                 starred_media_file
                 where media_file_id=? and username=?
@@ -934,7 +940,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public @Nullable Instant getMediaFileStarredDate(int id, String username) {
-        return queryForInstant("""
+        return template.queryForInstant("""
                 select created
                 from starred_media_file
                 where media_file_id=? and username=?
@@ -948,14 +954,14 @@ public class MediaFileDao extends AbstractDao {
                 where present
                 """;
         if (id == null) {
-            update(query, FAR_PAST, FAR_PAST);
+            template.update(query, FAR_PAST, FAR_PAST);
         } else {
-            update(query + " and id = ?", FAR_PAST, FAR_PAST, id);
+            template.update(query + " and id = ?", FAR_PAST, FAR_PAST, id);
         }
     }
 
     public void updateLastScanned(int id, Instant lastScanned) {
-        update("""
+        template.update("""
                 update media_file
                 set last_scanned = ?
                 where present and id = ?
@@ -963,12 +969,12 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public void markNonPresent(Instant lastScanned) {
-        int minId = queryForInt("""
+        int minId = template.queryForInt("""
                 select min(id)
                 from media_file
                 where last_scanned < ? and present
                 """, 0, lastScanned);
-        int maxId = queryForInt("""
+        int maxId = template.queryForInt("""
                 select max(id)
                 from media_file
                 where last_scanned < ? and present
@@ -977,7 +983,7 @@ public class MediaFileDao extends AbstractDao {
         final int batchSize = 1000;
         Instant childrenLastUpdated = FAR_PAST; // Used to force a children rescan if file is later resurrected.
         for (int id = minId; id <= maxId; id += batchSize) {
-            update("""
+            template.update("""
                     update media_file
                     set present=false, children_last_updated=?
                     where id between ? and ? and last_scanned < ? and present
@@ -986,7 +992,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public List<Integer> getArtistExpungeCandidates() {
-        return queryForInts("""
+        return template.queryForInts("""
                 select id
                 from media_file
                 where media_file.type = ? and not present
@@ -994,7 +1000,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public List<Integer> getAlbumExpungeCandidates() {
-        return queryForInts("""
+        return template.queryForInts("""
                 select id
                 from media_file
                 where media_file.type = ? and not present
@@ -1002,7 +1008,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public List<Integer> getSongExpungeCandidates() {
-        return queryForInts("""
+        return template.queryForInts("""
                 select id
                 from media_file
                 where media_file.type in (?,?,?,?) and not present
@@ -1011,7 +1017,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public int getMinId() {
-        return queryForInt("""
+        return template.queryForInt("""
                 select min(id)
                 from media_file
                 where not present
@@ -1019,7 +1025,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public int getMaxId() {
-        return queryForInt("""
+        return template.queryForInt("""
                 select max(id)
                 from media_file
                 where not present
@@ -1027,7 +1033,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public int expunge(int from, int to) {
-        return update("""
+        return template.update("""
                 delete from media_file
                 where id between ? and ? and not present
                 """, from, to);
@@ -1039,7 +1045,7 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("type", MediaType.DIRECTORY.name(), "folders",
                 MusicFolder.toPathList(musicFolders));
-        return namedQuery("select " + QUERY_COLUMNS + """
+        return template.namedQuery("select " + QUERY_COLUMNS + """
                 from media_file
                 where type = :type and folder in (:folders) and present and artist is not null
                 order by media_file_order
@@ -1047,7 +1053,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public int getChildSizeOf(String path) {
-        return queryForInt("""
+        return template.queryForInt("""
                 select count(id)
                 from media_file
                 where parent_path=? and present
@@ -1060,7 +1066,7 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = Map.of("type", MediaFile.MediaType.DIRECTORY.name(), "folders",
                 MusicFolder.toPathList(folders));
-        return namedQuery("""
+        return template.namedQuery("""
                 select 3 as field, known.name , known.sort, id
                 from
                         (select distinct album as name, id
@@ -1120,11 +1126,11 @@ public class MediaFileDao extends AbstractDao {
                                          and composer_sort is not null) merged_union) merged
                  on merged.name = no_sort.name
                 """;
-        return namedQuery(query, sortCandidateWithIdMapper, args);
+        return template.namedQuery(query, sortCandidateWithIdMapper, args);
     }
 
     public int getCountInPlaylist(int playlistId) {
-        return queryForInt("""
+        return template.queryForInt("""
                 select count(*)
                 from playlist_file, media_file
                 where media_file.id = playlist_file.media_file_id
@@ -1143,7 +1149,7 @@ public class MediaFileDao extends AbstractDao {
                 from media_file
                 where present and type= :type and folder in(:folders)
                 """;
-        List<Long> list = getNamedParameterJdbcTemplate().queryForList(query, args, Long.class);
+        List<Long> list = template.getNamedParameterJdbcTemplate().queryForList(query, args, Long.class);
         return list.isEmpty() ? defaultValue : list.get(0) == null ? defaultValue : list.get(0);
     }
 
@@ -1158,7 +1164,7 @@ public class MediaFileDao extends AbstractDao {
          * number. Therefore, if the number of cases at this time is too large, the subsequent performance is likely to
          * be affected. If the number isn't too large, it doesn't matter much.
          */
-        int countAll = queryForInt("""
+        int countAll = template.queryForInt("""
                 select count(*)
                 from media_file
                 where present and type = ? and album_artist = ?
@@ -1187,7 +1193,7 @@ public class MediaFileDao extends AbstractDao {
          * IN allows you to get the smallest song subset corresponding to random numbers, but unlike JOIN&UNNEST, the
          * order of random numbers is destroyed.
          */
-        List<MediaFile> tmpResult = namedQuery("select " + QUERY_COLUMNS + """
+        List<MediaFile> tmpResult = template.namedQuery("select " + QUERY_COLUMNS + """
                         , foo.irownum
                 from
                         (select
@@ -1219,7 +1225,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public int getSongsCountForAlbum(String artist, String album) {
-        return queryForInt("""
+        return template.queryForInt("""
                 select count(id)
                 from media_file
                 where album_artist=? and album=? and present and type in (?,?,?)
@@ -1251,7 +1257,7 @@ public class MediaFileDao extends AbstractDao {
                         where folder in (:folders) and present and type not in (:typeDirAndAlbum)
                                 and composer is not null and composer_sort is null) no_sorts
                 """;
-        return namedQuery(query, sortCandidateWithIdMapper, args);
+        return template.namedQuery(query, sortCandidateWithIdMapper, args);
     }
 
     public List<SortCandidate> getSortOfArtistToBeFixedWithId(@NonNull List<SortCandidate> candidates) {
@@ -1280,7 +1286,7 @@ public class MediaFileDao extends AbstractDao {
         candidates.forEach(candidate -> {
             args.put("name", candidate.getName());
             args.put("sote", candidate.getSort());
-            result.addAll(namedQuery(query, sortCandidateWithIdMapper, args));
+            result.addAll(template.namedQuery(query, sortCandidateWithIdMapper, args));
         });
         return result;
     }
@@ -1291,7 +1297,7 @@ public class MediaFileDao extends AbstractDao {
         }
         Map<String, Object> args = Map.of("type", MediaType.DIRECTORY.name(), "folders",
                 MusicFolder.toPathList(folders));
-        return namedQuery("""
+        return template.namedQuery("""
                 select distinct 3 as field, album as name, null as sort, id
                 from media_file
                 where present and folder in (:folders) and type <> :type
@@ -1329,7 +1335,7 @@ public class MediaFileDao extends AbstractDao {
                 join media_file to_be_fixed
                 on source.album = to_be_fixed.album and source.album_sort <> to_be_fixed.album_sort
                 """;
-        return namedQuery(query, sortCandidateWithIdMapper, args);
+        return template.namedQuery(query, sortCandidateWithIdMapper, args);
     }
 
     public List<SortCandidate> guessPersonsSorts(List<MusicFolder> folders) {
@@ -1381,7 +1387,7 @@ public class MediaFileDao extends AbstractDao {
                 group by field, person_all_with_priority.name, sort
                 order by person_all_with_priority.name, field, changed desc
                 """;
-        List<SortCandidate> candidates = namedQuery(query, sortCandidateMapper, args);
+        List<SortCandidate> candidates = template.namedQuery(query, sortCandidateMapper, args);
         candidates.forEach((candidate) -> {
             if (result.stream().noneMatch(r -> r.getName().equals(candidate.getName()))) {
                 result.add(candidate);
@@ -1391,7 +1397,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public void updateAlbumSortWithId(SortCandidate candidate) {
-        update("""
+        template.update("""
                 update media_file
                 set album_reading = ?, album_sort = ?
                 where present and id = ?
@@ -1400,19 +1406,19 @@ public class MediaFileDao extends AbstractDao {
 
     public void updateArtistSortWithId(SortCandidate candidate) {
         if (candidate.getField() == CandidateField.ARTIST) {
-            update("""
+            template.update("""
                     update media_file
                     set artist_reading = ?, artist_sort = ?
                     where id = ?
                     """, candidate.getReading(), candidate.getSort(), candidate.getId());
         } else if (candidate.getField() == CandidateField.ALBUM_ARTIST) {
-            update("""
+            template.update("""
                     update media_file
                     set album_artist_reading = ?, album_artist_sort = ?
                     where id = ?
                     """, candidate.getReading(), candidate.getSort(), candidate.getId());
         } else if (candidate.getField() == CandidateField.COMPOSER) {
-            update("""
+            template.update("""
                     update media_file
                     set composer_sort = ?
                     where id = ?

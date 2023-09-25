@@ -40,6 +40,7 @@ import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.StaticsDao;
+import com.tesshu.jpsonic.dao.TemplateWrapper;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;
@@ -96,6 +97,7 @@ public class ScannerProcedureService {
     private final MediaFileService mediaFileService;
     private final WritableMediaFileService wmfs;
     private final PlaylistService playlistService;
+    private final TemplateWrapper template;
     private final MediaFileDao mediaFileDao;
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
@@ -115,10 +117,10 @@ public class ScannerProcedureService {
 
     public ScannerProcedureService(SettingsService settingsService, MusicFolderServiceImpl musicFolderService,
             IndexManager indexManager, MediaFileService mediaFileService, WritableMediaFileService wmfs,
-            PlaylistService playlistService, MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao,
-            StaticsDao staticsDao, SortProcedureService sortProcedure, ScannerStateServiceImpl scannerStateService,
-            Ehcache indexCache, MediaFileCache mediaFileCache, JapaneseReadingUtils readingUtils,
-            JpsonicComparators comparators, ThreadPoolTaskExecutor scanExecutor) {
+            PlaylistService playlistService, TemplateWrapper template, MediaFileDao mediaFileDao, ArtistDao artistDao,
+            AlbumDao albumDao, StaticsDao staticsDao, SortProcedureService sortProcedure,
+            ScannerStateServiceImpl scannerStateService, Ehcache indexCache, MediaFileCache mediaFileCache,
+            JapaneseReadingUtils readingUtils, JpsonicComparators comparators, ThreadPoolTaskExecutor scanExecutor) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
@@ -126,6 +128,7 @@ public class ScannerProcedureService {
         this.mediaFileService = mediaFileService;
         this.wmfs = wmfs;
         this.playlistService = playlistService;
+        this.template = template;
         this.mediaFileDao = mediaFileDao;
         this.artistDao = artistDao;
         this.albumDao = albumDao;
@@ -952,7 +955,7 @@ public class ScannerProcedureService {
     }
 
     void checkpoint(@NonNull Instant scanDate) {
-        mediaFileDao.checkpoint();
+        template.checkpoint();
         createScanEvent(scanDate, ScanEventType.CHECKPOINT, null);
     }
 

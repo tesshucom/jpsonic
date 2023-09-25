@@ -19,6 +19,8 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.dao.DaoUtils.nullableInstantOf;
+import static com.tesshu.jpsonic.dao.DaoUtils.prefix;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.sql.ResultSet;
@@ -41,33 +43,31 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class StaticsDao extends AbstractDao {
+public class StaticsDao {
 
     private static final String EVENT_QUERY_COLUMNS = """
             start_date, executed, type, max_memory, total_memory,
             free_memory, max_thread, comment\s
             """;
 
-    private final RowMapper<ScanLog> scanLogMapper = (ResultSet rs, int rowNum) -> {
-        return new ScanLog(nullableInstantOf(rs.getTimestamp(1)), ScanLogType.valueOf(rs.getString(2)));
-    };
-    private final RowMapper<ScanEvent> scanEventMapper = (ResultSet rs, int rowNum) -> {
-        return new ScanEvent(nullableInstantOf(rs.getTimestamp(1)), nullableInstantOf(rs.getTimestamp(2)),
-                ScanEventType.of(rs.getString(3)), rs.getLong(4), rs.getLong(5), rs.getLong(6), rs.getInt(7),
-                rs.getString(8));
-    };
-    private final RowMapper<MediaLibraryStatistics> libStatsMapper = (ResultSet rs, int rowNum) -> {
-        return new MediaLibraryStatistics(nullableInstantOf(rs.getTimestamp(1)), rs.getInt(2), rs.getInt(3),
-                rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getLong(7), rs.getLong(8));
-    };
+    private final TemplateWrapper template;
+    private final RowMapper<ScanLog> scanLogMapper = (ResultSet rs,
+            int rowNum) -> new ScanLog(nullableInstantOf(rs.getTimestamp(1)), ScanLogType.valueOf(rs.getString(2)));
+    private final RowMapper<ScanEvent> scanEventMapper = (ResultSet rs, int rowNum) -> new ScanEvent(
+            nullableInstantOf(rs.getTimestamp(1)), nullableInstantOf(rs.getTimestamp(2)),
+            ScanEventType.of(rs.getString(3)), rs.getLong(4), rs.getLong(5), rs.getLong(6), rs.getInt(7),
+            rs.getString(8));
+    private final RowMapper<MediaLibraryStatistics> libStatsMapper = (ResultSet rs,
+            int rowNum) -> new MediaLibraryStatistics(nullableInstantOf(rs.getTimestamp(1)), rs.getInt(2), rs.getInt(3),
+                    rs.getInt(4), rs.getInt(5), rs.getInt(6), rs.getLong(7), rs.getLong(8));
 
-    public StaticsDao(DaoHelper daoHelper) {
-        super(daoHelper);
+    public StaticsDao(TemplateWrapper templateWrapper) {
+        template = templateWrapper;
     }
 
     @Transactional
     public void createFolderLog(@NonNull Instant executed, @NonNull ScanEventType type) {
-        boolean exist = queryForInt("""
+        boolean exist = template.queryForInt("""
                 select count(*)
                 from scan_log
                 where start_date = ?
@@ -79,7 +79,7 @@ public class StaticsDao extends AbstractDao {
     }
 
     public List<ScanLog> getScanLog(ScanLogType type) {
-        return query("""
+        return template.query("""
                 select start_date, type
                 from scan_log
                 where type=?
@@ -88,14 +88,14 @@ public class StaticsDao extends AbstractDao {
     }
 
     public void createScanLog(@NonNull Instant scanDate, @NonNull ScanLogType type) {
-        update("""
+        template.update("""
                 insert into scan_log (start_date, type)
                 values (?, ?)
                 """, scanDate, type.name());
     }
 
     public void deleteBefore(Instant retention) {
-        update("""
+        template.update("""
                 delete from scan_log
                 where type = ?
                         and (start_date <>
@@ -106,11 +106,11 @@ public class StaticsDao extends AbstractDao {
                                 limit 1))
                         and start_date < ?
                 """, ScanLogType.SCAN_ALL.name(), ScanLogType.SCAN_ALL.name(), retention);
-        update("""
+        template.update("""
                 delete from scan_log
                 where type <> ? and start_date < ?
                 """, ScanLogType.SCAN_ALL.name(), retention);
-        update("""
+        template.update("""
                 delete from scan_event
                 where (type=? or type=? or type=?)
                 """, ScanEventType.FOLDER_CREATE.name(), ScanEventType.FOLDER_DELETE.name(),
@@ -118,7 +118,7 @@ public class StaticsDao extends AbstractDao {
     }
 
     public void createScanEvent(@NonNull ScanEvent scanEvent) {
-        update("""
+        template.update("""
                 insert into scan_event (%s)
                 values(?, ?, ?, ?, ?, ?, ?, ?)
                 """.formatted(EVENT_QUERY_COLUMNS), scanEvent.getStartDate(), scanEvent.getExecuted(),
@@ -127,7 +127,7 @@ public class StaticsDao extends AbstractDao {
     }
 
     public void deleteOtherThanLatest() {
-        update("""
+        template.update("""
                 delete from scan_log
                 where type = ? and start_date <>
                         (select start_date
@@ -136,11 +136,11 @@ public class StaticsDao extends AbstractDao {
                         order by start_date desc
                         limit 1)
                 """, ScanLogType.SCAN_ALL.name(), ScanLogType.SCAN_ALL.name());
-        update("""
+        template.update("""
                 delete from scan_log
                 where type <> ?
                 """, ScanLogType.SCAN_ALL.name());
-        update("""
+        template.update("""
                 delete from scan_event
                 where (type=? or type=? or type=?)
                 """, ScanEventType.FOLDER_CREATE.name(), ScanEventType.FOLDER_DELETE.name(),
@@ -157,11 +157,11 @@ public class StaticsDao extends AbstractDao {
                         from scan_log
                         where type = 'SCAN_ALL')
                 """;
-        return query(sql, libStatsMapper);
+        return template.query(sql, libStatsMapper);
     }
 
     public boolean isNeverScanned() {
-        return queryForInt("""
+        return template.queryForInt("""
                 select count(*)
                 from scan_log
                 where type='SCAN_ALL'
@@ -172,7 +172,7 @@ public class StaticsDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of("folderChanges", Arrays.asList(ScanEventType.FOLDER_CREATE.name(),
                 ScanEventType.FOLDER_DELETE.name(), ScanEventType.FOLDER_UPDATE.name()), "scanAll",
                 ScanLogType.SCAN_ALL.name());
-        return namedQueryForInt("""
+        return template.namedQueryForInt("""
                 select count(*)
                 from scan_event events
                 where type in (:folderChanges) and events.start_date >
@@ -232,7 +232,7 @@ public class StaticsDao extends AbstractDao {
         Map<String, Object> args = Map.of("folder", folder.getPathString(), "directory",
                 MediaFile.MediaType.DIRECTORY.name(), "album", MediaFile.MediaType.ALBUM.name(), "music",
                 MediaFile.MediaType.MUSIC.name(), "video", MediaFile.MediaType.VIDEO.name());
-        return namedQuery(query, mapper, args).get(0);
+        return template.namedQuery(query, mapper, args).get(0);
     }
 
     public void createMediaLibraryStatistics(MediaLibraryStatistics stats) {
@@ -243,7 +243,7 @@ public class StaticsDao extends AbstractDao {
                         total_size, total_duration)
                 values (?, ?, ?, ?, ?, ?, ?, ?)
                 """;
-        update(sql, stats.getExecuted(), stats.getFolderId(), stats.getArtistCount(), stats.getAlbumCount(),
+        template.update(sql, stats.getExecuted(), stats.getFolderId(), stats.getArtistCount(), stats.getAlbumCount(),
                 stats.getSongCount(), stats.getVideoCount(), stats.getTotalSize(), stats.getTotalDuration());
     }
 
@@ -252,7 +252,7 @@ public class StaticsDao extends AbstractDao {
                 from scan_event
                 where start_date = ? order by executed
                 """;
-        return query(sql, scanEventMapper, scanDate);
+        return template.query(sql, scanEventMapper, scanDate);
     }
 
     public @NonNull ScanEventType getLastScanEventType(@NonNull Instant startDate) {
@@ -263,7 +263,7 @@ public class StaticsDao extends AbstractDao {
                 order by executed desc
                 limit 1
                 """;
-        List<String> result = queryForStrings(sql, startDate);
+        List<String> result = template.queryForStrings(sql, startDate);
         if (result.isEmpty()) {
             return ScanEventType.UNKNOWN;
         }
@@ -286,6 +286,6 @@ public class StaticsDao extends AbstractDao {
                 on last_log.start_date = event.start_date
                 where type in (:eventTypes)
                 """;
-        return namedQuery(sql, scanEventMapper, args);
+        return template.namedQuery(sql, scanEventMapper, args);
     }
 }

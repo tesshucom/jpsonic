@@ -21,6 +21,9 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.dao.DaoUtils.nullableInstantOf;
+import static com.tesshu.jpsonic.dao.DaoUtils.prefix;
+import static com.tesshu.jpsonic.dao.DaoUtils.questionMarks;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.sql.ResultSet;
@@ -46,7 +49,7 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
 @Repository
-public class ArtistDao extends AbstractDao {
+public class ArtistDao {
 
     private static final String INSERT_COLUMNS = """
             name, cover_art_path, album_count, last_scanned, present, folder_id,
@@ -54,15 +57,16 @@ public class ArtistDao extends AbstractDao {
             """;
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
+    private final TemplateWrapper template;
     private final RowMapper<Artist> rowMapper;
 
-    public ArtistDao(DaoHelper daoHelper) {
-        super(daoHelper);
+    public ArtistDao(TemplateWrapper templateWrapper) {
+        template = templateWrapper;
         rowMapper = new ArtistMapper();
     }
 
     public @Nullable Artist getArtist(String artistName) {
-        return queryOne("select " + QUERY_COLUMNS + """
+        return template.queryOne("select " + QUERY_COLUMNS + """
                 from artist
                 where name=?
                 """, rowMapper, artistName);
@@ -74,14 +78,14 @@ public class ArtistDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("name", artistName, "folders", MusicFolder.toIdList(musicFolders));
 
-        return namedQueryOne("select " + QUERY_COLUMNS + """
+        return template.namedQueryOne("select " + QUERY_COLUMNS + """
                 from artist
                 where name = :name and folder_id in (:folders)
                 """, rowMapper, args);
     }
 
     public @Nullable Artist getArtist(int id) {
-        return queryOne("select " + QUERY_COLUMNS + """
+        return template.queryOne("select " + QUERY_COLUMNS + """
                 from artist
                 where id=?
                 """, rowMapper, id);
@@ -94,7 +98,7 @@ public class ArtistDao extends AbstractDao {
                         folder_id=?, sort=?, reading=?
                 where name=?
                 """;
-        int c = update(sql, artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
+        int c = template.update(sql, artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
                 artist.isPresent(), artist.getFolderId(), artist.getSort(), artist.getReading(), artist.getName());
         if (c > 0) {
             return artist;
@@ -103,10 +107,11 @@ public class ArtistDao extends AbstractDao {
     }
 
     public @Nullable Artist createArtist(Artist artist) {
-        int c = update("insert into artist (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
+        int c = template.update(
+                "insert into artist (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
                 artist.getName(), artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
                 artist.isPresent(), artist.getFolderId(), artist.getSort(), artist.getReading(), -1);
-        Integer id = queryForInt("""
+        Integer id = template.queryForInt("""
                 select id
                 from artist
                 where name=?
@@ -119,7 +124,7 @@ public class ArtistDao extends AbstractDao {
     }
 
     public int updateOrder(int id, int order) {
-        return update("""
+        return template.update("""
                 update artist
                 set artist_order=?
                 where id=?
@@ -133,7 +138,7 @@ public class ArtistDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset",
                 offset);
 
-        return namedQuery("select " + QUERY_COLUMNS + """
+        return template.namedQuery("select " + QUERY_COLUMNS + """
                 from artist
                 where present and folder_id in (:folders)
                 order by artist_order
@@ -149,7 +154,7 @@ public class ArtistDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders), "username", username,
                 "count", count, "offset", offset);
 
-        return namedQuery("select " + prefix(QUERY_COLUMNS, "artist") + """
+        return template.namedQuery("select " + prefix(QUERY_COLUMNS, "artist") + """
                 from starred_artist, artist
                 where artist.id = starred_artist.artist_id and artist.present
                         and starred_artist.username = :username and artist.folder_id in (:folders)
@@ -171,14 +176,15 @@ public class ArtistDao extends AbstractDao {
                                 and media_file.present)
                 """.formatted(podcastQuery);
         if (withPodcast) {
-            update(query, true, scanDate, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name(), MediaType.PODCAST.name());
+            template.update(query, true, scanDate, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name(),
+                    MediaType.PODCAST.name());
         } else {
-            update(query, true, scanDate, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name());
+            template.update(query, true, scanDate, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name());
         }
     }
 
     public List<Integer> getExpungeCandidates(@NonNull Instant scanDate) {
-        return queryForInts("""
+        return template.queryForInts("""
                 select id from artist
                 where last_scanned <> ? or not present or name not in
                         (select distinct album_artist
@@ -189,33 +195,33 @@ public class ArtistDao extends AbstractDao {
     }
 
     public void expunge(@NonNull Instant scanDate) {
-        update("""
+        template.update("""
                 delete from artist
                 where last_scanned <> ? or not present
                 """, scanDate);
     }
 
     public void deleteAll() {
-        update("delete from artist");
+        template.update("delete from artist");
     }
 
     public void starArtist(int artistId, String username) {
         unstarArtist(artistId, username);
-        update("""
+        template.update("""
                 insert into starred_artist(artist_id, username, created)
                 values (?,?,?)
                 """, artistId, username, now());
     }
 
     public void unstarArtist(int artistId, String username) {
-        update("""
+        template.update("""
                 delete from starred_artist
                 where artist_id=? and username=?
                 """, artistId, username);
     }
 
     public @Nullable Instant getArtistStarredDate(int artistId, String username) {
-        return queryForInstant("""
+        return template.queryForInstant("""
                 select created
                 from starred_artist
                 where artist_id=? and username=?
@@ -223,7 +229,7 @@ public class ArtistDao extends AbstractDao {
     }
 
     public List<Artist> getAlbumCounts() {
-        return query("""
+        return template.query("""
                 select artist.id, count(album.id) as album_count
                 from artist
                 join album
@@ -233,7 +239,7 @@ public class ArtistDao extends AbstractDao {
     }
 
     public void updateAlbumCount(int id, int count) {
-        update("""
+        template.update("""
                 update artist
                 set album_count=?
                 where id=?
@@ -261,7 +267,7 @@ public class ArtistDao extends AbstractDao {
             return 0;
         }
         Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders));
-        return namedQueryForInt("""
+        return template.namedQueryForInt("""
                 select count(id)
                 from artist
                 where present and folder_id in (:folders)

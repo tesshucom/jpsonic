@@ -34,6 +34,7 @@ import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.StaticsDao;
+import com.tesshu.jpsonic.dao.TemplateWrapper;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -77,9 +78,10 @@ class ScannerProcedureServiceTest {
                 mock(SecurityService.class), mock(JapaneseReadingUtils.class), mock(IndexManager.class));
         scannerProcedureService = new ScannerProcedureService(settingsService, musicFolderServiceImpl,
                 mock(IndexManager.class), mediaFileService, writableMediaFileService, mock(PlaylistService.class),
-                mediaFileDao, mock(ArtistDao.class), albumDao, staticsDao, mock(SortProcedureService.class),
-                new ScannerStateServiceImpl(staticsDao), mock(Ehcache.class), mock(MediaFileCache.class),
-                mock(JapaneseReadingUtils.class), mock(JpsonicComparators.class), mock(ThreadPoolTaskExecutor.class));
+                mock(TemplateWrapper.class), mediaFileDao, mock(ArtistDao.class), albumDao, staticsDao,
+                mock(SortProcedureService.class), new ScannerStateServiceImpl(staticsDao), mock(Ehcache.class),
+                mock(MediaFileCache.class), mock(JapaneseReadingUtils.class), mock(JpsonicComparators.class),
+                mock(ThreadPoolTaskExecutor.class));
     }
 
     @Nested

@@ -21,6 +21,8 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.dao.DaoUtils.questionMarks;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -36,23 +38,24 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Sindre Mehus
  */
 @Repository
-public class TranscodingDao extends AbstractDao {
+public class TranscodingDao {
 
     private static final String INSERT_COLUMNS = """
             name, source_formats, target_format, step1, step2, step3, default_active\s
             """;
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
+    private final TemplateWrapper template;
     private final TranscodingRowMapper rowMapper;
 
-    public TranscodingDao(DaoHelper daoHelper) {
-        super(daoHelper);
+    public TranscodingDao(TemplateWrapper templateWrapper) {
+        template = templateWrapper;
         rowMapper = new TranscodingRowMapper();
     }
 
     public List<Transcoding> getAllTranscodings() {
         String sql = "select " + QUERY_COLUMNS + "from transcoding2";
-        return query(sql, rowMapper);
+        return template.query(sql, rowMapper);
     }
 
     public List<Transcoding> getTranscodingsForPlayer(Integer playerId) {
@@ -61,12 +64,12 @@ public class TranscodingDao extends AbstractDao {
                 where player_transcoding2.player_id = ?
                         and player_transcoding2.transcoding_id = transcoding2.id
                 """;
-        return query(sql, rowMapper, playerId);
+        return template.query(sql, rowMapper, playerId);
     }
 
     @Transactional
     public void setTranscodingsForPlayer(Integer playerId, int... transcodingIds) {
-        update("""
+        template.update("""
                 delete from player_transcoding2
                 where player_id = ?
                 """, playerId);
@@ -75,20 +78,20 @@ public class TranscodingDao extends AbstractDao {
                 values (?, ?)
                 """;
         for (int transcodingId : transcodingIds) {
-            update(sql, playerId, transcodingId);
+            template.update(sql, playerId, transcodingId);
         }
     }
 
     @Transactional
     public int createTranscoding(Transcoding transcoding) {
-        Integer existingMax = queryForInt("""
+        Integer existingMax = template.queryForInt("""
                 select max(id)
                 from transcoding2
                 """, 0);
         int registered = existingMax + 1;
         transcoding.setId(registered);
         String sql = "insert into transcoding2 (" + QUERY_COLUMNS + ") values (" + questionMarks(QUERY_COLUMNS) + ")";
-        update(sql, transcoding.getId(), transcoding.getName(), transcoding.getSourceFormats(),
+        template.update(sql, transcoding.getId(), transcoding.getName(), transcoding.getSourceFormats(),
                 transcoding.getTargetFormat(), transcoding.getStep1(), transcoding.getStep2(), transcoding.getStep3(),
                 transcoding.isDefaultActive());
         return registered;
@@ -99,7 +102,7 @@ public class TranscodingDao extends AbstractDao {
                 delete from transcoding2
                 where id=?
                 """;
-        update(sql, id);
+        template.update(sql, id);
     }
 
     public void updateTranscoding(Transcoding transcoding) {
@@ -109,7 +112,7 @@ public class TranscodingDao extends AbstractDao {
                         step1=?, step2=?, step3=?, default_active=?
                 where id=?
                 """;
-        update(sql, transcoding.getName(), transcoding.getSourceFormats(), transcoding.getTargetFormat(),
+        template.update(sql, transcoding.getName(), transcoding.getSourceFormats(), transcoding.getTargetFormat(),
                 transcoding.getStep1(), transcoding.getStep2(), transcoding.getStep3(), transcoding.isDefaultActive(),
                 transcoding.getId());
     }

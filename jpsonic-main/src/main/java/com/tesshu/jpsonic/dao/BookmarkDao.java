@@ -21,6 +21,9 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.dao.DaoUtils.nullableInstantOf;
+import static com.tesshu.jpsonic.dao.DaoUtils.questionMarks;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -36,24 +39,25 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Sindre Mehus
  */
 @Repository
-public class BookmarkDao extends AbstractDao {
+public class BookmarkDao {
 
     private static final String INSERT_COLUMNS = """
             media_file_id, position_millis, username, comment, created, changed\s
             """;
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
+    private final TemplateWrapper template;
     private final BookmarkRowMapper bookmarkRowMapper;
 
-    public BookmarkDao(DaoHelper daoHelper) {
-        super(daoHelper);
+    public BookmarkDao(TemplateWrapper templateWrapper) {
+        template = templateWrapper;
         bookmarkRowMapper = new BookmarkRowMapper();
     }
 
     @Deprecated
     public List<Bookmark> getBookmarks() {
         String sql = "select " + QUERY_COLUMNS + "from bookmark";
-        return query(sql, bookmarkRowMapper);
+        return template.query(sql, bookmarkRowMapper);
     }
 
     public List<Bookmark> getBookmarks(String username) {
@@ -61,12 +65,12 @@ public class BookmarkDao extends AbstractDao {
                 from bookmark
                 where username=?
                 """;
-        return query(sql, bookmarkRowMapper, username);
+        return template.query(sql, bookmarkRowMapper, username);
     }
 
     @Transactional
     public void createOrUpdateBookmark(Bookmark bookmark) {
-        int n = update("""
+        int n = template.update("""
                 update bookmark
                 set position_millis=?, comment=?, changed=?
                 where media_file_id=? and username=?
@@ -74,10 +78,11 @@ public class BookmarkDao extends AbstractDao {
                 bookmark.getMediaFileId(), bookmark.getUsername());
 
         if (n == 0) {
-            update("insert into bookmark (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
+            template.update(
+                    "insert into bookmark (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
                     bookmark.getMediaFileId(), bookmark.getPositionMillis(), bookmark.getUsername(),
                     bookmark.getComment(), bookmark.getCreated(), bookmark.getChanged());
-            int id = queryForInt("""
+            int id = template.queryForInt("""
                     select id
                     from bookmark
                     where media_file_id=? and username=?
@@ -88,7 +93,7 @@ public class BookmarkDao extends AbstractDao {
 
     @Transactional
     public void deleteBookmark(String username, int mediaFileId) {
-        update("""
+        template.update("""
                 delete from bookmark
                 where username=? and media_file_id=?
                 """, username, mediaFileId);

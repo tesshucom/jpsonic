@@ -21,6 +21,9 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.dao.DaoUtils.nullableInstantOf;
+import static com.tesshu.jpsonic.dao.DaoUtils.questionMarks;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -36,30 +39,31 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Sindre Mehus
  */
 @Repository
-public class PlayQueueDao extends AbstractDao {
+public class PlayQueueDao {
 
     private static final String INSERT_COLUMNS = """
             username, \"CURRENT\", position_millis, changed, changed_by\s
             """;
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
+    private final TemplateWrapper template;
     private final RowMapper<SavedPlayQueue> rowMapper;
 
-    public PlayQueueDao(DaoHelper daoHelper) {
-        super(daoHelper);
+    public PlayQueueDao(TemplateWrapper templateWrapper) {
+        template = templateWrapper;
         rowMapper = new PlayQueueMapper();
     }
 
     @Transactional
     public SavedPlayQueue getPlayQueue(String username) {
-        SavedPlayQueue playQueue = queryOne("select " + QUERY_COLUMNS + """
+        SavedPlayQueue playQueue = template.queryOne("select " + QUERY_COLUMNS + """
                 from play_queue
                 where username=?
                 """, rowMapper, username);
         if (playQueue == null) {
             return null;
         }
-        List<Integer> mediaFileIds = queryForInts("""
+        List<Integer> mediaFileIds = template.queryForInts("""
                 select media_file_id
                 from play_queue_file
                 where play_queue_id = ?
@@ -70,18 +74,18 @@ public class PlayQueueDao extends AbstractDao {
 
     @Transactional
     public void savePlayQueue(SavedPlayQueue playQueue) {
-        update("""
+        template.update("""
                 delete from play_queue
                 where username=?
                 """, playQueue.getUsername());
-        update("insert into play_queue(" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
+        template.update("insert into play_queue(" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
                 playQueue.getUsername(), playQueue.getCurrentMediaFileId(), playQueue.getPositionMillis(),
                 playQueue.getChanged(), playQueue.getChangedBy());
-        int id = queryForInt("select max(id) from play_queue", 0);
+        int id = template.queryForInt("select max(id) from play_queue", 0);
         playQueue.setId(id);
 
         for (Integer mediaFileId : playQueue.getMediaFileIds()) {
-            update("""
+            template.update("""
                     insert into play_queue_file(play_queue_id, media_file_id)
                     values (?, ?)
                     """, id, mediaFileId);

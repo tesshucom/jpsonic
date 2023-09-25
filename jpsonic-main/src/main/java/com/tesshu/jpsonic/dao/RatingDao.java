@@ -39,10 +39,12 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Sindre Mehus
  */
 @Repository("musicFileInfoDao")
-public class RatingDao extends AbstractDao {
+public class RatingDao {
 
-    public RatingDao(DaoHelper daoHelper) {
-        super(daoHelper);
+    private final TemplateWrapper template;
+
+    public RatingDao(TemplateWrapper templateWrapper) {
+        template = templateWrapper;
     }
 
     public List<String> getHighestRatedAlbums(final int offset, final int count, final List<MusicFolder> musicFolders) {
@@ -60,7 +62,7 @@ public class RatingDao extends AbstractDao {
                 order by avg(rating) desc
                 limit :count offset :offset
                 """;
-        return namedQueryForStrings(sql, args);
+        return template.namedQueryForStrings(sql, args);
     }
 
     @Transactional
@@ -68,18 +70,18 @@ public class RatingDao extends AbstractDao {
         if (rating != null && (rating < 1 || rating > 5)) {
             return;
         }
-        update("""
+        template.update("""
                 delete from user_rating
                 where username=? and path=?
                 """, username, mediaFile.getPathString());
         if (rating != null) {
-            update("insert into user_rating values(?, ?, ?)", username, mediaFile.getPathString(), rating);
+            template.update("insert into user_rating values(?, ?, ?)", username, mediaFile.getPathString(), rating);
         }
     }
 
     public @Nullable Double getAverageRating(MediaFile mediaFile) {
         try {
-            return getJdbcTemplate().queryForObject("""
+            return template.getJdbcTemplate().queryForObject("""
                     select avg(rating)
                     from user_rating
                     where path=?
@@ -91,7 +93,7 @@ public class RatingDao extends AbstractDao {
 
     public @Nullable Integer getRatingForUser(String username, MediaFile mediaFile) {
         try {
-            return queryForInt("""
+            return template.queryForInt("""
                     select rating
                     from user_rating
                     where username=? and path=?
@@ -107,7 +109,7 @@ public class RatingDao extends AbstractDao {
         }
         Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
                 MusicFolder.toPathList(musicFolders), "username", username);
-        return namedQueryForInt("""
+        return template.namedQueryForInt("""
                 select count(*) from user_rating, media_file
                 where media_file.path = user_rating.path
                         and media_file.type = :type and media_file.present
@@ -117,7 +119,7 @@ public class RatingDao extends AbstractDao {
     }
 
     public void expunge() {
-        update("""
+        template.update("""
                 delete from user_rating
                 where path in
                         (select user_rating.path

@@ -57,6 +57,7 @@ import com.tesshu.jpsonic.dao.DaoHelper;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.dao.StaticsDao;
+import com.tesshu.jpsonic.dao.TemplateWrapper;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
@@ -214,9 +215,10 @@ class MediaScannerServiceImplTest {
                     albumDao, mock(MediaFileCache.class), mock(MusicParser.class), mock(VideoParser.class),
                     settingsService, mock(SecurityService.class), null, mock(IndexManager.class));
             scannerProcedureService = new ScannerProcedureService(settingsService, mock(MusicFolderServiceImpl.class),
-                    indexManager, mediaFileService, writableMediaFileService, mock(PlaylistService.class), mediaFileDao,
-                    artistDao, albumDao, staticsDao, utils, scannerStateService, mock(Ehcache.class),
-                    mock(MediaFileCache.class), mock(JapaneseReadingUtils.class), mock(JpsonicComparators.class),
+                    indexManager, mediaFileService, writableMediaFileService, mock(PlaylistService.class),
+                    mock(TemplateWrapper.class), mediaFileDao, artistDao, albumDao, staticsDao, utils,
+                    scannerStateService, mock(Ehcache.class), mock(MediaFileCache.class),
+                    mock(JapaneseReadingUtils.class), mock(JpsonicComparators.class),
                     mock(ThreadPoolTaskExecutor.class));
             mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
                     scannerProcedureService, mock(ExpungeService.class), staticsDao, executor);
@@ -1116,10 +1118,10 @@ class MediaScannerServiceImplTest {
             musicFolderService = mock(MusicFolderServiceImpl.class);
             comparators = mock(JpsonicComparators.class);
             scannerProcedureService = new ScannerProcedureService(settingsService, musicFolderService, indexManager,
-                    mediaFileService, writableMediaFileService, mock(PlaylistService.class), mediaFileDao, artistDao,
-                    albumDao, staticsDao, sortProcedureService, scannerStateService, mock(Ehcache.class),
-                    mock(MediaFileCache.class), mock(JapaneseReadingUtils.class), comparators,
-                    mock(ThreadPoolTaskExecutor.class));
+                    mediaFileService, writableMediaFileService, mock(PlaylistService.class),
+                    mock(TemplateWrapper.class), mediaFileDao, artistDao, albumDao, staticsDao, sortProcedureService,
+                    scannerStateService, mock(Ehcache.class), mock(MediaFileCache.class),
+                    mock(JapaneseReadingUtils.class), comparators, mock(ThreadPoolTaskExecutor.class));
             mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
                     scannerProcedureService, mock(ExpungeService.class), staticsDao, executor);
         }
