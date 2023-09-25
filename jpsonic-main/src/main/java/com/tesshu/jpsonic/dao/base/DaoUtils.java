@@ -24,10 +24,25 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
+import com.tesshu.jpsonic.domain.MediaFile;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.jdbc.core.RowMapper;
 
 public final class DaoUtils {
+
+    private static final String MSG_NO_DEF = "Definition does not exist: %s)";
+    private static final String MEDIA_FILE_INSERT_COLUMNS = """
+            path, folder, type, format, title, album, artist, album_artist, disc_number,
+            track_number, year, genre, bit_rate, variable_bit_rate, duration_seconds,
+            file_size, width, height, cover_art_path, parent_path, play_count, last_played,
+            comment, created, changed, last_scanned, children_last_updated, present, version,
+            mb_release_id, mb_recording_id, composer, artist_sort, album_sort, title_sort,
+            album_artist_sort, composer_sort, artist_reading, album_reading, album_artist_reading,
+            artist_sort_raw, album_sort_raw, album_artist_sort_raw, composer_sort_raw,
+            media_file_order\s
+            """;
+    private static final String MEDIA_FILE_QUERY_COLUMNS = "id, " + MEDIA_FILE_INSERT_COLUMNS;
 
     private DaoUtils() {
     }
@@ -45,5 +60,44 @@ public final class DaoUtils {
         List<String> l = Arrays.asList(columns.replaceAll("\n", " ").split(", "));
         l.replaceAll(s -> prefix + "." + s);
         return String.join(", ", l).trim().concat(" ");
+    }
+
+    public static String getInsertColumns(Class<?> domainClass) {
+        if (domainClass == MediaFile.class) {
+            return MEDIA_FILE_INSERT_COLUMNS;
+        }
+        throw new IllegalArgumentException(MSG_NO_DEF.formatted(domainClass.getSimpleName()));
+    }
+
+    public static String getQueryColumns(Class<?> domainClass) {
+        if (domainClass == MediaFile.class) {
+            return MEDIA_FILE_QUERY_COLUMNS;
+        }
+        throw new IllegalArgumentException(MSG_NO_DEF.formatted(domainClass.getSimpleName()));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> RowMapper<T> createRowMapper(Class<T> domainClass) {
+        if (domainClass == MediaFile.class) {
+            return (RowMapper<T>) createMediaFileRowMapper();
+        }
+        throw new IllegalArgumentException(MSG_NO_DEF.formatted(domainClass.getSimpleName()));
+    }
+
+    @SuppressWarnings({ "PMD.CognitiveComplexity", "PMD.NPathComplexity" })
+    private static RowMapper<MediaFile> createMediaFileRowMapper() {
+        return (rs, num) -> new MediaFile(rs.getInt(1), rs.getString(2), rs.getString(3),
+                MediaFile.MediaType.valueOf(rs.getString(4)), rs.getString(5), rs.getString(6), rs.getString(7),
+                rs.getString(8), rs.getString(9), rs.getInt(10) == 0 ? null : rs.getInt(10),
+                rs.getInt(11) == 0 ? null : rs.getInt(11), rs.getInt(12) == 0 ? null : rs.getInt(12), rs.getString(13),
+                rs.getInt(14) == 0 ? null : rs.getInt(14), rs.getBoolean(15), rs.getInt(16) == 0 ? null : rs.getInt(16),
+                rs.getLong(17) == 0 ? null : rs.getLong(17), rs.getInt(18) == 0 ? null : rs.getInt(18),
+                rs.getInt(19) == 0 ? null : rs.getInt(19), rs.getString(20), rs.getString(21), rs.getInt(22),
+                nullableInstantOf(rs.getTimestamp(23)), rs.getString(24), nullableInstantOf(rs.getTimestamp(25)),
+                nullableInstantOf(rs.getTimestamp(26)), nullableInstantOf(rs.getTimestamp(27)),
+                nullableInstantOf(rs.getTimestamp(28)), rs.getBoolean(29), rs.getInt(30), rs.getString(31),
+                rs.getString(32), rs.getString(33), rs.getString(34), rs.getString(35), rs.getString(36),
+                rs.getString(37), rs.getString(38), rs.getString(39), rs.getString(40), rs.getString(41),
+                rs.getString(42), rs.getString(43), rs.getString(44), rs.getString(45), rs.getInt(46));
     }
 }
