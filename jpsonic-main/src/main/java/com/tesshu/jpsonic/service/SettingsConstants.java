@@ -178,7 +178,7 @@ final class SettingsConstants {
 
             static final Pair<Long> DOWNLOAD_BITRATE_LIMIT = Pair.of("DownloadBitrateLimit", 0L);
             static final Pair<Long> UPLOAD_BITRATE_LIMIT = Pair.of("UploadBitrateLimit", 0L);
-            static final Pair<Integer> BUFFER_SIZE = Pair.of("BufferSize", 4096);
+            static final Pair<Integer> BUFFER_SIZE = Pair.of("SendBufferSize", 32_768);
 
             private Bandwidth() {
             }

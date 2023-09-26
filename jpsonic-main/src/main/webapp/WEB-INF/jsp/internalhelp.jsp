@@ -28,16 +28,22 @@
         <fmt:message key="internalhelp.platforminfo"/>
     </summary>
     <dl>
+        <dt><fmt:message key="internalhelp.platformname"/></dt>
+        <dd>${model.platformName}</dd>
         <dt><fmt:message key="internalhelp.osname"/></dt>
         <dd>${model.osName}</dd>
+        <dt><fmt:message key="internalhelp.osversion"/></dt>
+        <dd>${model.osVersion}</dd>
+        <dt><fmt:message key="internalhelp.osarc"/></dt>
+        <dd>${model.osArc}</dd>
         <dt><fmt:message key="internalhelp.javaversion"/></dt>
         <dd>${model.javaVersion}</dd>
-        <dt><fmt:message key="internalhelp.applicationserver"/></dt>
-        <dd>${model.applicationServer}</dd>
         <dt><fmt:message key="internalhelp.memory"/></dt>
         <dd><sub:formatBytes bytes="${model.usedMemory}"/> / <sub:formatBytes bytes="${model.totalMemory}"/></dd>
         <dt><fmt:message key="internalhelp.gc"/></dt>
         <dd>${model.gc}</dd>
+        <dt><fmt:message key="internalhelp.applicationserver"/></dt>
+        <dd>${model.applicationServer}</dd>
     </dl>
 </details>
 

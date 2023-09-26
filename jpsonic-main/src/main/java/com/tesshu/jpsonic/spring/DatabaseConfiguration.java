@@ -30,9 +30,9 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import com.tesshu.jpsonic.dao.DaoHelper;
-import com.tesshu.jpsonic.dao.GenericDaoHelper;
-import com.tesshu.jpsonic.dao.LegacyHsqlDaoHelper;
+import com.tesshu.jpsonic.dao.base.DaoHelper;
+import com.tesshu.jpsonic.dao.base.GenericDaoHelper;
+import com.tesshu.jpsonic.dao.base.LegacyHsqlDaoHelper;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.PlayerUtils;

@@ -626,6 +626,12 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.jsoftbiz</groupId>
+            <artifactId>os-platform-finder</artifactId>
+            <version>1.1</version>
+        </dependency>
     </dependencies>
 
     <build>

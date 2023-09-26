@@ -21,10 +21,14 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.dao.base.DaoUtils.nullableInstantOf;
+import static com.tesshu.jpsonic.dao.base.DaoUtils.questionMarks;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.Avatar;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.jdbc.core.RowMapper;
@@ -36,23 +40,24 @@ import org.springframework.stereotype.Repository;
  * @author Sindre Mehus
  */
 @Repository
-public class AvatarDao extends AbstractDao {
+public class AvatarDao {
 
     private static final String INSERT_COLUMNS = """
             name, created_date, mime_type, width, height, data\s
             """;
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
+    private final TemplateWrapper template;
     private final AvatarRowMapper rowMapper;
 
-    public AvatarDao(DaoHelper daoHelper) {
-        super(daoHelper);
+    public AvatarDao(TemplateWrapper templateWrapper) {
+        template = templateWrapper;
         rowMapper = new AvatarRowMapper();
     }
 
     public List<Avatar> getAllSystemAvatars() {
         String sql = "select " + QUERY_COLUMNS + "from system_avatar";
-        return query(sql, rowMapper);
+        return template.query(sql, rowMapper);
     }
 
     public @Nullable Avatar getSystemAvatar(int id) {
@@ -60,7 +65,7 @@ public class AvatarDao extends AbstractDao {
                 from system_avatar
                 where id=?
                 """;
-        return queryOne(sql, rowMapper, id);
+        return template.queryOne(sql, rowMapper, id);
     }
 
     public @Nullable Avatar getCustomAvatar(String username) {
@@ -68,7 +73,7 @@ public class AvatarDao extends AbstractDao {
                 from custom_avatar
                 where username=?
                 """;
-        return queryOne(sql, rowMapper, username);
+        return template.queryOne(sql, rowMapper, username);
     }
 
     /**
@@ -84,11 +89,13 @@ public class AvatarDao extends AbstractDao {
                 delete from custom_avatar
                 where username=?
                 """;
-        update(sql, username);
+        template.update(sql, username);
 
         if (avatar != null) {
-            update("insert into custom_avatar(" + INSERT_COLUMNS + ", username) values(" + questionMarks(INSERT_COLUMNS)
-                    + ", ?)", avatar.getName(), avatar.getCreatedDate(), avatar.getMimeType(), avatar.getWidth(),
+            template.update(
+                    "insert into custom_avatar(" + INSERT_COLUMNS + ", username) values("
+                            + questionMarks(INSERT_COLUMNS) + ", ?)",
+                    avatar.getName(), avatar.getCreatedDate(), avatar.getMimeType(), avatar.getWidth(),
                     avatar.getHeight(), avatar.getData(), username);
         }
     }

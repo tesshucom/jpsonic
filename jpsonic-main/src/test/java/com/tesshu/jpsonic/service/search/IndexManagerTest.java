@@ -36,6 +36,7 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.RatingDao;
+import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SearchResult;
@@ -68,10 +69,13 @@ class IndexManagerTest extends AbstractNeedsScan {
     private SearchCriteriaDirector director;
 
     @Autowired
-    private MediaFileDao mediaFileDao;
+    private MediaScannerService mediaScannerService;
 
     @Autowired
-    private MediaScannerService mediaScannerService;
+    private TemplateWrapper template;
+
+    @Autowired
+    private MediaFileDao mediaFileDao;
 
     @Autowired
     private RatingDao ratingDao;
@@ -99,7 +103,7 @@ class IndexManagerTest extends AbstractNeedsScan {
 
             albums.forEach(m -> ratingDao.setRatingForUser(USER_NAME, m, 1));
             assertEquals(4, ratingDao.getRatedAlbumCount(USER_NAME, musicFolders));
-            int ratingsCount = ratingDao.getJdbcTemplate().queryForObject(
+            int ratingsCount = template.getJdbcTemplate().queryForObject(
                     "select count(*) from user_rating where user_rating.username = ?", Integer.class, USER_NAME);
             assertEquals(4, ratingsCount, "Because explicitly registered 4 Ratings.");
 
@@ -110,7 +114,7 @@ class IndexManagerTest extends AbstractNeedsScan {
 
             assertEquals(4, ratingDao.getRatedAlbumCount(USER_NAME, musicFolders),
                     "Because the SELECT condition only references real paths.");
-            ratingsCount = ratingDao.getJdbcTemplate().queryForObject(
+            ratingsCount = template.getJdbcTemplate().queryForObject(
                     "select count(*) from user_rating where user_rating.username = ?", Integer.class, USER_NAME);
             assertEquals(5, ratingsCount, "Because counted directly, including non-existent paths.");
 
@@ -218,7 +222,7 @@ class IndexManagerTest extends AbstractNeedsScan {
 
         // See this#setup
         assertEquals(3, ratingDao.getRatedAlbumCount(USER_NAME, musicFolders), "Because one album has been deleted.");
-        int ratingsCount = ratingDao.getJdbcTemplate().queryForObject(
+        int ratingsCount = template.getJdbcTemplate().queryForObject(
                 "select count(*) from user_rating where user_rating.username = ?", Integer.class, USER_NAME);
         assertEquals(3, ratingsCount, "Will be removed, including oldPath");
     }

@@ -21,6 +21,8 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.jsoftbiz.utils.OS.OS;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -46,8 +48,8 @@ import java.util.TreeMap;
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
-import com.tesshu.jpsonic.dao.DaoHelper;
 import com.tesshu.jpsonic.dao.StaticsDao;
+import com.tesshu.jpsonic.dao.base.DaoHelper;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MusicFolderService;
@@ -132,25 +134,28 @@ public class InternalHelpController {
     }
 
     private void gatherPlatfomInfo(HttpServletRequest request, Map<String, Object> map) {
-        map.put("osName", System.getProperty("os.name"));
+        map.put("platformName", OS.getPlatformName());
+        map.put("osName", OS.getName());
+        map.put("osVersion", OS.getVersion());
+        map.put("osArc", OS.getArch());
         map.put("javaVersion", System.getProperty("java.version"));
-        map.put("applicationServer", request.getSession().getServletContext().getServerInfo());
         long totalMemory = Runtime.getRuntime().totalMemory();
         map.put("totalMemory", totalMemory);
         map.put("usedMemory", totalMemory - Runtime.getRuntime().freeMemory());
         map.put("gc", guessGCName());
+        map.put("applicationServer", request.getSession().getServletContext().getServerInfo());
     }
 
     private String guessGCName() {
         List<String> names = ManagementFactory.getGarbageCollectorMXBeans().stream().map(b -> b.getName()).toList();
         if (names.contains("ZGC Cycles") && names.contains("ZGC Pauses")) {
-            return "ZGC";
+            return "Z GC";
         } else if (names.contains("G1 Young Generation") && names.contains("G1 Old Generation")) {
-            return "G1GC";
+            return "G1 GC";
         } else if (names.contains("PS MarkSweep") && names.contains("PS Scavenge")) {
-            return "ParallelGC";
+            return "Parallel GC";
         } else if (names.contains("Copy") && names.contains("MarkSweepCompact")) {
-            return "SerialGC";
+            return "Serial GC";
         }
         return null;
     }

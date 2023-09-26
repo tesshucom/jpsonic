@@ -302,7 +302,7 @@ public class StreamController {
     @SuppressFBWarnings(value = "UC_USELESS_CONDITION", justification = "False positive. #1078")
     private void writeStream(Player player, InputStream in, OutputStream out, Long fileLengthExpected,
             boolean isPodcast, boolean isSingleFile) throws IOException {
-        byte[] buf = new byte[settingsService.getBufferSize()];
+        byte[] buf = new byte[4096];
         long bytesWritten = 0;
 
         boolean alive = isAliveStream(player);
@@ -425,6 +425,7 @@ public class StreamController {
         try (InputStream in = streamService.createInputStream(player, status, maxBitRate, format,
                 result.getVideoTranscodingSettings());
                 OutputStream out = RangeOutputStream.wrap(res.getOutputStream(), result.getRange())) {
+            res.setBufferSize(settingsService.getBufferSize());
             writeStream(player, in, out, result.getFileLengthExpected(), isPodcast, isSingleFile);
         } catch (IOException e) {
             writeErrorLog(e, req);
