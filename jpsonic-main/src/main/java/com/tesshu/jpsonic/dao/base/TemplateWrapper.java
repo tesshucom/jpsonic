@@ -19,11 +19,10 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.dao;
+package com.tesshu.jpsonic.dao.base;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +32,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
-import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -41,19 +39,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Component;
 
-/**
- * Abstract superclass for all DAO's.
- *
- * @author Sindre Mehus
- */
-public class AbstractDao {
+@Component
+public class TemplateWrapper {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractDao.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TemplateWrapper.class);
 
     private final DaoHelper daoHelper;
 
-    public AbstractDao(DaoHelper daoHelper) {
+    public TemplateWrapper(DaoHelper daoHelper) {
         super();
         this.daoHelper = daoHelper;
     }
@@ -74,19 +69,8 @@ public class AbstractDao {
         return daoHelper.getNamedParameterJdbcTemplate();
     }
 
-    protected String questionMarks(String columns) {
-        int numberOfColumns = StringUtils.countMatches(columns, ",") + 1;
-        return StringUtils.repeat("?", ", ", numberOfColumns);
-    }
-
-    protected static String prefix(String columns, String prefix) {
-        List<String> l = Arrays.asList(columns.replaceAll("\n", " ").split(", "));
-        l.replaceAll(s -> prefix + "." + s);
-        return String.join(", ", l).trim().concat(" ");
-    }
-
     @SuppressFBWarnings(value = "SQL_INJECTION_SPRING_JDBC", justification = "False positive. find-sec-bugs#385")
-    protected int update(String sql, Object... args) {
+    public int update(String sql, Object... args) {
         long t = System.nanoTime();
         LOG.trace("Executing query: [{}]", sql);
         int result = getJdbcTemplate().update(sql, castArgs(args));
@@ -105,42 +89,42 @@ public class AbstractDao {
     }
 
     @SuppressFBWarnings(value = "SQL_INJECTION_SPRING_JDBC", justification = "False positive. find-sec-bugs#385")
-    protected <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) {
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) {
         long t = System.nanoTime();
         List<T> result = getJdbcTemplate().query(sql, rowMapper, castArgs(args));
         writeLog(sql, t);
         return result;
     }
 
-    protected <T> List<T> namedQuery(String sql, RowMapper<T> rowMapper, Map<String, Object> args) {
+    public <T> List<T> namedQuery(String sql, RowMapper<T> rowMapper, Map<String, Object> args) {
         long t = System.nanoTime();
         List<T> result = getNamedParameterJdbcTemplate().query(sql, castArgs(args), rowMapper);
         writeLog(sql, t);
         return result;
     }
 
-    protected List<String> queryForStrings(String sql, Object... args) {
+    public List<String> queryForStrings(String sql, Object... args) {
         long t = System.nanoTime();
         List<String> result = getJdbcTemplate().queryForList(sql, String.class, castArgs(args));
         writeLog(sql, t);
         return result;
     }
 
-    protected List<Integer> queryForInts(String sql, Object... args) {
+    public List<Integer> queryForInts(String sql, Object... args) {
         long t = System.nanoTime();
         List<Integer> result = getJdbcTemplate().queryForList(sql, Integer.class, castArgs(args));
         writeLog(sql, t);
         return result;
     }
 
-    protected List<String> namedQueryForStrings(String sql, Map<String, Object> args) {
+    public List<String> namedQueryForStrings(String sql, Map<String, Object> args) {
         long t = System.nanoTime();
         List<String> result = getNamedParameterJdbcTemplate().queryForList(sql, castArgs(args), String.class);
         writeLog(sql, t);
         return result;
     }
 
-    protected Integer queryForInt(String sql, Integer defaultValue, Object... args) {
+    public Integer queryForInt(String sql, Integer defaultValue, Object... args) {
         long t = System.nanoTime();
         List<Integer> list = getJdbcTemplate().queryForList(sql, Integer.class, castArgs(args));
         Integer result = list.isEmpty() ? defaultValue : list.get(0) == null ? defaultValue : list.get(0);
@@ -148,7 +132,7 @@ public class AbstractDao {
         return result;
     }
 
-    protected Integer namedQueryForInt(String sql, Integer defaultValue, Map<String, Object> args) {
+    public Integer namedQueryForInt(String sql, Integer defaultValue, Map<String, Object> args) {
         long t = System.nanoTime();
         List<Integer> list = getNamedParameterJdbcTemplate().queryForList(sql, castArgs(args), Integer.class);
         Integer result = list.isEmpty() ? defaultValue : list.get(0) == null ? defaultValue : list.get(0);
@@ -156,7 +140,7 @@ public class AbstractDao {
         return result;
     }
 
-    protected Instant queryForInstant(String sql, Instant defaultValue, Object... args) {
+    public Instant queryForInstant(String sql, Instant defaultValue, Object... args) {
         long startTimeNano = System.nanoTime();
         Instant result = getJdbcTemplate().queryForList(sql, Timestamp.class, castArgs(args)).stream()
                 .filter(Objects::nonNull).findFirst().map(t -> t.toInstant()).orElse(defaultValue);
@@ -173,18 +157,19 @@ public class AbstractDao {
         return result;
     }
 
-    protected @Nullable <T> T queryOne(String sql, RowMapper<T> rowMapper, Object... args) {
+    public @Nullable <T> T queryOne(String sql, RowMapper<T> rowMapper, Object... args) {
         List<T> list = query(sql, rowMapper, castArgs(args));
         return list.isEmpty() ? null : list.get(0);
     }
 
-    protected <T> T namedQueryOne(String sql, RowMapper<T> rowMapper, Map<String, Object> args) {
+    public <T> T namedQueryOne(String sql, RowMapper<T> rowMapper, Map<String, Object> args) {
         List<T> list = namedQuery(sql, rowMapper, castArgs(args));
         return list.isEmpty() ? null : list.get(0);
     }
 
     static @Nullable Object[] castArgs(@Nullable Object... args) {
-        return args == null ? null : Stream.of(args).map(AbstractDao::castArg).collect(Collectors.toList()).toArray();
+        return args == null ? null
+                : Stream.of(args).map(TemplateWrapper::castArg).collect(Collectors.toList()).toArray();
     }
 
     @SuppressWarnings("PMD.UseConcurrentHashMap") // Explicit use of null
@@ -204,10 +189,6 @@ public class AbstractDao {
             return Timestamp.from(dateTime);
         }
         return arg;
-    }
-
-    protected static @Nullable Instant nullableInstantOf(Timestamp timestamp) {
-        return timestamp == null ? null : timestamp.toInstant();
     }
 
     public void checkpoint() {

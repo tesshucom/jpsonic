@@ -12,7 +12,7 @@ const scanning = ${command.scanning};
 function resetBandwidth() {
     $('[name="downloadLimit"]').val(0);
     $('[name="uploadLimit"]').val(0);
-    $('[name="bufferSize"]').prop("selectedIndex", 1);
+    $('[name="bufferSize"]').prop("selectedIndex", 3);
 }
 
 function resetScanLog() {
@@ -107,9 +107,14 @@ document.addEventListener('DOMContentLoaded', function () {
             <dt><fmt:message key="advancedsettings.buffersize"/></dt>
             <dd>
                 <form:select path="bufferSize">
-                    <c:forEach begin="1" end="16" var="base">
-                        <form:option value="${base * 2048}" />
-                    </c:forEach>
+                    <form:option value="4096" label="4Kb: tcp_rmem#min"/>
+                    <form:option value="8192" label="8Kb"/>
+                    <form:option value="16384" label="16KB"/>
+                    <form:option value="32768" label="32KB: Default"/>
+                    <form:option value="65536" label="64KB"/>
+                    <form:option value="87380" label="87,380: tcp_rmem#mid"/>
+                    <form:option value="1048576" label="1Mb"/>
+                    <form:option value="6291456" label="6Mb: tcp_rmem#max"/>
                 </form:select>
             </dd>
         </dl>

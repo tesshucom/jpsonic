@@ -21,6 +21,9 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.dao.base.DaoUtils.nullableInstantOf;
+import static com.tesshu.jpsonic.dao.base.DaoUtils.prefix;
+import static com.tesshu.jpsonic.dao.base.DaoUtils.questionMarks;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.sql.ResultSet;
@@ -30,6 +33,7 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.Playlist;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -44,7 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
 @Repository
-public class PlaylistDao extends AbstractDao {
+public class PlaylistDao {
 
     private static final String INSERT_COLUMNS = """
             username, is_public, name, comment, file_count, duration_seconds,
@@ -52,21 +56,22 @@ public class PlaylistDao extends AbstractDao {
             """;
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
+    private final TemplateWrapper template;
     private final RowMapper<Playlist> rowMapper;
 
-    public PlaylistDao(DaoHelper daoHelper) {
-        super(daoHelper);
+    public PlaylistDao(TemplateWrapper templateWrapper) {
+        template = templateWrapper;
         rowMapper = new PlaylistMapper();
     }
 
     public List<Playlist> getReadablePlaylistsForUser(String username) {
 
         List<Playlist> result1 = getWritablePlaylistsForUser(username);
-        List<Playlist> result2 = query("select " + QUERY_COLUMNS + """
+        List<Playlist> result2 = template.query("select " + QUERY_COLUMNS + """
                 from playlist
                 where is_public
                 """, rowMapper);
-        List<Playlist> result3 = query("select " + prefix(QUERY_COLUMNS, "playlist") + """
+        List<Playlist> result3 = template.query("select " + prefix(QUERY_COLUMNS, "playlist") + """
                 from playlist, playlist_user
                 where playlist.id = playlist_user.playlist_id
                         and playlist.username != ?
@@ -88,44 +93,44 @@ public class PlaylistDao extends AbstractDao {
     }
 
     public List<Playlist> getWritablePlaylistsForUser(String username) {
-        return query("select " + QUERY_COLUMNS + """
+        return template.query("select " + QUERY_COLUMNS + """
                 from playlist
                 where username=?
                 """, rowMapper, username);
     }
 
     public @Nullable Playlist getPlaylist(int id) {
-        return queryOne("select " + QUERY_COLUMNS + """
+        return template.queryOne("select " + QUERY_COLUMNS + """
                 from playlist
                 where id=?
                 """, rowMapper, id);
     }
 
     public List<Playlist> getAllPlaylists() {
-        return query("select " + QUERY_COLUMNS + """
+        return template.query("select " + QUERY_COLUMNS + """
                 from playlist
                 """, rowMapper);
     }
 
     @Transactional
     public void createPlaylist(Playlist playlist) {
-        update("insert into playlist(" + INSERT_COLUMNS + ") values(" + questionMarks(INSERT_COLUMNS) + ")",
+        template.update("insert into playlist(" + INSERT_COLUMNS + ") values(" + questionMarks(INSERT_COLUMNS) + ")",
                 playlist.getUsername(), playlist.isShared(), playlist.getName(), playlist.getComment(), 0, 0,
                 playlist.getCreated(), playlist.getChanged(), playlist.getImportedFrom());
 
-        int id = queryForInt("select max(id) from playlist", 0);
+        int id = template.queryForInt("select max(id) from playlist", 0);
         playlist.setId(id);
     }
 
     @Transactional
     public void setFilesInPlaylist(int id, List<MediaFile> files) {
-        update("""
+        template.update("""
                 delete from playlist_file
                 where playlist_id=?
                 """, id);
         int duration = 0;
         for (MediaFile file : files) {
-            update("""
+            template.update("""
                     insert into playlist_file (playlist_id, media_file_id)
                     values (?, ?)
                     """, id, file.getId());
@@ -134,7 +139,7 @@ public class PlaylistDao extends AbstractDao {
                 duration += ds;
             }
         }
-        update("""
+        template.update("""
                 update playlist
                 set file_count=?, duration_seconds=?, changed=?
                 where id=?
@@ -142,7 +147,7 @@ public class PlaylistDao extends AbstractDao {
     }
 
     public List<String> getPlaylistUsers(int playlistId) {
-        return queryForStrings("""
+        return template.queryForStrings("""
                 select username
                 from playlist_user
                 where playlist_id=?
@@ -151,7 +156,7 @@ public class PlaylistDao extends AbstractDao {
 
     public void addPlaylistUser(int playlistId, String username) {
         if (!getPlaylistUsers(playlistId).contains(username)) {
-            update("""
+            template.update("""
                     insert into playlist_user(playlist_id,username)
                     values (?,?)
                     """, playlistId, username);
@@ -159,7 +164,7 @@ public class PlaylistDao extends AbstractDao {
     }
 
     public void deletePlaylistUser(int playlistId, String username) {
-        update("""
+        template.update("""
                 delete from
                 playlist_user
                 where playlist_id=? and username=?
@@ -168,14 +173,14 @@ public class PlaylistDao extends AbstractDao {
 
     @Transactional
     public void deletePlaylist(int id) {
-        update("""
+        template.update("""
                 delete from playlist
                 where id=?
                 """, id);
     }
 
     public void updatePlaylist(Playlist playlist) {
-        update("""
+        template.update("""
                 update playlist
                 set username=?, is_public=?, name=?, comment=?, changed=?, imported_from=?
                 where id=?
@@ -184,7 +189,7 @@ public class PlaylistDao extends AbstractDao {
     }
 
     public int getCountAll() {
-        return queryForInt("""
+        return template.queryForInt("""
                 select count(id)
                 from playlist
                 """, 0);

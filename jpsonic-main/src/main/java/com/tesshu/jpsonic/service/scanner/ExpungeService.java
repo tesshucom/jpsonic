@@ -2,8 +2,8 @@ package com.tesshu.jpsonic.service.scanner;
 
 import java.time.Instant;
 
-import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.dao.RatingDao;
+import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.domain.ScanLog.ScanLogType;
 import com.tesshu.jpsonic.service.search.IndexManager;
@@ -21,16 +21,16 @@ public class ExpungeService {
 
     private final ScannerStateServiceImpl scannerState;
     private final IndexManager indexManager;
-    private final MediaFileDao mediaFileDao;
+    private final TemplateWrapper template;
     private final RatingDao ratingDao;
     private final ScannerProcedureService procedure;
 
     public ExpungeService(ScannerStateServiceImpl scannerStateService, IndexManager indexManager,
-            MediaFileDao mediaFileDao, RatingDao ratingDao, ScannerProcedureService scannerProcedure) {
+            TemplateWrapper template, RatingDao ratingDao, ScannerProcedureService scannerProcedure) {
         super();
         this.scannerState = scannerStateService;
         this.indexManager = indexManager;
-        this.mediaFileDao = mediaFileDao;
+        this.template = template;
         this.ratingDao = ratingDao;
         this.procedure = scannerProcedure;
     }
@@ -56,7 +56,7 @@ public class ExpungeService {
             procedure.expungeFileStructure();
             indexManager.stopIndexing();
 
-            mediaFileDao.checkpoint();
+            template.checkpoint();
 
             // to be after expungeFileStructure
             ratingDao.expunge();
