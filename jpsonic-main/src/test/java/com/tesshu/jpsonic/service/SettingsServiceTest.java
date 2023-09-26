@@ -422,7 +422,7 @@ class SettingsServiceTest {
 
     @Test
     void testGetBufferSize() {
-        assertEquals(4096, settingsService.getBufferSize());
+        assertEquals(32_768, settingsService.getBufferSize());
     }
 
     @Test

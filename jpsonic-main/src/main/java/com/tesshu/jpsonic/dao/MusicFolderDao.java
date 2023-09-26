@@ -21,12 +21,15 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.dao.base.DaoUtils.nullableInstantOf;
+import static com.tesshu.jpsonic.dao.base.DaoUtils.prefix;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -41,7 +44,7 @@ import org.springframework.stereotype.Repository;
  * @author Sindre Mehus
  */
 @Repository
-public class MusicFolderDao extends AbstractDao {
+public class MusicFolderDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(MusicFolderDao.class);
     private static final String INSERT_COLUMNS = """
@@ -49,11 +52,12 @@ public class MusicFolderDao extends AbstractDao {
             """;
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
+    private final TemplateWrapper template;
     private final MusicFolderRowMapper rowMapper;
     private final UserDao userDao;
 
-    public MusicFolderDao(DaoHelper daoHelper, UserDao userDao) {
-        super(daoHelper);
+    public MusicFolderDao(TemplateWrapper templateWrapper, UserDao userDao) {
+        template = templateWrapper;
         this.userDao = userDao;
         rowMapper = new MusicFolderRowMapper();
     }
@@ -63,7 +67,7 @@ public class MusicFolderDao extends AbstractDao {
                 from music_folder
                 order by enabled desc, folder_order
                 """;
-        return query(sql, rowMapper);
+        return template.query(sql, rowMapper);
     }
 
     public @Nullable MusicFolder getMusicFolderForPath(String path) {
@@ -71,7 +75,7 @@ public class MusicFolderDao extends AbstractDao {
                 from music_folder
                 where path = ?
                 """;
-        return queryOne(sql, rowMapper, path);
+        return template.queryOne(sql, rowMapper, path);
     }
 
     public void createMusicFolder(MusicFolder musicFolder) {
@@ -80,11 +84,11 @@ public class MusicFolderDao extends AbstractDao {
                 values (?, ?, ?, ?,
                         (select count(*) + 1 from music_folder))
                 """.formatted(INSERT_COLUMNS);
-        update(sql, musicFolder.getPathString(), musicFolder.getName(), musicFolder.isEnabled(),
+        template.update(sql, musicFolder.getPathString(), musicFolder.getName(), musicFolder.isEnabled(),
                 musicFolder.getChanged());
 
-        Integer id = queryForInt("select max(id) from music_folder", 0);
-        update("""
+        Integer id = template.queryForInt("select max(id) from music_folder", 0);
+        template.update("""
                 insert into music_folder_user (music_folder_id, username)
                 select ?, username from %s
                 """.formatted(userDao.getUserTable()), id);
@@ -98,7 +102,7 @@ public class MusicFolderDao extends AbstractDao {
                 delete from music_folder
                 where id=?
                 """;
-        update(sql, id);
+        template.update(sql, id);
         if (LOG.isInfoEnabled()) {
             LOG.info("Deleted music folder with ID " + id);
         }
@@ -110,9 +114,9 @@ public class MusicFolderDao extends AbstractDao {
                 set path=?, name=?, enabled=?, changed=?, folder_order=?
                 where id=?
                 """;
-        update(sql, musicFolder.getPathString(), musicFolder.getName(), musicFolder.isEnabled(),
-                musicFolder.getChanged(),
-                defaultIfNull(musicFolder.getFolderOrder(), queryForInt("select count(*) from music_folder", -1)),
+        template.update(sql, musicFolder.getPathString(), musicFolder.getName(), musicFolder.isEnabled(),
+                musicFolder.getChanged(), defaultIfNull(musicFolder.getFolderOrder(),
+                        template.queryForInt("select count(*) from music_folder", -1)),
                 musicFolder.getId());
     }
 
@@ -123,16 +127,17 @@ public class MusicFolderDao extends AbstractDao {
                         and music_folder_user.username = ?
                 order by enabled desc, folder_order
                 """;
-        return query(sql, rowMapper, username);
+        return template.query(sql, rowMapper, username);
     }
 
     public void setMusicFoldersForUser(String username, List<Integer> musicFolderIds) {
-        update("""
+        template.update("""
                 delete from music_folder_user
                 where username = ?
                 """, username);
         for (Integer musicFolderId : musicFolderIds) {
-            update("insert into music_folder_user(music_folder_id, username) values (?, ?)", musicFolderId, username);
+            template.update("insert into music_folder_user(music_folder_id, username) values (?, ?)", musicFolderId,
+                    username);
         }
     }
 

@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 
 import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.dao.base.GenericDaoHelper;
 import com.tesshu.jpsonic.domain.PlayQueue;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.PlayerTechnology;

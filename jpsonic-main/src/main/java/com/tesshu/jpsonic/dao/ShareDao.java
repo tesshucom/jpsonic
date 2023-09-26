@@ -21,12 +21,16 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.dao.base.DaoUtils.nullableInstantOf;
+import static com.tesshu.jpsonic.dao.base.DaoUtils.questionMarks;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.Share;
 import com.tesshu.jpsonic.util.LegacyMap;
@@ -41,18 +45,19 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Sindre Mehus
  */
 @Repository
-public class ShareDao extends AbstractDao {
+public class ShareDao {
 
     private static final String INSERT_COLUMNS = """
             name, description, username, created, expires, last_visited, visit_count\s
             """;
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
+    private final TemplateWrapper template;
     private final ShareRowMapper shareRowMapper;
     private final ShareFileRowMapper shareFileRowMapper;
 
-    public ShareDao(DaoHelper daoHelper) {
-        super(daoHelper);
+    public ShareDao(TemplateWrapper templateWrapper) {
+        template = templateWrapper;
         shareRowMapper = new ShareRowMapper();
         shareFileRowMapper = new ShareFileRowMapper();
     }
@@ -60,9 +65,9 @@ public class ShareDao extends AbstractDao {
     @Transactional
     public void createShare(Share share) {
         String sql = "insert into share (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")";
-        update(sql, share.getName(), share.getDescription(), share.getUsername(), share.getCreated(),
+        template.update(sql, share.getName(), share.getDescription(), share.getUsername(), share.getCreated(),
                 share.getExpires(), share.getLastVisited(), share.getVisitCount());
-        Integer id = queryForInt("select max(id) from share", null);
+        Integer id = template.queryForInt("select max(id) from share", null);
         if (id != null) {
             share.setId(id);
         }
@@ -70,7 +75,7 @@ public class ShareDao extends AbstractDao {
 
     public List<Share> getAllShares() {
         String sql = "select " + QUERY_COLUMNS + "from share";
-        return query(sql, shareRowMapper);
+        return template.query(sql, shareRowMapper);
     }
 
     public @Nullable Share getShareByName(String shareName) {
@@ -78,7 +83,7 @@ public class ShareDao extends AbstractDao {
                 from share
                 where name=?
                 """;
-        return queryOne(sql, shareRowMapper, shareName);
+        return template.queryOne(sql, shareRowMapper, shareName);
     }
 
     public @Nullable Share getShareById(int id) {
@@ -86,7 +91,7 @@ public class ShareDao extends AbstractDao {
                 from share
                 where id=?
                 """;
-        return queryOne(sql, shareRowMapper, id);
+        return template.queryOne(sql, shareRowMapper, id);
     }
 
     public void updateShare(Share share) {
@@ -96,7 +101,7 @@ public class ShareDao extends AbstractDao {
                         expires=?, last_visited=?, visit_count=?
                 where id=?
                 """;
-        update(sql, share.getName(), share.getDescription(), share.getUsername(), share.getCreated(),
+        template.update(sql, share.getName(), share.getDescription(), share.getUsername(), share.getCreated(),
                 share.getExpires(), share.getLastVisited(), share.getVisitCount(), share.getId());
     }
 
@@ -106,7 +111,7 @@ public class ShareDao extends AbstractDao {
                 values (?, ?)
                 """;
         for (String path : paths) {
-            update(sql, shareId, path);
+            template.update(sql, shareId, path);
         }
     }
 
@@ -115,7 +120,7 @@ public class ShareDao extends AbstractDao {
             return Collections.emptyList();
         }
         Map<String, Object> args = LegacyMap.of("shareId", shareId, "folders", MusicFolder.toPathList(musicFolders));
-        return namedQuery("""
+        return template.namedQuery("""
                 select share_file.path
                 from share_file, media_file
                 where share_id = :shareId and share_file.path = media_file.path
@@ -124,7 +129,7 @@ public class ShareDao extends AbstractDao {
     }
 
     public void deleteShare(Integer id) {
-        update("""
+        template.update("""
                 delete from share
                 where id=?
                 """, id);

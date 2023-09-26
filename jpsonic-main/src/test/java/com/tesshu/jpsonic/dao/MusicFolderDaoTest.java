@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.time.temporal.ChronoUnit;
 
 import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.dao.base.GenericDaoHelper;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
