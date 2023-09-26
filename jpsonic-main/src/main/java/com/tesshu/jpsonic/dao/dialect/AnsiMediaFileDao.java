@@ -284,7 +284,7 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
                         join media_file mf_al
                         on mf.album is not null and mf.album_artist is not null and al.name is null
                                 and al.artist is null and mf_al.path = mf.parent_path
-                        group by album, album_artist) fetched
+                        group by mf.album, mf.album_artist) fetched
                     on fetched.album = mf_album and fetched.album_artist = mf_album_artist
                             and fetched.file_order = unregistered.al_order * :childMax
                             + unregistered.mf_order + unregistered.folder_order * :childMax * 10
