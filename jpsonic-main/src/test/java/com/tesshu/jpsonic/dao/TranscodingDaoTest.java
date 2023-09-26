@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
 
 import com.tesshu.jpsonic.NeedsHome;
+import com.tesshu.jpsonic.dao.base.GenericDaoHelper;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.Transcoding;
 import org.junit.jupiter.api.BeforeEach;

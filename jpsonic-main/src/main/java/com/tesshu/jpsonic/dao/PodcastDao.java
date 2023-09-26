@@ -21,10 +21,14 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.dao.base.DaoUtils.nullableInstantOf;
+import static com.tesshu.jpsonic.dao.base.DaoUtils.questionMarks;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.PodcastChannel;
 import com.tesshu.jpsonic.domain.PodcastEpisode;
 import com.tesshu.jpsonic.domain.PodcastStatus;
@@ -40,7 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
 @Repository
-public class PodcastDao extends AbstractDao {
+public class PodcastDao {
 
     private static final String CHANNEL_INSERT_COLUMNS = """
             url, title, description, image_url, status, error_message\s
@@ -52,11 +56,12 @@ public class PodcastDao extends AbstractDao {
             """;
     private static final String EPISODE_QUERY_COLUMNS = "id, " + EPISODE_INSERT_COLUMNS;
 
+    private final TemplateWrapper template;
     private final PodcastChannelRowMapper channelRowMapper;
     private final PodcastEpisodeRowMapper episodeRowMapper;
 
-    public PodcastDao(DaoHelper daoHelper) {
-        super(daoHelper);
+    public PodcastDao(TemplateWrapper templateWrapper) {
+        template = templateWrapper;
         channelRowMapper = new PodcastChannelRowMapper();
         episodeRowMapper = new PodcastEpisodeRowMapper();
     }
@@ -65,14 +70,14 @@ public class PodcastDao extends AbstractDao {
     public int createChannel(PodcastChannel channel) {
         String sql = "insert into podcast_channel (" + CHANNEL_INSERT_COLUMNS + ") values ("
                 + questionMarks(CHANNEL_INSERT_COLUMNS) + ")";
-        update(sql, channel.getUrl(), channel.getTitle(), channel.getDescription(), channel.getImageUrl(),
+        template.update(sql, channel.getUrl(), channel.getTitle(), channel.getDescription(), channel.getImageUrl(),
                 channel.getStatus().name(), channel.getErrorMessage());
-        return queryForInt("select max(id) from podcast_channel", -1);
+        return template.queryForInt("select max(id) from podcast_channel", -1);
     }
 
     public List<PodcastChannel> getAllChannels() {
         String sql = "select " + CHANNEL_QUERY_COLUMNS + "from podcast_channel";
-        return query(sql, channelRowMapper);
+        return template.query(sql, channelRowMapper);
     }
 
     public @Nullable PodcastChannel getChannel(int channelId) {
@@ -80,7 +85,7 @@ public class PodcastDao extends AbstractDao {
                 from podcast_channel
                 where id=?
                 """;
-        return queryOne(sql, channelRowMapper, channelId);
+        return template.queryOne(sql, channelRowMapper, channelId);
     }
 
     public void updateChannel(PodcastChannel channel) {
@@ -89,7 +94,7 @@ public class PodcastDao extends AbstractDao {
                 set url=?, title=?, description=?, image_url=?, status=?, error_message=?
                 where id=?
                 """;
-        update(sql, channel.getUrl(), channel.getTitle(), channel.getDescription(), channel.getImageUrl(),
+        template.update(sql, channel.getUrl(), channel.getTitle(), channel.getDescription(), channel.getImageUrl(),
                 channel.getStatus().name(), channel.getErrorMessage(), channel.getId());
     }
 
@@ -98,13 +103,13 @@ public class PodcastDao extends AbstractDao {
                 delete from podcast_channel
                 where id=?
                 """;
-        update(sql, id);
+        template.update(sql, id);
     }
 
     public void createEpisode(PodcastEpisode episode) {
         String sql = "insert into podcast_episode (" + EPISODE_INSERT_COLUMNS + ") values ("
                 + questionMarks(EPISODE_INSERT_COLUMNS) + ")";
-        update(sql, episode.getChannelId(), episode.getUrl(), episode.getPath(), episode.getTitle(),
+        template.update(sql, episode.getChannelId(), episode.getUrl(), episode.getPath(), episode.getTitle(),
                 episode.getDescription(), episode.getPublishDate(), episode.getDuration(), episode.getBytesTotal(),
                 episode.getBytesDownloaded(), episode.getStatus().name(), episode.getErrorMessage());
     }
@@ -115,7 +120,7 @@ public class PodcastDao extends AbstractDao {
                 where channel_id = ? and status != ?
                 order by publish_date desc
                 """;
-        return query(sql, episodeRowMapper, channelId, PodcastStatus.DELETED.name());
+        return template.query(sql, episodeRowMapper, channelId, PodcastStatus.DELETED.name());
     }
 
     public List<PodcastEpisode> getNewestEpisodes(int count) {
@@ -125,7 +130,7 @@ public class PodcastDao extends AbstractDao {
                 order by publish_date desc
                 limit ?
                 """;
-        return query(sql, episodeRowMapper, PodcastStatus.COMPLETED.name(), count);
+        return template.query(sql, episodeRowMapper, PodcastStatus.COMPLETED.name(), count);
     }
 
     public @Nullable PodcastEpisode getEpisode(int episodeId) {
@@ -133,12 +138,12 @@ public class PodcastDao extends AbstractDao {
                 from podcast_episode
                 where id=?
                 """;
-        return queryOne(sql, episodeRowMapper, episodeId);
+        return template.queryOne(sql, episodeRowMapper, episodeId);
     }
 
     public @Nullable PodcastEpisode getEpisodeByUrl(String url) {
         String sql = "select " + EPISODE_QUERY_COLUMNS + " from podcast_episode where url=?";
-        return queryOne(sql, episodeRowMapper, url);
+        return template.queryOne(sql, episodeRowMapper, url);
     }
 
     public int updateEpisode(PodcastEpisode episode) {
@@ -148,7 +153,7 @@ public class PodcastDao extends AbstractDao {
                         bytes_total=?, bytes_downloaded=?, status=?, error_message=?
                 where id=?
                 """;
-        return update(sql, episode.getUrl(), episode.getPath(), episode.getTitle(), episode.getDescription(),
+        return template.update(sql, episode.getUrl(), episode.getPath(), episode.getTitle(), episode.getDescription(),
                 episode.getPublishDate(), episode.getDuration(), episode.getBytesTotal(), episode.getBytesDownloaded(),
                 episode.getStatus().name(), episode.getErrorMessage(), episode.getId());
     }
@@ -158,7 +163,7 @@ public class PodcastDao extends AbstractDao {
                 delete from podcast_episode
                 where id=?
                 """;
-        update(sql, id);
+        template.update(sql, id);
     }
 
     private static class PodcastChannelRowMapper implements RowMapper<PodcastChannel> {

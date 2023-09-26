@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.controller.JAXBWriter;
-import com.tesshu.jpsonic.dao.DaoHelper;
+import com.tesshu.jpsonic.dao.base.DaoHelper;
 import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.util.FileUtil;
 import org.slf4j.Logger;

@@ -48,8 +48,8 @@ import java.util.TreeMap;
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
-import com.tesshu.jpsonic.dao.DaoHelper;
 import com.tesshu.jpsonic.dao.StaticsDao;
+import com.tesshu.jpsonic.dao.base.DaoHelper;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MusicFolderService;
