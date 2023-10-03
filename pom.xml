@@ -180,7 +180,7 @@
             <dependency>
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm</artifactId>
-                <version>9.5</version>
+                <version>9.6</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -195,7 +195,7 @@
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.13.0</version>
+                <version>2.14.0</version>
             </dependency>
             <dependency>
                 <groupId>commons-net</groupId>
@@ -226,7 +226,7 @@
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
                 <scope>compile</scope>
-                <version>3.38.0</version>
+                <version>3.39.0</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
@@ -459,7 +459,7 @@
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
                             <artifactId>checkstyle</artifactId>
-                            <version>10.12.3</version>
+                            <version>10.12.4</version>
                         </dependency>
                     </dependencies>
                     <configuration>
@@ -608,7 +608,7 @@
                     <inherited>false</inherited>
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>4.2</version>
+                    <version>4.3</version>
                 </plugin>
                 <plugin>
                     <groupId>org.jacoco</groupId>
