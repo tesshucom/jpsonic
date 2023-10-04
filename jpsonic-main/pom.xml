@@ -9,13 +9,13 @@
     <parent>
         <groupId>com.tesshu.jpsonic.player</groupId>
         <artifactId>jpsonic</artifactId>
-    <version>112.2.5</version>
+    <version>112.2.6</version>
     </parent>
 
     <properties>
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
-        <lucene.version>9.7.0</lucene.version>
+        <lucene.version>9.8.0</lucene.version>
     </properties>
 
     <dependencies>

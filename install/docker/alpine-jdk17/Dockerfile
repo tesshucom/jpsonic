@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jdk-alpine
 
 LABEL description="Jpsonic is a free, web-based media streamer, providing ubiquitious access to your music." \
       url="https://github.com/jpsonic/jpsonic"
@@ -17,7 +17,7 @@ ENV JPSONIC_DIR=/jpsonic \
     EMBEDDED_FONT=false \
     MIME_DSF=audio/x-dsd \
     MIME_DFF=audio/x-dsd \
-    JAVA_OPTS=-Xmx512m
+    JAVA_OPTS="-Xms512m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=500"
 
 WORKDIR $JPSONIC_DIR
 
