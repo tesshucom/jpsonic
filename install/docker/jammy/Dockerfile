@@ -17,7 +17,7 @@ ENV JPSONIC_DIR=/jpsonic \
     EMBEDDED_FONT=false \
     MIME_DSF=audio/x-dsd \
     MIME_DFF=audio/x-dsd \
-    JAVA_OPTS=-Xmx512m
+    JAVA_OPTS="-Xms512m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=500"
 
 WORKDIR $JPSONIC_DIR
 
