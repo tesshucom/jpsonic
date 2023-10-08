@@ -45,7 +45,7 @@ public interface DialectMediaFileDao {
 
     List<SortCandidate> getSortForPersonWithoutSorts(List<MusicFolder> folders);
 
-    List<SortCandidate> getSortOfArtistToBeFixedWithId(List<SortCandidate> candidates);
+    List<SortCandidate> getSortOfArtistToBeFixed(List<SortCandidate> candidates);
 
     List<SortCandidate> getSortForAlbumWithoutSorts(List<MusicFolder> folders);
 

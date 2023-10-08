@@ -466,7 +466,7 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<SortCandidate> getSortOfArtistToBeFixedWithId(@NonNull List<SortCandidate> candidates) {
+    public List<SortCandidate> getSortOfArtistToBeFixed(@NonNull List<SortCandidate> candidates) {
         List<SortCandidate> result = new ArrayList<>();
         if (candidates.isEmpty()) {
             return result;

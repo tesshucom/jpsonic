@@ -179,7 +179,7 @@ class DaoUnitTest {
         mediaFileDao.unstarMediaFile(file.getId(), USER_NAME);
         mediaFileDao.resetLastScanned(file.getId());
         mediaFileDao.countMediaFile(MediaType.MUSIC, folders);
-        mediaFileDao.getSortOfArtistToBeFixedWithId(List.of(new SortCandidate(1, "name", "sort", 0)));
+        mediaFileDao.getSortOfArtistToBeFixed(List.of(new SortCandidate(1, "name", "sort", 0)));
         mediaFileDao.deleteMediaFile(file.getId());
     }
 

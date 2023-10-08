@@ -869,8 +869,8 @@ public class MediaFileDao {
         return dialect.getSortForPersonWithoutSorts(folders);
     }
 
-    public List<SortCandidate> getSortOfArtistToBeFixedWithId(@NonNull List<SortCandidate> candidates) {
-        return dialect.getSortOfArtistToBeFixedWithId(candidates);
+    public List<SortCandidate> getSortOfArtistToBeFixed(@NonNull List<SortCandidate> candidates) {
+        return dialect.getSortOfArtistToBeFixed(candidates);
     }
 
     public List<SortCandidate> getSortForAlbumWithoutSorts(List<MusicFolder> folders) {
@@ -885,7 +885,7 @@ public class MediaFileDao {
         return dialect.guessPersonsSorts(folders);
     }
 
-    public void updateAlbumSortWithId(SortCandidate candidate) {
+    public void updateAlbumSort(SortCandidate candidate) {
         template.update("""
                 update media_file
                 set album_reading = ?, album_sort = ?
@@ -893,7 +893,7 @@ public class MediaFileDao {
                 """, candidate.getReading(), candidate.getSort(), candidate.getId());
     }
 
-    public void updateArtistSortWithId(SortCandidate candidate) {
+    public void updateArtistSort(SortCandidate candidate) {
         if (candidate.getField() == CandidateField.ARTIST) {
             template.update("""
                     update media_file

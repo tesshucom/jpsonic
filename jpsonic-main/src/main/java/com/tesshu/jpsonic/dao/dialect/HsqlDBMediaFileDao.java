@@ -85,8 +85,8 @@ public class HsqlDBMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<SortCandidate> getSortOfArtistToBeFixedWithId(@NonNull List<SortCandidate> candidates) {
-        return deligate.getSortOfArtistToBeFixedWithId(candidates);
+    public List<SortCandidate> getSortOfArtistToBeFixed(@NonNull List<SortCandidate> candidates) {
+        return deligate.getSortOfArtistToBeFixed(candidates);
     }
 
     @Override
