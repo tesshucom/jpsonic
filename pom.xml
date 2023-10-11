@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>112.2.6</version>
+    <version>112.2.7</version>
     <name>Jpsonic</name>
     <packaging>pom</packaging>
     <organization>
@@ -19,7 +19,7 @@
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jackson.version>2.15.2</jackson.version>
-        <tomcat.version>9.0.80</tomcat.version>
+        <tomcat.version>9.0.81</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
         <jetty.version>10.0.16</jetty.version>
         <jetty-jsp.version>10.0.16</jetty-jsp.version>
@@ -95,7 +95,7 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-junit-jupiter</artifactId>
-                <version>5.5.0</version>
+                <version>5.6.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -200,7 +200,7 @@
             <dependency>
                 <groupId>commons-net</groupId>
                 <artifactId>commons-net</artifactId>
-                <version>3.9.0</version>
+                <version>3.10.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -856,6 +856,13 @@
             <id>release20</id>
             <properties>
                 <java.version>20</java.version>
+                <maven.compiler.release>${java.version}</maven.compiler.release>
+            </properties>
+        </profile>
+        <profile>
+            <id>release21-ea</id>
+            <properties>
+                <java.version>21</java.version>
                 <maven.compiler.release>${java.version}</maven.compiler.release>
             </properties>
         </profile>
