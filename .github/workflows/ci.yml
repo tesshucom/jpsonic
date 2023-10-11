@@ -109,7 +109,7 @@ jobs:
     name: JDK${{ matrix.java }} on ubuntu-latest
     strategy:
       matrix:
-        java: [ 18, 19, 20 ]
+        java: [ 18, 19, 20, 21-ea ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -162,7 +162,7 @@ jobs:
     name: Package with JDK ${{ matrix.java }} on ubuntu
     strategy:
       matrix:
-        java: [ 17, 18, 19, 20 ]
+        java: [ 17, 18, 19, 20, 21-ea ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
