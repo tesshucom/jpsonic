@@ -49,6 +49,7 @@ import com.tesshu.jpsonic.service.MusicIndexServiceUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -111,40 +112,60 @@ class MusicIndexServiceImplTest {
         assertEquals("The Flipper's Guitar", indexedArtists.get(musicIndex).get(0).getName());
     }
 
-    /*
-     * #852. https://wiki.sei.cmu.edu/confluence/display/java/STR02-J.+Specify+an+appropriate+locale+when+
-     * comparing+locale-dependent+data
-     */
-    @Test
-    void testGetIndexSTR02J() {
-        Mockito.when(settingsService.getLocale()).thenReturn(Locale.ENGLISH);
-        MusicIndex mi1 = new MusicIndex("A");
-        mi1.addPrefix("a");
-        MusicIndex mi2 = new MusicIndex("\u0069"); // i
-        mi2.addPrefix("\u0130"); // İ
-        MusicIndex mi3 = new MusicIndex("\u0131"); // ı
-        mi3.addPrefix("\u0049"); // I
-        List<MusicIndex> indexes = Arrays.asList(mi1, mi2, mi3);
+    @Nested
+    class GetIndexTest {
 
-        SortableArtistWithArtist sa1 = new SortableArtistWithArtist("abcde", "abcde", null,
-                comparators.sortableArtistOrder());
-        assertEquals("A", musicIndexService.getIndex(sa1, indexes).getIndex());
+        @Test
+        void testUsual() {
+            Mockito.when(settingsService.getLocale()).thenReturn(Locale.ENGLISH);
+            MusicIndex mi = new MusicIndex("A");
+            mi.addPrefix("a");
+            List<MusicIndex> indexes = Arrays.asList(mi);
 
-        SortableArtistWithArtist sa2 = new SortableArtistWithArtist("\u0130", "\u0130", // İ İ
-                null, comparators.sortableArtistOrder());
-        assertEquals("\u0069", musicIndexService.getIndex(sa2, indexes).getIndex()); // i
+            SortableArtistWithArtist saIndexed = new SortableArtistWithArtist("Abcde", "Abcde", null,
+                    comparators.sortableArtistOrder());
+            assertEquals("A", musicIndexService.getIndex(saIndexed, indexes).getIndex());
 
-        SortableArtistWithArtist sa3 = new SortableArtistWithArtist("\u0069", "\u0069", // i i
-                null, comparators.sortableArtistOrder());
-        assertEquals("\u0069", musicIndexService.getIndex(sa3, indexes).getIndex()); // i
+            SortableArtistWithArtist saOthers = new SortableArtistWithArtist("あいうえお", "あいうえお", null,
+                    comparators.sortableArtistOrder());
+            assertEquals("#", musicIndexService.getIndex(saOthers, indexes).getIndex());
+        }
 
-        SortableArtistWithArtist sa4 = new SortableArtistWithArtist("\u0049", "\u0049", // I I
-                null, comparators.sortableArtistOrder());
-        assertEquals("\u0069", musicIndexService.getIndex(sa4, indexes).getIndex()); // i
+        /*
+         * #852. https://wiki.sei.cmu.edu/confluence/display/java/STR02-J.+Specify+an+appropriate+locale+when+
+         * comparing+locale-dependent+data
+         */
+        @Test
+        void testGetIndexSTR02J() {
+            Mockito.when(settingsService.getLocale()).thenReturn(Locale.ENGLISH);
+            MusicIndex mi1 = new MusicIndex("A");
+            mi1.addPrefix("a");
+            MusicIndex mi2 = new MusicIndex("\u0069"); // i
+            mi2.addPrefix("\u0130"); // İ
+            MusicIndex mi3 = new MusicIndex("\u0131"); // ı
+            mi3.addPrefix("\u0049"); // I
+            List<MusicIndex> indexes = Arrays.asList(mi1, mi2, mi3);
 
-        SortableArtistWithArtist sa5 = new SortableArtistWithArtist("\u0131", "\u0131", // ı ı
-                null, comparators.sortableArtistOrder());
-        assertEquals("\u0069", musicIndexService.getIndex(sa5, indexes).getIndex()); // i
+            SortableArtistWithArtist sa1 = new SortableArtistWithArtist("abcde", "abcde", null,
+                    comparators.sortableArtistOrder());
+            assertEquals("A", musicIndexService.getIndex(sa1, indexes).getIndex());
+
+            SortableArtistWithArtist sa2 = new SortableArtistWithArtist("\u0130", "\u0130", // İ İ
+                    null, comparators.sortableArtistOrder());
+            assertEquals("\u0069", musicIndexService.getIndex(sa2, indexes).getIndex()); // i
+
+            SortableArtistWithArtist sa3 = new SortableArtistWithArtist("\u0069", "\u0069", // i i
+                    null, comparators.sortableArtistOrder());
+            assertEquals("\u0069", musicIndexService.getIndex(sa3, indexes).getIndex()); // i
+
+            SortableArtistWithArtist sa4 = new SortableArtistWithArtist("\u0049", "\u0049", // I I
+                    null, comparators.sortableArtistOrder());
+            assertEquals("\u0069", musicIndexService.getIndex(sa4, indexes).getIndex()); // i
+
+            SortableArtistWithArtist sa5 = new SortableArtistWithArtist("\u0131", "\u0131", // ı ı
+                    null, comparators.sortableArtistOrder());
+            assertEquals("\u0069", musicIndexService.getIndex(sa5, indexes).getIndex()); // i
+        }
     }
 
     @Test
