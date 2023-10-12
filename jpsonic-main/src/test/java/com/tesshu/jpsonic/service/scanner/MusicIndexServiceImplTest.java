@@ -19,7 +19,7 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.service;
+package com.tesshu.jpsonic.service.scanner;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
@@ -42,6 +42,9 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.domain.MusicIndex;
 import com.tesshu.jpsonic.domain.MusicIndex.SortableArtistWithArtist;
+import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.MusicIndexServiceUtils;
+import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,32 +56,29 @@ import org.mockito.Mockito;
  * @author Sindre Mehus
  */
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-class MusicIndexServiceTest {
+class MusicIndexServiceImplTest {
 
     private SettingsService settingsService;
     private MediaFileService mediaFileService;
-    private MusicIndexService musicIndexService;
+    private MusicIndexServiceImpl musicIndexService;
     private JpsonicComparators comparators;
 
     @BeforeEach
     public void setup() throws ExecutionException {
         mediaFileService = mock(MediaFileService.class);
         settingsService = mock(SettingsService.class);
-        String articles = SettingsConstants.General.Index.IGNORED_ARTICLES.defaultValue;
-        Mockito.when(settingsService.getIgnoredArticles()).thenReturn(articles);
-        Mockito.when(settingsService.getIgnoredArticlesAsArray()).thenReturn(Arrays.asList(articles.split("\\s+")));
-        Mockito.when(settingsService.getIndexString())
-                .thenReturn(SettingsConstants.General.Index.INDEX_STRING.defaultValue);
-        String language = SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE.defaultValue;
-        String country = SettingsConstants.General.ThemeAndLang.LOCALE_COUNTRY.defaultValue;
-        String variant = SettingsConstants.General.ThemeAndLang.LOCALE_VARIANT.defaultValue;
-        Mockito.when(settingsService.getLocale()).thenReturn(new Locale(language, country, variant));
+        String ignoredArticles = "The El La Las Le Les";
+        Mockito.when(settingsService.getIgnoredArticles()).thenReturn(ignoredArticles);
+        Mockito.when(settingsService.getIgnoredArticlesAsArray())
+                .thenReturn(Arrays.asList(ignoredArticles.split("\\s+")));
+        String indexString = "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ)";
+        Mockito.when(settingsService.getIndexString()).thenReturn(indexString);
+        Mockito.when(settingsService.getLocale()).thenReturn(new Locale("ja", "jp", ""));
         JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsService);
         comparators = new JpsonicComparators(settingsService, readingUtils);
         MusicIndexServiceUtils utils = new MusicIndexServiceUtils(settingsService, mediaFileService, readingUtils,
                 comparators);
-
-        musicIndexService = new MusicIndexService(settingsService, mediaFileService, utils);
+        musicIndexService = new MusicIndexServiceImpl(settingsService, mediaFileService, utils);
     }
 
     @Test
@@ -196,7 +196,7 @@ class MusicIndexServiceTest {
 
     @Test
     void testGetSingleSongs() throws URISyntaxException {
-        Path path = Path.of(MusicIndexServiceTest.class.getResource("/MEDIAS").toURI());
+        Path path = Path.of(MusicIndexServiceImplTest.class.getResource("/MEDIAS").toURI());
         MusicFolder musicFolder = new MusicFolder(path.toString(), "musicFolder", false, null);
         assertEquals(path, musicFolder.toPath());
 
@@ -217,9 +217,9 @@ class MusicIndexServiceTest {
     @Test
     void testGetShortcuts() throws URISyntaxException {
         Mockito.when(settingsService.getShortcutsAsArray())
-                .thenReturn(StringUtil.split(SettingsConstants.General.Extension.SHORTCUTS.defaultValue + " Metadata"));
+                .thenReturn(StringUtil.split("Shortcuts \"New Incoming\" Podcast Metadata"));
         MusicFolder folder = new MusicFolder(
-                Path.of(MusicIndexServiceTest.class.getResource("/MEDIAS/Music").toURI()).toString(), "Music", true,
+                Path.of(MusicIndexServiceImplTest.class.getResource("/MEDIAS/Music").toURI()).toString(), "Music", true,
                 now());
         assertEquals(0, musicIndexService.getShortcuts(Arrays.asList(folder)).size());
 
@@ -229,7 +229,7 @@ class MusicIndexServiceTest {
         assertEquals(0, musicIndexService.getShortcuts(Arrays.asList(folder)).size());
 
         artist.setPathString(
-                Path.of(MusicIndexServiceTest.class.getResource("/MEDIAS/Music/_DIR_ Ravel").toURI()).toString());
+                Path.of(MusicIndexServiceImplTest.class.getResource("/MEDIAS/Music/_DIR_ Ravel").toURI()).toString());
         assertEquals(0, musicIndexService.getShortcuts(Arrays.asList(folder)).size());
 
         List<MediaFile> children = Arrays.asList(new MediaFile());
