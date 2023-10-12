@@ -30,4 +30,9 @@ public interface MusicIndexService {
      * @since Airsonic
      */
     List<MediaFile> getShortcuts(List<MusicFolder> folders);
+
+    /**
+     * @since v113.0.0
+     */
+    void clear();
 }

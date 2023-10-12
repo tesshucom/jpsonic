@@ -33,6 +33,7 @@ import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.Theme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -81,10 +82,11 @@ public class GeneralSettingsController {
     private final PlayerService playerService;
     private final OutlineHelpSelector outlineHelpSelector;
     private final ScannerStateService scannerStateService;
+    private final MusicIndexService musicIndexService;
 
     public GeneralSettingsController(SettingsService settingsService, SecurityService securityService,
             ShareService shareService, PlayerService playerService, OutlineHelpSelector outlineHelpSelector,
-            ScannerStateService scannerStateService) {
+            ScannerStateService scannerStateService, MusicIndexService musicIndexService) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
@@ -92,6 +94,7 @@ public class GeneralSettingsController {
         this.playerService = playerService;
         this.outlineHelpSelector = outlineHelpSelector;
         this.scannerStateService = scannerStateService;
+        this.musicIndexService = musicIndexService;
     }
 
     @ModelAttribute
@@ -212,7 +215,10 @@ public class GeneralSettingsController {
         settingsService.setLocale(locale);
 
         // Index settings
-        settingsService.setIndexString(command.getIndex());
+        if (command.getIndex() != null && !command.getIndex().equals(settingsService.getIndexString())) {
+            settingsService.setIndexString(command.getIndex());
+            musicIndexService.clear();
+        }
         settingsService.setIgnoredArticles(command.getIgnoredArticles());
 
         if (command.getIndexScheme() == IndexScheme.NATIVE_JAPANESE) {

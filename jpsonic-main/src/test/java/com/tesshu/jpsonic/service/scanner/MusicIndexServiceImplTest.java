@@ -47,6 +47,7 @@ import com.tesshu.jpsonic.domain.MusicIndex.SortableArtistWithArtist;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicIndexServiceUtils;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.scanner.MusicIndexServiceImpl.MusicIndexParser;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -110,62 +111,6 @@ class MusicIndexServiceImplTest {
         musicIndex = iterator.next();
         assertEquals("F", musicIndex.getIndex());
         assertEquals("The Flipper's Guitar", indexedArtists.get(musicIndex).get(0).getName());
-    }
-
-    @Nested
-    class GetIndexTest {
-
-        @Test
-        void testUsual() {
-            Mockito.when(settingsService.getLocale()).thenReturn(Locale.ENGLISH);
-            MusicIndex mi = new MusicIndex("A");
-            mi.addPrefix("a");
-            List<MusicIndex> indexes = Arrays.asList(mi);
-
-            SortableArtistWithArtist saIndexed = new SortableArtistWithArtist("Abcde", "Abcde", null,
-                    comparators.sortableArtistOrder());
-            assertEquals("A", musicIndexService.getIndex(saIndexed, indexes).getIndex());
-
-            SortableArtistWithArtist saOthers = new SortableArtistWithArtist("あいうえお", "あいうえお", null,
-                    comparators.sortableArtistOrder());
-            assertEquals("#", musicIndexService.getIndex(saOthers, indexes).getIndex());
-        }
-
-        /*
-         * #852. https://wiki.sei.cmu.edu/confluence/display/java/STR02-J.+Specify+an+appropriate+locale+when+
-         * comparing+locale-dependent+data
-         */
-        @Test
-        void testGetIndexSTR02J() {
-            Mockito.when(settingsService.getLocale()).thenReturn(Locale.ENGLISH);
-            MusicIndex mi1 = new MusicIndex("A");
-            mi1.addPrefix("a");
-            MusicIndex mi2 = new MusicIndex("\u0069"); // i
-            mi2.addPrefix("\u0130"); // İ
-            MusicIndex mi3 = new MusicIndex("\u0131"); // ı
-            mi3.addPrefix("\u0049"); // I
-            List<MusicIndex> indexes = Arrays.asList(mi1, mi2, mi3);
-
-            SortableArtistWithArtist sa1 = new SortableArtistWithArtist("abcde", "abcde", null,
-                    comparators.sortableArtistOrder());
-            assertEquals("A", musicIndexService.getIndex(sa1, indexes).getIndex());
-
-            SortableArtistWithArtist sa2 = new SortableArtistWithArtist("\u0130", "\u0130", // İ İ
-                    null, comparators.sortableArtistOrder());
-            assertEquals("\u0069", musicIndexService.getIndex(sa2, indexes).getIndex()); // i
-
-            SortableArtistWithArtist sa3 = new SortableArtistWithArtist("\u0069", "\u0069", // i i
-                    null, comparators.sortableArtistOrder());
-            assertEquals("\u0069", musicIndexService.getIndex(sa3, indexes).getIndex()); // i
-
-            SortableArtistWithArtist sa4 = new SortableArtistWithArtist("\u0049", "\u0049", // I I
-                    null, comparators.sortableArtistOrder());
-            assertEquals("\u0069", musicIndexService.getIndex(sa4, indexes).getIndex()); // i
-
-            SortableArtistWithArtist sa5 = new SortableArtistWithArtist("\u0131", "\u0131", // ı ı
-                    null, comparators.sortableArtistOrder());
-            assertEquals("\u0069", musicIndexService.getIndex(sa5, indexes).getIndex()); // i
-        }
     }
 
     @Test
@@ -265,47 +210,118 @@ class MusicIndexServiceImplTest {
         assertEquals(1, musicIndexService.getShortcuts(Arrays.asList(folder)).size());
     }
 
-    @Test
-    void testCreateIndexFromExpression() {
-        MusicIndex index = musicIndexService.createIndexFromExpression("A");
-        assertEquals("A", index.getIndex());
-        assertEquals(1, index.getPrefixes().size());
-        assertEquals("A", index.getPrefixes().get(0));
+    @Nested
+    class MusicIndexParserTest {
 
-        index = musicIndexService.createIndexFromExpression("The");
-        assertEquals("The", index.getIndex());
-        assertEquals(1, index.getPrefixes().size());
-        assertEquals("The", index.getPrefixes().get(0));
+        @Nested
+        class CreateIndexesFromExpressionTest {
 
-        index = musicIndexService.createIndexFromExpression("X-Z(XYZ)");
-        assertEquals("X-Z", index.getIndex());
-        assertEquals(3, index.getPrefixes().size());
-        assertEquals("X", index.getPrefixes().get(0));
-        assertEquals("Y", index.getPrefixes().get(1));
-        assertEquals("Z", index.getPrefixes().get(2));
-    }
+            @Test
+            void testCreateIndexesFromSingleTokenExpression() {
+                Mockito.when(settingsService.getIndexString()).thenReturn("A");
+                List<MusicIndex> indexes = musicIndexService.getParser().getIndexes();
+                assertEquals(1, indexes.size());
+                MusicIndex index = indexes.get(0);
+                assertEquals("A", index.getIndex());
+                assertEquals(1, index.getPrefixes().size());
+                assertEquals("A", index.getPrefixes().get(0));
 
-    @Test
-    void testCreateIndexesFromExpression() {
-        List<MusicIndex> indexes = musicIndexService.createIndexesFromExpression("A B  The X-Z(XYZ)");
-        assertEquals(4, indexes.size());
+                Mockito.when(settingsService.getIndexString()).thenReturn("The");
+                musicIndexService.clear();
+                indexes = musicIndexService.getParser().getIndexes();
+                assertEquals(1, indexes.size());
+                index = indexes.get(0);
+                assertEquals("The", index.getIndex());
+                assertEquals(1, indexes.size());
+                assertEquals(1, index.getPrefixes().size());
+                assertEquals("The", index.getPrefixes().get(0));
 
-        assertEquals("A", indexes.get(0).getIndex());
-        assertEquals(1, indexes.get(0).getPrefixes().size());
-        assertEquals("A", indexes.get(0).getPrefixes().get(0));
+                Mockito.when(settingsService.getIndexString()).thenReturn("X-Z(XYZ)");
+                musicIndexService.clear();
+                indexes = musicIndexService.getParser().getIndexes();
+                assertEquals(1, indexes.size());
+                index = indexes.get(0);
+                assertEquals("X-Z", index.getIndex());
+                assertEquals(3, index.getPrefixes().size());
+                assertEquals("X", index.getPrefixes().get(0));
+                assertEquals("Y", index.getPrefixes().get(1));
+                assertEquals("Z", index.getPrefixes().get(2));
+            }
 
-        assertEquals("B", indexes.get(1).getIndex());
-        assertEquals(1, indexes.get(1).getPrefixes().size());
-        assertEquals("B", indexes.get(1).getPrefixes().get(0));
+            @Test
+            void testCreateIndexesFromMultipleTokensExpression() {
+                Mockito.when(settingsService.getIndexString()).thenReturn("A B  The X-Z(XYZ)");
+                List<MusicIndex> indexes = musicIndexService.getParser().getIndexes();
+                assertEquals(4, indexes.size());
 
-        assertEquals("The", indexes.get(2).getIndex());
-        assertEquals(1, indexes.get(2).getPrefixes().size());
-        assertEquals("The", indexes.get(2).getPrefixes().get(0));
+                assertEquals("A", indexes.get(0).getIndex());
+                assertEquals(1, indexes.get(0).getPrefixes().size());
+                assertEquals("A", indexes.get(0).getPrefixes().get(0));
 
-        assertEquals("X-Z", indexes.get(3).getIndex());
-        assertEquals(3, indexes.get(3).getPrefixes().size());
-        assertEquals("X", indexes.get(3).getPrefixes().get(0));
-        assertEquals("Y", indexes.get(3).getPrefixes().get(1));
-        assertEquals("Z", indexes.get(3).getPrefixes().get(2));
+                assertEquals("B", indexes.get(1).getIndex());
+                assertEquals(1, indexes.get(1).getPrefixes().size());
+                assertEquals("B", indexes.get(1).getPrefixes().get(0));
+
+                assertEquals("The", indexes.get(2).getIndex());
+                assertEquals(1, indexes.get(2).getPrefixes().size());
+                assertEquals("The", indexes.get(2).getPrefixes().get(0));
+
+                assertEquals("X-Z", indexes.get(3).getIndex());
+                assertEquals(3, indexes.get(3).getPrefixes().size());
+                assertEquals("X", indexes.get(3).getPrefixes().get(0));
+                assertEquals("Y", indexes.get(3).getPrefixes().get(1));
+                assertEquals("Z", indexes.get(3).getPrefixes().get(2));
+            }
+        }
+
+        @Nested
+        class GetIndexTest {
+
+            @SuppressWarnings("deprecation")
+            @Test
+            void testUsual() {
+                Mockito.when(settingsService.getIndexString()).thenReturn("A B C");
+                MusicIndexParser musicIndexParser = musicIndexService.getParser();
+
+                SortableArtistWithArtist saIndexed = new SortableArtistWithArtist("Abcde", "Abcde", null,
+                        comparators.sortableArtistOrder());
+                assertEquals("A", musicIndexParser.getIndex(saIndexed).getIndex());
+
+                SortableArtistWithArtist saOthers = new SortableArtistWithArtist("あいうえお", "あいうえお", null,
+                        comparators.sortableArtistOrder());
+                assertEquals("#", musicIndexParser.getIndex(saOthers).getIndex());
+            }
+
+            /*
+             * #852. https://wiki.sei.cmu.edu/confluence/display/java/STR02-J.+Specify+an+appropriate+locale+when+
+             * comparing+locale-dependent+data
+             */
+            @SuppressWarnings("deprecation")
+            @Test
+            void testGetIndexSTR02J() {
+                Mockito.when(settingsService.getIndexString()).thenReturn("A i ı");
+                MusicIndexParser musicIndexParser = musicIndexService.getParser();
+
+                SortableArtistWithArtist sa1 = new SortableArtistWithArtist("abcde", "abcde", null,
+                        comparators.sortableArtistOrder());
+                assertEquals("A", musicIndexParser.getIndex(sa1).getIndex());
+
+                SortableArtistWithArtist sa2 = new SortableArtistWithArtist("\u0130", "\u0130", // İ İ
+                        null, comparators.sortableArtistOrder());
+                assertEquals("\u0069", musicIndexParser.getIndex(sa2).getIndex()); // i
+
+                SortableArtistWithArtist sa3 = new SortableArtistWithArtist("\u0069", "\u0069", // i i
+                        null, comparators.sortableArtistOrder());
+                assertEquals("\u0069", musicIndexParser.getIndex(sa3).getIndex()); // i
+
+                SortableArtistWithArtist sa4 = new SortableArtistWithArtist("\u0049", "\u0049", // I I
+                        null, comparators.sortableArtistOrder());
+                assertEquals("\u0069", musicIndexParser.getIndex(sa4).getIndex()); // i
+
+                SortableArtistWithArtist sa5 = new SortableArtistWithArtist("\u0131", "\u0131", // ı ı
+                        null, comparators.sortableArtistOrder());
+                assertEquals("\u0069", musicIndexParser.getIndex(sa5).getIndex()); // i
+            }
+        }
     }
 }

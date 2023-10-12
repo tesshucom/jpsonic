@@ -28,8 +28,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.SortedMap;
-import java.util.StringTokenizer;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Artist;
@@ -53,6 +53,8 @@ public class MusicIndexServiceImpl implements MusicIndexService {
     private final ArtistDao artistDao;
     private final MusicIndexServiceUtils utils;
 
+    private MusicIndexParser parser;
+
     public MusicIndexServiceImpl(SettingsService settingsService, MediaFileService mediaFileService,
             ArtistDao artistDao, MusicIndexServiceUtils utils) {
         super();
@@ -62,64 +64,61 @@ public class MusicIndexServiceImpl implements MusicIndexService {
         this.utils = utils;
     }
 
-    private SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> getIndexedArtists(
-            List<MusicFolder> folders) {
-        List<MusicIndex.SortableArtistWithMediaFiles> artists = createSortableArtists(folders);
-        return sortArtists(artists);
+    List<MediaFile> getSingleSongs(List<MusicFolder> folders) {
+        List<MediaFile> result = new ArrayList<>();
+        folders.stream().forEach(folder -> {
+            MediaFile parent = mediaFileService.getMediaFile(folder.toPath());
+            if (parent != null) {
+                result.addAll(mediaFileService.getChildrenOf(parent, true, false));
+            }
+        });
+        return result;
+    }
+
+    @Override
+    public MusicFolderContent getMusicFolderContent(List<MusicFolder> folders) {
+        List<MusicIndex.SortableArtistWithMediaFiles> artists = utils.createSortableArtists(folders);
+        SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> indexedArtists = sortArtists(artists);
+        List<MediaFile> singleSongs = getSingleSongs(folders);
+        return new MusicFolderContent(indexedArtists, singleSongs);
     }
 
     @Override
     public SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> getIndexedId3Artists(
             List<MusicFolder> folders) {
         List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
-        List<MusicIndex.SortableArtistWithArtist> sortableArtists = createSortableId3Artists(artists);
+        List<MusicIndex.SortableArtistWithArtist> sortableArtists = utils.createSortableId3Artists(artists);
         return sortArtists(sortableArtists);
     }
 
     @Override
-    public MusicFolderContent getMusicFolderContent(List<MusicFolder> musicFoldersToUse) {
-        SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> indexedArtists = getIndexedArtists(
-                musicFoldersToUse);
-        List<MediaFile> singleSongs = getSingleSongs(musicFoldersToUse);
-        return new MusicFolderContent(indexedArtists, singleSongs);
-    }
-
-    List<MediaFile> getSingleSongs(List<MusicFolder> folders) {
+    public List<MediaFile> getShortcuts(List<MusicFolder> musicFolders) {
         List<MediaFile> result = new ArrayList<>();
-        for (MusicFolder folder : folders) {
-            MediaFile parent = mediaFileService.getMediaFile(folder.toPath());
-            if (parent != null) {
-                result.addAll(mediaFileService.getChildrenOf(parent, true, false));
-            }
-        }
-        return result;
-    }
-
-    @Override
-    public List<MediaFile> getShortcuts(List<MusicFolder> musicFoldersToUse) {
-        List<MediaFile> result = new ArrayList<>();
-        for (String shortcuts : settingsService.getShortcutsAsArray()) {
-            for (MusicFolder musicFolder : musicFoldersToUse) {
-                Path shortcutPath = Path.of(musicFolder.getPathString(), shortcuts);
-                MediaFile shortcut = mediaFileService.getMediaFile(shortcutPath);
+        settingsService.getShortcutsAsArray().forEach(shortcuts -> {
+            musicFolders.forEach(musicFolder -> {
+                MediaFile shortcut = mediaFileService.getMediaFile(Path.of(musicFolder.getPathString(), shortcuts));
                 if (shortcut != null && mediaFileService.getChildrenOf(shortcut, true, true).size() > 0
                         && !result.contains(shortcut)) {
                     result.add(shortcut);
                 }
-            }
-        }
+            });
+        });
         return result;
     }
 
+    /**
+     * @deprecated Fix so that sorting is not done
+     */
+    @Deprecated
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (ArrayList) Not reusable
     private <T extends SortableArtist> SortedMap<MusicIndex, List<T>> sortArtists(List<T> artists) {
-        List<MusicIndex> indexes = createIndexesFromExpression(settingsService.getIndexString());
-        Comparator<MusicIndex> indexComparator = new MusicIndexComparator(indexes);
+
+        Comparator<MusicIndex> indexComparator = new MusicIndexComparator(getParser().getIndexes());
 
         SortedMap<MusicIndex, List<T>> result = new TreeMap<>(indexComparator);
 
         for (T artist : artists) {
-            MusicIndex index = getIndex(artist, indexes);
+            MusicIndex index = getParser().getIndex(artist);
             List<T> artistSet = result.computeIfAbsent(index, k -> new ArrayList<>());
             artistSet.add(artist);
         }
@@ -131,87 +130,61 @@ public class MusicIndexServiceImpl implements MusicIndexService {
         return result;
     }
 
-    /**
-     * Creates a new instance by parsing the given expression. The expression consists of an index name, followed by an
-     * optional list of one-character prefixes. For example:
-     * <p/>
-     * <p/>
-     * The expression <em>"A"</em> will create the index <em>"A" -&gt; ["A"]</em><br/>
-     * The expression <em>"The"</em> will create the index <em>"The" -&gt; ["The"]</em><br/>
-     * The expression <em>"A(A&Aring;&AElig;)"</em> will create the index <em>"A" -&gt; ["A", "&Aring;",
-     * "&AElig;"]</em><br/>
-     * The expression <em>"X-Z(XYZ)"</em> will create the index <em>"X-Z" -&gt; ["X", "Y", "Z"]</em>
-     *
-     * @param expr
-     *            The expression to parse.
-     *
-     * @return A new instance.
-     */
-    protected MusicIndex createIndexFromExpression(String expr) {
-        int separatorIndex = expr.indexOf('(');
-        if (separatorIndex == -1) {
+    MusicIndexParser getParser() {
+        if (parser != null) {
+            return parser;
+        }
+        parser = new MusicIndexParser(settingsService.getIndexString());
+        return parser;
+    }
 
-            MusicIndex index = new MusicIndex(expr);
-            index.addPrefix(expr);
-            return index;
+    @SuppressWarnings("PMD.NullAssignment") // (musicIndexParser) Intentional assignment
+    @Override
+    public void clear() {
+        parser = null;
+    }
+
+    static class MusicIndexParser {
+
+        List<MusicIndex> indexes;
+
+        private MusicIndexParser(String expr) {
+            indexes = createIndexesFromExpression(expr);
         }
 
-        MusicIndex index = new MusicIndex(expr.substring(0, separatorIndex));
-        String prefixString = expr.substring(separatorIndex + 1, expr.length() - 1);
-        for (int i = 0; i < prefixString.length(); i++) {
-            index.addPrefix(prefixString.substring(i, i + 1));
-        }
-        return index;
-    }
-
-    /**
-     * Creates a list of music indexes by parsing the given expression. The expression is a space-separated list of
-     * sub-expressions, for which the rules described in {@link #createIndexFromExpression} apply.
-     *
-     * @param expr
-     *            The expression to parse.
-     *
-     * @return A list of music indexes.
-     */
-    protected List<MusicIndex> createIndexesFromExpression(String expr) {
-        List<MusicIndex> result = new ArrayList<>();
-
-        StringTokenizer tokenizer = new StringTokenizer(expr, " ");
-        while (tokenizer.hasMoreTokens()) {
-            MusicIndex index = createIndexFromExpression(tokenizer.nextToken());
-            result.add(index);
+        private List<MusicIndex> createIndexesFromExpression(String expr) {
+            List<MusicIndex> result = new ArrayList<>();
+            Stream.of(expr.replaceAll("\\s+", " ").split(" ")).forEach(token -> {
+                int separatorIndex = token.indexOf('(');
+                MusicIndex index = new MusicIndex(separatorIndex == -1 ? token : token.substring(0, separatorIndex));
+                if (separatorIndex == -1) {
+                    index.addPrefix(token);
+                } else {
+                    Stream.of(token.substring(separatorIndex + 1, token.length() - 1).split(""))
+                            .forEach(prefix -> index.addPrefix(prefix));
+                }
+                result.add(index);
+            });
+            return result;
         }
 
-        return result;
-    }
+        public List<MusicIndex> getIndexes() {
+            return indexes;
+        }
 
-    private List<MusicIndex.SortableArtistWithMediaFiles> createSortableArtists(List<MusicFolder> folders) {
-        return utils.createSortableArtists(folders);
-    }
-
-    private List<MusicIndex.SortableArtistWithArtist> createSortableId3Artists(List<Artist> artists) {
-        return utils.createSortableId3Artists(artists);
-    }
-
-    /**
-     * Returns the music index to which the given artist belongs.
-     *
-     * @param artist
-     *            The artist in question.
-     * @param indexes
-     *            List of available indexes.
-     *
-     * @return The music index to which this music file belongs, or {@link MusicIndex#OTHER} if no index applies.
-     */
-    MusicIndex getIndex(SortableArtist artist, List<MusicIndex> indexes) {
-        for (MusicIndex index : indexes) {
-            for (String prefix : index.getPrefixes()) {
-                if (StringUtils.startsWithIgnoreCase(artist.getSortableName(), prefix)) {
+        /**
+         * @deprecated Fix to not use SortableArtist
+         */
+        MusicIndex getIndex(SortableArtist artist) {
+            for (MusicIndex index : indexes) {
+                if (index.getPrefixes().stream()
+                        .filter(prefix -> StringUtils.startsWithIgnoreCase(artist.getSortableName(), prefix))
+                        .findFirst().isPresent()) {
                     return index;
                 }
             }
+            return MusicIndex.OTHER;
         }
-        return MusicIndex.OTHER;
     }
 
     @SuppressWarnings("serial")
