@@ -31,6 +31,7 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
+import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -49,25 +50,28 @@ public class MusicIndexServiceImpl implements MusicIndexService {
 
     private final SettingsService settingsService;
     private final MediaFileService mediaFileService;
+    private final ArtistDao artistDao;
     private final MusicIndexServiceUtils utils;
 
     public MusicIndexServiceImpl(SettingsService settingsService, MediaFileService mediaFileService,
-            MusicIndexServiceUtils utils) {
+            ArtistDao artistDao, MusicIndexServiceUtils utils) {
         super();
         this.settingsService = settingsService;
         this.mediaFileService = mediaFileService;
+        this.artistDao = artistDao;
         this.utils = utils;
     }
 
-    @Override
-    public SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> getIndexedArtists(
+    private SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> getIndexedArtists(
             List<MusicFolder> folders) {
         List<MusicIndex.SortableArtistWithMediaFiles> artists = createSortableArtists(folders);
         return sortArtists(artists);
     }
 
     @Override
-    public SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> getIndexedId3Artists(List<Artist> artists) {
+    public SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> getIndexedId3Artists(
+            List<MusicFolder> folders) {
+        List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
         List<MusicIndex.SortableArtistWithArtist> sortableArtists = createSortableId3Artists(artists);
         return sortArtists(sortableArtists);
     }

@@ -451,10 +451,8 @@ public class SubsonicRESTController {
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
                 .getMusicFoldersForUser(user.getUsername());
 
-        List<com.tesshu.jpsonic.domain.Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE,
-                musicFolders);
         SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> indexedArtists = musicIndexService
-                .getIndexedId3Artists(artists);
+                .getIndexedId3Artists(musicFolders);
         for (Map.Entry<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> entry : indexedArtists.entrySet()) {
             IndexID3 index = new IndexID3();
             index.setName(entry.getKey().getIndex());

@@ -28,12 +28,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.SortedMap;
 import java.util.concurrent.ExecutionException;
 
+import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
@@ -61,11 +63,13 @@ class MusicIndexServiceImplTest {
     private SettingsService settingsService;
     private MediaFileService mediaFileService;
     private MusicIndexServiceImpl musicIndexService;
+    private ArtistDao artistDao;
     private JpsonicComparators comparators;
 
     @BeforeEach
     public void setup() throws ExecutionException {
         mediaFileService = mock(MediaFileService.class);
+        artistDao = mock(ArtistDao.class);
         settingsService = mock(SettingsService.class);
         String ignoredArticles = "The El La Las Le Les";
         Mockito.when(settingsService.getIgnoredArticles()).thenReturn(ignoredArticles);
@@ -78,7 +82,7 @@ class MusicIndexServiceImplTest {
         comparators = new JpsonicComparators(settingsService, readingUtils);
         MusicIndexServiceUtils utils = new MusicIndexServiceUtils(settingsService, mediaFileService, readingUtils,
                 comparators);
-        musicIndexService = new MusicIndexServiceImpl(settingsService, mediaFileService, utils);
+        musicIndexService = new MusicIndexServiceImpl(settingsService, mediaFileService, artistDao, utils);
     }
 
     @Test
@@ -96,7 +100,7 @@ class MusicIndexServiceImplTest {
         MusicFolder folder = new MusicFolder(0, "path", "name", true, now(), 0);
 
         SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> indexedArtists = musicIndexService
-                .getIndexedArtists(Arrays.asList(folder));
+                .getMusicFolderContent(Arrays.asList(folder)).getIndexedArtists();
         assertEquals(2, indexedArtists.size());
         Iterator<MusicIndex> iterator = indexedArtists.keySet().iterator();
         MusicIndex musicIndex = iterator.next();
@@ -149,8 +153,11 @@ class MusicIndexServiceImplTest {
         Artist artist2 = new Artist(0, "abcde", null, 0, now(), false, 0, null, null, -1);
         List<Artist> artists = Arrays.asList(artist1, artist2);
 
+        List<MusicFolder> folders = Collections.emptyList();
+        Mockito.when(artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders)).thenReturn(artists);
+
         SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> indexedArtists = musicIndexService
-                .getIndexedId3Artists(artists);
+                .getIndexedId3Artists(folders);
         assertEquals(2, indexedArtists.size());
         Iterator<MusicIndex> iterator = indexedArtists.keySet().iterator();
         MusicIndex musicIndex = iterator.next();
