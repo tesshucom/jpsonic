@@ -236,12 +236,12 @@ jobs:
           echo "DOCKER_TAG=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
       - name: Copy artifact
         run: |
-          mkdir -p install/docker/alpine-jdk17/target/dependency
-          mv jpsonic.war install/docker/alpine-jdk17/target/dependency
+          mkdir -p install/docker/alpine/target/dependency
+          mv jpsonic.war install/docker/alpine/target/dependency
       - name: Release with Version Tag
         if: "(github.ref == 'refs/heads/master')"
         run: |
-          cd install/docker/alpine-jdk17
+          cd install/docker/alpine
           sed -i -e "s/17-jdk-alpine/17-jre-alpine/g" Dockerfile
           sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
           mvn -DdockerTag=${{ env.DOCKER_TAG }} package
@@ -256,7 +256,7 @@ jobs:
       - name: Release with Latest Tag
         if: github.ref == 'refs/heads/master'
         run: |
-          cd install/docker/alpine-jdk17
+          cd install/docker/alpine
           sed -i -e "s/17-jdk-alpine/17-jre-alpine/g" Dockerfile
           sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
           mvn -DdockerTag=latest package
@@ -265,7 +265,7 @@ jobs:
       - name: Release with Early-Access Tag
         if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature/docker'
         run: |
-          cd install/docker/alpine-jdk17
+          cd install/docker/alpine
           mvn -DdockerTag=ea package
           docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
           docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:ea .
