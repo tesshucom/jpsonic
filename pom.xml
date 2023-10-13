@@ -533,7 +533,7 @@
                         <dependency>
                             <groupId>com.github.spotbugs</groupId>
                             <artifactId>spotbugs</artifactId>
-                            <version>4.7.3</version>
+                            <version>4.8.0</version>
                         </dependency>
                     </dependencies>
                     <configuration>
@@ -839,28 +839,7 @@
             </activation>
         </profile>
         <profile>
-            <id>release18</id>
-            <properties>
-                <java.version>18</java.version>
-                <maven.compiler.release>${java.version}</maven.compiler.release>
-            </properties>
-        </profile>
-        <profile>
-            <id>release19</id>
-            <properties>
-                <java.version>19</java.version>
-                <maven.compiler.release>${java.version}</maven.compiler.release>
-            </properties>
-        </profile>
-        <profile>
-            <id>release20</id>
-            <properties>
-                <java.version>20</java.version>
-                <maven.compiler.release>${java.version}</maven.compiler.release>
-            </properties>
-        </profile>
-        <profile>
-            <id>release21-ea</id>
+            <id>release21</id>
             <properties>
                 <java.version>21</java.version>
                 <maven.compiler.release>${java.version}</maven.compiler.release>
