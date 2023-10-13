@@ -38,7 +38,7 @@ Since v110.2.0, conversion for Romanized Japanese has been supported to make it 
 Usage
 -----
 
- - Wiki has an instruction [Installation](https://github.com/jpsonic/jpsonic/wiki/Installation) / [Requirements ‐ Memory configuration](https://github.com/jpsonic/jpsonic/wiki/Requirements-%E2%80%90-Memory-configuration) for Jpsonic.
+ - Wiki has an instruction [Requirements](https://github.com/jpsonic/jpsonic/wiki/Requirements) / [Installation](https://github.com/jpsonic/jpsonic/wiki/Installation) for Jpsonic.
  - Docker Image is <a href="https://hub.docker.com/r/jpsonic/jpsonic">jpsonic/jpsonic</a>.
  - A more detailed specification description can be found at the [author's site](https://tesshu.com/category/spec).
 
