@@ -24,7 +24,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 /**
  * Commonization candidate for correcting sort-tag duplication.
  */
-public class SortCandidate {
+public final class SortCandidate implements ArtistIndexable {
 
     /**
      * The value set in the name tag corresponding to be modified sort tag. The element value of artist, album artist,
@@ -60,10 +60,12 @@ public class SortCandidate {
         this.field = field;
     }
 
+    @Override
     public @NonNull String getName() {
         return name;
     }
 
+    @Override
     public String getReading() {
         return reading;
     }

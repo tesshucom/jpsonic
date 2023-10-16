@@ -33,6 +33,8 @@ import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Artist;
+import com.tesshu.jpsonic.domain.ArtistIndexable;
+import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
@@ -52,16 +54,18 @@ public class MusicIndexServiceImpl implements MusicIndexService {
     private final MediaFileService mediaFileService;
     private final ArtistDao artistDao;
     private final MusicIndexServiceUtils utils;
+    private final JapaneseReadingUtils readingUtils;
 
     private MusicIndexParser parser;
 
     public MusicIndexServiceImpl(SettingsService settingsService, MediaFileService mediaFileService,
-            ArtistDao artistDao, MusicIndexServiceUtils utils) {
+            ArtistDao artistDao, MusicIndexServiceUtils utils, JapaneseReadingUtils readingUtils) {
         super();
         this.settingsService = settingsService;
         this.mediaFileService = mediaFileService;
         this.artistDao = artistDao;
         this.utils = utils;
+        this.readingUtils = readingUtils;
     }
 
     List<MediaFile> getSingleSongs(List<MusicFolder> folders) {
@@ -134,7 +138,7 @@ public class MusicIndexServiceImpl implements MusicIndexService {
         if (parser != null) {
             return parser;
         }
-        parser = new MusicIndexParser(settingsService.getIndexString());
+        parser = new MusicIndexParser(settingsService.getIndexString(), readingUtils);
         return parser;
     }
 
@@ -147,9 +151,11 @@ public class MusicIndexServiceImpl implements MusicIndexService {
     static class MusicIndexParser {
 
         List<MusicIndex> indexes;
+        JapaneseReadingUtils readingUtils;
 
-        private MusicIndexParser(String expr) {
+        private MusicIndexParser(String expr, JapaneseReadingUtils readingUtils) {
             indexes = createIndexesFromExpression(expr);
+            this.readingUtils = readingUtils;
         }
 
         private List<MusicIndex> createIndexesFromExpression(String expr) {
@@ -173,13 +179,26 @@ public class MusicIndexServiceImpl implements MusicIndexService {
         }
 
         /**
-         * @deprecated Fix to not use SortableArtist
+         * @deprecated Use this{@link #getIndex(ArtistIndexable)}
          */
+        @Deprecated
         MusicIndex getIndex(SortableArtist artist) {
             for (MusicIndex index : indexes) {
                 if (index.getPrefixes().stream()
                         .filter(prefix -> StringUtils.startsWithIgnoreCase(artist.getSortableName(), prefix))
                         .findFirst().isPresent()) {
+                    return index;
+                }
+            }
+            return MusicIndex.OTHER;
+        }
+
+        MusicIndex getIndex(ArtistIndexable artist) {
+            String indexableName = readingUtils.createIndexableName(artist);
+            for (MusicIndex index : indexes) {
+                if (index.getPrefixes().stream()
+                        .filter(prefix -> StringUtils.startsWithIgnoreCase(indexableName, prefix)).findFirst()
+                        .isPresent()) {
                     return index;
                 }
             }

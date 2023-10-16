@@ -46,7 +46,10 @@ import org.springframework.util.StringUtils;
  * process, which makes people in languages ​​that are sensitive to sorting feel uncomfortable.
  *
  * Jpsonic will change these and make the processing as common as possible so that they can be used naturally.
+ *
+ * @deprecated The redesign consolidates important parts of that specification into MusicIndexServiceImpl
  */
+@Deprecated
 @Component
 @DependsOn({ "settingsService", "mediaFileService", "japaneseReadingUtils", "jpsonicComparators" })
 public class MusicIndexServiceUtils {

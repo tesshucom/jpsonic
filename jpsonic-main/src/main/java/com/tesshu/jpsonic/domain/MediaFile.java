@@ -41,7 +41,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * @author Sindre Mehus
  */
 // Will change from non-sealed to final in the future.
-public non-sealed class MediaFile implements Orderable {
+public non-sealed class MediaFile implements Orderable, ArtistIndexable {
 
     private int id;
     private String pathString;
@@ -256,7 +256,8 @@ public non-sealed class MediaFile implements Orderable {
         this.albumArtist = albumArtist;
     }
 
-    public String getName() {
+    @Override
+    public @NonNull String getName() {
         if (isFile()) {
             return ObjectUtils.defaultIfNull(title, FilenameUtils.getBaseName(pathString));
         }
@@ -541,6 +542,11 @@ public non-sealed class MediaFile implements Orderable {
 
     public void setArtistReading(String artistReading) {
         this.artistReading = artistReading;
+    }
+
+    @Override
+    public @Nullable String getReading() {
+        return artistReading;
     }
 
     public @Nullable String getAlbumReading() {

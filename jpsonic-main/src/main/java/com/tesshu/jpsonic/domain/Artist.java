@@ -23,7 +23,9 @@ package com.tesshu.jpsonic.domain;
 
 import java.time.Instant;
 
-public final class Artist implements Orderable {
+import org.checkerframework.checker.nullness.qual.NonNull;
+
+public final class Artist implements Orderable, ArtistIndexable {
 
     private int id;
     private String name;
@@ -65,7 +67,8 @@ public final class Artist implements Orderable {
         this.id = id;
     }
 
-    public String getName() {
+    @Override
+    public @NonNull String getName() {
         return name;
     }
 
@@ -121,6 +124,7 @@ public final class Artist implements Orderable {
         this.sort = sort;
     }
 
+    @Override
     public String getReading() {
         return reading;
     }

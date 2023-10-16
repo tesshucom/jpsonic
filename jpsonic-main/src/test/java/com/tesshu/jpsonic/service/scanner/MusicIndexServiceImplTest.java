@@ -84,7 +84,8 @@ class MusicIndexServiceImplTest {
         comparators = new JpsonicComparators(settingsService, readingUtils);
         MusicIndexServiceUtils utils = new MusicIndexServiceUtils(settingsService, mediaFileService, readingUtils,
                 comparators);
-        musicIndexService = new MusicIndexServiceImpl(settingsService, mediaFileService, artistDao, utils);
+        musicIndexService = new MusicIndexServiceImpl(settingsService, mediaFileService, artistDao, utils,
+                readingUtils);
     }
 
     @Test
@@ -321,6 +322,92 @@ class MusicIndexServiceImplTest {
                 SortableArtistWithArtist sa5 = new SortableArtistWithArtist("\u0131", "\u0131", // ı ı
                         null, comparators.sortableArtistOrder());
                 assertEquals("\u0069", musicIndexParser.getIndex(sa5).getIndex()); // i
+            }
+        }
+
+        @Nested
+        class GetIndexTestWithArtistIndexable {
+
+            @Test
+            void testLatin() {
+                Mockito.when(settingsService.getIndexString()).thenReturn("A B C");
+                MusicIndexParser musicIndexParser = musicIndexService.getParser();
+
+                Artist artist = new Artist();
+                artist.setName("Abcde");
+                artist.setReading("Abcde");
+                assertEquals("A", musicIndexParser.getIndex(artist).getIndex());
+
+                artist.setName("The Beatles");
+                artist.setReading("The Beatles");
+                assertEquals("B", musicIndexParser.getIndex(artist).getIndex());
+
+                artist.setName("あいうえお");
+                artist.setReading("あいうえお");
+                assertEquals("#", musicIndexParser.getIndex(artist).getIndex());
+            }
+
+            @Test
+            void testLatinJapanese() {
+                Mockito.when(settingsService.getIndexString())
+                        .thenReturn("A B C あ(ア) い(ア) う(ア) え(ア) お(ア) か(カ) き(キ) く(ク) け(ケ) こ(コ) は(ハヒフヘホ)");
+                MusicIndexParser musicIndexParser = musicIndexService.getParser();
+
+                Artist artist = new Artist();
+                artist.setName("Abcde");
+                artist.setReading("Abcde");
+                assertEquals("A", musicIndexParser.getIndex(artist).getIndex());
+
+                artist.setName("あいうえお");
+                artist.setReading("あいうえお");
+                assertEquals("あ", musicIndexParser.getIndex(artist).getIndex());
+
+                artist.setName("きくけこ");
+                artist.setReading("きくけこ");
+                assertEquals("き", musicIndexParser.getIndex(artist).getIndex());
+
+                artist.setName("ぐげご");
+                artist.setReading("ぐげご");
+                assertEquals("く", musicIndexParser.getIndex(artist).getIndex());
+
+                artist.setName("ビートルズ");
+                artist.setReading("ビートルズ");
+                assertEquals("は", musicIndexParser.getIndex(artist).getIndex());
+
+                artist.setName("The Beatles");
+                artist.setReading("ビートルズ");
+                assertEquals("B", musicIndexParser.getIndex(artist).getIndex());
+            }
+
+            /*
+             * #852. https://wiki.sei.cmu.edu/confluence/display/java/STR02-J.+Specify+an+appropriate+locale+when+
+             * comparing+locale-dependent+data
+             */
+            @Test
+            void testGetIndexSTR02J() {
+                Mockito.when(settingsService.getIndexString()).thenReturn("A i ı");
+                MusicIndexParser musicIndexParser = musicIndexService.getParser();
+
+                Artist artist = new Artist();
+                artist.setName("abcde");
+                artist.setReading("abcde");
+                assertEquals("A", musicIndexParser.getIndex(artist).getIndex());
+
+                artist.setName("\u0130"); // İ
+                artist.setReading("\u0130"); // İ
+                assertEquals("\u0069", musicIndexParser.getIndex(artist).getIndex()); // i
+
+                artist.setName("\u0069"); // i
+                artist.setReading("\u0069"); // i
+                assertEquals("\u0069", musicIndexParser.getIndex(artist).getIndex()); // i
+
+                artist.setName("\u0049"); // I
+                artist.setReading("\u0049"); // I
+                assertEquals("\u0069", musicIndexParser.getIndex(artist).getIndex()); // i
+
+                artist.setName("\u0131"); // ı
+                artist.setReading("\u0131"); // ı
+                assertEquals("\u0069", musicIndexParser.getIndex(artist).getIndex()); // i
             }
         }
     }
