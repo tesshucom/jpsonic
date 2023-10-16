@@ -54,7 +54,7 @@ public class ArtistDao {
 
     private static final String INSERT_COLUMNS = """
             name, cover_art_path, album_count, last_scanned, present, folder_id,
-            sort, reading, artist_order\s
+            sort, reading, artist_order, music_index\s
             """;
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
@@ -96,11 +96,12 @@ public class ArtistDao {
         String sql = """
                 update artist
                 set cover_art_path=?, album_count=?, last_scanned=?, present=?,
-                        folder_id=?, sort=?, reading=?
+                        folder_id=?, sort=?, reading=?, music_index = ?
                 where name=?
                 """;
         int c = template.update(sql, artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
-                artist.isPresent(), artist.getFolderId(), artist.getSort(), artist.getReading(), artist.getName());
+                artist.isPresent(), artist.getFolderId(), artist.getSort(), artist.getReading(), artist.getMusicIndex(),
+                artist.getName());
         if (c > 0) {
             return artist;
         }
@@ -111,7 +112,8 @@ public class ArtistDao {
         int c = template.update(
                 "insert into artist (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
                 artist.getName(), artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
-                artist.isPresent(), artist.getFolderId(), artist.getSort(), artist.getReading(), -1);
+                artist.isPresent(), artist.getFolderId(), artist.getSort(), artist.getReading(), -1,
+                artist.getMusicIndex());
         Integer id = template.queryForInt("""
                 select id
                 from artist
@@ -252,14 +254,14 @@ public class ArtistDao {
         public Artist mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new Artist(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4),
                     nullableInstantOf(rs.getTimestamp(5)), rs.getBoolean(6), rs.getInt(7), rs.getString(8),
-                    rs.getString(9), rs.getInt(10));
+                    rs.getString(9), rs.getInt(10), rs.getString(11));
         }
     }
 
     private static class ArtistCountMapper implements RowMapper<Artist> {
         @Override
         public Artist mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new Artist(rs.getInt(1), null, null, rs.getInt(2), null, false, null, null, null, -1);
+            return new Artist(rs.getInt(1), null, null, rs.getInt(2), null, false, null, null, null, -1, "");
         }
     }
 

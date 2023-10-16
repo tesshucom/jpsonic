@@ -115,8 +115,8 @@ class MusicIndexServiceImplTest {
 
     @Test
     void testGetIndexedArtistsListOfArtist() {
-        Artist artist1 = new Artist(0, "The Flipper's Guitar", null, 0, now(), false, 0, null, null, -1);
-        Artist artist2 = new Artist(0, "abcde", null, 0, now(), false, 0, null, null, -1);
+        Artist artist1 = new Artist(0, "The Flipper's Guitar", null, 0, now(), false, 0, null, null, -1, "");
+        Artist artist2 = new Artist(0, "abcde", null, 0, now(), false, 0, null, null, -1, null);
         List<Artist> artists = Arrays.asList(artist1, artist2);
 
         List<MusicFolder> folders = Collections.emptyList();

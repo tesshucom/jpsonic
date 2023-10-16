@@ -40,7 +40,7 @@ public final class DaoUtils {
             mb_release_id, mb_recording_id, composer, artist_sort, album_sort, title_sort,
             album_artist_sort, composer_sort, artist_reading, album_reading, album_artist_reading,
             artist_sort_raw, album_sort_raw, album_artist_sort_raw, composer_sort_raw,
-            media_file_order\s
+            media_file_order, music_index\s
             """;
     private static final String MEDIA_FILE_QUERY_COLUMNS = "id, " + MEDIA_FILE_INSERT_COLUMNS;
 
@@ -98,6 +98,7 @@ public final class DaoUtils {
                 nullableInstantOf(rs.getTimestamp(28)), rs.getBoolean(29), rs.getInt(30), rs.getString(31),
                 rs.getString(32), rs.getString(33), rs.getString(34), rs.getString(35), rs.getString(36),
                 rs.getString(37), rs.getString(38), rs.getString(39), rs.getString(40), rs.getString(41),
-                rs.getString(42), rs.getString(43), rs.getString(44), rs.getString(45), rs.getInt(46));
+                rs.getString(42), rs.getString(43), rs.getString(44), rs.getString(45), rs.getInt(46),
+                rs.getString(47));
     }
 }

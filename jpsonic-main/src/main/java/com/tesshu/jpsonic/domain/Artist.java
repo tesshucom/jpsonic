@@ -35,12 +35,15 @@ public final class Artist implements Orderable {
     private String sort;
     private String reading;
     private int order;
+    private String musicIndex;
 
     public Artist() {
+        musicIndex = "";
     }
 
     public Artist(int id, String name, String coverArtPath, int albumCount, Instant lastScanned, boolean present,
-            Integer folderId, String sort, String reading, int order) {
+            Integer folderId, String sort, String reading, int order, String musicIndex) {
+        this();
         this.id = id;
         this.name = name;
         this.coverArtPath = coverArtPath;
@@ -51,6 +54,7 @@ public final class Artist implements Orderable {
         this.sort = sort;
         this.reading = reading;
         this.order = order;
+        this.musicIndex = musicIndex;
     }
 
     public int getId() {
@@ -135,4 +139,11 @@ public final class Artist implements Orderable {
         this.order = order;
     }
 
+    public String getMusicIndex() {
+        return musicIndex;
+    }
+
+    public void setMusicIndex(String musicIndex) {
+        this.musicIndex = musicIndex;
+    }
 }

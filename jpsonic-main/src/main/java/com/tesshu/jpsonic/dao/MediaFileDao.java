@@ -63,7 +63,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class MediaFileDao {
 
-    public static final int VERSION = 13;
+    public static final int VERSION = 14;
 
     private static final String INSERT_COLUMNS = DaoUtils.getInsertColumns(MediaFile.class);
     private static final String QUERY_COLUMNS = DaoUtils.getQueryColumns(MediaFile.class);
@@ -222,7 +222,7 @@ public class MediaFileDao {
                 file.getMusicBrainzRecordingId(), file.getComposer(), file.getArtistSort(), file.getAlbumSort(),
                 file.getTitleSort(), file.getAlbumArtistSort(), file.getComposerSort(), file.getArtistReading(),
                 file.getAlbumReading(), file.getAlbumArtistReading(), file.getArtistSortRaw(), file.getAlbumSortRaw(),
-                file.getAlbumArtistSortRaw(), file.getComposerSortRaw(), file.getOrder());
+                file.getAlbumArtistSortRaw(), file.getComposerSortRaw(), file.getOrder(), file.getMusicIndex());
         Integer id = template.queryForInt("""
                 select id
                 from media_file
@@ -247,7 +247,8 @@ public class MediaFileDao {
                         composer=?, artist_sort=?, album_sort=?, title_sort=?,
                         album_artist_sort=?, composer_sort=?, artist_reading=?, album_reading=?,
                         album_artist_reading=?, artist_sort_raw=?, album_sort_raw=?,
-                        album_artist_sort_raw=?, composer_sort_raw=?, media_file_order=?
+                        album_artist_sort_raw=?, composer_sort_raw=?, media_file_order=?,
+                        music_index=?
                 where id=?
                 """;
         int c = template.update(sql, file.getFolder(), file.getMediaType().name(), file.getFormat(), file.getTitle(),
@@ -260,7 +261,8 @@ public class MediaFileDao {
                 file.getComposer(), file.getArtistSort(), file.getAlbumSort(), file.getTitleSort(),
                 file.getAlbumArtistSort(), file.getComposerSort(), file.getArtistReading(), file.getAlbumReading(),
                 file.getAlbumArtistReading(), file.getArtistSortRaw(), file.getAlbumSortRaw(),
-                file.getAlbumArtistSortRaw(), file.getComposerSortRaw(), file.getOrder(), file.getId());
+                file.getAlbumArtistSortRaw(), file.getComposerSortRaw(), file.getOrder(), file.getMusicIndex(),
+                file.getId());
         if (c > 0) {
             return Optional.of(file);
         }

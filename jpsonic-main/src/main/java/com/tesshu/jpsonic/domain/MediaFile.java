@@ -90,7 +90,12 @@ public non-sealed class MediaFile implements Orderable {
     private String albumSortRaw;
     private String albumArtistSortRaw;
     private String composerSortRaw;
+    private String musicIndex;
     private transient int rownum;
+
+    public MediaFile() {
+        this.musicIndex = "";
+    }
 
     public MediaFile(int id, String path, String folder, MediaType mediaType, String format, String title,
             String albumName, String artist, String albumArtist, Integer discNumber, Integer trackNumber, Integer year,
@@ -100,7 +105,8 @@ public non-sealed class MediaFile implements Orderable {
             boolean present, int version, String musicBrainzReleaseId, String musicBrainzRecordingId, String composer,
             String artistSort, String albumSort, String titleSort, String albumArtistSort, String composerSort,
             String artistReading, String albumReading, String albumArtistReading, String artistSortRaw,
-            String albumSortRaw, String albumArtistSortRaw, String composerSortRaw, int order) {
+            String albumSortRaw, String albumArtistSortRaw, String composerSortRaw, int order, String musicIndex) {
+        this();
         this.id = id;
         this.pathString = path;
         this.folder = folder;
@@ -147,9 +153,7 @@ public non-sealed class MediaFile implements Orderable {
         this.albumArtistSortRaw = albumArtistSortRaw;
         this.composerSortRaw = composerSortRaw;
         this.order = order;
-    }
-
-    public MediaFile() {
+        this.musicIndex = musicIndex;
     }
 
     public int getId() {
@@ -595,6 +599,14 @@ public non-sealed class MediaFile implements Orderable {
     @Override
     public void setOrder(int order) {
         this.order = order;
+    }
+
+    public String getMusicIndex() {
+        return musicIndex;
+    }
+
+    public void setMusicIndex(String musicIndex) {
+        this.musicIndex = musicIndex;
     }
 
     public int getRownum() {

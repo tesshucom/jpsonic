@@ -59,7 +59,7 @@ class MediaFileDaoTest {
                 media_file.album_artist_sort, media_file.composer_sort, media_file.artist_reading, \
                 media_file.album_reading, media_file.album_artist_reading, media_file.artist_sort_raw, \
                 media_file.album_sort_raw, media_file.album_artist_sort_raw, media_file.composer_sort_raw, \
-                media_file.media_file_order from media_file\
+                media_file.media_file_order, media_file.music_index from media_file\
                 """;
         private static final String CONDITION_JOIN1 = """
                  left outer join starred_media_file \

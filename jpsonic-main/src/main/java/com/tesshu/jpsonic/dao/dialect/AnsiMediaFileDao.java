@@ -61,7 +61,7 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
             resultSet.getString(1), null, null, null, null, null, resultSet.getString(2), null, null, null, null, null,
             false, null, null, null, null, resultSet.getString(5), null, -1, null, null, null, null, null, null, false,
             -1, null, null, null, null, null, null, resultSet.getString(4), null, null, null, resultSet.getString(3),
-            null, null, null, null, -1);
+            null, null, null, null, -1, "");
     private final RowMapper<SortCandidate> sortCandidateMapper = (rs, rowNum) -> new SortCandidate(rs.getInt(1),
             rs.getString(2), rs.getString(3));
     private final RowMapper<SortCandidate> sortCandidateWithIdMapper = (rs, rowNum) -> new SortCandidate(rs.getInt(1),
