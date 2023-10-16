@@ -85,11 +85,13 @@ public class WritableMediaFileService {
     private final SecurityService securityService;
     private final JapaneseReadingUtils readingUtils;
     private final IndexManager indexManager;
+    private final MusicIndexServiceImpl musicIndexService;
 
     public WritableMediaFileService(MediaFileDao mediaFileDao, ScannerStateService scannerStateService,
             MediaFileService mediaFileService, AlbumDao albumDao, MediaFileCache mediaFileCache,
             MusicParser musicParser, VideoParser videoParser, SettingsService settingsService,
-            SecurityService securityService, JapaneseReadingUtils readingUtils, IndexManager indexManager) {
+            SecurityService securityService, JapaneseReadingUtils readingUtils, IndexManager indexManager,
+            MusicIndexServiceImpl musicIndexService) {
         super();
         this.mediaFileDao = mediaFileDao;
         this.scannerState = scannerStateService;
@@ -102,6 +104,7 @@ public class WritableMediaFileService {
         this.securityService = securityService;
         this.readingUtils = readingUtils;
         this.indexManager = indexManager;
+        this.musicIndexService = musicIndexService;
     }
 
     /**
@@ -384,6 +387,10 @@ public class WritableMediaFileService {
                 to.setLastScanned(FAR_FUTURE);
             }, () -> {
                 to.setArtist(dirPath.getFileName().toString());
+                if (!settingsService.isSortStrict()) {
+                    String index = musicIndexService.getParser().getIndex(to).getIndex();
+                    to.setMusicIndex(index);
+                }
                 to.setLastScanned(scanDate);
             });
         }

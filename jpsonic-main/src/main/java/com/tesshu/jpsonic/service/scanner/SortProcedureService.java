@@ -27,6 +27,7 @@ import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SortCandidate;
+import com.tesshu.jpsonic.domain.SortCandidate.CandidateField;
 import org.apache.commons.lang3.exception.UncheckedException;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.context.annotation.DependsOn;
@@ -45,11 +46,14 @@ public class SortProcedureService {
 
     private final MediaFileDao mediaFileDao;
     private final JapaneseReadingUtils utils;
+    private final MusicIndexServiceImpl musicIndexService;
 
-    public SortProcedureService(MediaFileDao mediaFileDao, JapaneseReadingUtils utils) {
+    public SortProcedureService(MediaFileDao mediaFileDao, JapaneseReadingUtils utils,
+            MusicIndexServiceImpl musicIndexService) {
         super();
         this.mediaFileDao = mediaFileDao;
         this.utils = utils;
+        this.musicIndexService = musicIndexService;
     }
 
     void clearMemoryCache() {
@@ -117,16 +121,22 @@ public class SortProcedureService {
         return candidatesWithId.stream().map(SortCandidate::getId).collect(Collectors.toList());
     }
 
-    private List<Integer> updateSortOfArtist(@NonNull List<SortCandidate> candidatesWithId) {
-        if (candidatesWithId.isEmpty()) {
+    private List<Integer> updateSortOfArtist(@NonNull List<SortCandidate> candidates) {
+        if (candidates.isEmpty()) {
             return Collections.emptyList();
         }
-        for (int i = 0; i < candidatesWithId.size(); i++) {
+        for (int i = 0; i < candidates.size(); i++) {
             if (i % 20_000 == 0) {
                 repeatWait();
             }
-            mediaFileDao.updateArtistSort(candidatesWithId.get(i));
+            SortCandidate artist = candidates.get(i);
+            if (artist.getField() == CandidateField.ARTIST) {
+                String index = musicIndexService.getParser().getIndex(artist).getIndex();
+                mediaFileDao.updateArtistSort(artist, index);
+            } else {
+                mediaFileDao.updateArtistSort(artist);
+            }
         }
-        return candidatesWithId.stream().map(SortCandidate::getId).collect(Collectors.toList());
+        return candidates.stream().map(SortCandidate::getId).collect(Collectors.toList());
     }
 }

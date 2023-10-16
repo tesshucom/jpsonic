@@ -895,14 +895,16 @@ public class MediaFileDao {
                 """, candidate.getReading(), candidate.getSort(), candidate.getId());
     }
 
+    public void updateArtistSort(SortCandidate candidate, String musicIndex) {
+        template.update("""
+                update media_file
+                set artist_reading = ?, artist_sort = ?, music_index = ?
+                where id = ?
+                """, candidate.getReading(), candidate.getSort(), musicIndex, candidate.getId());
+    }
+
     public void updateArtistSort(SortCandidate candidate) {
-        if (candidate.getField() == CandidateField.ARTIST) {
-            template.update("""
-                    update media_file
-                    set artist_reading = ?, artist_sort = ?
-                    where id = ?
-                    """, candidate.getReading(), candidate.getSort(), candidate.getId());
-        } else if (candidate.getField() == CandidateField.ALBUM_ARTIST) {
+        if (candidate.getField() == CandidateField.ALBUM_ARTIST) {
             template.update("""
                     update media_file
                     set album_artist_reading = ?, album_artist_sort = ?

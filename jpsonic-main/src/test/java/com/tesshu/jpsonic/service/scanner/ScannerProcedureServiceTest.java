@@ -75,13 +75,14 @@ class ScannerProcedureServiceTest {
         staticsDao = mock(StaticsDao.class);
         WritableMediaFileService writableMediaFileService = new WritableMediaFileService(mediaFileDao, null,
                 mediaFileService, albumDao, null, mock(MusicParser.class), mock(VideoParser.class), settingsService,
-                mock(SecurityService.class), mock(JapaneseReadingUtils.class), mock(IndexManager.class));
+                mock(SecurityService.class), mock(JapaneseReadingUtils.class), mock(IndexManager.class),
+                mock(MusicIndexServiceImpl.class));
         scannerProcedureService = new ScannerProcedureService(settingsService, musicFolderServiceImpl,
                 mock(IndexManager.class), mediaFileService, writableMediaFileService, mock(PlaylistService.class),
                 mock(TemplateWrapper.class), mediaFileDao, mock(ArtistDao.class), albumDao, staticsDao,
-                mock(SortProcedureService.class), new ScannerStateServiceImpl(staticsDao), mock(Ehcache.class),
-                mock(MediaFileCache.class), mock(JapaneseReadingUtils.class), mock(JpsonicComparators.class),
-                mock(ThreadPoolTaskExecutor.class));
+                mock(SortProcedureService.class), new ScannerStateServiceImpl(staticsDao),
+                mock(MusicIndexServiceImpl.class), mock(Ehcache.class), mock(MediaFileCache.class),
+                mock(JapaneseReadingUtils.class), mock(JpsonicComparators.class), mock(ThreadPoolTaskExecutor.class));
     }
 
     @Nested

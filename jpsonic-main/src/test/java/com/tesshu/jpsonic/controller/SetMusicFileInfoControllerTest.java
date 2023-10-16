@@ -34,6 +34,7 @@ import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.VideoParser;
+import com.tesshu.jpsonic.service.scanner.MusicIndexServiceImpl;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.service.search.IndexManager;
@@ -72,7 +73,8 @@ class SetMusicFileInfoControllerTest {
         WritableMediaFileService writableMediaFileService = new WritableMediaFileService(mediaFileDao,
                 scannerStateService, mock(MediaFileService.class), mock(AlbumDao.class), mock(MediaFileCache.class),
                 mock(MusicParser.class), mock(VideoParser.class), mock(SettingsService.class),
-                mock(SecurityService.class), mock(JapaneseReadingUtils.class), mock(IndexManager.class));
+                mock(SecurityService.class), mock(JapaneseReadingUtils.class), mock(IndexManager.class),
+                mock(MusicIndexServiceImpl.class));
         controller = new SetMusicFileInfoController(mediaFileService, writableMediaFileService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }

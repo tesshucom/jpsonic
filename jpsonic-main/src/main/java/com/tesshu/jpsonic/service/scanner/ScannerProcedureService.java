@@ -104,6 +104,7 @@ public class ScannerProcedureService {
     private final StaticsDao staticsDao;
     private final SortProcedureService sortProcedure;
     private final ScannerStateServiceImpl scannerState;
+    private final MusicIndexServiceImpl musicIndexService;
     private final Ehcache indexCache;
     private final MediaFileCache mediaFileCache;
     private final JapaneseReadingUtils readingUtils;
@@ -119,8 +120,9 @@ public class ScannerProcedureService {
             IndexManager indexManager, MediaFileService mediaFileService, WritableMediaFileService wmfs,
             PlaylistService playlistService, TemplateWrapper template, MediaFileDao mediaFileDao, ArtistDao artistDao,
             AlbumDao albumDao, StaticsDao staticsDao, SortProcedureService sortProcedure,
-            ScannerStateServiceImpl scannerStateService, Ehcache indexCache, MediaFileCache mediaFileCache,
-            JapaneseReadingUtils readingUtils, JpsonicComparators comparators, ThreadPoolTaskExecutor scanExecutor) {
+            ScannerStateServiceImpl scannerStateService, MusicIndexServiceImpl musicIndexService, Ehcache indexCache,
+            MediaFileCache mediaFileCache, JapaneseReadingUtils readingUtils, JpsonicComparators comparators,
+            ThreadPoolTaskExecutor scanExecutor) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
@@ -135,6 +137,7 @@ public class ScannerProcedureService {
         this.staticsDao = staticsDao;
         this.sortProcedure = sortProcedure;
         this.scannerState = scannerStateService;
+        this.musicIndexService = musicIndexService;
         this.indexCache = indexCache;
         this.mediaFileCache = mediaFileCache;
         this.readingUtils = readingUtils;
@@ -618,6 +621,8 @@ public class ScannerProcedureService {
         artist.setCoverArtPath(artistId3.getCoverArtPathString());
         artist.setLastScanned(scanDate);
         artist.setPresent(true);
+        String index = musicIndexService.getParser().getIndex(artist).getIndex();
+        artist.setMusicIndex(index);
         return artist;
     }
 
