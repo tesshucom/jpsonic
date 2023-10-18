@@ -22,11 +22,47 @@ package com.tesshu.jpsonic.dao.dialect;
 import java.util.List;
 import java.util.function.BiFunction;
 
+import com.tesshu.jpsonic.domain.DuplicateSort;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SortCandidate;
 
 public interface DialectMediaFileDao {
+
+    /**
+     * Used for Sort tag merge.
+     */
+    List<DuplicateSort> getDuplicateSortPersons(List<MusicFolder> folders);
+
+    /**
+     * Used for Sort tag merge.
+     */
+    List<SortCandidate> getSortCandidatePersons(List<DuplicateSort> dups);
+
+    /**
+     * Used for Sort tag merge.
+     */
+    List<SortCandidate> getDuplicateSortAlbums(List<MusicFolder> folders);
+
+    /**
+     * Used for Sort tag copy.
+     */
+    List<SortCandidate> getCopyableSortAlbums(List<MusicFolder> folders);
+
+    /**
+     * Used for Sort tag copy.
+     */
+    List<SortCandidate> getCopyableSortPersons(List<MusicFolder> folders);
+
+    /**
+     * Used for Sort tag compensate.
+     */
+    List<SortCandidate> getNoSortPersons(List<MusicFolder> folders);
+
+    /**
+     * Used for Sort tag compensate.
+     */
+    List<SortCandidate> getNoSortAlbums(List<MusicFolder> folders);
 
     List<MediaFile> getChangedId3Albums(int count, List<MusicFolder> musicFolders, boolean withPodcast);
 
@@ -36,20 +72,6 @@ public interface DialectMediaFileDao {
 
     List<MediaFile> getUnregisteredId3Artists(int count, List<MusicFolder> folders, boolean withPodcast);
 
-    List<SortCandidate> getCopyableSortForAlbums(List<MusicFolder> folders);
-
-    List<SortCandidate> getCopyableSortForPersons(List<MusicFolder> folders);
-
     List<MediaFile> getRandomSongsForAlbumArtist(int limit, String albumArtist, List<MusicFolder> musicFolders,
             BiFunction<Integer, Integer, List<Integer>> randomCallback);
-
-    List<SortCandidate> getSortForPersonWithoutSorts(List<MusicFolder> folders);
-
-    List<SortCandidate> getSortOfArtistToBeFixed(List<SortCandidate> candidates);
-
-    List<SortCandidate> getSortForAlbumWithoutSorts(List<MusicFolder> folders);
-
-    List<SortCandidate> guessAlbumSorts(List<MusicFolder> folders);
-
-    List<SortCandidate> guessPersonsSorts(List<MusicFolder> folders);
 }

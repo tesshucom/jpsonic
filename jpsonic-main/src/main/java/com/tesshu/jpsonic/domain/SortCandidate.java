@@ -20,44 +20,25 @@
 package com.tesshu.jpsonic.domain;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
- * Commonization candidate for correcting sort-tag duplication.
+ * A class that represents correction suggestions for sort tags.
  */
-public final class SortCandidate implements ArtistIndexable {
+public final class SortCandidate implements ArtistIndexable, DuplicateSort {
 
-    /**
-     * The value set in the name tag corresponding to be modified sort tag. The element value of artist, album artist,
-     * composer, etc.
-     */
-    private CandidateField field;
     private String name;
-    private String reading;
-    private int id;
-
-    /**
-     * Correction value for sort tag
-     */
     private String sort;
+    private String reading;
+    private int targetId;
+    private TargetField targetField;
 
-    public SortCandidate(int field, String name, String sort, int... id) {
+    public SortCandidate(int targetField, String name, String sort, int targetId) {
         super();
-        this.field = CandidateField.of(field);
+        this.targetField = TargetField.of(targetField);
         this.name = name;
         this.sort = sort;
-        if (id.length == 0) {
-            this.id = -1;
-        } else {
-            this.id = id[0];
-        }
-    }
-
-    public @NonNull CandidateField getField() {
-        return field;
-    }
-
-    public void setField(CandidateField field) {
-        this.field = field;
+        this.targetId = targetId;
     }
 
     @Override
@@ -65,46 +46,55 @@ public final class SortCandidate implements ArtistIndexable {
         return name;
     }
 
-    @Override
-    public String getReading() {
-        return reading;
-    }
-
-    public @NonNull String getSort() {
-        return sort;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setReading(String reading) {
-        this.reading = reading;
+    @Override
+    public @Nullable String getSort() {
+        return sort;
     }
 
     public void setSort(String sort) {
         this.sort = sort;
     }
 
-    public int getId() {
-        return id;
+    @Override
+    public @Nullable String getReading() {
+        return reading;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setReading(String reading) {
+        this.reading = reading;
     }
 
-    public enum CandidateField {
+    public int getTargetId() {
+        return targetId;
+    }
+
+    public void setTargetId(int targetId) {
+        this.targetId = targetId;
+    }
+
+    public @NonNull TargetField getTargetField() {
+        return targetField;
+    }
+
+    public void setTargetField(TargetField targetField) {
+        this.targetField = targetField;
+    }
+
+    public enum TargetField {
 
         UNKNOWN(-1), ALBUM_ARTIST(0), ARTIST(1), COMPOSER(2), ALBUM(3);
 
         private final int value;
 
-        CandidateField(int value) {
+        TargetField(int value) {
             this.value = value;
         }
 
-        static CandidateField of(int v) {
+        static TargetField of(int v) {
             if (ALBUM_ARTIST.getValue() == v) {
                 return ALBUM_ARTIST;
             } else if (ARTIST.getValue() == v) {

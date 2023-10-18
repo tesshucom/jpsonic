@@ -343,9 +343,9 @@ public class ScannerProcedureService {
     void expungeFileStructure() {
         mediaFileDao.getArtistExpungeCandidates().forEach(indexManager::expungeArtist);
         mediaFileDao.getAlbumExpungeCandidates().forEach(indexManager::expungeAlbum);
-        List<Integer> candidates = mediaFileDao.getSongExpungeCandidates();
-        for (int i = 0; i < candidates.size(); i++) {
-            indexManager.expungeSong(candidates.get(i));
+        List<Integer> cands = mediaFileDao.getSongExpungeCandidates();
+        for (int i = 0; i < cands.size(); i++) {
+            indexManager.expungeSong(cands.get(i));
             if (i % 20_000 == 0) {
                 repeatWait();
                 if (isInterrupted()) {

@@ -31,6 +31,7 @@ import java.util.function.BiFunction;
 
 import com.tesshu.jpsonic.dao.base.DaoUtils;
 import com.tesshu.jpsonic.dao.base.TemplateWrapper;
+import com.tesshu.jpsonic.domain.DuplicateSort;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -62,8 +63,8 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
             false, null, null, null, null, resultSet.getString(5), null, -1, null, null, null, null, null, null, false,
             -1, null, null, null, null, null, null, resultSet.getString(4), null, null, null, resultSet.getString(3),
             null, null, null, null, -1, "");
-    private final RowMapper<SortCandidate> sortCandidateMapper = (rs, rowNum) -> new SortCandidate(rs.getInt(1),
-            rs.getString(2), rs.getString(3));
+    private final RowMapper<DuplicateSort> sortCandidateMapper = (rs, rowNum) -> new SortCandidate(rs.getInt(1),
+            rs.getString(2), rs.getString(3), -1);
     private final RowMapper<SortCandidate> sortCandidateWithIdMapper = (rs, rowNum) -> new SortCandidate(rs.getInt(1),
             rs.getString(2), rs.getString(3), rs.getInt(4));
 
@@ -294,7 +295,7 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<SortCandidate> getCopyableSortForAlbums(List<MusicFolder> folders) {
+    public List<SortCandidate> getCopyableSortAlbums(List<MusicFolder> folders) {
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
@@ -317,7 +318,7 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<SortCandidate> getCopyableSortForPersons(List<MusicFolder> folders) {
+    public List<SortCandidate> getCopyableSortPersons(List<MusicFolder> folders) {
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
@@ -437,7 +438,7 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<SortCandidate> getSortForPersonWithoutSorts(List<MusicFolder> folders) {
+    public List<SortCandidate> getNoSortPersons(List<MusicFolder> folders) {
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
@@ -466,9 +467,9 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<SortCandidate> getSortOfArtistToBeFixed(@NonNull List<SortCandidate> candidates) {
+    public List<SortCandidate> getSortCandidatePersons(@NonNull List<DuplicateSort> duplicates) {
         List<SortCandidate> result = new ArrayList<>();
-        if (candidates.isEmpty()) {
+        if (duplicates.isEmpty()) {
             return result;
         }
         String query = """
@@ -489,16 +490,16 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
         Map<String, Object> args = new ConcurrentHashMap<>();
         args.put("directory", MediaType.DIRECTORY.name());
         args.put("music", MediaType.MUSIC.name());
-        candidates.forEach(candidate -> {
-            args.put("name", candidate.getName());
-            args.put("sote", candidate.getSort());
+        duplicates.forEach(cand -> {
+            args.put("name", cand.getName());
+            args.put("sote", cand.getSort());
             result.addAll(template.namedQuery(query, sortCandidateWithIdMapper, args));
         });
         return result;
     }
 
     @Override
-    public List<SortCandidate> getSortForAlbumWithoutSorts(List<MusicFolder> folders) {
+    public List<SortCandidate> getNoSortAlbums(List<MusicFolder> folders) {
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
@@ -513,7 +514,7 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<SortCandidate> guessAlbumSorts(List<MusicFolder> folders) {
+    public List<SortCandidate> getDuplicateSortAlbums(List<MusicFolder> folders) {
         List<SortCandidate> result = new ArrayList<>();
         if (folders.isEmpty()) {
             return result;
@@ -547,8 +548,8 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<SortCandidate> guessPersonsSorts(List<MusicFolder> folders) {
-        List<SortCandidate> result = new ArrayList<>();
+    public List<DuplicateSort> getDuplicateSortPersons(List<MusicFolder> folders) {
+        List<DuplicateSort> result = new ArrayList<>();
         if (folders.isEmpty()) {
             return result;
         }
@@ -596,10 +597,10 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
                 group by field, person_all_with_priority.name, sort
                 order by person_all_with_priority.name, field, changed desc
                 """;
-        List<SortCandidate> candidates = template.namedQuery(query, sortCandidateMapper, args);
-        candidates.forEach((candidate) -> {
-            if (result.stream().noneMatch(r -> r.getName().equals(candidate.getName()))) {
-                result.add(candidate);
+        List<DuplicateSort> dups = template.namedQuery(query, sortCandidateMapper, args);
+        dups.forEach((dup) -> {
+            if (result.stream().noneMatch(r -> r.getName().equals(dup.getName()))) {
+                result.add(dup);
             }
         });
         return result;
