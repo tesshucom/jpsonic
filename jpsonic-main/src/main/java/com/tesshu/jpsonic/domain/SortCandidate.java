@@ -23,19 +23,17 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
- * A class that represents correction suggestions for sort tags.
+ * A class that represents suggestions for correction of sort tags.
  */
-public final class SortCandidate implements ArtistIndexable, DuplicateSort {
+public class SortCandidate implements DuplicateSort {
 
     private String name;
     private String sort;
     private String reading;
     private int targetId;
-    private TargetField targetField;
 
-    public SortCandidate(int targetField, String name, String sort, int targetId) {
+    public SortCandidate(String name, String sort, int targetId) {
         super();
-        this.targetField = TargetField.of(targetField);
         this.name = name;
         this.sort = sort;
         this.targetId = targetId;
@@ -59,7 +57,6 @@ public final class SortCandidate implements ArtistIndexable, DuplicateSort {
         this.sort = sort;
     }
 
-    @Override
     public @Nullable String getReading() {
         return reading;
     }
@@ -74,39 +71,5 @@ public final class SortCandidate implements ArtistIndexable, DuplicateSort {
 
     public void setTargetId(int targetId) {
         this.targetId = targetId;
-    }
-
-    public @NonNull TargetField getTargetField() {
-        return targetField;
-    }
-
-    public void setTargetField(TargetField targetField) {
-        this.targetField = targetField;
-    }
-
-    public enum TargetField {
-
-        UNKNOWN(-1), ALBUM_ARTIST(0), ARTIST(1), COMPOSER(2), ALBUM(3);
-
-        private final int value;
-
-        TargetField(int value) {
-            this.value = value;
-        }
-
-        static TargetField of(int v) {
-            if (ALBUM_ARTIST.getValue() == v) {
-                return ALBUM_ARTIST;
-            } else if (ARTIST.getValue() == v) {
-                return ARTIST;
-            } else if (COMPOSER.getValue() == v) {
-                return COMPOSER;
-            }
-            return UNKNOWN;
-        }
-
-        public int getValue() {
-            return value;
-        }
     }
 }

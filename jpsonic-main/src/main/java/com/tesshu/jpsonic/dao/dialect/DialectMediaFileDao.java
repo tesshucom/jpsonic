@@ -22,6 +22,7 @@ package com.tesshu.jpsonic.dao.dialect;
 import java.util.List;
 import java.util.function.BiFunction;
 
+import com.tesshu.jpsonic.domain.ArtistSortCandidate;
 import com.tesshu.jpsonic.domain.DuplicateSort;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -37,7 +38,7 @@ public interface DialectMediaFileDao {
     /**
      * Used for Sort tag merge.
      */
-    List<SortCandidate> getSortCandidatePersons(List<DuplicateSort> dups);
+    List<ArtistSortCandidate> getSortCandidatePersons(List<DuplicateSort> dups);
 
     /**
      * Used for Sort tag merge.
@@ -47,17 +48,17 @@ public interface DialectMediaFileDao {
     /**
      * Used for Sort tag copy.
      */
-    List<SortCandidate> getCopyableSortAlbums(List<MusicFolder> folders);
+    List<ArtistSortCandidate> getCopyableSortPersons(List<MusicFolder> folders);
 
     /**
      * Used for Sort tag copy.
      */
-    List<SortCandidate> getCopyableSortPersons(List<MusicFolder> folders);
+    List<SortCandidate> getCopyableSortAlbums(List<MusicFolder> folders);
 
     /**
      * Used for Sort tag compensate.
      */
-    List<SortCandidate> getNoSortPersons(List<MusicFolder> folders);
+    List<ArtistSortCandidate> getNoSortPersons(List<MusicFolder> folders);
 
     /**
      * Used for Sort tag compensate.

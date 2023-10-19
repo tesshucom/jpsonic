@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 import com.tesshu.jpsonic.dao.base.TemplateWrapper;
+import com.tesshu.jpsonic.domain.ArtistSortCandidate;
 import com.tesshu.jpsonic.domain.DuplicateSort;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -70,7 +71,7 @@ public class HsqlDBMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<SortCandidate> getCopyableSortPersons(List<MusicFolder> folders) {
+    public List<ArtistSortCandidate> getCopyableSortPersons(List<MusicFolder> folders) {
         return deligate.getCopyableSortPersons(folders);
     }
 
@@ -81,12 +82,12 @@ public class HsqlDBMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<SortCandidate> getNoSortPersons(List<MusicFolder> folders) {
+    public List<ArtistSortCandidate> getNoSortPersons(List<MusicFolder> folders) {
         return deligate.getNoSortPersons(folders);
     }
 
     @Override
-    public List<SortCandidate> getSortCandidatePersons(@NonNull List<DuplicateSort> duplicates) {
+    public List<ArtistSortCandidate> getSortCandidatePersons(@NonNull List<DuplicateSort> duplicates) {
         return deligate.getSortCandidatePersons(duplicates);
     }
 

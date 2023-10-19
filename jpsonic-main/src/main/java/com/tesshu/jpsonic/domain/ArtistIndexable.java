@@ -22,7 +22,7 @@ package com.tesshu.jpsonic.domain;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public sealed interface ArtistIndexable permits Artist, MediaFile, SortCandidate {
+public sealed interface ArtistIndexable permits Artist, MediaFile, ArtistSortCandidate {
 
     @NonNull
     String getName();

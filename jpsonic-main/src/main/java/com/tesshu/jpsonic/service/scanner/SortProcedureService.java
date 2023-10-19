@@ -24,11 +24,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.dao.MediaFileDao;
+import com.tesshu.jpsonic.domain.ArtistSortCandidate;
+import com.tesshu.jpsonic.domain.ArtistSortCandidate.TargetField;
 import com.tesshu.jpsonic.domain.DuplicateSort;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SortCandidate;
-import com.tesshu.jpsonic.domain.SortCandidate.TargetField;
 import org.apache.commons.lang3.exception.UncheckedException;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.context.annotation.DependsOn;
@@ -76,7 +78,7 @@ public class SortProcedureService {
     }
 
     List<Integer> compensateSortOfArtist(List<MusicFolder> folders) {
-        List<SortCandidate> cands = mediaFileDao.getNoSortPersons(folders);
+        List<ArtistSortCandidate> cands = mediaFileDao.getNoSortPersons(folders);
         cands.forEach(utils::analyze);
         return updateArtistSort(cands);
     }
@@ -88,7 +90,7 @@ public class SortProcedureService {
     }
 
     List<Integer> copySortOfArtist(List<MusicFolder> folders) {
-        List<SortCandidate> cands = mediaFileDao.getCopyableSortPersons(folders);
+        List<ArtistSortCandidate> cands = mediaFileDao.getCopyableSortPersons(folders);
         cands.forEach(utils::analyze);
         return updateArtistSort(cands);
     }
@@ -104,7 +106,7 @@ public class SortProcedureService {
         if (dups.isEmpty()) {
             return Collections.emptyList();
         }
-        List<SortCandidate> cands = mediaFileDao.getSortCandidatePersons(dups);
+        List<ArtistSortCandidate> cands = mediaFileDao.getSortCandidatePersons(dups);
         cands.forEach(utils::analyze);
         return updateArtistSort(cands);
     }
@@ -122,7 +124,7 @@ public class SortProcedureService {
         return cands.stream().map(SortCandidate::getTargetId).collect(Collectors.toList());
     }
 
-    private List<Integer> updateArtistSort(@NonNull List<SortCandidate> cands) {
+    private List<Integer> updateArtistSort(@NonNull List<ArtistSortCandidate> cands) {
         if (cands.isEmpty()) {
             return Collections.emptyList();
         }
@@ -130,14 +132,12 @@ public class SortProcedureService {
             if (i % 20_000 == 0) {
                 repeatWait();
             }
-            SortCandidate cand = cands.get(i);
-            if (cand.getTargetField() == TargetField.ARTIST) {
-                String index = musicIndexService.getParser().getIndex(cand).getIndex();
-                mediaFileDao.updateArtistSort(cand, index);
-            } else {
-                mediaFileDao.updateArtistSort(cand);
+            ArtistSortCandidate cand = cands.get(i);
+            if (cand.getTargetType() == MediaType.DIRECTORY && cand.getTargetField() == TargetField.ARTIST) {
+                cand.setMusicIndex(musicIndexService.getParser().getIndex(cand).getIndex());
             }
+            mediaFileDao.updateArtistSort(cand);
         }
-        return cands.stream().map(SortCandidate::getTargetId).collect(Collectors.toList());
+        return cands.stream().map(ArtistSortCandidate::getTargetId).collect(Collectors.toList());
     }
 }

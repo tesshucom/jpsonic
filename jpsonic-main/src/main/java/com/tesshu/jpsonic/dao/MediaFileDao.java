@@ -39,6 +39,8 @@ import java.util.function.BiFunction;
 import com.tesshu.jpsonic.dao.base.DaoUtils;
 import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.dao.dialect.DialectMediaFileDao;
+import com.tesshu.jpsonic.domain.ArtistSortCandidate;
+import com.tesshu.jpsonic.domain.ArtistSortCandidate.TargetField;
 import com.tesshu.jpsonic.domain.DuplicateSort;
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -46,7 +48,6 @@ import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import com.tesshu.jpsonic.domain.SortCandidate;
-import com.tesshu.jpsonic.domain.SortCandidate.TargetField;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -827,7 +828,7 @@ public class MediaFileDao {
         return dialect.getCopyableSortAlbums(folders);
     }
 
-    public List<SortCandidate> getCopyableSortPersons(List<MusicFolder> folders) {
+    public List<ArtistSortCandidate> getCopyableSortPersons(List<MusicFolder> folders) {
         return dialect.getCopyableSortPersons(folders);
     }
 
@@ -868,11 +869,11 @@ public class MediaFileDao {
                 """, 0, artist, album, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name(), MediaType.PODCAST.name());
     }
 
-    public List<SortCandidate> getNoSortPersons(List<MusicFolder> folders) {
+    public List<ArtistSortCandidate> getNoSortPersons(List<MusicFolder> folders) {
         return dialect.getNoSortPersons(folders);
     }
 
-    public List<SortCandidate> getSortCandidatePersons(@NonNull List<DuplicateSort> duplicates) {
+    public List<ArtistSortCandidate> getSortCandidatePersons(@NonNull List<DuplicateSort> duplicates) {
         return dialect.getSortCandidatePersons(duplicates);
     }
 
@@ -896,16 +897,20 @@ public class MediaFileDao {
                 """, cand.getReading(), cand.getSort(), cand.getTargetId());
     }
 
-    public void updateArtistSort(SortCandidate cand, String musicIndex) {
-        template.update("""
-                update media_file
-                set artist_reading = ?, artist_sort = ?, music_index = ?
-                where id = ?
-                """, cand.getReading(), cand.getSort(), musicIndex, cand.getTargetId());
-    }
-
-    public void updateArtistSort(SortCandidate cand) {
-        if (cand.getTargetField() == TargetField.ALBUM_ARTIST) {
+    public void updateArtistSort(ArtistSortCandidate cand) {
+        if (cand.getTargetField() == TargetField.ARTIST && cand.getTargetType() == MediaType.DIRECTORY) {
+            template.update("""
+                    update media_file
+                    set artist_reading = ?, artist_sort = ?, music_index = ?
+                    where id = ?
+                    """, cand.getReading(), cand.getSort(), cand.getMusicIndex(), cand.getTargetId());
+        } else if (cand.getTargetField() == TargetField.ARTIST) {
+            template.update("""
+                    update media_file
+                    set artist_reading = ?, artist_sort = ?
+                    where id = ?
+                    """, cand.getReading(), cand.getSort(), cand.getTargetId());
+        } else if (cand.getTargetField() == TargetField.ALBUM_ARTIST) {
             template.update("""
                     update media_file
                     set album_artist_reading = ?, album_artist_sort = ?
