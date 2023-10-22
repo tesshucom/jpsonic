@@ -29,6 +29,7 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -923,6 +924,41 @@ public class MediaFileDao {
                     where id = ?
                     """, cand.getSort(), cand.getTargetId());
         }
+    }
+
+    public void updateArtistSort(List<ArtistSortCandidate> cands) {
+        final String updates = "update media_file ";
+        final StringBuilder cols = new StringBuilder(130);
+        cols.append("set ");
+        final String cond = "where id = ?";
+
+        List<Object> args = new ArrayList<>();
+        cands.forEach(cand -> {
+            switch (cand.getTargetField()) {
+            case ARTIST -> {
+                cols.append("artist_reading=?, artist_sort=?, ");
+                args.add(cand.getReading());
+                args.add(cand.getSort());
+            }
+            case ALBUM_ARTIST -> {
+                cols.append("album_artist_reading=?, album_artist_sort=?, ");
+                args.add(cand.getReading());
+                args.add(cand.getSort());
+            }
+            case COMPOSER -> {
+                cols.append("composer_sort=?, ");
+                args.add(cand.getSort());
+            }
+            case UNKNOWN -> {
+            }
+            default -> {
+            }
+            }
+        });
+        args.add(cands.get(0).getTargetId());
+
+        String query = updates + cols.toString().replaceFirst(", $", " ") + cond;
+        template.getJdbcTemplate().update(query, args.toArray());
     }
 
     static class RandomSongsQueryBuilder {

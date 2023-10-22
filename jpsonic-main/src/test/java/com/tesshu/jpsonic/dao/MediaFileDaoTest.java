@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -33,13 +34,71 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 import com.tesshu.jpsonic.dao.MediaFileDao.RandomSongsQueryBuilder;
+import com.tesshu.jpsonic.dao.base.DaoHelper;
+import com.tesshu.jpsonic.dao.base.TemplateWrapper;
+import com.tesshu.jpsonic.dao.dialect.DialectMediaFileDao;
+import com.tesshu.jpsonic.domain.ArtistSortCandidate;
+import com.tesshu.jpsonic.domain.ArtistSortCandidate.TargetField;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class MediaFileDaoTest {
+
+    private JdbcTemplate jdbcTemplate;
+    private MediaFileDao mediaFileDao;
+
+    @BeforeEach
+    public void setup() {
+        jdbcTemplate = mock(JdbcTemplate.class);
+        DaoHelper daoHelper = mock(DaoHelper.class);
+        Mockito.when(daoHelper.getJdbcTemplate()).thenReturn(jdbcTemplate);
+        TemplateWrapper templateWrapper = new TemplateWrapper(daoHelper);
+        mediaFileDao = new MediaFileDao(templateWrapper, mock(DialectMediaFileDao.class));
+    }
+
+    @Test
+    void updateArtistSortTest() {
+        ArtistSortCandidate artist = new ArtistSortCandidate("artist", "artistSort", 1, "DIRECTORY",
+                TargetField.ARTIST.getValue());
+        List<ArtistSortCandidate> cands = List.of(artist);
+        ArgumentCaptor<String> queryCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Object[]> argCaptor = ArgumentCaptor.forClass(Object[].class);
+        Mockito.when(jdbcTemplate.update(queryCaptor.capture(), argCaptor.capture())).thenReturn(0);
+        mediaFileDao.updateArtistSort(cands);
+        assertEquals("update media_file set artist_reading=?, artist_sort=? where id = ?", queryCaptor.getValue());
+        assertEquals(3, argCaptor.getAllValues().size());
+
+        ArtistSortCandidate albumArtist = new ArtistSortCandidate("albumArtist", "albumArtistSort", 1, "MUSIC",
+                TargetField.ALBUM_ARTIST.getValue());
+        cands = List.of(artist, albumArtist);
+        queryCaptor = ArgumentCaptor.forClass(String.class);
+        argCaptor = ArgumentCaptor.forClass(Object[].class);
+        Mockito.when(jdbcTemplate.update(queryCaptor.capture(), argCaptor.capture())).thenReturn(0);
+        mediaFileDao.updateArtistSort(cands);
+        assertEquals(
+                "update media_file set artist_reading=?, artist_sort=?, album_artist_reading=?, album_artist_sort=? where id = ?",
+                queryCaptor.getValue());
+        assertEquals(5, argCaptor.getAllValues().size());
+
+        ArtistSortCandidate composer = new ArtistSortCandidate("albumArtist", "albumArtistSort", 1, "MUSIC",
+                TargetField.COMPOSER.getValue());
+        cands = List.of(artist, albumArtist, composer);
+        queryCaptor = ArgumentCaptor.forClass(String.class);
+        argCaptor = ArgumentCaptor.forClass(Object[].class);
+        Mockito.when(jdbcTemplate.update(queryCaptor.capture(), argCaptor.capture())).thenReturn(0);
+        mediaFileDao.updateArtistSort(cands);
+        assertEquals(
+                "update media_file set artist_reading=?, artist_sort=?, album_artist_reading=?, album_artist_sort=?, composer_sort=? where id = ?",
+                queryCaptor.getValue());
+        assertEquals(6, argCaptor.getAllValues().size());
+    }
 
     @Nested
     class RandomSongsQueryBuilderTest {

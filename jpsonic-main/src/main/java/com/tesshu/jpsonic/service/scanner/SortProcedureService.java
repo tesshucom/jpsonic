@@ -19,8 +19,12 @@
 
 package com.tesshu.jpsonic.service.scanner;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.dao.MediaFileDao;
@@ -46,6 +50,7 @@ import org.springframework.stereotype.Service;
 public class SortProcedureService {
 
     private static final int REPEAT_WAIT_MILLISECONDS = 50;
+    private static final int SINGLE_FIELD_UPDATE_FOR_ROW = 1;
 
     private final MediaFileDao mediaFileDao;
     private final JapaneseReadingUtils utils;
@@ -128,16 +133,32 @@ public class SortProcedureService {
         if (cands.isEmpty()) {
             return Collections.emptyList();
         }
-        for (int i = 0; i < cands.size(); i++) {
-            if (i % 20_000 == 0) {
+
+        cands.stream().filter(cand -> cand.getTargetType() == MediaType.DIRECTORY)
+                .filter(cand -> cand.getTargetField() == TargetField.ARTIST)
+                .forEach(cand -> cand.setMusicIndex(musicIndexService.getParser().getIndex(cand).getIndex()));
+
+        Map<Integer, List<ArtistSortCandidate>> idMap = new ConcurrentHashMap<>();
+        cands.forEach(cand -> {
+            if (!idMap.containsKey(cand.getTargetId())) {
+                idMap.put(cand.getTargetId(), new ArrayList<>());
+            }
+            idMap.get(cand.getTargetId()).add(cand);
+        });
+
+        LongAdder count = new LongAdder();
+        idMap.values().forEach(artistRow -> {
+            count.increment();
+            if (count.longValue() % 20_000 == 0) {
                 repeatWait();
             }
-            ArtistSortCandidate cand = cands.get(i);
-            if (cand.getTargetType() == MediaType.DIRECTORY && cand.getTargetField() == TargetField.ARTIST) {
-                cand.setMusicIndex(musicIndexService.getParser().getIndex(cand).getIndex());
+            if (artistRow.size() == SINGLE_FIELD_UPDATE_FOR_ROW) {
+                mediaFileDao.updateArtistSort(artistRow.get(0));
+            } else {
+                mediaFileDao.updateArtistSort(artistRow);
             }
-            mediaFileDao.updateArtistSort(cand);
-        }
+        });
+
         return cands.stream().map(ArtistSortCandidate::getTargetId).collect(Collectors.toList());
     }
 }
