@@ -85,7 +85,7 @@ class MusicIndexServiceUtilsTest {
 
     @Test
     void testCreateSortableArtists() throws URISyntaxException {
-        Path path = Path.of(MusicIndexServiceTest.class.getResource("/MEDIAS").toURI());
+        Path path = Path.of(MusicIndexServiceUtilsTest.class.getResource("/MEDIAS").toURI());
         MusicFolder musicFolder = new MusicFolder(path.toString(), "musicFolder", false, null);
         assertEquals(path, musicFolder.toPath());
 

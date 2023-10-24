@@ -46,6 +46,7 @@ import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.scanner.MusicIndexServiceImpl;
 import com.tesshu.jpsonic.service.search.IndexType;
 import com.tesshu.jpsonic.service.search.SearchCriteria;
 import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
@@ -1196,7 +1197,7 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         private MainController mainController;
 
         @Autowired
-        private MusicIndexService musicIndexService;
+        private MusicIndexServiceImpl musicIndexService;
 
         @Autowired
         private SearchService searchService;
@@ -1304,7 +1305,7 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         void testGetIndexedArtists() {
             List<MusicFolder> musicFoldersToUse = Arrays.asList(MUSIC_FOLDERS.get(0));
             SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> m = musicIndexService
-                    .getIndexedArtists(musicFoldersToUse);
+                    .getMusicFolderContent(musicFoldersToUse).getIndexedArtists();
             List<String> artists = m.values().stream().flatMap(Collection::stream)
                     .flatMap(files -> files.getMediaFiles().stream()).map(MediaFile::getName)
                     .collect(Collectors.toList());

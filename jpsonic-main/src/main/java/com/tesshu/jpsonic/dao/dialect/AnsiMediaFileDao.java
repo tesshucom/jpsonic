@@ -31,6 +31,8 @@ import java.util.function.BiFunction;
 
 import com.tesshu.jpsonic.dao.base.DaoUtils;
 import com.tesshu.jpsonic.dao.base.TemplateWrapper;
+import com.tesshu.jpsonic.domain.ArtistSortCandidate;
+import com.tesshu.jpsonic.domain.DuplicateSort;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -61,11 +63,14 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
             resultSet.getString(1), null, null, null, null, null, resultSet.getString(2), null, null, null, null, null,
             false, null, null, null, null, resultSet.getString(5), null, -1, null, null, null, null, null, null, false,
             -1, null, null, null, null, null, null, resultSet.getString(4), null, null, null, resultSet.getString(3),
-            null, null, null, null, -1);
-    private final RowMapper<SortCandidate> sortCandidateMapper = (rs, rowNum) -> new SortCandidate(rs.getInt(1),
-            rs.getString(2), rs.getString(3));
-    private final RowMapper<SortCandidate> sortCandidateWithIdMapper = (rs, rowNum) -> new SortCandidate(rs.getInt(1),
-            rs.getString(2), rs.getString(3), rs.getInt(4));
+            null, null, null, null, -1, "");
+
+    private final RowMapper<DuplicateSort> duplicateSortMapper = (rs, rowNum) -> new SortCandidate(rs.getString(1),
+            rs.getString(2), -1);
+    private final RowMapper<SortCandidate> sortCandidateMapper = (rs, rowNum) -> new SortCandidate(rs.getString(1),
+            rs.getString(2), rs.getInt(3));
+    private final RowMapper<ArtistSortCandidate> artistSortCandidateMapper = (rs, rowNum) -> new ArtistSortCandidate(
+            rs.getString(1), rs.getString(2), rs.getInt(3), rs.getString(4), rs.getInt(5));
 
     public AnsiMediaFileDao(TemplateWrapper templateWrapper) {
         template = templateWrapper;
@@ -294,14 +299,14 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<SortCandidate> getCopyableSortForAlbums(List<MusicFolder> folders) {
+    public List<SortCandidate> getCopyableSortAlbums(List<MusicFolder> folders) {
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
         Map<String, Object> args = Map.of("type", MediaFile.MediaType.DIRECTORY.name(), "folders",
                 MusicFolder.toPathList(folders));
         return template.namedQuery("""
-                select 3 as field, known.name , known.sort, id
+                select known.name , known.sort, id
                 from
                         (select distinct album as name, id
                         from media_file
@@ -313,30 +318,30 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
                         where folder in (:folders) and type <> :type and album is not null
                                 and album_sort is not null and present) known
                 on known.name = unknown.name
-                """, sortCandidateWithIdMapper, args);
+                """, sortCandidateMapper, args);
     }
 
     @Override
-    public List<SortCandidate> getCopyableSortForPersons(List<MusicFolder> folders) {
+    public List<ArtistSortCandidate> getCopyableSortPersons(List<MusicFolder> folders) {
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
         Map<String, Object> args = Map.of("folders", MusicFolder.toPathList(folders), "type",
                 MediaFile.MediaType.MUSIC.name());
         String query = """
-                 select field, merged.name , merged.sort, id
+                 select merged.name , merged.sort, id, type, field
                  from
-                         (select distinct 0 as field, album_artist as name, id
+                         (select distinct type, 0 as field, album_artist as name, id
                          from media_file
                          where folder in (:folders) and present and album_artist is not null
                                  and album_artist_sort is null
                          union
-                         select 1 as field, artist as name, id
+                         select type, 1 as field, artist as name, id
                          from media_file
                          where folder in (:folders) and present and artist is not null
                                  and artist_sort is null
                          union
-                         select distinct 2 as field, composer as name, id
+                         select distinct type, 2 as field, composer as name, id
                          from media_file
                          where folder in (:folders) and present and composer is not null
                                  and composer_sort is null) no_sort
@@ -361,7 +366,7 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
                                          and composer_sort is not null) merged_union) merged
                  on merged.name = no_sort.name
                 """;
-        return template.namedQuery(query, sortCandidateWithIdMapper, args);
+        return template.namedQuery(query, artistSortCandidateMapper, args);
     }
 
     @Override
@@ -437,7 +442,7 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<SortCandidate> getSortForPersonWithoutSorts(List<MusicFolder> folders) {
+    public List<ArtistSortCandidate> getNoSortPersons(List<MusicFolder> folders) {
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
@@ -445,43 +450,43 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
                 Arrays.asList(MediaType.DIRECTORY.name(), MediaType.ALBUM.name()), "folders",
                 MusicFolder.toPathList(folders));
         String query = """
-                select field, name, null as sort, id
+                select name, null as sort, id, type, field
                 from
-                        (select distinct 0 as field, album_artist as name, id
+                        (select distinct type, 0 as field, album_artist as name, id
                         from media_file
                         where folder in (:folders) and present and type not in (:typeDirAndAlbum)
                                 and album_artist is not null and album_artist_sort is null
                         union
-                        select distinct 1 as field, artist as name, id
+                        select distinct type, 1 as field, artist as name, id
                         from media_file
                         where folder in (:folders) and folder <> path and present
                                 and artist is not null and artist_sort is null
                         union
-                        select distinct 2 as field, composer as name, id
+                        select distinct type, 2 as field, composer as name, id
                         from media_file
                         where folder in (:folders) and present and type not in (:typeDirAndAlbum)
                                 and composer is not null and composer_sort is null) no_sorts
                 """;
-        return template.namedQuery(query, sortCandidateWithIdMapper, args);
+        return template.namedQuery(query, artistSortCandidateMapper, args);
     }
 
     @Override
-    public List<SortCandidate> getSortOfArtistToBeFixed(@NonNull List<SortCandidate> candidates) {
-        List<SortCandidate> result = new ArrayList<>();
-        if (candidates.isEmpty()) {
+    public List<ArtistSortCandidate> getSortCandidatePersons(@NonNull List<DuplicateSort> duplicates) {
+        List<ArtistSortCandidate> result = new ArrayList<>();
+        if (duplicates.isEmpty()) {
             return result;
         }
         String query = """
-                select 0 as field, :name, :sote, id
+                select :name, :sote, id, type, 0 as field
                 from media_file
                 where type != :directory and album_artist = :name
                         and album_artist_sort <> :sote and present
                 union
-                select 1 as field, :name, :sote, id
+                select :name, :sote, id, type, 1 as field
                 from media_file
                 where artist = :name and artist_sort <> :sote and present
                 union
-                select 2 as field, :name, :sote, id
+                select :name, :sote, id, type, 2 as field
                 from media_file
                 where type = :music and composer = :name
                         and composer_sort <> :sote and present
@@ -489,38 +494,38 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
         Map<String, Object> args = new ConcurrentHashMap<>();
         args.put("directory", MediaType.DIRECTORY.name());
         args.put("music", MediaType.MUSIC.name());
-        candidates.forEach(candidate -> {
-            args.put("name", candidate.getName());
-            args.put("sote", candidate.getSort());
-            result.addAll(template.namedQuery(query, sortCandidateWithIdMapper, args));
+        duplicates.forEach(cand -> {
+            args.put("name", cand.getName());
+            args.put("sote", cand.getSort());
+            result.addAll(template.namedQuery(query, artistSortCandidateMapper, args));
         });
         return result;
     }
 
     @Override
-    public List<SortCandidate> getSortForAlbumWithoutSorts(List<MusicFolder> folders) {
+    public List<SortCandidate> getNoSortAlbums(List<MusicFolder> folders) {
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
         Map<String, Object> args = Map.of("type", MediaType.DIRECTORY.name(), "folders",
                 MusicFolder.toPathList(folders));
         return template.namedQuery("""
-                select distinct 3 as field, album as name, null as sort, id
+                select distinct album as name, null as sort, id
                 from media_file
                 where present and folder in (:folders) and type <> :type
                         and (album is not null and album_sort is null)
-                """, sortCandidateWithIdMapper, args);
+                """, sortCandidateMapper, args);
     }
 
     @Override
-    public List<SortCandidate> guessAlbumSorts(List<MusicFolder> folders) {
+    public List<SortCandidate> getDuplicateSortAlbums(List<MusicFolder> folders) {
         List<SortCandidate> result = new ArrayList<>();
         if (folders.isEmpty()) {
             return result;
         }
         Map<String, Object> args = Map.of("folders", MusicFolder.toPathList(folders));
         String query = """
-                select 3 as field, source.album, source.album_sort, to_be_fixed.id
+                select source.album, source.album_sort, to_be_fixed.id
                 from
                         (select distinct with_changed.album, with_sort.album_sort
                         from
@@ -543,20 +548,20 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
                 join media_file to_be_fixed
                 on source.album = to_be_fixed.album and source.album_sort <> to_be_fixed.album_sort
                 """;
-        return template.namedQuery(query, sortCandidateWithIdMapper, args);
+        return template.namedQuery(query, sortCandidateMapper, args);
     }
 
     @Override
-    public List<SortCandidate> guessPersonsSorts(List<MusicFolder> folders) {
-        List<SortCandidate> result = new ArrayList<>();
+    public List<DuplicateSort> getDuplicateSortPersons(List<MusicFolder> folders) {
+        List<DuplicateSort> result = new ArrayList<>();
         if (folders.isEmpty()) {
             return result;
         }
         Map<String, Object> args = LegacyMap.of("type", MediaType.MUSIC.name(), "folders",
                 MusicFolder.toPathList(folders));
         String query = """
-                select min(field) as field, person_all_with_priority.name,
-                        sort, max(changed) as changed
+                select person_all_with_priority.name, sort,
+                        min(field) as field, max(changed) as changed
                 from
                         (select 0 as field, album_artist as name,
                                 album_artist_sort as sort, type, changed
@@ -596,10 +601,10 @@ public class AnsiMediaFileDao implements DialectMediaFileDao {
                 group by field, person_all_with_priority.name, sort
                 order by person_all_with_priority.name, field, changed desc
                 """;
-        List<SortCandidate> candidates = template.namedQuery(query, sortCandidateMapper, args);
-        candidates.forEach((candidate) -> {
-            if (result.stream().noneMatch(r -> r.getName().equals(candidate.getName()))) {
-                result.add(candidate);
+        List<DuplicateSort> dups = template.namedQuery(query, duplicateSortMapper, args);
+        dups.forEach((dup) -> {
+            if (result.stream().noneMatch(r -> r.getName().equals(dup.getName()))) {
+                result.add(dup);
             }
         });
         return result;

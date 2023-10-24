@@ -19,12 +19,20 @@
 
 package com.tesshu.jpsonic.service.scanner;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.dao.MediaFileDao;
+import com.tesshu.jpsonic.domain.ArtistSortCandidate;
+import com.tesshu.jpsonic.domain.ArtistSortCandidate.TargetField;
+import com.tesshu.jpsonic.domain.DuplicateSort;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SortCandidate;
 import org.apache.commons.lang3.exception.UncheckedException;
@@ -42,14 +50,18 @@ import org.springframework.stereotype.Service;
 public class SortProcedureService {
 
     private static final int REPEAT_WAIT_MILLISECONDS = 50;
+    private static final int SINGLE_FIELD_UPDATE_FOR_ROW = 1;
 
     private final MediaFileDao mediaFileDao;
     private final JapaneseReadingUtils utils;
+    private final MusicIndexServiceImpl musicIndexService;
 
-    public SortProcedureService(MediaFileDao mediaFileDao, JapaneseReadingUtils utils) {
+    public SortProcedureService(MediaFileDao mediaFileDao, JapaneseReadingUtils utils,
+            MusicIndexServiceImpl musicIndexService) {
         super();
         this.mediaFileDao = mediaFileDao;
         this.utils = utils;
+        this.musicIndexService = musicIndexService;
     }
 
     void clearMemoryCache() {
@@ -65,68 +77,88 @@ public class SortProcedureService {
     }
 
     List<Integer> compensateSortOfAlbum(List<MusicFolder> folders) {
-        List<SortCandidate> candidatesWithId = mediaFileDao.getSortForAlbumWithoutSorts(folders);
-        candidatesWithId.forEach(utils::analyze);
-        return updateSortOfAlbums(candidatesWithId);
+        List<SortCandidate> cands = mediaFileDao.getNoSortAlbums(folders);
+        cands.forEach(utils::analyze);
+        return updateAlbumSort(cands);
     }
 
     List<Integer> compensateSortOfArtist(List<MusicFolder> folders) {
-        List<SortCandidate> candidatesWithId = mediaFileDao.getSortForPersonWithoutSorts(folders);
-        candidatesWithId.forEach(utils::analyze);
-        return updateSortOfArtist(candidatesWithId);
+        List<ArtistSortCandidate> cands = mediaFileDao.getNoSortPersons(folders);
+        cands.forEach(utils::analyze);
+        return updateArtistSort(cands);
     }
 
     List<Integer> copySortOfAlbum(List<MusicFolder> folders) {
-        List<SortCandidate> candidatesWithId = mediaFileDao.getCopyableSortForAlbums(folders);
-        candidatesWithId.forEach(utils::analyze);
-        return updateSortOfAlbums(candidatesWithId);
+        List<SortCandidate> cands = mediaFileDao.getCopyableSortAlbums(folders);
+        cands.forEach(utils::analyze);
+        return updateAlbumSort(cands);
     }
 
     List<Integer> copySortOfArtist(List<MusicFolder> folders) {
-        List<SortCandidate> candidatesWithId = mediaFileDao.getCopyableSortForPersons(folders);
-        candidatesWithId.forEach(utils::analyze);
-        return updateSortOfArtist(candidatesWithId);
+        List<ArtistSortCandidate> cands = mediaFileDao.getCopyableSortPersons(folders);
+        cands.forEach(utils::analyze);
+        return updateArtistSort(cands);
     }
 
     List<Integer> mergeSortOfAlbum(List<MusicFolder> folders) {
-        List<SortCandidate> candidatesWithId = mediaFileDao.guessAlbumSorts(folders);
-        candidatesWithId.forEach(utils::analyze);
-        return updateSortOfAlbums(candidatesWithId);
+        List<SortCandidate> cands = mediaFileDao.getDuplicateSortAlbums(folders);
+        cands.forEach(utils::analyze);
+        return updateAlbumSort(cands);
     }
 
     List<Integer> mergeSortOfArtist(List<MusicFolder> folders) {
-        List<SortCandidate> candidatesWithoutId = mediaFileDao.guessPersonsSorts(folders);
-        if (candidatesWithoutId.isEmpty()) {
+        List<DuplicateSort> dups = mediaFileDao.getDuplicateSortPersons(folders);
+        if (dups.isEmpty()) {
             return Collections.emptyList();
         }
-        List<SortCandidate> candidatesWithId = mediaFileDao.getSortOfArtistToBeFixed(candidatesWithoutId);
-        candidatesWithId.forEach(utils::analyze);
-        return updateSortOfArtist(candidatesWithId);
+        List<ArtistSortCandidate> cands = mediaFileDao.getSortCandidatePersons(dups);
+        cands.forEach(utils::analyze);
+        return updateArtistSort(cands);
     }
 
-    private List<Integer> updateSortOfAlbums(@NonNull List<SortCandidate> candidatesWithId) {
-        if (candidatesWithId.isEmpty()) {
+    private List<Integer> updateAlbumSort(@NonNull List<SortCandidate> cands) {
+        if (cands.isEmpty()) {
             return Collections.emptyList();
         }
-        for (int i = 0; i < candidatesWithId.size(); i++) {
+        for (int i = 0; i < cands.size(); i++) {
             if (i % 20_000 == 0) {
                 repeatWait();
             }
-            mediaFileDao.updateAlbumSort(candidatesWithId.get(i));
+            mediaFileDao.updateAlbumSort(cands.get(i));
         }
-        return candidatesWithId.stream().map(SortCandidate::getId).collect(Collectors.toList());
+        return cands.stream().map(SortCandidate::getTargetId).collect(Collectors.toList());
     }
 
-    private List<Integer> updateSortOfArtist(@NonNull List<SortCandidate> candidatesWithId) {
-        if (candidatesWithId.isEmpty()) {
+    private List<Integer> updateArtistSort(@NonNull List<ArtistSortCandidate> cands) {
+        if (cands.isEmpty()) {
             return Collections.emptyList();
         }
-        for (int i = 0; i < candidatesWithId.size(); i++) {
-            if (i % 20_000 == 0) {
+
+        cands.stream().filter(cand -> cand.getTargetType() == MediaType.DIRECTORY)
+                .filter(cand -> cand.getTargetField() == TargetField.ARTIST)
+                .forEach(cand -> cand.setMusicIndex(musicIndexService.getParser().getIndex(cand).getIndex()));
+
+        Map<Integer, List<ArtistSortCandidate>> idMap = new ConcurrentHashMap<>();
+        cands.forEach(cand -> {
+            if (!idMap.containsKey(cand.getTargetId())) {
+                idMap.put(cand.getTargetId(), new ArrayList<>());
+            }
+            idMap.get(cand.getTargetId()).add(cand);
+        });
+
+        LongAdder count = new LongAdder();
+        idMap.values().forEach(artistRow -> {
+            count.increment();
+            if (count.longValue() % 20_000 == 0) {
                 repeatWait();
             }
-            mediaFileDao.updateArtistSort(candidatesWithId.get(i));
-        }
-        return candidatesWithId.stream().map(SortCandidate::getId).collect(Collectors.toList());
+            if (artistRow.size() == SINGLE_FIELD_UPDATE_FOR_ROW) {
+                mediaFileDao.updateArtistSort(artistRow.get(0));
+            } else {
+                mediaFileDao.updateArtistSort(artistRow);
+            }
+        });
+
+        return cands.stream().map(ArtistSortCandidate::getTargetId).collect(Collectors.toList());
     }
 }

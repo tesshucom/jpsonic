@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 import com.tesshu.jpsonic.dao.base.TemplateWrapper;
+import com.tesshu.jpsonic.domain.ArtistSortCandidate;
+import com.tesshu.jpsonic.domain.DuplicateSort;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.SortCandidate;
@@ -64,13 +66,13 @@ public class HsqlDBMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<SortCandidate> getCopyableSortForAlbums(List<MusicFolder> folders) {
-        return deligate.getCopyableSortForAlbums(folders);
+    public List<SortCandidate> getCopyableSortAlbums(List<MusicFolder> folders) {
+        return deligate.getCopyableSortAlbums(folders);
     }
 
     @Override
-    public List<SortCandidate> getCopyableSortForPersons(List<MusicFolder> folders) {
-        return deligate.getCopyableSortForPersons(folders);
+    public List<ArtistSortCandidate> getCopyableSortPersons(List<MusicFolder> folders) {
+        return deligate.getCopyableSortPersons(folders);
     }
 
     @Override
@@ -80,27 +82,27 @@ public class HsqlDBMediaFileDao implements DialectMediaFileDao {
     }
 
     @Override
-    public List<SortCandidate> getSortForPersonWithoutSorts(List<MusicFolder> folders) {
-        return deligate.getSortForPersonWithoutSorts(folders);
+    public List<ArtistSortCandidate> getNoSortPersons(List<MusicFolder> folders) {
+        return deligate.getNoSortPersons(folders);
     }
 
     @Override
-    public List<SortCandidate> getSortOfArtistToBeFixed(@NonNull List<SortCandidate> candidates) {
-        return deligate.getSortOfArtistToBeFixed(candidates);
+    public List<ArtistSortCandidate> getSortCandidatePersons(@NonNull List<DuplicateSort> duplicates) {
+        return deligate.getSortCandidatePersons(duplicates);
     }
 
     @Override
-    public List<SortCandidate> getSortForAlbumWithoutSorts(List<MusicFolder> folders) {
-        return deligate.getSortForAlbumWithoutSorts(folders);
+    public List<SortCandidate> getNoSortAlbums(List<MusicFolder> folders) {
+        return deligate.getNoSortAlbums(folders);
     }
 
     @Override
-    public List<SortCandidate> guessAlbumSorts(List<MusicFolder> folders) {
-        return deligate.guessAlbumSorts(folders);
+    public List<SortCandidate> getDuplicateSortAlbums(List<MusicFolder> folders) {
+        return deligate.getDuplicateSortAlbums(folders);
     }
 
     @Override
-    public List<SortCandidate> guessPersonsSorts(List<MusicFolder> folders) {
-        return deligate.guessPersonsSorts(folders);
+    public List<DuplicateSort> getDuplicateSortPersons(List<MusicFolder> folders) {
+        return deligate.getDuplicateSortPersons(folders);
     }
 }
