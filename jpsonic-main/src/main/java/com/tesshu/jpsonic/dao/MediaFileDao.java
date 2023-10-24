@@ -934,25 +934,22 @@ public class MediaFileDao {
 
         List<Object> args = new ArrayList<>();
         cands.forEach(cand -> {
-            switch (cand.getTargetField()) {
-            case ARTIST -> {
+            if (cand.getTargetField() == TargetField.ARTIST && cand.getTargetType() == MediaType.DIRECTORY) {
+                cols.append("artist_reading=?, artist_sort=?, music_index = ?, ");
+                args.add(cand.getReading());
+                args.add(cand.getSort());
+                args.add(cand.getMusicIndex());
+            } else if (cand.getTargetField() == TargetField.ARTIST) {
                 cols.append("artist_reading=?, artist_sort=?, ");
                 args.add(cand.getReading());
                 args.add(cand.getSort());
-            }
-            case ALBUM_ARTIST -> {
+            } else if (cand.getTargetField() == TargetField.ALBUM_ARTIST) {
                 cols.append("album_artist_reading=?, album_artist_sort=?, ");
                 args.add(cand.getReading());
                 args.add(cand.getSort());
-            }
-            case COMPOSER -> {
+            } else if (cand.getTargetField() == TargetField.COMPOSER) {
                 cols.append("composer_sort=?, ");
                 args.add(cand.getSort());
-            }
-            case UNKNOWN -> {
-            }
-            default -> {
-            }
             }
         });
         args.add(cands.get(0).getTargetId());

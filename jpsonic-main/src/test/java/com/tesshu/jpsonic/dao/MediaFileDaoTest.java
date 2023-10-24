@@ -72,12 +72,23 @@ class MediaFileDaoTest {
         ArgumentCaptor<Object[]> argCaptor = ArgumentCaptor.forClass(Object[].class);
         Mockito.when(jdbcTemplate.update(queryCaptor.capture(), argCaptor.capture())).thenReturn(0);
         mediaFileDao.updateArtistSort(cands);
+        assertEquals("update media_file set artist_reading=?, artist_sort=?, music_index = ? where id = ?",
+                queryCaptor.getValue());
+        assertEquals(4, argCaptor.getAllValues().size());
+
+        ArtistSortCandidate artistOfSong = new ArtistSortCandidate("artist", "artistSort", 1, "MUSIC",
+                TargetField.ARTIST.getValue());
+        cands = List.of(artistOfSong);
+        queryCaptor = ArgumentCaptor.forClass(String.class);
+        argCaptor = ArgumentCaptor.forClass(Object[].class);
+        Mockito.when(jdbcTemplate.update(queryCaptor.capture(), argCaptor.capture())).thenReturn(0);
+        mediaFileDao.updateArtistSort(cands);
         assertEquals("update media_file set artist_reading=?, artist_sort=? where id = ?", queryCaptor.getValue());
         assertEquals(3, argCaptor.getAllValues().size());
 
         ArtistSortCandidate albumArtist = new ArtistSortCandidate("albumArtist", "albumArtistSort", 1, "MUSIC",
                 TargetField.ALBUM_ARTIST.getValue());
-        cands = List.of(artist, albumArtist);
+        cands = List.of(artistOfSong, albumArtist);
         queryCaptor = ArgumentCaptor.forClass(String.class);
         argCaptor = ArgumentCaptor.forClass(Object[].class);
         Mockito.when(jdbcTemplate.update(queryCaptor.capture(), argCaptor.capture())).thenReturn(0);
@@ -89,7 +100,7 @@ class MediaFileDaoTest {
 
         ArtistSortCandidate composer = new ArtistSortCandidate("albumArtist", "albumArtistSort", 1, "MUSIC",
                 TargetField.COMPOSER.getValue());
-        cands = List.of(artist, albumArtist, composer);
+        cands = List.of(artistOfSong, albumArtist, composer);
         queryCaptor = ArgumentCaptor.forClass(String.class);
         argCaptor = ArgumentCaptor.forClass(Object[].class);
         Mockito.when(jdbcTemplate.update(queryCaptor.capture(), argCaptor.capture())).thenReturn(0);
