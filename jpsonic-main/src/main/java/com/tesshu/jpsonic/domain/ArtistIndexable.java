@@ -29,4 +29,6 @@ public sealed interface ArtistIndexable permits Artist, MediaFile, ArtistSortCan
 
     @Nullable
     String getReading();
+
+    String getMusicIndex();
 }

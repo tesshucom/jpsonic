@@ -23,6 +23,7 @@ package com.tesshu.jpsonic;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -104,7 +105,7 @@ public abstract class AbstractNeedsScan implements NeedsScan {
     }
 
     protected static final String resolveBaseMediaPath(String childPath) {
-        return MusicFolderTestDataUtils.resolveBaseMediaPath().concat(childPath);
+        return Path.of(MusicFolderTestDataUtils.resolveBaseMediaPath().concat(childPath)).toString();
     }
 
     @Override

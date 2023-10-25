@@ -158,8 +158,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         if (isIndex(item)) {
             synchronized (lock) {
                 MusicIndex index = indexesMap.get(item.getId()).getDeligate();
-                return subList(content.getIndexedArtists().get(index).stream().flatMap(s -> s.getMediaFiles().stream())
-                        .collect(Collectors.toList()), offset, maxResults);
+                return subList(content.getIndexedArtists().get(index), offset, maxResults);
             }
         }
         if (item.isAlbum()) {

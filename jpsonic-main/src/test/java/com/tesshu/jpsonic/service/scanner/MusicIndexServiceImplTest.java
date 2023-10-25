@@ -38,14 +38,11 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
-import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.domain.MusicIndex;
-import com.tesshu.jpsonic.domain.MusicIndex.SortableArtistWithArtist;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.MusicIndexServiceUtils;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.scanner.MusicIndexServiceImpl.MusicIndexParser;
 import com.tesshu.jpsonic.util.StringUtil;
@@ -66,7 +63,6 @@ class MusicIndexServiceImplTest {
     private MediaFileService mediaFileService;
     private MusicIndexServiceImpl musicIndexService;
     private ArtistDao artistDao;
-    private JpsonicComparators comparators;
 
     @BeforeEach
     public void setup() throws ExecutionException {
@@ -81,91 +77,7 @@ class MusicIndexServiceImplTest {
         Mockito.when(settingsService.getIndexString()).thenReturn(indexString);
         Mockito.when(settingsService.getLocale()).thenReturn(new Locale("ja", "jp", ""));
         JapaneseReadingUtils readingUtils = new JapaneseReadingUtils(settingsService);
-        comparators = new JpsonicComparators(settingsService, readingUtils);
-        MusicIndexServiceUtils utils = new MusicIndexServiceUtils(settingsService, mediaFileService, readingUtils,
-                comparators);
-        musicIndexService = new MusicIndexServiceImpl(settingsService, mediaFileService, artistDao, utils,
-                readingUtils);
-    }
-
-    @Test
-    void testGetIndexedArtistsListOfMusicFolderBoolean() {
-        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(new MediaFile());
-        MediaFile child1 = new MediaFile();
-        child1.setTitle("The Flipper's Guitar");
-        child1.setPathString("path1");
-        MediaFile child2 = new MediaFile();
-        child2.setTitle("abcde");
-        child2.setPathString("path2");
-        List<MediaFile> children = Arrays.asList(child1, child2);
-        Mockito.when(mediaFileService.getChildrenOf(Mockito.any(MediaFile.class), Mockito.anyBoolean(),
-                Mockito.anyBoolean())).thenReturn(children);
-        MusicFolder folder = new MusicFolder(0, "path", "name", true, now(), 0);
-
-        SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> indexedArtists = musicIndexService
-                .getMusicFolderContent(Arrays.asList(folder)).getIndexedArtists();
-        assertEquals(2, indexedArtists.size());
-        Iterator<MusicIndex> iterator = indexedArtists.keySet().iterator();
-        MusicIndex musicIndex = iterator.next();
-        assertEquals("A", musicIndex.getIndex());
-        assertEquals("abcde", indexedArtists.get(musicIndex).get(0).getName());
-        musicIndex = iterator.next();
-        assertEquals("F", musicIndex.getIndex());
-        assertEquals("The Flipper's Guitar", indexedArtists.get(musicIndex).get(0).getName());
-    }
-
-    @Test
-    void testGetIndexedArtistsListOfArtist() {
-        Artist artist1 = new Artist(0, "The Flipper's Guitar", null, 0, now(), false, 0, null, null, -1, "");
-        Artist artist2 = new Artist(0, "abcde", null, 0, now(), false, 0, null, null, -1, null);
-        List<Artist> artists = Arrays.asList(artist1, artist2);
-
-        List<MusicFolder> folders = Collections.emptyList();
-        Mockito.when(artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders)).thenReturn(artists);
-
-        SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> indexedArtists = musicIndexService
-                .getIndexedId3Artists(folders);
-        assertEquals(2, indexedArtists.size());
-        Iterator<MusicIndex> iterator = indexedArtists.keySet().iterator();
-        MusicIndex musicIndex = iterator.next();
-        assertEquals("A", musicIndex.getIndex());
-        assertEquals("abcde", indexedArtists.get(musicIndex).get(0).getName());
-        musicIndex = iterator.next();
-        assertEquals("F", musicIndex.getIndex());
-        assertEquals("The Flipper's Guitar", indexedArtists.get(musicIndex).get(0).getName());
-    }
-
-    @Test
-    void testGetMusicFolderContent() {
-        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(new MediaFile());
-        MediaFile child1 = new MediaFile();
-        child1.setTitle("The Flipper's Guitar");
-        child1.setPathString("path1");
-        MediaFile child2 = new MediaFile();
-        child2.setTitle("abcde");
-        child2.setPathString("path2");
-        List<MediaFile> children = Arrays.asList(child1, child2);
-        MediaFile song = new MediaFile();
-        song.setTitle("It's file directly under the music folder");
-        song.setPathString("path3");
-        List<MediaFile> songs = Arrays.asList(song);
-        Mockito.when(mediaFileService.getChildrenOf(Mockito.any(MediaFile.class), Mockito.anyBoolean(),
-                Mockito.anyBoolean())).thenReturn(children).thenReturn(songs).thenThrow(new RuntimeException("Fail"));
-        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(new MediaFile());
-        MusicFolder folder = new MusicFolder(0, "path", "name", true, now(), 0);
-
-        MusicFolderContent content = musicIndexService.getMusicFolderContent(Arrays.asList(folder));
-        assertEquals(2, content.getIndexedArtists().size());
-        Iterator<MusicIndex> iterator = content.getIndexedArtists().keySet().iterator();
-        MusicIndex musicIndex = iterator.next();
-        assertEquals("A", musicIndex.getIndex());
-        assertEquals("abcde", content.getIndexedArtists().get(musicIndex).get(0).getName());
-        musicIndex = iterator.next();
-        assertEquals("F", musicIndex.getIndex());
-        assertEquals("The Flipper's Guitar", content.getIndexedArtists().get(musicIndex).get(0).getName());
-
-        assertEquals(1, content.getSingleSongs().size());
-        assertEquals("It's file directly under the music folder", content.getSingleSongs().get(0).getTitle());
+        musicIndexService = new MusicIndexServiceImpl(settingsService, mediaFileService, artistDao, readingUtils);
     }
 
     @Test
@@ -186,6 +98,64 @@ class MusicIndexServiceImplTest {
         Mockito.when(mediaFileService.getMediaFile(path)).thenReturn(mediaFile);
         musicIndexService.getSingleSongs(musicFolders);
         Mockito.verify(mediaFileService, Mockito.times(1)).getChildrenOf(mediaFile, true, false);
+    }
+
+    @Test
+    void testGetMusicFolderContent() {
+        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(new MediaFile());
+        MediaFile artist1 = new MediaFile();
+        artist1.setTitle("The Flipper's Guitar");
+        artist1.setPathString("path1");
+        artist1.setMusicIndex("F");
+        MediaFile artist2 = new MediaFile();
+        artist2.setTitle("abcde");
+        artist2.setPathString("path2");
+        artist2.setMusicIndex("A");
+        List<MediaFile> artists = Arrays.asList(artist1, artist2);
+        Mockito.when(mediaFileService.getIndexedArtists(Mockito.anyList())).thenReturn(artists);
+
+        MediaFile song = new MediaFile();
+        song.setTitle("It's file directly under the music folder");
+        song.setPathString("path3");
+        List<MediaFile> songs = Arrays.asList(song);
+        Mockito.when(mediaFileService.getChildrenOf(Mockito.any(MediaFile.class), Mockito.anyBoolean(),
+                Mockito.anyBoolean())).thenReturn(songs).thenThrow(new RuntimeException("Fail"));
+
+        MusicFolder folder = new MusicFolder(0, "path", "name", true, now(), 0);
+        MusicFolderContent content = musicIndexService.getMusicFolderContent(Arrays.asList(folder));
+        assertEquals(2, content.getIndexedArtists().size());
+        Iterator<MusicIndex> iterator = content.getIndexedArtists().keySet().iterator();
+        MusicIndex musicIndex = iterator.next();
+        assertEquals("A", musicIndex.getIndex());
+        assertEquals("abcde", content.getIndexedArtists().get(musicIndex).get(0).getName());
+        musicIndex = iterator.next();
+        assertEquals("F", musicIndex.getIndex());
+        assertEquals("The Flipper's Guitar", content.getIndexedArtists().get(musicIndex).get(0).getName());
+
+        assertEquals(1, content.getSingleSongs().size());
+        assertEquals("It's file directly under the music folder", content.getSingleSongs().get(0).getTitle());
+    }
+
+    @Test
+    void testGetIndexedId3Artists() {
+        Artist artist1 = new Artist(0, "The Flipper's Guitar", null, 0, now(), false, 0, null, null, -1, "");
+        artist1.setMusicIndex("F");
+        Artist artist2 = new Artist(0, "abcde", null, 0, now(), false, 0, null, null, -1, null);
+        artist2.setMusicIndex("A");
+        List<Artist> artists = Arrays.asList(artist1, artist2);
+
+        List<MusicFolder> folders = Collections.emptyList();
+        Mockito.when(artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders)).thenReturn(artists);
+
+        SortedMap<MusicIndex, List<Artist>> indexedArtists = musicIndexService.getIndexedId3Artists(folders);
+        assertEquals(2, indexedArtists.size());
+        Iterator<MusicIndex> iterator = indexedArtists.keySet().iterator();
+        MusicIndex musicIndex = iterator.next();
+        assertEquals("A", musicIndex.getIndex());
+        assertEquals("abcde", indexedArtists.get(musicIndex).get(0).getName());
+        musicIndex = iterator.next();
+        assertEquals("F", musicIndex.getIndex());
+        assertEquals("The Flipper's Guitar", indexedArtists.get(musicIndex).get(0).getName());
     }
 
     @Test
@@ -272,56 +242,6 @@ class MusicIndexServiceImplTest {
                 assertEquals("X", indexes.get(3).getPrefixes().get(0));
                 assertEquals("Y", indexes.get(3).getPrefixes().get(1));
                 assertEquals("Z", indexes.get(3).getPrefixes().get(2));
-            }
-        }
-
-        @Nested
-        class GetIndexTest {
-
-            @SuppressWarnings("deprecation")
-            @Test
-            void testUsual() {
-                Mockito.when(settingsService.getIndexString()).thenReturn("A B C");
-                MusicIndexParser musicIndexParser = musicIndexService.getParser();
-
-                SortableArtistWithArtist saIndexed = new SortableArtistWithArtist("Abcde", "Abcde", null,
-                        comparators.sortableArtistOrder());
-                assertEquals("A", musicIndexParser.getIndex(saIndexed).getIndex());
-
-                SortableArtistWithArtist saOthers = new SortableArtistWithArtist("あいうえお", "あいうえお", null,
-                        comparators.sortableArtistOrder());
-                assertEquals("#", musicIndexParser.getIndex(saOthers).getIndex());
-            }
-
-            /*
-             * #852. https://wiki.sei.cmu.edu/confluence/display/java/STR02-J.+Specify+an+appropriate+locale+when+
-             * comparing+locale-dependent+data
-             */
-            @SuppressWarnings("deprecation")
-            @Test
-            void testGetIndexSTR02J() {
-                Mockito.when(settingsService.getIndexString()).thenReturn("A i ı");
-                MusicIndexParser musicIndexParser = musicIndexService.getParser();
-
-                SortableArtistWithArtist sa1 = new SortableArtistWithArtist("abcde", "abcde", null,
-                        comparators.sortableArtistOrder());
-                assertEquals("A", musicIndexParser.getIndex(sa1).getIndex());
-
-                SortableArtistWithArtist sa2 = new SortableArtistWithArtist("\u0130", "\u0130", // İ İ
-                        null, comparators.sortableArtistOrder());
-                assertEquals("\u0069", musicIndexParser.getIndex(sa2).getIndex()); // i
-
-                SortableArtistWithArtist sa3 = new SortableArtistWithArtist("\u0069", "\u0069", // i i
-                        null, comparators.sortableArtistOrder());
-                assertEquals("\u0069", musicIndexParser.getIndex(sa3).getIndex()); // i
-
-                SortableArtistWithArtist sa4 = new SortableArtistWithArtist("\u0049", "\u0049", // I I
-                        null, comparators.sortableArtistOrder());
-                assertEquals("\u0069", musicIndexParser.getIndex(sa4).getIndex()); // i
-
-                SortableArtistWithArtist sa5 = new SortableArtistWithArtist("\u0131", "\u0131", // ı ı
-                        null, comparators.sortableArtistOrder());
-                assertEquals("\u0069", musicIndexParser.getIndex(sa5).getIndex()); // i
             }
         }
 

@@ -257,7 +257,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
                     || expired) {
                 INDEX_IDS.set(Integer.MIN_VALUE);
                 content = new ArtistsID3();
-                SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> indexedArtists = musicIndexService
+                SortedMap<MusicIndex, List<Artist>> indexedArtists = musicIndexService
                         .getIndexedId3Artists(util.getGuestMusicFolders());
                 final Function<Artist, ArtistID3> toId3 = (a) -> {
                     ArtistID3 result = new ArtistID3();
@@ -267,12 +267,11 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
                     result.setCoverArt(a.getCoverArtPath());
                     return result;
                 };
-                for (Map.Entry<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> entry : indexedArtists
-                        .entrySet()) {
+                for (Map.Entry<MusicIndex, List<Artist>> entry : indexedArtists.entrySet()) {
                     IndexID3 index = new IndexID3();
                     index.setName(entry.getKey().getIndex());
                     content.getIndex().add(index);
-                    entry.getValue().forEach(s -> index.getArtist().add(toId3.apply(s.getArtist())));
+                    entry.getValue().forEach(artist -> index.getArtist().add(toId3.apply(artist)));
                 }
                 indexCache.put(new Element(IndexCacheKey.ID3, content));
                 topNodes = content.getIndex().stream().map(Id3Content::new).collect(toList());

@@ -143,6 +143,7 @@ public final class Artist implements Orderable, ArtistIndexable {
         this.order = order;
     }
 
+    @Override
     public String getMusicIndex() {
         return musicIndex;
     }

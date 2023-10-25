@@ -238,11 +238,9 @@ window.onOpenDialogVideoPlayer = function(videoUrl) {
                         <ul>
                             <c:forEach items="${entry.value}" var="artist" varStatus="loop">
                                 <sub:url value="main.view" var="mainUrl">
-                                    <c:forEach items="${artist.mediaFiles}" var="mediaFile">
-                                        <sub:param name="id" value="${mediaFile.id}" />
-                                    </c:forEach>
+                                    <sub:param name="id" value="${artist.id}" />
                                 </sub:url>
-                                <li><a target="main" href="${mainUrl}" title="${artist.sortableName}"><str:truncateNicely upper="${18}" lower="${25}">${fn:escapeXml(artist.name)}</str:truncateNicely></a></li>
+                                <li><a target="main" href="${mainUrl}" title="${artist.artistReading}"><str:truncateNicely upper="${18}" lower="${25}">${fn:escapeXml(artist.name)}</str:truncateNicely></a></li>
                             </c:forEach>
                         </ul>
                         </li>

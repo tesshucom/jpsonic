@@ -381,4 +381,8 @@ public class MediaFileService {
     public List<MediaFile> getSongsForAlbum(final long offset, final long count, String albumArtist, String album) {
         return mediaFileDao.getSongsForAlbum(offset, count, albumArtist, album);
     }
+
+    public List<MediaFile> getIndexedArtists(List<MusicFolder> folders) {
+        return mediaFileDao.getIndexedArtists(folders, settingsService.getShortcutsAsArray());
+    }
 }

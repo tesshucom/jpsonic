@@ -958,6 +958,30 @@ public class MediaFileDao {
         template.getJdbcTemplate().update(query, args.toArray());
     }
 
+    public List<MediaFile> getIndexedArtists(List<MusicFolder> folders, List<String> shortcuts) {
+        if (folders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = Map.of("types", List.of(MediaType.DIRECTORY.name(), MediaType.ALBUM.name()),
+                "directory", MediaFile.MediaType.DIRECTORY.name(), "album", MediaFile.MediaType.ALBUM.name(), "folders",
+                MusicFolder.toPathList(folders), "shortcuts", shortcuts);
+        return template.namedQuery("select " + QUERY_COLUMNS + """
+                        ,
+                        case type
+                            when :directory then 1
+                            when :album then 2
+                        end as type_order
+                from media_file
+                where folder in(:folders)
+                        and parent_path in(:folders)
+                        and path not in(:folders)
+                        and type in(:types)
+                        and music_index <> ''
+                        and artist not in (:shortcuts)
+                order by type_order, media_file_order
+                """, rowMapper, args);
+    }
+
     static class RandomSongsQueryBuilder {
 
         private final RandomSearchCriteria criteria;
