@@ -19,12 +19,13 @@
 
 package com.tesshu.jpsonic.domain;
 
-import static org.apache.commons.lang3.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.text.Collator;
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import com.tesshu.jpsonic.domain.MusicIndex.SortableArtist;
@@ -69,7 +70,8 @@ public class JpsonicComparators {
 
             @Override
             public int compare(Album o1, Album o2) {
-                return collator.compare(defaultString(o1.getNameReading()), defaultString(o2.getNameReading()));
+                return collator.compare(Objects.toString(o1.getNameReading(), EMPTY),
+                        Objects.toString(o2.getNameReading(), EMPTY));
             }
         };
     }
@@ -85,7 +87,8 @@ public class JpsonicComparators {
 
             @Override
             public int compare(Artist o1, Artist o2) {
-                return collator.compare(defaultString(o1.getReading()), defaultString(o2.getReading()));
+                return collator.compare(Objects.toString(o1.getReading(), EMPTY),
+                        Objects.toString(o2.getReading(), EMPTY));
             }
         };
     }
