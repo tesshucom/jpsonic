@@ -64,17 +64,6 @@ public class MusicIndexServiceImpl implements MusicIndexService {
         this.readingUtils = readingUtils;
     }
 
-    List<MediaFile> getSingleSongs(List<MusicFolder> folders) {
-        List<MediaFile> result = new ArrayList<>();
-        folders.stream().forEach(folder -> {
-            MediaFile parent = mediaFileService.getMediaFile(folder.toPath());
-            if (parent != null) {
-                result.addAll(mediaFileService.getChildrenOf(parent, true, false));
-            }
-        });
-        return result;
-    }
-
     private <T extends ArtistIndexable> SortedMap<MusicIndex, List<T>> createIndexedArtistMap(List<T> artists) {
         Comparator<MusicIndex> comparator = new MusicIndexComparator(getParser().getIndexes());
         SortedMap<MusicIndex, List<T>> iaMap = new TreeMap<>(comparator);
@@ -92,7 +81,7 @@ public class MusicIndexServiceImpl implements MusicIndexService {
     public MusicFolderContent getMusicFolderContent(List<MusicFolder> folders) {
         List<MediaFile> artists = mediaFileService.getIndexedArtists(folders);
         SortedMap<MusicIndex, List<MediaFile>> indexedArtists = createIndexedArtistMap(artists);
-        List<MediaFile> singleSongs = getSingleSongs(folders);
+        List<MediaFile> singleSongs = mediaFileService.getSingleSongs(folders);
         return new MusicFolderContent(indexedArtists, singleSongs);
     }
 

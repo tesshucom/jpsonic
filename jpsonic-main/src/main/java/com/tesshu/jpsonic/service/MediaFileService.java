@@ -385,4 +385,8 @@ public class MediaFileService {
     public List<MediaFile> getIndexedArtists(List<MusicFolder> folders) {
         return mediaFileDao.getIndexedArtists(folders, settingsService.getShortcutsAsArray());
     }
+
+    public List<MediaFile> getSingleSongs(List<MusicFolder> folders) {
+        return mediaFileDao.getSingleSongs(folders);
+    }
 }

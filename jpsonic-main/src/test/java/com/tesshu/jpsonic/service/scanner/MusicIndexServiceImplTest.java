@@ -81,26 +81,6 @@ class MusicIndexServiceImplTest {
     }
 
     @Test
-    void testGetSingleSongs() throws URISyntaxException {
-        Path path = Path.of(MusicIndexServiceImplTest.class.getResource("/MEDIAS").toURI());
-        MusicFolder musicFolder = new MusicFolder(path.toString(), "musicFolder", false, null);
-        assertEquals(path, musicFolder.toPath());
-
-        final List<MusicFolder> musicFolders = Arrays.asList(musicFolder);
-        MediaFile mediaFile = new MediaFile();
-        mediaFile.setId(0);
-        mediaFile.setPathString(path.toString());
-
-        Mockito.when(mediaFileService.getMediaFile(path)).thenReturn(null);
-        musicIndexService.getSingleSongs(musicFolders);
-        Mockito.verify(mediaFileService, Mockito.never()).getChildrenOf(mediaFile, true, false);
-
-        Mockito.when(mediaFileService.getMediaFile(path)).thenReturn(mediaFile);
-        musicIndexService.getSingleSongs(musicFolders);
-        Mockito.verify(mediaFileService, Mockito.times(1)).getChildrenOf(mediaFile, true, false);
-    }
-
-    @Test
     void testGetMusicFolderContent() {
         Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(new MediaFile());
         MediaFile artist1 = new MediaFile();
@@ -118,8 +98,7 @@ class MusicIndexServiceImplTest {
         song.setTitle("It's file directly under the music folder");
         song.setPathString("path3");
         List<MediaFile> songs = Arrays.asList(song);
-        Mockito.when(mediaFileService.getChildrenOf(Mockito.any(MediaFile.class), Mockito.anyBoolean(),
-                Mockito.anyBoolean())).thenReturn(songs).thenThrow(new RuntimeException("Fail"));
+        Mockito.when(mediaFileService.getSingleSongs(Mockito.anyList())).thenReturn(songs);
 
         MusicFolder folder = new MusicFolder(0, "path", "name", true, now(), 0);
         MusicFolderContent content = musicIndexService.getMusicFolderContent(Arrays.asList(folder));
