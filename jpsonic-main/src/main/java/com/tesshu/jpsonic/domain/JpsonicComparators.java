@@ -28,7 +28,6 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import com.tesshu.jpsonic.domain.MusicIndex.SortableArtist;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -206,10 +205,6 @@ public class JpsonicComparators {
 
     public Comparator<Playlist> playlistOrder() {
         return new PlaylistComparator(utils, createCollator());
-    }
-
-    public Comparator<SortableArtist> sortableArtistOrder() {
-        return (o1, o2) -> createCollator().compare(o1.getSortableName(), o2.getSortableName());
     }
 
     private static class GenreComparator implements Comparator<Genre> {

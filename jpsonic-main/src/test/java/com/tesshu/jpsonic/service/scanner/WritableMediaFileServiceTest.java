@@ -90,7 +90,7 @@ class WritableMediaFileServiceTest {
         writableMediaFileService = new WritableMediaFileService(mediaFileDao, mock(ScannerStateService.class),
                 mediaFileService, albumDao, mediaFileCache, musicParser, mock(VideoParser.class), settingsService,
                 securityService, readingUtils, mock(IndexManager.class),
-                new MusicIndexServiceImpl(settingsService, null, null, null, readingUtils));
+                new MusicIndexServiceImpl(settingsService, null, null, readingUtils));
 
         Mockito.when(settingsService.getVideoFileTypesAsArray()).thenReturn(Collections.emptyList());
         Mockito.when(settingsService.getMusicFileTypesAsArray()).thenReturn(Arrays.asList("mp3"));

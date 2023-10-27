@@ -62,6 +62,7 @@ import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
+import com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ScanEvent;
@@ -1152,15 +1153,17 @@ class MediaScannerServiceImplTest {
             Mockito.verify(sortProcedureService, Mockito.times(1)).compensateSortOfAlbum(Mockito.anyList());
 
             // (updateOrderOfAlbum)
-            // Mockito.verify(scannerProcedureService, Mockito.times(1)).updateOrderOfAlbum();
-            // (updateOrderOfArtist)
-            // Mockito.verify(scannerProcedureService, Mockito.times(1)).updateOrderOfArtist();
-            Mockito.verify(comparators, Mockito.times(2)).mediaFileOrderByAlpha();
+            Mockito.verify(comparators, Mockito.never()).mediaFileOrderByAlpha();
+            Mockito.verify(comparators, Mockito.times(1)).mediaFileOrderBy(OrderBy.ALBUM);
 
             // updateSortOfArtist
             Mockito.verify(sortProcedureService, Mockito.times(1)).mergeSortOfArtist(Mockito.anyList());
             Mockito.verify(sortProcedureService, Mockito.times(1)).copySortOfArtist(Mockito.anyList());
             Mockito.verify(sortProcedureService, Mockito.times(1)).compensateSortOfArtist(Mockito.anyList());
+
+            // (updateOrderOfAlbum)
+            Mockito.verify(comparators, Mockito.never()).mediaFileOrderByAlpha();
+            Mockito.verify(comparators, Mockito.times(1)).mediaFileOrderBy(OrderBy.ARTIST);
 
             // refleshAlbumId3
             Mockito.verify(mediaFileDao, Mockito.times(1)).getChangedId3Albums(Mockito.anyInt(), Mockito.anyList(),
@@ -1218,10 +1221,11 @@ class MediaScannerServiceImplTest {
             Mockito.verify(sortProcedureService, Mockito.never()).compensateSortOfArtist(Mockito.anyList());
 
             // (updateOrderOfAlbum)
-            // Mockito.verify(scannerProcedureService, Mockito.times(1)).updateOrderOfAlbum();
+            Mockito.verify(comparators, Mockito.never()).mediaFileOrderByAlpha();
+            Mockito.verify(comparators, Mockito.times(1)).mediaFileOrderBy(OrderBy.ALBUM);
             // (updateOrderOfArtist)
-            // Mockito.verify(scannerProcedureService, Mockito.times(1)).updateOrderOfArtist();
-            Mockito.verify(comparators, Mockito.times(2)).mediaFileOrderByAlpha();
+            Mockito.verify(comparators, Mockito.never()).mediaFileOrderByAlpha();
+            Mockito.verify(comparators, Mockito.times(1)).mediaFileOrderBy(OrderBy.ARTIST);
 
             // refleshAlbumId3
             Mockito.verify(mediaFileDao, Mockito.times(1)).getChangedId3Albums(Mockito.anyInt(), Mockito.anyList(),

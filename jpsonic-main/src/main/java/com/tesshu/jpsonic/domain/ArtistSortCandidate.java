@@ -53,6 +53,7 @@ public final class ArtistSortCandidate extends SortCandidate implements ArtistIn
         this.targetField = targetField;
     }
 
+    @Override
     public String getMusicIndex() {
         return musicIndex;
     }

@@ -607,6 +607,7 @@ public non-sealed class MediaFile implements Orderable, ArtistIndexable {
         this.order = order;
     }
 
+    @Override
     public String getMusicIndex() {
         return musicIndex;
     }
