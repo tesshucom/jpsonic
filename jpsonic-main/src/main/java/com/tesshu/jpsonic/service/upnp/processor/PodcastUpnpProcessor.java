@@ -36,7 +36,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PodcastChannel;
 import com.tesshu.jpsonic.domain.PodcastEpisode;
 import com.tesshu.jpsonic.domain.PodcastStatus;
-import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
+import com.tesshu.jpsonic.service.CoverArtPresentation;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
@@ -54,22 +54,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
-public class PodcastUpnpProcessor extends UpnpContentProcessor<PodcastChannel, PodcastEpisode> {
+public class PodcastUpnpProcessor extends UpnpContentProcessor<PodcastChannel, PodcastEpisode>
+        implements CoverArtPresentation {
 
     private static final ThreadLocal<DateTimeFormatter> DATE_FORMAT = ThreadLocal
             .withInitial(() -> DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault()));
     private final UpnpProcessorUtil util;
     private final MediaFileService mediaFileService;
     private final PodcastService podcastService;
-    private final CoverArtLogic coverArtLogic;
 
     public PodcastUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m,
-            PodcastService p, CoverArtLogic c) {
+            PodcastService p) {
         super(d, u);
         this.util = u;
         this.mediaFileService = m;
         this.podcastService = p;
-        this.coverArtLogic = c;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_PODCAST_PREFIX);
     }
 
@@ -164,7 +163,7 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor<PodcastChannel, P
     private URI createPodcastChannelURI(PodcastChannel channel) {
         return util.createURIWithToken(UriComponentsBuilder
                 .fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
-                .queryParam("id", coverArtLogic.createKey(channel)).queryParam("size", CoverArtScheme.LARGE.getSize()));
+                .queryParam("id", createCoverArtKey(channel)).queryParam("size", CoverArtScheme.LARGE.getSize()));
     }
 
 }

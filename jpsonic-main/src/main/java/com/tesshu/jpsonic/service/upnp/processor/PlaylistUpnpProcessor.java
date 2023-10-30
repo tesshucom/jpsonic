@@ -31,7 +31,7 @@ import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.Playlist;
-import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
+import com.tesshu.jpsonic.service.CoverArtPresentation;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import com.tesshu.jpsonic.util.PlayerUtils;
@@ -44,18 +44,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
-public class PlaylistUpnpProcessor extends UpnpContentProcessor<Playlist, MediaFile> {
+public class PlaylistUpnpProcessor extends UpnpContentProcessor<Playlist, MediaFile> implements CoverArtPresentation {
 
     private final UpnpProcessorUtil util;
     private final PlaylistService playlistService;
-    private final CoverArtLogic coverArtLogic;
 
-    public PlaylistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, PlaylistService p,
-            CoverArtLogic c) {
+    public PlaylistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, PlaylistService p) {
         super(d, u);
         this.util = u;
         this.playlistService = p;
-        this.coverArtLogic = c;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_PLAYLIST_PREFIX);
     }
 
@@ -112,7 +109,7 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor<Playlist, MediaF
     private URI getArtURI(Playlist playlist) {
         return util.addJWTToken(UriComponentsBuilder
                 .fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
-                .queryParam("id", coverArtLogic.createKey(playlist)).queryParam("size", CoverArtScheme.LARGE.getSize()))
+                .queryParam("id", createCoverArtKey(playlist)).queryParam("size", CoverArtScheme.LARGE.getSize()))
                 .build().encode().toUri();
     }
 

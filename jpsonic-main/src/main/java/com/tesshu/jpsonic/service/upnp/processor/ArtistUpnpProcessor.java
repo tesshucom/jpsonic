@@ -32,7 +32,7 @@ import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.domain.ParamSearchResult;
-import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
+import com.tesshu.jpsonic.service.CoverArtPresentation;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.fourthline.cling.support.model.BrowseResult;
@@ -45,17 +45,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
-public class ArtistUpnpProcessor extends UpnpContentProcessor<Artist, Album> {
+public class ArtistUpnpProcessor extends UpnpContentProcessor<Artist, Album> implements CoverArtPresentation {
 
     private final UpnpProcessorUtil util;
     private final ArtistDao artistDao;
-    private final CoverArtLogic coverArtLogic;
 
-    public ArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, ArtistDao a, CoverArtLogic c) {
+    public ArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, ArtistDao a) {
         super(d, u);
         this.util = u;
         this.artistDao = a;
-        this.coverArtLogic = c;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_ARTIST_PREFIX);
     }
 
@@ -114,7 +112,7 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor<Artist, Album> {
     public URI createArtistArtURI(Artist artist) {
         return util.createURIWithToken(UriComponentsBuilder
                 .fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
-                .queryParam("id", coverArtLogic.createKey(artist)).queryParam("size", CoverArtScheme.LARGE.getSize()));
+                .queryParam("id", createCoverArtKey(artist)).queryParam("size", CoverArtScheme.LARGE.getSize()));
     }
 
     public final BrowseResult toBrowseResult(ParamSearchResult<Artist> result) {

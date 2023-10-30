@@ -58,7 +58,6 @@ import com.tesshu.jpsonic.domain.Share;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
-import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.service.AudioScrobblerService;
 import com.tesshu.jpsonic.service.BookmarkService;
@@ -165,7 +164,6 @@ class SubsonicRESTControllerTest {
             final PlayQueueDao playQueueDao = mock(PlayQueueDao.class);
             mediaScannerService = mock(MediaScannerService.class);
             final AirsonicLocaleResolver airsonicLocaleResolver = mock(AirsonicLocaleResolver.class);
-            final CoverArtLogic logic = mock(CoverArtLogic.class);
             final SearchCriteriaDirector director = mock(SearchCriteriaDirector.class);
             controller = new SubsonicRESTController(settingsService, musicFolderService, securityService, playerService,
                     mediaFileService, writableMediaFileService, lastFmService, musicIndexService, transcodingService,
@@ -173,7 +171,7 @@ class SubsonicRESTControllerTest {
                     statusService, streamController, hlsController, shareService, playlistService, lyricsService,
                     audioScrobblerService, podcastService, ratingService, searchService, internetRadioService,
                     mediaFileDao, artistDao, albumDao, bookmarkService, playQueueDao, mediaScannerService,
-                    airsonicLocaleResolver, logic, director);
+                    airsonicLocaleResolver, director);
         }
 
         @Test

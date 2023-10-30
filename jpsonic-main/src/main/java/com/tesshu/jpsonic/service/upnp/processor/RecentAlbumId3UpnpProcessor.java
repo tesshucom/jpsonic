@@ -26,7 +26,6 @@ import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
@@ -44,8 +43,8 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
     private final AlbumDao albumDao;
 
     public RecentAlbumId3UpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m,
-            AlbumDao a, CoverArtLogic c) {
-        super(d, u, m, a, c);
+            AlbumDao a) {
+        super(d, u, m, a);
         this.util = u;
         this.albumDao = a;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_RECENT_ID3_PREFIX);

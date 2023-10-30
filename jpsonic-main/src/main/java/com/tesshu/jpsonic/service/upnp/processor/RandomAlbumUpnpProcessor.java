@@ -26,7 +26,7 @@ import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
+import com.tesshu.jpsonic.service.CoverArtPresentation;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -38,15 +38,15 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RandomAlbumUpnpProcessor extends AlbumUpnpProcessor {
+public class RandomAlbumUpnpProcessor extends AlbumUpnpProcessor implements CoverArtPresentation {
 
     private final UpnpProcessorUtil util;
     private final SearchService searchService;
     private final SettingsService settingsService;
 
     public RandomAlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, AlbumDao a,
-            CoverArtLogic c, SearchService s, SettingsService ss) {
-        super(d, u, m, a, c);
+            SearchService s, SettingsService ss) {
+        super(d, u, m, a);
         this.util = u;
         this.searchService = s;
         this.settingsService = ss;

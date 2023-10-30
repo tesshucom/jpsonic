@@ -34,7 +34,7 @@ import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ParamSearchResult;
-import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
+import com.tesshu.jpsonic.service.CoverArtPresentation;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
@@ -49,22 +49,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
-public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> {
+public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> implements CoverArtPresentation {
 
     public static final String ALL_RECENT_ID3 = "allRecentId3";
 
     private final UpnpProcessorUtil util;
     private final MediaFileService mediaFileService;
     private final AlbumDao albumDao;
-    private final CoverArtLogic coverArtLogic;
 
-    public AlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, AlbumDao a,
-            CoverArtLogic c) {
+    public AlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, AlbumDao a) {
         super(d, u);
         this.util = u;
         this.mediaFileService = m;
         this.albumDao = a;
-        this.coverArtLogic = c;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_ALBUM_PREFIX);
     }
 
@@ -178,9 +175,9 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> {
     }
 
     public URI createAlbumArtURI(Album album) {
-        return util.createURIWithToken(UriComponentsBuilder
-                .fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
-                .queryParam("id", coverArtLogic.createKey(album)).queryParam("size", CoverArtScheme.LARGE.getSize()));
+        return util.createURIWithToken(
+                UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
+                        .queryParam("id", createCoverArtKey(album)).queryParam("size", CoverArtScheme.LARGE.getSize()));
     }
 
     public final BrowseResult toBrowseResult(ParamSearchResult<Album> result) {
