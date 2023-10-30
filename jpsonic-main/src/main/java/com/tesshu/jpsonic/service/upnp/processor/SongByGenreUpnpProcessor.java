@@ -24,53 +24,48 @@ package com.tesshu.jpsonic.service.upnp.processor;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import javax.annotation.PostConstruct;
-
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
+import com.tesshu.jpsonic.service.upnp.ProcId;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.SortCriterion;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.GenreContainer;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 @Service
-public class SongByGenreUpnpProcessor extends UpnpContentProcessor<Genre, MediaFile> {
+public class SongByGenreUpnpProcessor extends DirectChildrenContentProcessor<Genre, MediaFile> {
 
     private final SearchService searchService;
+    private final UpnpDIDLFactory factory;
     private final UpnpProcessorUtil util;
 
-    public SongByGenreUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, SearchService s) {
-        super(d, u);
-        this.util = u;
-        this.searchService = s;
-        setRootId(UpnpProcessDispatcher.CONTAINER_ID_SONG_BY_GENRE_PREFIX);
+    public SongByGenreUpnpProcessor(UpnpProcessorUtil util, UpnpDIDLFactory factory, SearchService searchService) {
+        super();
+        this.util = util;
+        this.factory = factory;
+        this.searchService = searchService;
     }
 
-    @PostConstruct
     @Override
-    public void initTitle() {
-        setRootTitleWithResource("dlna.title.songbygenres");
+    public ProcId getProcId() {
+        return ProcId.SONG_BY_GENRE;
     }
 
     /**
      * Browses the top-level content of a type.
      */
     @Override
-    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy)
-            throws ExecutionException {
+    public BrowseResult browseRoot(String filter, long firstResult, long maxResults) throws ExecutionException {
         // we have to override this to do an index-based id.
         DIDLContent didl = new DIDLContent();
-        List<Genre> selectedItems = getItems(firstResult, maxResults);
+        List<Genre> selectedItems = getDirectChildren(firstResult, maxResults);
         for (int i = 0; i < selectedItems.size(); i++) {
             Genre item = selectedItems.get(i);
             didl.addContainer(createContainer(item, (int) (i + firstResult)));
         }
-        return createBrowseResult(didl, (int) didl.getCount(), getItemCount());
+        return createBrowseResult(didl, (int) didl.getCount(), getDirectChildrenCount());
     }
 
     @Override
@@ -80,8 +75,8 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor<Genre, MediaF
 
     protected Container createContainer(Genre item, int index) {
         GenreContainer container = new GenreContainer();
-        container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + index);
-        container.setParentID(getRootId());
+        container.setId(getProcId().getValue() + ProcId.CID_SEPA + index);
+        container.setParentID(getProcId().getValue());
         container.setTitle(util.isGenreCountAvailable()
                 ? item.getName().concat(" ").concat(Integer.toString(item.getSongCount())) : item.getName());
         container.setChildCount(item.getSongCount());
@@ -89,17 +84,17 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor<Genre, MediaF
     }
 
     @Override
-    public int getItemCount() {
+    public int getDirectChildrenCount() {
         return searchService.getGenresCount(false);
     }
 
     @Override
-    public List<Genre> getItems(long offset, long maxResults) {
+    public List<Genre> getDirectChildren(long offset, long maxResults) {
         return searchService.getGenres(false, offset, maxResults);
     }
 
     @Override
-    public Genre getItemById(String id) {
+    public Genre getDirectChild(String id) {
         int index = Integer.parseInt(id);
         List<Genre> genres = searchService.getGenres(false);
         if (genres.size() > index) {
@@ -110,18 +105,17 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor<Genre, MediaF
 
     @Override
     public int getChildSizeOf(Genre item) {
-        return searchService.getSongsByGenres(item.getName(), 0, Integer.MAX_VALUE, util.getGuestMusicFolders()).size();
+        return searchService.getSongsByGenres(item.getName(), 0, Integer.MAX_VALUE, util.getGuestFolders()).size();
     }
 
     @Override
     public List<MediaFile> getChildren(Genre item, long offset, long maxResults) {
-        return searchService.getSongsByGenres(item.getName(), (int) offset, (int) maxResults,
-                util.getGuestMusicFolders());
+        return searchService.getSongsByGenres(item.getName(), (int) offset, (int) maxResults, util.getGuestFolders());
     }
 
     @Override
     public void addChild(DIDLContent didl, MediaFile child) {
-        didl.addItem(getDispatcher().getMediaFileProcessor().createItem(child));
+        didl.addItem(factory.toMusicTrack(child));
     }
 
 }

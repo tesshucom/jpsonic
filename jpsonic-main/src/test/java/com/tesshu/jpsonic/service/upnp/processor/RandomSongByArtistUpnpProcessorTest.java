@@ -63,7 +63,7 @@ class RandomSongByArtistUpnpProcessorTest extends AbstractNeedsScan {
 
     @Test
     void testGetItemCount() {
-        assertEquals(31, randomSongByArtistUpnpProcessor.getItemCount());
+        assertEquals(31, randomSongByArtistUpnpProcessor.getDirectChildrenCount());
     }
 
     @Test
@@ -71,15 +71,15 @@ class RandomSongByArtistUpnpProcessorTest extends AbstractNeedsScan {
 
         Map<String, Artist> c = LegacyMap.of();
 
-        List<Artist> items = randomSongByArtistUpnpProcessor.getItems(0, 10);
+        List<Artist> items = randomSongByArtistUpnpProcessor.getDirectChildren(0, 10);
         items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
         assertEquals(c.size(), 10);
 
-        items = randomSongByArtistUpnpProcessor.getItems(10, 10);
+        items = randomSongByArtistUpnpProcessor.getDirectChildren(10, 10);
         items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
         assertEquals(c.size(), 20);
 
-        items = randomSongByArtistUpnpProcessor.getItems(20, 100);
+        items = randomSongByArtistUpnpProcessor.getDirectChildren(20, 100);
         assertEquals(11, items.size());
         items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
         assertEquals(c.size(), 31);
@@ -88,7 +88,7 @@ class RandomSongByArtistUpnpProcessorTest extends AbstractNeedsScan {
 
     @Test
     void testGetChildSizeOf() {
-        List<Artist> artists = randomSongByArtistUpnpProcessor.getItems(0, 1);
+        List<Artist> artists = randomSongByArtistUpnpProcessor.getDirectChildren(0, 1);
         assertEquals(1, artists.size());
         assertEquals(50, randomSongByArtistUpnpProcessor.getChildSizeOf(artists.get(0)));
     }
@@ -96,7 +96,7 @@ class RandomSongByArtistUpnpProcessorTest extends AbstractNeedsScan {
     @Test
     void testGetChildren() {
 
-        List<Artist> artists = randomSongByArtistUpnpProcessor.getItems(0, 1);
+        List<Artist> artists = randomSongByArtistUpnpProcessor.getDirectChildren(0, 1);
         assertEquals(1, artists.size());
 
         Map<String, MediaFile> c = LegacyMap.of();

@@ -19,13 +19,10 @@
 
 package com.tesshu.jpsonic.service.upnp.processor;
 
-import static com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher.CONTAINER_ID_RANDOM_SONG_BY_FOLDER_ARTIST;
 import static java.util.stream.Collectors.toList;
 
 import java.util.Arrays;
 import java.util.List;
-
-import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
@@ -35,39 +32,44 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
+import com.tesshu.jpsonic.service.upnp.ProcId;
 import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.MusicArtist;
 import org.fourthline.cling.support.model.container.StorageFolder;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 @Service
 public class RandomSongByFolderArtistUpnpProcessor
-        extends UpnpContentProcessor<FolderArtistWrapper, FolderArtistWrapper> {
+        extends DirectChildrenContentProcessor<FolderArtistWrapper, FolderArtistWrapper> {
 
     private static final String TYPE_PREFIX_MUSIC_FOLDER = "MusicFolder:";
     private static final String TYPE_PREFIX_ARTIST = "artist:";
 
     private final UpnpProcessorUtil util;
+    private final UpnpDIDLFactory factory;
     private final ArtistDao artistDao;
     private final MusicFolderDao musicFolderDao;
     private final MediaFileService mediaFileService;
     private final SearchService searchService;
     private final SettingsService settingsService;
 
-    public RandomSongByFolderArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m,
-            MusicFolderDao md, ArtistDao a, SearchService s, SettingsService ss) {
-        super(d, u);
-        util = u;
-        mediaFileService = m;
-        artistDao = a;
-        musicFolderDao = md;
-        searchService = s;
-        settingsService = ss;
-        setRootId(CONTAINER_ID_RANDOM_SONG_BY_FOLDER_ARTIST);
+    public RandomSongByFolderArtistUpnpProcessor(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            MediaFileService mediaFileService, MusicFolderDao musicFolderDao, ArtistDao artistDao,
+            SearchService searchService, SettingsService settingsService) {
+        super();
+        this.util = util;
+        this.factory = factory;
+        this.mediaFileService = mediaFileService;
+        this.artistDao = artistDao;
+        this.musicFolderDao = musicFolderDao;
+        this.searchService = searchService;
+        this.settingsService = settingsService;
+    }
+
+    @Override
+    public ProcId getProcId() {
+        return ProcId.RANDOM_SONG_BY_FOLDER_ARTIST;
     }
 
     @Override
@@ -75,7 +77,7 @@ public class RandomSongByFolderArtistUpnpProcessor
         if (item.isArtist()) {
             didl.addContainer(createContainer(item));
         } else {
-            didl.addItem(getDispatcher().getMediaFileProcessor().createItem(item.getSong()));
+            didl.addItem(factory.toMusicTrack(item.getSong()));
         }
     }
 
@@ -89,23 +91,17 @@ public class RandomSongByFolderArtistUpnpProcessor
     @Override
     public Container createContainer(FolderArtistWrapper item) {
         if (item.isArtist()) {
-            MusicArtist container = new MusicArtist();
-            container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + item.getId());
-            container.setParentID(getRootId());
-            container.setTitle(item.getName());
-            container.setChildCount(item.getArtist().getAlbumCount());
-            if (item.getArtist().getCoverArtPath() != null) {
-                container.setProperties(Arrays.asList(
-                        new ALBUM_ART_URI(getDispatcher().getArtistProcessor().createArtistArtURI(item.getArtist()))));
-            }
-            return container;
+            MusicArtist artist = factory.toArtist(item.getArtist());
+            artist.setId(ProcId.RANDOM_SONG_BY_FOLDER_ARTIST.getValue() + ProcId.CID_SEPA + item.getId());
+            artist.setParentID(ProcId.RANDOM_SONG_BY_FOLDER_ARTIST.getValue());
+            return artist;
         } else {
             StorageFolder container = new StorageFolder();
-            container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + item.getId());
-            container.setParentID(getRootId());
+            container.setId(ProcId.RANDOM_SONG_BY_FOLDER_ARTIST.getValue() + ProcId.CID_SEPA + item.getId());
+            container.setParentID(ProcId.RANDOM_SONG_BY_FOLDER_ARTIST.getValue());
             container.setTitle(item.getName());
             container.setChildCount(getChildSizeOf(item));
-            container.setParentID(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX);
+            container.setParentID(ProcId.FOLDER.getValue());
             return container;
         }
     }
@@ -124,8 +120,8 @@ public class RandomSongByFolderArtistUpnpProcessor
             int randomMax = settingsService.getDlnaRandomMax();
             int count = (offset + (int) maxResults) > randomMax ? randomMax - offset : (int) maxResults;
             return searchService
-                    .getRandomSongsByArtist(item.getArtist(), count, offset, randomMax, util.getGuestMusicFolders())
-                    .stream().map(FolderArtist::new).collect(toList());
+                    .getRandomSongsByArtist(item.getArtist(), count, offset, randomMax, util.getGuestFolders()).stream()
+                    .map(FolderArtist::new).collect(toList());
         } else {
             return artistDao.getAlphabetialArtists(offset, (int) maxResults, Arrays.asList(item.getFolder())).stream()
                     .map(FolderArtist::new).collect(toList());
@@ -138,7 +134,7 @@ public class RandomSongByFolderArtistUpnpProcessor
     }
 
     @Override
-    public FolderArtistWrapper getItemById(String ids) {
+    public FolderArtistWrapper getDirectChild(String ids) {
         int id = toRawId(ids);
         if (isArtistId(ids)) {
             Artist artist = artistDao.getArtist(id);
@@ -154,21 +150,15 @@ public class RandomSongByFolderArtistUpnpProcessor
     }
 
     @Override
-    public int getItemCount() {
-        return util.getGuestMusicFolders().size();
+    public int getDirectChildrenCount() {
+        return util.getGuestFolders().size();
     }
 
     @Override
-    public List<FolderArtistWrapper> getItems(long offset, long maxResults) {
-        List<MusicFolder> folders = util.getGuestMusicFolders();
+    public List<FolderArtistWrapper> getDirectChildren(long offset, long maxResults) {
+        List<MusicFolder> folders = util.getGuestFolders();
         return folders.subList((int) offset, Math.min(folders.size(), (int) (offset + maxResults))).stream()
                 .map(FolderArtist::new).collect(toList());
-    }
-
-    @PostConstruct
-    @Override
-    public void initTitle() {
-        setRootTitleWithResource("dlna.title.randomSongByArtist");
     }
 
     private boolean isArtistId(String id) {

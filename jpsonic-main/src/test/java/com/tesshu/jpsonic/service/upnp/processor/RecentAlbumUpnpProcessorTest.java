@@ -62,47 +62,46 @@ class RecentAlbumUpnpProcessorTest extends AbstractNeedsScan {
 
     @Test
     void testGetItemCount() {
-        // Does not include ''-ALL-''
-        assertEquals(31, processor.getItemCount());
+        assertEquals(31, processor.getDirectChildrenCount());
     }
 
     @Test
     void testGetItems() {
 
-        assertEquals(30, processor.getItems(0, 30).size());
-        assertEquals(1, processor.getItems(30, 30).size());
+        assertEquals(30, processor.getDirectChildren(0, 30).size());
+        assertEquals(1, processor.getDirectChildren(30, 30).size());
 
         Map<Integer, MediaFile> c = LegacyMap.of();
 
-        List<MediaFile> items = processor.getItems(0, 10);
+        List<MediaFile> items = processor.getDirectChildren(0, 10);
 
         items.stream().filter(m -> !c.containsKey(m.getId())).forEach(m -> c.put(m.getId(), m));
         assertEquals(10, c.size());
 
-        items = processor.getItems(10, 10);
+        items = processor.getDirectChildren(10, 10);
         items.stream().filter(m -> !c.containsKey(m.getId())).forEach(m -> c.put(m.getId(), m));
         assertEquals(20, c.size());
 
-        items = processor.getItems(20, 100);
+        items = processor.getDirectChildren(20, 100);
         assertEquals(11, items.size());
         items.stream().filter(m -> !c.containsKey(m.getId())).forEach(m -> c.put(m.getId(), m));
         assertEquals(31, c.size());
 
-        assertEquals(4, processor.getItems(0, 4).size());
-        assertEquals(3, processor.getItems(0, 3).size());
-        assertEquals(2, processor.getItems(0, 2).size());
-        assertEquals(1, processor.getItems(0, 1).size());
+        assertEquals(4, processor.getDirectChildren(0, 4).size());
+        assertEquals(3, processor.getDirectChildren(0, 3).size());
+        assertEquals(2, processor.getDirectChildren(0, 2).size());
+        assertEquals(1, processor.getDirectChildren(0, 1).size());
 
-        assertEquals(4, processor.getItems(1, 4).size());
-        assertEquals(3, processor.getItems(1, 3).size());
-        assertEquals(2, processor.getItems(1, 2).size());
-        assertEquals(1, processor.getItems(1, 1).size());
+        assertEquals(4, processor.getDirectChildren(1, 4).size());
+        assertEquals(3, processor.getDirectChildren(1, 3).size());
+        assertEquals(2, processor.getDirectChildren(1, 2).size());
+        assertEquals(1, processor.getDirectChildren(1, 1).size());
 
     }
 
     @Test
     void testGetChildSizeOf() {
-        List<MediaFile> albums = processor.getItems(1, 1);
+        List<MediaFile> albums = processor.getDirectChildren(1, 1);
         assertEquals(1, albums.size());
         int childSizeOf = processor.getChildSizeOf(albums.get(0));
         int maxFilesLength = 31;

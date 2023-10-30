@@ -21,83 +21,69 @@ package com.tesshu.jpsonic.service.upnp.processor;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import java.net.URI;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import javax.annotation.PostConstruct;
-
-import com.tesshu.jpsonic.controller.ViewName;
-import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PodcastChannel;
 import com.tesshu.jpsonic.domain.PodcastEpisode;
 import com.tesshu.jpsonic.domain.PodcastStatus;
-import com.tesshu.jpsonic.service.CoverArtPresentation;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PodcastService;
-import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
+import com.tesshu.jpsonic.service.upnp.ProcId;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
-import org.fourthline.cling.support.model.SortCriterion;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.MusicAlbum;
 import org.fourthline.cling.support.model.item.Item;
 import org.fourthline.cling.support.model.item.MusicTrack;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
-public class PodcastUpnpProcessor extends UpnpContentProcessor<PodcastChannel, PodcastEpisode>
-        implements CoverArtPresentation {
+public class PodcastUpnpProcessor extends DirectChildrenContentProcessor<PodcastChannel, PodcastEpisode> {
 
     private static final ThreadLocal<DateTimeFormatter> DATE_FORMAT = ThreadLocal
             .withInitial(() -> DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault()));
-    private final UpnpProcessorUtil util;
+    private final UpnpDIDLFactory factory;
     private final MediaFileService mediaFileService;
     private final PodcastService podcastService;
 
-    public PodcastUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m,
-            PodcastService p) {
-        super(d, u);
-        this.util = u;
-        this.mediaFileService = m;
-        this.podcastService = p;
-        setRootId(UpnpProcessDispatcher.CONTAINER_ID_PODCAST_PREFIX);
-    }
-
-    @PostConstruct
-    @Override
-    public void initTitle() {
-        setRootTitleWithResource("dlna.title.podcast");
+    public PodcastUpnpProcessor(UpnpDIDLFactory factory, MediaFileService mediaFileService,
+            PodcastService podcastService) {
+        super();
+        this.factory = factory;
+        this.mediaFileService = mediaFileService;
+        this.podcastService = podcastService;
     }
 
     @Override
-    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy)
-            throws ExecutionException {
+    public ProcId getProcId() {
+        return ProcId.PODCAST;
+    }
+
+    @Override
+    public BrowseResult browseRoot(String filter, long firstResult, long maxResults) throws ExecutionException {
         DIDLContent didl = new DIDLContent();
-        List<PodcastChannel> channels = getItems(firstResult, maxResults);
+        List<PodcastChannel> channels = getDirectChildren(firstResult, maxResults);
         for (PodcastChannel channel : channels) {
             addItem(didl, channel);
         }
-        return createBrowseResult(didl, (int) didl.getCount(), getItemCount());
+        return createBrowseResult(didl, (int) didl.getCount(), getDirectChildrenCount());
     }
 
     @Override
     public Container createContainer(PodcastChannel channel) {
         MusicAlbum container = new MusicAlbum();
-        container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + channel.getId());
-        container.setParentID(getRootId());
+        container.setId(ProcId.PODCAST.getValue() + ProcId.CID_SEPA + channel.getId());
+        container.setParentID(ProcId.PODCAST.getValue());
         container.setTitle(channel.getTitle());
         container.setChildCount(podcastService.getEpisodes(channel.getId()).size());
         if (!isEmpty(channel.getImageUrl())) {
-            container.setProperties(Arrays.asList(new ALBUM_ART_URI(createPodcastChannelURI(channel))));
+            container.addProperty(factory.toPodcastArt(channel));
         }
         return container;
     }
@@ -113,7 +99,9 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor<PodcastChannel, P
         PodcastChannel channel = podcastService.getChannel(episode.getChannelId());
         if (channel != null) {
             item.setAlbum(channel.getTitle());
-            item.addProperty(new ALBUM_ART_URI(createPodcastChannelURI(channel)));
+            if (!isEmpty(channel.getImageUrl())) {
+                item.addProperty(factory.toPodcastArt(channel));
+            }
         }
 
         if (!isEmpty(episode.getPublishDate())) {
@@ -123,25 +111,25 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor<PodcastChannel, P
         }
 
         if (episode.getStatus() == PodcastStatus.COMPLETED && !isEmpty(episode.getMediaFileId())) {
-            MediaFile mediaFile = mediaFileService.getMediaFileStrict(episode.getMediaFileId());
-            item.setResources(Arrays.asList(getDispatcher().getMediaFileProcessor().createResourceForSong(mediaFile)));
+            MediaFile song = mediaFileService.getMediaFileStrict(episode.getMediaFileId());
+            item.setResources(Arrays.asList(factory.toRes(song)));
         }
 
         return item;
     }
 
     @Override
-    public int getItemCount() {
+    public int getDirectChildrenCount() {
         return podcastService.getAllChannels().size();
     }
 
     @Override
-    public List<PodcastChannel> getItems(long offset, long maxResults) {
+    public List<PodcastChannel> getDirectChildren(long offset, long maxResults) {
         return PlayerUtils.subList(podcastService.getAllChannels(), offset, maxResults);
     }
 
     @Override
-    public PodcastChannel getItemById(String id) {
+    public PodcastChannel getDirectChild(String id) {
         return podcastService.getChannel(Integer.parseInt(id));
     }
 
@@ -159,11 +147,4 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor<PodcastChannel, P
     public void addChild(DIDLContent didl, PodcastEpisode child) {
         didl.addItem(createItem(child));
     }
-
-    private URI createPodcastChannelURI(PodcastChannel channel) {
-        return util.createURIWithToken(UriComponentsBuilder
-                .fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
-                .queryParam("id", createCoverArtKey(channel)).queryParam("size", CoverArtScheme.LARGE.getSize()));
-    }
-
 }

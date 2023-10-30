@@ -256,7 +256,7 @@ public class UPnPSearchCriteriaDirectorTest {
         fid = fid.trim();
 
         UpnpProcessorUtil util = new UpnpProcessorUtil(settingsService, musicFolderService, mock(SecurityService.class),
-                null, null, null, null);
+                null);
         director = new UPnPSearchCriteriaDirector(
                 new QueryFactory(settingsService, new AnalyzerFactory(settingsService)), util);
     }

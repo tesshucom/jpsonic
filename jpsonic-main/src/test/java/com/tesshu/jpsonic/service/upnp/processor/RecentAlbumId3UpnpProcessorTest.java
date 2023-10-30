@@ -58,56 +58,44 @@ class RecentAlbumId3UpnpProcessorTest extends AbstractNeedsScan {
 
     @Test
     void testGetItemCount() {
-        assertEquals(32, processor.getItemCount()); // (allAlbumCount + -ALL-) or MAX
+        assertEquals(31, processor.getDirectChildrenCount());
     }
 
     @Test
     void testGetItems() {
-
-        // It is OK if the following requirements can be cleared
-
-        assertEquals(30, processor.getItems(0, 30).size());
-        assertEquals(2, processor.getItems(30, 30).size());
-
-        // processor.getItems(0, 30).forEach(a -> System.out.println(a.getName()));
-        // processor.getItems(30, 30).forEach(a -> System.out.println(a.getName()));
+        assertEquals(30, processor.getDirectChildren(0, 30).size());
+        assertEquals(1, processor.getDirectChildren(30, 30).size());
 
         Map<Integer, Album> c = LegacyMap.of();
 
-        List<Album> items = processor.getItems(0, 10);
+        List<Album> items = processor.getDirectChildren(0, 10);
         items.stream().filter(m -> !c.containsKey(m.getId())).forEach(m -> c.put(m.getId(), m));
         assertEquals(10, c.size());
 
-        items = processor.getItems(10, 10);
+        items = processor.getDirectChildren(10, 10);
         items.stream().filter(m -> !c.containsKey(m.getId())).forEach(m -> c.put(m.getId(), m));
         assertEquals(20, c.size());
 
-        items = processor.getItems(20, 100);
-        assertEquals(12, items.size());
+        items = processor.getDirectChildren(20, 100);
+        assertEquals(11, items.size());
         items.stream().filter(m -> !c.containsKey(m.getId())).forEach(m -> c.put(m.getId(), m));
-        assertEquals(32, c.size());
+        assertEquals(31, c.size());
 
-        // Currently the border is not strict
+        assertEquals(4, processor.getDirectChildren(0, 4).size());
+        assertEquals(3, processor.getDirectChildren(0, 3).size());
+        assertEquals(2, processor.getDirectChildren(0, 2).size());
+        assertEquals(1, processor.getDirectChildren(0, 1).size());
 
-        assertEquals(4, processor.getItems(0, 4).size());
-        assertEquals(3, processor.getItems(0, 3).size());
-        assertEquals(1, processor.getItems(0, 2).size());
-        assertEquals(32, processor.getItems(0, 1).size());
-
-        assertEquals(5, processor.getItems(1, 4).size());
-        assertEquals(4, processor.getItems(1, 3).size());
-        assertEquals(3, processor.getItems(1, 2).size());
-        assertEquals(1, processor.getItems(1, 1).size());
-
+        assertEquals(4, processor.getDirectChildren(1, 4).size());
+        assertEquals(3, processor.getDirectChildren(1, 3).size());
+        assertEquals(2, processor.getDirectChildren(1, 2).size());
+        assertEquals(1, processor.getDirectChildren(1, 1).size());
     }
 
     @Test
     void testGetChildSizeOf() {
-        List<Album> albums = processor.getItems(1, 1);
+        List<Album> albums = processor.getDirectChildren(1, 1);
         assertEquals(1, albums.size());
-
-        // Bad test case. Order is not guaranteed if registered at the same time.
-        // assertEquals(1, processor.getChildSizeOf(albums.get(0)));
+        assertEquals(1, processor.getChildSizeOf(albums.get(0)));
     }
-
 }

@@ -52,6 +52,9 @@ class ArtistUpnpProcessorTest extends AbstractNeedsScan {
     private ArtistUpnpProcessor artistUpnpProcessor;
 
     @Autowired
+    private AlbumUpnpProcessor albumUpnpProcessor;
+
+    @Autowired
     private SettingsService settingsService;
 
     @Override
@@ -69,23 +72,23 @@ class ArtistUpnpProcessorTest extends AbstractNeedsScan {
 
     @Test
     void testGetItemCount() {
-        assertEquals(31, artistUpnpProcessor.getItemCount());
+        assertEquals(31, artistUpnpProcessor.getDirectChildrenCount());
     }
 
     @Test
     void testGetItems() {
 
-        List<Artist> items = artistUpnpProcessor.getItems(0, 10);
+        List<Artist> items = artistUpnpProcessor.getDirectChildren(0, 10);
         for (int i = 0; i < items.size(); i++) {
             assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i), items.get(i).getName());
         }
 
-        items = artistUpnpProcessor.getItems(10, 10);
+        items = artistUpnpProcessor.getDirectChildren(10, 10);
         for (int i = 0; i < items.size(); i++) {
             assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10), items.get(i).getName());
         }
 
-        items = artistUpnpProcessor.getItems(20, 100);
+        items = artistUpnpProcessor.getDirectChildren(20, 100);
         assertEquals(11, items.size());
         for (int i = 0; i < items.size(); i++) {
             assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20), items.get(i).getName());
@@ -95,10 +98,10 @@ class ArtistUpnpProcessorTest extends AbstractNeedsScan {
 
     @Test
     void testGetChildSizeOf() {
-        List<Artist> artists = artistUpnpProcessor.getItems(0, 1);
+        List<Artist> artists = artistUpnpProcessor.getDirectChildren(0, 1);
         assertEquals(1, artists.size());
         assertEquals("10", artists.get(0).getName());
-        assertEquals(32, artistUpnpProcessor.getChildSizeOf(artists.get(0))); // 31 + "-All-"
+        assertEquals(31, artistUpnpProcessor.getChildSizeOf(artists.get(0)));
     }
 
     @Test
@@ -106,7 +109,7 @@ class ArtistUpnpProcessorTest extends AbstractNeedsScan {
 
         settingsService.setSortAlbumsByYear(false);
 
-        List<Artist> artists = artistUpnpProcessor.getItems(0, 1);
+        List<Artist> artists = artistUpnpProcessor.getDirectChildren(0, 1);
         assertEquals(1, artists.size());
         assertEquals("10", artists.get(0).getName());
 
@@ -138,7 +141,7 @@ class ArtistUpnpProcessorTest extends AbstractNeedsScan {
         List<String> reversedByYear = new ArrayList<>(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST);
         Collections.reverse(reversedByYear);
 
-        List<Artist> artists = artistUpnpProcessor.getItems(0, 1);
+        List<Artist> artists = artistUpnpProcessor.getDirectChildren(0, 1);
         assertEquals(1, artists.size());
         assertEquals("10", artists.get(0).getName());
 
@@ -166,7 +169,7 @@ class ArtistUpnpProcessorTest extends AbstractNeedsScan {
     @Test
     void testSongs() {
 
-        List<Artist> artists = artistUpnpProcessor.getItems(0, Integer.MAX_VALUE).stream()
+        List<Artist> artists = artistUpnpProcessor.getDirectChildren(0, Integer.MAX_VALUE).stream()
                 .filter(a -> "20".equals(a.getName())).collect(Collectors.toList());
         assertEquals(1, artists.size());
 
@@ -179,13 +182,10 @@ class ArtistUpnpProcessorTest extends AbstractNeedsScan {
         Album album = albums.get(0);
         assertEquals("AlBum!", album.getName()); // the case where album name is different between file and id3
 
-        List<MediaFile> songs = artistUpnpProcessor.getDispatcher().getAlbumProcessor().getChildren(album, 0,
-                Integer.MAX_VALUE);
+        List<MediaFile> songs = albumUpnpProcessor.getChildren(album, 0, Integer.MAX_VALUE);
         assertEquals(1, songs.size());
 
         MediaFile song = songs.get(0);
         assertEquals("empty", song.getName());
-
     }
-
 }

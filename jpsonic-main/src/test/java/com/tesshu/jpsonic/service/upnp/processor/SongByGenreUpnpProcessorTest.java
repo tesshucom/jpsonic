@@ -64,7 +64,7 @@ class SongByGenreUpnpProcessorTest extends AbstractNeedsScan {
 
     @Test
     void testGetItemCount() {
-        assertEquals(31, songByGenreUpnpProcessor.getItemCount());
+        assertEquals(31, songByGenreUpnpProcessor.getDirectChildrenCount());
     }
 
     @Test
@@ -72,15 +72,15 @@ class SongByGenreUpnpProcessorTest extends AbstractNeedsScan {
 
         Map<String, Genre> c = LegacyMap.of();
 
-        List<Genre> items = songByGenreUpnpProcessor.getItems(0, 10);
+        List<Genre> items = songByGenreUpnpProcessor.getDirectChildren(0, 10);
         items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
         assertEquals(c.size(), 10);
 
-        items = songByGenreUpnpProcessor.getItems(10, 10);
+        items = songByGenreUpnpProcessor.getDirectChildren(10, 10);
         items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
         assertEquals(c.size(), 20);
 
-        items = songByGenreUpnpProcessor.getItems(20, 100);
+        items = songByGenreUpnpProcessor.getDirectChildren(20, 100);
         assertEquals(11, items.size());
         items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
         assertEquals(c.size(), 31);
@@ -89,7 +89,7 @@ class SongByGenreUpnpProcessorTest extends AbstractNeedsScan {
 
     @Test
     void testGetChildSizeOf() {
-        List<Genre> artists = songByGenreUpnpProcessor.getItems(0, 1);
+        List<Genre> artists = songByGenreUpnpProcessor.getDirectChildren(0, 1);
         assertEquals(1, artists.size());
         // assertEquals("A;B;C", artists.get(0).getName());
         assertEquals(31, songByGenreUpnpProcessor.getChildSizeOf(artists.get(0)));
@@ -98,7 +98,7 @@ class SongByGenreUpnpProcessorTest extends AbstractNeedsScan {
     @Test
     void testGetChildren() {
 
-        List<Genre> artists = songByGenreUpnpProcessor.getItems(0, 1);
+        List<Genre> artists = songByGenreUpnpProcessor.getDirectChildren(0, 1);
         assertEquals(1, artists.size());
         // assertEquals("A;B;C", artists.get(0).getName());
 

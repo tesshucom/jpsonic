@@ -19,100 +19,77 @@
 
 package com.tesshu.jpsonic.service.upnp.processor;
 
-import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import javax.annotation.PostConstruct;
-
-import com.tesshu.jpsonic.controller.ViewName;
+import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.domain.ParamSearchResult;
-import com.tesshu.jpsonic.service.CoverArtPresentation;
-import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
+import com.tesshu.jpsonic.service.upnp.ProcId;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
 import org.fourthline.cling.support.model.container.Container;
-import org.fourthline.cling.support.model.container.MusicArtist;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
-public class ArtistUpnpProcessor extends UpnpContentProcessor<Artist, Album> implements CoverArtPresentation {
+public class ArtistUpnpProcessor extends DirectChildrenContentProcessor<Artist, Album> {
 
     private final UpnpProcessorUtil util;
+    private final UpnpDIDLFactory factory;
     private final ArtistDao artistDao;
+    private final AlbumDao albumDao;
 
-    public ArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, ArtistDao a) {
-        super(d, u);
-        this.util = u;
-        this.artistDao = a;
-        setRootId(UpnpProcessDispatcher.CONTAINER_ID_ARTIST_PREFIX);
+    public ArtistUpnpProcessor(UpnpProcessorUtil util, UpnpDIDLFactory factory, ArtistDao artistDao,
+            AlbumDao albumDao) {
+        super();
+        this.util = util;
+        this.factory = factory;
+        this.artistDao = artistDao;
+        this.albumDao = albumDao;
     }
 
-    @PostConstruct
     @Override
-    public void initTitle() {
-        setRootTitleWithResource("dlna.title.artists");
+    public ProcId getProcId() {
+        return ProcId.ARTIST;
     }
 
     @Override
     public Container createContainer(Artist artist) {
-        MusicArtist container = new MusicArtist();
-        container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + artist.getId());
-        container.setParentID(getRootId());
-        container.setTitle(artist.getName());
-        container.setChildCount(artist.getAlbumCount());
-        if (artist.getCoverArtPath() != null) {
-            container.setProperties(Arrays.asList(new ALBUM_ART_URI(createArtistArtURI(artist))));
-        }
-        return container;
+        return factory.toArtist(artist);
     }
 
     @Override
-    public int getItemCount() {
-        return artistDao.getArtistsCount(util.getGuestMusicFolders());
+    public int getDirectChildrenCount() {
+        return artistDao.getArtistsCount(util.getGuestFolders());
     }
 
     @Override
-    public List<Artist> getItems(long offset, long maxResults) {
-        return artistDao.getAlphabetialArtists((int) offset, (int) maxResults, util.getGuestMusicFolders());
+    public List<Artist> getDirectChildren(long offset, long maxResults) {
+        return artistDao.getAlphabetialArtists((int) offset, (int) maxResults, util.getGuestFolders());
     }
 
     @Override
-    public Artist getItemById(String id) {
+    public Artist getDirectChild(String id) {
         return artistDao.getArtist(Integer.parseInt(id));
     }
 
     @Override
     public int getChildSizeOf(Artist artist) {
-        int size = getDispatcher().getAlbumProcessor().getAlbumsCountForArtist(artist.getName(),
-                util.getGuestMusicFolders());
-        return size > 1 ? size + 1 : size;
+        return albumDao.getAlbumsCountForArtist(artist.getName(), util.getGuestFolders());
     }
 
     @Override
     public List<Album> getChildren(Artist artist, long offset, long maxResults) {
-        return getDispatcher().getAlbumProcessor().getAlbumsForArtist(artist.getName(), offset, maxResults,
-                util.isSortAlbumsByYear(artist.getName()), util.getGuestMusicFolders());
+        return albumDao.getAlbumsForArtist(offset, maxResults, artist.getName(),
+                util.isSortAlbumsByYear(artist.getName()), util.getGuestFolders());
     }
 
     @Override
     public void addChild(DIDLContent didl, Album album) {
-        didl.addContainer(getDispatcher().getAlbumProcessor().createContainer(album));
-    }
-
-    public URI createArtistArtURI(Artist artist) {
-        return util.createURIWithToken(UriComponentsBuilder
-                .fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
-                .queryParam("id", createCoverArtKey(artist)).queryParam("size", CoverArtScheme.LARGE.getSize()));
+        didl.addContainer(factory.toAlbum(album));
     }
 
     public final BrowseResult toBrowseResult(ParamSearchResult<Artist> result) {
@@ -127,5 +104,4 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor<Artist, Album> imp
             return null;
         }
     }
-
 }

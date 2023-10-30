@@ -19,26 +19,14 @@
 
 package com.tesshu.jpsonic.service.upnp.processor;
 
-import java.net.URI;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import com.tesshu.jpsonic.domain.JpsonicComparators;
-import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.domain.Player;
-import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MusicFolderService;
-import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.util.StringUtil;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.seamless.util.MimeType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class UpnpProcessorUtil {
@@ -46,81 +34,26 @@ public class UpnpProcessorUtil {
     private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
     private final SecurityService securityService;
-    private final JWTSecurityService jwtSecurityService;
-    private final PlayerService playerService;
-    private final TranscodingService transcodingService;
     private final JpsonicComparators comparators;
-    private final ResourceBundle resourceBundle;
 
-    public UpnpProcessorUtil(SettingsService ss, MusicFolderService mfs, SecurityService securityService,
-            JpsonicComparators c, JWTSecurityService jwt, PlayerService playerService, TranscodingService ts) {
-        settingsService = ss;
-        musicFolderService = mfs;
+    public UpnpProcessorUtil(SettingsService settingsService, MusicFolderService musicFolderService,
+            SecurityService securityService, JpsonicComparators comparators) {
+        this.settingsService = settingsService;
+        this.musicFolderService = musicFolderService;
         this.securityService = securityService;
-        jwtSecurityService = jwt;
-        comparators = c;
-        this.playerService = playerService;
-        transcodingService = ts;
-        resourceBundle = ResourceBundle.getBundle("com.tesshu.jpsonic.i18n.ResourceBundle",
-                settingsService.getLocale());
+        this.comparators = comparators;
     }
 
-    public UriComponentsBuilder addJWTToken(UriComponentsBuilder builder) {
-        return jwtSecurityService.addJWTToken(builder);
-    }
-
-    public String createURIStringWithToken(UriComponentsBuilder builder, MediaFile song) {
-        String token = addJWTToken(builder).toUriString();
-        if (settingsService.isUriWithFileExtensions() && !StringUtils.isEmpty(song.getFormat())) {
-            Player player = playerService.getGuestPlayer(null);
-            String fmt = transcodingService.getSuffix(player, song, null);
-            token = token.concat(".").concat(fmt);
-        }
-        return token;
-    }
-
-    public URI createURIWithToken(UriComponentsBuilder builder) {
-        return addJWTToken(builder).build().encode().toUri();
-    }
-
-    public List<MusicFolder> getGuestMusicFolders() {
+    public List<MusicFolder> getGuestFolders() {
         return musicFolderService.getMusicFoldersForUser(securityService.getGuestUser().getUsername());
-    }
-
-    public String getBaseUrl() {
-        String dlnaBaseLANURL = settingsService.getDlnaBaseLANURL();
-        if (StringUtils.isBlank(dlnaBaseLANURL)) {
-            throw new IllegalArgumentException("UPnP Base LAN URL is not set correctly");
-        }
-        return dlnaBaseLANURL;
-    }
-
-    public MimeType getMimeType(MediaFile song, Player player) {
-        String suffix = song.isVideo() ? FilenameUtils.getExtension(song.getPathString())
-                : transcodingService.getSuffix(player, song, null);
-        String mimeTypeString = StringUtil.getMimeType(suffix);
-        return mimeTypeString == null ? null : MimeType.valueOf(mimeTypeString);
-    }
-
-    public String getResource(String key) {
-        return resourceBundle.getString(key);
     }
 
     public boolean isGenreCountAvailable() {
         return settingsService.isDlnaGenreCountVisible()
-                && getGuestMusicFolders().equals(musicFolderService.getAllMusicFolders());
-    }
-
-    public boolean isProhibitSortVarious() {
-        return settingsService.isProhibitSortVarious();
-    }
-
-    public boolean isSortAlbumsByYear() {
-        return settingsService.isSortAlbumsByYear();
+                && getGuestFolders().equals(musicFolderService.getAllMusicFolders());
     }
 
     public boolean isSortAlbumsByYear(String artist) {
         return comparators.isSortAlbumsByYear(artist);
     }
-
 }

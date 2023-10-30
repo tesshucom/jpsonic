@@ -41,7 +41,6 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicIndexService;
-import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import net.sf.ehcache.Ehcache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -55,8 +54,8 @@ class IndexUpnpProcessorTest {
     @Nested
     class UnitTest {
 
-        private UpnpProcessDispatcher dispatcher;
         private UpnpProcessorUtil util;
+        private UpnpDIDLFactory factory;
         private MediaFileService mediaFileService;
         private MusicIndexService musicIndexService;
         private Ehcache indexCache;
@@ -64,18 +63,18 @@ class IndexUpnpProcessorTest {
 
         @BeforeEach
         public void setup() {
-            dispatcher = mock(UpnpProcessDispatcher.class);
             util = mock(UpnpProcessorUtil.class);
+            factory = mock(UpnpDIDLFactory.class);
             mediaFileService = mock(MediaFileService.class);
             musicIndexService = mock(MusicIndexService.class);
             indexCache = mock(Ehcache.class);
-            processor = new IndexUpnpProcessor(dispatcher, util, mediaFileService, musicIndexService, indexCache);
+            processor = new IndexUpnpProcessor(util, factory, mediaFileService, musicIndexService, indexCache);
         }
 
         @Test
         void testRefreshIndex() {
             List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, "", "name", true, now(), 0));
-            Mockito.when(util.getGuestMusicFolders()).thenReturn(musicFolders);
+            Mockito.when(util.getGuestFolders()).thenReturn(musicFolders);
             Mockito.when(musicIndexService.getMusicFolderContent(musicFolders))
                     .thenReturn(new MusicFolderContent(new TreeMap<>(), Collections.emptyList()));
             processor.refreshIndex();
@@ -123,13 +122,13 @@ class IndexUpnpProcessorTest {
 
         @Test
         void testGetItemCount() {
-            assertEquals(31, indexUpnpProcessor.getItemCount());
+            assertEquals(31, indexUpnpProcessor.getDirectChildrenCount());
         }
 
         @Test
         void testGetItems() {
 
-            List<MediaFile> items = indexUpnpProcessor.getItems(0, 10);
+            List<MediaFile> items = indexUpnpProcessor.getDirectChildren(0, 10);
             assertEquals(10, items.size());
             assertEquals("A", items.get(0).getName());
             assertEquals("B", items.get(1).getName());
@@ -142,7 +141,7 @@ class IndexUpnpProcessorTest {
             assertEquals("#", items.get(8).getName());
             assertEquals("single1", items.get(9).getName());
 
-            items = indexUpnpProcessor.getItems(10, 10);
+            items = indexUpnpProcessor.getDirectChildren(10, 10);
             assertEquals(10, items.size());
             assertEquals("single2", items.get(0).getName());
             assertEquals("single3", items.get(1).getName());
@@ -155,7 +154,7 @@ class IndexUpnpProcessorTest {
             assertEquals("single10", items.get(8).getName());
             assertEquals("single11", items.get(9).getName());
 
-            items = indexUpnpProcessor.getItems(20, 10);
+            items = indexUpnpProcessor.getDirectChildren(20, 10);
             assertEquals(10, items.size());
             assertEquals("single12", items.get(0).getName());
             assertEquals("single13", items.get(1).getName());
@@ -168,11 +167,11 @@ class IndexUpnpProcessorTest {
             assertEquals("single20", items.get(8).getName());
             assertEquals("single21", items.get(9).getName());
 
-            items = indexUpnpProcessor.getItems(30, 10);
+            items = indexUpnpProcessor.getDirectChildren(30, 10);
             assertEquals(1, items.size());
             assertEquals("single22", items.get(0).getName());
 
-            items = indexUpnpProcessor.getItems(0, 5);
+            items = indexUpnpProcessor.getDirectChildren(0, 5);
             assertEquals(5, items.size());
             assertEquals("A", items.get(0).getName());
             assertEquals("B", items.get(1).getName());
@@ -180,7 +179,7 @@ class IndexUpnpProcessorTest {
             assertEquals("D", items.get(3).getName());
             assertEquals("E", items.get(4).getName());
 
-            items = indexUpnpProcessor.getItems(5, 100);
+            items = indexUpnpProcessor.getDirectChildren(5, 100);
             assertEquals(26, items.size());
             assertEquals("あ", items.get(0).getName());
             assertEquals("さ", items.get(1).getName());
@@ -188,20 +187,20 @@ class IndexUpnpProcessorTest {
             assertEquals("#", items.get(3).getName());
             assertEquals("single1", items.get(4).getName());
 
-            items = indexUpnpProcessor.getItems(0, 9);
+            items = indexUpnpProcessor.getDirectChildren(0, 9);
             assertEquals(9, items.size());
             assertEquals("A", items.get(0).getName());
             assertEquals("#", items.get(8).getName());
 
-            items = indexUpnpProcessor.getItems(8, 1);
+            items = indexUpnpProcessor.getDirectChildren(8, 1);
             assertEquals(1, items.size());
             assertEquals("#", items.get(0).getName());
 
-            items = indexUpnpProcessor.getItems(9, 1);
+            items = indexUpnpProcessor.getDirectChildren(9, 1);
             assertEquals(1, items.size());
             assertEquals("single1", items.get(0).getName());
 
-            items = indexUpnpProcessor.getItems(30, 1);
+            items = indexUpnpProcessor.getDirectChildren(30, 1);
             assertEquals(1, items.size());
             assertEquals("single22", items.get(0).getName());
         }
@@ -209,7 +208,7 @@ class IndexUpnpProcessorTest {
         @Test
         void testGetChildSizeOf() {
 
-            List<MediaFile> items = indexUpnpProcessor.getItems(0, 100);
+            List<MediaFile> items = indexUpnpProcessor.getDirectChildren(0, 100);
             assertEquals(31, items.size());
 
             assertEquals(1, indexUpnpProcessor.getChildSizeOf(items.get(0)));
@@ -227,12 +226,12 @@ class IndexUpnpProcessorTest {
         @Test
         void testgetChildren() {
 
-            List<String> artistNames = indexUpnpProcessor.getItems(0, 100).stream()
+            List<String> artistNames = indexUpnpProcessor.getDirectChildren(0, 100).stream()
                     .flatMap(m -> indexUpnpProcessor.getChildren(m, 0, 100).stream()).map(MediaFile::getName)
                     .collect(Collectors.toList());
             assertEquals(INDEX_LIST, artistNames);
 
-            List<MediaFile> items = indexUpnpProcessor.getItems(0, 100);
+            List<MediaFile> items = indexUpnpProcessor.getDirectChildren(0, 100);
             assertEquals(31, items.size());
             assertEquals(5, indexUpnpProcessor.getChildSizeOf(items.get(5)));
             assertEquals(5, indexUpnpProcessor.getChildSizeOf(items.get(7)));
@@ -282,7 +281,7 @@ class IndexUpnpProcessorTest {
 
             settingsService.setSortAlbumsByYear(false);
 
-            List<MediaFile> indexes = indexUpnpProcessor.getItems(0, 100);
+            List<MediaFile> indexes = indexUpnpProcessor.getDirectChildren(0, 100);
             assertEquals(31, indexes.size());
 
             MediaFile index = indexes.get(8);
@@ -309,7 +308,7 @@ class IndexUpnpProcessorTest {
             List<String> reversedByYear = new ArrayList<>(JPSONIC_NATURAL_LIST);
             Collections.reverse(reversedByYear);
 
-            List<MediaFile> indexes = indexUpnpProcessor.getItems(0, 100);
+            List<MediaFile> indexes = indexUpnpProcessor.getDirectChildren(0, 100);
             assertEquals(31, indexes.size());
 
             MediaFile index = indexes.get(8);
@@ -330,8 +329,8 @@ class IndexUpnpProcessorTest {
         @Test
         void testSongs() {
 
-            List<MediaFile> indexes = indexUpnpProcessor.getItems(0, 100).stream().filter(a -> "#".equals(a.getName()))
-                    .collect(Collectors.toList());
+            List<MediaFile> indexes = indexUpnpProcessor.getDirectChildren(0, 100).stream()
+                    .filter(a -> "#".equals(a.getName())).collect(Collectors.toList());
             assertEquals(1, indexes.size());
 
             MediaFile index = indexes.get(0);

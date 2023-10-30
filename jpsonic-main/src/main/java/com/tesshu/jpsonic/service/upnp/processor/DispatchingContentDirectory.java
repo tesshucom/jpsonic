@@ -19,7 +19,7 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.service.upnp;
+package com.tesshu.jpsonic.service.upnp.processor;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -32,26 +32,10 @@ import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.search.QueryFactory;
 import com.tesshu.jpsonic.service.search.UPnPSearchCriteria;
 import com.tesshu.jpsonic.service.search.UPnPSearchCriteriaDirector;
-import com.tesshu.jpsonic.service.upnp.processor.AlbumByGenreUpnpProcessor;
-import com.tesshu.jpsonic.service.upnp.processor.AlbumUpnpProcessor;
-import com.tesshu.jpsonic.service.upnp.processor.ArtistByFolderUpnpProcessor;
-import com.tesshu.jpsonic.service.upnp.processor.ArtistUpnpProcessor;
-import com.tesshu.jpsonic.service.upnp.processor.IndexId3UpnpProcessor;
-import com.tesshu.jpsonic.service.upnp.processor.IndexUpnpProcessor;
-import com.tesshu.jpsonic.service.upnp.processor.MediaFileUpnpProcessor;
-import com.tesshu.jpsonic.service.upnp.processor.PlaylistUpnpProcessor;
-import com.tesshu.jpsonic.service.upnp.processor.PodcastUpnpProcessor;
-import com.tesshu.jpsonic.service.upnp.processor.RandomAlbumUpnpProcessor;
-import com.tesshu.jpsonic.service.upnp.processor.RandomSongByArtistUpnpProcessor;
-import com.tesshu.jpsonic.service.upnp.processor.RandomSongByFolderArtistUpnpProcessor;
-import com.tesshu.jpsonic.service.upnp.processor.RandomSongUpnpProcessor;
-import com.tesshu.jpsonic.service.upnp.processor.RecentAlbumId3UpnpProcessor;
-import com.tesshu.jpsonic.service.upnp.processor.RecentAlbumUpnpProcessor;
-import com.tesshu.jpsonic.service.upnp.processor.RootUpnpProcessor;
-import com.tesshu.jpsonic.service.upnp.processor.SongByGenreUpnpProcessor;
-import com.tesshu.jpsonic.service.upnp.processor.UpnpContentProcessor;
-import com.tesshu.jpsonic.service.upnp.processor.UpnpProcessorUtil;
-import com.tesshu.jpsonic.service.upnp.processor.WMPProcessor;
+import com.tesshu.jpsonic.service.upnp.CustomContentDirectory;
+import com.tesshu.jpsonic.service.upnp.ProcId;
+import com.tesshu.jpsonic.service.upnp.UPnPContentProcessor;
+import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.fourthline.cling.support.contentdirectory.ContentDirectoryErrorCode;
@@ -143,27 +127,27 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         // maxResult == 0 means all.
         long max = maxResults == 0 ? Long.MAX_VALUE : maxResults;
 
-        String[] splitId = objectId.split(OBJECT_ID_SEPARATOR, -1);
-        String browseRoot = splitId[0];
+        String[] splitId = objectId.split(ProcId.CID_SEPA, -1);
+        ProcId procId = ProcId.of(splitId[0]);
         String itemId = splitId.length == 1 ? null : splitId[1];
 
         @SuppressWarnings("rawtypes")
-        UpnpContentProcessor processor = findProcessor(browseRoot);
+        UPnPContentProcessor processor = findProcessor(procId);
         if (isEmpty(processor)) {
             // if it's null then assume it's a file, and that the id
             // is all that's there.
-            itemId = browseRoot;
-            processor = getMediaFileProcessor();
+            itemId = procId.getValue();
+            processor = mediaFileProcessor;
         }
 
         try {
             BrowseResult returnValue;
             if (isEmpty(itemId)) {
-                returnValue = browseFlag == BrowseFlag.METADATA ? processor.browseRootMetadata()
-                        : processor.browseRoot(filter, firstResult, max, orderBy);
+                returnValue = browseFlag == BrowseFlag.METADATA ? processor.browseMetadata()
+                        : processor.browseRoot(filter, firstResult, max);
             } else {
-                returnValue = browseFlag == BrowseFlag.METADATA ? processor.browseObjectMetadata(itemId)
-                        : processor.browseObject(itemId, filter, firstResult, max, orderBy);
+                returnValue = browseFlag == BrowseFlag.METADATA ? processor.browseDirectChildren(itemId)
+                        : processor.browseLeaf(itemId, filter, firstResult, max);
             }
             return returnValue;
         } catch (ExecutionException e) {
@@ -197,99 +181,37 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         UPnPSearchCriteria criteria = director.construct(offset, count, upnpSearchQuery);
 
         if (Artist.class == criteria.getAssignableClass()) {
-            return getArtistProcessor().toBrowseResult(searchService.search(criteria));
+            return artistProcessor.toBrowseResult(searchService.search(criteria));
         } else if (Album.class == criteria.getAssignableClass()) {
-            return getAlbumProcessor().toBrowseResult(searchService.search(criteria));
+            return albumProcessor.toBrowseResult(searchService.search(criteria));
         } else if (MediaFile.class == criteria.getAssignableClass()) {
-            return getMediaFileProcessor().toBrowseResult(searchService.search(criteria));
+            return mediaFileProcessor.toBrowseResult(searchService.search(criteria));
         }
 
         return new BrowseResult(StringUtils.EMPTY, 0, 0L, 0L);
     }
 
     @Override
-    public RootUpnpProcessor getRootProcessor() {
-        return rootProcessor;
+    public UPnPContentProcessor<?, ?> findProcessor(ProcId id) {
+        return switch (id) {
+        case ROOT -> rootProcessor;
+        case PLAYLIST -> playlistProcessor;
+        case FOLDER -> mediaFileProcessor;
+        case ALBUM -> albumProcessor;
+        case RECENT -> recentAlbumProcessor;
+        case RECENT_ID3 -> recentAlbumId3Processor;
+        case ARTIST -> artistProcessor;
+        case ARTIST_BY_FOLDER -> artistByFolderProcessor;
+        case ALBUM_BY_GENRE -> albumByGenreProcessor;
+        case SONG_BY_GENRE -> songByGenreProcessor;
+        case INDEX -> indexProcessor;
+        case INDEX_ID3 -> indexId3Processor;
+        case PODCAST -> podcastProcessor;
+        case RANDOM_ALBUM -> randomAlbumProcessor;
+        case RANDOM_SONG -> randomSongProcessor;
+        case RANDOM_SONG_BY_ARTIST -> randomSongByArtistProcessor;
+        case RANDOM_SONG_BY_FOLDER_ARTIST -> randomSongByFolderArtistProcessor;
+        default -> throw new AssertionError(String.format("Unreachable code(%s=%s).", "type", id));
+        };
     }
-
-    @Override
-    public PlaylistUpnpProcessor getPlaylistProcessor() {
-        return playlistProcessor;
-    }
-
-    @Override
-    public MediaFileUpnpProcessor getMediaFileProcessor() {
-        return mediaFileProcessor;
-    }
-
-    @Override
-    public AlbumUpnpProcessor getAlbumProcessor() {
-        return albumProcessor;
-    }
-
-    @Override
-    public RecentAlbumUpnpProcessor getRecentAlbumProcessor() {
-        return recentAlbumProcessor;
-    }
-
-    @Override
-    public RecentAlbumId3UpnpProcessor getRecentAlbumId3Processor() {
-        return recentAlbumId3Processor;
-    }
-
-    @Override
-    public ArtistUpnpProcessor getArtistProcessor() {
-        return artistProcessor;
-    }
-
-    @Override
-    public ArtistByFolderUpnpProcessor getArtistByFolderProcessor() {
-        return artistByFolderProcessor;
-    }
-
-    @Override
-    public AlbumByGenreUpnpProcessor getAlbumByGenreProcessor() {
-        return albumByGenreProcessor;
-    }
-
-    @Override
-    public SongByGenreUpnpProcessor getSongByGenreProcessor() {
-        return songByGenreProcessor;
-    }
-
-    @Override
-    public IndexUpnpProcessor getIndexProcessor() {
-        return indexProcessor;
-    }
-
-    @Override
-    public IndexId3UpnpProcessor getIndexId3Processor() {
-        return indexId3Processor;
-    }
-
-    @Override
-    public PodcastUpnpProcessor getPodcastProcessor() {
-        return podcastProcessor;
-    }
-
-    @Override
-    public RandomAlbumUpnpProcessor getRandomAlbumProcessor() {
-        return randomAlbumProcessor;
-    }
-
-    @Override
-    public RandomSongUpnpProcessor getRandomSongProcessor() {
-        return randomSongProcessor;
-    }
-
-    @Override
-    public RandomSongByArtistUpnpProcessor getRandomSongByArtistProcessor() {
-        return randomSongByArtistProcessor;
-    }
-
-    @Override
-    public RandomSongByFolderArtistUpnpProcessor getRandomSongByFolderArtistProcessor() {
-        return randomSongByFolderArtistProcessor;
-    }
-
 }

@@ -56,19 +56,19 @@ class RandomSongByFolderArtistUpnpProcessorTest extends AbstractNeedsScan {
 
     @Test
     void testGetItemCount() {
-        assertEquals(1, processor.getItemCount());
+        assertEquals(1, processor.getDirectChildrenCount());
     }
 
     @Test
     void testGetItems() {
-        List<FolderArtistWrapper> items = processor.getItems(0, 10);
+        List<FolderArtistWrapper> items = processor.getDirectChildren(0, 10);
         assertEquals(1, items.size());
         assertEquals("Artists", items.get(0).getFolder().getName());
     }
 
     @Test
     void testGetChildSizeOf() {
-        List<FolderArtistWrapper> artists = processor.getItems(0, 1);
+        List<FolderArtistWrapper> artists = processor.getDirectChildren(0, 1);
         assertEquals(1, artists.size());
         assertEquals(1, processor.getChildSizeOf(artists.get(0)));
     }
@@ -76,7 +76,7 @@ class RandomSongByFolderArtistUpnpProcessorTest extends AbstractNeedsScan {
     @Test
     void testGetChildren() {
 
-        List<FolderArtistWrapper> folders = processor.getItems(0, 10);
+        List<FolderArtistWrapper> folders = processor.getDirectChildren(0, 10);
         assertEquals(1, folders.size());
         assertEquals("Artists", folders.get(0).getName());
 

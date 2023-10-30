@@ -21,8 +21,11 @@ package com.tesshu.jpsonic.service.upnp.processor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.upnp.ProcId;
+import com.tesshu.jpsonic.service.upnp.UPnPContentProcessor;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import org.fourthline.cling.support.model.DIDLContent;
@@ -30,130 +33,160 @@ import org.fourthline.cling.support.model.WriteStatus;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.StorageFolder;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
-public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container> {
+@Service
+public class RootUpnpProcessor implements UPnPContentProcessor<Container, Container> {
 
     private final List<Container> containers = new ArrayList<>();
+    private final UpnpProcessDispatcher dispatcher;
     private final SettingsService settingsService;
+    private final ResourceBundle resourceBundle;
 
-    public RootUpnpProcessor(@Lazy UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util,
-            SettingsService settingsService) {
-        super(dispatcher, util);
+    public RootUpnpProcessor(@Lazy UpnpProcessDispatcher dispatcher, SettingsService settingsService) {
+        this.dispatcher = dispatcher;
         this.settingsService = settingsService;
+        this.resourceBundle = ResourceBundle.getBundle("com.tesshu.jpsonic.i18n.ResourceBundle",
+                settingsService.getLocale());
     }
 
     @Override
-    protected final Container createRootContainer() {
-        StorageFolder root = new StorageFolder();
-        root.setId(UpnpProcessDispatcher.CONTAINER_ID_ROOT);
-        root.setParentID("-1");
+    public ProcId getProcId() {
+        return ProcId.ROOT;
+    }
 
-        // MediaLibraryStatistics statistics = indexManager.getStatistics();
-        // returning large storageUsed values doesn't play nicely with
-        // some upnp clients
-        // root.setStorageUsed(statistics == null ? 0 :
-        // statistics.getTotalLengthInBytes());
+    @Override
+    public String getProcTitle() {
+        return "Jpsonic Media";
+    }
+
+    @Override
+    public void setProcTitle(String title) {
+        // to be none
+    }
+
+    @Override
+    public final Container createRootContainer() {
+        StorageFolder root = new StorageFolder();
+        root.setId(ProcId.ROOT.getValue());
+        root.setParentID("-1");
         root.setStorageUsed(-1L);
-        root.setTitle("Jpsonic Media");
+        root.setTitle(getProcTitle());
         root.setRestricted(true);
         root.setSearchable(true);
         root.setWriteStatus(WriteStatus.NOT_WRITABLE);
-
         root.setChildCount(6);
         return root;
     }
 
     @Override
-    public void initTitle() {
-        // to be none
-    }
-
-    @Override
     public Container createContainer(Container item) {
-        // the items are the containers in this case.
         return item;
     }
 
     @Override
-    public int getItemCount() {
+    public int getDirectChildrenCount() {
         return containers.size();
     }
 
-    @Override
-    public List<Container> getItems(long offset, long maxResults) {
-        containers.clear();
-        addIndexContainer(containers);
-        if (settingsService.isDlnaFolderVisible()) {
-            containers.add(getDispatcher().getMediaFileProcessor().createRootContainer());
+    private void addContainer(ProcId id) {
+        UPnPContentProcessor<?, ?> proc = dispatcher.findProcessor(id);
+        if (id != ProcId.ROOT) {
+            String key = switch (id) {
+            case ROOT -> "none";
+            case FOLDER -> "dlna.title.folders";
+            case ARTIST, ARTIST_BY_FOLDER -> "dlna.title.artists";
+            case ALBUM -> "dlna.title.albums";
+            case ALBUM_BY_GENRE -> "dlna.title.albumbygenres";
+            case INDEX, INDEX_ID3 -> "dlna.title.index";
+            case PLAYLIST -> "dlna.title.playlists";
+            case PODCAST -> "dlna.title.podcast";
+            case RANDOM_ALBUM -> "dlna.title.randomAlbum";
+            case RANDOM_SONG -> "dlna.title.randomSong";
+            case RANDOM_SONG_BY_ARTIST, RANDOM_SONG_BY_FOLDER_ARTIST -> "dlna.title.randomSongByArtist";
+            case RECENT -> "dlna.title.recentAlbums";
+            case RECENT_ID3 -> "dlna.title.recentAlbumsId3";
+            case SONG_BY_GENRE -> "dlna.title.songbygenres";
+            default -> throw new IllegalArgumentException("Unexpected value: " + getProcId());
+            };
+            proc.setProcTitle(resourceBundle.getString(key));
         }
-        addArtistContainer(containers);
+        containers.add(proc.createRootContainer());
+    }
+
+    @Override
+    public List<Container> getDirectChildren(long offset, long maxResults) {
+        containers.clear();
+        applyIndexContainer();
+        if (settingsService.isDlnaFolderVisible()) {
+            addContainer(ProcId.FOLDER);
+        }
+        applyArtistContainer();
         if (settingsService.isDlnaAlbumVisible()) {
-            containers.add(getDispatcher().getAlbumProcessor().createRootContainer());
+            addContainer(ProcId.ALBUM);
         }
         if (settingsService.isDlnaPlaylistVisible()) {
-            containers.add(getDispatcher().getPlaylistProcessor().createRootContainer());
+            addContainer(ProcId.PLAYLIST);
         }
         if (settingsService.isDlnaAlbumByGenreVisible()) {
-            containers.add(getDispatcher().getAlbumByGenreProcessor().createRootContainer());
+            addContainer(ProcId.ALBUM_BY_GENRE);
         }
         if (settingsService.isDlnaSongByGenreVisible()) {
-            containers.add(getDispatcher().getSongByGenreProcessor().createRootContainer());
+            addContainer(ProcId.SONG_BY_GENRE);
         }
-        addRecentAlbumContainer(containers);
-        addRandomContainer(containers);
+        applyRecentAlbumContainer();
+        applyRandomContainer();
         if (settingsService.isDlnaPodcastVisible()) {
-            containers.add(getDispatcher().getPodcastProcessor().createRootContainer());
+            addContainer(ProcId.PODCAST);
         }
 
         return PlayerUtils.subList(containers, offset, maxResults);
     }
 
-    private void addIndexContainer(List<Container> containers) {
+    private void applyIndexContainer() {
         if (settingsService.isDlnaIndexVisible()) {
-            containers.add(getDispatcher().getIndexProcessor().createRootContainer());
+            addContainer(ProcId.INDEX);
         }
         if (settingsService.isDlnaIndexId3Visible()) {
-            containers.add(getDispatcher().getIndexId3Processor().createRootContainer());
+            addContainer(ProcId.INDEX_ID3);
         }
     }
 
-    private void addArtistContainer(List<Container> containers) {
+    private void applyArtistContainer() {
         if (settingsService.isDlnaArtistVisible()) {
-            containers.add(getDispatcher().getArtistProcessor().createRootContainer());
+            addContainer(ProcId.ARTIST);
         }
         if (settingsService.isDlnaArtistByFolderVisible()) {
-            containers.add(getDispatcher().getArtistByFolderProcessor().createRootContainer());
+            addContainer(ProcId.ARTIST_BY_FOLDER);
         }
     }
 
-    private void addRecentAlbumContainer(List<Container> containers) {
+    private void applyRecentAlbumContainer() {
         if (settingsService.isDlnaRecentAlbumVisible()) {
-            containers.add(getDispatcher().getRecentAlbumProcessor().createRootContainer());
+            addContainer(ProcId.RECENT);
         }
         if (settingsService.isDlnaRecentAlbumId3Visible()) {
-            containers.add(getDispatcher().getRecentAlbumId3Processor().createRootContainer());
+            addContainer(ProcId.RECENT_ID3);
         }
     }
 
-    private void addRandomContainer(List<Container> containers) {
+    private void applyRandomContainer() {
         if (settingsService.isDlnaRandomSongVisible()) {
-            containers.add(getDispatcher().getRandomSongProcessor().createRootContainer());
+            addContainer(ProcId.RANDOM_SONG);
         }
         if (settingsService.isDlnaRandomAlbumVisible()) {
-            containers.add(getDispatcher().getRandomAlbumProcessor().createRootContainer());
+            addContainer(ProcId.RANDOM_ALBUM);
         }
         if (settingsService.isDlnaRandomSongByArtistVisible()) {
-            containers.add(getDispatcher().getRandomSongByArtistProcessor().createRootContainer());
+            addContainer(ProcId.RANDOM_SONG_BY_ARTIST);
         }
         if (settingsService.isDlnaRandomSongByFolderArtistVisible()) {
-            containers.add(getDispatcher().getRandomSongByFolderArtistProcessor().createRootContainer());
+            addContainer(ProcId.RANDOM_SONG_BY_FOLDER_ARTIST);
         }
     }
 
     @Override
-    public Container getItemById(String id) {
+    public Container getDirectChild(String id) {
         return createRootContainer();
     }
 
@@ -173,7 +206,6 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
 
     @Override
     public void addChild(DIDLContent didl, Container child) {
-        // special case; root doesn't have object instances
+        // to be none
     }
-
 }
