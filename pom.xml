@@ -24,7 +24,7 @@
         <jetty.version>10.0.17</jetty.version>
         <jetty-jsp.version>10.0.17</jetty-jsp.version>
         <pmd.version>6.55.0</pmd.version>
-        <log4j.version>2.21.0</log4j.version>
+        <log4j.version>2.21.1</log4j.version>
         <logback.version>1.2.11</logback.version>
         <slf4j.version>1.7.36</slf4j.version>
         <antlr.version>4.13.1</antlr.version>
@@ -102,7 +102,7 @@
                 <!-- Import dependency management from Spring Boot -->
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>2.7.16</version>
+                <version>2.7.17</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -190,12 +190,12 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-text</artifactId>
-                <version>1.10.0</version>
+                <version>1.11.0</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.14.0</version>
+                <version>2.15.0</version>
             </dependency>
             <dependency>
                 <groupId>commons-net</groupId>
@@ -249,7 +249,7 @@
             <dependency>
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-runtime</artifactId>
-                <version>4.0.3</version>
+                <version>4.0.4</version>
             </dependency>
             <dependency>
                 <groupId>org.antlr</groupId>
@@ -391,6 +391,14 @@
                 <artifactId>jdom2</artifactId>
                 <version>2.0.6.1</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.mysql</groupId>
+                <artifactId>mysql-connector-j</artifactId>
+                <version>8.2.0</version>
+            </dependency>
+
+
         </dependencies>
     </dependencyManagement>
 
@@ -415,7 +423,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.6.0</version>
+                    <version>3.6.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -454,7 +462,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>3.3.0</version>
+                    <version>3.3.1</version>
                     <dependencies>
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
@@ -549,7 +557,7 @@
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>8.4.0</version>
+                    <version>8.4.2</version>
                     <inherited>true</inherited>
                     <configuration>
                         <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
@@ -574,7 +582,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>3.2.1</version>
                     <configuration>
                         <excludes>${test.excludes}</excludes>
                     </configuration>
@@ -674,10 +682,10 @@
                     <configXmlFile>${project.basedir}/jpsonic-main/formatter.xml</configXmlFile>
                     <encoding>UTF-8</encoding>
                     <lineEnding>LF</lineEnding>
-					<excludes>
-						<exclude>com/tesshu/jpsonic/security/GlobalSecurityConfig.java</exclude>
-						<exclude>com/tesshu/jpsonic/domain/ScanEvent.java</exclude>
-					</excludes>
+                    <excludes>
+                        <exclude>com/tesshu/jpsonic/security/GlobalSecurityConfig.java</exclude>
+                        <exclude>com/tesshu/jpsonic/domain/ScanEvent.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
