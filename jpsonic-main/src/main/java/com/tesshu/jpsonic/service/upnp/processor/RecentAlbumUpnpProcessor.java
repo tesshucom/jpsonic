@@ -22,16 +22,11 @@ package com.tesshu.jpsonic.service.upnp.processor;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import javax.annotation.PostConstruct;
-
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
+import com.tesshu.jpsonic.service.upnp.ProcId;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.SortCriterion;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -42,40 +37,37 @@ public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
     private final UpnpProcessorUtil util;
     private final MediaFileService mediaFileService;
 
-    public RecentAlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m,
-            PlayerService p) {
-        super(d, u, m, p);
-        this.util = u;
-        this.mediaFileService = m;
-        setRootId(UpnpProcessDispatcher.CONTAINER_ID_RECENT_PREFIX);
-    }
-
-    @PostConstruct
-    @Override
-    public void initTitle() {
-        setRootTitleWithResource("dlna.title.recentAlbums");
+    public RecentAlbumUpnpProcessor(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            MediaFileService mediaFileService) {
+        super(util, factory, mediaFileService);
+        this.util = util;
+        this.mediaFileService = mediaFileService;
     }
 
     @Override
-    public BrowseResult browseRoot(String filter, long offset, long max, SortCriterion... orderBy)
-            throws ExecutionException {
+    public ProcId getProcId() {
+        return ProcId.RECENT;
+    }
+
+    @Override
+    public BrowseResult browseRoot(String filter, long offset, long max) throws ExecutionException {
         DIDLContent didl = new DIDLContent();
         if (offset < RECENT_COUNT) {
             long count = RECENT_COUNT < offset + max ? RECENT_COUNT - offset : max;
-            getItems(offset, count).forEach(a -> addItem(didl, a));
+            getDirectChildren(offset, count).forEach(a -> addItem(didl, a));
         }
-        return createBrowseResult(didl, (int) didl.getCount(), getItemCount());
+        return createBrowseResult(didl, (int) didl.getCount(), getDirectChildrenCount());
     }
 
     @Override
-    public int getItemCount() {
-        int count = mediaFileService.getAlbumCount(util.getGuestMusicFolders());
+    public int getDirectChildrenCount() {
+        int count = mediaFileService.getAlbumCount(util.getGuestFolders());
         return Math.min(count, RECENT_COUNT);
     }
 
     @Override
-    public List<MediaFile> getItems(long first, long max) {
-        return mediaFileService.getNewestAlbums((int) first, (int) max, util.getGuestMusicFolders());
+    public List<MediaFile> getDirectChildren(long first, long max) {
+        return mediaFileService.getNewestAlbums((int) first, (int) max, util.getGuestFolders());
     }
 
 }

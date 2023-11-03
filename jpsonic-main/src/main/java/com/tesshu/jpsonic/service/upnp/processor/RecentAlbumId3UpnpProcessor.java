@@ -22,80 +22,52 @@ package com.tesshu.jpsonic.service.upnp.processor;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import javax.annotation.PostConstruct;
-
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
+import com.tesshu.jpsonic.service.upnp.ProcId;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.SortCriterion;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 @Service
 public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
 
-    private static final int RECENT_COUNT = 51;
+    private static final int RECENT_COUNT = 50;
 
     private final UpnpProcessorUtil util;
     private final AlbumDao albumDao;
 
-    public RecentAlbumId3UpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m,
-            AlbumDao a, CoverArtLogic c) {
-        super(d, u, m, a, c);
-        this.util = u;
-        this.albumDao = a;
-        setRootId(UpnpProcessDispatcher.CONTAINER_ID_RECENT_ID3_PREFIX);
-    }
-
-    @PostConstruct
-    @Override
-    public void initTitle() {
-        setRootTitleWithResource("dlna.title.recentAlbumsId3");
+    public RecentAlbumId3UpnpProcessor(UpnpProcessorUtil util, UpnpDIDLFactory factory,
+            MediaFileService mediaFileService, AlbumDao albumDao) {
+        super(util, factory, mediaFileService, albumDao);
+        this.util = util;
+        this.albumDao = albumDao;
     }
 
     @Override
-    public BrowseResult browseRoot(String filter, long offset, long max, SortCriterion... orderBy)
-            throws ExecutionException {
+    public ProcId getProcId() {
+        return ProcId.RECENT_ID3;
+    }
+
+    @Override
+    public BrowseResult browseRoot(String filter, long offset, long max) throws ExecutionException {
         DIDLContent didl = new DIDLContent();
         if (offset < RECENT_COUNT) {
             long count = RECENT_COUNT < offset + max ? RECENT_COUNT - offset : max;
-            getItems(offset, count).forEach(a -> addItem(didl, a));
+            getDirectChildren(offset, count).forEach(a -> addItem(didl, a));
         }
-        return createBrowseResult(didl, (int) didl.getCount(), getItemCount());
+        return createBrowseResult(didl, (int) didl.getCount(), getDirectChildrenCount());
     }
 
     @Override
-    public int getItemCount() {
-        // max to be able to return for view
-        int count = albumDao.getAlbumCount(util.getGuestMusicFolders());
-        count = count > 1 ? count + 1 : count;
+    public int getDirectChildrenCount() {
+        int count = albumDao.getAlbumCount(util.getGuestFolders());
         return Math.min(count, RECENT_COUNT);
     }
 
     @Override
-    public List<Album> getItems(long first, long max) {
-        long offset = first;
-        long limit = getItemCount();
-        long count = max;
-        if (offset == 0 && 0 != limit && 0 < max && (limit - offset) / max > 0) {
-            count = max - 1;
-        }
-        if (offset != 0 && 0 != limit && 0 < max) {
-            offset = offset - 1;
-        }
-        List<Album> albums = albumDao.getNewestAlbums((int) offset, (int) count, util.getGuestMusicFolders());
-        if (albums.size() > 1 && 0L == offset) {
-            Album viewAll = new Album();
-            viewAll.setName(util.getResource("dlna.element.allalbums"));
-            viewAll.setId(-1);
-            viewAll.setComment(AlbumUpnpProcessor.ALL_RECENT_ID3);
-            albums.add(0, viewAll);
-        }
-        return albums;
+    public List<Album> getDirectChildren(long offset, long max) {
+        return albumDao.getNewestAlbums((int) offset, (int) max, util.getGuestFolders());
     }
-
 }

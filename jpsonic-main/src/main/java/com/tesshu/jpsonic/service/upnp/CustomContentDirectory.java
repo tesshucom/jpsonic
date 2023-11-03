@@ -48,10 +48,7 @@ public abstract class CustomContentDirectory extends AbstractContentDirectorySer
     }
 
     @Override
-    public BrowseResult search(String containerId, String searchCriteria, String filter, long firstResult,
-            long maxResults, SortCriterion[] orderBy) throws ContentDirectoryException {
-        // You can override this method to implement searching!
-        return super.search(containerId, searchCriteria, filter, firstResult, maxResults, orderBy);
-    }
+    public abstract BrowseResult search(String containerId, String searchCriteria, String filter, long firstResult,
+            long maxResults, SortCriterion[] orderBy) throws ContentDirectoryException;
 
 }

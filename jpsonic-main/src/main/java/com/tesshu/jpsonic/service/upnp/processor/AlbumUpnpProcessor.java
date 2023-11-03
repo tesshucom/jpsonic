@@ -19,116 +19,73 @@
 
 package com.tesshu.jpsonic.service.upnp.processor;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import javax.annotation.PostConstruct;
-
-import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ParamSearchResult;
-import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
+import com.tesshu.jpsonic.service.upnp.ProcId;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.PersonWithRole;
-import org.fourthline.cling.support.model.SortCriterion;
 import org.fourthline.cling.support.model.container.Container;
-import org.fourthline.cling.support.model.container.MusicAlbum;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
-public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> {
-
-    public static final String ALL_RECENT_ID3 = "allRecentId3";
+public class AlbumUpnpProcessor extends DirectChildrenContentProcessor<Album, MediaFile> {
 
     private final UpnpProcessorUtil util;
+    private final UpnpDIDLFactory factory;
     private final MediaFileService mediaFileService;
     private final AlbumDao albumDao;
-    private final CoverArtLogic coverArtLogic;
 
-    public AlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, AlbumDao a,
-            CoverArtLogic c) {
-        super(d, u);
-        this.util = u;
-        this.mediaFileService = m;
-        this.albumDao = a;
-        this.coverArtLogic = c;
-        setRootId(UpnpProcessDispatcher.CONTAINER_ID_ALBUM_PREFIX);
+    public AlbumUpnpProcessor(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService,
+            AlbumDao albumDao) {
+        super();
+        this.util = util;
+        this.factory = factory;
+        this.mediaFileService = mediaFileService;
+        this.albumDao = albumDao;
     }
 
-    @PostConstruct
     @Override
-    public void initTitle() {
-        setRootTitleWithResource("dlna.title.albums");
+    public ProcId getProcId() {
+        return ProcId.ALBUM;
     }
 
-    /**
-     * Browses the top-level content of a type.
-     */
     @Override
-    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy)
-            throws ExecutionException {
+    public BrowseResult browseRoot(String filter, long firstResult, long maxResults) throws ExecutionException {
         DIDLContent didl = new DIDLContent();
         List<Album> selectedItems = albumDao.getAlphabeticalAlbums((int) firstResult, (int) maxResults, false, true,
-                util.getGuestMusicFolders());
+                util.getGuestFolders());
         for (Album item : selectedItems) {
             addItem(didl, item);
         }
-        return createBrowseResult(didl, (int) didl.getCount(), getItemCount());
+        return createBrowseResult(didl, (int) didl.getCount(), getDirectChildrenCount());
     }
 
     @Override
     public Container createContainer(Album album) {
-        MusicAlbum container = new MusicAlbum();
-
-        if (album.getId() == -1) {
-            container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + album.getComment());
-        } else {
-            container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + album.getId());
-            container.setAlbumArtURIs(new URI[] { createAlbumArtURI(album) });
-            container.setDescription(album.getComment());
-        }
-        container.setParentID(getRootId());
-        container.setTitle(album.getName());
-        if (album.getArtist() != null) {
-            container.setArtists(getAlbumArtists(album.getArtist()).toArray(new PersonWithRole[0]));
-        }
-        return container;
+        return factory.toAlbum(album);
     }
 
     @Override
-    public int getItemCount() {
-        return albumDao.getAlbumCount(util.getGuestMusicFolders());
+    public int getDirectChildrenCount() {
+        return albumDao.getAlbumCount(util.getGuestFolders());
     }
 
     @Override
-    public List<Album> getItems(long offset, long maxResults) {
-        return albumDao.getAlphabeticalAlbums((int) offset, (int) maxResults, false, true, util.getGuestMusicFolders());
+    public List<Album> getDirectChildren(long offset, long maxResults) {
+        return albumDao.getAlphabeticalAlbums((int) offset, (int) maxResults, false, true, util.getGuestFolders());
     }
 
     @Override
-    public Album getItemById(String id) {
-        Album returnValue;
-        if (ALL_RECENT_ID3.equalsIgnoreCase(id)) {
-            returnValue = new Album();
-            returnValue.setId(-1);
-            returnValue.setComment(id);
-        } else {
-            returnValue = albumDao.getAlbum(Integer.parseInt(id));
-        }
-        return returnValue;
+    public Album getDirectChild(String id) {
+        return albumDao.getAlbum(Integer.parseInt(id));
     }
 
     @Override
@@ -138,49 +95,16 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> {
 
     @Override
     public List<MediaFile> getChildren(Album album, long offset, long maxResults) {
-        List<MediaFile> children = mediaFileService.getSongsForAlbum(offset, maxResults, album.getArtist(),
-                album.getName());
-        if (album.getId() == -1) {
-            List<Album> albums;
-            if (ALL_RECENT_ID3.equalsIgnoreCase(album.getComment())) {
-                albums = getDispatcher().getRecentAlbumId3Processor().getItems(offset, maxResults);
-            } else {
-                albums = new ArrayList<>();
-            }
-            for (Album a : albums) {
-                if (a.getId() != -1) {
-                    children.addAll(
-                            mediaFileService.getSongsForAlbum(offset, maxResults, album.getArtist(), album.getName()));
-                }
-            }
-        } else {
-            children = mediaFileService.getSongsForAlbum(offset, maxResults, album.getArtist(), album.getName());
-        }
-        return children;
+        return mediaFileService.getSongsForAlbum(offset, maxResults, album.getArtist(), album.getName());
     }
 
     public int getAlbumsCountForArtist(final String artist, final List<MusicFolder> musicFolders) {
         return albumDao.getAlbumsCountForArtist(artist, musicFolders);
     }
 
-    public List<Album> getAlbumsForArtist(final String artist, long offset, long maxResults, boolean byYear,
-            final List<MusicFolder> musicFolders) {
-        return albumDao.getAlbumsForArtist(offset, maxResults, artist, byYear, musicFolders);
-    }
-
     @Override
-    public void addChild(DIDLContent didl, MediaFile child) {
-        didl.addItem(getDispatcher().getMediaFileProcessor().createItem(child));
-    }
-
-    public final List<PersonWithRole> getAlbumArtists(String artist) {
-        return Arrays.asList(new PersonWithRole(artist));
-    }
-
-    public URI createAlbumArtURI(Album album) {
-        return util.createURIWithToken(UriComponentsBuilder
-                .fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
-                .queryParam("id", coverArtLogic.createKey(album)).queryParam("size", CoverArtScheme.LARGE.getSize()));
+    public void addChild(DIDLContent didl, MediaFile song) {
+        didl.addItem(factory.toMusicTrack(song));
     }
 
     public final BrowseResult toBrowseResult(ParamSearchResult<Album> result) {

@@ -63,7 +63,7 @@ class AlbumUpnpProcessorTest extends AbstractNeedsScan {
 
     @Test
     void testGetItemCount() {
-        assertEquals(31, albumUpnpProcessor.getItemCount());
+        assertEquals(31, albumUpnpProcessor.getDirectChildrenCount());
     }
 
     @Test
@@ -71,17 +71,17 @@ class AlbumUpnpProcessorTest extends AbstractNeedsScan {
 
         settingsService.setSortAlbumsByYear(false);
 
-        List<Album> items = albumUpnpProcessor.getItems(0, 10);
+        List<Album> items = albumUpnpProcessor.getDirectChildren(0, 10);
         for (int i = 0; i < items.size(); i++) {
             assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i), items.get(i).getName());
         }
 
-        items = albumUpnpProcessor.getItems(10, 10);
+        items = albumUpnpProcessor.getDirectChildren(10, 10);
         for (int i = 0; i < items.size(); i++) {
             assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10), items.get(i).getName());
         }
 
-        items = albumUpnpProcessor.getItems(20, 100);
+        items = albumUpnpProcessor.getDirectChildren(20, 100);
         assertEquals(11, items.size());
         for (int i = 0; i < items.size(); i++) {
             assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20), items.get(i).getName());
@@ -95,17 +95,17 @@ class AlbumUpnpProcessorTest extends AbstractNeedsScan {
         // The result does not change depending on the setting
         settingsService.setSortAlbumsByYear(true);
 
-        List<Album> items = albumUpnpProcessor.getItems(0, 10);
+        List<Album> items = albumUpnpProcessor.getDirectChildren(0, 10);
         for (int i = 0; i < items.size(); i++) {
             assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i), items.get(i).getName());
         }
 
-        items = albumUpnpProcessor.getItems(10, 10);
+        items = albumUpnpProcessor.getDirectChildren(10, 10);
         for (int i = 0; i < items.size(); i++) {
             assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10), items.get(i).getName());
         }
 
-        items = albumUpnpProcessor.getItems(20, 100);
+        items = albumUpnpProcessor.getDirectChildren(20, 100);
         assertEquals(11, items.size());
         for (int i = 0; i < items.size(); i++) {
             assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20), items.get(i).getName());
@@ -115,7 +115,7 @@ class AlbumUpnpProcessorTest extends AbstractNeedsScan {
 
     @Test
     void testGetChildSizeOf() {
-        List<Album> albums = albumUpnpProcessor.getItems(0, 1);
+        List<Album> albums = albumUpnpProcessor.getDirectChildren(0, 1);
         assertEquals(1, albums.size());
         assertEquals("10", albums.get(0).getName());
         assertEquals(31, albumUpnpProcessor.getChildSizeOf(albums.get(0)));
@@ -124,7 +124,7 @@ class AlbumUpnpProcessorTest extends AbstractNeedsScan {
     @Test
     void testGetChild() {
 
-        List<Album> albums = albumUpnpProcessor.getItems(0, 1);
+        List<Album> albums = albumUpnpProcessor.getDirectChildren(0, 1);
         assertEquals(1, albums.size());
         assertEquals("10", albums.get(0).getName());
 

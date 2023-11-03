@@ -19,76 +19,63 @@
 
 package com.tesshu.jpsonic.service.upnp.processor;
 
-import static com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher.CONTAINER_ID_RANDOM_SONG_BY_ARTIST;
-
-import java.util.Arrays;
 import java.util.List;
-
-import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
+import com.tesshu.jpsonic.service.upnp.ProcId;
 import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.MusicArtist;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor<Artist, MediaFile> {
+public class RandomSongByArtistUpnpProcessor extends DirectChildrenContentProcessor<Artist, MediaFile> {
 
     private final UpnpProcessorUtil util;
+    private final UpnpDIDLFactory factory;
     private final ArtistDao artistDao;
     private final SearchService searchService;
     private final SettingsService settingsService;
 
-    public RandomSongByArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, ArtistDao a,
-            SearchService s, SettingsService ss) {
-        super(d, u);
-        util = u;
-        artistDao = a;
-        searchService = s;
-        settingsService = ss;
-        setRootId(CONTAINER_ID_RANDOM_SONG_BY_ARTIST);
+    public RandomSongByArtistUpnpProcessor(UpnpProcessorUtil util, UpnpDIDLFactory factory, ArtistDao artistDao,
+            SearchService searchService, SettingsService settingsService) {
+        super();
+        this.util = util;
+        this.factory = factory;
+        this.artistDao = artistDao;
+        this.searchService = searchService;
+        this.settingsService = settingsService;
     }
 
-    @PostConstruct
     @Override
-    public void initTitle() {
-        setRootTitleWithResource("dlna.title.randomSongByArtist");
+    public ProcId getProcId() {
+        return ProcId.RANDOM_SONG_BY_ARTIST;
     }
 
     @Override
     public Container createContainer(Artist artist) {
-        MusicArtist container = new MusicArtist();
-        container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + artist.getId());
-        container.setParentID(getRootId());
-        container.setTitle(artist.getName());
-        container.setChildCount(artist.getAlbumCount());
-        if (artist.getCoverArtPath() != null) {
-            container.setProperties(
-                    Arrays.asList(new ALBUM_ART_URI(getDispatcher().getArtistProcessor().createArtistArtURI(artist))));
-        }
+        MusicArtist container = factory.toArtist(artist);
+        container.setId(ProcId.RANDOM_SONG_BY_ARTIST.getValue() + ProcId.CID_SEPA + artist.getId());
+        container.setParentID(ProcId.RANDOM_SONG_BY_ARTIST.getValue());
         return container;
     }
 
     @Override
-    public int getItemCount() {
-        return artistDao.getArtistsCount(util.getGuestMusicFolders());
+    public int getDirectChildrenCount() {
+        return artistDao.getArtistsCount(util.getGuestFolders());
     }
 
     @Override
-    public List<Artist> getItems(long offset, long count) {
-        return artistDao.getAlphabetialArtists((int) offset, (int) count, util.getGuestMusicFolders());
+    public List<Artist> getDirectChildren(long offset, long count) {
+        return artistDao.getAlphabetialArtists((int) offset, (int) count, util.getGuestFolders());
     }
 
     @Override
-    public Artist getItemById(String id) {
+    public Artist getDirectChild(String id) {
         return artistDao.getArtist(Integer.parseInt(id));
     }
 
@@ -102,12 +89,11 @@ public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor<Artist
         int randomMax = settingsService.getDlnaRandomMax();
         int offset = (int) first;
         int count = (offset + (int) maxResults) > randomMax ? randomMax - offset : (int) maxResults;
-        return searchService.getRandomSongsByArtist(artist, count, offset, randomMax, util.getGuestMusicFolders());
+        return searchService.getRandomSongsByArtist(artist, count, offset, randomMax, util.getGuestFolders());
     }
 
     @Override
-    public void addChild(DIDLContent didl, MediaFile child) {
-        didl.addItem(getDispatcher().getMediaFileProcessor().createItem(child));
+    public void addChild(DIDLContent didl, MediaFile song) {
+        didl.addItem(factory.toMusicTrack(song));
     }
-
 }

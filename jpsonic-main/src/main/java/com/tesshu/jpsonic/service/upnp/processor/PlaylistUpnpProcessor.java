@@ -21,76 +21,59 @@
 
 package com.tesshu.jpsonic.service.upnp.processor;
 
-import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
-import com.tesshu.jpsonic.controller.ViewName;
-import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.Playlist;
-import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
 import com.tesshu.jpsonic.service.PlaylistService;
-import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
+import com.tesshu.jpsonic.service.upnp.ProcId;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.PlaylistContainer;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
-public class PlaylistUpnpProcessor extends UpnpContentProcessor<Playlist, MediaFile> {
+public class PlaylistUpnpProcessor extends DirectChildrenContentProcessor<Playlist, MediaFile> {
 
-    private final UpnpProcessorUtil util;
+    private final UpnpDIDLFactory factory;
     private final PlaylistService playlistService;
-    private final CoverArtLogic coverArtLogic;
 
-    public PlaylistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, PlaylistService p,
-            CoverArtLogic c) {
-        super(d, u);
-        this.util = u;
-        this.playlistService = p;
-        this.coverArtLogic = c;
-        setRootId(UpnpProcessDispatcher.CONTAINER_ID_PLAYLIST_PREFIX);
+    public PlaylistUpnpProcessor(UpnpDIDLFactory factory, PlaylistService playlistService) {
+        super();
+        this.factory = factory;
+        this.playlistService = playlistService;
     }
 
-    @PostConstruct
     @Override
-    public void initTitle() {
-        setRootTitleWithResource("dlna.title.playlists");
+    public ProcId getProcId() {
+        return ProcId.PLAYLIST;
     }
 
     @Override
     public Container createContainer(Playlist item) {
         PlaylistContainer container = new PlaylistContainer();
-        container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + item.getId());
-        container.setParentID(getRootId());
+        container.setId(ProcId.PLAYLIST.getValue() + ProcId.CID_SEPA + item.getId());
+        container.setParentID(ProcId.PLAYLIST.getValue());
         container.setTitle(item.getName());
         container.setDescription(item.getComment());
         container.setChildCount(playlistService.getFilesInPlaylist(item.getId()).size());
-        container.setProperties(Arrays.asList(new ALBUM_ART_URI(getArtURI(item))));
+        container.addProperty(factory.toPlaylistArt(item));
         return container;
     }
 
     @Override
-    public int getItemCount() {
+    public int getDirectChildrenCount() {
         return playlistService.getCountAll();
     }
 
     @Override
-    public List<Playlist> getItems(long offset, long maxResults) {
-        // Currently sorting on the Java side(Using sublist because less affected).
-        List<Playlist> playlists = playlistService.getAllPlaylists();
-        return PlayerUtils.subList(playlists, offset, maxResults);
+    public List<Playlist> getDirectChildren(long offset, long maxResults) {
+        return PlayerUtils.subList(playlistService.getAllPlaylists(), offset, maxResults);
     }
 
     @Override
-    public Playlist getItemById(String id) {
+    public Playlist getDirectChild(String id) {
         return playlistService.getPlaylist(Integer.parseInt(id));
     }
 
@@ -105,15 +88,7 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor<Playlist, MediaF
     }
 
     @Override
-    public void addChild(DIDLContent didl, MediaFile child) {
-        didl.addItem(getDispatcher().getMediaFileProcessor().createItem(child));
+    public void addChild(DIDLContent didl, MediaFile song) {
+        didl.addItem(factory.toMusicTrack(song));
     }
-
-    private URI getArtURI(Playlist playlist) {
-        return util.addJWTToken(UriComponentsBuilder
-                .fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
-                .queryParam("id", coverArtLogic.createKey(playlist)).queryParam("size", CoverArtScheme.LARGE.getSize()))
-                .build().encode().toUri();
-    }
-
 }

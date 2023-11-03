@@ -22,18 +22,13 @@ package com.tesshu.jpsonic.service.upnp.processor;
 import static com.tesshu.jpsonic.util.PlayerUtils.subList;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
@@ -41,28 +36,26 @@ import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.domain.MusicIndex;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicIndexService;
-import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
+import com.tesshu.jpsonic.service.upnp.ProcId;
 import com.tesshu.jpsonic.spring.EhcacheConfiguration.IndexCacheKey;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
-import org.fourthline.cling.support.model.PersonWithRole;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.GenreContainer;
 import org.fourthline.cling.support.model.container.MusicAlbum;
 import org.fourthline.cling.support.model.container.MusicArtist;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 @Service
-public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFile> {
+public class IndexUpnpProcessor extends DirectChildrenContentProcessor<MediaFile, MediaFile> {
 
     private static final AtomicInteger INDEX_IDS = new AtomicInteger(Integer.MIN_VALUE);
     // Only on write (because it can be explicitly reloaded on the client and is less risky)
 
     private final UpnpProcessorUtil util;
+    private final UpnpDIDLFactory factory;
     private final MediaFileService mediaFileService;
     private final MusicIndexService musicIndexService;
     private final Ehcache indexCache;
@@ -72,14 +65,19 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     private Map<Integer, MediaIndex> indexesMap;
     private List<MediaFile> topNodes;
 
-    public IndexUpnpProcessor(@Lazy UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util,
-            MediaFileService mediaFileService, MusicIndexService musicIndexService, Ehcache indexCache) {
-        super(dispatcher, util);
+    public IndexUpnpProcessor(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService,
+            MusicIndexService musicIndexService, Ehcache indexCache) {
+        super();
         this.util = util;
+        this.factory = factory;
         this.mediaFileService = mediaFileService;
         this.musicIndexService = musicIndexService;
         this.indexCache = indexCache;
-        setRootId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX);
+    }
+
+    @Override
+    public ProcId getProcId() {
+        return ProcId.INDEX;
     }
 
     protected static final int getIDAndIncrement() {
@@ -89,7 +87,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     @Override
     public void addChild(DIDLContent didl, MediaFile child) {
         if (child.isFile()) {
-            didl.addItem(getDispatcher().getMediaFileProcessor().createItem(child));
+            didl.addItem(factory.toMusicTrack(child));
         } else {
             didl.addContainer(createContainer(child));
         }
@@ -100,13 +98,13 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         if (!item.isFile() || isIndex(item)) {
             didl.addContainer(createContainer(item));
         } else {
-            didl.addItem(getDispatcher().getMediaFileProcessor().createItem(item));
+            didl.addItem(factory.toMusicTrack(item));
         }
     }
 
     @Override
-    public BrowseResult browseObjectMetadata(String id) throws ExecutionException {
-        MediaFile item = getItemById(id);
+    public BrowseResult browseDirectChildren(String id) throws ExecutionException {
+        MediaFile item = getDirectChild(id);
         DIDLContent didl = new DIDLContent();
         addChild(didl, item);
         return createBrowseResult(didl, 1, 1);
@@ -114,8 +112,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
     @SuppressWarnings("PMD.ConfusingTernary") // false positive
     private void applyId(MediaFile item, Container container) {
-        container.setId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR
-                + item.getId());
+        container.setId(ProcId.INDEX.getValue() + ProcId.CID_SEPA + item.getId());
         container.setTitle(item.getName());
         container.setChildCount(getChildSizeOf(item));
         if (!isIndex(item) && !mediaFileService.isRoot(item)) {
@@ -124,7 +121,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
                 container.setParentID(String.valueOf(parent.getId()));
             }
         } else {
-            container.setParentID(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX);
+            container.setParentID(ProcId.INDEX.getValue());
         }
     }
 
@@ -132,10 +129,9 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     public Container createContainer(MediaFile item) {
         if (item.isAlbum()) {
             MusicAlbum container = new MusicAlbum();
-            container.setAlbumArtURIs(new URI[] { getDispatcher().getMediaFileProcessor().createAlbumArtURI(item) });
+            container.addProperty(factory.toAlbumArt(item));
             if (item.getArtist() != null) {
-                container.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(item.getArtist())
-                        .toArray(new PersonWithRole[0]));
+                container.addProperty(factory.toPerson(item.getArtist()));
             }
             container.setDescription(item.getComment());
             applyId(item, container);
@@ -147,8 +143,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         } else {
             MusicArtist container = new MusicArtist();
             applyId(item, container);
-            item.getCoverArtPath().ifPresent(path -> container.setProperties(Arrays
-                    .asList(new ALBUM_ART_URI(getDispatcher().getMediaFileProcessor().createArtistArtURI(item)))));
+            item.getCoverArtPath().ifPresent(path -> container.addProperty(factory.toArtistArt(item)));
             return container;
         }
     }
@@ -181,7 +176,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     }
 
     @Override
-    public MediaFile getItemById(String ids) {
+    public MediaFile getDirectChild(String ids) {
         int id = Integer.parseInt(ids);
         if (isIndex(id)) {
             synchronized (lock) {
@@ -192,7 +187,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     }
 
     @Override
-    public int getItemCount() {
+    public int getDirectChildrenCount() {
         synchronized (lock) {
             refreshIndex();
             return topNodes.size();
@@ -200,10 +195,10 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     }
 
     @Override
-    public List<MediaFile> getItems(long offset, long maxResults) {
+    public List<MediaFile> getDirectChildren(long offset, long maxResults) {
         List<MediaFile> result = new ArrayList<>();
-        if (offset < getItemCount()) {
-            int count = min((int) (offset + maxResults), getItemCount());
+        if (offset < getDirectChildrenCount()) {
+            int count = min((int) (offset + maxResults), getDirectChildrenCount());
             synchronized (lock) {
                 for (int i = (int) offset; i < count; i++) {
                     result.add(topNodes.get(i));
@@ -213,26 +208,18 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         return result;
     }
 
-    @PostConstruct
-    @Override
-    public void initTitle() {
-        setRootTitleWithResource("dlna.title.index");
-    }
-
     void refreshIndex() {
         Element element = indexCache.getQuiet(IndexCacheKey.FILE_STRUCTURE);
         boolean expired = isEmpty(element) || indexCache.isExpired(element);
         synchronized (lock) {
             if (isEmpty(content) || 0 == content.getIndexedArtists().size() || expired) {
                 INDEX_IDS.set(Integer.MIN_VALUE);
-                content = musicIndexService.getMusicFolderContent(util.getGuestMusicFolders());
+                content = musicIndexService.getMusicFolderContent(util.getGuestFolders());
                 indexCache.put(new Element(IndexCacheKey.FILE_STRUCTURE, content));
-                List<MediaIndex> indexes = content.getIndexedArtists().keySet().stream().map(MediaIndex::new)
-                        .collect(Collectors.toList());
+                List<MediaIndex> indexes = content.getIndexedArtists().keySet().stream().map(MediaIndex::new).toList();
                 indexesMap = new ConcurrentHashMap<>();
                 indexes.forEach(i -> indexesMap.put(i.getId(), i));
-                topNodes = Stream.concat(indexes.stream(), content.getSingleSongs().stream())
-                        .collect(Collectors.toList());
+                topNodes = Stream.concat(indexes.stream(), content.getSingleSongs().stream()).toList();
             }
         }
     }

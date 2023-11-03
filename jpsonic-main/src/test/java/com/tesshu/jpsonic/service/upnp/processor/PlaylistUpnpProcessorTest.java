@@ -97,19 +97,19 @@ class PlaylistUpnpProcessorTest extends AbstractNeedsScan {
             shallow.stream().map(toPlaylist).forEach(p -> playlistDao.createPlaylist(p));
         }
 
-        List<Album> albums = albumUpnpProcessor.getItems(0, 100);
+        List<Album> albums = albumUpnpProcessor.getDirectChildren(0, 100);
         assertEquals(61, albums.size());
         List<MediaFile> files = albums.stream()
                 .map(a -> mediaFileDao.getSongsForAlbum(0L, Integer.MAX_VALUE, a.getArtist(), a.getName()).get(0))
                 .collect(Collectors.toList());
         assertEquals(61, files.size());
-        playlistDao.setFilesInPlaylist(playlistUpnpProcessor.getItems(0, 1).get(0).getId(), files);
+        playlistDao.setFilesInPlaylist(playlistUpnpProcessor.getDirectChildren(0, 1).get(0).getId(), files);
 
     }
 
     @Test
     void testGetItemCount() {
-        assertEquals(31, playlistUpnpProcessor.getItemCount());
+        assertEquals(31, playlistUpnpProcessor.getDirectChildrenCount());
     }
 
     @Test
@@ -117,15 +117,15 @@ class PlaylistUpnpProcessorTest extends AbstractNeedsScan {
 
         Map<String, Playlist> c = LegacyMap.of();
 
-        List<Playlist> items = playlistUpnpProcessor.getItems(0, 10);
+        List<Playlist> items = playlistUpnpProcessor.getDirectChildren(0, 10);
         items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
         assertEquals(c.size(), 10);
 
-        items = playlistUpnpProcessor.getItems(10, 10);
+        items = playlistUpnpProcessor.getDirectChildren(10, 10);
         items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
         assertEquals(c.size(), 20);
 
-        items = playlistUpnpProcessor.getItems(20, 100);
+        items = playlistUpnpProcessor.getDirectChildren(20, 100);
         assertEquals(11, items.size());
         items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
         assertEquals(c.size(), 31);
@@ -134,7 +134,7 @@ class PlaylistUpnpProcessorTest extends AbstractNeedsScan {
 
     @Test
     void testGetChildSizeOf() {
-        List<Playlist> playlists = playlistUpnpProcessor.getItems(0, 1);
+        List<Playlist> playlists = playlistUpnpProcessor.getDirectChildren(0, 1);
         assertEquals(1, playlists.size());
         assertEquals(61, playlistUpnpProcessor.getChildSizeOf(playlists.get(0)));
     }
@@ -142,7 +142,7 @@ class PlaylistUpnpProcessorTest extends AbstractNeedsScan {
     @Test
     void testGetChildren() {
 
-        List<Playlist> playlists = playlistUpnpProcessor.getItems(0, 1);
+        List<Playlist> playlists = playlistUpnpProcessor.getDirectChildren(0, 1);
         assertEquals(1, playlists.size());
         assertEquals(61, playlistUpnpProcessor.getChildSizeOf(playlists.get(0)));
 

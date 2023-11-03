@@ -34,9 +34,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.fourthline.cling.support.contentdirectory.DIDLParser;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
-import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.AUTHOR;
-import org.fourthline.cling.support.model.PersonWithRole;
 import org.fourthline.cling.support.model.item.MusicTrack;
 import org.fourthline.cling.support.model.item.VideoItem;
 import org.slf4j.Logger;
@@ -68,16 +65,15 @@ public class WMPProcessor {
      */
     private static final Pattern MS_QUERY_AUDIO_ITEM_SINGLE = Pattern.compile("dc:title = \"[0-9]+\"");
 
-    private final MediaFileService mediaFileService;
-    private final MediaFileUpnpProcessor mediaFileUpnpProcessor;
     private final UpnpProcessorUtil util;
+    private final UpnpDIDLFactory factory;
+    private final MediaFileService mediaFileService;
 
-    public WMPProcessor(MediaFileService mediaFileService, MediaFileUpnpProcessor mediaFileUpnpProcessor,
-            UpnpProcessorUtil util) {
+    public WMPProcessor(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService) {
         super();
-        this.mediaFileService = mediaFileService;
-        this.mediaFileUpnpProcessor = mediaFileUpnpProcessor;
         this.util = util;
+        this.factory = factory;
+        this.mediaFileService = mediaFileService;
     }
 
     public boolean isAvailable(String filter) {
@@ -115,18 +111,18 @@ public class WMPProcessor {
         item.setId(String.valueOf(song.getId()));
         item.setTitle(song.getTitle());
         item.setOriginalTrackNumber(song.getTrackNumber());
-        item.setResources(Arrays.asList(mediaFileUpnpProcessor.createResourceForSong(song)));
+        item.setResources(Arrays.asList(factory.toRes(song)));
         item.setDescription(song.getComment());
 
         MediaFile parent = mediaFileService.getParentOf(song);
         if (parent != null) {
             item.setParentID(String.valueOf(parent.getId()));
-            item.addProperty(new ALBUM_ART_URI(mediaFileUpnpProcessor.createAlbumArtURI(parent)));
+            item.addProperty(factory.toAlbumArt(parent));
         }
 
         // Multi-artist is probably difficult with MS specs
         if (song.getAlbumArtist() != null) {
-            item.setArtists(new PersonWithRole[] { new PersonWithRole(song.getAlbumArtist()) });
+            item.addProperty(factory.toPerson(song.getAlbumArtist()));
         }
         item.setAlbum(song.getAlbumName());
         if (song.getGenre() != null) {
@@ -137,7 +133,7 @@ public class WMPProcessor {
         }
         item.setCreator(song.getArtist());
         if (song.getComposer() != null) {
-            item.addProperty(new AUTHOR(new PersonWithRole(song.getComposer(), "composer")));
+            item.addProperty(factory.toComposer(song.getComposer()));
         }
         return item;
     }
@@ -149,20 +145,20 @@ public class WMPProcessor {
         VideoItem item = new VideoItem();
         item.setId(String.valueOf(video.getId()));
         item.setTitle(video.getTitle());
-        item.setResources(Arrays.asList(mediaFileUpnpProcessor.createResourceForSong(video)));
+        item.setResources(Arrays.asList(factory.toRes(video)));
         item.setDescription(video.getComment());
 
         MediaFile parent = mediaFileService.getParentOf(video);
         if (parent != null) {
             item.setParentID(String.valueOf(parent.getId()));
-            item.addProperty(new ALBUM_ART_URI(mediaFileUpnpProcessor.createAlbumArtURI(parent)));
+            item.addProperty(factory.toAlbumArt(parent));
         }
         if (video.getGenre() != null) {
             item.setGenres(new String[] { video.getGenre() });
         }
         item.setCreator(video.getArtist());
         if (video.getComposer() != null) {
-            item.addProperty(new AUTHOR(new PersonWithRole(video.getComposer(), "composer")));
+            item.addProperty(factory.toComposer(video.getComposer()));
         }
         return item;
     }
@@ -182,7 +178,7 @@ public class WMPProcessor {
         if (offset == 0) {
             LOG.info("object.item.audioItem data crawling started.");
         }
-        List<MusicFolder> folders = util.getGuestMusicFolders();
+        List<MusicFolder> folders = util.getGuestFolders();
         List<MediaFile> songs = mediaFileService.getSongs(count, offset, folders);
         DIDLContent didl = new DIDLContent();
         songs.forEach(song -> didl.addItem(createMusicTrack(song)));
@@ -203,7 +199,7 @@ public class WMPProcessor {
         if (offset == 0) {
             LOG.info("object.item.videoItem data crawling started.");
         }
-        List<MusicFolder> folders = util.getGuestMusicFolders();
+        List<MusicFolder> folders = util.getGuestFolders();
         List<MediaFile> videos = mediaFileService.getVideos(count, offset, folders);
         DIDLContent didl = new DIDLContent();
         videos.forEach(video -> didl.addItem(createVideoItem(video)));

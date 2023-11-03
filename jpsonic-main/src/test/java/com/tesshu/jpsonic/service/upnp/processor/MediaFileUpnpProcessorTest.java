@@ -39,8 +39,6 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.PlayerService;
-import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -53,16 +51,17 @@ class MediaFileUpnpProcessorTest {
     @Nested
     class UnitTest {
 
-        private UpnpProcessorUtil upnpProcessorUtil;
+        private UpnpProcessorUtil util;
+        private UpnpDIDLFactory factory;
         private MediaFileService mediaFileService;
         private MediaFileUpnpProcessor mediaFileUpnpProcessor;
 
         @BeforeEach
         public void setup() {
-            upnpProcessorUtil = mock(UpnpProcessorUtil.class);
+            util = mock(UpnpProcessorUtil.class);
+            factory = mock(UpnpDIDLFactory.class);
             mediaFileService = mock(MediaFileService.class);
-            mediaFileUpnpProcessor = new MediaFileUpnpProcessor(mock(UpnpProcessDispatcher.class), upnpProcessorUtil,
-                    mediaFileService, mock(PlayerService.class));
+            mediaFileUpnpProcessor = new MediaFileUpnpProcessor(util, factory, mediaFileService);
         }
 
         @Test
@@ -75,9 +74,9 @@ class MediaFileUpnpProcessorTest {
             folder1.setMediaType(MediaType.DIRECTORY);
             Mockito.when(mediaFileService.getMediaFile(musicFolderPath1)).thenReturn(folder1);
 
-            Mockito.when(upnpProcessorUtil.getGuestMusicFolders()).thenReturn(
+            Mockito.when(util.getGuestFolders()).thenReturn(
                     Arrays.asList(new MusicFolder(0, musicFolderPath1.toString(), "Music", true, now(), 0)));
-            List<MediaFile> result = mediaFileUpnpProcessor.getItems(0, Integer.MAX_VALUE);
+            List<MediaFile> result = mediaFileUpnpProcessor.getDirectChildren(0, Integer.MAX_VALUE);
             Mockito.verify(mediaFileService, Mockito.times(1)).getMediaFile(Mockito.any(Path.class));
             assertEquals(0, result.size());
             Mockito.clearInvocations(mediaFileService);
@@ -88,10 +87,10 @@ class MediaFileUpnpProcessorTest {
             folder2.setMediaType(MediaType.DIRECTORY);
             Mockito.when(mediaFileService.getMediaFile(musicFolderPath2)).thenReturn(folder2);
 
-            Mockito.when(upnpProcessorUtil.getGuestMusicFolders())
+            Mockito.when(util.getGuestFolders())
                     .thenReturn(Arrays.asList(new MusicFolder(0, musicFolderPath1.toString(), "Music1", true, now(), 0),
                             new MusicFolder(1, musicFolderPath2.toString(), "Music2", true, now(), 1)));
-            result = mediaFileUpnpProcessor.getItems(0, Integer.MAX_VALUE);
+            result = mediaFileUpnpProcessor.getDirectChildren(0, Integer.MAX_VALUE);
             Mockito.verify(mediaFileService, Mockito.times(2)).getMediaFile(Mockito.any(Path.class));
             assertEquals(2, result.size());
         }
@@ -128,30 +127,30 @@ class MediaFileUpnpProcessorTest {
         @Test
         void testGetItemCount() {
             // 31 + 22(topnodes)
-            assertEquals(53, mediaFileUpnpProcessor.getItemCount());
+            assertEquals(53, mediaFileUpnpProcessor.getDirectChildrenCount());
         }
 
         @Test
         void testGetItems() {
 
-            List<MediaFile> items = mediaFileUpnpProcessor.getItems(0, 10);
+            List<MediaFile> items = mediaFileUpnpProcessor.getDirectChildren(0, 10);
             assertEquals(10, items.size());
 
-            items = mediaFileUpnpProcessor.getItems(10, 10);
+            items = mediaFileUpnpProcessor.getDirectChildren(10, 10);
             assertEquals(10, items.size());
 
-            items = mediaFileUpnpProcessor.getItems(20, 100);
+            items = mediaFileUpnpProcessor.getDirectChildren(20, 100);
             assertEquals(33, items.size());
 
-            items = mediaFileUpnpProcessor.getItems(0, 100).stream().filter(a -> !a.getName().startsWith("single"))
-                    .collect(Collectors.toList());
+            items = mediaFileUpnpProcessor.getDirectChildren(0, 100).stream()
+                    .filter(a -> !a.getName().startsWith("single")).collect(Collectors.toList());
             assertTrue(UpnpProcessorTestUtils
                     .validateJPSonicNaturalList(items.stream().map(MediaFile::getName).collect(Collectors.toList())));
         }
 
         @Test
         void testGetChildSizeOf() {
-            List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream()
+            List<MediaFile> artists = mediaFileUpnpProcessor.getDirectChildren(0, 100).stream()
                     .filter(a -> "10".equals(a.getName())).collect(Collectors.toList());
             assertEquals(1, artists.size());
             assertEquals("10", artists.get(0).getName());
@@ -161,7 +160,7 @@ class MediaFileUpnpProcessorTest {
         @Test
         void testgetChildren() {
 
-            List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream()
+            List<MediaFile> artists = mediaFileUpnpProcessor.getDirectChildren(0, 100).stream()
                     .filter(a -> "10".equals(a.getName())).collect(Collectors.toList());
             assertEquals(1, artists.size());
             assertEquals("10", artists.get(0).getName());
@@ -189,7 +188,7 @@ class MediaFileUpnpProcessorTest {
 
             settingsService.setSortAlbumsByYear(false);
 
-            List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream()
+            List<MediaFile> artists = mediaFileUpnpProcessor.getDirectChildren(0, 100).stream()
                     .filter(a -> "10".equals(a.getName())).collect(Collectors.toList());
             assertEquals(1, artists.size());
             assertEquals("10", artists.get(0).getName());
@@ -211,7 +210,7 @@ class MediaFileUpnpProcessorTest {
             List<String> reversedByYear = new ArrayList<>(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST);
             Collections.reverse(reversedByYear);
 
-            List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream()
+            List<MediaFile> artists = mediaFileUpnpProcessor.getDirectChildren(0, 100).stream()
                     .filter(a -> "10".equals(a.getName())).collect(Collectors.toList());
             assertEquals(1, artists.size());
             assertEquals("10", artists.get(0).getName());
@@ -229,7 +228,7 @@ class MediaFileUpnpProcessorTest {
 
             settingsService.setSortAlbumsByYear(false);
 
-            List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream()
+            List<MediaFile> artists = mediaFileUpnpProcessor.getDirectChildren(0, 100).stream()
                     .filter(a -> "20".equals(a.getName())).collect(Collectors.toList());
             assertEquals(1, artists.size());
 

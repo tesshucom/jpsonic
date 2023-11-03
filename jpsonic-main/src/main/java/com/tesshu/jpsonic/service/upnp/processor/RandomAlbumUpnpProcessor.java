@@ -22,19 +22,14 @@ package com.tesshu.jpsonic.service.upnp.processor;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import javax.annotation.PostConstruct;
-
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.domain.Album;
-import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
+import com.tesshu.jpsonic.service.upnp.ProcId;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.SortCriterion;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -44,44 +39,40 @@ public class RandomAlbumUpnpProcessor extends AlbumUpnpProcessor {
     private final SearchService searchService;
     private final SettingsService settingsService;
 
-    public RandomAlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, AlbumDao a,
-            CoverArtLogic c, SearchService s, SettingsService ss) {
-        super(d, u, m, a, c);
-        this.util = u;
-        this.searchService = s;
-        this.settingsService = ss;
-        setRootId(UpnpProcessDispatcher.CONTAINER_ID_RANDOM_ALBUM);
-    }
-
-    @PostConstruct
-    @Override
-    public void initTitle() {
-        setRootTitleWithResource("dlna.title.randomAlbum");
+    public RandomAlbumUpnpProcessor(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService,
+            AlbumDao albumDao, SearchService searchService, SettingsService settingsService) {
+        super(util, factory, mediaFileService, albumDao);
+        this.util = util;
+        this.searchService = searchService;
+        this.settingsService = settingsService;
     }
 
     @Override
-    public BrowseResult browseRoot(String filter, long offset, long maxResults, SortCriterion... orderBy)
-            throws ExecutionException {
+    public ProcId getProcId() {
+        return ProcId.RANDOM_ALBUM;
+    }
+
+    @Override
+    public BrowseResult browseRoot(String filter, long offset, long maxResults) throws ExecutionException {
         DIDLContent didl = new DIDLContent();
         int randomMax = settingsService.getDlnaRandomMax();
         if (offset < randomMax) {
             long count = randomMax < offset + maxResults ? randomMax - offset : maxResults;
-            getItems(offset, count).forEach(a -> addItem(didl, a));
+            getDirectChildren(offset, count).forEach(a -> addItem(didl, a));
         }
-        return createBrowseResult(didl, (int) didl.getCount(), getItemCount());
+        return createBrowseResult(didl, (int) didl.getCount(), getDirectChildrenCount());
     }
 
     @Override
-    public int getItemCount() {
+    public int getDirectChildrenCount() {
         return settingsService.getDlnaRandomMax();
     }
 
     @Override
-    public List<Album> getItems(long first, long maxResults) {
+    public List<Album> getDirectChildren(long first, long maxResults) {
         int randomMax = settingsService.getDlnaRandomMax();
         int offset = (int) first;
         int count = (offset + (int) maxResults) > randomMax ? randomMax - offset : (int) maxResults;
-        return searchService.getRandomAlbumsId3(count, offset, randomMax, util.getGuestMusicFolders());
+        return searchService.getRandomAlbumsId3(count, offset, randomMax, util.getGuestFolders());
     }
-
 }
