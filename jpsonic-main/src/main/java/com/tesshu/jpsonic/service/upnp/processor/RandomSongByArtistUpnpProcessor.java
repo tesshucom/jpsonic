@@ -33,7 +33,8 @@ import org.fourthline.cling.support.model.container.MusicArtist;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RandomSongByArtistUpnpProcessor extends DirectChildrenContentProcessor<Artist, MediaFile> {
+public class RandomSongByArtistUpnpProcessor extends DirectChildrenContentProcessor<Artist, MediaFile>
+        implements CountLimitProc {
 
     private final UpnpProcessorUtil util;
     private final UpnpDIDLFactory factory;
@@ -59,14 +60,9 @@ public class RandomSongByArtistUpnpProcessor extends DirectChildrenContentProces
     @Override
     public Container createContainer(Artist artist) {
         MusicArtist container = factory.toArtist(artist);
-        container.setId(ProcId.RANDOM_SONG_BY_ARTIST.getValue() + ProcId.CID_SEPA + artist.getId());
-        container.setParentID(ProcId.RANDOM_SONG_BY_ARTIST.getValue());
+        container.setId(getProcId().getValue() + ProcId.CID_SEPA + artist.getId());
+        container.setParentID(getProcId().getValue());
         return container;
-    }
-
-    @Override
-    public int getDirectChildrenCount() {
-        return artistDao.getArtistsCount(util.getGuestFolders());
     }
 
     @Override
@@ -75,8 +71,21 @@ public class RandomSongByArtistUpnpProcessor extends DirectChildrenContentProces
     }
 
     @Override
+    public int getDirectChildrenCount() {
+        return artistDao.getArtistsCount(util.getGuestFolders());
+    }
+
+    @Override
     public Artist getDirectChild(String id) {
         return artistDao.getArtist(Integer.parseInt(id));
+    }
+
+    @Override
+    public List<MediaFile> getChildren(Artist artist, long firstResult, long maxResults) {
+        int offset = (int) firstResult;
+        int randomMax = settingsService.getDlnaRandomMax();
+        int count = toCount(firstResult, maxResults, randomMax);
+        return searchService.getRandomSongsByArtist(artist, count, offset, randomMax, util.getGuestFolders());
     }
 
     @Override
@@ -85,15 +94,7 @@ public class RandomSongByArtistUpnpProcessor extends DirectChildrenContentProces
     }
 
     @Override
-    public List<MediaFile> getChildren(Artist artist, long first, long maxResults) {
-        int randomMax = settingsService.getDlnaRandomMax();
-        int offset = (int) first;
-        int count = (offset + (int) maxResults) > randomMax ? randomMax - offset : (int) maxResults;
-        return searchService.getRandomSongsByArtist(artist, count, offset, randomMax, util.getGuestFolders());
-    }
-
-    @Override
-    public void addChild(DIDLContent didl, MediaFile song) {
-        didl.addItem(factory.toMusicTrack(song));
+    public void addChild(DIDLContent parent, MediaFile song) {
+        parent.addItem(factory.toMusicTrack(song));
     }
 }

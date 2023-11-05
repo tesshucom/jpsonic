@@ -62,13 +62,13 @@ public class ArtistUpnpProcessor extends DirectChildrenContentProcessor<Artist, 
     }
 
     @Override
-    public int getDirectChildrenCount() {
-        return artistDao.getArtistsCount(util.getGuestFolders());
+    public List<Artist> getDirectChildren(long offset, long count) {
+        return artistDao.getAlphabetialArtists((int) offset, (int) count, util.getGuestFolders());
     }
 
     @Override
-    public List<Artist> getDirectChildren(long offset, long maxResults) {
-        return artistDao.getAlphabetialArtists((int) offset, (int) maxResults, util.getGuestFolders());
+    public int getDirectChildrenCount() {
+        return artistDao.getArtistsCount(util.getGuestFolders());
     }
 
     @Override
@@ -77,28 +77,26 @@ public class ArtistUpnpProcessor extends DirectChildrenContentProcessor<Artist, 
     }
 
     @Override
+    public List<Album> getChildren(Artist artist, long offset, long count) {
+        return albumDao.getAlbumsForArtist(offset, count, artist.getName(), util.isSortAlbumsByYear(artist.getName()),
+                util.getGuestFolders());
+    }
+
+    @Override
     public int getChildSizeOf(Artist artist) {
         return albumDao.getAlbumsCountForArtist(artist.getName(), util.getGuestFolders());
     }
 
     @Override
-    public List<Album> getChildren(Artist artist, long offset, long maxResults) {
-        return albumDao.getAlbumsForArtist(offset, maxResults, artist.getName(),
-                util.isSortAlbumsByYear(artist.getName()), util.getGuestFolders());
+    public void addChild(DIDLContent parent, Album album) {
+        parent.addContainer(factory.toAlbum(album));
     }
 
-    @Override
-    public void addChild(DIDLContent didl, Album album) {
-        didl.addContainer(factory.toAlbum(album));
-    }
-
-    public final BrowseResult toBrowseResult(ParamSearchResult<Artist> result) {
-        DIDLContent didl = new DIDLContent();
+    public final BrowseResult toBrowseResult(ParamSearchResult<Artist> searchResult) {
+        DIDLContent parent = new DIDLContent();
         try {
-            for (Artist item : result.getItems()) {
-                addItem(didl, item);
-            }
-            return createBrowseResult(didl, (int) didl.getCount(), result.getTotalHits());
+            searchResult.getItems().forEach(artist -> addItem(parent, artist));
+            return createBrowseResult(parent, (int) parent.getCount(), searchResult.getTotalHits());
         } catch (ExecutionException e) {
             ConcurrentUtils.handleCauseUnchecked(e);
             return null;

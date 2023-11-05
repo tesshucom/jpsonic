@@ -14,17 +14,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2018 tesshucom
+ * (C) 2023 tesshucom
  */
 
-package com.tesshu.jpsonic.service.upnp.processor;
+package com.tesshu.jpsonic.service.upnp.composite;
 
 import com.tesshu.jpsonic.domain.Album;
+import com.tesshu.jpsonic.domain.Artist;
 
-interface FolderArtistAlbumWrapper extends FolderArtistWrapper {
+public class ArtistOrAlbum {
 
-    Album getAlbum();
+    private final Object o;
 
-    boolean isAlbum();
+    public ArtistOrAlbum(Artist artist) {
+        this.o = artist;
+    }
 
+    public ArtistOrAlbum(Album album) {
+        this.o = album;
+    }
+
+    public Artist getArtist() {
+        return (Artist) o;
+    }
+
+    public Album getAlbum() {
+        return (Album) o;
+    }
+
+    public boolean isArtist() {
+        return o instanceof Artist;
+    }
 }

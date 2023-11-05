@@ -25,7 +25,6 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ParamSearchResult;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.upnp.ProcId;
@@ -58,19 +57,13 @@ public class AlbumUpnpProcessor extends DirectChildrenContentProcessor<Album, Me
     }
 
     @Override
-    public BrowseResult browseRoot(String filter, long firstResult, long maxResults) throws ExecutionException {
-        DIDLContent didl = new DIDLContent();
-        List<Album> selectedItems = albumDao.getAlphabeticalAlbums((int) firstResult, (int) maxResults, false, true,
-                util.getGuestFolders());
-        for (Album item : selectedItems) {
-            addItem(didl, item);
-        }
-        return createBrowseResult(didl, (int) didl.getCount(), getDirectChildrenCount());
+    public Container createContainer(Album album) {
+        return factory.toAlbum(album);
     }
 
     @Override
-    public Container createContainer(Album album) {
-        return factory.toAlbum(album);
+    public List<Album> getDirectChildren(long offset, long count) {
+        return albumDao.getAlphabeticalAlbums((int) offset, (int) count, false, true, util.getGuestFolders());
     }
 
     @Override
@@ -79,13 +72,13 @@ public class AlbumUpnpProcessor extends DirectChildrenContentProcessor<Album, Me
     }
 
     @Override
-    public List<Album> getDirectChildren(long offset, long maxResults) {
-        return albumDao.getAlphabeticalAlbums((int) offset, (int) maxResults, false, true, util.getGuestFolders());
+    public Album getDirectChild(String id) {
+        return albumDao.getAlbum(Integer.parseInt(id));
     }
 
     @Override
-    public Album getDirectChild(String id) {
-        return albumDao.getAlbum(Integer.parseInt(id));
+    public List<MediaFile> getChildren(Album album, long count, long maxResults) {
+        return mediaFileService.getSongsForAlbum(count, maxResults, album.getArtist(), album.getName());
     }
 
     @Override
@@ -94,26 +87,15 @@ public class AlbumUpnpProcessor extends DirectChildrenContentProcessor<Album, Me
     }
 
     @Override
-    public List<MediaFile> getChildren(Album album, long offset, long maxResults) {
-        return mediaFileService.getSongsForAlbum(offset, maxResults, album.getArtist(), album.getName());
+    public void addChild(DIDLContent parent, MediaFile song) {
+        parent.addItem(factory.toMusicTrack(song));
     }
 
-    public int getAlbumsCountForArtist(final String artist, final List<MusicFolder> musicFolders) {
-        return albumDao.getAlbumsCountForArtist(artist, musicFolders);
-    }
-
-    @Override
-    public void addChild(DIDLContent didl, MediaFile song) {
-        didl.addItem(factory.toMusicTrack(song));
-    }
-
-    public final BrowseResult toBrowseResult(ParamSearchResult<Album> result) {
-        DIDLContent didl = new DIDLContent();
+    public final BrowseResult toBrowseResult(ParamSearchResult<Album> searchResult) {
+        DIDLContent parent = new DIDLContent();
         try {
-            for (Album item : result.getItems()) {
-                addItem(didl, item);
-            }
-            return createBrowseResult(didl, (int) didl.getCount(), result.getTotalHits());
+            searchResult.getItems().forEach(album -> addItem(parent, album));
+            return createBrowseResult(parent, (int) parent.getCount(), searchResult.getTotalHits());
         } catch (ExecutionException e) {
             ConcurrentUtils.handleCauseUnchecked(e);
             return null;

@@ -31,7 +31,7 @@ import org.fourthline.cling.support.model.DIDLContent;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
+public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor implements CountLimitProc {
 
     private static final int RECENT_COUNT = 50;
 
@@ -51,23 +51,22 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
     }
 
     @Override
-    public BrowseResult browseRoot(String filter, long offset, long max) throws ExecutionException {
-        DIDLContent didl = new DIDLContent();
-        if (offset < RECENT_COUNT) {
-            long count = RECENT_COUNT < offset + max ? RECENT_COUNT - offset : max;
-            getDirectChildren(offset, count).forEach(a -> addItem(didl, a));
-        }
-        return createBrowseResult(didl, (int) didl.getCount(), getDirectChildrenCount());
-    }
-
-    @Override
-    public int getDirectChildrenCount() {
-        int count = albumDao.getAlbumCount(util.getGuestFolders());
-        return Math.min(count, RECENT_COUNT);
+    public BrowseResult browseRoot(String filter, long firstResult, long maxResults) throws ExecutionException {
+        DIDLContent parent = new DIDLContent();
+        int offset = (int) firstResult;
+        int directChildrenCount = getDirectChildrenCount();
+        int count = toCount(firstResult, maxResults, directChildrenCount);
+        getDirectChildren(offset, count).forEach(a -> addItem(parent, a));
+        return createBrowseResult(parent, (int) parent.getCount(), directChildrenCount);
     }
 
     @Override
     public List<Album> getDirectChildren(long offset, long max) {
         return albumDao.getNewestAlbums((int) offset, (int) max, util.getGuestFolders());
+    }
+
+    @Override
+    public int getDirectChildrenCount() {
+        return Math.min(albumDao.getAlbumCount(util.getGuestFolders()), RECENT_COUNT);
     }
 }

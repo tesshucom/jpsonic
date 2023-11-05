@@ -20,7 +20,6 @@
 package com.tesshu.jpsonic.service.upnp.processor;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.domain.Album;
@@ -28,12 +27,10 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.upnp.ProcId;
-import org.fourthline.cling.support.model.BrowseResult;
-import org.fourthline.cling.support.model.DIDLContent;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RandomAlbumUpnpProcessor extends AlbumUpnpProcessor {
+public class RandomAlbumUpnpProcessor extends AlbumUpnpProcessor implements CountLimitProc {
 
     private final UpnpProcessorUtil util;
     private final SearchService searchService;
@@ -53,26 +50,15 @@ public class RandomAlbumUpnpProcessor extends AlbumUpnpProcessor {
     }
 
     @Override
-    public BrowseResult browseRoot(String filter, long offset, long maxResults) throws ExecutionException {
-        DIDLContent didl = new DIDLContent();
-        int randomMax = settingsService.getDlnaRandomMax();
-        if (offset < randomMax) {
-            long count = randomMax < offset + maxResults ? randomMax - offset : maxResults;
-            getDirectChildren(offset, count).forEach(a -> addItem(didl, a));
-        }
-        return createBrowseResult(didl, (int) didl.getCount(), getDirectChildrenCount());
-    }
-
-    @Override
     public int getDirectChildrenCount() {
         return settingsService.getDlnaRandomMax();
     }
 
     @Override
-    public List<Album> getDirectChildren(long first, long maxResults) {
-        int randomMax = settingsService.getDlnaRandomMax();
-        int offset = (int) first;
-        int count = (offset + (int) maxResults) > randomMax ? randomMax - offset : (int) maxResults;
-        return searchService.getRandomAlbumsId3(count, offset, randomMax, util.getGuestFolders());
+    public List<Album> getDirectChildren(long firstResults, long maxResults) {
+        int offset = (int) firstResults;
+        int max = getDirectChildrenCount();
+        int count = toCount(firstResults, maxResults, max);
+        return searchService.getRandomAlbumsId3((int) count, (int) offset, max, util.getGuestFolders());
     }
 }

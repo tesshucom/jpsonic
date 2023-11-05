@@ -36,4 +36,9 @@ public interface MusicIndexService {
      * @since v113.0.0
      */
     void clear();
+
+    /**
+     * @since v113.0.0
+     */
+    SortedMap<MusicIndex, Integer> getIndexedId3ArtistCounts(List<MusicFolder> folders);
 }

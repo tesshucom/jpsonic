@@ -14,38 +14,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2018 tesshucom
+ * (C) 2023 tesshucom
  */
 
-package com.tesshu.jpsonic.service.upnp.processor;
+package com.tesshu.jpsonic.service.upnp.composite;
 
+import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
-import org.subsonic.restapi.IndexID3;
 
-public interface Id3Wrapper {
+public class ArtistOrSong {
 
-    boolean isIndex();
+    private final Object o;
 
-    boolean isAlbum();
+    public ArtistOrSong(MediaFile song) {
+        this.o = song;
+    }
 
-    boolean isArtist();
+    public ArtistOrSong(Artist artist) {
+        this.o = artist;
+    }
 
-    boolean isSong();
+    public MediaFile getSong() {
+        return (MediaFile) o;
+    }
 
-    String getId();
+    public Artist getArtist() {
+        return (Artist) o;
+    }
 
-    String getName();
-
-    String getArtist();
-
-    String getComment();
-
-    IndexID3 getIndexId3();
-
-    MediaFile getSong();
-
-    int getChildSize();
-
-    String getCoverArtPath();
-
+    public boolean isArtist() {
+        return o instanceof Artist;
+    }
 }

@@ -26,7 +26,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Stream;
@@ -120,6 +119,15 @@ public class MusicIndexServiceImpl implements MusicIndexService {
         parser = null;
     }
 
+    @Override
+    public SortedMap<MusicIndex, Integer> getIndexedId3ArtistCounts(List<MusicFolder> folders) {
+        Comparator<MusicIndex> comparator = new MusicIndexComparator(getParser().getIndexes());
+        SortedMap<MusicIndex, Integer> result = new TreeMap<>(comparator);
+        artistDao.getMudicIndexCounts(folders).stream().forEach(indexWithCount -> result
+                .put(getParser().getIndex(indexWithCount.index()), indexWithCount.artistCount()));
+        return result;
+    }
+
     static class MusicIndexParser {
 
         List<MusicIndex> indexes;
@@ -152,18 +160,16 @@ public class MusicIndexServiceImpl implements MusicIndexService {
 
         MusicIndex getIndex(ArtistIndexable artist) {
             String indexableName = readingUtils.createIndexableName(artist);
-            Optional<MusicIndex> op = indexes.stream()
+            return indexes.stream()
                     .filter(musicIndex -> musicIndex.getPrefixes().stream()
                             .filter(prefix -> StringUtils.startsWithIgnoreCase(indexableName, prefix)).findFirst()
                             .isPresent())
-                    .findFirst();
-            return op.isPresent() ? op.get() : MusicIndex.OTHER;
+                    .findFirst().orElse(MusicIndex.OTHER);
         }
 
         private MusicIndex getIndex(String index) {
-            Optional<MusicIndex> op = indexes.stream().filter(musicIndex -> musicIndex.getIndex().equals(index))
-                    .findFirst();
-            return op.isPresent() ? op.get() : MusicIndex.OTHER;
+            return indexes.stream().filter(musicIndex -> musicIndex.getIndex().equals(index)).findFirst()
+                    .orElse(MusicIndex.OTHER);
         }
     }
 
