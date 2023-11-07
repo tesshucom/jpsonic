@@ -60,6 +60,9 @@ class AlbumDaoTest {
                 @interface True {
                 }
 
+                /**
+                 * Using this case is deprecated. #2441
+                 */
                 @interface False {
                 }
             }
@@ -75,6 +78,11 @@ class AlbumDaoTest {
         public void setup() {
             MusicFolder folder = new MusicFolder("/Music", "Music", true, null);
             folders = List.of(folder);
+        }
+
+        private String getJoin(ArgumentCaptor<String> queryCaptor) {
+            String query = queryCaptor.getValue();
+            return query.replaceAll("\n", "").replaceAll("^.*from\salbum", "").replaceAll("where.*$", "").trim();
         }
 
         private String getOrderBy(ArgumentCaptor<String> queryCaptor) {
@@ -96,28 +104,36 @@ class AlbumDaoTest {
         @AlphabeticalOps.Conditions.IgnoreCase.True
         @Test
         void c00() {
-            assertEquals("LOWER(artist_reading), album_order, LOWER(name_reading)", getOrderBy(getQuery(true, true)));
+            ArgumentCaptor<String> query = getQuery(true, true);
+            assertEquals("left join artist on artist.present and artist.name = album.artist", getJoin(query));
+            assertEquals("artist_order, album_order", getOrderBy(query));
         }
 
         @AlphabeticalOps.Conditions.ByArtist.True
         @AlphabeticalOps.Conditions.IgnoreCase.False
         @Test
         void c01() {
-            assertEquals("artist_reading, album_order", getOrderBy(getQuery(true, false)));
+            ArgumentCaptor<String> query = getQuery(true, false);
+            assertEquals("left join artist on artist.present and artist.name = album.artist", getJoin(query));
+            assertEquals("artist.reading, album.name_reading", getOrderBy(query));
         }
 
         @AlphabeticalOps.Conditions.ByArtist.False
         @AlphabeticalOps.Conditions.IgnoreCase.True
         @Test
         void c02() {
-            assertEquals("album_order, LOWER(name_reading)", getOrderBy(getQuery(false, true)));
+            ArgumentCaptor<String> query = getQuery(false, true);
+            assertEquals("", getJoin(query));
+            assertEquals("album_order", getOrderBy(query));
         }
 
         @AlphabeticalOps.Conditions.ByArtist.False
         @AlphabeticalOps.Conditions.IgnoreCase.False
         @Test
         void c03() {
-            assertEquals("album_order", getOrderBy(getQuery(false, false)));
+            ArgumentCaptor<String> query = getQuery(false, false);
+            assertEquals("", getJoin(query));
+            assertEquals("album.name_reading", getOrderBy(query));
         }
     }
 }

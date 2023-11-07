@@ -182,20 +182,28 @@ public class AlbumDao {
         }
         Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders), "count", count, "offset",
                 offset);
+
+        String join = "";
         String order;
-        if (ignoreCase) {
-            order = byArtist ? "LOWER(artist_reading), album_order, LOWER(name_reading)"
-                    : "album_order, LOWER(name_reading)";
+        if (byArtist && ignoreCase) {
+            join = "left join artist on artist.present and artist.name = album.artist";
+            order = "artist_order, album_order";
+        } else if (byArtist && !ignoreCase) {
+            join = "left join artist on artist.present and artist.name = album.artist";
+            order = "artist.reading, album.name_reading";
+        } else if (!byArtist && ignoreCase) {
+            order = "album_order";
         } else {
-            order = byArtist ? "artist_reading, album_order" : "album_order";
+            order = "album.name_reading";
         }
 
-        return template.namedQuery("select " + QUERY_COLUMNS + """
+        return template.namedQuery("select " + prefix(QUERY_COLUMNS, "album") + """
                 from album
-                where present and folder_id in (:folders)
+                %s
+                where album.present and album.folder_id in (:folders)
                 order by %s
                 limit :count offset :offset
-                """.formatted(order), rowMapper, args);
+                """.formatted(join, order), rowMapper, args);
     }
 
     public int getAlbumCount(final List<MusicFolder> musicFolders) {
