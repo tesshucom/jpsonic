@@ -923,7 +923,7 @@ public class ScannerProcedureService {
             return;
         }
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
-        List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folders);
+        List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, folders);
         int count = invokeUpdateOrder(albums, comparators.albumOrderByAlpha(),
                 (album) -> albumDao.updateOrder(album.getId(), album.getOrder()));
         String comment = "Updated order of (%d) ID3 albums.".formatted(count);

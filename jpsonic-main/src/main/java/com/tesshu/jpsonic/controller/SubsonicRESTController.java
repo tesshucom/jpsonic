@@ -1229,9 +1229,9 @@ public class SubsonicRESTController implements CoverArtPresentation {
         } else if ("newest".equals(type)) {
             albums = albumDao.getNewestAlbums(offset, size, musicFolders);
         } else if ("alphabeticalByArtist".equals(type)) {
-            albums = albumDao.getAlphabeticalAlbums(offset, size, true, false, musicFolders);
+            albums = albumDao.getAlphabeticalAlbums(offset, size, true, true, musicFolders);
         } else if ("alphabeticalByName".equals(type)) {
-            albums = albumDao.getAlphabeticalAlbums(offset, size, false, false, musicFolders);
+            albums = albumDao.getAlphabeticalAlbums(offset, size, false, true, musicFolders);
         } else if ("byGenre".equals(type)) {
             albums = searchService.getAlbumId3sByGenres(
                     ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.GENRE.value()), offset,
