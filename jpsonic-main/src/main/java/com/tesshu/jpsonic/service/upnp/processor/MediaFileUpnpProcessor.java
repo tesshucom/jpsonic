@@ -23,7 +23,7 @@ package com.tesshu.jpsonic.service.upnp.processor;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -36,9 +36,6 @@ import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.container.Container;
-import org.fourthline.cling.support.model.container.MusicAlbum;
-import org.fourthline.cling.support.model.container.MusicArtist;
-import org.fourthline.cling.support.model.container.StorageFolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -62,72 +59,46 @@ public class MediaFileUpnpProcessor extends DirectChildrenContentProcessor<Media
         return ProcId.FOLDER;
     }
 
-    private void applyId(MediaFile item, Container container) {
-        container.setId(ProcId.FOLDER.getValue() + ProcId.CID_SEPA + item.getId());
-        container.setTitle(item.getName());
-        container.setChildCount(getChildSizeOf(item));
-        if (mediaFileService.isRoot(item)) {
-            container.setParentID(ProcId.FOLDER.getValue());
+    @Override
+    public Container createContainer(MediaFile entity) {
+        int childSize = getChildSizeOf(entity);
+        return switch (entity.getMediaType()) {
+        case ALBUM -> factory.toAlbum(entity, childSize);
+        case DIRECTORY -> isEmpty(entity.getArtist()) ? factory.toMusicFolder(entity, getProcId(), childSize)
+                : factory.toArtist(entity, childSize);
+        default -> throw new IllegalArgumentException("Unexpected value: " + entity.getMediaType());
+        };
+    }
+
+    @Override
+    public void addItem(DIDLContent parent, MediaFile entity) {
+        if (entity.isFile()) {
+            parent.addItem(factory.toMusicTrack(entity));
         } else {
-            MediaFile parent = mediaFileService.getParentOf(item);
-            if (parent != null) {
-                container.setParentID(String.valueOf(parent.getId()));
-            }
+            parent.addContainer(createContainer(entity));
         }
     }
 
     @Override
-    public Container createContainer(MediaFile item) {
-        if (item.isAlbum()) {
-            MusicAlbum container = new MusicAlbum();
-            container.addProperty(factory.toAlbumArt(item));
-            if (item.getArtist() != null) {
-                container.addProperty(factory.toPerson(item.getArtist()));
-            }
-            container.setDescription(item.getComment());
-            applyId(item, container);
-            return container;
-        } else if (item.isDirectory()) {
-            if (isEmpty(item.getArtist())) {
-                StorageFolder container = new StorageFolder();
-                applyId(item, container);
-                return container;
-            }
-            MusicArtist container = new MusicArtist();
-            applyId(item, container);
-            item.getCoverArtPath().ifPresent(path -> container.addProperty(factory.toAlbumArt(item)));
-            return container;
+    public List<MediaFile> getDirectChildren(long offset, long count) {
+        List<MusicFolder> folders = util.getGuestFolders();
+        if (folders.isEmpty()) {
+            return Collections.emptyList();
+        } else if (folders.size() == SINGLE_MUSIC_FOLDER) {
+            MediaFile folder = mediaFileService.getMediaFile(folders.get(0).toPath());
+            return getChildren(folder, offset, count);
         }
-        return null;
+        return folders.stream().skip(offset).limit(count).map(folder -> mediaFileService.getMediaFile(folder.toPath()))
+                .toList();
     }
 
     @Override
     public int getDirectChildrenCount() {
-        int count;
-        List<MusicFolder> allFolders = util.getGuestFolders();
-        if (allFolders.size() == SINGLE_MUSIC_FOLDER) {
-            count = mediaFileService.getChildSizeOf(allFolders.get(0));
-        } else {
-            count = allFolders.size();
+        List<MusicFolder> folders = util.getGuestFolders();
+        if (folders.size() == SINGLE_MUSIC_FOLDER) {
+            return mediaFileService.getChildSizeOf(folders.get(0));
         }
-        return count;
-    }
-
-    @Override
-    public List<MediaFile> getDirectChildren(long offset, long maxResults) {
-        List<MusicFolder> allFolders = util.getGuestFolders();
-        List<MediaFile> returnValue = new ArrayList<>();
-        if (allFolders.size() == SINGLE_MUSIC_FOLDER) {
-            MediaFile folder = mediaFileService.getMediaFile(allFolders.get(0).toPath());
-            if (folder != null) {
-                returnValue = getChildren(folder, offset, maxResults);
-            }
-        } else {
-            for (int i = (int) offset; i < Math.min(allFolders.size(), offset + maxResults); i++) {
-                returnValue.add(mediaFileService.getMediaFile(allFolders.get(i).toPath()));
-            }
-        }
-        return returnValue;
+        return folders.size();
     }
 
     @Override
@@ -136,44 +107,31 @@ public class MediaFileUpnpProcessor extends DirectChildrenContentProcessor<Media
     }
 
     @Override
-    public int getChildSizeOf(MediaFile item) {
-        return mediaFileService.getChildSizeOf(item);
+    public List<MediaFile> getChildren(MediaFile entity, long offset, long count) {
+        if (isEmpty(entity.getArtist())) {
+            return mediaFileService.getChildrenOf(entity, offset, count, false);
+        }
+        if (entity.isAlbum()) {
+            return mediaFileService.getSongsForAlbum(offset, count, entity);
+        }
+        return mediaFileService.getChildrenOf(entity, offset, count, util.isSortAlbumsByYear(entity.getName()));
     }
 
     @Override
-    public List<MediaFile> getChildren(MediaFile item, long offset, long maxResults) {
-        if (item.isAlbum()) {
-            return mediaFileService.getSongsForAlbum(offset, maxResults, item);
-        }
-        if (isEmpty(item.getArtist())) {
-            return mediaFileService.getChildrenOf(item, offset, maxResults, false);
-        }
-        return mediaFileService.getChildrenOf(item, offset, maxResults, util.isSortAlbumsByYear(item.getName()));
+    public int getChildSizeOf(MediaFile entity) {
+        return mediaFileService.getChildSizeOf(entity);
     }
 
     @Override
-    public void addItem(DIDLContent didl, MediaFile item) {
-        if (item.isFile()) {
-            didl.addItem(factory.toMusicTrack(item));
-        } else {
-            didl.addContainer(createContainer(item));
-        }
+    public void addChild(DIDLContent parent, MediaFile entity) {
+        addItem(parent, entity);
     }
 
-    @Override
-    public void addChild(DIDLContent didl, MediaFile child) {
-        if (child.isFile()) {
-            didl.addItem(factory.toMusicTrack(child));
-        } else {
-            didl.addContainer(createContainer(child));
-        }
-    }
-
-    public BrowseResult toBrowseResult(ParamSearchResult<MediaFile> result) {
-        DIDLContent didl = new DIDLContent();
+    public BrowseResult toBrowseResult(ParamSearchResult<MediaFile> searchResult) {
+        DIDLContent parent = new DIDLContent();
         try {
-            result.getItems().forEach(i -> addItem(didl, i));
-            return createBrowseResult(didl, (int) didl.getCount(), result.getTotalHits());
+            searchResult.getItems().forEach(song -> addChild(parent, song));
+            return createBrowseResult(parent, (int) parent.getCount(), searchResult.getTotalHits());
         } catch (ExecutionException e) {
             ConcurrentUtils.handleCauseUnchecked(e);
             return null;

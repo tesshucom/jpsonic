@@ -40,5 +40,10 @@ public interface MusicIndexService {
     /**
      * @since v113.0.0
      */
+    MusicFolderContent.Counts getMusicFolderContentCounts(List<MusicFolder> folders);
+
+    /**
+     * @since v113.0.0
+     */
     SortedMap<MusicIndex, Integer> getIndexedId3ArtistCounts(List<MusicFolder> folders);
 }

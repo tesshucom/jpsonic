@@ -19,26 +19,18 @@
 
 package com.tesshu.jpsonic.service.upnp.processor;
 
-import static org.apache.commons.lang3.StringUtils.SPACE;
-import static org.springframework.util.ObjectUtils.isEmpty;
-
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.upnp.ProcId;
-import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.container.Container;
-import org.fourthline.cling.support.model.container.GenreContainer;
-import org.fourthline.cling.support.model.container.MusicAlbum;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AlbumByGenreUpnpProcessor extends DirectChildrenContentProcessor<MediaFile, MediaFile> {
+public class AlbumByGenreUpnpProcessor extends SongByGenreUpnpProcessor {
 
     private final UpnpProcessorUtil util;
     private final UpnpDIDLFactory factory;
@@ -47,7 +39,7 @@ public class AlbumByGenreUpnpProcessor extends DirectChildrenContentProcessor<Me
 
     public AlbumByGenreUpnpProcessor(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService,
             SearchService searchService) {
-        super();
+        super(util, factory, searchService);
         this.util = util;
         this.factory = factory;
         this.mediaFileService = mediaFileService;
@@ -60,100 +52,17 @@ public class AlbumByGenreUpnpProcessor extends DirectChildrenContentProcessor<Me
     }
 
     @Override
-    public BrowseResult browseRoot(String filter, long firstResult, long maxResults) throws ExecutionException {
-        DIDLContent didl = new DIDLContent();
-        List<MediaFile> selectedItems = getDirectChildren(firstResult, maxResults);
-        for (int i = 0; i < selectedItems.size(); i++) {
-            MediaFile item = selectedItems.get(i);
-            didl.addContainer(createContainer(item, Integer.toString((int) (i + firstResult))));
-        }
-        return createBrowseResult(didl, (int) didl.getCount(), getDirectChildrenCount());
+    public List<MediaFile> getChildren(Genre item, long offset, long count) {
+        return searchService.getAlbumsByGenres(item.getName(), (int) offset, (int) count, util.getGuestFolders());
     }
 
     @Override
-    public Container createContainer(MediaFile item) {
-        MusicAlbum container = new MusicAlbum();
-        container.addProperty(factory.toAlbumArt(item));
-        if (item.getArtist() != null) {
-            container.addProperty(factory.toPerson(item.getArtist()));
-        }
-        container.setDescription(item.getComment());
-        container.setId(ProcId.FOLDER.getValue() + ProcId.CID_SEPA + item.getId());
-        container.setTitle(item.getName());
-        container.setChildCount(getChildSizeOf(item));
-        if (mediaFileService.isRoot(item)) {
-            container.setParentID(getProcId().getValue());
-        } else {
-            MediaFile parent = mediaFileService.getParentOf(item);
-            if (parent != null) {
-                container.setParentID(String.valueOf(parent.getId()));
-            }
-        }
-        return container;
-    }
-
-    private Container createContainer(MediaFile item, String index) {
-        GenreContainer container = new GenreContainer();
-        container.setParentID(getProcId().getValue());
-        container.setId(getProcId().getValue() + ProcId.CID_SEPA + index);
-        String comment = item.getComment();
-        container
-                .setTitle(util.isGenreCountAvailable() ? item.getName().concat(SPACE).concat(comment) : item.getName());
-        container.setChildCount(isEmpty(comment) ? 0 : Integer.parseInt(comment));
-        return container;
+    public int getChildSizeOf(Genre genre) {
+        return genre.getAlbumCount();
     }
 
     @Override
-    public int getDirectChildrenCount() {
-        return searchService.getGenresCount(true);
-    }
-
-    @Override
-    public List<MediaFile> getDirectChildren(long offset, long maxResults) {
-        return searchService.getGenres(true, offset, maxResults).stream().map(this::toMediaFile).toList();
-    }
-
-    private MediaFile toMediaFile(Genre g) {
-        MediaFile m = new MediaFile();
-        m.setId(-1);
-        m.setTitle(g.getName());
-        if (0 != g.getAlbumCount()) {
-            m.setComment(Integer.toString(g.getAlbumCount()));
-        }
-        m.setGenre(g.getName());
-        return m;
-    }
-
-    @Override
-    public MediaFile getDirectChild(String id) {
-        int index = Integer.parseInt(id);
-        List<Genre> genres = searchService.getGenres(true);
-        if (genres.size() > index) {
-            return toMediaFile(genres.get(index));
-        }
-        return null;
-    }
-
-    @Override
-    public int getChildSizeOf(MediaFile item) {
-        return searchService.getAlbumsByGenres(item.getName(), 0, Integer.MAX_VALUE, util.getGuestFolders()).size();
-    }
-
-    @Override
-    public List<MediaFile> getChildren(MediaFile item, long offset, long maxResults) {
-        if (-1 == item.getId()) {
-            return searchService.getAlbumsByGenres(item.getGenre(), (int) offset, (int) maxResults,
-                    util.getGuestFolders());
-        }
-        return mediaFileService.getSongsForAlbum(offset, maxResults, item);
-    }
-
-    @Override
-    public void addChild(DIDLContent didl, MediaFile song) {
-        if (isEmpty(song.getMediaType())) {
-            didl.addItem(factory.toMusicTrack(song));
-        } else {
-            didl.addContainer(createContainer(song));
-        }
+    public void addChild(DIDLContent parent, MediaFile album) {
+        parent.addContainer(factory.toAlbum(album, mediaFileService.getChildSizeOf(album)));
     }
 }

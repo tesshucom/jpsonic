@@ -28,6 +28,7 @@ import static com.tesshu.jpsonic.util.PlayerUtils.FAR_PAST;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.nio.file.Path;
+import java.sql.ResultSet;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,6 +48,7 @@ import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.MusicIndex;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import com.tesshu.jpsonic.domain.SortCandidate;
 import com.tesshu.jpsonic.util.LegacyMap;
@@ -75,6 +77,8 @@ public class MediaFileDao {
     private final RowMapper<MediaFile> rowMapper = DaoUtils.createRowMapper(MediaFile.class);
     private final RowMapper<Genre> genreRowMapper = (rs, rowNum) -> new Genre(rs.getString(1), rs.getInt(2),
             rs.getInt(3));
+    private final RowMapper<IndexWithCount> indexWithCountMapper = (ResultSet rs,
+            int num) -> new IndexWithCount(rs.getString(1), rs.getInt(2));
 
     private final DialectMediaFileDao dialect;
 
@@ -138,6 +142,37 @@ public class MediaFileDao {
                 where parent_path=? and present
                 order by media_file_order
                 """, rowMapper, path);
+    }
+
+    public List<MediaFile> getDirectChildren(MusicIndex musicIndex, List<MusicFolder> folders, long offset,
+            long count) {
+        Map<String, Object> args = LegacyMap.of("directory", MediaFile.MediaType.DIRECTORY.name(), "album",
+                MediaFile.MediaType.ALBUM.name(), "music", MediaFile.MediaType.MUSIC.name(), "audiobook",
+                MediaFile.MediaType.AUDIOBOOK.name(), "video", MediaFile.MediaType.VIDEO.name(), "musicIndex",
+                musicIndex.getIndex(), "folders", MusicFolder.toPathList(folders), "count", count, "offset", offset);
+        return template.namedQuery("select " + QUERY_COLUMNS + """
+                        ,
+                        case type
+                            when :directory then 1
+                            when :album then 2
+                            when :music then 3
+                            when :audiobook then 4
+                            when :video then 5
+                        end as type_order
+                from media_file
+                where music_index=:musicIndex and present and folder in (:folders)
+                order by type_order, media_file_order
+                offset :offset limit :count
+                """, rowMapper, args);
+    }
+
+    public List<MediaFile> getArtists(MusicIndex musicIndex, List<MusicFolder> folders, long offset, long count) {
+        return template.query("select " + QUERY_COLUMNS + """
+                from artist
+                where music_index=?
+                order by artist_order
+                offset ? limit ?
+                """, rowMapper, musicIndex.getIndex(), offset, count);
     }
 
     public List<MediaFile> getFilesInPlaylist(int playlistId, long offset, long count) {
@@ -996,6 +1031,35 @@ public class MediaFileDao {
                 """, rowMapper, args);
     }
 
+    public int getSingleSongCounts(List<MusicFolder> folders) {
+        if (folders.isEmpty()) {
+            return 0;
+        }
+        Map<String, Object> args = Map.of("types", List.of(MediaType.DIRECTORY.name(), MediaType.ALBUM.name()),
+                "folders", MusicFolder.toPathList(folders));
+        return template.namedQueryForInt("""
+                select count(*)
+                from media_file m_file
+                where type not in (:types) and parent_path in(:folders)
+                """, 0, args);
+    }
+
+    public List<IndexWithCount> getMudicIndexCounts(List<MusicFolder> folders) {
+        if (folders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = LegacyMap.of("type", MediaType.DIRECTORY.name(), "folders",
+                MusicFolder.toPathList(folders));
+        return template.namedQuery("""
+                select distinct music_index, count(music_index)
+                from media_file
+                where type = :type and artist is not null
+                        and present and folder in(:folders)
+                group by music_index
+                order by music_index
+                """, indexWithCountMapper, args);
+    }
+
     static class RandomSongsQueryBuilder {
 
         private final RandomSearchCriteria criteria;
@@ -1157,5 +1221,8 @@ public class MediaFileDao {
             }
             return Optional.empty();
         }
+    }
+
+    public record IndexWithCount(String index, int artistCount) {
     }
 }

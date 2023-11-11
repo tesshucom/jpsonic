@@ -19,60 +19,39 @@
 
 package com.tesshu.jpsonic.service.upnp.processor;
 
-import static com.tesshu.jpsonic.util.PlayerUtils.subList;
-import static org.springframework.util.ObjectUtils.isEmpty;
-
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.domain.MediaFile;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
+import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.domain.MusicIndex;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.upnp.ProcId;
-import com.tesshu.jpsonic.spring.EhcacheConfiguration.IndexCacheKey;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import org.fourthline.cling.support.model.BrowseResult;
+import com.tesshu.jpsonic.service.upnp.composite.IndexOrSong;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.container.Container;
-import org.fourthline.cling.support.model.container.GenreContainer;
-import org.fourthline.cling.support.model.container.MusicAlbum;
-import org.fourthline.cling.support.model.container.MusicArtist;
 import org.springframework.stereotype.Service;
 
 @Service
-public class IndexUpnpProcessor extends DirectChildrenContentProcessor<MediaFile, MediaFile> {
-
-    private static final AtomicInteger INDEX_IDS = new AtomicInteger(Integer.MIN_VALUE);
-    // Only on write (because it can be explicitly reloaded on the client and is less risky)
+public class IndexUpnpProcessor extends DirectChildrenContentProcessor<IndexOrSong, MediaFile> {
 
     private final UpnpProcessorUtil util;
     private final UpnpDIDLFactory factory;
     private final MediaFileService mediaFileService;
     private final MusicIndexService musicIndexService;
-    private final Ehcache indexCache;
-    private final Object lock = new Object();
-
-    private MusicFolderContent content;
-    private Map<Integer, MediaIndex> indexesMap;
-    private List<MediaFile> topNodes;
 
     public IndexUpnpProcessor(UpnpProcessorUtil util, UpnpDIDLFactory factory, MediaFileService mediaFileService,
-            MusicIndexService musicIndexService, Ehcache indexCache) {
+            MusicIndexService musicIndexService) {
         super();
         this.util = util;
         this.factory = factory;
         this.mediaFileService = mediaFileService;
         this.musicIndexService = musicIndexService;
-        this.indexCache = indexCache;
     }
 
     @Override
@@ -80,191 +59,85 @@ public class IndexUpnpProcessor extends DirectChildrenContentProcessor<MediaFile
         return ProcId.INDEX;
     }
 
-    protected static final int getIDAndIncrement() {
-        return INDEX_IDS.getAndIncrement();
+    @Override
+    public Container createContainer(IndexOrSong indexOrSong) {
+        return factory.toMusicIndex(indexOrSong.getMusicIndex(), getProcId(), getChildSizeOf(indexOrSong));
     }
 
     @Override
-    public void addChild(DIDLContent didl, MediaFile child) {
-        if (child.isFile()) {
-            didl.addItem(factory.toMusicTrack(child));
+    public void addItem(DIDLContent parent, IndexOrSong indexOrSong) {
+        if (indexOrSong.isMusicIndex()) {
+            parent.addContainer(createContainer(indexOrSong));
         } else {
-            didl.addContainer(createContainer(child));
+            parent.addItem(factory.toMusicTrack(indexOrSong.getSong()));
         }
     }
 
     @Override
-    public void addItem(DIDLContent didl, MediaFile item) {
-        if (!item.isFile() || isIndex(item)) {
-            didl.addContainer(createContainer(item));
-        } else {
-            didl.addItem(factory.toMusicTrack(item));
-        }
-    }
-
-    @Override
-    public BrowseResult browseDirectChildren(String id) throws ExecutionException {
-        MediaFile item = getDirectChild(id);
-        DIDLContent didl = new DIDLContent();
-        addChild(didl, item);
-        return createBrowseResult(didl, 1, 1);
-    }
-
-    @SuppressWarnings("PMD.ConfusingTernary") // false positive
-    private void applyId(MediaFile item, Container container) {
-        container.setId(ProcId.INDEX.getValue() + ProcId.CID_SEPA + item.getId());
-        container.setTitle(item.getName());
-        container.setChildCount(getChildSizeOf(item));
-        if (!isIndex(item) && !mediaFileService.isRoot(item)) {
-            MediaFile parent = mediaFileService.getParentOf(item);
-            if (parent != null) {
-                container.setParentID(String.valueOf(parent.getId()));
-            }
-        } else {
-            container.setParentID(ProcId.INDEX.getValue());
-        }
-    }
-
-    @Override
-    public Container createContainer(MediaFile item) {
-        if (item.isAlbum()) {
-            MusicAlbum container = new MusicAlbum();
-            container.addProperty(factory.toAlbumArt(item));
-            if (item.getArtist() != null) {
-                container.addProperty(factory.toPerson(item.getArtist()));
-            }
-            container.setDescription(item.getComment());
-            applyId(item, container);
-            return container;
-        } else if (isIndex(item.getId())) {
-            GenreContainer container = new GenreContainer();
-            applyId(item, container);
-            return container;
-        } else {
-            MusicArtist container = new MusicArtist();
-            applyId(item, container);
-            item.getCoverArtPath().ifPresent(path -> container.addProperty(factory.toArtistArt(item)));
-            return container;
-        }
-    }
-
-    @Override
-    public List<MediaFile> getChildren(MediaFile item, long offset, long maxResults) {
-        if (isIndex(item)) {
-            synchronized (lock) {
-                MusicIndex index = indexesMap.get(item.getId()).getDeligate();
-                return subList(content.getIndexedArtists().get(index), offset, maxResults);
-            }
-        }
-        if (item.isAlbum()) {
-            return mediaFileService.getSongsForAlbum(offset, maxResults, item);
-        }
-        if (MediaType.DIRECTORY == item.getMediaType()) {
-            return mediaFileService.getChildrenOf(item, offset, maxResults, util.isSortAlbumsByYear(item.getArtist()));
-        }
-        return mediaFileService.getChildrenOf(item, offset, maxResults, false);
-    }
-
-    @Override
-    public int getChildSizeOf(MediaFile item) {
-        if (isIndex(item)) {
-            synchronized (lock) {
-                return content.getIndexedArtists().get(indexesMap.get(item.getId()).getDeligate()).size();
-            }
-        }
-        return mediaFileService.getChildSizeOf(item);
-    }
-
-    @Override
-    public MediaFile getDirectChild(String ids) {
-        int id = Integer.parseInt(ids);
-        if (isIndex(id)) {
-            synchronized (lock) {
-                return indexesMap.get(id);
-            }
-        }
-        return mediaFileService.getMediaFileStrict(id);
+    public List<IndexOrSong> getDirectChildren(long offset, long count) {
+        List<MusicFolder> folders = util.getGuestFolders();
+        return Stream
+                .concat(musicIndexService.getMusicFolderContentCounts(folders).indexCounts().keySet().stream()
+                        .map(IndexOrSong::new), mediaFileService.getSingleSongs(folders).stream().map(IndexOrSong::new))
+                .skip(offset).limit(count).toList();
     }
 
     @Override
     public int getDirectChildrenCount() {
-        synchronized (lock) {
-            refreshIndex();
-            return topNodes.size();
-        }
+        MusicFolderContent.Counts counts = musicIndexService.getMusicFolderContentCounts(util.getGuestFolders());
+        return counts.indexCounts().size() + counts.singleSongCounts();
     }
 
     @Override
-    public List<MediaFile> getDirectChildren(long offset, long maxResults) {
-        List<MediaFile> result = new ArrayList<>();
-        if (offset < getDirectChildrenCount()) {
-            int count = min((int) (offset + maxResults), getDirectChildrenCount());
-            synchronized (lock) {
-                for (int i = (int) offset; i < count; i++) {
-                    result.add(topNodes.get(i));
-                }
+    public IndexOrSong getDirectChild(String id) {
+        Optional<MusicIndex> op = musicIndexService.getMusicFolderContentCounts(util.getGuestFolders()).indexCounts()
+                .keySet().stream().filter(i -> i.getIndex().equals(id)).findFirst();
+        if (op.isPresent()) {
+            return new IndexOrSong(op.get());
+        }
+        MediaFile song = mediaFileService.getMediaFile(id);
+        if (Objects.nonNull(song)) {
+            return new IndexOrSong(song);
+        }
+        return null;
+    }
+
+    @Override
+    public List<MediaFile> getChildren(IndexOrSong indexOrSong, long offset, long count) {
+        if (indexOrSong.isMusicIndex()) {
+            return mediaFileService.getDirectChildren(indexOrSong.getMusicIndex(), util.getGuestFolders(), offset,
+                    count);
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public int getChildSizeOf(IndexOrSong indexOrSong) {
+        if (indexOrSong.isMusicIndex()) {
+            MusicFolderContent.Counts counts = musicIndexService.getMusicFolderContentCounts(util.getGuestFolders());
+            if (counts != null) {
+                return counts.indexCounts().get(indexOrSong.getMusicIndex());
             }
         }
-        return result;
+        return 0;
     }
 
-    void refreshIndex() {
-        Element element = indexCache.getQuiet(IndexCacheKey.FILE_STRUCTURE);
-        boolean expired = isEmpty(element) || indexCache.isExpired(element);
-        synchronized (lock) {
-            if (isEmpty(content) || 0 == content.getIndexedArtists().size() || expired) {
-                INDEX_IDS.set(Integer.MIN_VALUE);
-                content = musicIndexService.getMusicFolderContent(util.getGuestFolders());
-                indexCache.put(new Element(IndexCacheKey.FILE_STRUCTURE, content));
-                List<MediaIndex> indexes = content.getIndexedArtists().keySet().stream().map(MediaIndex::new).toList();
-                indexesMap = new ConcurrentHashMap<>();
-                indexes.forEach(i -> indexesMap.put(i.getId(), i));
-                topNodes = Stream.concat(indexes.stream(), content.getSingleSongs().stream()).toList();
-            }
+    @Override
+    public void addChild(DIDLContent parent, MediaFile mediaFile) {
+        switch (mediaFile.getMediaType()) {
+        case DIRECTORY -> {
+            int childCounts = mediaFileService.getChildSizeOf(mediaFile);
+            parent.addContainer(factory.toArtist(mediaFile, childCounts));
+        }
+        case ALBUM -> {
+            int childCounts = mediaFileService.getChildSizeOf(mediaFile);
+            parent.addContainer(factory.toAlbum(mediaFile, childCounts));
+        }
+        case MUSIC, AUDIOBOOK -> parent.addItem(factory.toMusicTrack(mediaFile));
+        case VIDEO, PODCAST -> {
+        }
+        default -> {
+        }
         }
     }
-
-    private boolean isIndex(int id) {
-        return -1 > id;
-    }
-
-    private boolean isIndex(MediaFile item) {
-        return isIndex(item.getId());
-    }
-
-    private int min(Integer... integers) {
-        int min = Integer.MAX_VALUE;
-        for (int i : integers) {
-            min = Integer.min(min, i);
-        }
-        return min;
-    }
-
-    static class MediaIndex extends MediaFile {
-
-        private final MusicIndex deligate;
-        private final int id;
-
-        public MediaIndex(MusicIndex deligate) {
-            super();
-            this.deligate = deligate;
-            this.id = getIDAndIncrement();
-        }
-
-        public MusicIndex getDeligate() {
-            return deligate;
-        }
-
-        @Override
-        public int getId() {
-            return id;
-        }
-
-        @Override
-        public String getName() {
-            return deligate.getIndex();
-        }
-
-    }
-
 }

@@ -41,4 +41,7 @@ public class MusicFolderContent {
     public List<MediaFile> getSingleSongs() {
         return singleSongs;
     }
+
+    public record Counts(SortedMap<MusicIndex, Integer> indexCounts, int singleSongCounts) {
+    }
 }

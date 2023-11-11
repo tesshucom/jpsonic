@@ -23,29 +23,42 @@ package com.tesshu.jpsonic.service.upnp.processor;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.service.upnp.processor.UpnpProcessorTestUtils.INDEX_LIST;
-import static com.tesshu.jpsonic.service.upnp.processor.UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
+import com.tesshu.jpsonic.domain.MusicIndex;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicIndexService;
-import net.sf.ehcache.Ehcache;
+import com.tesshu.jpsonic.service.upnp.ProcId;
+import com.tesshu.jpsonic.service.upnp.composite.IndexOrSong;
+import org.fourthline.cling.support.model.DIDLContent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
@@ -58,8 +71,7 @@ class IndexUpnpProcessorTest {
         private UpnpDIDLFactory factory;
         private MediaFileService mediaFileService;
         private MusicIndexService musicIndexService;
-        private Ehcache indexCache;
-        private IndexUpnpProcessor processor;
+        private IndexUpnpProcessor proc;
 
         @BeforeEach
         public void setup() {
@@ -67,19 +79,173 @@ class IndexUpnpProcessorTest {
             factory = mock(UpnpDIDLFactory.class);
             mediaFileService = mock(MediaFileService.class);
             musicIndexService = mock(MusicIndexService.class);
-            indexCache = mock(Ehcache.class);
-            processor = new IndexUpnpProcessor(util, factory, mediaFileService, musicIndexService, indexCache);
+            proc = new IndexUpnpProcessor(util, factory, mediaFileService, musicIndexService);
         }
 
         @Test
-        void testRefreshIndex() {
-            List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(0, "", "name", true, now(), 0));
-            Mockito.when(util.getGuestFolders()).thenReturn(musicFolders);
-            Mockito.when(musicIndexService.getMusicFolderContent(musicFolders))
-                    .thenReturn(new MusicFolderContent(new TreeMap<>(), Collections.emptyList()));
-            processor.refreshIndex();
-            Mockito.verify(musicIndexService, Mockito.times(1)).getMusicFolderContent(musicFolders);
-            Mockito.clearInvocations(musicIndexService);
+        void testGetProcId() {
+            assertEquals("index", proc.getProcId().getValue());
+        }
+
+        @Test
+        void testCreateContainer() {
+            MusicIndex musicIndex = new MusicIndex("A");
+            SortedMap<MusicIndex, Integer> map = new TreeMap<>((a, b) -> 0);
+            map.put(musicIndex, 99);
+
+            when(musicIndexService.getMusicFolderContentCounts(anyList()))
+                    .thenReturn(new MusicFolderContent.Counts(map, 0));
+            assertNull(proc.createContainer(new IndexOrSong(musicIndex)));
+            verify(factory, times(1)).toMusicIndex(any(MusicIndex.class), any(ProcId.class), anyInt());
+        }
+
+        @Test
+        void testAddItem() {
+            DIDLContent parent = new DIDLContent();
+            assertEquals(0, parent.getCount());
+            assertEquals(0, parent.getContainers().size());
+            assertEquals(0, parent.getItems().size());
+
+            MusicIndex musicIndex = new MusicIndex("A");
+            proc.addItem(parent, new IndexOrSong(musicIndex));
+            assertEquals(1, parent.getCount());
+            assertEquals(1, parent.getContainers().size());
+            assertEquals(0, parent.getItems().size());
+
+            proc.addItem(parent, new IndexOrSong(new MediaFile()));
+            assertEquals(2, parent.getCount());
+            assertEquals(1, parent.getContainers().size());
+            assertEquals(1, parent.getItems().size());
+        }
+
+        @Test
+        void testGetDirectChildren() {
+            MusicIndex musicIndex = new MusicIndex("A");
+            SortedMap<MusicIndex, Integer> map = new TreeMap<>((a, b) -> 0);
+            map.put(musicIndex, 99);
+            when(musicIndexService.getMusicFolderContentCounts(anyList()))
+                    .thenReturn(new MusicFolderContent.Counts(map, 0));
+
+            assertEquals(Collections.emptyList(), proc.getDirectChildren(0, 0));
+            verify(musicIndexService, times(1)).getMusicFolderContentCounts(anyList());
+            verify(mediaFileService, times(1)).getSingleSongs(anyList());
+        }
+
+        @Test
+        void testGetDirectChildrenCount() {
+            MusicIndex musicIndex = new MusicIndex("A");
+            SortedMap<MusicIndex, Integer> map = new TreeMap<>((a, b) -> 0);
+            map.put(musicIndex, 99);
+            when(musicIndexService.getMusicFolderContentCounts(anyList()))
+                    .thenReturn(new MusicFolderContent.Counts(map, 1));
+            assertEquals(2, proc.getDirectChildrenCount());
+        }
+
+        @Test
+        void testGetDirectChild() {
+            MusicIndex musicIndex = new MusicIndex("A");
+            SortedMap<MusicIndex, Integer> map = new TreeMap<>((a, b) -> 0);
+            map.put(musicIndex, 99);
+            when(musicIndexService.getMusicFolderContentCounts(anyList()))
+                    .thenReturn(new MusicFolderContent.Counts(map, 1));
+
+            IndexOrSong indexOrSong = proc.getDirectChild("A");
+            assertEquals(musicIndex, indexOrSong.getMusicIndex());
+
+            assertNull(proc.getDirectChild("81"));
+
+            MediaFile song = new MediaFile();
+            when(mediaFileService.getMediaFile(anyString())).thenReturn(song);
+            indexOrSong = proc.getDirectChild("82");
+            assertEquals(song, indexOrSong.getSong());
+        }
+
+        @Test
+        void testGetChildren() {
+            MediaFile song = new MediaFile();
+            assertEquals(Collections.emptyList(), proc.getChildren(new IndexOrSong(song), 0, 100));
+            verify(mediaFileService, never()).getDirectChildren(any(MusicIndex.class), anyList(), anyLong(), anyLong());
+
+            MusicIndex musicIndex = new MusicIndex("A");
+            assertEquals(Collections.emptyList(), proc.getChildren(new IndexOrSong(musicIndex), 0, 100));
+            verify(mediaFileService, times(1)).getDirectChildren(any(MusicIndex.class), anyList(), anyLong(),
+                    anyLong());
+        }
+
+        @Test
+        void testGetChildSizeOf() {
+            MusicIndex musicIndex = new MusicIndex("A");
+            assertEquals(0, proc.getChildSizeOf(new IndexOrSong(musicIndex)));
+
+            SortedMap<MusicIndex, Integer> map = new TreeMap<>((a, b) -> 0);
+            map.put(musicIndex, 99);
+            when(musicIndexService.getMusicFolderContentCounts(anyList()))
+                    .thenReturn(new MusicFolderContent.Counts(map, 0));
+            assertEquals(99, proc.getChildSizeOf(new IndexOrSong(musicIndex)));
+
+            assertEquals(0, proc.getChildSizeOf(new IndexOrSong(new MediaFile())));
+        }
+
+        @Test
+        void testAddChild() {
+
+            DIDLContent parent = new DIDLContent();
+            assertEquals(0, parent.getCount());
+            assertEquals(0, parent.getContainers().size());
+            assertEquals(0, parent.getItems().size());
+
+            MediaFile mediaFile = new MediaFile();
+            mediaFile.setMediaType(MediaType.DIRECTORY);
+            proc.addChild(parent, mediaFile);
+            assertEquals(1, parent.getCount());
+            assertEquals(1, parent.getContainers().size());
+            assertEquals(0, parent.getItems().size());
+            verify(factory, times(1)).toArtist(any(MediaFile.class), anyInt());
+
+            parent = new DIDLContent();
+            mediaFile.setMediaType(MediaType.ALBUM);
+            clearInvocations(factory);
+            proc.addChild(parent, mediaFile);
+            assertEquals(1, parent.getCount());
+            assertEquals(1, parent.getContainers().size());
+            assertEquals(0, parent.getItems().size());
+            verify(factory, times(1)).toAlbum(any(MediaFile.class), anyInt());
+
+            parent = new DIDLContent();
+            mediaFile.setMediaType(MediaType.MUSIC);
+            clearInvocations(factory);
+            proc.addChild(parent, mediaFile);
+            assertEquals(1, parent.getCount());
+            assertEquals(0, parent.getContainers().size());
+            assertEquals(1, parent.getItems().size());
+            verify(factory, times(1)).toMusicTrack(any(MediaFile.class));
+
+            parent = new DIDLContent();
+            mediaFile.setMediaType(MediaType.VIDEO);
+            clearInvocations(factory);
+            proc.addChild(parent, mediaFile);
+            assertEquals(0, parent.getCount());
+            assertEquals(0, parent.getContainers().size());
+            assertEquals(0, parent.getItems().size());
+            verify(factory, never()).toMusicTrack(any(MediaFile.class));
+
+            parent = new DIDLContent();
+            mediaFile.setMediaType(MediaType.AUDIOBOOK);
+            clearInvocations(factory);
+            proc.addChild(parent, mediaFile);
+            assertEquals(1, parent.getCount());
+            assertEquals(0, parent.getContainers().size());
+            assertEquals(1, parent.getItems().size());
+            verify(factory, times(1)).toMusicTrack(any(MediaFile.class));
+
+            parent = new DIDLContent();
+            mediaFile.setMediaType(MediaType.PODCAST);
+            clearInvocations(factory);
+            proc.addChild(parent, mediaFile);
+            assertEquals(0, parent.getCount());
+            assertEquals(0, parent.getContainers().size());
+            assertEquals(0, parent.getItems().size());
+            verify(factory, never()).toMusicTrack(any(MediaFile.class));
         }
     }
 
@@ -91,6 +257,8 @@ class IndexUpnpProcessorTest {
 
         @Autowired
         private IndexUpnpProcessor indexUpnpProcessor;
+        @Autowired
+        private MediaFileService mediaFileService;
 
         @Override
         public List<MusicFolder> getMusicFolders() {
@@ -128,89 +296,87 @@ class IndexUpnpProcessorTest {
         @Test
         void testGetItems() {
 
-            List<MediaFile> items = indexUpnpProcessor.getDirectChildren(0, 10);
+            List<IndexOrSong> items = indexUpnpProcessor.getDirectChildren(0, 10);
             assertEquals(10, items.size());
-            assertEquals("A", items.get(0).getName());
-            assertEquals("B", items.get(1).getName());
-            assertEquals("C", items.get(2).getName());
-            assertEquals("D", items.get(3).getName());
-            assertEquals("E", items.get(4).getName());
-            assertEquals("あ", items.get(5).getName());
-            assertEquals("さ", items.get(6).getName());
-            assertEquals("は", items.get(7).getName());
-            assertEquals("#", items.get(8).getName());
-            assertEquals("single1", items.get(9).getName());
+            assertEquals("A", items.get(0).getMusicIndex().getIndex());
+            assertEquals("B", items.get(1).getMusicIndex().getIndex());
+            assertEquals("C", items.get(2).getMusicIndex().getIndex());
+            assertEquals("D", items.get(3).getMusicIndex().getIndex());
+            assertEquals("E", items.get(4).getMusicIndex().getIndex());
+            assertEquals("あ", items.get(5).getMusicIndex().getIndex());
+            assertEquals("さ", items.get(6).getMusicIndex().getIndex());
+            assertEquals("は", items.get(7).getMusicIndex().getIndex());
+            assertEquals("#", items.get(8).getMusicIndex().getIndex());
+            assertEquals("single1", items.get(9).getSong().getName());
 
             items = indexUpnpProcessor.getDirectChildren(10, 10);
             assertEquals(10, items.size());
-            assertEquals("single2", items.get(0).getName());
-            assertEquals("single3", items.get(1).getName());
-            assertEquals("single4", items.get(2).getName());
-            assertEquals("single5", items.get(3).getName());
-            assertEquals("single6", items.get(4).getName());
-            assertEquals("single7", items.get(5).getName());
-            assertEquals("single8", items.get(6).getName());
-            assertEquals("single9", items.get(7).getName());
-            assertEquals("single10", items.get(8).getName());
-            assertEquals("single11", items.get(9).getName());
+            assertEquals("single2", items.get(0).getSong().getName());
+            assertEquals("single3", items.get(1).getSong().getName());
+            assertEquals("single4", items.get(2).getSong().getName());
+            assertEquals("single5", items.get(3).getSong().getName());
+            assertEquals("single6", items.get(4).getSong().getName());
+            assertEquals("single7", items.get(5).getSong().getName());
+            assertEquals("single8", items.get(6).getSong().getName());
+            assertEquals("single9", items.get(7).getSong().getName());
+            assertEquals("single10", items.get(8).getSong().getName());
+            assertEquals("single11", items.get(9).getSong().getName());
 
             items = indexUpnpProcessor.getDirectChildren(20, 10);
             assertEquals(10, items.size());
-            assertEquals("single12", items.get(0).getName());
-            assertEquals("single13", items.get(1).getName());
-            assertEquals("single14", items.get(2).getName());
-            assertEquals("single15", items.get(3).getName());
-            assertEquals("single16", items.get(4).getName());
-            assertEquals("single17", items.get(5).getName());
-            assertEquals("single18", items.get(6).getName());
-            assertEquals("single19", items.get(7).getName());
-            assertEquals("single20", items.get(8).getName());
-            assertEquals("single21", items.get(9).getName());
+            assertEquals("single12", items.get(0).getSong().getName());
+            assertEquals("single13", items.get(1).getSong().getName());
+            assertEquals("single14", items.get(2).getSong().getName());
+            assertEquals("single15", items.get(3).getSong().getName());
+            assertEquals("single16", items.get(4).getSong().getName());
+            assertEquals("single17", items.get(5).getSong().getName());
+            assertEquals("single18", items.get(6).getSong().getName());
+            assertEquals("single19", items.get(7).getSong().getName());
+            assertEquals("single20", items.get(8).getSong().getName());
+            assertEquals("single21", items.get(9).getSong().getName());
 
             items = indexUpnpProcessor.getDirectChildren(30, 10);
             assertEquals(1, items.size());
-            assertEquals("single22", items.get(0).getName());
+            assertEquals("single22", items.get(0).getSong().getName());
 
             items = indexUpnpProcessor.getDirectChildren(0, 5);
             assertEquals(5, items.size());
-            assertEquals("A", items.get(0).getName());
-            assertEquals("B", items.get(1).getName());
-            assertEquals("C", items.get(2).getName());
-            assertEquals("D", items.get(3).getName());
-            assertEquals("E", items.get(4).getName());
+            assertEquals("A", items.get(0).getMusicIndex().getIndex());
+            assertEquals("B", items.get(1).getMusicIndex().getIndex());
+            assertEquals("C", items.get(2).getMusicIndex().getIndex());
+            assertEquals("D", items.get(3).getMusicIndex().getIndex());
+            assertEquals("E", items.get(4).getMusicIndex().getIndex());
 
             items = indexUpnpProcessor.getDirectChildren(5, 100);
             assertEquals(26, items.size());
-            assertEquals("あ", items.get(0).getName());
-            assertEquals("さ", items.get(1).getName());
-            assertEquals("は", items.get(2).getName());
-            assertEquals("#", items.get(3).getName());
-            assertEquals("single1", items.get(4).getName());
+            assertEquals("あ", items.get(0).getMusicIndex().getIndex());
+            assertEquals("さ", items.get(1).getMusicIndex().getIndex());
+            assertEquals("は", items.get(2).getMusicIndex().getIndex());
+            assertEquals("#", items.get(3).getMusicIndex().getIndex());
+            assertEquals("single1", items.get(4).getSong().getName());
 
             items = indexUpnpProcessor.getDirectChildren(0, 9);
             assertEquals(9, items.size());
-            assertEquals("A", items.get(0).getName());
-            assertEquals("#", items.get(8).getName());
+            assertEquals("A", items.get(0).getMusicIndex().getIndex());
+            assertEquals("#", items.get(8).getMusicIndex().getIndex());
 
             items = indexUpnpProcessor.getDirectChildren(8, 1);
             assertEquals(1, items.size());
-            assertEquals("#", items.get(0).getName());
+            assertEquals("#", items.get(0).getMusicIndex().getIndex());
 
             items = indexUpnpProcessor.getDirectChildren(9, 1);
             assertEquals(1, items.size());
-            assertEquals("single1", items.get(0).getName());
+            assertEquals("single1", items.get(0).getSong().getName());
 
             items = indexUpnpProcessor.getDirectChildren(30, 1);
             assertEquals(1, items.size());
-            assertEquals("single22", items.get(0).getName());
+            assertEquals("single22", items.get(0).getSong().getName());
         }
 
         @Test
         void testGetChildSizeOf() {
-
-            List<MediaFile> items = indexUpnpProcessor.getDirectChildren(0, 100);
+            List<IndexOrSong> items = indexUpnpProcessor.getDirectChildren(0, 100);
             assertEquals(31, items.size());
-
             assertEquals(1, indexUpnpProcessor.getChildSizeOf(items.get(0)));
             assertEquals(1, indexUpnpProcessor.getChildSizeOf(items.get(1)));
             assertEquals(1, indexUpnpProcessor.getChildSizeOf(items.get(2)));
@@ -220,18 +386,16 @@ class IndexUpnpProcessorTest {
             assertEquals(1, indexUpnpProcessor.getChildSizeOf(items.get(6)));
             assertEquals(5, indexUpnpProcessor.getChildSizeOf(items.get(7)));
             assertEquals(15, indexUpnpProcessor.getChildSizeOf(items.get(8)));
-
         }
 
         @Test
-        void testgetChildren() {
-
+        void testGetChildren() {
             List<String> artistNames = indexUpnpProcessor.getDirectChildren(0, 100).stream()
-                    .flatMap(m -> indexUpnpProcessor.getChildren(m, 0, 100).stream()).map(MediaFile::getName)
-                    .collect(Collectors.toList());
+                    .filter(IndexOrSong::isMusicIndex).flatMap(m -> indexUpnpProcessor.getChildren(m, 0, 100).stream())
+                    .map(MediaFile::getName).toList();
             assertEquals(INDEX_LIST, artistNames);
 
-            List<MediaFile> items = indexUpnpProcessor.getDirectChildren(0, 100);
+            List<IndexOrSong> items = indexUpnpProcessor.getDirectChildren(0, 100);
             assertEquals(31, items.size());
             assertEquals(5, indexUpnpProcessor.getChildSizeOf(items.get(5)));
             assertEquals(5, indexUpnpProcessor.getChildSizeOf(items.get(7)));
@@ -241,6 +405,7 @@ class IndexUpnpProcessorTest {
             assertEquals(INDEX_LIST.get(5), artist.get(0).getName());
             assertEquals(INDEX_LIST.get(6), artist.get(1).getName());
             assertEquals(INDEX_LIST.get(7), artist.get(2).getName());
+
             artist = indexUpnpProcessor.getChildren(items.get(5), 3, 100);
             assertEquals(INDEX_LIST.get(8), artist.get(0).getName());
             assertEquals(INDEX_LIST.get(9), artist.get(1).getName());
@@ -273,7 +438,6 @@ class IndexUpnpProcessorTest {
             assertEquals(INDEX_LIST.get(28), artist.get(9).getName());
             assertEquals(INDEX_LIST.get(29), artist.get(10).getName());
             assertEquals(INDEX_LIST.get(30), artist.get(11).getName());
-
         }
 
         @Test
@@ -281,75 +445,49 @@ class IndexUpnpProcessorTest {
 
             settingsService.setSortAlbumsByYear(false);
 
-            List<MediaFile> indexes = indexUpnpProcessor.getDirectChildren(0, 100);
+            List<IndexOrSong> indexes = indexUpnpProcessor.getDirectChildren(0, 100);
             assertEquals(31, indexes.size());
 
-            MediaFile index = indexes.get(8);
-            assertEquals("#", index.getName());
+            IndexOrSong indexOrSong = indexes.get(8);
+            assertEquals("#", indexOrSong.getMusicIndex().getIndex());
 
-            List<MediaFile> artists = indexUpnpProcessor.getChildren(index, 0, Integer.MAX_VALUE);
+            List<MediaFile> artists = indexUpnpProcessor.getChildren(indexOrSong, 0, Integer.MAX_VALUE);
             assertEquals(15, artists.size());
             MediaFile artist = artists.get(0);
             assertEquals("10", artist.getName());
 
-            List<MediaFile> albums = indexUpnpProcessor.getChildren(artist, 0, Integer.MAX_VALUE);
+            List<MediaFile> albums = mediaFileService.getChildrenOf(artist, 0, Integer.MAX_VALUE, false);
             assertEquals(31, albums.size());
 
             assertTrue(UpnpProcessorTestUtils
                     .validateJPSonicNaturalList(albums.stream().map(MediaFile::getName).collect(Collectors.toList())));
-
-        }
-
-        @Test
-        void testAlbumByYear() {
-
-            // The result change depending on the setting
-            settingsService.setSortAlbumsByYear(true);
-            List<String> reversedByYear = new ArrayList<>(JPSONIC_NATURAL_LIST);
-            Collections.reverse(reversedByYear);
-
-            List<MediaFile> indexes = indexUpnpProcessor.getDirectChildren(0, 100);
-            assertEquals(31, indexes.size());
-
-            MediaFile index = indexes.get(8);
-            assertEquals("#", index.getName());
-
-            List<MediaFile> artists = indexUpnpProcessor.getChildren(index, 0, Integer.MAX_VALUE);
-            assertEquals(15, artists.size());
-            MediaFile artist = artists.get(0);
-            assertEquals("10", artist.getName());
-
-            List<MediaFile> albums = indexUpnpProcessor.getChildren(artist, 0, Integer.MAX_VALUE);
-            assertEquals(31, albums.size());
-
-            assertEquals(reversedByYear, albums.stream().map(MediaFile::getName).collect(Collectors.toList()));
-
         }
 
         @Test
         void testSongs() {
 
-            List<MediaFile> indexes = indexUpnpProcessor.getDirectChildren(0, 100).stream()
-                    .filter(a -> "#".equals(a.getName())).collect(Collectors.toList());
+            List<IndexOrSong> indexes = indexUpnpProcessor.getDirectChildren(0, 100).stream()
+                    .filter(i -> i.isMusicIndex()).filter(a -> "#".equals(a.getMusicIndex().getIndex()))
+                    .collect(Collectors.toList());
             assertEquals(1, indexes.size());
 
-            MediaFile index = indexes.get(0);
-            assertEquals("#", index.getName());
+            MusicIndex index = indexes.get(0).getMusicIndex();
+            assertEquals("#", index.getIndex());
 
-            List<MediaFile> artists = indexUpnpProcessor.getChildren(index, 0, Integer.MAX_VALUE).stream()
+            List<MediaFile> artists = indexUpnpProcessor.getChildren(indexes.get(0), 0, Integer.MAX_VALUE).stream()
                     .filter(a -> "20".equals(a.getName())).collect(Collectors.toList());
             assertEquals(1, artists.size());
 
             MediaFile artist = artists.get(0);
             assertEquals("20", artist.getName());
 
-            List<MediaFile> albums = indexUpnpProcessor.getChildren(artist, 0, Integer.MAX_VALUE);
+            List<MediaFile> albums = mediaFileService.getChildrenOf(artist, 0, Integer.MAX_VALUE, false);
             assertEquals(1, albums.size());
 
             MediaFile album = albums.get(0);
             assertEquals("ALBUM", album.getName()); // the case where album name is different between file and id3
 
-            List<MediaFile> songs = indexUpnpProcessor.getChildren(album, 0, Integer.MAX_VALUE);
+            List<MediaFile> songs = mediaFileService.getChildrenOf(album, 0, Integer.MAX_VALUE, false);
             assertEquals(1, songs.size());
 
             MediaFile song = songs.get(0);

@@ -37,6 +37,7 @@ import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
+import com.tesshu.jpsonic.domain.MusicFolderContent.Counts;
 import com.tesshu.jpsonic.domain.MusicIndex;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicIndexService;
@@ -117,6 +118,15 @@ public class MusicIndexServiceImpl implements MusicIndexService {
     @Override
     public void clear() {
         parser = null;
+    }
+
+    @Override
+    public Counts getMusicFolderContentCounts(List<MusicFolder> folders) {
+        Comparator<MusicIndex> comparator = new MusicIndexComparator(getParser().getIndexes());
+        SortedMap<MusicIndex, Integer> indexCounts = new TreeMap<>(comparator);
+        mediaFileService.getMudicIndexCounts(folders).forEach(indexWithCount -> indexCounts
+                .put(getParser().getIndex(indexWithCount.index()), indexWithCount.artistCount()));
+        return new Counts(indexCounts, mediaFileService.getSingleSongCounts(folders));
     }
 
     @Override

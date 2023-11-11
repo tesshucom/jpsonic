@@ -27,20 +27,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.util.LegacyMap;
+import org.fourthline.cling.support.model.BrowseResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 class RecentAlbumUpnpProcessorTest extends AbstractNeedsScan {
-
-    private static final Logger LOG = LoggerFactory.getLogger(RecentAlbumUpnpProcessorTest.class);
 
     private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
             .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Albums"), "Albums", true, now(), 1));
@@ -58,16 +56,25 @@ class RecentAlbumUpnpProcessorTest extends AbstractNeedsScan {
         setSortStrict(true);
         setSortAlphanum(true);
         populateDatabaseOnlyOnce();
+        settingsService.setDlnaBaseLANURL("https://192.168.1.1:4040");
+        settingsService.save();
     }
 
     @Test
-    void testGetItemCount() {
-        assertEquals(31, processor.getDirectChildrenCount());
+    void testGetProcId() {
+        assertEquals("recent", processor.getProcId().getValue());
     }
 
     @Test
-    void testGetItems() {
+    void testBrowseRoot() throws ExecutionException {
+        BrowseResult result = processor.browseRoot(null, 0, 30);
+        assertEquals(30, result.getCount().getValue());
+        result = processor.browseRoot(null, 0, 500);
+        assertEquals(31, result.getCount().getValue());
+    }
 
+    @Test
+    void testGetDirectChildren() {
         assertEquals(30, processor.getDirectChildren(0, 30).size());
         assertEquals(1, processor.getDirectChildren(30, 30).size());
 
@@ -97,22 +104,13 @@ class RecentAlbumUpnpProcessorTest extends AbstractNeedsScan {
         assertEquals(2, processor.getDirectChildren(1, 2).size());
         assertEquals(1, processor.getDirectChildren(1, 1).size());
 
+        List<MediaFile> albums = processor.getDirectChildren(1, 1);
+        assertEquals(1, albums.size());
+        assertEquals(1, processor.getChildSizeOf(albums.get(0)));
     }
 
     @Test
-    void testGetChildSizeOf() {
-        List<MediaFile> albums = processor.getDirectChildren(1, 1);
-        assertEquals(1, albums.size());
-        int childSizeOf = processor.getChildSizeOf(albums.get(0));
-        int maxFilesLength = 31;
-        if (childSizeOf == maxFilesLength) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info(
-                        "In this environment, the order of recent-albums may be partially different from other environments.");
-            }
-        } else {
-            assertEquals(1, childSizeOf);
-        }
+    void testDirectChildrenCount() {
+        assertEquals(31, processor.getDirectChildrenCount());
     }
-
 }

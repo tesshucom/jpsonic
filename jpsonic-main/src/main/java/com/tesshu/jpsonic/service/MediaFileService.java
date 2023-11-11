@@ -37,10 +37,12 @@ import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.MediaFileDao;
+import com.tesshu.jpsonic.dao.MediaFileDao.IndexWithCount;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.MusicIndex;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import com.tesshu.jpsonic.service.metadata.ParserUtils;
 import com.tesshu.jpsonic.util.PathValidator;
@@ -168,6 +170,11 @@ public class MediaFileService {
             }
         }
         return result;
+    }
+
+    public List<MediaFile> getDirectChildren(MusicIndex musicIndex, List<MusicFolder> folders, long offset,
+            long count) {
+        return mediaFileDao.getDirectChildren(musicIndex, folders, offset, count);
     }
 
     public boolean isRoot(@Nullable MediaFile mediaFile) {
@@ -388,5 +395,13 @@ public class MediaFileService {
 
     public List<MediaFile> getSingleSongs(List<MusicFolder> folders) {
         return mediaFileDao.getSingleSongs(folders);
+    }
+
+    public List<IndexWithCount> getMudicIndexCounts(List<MusicFolder> folders) {
+        return mediaFileDao.getMudicIndexCounts(folders);
+    }
+
+    public int getSingleSongCounts(List<MusicFolder> folders) {
+        return mediaFileDao.getSingleSongCounts(folders);
     }
 }

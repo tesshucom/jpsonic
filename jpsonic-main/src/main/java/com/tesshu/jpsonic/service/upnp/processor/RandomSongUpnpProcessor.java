@@ -32,7 +32,7 @@ import org.fourthline.cling.support.model.DIDLContent;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RandomSongUpnpProcessor extends MediaFileUpnpProcessor {
+public class RandomSongUpnpProcessor extends MediaFileUpnpProcessor implements CountLimitProc {
 
     private final UpnpProcessorUtil util;
     private final SearchService searchService;
@@ -52,27 +52,22 @@ public class RandomSongUpnpProcessor extends MediaFileUpnpProcessor {
     }
 
     @Override
-    public BrowseResult browseRoot(String filter, long offset, long maxResults) throws ExecutionException {
-        DIDLContent didl = new DIDLContent();
-        int randomMax = settingsService.getDlnaRandomMax();
-        if (offset < randomMax) {
-            long count = randomMax < offset + maxResults ? randomMax - offset : maxResults;
-            getDirectChildren(offset, count).forEach(a -> addItem(didl, a));
-        }
-        return createBrowseResult(didl, (int) didl.getCount(), getDirectChildrenCount());
+    public BrowseResult browseRoot(String filter, long offset, long count) throws ExecutionException {
+        DIDLContent content = new DIDLContent();
+        getDirectChildren(offset, count).forEach(song -> addItem(content, song));
+        return createBrowseResult(content, (int) content.getCount(), getDirectChildrenCount());
+    }
+
+    @Override
+    public List<MediaFile> getDirectChildren(long firstResult, long maxResults) {
+        int offset = (int) firstResult;
+        int max = getDirectChildrenCount();
+        int count = toCount(firstResult, maxResults, max);
+        return searchService.getRandomSongs((int) count, (int) offset, max, util.getGuestFolders());
     }
 
     @Override
     public int getDirectChildrenCount() {
         return settingsService.getDlnaRandomMax();
     }
-
-    @Override
-    public List<MediaFile> getDirectChildren(long first, long maxResults) {
-        int randomMax = settingsService.getDlnaRandomMax();
-        int offset = (int) first;
-        int count = (offset + (int) maxResults) > randomMax ? randomMax - offset : (int) maxResults;
-        return searchService.getRandomSongs(count, offset, randomMax, util.getGuestFolders());
-    }
-
 }

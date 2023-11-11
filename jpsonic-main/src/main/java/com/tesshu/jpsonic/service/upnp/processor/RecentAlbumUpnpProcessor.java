@@ -30,7 +30,7 @@ import org.fourthline.cling.support.model.DIDLContent;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
+public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor implements CountLimitProc {
 
     private static final int RECENT_COUNT = 50;
 
@@ -50,13 +50,17 @@ public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
     }
 
     @Override
-    public BrowseResult browseRoot(String filter, long offset, long max) throws ExecutionException {
-        DIDLContent didl = new DIDLContent();
-        if (offset < RECENT_COUNT) {
-            long count = RECENT_COUNT < offset + max ? RECENT_COUNT - offset : max;
-            getDirectChildren(offset, count).forEach(a -> addItem(didl, a));
-        }
-        return createBrowseResult(didl, (int) didl.getCount(), getDirectChildrenCount());
+    public BrowseResult browseRoot(String filter, long firstResult, long maxResults) throws ExecutionException {
+        DIDLContent parent = new DIDLContent();
+        int offset = (int) firstResult;
+        int count = toCount(firstResult, maxResults, RECENT_COUNT);
+        getDirectChildren(offset, count).forEach(a -> addItem(parent, a));
+        return createBrowseResult(parent, (int) parent.getCount(), getDirectChildrenCount());
+    }
+
+    @Override
+    public List<MediaFile> getDirectChildren(long count, long offset) {
+        return mediaFileService.getNewestAlbums((int) count, (int) offset, util.getGuestFolders());
     }
 
     @Override
@@ -64,10 +68,4 @@ public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
         int count = mediaFileService.getAlbumCount(util.getGuestFolders());
         return Math.min(count, RECENT_COUNT);
     }
-
-    @Override
-    public List<MediaFile> getDirectChildren(long first, long max) {
-        return mediaFileService.getNewestAlbums((int) first, (int) max, util.getGuestFolders());
-    }
-
 }
