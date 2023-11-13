@@ -38,13 +38,13 @@ import com.tesshu.jpsonic.service.upnp.UPnPContentProcessor;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.fourthline.cling.support.contentdirectory.ContentDirectoryErrorCode;
 import org.fourthline.cling.support.contentdirectory.ContentDirectoryException;
 import org.fourthline.cling.support.model.BrowseFlag;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.SortCriterion;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
@@ -52,11 +52,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 @DependsOn({ "rootUpnpProcessor", "mediaFileUpnpProcessor" })
-public class DispatchingContentDirectory extends CustomContentDirectory implements UpnpProcessDispatcher {
+public class DispatchingContentDirectory extends CustomContentDirectory
+        implements UpnpProcessDispatcher, CountLimitProc {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DispatchingContentDirectory.class);
-
-    private static final int COUNT_MAX = 50;
+    private static final int SEARCH_COUNT_MAX = 50;
 
     private final RootUpnpProcessor rootProcessor;
     private final MediaFileUpnpProcessor mediaFileProcessor;
@@ -117,81 +116,6 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     }
 
     @Override
-    public BrowseResult browse(String objectId, BrowseFlag browseFlag, String filter, long firstResult,
-            final long maxResults, SortCriterion[] orderBy) throws ContentDirectoryException {
-
-        if (isEmpty(objectId)) {
-            throw new ContentDirectoryException(ContentDirectoryErrorCode.CANNOT_PROCESS, "objectId is null");
-        }
-
-        // maxResult == 0 means all.
-        long max = maxResults == 0 ? Long.MAX_VALUE : maxResults;
-
-        String[] splitId = objectId.split(ProcId.CID_SEPA, -1);
-        ProcId procId = ProcId.of(splitId[0]);
-        String itemId = splitId.length == 1 ? null : splitId[1];
-
-        @SuppressWarnings("rawtypes")
-        UPnPContentProcessor processor = findProcessor(procId);
-        if (isEmpty(processor)) {
-            // if it's null then assume it's a file, and that the id
-            // is all that's there.
-            itemId = procId.getValue();
-            processor = mediaFileProcessor;
-        }
-
-        try {
-            BrowseResult returnValue;
-            if (isEmpty(itemId)) {
-                returnValue = browseFlag == BrowseFlag.METADATA ? processor.browseMetadata()
-                        : processor.browseRoot(filter, firstResult, max);
-            } else {
-                returnValue = browseFlag == BrowseFlag.METADATA ? processor.browseDirectChildren(itemId)
-                        : processor.browseLeaf(itemId, filter, firstResult, max);
-            }
-            return returnValue;
-        } catch (ExecutionException e) {
-            ConcurrentUtils.handleCauseUnchecked(e);
-            throw new ContentDirectoryException(ContentDirectoryErrorCode.CANNOT_PROCESS.getCode(),
-                    ContentDirectoryErrorCode.CANNOT_PROCESS.getDescription(), e);
-        }
-    }
-
-    @Override
-    public BrowseResult search(String containerId, String upnpSearchQuery, String filter, long firstResult,
-            long maxResults, SortCriterion[] orderBy) throws ContentDirectoryException {
-
-        // For known filters, delegation processing
-        if (wmpProcessor.isAvailable(filter)) {
-            BrowseResult wmpResult = wmpProcessor.getBrowseResult(upnpSearchQuery, filter, maxResults, firstResult);
-            if (!isEmpty(wmpResult)) {
-                return wmpResult;
-            }
-        } else if (!isEmpty(filter) && LOG.isInfoEnabled()) {
-            LOG.info("An unknown filter was specified. Jpsonic does nothing :{}", filter);
-        }
-
-        // General UPnP search
-        int offset = (int) firstResult;
-        int count = (int) maxResults;
-        if ((offset + count) > COUNT_MAX) {
-            count = COUNT_MAX - offset;
-        }
-        UPnPSearchCriteriaDirector director = new UPnPSearchCriteriaDirector(queryFactory, util);
-        UPnPSearchCriteria criteria = director.construct(offset, count, upnpSearchQuery);
-
-        if (Artist.class == criteria.getAssignableClass()) {
-            return artistProcessor.toBrowseResult(searchService.search(criteria));
-        } else if (Album.class == criteria.getAssignableClass()) {
-            return albumProcessor.toBrowseResult(searchService.search(criteria));
-        } else if (MediaFile.class == criteria.getAssignableClass()) {
-            return mediaFileProcessor.toBrowseResult(searchService.search(criteria));
-        }
-
-        return new BrowseResult(StringUtils.EMPTY, 0, 0L, 0L);
-    }
-
-    @Override
     public UPnPContentProcessor<?, ?> findProcessor(ProcId id) {
         return switch (id) {
         case ROOT -> rootProcessor;
@@ -211,7 +135,70 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         case RANDOM_SONG -> randomSongProcessor;
         case RANDOM_SONG_BY_ARTIST -> randomSongByArtistProcessor;
         case RANDOM_SONG_BY_FOLDER_ARTIST -> randomSongByFolderArtistProcessor;
-        default -> throw new AssertionError(String.format("Unreachable code(%s=%s).", "type", id));
         };
+    }
+
+    ProcId getProcId(@NonNull String objectId) {
+        int i = objectId.indexOf(ProcId.CID_SEPA);
+        return ProcId.of(i == -1 ? objectId : objectId.substring(0, i));
+    }
+
+    @Nullable
+    String getItemId(@NonNull String objectId) {
+        int i = objectId.indexOf(ProcId.CID_SEPA);
+        return i == -1 ? null : objectId.substring(i + 1);
+    }
+
+    @Override
+    public BrowseResult browse(String objectId, BrowseFlag browseFlag, String filter, long firstResult,
+            final long maxResults, SortCriterion[] orderBy) throws ContentDirectoryException {
+        if (isEmpty(objectId)) {
+            throw new ContentDirectoryException(ContentDirectoryErrorCode.CANNOT_PROCESS, "objectId is null");
+        }
+
+        UPnPContentProcessor<?, ?> processor = findProcessor(getProcId(objectId));
+        String itemId = getItemId(objectId);
+        long max = maxResults == 0 ? Long.MAX_VALUE : maxResults;
+        try {
+            if (isEmpty(itemId)) {
+                return browseFlag == BrowseFlag.METADATA ? processor.browseMetadata()
+                        : processor.browseRoot(filter, firstResult, max);
+            }
+            return browseFlag == BrowseFlag.METADATA ? processor.browseDirectChildren(itemId)
+                    : processor.browseLeaf(itemId, filter, firstResult, max);
+        } catch (ExecutionException e) {
+            ConcurrentUtils.handleCauseUnchecked(e);
+            throw new ContentDirectoryException(ContentDirectoryErrorCode.CANNOT_PROCESS.getCode(),
+                    ContentDirectoryErrorCode.CANNOT_PROCESS.getDescription(), e);
+        }
+    }
+
+    @Override
+    public BrowseResult search(String containerId, String upnpSearchQuery, String filter, long firstResult,
+            long maxResults, SortCriterion[] orderBy) throws ContentDirectoryException {
+
+        // For known filters, delegation processing
+        if (wmpProcessor.isAvailable(filter)) {
+            BrowseResult wmpResult = wmpProcessor.getBrowseResult(upnpSearchQuery, filter, maxResults, firstResult);
+            if (!isEmpty(wmpResult)) {
+                return wmpResult;
+            }
+        }
+
+        // General UPnP search
+        int offset = (int) firstResult;
+        int count = toCount(firstResult, maxResults, SEARCH_COUNT_MAX);
+        UPnPSearchCriteriaDirector director = new UPnPSearchCriteriaDirector(queryFactory, util);
+        UPnPSearchCriteria criteria = director.construct(offset, count, upnpSearchQuery);
+
+        if (Artist.class == criteria.getAssignableClass()) {
+            return artistProcessor.toBrowseResult(searchService.search(criteria));
+        } else if (Album.class == criteria.getAssignableClass()) {
+            return albumProcessor.toBrowseResult(searchService.search(criteria));
+        } else if (MediaFile.class == criteria.getAssignableClass()) {
+            return mediaFileProcessor.toBrowseResult(searchService.search(criteria));
+        }
+
+        return new BrowseResult(StringUtils.EMPTY, 0, 0L, 0L);
     }
 }

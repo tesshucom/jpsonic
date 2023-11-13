@@ -39,9 +39,10 @@ public abstract class CustomContentDirectory extends AbstractContentDirectorySer
     }
 
     @SuppressWarnings("PMD.AvoidCatchingGenericException") // fourthline/DIDLParser#generate
-    protected BrowseResult createBrowseResult(DIDLContent didl, int count, int totalMatches) throws ExecutionException {
+    protected BrowseResult createBrowseResult(DIDLContent content, int count, int totalMatches)
+            throws ExecutionException {
         try {
-            return new BrowseResult(new DIDLParser().generate(didl), count, totalMatches);
+            return new BrowseResult(new DIDLParser().generate(content), count, totalMatches);
         } catch (Exception e) {
             throw new ExecutionException("Unable to generate XML representation of content model.", e);
         }

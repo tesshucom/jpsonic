@@ -27,7 +27,6 @@ import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.upnp.ProcId;
 import com.tesshu.jpsonic.service.upnp.UPnPContentProcessor;
 import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
-import com.tesshu.jpsonic.util.PlayerUtils;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.WriteStatus;
 import org.fourthline.cling.support.model.container.Container;
@@ -107,7 +106,6 @@ public class RootUpnpProcessor implements UPnPContentProcessor<Container, Contai
             case RECENT -> "dlna.title.recentAlbums";
             case RECENT_ID3 -> "dlna.title.recentAlbumsId3";
             case SONG_BY_GENRE -> "dlna.title.songbygenres";
-            default -> throw new IllegalArgumentException("Unexpected value: " + getProcId());
             };
             proc.setProcTitle(resourceBundle.getString(key));
         }
@@ -140,7 +138,7 @@ public class RootUpnpProcessor implements UPnPContentProcessor<Container, Contai
             addContainer(ProcId.PODCAST);
         }
 
-        return PlayerUtils.subList(containers, offset, maxResults);
+        return containers.stream().skip(offset).limit(maxResults).toList();
     }
 
     private void applyIndexContainer() {
@@ -201,11 +199,11 @@ public class RootUpnpProcessor implements UPnPContentProcessor<Container, Contai
 
     @Override
     public List<Container> getChildren(Container item, long offset, long maxResults) {
-        return PlayerUtils.subList(getChildren(item), offset, maxResults);
+        return getChildren(item).stream().skip(offset).limit(maxResults).toList();
     }
 
     @Override
-    public void addChild(DIDLContent didl, Container child) {
+    public void addChild(DIDLContent parent, Container child) {
         // to be none
     }
 }
