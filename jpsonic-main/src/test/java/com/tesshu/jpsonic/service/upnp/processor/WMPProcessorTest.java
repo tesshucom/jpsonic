@@ -24,7 +24,13 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -34,7 +40,11 @@ import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.MediaFileService;
+import com.tesshu.jpsonic.service.PlayerService;
+import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.service.TranscodingService;
 import org.apache.commons.lang3.StringUtils;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.AUTHOR;
@@ -43,21 +53,34 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
 class WMPProcessorTest {
 
     private MediaFileService mediaFileService;
     private UpnpProcessorUtil util;
-    private UpnpDIDLFactory factory;
     private WMPProcessor wmpProcessor;
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws URISyntaxException {
         mediaFileService = mock(MediaFileService.class);
         util = mock(UpnpProcessorUtil.class);
-        factory = mock(UpnpDIDLFactory.class);
+        SettingsService settingsService = mock(SettingsService.class);
+        when(settingsService.getDlnaBaseLANURL()).thenReturn("https://192.168.1.1:4040");
+        JWTSecurityService jwtSecurityService = mock(JWTSecurityService.class);
+        UriComponentsBuilder builder = mock(UriComponentsBuilder.class);
+        UriComponents components = mock(UriComponents.class);
+        when(components.encode()).thenReturn(components);
+        when(components.toUri()).thenReturn(new URI("https://192.168.1.1/dummyArt.jpg"));
+        when(builder.build()).thenReturn(components);
+        when(builder.toUriString()).thenReturn("https://192.168.1.1/dummyResource.mp3");
+        when(jwtSecurityService.addJWTToken(any(UriComponentsBuilder.class))).thenReturn(builder);
+        PlayerService playerService = mock(PlayerService.class);
+        TranscodingService transcodingService = mock(TranscodingService.class);
+        UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, jwtSecurityService, mediaFileService,
+                playerService, transcodingService);
         wmpProcessor = new WMPProcessor(util, factory, mediaFileService);
         TestCaseUtils.setLogLevel(WMPProcessor.class, Level.DEBUG);
     }
@@ -90,8 +113,8 @@ class WMPProcessorTest {
 
         MediaFile m = new MediaFile();
         m.setPathString("path1");
-        Mockito.when(factory.toRes(m)).thenReturn(null);
-        Mockito.when(factory.toAlbumArt(m)).thenReturn(null);
+        // when(factory.toRes(m)).thenReturn(null);
+        // when(factory.toAlbumArt(m)).thenReturn(null);
 
         MusicTrack mt = wmpProcessor.createMusicTrack(m);
         assertNull(mt.getParentID());
@@ -104,7 +127,7 @@ class WMPProcessorTest {
         MediaFile parent = new MediaFile();
         parent.setId(parentId);
         parent.setPathString("parentPath");
-        Mockito.when(mediaFileService.getParentOf(m)).thenReturn(parent);
+        when(mediaFileService.getParentOf(m)).thenReturn(parent);
         m.setAlbumArtist("albumArtist");
         m.setGenre("genre");
         m.setYear(2021);
@@ -149,7 +172,7 @@ class WMPProcessorTest {
             assertEquals(0, result.getCount().getValue());
             assertEquals(0, result.getTotalMatches().getValue());
 
-            Mockito.when(util.getGuestFolders()).thenReturn(Collections.emptyList());
+            when(util.getGuestFolders()).thenReturn(Collections.emptyList());
 
             MediaFile m = new MediaFile();
             m.setPathString("path2");
@@ -157,29 +180,34 @@ class WMPProcessorTest {
             List<MediaFile> songs = Arrays.asList(m);
             MusicFolder mf = new MusicFolder(0, "path3", "dummy", true, null, 0);
             List<MusicFolder> folders = Arrays.asList(mf);
-            Mockito.when(util.getGuestFolders()).thenReturn(folders);
-            Mockito.when(mediaFileService.getSongs(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyList()))
-                    .thenReturn(songs);
-            Mockito.when(factory.toRes(m)).thenReturn(null);
-            Mockito.when(factory.toAlbumArt(m)).thenReturn(null);
+            when(util.getGuestFolders()).thenReturn(folders);
+            when(mediaFileService.getSongs(anyLong(), anyLong(), anyList())).thenReturn(songs);
             int parentId = 200;
             MediaFile parent = new MediaFile();
             parent.setId(parentId);
             parent.setPathString("parentPath2");
-            Mockito.when(mediaFileService.getParentOf(m)).thenReturn(parent);
-            Mockito.when(mediaFileService.countSongs(Mockito.anyList())).thenReturn(20L);
+            when(mediaFileService.getParentOf(m)).thenReturn(parent);
+            when(mediaFileService.countSongs(anyList())).thenReturn(20L);
 
             result = wmpProcessor.getBrowseResult(
                     "upnp:class derivedfrom \"object.item.audioItem\" and @refID exists false", "*", 1, 1);
 
             assertEquals(
                     """
-                            <DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" xmlns:dc="http://purl.org/dc/elements/1.1/" \
-                            xmlns:sec="http://www.sec.co.kr/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">\
-                            <item id="0" parentID="200" restricted="1"><dc:title>dummy title</dc:title>\
+                            <DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"\
+                            \sxmlns:dc="http://purl.org/dc/elements/1.1/"\
+                            \sxmlns:sec="http://www.sec.co.kr/"\
+                            \sxmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">\
+                            <item id="0" parentID="200" restricted="1">\
+                            <dc:title>dummy title</dc:title>\
                             <upnp:class>object.item.audioItem.musicTrack</upnp:class>\
-                            <upnp:originalTrackNumber/><upnp:album/>\
-                            <dc:description/></item></DIDL-Lite>\
+                            <upnp:album/>\
+                            <upnp:originalTrackNumber/>\
+                            <upnp:albumArtURI>https://192.168.1.1/dummyArt.jpg</upnp:albumArtURI>\
+                            <dc:description/>\
+                            <res protocolInfo="http-get:*:application/octet-stream:*">https://192.168.1.1/dummyResource.mp3</res>\
+                            </item>\
+                            </DIDL-Lite>\
                             """,
                     result.getResult());
             assertEquals(1, result.getCount().getValue());
@@ -198,7 +226,7 @@ class WMPProcessorTest {
             assertEquals(0, result.getCount().getValue());
             assertEquals(0, result.getTotalMatches().getValue());
 
-            Mockito.when(util.getGuestFolders()).thenReturn(Collections.emptyList());
+            when(util.getGuestFolders()).thenReturn(Collections.emptyList());
 
             MediaFile m = new MediaFile();
             m.setPathString("path5");
@@ -206,28 +234,32 @@ class WMPProcessorTest {
             List<MediaFile> songs = Arrays.asList(m);
             MusicFolder mf = new MusicFolder(0, "path6", "dummy", true, null, 0);
             List<MusicFolder> folders = Arrays.asList(mf);
-            Mockito.when(util.getGuestFolders()).thenReturn(folders);
-            Mockito.when(mediaFileService.getVideos(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyList()))
-                    .thenReturn(songs);
-            Mockito.when(factory.toRes(m)).thenReturn(null);
-            Mockito.when(factory.toAlbumArt(m)).thenReturn(null);
+            when(util.getGuestFolders()).thenReturn(folders);
+            when(mediaFileService.getVideos(anyLong(), anyLong(), anyList())).thenReturn(songs);
             int parentId = 200;
             MediaFile parent = new MediaFile();
             parent.setId(parentId);
             parent.setPathString("parentPath1");
-            Mockito.when(mediaFileService.getParentOf(m)).thenReturn(parent);
-            Mockito.when(mediaFileService.countVideos(Mockito.anyList())).thenReturn(20L);
+            when(mediaFileService.getParentOf(m)).thenReturn(parent);
+            when(mediaFileService.countVideos(anyList())).thenReturn(20L);
 
             result = wmpProcessor.getBrowseResult(
                     "upnp:class derivedfrom \"object.item.videoItem\" and @refID exists false", "*", 1, 1);
 
             assertEquals(
                     """
-                            <DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" xmlns:dc="http://purl.org/dc/elements/1.1/" \
-                            xmlns:sec="http://www.sec.co.kr/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">\
-                            <item id="0" parentID="200" restricted="1"><dc:title>dummy title</dc:title>\
+                            <DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"\
+                            \sxmlns:dc="http://purl.org/dc/elements/1.1/"\
+                            \sxmlns:sec="http://www.sec.co.kr/"\
+                            \sxmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">\
+                            <item id="0" parentID="200" restricted="1">\
+                            <dc:title>dummy title</dc:title>\
                             <upnp:class>object.item.videoItem</upnp:class>\
-                            <dc:description/></item></DIDL-Lite>\
+                            <upnp:albumArtURI>https://192.168.1.1/dummyArt.jpg</upnp:albumArtURI>\
+                            <dc:description/>\
+                            <res protocolInfo="http-get:*:application/octet-stream:*">https://192.168.1.1/dummyResource.mp3</res>\
+                            </item>\
+                            </DIDL-Lite>\
                             """,
                     result.getResult());
             assertEquals(1, result.getCount().getValue());
@@ -247,7 +279,7 @@ class WMPProcessorTest {
             m.setId(id);
             m.setPathString("path4");
             m.setTitle("dummy title");
-            Mockito.when(mediaFileService.getMediaFileStrict(id)).thenReturn(m);
+            when(mediaFileService.getMediaFileStrict(id)).thenReturn(m);
             assertEmpty(wmpProcessor.getBrowseResult("dc:title = \"99\"", "*", 0, 0));
 
             m.setMediaType(MediaType.MUSIC);
@@ -255,15 +287,24 @@ class WMPProcessorTest {
             MediaFile parent = new MediaFile();
             parent.setId(parentId);
             parent.setPathString("parentPath4");
-            Mockito.when(mediaFileService.getParentOf(m)).thenReturn(parent);
+            when(mediaFileService.getParentOf(m)).thenReturn(parent);
             BrowseResult result = wmpProcessor.getBrowseResult("dc:title = \"99\"", "*", 0, 0);
             assertEquals(
                     """
-                            <DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" xmlns:dc="http://purl.org/dc/elements/1.1/" \
-                            xmlns:sec="http://www.sec.co.kr/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">\
-                            <item id="99" parentID="200" restricted="1"><dc:title>dummy title</dc:title>\
-                            <upnp:class>object.item.audioItem.musicTrack</upnp:class><upnp:originalTrackNumber/><upnp:album/>\
-                            <dc:description/></item></DIDL-Lite>\
+                            <DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"\
+                            \sxmlns:dc="http://purl.org/dc/elements/1.1/"\
+                            \sxmlns:sec="http://www.sec.co.kr/"\
+                            \sxmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">\
+                            <item id="99" parentID="200" restricted="1">\
+                            <dc:title>dummy title</dc:title>\
+                            <upnp:class>object.item.audioItem.musicTrack</upnp:class>\
+                            <upnp:album/>\
+                            <upnp:originalTrackNumber/>\
+                            <upnp:albumArtURI>https://192.168.1.1/dummyArt.jpg</upnp:albumArtURI>\
+                            <dc:description/>\
+                            <res protocolInfo="http-get:*:application/octet-stream:*">https://192.168.1.1/dummyResource.mp3</res>\
+                            </item>\
+                            </DIDL-Lite>\
                             """,
                     result.getResult());
             assertEquals(1, result.getCount().getValue());

@@ -19,7 +19,6 @@
 
 package com.tesshu.jpsonic.service.upnp.processor;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
@@ -34,8 +33,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.fourthline.cling.support.contentdirectory.DIDLParser;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
+import org.fourthline.cling.support.model.DIDLObject.Property.UPNP;
 import org.fourthline.cling.support.model.item.MusicTrack;
-import org.fourthline.cling.support.model.item.VideoItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -107,29 +106,11 @@ public class WMPProcessor {
      * These specifications depend on the WMP view and UPnP model spec.
      */
     MusicTrack createMusicTrack(MediaFile song) {
-        MusicTrack item = new MusicTrack();
-        item.setId(String.valueOf(song.getId()));
-        item.setTitle(song.getTitle());
-        item.setOriginalTrackNumber(song.getTrackNumber());
-        item.setResources(Arrays.asList(factory.toRes(song)));
-        item.setDescription(song.getComment());
-
-        MediaFile parent = mediaFileService.getParentOf(song);
-        if (parent != null) {
-            item.setParentID(String.valueOf(parent.getId()));
-            item.addProperty(factory.toAlbumArt(parent));
-        }
-
+        MusicTrack item = factory.toMusicTrack(song);
         // Multi-artist is probably difficult with MS specs
         if (song.getAlbumArtist() != null) {
+            item.removeProperties(UPNP.ARTIST.class);
             item.addProperty(factory.toPerson(song.getAlbumArtist()));
-        }
-        item.setAlbum(song.getAlbumName());
-        if (song.getGenre() != null) {
-            item.setGenres(new String[] { song.getGenre() });
-        }
-        if (song.getYear() != null) {
-            item.setDate(song.getYear() + "-01-01");
         }
         item.setCreator(song.getArtist());
         if (song.getComposer() != null) {
@@ -138,36 +119,12 @@ public class WMPProcessor {
         return item;
     }
 
-    /*
-     * These specifications depend on the WMP view and UPnP model spec.
-     */
-    VideoItem createVideoItem(MediaFile video) {
-        VideoItem item = new VideoItem();
-        item.setId(String.valueOf(video.getId()));
-        item.setTitle(video.getTitle());
-        item.setResources(Arrays.asList(factory.toRes(video)));
-        item.setDescription(video.getComment());
-
-        MediaFile parent = mediaFileService.getParentOf(video);
-        if (parent != null) {
-            item.setParentID(String.valueOf(parent.getId()));
-            item.addProperty(factory.toAlbumArt(parent));
-        }
-        if (video.getGenre() != null) {
-            item.setGenres(new String[] { video.getGenre() });
-        }
-        item.setCreator(video.getArtist());
-        if (video.getComposer() != null) {
-            item.addProperty(factory.toComposer(video.getComposer()));
-        }
-        return item;
-    }
-
     @SuppressWarnings("PMD.AvoidCatchingGenericException") // fourthline/DIDLParser#generate
-    private BrowseResult createBrowseResult(DIDLContent didl, int count, int totalMatches) throws ExecutionException {
+    private BrowseResult createBrowseResult(DIDLContent content, int count, int totalMatches)
+            throws ExecutionException {
         String result;
         try {
-            result = new DIDLParser().generate(didl);
+            result = new DIDLParser().generate(content);
         } catch (Exception e) {
             throw new ExecutionException("Unable to generate XML representation of content model.", e);
         }
@@ -180,15 +137,15 @@ public class WMPProcessor {
         }
         List<MusicFolder> folders = util.getGuestFolders();
         List<MediaFile> songs = mediaFileService.getSongs(count, offset, folders);
-        DIDLContent didl = new DIDLContent();
-        songs.forEach(song -> didl.addItem(createMusicTrack(song)));
+        DIDLContent parent = new DIDLContent();
+        songs.forEach(song -> parent.addItem(createMusicTrack(song)));
         long total = mediaFileService.countSongs(folders);
         if (LOG.isInfoEnabled() && (offset % 1000 == 0 || count != songs.size() || offset + songs.size() == total)) {
             LOG.info("[audio] " + offset + "-" + (offset + songs.size()) + "/" + total + "("
                     + Math.round((float) (offset + songs.size()) / (float) total * 100) + "%)");
         }
         try {
-            return createBrowseResult(didl, (int) didl.getCount(), (int) total);
+            return createBrowseResult(parent, (int) parent.getCount(), (int) total);
         } catch (ExecutionException e) {
             ConcurrentUtils.handleCauseUnchecked(e);
             return EMPTY;
@@ -201,15 +158,15 @@ public class WMPProcessor {
         }
         List<MusicFolder> folders = util.getGuestFolders();
         List<MediaFile> videos = mediaFileService.getVideos(count, offset, folders);
-        DIDLContent didl = new DIDLContent();
-        videos.forEach(video -> didl.addItem(createVideoItem(video)));
+        DIDLContent parent = new DIDLContent();
+        videos.forEach(video -> parent.addItem(factory.toVideo(video)));
         long total = mediaFileService.countVideos(folders);
         if (LOG.isInfoEnabled() && (offset % 1000 == 0 || count != videos.size() || offset + videos.size() == total)) {
             LOG.info("[video] " + offset + "-" + (offset + videos.size()) + "/" + total + "("
                     + Math.round((float) (offset + videos.size()) / (float) total * 100) + "%)");
         }
         try {
-            return createBrowseResult(didl, (int) didl.getCount(), (int) total);
+            return createBrowseResult(parent, (int) parent.getCount(), (int) total);
         } catch (ExecutionException e) {
             ConcurrentUtils.handleCauseUnchecked(e);
             return EMPTY;
@@ -220,10 +177,10 @@ public class WMPProcessor {
         int id = Integer.parseInt(query.replaceAll("[^0-9]", ""));
         MediaFile mediaFile = mediaFileService.getMediaFileStrict(id);
         if (mediaFile.isAudio()) {
-            DIDLContent didl = new DIDLContent();
-            didl.addItem(createMusicTrack(mediaFile));
+            DIDLContent parent = new DIDLContent();
+            parent.addItem(createMusicTrack(mediaFile));
             try {
-                return createBrowseResult(didl, (int) didl.getCount(), 1);
+                return createBrowseResult(parent, (int) parent.getCount(), 1);
             } catch (ExecutionException e) {
                 ConcurrentUtils.handleCauseUnchecked(e);
             }

@@ -27,10 +27,8 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.upnp.ProcId;
-import com.tesshu.jpsonic.util.PlayerUtils;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.container.Container;
-import org.fourthline.cling.support.model.container.PlaylistContainer;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -51,15 +49,13 @@ public class PlaylistUpnpProcessor extends DirectChildrenContentProcessor<Playli
     }
 
     @Override
-    public Container createContainer(Playlist item) {
-        PlaylistContainer container = new PlaylistContainer();
-        container.setId(ProcId.PLAYLIST.getValue() + ProcId.CID_SEPA + item.getId());
-        container.setParentID(ProcId.PLAYLIST.getValue());
-        container.setTitle(item.getName());
-        container.setDescription(item.getComment());
-        container.setChildCount(playlistService.getFilesInPlaylist(item.getId()).size());
-        container.addProperty(factory.toPlaylistArt(item));
-        return container;
+    public Container createContainer(Playlist playlist) {
+        return factory.toPlaylist(playlist);
+    }
+
+    @Override
+    public List<Playlist> getDirectChildren(long offset, long count) {
+        return playlistService.getAllPlaylists().stream().skip(offset).limit(count).toList();
     }
 
     @Override
@@ -68,27 +64,22 @@ public class PlaylistUpnpProcessor extends DirectChildrenContentProcessor<Playli
     }
 
     @Override
-    public List<Playlist> getDirectChildren(long offset, long maxResults) {
-        return PlayerUtils.subList(playlistService.getAllPlaylists(), offset, maxResults);
-    }
-
-    @Override
     public Playlist getDirectChild(String id) {
         return playlistService.getPlaylist(Integer.parseInt(id));
     }
 
     @Override
-    public int getChildSizeOf(Playlist item) {
-        return playlistService.getCountInPlaylist(item.getId());
+    public List<MediaFile> getChildren(Playlist item, long offset, long count) {
+        return playlistService.getFilesInPlaylist(item.getId(), offset, count);
     }
 
     @Override
-    public List<MediaFile> getChildren(Playlist item, long offset, long maxResults) {
-        return playlistService.getFilesInPlaylist(item.getId(), offset, maxResults);
+    public int getChildSizeOf(Playlist playlist) {
+        return playlist.getFileCount();
     }
 
     @Override
-    public void addChild(DIDLContent didl, MediaFile song) {
-        didl.addItem(factory.toMusicTrack(song));
+    public void addChild(DIDLContent parent, MediaFile song) {
+        parent.addItem(factory.toMusicTrack(song));
     }
 }

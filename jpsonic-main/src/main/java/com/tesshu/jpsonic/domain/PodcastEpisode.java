@@ -65,11 +65,11 @@ public class PodcastEpisode {
         this.errorMessage = errorMessage;
     }
 
-    public Integer getId() {
+    public @Nullable Integer getId() {
         return id;
     }
 
-    public Integer getChannelId() {
+    public @Nullable Integer getChannelId() {
         return channelId;
     }
 
