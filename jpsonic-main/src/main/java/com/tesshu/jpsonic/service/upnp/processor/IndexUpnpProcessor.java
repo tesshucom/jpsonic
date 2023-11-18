@@ -65,7 +65,7 @@ public class IndexUpnpProcessor extends DirectChildrenContentProcessor<IndexOrSo
     }
 
     @Override
-    public void addItem(DIDLContent parent, IndexOrSong indexOrSong) {
+    public void addDirectChild(DIDLContent parent, IndexOrSong indexOrSong) {
         if (indexOrSong.isMusicIndex()) {
             parent.addContainer(createContainer(indexOrSong));
         } else {

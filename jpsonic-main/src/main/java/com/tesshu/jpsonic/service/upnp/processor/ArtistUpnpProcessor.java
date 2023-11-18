@@ -95,7 +95,7 @@ public class ArtistUpnpProcessor extends DirectChildrenContentProcessor<Artist, 
     public final BrowseResult toBrowseResult(ParamSearchResult<Artist> searchResult) {
         DIDLContent parent = new DIDLContent();
         try {
-            searchResult.getItems().forEach(artist -> addItem(parent, artist));
+            searchResult.getItems().forEach(artist -> addDirectChild(parent, artist));
             return createBrowseResult(parent, (int) parent.getCount(), searchResult.getTotalHits());
         } catch (ExecutionException e) {
             ConcurrentUtils.handleCauseUnchecked(e);

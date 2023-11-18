@@ -54,7 +54,7 @@ public class RandomSongUpnpProcessor extends MediaFileUpnpProcessor implements C
     @Override
     public BrowseResult browseRoot(String filter, long offset, long count) throws ExecutionException {
         DIDLContent content = new DIDLContent();
-        getDirectChildren(offset, count).forEach(song -> addItem(content, song));
+        getDirectChildren(offset, count).forEach(song -> addDirectChild(content, song));
         return createBrowseResult(content, (int) content.getCount(), getDirectChildrenCount());
     }
 

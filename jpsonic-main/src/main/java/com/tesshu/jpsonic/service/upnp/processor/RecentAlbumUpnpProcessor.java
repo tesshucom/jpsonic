@@ -54,7 +54,7 @@ public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor implements 
         DIDLContent parent = new DIDLContent();
         int offset = (int) firstResult;
         int count = toCount(firstResult, maxResults, RECENT_COUNT);
-        getDirectChildren(offset, count).forEach(a -> addItem(parent, a));
+        getDirectChildren(offset, count).forEach(a -> addDirectChild(parent, a));
         return createBrowseResult(parent, (int) parent.getCount(), getDirectChildrenCount());
     }
 

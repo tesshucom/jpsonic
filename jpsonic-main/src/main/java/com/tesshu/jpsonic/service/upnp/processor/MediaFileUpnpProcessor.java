@@ -71,7 +71,7 @@ public class MediaFileUpnpProcessor extends DirectChildrenContentProcessor<Media
     }
 
     @Override
-    public void addItem(DIDLContent parent, MediaFile entity) {
+    public void addDirectChild(DIDLContent parent, MediaFile entity) {
         if (entity.isFile()) {
             parent.addItem(factory.toMusicTrack(entity));
         } else {
@@ -124,7 +124,7 @@ public class MediaFileUpnpProcessor extends DirectChildrenContentProcessor<Media
 
     @Override
     public void addChild(DIDLContent parent, MediaFile entity) {
-        addItem(parent, entity);
+        addDirectChild(parent, entity);
     }
 
     public BrowseResult toBrowseResult(ParamSearchResult<MediaFile> searchResult) {

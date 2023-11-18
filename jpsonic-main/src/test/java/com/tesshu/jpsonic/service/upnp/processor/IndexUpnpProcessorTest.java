@@ -107,12 +107,12 @@ class IndexUpnpProcessorTest {
             assertEquals(0, parent.getItems().size());
 
             MusicIndex musicIndex = new MusicIndex("A");
-            proc.addItem(parent, new IndexOrSong(musicIndex));
+            proc.addDirectChild(parent, new IndexOrSong(musicIndex));
             assertEquals(1, parent.getCount());
             assertEquals(1, parent.getContainers().size());
             assertEquals(0, parent.getItems().size());
 
-            proc.addItem(parent, new IndexOrSong(new MediaFile()));
+            proc.addDirectChild(parent, new IndexOrSong(new MediaFile()));
             assertEquals(2, parent.getCount());
             assertEquals(1, parent.getContainers().size());
             assertEquals(1, parent.getItems().size());

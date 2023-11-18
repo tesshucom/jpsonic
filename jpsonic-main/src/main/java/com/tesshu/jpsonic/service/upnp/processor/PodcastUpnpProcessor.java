@@ -70,7 +70,7 @@ public class PodcastUpnpProcessor extends DirectChildrenContentProcessor<Podcast
         DIDLContent didl = new DIDLContent();
         List<PodcastChannel> channels = getDirectChildren(firstResult, maxResults);
         for (PodcastChannel channel : channels) {
-            addItem(didl, channel);
+            addDirectChild(didl, channel);
         }
         return createBrowseResult(didl, (int) didl.getCount(), getDirectChildrenCount());
     }

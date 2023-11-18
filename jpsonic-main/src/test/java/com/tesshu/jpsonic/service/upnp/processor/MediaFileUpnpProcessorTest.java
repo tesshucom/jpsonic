@@ -125,13 +125,13 @@ class MediaFileUpnpProcessorTest {
 
             MediaFile song = new MediaFile();
             song.setMediaType(MediaType.MUSIC);
-            proc.addItem(parent, song);
+            proc.addDirectChild(parent, song);
             assertEquals(1, parent.getItems().size());
             assertEquals(0, parent.getContainers().size());
 
             MediaFile album = new MediaFile();
             album.setMediaType(MediaType.ALBUM);
-            proc.addItem(parent, album);
+            proc.addDirectChild(parent, album);
             assertEquals(1, parent.getItems().size());
             assertEquals(1, parent.getContainers().size());
         }

@@ -56,7 +56,7 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor implements C
         int offset = (int) firstResult;
         int directChildrenCount = getDirectChildrenCount();
         int count = toCount(firstResult, maxResults, directChildrenCount);
-        getDirectChildren(offset, count).forEach(a -> addItem(parent, a));
+        getDirectChildren(offset, count).forEach(a -> addDirectChild(parent, a));
         return createBrowseResult(parent, (int) parent.getCount(), directChildrenCount);
     }
 

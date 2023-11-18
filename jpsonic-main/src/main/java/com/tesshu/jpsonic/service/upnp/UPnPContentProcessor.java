@@ -66,7 +66,7 @@ public interface UPnPContentProcessor<P, C> {
 
     Container createContainer(P entity);
 
-    default void addItem(DIDLContent parent, P entity) {
+    default void addDirectChild(DIDLContent parent, P entity) {
         parent.addContainer(createContainer(entity));
     }
 
@@ -76,7 +76,7 @@ public interface UPnPContentProcessor<P, C> {
 
     default BrowseResult browseRoot(String filter, long offset, long maxLength) throws ExecutionException {
         DIDLContent parent = new DIDLContent();
-        getDirectChildren(offset, maxLength).forEach(child -> addItem(parent, child));
+        getDirectChildren(offset, maxLength).forEach(child -> addDirectChild(parent, child));
         return createBrowseResult(parent, (int) parent.getCount(), getDirectChildrenCount());
     }
 
@@ -85,7 +85,7 @@ public interface UPnPContentProcessor<P, C> {
     default BrowseResult browseDirectChildren(String id) throws ExecutionException {
         P entity = getDirectChild(id);
         DIDLContent parent = new DIDLContent();
-        addItem(parent, entity);
+        addDirectChild(parent, entity);
         return createBrowseResult(parent, 1, 1);
     }
 

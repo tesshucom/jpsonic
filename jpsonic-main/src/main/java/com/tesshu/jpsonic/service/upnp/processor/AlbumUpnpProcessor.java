@@ -94,7 +94,7 @@ public class AlbumUpnpProcessor extends DirectChildrenContentProcessor<Album, Me
     public final BrowseResult toBrowseResult(ParamSearchResult<Album> searchResult) {
         DIDLContent parent = new DIDLContent();
         try {
-            searchResult.getItems().forEach(album -> addItem(parent, album));
+            searchResult.getItems().forEach(album -> addDirectChild(parent, album));
             return createBrowseResult(parent, (int) parent.getCount(), searchResult.getTotalHits());
         } catch (ExecutionException e) {
             ConcurrentUtils.handleCauseUnchecked(e);
