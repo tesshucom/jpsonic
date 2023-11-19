@@ -18,11 +18,11 @@
         <project.inceptionYear>2018</project.inceptionYear>
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jackson.version>2.15.3</jackson.version>
-        <tomcat.version>9.0.82</tomcat.version>
+        <jackson.version>2.16.0</jackson.version>
+        <tomcat.version>9.0.83</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
-        <jetty.version>10.0.17</jetty.version>
-        <jetty-jsp.version>10.0.17</jetty-jsp.version>
+        <jetty.version>10.0.18</jetty.version>
+        <jetty-jsp.version>10.0.18</jetty-jsp.version>
         <pmd.version>6.55.0</pmd.version>
         <log4j.version>2.21.1</log4j.version>
         <logback.version>1.2.11</logback.version>
@@ -83,7 +83,7 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>5.10.0</version>
+                <version>5.10.1</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -95,7 +95,7 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-junit-jupiter</artifactId>
-                <version>5.6.0</version>
+                <version>5.7.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -210,7 +210,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.15.3</version>
+                <version>2.16.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -226,7 +226,7 @@
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
                 <scope>compile</scope>
-                <version>3.39.0</version>
+                <version>3.40.0</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
@@ -467,7 +467,7 @@
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
                             <artifactId>checkstyle</artifactId>
-                            <version>10.12.4</version>
+                            <version>10.12.5</version>
                         </dependency>
                     </dependencies>
                     <configuration>
@@ -490,7 +490,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-pmd-plugin</artifactId>
-                    <version>3.21.0</version>
+                    <version>3.21.2</version>
                     <dependencies>
                         <dependency>
                             <groupId>net.sourceforge.pmd</groupId>
@@ -536,12 +536,12 @@
                 <plugin>
                     <groupId>com.github.spotbugs</groupId>
                     <artifactId>spotbugs-maven-plugin</artifactId>
-                    <version>4.7.3.6</version>
+                    <version>4.8.1.0</version>
                     <dependencies>
                         <dependency>
                             <groupId>com.github.spotbugs</groupId>
                             <artifactId>spotbugs</artifactId>
-                            <version>4.8.0</version>
+                            <version>4.8.1</version>
                         </dependency>
                     </dependencies>
                     <configuration>
@@ -557,7 +557,7 @@
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>8.4.2</version>
+                    <version>8.4.3</version>
                     <inherited>true</inherited>
                     <configuration>
                         <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
@@ -582,7 +582,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.2.1</version>
+                    <version>3.2.2</version>
                     <configuration>
                         <excludes>${test.excludes}</excludes>
                     </configuration>
