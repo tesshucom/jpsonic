@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.tesshu.jpsonic.player</groupId>
         <artifactId>jpsonic</artifactId>
-    <version>112.2.10</version>
+    <version>112.2.11</version>
     </parent>
 
     <properties>
@@ -90,7 +90,7 @@
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <version>5.0.1</version><!--$NO-MVN-MAN-VER$-->
+            <version>5.1.0</version><!--$NO-MVN-MAN-VER$-->
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
