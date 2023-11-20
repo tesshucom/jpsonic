@@ -83,7 +83,7 @@ public class AlbumUpnpProcessor extends DirectChildrenContentProcessor<Album, Me
 
     @Override
     public int getChildSizeOf(Album album) {
-        return mediaFileService.getSongsCountForAlbum(album.getArtist(), album.getName());
+        return album.getSongCount();
     }
 
     @Override

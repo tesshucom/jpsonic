@@ -152,7 +152,7 @@ public class MediaFileService {
     }
 
     public List<MediaFile> getChildrenOf(MediaFile parent, long offset, long count, boolean byYear) {
-        return mediaFileDao.getChildrenOf(offset, count, parent.getPathString(), byYear);
+        return mediaFileDao.getChildrenOf(parent.getPathString(), offset, count, byYear);
     }
 
     public List<MediaFile> getChildrenWithoutSortOf(MediaFile parent, boolean includeFiles, boolean includeDir) {
@@ -341,8 +341,8 @@ public class MediaFileService {
         mediaFile.setStarredDate(starredDate);
     }
 
-    public int getAlbumCount(List<MusicFolder> musicFolders) {
-        return mediaFileDao.getAlbumCount(musicFolders);
+    public long getAlbumCount(List<MusicFolder> musicFolders) {
+        return mediaFileDao.countMediaFile(MediaType.ALBUM, musicFolders);
     }
 
     public int getPlayedAlbumCount(List<MusicFolder> musicFolders) {
@@ -375,10 +375,6 @@ public class MediaFileService {
 
     public List<MediaFile> getVideos(long count, long offset, List<MusicFolder> folders) {
         return mediaFileDao.getMediaFile(MediaType.VIDEO, count, offset, folders);
-    }
-
-    public int getSongsCountForAlbum(String albumArtist, String album) {
-        return mediaFileDao.getSongsCountForAlbum(albumArtist, album);
     }
 
     public List<MediaFile> getSongsForAlbum(final long offset, final long count, MediaFile album) {

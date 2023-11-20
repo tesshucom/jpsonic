@@ -65,7 +65,7 @@ public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor implements 
 
     @Override
     public int getDirectChildrenCount() {
-        int count = mediaFileService.getAlbumCount(util.getGuestFolders());
+        int count = (int) mediaFileService.getAlbumCount(util.getGuestFolders());
         return Math.min(count, RECENT_COUNT);
     }
 }

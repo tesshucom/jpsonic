@@ -437,7 +437,7 @@ public class ScannerProcedureService {
         if (parent == null) {
             return null;
         }
-        List<MediaFile> songs = mediaFileDao.getChildrenWithOrderOf(parent.getPathString()).stream()
+        List<MediaFile> songs = mediaFileDao.getChildrenOf(parent.getPathString(), 0, Integer.MAX_VALUE, false).stream()
                 .filter(child -> mediaFileService.isAudioFile(child.getFormat())
                         || mediaFileService.isVideoFile(child.getFormat()))
                 .collect(Collectors.toList());
