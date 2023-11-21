@@ -30,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.clearInvocations;
@@ -204,7 +205,7 @@ class MediaFileUpnpProcessorTest {
             void testSingleFolder() {
                 when(util.getGuestFolders()).thenReturn(List.of(folder1));
                 assertEquals(0, proc.getDirectChildrenCount());
-                verify(mediaFileService, times(1)).getChildSizeOf(any(MusicFolder.class));
+                verify(mediaFileService, times(1)).getChildSizeOf(anyList(), any(MediaType.class));
             }
 
             @Test
@@ -223,7 +224,7 @@ class MediaFileUpnpProcessorTest {
                 assertEquals(3, proc.getDirectChildren(0, 3).size());
                 assertEquals(2, proc.getDirectChildren(1, 3).size());
                 assertEquals(1, proc.getDirectChildren(2, 3).size());
-                verify(mediaFileService, never()).getChildSizeOf(any(MusicFolder.class));
+                verify(mediaFileService, never()).getChildSizeOf(anyList(), any(MediaType.class));
             }
         }
 
@@ -252,7 +253,7 @@ class MediaFileUpnpProcessorTest {
         @Test
         void testGetChildSizeOf() {
             assertEquals(0, proc.getChildSizeOf(null));
-            verify(mediaFileService, times(1)).getChildSizeOf(nullable(MediaFile.class));
+            verify(mediaFileService, times(1)).getChildSizeOf(nullable(MediaFile.class), any(MediaType.class));
         }
 
         @Test

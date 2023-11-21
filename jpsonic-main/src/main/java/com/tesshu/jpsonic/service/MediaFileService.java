@@ -342,7 +342,7 @@ public class MediaFileService {
     }
 
     public long getAlbumCount(List<MusicFolder> musicFolders) {
-        return mediaFileDao.countMediaFile(MediaType.ALBUM, musicFolders);
+        return mediaFileDao.getSizeOf(musicFolders, MediaType.ALBUM);
     }
 
     public int getPlayedAlbumCount(List<MusicFolder> musicFolders) {
@@ -353,16 +353,16 @@ public class MediaFileService {
         return mediaFileDao.getStarredAlbumCount(username, musicFolders);
     }
 
-    public int getChildSizeOf(MediaFile mediaFile) {
+    public int getChildSizeOf(MediaFile mediaFile, MediaType... excludes) {
         return mediaFileDao.getChildSizeOf(mediaFile.getPathString());
     }
 
-    public int getChildSizeOf(MusicFolder musicFolder) {
-        return mediaFileDao.getChildSizeOf(musicFolder.getPathString());
+    public int getChildSizeOf(List<MusicFolder> folders, MediaType... excludes) {
+        return mediaFileDao.getChildSizeOf(folders, excludes);
     }
 
     public long countSongs(List<MusicFolder> folders) {
-        return mediaFileDao.countMediaFile(MediaType.MUSIC, folders);
+        return mediaFileDao.getSizeOf(folders, MediaType.MUSIC);
     }
 
     public List<MediaFile> getSongs(long count, long offset, List<MusicFolder> folders) {
@@ -370,7 +370,7 @@ public class MediaFileService {
     }
 
     public long countVideos(List<MusicFolder> folders) {
-        return mediaFileDao.countMediaFile(MediaType.VIDEO, folders);
+        return mediaFileDao.getSizeOf(folders, MediaType.VIDEO);
     }
 
     public List<MediaFile> getVideos(long count, long offset, List<MusicFolder> folders) {
@@ -394,10 +394,9 @@ public class MediaFileService {
     }
 
     public List<IndexWithCount> getMudicIndexCounts(List<MusicFolder> folders) {
-        return mediaFileDao.getMudicIndexCounts(folders);
-    }
-
-    public int getSingleSongCounts(List<MusicFolder> folders) {
-        return mediaFileDao.getSingleSongCounts(folders);
+        List<String> shortcutPaths = settingsService.getShortcutsAsArray().stream().flatMap(
+                shortcut -> folders.stream().map(folder -> Path.of(folder.getPathString(), shortcut).toString()))
+                .toList();
+        return mediaFileDao.getMudicIndexCounts(folders, shortcutPaths);
     }
 }

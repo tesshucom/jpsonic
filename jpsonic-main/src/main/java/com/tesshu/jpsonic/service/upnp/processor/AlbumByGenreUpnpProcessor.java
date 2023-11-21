@@ -23,6 +23,7 @@ import java.util.List;
 
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.upnp.ProcId;
@@ -63,6 +64,7 @@ public class AlbumByGenreUpnpProcessor extends SongByGenreUpnpProcessor {
 
     @Override
     public void addChild(DIDLContent parent, MediaFile album) {
-        parent.addContainer(factory.toAlbum(album, mediaFileService.getChildSizeOf(album)));
+        parent.addContainer(factory.toAlbum(album,
+                mediaFileService.getChildSizeOf(album, MediaType.PODCAST, MediaType.AUDIOBOOK, MediaType.VIDEO)));
     }
 }

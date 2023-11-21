@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.dao.base.DaoUtils;
 import com.tesshu.jpsonic.dao.base.TemplateWrapper;
@@ -133,7 +134,7 @@ public class MediaFileDao {
                 """, rowMapper, args);
     }
 
-    public long countMediaFile(MediaType mediaType, List<MusicFolder> folders) {
+    public long getSizeOf(List<MusicFolder> folders, MediaType mediaType) {
         if (folders.isEmpty()) {
             return 0;
         }
@@ -148,41 +149,47 @@ public class MediaFileDao {
         return list.isEmpty() ? defaultValue : list.get(0) == null ? defaultValue : list.get(0);
     }
 
-    public int getChildSizeOf(String path) {
-        return template.queryForInt("""
-                select count(id)
-                from media_file
-                where parent_path=? and present
-                """, 0, path);
-    }
-
-    public int getSingleSongCounts(List<MusicFolder> folders) {
+    public int getChildSizeOf(List<MusicFolder> folders, MediaType... excludes) {
         if (folders.isEmpty()) {
             return 0;
         }
-        Map<String, Object> args = Map.of("types", List.of(MediaType.DIRECTORY.name(), MediaType.ALBUM.name()),
-                "folders", MusicFolder.toPathList(folders));
+        Map<String, Object> args = Map.of("folders", MusicFolder.toPathList(folders), "excludes",
+                Stream.of(excludes).map(MediaType::name).toList());
+        String typeFilter = excludes.length == 0 ? "" : "and type not in(:excludes)";
         return template.namedQueryForInt("""
                 select count(*)
-                from media_file m_file
-                where type not in (:types) and parent_path in(:folders)
-                """, 0, args);
+                from media_file
+                where parent_path in(:folders) and present %s
+                """.formatted(typeFilter), 0, args);
     }
 
-    public List<IndexWithCount> getMudicIndexCounts(List<MusicFolder> folders) {
+    public int getChildSizeOf(String path, MediaType... excludes) {
+        Map<String, Object> args = Map.of("parentPath", path, "excludes",
+                Stream.of(excludes).map(MediaType::name).toList());
+        String typeFilter = excludes.length == 0 ? "" : "and type not in(:excludes)";
+        return template.namedQueryForInt("""
+                select count(*)
+                from media_file
+                where parent_path=:parentPath and present %s
+                """.formatted(typeFilter), 0, args);
+    }
+
+    public List<IndexWithCount> getMudicIndexCounts(List<MusicFolder> folders, List<String> shortcutPaths) {
         if (folders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("type", MediaType.DIRECTORY.name(), "folders",
-                MusicFolder.toPathList(folders));
+        Map<String, Object> args = LegacyMap.of("types", List.of(MediaType.DIRECTORY.name(), MediaType.ALBUM.name()),
+                "folders", MusicFolder.toPathList(folders), "shotcuts", shortcutPaths);
+        String shotcutFilter = shortcutPaths.isEmpty() ? "" : "and path not in (:shotcuts)";
         return template.namedQuery("""
                 select distinct music_index, count(music_index)
                 from media_file
-                where type = :type and artist is not null
-                        and present and folder in(:folders)
+                where type in(:types) and present
+                        and parent_path in(:folders)
+                        %s
                 group by music_index
                 order by music_index
-                """, indexWithCountMapper, args);
+                """.formatted(shotcutFilter), indexWithCountMapper, args);
     }
 
     public int getCountInPlaylist(int playlistId) {

@@ -123,11 +123,11 @@ class IndexUpnpProcessorTest {
             MusicIndex musicIndex = new MusicIndex("A");
             SortedMap<MusicIndex, Integer> map = new TreeMap<>((a, b) -> 0);
             map.put(musicIndex, 99);
-            when(musicIndexService.getMusicFolderContentCounts(anyList()))
+            when(musicIndexService.getMusicFolderContentCounts(anyList(), any(MediaType.class)))
                     .thenReturn(new MusicFolderContent.Counts(map, 0));
 
             assertEquals(Collections.emptyList(), proc.getDirectChildren(0, 0));
-            verify(musicIndexService, times(1)).getMusicFolderContentCounts(anyList());
+            verify(musicIndexService, times(1)).getMusicFolderContentCounts(anyList(), any(MediaType.class));
             verify(mediaFileService, times(1)).getSingleSongs(anyList());
         }
 
@@ -136,7 +136,7 @@ class IndexUpnpProcessorTest {
             MusicIndex musicIndex = new MusicIndex("A");
             SortedMap<MusicIndex, Integer> map = new TreeMap<>((a, b) -> 0);
             map.put(musicIndex, 99);
-            when(musicIndexService.getMusicFolderContentCounts(anyList()))
+            when(musicIndexService.getMusicFolderContentCounts(anyList(), any(MediaType.class)))
                     .thenReturn(new MusicFolderContent.Counts(map, 1));
             assertEquals(2, proc.getDirectChildrenCount());
         }
@@ -146,7 +146,7 @@ class IndexUpnpProcessorTest {
             MusicIndex musicIndex = new MusicIndex("A");
             SortedMap<MusicIndex, Integer> map = new TreeMap<>((a, b) -> 0);
             map.put(musicIndex, 99);
-            when(musicIndexService.getMusicFolderContentCounts(anyList()))
+            when(musicIndexService.getMusicFolderContentCounts(anyList(), any(MediaType.class)))
                     .thenReturn(new MusicFolderContent.Counts(map, 1));
 
             IndexOrSong indexOrSong = proc.getDirectChild("A");
@@ -179,7 +179,7 @@ class IndexUpnpProcessorTest {
 
             SortedMap<MusicIndex, Integer> map = new TreeMap<>((a, b) -> 0);
             map.put(musicIndex, 99);
-            when(musicIndexService.getMusicFolderContentCounts(anyList()))
+            when(musicIndexService.getMusicFolderContentCounts(anyList(), any(MediaType.class)))
                     .thenReturn(new MusicFolderContent.Counts(map, 0));
             assertEquals(99, proc.getChildSizeOf(new IndexOrSong(musicIndex)));
 
@@ -233,10 +233,10 @@ class IndexUpnpProcessorTest {
             mediaFile.setMediaType(MediaType.AUDIOBOOK);
             clearInvocations(factory);
             proc.addChild(parent, mediaFile);
-            assertEquals(1, parent.getCount());
+            assertEquals(0, parent.getCount());
             assertEquals(0, parent.getContainers().size());
-            assertEquals(1, parent.getItems().size());
-            verify(factory, times(1)).toMusicTrack(any(MediaFile.class));
+            assertEquals(0, parent.getItems().size());
+            verify(factory, never()).toMusicTrack(any(MediaFile.class));
 
             parent = new DIDLContent();
             mediaFile.setMediaType(MediaType.PODCAST);

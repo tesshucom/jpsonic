@@ -6,6 +6,7 @@ import java.util.SortedMap;
 
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.domain.MusicIndex;
@@ -40,7 +41,7 @@ public interface MusicIndexService {
     /**
      * @since v113.0.0
      */
-    MusicFolderContent.Counts getMusicFolderContentCounts(List<MusicFolder> folders);
+    MusicFolderContent.Counts getMusicFolderContentCounts(List<MusicFolder> folders, MediaType... excludes);
 
     /**
      * @since v113.0.0

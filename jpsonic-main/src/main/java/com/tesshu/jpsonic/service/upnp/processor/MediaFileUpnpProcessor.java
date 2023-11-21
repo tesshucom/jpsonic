@@ -26,8 +26,10 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ParamSearchResult;
 import com.tesshu.jpsonic.service.MediaFileService;
@@ -41,6 +43,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class MediaFileUpnpProcessor extends DirectChildrenContentProcessor<MediaFile, MediaFile> {
 
+    private static final MediaType[] EXCLUDED_TYPES = Stream.of(MediaType.PODCAST, MediaType.AUDIOBOOK, MediaType.VIDEO)
+            .toArray(size -> new MediaType[size]);
     public static final int SINGLE_MUSIC_FOLDER = 1;
 
     private final UpnpProcessorUtil util;
@@ -96,7 +100,7 @@ public class MediaFileUpnpProcessor extends DirectChildrenContentProcessor<Media
     public int getDirectChildrenCount() {
         List<MusicFolder> folders = util.getGuestFolders();
         if (folders.size() == SINGLE_MUSIC_FOLDER) {
-            return mediaFileService.getChildSizeOf(folders.get(0));
+            return mediaFileService.getChildSizeOf(folders, EXCLUDED_TYPES);
         }
         return folders.size();
     }
@@ -119,7 +123,7 @@ public class MediaFileUpnpProcessor extends DirectChildrenContentProcessor<Media
 
     @Override
     public int getChildSizeOf(MediaFile entity) {
-        return mediaFileService.getChildSizeOf(entity);
+        return mediaFileService.getChildSizeOf(entity, EXCLUDED_TYPES);
     }
 
     @Override
