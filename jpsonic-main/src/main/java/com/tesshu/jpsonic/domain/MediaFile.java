@@ -546,6 +546,9 @@ public non-sealed class MediaFile implements Orderable, ArtistIndexable {
 
     @Override
     public @Nullable String getReading() {
+        if (MediaType.ALBUM == mediaType) {
+            return albumReading;
+        }
         return artistReading;
     }
 

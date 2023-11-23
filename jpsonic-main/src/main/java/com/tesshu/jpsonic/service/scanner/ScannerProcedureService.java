@@ -814,6 +814,30 @@ public class ScannerProcedureService {
         return updated;
     }
 
+    /*
+     * Add index to Album directly under the directory.
+     * https://github.com/tesshucom/jpsonic/pull/2446#discussion_r1403505056
+     */
+    private void updateIndexOfAlbum() {
+        List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
+        if (mediaFileDao.getChildSizeOf(folders, MediaType.ALBUM) == 0) {
+            return;
+        }
+        folders.stream().forEach(folder -> {
+            int offset = 0;
+            List<MediaFile> albums = mediaFileDao.getChildrenOf(folder.getPathString(), offset, ACQUISITION_MAX, false);
+            while (!albums.isEmpty()) {
+                albums.stream().forEach(album -> {
+                    String musicIndex = musicIndexService.getParser().getIndex(album).getIndex();
+                    album.setMusicIndex(musicIndex);
+                    mediaFileDao.updateMediaFile(album);
+                });
+                offset += ACQUISITION_MAX;
+                albums = mediaFileDao.getChildrenOf(folder.getPathString(), offset, ACQUISITION_MAX, false);
+            }
+        });
+    }
+
     @SuppressWarnings("PMD.PrematureDeclaration")
     boolean updateSortOfAlbum(@NonNull Instant scanDate) {
         boolean updated = false;
@@ -822,6 +846,7 @@ public class ScannerProcedureService {
         }
 
         if (!scannerState.isEnableCleansing() || !settingsService.isSortStrict()) {
+            updateIndexOfAlbum();
             createScanEvent(scanDate, ScanEventType.UPDATE_SORT_OF_ALBUM, MSG_SKIP);
             return updated;
         }
@@ -849,6 +874,8 @@ public class ScannerProcedureService {
         if (updated) {
             invokeUpdateIndex(merged, copied, compensated);
         }
+
+        updateIndexOfAlbum();
 
         String comment = "Merged(%d)/Copied(%d)/Compensated(%d)".formatted(merged.size(), copied.size(),
                 compensated.size());

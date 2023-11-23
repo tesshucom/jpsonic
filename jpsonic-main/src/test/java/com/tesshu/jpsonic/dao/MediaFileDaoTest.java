@@ -718,7 +718,7 @@ class MediaFileDaoTest {
             counts.stream().forEach(index -> {
                 switch (index.index()) {
                 case "D" -> assertEquals(2, index.artistCount());
-                case "" -> assertEquals(1, index.artistCount());
+                case "A" -> assertEquals(1, index.artistCount());
                 default -> throw new IllegalArgumentException("Unexpected value: " + index.index());
                 }
             });
