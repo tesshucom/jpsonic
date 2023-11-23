@@ -1192,6 +1192,6 @@ public class MediaFileDao {
         }
     }
 
-    public record IndexWithCount(String index, int artistCount) {
+    public record IndexWithCount(String index, int directoryCount) {
     }
 }

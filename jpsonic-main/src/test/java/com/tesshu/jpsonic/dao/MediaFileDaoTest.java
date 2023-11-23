@@ -717,8 +717,8 @@ class MediaFileDaoTest {
             assertEquals(2, counts.size());
             counts.stream().forEach(index -> {
                 switch (index.index()) {
-                case "D" -> assertEquals(2, index.artistCount());
-                case "A" -> assertEquals(1, index.artistCount());
+                case "D" -> assertEquals(2, index.directoryCount()); // It's ~Folder/Dir**
+                case "A" -> assertEquals(1, index.directoryCount()); // It's ~Folder/Album**
                 default -> throw new IllegalArgumentException("Unexpected value: " + index.index());
                 }
             });

@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.ArtistIndexable;
+import com.tesshu.jpsonic.domain.Indexable;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
@@ -65,15 +65,15 @@ public class MusicIndexServiceImpl implements MusicIndexService {
         this.readingUtils = readingUtils;
     }
 
-    private <T extends ArtistIndexable> SortedMap<MusicIndex, List<T>> createIndexedArtistMap(List<T> artists) {
+    private <T extends Indexable> SortedMap<MusicIndex, List<T>> createIndexedArtistMap(List<T> indexables) {
         Comparator<MusicIndex> comparator = new MusicIndexComparator(getParser().getIndexes());
         SortedMap<MusicIndex, List<T>> iaMap = new TreeMap<>(comparator);
-        artists.forEach(artist -> {
-            MusicIndex musicIndex = getParser().getIndex(artist.getMusicIndex());
+        indexables.forEach(indexable -> {
+            MusicIndex musicIndex = getParser().getIndex(indexable.getMusicIndex());
             if (!iaMap.containsKey(musicIndex)) {
                 iaMap.put(musicIndex, new ArrayList<T>());
             }
-            iaMap.get(musicIndex).add(artist);
+            iaMap.get(musicIndex).add(indexable);
         });
         return iaMap;
     }
@@ -126,7 +126,7 @@ public class MusicIndexServiceImpl implements MusicIndexService {
         Comparator<MusicIndex> comparator = new MusicIndexComparator(getParser().getIndexes());
         SortedMap<MusicIndex, Integer> indexCounts = new TreeMap<>(comparator);
         mediaFileService.getMudicIndexCounts(folders).forEach(indexWithCount -> indexCounts
-                .put(getParser().getIndex(indexWithCount.index()), indexWithCount.artistCount()));
+                .put(getParser().getIndex(indexWithCount.index()), indexWithCount.directoryCount()));
         MediaType[] singleSongCountsExcludes = Stream
                 .concat(Stream.of(excludes), Stream.of(MediaType.DIRECTORY, MediaType.ALBUM)).distinct()
                 .toArray(size -> new MediaType[size]);
@@ -172,8 +172,8 @@ public class MusicIndexServiceImpl implements MusicIndexService {
             return indexes;
         }
 
-        MusicIndex getIndex(ArtistIndexable artist) {
-            String indexableName = readingUtils.createIndexableName(artist);
+        MusicIndex getIndex(Indexable indexable) {
+            String indexableName = readingUtils.createIndexableName(indexable);
             return indexes.stream()
                     .filter(musicIndex -> musicIndex.getPrefixes().stream()
                             .filter(prefix -> StringUtils.startsWithIgnoreCase(indexableName, prefix)).findFirst()
