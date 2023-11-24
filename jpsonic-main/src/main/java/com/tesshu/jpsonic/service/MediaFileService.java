@@ -37,6 +37,7 @@ import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.MediaFileDao;
+import com.tesshu.jpsonic.dao.MediaFileDao.ChildOrder;
 import com.tesshu.jpsonic.dao.MediaFileDao.IndexWithCount;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -151,8 +152,19 @@ public class MediaFileService {
         return result;
     }
 
-    public List<MediaFile> getChildrenOf(MediaFile parent, long offset, long count, boolean byYear) {
-        return mediaFileDao.getChildrenOf(parent.getPathString(), offset, count, byYear);
+    public List<MediaFile> getChildrenOf(MediaFile parent, long offset, long count, ChildOrder childOrder,
+            MediaType... excludes) {
+        return mediaFileDao.getChildrenOf(parent.getPathString(), offset, count, childOrder, excludes);
+    }
+
+    public List<MediaFile> getChildrenOf(List<MusicFolder> folders, MusicIndex musicIndex, long offset, long count,
+            MediaType... excludes) {
+        return mediaFileDao.getChildrenOf(folders, musicIndex, offset, count, excludes);
+    }
+
+    public List<MediaFile> getDirectChildFiles(List<MusicFolder> folders, long offset, long count,
+            MediaType... excludes) {
+        return mediaFileDao.getDirectChildFiles(folders, offset, count, excludes);
     }
 
     public List<MediaFile> getChildrenWithoutSortOf(MediaFile parent, boolean includeFiles, boolean includeDir) {
@@ -170,11 +182,6 @@ public class MediaFileService {
             }
         }
         return result;
-    }
-
-    public List<MediaFile> getDirectChildren(MusicIndex musicIndex, List<MusicFolder> folders, long offset,
-            long count) {
-        return mediaFileDao.getDirectChildren(musicIndex, folders, offset, count);
     }
 
     public boolean isRoot(@Nullable MediaFile mediaFile) {
@@ -377,20 +384,12 @@ public class MediaFileService {
         return mediaFileDao.getMediaFile(MediaType.VIDEO, count, offset, folders);
     }
 
-    public List<MediaFile> getSongsForAlbum(final long offset, final long count, MediaFile album) {
-        return mediaFileDao.getSongsForAlbum(offset, count, album);
-    }
-
     public List<MediaFile> getSongsForAlbum(final long offset, final long count, String albumArtist, String album) {
         return mediaFileDao.getSongsForAlbum(offset, count, albumArtist, album);
     }
 
-    public List<MediaFile> getIndexedArtists(List<MusicFolder> folders) {
-        return mediaFileDao.getIndexedArtists(folders, settingsService.getShortcutsAsArray());
-    }
-
-    public List<MediaFile> getSingleSongs(List<MusicFolder> folders) {
-        return mediaFileDao.getSingleSongs(folders);
+    public List<MediaFile> getIndexedDirs(List<MusicFolder> folders) {
+        return mediaFileDao.getIndexedDirs(folders, settingsService.getShortcutsAsArray());
     }
 
     public List<IndexWithCount> getMudicIndexCounts(List<MusicFolder> folders) {

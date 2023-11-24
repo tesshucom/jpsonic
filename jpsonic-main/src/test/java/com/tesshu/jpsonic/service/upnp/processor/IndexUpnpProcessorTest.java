@@ -46,6 +46,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.dao.MediaFileDao.ChildOrder;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -57,14 +58,19 @@ import com.tesshu.jpsonic.service.upnp.ProcId;
 import com.tesshu.jpsonic.service.upnp.composite.IndexOrSong;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestClassOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @SuppressWarnings("PMD.TooManyStaticImports")
 class IndexUpnpProcessorTest {
 
     @Nested
+    @Order(1)
     class UnitTest {
 
         private UpnpProcessorUtil util;
@@ -128,7 +134,8 @@ class IndexUpnpProcessorTest {
 
             assertEquals(Collections.emptyList(), proc.getDirectChildren(0, 0));
             verify(musicIndexService, times(1)).getMusicFolderContentCounts(anyList(), any(MediaType.class));
-            verify(mediaFileService, times(1)).getSingleSongs(anyList());
+            verify(mediaFileService, times(1)).getDirectChildFiles(anyList(), anyLong(), anyLong(),
+                    any(MediaType.class));
         }
 
         @Test
@@ -164,12 +171,13 @@ class IndexUpnpProcessorTest {
         void testGetChildren() {
             MediaFile song = new MediaFile();
             assertEquals(Collections.emptyList(), proc.getChildren(new IndexOrSong(song), 0, 100));
-            verify(mediaFileService, never()).getDirectChildren(any(MusicIndex.class), anyList(), anyLong(), anyLong());
+            verify(mediaFileService, never()).getChildrenOf(anyList(), any(MusicIndex.class), anyLong(), anyLong(),
+                    any(MediaType.class));
 
             MusicIndex musicIndex = new MusicIndex("A");
             assertEquals(Collections.emptyList(), proc.getChildren(new IndexOrSong(musicIndex), 0, 100));
-            verify(mediaFileService, times(1)).getDirectChildren(any(MusicIndex.class), anyList(), anyLong(),
-                    anyLong());
+            verify(mediaFileService, times(1)).getChildrenOf(anyList(), any(MusicIndex.class), anyLong(), anyLong(),
+                    any(MediaType.class));
         }
 
         @Test
@@ -250,6 +258,7 @@ class IndexUpnpProcessorTest {
     }
 
     @Nested
+    @Order(2)
     class IntegrationTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays
@@ -456,7 +465,8 @@ class IndexUpnpProcessorTest {
             MediaFile artist = artists.get(0);
             assertEquals("10", artist.getName());
 
-            List<MediaFile> albums = mediaFileService.getChildrenOf(artist, 0, Integer.MAX_VALUE, false);
+            List<MediaFile> albums = mediaFileService.getChildrenOf(artist, 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA,
+                    MediaType.PODCAST, MediaType.AUDIOBOOK, MediaType.VIDEO);
             assertEquals(31, albums.size());
 
             assertTrue(UpnpProcessorTestUtils
@@ -481,13 +491,14 @@ class IndexUpnpProcessorTest {
             MediaFile artist = artists.get(0);
             assertEquals("20", artist.getName());
 
-            List<MediaFile> albums = mediaFileService.getChildrenOf(artist, 0, Integer.MAX_VALUE, false);
+            List<MediaFile> albums = mediaFileService.getChildrenOf(artist, 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA,
+                    MediaType.PODCAST, MediaType.AUDIOBOOK, MediaType.VIDEO);
             assertEquals(1, albums.size());
 
             MediaFile album = albums.get(0);
             assertEquals("ALBUM", album.getName()); // the case where album name is different between file and id3
 
-            List<MediaFile> songs = mediaFileService.getChildrenOf(album, 0, Integer.MAX_VALUE, false);
+            List<MediaFile> songs = mediaFileService.getChildrenOf(album, 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA);
             assertEquals(1, songs.size());
 
             MediaFile song = songs.get(0);

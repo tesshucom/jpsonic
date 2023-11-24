@@ -35,6 +35,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.dao.MediaFileDao.ChildOrder;
 import com.tesshu.jpsonic.dao.MediaFileDao.IndexWithCount;
 import com.tesshu.jpsonic.dao.MediaFileDao.RandomSongsQueryBuilder;
 import com.tesshu.jpsonic.dao.base.DaoHelper;
@@ -53,6 +54,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class MediaFileDaoTest {
@@ -118,6 +120,56 @@ class MediaFileDaoTest {
                     "update media_file set artist_reading=?, artist_sort=?, album_artist_reading=?, album_artist_sort=?, composer_sort=? where id = ?",
                     queryCaptor.getValue());
             assertEquals(6, argCaptor.getAllValues().size());
+        }
+
+        @Nested
+        class GetChildrenOfTest {
+
+            private TemplateWrapper templateWrapper;
+            private MediaFileDao mediaFileDao;
+
+            @BeforeEach
+            public void setup() {
+                this.templateWrapper = Mockito.mock(TemplateWrapper.class);
+                mediaFileDao = new MediaFileDao(templateWrapper, mock(DialectMediaFileDao.class));
+            }
+
+            private String getOrderBy(ArgumentCaptor<String> queryCaptor) {
+                String query = queryCaptor.getValue();
+                return query.replaceAll("\n", "").replaceAll("^.*order\sby", "").replaceAll("offset.*$", "").trim();
+            }
+
+            @SuppressWarnings("unchecked")
+            private ArgumentCaptor<String> getQuery(ChildOrder byYear) {
+                ArgumentCaptor<String> queryCaptor = ArgumentCaptor.forClass(String.class);
+                Mockito.when(templateWrapper.namedQuery(queryCaptor.capture(), Mockito.any(RowMapper.class),
+                        Mockito.anyMap())).thenReturn(Collections.emptyList());
+                mediaFileDao.getChildrenOf("path", 0, Integer.MAX_VALUE, byYear);
+                return queryCaptor;
+            }
+
+            @Test
+            void testByAlphabetical() {
+                ArgumentCaptor<String> query = getQuery(ChildOrder.BY_ALPHA);
+                assertEquals("type_order, media_file_order", getOrderBy(query));
+            }
+
+            @Test
+            void testByYear() {
+                ArgumentCaptor<String> query = getQuery(ChildOrder.BY_YEAR);
+                assertEquals("type_order, year is null, year, media_file_order", getOrderBy(query));
+            }
+
+            @Test
+            void testByTrackNo() {
+                ArgumentCaptor<String> query = getQuery(ChildOrder.BY_TRACK);
+                assertEquals("""
+                        type_order, \
+                        disc_number is null, disc_number, \
+                        track_number is null, track_number, \
+                        media_file_order\
+                        """, getOrderBy(query));
+            }
         }
 
         @Nested

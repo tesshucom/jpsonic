@@ -21,7 +21,7 @@ public interface MusicIndexService {
     /**
      * @since Airsonic
      */
-    MusicFolderContent getMusicFolderContent(List<MusicFolder> folders);
+    MusicFolderContent getMusicFolderContent(List<MusicFolder> folders, MediaType... excludes);
 
     /**
      * @since Airsonic

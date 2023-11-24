@@ -39,6 +39,7 @@ import java.util.stream.Stream;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
+import com.tesshu.jpsonic.dao.MediaFileDao.ChildOrder;
 import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.Album;
@@ -437,10 +438,9 @@ public class ScannerProcedureService {
         if (parent == null) {
             return null;
         }
-        List<MediaFile> songs = mediaFileDao.getChildrenOf(parent.getPathString(), 0, Integer.MAX_VALUE, false).stream()
-                .filter(child -> mediaFileService.isAudioFile(child.getFormat())
-                        || mediaFileService.isVideoFile(child.getFormat()))
-                .collect(Collectors.toList());
+        List<MediaFile> songs = mediaFileService
+                .getChildrenOf(parent, 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA, MediaType.DIRECTORY, MediaType.ALBUM)
+                .stream().collect(Collectors.toList());
         if (songs.isEmpty()) {
             return null;
         }
@@ -823,9 +823,12 @@ public class ScannerProcedureService {
         if (mediaFileDao.getChildSizeOf(folders, MediaType.ALBUM) == 0) {
             return;
         }
+        MediaType[] otherThanAlbum = Stream.of(MediaType.values()).filter(type -> type != MediaType.ALBUM)
+                .toArray(i -> new MediaType[i]);
         folders.stream().forEach(folder -> {
             int offset = 0;
-            List<MediaFile> albums = mediaFileDao.getChildrenOf(folder.getPathString(), offset, ACQUISITION_MAX, false);
+            List<MediaFile> albums = mediaFileDao.getChildrenOf(folder.getPathString(), offset, ACQUISITION_MAX,
+                    ChildOrder.BY_ALPHA, otherThanAlbum);
             while (!albums.isEmpty()) {
                 albums.stream().forEach(album -> {
                     String musicIndex = musicIndexService.getParser().getIndex(album).getIndex();
@@ -833,7 +836,8 @@ public class ScannerProcedureService {
                     mediaFileDao.updateMediaFile(album);
                 });
                 offset += ACQUISITION_MAX;
-                albums = mediaFileDao.getChildrenOf(folder.getPathString(), offset, ACQUISITION_MAX, false);
+                albums = mediaFileDao.getChildrenOf(folder.getPathString(), offset, ACQUISITION_MAX,
+                        ChildOrder.BY_ALPHA, otherThanAlbum);
             }
         });
     }

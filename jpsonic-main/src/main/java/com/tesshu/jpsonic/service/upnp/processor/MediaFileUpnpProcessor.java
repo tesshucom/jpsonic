@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
+import com.tesshu.jpsonic.dao.MediaFileDao.ChildOrder;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -112,13 +113,13 @@ public class MediaFileUpnpProcessor extends DirectChildrenContentProcessor<Media
 
     @Override
     public List<MediaFile> getChildren(MediaFile entity, long offset, long count) {
-        if (isEmpty(entity.getArtist())) {
-            return mediaFileService.getChildrenOf(entity, offset, count, false);
-        }
+        ChildOrder childOrder = ChildOrder.BY_ALPHA;
         if (entity.isAlbum()) {
-            return mediaFileService.getSongsForAlbum(offset, count, entity);
+            childOrder = ChildOrder.BY_TRACK;
+        } else if (util.isSortAlbumsByYear(entity.getName())) {
+            childOrder = ChildOrder.BY_YEAR;
         }
-        return mediaFileService.getChildrenOf(entity, offset, count, util.isSortAlbumsByYear(entity.getName()));
+        return mediaFileService.getChildrenOf(entity, offset, count, childOrder, EXCLUDED_TYPES);
     }
 
     @Override

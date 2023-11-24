@@ -80,10 +80,11 @@ public class IndexUpnpProcessor extends DirectChildrenContentProcessor<IndexOrSo
     @Override
     public List<IndexOrSong> getDirectChildren(long offset, long count) {
         List<MusicFolder> folders = util.getGuestFolders();
-        return Stream
-                .concat(musicIndexService.getMusicFolderContentCounts(folders, EXCLUDED_TYPES).indexCounts().keySet()
-                        .stream().map(IndexOrSong::new),
-                        mediaFileService.getSingleSongs(folders).stream().map(IndexOrSong::new))
+        return Stream.concat(
+                musicIndexService.getMusicFolderContentCounts(folders, EXCLUDED_TYPES).indexCounts().keySet().stream()
+                        .map(IndexOrSong::new),
+                mediaFileService.getDirectChildFiles(folders, 0, Integer.MAX_VALUE, EXCLUDED_TYPES).stream()
+                        .map(IndexOrSong::new))
                 .skip(offset).limit(count).toList();
     }
 
@@ -111,8 +112,8 @@ public class IndexUpnpProcessor extends DirectChildrenContentProcessor<IndexOrSo
     @Override
     public List<MediaFile> getChildren(IndexOrSong indexOrSong, long offset, long count) {
         if (indexOrSong.isMusicIndex()) {
-            return mediaFileService.getDirectChildren(indexOrSong.getMusicIndex(), util.getGuestFolders(), offset,
-                    count);
+            return mediaFileService.getChildrenOf(util.getGuestFolders(), indexOrSong.getMusicIndex(), offset, count,
+                    EXCLUDED_TYPES);
         }
         return Collections.emptyList();
     }

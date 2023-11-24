@@ -28,7 +28,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -48,6 +47,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
+import com.tesshu.jpsonic.dao.MediaFileDao.ChildOrder;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
@@ -150,8 +150,9 @@ class MediaFileUpnpProcessorTest {
                 mfolder1.setPathString("/path1");
                 mfolder2.setPathString("/path2");
                 mfolder3.setPathString("/path3");
-                when(mediaFileService.getChildrenOf(any(MediaFile.class), anyLong(), anyLong(), anyBoolean()))
-                        .thenReturn(List.of(new MediaFile(), new MediaFile(), new MediaFile(), new MediaFile()));
+                when(mediaFileService.getChildrenOf(any(MediaFile.class), anyLong(), anyLong(), any(ChildOrder.class),
+                        any(MediaType.class))).thenReturn(
+                                List.of(new MediaFile(), new MediaFile(), new MediaFile(), new MediaFile()));
             }
 
             @Test
@@ -191,7 +192,7 @@ class MediaFileUpnpProcessorTest {
             @BeforeEach
             public void setup() {
                 when(mediaFileService.getChildrenOf(any(MediaFile.class), anyLong(), anyLong(),
-                        anyBoolean()))
+                        any(ChildOrder.class), any(MediaType.class)))
                                 .thenReturn(List.of(new MediaFile(), new MediaFile(),
                                         new MediaFile(), new MediaFile()));
             }
@@ -387,6 +388,7 @@ class MediaFileUpnpProcessorTest {
 
             // The result change depending on the setting
             settingsService.setSortAlbumsByYear(true);
+            settingsService.save();
             List<String> reversedByYear = new ArrayList<>(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST);
             Collections.reverse(reversedByYear);
 

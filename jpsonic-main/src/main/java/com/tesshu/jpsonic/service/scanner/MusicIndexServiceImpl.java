@@ -79,10 +79,10 @@ public class MusicIndexServiceImpl implements MusicIndexService {
     }
 
     @Override
-    public MusicFolderContent getMusicFolderContent(List<MusicFolder> folders) {
-        List<MediaFile> artists = mediaFileService.getIndexedArtists(folders);
-        SortedMap<MusicIndex, List<MediaFile>> indexedArtists = createIndexedArtistMap(artists);
-        List<MediaFile> singleSongs = mediaFileService.getSingleSongs(folders);
+    public MusicFolderContent getMusicFolderContent(List<MusicFolder> folders, MediaType... excludes) {
+        List<MediaFile> dirs = mediaFileService.getIndexedDirs(folders);
+        SortedMap<MusicIndex, List<MediaFile>> indexedArtists = createIndexedArtistMap(dirs);
+        List<MediaFile> singleSongs = mediaFileService.getDirectChildFiles(folders, 0, Integer.MAX_VALUE, excludes);
         return new MusicFolderContent(indexedArtists, singleSongs);
     }
 
