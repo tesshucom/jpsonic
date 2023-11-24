@@ -685,7 +685,7 @@ class SortProcedureServiceTest {
         @Order(5)
         void testAlbumOfId3() {
 
-            List<Album> albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, musicFolders);
+            List<Album> albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, musicFolders);
             assertEquals(13, albumId3s.size());
             for (int i = 0; i < albumId3s.size(); i++) {
                 assertEquals(i + 1, albumId3s.get(i).getOrder());

@@ -46,7 +46,6 @@ import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
-import com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MediaLibraryStatistics;
@@ -876,7 +875,7 @@ public class ScannerProcedureService {
         }
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
         List<MediaFile> artists = mediaFileDao.getArtistAll(folders);
-        int count = invokeUpdateOrder(artists, comparators.mediaFileOrderBy(OrderBy.ARTIST),
+        int count = invokeUpdateOrder(artists, comparators.mediaFileOrderByAlpha(),
                 (artist) -> wmfs.updateOrder(artist));
         String comment = "Updated order of (%d) artists".formatted(count);
         createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ARTIST, comment);
@@ -892,8 +891,7 @@ public class ScannerProcedureService {
         }
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
         List<MediaFile> albums = mediaFileService.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, folders);
-        int count = invokeUpdateOrder(albums, comparators.mediaFileOrderBy(OrderBy.ALBUM),
-                (album) -> wmfs.updateOrder(album));
+        int count = invokeUpdateOrder(albums, comparators.mediaFileOrderByAlpha(), (album) -> wmfs.updateOrder(album));
         String comment = "Updated order of (%d) albums".formatted(count);
         createScanEvent(scanDate, ScanEventType.UPDATE_ORDER_OF_ALBUM, comment);
     }
