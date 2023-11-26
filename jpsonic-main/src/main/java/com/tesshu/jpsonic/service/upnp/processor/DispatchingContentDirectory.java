@@ -51,92 +51,89 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 @Service
-@DependsOn({ "rootUpnpProcessor", "mediaFileUpnpProcessor" })
+@DependsOn({ "rootUpnpProc", "mediaFileProc" })
 public class DispatchingContentDirectory extends CustomContentDirectory
         implements UpnpProcessDispatcher, CountLimitProc {
 
     private static final int SEARCH_COUNT_MAX = 50;
 
-    private final RootUpnpProcessor rootProcessor;
-    private final MediaFileUpnpProcessor mediaFileProcessor;
-    private final PlaylistUpnpProcessor playlistProcessor;
-    private final AlbumUpnpProcessor albumProcessor;
-    private final RecentAlbumUpnpProcessor recentAlbumProcessor;
-    private final RecentAlbumId3UpnpProcessor recentAlbumId3Processor;
-    private final ArtistUpnpProcessor artistProcessor;
-    private final ArtistByFolderUpnpProcessor artistByFolderProcessor;
-    private final AlbumByGenreUpnpProcessor albumByGenreProcessor;
-    private final SongByGenreUpnpProcessor songByGenreProcessor;
-    private final IndexUpnpProcessor indexProcessor;
-    private final IndexId3UpnpProcessor indexId3Processor;
-    private final PodcastUpnpProcessor podcastProcessor;
-    private final RandomAlbumUpnpProcessor randomAlbumProcessor;
-    private final RandomSongUpnpProcessor randomSongProcessor;
-    private final RandomSongByArtistUpnpProcessor randomSongByArtistProcessor;
-    private final RandomSongByFolderArtistUpnpProcessor randomSongByFolderArtistProcessor;
+    private final RootUpnpProc rootProc;
+    private final MediaFileProc mediaFileProc;
+    private final PlaylistProc playlistProc;
+    private final AlbumProc albumProc;
+    private final RecentAlbumProc recentAlbumProc;
+    private final RecentAlbumId3Proc recentAlbumId3Proc;
+    private final ArtistProc artistProc;
+    private final ArtistByFolderProc artistByFolderProc;
+    private final AlbumByGenreProc albumByGenreProc;
+    private final SongByGenreProc songByGenreProc;
+    private final IndexProc indexProc;
+    private final IndexId3Proc indexId3Proc;
+    private final PodcastProc podcastProc;
+    private final RandomAlbumProc randomAlbumProc;
+    private final RandomSongProc randomSongProcessor;
+    private final RandomSongByArtistProc randomSongByArtistProc;
+    private final RandomSongByFolderArtistProc randomSongByFolderArtistProc;
     private final QueryFactory queryFactory;
     private final UpnpProcessorUtil util;
-    private final WMPProcessor wmpProcessor;
+    private final WMPProc wmpProc;
     private final SearchService searchService;
 
-    public DispatchingContentDirectory(RootUpnpProcessor rp,
-            @Qualifier("mediaFileUpnpProcessor") MediaFileUpnpProcessor mfp, @Lazy PlaylistUpnpProcessor playp,
-            @Lazy @Qualifier("albumUpnpProcessor") AlbumUpnpProcessor ap,
-            @Lazy @Qualifier("recentAlbumUpnpProcessor") RecentAlbumUpnpProcessor rap,
-            @Lazy @Qualifier("recentAlbumId3UpnpProcessor") RecentAlbumId3UpnpProcessor raip,
-            @Lazy ArtistUpnpProcessor arP, @Lazy ArtistByFolderUpnpProcessor abfP,
-            @Lazy @Qualifier("albumByGenreUpnpProcessor") AlbumByGenreUpnpProcessor abgp,
-            @Lazy @Qualifier("songByGenreUpnpProcessor") SongByGenreUpnpProcessor sbgp,
-            @Lazy @Qualifier("indexUpnpProcessor") IndexUpnpProcessor ip, @Lazy IndexId3UpnpProcessor iip,
-            @Lazy @Qualifier("podcastUpnpProcessor") PodcastUpnpProcessor podp,
-            @Lazy @Qualifier("randomAlbumUpnpProcessor") RandomAlbumUpnpProcessor randomap,
-            @Lazy @Qualifier("randomSongUpnpProcessor") RandomSongUpnpProcessor randomsp,
-            @Lazy RandomSongByArtistUpnpProcessor randomsbap, @Lazy RandomSongByFolderArtistUpnpProcessor randomsbfap,
-            QueryFactory queryFactory, UpnpProcessorUtil util, WMPProcessor wmpp, SearchService ss) {
+    public DispatchingContentDirectory(RootUpnpProc rp, @Qualifier("mediaFileProc") MediaFileProc mfp,
+            @Lazy PlaylistProc playp, @Lazy @Qualifier("albumProc") AlbumProc ap,
+            @Lazy @Qualifier("recentAlbumProc") RecentAlbumProc rap,
+            @Lazy @Qualifier("recentAlbumId3Proc") RecentAlbumId3Proc raip, @Lazy ArtistProc arP,
+            @Lazy ArtistByFolderProc abfP, @Lazy @Qualifier("albumByGenreProc") AlbumByGenreProc abgp,
+            @Lazy @Qualifier("songByGenreProc") SongByGenreProc sbgp, @Lazy @Qualifier("indexProc") IndexProc ip,
+            @Lazy IndexId3Proc iip, @Lazy @Qualifier("podcastProc") PodcastProc podp,
+            @Lazy @Qualifier("randomAlbumProc") RandomAlbumProc randomap,
+            @Lazy @Qualifier("randomSongProc") RandomSongProc randomsp, @Lazy RandomSongByArtistProc randomsbap,
+            @Lazy RandomSongByFolderArtistProc randomsbfap, QueryFactory queryFactory, UpnpProcessorUtil util,
+            WMPProc wmpp, SearchService ss) {
         super();
-        rootProcessor = rp;
-        mediaFileProcessor = mfp;
-        playlistProcessor = playp;
-        albumProcessor = ap;
-        recentAlbumProcessor = rap;
-        recentAlbumId3Processor = raip;
-        artistProcessor = arP;
-        artistByFolderProcessor = abfP;
-        albumByGenreProcessor = abgp;
-        songByGenreProcessor = sbgp;
-        indexProcessor = ip;
-        indexId3Processor = iip;
-        podcastProcessor = podp;
-        randomAlbumProcessor = randomap;
+        rootProc = rp;
+        mediaFileProc = mfp;
+        playlistProc = playp;
+        albumProc = ap;
+        recentAlbumProc = rap;
+        recentAlbumId3Proc = raip;
+        artistProc = arP;
+        artistByFolderProc = abfP;
+        albumByGenreProc = abgp;
+        songByGenreProc = sbgp;
+        indexProc = ip;
+        indexId3Proc = iip;
+        podcastProc = podp;
+        randomAlbumProc = randomap;
         randomSongProcessor = randomsp;
-        randomSongByArtistProcessor = randomsbap;
-        randomSongByFolderArtistProcessor = randomsbfap;
+        randomSongByArtistProc = randomsbap;
+        randomSongByFolderArtistProc = randomsbfap;
         this.queryFactory = queryFactory;
         this.util = util;
-        this.wmpProcessor = wmpp;
+        this.wmpProc = wmpp;
         searchService = ss;
     }
 
     @Override
     public UPnPContentProcessor<?, ?> findProcessor(ProcId id) {
         return switch (id) {
-        case ROOT -> rootProcessor;
-        case PLAYLIST -> playlistProcessor;
-        case FOLDER -> mediaFileProcessor;
-        case ALBUM -> albumProcessor;
-        case RECENT -> recentAlbumProcessor;
-        case RECENT_ID3 -> recentAlbumId3Processor;
-        case ARTIST -> artistProcessor;
-        case ARTIST_BY_FOLDER -> artistByFolderProcessor;
-        case ALBUM_BY_GENRE -> albumByGenreProcessor;
-        case SONG_BY_GENRE -> songByGenreProcessor;
-        case INDEX -> indexProcessor;
-        case INDEX_ID3 -> indexId3Processor;
-        case PODCAST -> podcastProcessor;
-        case RANDOM_ALBUM -> randomAlbumProcessor;
+        case ROOT -> rootProc;
+        case PLAYLIST -> playlistProc;
+        case FOLDER -> mediaFileProc;
+        case ALBUM -> albumProc;
+        case RECENT -> recentAlbumProc;
+        case RECENT_ID3 -> recentAlbumId3Proc;
+        case ARTIST -> artistProc;
+        case ARTIST_BY_FOLDER -> artistByFolderProc;
+        case ALBUM_BY_GENRE -> albumByGenreProc;
+        case SONG_BY_GENRE -> songByGenreProc;
+        case INDEX -> indexProc;
+        case INDEX_ID3 -> indexId3Proc;
+        case PODCAST -> podcastProc;
+        case RANDOM_ALBUM -> randomAlbumProc;
         case RANDOM_SONG -> randomSongProcessor;
-        case RANDOM_SONG_BY_ARTIST -> randomSongByArtistProcessor;
-        case RANDOM_SONG_BY_FOLDER_ARTIST -> randomSongByFolderArtistProcessor;
+        case RANDOM_SONG_BY_ARTIST -> randomSongByArtistProc;
+        case RANDOM_SONG_BY_FOLDER_ARTIST -> randomSongByFolderArtistProc;
         };
     }
 
@@ -180,8 +177,8 @@ public class DispatchingContentDirectory extends CustomContentDirectory
             long maxResults, SortCriterion[] orderBy) throws ContentDirectoryException {
 
         // For known filters, delegation processing
-        if (wmpProcessor.isAvailable(filter)) {
-            BrowseResult wmpResult = wmpProcessor.getBrowseResult(upnpSearchQuery, filter, maxResults, firstResult);
+        if (wmpProc.isAvailable(filter)) {
+            BrowseResult wmpResult = wmpProc.getBrowseResult(upnpSearchQuery, filter, maxResults, firstResult);
             if (!isEmpty(wmpResult)) {
                 return wmpResult;
             }
@@ -194,11 +191,11 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         UPnPSearchCriteria criteria = director.construct(offset, count, upnpSearchQuery);
 
         if (Artist.class == criteria.getAssignableClass()) {
-            return artistProcessor.toBrowseResult(searchService.search(criteria));
+            return artistProc.toBrowseResult(searchService.search(criteria));
         } else if (Album.class == criteria.getAssignableClass()) {
-            return albumProcessor.toBrowseResult(searchService.search(criteria));
+            return albumProc.toBrowseResult(searchService.search(criteria));
         } else if (MediaFile.class == criteria.getAssignableClass()) {
-            return mediaFileProcessor.toBrowseResult(searchService.search(criteria));
+            return mediaFileProc.toBrowseResult(searchService.search(criteria));
         }
 
         return new BrowseResult(StringUtils.EMPTY, 0, 0L, 0L);
