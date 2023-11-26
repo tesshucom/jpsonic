@@ -60,7 +60,6 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.IndexManager;
-import net.sf.ehcache.Ehcache;
 import org.apache.commons.lang3.exception.UncheckedException;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -106,7 +105,6 @@ public class ScannerProcedureService {
     private final SortProcedureService sortProcedure;
     private final ScannerStateServiceImpl scannerState;
     private final MusicIndexServiceImpl musicIndexService;
-    private final Ehcache indexCache;
     private final MediaFileCache mediaFileCache;
     private final JapaneseReadingUtils readingUtils;
     private final JpsonicComparators comparators;
@@ -121,7 +119,7 @@ public class ScannerProcedureService {
             IndexManager indexManager, MediaFileService mediaFileService, WritableMediaFileService wmfs,
             PlaylistService playlistService, TemplateWrapper template, MediaFileDao mediaFileDao, ArtistDao artistDao,
             AlbumDao albumDao, StaticsDao staticsDao, SortProcedureService sortProcedure,
-            ScannerStateServiceImpl scannerStateService, MusicIndexServiceImpl musicIndexService, Ehcache indexCache,
+            ScannerStateServiceImpl scannerStateService, MusicIndexServiceImpl musicIndexService,
             MediaFileCache mediaFileCache, JapaneseReadingUtils readingUtils, JpsonicComparators comparators,
             ThreadPoolTaskExecutor scanExecutor) {
         super();
@@ -139,7 +137,6 @@ public class ScannerProcedureService {
         this.sortProcedure = sortProcedure;
         this.scannerState = scannerStateService;
         this.musicIndexService = musicIndexService;
-        this.indexCache = indexCache;
         this.mediaFileCache = mediaFileCache;
         this.readingUtils = readingUtils;
         this.comparators = comparators;
@@ -217,7 +214,6 @@ public class ScannerProcedureService {
             indexManager.deleteAll();
         }
 
-        indexCache.removeAll();
         mediaFileCache.setEnabled(false);
         mediaFileCache.removeAll();
 
@@ -978,7 +974,6 @@ public class ScannerProcedureService {
     void afterScan(@NonNull Instant scanDate) {
         mediaFileCache.setEnabled(true);
         indexManager.stopIndexing();
-        indexCache.removeAll();
         sortProcedure.clearMemoryCache();
         createScanEvent(scanDate, ScanEventType.AFTER_SCAN, null);
     }

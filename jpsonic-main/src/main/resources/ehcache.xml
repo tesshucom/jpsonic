@@ -228,14 +228,6 @@ used with JMX monitors.
            overflowToDisk="false"
            statistics="false"/>
 
-    <cache name="indexCache"
-           maxElementsInMemory="2"
-           eternal="false"
-           timeToIdleSeconds="180"
-           timeToLiveSeconds="180"
-           overflowToDisk="false"
-           statistics="false"/>
-
     <cache name="fontCache"
            maxElementsInMemory="10"
            eternal="false"

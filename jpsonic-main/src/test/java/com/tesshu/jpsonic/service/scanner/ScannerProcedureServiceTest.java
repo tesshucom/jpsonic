@@ -49,7 +49,6 @@ import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.VideoParser;
 import com.tesshu.jpsonic.service.search.IndexManager;
-import net.sf.ehcache.Ehcache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -81,8 +80,8 @@ class ScannerProcedureServiceTest {
                 mock(IndexManager.class), mediaFileService, writableMediaFileService, mock(PlaylistService.class),
                 mock(TemplateWrapper.class), mediaFileDao, mock(ArtistDao.class), albumDao, staticsDao,
                 mock(SortProcedureService.class), new ScannerStateServiceImpl(staticsDao),
-                mock(MusicIndexServiceImpl.class), mock(Ehcache.class), mock(MediaFileCache.class),
-                mock(JapaneseReadingUtils.class), mock(JpsonicComparators.class), mock(ThreadPoolTaskExecutor.class));
+                mock(MusicIndexServiceImpl.class), mock(MediaFileCache.class), mock(JapaneseReadingUtils.class),
+                mock(JpsonicComparators.class), mock(ThreadPoolTaskExecutor.class));
     }
 
     @Nested
