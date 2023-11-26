@@ -33,6 +33,7 @@ import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
+import com.tesshu.jpsonic.dao.MediaFileDao.ChildOrder;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -105,9 +106,11 @@ class SortProcedureServiceTest {
             List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
             MediaFile artist = artists.get(0);
             assertEquals("ARTIST", artist.getName());
-            MediaFile album = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false).get(0);
+            MediaFile album = mediaFileDao
+                    .getChildrenOf(artist.getPathString(), 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA).get(0);
             assertEquals("ALBUM1", album.getName());
-            List<MediaFile> songs = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPathString(), false);
+            List<MediaFile> songs = mediaFileDao.getChildrenOf(album.getPathString(), 0, Integer.MAX_VALUE,
+                    ChildOrder.BY_ALPHA);
             assertEquals(3, songs.size());
             songs.sort((m1, m2) -> m1.toPath().compareTo(m2.toPath()));
 
@@ -133,9 +136,10 @@ class SortProcedureServiceTest {
 
             artist = artists.get(1);
             assertEquals("山田耕筰", artist.getName());
-            album = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false).get(0);
+            album = mediaFileDao.getChildrenOf(artist.getPathString(), 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA)
+                    .get(0);
             assertEquals("ALBUM2", album.getName());
-            songs = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPathString(), false);
+            songs = mediaFileDao.getChildrenOf(album.getPathString(), 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA);
             assertEquals(1, songs.size());
 
             assertEquals("file4", songs.get(0).getName());
@@ -165,9 +169,10 @@ class SortProcedureServiceTest {
 
             artist = artists.get(0);
             assertEquals("ARTIST", artist.getName());
-            album = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false).get(0);
+            album = mediaFileDao.getChildrenOf(artist.getPathString(), 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA)
+                    .get(0);
             assertEquals("ALBUM1", album.getName());
-            songs = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPathString(), false);
+            songs = mediaFileDao.getChildrenOf(album.getPathString(), 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA);
             assertEquals(3, songs.size());
             songs.sort((m1, m2) -> m1.toPath().compareTo(m2.toPath()));
 
@@ -193,9 +198,10 @@ class SortProcedureServiceTest {
 
             artist = artists.get(1);
             assertEquals("山田耕筰", artist.getName());
-            album = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false).get(0);
+            album = mediaFileDao.getChildrenOf(artist.getPathString(), 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA)
+                    .get(0);
             assertEquals("ALBUM2", album.getName());
-            songs = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPathString(), false);
+            songs = mediaFileDao.getChildrenOf(album.getPathString(), 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA);
             assertEquals(1, songs.size());
 
             assertEquals("file4", songs.get(0).getName());
@@ -248,12 +254,13 @@ class SortProcedureServiceTest {
 
             List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
             assertEquals(1, artists.size());
-            List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(0).getPathString(),
-                    false);
+            List<MediaFile> albums = mediaFileDao.getChildrenOf(artists.get(0).getPathString(), 0, Integer.MAX_VALUE,
+                    ChildOrder.BY_ALPHA);
             assertEquals(1, albums.size());
             MediaFile album = albums.get(0);
 
-            List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPathString(), false);
+            List<MediaFile> files = mediaFileDao.getChildrenOf(album.getPathString(), 0, Integer.MAX_VALUE,
+                    ChildOrder.BY_ALPHA);
             assertEquals(2, files.size());
             for (int i = 0; i < files.size(); i++) {
                 assertEquals(i + 1, files.get(i).getOrder());
@@ -345,8 +352,8 @@ class SortProcedureServiceTest {
             List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
 
             assertEquals("ARTIST", artists.get(0).getArtist());
-            List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(0).getPathString(),
-                    false);
+            List<MediaFile> albums = mediaFileDao.getChildrenOf(artists.get(0).getPathString(), 0, Integer.MAX_VALUE,
+                    ChildOrder.BY_ALPHA);
             assertEquals(9, albums.size());
             for (int i = 0; i < albums.size(); i++) {
                 assertEquals(i + 1, albums.get(i).getOrder());
@@ -399,7 +406,8 @@ class SortProcedureServiceTest {
             assertEquals("artistR", albums.get(8).getArtistSort());
 
             assertEquals("case10", artists.get(1).getArtist());
-            albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(1).getPathString(), false);
+            albums = mediaFileDao.getChildrenOf(artists.get(1).getPathString(), 0, Integer.MAX_VALUE,
+                    ChildOrder.BY_ALPHA);
             assertEquals(1, albums.size());
             assertEquals("ALBUM10", albums.get(0).getName());
             assertEquals("case10", albums.get(0).getArtist());
@@ -407,7 +415,8 @@ class SortProcedureServiceTest {
             assertEquals("artistT", albums.get(0).getArtistSort());
 
             assertEquals("case11", artists.get(2).getArtist());
-            albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(2).getPathString(), false);
+            albums = mediaFileDao.getChildrenOf(artists.get(2).getPathString(), 0, Integer.MAX_VALUE,
+                    ChildOrder.BY_ALPHA);
             assertEquals(1, albums.size());
             assertEquals("ALBUM11", albums.get(0).getName());
             assertEquals("case11", albums.get(0).getArtist());
@@ -421,10 +430,12 @@ class SortProcedureServiceTest {
             List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
 
             MediaFile artist = artists.get(0);
-            List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false);
+            List<MediaFile> albums = mediaFileDao.getChildrenOf(artist.getPathString(), 0, Integer.MAX_VALUE,
+                    ChildOrder.BY_ALPHA);
             assertEquals(9, albums.size());
             List<MediaFile> songs = albums.stream()
-                    .flatMap(al -> mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, al.getPathString(), false).stream())
+                    .flatMap(al -> mediaFileDao
+                            .getChildrenOf(al.getPathString(), 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA).stream())
                     .collect(Collectors.toList());
             assertEquals(15, songs.size());
             // The order property is valid only in the same directory.
@@ -581,10 +592,11 @@ class SortProcedureServiceTest {
             assertNull(songs.get(14).getComposerSort());
 
             artist = artists.get(1);
-            albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false);
+            albums = mediaFileDao.getChildrenOf(artist.getPathString(), 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA);
             assertEquals(1, albums.size());
             songs = albums.stream()
-                    .flatMap(al -> mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, al.getPathString(), false).stream())
+                    .flatMap(al -> mediaFileDao
+                            .getChildrenOf(al.getPathString(), 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA).stream())
                     .collect(Collectors.toList());
             assertEquals(1, songs.size());
 
@@ -599,10 +611,11 @@ class SortProcedureServiceTest {
             assertNull(songs.get(0).getComposerSort());
 
             artist = artists.get(2);
-            albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artist.getPathString(), false);
+            albums = mediaFileDao.getChildrenOf(artist.getPathString(), 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA);
             assertEquals(1, albums.size());
             songs = albums.stream()
-                    .flatMap(al -> mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, al.getPathString(), false).stream())
+                    .flatMap(al -> mediaFileDao
+                            .getChildrenOf(al.getPathString(), 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA).stream())
                     .collect(Collectors.toList());
             assertEquals(2, songs.size());
             for (int i = 0; i < songs.size(); i++) {

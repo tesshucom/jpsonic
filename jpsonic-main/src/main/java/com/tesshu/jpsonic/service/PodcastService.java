@@ -6,6 +6,7 @@ import java.util.List;
 import com.tesshu.jpsonic.domain.PodcastChannel;
 import com.tesshu.jpsonic.domain.PodcastEpisode;
 import com.tesshu.jpsonic.domain.PodcastStatus;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * Interface for PodcastService. All methods exist in legacy code.
@@ -23,6 +24,7 @@ public interface PodcastService {
     /**
      * Returns a single Podcast channel.
      */
+    @Nullable
     PodcastChannel getChannel(int channelId);
 
     /**

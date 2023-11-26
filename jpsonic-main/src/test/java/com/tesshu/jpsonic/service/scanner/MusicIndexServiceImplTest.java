@@ -24,6 +24,9 @@ package com.tesshu.jpsonic.service.scanner;
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -39,6 +42,7 @@ import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.domain.MusicIndex;
@@ -56,7 +60,7 @@ import org.mockito.Mockito;
  *
  * @author Sindre Mehus
  */
-@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
 class MusicIndexServiceImplTest {
 
     private SettingsService settingsService;
@@ -92,13 +96,14 @@ class MusicIndexServiceImplTest {
         artist2.setPathString("path2");
         artist2.setMusicIndex("A");
         List<MediaFile> artists = Arrays.asList(artist1, artist2);
-        Mockito.when(mediaFileService.getIndexedArtists(Mockito.anyList())).thenReturn(artists);
+        Mockito.when(mediaFileService.getIndexedDirs(Mockito.anyList())).thenReturn(artists);
 
         MediaFile song = new MediaFile();
         song.setTitle("It's file directly under the music folder");
         song.setPathString("path3");
         List<MediaFile> songs = Arrays.asList(song);
-        Mockito.when(mediaFileService.getSingleSongs(Mockito.anyList())).thenReturn(songs);
+        Mockito.when(mediaFileService.getDirectChildFiles(anyList(), anyLong(), anyLong(), any(MediaType.class)))
+                .thenReturn(songs);
 
         MusicFolder folder = new MusicFolder(0, "path", "name", true, now(), 0);
         MusicFolderContent content = musicIndexService.getMusicFolderContent(Arrays.asList(folder));

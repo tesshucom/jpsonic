@@ -1203,7 +1203,7 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
         }
 
         /**
-         * {@link MusicIndexService#getIndexedArtists(List, boolean)}
+         * {@link MusicIndexService#getIndexedDirs(List, boolean)}
          */
         @Test
         void testGetIndexedArtists() {

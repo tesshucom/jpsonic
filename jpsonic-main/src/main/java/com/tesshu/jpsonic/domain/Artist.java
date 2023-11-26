@@ -25,7 +25,7 @@ import java.time.Instant;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-public final class Artist implements Orderable, ArtistIndexable {
+public final class Artist implements Orderable, Indexable {
 
     private int id;
     private String name;

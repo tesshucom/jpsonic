@@ -25,7 +25,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 /**
  * A class that represents suggestions for correction of artist sort tags.
  */
-public final class ArtistSortCandidate extends SortCandidate implements ArtistIndexable {
+public final class ArtistSortCandidate extends SortCandidate implements Indexable {
 
     private MediaType targetType;
     private TargetField targetField;

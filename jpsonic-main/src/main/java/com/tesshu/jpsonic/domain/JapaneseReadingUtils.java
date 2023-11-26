@@ -474,14 +474,14 @@ public class JapaneseReadingUtils {
         return indexableName;
     }
 
-    public @NonNull String createIndexableName(@NonNull ArtistIndexable artist) {
+    public @NonNull String createIndexableName(@NonNull Indexable indexable) {
         IndexScheme scheme = getIndexScheme();
         @NonNull
-        String name = removeArticles(artist.getName());
-        if (scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING || isEmpty(artist.getReading())
-                || artist.getName().equals(artist.getReading()) || !isJapaneseReadable(name)) {
+        String name = removeArticles(indexable.getName());
+        if (scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING || isEmpty(indexable.getReading())
+                || indexable.getName().equals(indexable.getReading()) || !isJapaneseReadable(name)) {
             return createIndexableName(name);
         }
-        return createIndexableName(removeArticles(artist.getReading()));
+        return createIndexableName(removeArticles(indexable.getReading()));
     }
 }

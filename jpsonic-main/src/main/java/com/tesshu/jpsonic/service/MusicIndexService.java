@@ -6,6 +6,7 @@ import java.util.SortedMap;
 
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
 import com.tesshu.jpsonic.domain.MusicIndex;
@@ -20,7 +21,7 @@ public interface MusicIndexService {
     /**
      * @since Airsonic
      */
-    MusicFolderContent getMusicFolderContent(List<MusicFolder> folders);
+    MusicFolderContent getMusicFolderContent(List<MusicFolder> folders, MediaType... excludes);
 
     /**
      * @since Airsonic
@@ -36,4 +37,14 @@ public interface MusicIndexService {
      * @since v113.0.0
      */
     void clear();
+
+    /**
+     * @since v113.0.0
+     */
+    MusicFolderContent.Counts getMusicFolderContentCounts(List<MusicFolder> folders, MediaType... excludes);
+
+    /**
+     * @since v113.0.0
+     */
+    SortedMap<MusicIndex, Integer> getIndexedId3ArtistCounts(List<MusicFolder> folders);
 }

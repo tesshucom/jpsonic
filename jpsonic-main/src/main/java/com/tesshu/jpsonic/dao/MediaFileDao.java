@@ -28,6 +28,7 @@ import static com.tesshu.jpsonic.util.PlayerUtils.FAR_PAST;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.nio.file.Path;
+import java.sql.ResultSet;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.dao.base.DaoUtils;
 import com.tesshu.jpsonic.dao.base.TemplateWrapper;
@@ -47,6 +49,7 @@ import com.tesshu.jpsonic.domain.Genre;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.MusicIndex;
 import com.tesshu.jpsonic.domain.RandomSearchCriteria;
 import com.tesshu.jpsonic.domain.SortCandidate;
 import com.tesshu.jpsonic.util.LegacyMap;
@@ -75,8 +78,14 @@ public class MediaFileDao {
     private final RowMapper<MediaFile> rowMapper = DaoUtils.createRowMapper(MediaFile.class);
     private final RowMapper<Genre> genreRowMapper = (rs, rowNum) -> new Genre(rs.getString(1), rs.getInt(2),
             rs.getInt(3));
+    private final RowMapper<IndexWithCount> indexWithCountMapper = (ResultSet rs,
+            int num) -> new IndexWithCount(rs.getString(1), rs.getInt(2));
 
     private final DialectMediaFileDao dialect;
+
+    public enum ChildOrder {
+        BY_ALPHA, BY_YEAR, BY_TRACK
+    }
 
     public MediaFileDao(TemplateWrapper templateWrapper, DialectMediaFileDao dialect) {
         template = templateWrapper;
@@ -115,61 +124,6 @@ public class MediaFileDao {
                 """, rowMapper, args);
     }
 
-    public List<MediaFile> getChildrenOf(String path) {
-        return template.query("select " + QUERY_COLUMNS + """
-                from media_file
-                where parent_path=? and present
-                """, rowMapper, path);
-    }
-
-    public List<MediaFile> getChildrenOf(final long offset, final long count, String path, boolean byYear) {
-        String order = (byYear ? "year is null, year, " : "") + "media_file_order";
-        return template.query("select " + QUERY_COLUMNS + """
-                from media_file
-                where parent_path=? and present
-                order by %s
-                limit ? offset ?
-                """.formatted(order), rowMapper, path, count, offset);
-    }
-
-    public List<MediaFile> getChildrenWithOrderOf(String path) {
-        return template.query("select " + QUERY_COLUMNS + """
-                from media_file
-                where parent_path=? and present
-                order by media_file_order
-                """, rowMapper, path);
-    }
-
-    public List<MediaFile> getFilesInPlaylist(int playlistId, long offset, long count) {
-        return template.query("select " + prefix(QUERY_COLUMNS, "media_file") + """
-                from playlist_file, media_file
-                where media_file.id = playlist_file.media_file_id
-                        and playlist_file.playlist_id = ? and present
-                order by playlist_file.id
-                limit ? offset ?
-                """, rowMapper, playlistId, count, offset);
-    }
-
-    public List<MediaFile> getSongsForAlbum(final long offset, final long count, MediaFile album) {
-        return template.query("select " + QUERY_COLUMNS + """
-                from media_file
-                where parent_path=? and present and type in (?,?,?)
-                order by track_number
-                limit ? offset ?
-                """, rowMapper, album.getPathString(), MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name(),
-                MediaType.PODCAST.name(), count, offset);
-    }
-
-    public List<MediaFile> getSongsForAlbum(final long offset, final long count, String albumArtist, String album) {
-        return template.query("select " + QUERY_COLUMNS + """
-                from media_file
-                where album_artist=? and album=? and present and type in (?,?,?)
-                order by track_number
-                limit ? offset ?
-                """, rowMapper, albumArtist, album, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name(),
-                MediaType.PODCAST.name(), count, offset);
-    }
-
     public List<MediaFile> getVideos(final int count, final int offset, final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
@@ -184,16 +138,227 @@ public class MediaFileDao {
                 """, rowMapper, args);
     }
 
-    public @Nullable MediaFile getArtistByName(final String name, final List<MusicFolder> musicFolders) {
-        if (musicFolders.isEmpty()) {
-            return null;
+    public long getSizeOf(List<MusicFolder> folders, MediaType mediaType) {
+        if (folders.isEmpty()) {
+            return 0;
         }
-        Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.DIRECTORY.name(), "name", name, "folders",
-                MusicFolder.toPathList(musicFolders));
-        return template.namedQueryOne("select " + QUERY_COLUMNS + """
+        Map<String, Object> args = LegacyMap.of("type", mediaType.name(), "folders", MusicFolder.toPathList(folders));
+        long defaultValue = 0;
+        String query = """
+                select count(*)
                 from media_file
-                where type = :type and artist = :name and present and folder in (:folders)
-                """, rowMapper, args);
+                where present and type= :type and folder in(:folders)
+                """;
+        List<Long> list = template.getNamedParameterJdbcTemplate().queryForList(query, args, Long.class);
+        return list.isEmpty() ? defaultValue : list.get(0) == null ? defaultValue : list.get(0);
+    }
+
+    public int getChildSizeOf(List<MusicFolder> folders, MediaType... excludes) {
+        if (folders.isEmpty()) {
+            return 0;
+        }
+        Map<String, Object> args = Map.of("folders", MusicFolder.toPathList(folders), "excludes",
+                Stream.of(excludes).map(MediaType::name).toList());
+        String typeFilter = excludes.length == 0 ? "" : "and type not in(:excludes)";
+        return template.namedQueryForInt("""
+                select count(*)
+                from media_file
+                where parent_path in(:folders) and present %s
+                """.formatted(typeFilter), 0, args);
+    }
+
+    public int getChildSizeOf(String path, MediaType... excludes) {
+        Map<String, Object> args = Map.of("parentPath", path, "excludes",
+                Stream.of(excludes).map(MediaType::name).toList());
+        String typeFilter = excludes.length == 0 ? "" : "and type not in(:excludes)";
+        return template.namedQueryForInt("""
+                select count(*)
+                from media_file
+                where parent_path=:parentPath and present %s
+                """.formatted(typeFilter), 0, args);
+    }
+
+    public List<IndexWithCount> getMudicIndexCounts(List<MusicFolder> folders, List<String> shortcutPaths) {
+        if (folders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = LegacyMap.of("types", List.of(MediaType.DIRECTORY.name(), MediaType.ALBUM.name()),
+                "folders", MusicFolder.toPathList(folders), "shotcuts", shortcutPaths);
+        String shotcutFilter = shortcutPaths.isEmpty() ? "" : "and path not in (:shotcuts)";
+        return template.namedQuery("""
+                select distinct music_index, count(music_index)
+                from media_file
+                where type in(:types) and present
+                        and parent_path in(:folders)
+                        %s
+                group by music_index
+                order by music_index
+                """.formatted(shotcutFilter), indexWithCountMapper, args);
+    }
+
+    public int getCountInPlaylist(int playlistId) {
+        return template.queryForInt("""
+                select count(*)
+                from playlist_file, media_file
+                where media_file.id = playlist_file.media_file_id
+                        and playlist_file.playlist_id = ? and present
+                """, 0, playlistId);
+    }
+
+    public List<Genre> getGenreCounts() {
+        Map<String, Object> args = Map.of("album", MediaType.ALBUM.name(), "music", MediaType.MUSIC.name());
+        return template.namedQuery("""
+                select song_genre.name, song_count, album_count
+                from
+                    (select genres.name, count(*) as song_count
+                        from
+                            (select distinct genre name
+                                from media_file
+                                where present and type = :album or type = :music) as genres
+                        left join media_file as songs
+                        on songs.present and genres.name = songs.genre and songs.type = :music
+                        group by genres.name) as song_genre
+                join
+                    (select genres.name, count(*) as album_count
+                        from
+                            (select distinct genre name
+                                from media_file
+                                where present and type = :album or type = :music) as genres
+                        left join media_file as albums
+                        on albums.present and genres.name = albums.genre and albums.type = :album
+                        group by genres.name) as album_genre
+                on song_genre.name = album_genre.name
+                order by name
+                """, genreRowMapper, args);
+    }
+
+    public List<MediaFile> getChildrenOf(String path) {
+        return template.query("select " + QUERY_COLUMNS + """
+                from media_file
+                where parent_path=? and present
+                """, rowMapper, path);
+    }
+
+    public List<MediaFile> getChildrenOf(String path, long offset, long count, ChildOrder childOrder,
+            MediaType... excludes) {
+        Map<String, Object> args = Map.of("directory", MediaFile.MediaType.DIRECTORY.name(), "album",
+                MediaFile.MediaType.ALBUM.name(), "music", MediaFile.MediaType.MUSIC.name(), "audiobook",
+                MediaFile.MediaType.AUDIOBOOK.name(), "video", MediaFile.MediaType.VIDEO.name(), "path", path, "offset",
+                offset, "count", count, "excludes", Stream.of(excludes).map(MediaType::name).toList());
+        String typeFilter = excludes.length == 0 ? "" : "and type not in(:excludes)";
+        String order = switch (childOrder) {
+        case BY_ALPHA -> "media_file_order";
+        case BY_YEAR -> "year is null, year, media_file_order";
+        case BY_TRACK -> "disc_number is null, disc_number, track_number is null, track_number, media_file_order";
+        };
+        return template.namedQuery("select " + QUERY_COLUMNS + """
+                        ,
+                        case type
+                            when :directory then 1
+                            when :album then 2
+                            when :music then 3
+                            when :audiobook then 4
+                            when :video then 5
+                        end as type_order
+                from media_file
+                where parent_path=:path and present
+                %s
+                order by type_order, %s
+                offset :offset limit :count
+                """.formatted(typeFilter, order), rowMapper, args);
+    }
+
+    public List<MediaFile> getChildrenOf(List<MusicFolder> folders, MusicIndex musicIndex, long offset, long count,
+            MediaType... excludes) {
+        Map<String, Object> args = LegacyMap.of("directory", MediaFile.MediaType.DIRECTORY.name(), "album",
+                MediaFile.MediaType.ALBUM.name(), "music", MediaFile.MediaType.MUSIC.name(), "audiobook",
+                MediaFile.MediaType.AUDIOBOOK.name(), "video", MediaFile.MediaType.VIDEO.name(), "folders",
+                MusicFolder.toPathList(folders), "musicIndex", musicIndex.getIndex(), "count", count, "offset", offset,
+                "excludes", Stream.of(excludes).map(MediaType::name).toList());
+        String typeFilter = excludes.length == 0 ? "" : "and type not in(:excludes)";
+        return template.namedQuery("select " + QUERY_COLUMNS + """
+                        ,
+                        case type
+                            when :directory then 1
+                            when :album then 2
+                            when :music then 3
+                            when :audiobook then 4
+                            when :video then 5
+                        end as type_order
+                from media_file
+                where music_index=:musicIndex and present and parent_path in (:folders)
+                %s
+                order by type_order, media_file_order
+                offset :offset limit :count
+                """.formatted(typeFilter), rowMapper, args);
+    }
+
+    public List<MediaFile> getDirectChildFiles(List<MusicFolder> folders, long offset, long count,
+            MediaType... excludes) {
+        if (folders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = Map.of("types", List.of(MediaType.DIRECTORY.name(), MediaType.ALBUM.name()),
+                "folders", MusicFolder.toPathList(folders), "excludes",
+                Stream.of(excludes).map(MediaType::name).toList());
+        String typeFilter = excludes.length == 0 ? "" : "and type not in(:excludes)";
+        return template.namedQuery("select " + prefix(QUERY_COLUMNS, "m_file") + """
+                from media_file m_file
+                join music_folder m_folder on m_file.folder = m_folder.path
+                where type not in (:types) and parent_path in(:folders)
+                %s
+                order by m_folder.folder_order, m_file.media_file_order
+                """.formatted(typeFilter), rowMapper, args);
+    }
+
+    public List<MediaFile> getIndexedDirs(List<MusicFolder> folders, List<String> shortcuts) {
+        if (folders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = Map.of("types", List.of(MediaType.DIRECTORY.name(), MediaType.ALBUM.name()),
+                "directory", MediaFile.MediaType.DIRECTORY.name(), "album", MediaFile.MediaType.ALBUM.name(), "folders",
+                MusicFolder.toPathList(folders), "shortcuts", shortcuts);
+        String shortcutsFilter = shortcuts.isEmpty() ? "" : """
+                      and case type
+                          when :directory then artist not in (:shortcuts)
+                          when :album then album not in (:shortcuts)
+                      end
+                """;
+        return template.namedQuery("select " + QUERY_COLUMNS + """
+                        ,
+                        case type
+                            when :directory then 1
+                            when :album then 2
+                        end as type_order
+                from media_file
+                where folder in(:folders)
+                        and parent_path in(:folders)
+                        and path not in(:folders)
+                        and type in(:types)
+                        and music_index <> ''
+                        %s
+                order by type_order, media_file_order
+                """.formatted(shortcutsFilter), rowMapper, args);
+    }
+
+    public List<MediaFile> getSongsForAlbum(final long offset, final long count, String albumArtist, String album) {
+        return template.query("select " + QUERY_COLUMNS + """
+                from media_file
+                where album_artist=? and album=? and present and type in (?,?,?)
+                order by track_number
+                limit ? offset ?
+                """, rowMapper, albumArtist, album, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name(),
+                MediaType.PODCAST.name(), count, offset);
+    }
+
+    public List<MediaFile> getFilesInPlaylist(int playlistId, long offset, long count) {
+        return template.query("select " + prefix(QUERY_COLUMNS, "media_file") + """
+                from playlist_file, media_file
+                where media_file.id = playlist_file.media_file_id
+                        and playlist_file.playlist_id = ? and present
+                order by playlist_file.id
+                limit ? offset ?
+                """, rowMapper, playlistId, count, offset);
     }
 
     public boolean exists(Path path) {
@@ -320,33 +485,6 @@ public class MediaFileDao {
                 """, FAR_PAST, id);
     }
 
-    public List<Genre> getGenreCounts() {
-        Map<String, Object> args = Map.of("album", MediaType.ALBUM.name(), "music", MediaType.MUSIC.name());
-        return template.namedQuery("""
-                select song_genre.name, song_count, album_count
-                from
-                    (select genres.name, count(*) as song_count
-                        from
-                            (select distinct genre name
-                                from media_file
-                                where present and type = :album or type = :music) as genres
-                        left join media_file as songs
-                        on songs.present and genres.name = songs.genre and songs.type = :music
-                        group by genres.name) as song_genre
-                join
-                    (select genres.name, count(*) as album_count
-                        from
-                            (select distinct genre name
-                                from media_file
-                                where present and type = :album or type = :music) as genres
-                        left join media_file as albums
-                        on albums.present and genres.name = albums.genre and albums.type = :album
-                        group by genres.name) as album_genre
-                on song_genre.name = album_genre.name
-                order by name
-                """, genreRowMapper, args);
-    }
-
     public void updateGenres(List<Genre> genres) {
         template.update("delete from genre");
         for (Genre genre : genres) {
@@ -355,6 +493,31 @@ public class MediaFileDao {
                     values(?, ?, ?)
                     """, genre.getName(), genre.getSongCount(), genre.getAlbumCount());
         }
+    }
+
+    public List<MediaFile> getArtistAll(final List<MusicFolder> musicFolders) {
+        if (musicFolders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = LegacyMap.of("type", MediaType.DIRECTORY.name(), "folders",
+                MusicFolder.toPathList(musicFolders));
+        return template.namedQuery("select " + QUERY_COLUMNS + """
+                from media_file
+                where type = :type and folder in (:folders) and present and artist is not null
+                order by media_file_order
+                """, rowMapper, args);
+    }
+
+    public @Nullable MediaFile getArtistByName(final String name, final List<MusicFolder> musicFolders) {
+        if (musicFolders.isEmpty()) {
+            return null;
+        }
+        Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.DIRECTORY.name(), "name", name, "folders",
+                MusicFolder.toPathList(musicFolders));
+        return template.namedQueryOne("select " + QUERY_COLUMNS + """
+                from media_file
+                where type = :type and artist = :name and present and folder in (:folders)
+                """, rowMapper, args);
     }
 
     public List<MediaFile> getMostFrequentlyPlayedAlbums(final int offset, final int count,
@@ -645,19 +808,6 @@ public class MediaFileDao {
         return template.namedQuery(queryBuilder.build(), rowMapper, args);
     }
 
-    public int getAlbumCount(final List<MusicFolder> musicFolders) {
-        if (musicFolders.isEmpty()) {
-            return 0;
-        }
-        Map<String, Object> args = LegacyMap.of("type", MediaFile.MediaType.ALBUM.name(), "folders",
-                MusicFolder.toPathList(musicFolders));
-        return template.namedQueryForInt("""
-                select count(*)
-                from media_file
-                where type = :type and folder in (:folders) and present
-                """, 0, args);
-    }
-
     public int getPlayedAlbumCount(final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return 0;
@@ -804,27 +954,6 @@ public class MediaFileDao {
                 """, from, to);
     }
 
-    public List<MediaFile> getArtistAll(final List<MusicFolder> musicFolders) {
-        if (musicFolders.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Map<String, Object> args = LegacyMap.of("type", MediaType.DIRECTORY.name(), "folders",
-                MusicFolder.toPathList(musicFolders));
-        return template.namedQuery("select " + QUERY_COLUMNS + """
-                from media_file
-                where type = :type and folder in (:folders) and present and artist is not null
-                order by media_file_order
-                """, rowMapper, args);
-    }
-
-    public int getChildSizeOf(String path) {
-        return template.queryForInt("""
-                select count(id)
-                from media_file
-                where parent_path=? and present
-                """, 0, path);
-    }
-
     public List<SortCandidate> getCopyableSortAlbums(List<MusicFolder> folders) {
         return dialect.getCopyableSortAlbums(folders);
     }
@@ -833,41 +962,9 @@ public class MediaFileDao {
         return dialect.getCopyableSortPersons(folders);
     }
 
-    public int getCountInPlaylist(int playlistId) {
-        return template.queryForInt("""
-                select count(*)
-                from playlist_file, media_file
-                where media_file.id = playlist_file.media_file_id
-                        and playlist_file.playlist_id = ? and present
-                """, 0, playlistId);
-    }
-
-    public long countMediaFile(MediaType mediaType, List<MusicFolder> folders) {
-        if (folders.isEmpty()) {
-            return 0;
-        }
-        Map<String, Object> args = LegacyMap.of("type", mediaType.name(), "folders", MusicFolder.toPathList(folders));
-        long defaultValue = 0;
-        String query = """
-                select count(*)
-                from media_file
-                where present and type= :type and folder in(:folders)
-                """;
-        List<Long> list = template.getNamedParameterJdbcTemplate().queryForList(query, args, Long.class);
-        return list.isEmpty() ? defaultValue : list.get(0) == null ? defaultValue : list.get(0);
-    }
-
     public List<MediaFile> getRandomSongsForAlbumArtist(int limit, String albumArtist, List<MusicFolder> musicFolders,
             BiFunction<Integer, Integer, List<Integer>> randomCallback) {
         return dialect.getRandomSongsForAlbumArtist(limit, albumArtist, musicFolders, randomCallback);
-    }
-
-    public int getSongsCountForAlbum(String artist, String album) {
-        return template.queryForInt("""
-                select count(id)
-                from media_file
-                where album_artist=? and album=? and present and type in (?,?,?)
-                """, 0, artist, album, MediaType.MUSIC.name(), MediaType.AUDIOBOOK.name(), MediaType.PODCAST.name());
     }
 
     public List<ArtistSortCandidate> getNoSortPersons(List<MusicFolder> folders) {
@@ -956,44 +1053,6 @@ public class MediaFileDao {
 
         String query = updates + cols.toString().replaceFirst(", $", " ") + cond;
         template.getJdbcTemplate().update(query, args.toArray());
-    }
-
-    public List<MediaFile> getIndexedArtists(List<MusicFolder> folders, List<String> shortcuts) {
-        if (folders.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Map<String, Object> args = Map.of("types", List.of(MediaType.DIRECTORY.name(), MediaType.ALBUM.name()),
-                "directory", MediaFile.MediaType.DIRECTORY.name(), "album", MediaFile.MediaType.ALBUM.name(), "folders",
-                MusicFolder.toPathList(folders), "shortcuts", shortcuts);
-        return template.namedQuery("select " + QUERY_COLUMNS + """
-                        ,
-                        case type
-                            when :directory then 1
-                            when :album then 2
-                        end as type_order
-                from media_file
-                where folder in(:folders)
-                        and parent_path in(:folders)
-                        and path not in(:folders)
-                        and type in(:types)
-                        and music_index <> ''
-                        and artist not in (:shortcuts)
-                order by type_order, media_file_order
-                """, rowMapper, args);
-    }
-
-    public List<MediaFile> getSingleSongs(List<MusicFolder> folders) {
-        if (folders.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Map<String, Object> args = Map.of("types", List.of(MediaType.DIRECTORY.name(), MediaType.ALBUM.name()),
-                "folders", MusicFolder.toPathList(folders));
-        return template.namedQuery("select " + prefix(QUERY_COLUMNS, "m_file") + """
-                from media_file m_file
-                join music_folder m_folder on m_file.folder = m_folder.path
-                where type not in (:types) and parent_path in(:folders)
-                order by m_folder.folder_order, m_file.media_file_order
-                """, rowMapper, args);
     }
 
     static class RandomSongsQueryBuilder {
@@ -1157,5 +1216,8 @@ public class MediaFileDao {
             }
             return Optional.empty();
         }
+    }
+
+    public record IndexWithCount(String index, int directoryCount) {
     }
 }

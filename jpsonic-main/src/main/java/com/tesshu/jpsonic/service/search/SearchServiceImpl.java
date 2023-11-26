@@ -254,7 +254,7 @@ public class SearchServiceImpl implements SearchService {
     public List<MediaFile> getRandomSongs(int count, int offset, int casheMax, List<MusicFolder> musicFolders) {
 
         final List<MediaFile> result = new ArrayList<>();
-        Consumer<List<Integer>> addSubToResult = (ids) -> ids.subList(offset, Math.min(ids.size(), offset + count))
+        Consumer<List<Integer>> addSubToResult = (ids) -> ids.stream().skip(offset).limit(count)
                 .forEach(id -> util.addIgnoreNull(result, IndexType.SONG, id));
         util.getCache(RandomCacheKey.SONG, casheMax, musicFolders).ifPresent(addSubToResult);
         if (!result.isEmpty()) {
@@ -294,23 +294,13 @@ public class SearchServiceImpl implements SearchService {
         return result;
     }
 
-    private int min(Integer... integers) {
-        int min = Integer.MAX_VALUE;
-        for (int i : integers) {
-            min = Integer.min(min, i);
-        }
-        return min;
-    }
-
     @Override
     public List<MediaFile> getRandomSongsByArtist(Artist artist, int count, int offset, int casheMax,
             List<MusicFolder> musicFolders) {
 
         final List<MediaFile> result = new ArrayList<>();
-        Consumer<List<MediaFile>> addSubToResult = (files) -> {
-            List<MediaFile> sub = files.subList(offset, min(files.size(), offset + count, casheMax));
-            result.addAll(sub);
-        };
+        Consumer<List<MediaFile>> addSubToResult = (files) -> files.stream().skip(offset).limit(count)
+                .forEach(file -> result.add(file));
 
         util.getCache(RandomCacheKey.SONG_BY_ARTIST, casheMax, musicFolders, artist.getName())
                 .ifPresent(addSubToResult);
@@ -388,7 +378,7 @@ public class SearchServiceImpl implements SearchService {
     public List<Album> getRandomAlbumsId3(int count, int offset, int casheMax, List<MusicFolder> musicFolders) {
 
         final List<Album> result = new ArrayList<>();
-        Consumer<List<Integer>> addSubToResult = (ids) -> ids.subList(offset, Math.min(ids.size(), offset + count))
+        Consumer<List<Integer>> addSubToResult = (ids) -> ids.stream().skip(offset).limit(count)
                 .forEach(id -> util.addIgnoreNull(result, IndexType.ALBUM_ID3, id));
         util.getCache(RandomCacheKey.ALBUM, casheMax, musicFolders).ifPresent(addSubToResult);
         if (!result.isEmpty()) {

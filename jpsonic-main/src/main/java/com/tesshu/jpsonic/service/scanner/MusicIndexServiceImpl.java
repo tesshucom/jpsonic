@@ -26,18 +26,19 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.ArtistIndexable;
+import com.tesshu.jpsonic.domain.Indexable;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.MediaFile;
+import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.MusicFolderContent;
+import com.tesshu.jpsonic.domain.MusicFolderContent.Counts;
 import com.tesshu.jpsonic.domain.MusicIndex;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicIndexService;
@@ -64,24 +65,24 @@ public class MusicIndexServiceImpl implements MusicIndexService {
         this.readingUtils = readingUtils;
     }
 
-    private <T extends ArtistIndexable> SortedMap<MusicIndex, List<T>> createIndexedArtistMap(List<T> artists) {
+    private <T extends Indexable> SortedMap<MusicIndex, List<T>> createIndexedArtistMap(List<T> indexables) {
         Comparator<MusicIndex> comparator = new MusicIndexComparator(getParser().getIndexes());
         SortedMap<MusicIndex, List<T>> iaMap = new TreeMap<>(comparator);
-        artists.forEach(artist -> {
-            MusicIndex musicIndex = getParser().getIndex(artist.getMusicIndex());
+        indexables.forEach(indexable -> {
+            MusicIndex musicIndex = getParser().getIndex(indexable.getMusicIndex());
             if (!iaMap.containsKey(musicIndex)) {
                 iaMap.put(musicIndex, new ArrayList<T>());
             }
-            iaMap.get(musicIndex).add(artist);
+            iaMap.get(musicIndex).add(indexable);
         });
         return iaMap;
     }
 
     @Override
-    public MusicFolderContent getMusicFolderContent(List<MusicFolder> folders) {
-        List<MediaFile> artists = mediaFileService.getIndexedArtists(folders);
-        SortedMap<MusicIndex, List<MediaFile>> indexedArtists = createIndexedArtistMap(artists);
-        List<MediaFile> singleSongs = mediaFileService.getSingleSongs(folders);
+    public MusicFolderContent getMusicFolderContent(List<MusicFolder> folders, MediaType... excludes) {
+        List<MediaFile> dirs = mediaFileService.getIndexedDirs(folders);
+        SortedMap<MusicIndex, List<MediaFile>> indexedArtists = createIndexedArtistMap(dirs);
+        List<MediaFile> singleSongs = mediaFileService.getDirectChildFiles(folders, 0, Integer.MAX_VALUE, excludes);
         return new MusicFolderContent(indexedArtists, singleSongs);
     }
 
@@ -120,6 +121,27 @@ public class MusicIndexServiceImpl implements MusicIndexService {
         parser = null;
     }
 
+    @Override
+    public Counts getMusicFolderContentCounts(List<MusicFolder> folders, MediaType... excludes) {
+        Comparator<MusicIndex> comparator = new MusicIndexComparator(getParser().getIndexes());
+        SortedMap<MusicIndex, Integer> indexCounts = new TreeMap<>(comparator);
+        mediaFileService.getMudicIndexCounts(folders).forEach(indexWithCount -> indexCounts
+                .put(getParser().getIndex(indexWithCount.index()), indexWithCount.directoryCount()));
+        MediaType[] singleSongCountsExcludes = Stream
+                .concat(Stream.of(excludes), Stream.of(MediaType.DIRECTORY, MediaType.ALBUM)).distinct()
+                .toArray(size -> new MediaType[size]);
+        return new Counts(indexCounts, mediaFileService.getChildSizeOf(folders, singleSongCountsExcludes));
+    }
+
+    @Override
+    public SortedMap<MusicIndex, Integer> getIndexedId3ArtistCounts(List<MusicFolder> folders) {
+        Comparator<MusicIndex> comparator = new MusicIndexComparator(getParser().getIndexes());
+        SortedMap<MusicIndex, Integer> result = new TreeMap<>(comparator);
+        artistDao.getMudicIndexCounts(folders).stream().forEach(indexWithCount -> result
+                .put(getParser().getIndex(indexWithCount.index()), indexWithCount.artistCount()));
+        return result;
+    }
+
     static class MusicIndexParser {
 
         List<MusicIndex> indexes;
@@ -150,20 +172,18 @@ public class MusicIndexServiceImpl implements MusicIndexService {
             return indexes;
         }
 
-        MusicIndex getIndex(ArtistIndexable artist) {
-            String indexableName = readingUtils.createIndexableName(artist);
-            Optional<MusicIndex> op = indexes.stream()
+        MusicIndex getIndex(Indexable indexable) {
+            String indexableName = readingUtils.createIndexableName(indexable);
+            return indexes.stream()
                     .filter(musicIndex -> musicIndex.getPrefixes().stream()
                             .filter(prefix -> StringUtils.startsWithIgnoreCase(indexableName, prefix)).findFirst()
                             .isPresent())
-                    .findFirst();
-            return op.isPresent() ? op.get() : MusicIndex.OTHER;
+                    .findFirst().orElse(MusicIndex.OTHER);
         }
 
         private MusicIndex getIndex(String index) {
-            Optional<MusicIndex> op = indexes.stream().filter(musicIndex -> musicIndex.getIndex().equals(index))
-                    .findFirst();
-            return op.isPresent() ? op.get() : MusicIndex.OTHER;
+            return indexes.stream().filter(musicIndex -> musicIndex.getIndex().equals(index)).findFirst()
+                    .orElse(MusicIndex.OTHER);
         }
     }
 

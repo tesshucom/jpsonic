@@ -178,7 +178,7 @@ class DaoUnitTest {
         mediaFileDao.starMediaFile(file.getId(), USER_NAME);
         mediaFileDao.unstarMediaFile(file.getId(), USER_NAME);
         mediaFileDao.resetLastScanned(file.getId());
-        mediaFileDao.countMediaFile(MediaType.MUSIC, folders);
+        mediaFileDao.getSizeOf(folders, MediaType.MUSIC);
         mediaFileDao.getSortCandidatePersons(List.of(new SortCandidate("name", "sort", 0)));
         mediaFileDao.deleteMediaFile(file.getId());
     }
