@@ -25,7 +25,7 @@ import com.tesshu.jpsonic.service.search.analysis.ComplementaryFilter.Mode;
 import org.apache.lucene.analysis.TokenFilterFactory;
 import org.apache.lucene.analysis.TokenStream;
 
-public class ComplementaryFilterFactory extends TokenFilterFactory {
+public final class ComplementaryFilterFactory extends TokenFilterFactory {
 
     private final String stopwards;
 

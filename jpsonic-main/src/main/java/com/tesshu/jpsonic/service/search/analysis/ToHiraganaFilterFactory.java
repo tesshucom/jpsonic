@@ -24,7 +24,7 @@ import java.util.Map;
 import org.apache.lucene.analysis.TokenFilterFactory;
 import org.apache.lucene.analysis.TokenStream;
 
-public class ToHiraganaFilterFactory extends TokenFilterFactory {
+public final class ToHiraganaFilterFactory extends TokenFilterFactory {
 
     public ToHiraganaFilterFactory(Map<String, String> args) {
         super(args);
