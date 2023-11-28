@@ -77,7 +77,7 @@ class DaoUnitTest {
     @Test
     void testAlbumDao() {
         albumDao.updateAlbum(new Album());
-        List<MusicFolder> folders = List.of(new MusicFolder(null, null, false, null));
+        List<MusicFolder> folders = List.of(new MusicFolder(null, null, false, null, false));
         albumDao.getMostFrequentlyPlayedAlbums(0, 0, folders);
         albumDao.getMostRecentlyPlayedAlbums(0, 0, folders);
         albumDao.getAlbumsByYear(0, 0, 1990, 2020, folders);
@@ -150,7 +150,7 @@ class DaoUnitTest {
     void testMediaFileDao() {
 
         mediaFileDao.getMediaFile("path");
-        List<MusicFolder> folders = List.of(new MusicFolder(null, null, false, null));
+        List<MusicFolder> folders = List.of(new MusicFolder(null, null, false, null, false));
         mediaFileDao.getMediaFile(MediaType.MUSIC, 0, 0, folders);
         mediaFileDao.exists(Path.of("path"));
         mediaFileDao.updateComment("pathString", "comment");
@@ -200,7 +200,7 @@ class DaoUnitTest {
 
     @Test
     void testRatingDao() {
-        List<MusicFolder> folders = List.of(new MusicFolder(null, null, false, null));
+        List<MusicFolder> folders = List.of(new MusicFolder(null, null, false, null, false));
         ratingDao.getHighestRatedAlbums(0, 10, folders);
     }
 

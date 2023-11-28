@@ -253,7 +253,8 @@ class MetaDataParserTest {
         assertEquals("MusicFolder", parser.guessArtist(Path.of("/MusicFolder/artist/album")));
         assertEquals("artist", parser.guessArtist(Path.of("/MusicFolder/artist/album/song.mp3")));
 
-        List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder("/MusicFolder", "MusicFolder", true, null));
+        List<MusicFolder> musicFolders = Arrays
+                .asList(new MusicFolder("/MusicFolder", "MusicFolder", true, null, false));
         Mockito.when(musicFolderService.getAllMusicFolders(false, true)).thenReturn(musicFolders);
         assertThrows(IllegalArgumentException.class, () -> parser.guessArtist(Path.of("/")));
         assertThrows(IllegalArgumentException.class, () -> parser.guessArtist(Path.of("/song.mp3")));
@@ -272,7 +273,8 @@ class MetaDataParserTest {
         assertEquals("artist", parser.guessAlbum(Path.of("/MusicFolder/artist/album"), "artist"));
         assertEquals("album", parser.guessAlbum(Path.of("/MusicFolder/artist/album/song.mp3"), "artist"));
 
-        List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder("/MusicFolder", "MusicFolder", true, null));
+        List<MusicFolder> musicFolders = Arrays
+                .asList(new MusicFolder("/MusicFolder", "MusicFolder", true, null, false));
         Mockito.when(musicFolderService.getAllMusicFolders(false, true)).thenReturn(musicFolders);
         assertThrows(IllegalArgumentException.class, () -> parser.guessAlbum(Path.of("/"), "artist"));
         assertEquals("", parser.guessAlbum(Path.of("/song.mp3"), "artist"));
@@ -297,7 +299,8 @@ class MetaDataParserTest {
         assertFalse(parser.isRoot(Path.of("/MusicFolder/artist")));
         assertFalse(parser.isRoot(Path.of("/MusicFolder")));
         assertFalse(parser.isRoot(Path.of("/")));
-        List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder("/MusicFolder", "MusicFolder", true, null));
+        List<MusicFolder> musicFolders = Arrays
+                .asList(new MusicFolder("/MusicFolder", "MusicFolder", true, null, false));
         Mockito.when(musicFolderService.getAllMusicFolders(false, true)).thenReturn(musicFolders);
         assertFalse(parser.isRoot(Path.of("/MusicFolder/artist")));
         assertTrue(parser.isRoot(Path.of("/MusicFolder")));

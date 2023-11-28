@@ -404,10 +404,11 @@ class MediaScannerServiceImplTest {
         public List<MusicFolder> getMusicFolders() {
             if (ObjectUtils.isEmpty(musicFolders)) {
                 musicFolders = Arrays.asList(
-                        new MusicFolder(1, resolveBaseMediaPath("Scan/Id3LIFO"), "alphaBeticalProps", true, now(), 0),
-                        new MusicFolder(2, resolveBaseMediaPath("Scan/Null"), "noTagFirstChild", true, now(), 1),
+                        new MusicFolder(1, resolveBaseMediaPath("Scan/Id3LIFO"), "alphaBeticalProps", true, now(), 0,
+                                false),
+                        new MusicFolder(2, resolveBaseMediaPath("Scan/Null"), "noTagFirstChild", true, now(), 1, false),
                         new MusicFolder(3, resolveBaseMediaPath("Scan/Reverse"), "fileAndPropsNameInReverse", true,
-                                now(), 2));
+                                now(), 2, false));
             }
             return musicFolders;
         }
@@ -558,7 +559,8 @@ class MediaScannerServiceImplTest {
             assertNotNull(FileUtil.createDirectories(artist));
             this.album = Path.of(artist.toString(), "ALBUM");
             assertNotNull(FileUtil.createDirectories(album));
-            this.musicFolders = Arrays.asList(new MusicFolder(1, tempDir.toString(), "musicFolder", true, now(), 1));
+            this.musicFolders = Arrays
+                    .asList(new MusicFolder(1, tempDir.toString(), "musicFolder", true, now(), 1, false));
 
             // Copy the song file from the test resource. No tags are registered in this file.
             Path sample = Path.of(MediaScannerServiceImplTest.class
@@ -877,7 +879,7 @@ class MediaScannerServiceImplTest {
                 IOUtils.copy(resource, Files.newOutputStream(musicPath));
             }
 
-            MusicFolder musicFolder = new MusicFolder(1, tempDirPath.toString(), "Music", true, now(), 1);
+            MusicFolder musicFolder = new MusicFolder(1, tempDirPath.toString(), "Music", true, now(), 1, false);
             musicFolderDao.createMusicFolder(musicFolder);
             musicFolderService.clearMusicFolderCache();
             TestCaseUtils.execScan(mediaScannerService);
@@ -897,7 +899,7 @@ class MediaScannerServiceImplTest {
 
             // Add the "Music3" folder to the database
             Path musicFolderPath = Path.of(MusicFolderTestDataUtils.resolveMusic3FolderPath());
-            MusicFolder musicFolder = new MusicFolder(1, musicFolderPath.toString(), "Music3", true, now(), 1);
+            MusicFolder musicFolder = new MusicFolder(1, musicFolderPath.toString(), "Music3", true, now(), 1, false);
             musicFolderDao.createMusicFolder(musicFolder);
             musicFolderService.clearMusicFolderCache();
             TestCaseUtils.execScan(mediaScannerService);
@@ -968,8 +970,9 @@ class MediaScannerServiceImplTest {
             assertNotNull(FileUtil.createDirectories(artist));
             this.album = Path.of(artist.toString(), "ALBUM");
             assertNotNull(FileUtil.createDirectories(album));
-            this.musicFolders = Arrays.asList(new MusicFolder(1, tempDir1.toString(), "musicFolder1", true, now(), 0),
-                    new MusicFolder(2, tempDir2.toString(), "musicFolder2", true, now(), 1));
+            this.musicFolders = Arrays.asList(
+                    new MusicFolder(1, tempDir1.toString(), "musicFolder1", true, now(), 0, false),
+                    new MusicFolder(2, tempDir2.toString(), "musicFolder2", true, now(), 1, false));
 
             Path sample = Path.of(MediaScannerServiceImplTest.class
                     .getResource("/MEDIAS/Scan/Timestamp/ARTIST/ALBUM/sample.mp3").toURI());
@@ -1037,7 +1040,8 @@ class MediaScannerServiceImplTest {
             assertNotNull(FileUtil.createDirectories(artist));
             Path album = Path.of(artist.toString(), "ALBUM");
             assertNotNull(FileUtil.createDirectories(album));
-            this.musicFolders = Arrays.asList(new MusicFolder(1, tempDir.toString(), "musicFolder1", true, now(), 1));
+            this.musicFolders = Arrays
+                    .asList(new MusicFolder(1, tempDir.toString(), "musicFolder1", true, now(), 1, false));
             Path sample = Path.of(MediaScannerServiceImplTest.class
                     .getResource("/MEDIAS/Scan/Timestamp/ARTIST/ALBUM/sample.mp3").toURI());
             this.song = Path.of(album.toString(), "sample.mp3");
@@ -1132,7 +1136,7 @@ class MediaScannerServiceImplTest {
         void testDoScanLibraryWithSortStrict() {
 
             Mockito.when(musicFolderService.getAllMusicFolders())
-                    .thenReturn(Arrays.asList(new MusicFolder(0, "path", "name", true, null, -1)));
+                    .thenReturn(Arrays.asList(new MusicFolder(0, "path", "name", true, null, -1, false)));
             Mockito.when(artistDao.getAlbumCounts()).thenReturn(Arrays.asList(new Artist()));
 
             Mockito.when(scannerStateService.isEnableCleansing()).thenReturn(true);
@@ -1191,7 +1195,7 @@ class MediaScannerServiceImplTest {
         void testDoScanLibraryWithoutSortStrict() {
 
             Mockito.when(musicFolderService.getAllMusicFolders())
-                    .thenReturn(Arrays.asList(new MusicFolder(0, "path", "name", true, null, -1)));
+                    .thenReturn(Arrays.asList(new MusicFolder(0, "path", "name", true, null, -1, false)));
             Mockito.when(artistDao.getAlbumCounts()).thenReturn(Arrays.asList(new Artist()));
 
             Mockito.when(scannerStateService.isEnableCleansing()).thenReturn(true);

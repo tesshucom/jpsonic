@@ -218,7 +218,7 @@ class SecurityServiceTest {
         assertThrows(IllegalArgumentException.class, () -> service.isWriteAllowed(Path.of("/")));
         assertFalse(service.isWriteAllowed(Path.of("")));
         Mockito.when(musicFolderService.getAllMusicFolders(false, true))
-                .thenReturn(Arrays.asList(new MusicFolder("/test", "test", true, null)));
+                .thenReturn(Arrays.asList(new MusicFolder("/test", "test", true, null, false)));
         Mockito.when(settingsService.getPodcastFolder()).thenReturn("");
         assertTrue(service.isWriteAllowed(Path.of("/test/cover.jpg")));
     }

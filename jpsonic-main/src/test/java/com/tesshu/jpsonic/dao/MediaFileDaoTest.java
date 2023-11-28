@@ -280,7 +280,7 @@ class MediaFileDaoTest {
                 assertFalse(op.isPresent());
 
                 List<MusicFolder> folders = new ArrayList<>();
-                folders.add(new MusicFolder("/", "", false, null));
+                folders.add(new MusicFolder("/", "", false, null, false));
                 criteria = new RandomSearchCriteria(0, null, null, null, folders, null, null, null, null, null, null,
                         false, false, null);
                 builder = new RandomSongsQueryBuilder(criteria);
@@ -611,7 +611,7 @@ class MediaFileDaoTest {
 
                 // folder
                 List<MusicFolder> folders = new ArrayList<>();
-                folders.add(new MusicFolder("/", "", false, null));
+                folders.add(new MusicFolder("/", "", false, null, false));
                 criteria = new RandomSearchCriteria(0, null, null, null, folders, null, null, null, null, null, null,
                         false, false, null);
                 builder = new RandomSongsQueryBuilder(criteria);
@@ -703,7 +703,7 @@ class MediaFileDaoTest {
     class IntegrationTest extends AbstractNeedsScan {
 
         private static final MusicFolder MUSIC_FOLDER = new MusicFolder(0,
-                resolveBaseMediaPath("Browsing/MessyFileStructure/Folder"), "Folder", true, now(), 1);
+                resolveBaseMediaPath("Browsing/MessyFileStructure/Folder"), "Folder", true, now(), 1, false);
 
         @Autowired
         private MediaFileDao mediaFileDao;

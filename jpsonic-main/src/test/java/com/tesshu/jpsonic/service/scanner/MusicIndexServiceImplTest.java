@@ -105,7 +105,7 @@ class MusicIndexServiceImplTest {
         Mockito.when(mediaFileService.getDirectChildFiles(anyList(), anyLong(), anyLong(), any(MediaType.class)))
                 .thenReturn(songs);
 
-        MusicFolder folder = new MusicFolder(0, "path", "name", true, now(), 0);
+        MusicFolder folder = new MusicFolder(0, "path", "name", true, now(), 0, false);
         MusicFolderContent content = musicIndexService.getMusicFolderContent(Arrays.asList(folder));
         assertEquals(2, content.getIndexedArtists().size());
         Iterator<MusicIndex> iterator = content.getIndexedArtists().keySet().iterator();
@@ -148,7 +148,7 @@ class MusicIndexServiceImplTest {
                 .thenReturn(StringUtil.split("Shortcuts \"New Incoming\" Podcast Metadata"));
         MusicFolder folder = new MusicFolder(
                 Path.of(MusicIndexServiceImplTest.class.getResource("/MEDIAS/Music").toURI()).toString(), "Music", true,
-                now());
+                now(), false);
         assertEquals(0, musicIndexService.getShortcuts(Arrays.asList(folder)).size());
 
         MediaFile artist = new MediaFile();

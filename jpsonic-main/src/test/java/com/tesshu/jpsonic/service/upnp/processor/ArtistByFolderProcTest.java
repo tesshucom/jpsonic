@@ -93,7 +93,7 @@ class ArtistByFolderProcTest {
 
     @Test
     void testGetChildrenWithFolder() {
-        MusicFolder folder = new MusicFolder(0, "/folder1", "folder1", true, now(), 1);
+        MusicFolder folder = new MusicFolder(0, "/folder1", "folder1", true, now(), 1, false);
         Mockito.when(artistDao.getAlphabetialArtists(anyInt(), anyInt(), anyList())).thenReturn(List.of(new Artist()));
         FolderOrArtist folderOrArtist = new FolderOrArtist(folder);
         assertEquals(1, proc.getChildren(folderOrArtist, 0, 2).size());

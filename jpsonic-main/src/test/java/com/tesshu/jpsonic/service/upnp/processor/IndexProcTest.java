@@ -261,8 +261,8 @@ class IndexProcTest {
     @Order(2)
     class IntegrationTest extends AbstractNeedsScan {
 
-        private final List<MusicFolder> musicFolders = Arrays
-                .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, now(), 1));
+        private final List<MusicFolder> musicFolders = Arrays.asList(
+                new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, now(), 1, false));
 
         @Autowired
         private IndexProc indexProc;

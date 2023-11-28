@@ -33,4 +33,16 @@
             <column name="music_index"/>
         </createIndex>
     </changeSet>
+    <changeSet id="add-archived-to-music-folder" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="music_folder" columnName="archived" />
+            </not>
+        </preConditions>
+        <addColumn tableName="music_folder">
+            <column name="archived" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

@@ -244,7 +244,7 @@ public class UPnPSearchCriteriaDirectorTest {
         Mockito.when(settingsService.isSearchComposer()).thenReturn(true);
 
         List<MusicFolder> musicFolders = new ArrayList<>();
-        musicFolders.add(new MusicFolder(1, "dummy", "accessible", true, now(), 1));
+        musicFolders.add(new MusicFolder(1, "dummy", "accessible", true, now(), 1, false));
         musicFolderService = mock(MusicFolderService.class);
         Mockito.when(musicFolderService.getMusicFoldersForUser(User.USERNAME_GUEST)).thenReturn(musicFolders);
 

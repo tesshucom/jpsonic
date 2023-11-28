@@ -703,7 +703,7 @@ public class ScannerProcedureService {
             return;
         }
         Path path = Path.of(settingsService.getPodcastFolder());
-        MusicFolder dummy = new MusicFolder(path.toString(), null, true, null);
+        MusicFolder dummy = new MusicFolder(path.toString(), null, true, null, false);
         getRootDirectory(scanDate, path).ifPresent(root -> {
             scanPodcast(scanDate, dummy, root);
             createScanEvent(scanDate, ScanEventType.PARSE_PODCAST, null);

@@ -91,7 +91,7 @@ class ScannerProcedureServiceTest {
         void testExistenceCheck() throws URISyntaxException {
             MusicFolder existingFolder = new MusicFolder(1,
                     Path.of(ScannerProcedureServiceTest.class.getResource("/MEDIAS/Music").toURI()).toString(),
-                    "Existing", true, now(), 1);
+                    "Existing", true, now(), 1, false);
             List<MusicFolder> folders = Arrays.asList(existingFolder);
             Mockito.when(musicFolderServiceImpl.getAllMusicFolders(false, true)).thenReturn(folders);
             Instant startDate = now();
@@ -99,7 +99,7 @@ class ScannerProcedureServiceTest {
             Mockito.verify(musicFolderServiceImpl, Mockito.never()).updateMusicFolder(startDate, existingFolder);
 
             MusicFolder notExistingFolder = new MusicFolder(2, existingFolder.getPathString() + "99", "Not existing",
-                    true, now(), 2);
+                    true, now(), 2, false);
             folders = Arrays.asList(existingFolder, notExistingFolder);
             Mockito.when(musicFolderServiceImpl.getAllMusicFolders(false, true)).thenReturn(folders);
             scannerProcedureService.checkMudicFolders(startDate);
@@ -109,7 +109,7 @@ class ScannerProcedureServiceTest {
 
             MusicFolder existingFile = new MusicFolder(3,
                     Path.of(ScannerProcedureServiceTest.class.getResource("/MEDIAS/piano.mp3").toURI()).toString(),
-                    "Existing file", true, now(), 3);
+                    "Existing file", true, now(), 3, false);
             folders = Arrays.asList(existingFolder, notExistingFolder, existingFile);
             Mockito.when(musicFolderServiceImpl.getAllMusicFolders(false, true)).thenReturn(folders);
             scannerProcedureService.checkMudicFolders(startDate);
@@ -122,7 +122,7 @@ class ScannerProcedureServiceTest {
         void testOrderCheck() throws URISyntaxException {
             MusicFolder orderedFolder = new MusicFolder(1,
                     Path.of(ScannerProcedureServiceTest.class.getResource("/MEDIAS/Music").toURI()).toString(),
-                    "Ordered", true, now(), 1);
+                    "Ordered", true, now(), 1, false);
             List<MusicFolder> folders = Arrays.asList(orderedFolder);
             Mockito.when(musicFolderServiceImpl.getAllMusicFolders(false, true)).thenReturn(folders);
             Instant startDate = now();
@@ -132,10 +132,10 @@ class ScannerProcedureServiceTest {
 
             MusicFolder notOrderedFolder1 = new MusicFolder(2,
                     Path.of(ScannerProcedureServiceTest.class.getResource("/MEDIAS/Music2").toURI()).toString(),
-                    "Music2", true, now(), -1);
+                    "Music2", true, now(), -1, false);
             MusicFolder notOrderedFolder2 = new MusicFolder(3,
                     Path.of(ScannerProcedureServiceTest.class.getResource("/MEDIAS/Music3").toURI()).toString(),
-                    "Music3", true, now(), -1);
+                    "Music3", true, now(), -1, false);
             folders = Arrays.asList(orderedFolder, notOrderedFolder1, notOrderedFolder2);
             Mockito.when(musicFolderServiceImpl.getAllMusicFolders(false, true)).thenReturn(folders);
             ArgumentCaptor<MusicFolder> folderCaptor = ArgumentCaptor.forClass(MusicFolder.class);
