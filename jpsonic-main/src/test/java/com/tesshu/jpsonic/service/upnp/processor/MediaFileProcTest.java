@@ -162,7 +162,7 @@ class MediaFileProcTest {
 
             @Test
             void testSingleFolder() {
-                when(mediaFileService.getMediaFile(any(Path.class))).thenReturn(mfolder1, mfolder2,
+                when(mediaFileService.getMediaFileStrict(any(String.class))).thenReturn(mfolder1, mfolder2,
                         mfolder3);
                 when(util.getGuestFolders()).thenReturn(List.of(folder1));
                 assertEquals(4, proc.getDirectChildren(0, 30).size());

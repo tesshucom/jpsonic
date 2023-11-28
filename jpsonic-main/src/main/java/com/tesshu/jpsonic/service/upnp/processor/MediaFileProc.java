@@ -90,7 +90,7 @@ public class MediaFileProc extends DirectChildrenContentProc<MediaFile, MediaFil
         if (folders.isEmpty()) {
             return Collections.emptyList();
         } else if (folders.size() == SINGLE_MUSIC_FOLDER) {
-            MediaFile folder = mediaFileService.getMediaFile(folders.get(0).toPath());
+            MediaFile folder = mediaFileService.getMediaFileStrict(folders.get(0).getPathString());
             return getChildren(folder, offset, count);
         }
         return folders.stream().skip(offset).limit(count).map(folder -> mediaFileService.getMediaFile(folder.toPath()))
