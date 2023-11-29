@@ -65,7 +65,7 @@ class SortProcedureServiceTest {
     class CompensateSortOfArtistTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
-                resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Compensation"), "Duplicate", true, now(), 1));
+                resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Compensation"), "Duplicate", true, now(), 1, false));
 
         @Autowired
         private MediaFileDao mediaFileDao;
@@ -231,7 +231,7 @@ class SortProcedureServiceTest {
     class CopySortOfArtistTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
-                resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Copy"), "Duplicate", true, now(), 1));
+                resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Copy"), "Duplicate", true, now(), 1, false));
 
         @Autowired
         private MediaFileDao mediaFileDao;
@@ -290,7 +290,7 @@ class SortProcedureServiceTest {
     class MergeSortOfArtistTest extends AbstractNeedsScan {
 
         private final List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
-                resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Merge"), "Duplicate", true, now(), 1));
+                resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Merge"), "Duplicate", true, now(), 1, false));
 
         @Autowired
         private MediaFileDao mediaFileDao;
@@ -776,8 +776,8 @@ class SortProcedureServiceTest {
     @Order(4)
     class UpdateSortOfAlbumTest extends AbstractNeedsScan {
 
-        private final List<MusicFolder> musicFolders = Arrays.asList(
-                new MusicFolder(1, resolveBaseMediaPath("Sort/Cleansing/AlbumSort"), "Duplicate", true, now(), 1));
+        private final List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
+                resolveBaseMediaPath("Sort/Cleansing/AlbumSort"), "Duplicate", true, now(), 1, false));
         @Autowired
         private MediaFileDao mediaFileDao;
 

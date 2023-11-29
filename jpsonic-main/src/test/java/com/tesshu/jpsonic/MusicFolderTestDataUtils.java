@@ -61,7 +61,8 @@ public final class MusicFolderTestDataUtils {
 
     public static List<MusicFolder> getTestMusicFolders() {
         return Arrays.asList(
-                new MusicFolder(1, MusicFolderTestDataUtils.resolveMusicFolderPath(), "Music", true, now(), 0),
-                new MusicFolder(2, MusicFolderTestDataUtils.resolveMusic2FolderPath(), "Music2", true, now(), 1));
+                new MusicFolder(1, MusicFolderTestDataUtils.resolveMusicFolderPath(), "Music", true, now(), 0, false),
+                new MusicFolder(2, MusicFolderTestDataUtils.resolveMusic2FolderPath(), "Music2", true, now(), 1,
+                        false));
     }
 }

@@ -73,7 +73,7 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
     protected static final Logger LOG = LoggerFactory.getLogger(JpsonicComparatorsTest.class);
 
     protected static final List<MusicFolder> MUSIC_FOLDERS = Arrays.asList(new MusicFolder(1,
-            resolveBaseMediaPath("Sort" + File.separator + "Compare"), "test date for sorting", true, now(), 1));
+            resolveBaseMediaPath("Sort" + File.separator + "Compare"), "test date for sorting", true, now(), 1, false));
 
     protected static final List<String> INDEX_LIST = Collections.unmodifiableList(Arrays.asList("abcde", "abcいうえおあ", // Turn
                                                                                                                      // over

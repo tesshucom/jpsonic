@@ -97,8 +97,8 @@ class RecentAlbumId3ProcTest {
     @Nested
     class IntegrationTest extends AbstractNeedsScan {
 
-        private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-                .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Albums"), "Albums", true, now(), 1));
+        private static final List<MusicFolder> MUSIC_FOLDERS = Arrays.asList(
+                new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Albums"), "Albums", true, now(), 1, false));
 
         @Autowired
         private RecentAlbumId3Proc processor;

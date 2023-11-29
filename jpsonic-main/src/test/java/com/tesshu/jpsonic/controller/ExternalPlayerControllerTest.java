@@ -85,7 +85,7 @@ class ExternalPlayerControllerTest {
         mediaFile.setPathString(path.toString());
         List<MediaFile> mediaFiles = Arrays.asList(mediaFile);
 
-        MusicFolder folder = new MusicFolder("", "", true, expires);
+        MusicFolder folder = new MusicFolder("", "", true, expires, false);
         List<MusicFolder> folders = Arrays.asList(folder);
         Mockito.when(musicFolderService.getMusicFoldersForUser(Mockito.anyString())).thenReturn(folders);
         Mockito.when(shareService.getSharedFiles(shareId, folders)).thenReturn(mediaFiles);

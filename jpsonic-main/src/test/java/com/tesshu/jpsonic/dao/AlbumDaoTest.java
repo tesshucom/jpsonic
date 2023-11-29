@@ -76,7 +76,7 @@ class AlbumDaoTest {
 
         @BeforeEach
         public void setup() {
-            MusicFolder folder = new MusicFolder("/Music", "Music", true, null);
+            MusicFolder folder = new MusicFolder("/Music", "Music", true, null, false);
             folders = List.of(folder);
         }
 

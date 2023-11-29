@@ -217,7 +217,7 @@ public class MusicFolderSettingsController {
         if (name == null) {
             name = newPath.getFileName().toString();
         }
-        return Optional.of(
-                new MusicFolder(info.getId(), validated.get(), name, info.isEnabled(), now(), info.getFolderOrder()));
+        return Optional.of(new MusicFolder(info.getId(), validated.get(), name, info.isEnabled(), now(),
+                info.getFolderOrder(), false));
     }
 }

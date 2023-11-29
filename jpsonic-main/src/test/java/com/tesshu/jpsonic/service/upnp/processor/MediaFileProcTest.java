@@ -140,7 +140,7 @@ class MediaFileProcTest {
         @Nested
         class GetGetDirectChildrenTest {
 
-            private final MusicFolder folder1 = new MusicFolder("path1", "name1", true, null);
+            private final MusicFolder folder1 = new MusicFolder("path1", "name1", true, null, false);
             private final MediaFile mfolder1 = new MediaFile();
             private final MediaFile mfolder2 = new MediaFile();
             private final MediaFile mfolder3 = new MediaFile();
@@ -172,8 +172,8 @@ class MediaFileProcTest {
             void testMultiFolder() {
                 when(mediaFileService.getMediaFile(any(Path.class))).thenReturn(mfolder1, mfolder2,
                         mfolder3);
-                MusicFolder folder2 = new MusicFolder("path2", "name2", true, null);
-                MusicFolder folder3 = new MusicFolder("path3", "name3", true, null);
+                MusicFolder folder2 = new MusicFolder("path2", "name2", true, null, false);
+                MusicFolder folder3 = new MusicFolder("path3", "name3", true, null, false);
                 when(util.getGuestFolders()).thenReturn(List.of(folder1, folder2, folder3));
                 assertEquals(0, proc.getDirectChildren(10, 0).size());
                 assertEquals(3, proc.getDirectChildren(0, 3).size());
@@ -187,7 +187,7 @@ class MediaFileProcTest {
         @Nested
         class GetGetDirectChildrenCountTest {
 
-            private final MusicFolder folder1 = new MusicFolder("path1", "name1", true, null);
+            private final MusicFolder folder1 = new MusicFolder("path1", "name1", true, null, false);
 
             @BeforeEach
             public void setup() {
@@ -218,8 +218,8 @@ class MediaFileProcTest {
                 MediaFile mfolder3 = new MediaFile();
                 mfolder3.setPathString("/path3");
                 when(mediaFileService.getMediaFile(any(Path.class))).thenReturn(mfolder1, mfolder2, mfolder3);
-                MusicFolder folder2 = new MusicFolder("path2", "name2", true, null);
-                MusicFolder folder3 = new MusicFolder("path3", "name3", true, null);
+                MusicFolder folder2 = new MusicFolder("path2", "name2", true, null, false);
+                MusicFolder folder3 = new MusicFolder("path3", "name3", true, null, false);
                 when(util.getGuestFolders()).thenReturn(List.of(folder1, folder2, folder3));
                 assertEquals(0, proc.getDirectChildren(10, 0).size());
                 assertEquals(3, proc.getDirectChildren(0, 3).size());
@@ -295,7 +295,7 @@ class MediaFileProcTest {
         public void setup() throws URISyntaxException {
             musicFolders = Arrays.asList(new MusicFolder(1,
                     Path.of(MediaFileProcTest.class.getResource("/MEDIAS/Sort/Pagination/Artists").toURI()).toString(),
-                    "Artists", true, now(), 1));
+                    "Artists", true, now(), 1, false));
 
             setSortStrict(true);
             setSortAlphanum(true);

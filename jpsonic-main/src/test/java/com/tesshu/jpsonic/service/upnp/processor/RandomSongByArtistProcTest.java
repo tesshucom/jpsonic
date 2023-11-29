@@ -152,8 +152,8 @@ class RandomSongByArtistProcTest {
     @Nested
     class IntegrationTest extends AbstractNeedsScan {
 
-        private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-                .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, now(), 1));
+        private static final List<MusicFolder> MUSIC_FOLDERS = Arrays.asList(
+                new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Artists"), "Artists", true, now(), 1, false));
 
         @Autowired
         private RandomSongByArtistProc randomSongByArtistProc;

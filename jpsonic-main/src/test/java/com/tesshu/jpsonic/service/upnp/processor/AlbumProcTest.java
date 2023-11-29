@@ -53,8 +53,8 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootTest
 class AlbumProcTest extends AbstractNeedsScan {
 
-    private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-            .asList(new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Albums"), "Albums", true, now(), 1));
+    private static final List<MusicFolder> MUSIC_FOLDERS = Arrays.asList(
+            new MusicFolder(1, resolveBaseMediaPath("Sort/Pagination/Albums"), "Albums", true, now(), 1, false));
 
     @Autowired
     private SettingsService settingsService;

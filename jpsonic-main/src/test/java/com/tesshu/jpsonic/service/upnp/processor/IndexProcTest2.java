@@ -52,7 +52,7 @@ class IndexProcTest2 {
     class MessyFileStructureTest extends AbstractNeedsScan {
 
         private static final MusicFolder MUSIC_FOLDER = new MusicFolder(0,
-                resolveBaseMediaPath("Browsing/MessyFileStructure/Folder"), "Folder", true, now(), 1);
+                resolveBaseMediaPath("Browsing/MessyFileStructure/Folder"), "Folder", true, now(), 1, false);
 
         @Autowired
         private IndexProc indexProc;

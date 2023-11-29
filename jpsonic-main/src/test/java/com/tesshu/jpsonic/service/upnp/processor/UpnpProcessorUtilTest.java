@@ -64,7 +64,7 @@ class UpnpProcessorUtilTest {
         assertFalse(util.isGenreCountAvailable());
 
         Mockito.when(settingsService.isDlnaGenreCountVisible()).thenReturn(true);
-        List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder("", null, true, null));
+        List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder("", null, true, null, false));
         Mockito.when(musicFolderService.getAllMusicFolders()).thenReturn(musicFolders);
         Mockito.when(musicFolderService.getMusicFoldersForUser(User.USERNAME_GUEST)).thenReturn(musicFolders);
         assertTrue(util.isGenreCountAvailable());

@@ -67,7 +67,7 @@ class FolderOrArtistLogicTest {
 
     @Test
     void testCreateContainerWithFolder() {
-        MusicFolder folder = new MusicFolder(99, "/Nusic", "Music", true, null, null);
+        MusicFolder folder = new MusicFolder(99, "/Nusic", "Music", true, null, null, false);
         FolderOrArtist folderOrArtist = new FolderOrArtist(folder);
         Mockito.when(artistDao.getArtistsCount(Mockito.anyList())).thenReturn(100);
         Container container = logic.createContainer(ProcId.RANDOM_SONG_BY_FOLDER_ARTIST, folderOrArtist);
@@ -95,9 +95,9 @@ class FolderOrArtistLogicTest {
 
     @Test
     void testGetDirectChildren() {
-        MusicFolder folder1 = new MusicFolder("/folder1", "folder1", true, now());
-        MusicFolder folder2 = new MusicFolder("/folder2", "folder2", true, now());
-        MusicFolder folder3 = new MusicFolder("/folder3", "folder3", true, now());
+        MusicFolder folder1 = new MusicFolder("/folder1", "folder1", true, now(), false);
+        MusicFolder folder2 = new MusicFolder("/folder2", "folder2", true, now(), false);
+        MusicFolder folder3 = new MusicFolder("/folder3", "folder3", true, now(), false);
         List<MusicFolder> folders = List.of(folder1, folder2, folder3);
         Mockito.when(util.getGuestFolders()).thenReturn(folders);
         assertEquals(3, logic.getDirectChildren(0, 4).size());
@@ -116,9 +116,9 @@ class FolderOrArtistLogicTest {
 
     @Test
     void testGetDirectChildrenCount() {
-        MusicFolder folder1 = new MusicFolder("/folder1", "folder1", true, now());
-        MusicFolder folder2 = new MusicFolder("/folder2", "folder2", true, now());
-        MusicFolder folder3 = new MusicFolder("/folder3", "folder3", true, now());
+        MusicFolder folder1 = new MusicFolder("/folder1", "folder1", true, now(), false);
+        MusicFolder folder2 = new MusicFolder("/folder2", "folder2", true, now(), false);
+        MusicFolder folder3 = new MusicFolder("/folder3", "folder3", true, now(), false);
         List<MusicFolder> folders = List.of(folder1, folder2, folder3);
         Mockito.when(util.getGuestFolders()).thenReturn(folders);
         assertEquals(3, logic.getDirectChildrenCount());
@@ -146,9 +146,9 @@ class FolderOrArtistLogicTest {
 
     @Test
     void testGetDirectChildWithFolder() {
-        MusicFolder folder1 = new MusicFolder(0, "/folder1", "folder1", true, now(), 1);
-        MusicFolder folder2 = new MusicFolder(1, "/folder2", "folder2", true, now(), 2);
-        MusicFolder folder3 = new MusicFolder(2, "/folder3", "folder3", true, now(), 3);
+        MusicFolder folder1 = new MusicFolder(0, "/folder1", "folder1", true, now(), 1, false);
+        MusicFolder folder2 = new MusicFolder(1, "/folder2", "folder2", true, now(), 2, false);
+        MusicFolder folder3 = new MusicFolder(2, "/folder3", "folder3", true, now(), 3, false);
         List<MusicFolder> folders = List.of(folder1, folder2, folder3);
         Mockito.when(musicFolderDao.getAllMusicFolders()).thenReturn(folders);
         assertEquals(folder3, logic.getDirectChild("2").getFolder());
@@ -166,7 +166,7 @@ class FolderOrArtistLogicTest {
 
     @Test
     void testGetChildSizeOfWithFolder() {
-        MusicFolder folder = new MusicFolder(0, "/folder1", "folder1", true, now(), 1);
+        MusicFolder folder = new MusicFolder(0, "/folder1", "folder1", true, now(), 1, false);
         FolderOrArtist folderOrArtist = new FolderOrArtist(folder);
         assertEquals(0, logic.getChildSizeOf(folderOrArtist));
         Mockito.verify(artistDao, Mockito.times(1)).getArtistsCount(anyList());

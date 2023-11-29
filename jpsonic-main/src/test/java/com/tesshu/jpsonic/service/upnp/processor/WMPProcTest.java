@@ -178,7 +178,7 @@ class WMPProcTest {
             m.setPathString("path2");
             m.setTitle("dummy title");
             List<MediaFile> songs = Arrays.asList(m);
-            MusicFolder mf = new MusicFolder(0, "path3", "dummy", true, null, 0);
+            MusicFolder mf = new MusicFolder(0, "path3", "dummy", true, null, 0, false);
             List<MusicFolder> folders = Arrays.asList(mf);
             when(util.getGuestFolders()).thenReturn(folders);
             when(mediaFileService.getSongs(anyLong(), anyLong(), anyList())).thenReturn(songs);
@@ -232,7 +232,7 @@ class WMPProcTest {
             m.setPathString("path5");
             m.setTitle("dummy title");
             List<MediaFile> songs = Arrays.asList(m);
-            MusicFolder mf = new MusicFolder(0, "path6", "dummy", true, null, 0);
+            MusicFolder mf = new MusicFolder(0, "path6", "dummy", true, null, 0, false);
             List<MusicFolder> folders = Arrays.asList(mf);
             when(util.getGuestFolders()).thenReturn(folders);
             when(mediaFileService.getVideos(anyLong(), anyLong(), anyList())).thenReturn(songs);
