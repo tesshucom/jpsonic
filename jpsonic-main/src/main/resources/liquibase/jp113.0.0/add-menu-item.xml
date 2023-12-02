@@ -1,0 +1,457 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="add-manu-root" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 0</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="0" />
+            <column name="id" valueNumeric="0" />
+            <column name="parent" valueNumeric="0" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="false" />
+            <column name="menu_item_order" valueNumeric="0" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 0</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-folder" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 10</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="10" />
+            <column name="parent" valueNumeric="0" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="true" />
+            <column name="menu_item_order" valueNumeric="1" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 10</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-index" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 11</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="11" />
+            <column name="parent" valueNumeric="10" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="true" />
+            <column name="menu_item_order" valueNumeric="10" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 11</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-media-file" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 12</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="12" />
+            <column name="parent" valueNumeric="10" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="false" />
+            <column name="menu_item_order" valueNumeric="20" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 12</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-artist" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 20</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="20" />
+            <column name="parent" valueNumeric="0" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="true" />
+            <column name="menu_item_order" valueNumeric="2" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 20</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-index-id3" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 21</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="21" />
+            <column name="parent" valueNumeric="20" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="true" />
+            <column name="menu_item_order" valueNumeric="10" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 21</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-index-album-artist" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 22</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="22" />
+            <column name="parent" valueNumeric="20" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="false" />
+            <column name="menu_item_order" valueNumeric="20" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 22</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-index-album-artist-by-folder" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 23</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="23" />
+            <column name="parent" valueNumeric="20" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="false" />
+            <column name="menu_item_order" valueNumeric="30" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 23</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-album" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 30</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="30" />
+            <column name="parent" valueNumeric="0" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="true" />
+            <column name="menu_item_order" valueNumeric="3" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 30</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-album-id3" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 31</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="31" />
+            <column name="parent" valueNumeric="30" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="true" />
+            <column name="menu_item_order" valueNumeric="10" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 31</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-genre" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 40</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="40" />
+            <column name="parent" valueNumeric="0" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="true" />
+            <column name="menu_item_order" valueNumeric="4" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 40</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-album-by-genre" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 41</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="41" />
+            <column name="parent" valueNumeric="40" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="true" />
+            <column name="menu_item_order" valueNumeric="10" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 41</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-song-by-genre" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 42</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="42" />
+            <column name="parent" valueNumeric="40" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="false" />
+            <column name="menu_item_order" valueNumeric="20" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 42</where>
+            </delete>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="add-menu-item-upnp-podcast" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 50</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="50" />
+            <column name="parent" valueNumeric="0" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="true" />
+            <column name="menu_item_order" valueNumeric="5" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 50</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-podcast-default" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 51</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="51" />
+            <column name="parent" valueNumeric="50" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="true" />
+            <column name="menu_item_order" valueNumeric="10" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 51</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-playlists" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 60</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="60" />
+            <column name="parent" valueNumeric="0" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="true" />
+            <column name="menu_item_order" valueNumeric="6" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 60</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-playlists-default" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 61</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="61" />
+            <column name="parent" valueNumeric="60" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="true" />
+            <column name="menu_item_order" valueNumeric="10" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 61</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-recently" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 70</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="70" />
+            <column name="parent" valueNumeric="0" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="true" />
+            <column name="menu_item_order" valueNumeric="7" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 70</where>
+            </delete>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="add-menu-item-upnp-recently-added-album" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 71</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="71" />
+            <column name="parent" valueNumeric="70" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="true" />
+            <column name="menu_item_order" valueNumeric="10" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 71</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-recently-tagged-album" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 72</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="72" />
+            <column name="parent" valueNumeric="70" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="false" />
+            <column name="menu_item_order" valueNumeric="20" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 72</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-shuffle" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 80</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="80" />
+            <column name="parent" valueNumeric="0" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="true" />
+            <column name="menu_item_order" valueNumeric="8" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 80</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-random-album" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 81</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="81" />
+            <column name="parent" valueNumeric="80" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="true" />
+            <column name="menu_item_order" valueNumeric="10" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 81</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-random-song" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 82</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="82" />
+            <column name="parent" valueNumeric="80" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="false" />
+            <column name="menu_item_order" valueNumeric="20" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 82</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-random-song-by-artist" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 83</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="83" />
+            <column name="parent" valueNumeric="80" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="false" />
+            <column name="menu_item_order" valueNumeric="30" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 83</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add-menu-item-upnp-random-song-by-folder-artist" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 84</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="84" />
+            <column name="parent" valueNumeric="80" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="false" />
+            <column name="menu_item_order" valueNumeric="40" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 84</where>
+            </delete>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
