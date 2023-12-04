@@ -226,7 +226,7 @@
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
                 <scope>compile</scope>
-                <version>3.40.0</version>
+                <version>3.41.0</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
