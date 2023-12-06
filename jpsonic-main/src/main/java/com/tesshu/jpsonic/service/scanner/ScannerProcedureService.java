@@ -1016,35 +1016,6 @@ public class ScannerProcedureService {
         return Optional.of(info);
     }
 
-    public static class ScanPhaseInfo {
-
-        private final int phase;
-        private final int phaseMax;
-        private final String phaseName;
-        private final int thread;
-
-        public ScanPhaseInfo(int phase, int phaseMax, String phaseName, int thread) {
-            super();
-            this.phase = phase;
-            this.phaseMax = phaseMax;
-            this.phaseName = phaseName;
-            this.thread = thread;
-        }
-
-        public int getPhase() {
-            return phase;
-        }
-
-        public int getPhaseMax() {
-            return phaseMax;
-        }
-
-        public String getPhaseName() {
-            return phaseName;
-        }
-
-        public int getThread() {
-            return thread;
-        }
+    public record ScanPhaseInfo(int phase, int phaseMax, String phaseName, int thread) {
     }
 }
