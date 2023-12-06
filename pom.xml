@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>112.2.12</version>
+    <version>112.2.13</version>
     <name>Jpsonic</name>
     <packaging>pom</packaging>
     <organization>
@@ -25,7 +25,7 @@
         <jetty-jsp.version>10.0.18</jetty-jsp.version>
         <pmd.version>6.55.0</pmd.version>
         <log4j.version>2.22.0</log4j.version>
-        <logback.version>1.2.11</logback.version>
+        <logback.version>1.2.13</logback.version>
         <slf4j.version>1.7.36</slf4j.version>
         <antlr.version>4.13.1</antlr.version>
         <docker.container.repo>jpsonic/jpsonic</docker.container.repo>
@@ -231,7 +231,7 @@
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
                 <artifactId>ecj</artifactId>
-                <version>3.35.0</version>
+                <version>3.36.0</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
