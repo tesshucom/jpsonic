@@ -271,23 +271,77 @@ class ScannerProcedureServiceTest {
     @Test
     void testGetScanPhaseInfo() {
         ScannerStateServiceImpl scannerStateService = mock(ScannerStateServiceImpl.class);
-        StaticsDao staticsDao = mock(StaticsDao.class);
         scannerProcedureService = new ScannerProcedureService(settingsService, musicFolderServiceImpl,
                 mock(IndexManager.class), mock(MediaFileService.class), mock(WritableMediaFileService.class),
                 mock(PlaylistService.class), mock(TemplateWrapper.class), mock(MediaFileDao.class),
-                mock(ArtistDao.class), mock(AlbumDao.class), staticsDao, mock(SortProcedureService.class),
+                mock(ArtistDao.class), mock(AlbumDao.class), mock(StaticsDao.class), mock(SortProcedureService.class),
                 scannerStateService, mock(MusicIndexServiceImpl.class), mock(MediaFileCache.class),
                 mock(JapaneseReadingUtils.class), mock(JpsonicComparators.class), mock(ThreadPoolTaskExecutor.class));
 
         Mockito.when(scannerStateService.isScanning()).thenReturn(false);
+        Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.UNKNOWN);
         assertFalse(scannerProcedureService.getScanPhaseInfo().isPresent());
 
         Mockito.when(scannerStateService.isScanning()).thenReturn(true);
+        Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.MUSIC_FOLDER_CHECK);
         Mockito.when(staticsDao.getScanEvents(Mockito.nullable(Instant.class))).thenReturn(Collections.emptyList());
-        assertFalse(scannerProcedureService.getScanPhaseInfo().isPresent());
-
-        ScanEvent event = new ScanEvent(null, null, ScanEventType.PARSE_FILE_STRUCTURE, null, null, null, null, null);
-        Mockito.when(staticsDao.getScanEvents(Mockito.nullable(Instant.class))).thenReturn(List.of(event));
         assertTrue(scannerProcedureService.getScanPhaseInfo().isPresent());
+        scannerProcedureService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+            assertEquals(2, scanPhaseInfo.phase());
+            assertEquals(22, scanPhaseInfo.phaseMax());
+            assertEquals("PARSE_FILE_STRUCTURE", scanPhaseInfo.phaseName());
+            assertEquals(0, scanPhaseInfo.thread());
+        });
+
+        Mockito.when(scannerStateService.isScanning()).thenReturn(true);
+        Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.SCANNED_COUNT);
+        Mockito.when(staticsDao.getScanEvents(Mockito.nullable(Instant.class))).thenReturn(Collections.emptyList());
+        assertTrue(scannerProcedureService.getScanPhaseInfo().isPresent());
+        scannerProcedureService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+            assertEquals(2, scanPhaseInfo.phase());
+            assertEquals(22, scanPhaseInfo.phaseMax());
+            assertEquals("PARSE_FILE_STRUCTURE", scanPhaseInfo.phaseName());
+            assertEquals(0, scanPhaseInfo.thread());
+        });
+
+        Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.CHECKPOINT);
+        Mockito.when(staticsDao.getScanEvents(Mockito.nullable(Instant.class))).thenReturn(Collections.emptyList());
+        assertTrue(scannerProcedureService.getScanPhaseInfo().isPresent());
+        scannerProcedureService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+            assertEquals(21, scanPhaseInfo.phase());
+            assertEquals(22, scanPhaseInfo.phaseMax());
+            assertEquals("AFTER_SCAN", scanPhaseInfo.phaseName());
+            assertEquals(0, scanPhaseInfo.thread());
+        });
+
+        Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.AFTER_SCAN);
+        Mockito.when(staticsDao.getScanEvents(Mockito.nullable(Instant.class))).thenReturn(Collections.emptyList());
+        assertTrue(scannerProcedureService.getScanPhaseInfo().isPresent());
+        scannerProcedureService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+            assertEquals(21, scanPhaseInfo.phase());
+            assertEquals(22, scanPhaseInfo.phaseMax());
+            assertEquals("AFTER_SCAN", scanPhaseInfo.phaseName());
+            assertEquals(0, scanPhaseInfo.thread());
+        });
+
+        Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.AFTER_SCAN);
+        Mockito.when(staticsDao.getScanEvents(Mockito.nullable(Instant.class))).thenReturn(Collections.emptyList());
+        assertTrue(scannerProcedureService.getScanPhaseInfo().isPresent());
+        scannerProcedureService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+            assertEquals(21, scanPhaseInfo.phase());
+            assertEquals(22, scanPhaseInfo.phaseMax());
+            assertEquals("AFTER_SCAN", scanPhaseInfo.phaseName());
+            assertEquals(0, scanPhaseInfo.thread());
+        });
+
+        Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.CANCELED);
+        Mockito.when(staticsDao.getScanEvents(Mockito.nullable(Instant.class))).thenReturn(Collections.emptyList());
+        assertTrue(scannerProcedureService.getScanPhaseInfo().isPresent());
+        scannerProcedureService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+            assertEquals(-1, scanPhaseInfo.phase());
+            assertEquals(-1, scanPhaseInfo.phaseMax());
+            assertEquals("Semi Scan Proc", scanPhaseInfo.phaseName());
+            assertEquals(-1, scanPhaseInfo.thread());
+        });
     }
 }

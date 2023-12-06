@@ -78,7 +78,7 @@ public class ScannerProcedureService {
     private static final String MSG_SKIP = "Skipped by the settings.";
     private static final String MSG_UNNECESSARY = "Skipped as it is not needed.";
 
-    private static final List<ScanEventType> PHASE_ALL = Arrays.asList(ScanEventType.BEFORE_SCAN,
+    private static final List<ScanEventType> SCAN_PHASE_ALL = Arrays.asList(ScanEventType.BEFORE_SCAN,
             ScanEventType.MUSIC_FOLDER_CHECK, ScanEventType.PARSE_FILE_STRUCTURE, ScanEventType.PARSE_VIDEO,
             ScanEventType.PARSE_PODCAST, ScanEventType.CLEAN_UP_FILE_STRUCTURE, ScanEventType.PARSE_ALBUM,
             ScanEventType.UPDATE_SORT_OF_ALBUM, ScanEventType.UPDATE_ORDER_OF_ALBUM,
@@ -190,6 +190,7 @@ public class ScannerProcedureService {
     }
 
     void createScanEvent(@NonNull Instant scanDate, @NonNull ScanEventType logType, @Nullable String comment) {
+        scannerState.setLastEvent(logType);
         if (!(logType == ScanEventType.SUCCESS || logType == ScanEventType.DESTROYED
                 || logType == ScanEventType.CANCELED) && !settingsService.isUseScanEvents()) {
             return;
@@ -1005,15 +1006,21 @@ public class ScannerProcedureService {
         if (!scannerState.isScanning()) {
             return Optional.empty();
         }
-        List<ScanEvent> scanEvents = staticsDao.getScanEvents(scannerState.getScanDate()).stream()
-                .filter(scanEvent -> PHASE_ALL.contains(scanEvent.getType())).collect(Collectors.toList());
-        if (scanEvents.isEmpty()) {
-            return Optional.empty();
+
+        ScanEventType lastEvent = scannerState.getLastEvent();
+        if (lastEvent == ScanEventType.SCANNED_COUNT) {
+            lastEvent = ScanEventType.MUSIC_FOLDER_CHECK;
         }
-        ScanPhaseInfo info = new ScanPhaseInfo(scanEvents.size(), PHASE_ALL.size(),
-                scanEvents.size() < PHASE_ALL.size() ? PHASE_ALL.get(scanEvents.size()).name() : null,
-                scanExecutor.getActiveCount());
-        return Optional.of(info);
+
+        int lastPhase = SCAN_PHASE_ALL.indexOf(lastEvent);
+        if (lastPhase == -1) {
+            return Optional.of(new ScanPhaseInfo(-1, -1, "Semi Scan Proc", -1));
+        }
+
+        int currentPhase = lastPhase + 1 >= SCAN_PHASE_ALL.size() ? lastPhase : lastPhase + 1;
+
+        return Optional.of(new ScanPhaseInfo(currentPhase, SCAN_PHASE_ALL.size(),
+                SCAN_PHASE_ALL.get(currentPhase).name(), scanExecutor.getActiveCount()));
     }
 
     public record ScanPhaseInfo(int phase, int phaseMax, String phaseName, int thread) {
