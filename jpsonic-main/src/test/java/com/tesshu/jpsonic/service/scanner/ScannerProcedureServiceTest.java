@@ -21,6 +21,8 @@ package com.tesshu.jpsonic.service.scanner;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -28,6 +30,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
@@ -263,5 +266,28 @@ class ScannerProcedureServiceTest {
         scannerProcedureService.invokeUpdateOrder(result, comparators.songsDefault(), (song) -> wmfs.updateOrder(song));
         result = captor.getAllValues();
         assertEquals(0, result.size());
+    }
+
+    @Test
+    void testGetScanPhaseInfo() {
+        ScannerStateServiceImpl scannerStateService = mock(ScannerStateServiceImpl.class);
+        StaticsDao staticsDao = mock(StaticsDao.class);
+        scannerProcedureService = new ScannerProcedureService(settingsService, musicFolderServiceImpl,
+                mock(IndexManager.class), mock(MediaFileService.class), mock(WritableMediaFileService.class),
+                mock(PlaylistService.class), mock(TemplateWrapper.class), mock(MediaFileDao.class),
+                mock(ArtistDao.class), mock(AlbumDao.class), staticsDao, mock(SortProcedureService.class),
+                scannerStateService, mock(MusicIndexServiceImpl.class), mock(MediaFileCache.class),
+                mock(JapaneseReadingUtils.class), mock(JpsonicComparators.class), mock(ThreadPoolTaskExecutor.class));
+
+        Mockito.when(scannerStateService.isScanning()).thenReturn(false);
+        assertFalse(scannerProcedureService.getScanPhaseInfo().isPresent());
+
+        Mockito.when(scannerStateService.isScanning()).thenReturn(true);
+        Mockito.when(staticsDao.getScanEvents(Mockito.nullable(Instant.class))).thenReturn(Collections.emptyList());
+        assertFalse(scannerProcedureService.getScanPhaseInfo().isPresent());
+
+        ScanEvent event = new ScanEvent(null, null, ScanEventType.PARSE_FILE_STRUCTURE, null, null, null, null, null);
+        Mockito.when(staticsDao.getScanEvents(Mockito.nullable(Instant.class))).thenReturn(List.of(event));
+        assertTrue(scannerProcedureService.getScanPhaseInfo().isPresent());
     }
 }
