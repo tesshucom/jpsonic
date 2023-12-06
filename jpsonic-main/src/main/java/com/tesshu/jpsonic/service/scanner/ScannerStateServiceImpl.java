@@ -32,6 +32,7 @@ import javax.annotation.PreDestroy;
 
 import com.tesshu.jpsonic.ThreadSafe;
 import com.tesshu.jpsonic.dao.StaticsDao;
+import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.stereotype.Service;
@@ -56,6 +57,8 @@ public class ScannerStateServiceImpl implements ScannerStateService {
     private final AtomicBoolean cleansing = new AtomicBoolean(true);
 
     private Instant scanDate = FAR_PAST;
+
+    private ScanEventType lastEvent = ScanEventType.UNKNOWN;
 
     public ScannerStateServiceImpl(StaticsDao staticsDao) {
         super();
@@ -103,6 +106,7 @@ public class ScannerStateServiceImpl implements ScannerStateService {
         if (acquired) {
             scanDate = now();
             scanCount.reset();
+            lastEvent = ScanEventType.UNKNOWN;
         }
         return acquired;
     }
@@ -123,6 +127,7 @@ public class ScannerStateServiceImpl implements ScannerStateService {
     void unlockScanning() {
         scanDate = FAR_PAST;
         scanCount.reset();
+        lastEvent = ScanEventType.UNKNOWN;
         scanningLock.unlock();
     }
 
@@ -146,5 +151,13 @@ public class ScannerStateServiceImpl implements ScannerStateService {
 
     boolean isEnableCleansing() {
         return cleansing.get();
+    }
+
+    public ScanEventType getLastEvent() {
+        return lastEvent;
+    }
+
+    public void setLastEvent(ScanEventType lastEvent) {
+        this.lastEvent = lastEvent;
     }
 }

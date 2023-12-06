@@ -20,7 +20,7 @@
 package com.tesshu.jpsonic.domain;
 
 import java.time.Instant;
-import java.util.Arrays;
+import java.util.stream.Stream;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -156,8 +156,8 @@ public class ScanEvent {
         PARSED_COUNT;
 
         public static ScanEventType of(String name) {
-            return Arrays.stream(values()).filter(t -> t.name().equals(name)).findFirst()
-                    .orElseGet(() -> UNKNOWN);
+            return Stream.of(values()).filter(t -> t.name().equals(name)).findFirst()
+                    .orElse(UNKNOWN);
         }
     }
 }

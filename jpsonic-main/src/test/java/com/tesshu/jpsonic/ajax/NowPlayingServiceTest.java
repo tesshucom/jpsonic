@@ -22,8 +22,10 @@ package com.tesshu.jpsonic.ajax;
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PlayStatus;
@@ -35,6 +37,7 @@ import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ServiceMockUtils;
 import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.scanner.ScannerProcedureService;
+import com.tesshu.jpsonic.service.scanner.ScannerProcedureService.ScanPhaseInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -42,6 +45,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 class NowPlayingServiceTest {
 
+    private ScannerProcedureService scannerProcedureService;
     private NowPlayingService nowPlayingService;
 
     @BeforeEach
@@ -53,9 +57,9 @@ class NowPlayingServiceTest {
         player.setUsername(ServiceMockUtils.ADMIN_NAME);
         PlayStatus playStatus = new PlayStatus(file, player, now());
         Mockito.when(statusService.getPlayStatuses()).thenReturn(Arrays.asList(playStatus));
-
+        scannerProcedureService = mock(ScannerProcedureService.class);
         nowPlayingService = new NowPlayingService(mock(SecurityService.class), mock(PlayerService.class), statusService,
-                mock(ScannerStateService.class), mock(ScannerProcedureService.class), mock(AvatarService.class),
+                mock(ScannerStateService.class), scannerProcedureService, mock(AvatarService.class),
                 AjaxMockUtils.mock(AjaxHelper.class));
     }
 
@@ -63,5 +67,15 @@ class NowPlayingServiceTest {
     @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
     void testGetNowPlaying() {
         assertNotNull(nowPlayingService.getNowPlaying());
+    }
+
+    @Test
+    @WithMockUser(username = ServiceMockUtils.ADMIN_NAME)
+    void testgetScanningStatus() {
+        assertEquals(-1, nowPlayingService.getScanningStatus().getPhase());
+
+        ScanPhaseInfo info = new ScanPhaseInfo(0, 10, "phaseName", 1);
+        Mockito.when(scannerProcedureService.getScanPhaseInfo()).thenReturn(Optional.of(info));
+        assertEquals(0, nowPlayingService.getScanningStatus().getPhase());
     }
 }
