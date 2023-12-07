@@ -64,6 +64,8 @@ jobs:
   verify-Java17:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    env:
+      NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
     name: JDK17 on ${{ matrix.os }}
     strategy:
       matrix:
@@ -106,6 +108,8 @@ jobs:
   verify-Java21:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    env:
+      NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
     name: JDK${{ matrix.java }} on ubuntu-latest
     strategy:
       matrix:

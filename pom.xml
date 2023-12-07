@@ -568,6 +568,7 @@
                         <ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
                         <!-- Disabled due to unavoidable bug. jeremylong/DependencyCheck#4695, 4696 -->
                         <retireJsAnalyzerEnabled>false</retireJsAnalyzerEnabled>
+                        <nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
                     </configuration>
                     <executions>
                         <execution>
