@@ -535,6 +535,12 @@ public class SecurityService implements UserDetailsService {
         }
     }
 
+    private void warn(String msg) {
+        if (LOG.isWarnEnabled()) {
+            LOG.warn(msg);
+        }
+    }
+
     @SuppressWarnings({ "PMD.GuardLogStatement", "PMD.NPathComplexity" })
     // NPathComplexity : Redundantly coded for readability, but not difficult to understand
     public boolean isExcluded(Path path) {
@@ -559,6 +565,16 @@ public class SecurityService implements UserDetailsService {
 
         // Exclude all hidden files starting with a single "."
         if (name.charAt(0) == '.' && !name.startsWith("..")) {
+            return true;
+        }
+
+        // Exclude files end with a dot (Windows prohibitions)
+        if (name.endsWith(".")) {
+            warn("""
+                    Excluding files ending with Dot. \
+                    Recommended to replace with a UNICODE String \
+                    like One dot leader or Horizontal Ellipsis. : %s\
+                    """.formatted(path));
             return true;
         }
 

@@ -349,6 +349,11 @@ class SecurityServiceTest {
             assertTrue(service.isExcluded(Path.of("Thumbs.db")));
 
             assertTrue(service.isExcluded(Path.of(".foo.mp3")));
+            assertTrue(service.isExcluded(Path.of("foo.mp3.")));
+            assertFalse(service.isExcluded(Path.of("foo.mp3․"))); // The end is not dot (one dot leader)
+            assertTrue(service.isExcluded(Path.of("If...")));
+            assertFalse(service.isExcluded(Path.of("If․․․"))); // The end is not dot (one dot leader)
+            assertFalse(service.isExcluded(Path.of("If…"))); // The end is not dot (Horizontal Ellipsis)
             assertTrue(service.isExcluded(Path.of("._foo.mp3")));
             assertTrue(service.isExcluded(Path.of(".SYNOPPSDB")));
             assertTrue(service.isExcluded(Path.of(".DS_Store")));
