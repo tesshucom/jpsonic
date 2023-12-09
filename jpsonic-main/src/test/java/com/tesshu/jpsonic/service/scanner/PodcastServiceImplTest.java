@@ -57,8 +57,8 @@ class PodcastServiceImplTest {
         settingsService = mock(SettingsService.class);
         securityService = mock(SecurityService.class);
         MediaFileService mediaFlieService = new MediaFileService(settingsService, null, null, null, null, null);
-        podcastService = new PodcastServiceImpl(null, settingsService, securityService, mediaFlieService, null, null,
-                null, null, null, null);
+        podcastService = new PodcastServiceImpl(null, settingsService, securityService, mediaFlieService,
+                mock(WritableMediaFileService.class), null, null, null, null, null);
     }
 
     private ZonedDateTime toJST(String date) {
@@ -189,16 +189,16 @@ class PodcastServiceImplTest {
 
             PodcastEpisode episode = new PodcastEpisode(epId, null, episodeUrl, null, episodeTitle, null, publishDate,
                     null, null, null, null, null);
-            String fileName = "chTitleIf-." + " - " + pubDateStr + " - " + epId + " - " + "epTitleIf-." + ".mp3";
-            assertEquals(podcastFolder.toString() + File.separator + "chTitleIf-." + File.separator + fileName,
+            String fileName = "chTitleIf-." + " - " + pubDateStr + " - " + epId + " - " + "epTitleIf" + ".mp3";
+            assertEquals(podcastFolder.toString() + File.separator + "chTitleIf" + File.separator + fileName,
                     podcastService.getFile(channel, episode).toString());
 
             episodeUrl = "http://tesshu.com/chTitleIf.../epTitleIf....m4a";
 
             episode = new PodcastEpisode(epId, null, episodeUrl, null, episodeTitle, null, publishDate, null, null,
                     null, null, null);
-            fileName = "chTitleIf-." + " - " + pubDateStr + " - " + epId + " - " + "epTitleIf-." + ".m4a";
-            assertEquals(podcastFolder.toString() + File.separator + "chTitleIf-." + File.separator + fileName,
+            fileName = "chTitleIf-." + " - " + pubDateStr + " - " + epId + " - " + "epTitleIf" + ".m4a";
+            assertEquals(podcastFolder.toString() + File.separator + "chTitleIf" + File.separator + fileName,
                     podcastService.getFile(channel, episode).toString());
 
             episodeUrl = "http://tesshu.com/Star+Wars/Star+Wars+Ep.1.mp3";
@@ -207,7 +207,7 @@ class PodcastServiceImplTest {
             episode = new PodcastEpisode(epId, null, episodeUrl, null, episodeTitle, null, publishDate, null, null,
                     null, null, null);
             fileName = "chTitleIf-." + " - " + pubDateStr + " - " + epId + " - Star Wars Ep.1.mp3";
-            assertEquals(podcastFolder.toString() + File.separator + "chTitleIf-." + File.separator + fileName,
+            assertEquals(podcastFolder.toString() + File.separator + "chTitleIf" + File.separator + fileName,
                     podcastService.getFile(channel, episode).toString());
         }
 
