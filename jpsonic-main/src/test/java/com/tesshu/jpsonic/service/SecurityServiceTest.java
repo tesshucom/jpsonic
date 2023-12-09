@@ -344,11 +344,18 @@ class SecurityServiceTest {
         @Test
         void testFixedExcludePattern() throws IOException {
             assertFalse(service.isExcluded(Path.of("foo.mp3")));
-            assertTrue(service.isExcluded(Path.of(".foo.mp3")));
             assertFalse(service.isExcluded(Path.of("..foo.mp3")));
-            assertTrue(service.isExcluded(Path.of("@eaDir")));
-            assertTrue(service.isExcluded(Path.of("@tmp")));
+
             assertTrue(service.isExcluded(Path.of("Thumbs.db")));
+
+            assertTrue(service.isExcluded(Path.of(".foo.mp3")));
+            assertTrue(service.isExcluded(Path.of("._foo.mp3")));
+            assertTrue(service.isExcluded(Path.of(".SYNOPPSDB")));
+            assertTrue(service.isExcluded(Path.of(".DS_Store")));
+            assertTrue(service.isExcluded(Path.of("@eaDir")));
+            assertTrue(service.isExcluded(Path.of("@sharebin")));
+            assertTrue(service.isExcluded(Path.of("@tmp")));
+            assertTrue(service.isExcluded(Path.of(".SynologyWorkingDirectory")));
         }
     }
 }
