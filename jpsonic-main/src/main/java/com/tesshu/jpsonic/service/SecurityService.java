@@ -66,6 +66,10 @@ public class SecurityService implements UserDetailsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityService.class);
 
+    // https://kb.synology.com/en-in/DSM/help/FileStation/connect?version=7
+    private static final List<String> SYNOLOGY_RESERVED_WORDS = List.of("._", ".SYNOPPSDB", ".DS_Store", "@eaDir",
+            "@sharebin", "@tmp", ".SynologyWorkingDirectory");
+
     private final UserDao userDao;
     private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
@@ -525,28 +529,61 @@ public class SecurityService implements UserDetailsService {
         return true;
     }
 
+    private void info(String msg) {
+        if (LOG.isInfoEnabled()) {
+            LOG.info(msg);
+        }
+    }
+
+    private void warn(String msg) {
+        if (LOG.isWarnEnabled()) {
+            LOG.warn(msg);
+        }
+    }
+
+    @SuppressWarnings({ "PMD.GuardLogStatement", "PMD.NPathComplexity" })
+    // NPathComplexity : Redundantly coded for readability, but not difficult to understand
     public boolean isExcluded(Path path) {
         if (settingsService.isIgnoreSymLinks() && Files.isSymbolicLink(path)) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("excluding symbolic link " + path);
-            }
+            info("Excluding symbolic link %s".formatted(path));
             return true;
         }
+
         Path fileName = path.getFileName();
         if (fileName == null) {
             return true;
         }
+
+        // Exclude those that match a user-specified pattern
         String name = fileName.toString();
-        if (settingsService.getExcludePattern() != null && settingsService.getExcludePattern().matcher(name).find()) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("excluding file which matches exclude pattern " + settingsService.getExcludePatternString()
-                        + ": " + path);
-            }
+        if (settingsService.getExcludePattern() != null
+                && settingsService.getExcludePattern().matcher(name).matches()) {
+            info("Excluding file which matches exclude pattern %s : %s"
+                    .formatted(settingsService.getExcludePatternString(), path));
             return true;
         }
 
-        // Exclude all hidden files starting with a single "." or "@eaDir" (thumbnail dir created on Synology devices).
-        return !name.isEmpty() && name.charAt(0) == '.' && !name.startsWith("..") || name.startsWith("@eaDir")
-                || name.startsWith("@tmp") || "Thumbs.db".equals(name);
+        // Exclude all hidden files starting with a single "."
+        if (name.charAt(0) == '.' && !name.startsWith("..")) {
+            return true;
+        }
+
+        // Exclude files end with a dot (Windows prohibitions)
+        if (name.endsWith(".")) {
+            warn("""
+                    Excluding files ending with Dot. \
+                    Recommended to replace with a UNICODE String \
+                    like One dot leader or Horizontal Ellipsis. : %s\
+                    """.formatted(path));
+            return true;
+        }
+
+        // Exclude Thumbnail on Windows
+        if ("Thumbs.db".equals(name)) {
+            return true;
+        }
+
+        // Exclude files or dir created on Synology devices
+        return SYNOLOGY_RESERVED_WORDS.stream().anyMatch(name::equals);
     }
 }

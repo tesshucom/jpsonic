@@ -159,7 +159,7 @@ public class WritableMediaFileService {
                 .collect(Collectors.toMap(mf -> mf.getPathString(), mf -> mf));
 
         LongAdder updateCount = new LongAdder();
-        CoverArtDetector coverArtDetector = new CoverArtDetector(mediaFileService);
+        CoverArtDetector coverArtDetector = new CoverArtDetector(securityService, mediaFileService);
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(parent.toPath())) {
             for (Path childPath : ds) {
 
@@ -544,18 +544,21 @@ public class WritableMediaFileService {
 
     private static class CoverArtDetector {
 
+        private final SecurityService securityService;
         private final MediaFileService mediaFileService;
         private Path coverArtAvailable;
         private Path firstCoverArtEmbeddable;
 
-        public CoverArtDetector(MediaFileService mediaFileService) {
+        public CoverArtDetector(SecurityService securityService, MediaFileService mediaFileService) {
+            this.securityService = securityService;
             this.mediaFileService = mediaFileService;
         }
 
         void setChildFilePath(Path childPath) {
             try {
-                if (coverArtAvailable == null && mediaFileService.isAvailableCoverArtPath(childPath,
-                        Files.readAttributes(childPath, BasicFileAttributes.class))) {
+                if (coverArtAvailable == null && !securityService.isExcluded(childPath)
+                        && mediaFileService.isAvailableCoverArtPath(childPath,
+                                Files.readAttributes(childPath, BasicFileAttributes.class))) {
                     coverArtAvailable = childPath;
                 }
             } catch (IOException e) {

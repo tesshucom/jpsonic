@@ -22,15 +22,20 @@
 package com.tesshu.jpsonic.service;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Pattern;
 
 import com.tesshu.jpsonic.controller.WebFontUtils;
 import com.tesshu.jpsonic.dao.UserDao;
@@ -46,6 +51,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
 /**
@@ -298,6 +304,63 @@ class SecurityServiceTest {
             assertFalse(service.isFileInFolder("C:\\music\\foo.mp3", "C:\\music2"));
             assertFalse(service.isFileInFolder("C:\\music2\\foo.mp3", "C:\\music"));
             assertTrue(service.isFileInFolder("C:\\music2\\foo.mp3", "C:\\music2"));
+        }
+    }
+
+    @Nested
+    class IsExcludedTest {
+
+        @Test
+        void testSymbolicLink(@TempDir Path tmpDir) throws IOException {
+            Path concrete = Files.createFile(Paths.get(tmpDir.toString(), "testSymbolic.txt"));
+            Path link = Files.createSymbolicLink(Paths.get(tmpDir.toString(), "testSymbolicLink.txt"), concrete);
+
+            assertFalse(settingsService.isIgnoreSymLinks());
+            assertFalse(service.isExcluded(concrete));
+            assertFalse(service.isExcluded(link));
+
+            Mockito.when(settingsService.isIgnoreSymLinks()).thenReturn(true);
+            assertFalse(service.isExcluded(concrete));
+            assertTrue(service.isExcluded(link));
+        }
+
+        @Test
+        void testNullName() {
+            assertTrue(service.isExcluded(Path.of("/", "")));
+        }
+
+        @Test
+        void testExcludePattern() throws IOException {
+            assertNull(settingsService.getExcludePattern());
+            Path song = Path.of("foo.mp3");
+            assertFalse(service.isExcluded(song));
+
+            Mockito.when(settingsService.getExcludePattern()).thenReturn(Pattern.compile("foo.flac"));
+            assertFalse(service.isExcluded(song));
+            Mockito.when(settingsService.getExcludePattern()).thenReturn(Pattern.compile("foo.mp3"));
+            assertTrue(service.isExcluded(song));
+        }
+
+        @Test
+        void testFixedExcludePattern() throws IOException {
+            assertFalse(service.isExcluded(Path.of("foo.mp3")));
+            assertFalse(service.isExcluded(Path.of("..foo.mp3")));
+
+            assertTrue(service.isExcluded(Path.of("Thumbs.db")));
+
+            assertTrue(service.isExcluded(Path.of(".foo.mp3")));
+            assertTrue(service.isExcluded(Path.of("foo.mp3.")));
+            assertFalse(service.isExcluded(Path.of("foo.mp3․"))); // The end is not dot (one dot leader)
+            assertTrue(service.isExcluded(Path.of("If...")));
+            assertFalse(service.isExcluded(Path.of("If․․․"))); // The end is not dot (one dot leader)
+            assertFalse(service.isExcluded(Path.of("If…"))); // The end is not dot (Horizontal Ellipsis)
+            assertTrue(service.isExcluded(Path.of("._foo.mp3")));
+            assertTrue(service.isExcluded(Path.of(".SYNOPPSDB")));
+            assertTrue(service.isExcluded(Path.of(".DS_Store")));
+            assertTrue(service.isExcluded(Path.of("@eaDir")));
+            assertTrue(service.isExcluded(Path.of("@sharebin")));
+            assertTrue(service.isExcluded(Path.of("@tmp")));
+            assertTrue(service.isExcluded(Path.of(".SynologyWorkingDirectory")));
         }
     }
 }

@@ -395,7 +395,7 @@ public final class StringUtil {
     public static String fileSystemSafe(final String filename) {
         String result = filename;
         for (String s : FILE_SYSTEM_UNSAFE) {
-            result = result.replace(s, "-");
+            result = result.replaceAll("\\.$", "").replace(s, "-");
         }
         return result;
     }
