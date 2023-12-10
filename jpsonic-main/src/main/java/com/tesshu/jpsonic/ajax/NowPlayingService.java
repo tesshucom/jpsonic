@@ -102,14 +102,12 @@ public class NowPlayingService {
      * Returns media folder scanning status.
      */
     public ScanInfo getScanningStatus() {
-        ScanInfo info = new ScanInfo(scannerStateService.isScanning(), (int) scannerStateService.getScanCount());
-        scannerProcedureService.getScanPhaseInfo().ifPresent(phaseInfo -> {
-            info.setPhase(phaseInfo.getPhase());
-            info.setPhaseMax(phaseInfo.getPhaseMax());
-            info.setPhaseName(phaseInfo.getPhaseName());
-            info.setThread(phaseInfo.getThread());
-        });
-        return info;
+        boolean scanning = scannerStateService.isScanning();
+        int scanCount = (int) scannerStateService.getScanCount();
+        return scannerProcedureService
+                .getScanPhaseInfo().map(phaseInfo -> new ScanInfo(scanning, scanCount, phaseInfo.phase(),
+                        phaseInfo.phaseMax(), phaseInfo.phaseName(), phaseInfo.thread()))
+                .orElse(new ScanInfo(scanning, scanCount));
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (NowPlayingInfo) Not reusable

@@ -39,19 +39,17 @@ public abstract class CustomContentDirectory extends AbstractContentDirectorySer
     }
 
     @SuppressWarnings("PMD.AvoidCatchingGenericException") // fourthline/DIDLParser#generate
-    protected BrowseResult createBrowseResult(DIDLContent didl, int count, int totalMatches) throws ExecutionException {
+    protected BrowseResult createBrowseResult(DIDLContent content, int count, int totalMatches)
+            throws ExecutionException {
         try {
-            return new BrowseResult(new DIDLParser().generate(didl), count, totalMatches);
+            return new BrowseResult(new DIDLParser().generate(content), count, totalMatches);
         } catch (Exception e) {
             throw new ExecutionException("Unable to generate XML representation of content model.", e);
         }
     }
 
     @Override
-    public BrowseResult search(String containerId, String searchCriteria, String filter, long firstResult,
-            long maxResults, SortCriterion[] orderBy) throws ContentDirectoryException {
-        // You can override this method to implement searching!
-        return super.search(containerId, searchCriteria, filter, firstResult, maxResults, orderBy);
-    }
+    public abstract BrowseResult search(String containerId, String searchCriteria, String filter, long firstResult,
+            long maxResults, SortCriterion[] orderBy) throws ContentDirectoryException;
 
 }

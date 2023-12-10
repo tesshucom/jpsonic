@@ -57,8 +57,8 @@ class PodcastServiceImplTest {
         settingsService = mock(SettingsService.class);
         securityService = mock(SecurityService.class);
         MediaFileService mediaFlieService = new MediaFileService(settingsService, null, null, null, null, null);
-        podcastService = new PodcastServiceImpl(null, settingsService, securityService, mediaFlieService, null, null,
-                null, null, null, null);
+        podcastService = new PodcastServiceImpl(null, settingsService, securityService, mediaFlieService,
+                mock(WritableMediaFileService.class), null, null, null, null, null);
     }
 
     private ZonedDateTime toJST(String date) {
@@ -165,6 +165,49 @@ class PodcastServiceImplTest {
                     null, null, null);
             fileName = channel.getTitle() + " - " + pubDateStr + " - " + epId + " - Star Wars Ep.1.mp3";
             assertEquals(podcastFolder.toString() + File.separator + channelTitle + File.separator + fileName,
+                    podcastService.getFile(channel, episode).toString());
+        }
+
+        // https://github.com/tesshucom/jpsonic/pull/2492
+        // If the title ends with Dot, it will be replaced with a hyphen when creating the filename.
+        @Test
+        void testDotAtTheEnd() throws URISyntaxException {
+
+            Path podcastFolder = Path.of(PodcastServiceImplTest.class.getResource("/MEDIAS/Podcast").toURI());
+            Mockito.when(settingsService.getPodcastFolder()).thenReturn(podcastFolder.toString());
+            Mockito.when(securityService.isWriteAllowed(Mockito.any(Path.class))).thenReturn(true);
+
+            final String channelTitle = "chTitleIf...";
+            final PodcastChannel channel = new PodcastChannel(null, null, channelTitle, null, null, null, null);
+            final int epId = 99;
+            final Instant publishDate = Instant.now();
+            final String pubDateStr = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
+                    .format(publishDate);
+
+            String episodeTitle = "epTitleIf...";
+            String episodeUrl = "http://tesshu.com/chTitle/epTitle.mp3";
+
+            PodcastEpisode episode = new PodcastEpisode(epId, null, episodeUrl, null, episodeTitle, null, publishDate,
+                    null, null, null, null, null);
+            String fileName = "chTitleIf-." + " - " + pubDateStr + " - " + epId + " - " + "epTitleIf" + ".mp3";
+            assertEquals(podcastFolder.toString() + File.separator + "chTitleIf" + File.separator + fileName,
+                    podcastService.getFile(channel, episode).toString());
+
+            episodeUrl = "http://tesshu.com/chTitleIf.../epTitleIf....m4a";
+
+            episode = new PodcastEpisode(epId, null, episodeUrl, null, episodeTitle, null, publishDate, null, null,
+                    null, null, null);
+            fileName = "chTitleIf-." + " - " + pubDateStr + " - " + epId + " - " + "epTitleIf" + ".m4a";
+            assertEquals(podcastFolder.toString() + File.separator + "chTitleIf" + File.separator + fileName,
+                    podcastService.getFile(channel, episode).toString());
+
+            episodeUrl = "http://tesshu.com/Star+Wars/Star+Wars+Ep.1.mp3";
+            episodeTitle = "Star Wars Ep.1";
+
+            episode = new PodcastEpisode(epId, null, episodeUrl, null, episodeTitle, null, publishDate, null, null,
+                    null, null, null);
+            fileName = "chTitleIf-." + " - " + pubDateStr + " - " + epId + " - Star Wars Ep.1.mp3";
+            assertEquals(podcastFolder.toString() + File.separator + "chTitleIf" + File.separator + fileName,
                     podcastService.getFile(channel, episode).toString());
         }
 

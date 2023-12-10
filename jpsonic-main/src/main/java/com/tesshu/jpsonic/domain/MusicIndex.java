@@ -23,7 +23,6 @@ package com.tesshu.jpsonic.domain;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -118,65 +117,5 @@ public class MusicIndex implements Serializable {
     @Override
     public int hashCode() {
         return index == null ? 0 : index.hashCode();
-    }
-
-    /**
-     * An artist in an index.
-     */
-    public abstract static class SortableArtist implements Comparable<SortableArtist> {
-
-        private final String name;
-        private final String sortableName;
-        private final Comparator<SortableArtist> c;
-
-        public SortableArtist(String name, String sortableName, Comparator<SortableArtist> c) {
-            this.name = name;
-            this.sortableName = sortableName;
-            this.c = c;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getSortableName() {
-            return sortableName;
-        }
-
-        @Override
-        public int compareTo(SortableArtist other) {
-            return c.compare(this, other);
-        }
-    }
-
-    public static class SortableArtistWithMediaFiles extends SortableArtist {
-
-        private final List<MediaFile> mediaFiles = new ArrayList<>();
-
-        public SortableArtistWithMediaFiles(String name, String sortableName, Comparator<SortableArtist> c) {
-            super(name, sortableName, c);
-        }
-
-        public void addMediaFile(MediaFile mediaFile) {
-            mediaFiles.add(mediaFile);
-        }
-
-        public List<MediaFile> getMediaFiles() {
-            return mediaFiles;
-        }
-    }
-
-    public static class SortableArtistWithArtist extends SortableArtist {
-
-        private final Artist artist;
-
-        public SortableArtistWithArtist(String name, String sortableName, Artist artist, Comparator<SortableArtist> c) {
-            super(name, sortableName, c);
-            this.artist = artist;
-        }
-
-        public Artist getArtist() {
-            return artist;
-        }
     }
 }

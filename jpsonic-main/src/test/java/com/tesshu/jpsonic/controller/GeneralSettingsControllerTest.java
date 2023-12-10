@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.command.GeneralSettingsCommand;
 import com.tesshu.jpsonic.domain.IndexScheme;
+import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -66,7 +67,7 @@ class GeneralSettingsControllerTest {
         playerService = mock(PlayerService.class);
         controller = new GeneralSettingsController(settingsService, mock(SecurityService.class),
                 mock(ShareService.class), playerService, mock(OutlineHelpSelector.class),
-                mock(ScannerStateService.class));
+                mock(ScannerStateService.class), mock(MusicIndexService.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 

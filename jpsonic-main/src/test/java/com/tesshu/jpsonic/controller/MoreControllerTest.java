@@ -63,8 +63,9 @@ class MoreControllerTest {
                 .build();
         Mockito.when(searchService.getGenres(false)).thenReturn(Collections.emptyList());
         Mockito.when(playerService.getPlayer(Mockito.any(), Mockito.any())).thenReturn(new Player());
-        List<MusicFolder> musicFolders = Arrays.asList(new MusicFolder(1,
-                Path.of(MoreControllerTest.class.getResource("/MEDIAS").toURI()).toString(), "MEDIAS", true, now(), 1));
+        List<MusicFolder> musicFolders = Arrays
+                .asList(new MusicFolder(1, Path.of(MoreControllerTest.class.getResource("/MEDIAS").toURI()).toString(),
+                        "MEDIAS", true, now(), 1, false));
         Mockito.when(musicFolderService.getMusicFoldersForUser(ServiceMockUtils.ADMIN_NAME)).thenReturn(musicFolders);
     }
 

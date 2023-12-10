@@ -30,15 +30,23 @@ public class ScanInfo {
 
     private final boolean scanning;
     private final int scanningCount;
-    private int phase = -1;
-    private int phaseMax = -1;
+    private int phase;
+    private int phaseMax;
     private String phaseName;
-    private int thread = -1;
+    private int thread;
 
-    public ScanInfo(boolean scanning, int scanningCount) {
+    public ScanInfo(boolean scanning, int scanningCount, int phase, int phaseMax, String phaseName, int thread) {
         super();
         this.scanning = scanning;
         this.scanningCount = scanningCount;
+        this.phase = phase;
+        this.phaseMax = phaseMax;
+        this.phaseName = phaseName;
+        this.thread = thread;
+    }
+
+    public ScanInfo(boolean scanning, int scanningCount) {
+        this(scanning, scanningCount, -1, -1, null, -1);
     }
 
     public boolean isScanning() {

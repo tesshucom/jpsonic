@@ -86,11 +86,6 @@ public class EhcacheConfiguration {
     }
 
     @Bean
-    public Ehcache indexCache(CacheFactory cacheFactory) {
-        return cacheFactory.getCache("indexCache");
-    }
-
-    @Bean
     public Ehcache fontCache(CacheFactory cacheFactory) {
         return cacheFactory.getCache("fontCache");
     }

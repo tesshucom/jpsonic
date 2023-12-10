@@ -33,7 +33,6 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SettingsService;
-import net.sf.ehcache.Ehcache;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Service;
@@ -51,16 +50,14 @@ public class MusicFolderServiceImpl implements MusicFolderService {
     private final StaticsDao staticsDao;
     private final SettingsService settingsService;
     private final ScannerStateServiceImpl scannerStateService;
-    private final Ehcache indexCache;
     private final Object lock = new Object();
 
     public MusicFolderServiceImpl(MusicFolderDao musicFolderDao, StaticsDao staticsDao, SettingsService settingsService,
-            ScannerStateServiceImpl scannerStateService, Ehcache indexCache) {
+            ScannerStateServiceImpl scannerStateService) {
         this.musicFolderDao = musicFolderDao;
         this.staticsDao = staticsDao;
         this.settingsService = settingsService;
         this.scannerStateService = scannerStateService;
-        this.indexCache = indexCache;
         cachedUserFolders = new ConcurrentHashMap<>();
     }
 
@@ -109,7 +106,6 @@ public class MusicFolderServiceImpl implements MusicFolderService {
         synchronized (lock) {
             cachedUserFolders.remove(username);
         }
-        indexCache.removeAll();
     }
 
     @Override
@@ -180,6 +176,5 @@ public class MusicFolderServiceImpl implements MusicFolderService {
             cachedMusicFolders = null;
             cachedUserFolders.clear();
         }
-        indexCache.removeAll();
     }
 }

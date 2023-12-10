@@ -115,6 +115,8 @@ public class SettingsService {
     private Pattern excludePattern;
     private Locale locale;
 
+    // getDlnaBaseLANURL is effectively final.(not declared final in order to be injected in the test)
+    @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
     public SettingsService(ApacheCommonsConfigurationService configurationService, UPnPSubnet uPnPSubnet) {
         super();
         this.configurationService = configurationService;
@@ -1131,7 +1133,7 @@ public class SettingsService {
         setProperty(SettingsConstants.UPnP.Basic.SERVER_NAME, s);
     }
 
-    public final String getDlnaBaseLANURL() {
+    public String getDlnaBaseLANURL() {
         return getString(SettingsConstants.UPnP.Basic.BASE_LAN_URL);
     }
 

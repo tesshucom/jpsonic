@@ -38,7 +38,6 @@ import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.PlayerUtils;
-import net.sf.ehcache.Ehcache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -49,7 +48,6 @@ class MusicFolderServiceTest {
 
     private MusicFolderDao musicFolderDao;
     private SettingsService settingsService;
-    private Ehcache indexCache;
     private MusicFolderServiceImpl musicFolderService;
 
     private static final String USER_NAME = "user";
@@ -61,18 +59,17 @@ class MusicFolderServiceTest {
         Mockito.when(settingsService.isRedundantFolderCheck()).thenReturn(false);
         ScannerStateServiceImpl scannerStateService = mock(ScannerStateServiceImpl.class);
         Mockito.when(scannerStateService.tryScanningLock()).thenReturn(true);
-        indexCache = mock(Ehcache.class);
         musicFolderService = new MusicFolderServiceImpl(musicFolderDao, mock(StaticsDao.class), settingsService,
-                scannerStateService, indexCache);
+                scannerStateService);
 
-        MusicFolder m1 = new MusicFolder(1, "/dummy/path", "Disabled&NonExisting", false, null, 0);
-        MusicFolder m2 = new MusicFolder(2, "/dummy/path", "Enabled&NonExisting", true, null, 1);
+        MusicFolder m1 = new MusicFolder(1, "/dummy/path", "Disabled&NonExisting", false, null, 0, false);
+        MusicFolder m2 = new MusicFolder(2, "/dummy/path", "Enabled&NonExisting", true, null, 1, false);
         Path existingPath1 = Path.of(MusicFolderServiceTest.class.getResource("/MEDIAS/Music").toURI());
         assertTrue(Files.exists(existingPath1));
-        MusicFolder m3 = new MusicFolder(3, existingPath1.toString(), "Disabled&Existing", false, null, 3);
+        MusicFolder m3 = new MusicFolder(3, existingPath1.toString(), "Disabled&Existing", false, null, 3, false);
         Path existingPath2 = Path.of(MusicFolderServiceTest.class.getResource("/MEDIAS/Music2").toURI());
         assertTrue(Files.exists(existingPath2));
-        MusicFolder m4 = new MusicFolder(4, existingPath2.toString(), "Enabled&Existing", true, null, 4);
+        MusicFolder m4 = new MusicFolder(4, existingPath2.toString(), "Enabled&Existing", true, null, 4, false);
         List<MusicFolder> folders = Arrays.asList(m1, m2, m3, m4);
         Mockito.when(musicFolderDao.getAllMusicFolders()).thenReturn(folders);
     }
@@ -270,7 +267,6 @@ class MusicFolderServiceTest {
         int folderId = 0;
         musicFolderService.setMusicFoldersForUser(USER_NAME, Arrays.asList(folderId));
         Mockito.verify(musicFolderDao, Mockito.times(1)).setMusicFoldersForUser(USER_NAME, Arrays.asList(folderId));
-        Mockito.verify(indexCache, Mockito.times(1)).removeAll();
     }
 
     @Nested
@@ -310,21 +306,18 @@ class MusicFolderServiceTest {
     void testCreateMusicFolder() {
         musicFolderService.createMusicFolder(PlayerUtils.now(), null);
         Mockito.verify(musicFolderDao, Mockito.times(1)).createMusicFolder(Mockito.nullable(MusicFolder.class));
-        Mockito.verify(indexCache, Mockito.times(1)).removeAll();
     }
 
     @Test
     void testDeleteMusicFolder() {
         musicFolderService.deleteMusicFolder(PlayerUtils.now(), -1);
         Mockito.verify(musicFolderDao, Mockito.times(1)).deleteMusicFolder(Mockito.nullable(Integer.class));
-        Mockito.verify(indexCache, Mockito.times(1)).removeAll();
     }
 
     @Test
     void testUpdateMusicFolder() {
         musicFolderService.updateMusicFolder(PlayerUtils.now(), null);
         Mockito.verify(musicFolderDao, Mockito.times(1)).updateMusicFolder(Mockito.nullable(MusicFolder.class));
-        Mockito.verify(indexCache, Mockito.times(1)).removeAll();
     }
 
     @Test
@@ -336,7 +329,6 @@ class MusicFolderServiceTest {
         assertEquals(1, folders.size());
 
         musicFolderService.clearMusicFolderCache();
-        Mockito.verify(indexCache, Mockito.times(1)).removeAll();
 
         folders = musicFolderService.getAllMusicFolders(false, false);
         assertEquals(1, folders.size());

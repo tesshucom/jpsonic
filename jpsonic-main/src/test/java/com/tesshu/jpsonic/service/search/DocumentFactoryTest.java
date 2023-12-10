@@ -155,7 +155,7 @@ class DocumentFactoryTest {
         artist.setSort("sort");
         artist.setFolderId(10);
         MusicFolder musicFolder = new MusicFolder(100, MusicFolderTestDataUtils.resolveMusicFolderPath(), "Music", true,
-                now(), 0);
+                now(), 0, false);
         Document document = documentFactory.createArtistId3Document(artist, musicFolder);
         assertEquals(6, document.getFields().size(), "fields.size");
         assertEquals("1", document.get(FieldNamesConstants.ID));

@@ -19,15 +19,15 @@
 
 package com.tesshu.jpsonic.domain;
 
-import static org.apache.commons.lang3.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.text.Collator;
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.function.Supplier;
 
-import com.tesshu.jpsonic.domain.MusicIndex.SortableArtist;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -69,7 +69,8 @@ public class JpsonicComparators {
 
             @Override
             public int compare(Album o1, Album o2) {
-                return collator.compare(defaultString(o1.getNameReading()), defaultString(o2.getNameReading()));
+                return collator.compare(Objects.toString(o1.getNameReading(), EMPTY),
+                        Objects.toString(o2.getNameReading(), EMPTY));
             }
         };
     }
@@ -85,7 +86,8 @@ public class JpsonicComparators {
 
             @Override
             public int compare(Artist o1, Artist o2) {
-                return collator.compare(defaultString(o1.getReading()), defaultString(o2.getReading()));
+                return collator.compare(Objects.toString(o1.getReading(), EMPTY),
+                        Objects.toString(o2.getReading(), EMPTY));
             }
         };
     }
@@ -203,10 +205,6 @@ public class JpsonicComparators {
 
     public Comparator<Playlist> playlistOrder() {
         return new PlaylistComparator(utils, createCollator());
-    }
-
-    public Comparator<SortableArtist> sortableArtistOrder() {
-        return (o1, o2) -> createCollator().compare(o1.getSortableName(), o2.getSortableName());
     }
 
     private static class GenreComparator implements Comparator<Genre> {

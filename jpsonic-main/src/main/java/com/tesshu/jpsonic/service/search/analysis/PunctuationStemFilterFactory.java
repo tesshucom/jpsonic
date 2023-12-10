@@ -24,7 +24,7 @@ import java.util.Map;
 import org.apache.lucene.analysis.TokenFilterFactory;
 import org.apache.lucene.analysis.TokenStream;
 
-public class PunctuationStemFilterFactory extends TokenFilterFactory {
+public final class PunctuationStemFilterFactory extends TokenFilterFactory {
 
     public PunctuationStemFilterFactory(Map<String, String> args) {
         super(args);

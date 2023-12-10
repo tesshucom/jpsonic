@@ -28,17 +28,17 @@ class MusicFolderTest {
 
     @Test
     void testEquals() {
-        MusicFolder m1 = new MusicFolder(null, null, null, false, null, null);
+        MusicFolder m1 = new MusicFolder(null, null, null, false, null, null, false);
         MusicFolder m2 = null;
         assertNotEquals(m1, m2);
-        m2 = new MusicFolder(null, null, null, false, null, null);
+        m2 = new MusicFolder(null, null, null, false, null, null, false);
         assertNotEquals(m1, m2);
-        m1 = new MusicFolder(0, null, null, false, null, null);
+        m1 = new MusicFolder(0, null, null, false, null, null, false);
         assertNotEquals(m1, new Object());
         assertNotEquals(m1, m2);
-        m2 = new MusicFolder(1, null, null, false, null, null);
+        m2 = new MusicFolder(1, null, null, false, null, null, false);
         assertNotEquals(m1, m2);
-        m2 = new MusicFolder(0, null, null, false, null, null);
+        m2 = new MusicFolder(0, null, null, false, null, null, false);
         assertEquals(m1, m2);
         assertEquals(m1, m1);
     }
