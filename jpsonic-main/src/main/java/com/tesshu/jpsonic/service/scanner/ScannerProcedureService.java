@@ -39,6 +39,7 @@ import java.util.stream.Stream;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
+import com.tesshu.jpsonic.dao.MediaFileDao.ChildOrder;
 import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.Album;
@@ -59,7 +60,6 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.search.IndexManager;
-import net.sf.ehcache.Ehcache;
 import org.apache.commons.lang3.exception.UncheckedException;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -78,7 +78,7 @@ public class ScannerProcedureService {
     private static final String MSG_SKIP = "Skipped by the settings.";
     private static final String MSG_UNNECESSARY = "Skipped as it is not needed.";
 
-    private static final List<ScanEventType> PHASE_ALL = Arrays.asList(ScanEventType.BEFORE_SCAN,
+    private static final List<ScanEventType> SCAN_PHASE_ALL = Arrays.asList(ScanEventType.BEFORE_SCAN,
             ScanEventType.MUSIC_FOLDER_CHECK, ScanEventType.PARSE_FILE_STRUCTURE, ScanEventType.PARSE_VIDEO,
             ScanEventType.PARSE_PODCAST, ScanEventType.CLEAN_UP_FILE_STRUCTURE, ScanEventType.PARSE_ALBUM,
             ScanEventType.UPDATE_SORT_OF_ALBUM, ScanEventType.UPDATE_ORDER_OF_ALBUM,
@@ -104,7 +104,7 @@ public class ScannerProcedureService {
     private final StaticsDao staticsDao;
     private final SortProcedureService sortProcedure;
     private final ScannerStateServiceImpl scannerState;
-    private final Ehcache indexCache;
+    private final MusicIndexServiceImpl musicIndexService;
     private final MediaFileCache mediaFileCache;
     private final JapaneseReadingUtils readingUtils;
     private final JpsonicComparators comparators;
@@ -119,8 +119,9 @@ public class ScannerProcedureService {
             IndexManager indexManager, MediaFileService mediaFileService, WritableMediaFileService wmfs,
             PlaylistService playlistService, TemplateWrapper template, MediaFileDao mediaFileDao, ArtistDao artistDao,
             AlbumDao albumDao, StaticsDao staticsDao, SortProcedureService sortProcedure,
-            ScannerStateServiceImpl scannerStateService, Ehcache indexCache, MediaFileCache mediaFileCache,
-            JapaneseReadingUtils readingUtils, JpsonicComparators comparators, ThreadPoolTaskExecutor scanExecutor) {
+            ScannerStateServiceImpl scannerStateService, MusicIndexServiceImpl musicIndexService,
+            MediaFileCache mediaFileCache, JapaneseReadingUtils readingUtils, JpsonicComparators comparators,
+            ThreadPoolTaskExecutor scanExecutor) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
@@ -135,7 +136,7 @@ public class ScannerProcedureService {
         this.staticsDao = staticsDao;
         this.sortProcedure = sortProcedure;
         this.scannerState = scannerStateService;
-        this.indexCache = indexCache;
+        this.musicIndexService = musicIndexService;
         this.mediaFileCache = mediaFileCache;
         this.readingUtils = readingUtils;
         this.comparators = comparators;
@@ -189,6 +190,7 @@ public class ScannerProcedureService {
     }
 
     void createScanEvent(@NonNull Instant scanDate, @NonNull ScanEventType logType, @Nullable String comment) {
+        scannerState.setLastEvent(logType);
         if (!(logType == ScanEventType.SUCCESS || logType == ScanEventType.DESTROYED
                 || logType == ScanEventType.CANCELED) && !settingsService.isUseScanEvents()) {
             return;
@@ -213,7 +215,6 @@ public class ScannerProcedureService {
             indexManager.deleteAll();
         }
 
-        indexCache.removeAll();
         mediaFileCache.setEnabled(false);
         mediaFileCache.removeAll();
 
@@ -340,9 +341,9 @@ public class ScannerProcedureService {
     void expungeFileStructure() {
         mediaFileDao.getArtistExpungeCandidates().forEach(indexManager::expungeArtist);
         mediaFileDao.getAlbumExpungeCandidates().forEach(indexManager::expungeAlbum);
-        List<Integer> candidates = mediaFileDao.getSongExpungeCandidates();
-        for (int i = 0; i < candidates.size(); i++) {
-            indexManager.expungeSong(candidates.get(i));
+        List<Integer> cands = mediaFileDao.getSongExpungeCandidates();
+        for (int i = 0; i < cands.size(); i++) {
+            indexManager.expungeSong(cands.get(i));
             if (i % 20_000 == 0) {
                 repeatWait();
                 if (isInterrupted()) {
@@ -434,10 +435,9 @@ public class ScannerProcedureService {
         if (parent == null) {
             return null;
         }
-        List<MediaFile> songs = mediaFileDao.getChildrenWithOrderOf(parent.getPathString()).stream()
-                .filter(child -> mediaFileService.isAudioFile(child.getFormat())
-                        || mediaFileService.isVideoFile(child.getFormat()))
-                .collect(Collectors.toList());
+        List<MediaFile> songs = mediaFileService
+                .getChildrenOf(parent, 0, Integer.MAX_VALUE, ChildOrder.BY_ALPHA, MediaType.DIRECTORY, MediaType.ALBUM)
+                .stream().collect(Collectors.toList());
         if (songs.isEmpty()) {
             return null;
         }
@@ -618,6 +618,8 @@ public class ScannerProcedureService {
         artist.setCoverArtPath(artistId3.getCoverArtPathString());
         artist.setLastScanned(scanDate);
         artist.setPresent(true);
+        String index = musicIndexService.getParser().getIndex(artist).getIndex();
+        artist.setMusicIndex(index);
         return artist;
     }
 
@@ -702,7 +704,7 @@ public class ScannerProcedureService {
             return;
         }
         Path path = Path.of(settingsService.getPodcastFolder());
-        MusicFolder dummy = new MusicFolder(path.toString(), null, true, null);
+        MusicFolder dummy = new MusicFolder(path.toString(), null, true, null, false);
         getRootDirectory(scanDate, path).ifPresent(root -> {
             scanPodcast(scanDate, dummy, root);
             createScanEvent(scanDate, ScanEventType.PARSE_PODCAST, null);
@@ -809,6 +811,34 @@ public class ScannerProcedureService {
         return updated;
     }
 
+    /*
+     * Add index to Album directly under the directory.
+     * https://github.com/tesshucom/jpsonic/pull/2446#discussion_r1403505056
+     */
+    private void updateIndexOfAlbum() {
+        List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
+        if (mediaFileDao.getChildSizeOf(folders, MediaType.ALBUM) == 0) {
+            return;
+        }
+        MediaType[] otherThanAlbum = Stream.of(MediaType.values()).filter(type -> type != MediaType.ALBUM)
+                .toArray(i -> new MediaType[i]);
+        folders.stream().forEach(folder -> {
+            int offset = 0;
+            List<MediaFile> albums = mediaFileDao.getChildrenOf(folder.getPathString(), offset, ACQUISITION_MAX,
+                    ChildOrder.BY_ALPHA, otherThanAlbum);
+            while (!albums.isEmpty()) {
+                albums.stream().forEach(album -> {
+                    String musicIndex = musicIndexService.getParser().getIndex(album).getIndex();
+                    album.setMusicIndex(musicIndex);
+                    mediaFileDao.updateMediaFile(album);
+                });
+                offset += ACQUISITION_MAX;
+                albums = mediaFileDao.getChildrenOf(folder.getPathString(), offset, ACQUISITION_MAX,
+                        ChildOrder.BY_ALPHA, otherThanAlbum);
+            }
+        });
+    }
+
     @SuppressWarnings("PMD.PrematureDeclaration")
     boolean updateSortOfAlbum(@NonNull Instant scanDate) {
         boolean updated = false;
@@ -817,6 +847,7 @@ public class ScannerProcedureService {
         }
 
         if (!scannerState.isEnableCleansing() || !settingsService.isSortStrict()) {
+            updateIndexOfAlbum();
             createScanEvent(scanDate, ScanEventType.UPDATE_SORT_OF_ALBUM, MSG_SKIP);
             return updated;
         }
@@ -844,6 +875,8 @@ public class ScannerProcedureService {
         if (updated) {
             invokeUpdateIndex(merged, copied, compensated);
         }
+
+        updateIndexOfAlbum();
 
         String comment = "Merged(%d)/Copied(%d)/Compensated(%d)".formatted(merged.size(), copied.size(),
                 compensated.size());
@@ -916,7 +949,7 @@ public class ScannerProcedureService {
             return;
         }
         List<MusicFolder> folders = musicFolderService.getAllMusicFolders();
-        List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folders);
+        List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, folders);
         int count = invokeUpdateOrder(albums, comparators.albumOrderByAlpha(),
                 (album) -> albumDao.updateOrder(album.getId(), album.getOrder()));
         String comment = "Updated order of (%d) ID3 albums.".formatted(count);
@@ -942,7 +975,6 @@ public class ScannerProcedureService {
     void afterScan(@NonNull Instant scanDate) {
         mediaFileCache.setEnabled(true);
         indexManager.stopIndexing();
-        indexCache.removeAll();
         sortProcedure.clearMemoryCache();
         createScanEvent(scanDate, ScanEventType.AFTER_SCAN, null);
     }
@@ -974,46 +1006,23 @@ public class ScannerProcedureService {
         if (!scannerState.isScanning()) {
             return Optional.empty();
         }
-        List<ScanEvent> scanEvents = staticsDao.getScanEvents(scannerState.getScanDate()).stream()
-                .filter(scanEvent -> PHASE_ALL.contains(scanEvent.getType())).collect(Collectors.toList());
-        if (scanEvents.isEmpty()) {
-            return Optional.empty();
+
+        ScanEventType lastEvent = scannerState.getLastEvent();
+        if (lastEvent == ScanEventType.SCANNED_COUNT) {
+            lastEvent = ScanEventType.MUSIC_FOLDER_CHECK;
         }
-        ScanPhaseInfo info = new ScanPhaseInfo(scanEvents.size(), PHASE_ALL.size(),
-                scanEvents.size() < PHASE_ALL.size() ? PHASE_ALL.get(scanEvents.size()).name() : null,
-                scanExecutor.getActiveCount());
-        return Optional.of(info);
+
+        int lastPhase = SCAN_PHASE_ALL.indexOf(lastEvent);
+        if (lastPhase == -1) {
+            return Optional.of(new ScanPhaseInfo(-1, -1, "Semi Scan Proc", -1));
+        }
+
+        int currentPhase = lastPhase + 1 >= SCAN_PHASE_ALL.size() ? lastPhase : lastPhase + 1;
+
+        return Optional.of(new ScanPhaseInfo(currentPhase, SCAN_PHASE_ALL.size(),
+                SCAN_PHASE_ALL.get(currentPhase).name(), scanExecutor.getActiveCount()));
     }
 
-    public static class ScanPhaseInfo {
-
-        private final int phase;
-        private final int phaseMax;
-        private final String phaseName;
-        private final int thread;
-
-        public ScanPhaseInfo(int phase, int phaseMax, String phaseName, int thread) {
-            super();
-            this.phase = phase;
-            this.phaseMax = phaseMax;
-            this.phaseName = phaseName;
-            this.thread = thread;
-        }
-
-        public int getPhase() {
-            return phase;
-        }
-
-        public int getPhaseMax() {
-            return phaseMax;
-        }
-
-        public String getPhaseName() {
-            return phaseName;
-        }
-
-        public int getThread() {
-            return thread;
-        }
+    public record ScanPhaseInfo(int phase, int phaseMax, String phaseName, int thread) {
     }
 }

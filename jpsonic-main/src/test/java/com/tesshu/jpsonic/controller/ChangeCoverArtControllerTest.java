@@ -50,7 +50,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 class ChangeCoverArtControllerTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS = Arrays
-            .asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now(), 1));
+            .asList(new MusicFolder(1, resolveBaseMediaPath("Music"), "Music", true, now(), 1, false));
 
     @Autowired
     private MediaFileDao mediaFileDao;

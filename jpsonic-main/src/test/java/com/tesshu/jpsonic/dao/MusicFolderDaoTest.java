@@ -58,7 +58,7 @@ class MusicFolderDaoTest {
 
     @Test
     void testCreateMusicFolder() {
-        MusicFolder musicFolder = new MusicFolder("path", "name", true, now());
+        MusicFolder musicFolder = new MusicFolder("path", "name", true, now(), false);
         musicFolderDao.createMusicFolder(musicFolder);
 
         MusicFolder newMusicFolder = musicFolderDao.getAllMusicFolders().get(0);
@@ -67,7 +67,7 @@ class MusicFolderDaoTest {
 
     @Test
     void testUpdateMusicFolder() {
-        MusicFolder musicFolder = new MusicFolder("path", "name", true, now());
+        MusicFolder musicFolder = new MusicFolder("path", "name", true, now(), false);
         musicFolderDao.createMusicFolder(musicFolder);
         musicFolder = musicFolderDao.getAllMusicFolders().get(0);
 
@@ -84,10 +84,10 @@ class MusicFolderDaoTest {
     void testDeleteMusicFolder() {
         assertEquals(0, musicFolderDao.getAllMusicFolders().size(), "Wrong number of music folders.");
 
-        musicFolderDao.createMusicFolder(new MusicFolder("path", "name", true, now()));
+        musicFolderDao.createMusicFolder(new MusicFolder("path", "name", true, now(), false));
         assertEquals(1, musicFolderDao.getAllMusicFolders().size(), "Wrong number of music folders.");
 
-        musicFolderDao.createMusicFolder(new MusicFolder("path", "name", true, now()));
+        musicFolderDao.createMusicFolder(new MusicFolder("path", "name", true, now(), false));
         assertEquals(2, musicFolderDao.getAllMusicFolders().size(), "Wrong number of music folders.");
 
         musicFolderDao.deleteMusicFolder(musicFolderDao.getAllMusicFolders().get(0).getId());

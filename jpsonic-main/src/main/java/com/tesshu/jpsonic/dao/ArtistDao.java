@@ -37,6 +37,7 @@ import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.MusicIndex;
 import com.tesshu.jpsonic.util.LegacyMap;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -54,12 +55,14 @@ public class ArtistDao {
 
     private static final String INSERT_COLUMNS = """
             name, cover_art_path, album_count, last_scanned, present, folder_id,
-            sort, reading, artist_order\s
+            sort, reading, artist_order, music_index\s
             """;
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final TemplateWrapper template;
     private final RowMapper<Artist> rowMapper;
+    private final RowMapper<IndexWithCount> indexWithCountMapper = (ResultSet rs,
+            int num) -> new IndexWithCount(rs.getString(1), rs.getInt(2));
 
     public ArtistDao(TemplateWrapper templateWrapper) {
         template = templateWrapper;
@@ -92,15 +95,25 @@ public class ArtistDao {
                 """, rowMapper, id);
     }
 
+    public List<Artist> getArtists(MusicIndex musicIndex, List<MusicFolder> folders, long offset, long count) {
+        return template.query("select " + QUERY_COLUMNS + """
+                from artist
+                where music_index=?
+                order by artist_order
+                offset ? limit ?
+                """, rowMapper, musicIndex.getIndex(), offset, count);
+    }
+
     public @Nullable Artist updateArtist(Artist artist) {
         String sql = """
                 update artist
                 set cover_art_path=?, album_count=?, last_scanned=?, present=?,
-                        folder_id=?, sort=?, reading=?
+                        folder_id=?, sort=?, reading=?, music_index = ?
                 where name=?
                 """;
         int c = template.update(sql, artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
-                artist.isPresent(), artist.getFolderId(), artist.getSort(), artist.getReading(), artist.getName());
+                artist.isPresent(), artist.getFolderId(), artist.getSort(), artist.getReading(), artist.getMusicIndex(),
+                artist.getName());
         if (c > 0) {
             return artist;
         }
@@ -111,7 +124,8 @@ public class ArtistDao {
         int c = template.update(
                 "insert into artist (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
                 artist.getName(), artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
-                artist.isPresent(), artist.getFolderId(), artist.getSort(), artist.getReading(), -1);
+                artist.isPresent(), artist.getFolderId(), artist.getSort(), artist.getReading(), -1,
+                artist.getMusicIndex());
         Integer id = template.queryForInt("""
                 select id
                 from artist
@@ -247,19 +261,49 @@ public class ArtistDao {
                 """, count, id);
     }
 
+    public int getMudicIndexCount(List<MusicFolder> folders) {
+        if (folders.isEmpty()) {
+            return 0;
+        }
+        Map<String, Object> args = LegacyMap.of("folders", folders.stream().map(MusicFolder::getId).toList());
+        Integer result = template.getNamedParameterJdbcTemplate().queryForObject("""
+                select count(distinct music_index)
+                from artist
+                where present and folder_id in (:folders)
+                """, args, Integer.class);
+        if (result != null) {
+            return result;
+        }
+        return 0;
+    }
+
+    public List<IndexWithCount> getMudicIndexCounts(List<MusicFolder> folders) {
+        if (folders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = LegacyMap.of("folders", folders.stream().map(MusicFolder::getId).toList());
+        return template.namedQuery("""
+                select distinct music_index, count(music_index)
+                from artist
+                where present and folder_id in(:folders)
+                group by music_index
+                order by music_index
+                """, indexWithCountMapper, args);
+    }
+
     private static class ArtistMapper implements RowMapper<Artist> {
         @Override
         public Artist mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new Artist(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4),
                     nullableInstantOf(rs.getTimestamp(5)), rs.getBoolean(6), rs.getInt(7), rs.getString(8),
-                    rs.getString(9), rs.getInt(10));
+                    rs.getString(9), rs.getInt(10), rs.getString(11));
         }
     }
 
     private static class ArtistCountMapper implements RowMapper<Artist> {
         @Override
         public Artist mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new Artist(rs.getInt(1), null, null, rs.getInt(2), null, false, null, null, null, -1);
+            return new Artist(rs.getInt(1), null, null, rs.getInt(2), null, false, null, null, null, -1, "");
         }
     }
 
@@ -273,5 +317,8 @@ public class ArtistDao {
                 from artist
                 where present and folder_id in (:folders)
                 """, 0, args);
+    }
+
+    public record IndexWithCount(String index, int artistCount) {
     }
 }

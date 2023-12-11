@@ -184,7 +184,7 @@ class MusicFolderSettingsControllerTest {
         assertNotNull(command);
 
         MusicFolder musicFolder = new MusicFolder(MusicFolderTestDataUtils.resolveMusicFolderPath(), "Music", true,
-                now());
+                now(), false);
         MusicFolderInfo musicFolderInfo = new MusicFolderInfo(musicFolder);
         command.setNewMusicFolder(musicFolderInfo);
 
@@ -217,21 +217,21 @@ class MusicFolderSettingsControllerTest {
         assertNotNull(command);
 
         MusicFolder musicFolder1 = new MusicFolder(99, MusicFolderTestDataUtils.resolveMusicFolderPath(), "Music", true,
-                now(), 1);
+                now(), 1, false);
         MusicFolderInfo musicFolderInfo1 = new MusicFolderInfo(musicFolder1);
         musicFolderInfo1.setDelete(true);
         MusicFolder musicFolder2 = new MusicFolder(MusicFolderTestDataUtils.resolveMusic2FolderPath(), "Music2", true,
-                now());
+                now(), false);
         MusicFolderInfo musicFolderInfo2 = new MusicFolderInfo(musicFolder2);
         command.setMusicFolders(Arrays.asList(musicFolderInfo1, musicFolderInfo2));
 
         // Case where the registered path is deleted on the web page
         MusicFolder musicFolder3 = new MusicFolder(MusicFolderTestDataUtils.resolveMusic3FolderPath(), null, true,
-                now());
+                now(), false);
         MusicFolderInfo musicFolderInfo3 = new MusicFolderInfo(musicFolder3);
         musicFolderInfo3.setPath(null);
         // Cases that do not (already) exist. Update will be executed but will be ignored in Dao.
-        MusicFolder musicFolder4 = new MusicFolder("UnknownPath", "Music4", true, now());
+        MusicFolder musicFolder4 = new MusicFolder("UnknownPath", "Music4", true, now(), false);
         MusicFolderInfo musicFolderInfo4 = new MusicFolderInfo(musicFolder4);
 
         command.setMusicFolders(Arrays.asList(musicFolderInfo1, musicFolderInfo2, musicFolderInfo3, musicFolderInfo4));
@@ -369,7 +369,8 @@ class MusicFolderSettingsControllerTest {
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Path.NonNull.NonTraversal.OldPathStartWithNewPath
         @ToMusicFolderDecisions.Results.Empty
         void c03() {
-            List<MusicFolder> oldMusicFolders = Arrays.asList(new MusicFolder(0, "/jpsonic", "old", false, null, 0));
+            List<MusicFolder> oldMusicFolders = Arrays
+                    .asList(new MusicFolder(0, "/jpsonic", "old", false, null, 0, false));
             Mockito.when(musicFolderService.getAllMusicFolders(true, true)).thenReturn(oldMusicFolders);
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "/jpsonic/subDirectory";
@@ -382,7 +383,7 @@ class MusicFolderSettingsControllerTest {
         @ToMusicFolderDecisions.Results.Empty
         void c04() {
             List<MusicFolder> oldMusicFolders = Arrays
-                    .asList(new MusicFolder(0, "/jpsonic/subDirectory", "old", false, null, 0));
+                    .asList(new MusicFolder(0, "/jpsonic/subDirectory", "old", false, null, 0, false));
             Mockito.when(musicFolderService.getAllMusicFolders(true, true)).thenReturn(oldMusicFolders);
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "/jpsonic";
@@ -395,7 +396,8 @@ class MusicFolderSettingsControllerTest {
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.NonNull
         @ToMusicFolderDecisions.Results.NotEmpty
         void c05() {
-            List<MusicFolder> oldMusicFolders = Arrays.asList(new MusicFolder(0, "/jpsonic", "old", false, null, 0));
+            List<MusicFolder> oldMusicFolders = Arrays
+                    .asList(new MusicFolder(0, "/jpsonic", "old", false, null, 0, false));
             Mockito.when(musicFolderService.getAllMusicFolders(true, true)).thenReturn(oldMusicFolders);
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "foo/bar";
@@ -409,7 +411,8 @@ class MusicFolderSettingsControllerTest {
         @ToMusicFolderDecisions.Conditions.MusicFolderInfo.Name.NonNull
         @ToMusicFolderDecisions.Results.NotEmpty
         void c06() {
-            List<MusicFolder> oldMusicFolders = Arrays.asList(new MusicFolder(0, "/jpsonic", "old", false, null, 0));
+            List<MusicFolder> oldMusicFolders = Arrays
+                    .asList(new MusicFolder(0, "/jpsonic", "old", false, null, 0, false));
             Mockito.when(musicFolderService.getAllMusicFolders(true, true)).thenReturn(oldMusicFolders);
             MusicFolderInfo info = new MusicFolderInfo();
             String path = "/jpsonic";
@@ -460,7 +463,7 @@ class MusicFolderSettingsControllerTest {
     void testWrap() throws URISyntaxException {
         Mockito.when(settingsService.isRedundantFolderCheck()).thenReturn(false);
 
-        MusicFolder folder = new MusicFolder("/dummy", "Music", true, null);
+        MusicFolder folder = new MusicFolder("/dummy", "Music", true, null, false);
         List<MusicFolder> folders = Arrays.asList(folder);
         var infos = controller.wrap(folders);
         assertEquals(1, infos.size());
@@ -472,12 +475,12 @@ class MusicFolderSettingsControllerTest {
         assertFalse(infos.get(0).isExisting());
 
         Path file = Path.of(MusicFolderSettingsControllerTest.class.getResource("/MEDIAS/piano.mp3").toURI());
-        infos = controller.wrap(Arrays.asList(new MusicFolder(file.toString(), "Music", true, null)));
+        infos = controller.wrap(Arrays.asList(new MusicFolder(file.toString(), "Music", true, null, false)));
         assertEquals(1, infos.size());
         assertFalse(infos.get(0).isExisting());
 
         Path dir = Path.of(MusicFolderSettingsControllerTest.class.getResource("/MEDIAS/Music").toURI());
-        infos = controller.wrap(Arrays.asList(new MusicFolder(dir.toString(), "Music", true, null)));
+        infos = controller.wrap(Arrays.asList(new MusicFolder(dir.toString(), "Music", true, null, false)));
         assertEquals(1, infos.size());
         assertTrue(infos.get(0).isExisting());
     }

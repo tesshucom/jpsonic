@@ -212,6 +212,7 @@ class StringUtilTest {
     void testFileSystemSafe() {
         assertEquals("foo", StringUtil.fileSystemSafe("foo"), "Error in fileSystemSafe().");
         assertEquals("foo.mp3", StringUtil.fileSystemSafe("foo.mp3"), "Error in fileSystemSafe().");
+        assertEquals("foo.mp3", StringUtil.fileSystemSafe("foo.mp3..."), "Error in fileSystemSafe().");
         assertEquals("foo-bar", StringUtil.fileSystemSafe("foo/bar"), "Error in fileSystemSafe().");
         assertEquals("foo-bar", StringUtil.fileSystemSafe("foo\\bar"), "Error in fileSystemSafe().");
         assertEquals("foo-bar", StringUtil.fileSystemSafe("foo:bar"), "Error in fileSystemSafe().");

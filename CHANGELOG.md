@@ -3,7 +3,66 @@
 # jpsonic/jpsonic
 # -->
 
-## v112.2.0
+## v113.0.0
+
+#### Bug fixes
+
+  * Fix Send buffer size ([#2377](https://github.com/tesshucom/jpsonic/issues/2377))
+  * Fix bug that scanning failed in Postgres ([#2380](https://github.com/tesshucom/jpsonic/issues/2380))
+  * Fix to avoid handling files or directories ending with a dot ([#2492](https://github.com/tesshucom/jpsonic/issues/2492))
+
+#### Enhancement
+
+  * Minor web page improvements
+    * Change the number of digits displayed for memory ([#2343](https://github.com/tesshucom/jpsonic/issues/2343))
+    * Improve Internal Details ([#2341](https://github.com/tesshucom/jpsonic/issues/2341))
+    * Add more detailed platform information to Help page ([#2376](https://github.com/tesshucom/jpsonic/issues/2376))
+    * Improve Scan Indicator ([#2485](https://github.com/tesshucom/jpsonic/issues/2485))
+  * Minor Subsonic API improvements
+    * Fix getAlbumList2 sorting to ignore case ([#2441](https://github.com/tesshucom/jpsonic/issues/2441))
+  * Docker improvements
+    * Upgrade production.synology.yaml ([#2361](https://github.com/tesshucom/jpsonic/issues/2361))
+    * Add Installation instructions used DSM Task Scheduler ([#2385](https://github.com/tesshucom/jpsonic/issues/2385))
+  * MudicIndex design improvements
+    * Faster index generation ([#1879](https://github.com/tesshucom/jpsonic/issues/1879))
+    * Fix for generating MusixIndex when scanning ([#2423](https://github.com/tesshucom/jpsonic/issues/2423))
+    * Speed up music index generation ([#2431](https://github.com/tesshucom/jpsonic/issues/2431))
+  * Improved UPnP, improved coverage
+    * UPnP design improvements ([#2436](https://github.com/tesshucom/jpsonic/issues/2436))
+    * UPnP implementation improvements ([#2446](https://github.com/tesshucom/jpsonic/issues/2446))
+
+#### Maintenance
+
+  * Preparing for future feature additions
+    * To inverse dependencies of Dao ([#2378](https://github.com/tesshucom/jpsonic/issues/2378))
+    * Add menu_item table ([#2473](https://github.com/tesshucom/jpsonic/issues/2473))
+    * Add archived to music_folder table ([#2463](https://github.com/tesshucom/jpsonic/issues/2463))
+  * Modernize platform
+    * Remove Java11 from CI ([#2327](https://github.com/tesshucom/jpsonic/issues/2327))
+    * Rewrite to Java 17 Syntax ([#2338](https://github.com/tesshucom/jpsonic/issues/2338))
+    * Rewrite to Java 17 Syntax with 'Rewrite'  ([#2370](https://github.com/tesshucom/jpsonic/issues/2370))
+    * Bump temurin-jdk-17 to temurin-jdk-21  ([#2403](https://github.com/tesshucom/jpsonic/issues/2403))
+    * Fix that JDK is used for jpsonic/jpsonic:ea ([#2391](https://github.com/tesshucom/jpsonic/issues/2391))
+    * Bump lucene and Search Index version ([#2478](https://github.com/tesshucom/jpsonic/issues/2478))
+
+#### Update Libs
+
+  - [v112.2.1](https://github.com/tesshucom/jpsonic/issues/2334)
+  - [v112.2.2](https://github.com/tesshucom/jpsonic/issues/2347)
+  - [v112.2.3](https://github.com/tesshucom/jpsonic/issues/2362)
+  - [v112.2.4](https://github.com/tesshucom/jpsonic/issues/2375)
+  - [v112.2.6](https://github.com/tesshucom/jpsonic/issues/2394)
+  - [v112.2.7](https://github.com/tesshucom/jpsonic/issues/2399)
+  - [v112.2.8](https://github.com/tesshucom/jpsonic/issues/2404)
+  - [v112.2.9](https://github.com/tesshucom/jpsonic/issues/2416)
+  - [v112.2.10](https://github.com/tesshucom/jpsonic/issues/2434)
+  - [v112.2.11](https://github.com/tesshucom/jpsonic/issues/2454)
+  - [v112.2.12](https://github.com/tesshucom/jpsonic/issues/2479)
+  - [v112.2.13](https://github.com/tesshucom/jpsonic/issues/2484)
+  - [v112.2.14](https://github.com/tesshucom/jpsonic/issues/2493)
+
+<details>
+<summary>v112.2.0</summary>
 
 #### Bug fixes
 
@@ -43,6 +102,7 @@
   - [v112.1.8](https://github.com/tesshucom/jpsonic/issues/2309)
   - [v112.1.9](https://github.com/tesshucom/jpsonic/issues/2314)
 
+</details>
 <details>
 <summary>v112.1.0</summary>
 

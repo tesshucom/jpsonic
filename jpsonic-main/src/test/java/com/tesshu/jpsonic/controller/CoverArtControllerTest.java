@@ -57,7 +57,6 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.domain.PodcastChannel;
-import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
@@ -83,7 +82,6 @@ class CoverArtControllerTest {
 
     private MediaFileService mediaFileService;
     private PlaylistService playlistService;
-    private CoverArtLogic logic;
     private FontLoader fontLoader;
     private CoverArtController controller;
     private MockMvc mockMvc;
@@ -98,10 +96,9 @@ class CoverArtControllerTest {
         playlistService = mock(PlaylistService.class);
         TranscodingService transcodingService = new TranscodingService(null, null, null, null, null);
         FFmpeg ffmpeg = new FFmpeg(transcodingService);
-        logic = mock(CoverArtLogic.class);
         fontLoader = mock(FontLoader.class);
         controller = new CoverArtController(mediaFileService, ffmpeg, playlistService, mock(PodcastService.class),
-                mock(ArtistDao.class), mock(AlbumDao.class), logic, fontLoader);
+                mock(ArtistDao.class), mock(AlbumDao.class), fontLoader);
         controller.init();
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
@@ -242,7 +239,7 @@ class CoverArtControllerTest {
         void testWithEmbededImage() throws Exception {
             Path path = mediaFileStub.apply(createPath("/MEDIAS/Metadata/tagger3/tagged/test.flac"));
             MediaFile mediaFile = mediaFileService.getMediaFile(path);
-            MediaFileCoverArtRequest req = new MediaFileCoverArtRequest(controller, fontLoader, logic, mediaFileService,
+            MediaFileCoverArtRequest req = new MediaFileCoverArtRequest(controller, fontLoader, mediaFileService,
                     mediaFile);
             HttpServletResponse res = new MockHttpServletResponse();
             controller.sendUnscaled(req, res);
@@ -256,7 +253,7 @@ class CoverArtControllerTest {
         void testWithoutEmbededImage() throws Exception {
             Path path = mediaFileStub.apply(createPath("/MEDIAS/Metadata/tagger3/testdata/01.mp3"));
             MediaFile mediaFile = mediaFileService.getMediaFile(path);
-            MediaFileCoverArtRequest req = new MediaFileCoverArtRequest(controller, fontLoader, logic, mediaFileService,
+            MediaFileCoverArtRequest req = new MediaFileCoverArtRequest(controller, fontLoader, mediaFileService,
                     mediaFile);
             HttpServletResponse res = new MockHttpServletResponse();
             assertThrows(ExecutionException.class, () -> controller.sendUnscaled(req, res));
@@ -266,7 +263,7 @@ class CoverArtControllerTest {
         void testWithImage() throws Exception {
             Path path = mediaFileStub.apply(createPath("/MEDIAS/Metadata/coverart/album.gif"));
             MediaFile mediaFile = mediaFileService.getMediaFile(path);
-            MediaFileCoverArtRequest req = new MediaFileCoverArtRequest(controller, fontLoader, logic, mediaFileService,
+            MediaFileCoverArtRequest req = new MediaFileCoverArtRequest(controller, fontLoader, mediaFileService,
                     mediaFile);
             HttpServletResponse res = new MockHttpServletResponse();
             controller.sendUnscaled(req, res);
@@ -280,7 +277,7 @@ class CoverArtControllerTest {
         void testWithImageCannotRead() throws Exception {
             Path path = mediaFileStub.apply(Path.of("/MEDIAS/Metadata/coverart/unknown.gif"));
             MediaFile mediaFile = mediaFileService.getMediaFile(path);
-            MediaFileCoverArtRequest req = new MediaFileCoverArtRequest(controller, fontLoader, logic, mediaFileService,
+            MediaFileCoverArtRequest req = new MediaFileCoverArtRequest(controller, fontLoader, mediaFileService,
                     mediaFile);
             HttpServletResponse res = new MockHttpServletResponse();
             assertThrows(ExecutionException.class, () -> controller.sendUnscaled(req, res));
@@ -400,12 +397,12 @@ class CoverArtControllerTest {
             Instant lastScanned = now();
             artist.setLastScanned(lastScanned);
 
-            ArtistCoverArtRequest request = new ArtistCoverArtRequest(controller, fontLoader, logic, artist);
+            ArtistCoverArtRequest request = new ArtistCoverArtRequest(controller, fontLoader, artist);
             assertEquals(lastScanned.toEpochMilli(), request.lastModified());
 
             Path path = createPath("/MEDIAS/Metadata/coverart/album.gif");
             artist.setCoverArtPath(path.toString());
-            request = new ArtistCoverArtRequest(controller, fontLoader, logic, artist);
+            request = new ArtistCoverArtRequest(controller, fontLoader, artist);
             assertEquals(Files.getLastModifiedTime(path).toMillis(), request.lastModified());
         }
     }
@@ -420,12 +417,12 @@ class CoverArtControllerTest {
             Instant lastScanned = now();
             album.setLastScanned(lastScanned);
 
-            AlbumCoverArtRequest request = new AlbumCoverArtRequest(controller, fontLoader, logic, album);
+            AlbumCoverArtRequest request = new AlbumCoverArtRequest(controller, fontLoader, album);
             assertEquals(lastScanned.toEpochMilli(), request.lastModified());
 
             Path path = createPath("/MEDIAS/Metadata/coverart/album.gif");
             album.setCoverArtPath(path.toString());
-            request = new AlbumCoverArtRequest(controller, fontLoader, logic, album);
+            request = new AlbumCoverArtRequest(controller, fontLoader, album);
             assertEquals(Files.getLastModifiedTime(path).toMillis(), request.lastModified());
         }
     }
@@ -440,8 +437,8 @@ class CoverArtControllerTest {
             Instant changed = now();
             playlist.setChanged(changed);
 
-            PlaylistCoverArtRequest request = new PlaylistCoverArtRequest(controller, fontLoader, logic,
-                    mediaFileService, playlistService, playlist);
+            PlaylistCoverArtRequest request = new PlaylistCoverArtRequest(controller, fontLoader, mediaFileService,
+                    playlistService, playlist);
             assertEquals(changed.toEpochMilli(), request.lastModified());
         }
     }
@@ -452,7 +449,7 @@ class CoverArtControllerTest {
         @Test
         void testLastModified() throws URISyntaxException, IOException {
             PodcastChannel channel = new PodcastChannel("");
-            PodcastCoverArtRequest request = new PodcastCoverArtRequest(controller, fontLoader, logic, channel);
+            PodcastCoverArtRequest request = new PodcastCoverArtRequest(controller, fontLoader, channel);
             assertEquals(-1, request.lastModified());
         }
     }
@@ -467,15 +464,15 @@ class CoverArtControllerTest {
             assertTrue(album.isDirectory());
             Instant changed = now();
             album.setChanged(changed);
-            MediaFileCoverArtRequest request = new MediaFileCoverArtRequest(controller, fontLoader, logic,
-                    mediaFileService, album);
+            MediaFileCoverArtRequest request = new MediaFileCoverArtRequest(controller, fontLoader, mediaFileService,
+                    album);
             assertEquals(changed.toEpochMilli(), request.lastModified());
 
             MediaFile song = new MediaFile();
             song.setMediaType(MediaType.MUSIC);
             Path songCoverArtPath = createPath("/MEDIAS/Metadata/coverart/cover.gif");
             Mockito.when(mediaFileService.getCoverArt(song)).thenReturn(songCoverArtPath);
-            request = new MediaFileCoverArtRequest(controller, fontLoader, logic, mediaFileService, song);
+            request = new MediaFileCoverArtRequest(controller, fontLoader, mediaFileService, song);
             assertEquals(Files.getLastModifiedTime(songCoverArtPath).toMillis(), request.lastModified());
         }
     }
@@ -490,7 +487,7 @@ class CoverArtControllerTest {
             assertTrue(video.isDirectory());
             Instant changed = now();
             video.setChanged(changed);
-            VideoCoverArtRequest request = new VideoCoverArtRequest(controller, fontLoader, logic, video, 0);
+            VideoCoverArtRequest request = new VideoCoverArtRequest(controller, fontLoader, video, 0);
             assertEquals(changed.toEpochMilli(), request.lastModified());
         }
     }

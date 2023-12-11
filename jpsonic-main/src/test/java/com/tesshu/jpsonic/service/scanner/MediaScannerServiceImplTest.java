@@ -62,6 +62,7 @@ import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
+import com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ScanEvent;
@@ -83,7 +84,6 @@ import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.concurrent.ExecutorConfiguration;
 import com.tesshu.jpsonic.util.concurrent.ShortTaskPoolConfiguration;
-import net.sf.ehcache.Ehcache;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -213,11 +213,12 @@ class MediaScannerServiceImplTest {
             scannerStateService = new ScannerStateServiceImpl(staticsDao);
             writableMediaFileService = new WritableMediaFileService(mediaFileDao, scannerStateService, mediaFileService,
                     albumDao, mock(MediaFileCache.class), mock(MusicParser.class), mock(VideoParser.class),
-                    settingsService, mock(SecurityService.class), null, mock(IndexManager.class));
+                    settingsService, mock(SecurityService.class), null, mock(IndexManager.class),
+                    mock(MusicIndexServiceImpl.class));
             scannerProcedureService = new ScannerProcedureService(settingsService, mock(MusicFolderServiceImpl.class),
                     indexManager, mediaFileService, writableMediaFileService, mock(PlaylistService.class),
                     mock(TemplateWrapper.class), mediaFileDao, artistDao, albumDao, staticsDao, utils,
-                    scannerStateService, mock(Ehcache.class), mock(MediaFileCache.class),
+                    scannerStateService, mock(MusicIndexServiceImpl.class), mock(MediaFileCache.class),
                     mock(JapaneseReadingUtils.class), mock(JpsonicComparators.class),
                     mock(ThreadPoolTaskExecutor.class));
             mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
@@ -403,10 +404,11 @@ class MediaScannerServiceImplTest {
         public List<MusicFolder> getMusicFolders() {
             if (ObjectUtils.isEmpty(musicFolders)) {
                 musicFolders = Arrays.asList(
-                        new MusicFolder(1, resolveBaseMediaPath("Scan/Id3LIFO"), "alphaBeticalProps", true, now(), 0),
-                        new MusicFolder(2, resolveBaseMediaPath("Scan/Null"), "noTagFirstChild", true, now(), 1),
+                        new MusicFolder(1, resolveBaseMediaPath("Scan/Id3LIFO"), "alphaBeticalProps", true, now(), 0,
+                                false),
+                        new MusicFolder(2, resolveBaseMediaPath("Scan/Null"), "noTagFirstChild", true, now(), 1, false),
                         new MusicFolder(3, resolveBaseMediaPath("Scan/Reverse"), "fileAndPropsNameInReverse", true,
-                                now(), 2));
+                                now(), 2, false));
             }
             return musicFolders;
         }
@@ -557,7 +559,8 @@ class MediaScannerServiceImplTest {
             assertNotNull(FileUtil.createDirectories(artist));
             this.album = Path.of(artist.toString(), "ALBUM");
             assertNotNull(FileUtil.createDirectories(album));
-            this.musicFolders = Arrays.asList(new MusicFolder(1, tempDir.toString(), "musicFolder", true, now(), 1));
+            this.musicFolders = Arrays
+                    .asList(new MusicFolder(1, tempDir.toString(), "musicFolder", true, now(), 1, false));
 
             // Copy the song file from the test resource. No tags are registered in this file.
             Path sample = Path.of(MediaScannerServiceImplTest.class
@@ -876,7 +879,7 @@ class MediaScannerServiceImplTest {
                 IOUtils.copy(resource, Files.newOutputStream(musicPath));
             }
 
-            MusicFolder musicFolder = new MusicFolder(1, tempDirPath.toString(), "Music", true, now(), 1);
+            MusicFolder musicFolder = new MusicFolder(1, tempDirPath.toString(), "Music", true, now(), 1, false);
             musicFolderDao.createMusicFolder(musicFolder);
             musicFolderService.clearMusicFolderCache();
             TestCaseUtils.execScan(mediaScannerService);
@@ -896,7 +899,7 @@ class MediaScannerServiceImplTest {
 
             // Add the "Music3" folder to the database
             Path musicFolderPath = Path.of(MusicFolderTestDataUtils.resolveMusic3FolderPath());
-            MusicFolder musicFolder = new MusicFolder(1, musicFolderPath.toString(), "Music3", true, now(), 1);
+            MusicFolder musicFolder = new MusicFolder(1, musicFolderPath.toString(), "Music3", true, now(), 1, false);
             musicFolderDao.createMusicFolder(musicFolder);
             musicFolderService.clearMusicFolderCache();
             TestCaseUtils.execScan(mediaScannerService);
@@ -967,8 +970,9 @@ class MediaScannerServiceImplTest {
             assertNotNull(FileUtil.createDirectories(artist));
             this.album = Path.of(artist.toString(), "ALBUM");
             assertNotNull(FileUtil.createDirectories(album));
-            this.musicFolders = Arrays.asList(new MusicFolder(1, tempDir1.toString(), "musicFolder1", true, now(), 0),
-                    new MusicFolder(2, tempDir2.toString(), "musicFolder2", true, now(), 1));
+            this.musicFolders = Arrays.asList(
+                    new MusicFolder(1, tempDir1.toString(), "musicFolder1", true, now(), 0, false),
+                    new MusicFolder(2, tempDir2.toString(), "musicFolder2", true, now(), 1, false));
 
             Path sample = Path.of(MediaScannerServiceImplTest.class
                     .getResource("/MEDIAS/Scan/Timestamp/ARTIST/ALBUM/sample.mp3").toURI());
@@ -1036,7 +1040,8 @@ class MediaScannerServiceImplTest {
             assertNotNull(FileUtil.createDirectories(artist));
             Path album = Path.of(artist.toString(), "ALBUM");
             assertNotNull(FileUtil.createDirectories(album));
-            this.musicFolders = Arrays.asList(new MusicFolder(1, tempDir.toString(), "musicFolder1", true, now(), 1));
+            this.musicFolders = Arrays
+                    .asList(new MusicFolder(1, tempDir.toString(), "musicFolder1", true, now(), 1, false));
             Path sample = Path.of(MediaScannerServiceImplTest.class
                     .getResource("/MEDIAS/Scan/Timestamp/ARTIST/ALBUM/sample.mp3").toURI());
             this.song = Path.of(album.toString(), "sample.mp3");
@@ -1114,13 +1119,14 @@ class MediaScannerServiceImplTest {
             scannerStateService = mock(ScannerStateServiceImpl.class);
             writableMediaFileService = new WritableMediaFileService(mediaFileDao, scannerStateService, mediaFileService,
                     albumDao, mock(MediaFileCache.class), mock(MusicParser.class), mock(VideoParser.class),
-                    settingsService, mock(SecurityService.class), null, mock(IndexManager.class));
+                    settingsService, mock(SecurityService.class), null, mock(IndexManager.class),
+                    mock(MusicIndexServiceImpl.class));
             musicFolderService = mock(MusicFolderServiceImpl.class);
             comparators = mock(JpsonicComparators.class);
             scannerProcedureService = new ScannerProcedureService(settingsService, musicFolderService, indexManager,
                     mediaFileService, writableMediaFileService, mock(PlaylistService.class),
                     mock(TemplateWrapper.class), mediaFileDao, artistDao, albumDao, staticsDao, sortProcedureService,
-                    scannerStateService, mock(Ehcache.class), mock(MediaFileCache.class),
+                    scannerStateService, mock(MusicIndexServiceImpl.class), mock(MediaFileCache.class),
                     mock(JapaneseReadingUtils.class), comparators, mock(ThreadPoolTaskExecutor.class));
             mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
                     scannerProcedureService, mock(ExpungeService.class), staticsDao, executor);
@@ -1130,7 +1136,7 @@ class MediaScannerServiceImplTest {
         void testDoScanLibraryWithSortStrict() {
 
             Mockito.when(musicFolderService.getAllMusicFolders())
-                    .thenReturn(Arrays.asList(new MusicFolder(0, "path", "name", true, null, -1)));
+                    .thenReturn(Arrays.asList(new MusicFolder(0, "path", "name", true, null, -1, false)));
             Mockito.when(artistDao.getAlbumCounts()).thenReturn(Arrays.asList(new Artist()));
 
             Mockito.when(scannerStateService.isEnableCleansing()).thenReturn(true);
@@ -1148,13 +1154,11 @@ class MediaScannerServiceImplTest {
             Mockito.verify(sortProcedureService, Mockito.times(1)).copySortOfAlbum(Mockito.anyList());
             Mockito.verify(sortProcedureService, Mockito.times(1)).compensateSortOfAlbum(Mockito.anyList());
 
-            // (updateOrderOfAlbum)
-            // Mockito.verify(scannerProcedureService, Mockito.times(1)).updateOrderOfAlbum();
-            // (updateOrderOfArtist)
-            // Mockito.verify(scannerProcedureService, Mockito.times(1)).updateOrderOfArtist();
+            // (updateOrderOfAlbum/updateSortOfArtist)
             Mockito.verify(comparators, Mockito.times(2)).mediaFileOrderByAlpha();
+            Mockito.verify(comparators, Mockito.never()).mediaFileOrderBy(OrderBy.ALBUM);
+            Mockito.verify(comparators, Mockito.never()).mediaFileOrderBy(OrderBy.ARTIST);
 
-            // updateSortOfArtist
             Mockito.verify(sortProcedureService, Mockito.times(1)).mergeSortOfArtist(Mockito.anyList());
             Mockito.verify(sortProcedureService, Mockito.times(1)).copySortOfArtist(Mockito.anyList());
             Mockito.verify(sortProcedureService, Mockito.times(1)).compensateSortOfArtist(Mockito.anyList());
@@ -1191,7 +1195,7 @@ class MediaScannerServiceImplTest {
         void testDoScanLibraryWithoutSortStrict() {
 
             Mockito.when(musicFolderService.getAllMusicFolders())
-                    .thenReturn(Arrays.asList(new MusicFolder(0, "path", "name", true, null, -1)));
+                    .thenReturn(Arrays.asList(new MusicFolder(0, "path", "name", true, null, -1, false)));
             Mockito.when(artistDao.getAlbumCounts()).thenReturn(Arrays.asList(new Artist()));
 
             Mockito.when(scannerStateService.isEnableCleansing()).thenReturn(true);
@@ -1214,11 +1218,10 @@ class MediaScannerServiceImplTest {
             Mockito.verify(sortProcedureService, Mockito.never()).copySortOfArtist(Mockito.anyList());
             Mockito.verify(sortProcedureService, Mockito.never()).compensateSortOfArtist(Mockito.anyList());
 
-            // (updateOrderOfAlbum)
-            // Mockito.verify(scannerProcedureService, Mockito.times(1)).updateOrderOfAlbum();
-            // (updateOrderOfArtist)
-            // Mockito.verify(scannerProcedureService, Mockito.times(1)).updateOrderOfArtist();
+            // (updateOrderOfAlbum/updateOrderOfArtist)
             Mockito.verify(comparators, Mockito.times(2)).mediaFileOrderByAlpha();
+            Mockito.verify(comparators, Mockito.never()).mediaFileOrderBy(OrderBy.ALBUM);
+            Mockito.verify(comparators, Mockito.never()).mediaFileOrderBy(OrderBy.ARTIST);
 
             // refleshAlbumId3
             Mockito.verify(mediaFileDao, Mockito.times(1)).getChangedId3Albums(Mockito.anyInt(), Mockito.anyList(),

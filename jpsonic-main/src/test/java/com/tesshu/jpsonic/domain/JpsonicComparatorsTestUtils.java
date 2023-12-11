@@ -32,8 +32,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
-import com.tesshu.jpsonic.domain.MusicIndex.SortableArtist;
-import com.tesshu.jpsonic.domain.MusicIndex.SortableArtistWithMediaFiles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -41,8 +39,6 @@ import org.springframework.stereotype.Component;
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class JpsonicComparatorsTestUtils {
 
-    @Autowired
-    private JpsonicComparators comparators;
     @Autowired
     private JapaneseReadingUtils utils;
 
@@ -107,12 +103,6 @@ public class JpsonicComparatorsTestUtils {
         artist.setReading(file.getAlbumArtistReading());
         artist.setSort(file.getAlbumArtistSort());
         return artist;
-    };
-
-    private final Function<String, SortableArtist> toSortableArtist = (name) -> {
-        MediaFile file = toMediaArtist.apply(name);
-        return new SortableArtistWithMediaFiles(file.getArtist(), file.getArtistReading(),
-                comparators.sortableArtistOrder());
     };
 
     private final BiFunction<String, Integer, MediaFile> toMediaSong = (name, trackNumber) -> {
@@ -266,15 +256,6 @@ public class JpsonicComparatorsTestUtils {
         }
     }
 
-    public static void assertSortableArtistOrder(List<SortableArtist> artists, Integer... ignores) {
-        assertEquals(JPSONIC_NATURAL_LIST.size(), artists.size());
-        for (int i = 0; i < JPSONIC_NATURAL_LIST.size(); i++) {
-            if (0 > Arrays.binarySearch(ignores, i)) {
-                assertEquals(JPSONIC_NATURAL_LIST.get(i), artists.get(i).getName(), "(" + i + ") -> ");
-            }
-        }
-    }
-
     public static boolean validateNaturalList(List<String> l, Integer... ignores) {
         assertEquals(JPSONIC_NATURAL_LIST.size(), l.size());
         for (int i = 0; i < JPSONIC_NATURAL_LIST.size(); i++) {
@@ -337,12 +318,6 @@ public class JpsonicComparatorsTestUtils {
         List<Playlist> playlists = JPSONIC_NATURAL_LIST.stream().map(toPlaylist).collect(toList());
         reverse(playlists);
         return playlists;
-    }
-
-    public List<SortableArtist> createReversedSortableArtists() {
-        List<SortableArtist> artists = JPSONIC_NATURAL_LIST.stream().map(toSortableArtist).collect(toList());
-        reverse(artists);
-        return artists;
     }
 
     public MediaFile createVariousMedifile() {

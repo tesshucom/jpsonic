@@ -68,10 +68,10 @@ import com.tesshu.jpsonic.domain.SavedPlayQueue;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
-import com.tesshu.jpsonic.domain.logic.CoverArtLogic;
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
 import com.tesshu.jpsonic.service.AudioScrobblerService;
 import com.tesshu.jpsonic.service.BookmarkService;
+import com.tesshu.jpsonic.service.CoverArtPresentation;
 import com.tesshu.jpsonic.service.InternetRadioService;
 import com.tesshu.jpsonic.service.LastFmService;
 import com.tesshu.jpsonic.service.MediaFileService;
@@ -169,7 +169,7 @@ import org.subsonic.restapi.Videos;
 @SuppressFBWarnings(value = "SPRING_CSRF_UNRESTRICTED_REQUEST_MAPPING", justification = "Difficult to change as it affects existing apps(Protected by a token).")
 @Controller
 @RequestMapping(value = "/rest", method = { RequestMethod.GET, RequestMethod.POST })
-public class SubsonicRESTController {
+public class SubsonicRESTController implements CoverArtPresentation {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubsonicRESTController.class);
     private static final String NOT_YET_IMPLEMENTED = "Not yet implemented";
@@ -214,7 +214,6 @@ public class SubsonicRESTController {
     private final PlayQueueDao playQueueDao;
     private final MediaScannerService mediaScannerService;
     private final AirsonicLocaleResolver airsonicLocaleResolver;
-    private final CoverArtLogic logic;
     private final SearchCriteriaDirector director;
 
     private final JAXBWriter jaxbWriter;
@@ -231,7 +230,7 @@ public class SubsonicRESTController {
             RatingService ratingService, SearchService searchService, InternetRadioService internetRadioService,
             MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao, BookmarkService bookmarkService,
             PlayQueueDao playQueueDao, MediaScannerService mediaScannerService,
-            AirsonicLocaleResolver airsonicLocaleResolver, CoverArtLogic logic, SearchCriteriaDirector director) {
+            AirsonicLocaleResolver airsonicLocaleResolver, SearchCriteriaDirector director) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
@@ -265,7 +264,6 @@ public class SubsonicRESTController {
         this.playQueueDao = playQueueDao;
         this.mediaScannerService = mediaScannerService;
         this.airsonicLocaleResolver = airsonicLocaleResolver;
-        this.logic = logic;
         this.director = director;
         jaxbWriter = new JAXBWriter(settingsService);
     }
@@ -372,26 +370,22 @@ public class SubsonicRESTController {
 
     @SuppressWarnings("PMD.CognitiveComplexity") // #1020 Move to support class or service
     private void setRatingAndStarred(MusicFolderContent musicFolderContent, Indexes indexes, String username) {
-        for (Map.Entry<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> entry : musicFolderContent
-                .getIndexedArtists().entrySet()) {
+        for (Map.Entry<MusicIndex, List<MediaFile>> entry : musicFolderContent.getIndexedArtists().entrySet()) {
             Index index = new Index();
             indexes.getIndex().add(index);
             index.setName(entry.getKey().getIndex());
+            for (MediaFile mediaFile : entry.getValue()) {
+                if (mediaFile.isDirectory()) {
+                    org.subsonic.restapi.Artist a = new org.subsonic.restapi.Artist();
+                    index.getArtist().add(a);
+                    a.setId(String.valueOf(mediaFile.getId()));
+                    a.setName(mediaFile.getName());
+                    Instant starredDate = mediaFileDao.getMediaFileStarredDate(mediaFile.getId(), username);
+                    a.setStarred(jaxbWriter.convertDate(starredDate));
 
-            for (MusicIndex.SortableArtistWithMediaFiles artist : entry.getValue()) {
-                for (MediaFile mediaFile : artist.getMediaFiles()) {
-                    if (mediaFile.isDirectory()) {
-                        org.subsonic.restapi.Artist a = new org.subsonic.restapi.Artist();
-                        index.getArtist().add(a);
-                        a.setId(String.valueOf(mediaFile.getId()));
-                        a.setName(artist.getName());
-                        Instant starredDate = mediaFileDao.getMediaFileStarredDate(mediaFile.getId(), username);
-                        a.setStarred(jaxbWriter.convertDate(starredDate));
-
-                        if (mediaFile.isAlbum()) {
-                            a.setAverageRating(ratingService.getAverageRating(mediaFile));
-                            a.setUserRating(ratingService.getRatingForUser(username, mediaFile));
-                        }
+                    if (mediaFile.isAlbum()) {
+                        a.setAverageRating(ratingService.getAverageRating(mediaFile));
+                        a.setUserRating(ratingService.getRatingForUser(username, mediaFile));
                     }
                 }
             }
@@ -451,16 +445,13 @@ public class SubsonicRESTController {
         List<com.tesshu.jpsonic.domain.MusicFolder> musicFolders = musicFolderService
                 .getMusicFoldersForUser(user.getUsername());
 
-        List<com.tesshu.jpsonic.domain.Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE,
-                musicFolders);
-        SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> indexedArtists = musicIndexService
-                .getIndexedId3Artists(artists);
-        for (Map.Entry<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> entry : indexedArtists.entrySet()) {
+        SortedMap<MusicIndex, List<com.tesshu.jpsonic.domain.Artist>> indexedArtists = musicIndexService
+                .getIndexedId3Artists(musicFolders);
+        for (Map.Entry<MusicIndex, List<com.tesshu.jpsonic.domain.Artist>> entry : indexedArtists.entrySet()) {
             IndexID3 index = new IndexID3();
             index.setName(entry.getKey().getIndex());
-            for (MusicIndex.SortableArtistWithArtist sortableArtist : entry.getValue()) {
-                index.getArtist()
-                        .add(createJaxbArtist(new ArtistID3(), sortableArtist.getArtist(), user.getUsername()));
+            for (com.tesshu.jpsonic.domain.Artist sortableArtist : entry.getValue()) {
+                index.getArtist().add(createJaxbArtist(new ArtistID3(), sortableArtist, user.getUsername()));
             }
             result.getIndex().add(index);
         }
@@ -643,7 +634,7 @@ public class SubsonicRESTController {
         jaxbArtist.setStarred(jaxbWriter.convertDate(mediaFileDao.getMediaFileStarredDate(artist.getId(), username)));
         jaxbArtist.setAlbumCount(artist.getAlbumCount());
         if (artist.getCoverArtPath() != null) {
-            jaxbArtist.setCoverArt(logic.createKey(artist));
+            jaxbArtist.setCoverArt(createCoverArtKey(artist));
         }
         return jaxbArtist;
     }
@@ -692,7 +683,7 @@ public class SubsonicRESTController {
             }
         }
         if (album.getCoverArtPath() != null) {
-            jaxbAlbum.setCoverArt(logic.createKey(album));
+            jaxbAlbum.setCoverArt(createCoverArtKey(album));
         }
         jaxbAlbum.setSongCount(album.getSongCount());
         jaxbAlbum.setDuration(album.getDurationSeconds());
@@ -714,7 +705,7 @@ public class SubsonicRESTController {
         jaxbPlaylist.setDuration(playlist.getDurationSeconds());
         jaxbPlaylist.setCreated(jaxbWriter.convertDate(playlist.getCreated()));
         jaxbPlaylist.setChanged(jaxbWriter.convertDate(playlist.getChanged()));
-        jaxbPlaylist.setCoverArt(logic.createKey(playlist));
+        jaxbPlaylist.setCoverArt(createCoverArtKey(playlist));
 
         for (String username : playlistService.getPlaylistUsers(playlist.getId())) {
             jaxbPlaylist.getAllowedUser().add(username);
@@ -1238,9 +1229,9 @@ public class SubsonicRESTController {
         } else if ("newest".equals(type)) {
             albums = albumDao.getNewestAlbums(offset, size, musicFolders);
         } else if ("alphabeticalByArtist".equals(type)) {
-            albums = albumDao.getAlphabeticalAlbums(offset, size, true, false, musicFolders);
+            albums = albumDao.getAlphabeticalAlbums(offset, size, true, true, musicFolders);
         } else if ("alphabeticalByName".equals(type)) {
-            albums = albumDao.getAlphabeticalAlbums(offset, size, false, false, musicFolders);
+            albums = albumDao.getAlphabeticalAlbums(offset, size, false, true, musicFolders);
         } else if ("byGenre".equals(type)) {
             albums = searchService.getAlbumId3sByGenres(
                     ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.GENRE.value()), offset,
@@ -1698,7 +1689,7 @@ public class SubsonicRESTController {
                 c.setStatus(PodcastStatus.valueOf(channel.getStatus().name()));
                 c.setTitle(channel.getTitle());
                 c.setDescription(channel.getDescription());
-                c.setCoverArt(logic.createKey(channel));
+                c.setCoverArt(createCoverArtKey(channel));
                 c.setOriginalImageUrl(channel.getImageUrl());
                 c.setErrorMessage(channel.getErrorMessage());
 
@@ -2538,7 +2529,7 @@ public class SubsonicRESTController {
     }
 
     protected final String mapId(String id) {
-        if (id == null || logic.isAlbum(id) || logic.isArtist(id) || StringUtils.isNumeric(id)) {
+        if (id == null || isAlbumCoverArt(id) || isArtistCoverArt(id) || StringUtils.isNumeric(id)) {
             return id;
         }
         try {

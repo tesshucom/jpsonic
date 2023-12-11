@@ -19,11 +19,12 @@
 
 package com.tesshu.jpsonic.domain;
 
-import static org.apache.commons.lang3.StringUtils.defaultString;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.text.Collator;
 import java.util.Comparator;
+import java.util.Objects;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -104,11 +105,12 @@ class JpMediaFileComparator implements MediaFileComparator {
         return 0;
     }
 
-    int compareDirectory(MediaFile a, MediaFile b) {
-        if (a.isAlbum() && b.isAlbum() && !isEmpty(a.getAlbumReading()) && !isEmpty(b.getAlbumReading())) {
-            return comparator.compare(a.getAlbumReading(), b.getAlbumReading());
+    int compareDirectory(MediaFile o1, MediaFile o2) {
+        if (o1.isAlbum() && o2.isAlbum() && !isEmpty(o1.getAlbumReading()) && !isEmpty(o2.getAlbumReading())) {
+            return comparator.compare(o1.getAlbumReading(), o2.getAlbumReading());
         }
-        return comparator.compare(defaultString(a.getArtistReading()), defaultString(b.getArtistReading()));
+        return comparator.compare(Objects.toString(o1.getArtistReading(), EMPTY),
+                Objects.toString(o2.getArtistReading(), EMPTY));
     }
 
     <T extends Comparable<T>> int nullSafeCompare(@Nullable T a, @Nullable T b, boolean nullIsSmaller) {

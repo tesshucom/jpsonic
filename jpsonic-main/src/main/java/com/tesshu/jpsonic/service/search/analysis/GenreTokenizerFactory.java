@@ -28,7 +28,7 @@ import org.apache.lucene.analysis.TokenizerFactory;
 import org.apache.lucene.analysis.util.CharTokenizer;
 import org.apache.lucene.util.AttributeFactory;
 
-public class GenreTokenizerFactory extends TokenizerFactory {
+public final class GenreTokenizerFactory extends TokenizerFactory {
 
     private final int maxTokenLen;
 

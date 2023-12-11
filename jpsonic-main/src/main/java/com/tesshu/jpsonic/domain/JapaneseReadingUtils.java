@@ -36,7 +36,6 @@ import com.atilika.kuromoji.ipadic.Token;
 import com.atilika.kuromoji.ipadic.Tokenizer;
 import com.ibm.icu.text.Transliterator;
 import com.tesshu.jpsonic.ThreadSafe;
-import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -382,7 +381,6 @@ public class JapaneseReadingUtils {
         String result = s;
         for (String article : settingsService.getIgnoredArticlesAsArray()) {
             if (StringUtils.startsWithIgnoreCase(s, article + SPACE)) {
-                // reading = lower.substring(article.length() + 1) + ", " + article;
                 result = result.substring(article.length() + 1);
             }
         }
@@ -476,26 +474,14 @@ public class JapaneseReadingUtils {
         return indexableName;
     }
 
-    public @NonNull String createIndexableName(@NonNull Artist artist) {
+    public @NonNull String createIndexableName(@NonNull Indexable indexable) {
         IndexScheme scheme = getIndexScheme();
         @NonNull
-        String name = artist.getName();
-        if (scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING || isEmpty(artist.getReading())
-                || name.equals(artist.getReading()) || !isJapaneseReadable(name)) {
+        String name = removeArticles(indexable.getName());
+        if (scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING || isEmpty(indexable.getReading())
+                || indexable.getName().equals(indexable.getReading()) || !isJapaneseReadable(name)) {
             return createIndexableName(name);
         }
-        return createIndexableName(artist.getReading());
-    }
-
-    public @NonNull String createIndexableName(@NonNull MediaFile artist) {
-        IndexScheme scheme = getIndexScheme();
-        @NonNull
-        String name = artist.getName();
-        if (scheme == IndexScheme.WITHOUT_JP_LANG_PROCESSING || artist.getMediaType() != MediaType.DIRECTORY
-                || isEmpty(artist.getArtistReading()) || name.equals(artist.getArtistReading())
-                || !isJapaneseReadable(name)) {
-            return createIndexableName(name);
-        }
-        return createIndexableName(artist.getArtistReading());
+        return createIndexableName(removeArticles(indexable.getReading()));
     }
 }

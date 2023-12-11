@@ -21,6 +21,8 @@ package com.tesshu.jpsonic.service.scanner;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -28,6 +30,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.tesshu.jpsonic.dao.AlbumDao;
@@ -49,7 +52,6 @@ import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.metadata.MusicParser;
 import com.tesshu.jpsonic.service.metadata.VideoParser;
 import com.tesshu.jpsonic.service.search.IndexManager;
-import net.sf.ehcache.Ehcache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -75,13 +77,14 @@ class ScannerProcedureServiceTest {
         staticsDao = mock(StaticsDao.class);
         WritableMediaFileService writableMediaFileService = new WritableMediaFileService(mediaFileDao, null,
                 mediaFileService, albumDao, null, mock(MusicParser.class), mock(VideoParser.class), settingsService,
-                mock(SecurityService.class), mock(JapaneseReadingUtils.class), mock(IndexManager.class));
+                mock(SecurityService.class), mock(JapaneseReadingUtils.class), mock(IndexManager.class),
+                mock(MusicIndexServiceImpl.class));
         scannerProcedureService = new ScannerProcedureService(settingsService, musicFolderServiceImpl,
                 mock(IndexManager.class), mediaFileService, writableMediaFileService, mock(PlaylistService.class),
                 mock(TemplateWrapper.class), mediaFileDao, mock(ArtistDao.class), albumDao, staticsDao,
-                mock(SortProcedureService.class), new ScannerStateServiceImpl(staticsDao), mock(Ehcache.class),
-                mock(MediaFileCache.class), mock(JapaneseReadingUtils.class), mock(JpsonicComparators.class),
-                mock(ThreadPoolTaskExecutor.class));
+                mock(SortProcedureService.class), new ScannerStateServiceImpl(staticsDao),
+                mock(MusicIndexServiceImpl.class), mock(MediaFileCache.class), mock(JapaneseReadingUtils.class),
+                mock(JpsonicComparators.class), mock(ThreadPoolTaskExecutor.class));
     }
 
     @Nested
@@ -91,7 +94,7 @@ class ScannerProcedureServiceTest {
         void testExistenceCheck() throws URISyntaxException {
             MusicFolder existingFolder = new MusicFolder(1,
                     Path.of(ScannerProcedureServiceTest.class.getResource("/MEDIAS/Music").toURI()).toString(),
-                    "Existing", true, now(), 1);
+                    "Existing", true, now(), 1, false);
             List<MusicFolder> folders = Arrays.asList(existingFolder);
             Mockito.when(musicFolderServiceImpl.getAllMusicFolders(false, true)).thenReturn(folders);
             Instant startDate = now();
@@ -99,7 +102,7 @@ class ScannerProcedureServiceTest {
             Mockito.verify(musicFolderServiceImpl, Mockito.never()).updateMusicFolder(startDate, existingFolder);
 
             MusicFolder notExistingFolder = new MusicFolder(2, existingFolder.getPathString() + "99", "Not existing",
-                    true, now(), 2);
+                    true, now(), 2, false);
             folders = Arrays.asList(existingFolder, notExistingFolder);
             Mockito.when(musicFolderServiceImpl.getAllMusicFolders(false, true)).thenReturn(folders);
             scannerProcedureService.checkMudicFolders(startDate);
@@ -109,7 +112,7 @@ class ScannerProcedureServiceTest {
 
             MusicFolder existingFile = new MusicFolder(3,
                     Path.of(ScannerProcedureServiceTest.class.getResource("/MEDIAS/piano.mp3").toURI()).toString(),
-                    "Existing file", true, now(), 3);
+                    "Existing file", true, now(), 3, false);
             folders = Arrays.asList(existingFolder, notExistingFolder, existingFile);
             Mockito.when(musicFolderServiceImpl.getAllMusicFolders(false, true)).thenReturn(folders);
             scannerProcedureService.checkMudicFolders(startDate);
@@ -122,7 +125,7 @@ class ScannerProcedureServiceTest {
         void testOrderCheck() throws URISyntaxException {
             MusicFolder orderedFolder = new MusicFolder(1,
                     Path.of(ScannerProcedureServiceTest.class.getResource("/MEDIAS/Music").toURI()).toString(),
-                    "Ordered", true, now(), 1);
+                    "Ordered", true, now(), 1, false);
             List<MusicFolder> folders = Arrays.asList(orderedFolder);
             Mockito.when(musicFolderServiceImpl.getAllMusicFolders(false, true)).thenReturn(folders);
             Instant startDate = now();
@@ -132,10 +135,10 @@ class ScannerProcedureServiceTest {
 
             MusicFolder notOrderedFolder1 = new MusicFolder(2,
                     Path.of(ScannerProcedureServiceTest.class.getResource("/MEDIAS/Music2").toURI()).toString(),
-                    "Music2", true, now(), -1);
+                    "Music2", true, now(), -1, false);
             MusicFolder notOrderedFolder2 = new MusicFolder(3,
                     Path.of(ScannerProcedureServiceTest.class.getResource("/MEDIAS/Music3").toURI()).toString(),
-                    "Music3", true, now(), -1);
+                    "Music3", true, now(), -1, false);
             folders = Arrays.asList(orderedFolder, notOrderedFolder1, notOrderedFolder2);
             Mockito.when(musicFolderServiceImpl.getAllMusicFolders(false, true)).thenReturn(folders);
             ArgumentCaptor<MusicFolder> folderCaptor = ArgumentCaptor.forClass(MusicFolder.class);
@@ -263,5 +266,82 @@ class ScannerProcedureServiceTest {
         scannerProcedureService.invokeUpdateOrder(result, comparators.songsDefault(), (song) -> wmfs.updateOrder(song));
         result = captor.getAllValues();
         assertEquals(0, result.size());
+    }
+
+    @Test
+    void testGetScanPhaseInfo() {
+        ScannerStateServiceImpl scannerStateService = mock(ScannerStateServiceImpl.class);
+        scannerProcedureService = new ScannerProcedureService(settingsService, musicFolderServiceImpl,
+                mock(IndexManager.class), mock(MediaFileService.class), mock(WritableMediaFileService.class),
+                mock(PlaylistService.class), mock(TemplateWrapper.class), mock(MediaFileDao.class),
+                mock(ArtistDao.class), mock(AlbumDao.class), mock(StaticsDao.class), mock(SortProcedureService.class),
+                scannerStateService, mock(MusicIndexServiceImpl.class), mock(MediaFileCache.class),
+                mock(JapaneseReadingUtils.class), mock(JpsonicComparators.class), mock(ThreadPoolTaskExecutor.class));
+
+        Mockito.when(scannerStateService.isScanning()).thenReturn(false);
+        Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.UNKNOWN);
+        assertFalse(scannerProcedureService.getScanPhaseInfo().isPresent());
+
+        Mockito.when(scannerStateService.isScanning()).thenReturn(true);
+        Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.MUSIC_FOLDER_CHECK);
+        Mockito.when(staticsDao.getScanEvents(Mockito.nullable(Instant.class))).thenReturn(Collections.emptyList());
+        assertTrue(scannerProcedureService.getScanPhaseInfo().isPresent());
+        scannerProcedureService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+            assertEquals(2, scanPhaseInfo.phase());
+            assertEquals(22, scanPhaseInfo.phaseMax());
+            assertEquals("PARSE_FILE_STRUCTURE", scanPhaseInfo.phaseName());
+            assertEquals(0, scanPhaseInfo.thread());
+        });
+
+        Mockito.when(scannerStateService.isScanning()).thenReturn(true);
+        Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.SCANNED_COUNT);
+        Mockito.when(staticsDao.getScanEvents(Mockito.nullable(Instant.class))).thenReturn(Collections.emptyList());
+        assertTrue(scannerProcedureService.getScanPhaseInfo().isPresent());
+        scannerProcedureService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+            assertEquals(2, scanPhaseInfo.phase());
+            assertEquals(22, scanPhaseInfo.phaseMax());
+            assertEquals("PARSE_FILE_STRUCTURE", scanPhaseInfo.phaseName());
+            assertEquals(0, scanPhaseInfo.thread());
+        });
+
+        Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.CHECKPOINT);
+        Mockito.when(staticsDao.getScanEvents(Mockito.nullable(Instant.class))).thenReturn(Collections.emptyList());
+        assertTrue(scannerProcedureService.getScanPhaseInfo().isPresent());
+        scannerProcedureService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+            assertEquals(21, scanPhaseInfo.phase());
+            assertEquals(22, scanPhaseInfo.phaseMax());
+            assertEquals("AFTER_SCAN", scanPhaseInfo.phaseName());
+            assertEquals(0, scanPhaseInfo.thread());
+        });
+
+        Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.AFTER_SCAN);
+        Mockito.when(staticsDao.getScanEvents(Mockito.nullable(Instant.class))).thenReturn(Collections.emptyList());
+        assertTrue(scannerProcedureService.getScanPhaseInfo().isPresent());
+        scannerProcedureService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+            assertEquals(21, scanPhaseInfo.phase());
+            assertEquals(22, scanPhaseInfo.phaseMax());
+            assertEquals("AFTER_SCAN", scanPhaseInfo.phaseName());
+            assertEquals(0, scanPhaseInfo.thread());
+        });
+
+        Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.AFTER_SCAN);
+        Mockito.when(staticsDao.getScanEvents(Mockito.nullable(Instant.class))).thenReturn(Collections.emptyList());
+        assertTrue(scannerProcedureService.getScanPhaseInfo().isPresent());
+        scannerProcedureService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+            assertEquals(21, scanPhaseInfo.phase());
+            assertEquals(22, scanPhaseInfo.phaseMax());
+            assertEquals("AFTER_SCAN", scanPhaseInfo.phaseName());
+            assertEquals(0, scanPhaseInfo.thread());
+        });
+
+        Mockito.when(scannerStateService.getLastEvent()).thenReturn(ScanEventType.CANCELED);
+        Mockito.when(staticsDao.getScanEvents(Mockito.nullable(Instant.class))).thenReturn(Collections.emptyList());
+        assertTrue(scannerProcedureService.getScanPhaseInfo().isPresent());
+        scannerProcedureService.getScanPhaseInfo().ifPresent(scanPhaseInfo -> {
+            assertEquals(-1, scanPhaseInfo.phase());
+            assertEquals(-1, scanPhaseInfo.phaseMax());
+            assertEquals("Semi Scan Proc", scanPhaseInfo.phaseName());
+            assertEquals(-1, scanPhaseInfo.thread());
+        });
     }
 }

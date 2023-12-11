@@ -140,6 +140,7 @@ public class ScanLogController {
         return scanEvents;
     }
 
+    @SuppressWarnings("deprecation")
     private void setStatus(@NonNull LocalDateTime lastStartDate, ScanLogVO scanLog) {
         final ScanEventType lastEventType = staticsDao
                 .getLastScanEventType(scanLog.getStartDate().atZone(ZoneOffset.systemDefault()).toInstant());
