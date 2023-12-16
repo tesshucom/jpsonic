@@ -44,7 +44,7 @@
         </c:forEach>
     </audio>
 
-    <div>Streaming by <a href="https://tesshu.com/" rel="noopener noreferrer" target="_blank">Jpsonic</a></div>
+    <div>Streaming by <a href="https://github.com/jpsonic/jpsonic" rel="noopener noreferrer" target="_blank">Jpsonic</a></div>
 </div>
 
 <script>
