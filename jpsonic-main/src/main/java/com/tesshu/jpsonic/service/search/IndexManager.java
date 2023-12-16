@@ -44,6 +44,8 @@ import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.ThreadSafe;
+import com.tesshu.jpsonic.dao.AlbumDao;
+import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.Genre;
@@ -114,12 +116,15 @@ public class IndexManager {
     private final JpsonicComparators comparators;
     private final SettingsService settingsService;
     private final ScannerStateServiceImpl scannerState;
+    private final ArtistDao artistDao;
+    private final AlbumDao albumDao;
 
     private final Map<IndexType, SearcherManager> searchers;
     private final Map<IndexType, IndexWriter> writers;
     private final Map<GenreSort, List<Genre>> multiGenreMaster;
 
-    private @NonNull Path getRootIndexDirectory() {
+    @NonNull
+    Path getRootIndexDirectory() {
         return Path.of(SettingsService.getJpsonicHome().toString(), INDEX_ROOT_DIR_NAME + INDEX_VERSION);
     }
 
@@ -129,7 +134,7 @@ public class IndexManager {
 
     public IndexManager(AnalyzerFactory analyzerFactory, DocumentFactory documentFactory, QueryFactory queryFactory,
             SearchServiceUtilities util, JpsonicComparators comparators, SettingsService settingsService,
-            ScannerStateServiceImpl scannerState) {
+            ScannerStateServiceImpl scannerState, ArtistDao artistDao, AlbumDao albumDao) {
         super();
         this.analyzerFactory = analyzerFactory;
         this.documentFactory = documentFactory;
@@ -138,6 +143,8 @@ public class IndexManager {
         this.comparators = comparators;
         this.settingsService = settingsService;
         this.scannerState = scannerState;
+        this.artistDao = artistDao;
+        this.albumDao = albumDao;
         searchers = new ConcurrentHashMap<>();
         writers = new ConcurrentHashMap<>();
         multiGenreMaster = new ConcurrentHashMap<>();
@@ -505,7 +512,12 @@ public class IndexManager {
             if (LOG.isInfoEnabled()) {
                 LOG.info("Index was found (index version {}). ", INDEX_VERSION);
             }
-        } else if (FileUtil.createDirectories(getRootIndexDirectory()) == null) {
+            return;
+        }
+
+        artistDao.deleteAll();
+        albumDao.deleteAll();
+        if (FileUtil.createDirectories(getRootIndexDirectory()) == null) {
             LOG.warn("Failed to create index directory :  (index version {}). ", INDEX_VERSION);
         }
     }
