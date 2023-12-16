@@ -47,7 +47,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
     - name: Set up java
@@ -59,7 +59,7 @@ jobs:
     - name: Compile with Maven
       run: mvn clean compile -Dmaven.test.skip=true -Dpmd.skip=true -Pjetty-embed -Prelease17
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@v3
   ##########################################################################
   verify-Java17:
     needs: pre_job
@@ -94,7 +94,7 @@ jobs:
         run: mvn -Punit-test -Psend-coverage -Ptomcat-embed -DfailIfNoTests=false -DtranscodePath="${{ steps.ffmpeg.outputs.path }}" clean test jacoco:report
       - name: Archive code coverage
         if: "(steps.create-coverage.conclusion == 'success' && contains(matrix.os, 'ubuntu-latest')) && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Code coverage report
           path: jpsonic-main/target/site/jacoco
@@ -152,7 +152,7 @@ jobs:
           distribution: 'temurin'
           java-version: 11
       - name: Download coverage
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: Code coverage report
       - name: Send Jacoco report
@@ -201,7 +201,7 @@ jobs:
         id: date
         run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
       - name: Archive artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jpsonic-jetty-embedded-for-jdk${{ matrix.java }}-${{ steps.date.outputs.current }}
           path: |
@@ -230,7 +230,7 @@ jobs:
         id: date
         run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
       - name: Download package
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: jpsonic-jetty-embedded-for-jdk21-${{ steps.date.outputs.current }}
       - name: Create Tag
@@ -292,7 +292,7 @@ jobs:
         id: date
         run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
       - name: Download package
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: jpsonic-jetty-embedded-for-jdk21-${{ steps.date.outputs.current }}
       - name: Create Tag
@@ -354,7 +354,7 @@ jobs:
         id: date
         run: echo "current=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
       - name: Download package
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: jpsonic-jetty-embedded-for-jdk17-${{ steps.date.outputs.current }}
       - name: Create Tag
