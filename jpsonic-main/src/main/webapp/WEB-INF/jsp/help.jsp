@@ -44,6 +44,8 @@
         <dd>Jpsonic ${versionString} &ndash; ${buildDateString}</dd>
         <dt><fmt:message key="help.buildnumber.title"/></dt>
         <dd>${model.buildNumber}</dd>
+        <dt><fmt:message key="help.homepage.title"/></dt>
+        <dd><a target="_blank" href="https://github.com/jpsonic/jpsonic/releases" rel="noopener nofererrer">jpsonic/jpsonic/releases</a></dd>
         <dt><fmt:message key="help.license.title"/></dt>
         <dd style="display: flex;align-items: center;">
             <div style="text-align: left;padding-right:10px;">
@@ -51,8 +53,6 @@
             </div>
             <a href="http://www.gnu.org/copyleft/gpl.html" target="_blank"><img alt="GPL 3.0" src="<c:url value='/icons/gpl.png'/>"></a>
         </dd>
-        <dt><fmt:message key="help.homepage.title"/></dt>
-        <dd><a target="_blank" href="https://tesshu.com/" rel="noopener nofererrer">Jpsonic website</a></dd>
     </dl>
 </details>
 

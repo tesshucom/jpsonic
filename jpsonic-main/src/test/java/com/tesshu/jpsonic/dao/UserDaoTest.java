@@ -213,7 +213,7 @@ class UserDaoTest {
         Assertions.assertNotNull(userSettings, "Error in getUserSettings().");
         assertNull(userSettings.getLocale(), "Error in getUserSettings().");
         assertNull(userSettings.getThemeId(), "Error in getUserSettings().");
-        assertTrue(userSettings.isFinalVersionNotificationEnabled(), "Error in getUserSettings().");
+        assertFalse(userSettings.isFinalVersionNotificationEnabled(), "Error in getUserSettings().");
         assertFalse(userSettings.isBetaVersionNotificationEnabled(), "Error in getUserSettings().");
         assertFalse(userSettings.isSongNotificationEnabled(), "Error in getUserSettings().");
         assertFalse(userSettings.isCloseDrawer(), "Error in getUserSettings().");
@@ -266,7 +266,7 @@ class UserDaoTest {
         userSettings = userDao.getUserSettings("sindre");
         Assertions.assertNotNull(userSettings, "Error in getUserSettings().");
         assertEquals(Locale.SIMPLIFIED_CHINESE, userSettings.getLocale(), "Error in getUserSettings().");
-        assertTrue(userSettings.isFinalVersionNotificationEnabled(), "Error in getUserSettings().");
+        assertFalse(userSettings.isFinalVersionNotificationEnabled(), "Error in getUserSettings().");
         assertTrue(userSettings.isBetaVersionNotificationEnabled(), "Error in getUserSettings().");
         assertFalse(userSettings.isSongNotificationEnabled(), "Error in getUserSettings().");
         assertTrue(userSettings.isCloseDrawer(), "Error in getUserSettings().");

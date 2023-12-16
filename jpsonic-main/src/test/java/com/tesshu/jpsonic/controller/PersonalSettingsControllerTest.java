@@ -109,7 +109,7 @@ class PersonalSettingsControllerTest {
         assertTrue(command.isClosePlayQueue());
         assertNull(command.getCustomAvatar());
         assertNotNull(command.getDefaultSettings());
-        assertTrue(command.isFinalVersionNotificationEnabled());
+        assertFalse(command.isFinalVersionNotificationEnabled());
         assertFalse(command.isForceBio2Eng());
         assertNotNull(command.getFontFamily());
         assertNotNull(command.getFontFamilyDefault());
