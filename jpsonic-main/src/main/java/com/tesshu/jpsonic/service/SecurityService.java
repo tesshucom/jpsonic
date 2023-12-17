@@ -112,7 +112,6 @@ public class SecurityService implements UserDetailsService {
 
         UserSettings settings = new UserSettings(username);
         settings.setChanged(now());
-        settings.setFinalVersionNotificationEnabled(true);
 
         // settings for desktop PC
         settings.setKeyboardShortcutsEnabled(true);
