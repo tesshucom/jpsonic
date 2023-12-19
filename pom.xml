@@ -140,7 +140,7 @@
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
-                <version>5.8.8</version><!--$NO-MVN-MAN-VER$-->
+                <version>5.8.9</version><!--$NO-MVN-MAN-VER$-->
             </dependency>
 
             <!-- Spring Boot is slow to fix CVE, so some libraries will be overridden. -->
