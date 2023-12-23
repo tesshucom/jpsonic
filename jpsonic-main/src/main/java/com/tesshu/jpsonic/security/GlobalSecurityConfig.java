@@ -28,7 +28,6 @@ import java.security.SecureRandom;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
 
 import javax.servlet.SessionTrackingMode;
 
@@ -47,24 +46,25 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.authentication.configuration.GlobalAuthenticationConfigurerAdapter;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+// Usually not desirable. But that's spring justice
+@SuppressWarnings({"PMD.AvoidReassigningParameters", "PMD.SignatureDeclareThrowsException"})
 @Configuration
-@SuppressWarnings("PMD.AvoidReassigningParameters")
-/*
- * Spring manners. Usually not desirable. Code that issues this warning in the future needs scrutiny.
- */
 @Order(SecurityProperties.BASIC_AUTH_ORDER - 2)
 @EnableMethodSecurity(securedEnabled = true)
 public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter {
@@ -85,26 +85,16 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
         this.customUserDetailsContextMapper = customUserDetailsContextMapper;
     }
 
-    @SuppressWarnings("PMD.AvoidCatchingGenericException")
-    // springframework/AuthenticationManagerBuilder#ldapAuthentication
-    // springframework/AuthenticationManagerBuilder#userDetailsService
     @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws ExecutionException {
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         if (settingsService.isLdapEnabled()) {
-            try {
-                auth.ldapAuthentication().contextSource().managerDn(settingsService.getLdapManagerDn())
-                        .managerPassword(settingsService.getLdapManagerPassword()).url(settingsService.getLdapUrl())
-                        .and().userSearchFilter(settingsService.getLdapSearchFilter())
-                        .userDetailsContextMapper(customUserDetailsContextMapper);
-            } catch (Exception e) {
-                throw new ExecutionException("Ldap authentication failed.", e);
-            }
+            auth.ldapAuthentication().contextSource().managerDn(settingsService.getLdapManagerDn())
+                    .managerPassword(settingsService.getLdapManagerPassword())
+                    .url(settingsService.getLdapUrl()).and()
+                    .userSearchFilter(settingsService.getLdapSearchFilter())
+                    .userDetailsContextMapper(customUserDetailsContextMapper);
         }
-        try {
-            auth.userDetailsService(securityService);
-        } catch (Exception e) {
-            throw new ExecutionException("Ldap additional authentication failed.", e);
-        }
+        auth.userDetailsService(securityService);
         String jwtKey = settingsService.getJWTKey();
         if (StringUtils.isBlank(jwtKey)) {
             if (LOG.isWarnEnabled()) {
@@ -147,39 +137,37 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
         return context -> context.setSessionTrackingModes(EnumSet.of(SessionTrackingMode.COOKIE));
     }
 
-    @Configuration
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @EnableWebSecurity
     @Order(1)
-    public static class ExtSecurityConfiguration extends WebSecurityConfigurerAdapter {
+    public class ExtSecurityConfig {
 
         private final CsrfSecurityRequestMatcher csrfSecurityRequestMatcher;
 
-        public ExtSecurityConfiguration(CsrfSecurityRequestMatcher csrfSecurityRequestMatcher) {
-            super(true);
+        public ExtSecurityConfig(CsrfSecurityRequestMatcher csrfSecurityRequestMatcher) {
             this.csrfSecurityRequestMatcher = csrfSecurityRequestMatcher;
         }
 
-        @SuppressWarnings("PMD.AvoidCatchingGenericException") // springframework/WebSecurityConfigurerAdapter#authenticationManager
-        @Bean(name = "jwtAuthenticationFilter")
-        public JWTRequestParameterProcessingFilter jwtAuthFilter() throws ExecutionException {
-            try {
-                return new JWTRequestParameterProcessingFilter(authenticationManager(), FAILURE_URL);
-            } catch (Exception e) {
-                throw new ExecutionException("AuthenticationManager initialization failed.", e);
-            }
-        }
-
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
+        @Bean
+        public SecurityFilterChain extSecurityFilterChain(HttpSecurity http) throws Exception {
             http
-                .addFilter(new WebAsyncManagerIntegrationFilter())
-                .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
-                .securityMatchers((matchers) -> matchers
-                        .requestMatchers(
-                                antMatcher("/ext/**")))
+                    .addFilter(new WebAsyncManagerIntegrationFilter())
+                    .addFilterBefore(new JWTRequestParameterProcessingFilter(
+                            authenticationManager(
+                                    http.getSharedObject(AuthenticationConfiguration.class)),
+                            FAILURE_URL), UsernamePasswordAuthenticationFilter.class)
+                    .securityMatchers((matchers) -> matchers.requestMatchers(antMatcher("/ext/**")))
                     .csrf()
                     .requireCsrfProtectionMatcher(csrfSecurityRequestMatcher)
-                .and().headers()
-                    .frameOptions().sameOrigin()
+                    .and()
+                    .headers()
+                    .frameOptions()
+                    .sameOrigin()
                 // .and().authorizeHttpRequests((authz) -> authz
                 //     .requestMatchers(
                 //         antMatcher("/ext/stream/**"),
@@ -199,14 +187,15 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
                 .and().requestCache()
                 .and().anonymous()
                 .and().servletApi();
+            return http.build();
         }
     }
 
-    @Configuration
+    @EnableWebSecurity
     @Order(2)
-    public static class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
+    public class SecurityConfig  {
 
-        private static final Logger LOG = LoggerFactory.getLogger(WebSecurityConfiguration.class);
+        private static final Logger LOG = LoggerFactory.getLogger(SecurityConfig.class);
 
         private final CsrfSecurityRequestMatcher csrfSecurityRequestMatcher;
         private final ApplicationEventPublisher eventPublisher;
@@ -214,10 +203,9 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
         private final SecurityService securityService;
         private final SettingsService settingsService;
 
-        public WebSecurityConfiguration(CsrfSecurityRequestMatcher csrfSecurityRequestMatcher,
+        public SecurityConfig(CsrfSecurityRequestMatcher csrfSecurityRequestMatcher,
                 ApplicationEventPublisher eventPublisher, SecurityService securityService,
                 SettingsService settingsService) {
-            super();
             this.csrfSecurityRequestMatcher = csrfSecurityRequestMatcher;
             this.eventPublisher = eventPublisher;
             this.securityService = securityService;
@@ -230,11 +218,11 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
             return new String(array, StandardCharsets.UTF_8);
         }
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
             RESTRequestParameterProcessingFilter restAuthenticationFilter = new RESTRequestParameterProcessingFilter();
-            restAuthenticationFilter.setAuthenticationManager(authenticationManagerBean());
+            restAuthenticationFilter.setAuthenticationManager(authenticationManager(http.getSharedObject(AuthenticationConfiguration.class)));
             restAuthenticationFilter.setSecurityService(securityService);
             restAuthenticationFilter.setEventPublisher(eventPublisher);
             http = http.addFilterBefore(restAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -344,6 +332,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
                     .logoutSuccessUrl("/login?logout")
                 .and().rememberMe()
                     .key(rememberMeKey);
+            return http.build();
         }
     }
 }
