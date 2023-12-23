@@ -24,8 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.concurrent.ExecutionException;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.tesshu.jpsonic.command.PersonalSettingsCommand;
 import com.tesshu.jpsonic.dao.UserDao;
 import com.tesshu.jpsonic.domain.FontScheme;
@@ -33,11 +31,12 @@ import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
-import org.apache.catalina.connector.Request;
+import jakarta.servlet.http.HttpServletRequest;
 import org.checkerframework.checker.signedness.qual.Unsigned;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 class WebFontUtilsTest {
@@ -61,7 +60,7 @@ class WebFontUtilsTest {
         UserSettings settings = securityService.getUserSettings("");
 
         // DEFAULT
-        HttpServletRequest request = new Request(null);
+        HttpServletRequest request = new MockHttpServletRequest();
         WebFontUtils.setToRequest(settings, request);
         assertEquals(request.getAttribute(FONT_FACE_KEY), "");
         assertEquals(request.getAttribute(FONT_SIZE_KEY), WebFontUtils.DEFAULT_FONT_SIZE);
@@ -86,14 +85,14 @@ class WebFontUtilsTest {
                 WebFontUtils.JP_FONT_NAME + ", " + WebFontUtils.DEFAULT_FONT_FAMILY);
 
         // no settings(logon)
-        request = new Request(null);
+        request = new MockHttpServletRequest();
         WebFontUtils.setToRequest(null, request);
         assertEquals(request.getAttribute(FONT_FACE_KEY), "");
         assertEquals(request.getAttribute(FONT_SIZE_KEY), WebFontUtils.DEFAULT_FONT_SIZE);
         assertEquals(request.getAttribute(FONT_FAMILY_KEY), WebFontUtils.DEFAULT_FONT_FAMILY);
 
         // CUSTOM
-        request = new Request(null);
+        request = new MockHttpServletRequest();
         command = new PersonalSettingsCommand();
         WebFontUtils.setToCommand(securityService.getUserSettings(""), command);
 

@@ -21,12 +21,11 @@
 
 package com.tesshu.jpsonic.controller;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.tesshu.jpsonic.command.PasswordSettingsCommand;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.validator.PasswordSettingsValidator;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;

@@ -44,6 +44,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
@@ -82,6 +83,7 @@ public class DatabaseConfiguration {
         return new DataSourceTransactionManager(dataSource);
     }
 
+    @Primary
     @Bean
     @DependsOn("liquibase")
     public DaoHelper legacyDaoHelper(DataSource dataSource) {

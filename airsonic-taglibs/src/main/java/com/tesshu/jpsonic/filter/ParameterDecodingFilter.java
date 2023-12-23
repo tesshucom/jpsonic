@@ -27,18 +27,17 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-
-import com.tesshu.jpsonic.util.LegacyMap;
-import com.tesshu.jpsonic.util.StringUtil;
+import com.tesshu.jpsonic.util.StringUtilBase;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import org.apache.commons.codec.DecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +95,7 @@ public class ParameterDecodingFilter implements Filter {
         @Override
         public Map<String, String[]> getParameterMap() {
             Map<String, String[]> map = super.getParameterMap();
-            Map<String, String[]> result = LegacyMap.of();
+            Map<String, String[]> result = new ConcurrentHashMap<>();
 
             for (Map.Entry<String, String[]> entry : map.entrySet()) {
                 String name = entry.getKey();
@@ -148,7 +147,7 @@ public class ParameterDecodingFilter implements Filter {
             String[] result = new String[values.length];
             for (int i = 0; i < values.length; i++) {
                 try {
-                    result[i] = StringUtil.utf8HexDecode(values[i]);
+                    result[i] = StringUtilBase.utf8HexDecode(values[i]);
                 } catch (DecoderException e) {
                     if (LOG.isErrorEnabled()) {
                         LOG.error("Failed to decode parameter value '" + values[i] + "'", e);

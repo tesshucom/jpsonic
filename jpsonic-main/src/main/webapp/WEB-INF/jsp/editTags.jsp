@@ -160,7 +160,7 @@ function updateTagsCallback(result) {
     <tbody>
         <c:forEach items="${model.songs}" var="song" varStatus="loopStatus">
             <tr>
-                <str:truncateNicely lower="25" upper="25" var="fileName">${song.fileName}</str:truncateNicely>
+                <sub:truncateNicely lower="25" upper="25" var="fileName">${song.fileName}</sub:truncateNicely>
                 <td title="${fn:escapeXml(song.fileName)}">${fn:escapeXml(fileName)}</td>
                
                 <input type="hidden" name="id${loopStatus.count - 1}" value="${song.id}"/>

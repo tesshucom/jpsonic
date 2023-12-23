@@ -4,8 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.concurrent.ExecutionException;
 
-import javax.servlet.jsp.JspException;
-
+import jakarta.servlet.jsp.JspException;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockPageContext;
 

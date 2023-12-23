@@ -28,19 +28,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.annotation.PreDestroy;
-
 import com.tesshu.jpsonic.ThreadSafe;
 import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.ScannerStateService;
+import jakarta.annotation.PreDestroy;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 /**
  * A class that holds the scan progress. It is generally said that services should not have state. Now they are
  * aggregated in this class.
  */
+@Primary
 @Service("scannerStateService")
 public class ScannerStateServiceImpl implements ScannerStateService {
 

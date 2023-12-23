@@ -29,13 +29,13 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Random;
 
-import javax.servlet.SessionTrackingMode;
-
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.SessionTrackingMode;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +47,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.authentication.configuration.GlobalAuthenticationConfigurerAdapter;
@@ -156,32 +157,29 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
         @Bean
         public SecurityFilterChain extSecurityFilterChain(HttpSecurity http) throws Exception {
             http
-                .addFilter(new WebAsyncManagerIntegrationFilter())
-                .addFilterBefore(new JWTRequestParameterProcessingFilter(
-                        authenticationManager(
-                                http.getSharedObject(AuthenticationConfiguration.class)), FAILURE_URL),
-                                UsernamePasswordAuthenticationFilter.class)
-                .securityMatchers((matchers) -> matchers.requestMatchers(antMatcher("/ext/**")))
-                .csrf()
-                .requireCsrfProtectionMatcher(csrfSecurityRequestMatcher)
-                .and().headers()
-                .frameOptions()
-                .sameOrigin()
-                .and().authorizeHttpRequests((authz) -> authz.requestMatchers(
-                        antMatcher("/ext/stream/**"),
-                        antMatcher("/ext/coverArt*"),
-                        antMatcher("/ext/share/**"),
-                        antMatcher("/ext/hls/**"))
-                            .hasAnyRole("TEMP", "USER")
-                            .anyRequest()
-                            .authenticated())
-                .sessionManagement((sessions) -> sessions
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling()
-                .and().securityContext()
-                .and().requestCache()
-                .and().anonymous()
-                .and().servletApi();
+                    .addFilter(new WebAsyncManagerIntegrationFilter())
+                    .addFilterBefore(new JWTRequestParameterProcessingFilter(
+                            authenticationManager(
+                                    http.getSharedObject(AuthenticationConfiguration.class)),
+                            FAILURE_URL), UsernamePasswordAuthenticationFilter.class)
+                    .securityMatchers((matchers) -> matchers.requestMatchers(antMatcher("/ext/**")))
+                    .csrf(config -> config.requireCsrfProtectionMatcher(csrfSecurityRequestMatcher))
+                    .headers(headers -> headers.frameOptions(options -> options.sameOrigin()))
+                    .authorizeHttpRequests((authz) -> authz.requestMatchers(
+                            antMatcher("/ext/stream/**"),
+                            antMatcher("/ext/coverArt*"),
+                            antMatcher("/ext/share/**"),
+                            antMatcher("/ext/hls/**"))
+                                .hasAnyRole("TEMP", "USER")
+                                .anyRequest()
+                                .authenticated())
+                    .sessionManagement((sessions) -> sessions
+                            .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                    .exceptionHandling(Customizer.withDefaults())
+                    .securityContext(Customizer.withDefaults())
+                    .requestCache(Customizer.withDefaults())
+                    .anonymous(Customizer.withDefaults())
+                    .servletApi(Customizer.withDefaults());
             return http.build();
         }
     }
@@ -212,15 +210,8 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
             random.nextBytes(array);
             return new String(array, StandardCharsets.UTF_8);
         }
-
-        @Bean
-        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-            RESTRequestParameterProcessingFilter restAuthenticationFilter = new RESTRequestParameterProcessingFilter();
-            restAuthenticationFilter.setAuthenticationManager(authenticationManager(http.getSharedObject(AuthenticationConfiguration.class)));
-            restAuthenticationFilter.setSecurityService(securityService);
-            restAuthenticationFilter.setEventPublisher(eventPublisher);
-            http = http.addFilterBefore(restAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        
+        private String getRememberMeKey() {
 
             // Try to load the 'remember me' key.
             //
@@ -253,80 +244,90 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
                     LOG.info("Using a fixed 'remember me' key from system properties, this is insecure.");
                 }
             }
+            return rememberMeKey;
+        }
+
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+            RESTRequestParameterProcessingFilter restAuthenticationFilter = new RESTRequestParameterProcessingFilter();
+            restAuthenticationFilter.setAuthenticationManager(authenticationManager(http.getSharedObject(AuthenticationConfiguration.class)));
+            restAuthenticationFilter.setSecurityService(securityService);
+            restAuthenticationFilter.setEventPublisher(eventPublisher);
+            http.addFilterBefore(restAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
             http
-                .csrf()
-                    .requireCsrfProtectionMatcher(csrfSecurityRequestMatcher)
-                .and().headers()
-                    .frameOptions().sameOrigin()
-                .and().authorizeHttpRequests()
-                    .requestMatchers(
-                            antMatcher("/recover*"),
-                            antMatcher("/accessDenied*"),
-                            antMatcher("/style/**"),
-                            antMatcher("/icons/**"),
-                            antMatcher("/flash/**"),
-                            antMatcher("/script/**"),
-                            antMatcher("/login"),
-                            antMatcher("/error"))
-                        .permitAll()
-                    .requestMatchers(
-                            antMatcher("/personalSettings*"),
-                            antMatcher("/passwordSettings*"),
-                            antMatcher("/playerSettings*"),
-                            antMatcher("/shareSettings*"),
-                            antMatcher("/passwordSettings*"))
-                        .hasRole("SETTINGS")
-                    .requestMatchers(
-                            antMatcher("/generalSettings*"),
-                            antMatcher("/advancedSettings*"),
-                            antMatcher("/userSettings*"),
-                            antMatcher("/internalhelp*"),
-                            antMatcher("/musicFolderSettings*"),
-                            antMatcher("/databaseSettings*"),
-                            antMatcher("/transcodeSettings*"),
-                            antMatcher("/rest/startScan*"))
-                        .hasRole("ADMIN")
-                    .requestMatchers(
-                            antMatcher("/deletePlaylist*"),
-                            antMatcher("/savePlaylist*"))
-                        .hasRole("PLAYLIST")
-                    .requestMatchers(
-                            antMatcher("/download*"))
-                        .hasRole("DOWNLOAD")
-                    .requestMatchers(
-                            antMatcher("/upload*"))
-                        .hasRole("UPLOAD")
-                    .requestMatchers(
-                            antMatcher("/createShare*"))
-                        .hasRole("SHARE")
-                    .requestMatchers(
-                            antMatcher("/changeCoverArt*"),
-                            antMatcher("/editTags*"))
-                        .hasRole("COVERART")
-                    .requestMatchers(
-                            antMatcher("/setMusicFileInfo*"))
-                        .hasRole("COMMENT")
-                    .requestMatchers(
-                            antMatcher("/podcastReceiverAdmin*"))
-                        .hasRole("PODCAST")
-                    .requestMatchers(
-                            antMatcher("/**"))
-                        .hasRole("USER")
-                    .anyRequest()
-                        .authenticated()
-                .and().formLogin()
-                    .loginPage("/login").permitAll()
-                    .defaultSuccessUrl("/index", true)
-                    .failureUrl(FAILURE_URL)
-                    .usernameParameter(Attributes.Request.J_USERNAME.value())
-                    .passwordParameter(Attributes.Request.J_PASSWORD.value())
-                .and().logout()
-                    // see http://docs.spring.io/spring-security/site/docs/3.2.4.RELEASE/reference/htmlsingle/#csrf-logout
-                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
-                    .logoutSuccessUrl("/login?logout")
-                .and().rememberMe()
-                    .key(rememberMeKey);
+                    .csrf(config -> config.requireCsrfProtectionMatcher(csrfSecurityRequestMatcher))
+                    .headers(config -> config.frameOptions(opts -> opts.sameOrigin()))
+                    .authorizeHttpRequests(config -> config
+                        .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR)
+                            .permitAll()
+                        .requestMatchers(
+                                antMatcher("/recover*"),
+                                antMatcher("/accessDenied*"),
+                                antMatcher("/style/**"),
+                                antMatcher("/icons/**"),
+                                antMatcher("/flash/**"),
+                                antMatcher("/script/**"),
+                                antMatcher("/login"),
+                                antMatcher("/login.view"),
+                                antMatcher("/error"))
+                            .permitAll()
+                        .requestMatchers(
+                                antMatcher("/personalSettings*"),
+                                antMatcher("/passwordSettings*"),
+                                antMatcher("/playerSettings*"),
+                                antMatcher("/shareSettings*"),
+                                antMatcher("/passwordSettings*"))
+                            .hasRole("SETTINGS")
+                        .requestMatchers(
+                                antMatcher("/generalSettings*"),
+                                antMatcher("/advancedSettings*"),
+                                antMatcher("/userSettings*"),
+                                antMatcher("/internalhelp*"),
+                                antMatcher("/musicFolderSettings*"),
+                                antMatcher("/databaseSettings*"),
+                                antMatcher("/transcodeSettings*"),
+                                antMatcher("/rest/startScan*"))
+                            .hasRole("ADMIN")
+                        .requestMatchers(
+                                antMatcher("/deletePlaylist*"),
+                                antMatcher("/savePlaylist*"))
+                            .hasRole("PLAYLIST")
+                        .requestMatchers(
+                                antMatcher("/download*"))
+                            .hasRole("DOWNLOAD")
+                        .requestMatchers(
+                                antMatcher("/upload*"))
+                            .hasRole("UPLOAD")
+                        .requestMatchers(
+                                antMatcher("/createShare*"))
+                            .hasRole("SHARE")
+                        .requestMatchers(
+                                antMatcher("/changeCoverArt*"),
+                                antMatcher("/editTags*"))
+                            .hasRole("COVERART")
+                        .requestMatchers(
+                                antMatcher("/setMusicFileInfo*"))
+                            .hasRole("COMMENT")
+                        .requestMatchers(
+                                antMatcher("/podcastReceiverAdmin*"))
+                            .hasRole("PODCAST")
+                        .requestMatchers(
+                                antMatcher("/**"))
+                            .hasRole("USER")
+                        .anyRequest()
+                            .authenticated())
+                    .formLogin(config -> config
+                        .loginPage("/login").permitAll()
+                        .defaultSuccessUrl("/index", true)
+                        .failureUrl(FAILURE_URL)
+                        .usernameParameter(Attributes.Request.J_USERNAME.value())
+                        .passwordParameter(Attributes.Request.J_PASSWORD.value()))
+                    .logout(config -> config
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
+                        .logoutSuccessUrl("/login?logout"))
+                    .rememberMe(config -> config.key(getRememberMeKey()));
             return http.build();
         }
     }

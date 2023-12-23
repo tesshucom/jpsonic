@@ -24,12 +24,11 @@ package com.tesshu.jpsonic.taglib;
 import java.io.IOException;
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspTagException;
-import javax.servlet.jsp.tagext.BodyTagSupport;
-
-import com.tesshu.jpsonic.util.StringUtil;
+import com.tesshu.jpsonic.util.StringUtilBase;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspTagException;
+import jakarta.servlet.jsp.tagext.BodyTagSupport;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 /**
@@ -58,7 +57,7 @@ public class FormatBytesTag extends BodyTagSupport {
     @Override
     public int doEndTag() throws JspException {
         Locale locale = RequestContextUtils.getLocale((HttpServletRequest) pageContext.getRequest());
-        String result = StringUtil.formatBytes(bytes, locale);
+        String result = StringUtilBase.formatBytes(bytes, locale);
 
         try {
             pageContext.getOut().print(result);

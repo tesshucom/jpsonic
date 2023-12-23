@@ -60,7 +60,7 @@ import org.mockito.Mockito;
  *
  * @author Sindre Mehus
  */
-@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports" })
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TooManyStaticImports", "PMD.InstantiationToGetClass" })
 class MusicIndexServiceImplTest {
 
     private SettingsService settingsService;
@@ -102,7 +102,8 @@ class MusicIndexServiceImplTest {
         song.setTitle("It's file directly under the music folder");
         song.setPathString("path3");
         List<MediaFile> songs = Arrays.asList(song);
-        Mockito.when(mediaFileService.getDirectChildFiles(anyList(), anyLong(), anyLong(), any(MediaType.class)))
+        Mockito.when(
+                mediaFileService.getDirectChildFiles(anyList(), anyLong(), anyLong(), any(new MediaType[0].getClass())))
                 .thenReturn(songs);
 
         MusicFolder folder = new MusicFolder(0, "path", "name", true, now(), 0, false);

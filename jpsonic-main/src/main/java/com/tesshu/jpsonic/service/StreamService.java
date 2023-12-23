@@ -30,9 +30,6 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -46,11 +43,14 @@ import com.tesshu.jpsonic.io.PlayQueueInputStream;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.util.PlayerUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -80,7 +80,7 @@ public class StreamService {
             SettingsService settingsService, TranscodingService transcodingService,
             AudioScrobblerService audioScrobblerService, MediaFileService mediaFileService,
             WritableMediaFileService writableMediaFileService, SearchService searchService,
-            ThreadPoolTaskExecutor shortExecutor) {
+            @Qualifier("shortExecutor") ThreadPoolTaskExecutor shortExecutor) {
         super();
         this.statusService = statusService;
         this.playlistService = playlistService;

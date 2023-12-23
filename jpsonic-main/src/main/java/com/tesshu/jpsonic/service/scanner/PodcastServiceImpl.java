@@ -43,9 +43,6 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import com.tesshu.jpsonic.dao.PodcastDao;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PodcastChannel;
@@ -61,19 +58,22 @@ import com.tesshu.jpsonic.service.metadata.MetaDataParserFactory;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.StringUtil;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.UncheckedException;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.entity.ContentType;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.util.Timeout;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jdom2.Document;
@@ -82,6 +82,7 @@ import org.jdom2.JDOMException;
 import org.jdom2.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
@@ -129,9 +130,10 @@ public class PodcastServiceImpl implements PodcastService {
 
     public PodcastServiceImpl(PodcastDao podcastDao, SettingsService settingsService, SecurityService securityService,
             MediaFileService mediaFileService, WritableMediaFileService writableMediaFileService,
-            MetaDataParserFactory metaDataParserFactory, ThreadPoolTaskExecutor podcastDownloadExecutor,
-            ThreadPoolTaskExecutor podcastRefreshExecutor, ScannerStateServiceImpl scannerState,
-            IndexManager indexManager) {
+            MetaDataParserFactory metaDataParserFactory,
+            @Qualifier("podcastDownloadExecutor") ThreadPoolTaskExecutor podcastDownloadExecutor,
+            @Qualifier("podcastRefreshExecutor") ThreadPoolTaskExecutor podcastRefreshExecutor,
+            ScannerStateServiceImpl scannerState, IndexManager indexManager) {
         this.podcastDao = podcastDao;
         this.settingsService = settingsService;
         this.securityService = securityService;
@@ -347,10 +349,8 @@ public class PodcastServiceImpl implements PodcastService {
             channel.setStatus(PodcastStatus.DOWNLOADING);
             channel.setErrorMessage(null);
             podcastDao.updateChannel(channel);
-            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(2 * 60 * 1000) // 2
-                                                                                                  // minutes
-                    .setSocketTimeout(10 * 60 * 1000) // 10 minutes
-                    .build();
+            RequestConfig requestConfig = RequestConfig.custom().setConnectionRequestTimeout(Timeout.ofMinutes(2))
+                    .setResponseTimeout(Timeout.ofMinutes(10)).build();
             HttpGet method = new HttpGet(URI.create(channel.getUrl()));
             method.setConfig(requestConfig);
 
@@ -434,8 +434,15 @@ public class PodcastServiceImpl implements PodcastService {
     }
 
     private String getCoverArtSuffix(HttpResponse response) {
+        Header contentTypeHeader = null;
+        try {
+            contentTypeHeader = response.getHeader("Content-Type");
+        } catch (ProtocolException e) {
+            if (LOG.isInfoEnabled()) {
+                LOG.warn("Failed to get contentTypeHeader", e);
+            }
+        }
         String result = null;
-        Header contentTypeHeader = response.getEntity().getContentType();
         if (contentTypeHeader != null && contentTypeHeader.getValue() != null) {
             ContentType contentType = ContentType.parse(contentTypeHeader.getValue());
             String mimeType = contentType.getMimeType();
@@ -609,15 +616,14 @@ public class PodcastServiceImpl implements PodcastService {
     }
 
     private HttpGet createHttpGet(String url) {
-        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(2 * 60 * 1000) // 2
-                                                                                              // minutes
-                .setSocketTimeout(10 * 60 * 1000) // 10 minutes
+        RequestConfig requestConfig = RequestConfig.custom().setConnectionRequestTimeout(Timeout.ofMinutes(2))
+                .setResponseTimeout(Timeout.ofMinutes(10))
                 // Workaround HttpClient circular redirects, which some feeds use (with query
                 // parameters)
                 .setCircularRedirectsAllowed(true)
                 // Workaround HttpClient not understanding latest RFC-compliant cookie 'expires'
                 // attributes
-                .setCookieSpec(CookieSpecs.STANDARD).build();
+                .build();
         HttpGet method = new HttpGet(URI.create(url));
         method.setConfig(requestConfig);
         return method;

@@ -35,12 +35,14 @@ import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SettingsService;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 /**
  * The class containing MusicFolder-related methods extracted from the legacy server's SettingsService.
  */
 @Service("musicFolderService")
+@DependsOn("scannerStateService")
 public class MusicFolderServiceImpl implements MusicFolderService {
 
     private final ConcurrentMap<String, List<MusicFolder>> cachedUserFolders;

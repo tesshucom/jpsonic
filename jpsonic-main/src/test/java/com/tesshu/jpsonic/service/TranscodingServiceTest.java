@@ -20,6 +20,7 @@
 package com.tesshu.jpsonic.service;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -74,7 +75,7 @@ import org.mockito.Mockito;
  * This test class is a white-box. The goal is to refactor logic or add new logic while ensuring
  * that the logic remains as it is.
  */
-@SuppressWarnings({ "PMD.JUnitTestsShouldIncludeAssert", "PMD.DoNotUseThreads" })
+@SuppressWarnings({ "PMD.JUnitTestsShouldIncludeAssert", "PMD.DoNotUseThreads", "PMD.TooManyStaticImports" })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class TranscodingServiceTest {
 
@@ -136,7 +137,6 @@ class TranscodingServiceTest {
     /*
      * Creating a regular player associates active transcoding.
      */
-    @SuppressWarnings("unlikely-arg-type")
     @Test
     @Order(0)
     void testGetTranscodingsForPlayer() {
@@ -156,11 +156,11 @@ class TranscodingServiceTest {
         playerService.createPlayer(player);
         assertEquals(MOCK_PLAYER_ID, idCaptor.getValue());
 
-        List<int[]> registered = transcodingCaptor.getAllValues();
-        assertEquals(defaulTranscodings.stream().map(t -> t.getId()).collect(Collectors.toList()), registered);
+        int[] registered = transcodingCaptor.getValue();
+        assertArrayEquals(defaulTranscodings.stream().map(t -> t.getId()).mapToInt(i -> i).toArray(), registered);
 
-        assertTrue(defaulTranscodings.stream().allMatch(t -> registered.contains(t.getId())));
-        assertEquals(registered.size(), defaulTranscodings.size());
+        assertTrue(defaulTranscodings.stream().allMatch(t -> Arrays.binarySearch(registered, t.getId()) != -1));
+        assertEquals(registered.length, defaulTranscodings.size());
 
         Mockito.when(transcodingDao.getTranscodingsForPlayer(player.getId())).thenReturn(defaulTranscodings);
         assertEquals(defaulTranscodings, transcodingService.getTranscodingsForPlayer(player));
@@ -200,7 +200,7 @@ class TranscodingServiceTest {
             transcodingService.setTranscodingsForPlayer(player, new int[] { 1, 2, 3 });
 
             Mockito.verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
-            assertEquals(Arrays.asList(1, 2, 3), idsCaptor.getAllValues());
+            assertArrayEquals(new int[] { 1, 2, 3 }, idsCaptor.getValue());
         }
 
         @Test
@@ -266,9 +266,9 @@ class TranscodingServiceTest {
         // It will be set to the existing player
         assertEquals(mockActiveTranscoding, transcodingCaptor.getValue());
         assertEquals(MOCK_PLAYER_ID, idCaptor.getValue());
-        List<int[]> registered = transcodingIdsCaptor.getAllValues();
-        assertEquals(1, registered.size());
-        assertEquals(Arrays.asList(mockActiveTranscoding.getId()), registered);
+        int[] registered = transcodingIdsCaptor.getValue();
+        assertEquals(1, registered.length);
+        assertEquals(mockActiveTranscoding.getId(), registered[0]);
 
         // Creating inactive transcoding
         transcodingCaptor = ArgumentCaptor.forClass(Transcoding.class);
@@ -1621,22 +1621,22 @@ class TranscodingServiceTest {
             Mockito.verify(transcodingDao, Mockito.times(3)).setTranscodingsForPlayer(playerIdCaptor.capture(),
                     transcodingIdsCaptor.capture());
 
-            assertEquals(createdMp3Id, transcodingIdsCaptor.getAllValues().get(2));
-            assertEquals(5, transcodingIdsCaptor.getAllValues().size());
+            assertEquals(3, transcodingIdsCaptor.getAllValues().size());
+            assertEquals(createdMp3Id, transcodingIdsCaptor.getValue()[1]);
 
             // player1
             assertEquals(player1Id, playerIdCaptor.getAllValues().get(0));
-            assertEquals(createdMp3Id, transcodingIdsCaptor.getAllValues().get(0));
+            assertEquals(createdMp3Id, transcodingIdsCaptor.getAllValues().get(0)[0]);
 
             // player2
             assertEquals(player2Id, playerIdCaptor.getAllValues().get(1));
-            assertEquals(flvId, transcodingIdsCaptor.getAllValues().get(1));
-            assertEquals(createdMp3Id, transcodingIdsCaptor.getAllValues().get(2));
+            assertEquals(flvId, transcodingIdsCaptor.getAllValues().get(1)[0]);
+            assertEquals(createdMp3Id, transcodingIdsCaptor.getValue()[1]);
 
             // player3
             assertEquals(player3Id, playerIdCaptor.getAllValues().get(2));
-            assertEquals(flvId, transcodingIdsCaptor.getAllValues().get(3));
-            assertEquals(createdMp3Id, transcodingIdsCaptor.getAllValues().get(4));
+            assertEquals(flvId, transcodingIdsCaptor.getAllValues().get(2)[0]);
+            assertEquals(createdMp3Id, transcodingIdsCaptor.getAllValues().get(2)[1]);
 
             ArgumentCaptor<Integer> deletedIdCaptor = ArgumentCaptor.forClass(Integer.class);
             Mockito.verify(transcodingDao, Mockito.times(1)).deleteTranscoding(deletedIdCaptor.capture());

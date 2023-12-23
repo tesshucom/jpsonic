@@ -19,10 +19,9 @@
 
 package com.tesshu.jpsonic;
 
-import javax.annotation.PreDestroy;
-
 import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.service.StatusService;
+import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;

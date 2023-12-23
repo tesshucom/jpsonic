@@ -27,16 +27,16 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspTagException;
-import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.tagext.BodyTagSupport;
-
 import com.tesshu.jpsonic.filter.ParameterDecodingFilter;
-import com.tesshu.jpsonic.util.StringUtil;
+import com.tesshu.jpsonic.util.StringUtilBase;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspTagException;
+import jakarta.servlet.jsp.PageContext;
+import jakarta.servlet.jsp.tagext.BodyTagSupport;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.taglibs.standard.tag.common.core.UrlSupport;
+import org.springframework.security.web.util.UrlUtils;
 
 /**
  * Creates a URL with optional query parameters. Similar to 'c:url', but you may specify which character encoding to use
@@ -94,8 +94,38 @@ public class UrlTag extends BodyTagSupport {
         return EVAL_PAGE;
     }
 
+    public static String resolveUrl(String url, String context, PageContext pageContext) throws JspException {
+        // don't touch absolute URLs
+        if (UrlUtils.isAbsoluteUrl(url)) {
+            return url;
+        }
+
+        // normalize relative URLs against a context root
+        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+        if (context == null) {
+            if (url.startsWith("/")) {
+                return request.getContextPath() + url;
+            } else {
+                return url;
+            }
+        } else {
+            if (!context.startsWith("/") || !url.startsWith("/")) {
+                throw new JspTagException("IMPORT_BAD_RELATIVE");
+            }
+            if (context.endsWith("/") && url.startsWith("/")) {
+                // Don't produce string starting with '//', many
+                // browsers interpret this as host name, not as
+                // path on same host. Bug 22860
+                // Also avoid // inside the url. Bug 34109
+                return context.substring(0, context.length() - 1) + url;
+            } else {
+                return context + url;
+            }
+        }
+    }
+
     String formatUrl() throws JspException {
-        String baseUrl = UrlSupport.resolveUrl(value, null, pageContext);
+        String baseUrl = resolveUrl(value, null, pageContext);
 
         StringBuilder result = new StringBuilder();
         result.append(baseUrl);
@@ -130,7 +160,7 @@ public class UrlTag extends BodyTagSupport {
             if (isAsciiAlphaNumeric(s)) {
                 return s;
             }
-            return StringUtil.utf8HexEncode(s);
+            return StringUtilBase.utf8HexEncode(s);
         }
         return URLEncoder.encode(s, encoding);
     }
