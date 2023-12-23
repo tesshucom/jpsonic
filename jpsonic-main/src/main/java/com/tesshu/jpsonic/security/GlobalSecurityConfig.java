@@ -156,31 +156,26 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
         @Bean
         public SecurityFilterChain extSecurityFilterChain(HttpSecurity http) throws Exception {
             http
-                    .addFilter(new WebAsyncManagerIntegrationFilter())
-                    .addFilterBefore(new JWTRequestParameterProcessingFilter(
-                            authenticationManager(
-                                    http.getSharedObject(AuthenticationConfiguration.class)),
-                            FAILURE_URL), UsernamePasswordAuthenticationFilter.class)
-                    .securityMatchers((matchers) -> matchers.requestMatchers(antMatcher("/ext/**")))
-                    .csrf()
-                    .requireCsrfProtectionMatcher(csrfSecurityRequestMatcher)
-                    .and()
-                    .headers()
-                    .frameOptions()
-                    .sameOrigin()
-                // .and().authorizeHttpRequests((authz) -> authz
-                //     .requestMatchers(
-                //         antMatcher("/ext/stream/**"),
-                //         antMatcher("/ext/coverArt*"),
-                //         antMatcher("/ext/share/**"),
-                //         antMatcher("/ext/hls/**"))
-                //         .hasAnyRole("TEMP", "USER")
-                //         .anyRequest()
-                //         .authenticated())
-                .and().authorizeRequests()
-                    .antMatchers("/ext/stream/**", "/ext/coverArt*", "/ext/share/**", "/ext/hls/**")
-                    .hasAnyRole("TEMP", "USER")
-                .and().sessionManagement((sessions) -> sessions
+                .addFilter(new WebAsyncManagerIntegrationFilter())
+                .addFilterBefore(new JWTRequestParameterProcessingFilter(
+                        authenticationManager(
+                                http.getSharedObject(AuthenticationConfiguration.class)), FAILURE_URL),
+                                UsernamePasswordAuthenticationFilter.class)
+                .securityMatchers((matchers) -> matchers.requestMatchers(antMatcher("/ext/**")))
+                .csrf()
+                .requireCsrfProtectionMatcher(csrfSecurityRequestMatcher)
+                .and().headers()
+                .frameOptions()
+                .sameOrigin()
+                .and().authorizeHttpRequests((authz) -> authz.requestMatchers(
+                        antMatcher("/ext/stream/**"),
+                        antMatcher("/ext/coverArt*"),
+                        antMatcher("/ext/share/**"),
+                        antMatcher("/ext/hls/**"))
+                            .hasAnyRole("TEMP", "USER")
+                            .anyRequest()
+                            .authenticated())
+                .sessionManagement((sessions) -> sessions
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling()
                 .and().securityContext()
