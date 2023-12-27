@@ -36,7 +36,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.ServletRequestBindingException;
-import org.springframework.web.util.NestedServletException;
 
 /**
  * Intercepts exceptions thrown by RESTController.
@@ -66,7 +65,7 @@ public class RESTFilter implements Filter {
 
     private void handleException(final Throwable x, HttpServletRequest request, HttpServletResponse response) {
         Throwable t = x;
-        if (t instanceof NestedServletException && t.getCause() != null) {
+        if (t instanceof ServletException && t.getCause() != null) {
             t = t.getCause();
         }
 
