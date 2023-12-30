@@ -127,13 +127,12 @@ public class CoverArtService {
             HttpGet method = new HttpGet(URI.create(url));
             method.setConfig(requestConfig);
 
-            try (InputStream input = client.execute(method).getEntity().getContent()) {
-
-                // Write file.
+            try (InputStream input = client.execute(method, (response) -> {
                 try (OutputStream output = Files.newOutputStream(newCoverFile)) {
-                    IOUtils.copy(input, output);
-                    input.close();
+                    IOUtils.copy(response.getEntity().getContent(), output);
                 }
+                return null;
+            })) {
 
                 MediaFile dir = mediaFileService.getMediaFileStrict(pathString);
 

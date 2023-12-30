@@ -49,8 +49,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.ConnectTimeoutException;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.util.Timeout;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -272,9 +272,7 @@ public class VersionService {
             method.setConfig(requestConfig);
             String content;
             try (CloseableHttpClient client = HttpClients.createDefault()) {
-                try (CloseableHttpResponse response = client.execute(method)) {
-                    content = response.toString();
-                }
+                content = client.execute(method, new BasicHttpClientResponseHandler());
             } catch (ConnectTimeoutException e) {
                 if (LOG.isWarnEnabled()) {
                     LOG.warn("Got a timeout when trying to reach {}", VERSION_URL);

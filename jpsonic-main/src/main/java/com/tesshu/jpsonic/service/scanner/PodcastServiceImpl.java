@@ -67,12 +67,12 @@ import org.apache.commons.lang3.exception.UncheckedException;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.util.Timeout;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -338,6 +338,31 @@ public class PodcastServiceImpl implements PodcastService {
         }
     }
 
+    private HttpClientResponseHandler<PodcastChannel> refreshChannelHandler(PodcastChannel channel) {
+        return (response) -> {
+            try {
+                Document document = createSAXBuilder().build(response.getEntity().getContent());
+                Element channelElement = document.getRootElement().getChild("channel");
+                channel.setTitle(StringUtil.removeMarkup(channelElement.getChildTextTrim("title")));
+                channel.setDescription(StringUtil.removeMarkup(channelElement.getChildTextTrim("description")));
+                channel.setImageUrl(getChannelImageUrl(channelElement));
+                channel.setStatus(PodcastStatus.COMPLETED);
+                channel.setErrorMessage(null);
+                podcastDao.updateChannel(channel);
+                refreshEpisodes(channel, channelElement.getChildren("item"));
+            } catch (JDOMException | IOException e) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to get/parse Podcast channel " + channel.getUrl(), e);
+                }
+                channel.setStatus(PodcastStatus.ERROR);
+                channel.setErrorMessage(getErrorMessage(e));
+                podcastDao.updateChannel(channel);
+                return null;
+            }
+            return channel;
+        };
+    }
+
     private void doRefreshChannel(PodcastChannel channel, boolean downloadEpisodes) {
 
         if (!scannerState.tryScanningLock()) {
@@ -345,41 +370,23 @@ public class PodcastServiceImpl implements PodcastService {
         }
         indexManager.startIndexing();
 
+        channel.setStatus(PodcastStatus.DOWNLOADING);
+        channel.setErrorMessage(null);
+        podcastDao.updateChannel(channel);
+        RequestConfig requestConfig = RequestConfig.custom().setConnectionRequestTimeout(Timeout.ofMinutes(2))
+                .setResponseTimeout(Timeout.ofMinutes(10)).build();
+        HttpGet method = new HttpGet(URI.create(channel.getUrl()));
+        method.setConfig(requestConfig);
+        HttpClientResponseHandler<PodcastChannel> handler = refreshChannelHandler(channel);
+
         try (CloseableHttpClient client = HttpClients.createDefault()) {
-            channel.setStatus(PodcastStatus.DOWNLOADING);
-            channel.setErrorMessage(null);
-            podcastDao.updateChannel(channel);
-            RequestConfig requestConfig = RequestConfig.custom().setConnectionRequestTimeout(Timeout.ofMinutes(2))
-                    .setResponseTimeout(Timeout.ofMinutes(10)).build();
-            HttpGet method = new HttpGet(URI.create(channel.getUrl()));
-            method.setConfig(requestConfig);
-
-            try (CloseableHttpResponse response = client.execute(method);
-                    InputStream in = response.getEntity().getContent()) {
-
-                Document document = createSAXBuilder().build(in);
-                Element channelElement = document.getRootElement().getChild("channel");
-
-                channel.setTitle(StringUtil.removeMarkup(channelElement.getChildTextTrim("title")));
-                channel.setDescription(StringUtil.removeMarkup(channelElement.getChildTextTrim("description")));
-                channel.setImageUrl(getChannelImageUrl(channelElement));
-                channel.setStatus(PodcastStatus.COMPLETED);
-                channel.setErrorMessage(null);
-                podcastDao.updateChannel(channel);
-
-                downloadImage(channel);
-                refreshEpisodes(channel, channelElement.getChildren("item"));
-            } catch (IOException | JDOMException e) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to get/parse RSS file for Podcast channel " + channel.getUrl(), e);
-                }
-                channel.setStatus(PodcastStatus.ERROR);
-                channel.setErrorMessage(getErrorMessage(e));
-                podcastDao.updateChannel(channel);
+            PodcastChannel refreshed = client.execute(method, handler);
+            if (refreshed != null) {
+                downloadImage(refreshed);
             }
         } catch (IOException ioe) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to get/parse RSS file for Podcast channel " + channel.getUrl(), ioe);
+                LOG.warn("Failed to get/parse Podcast channel " + channel.getUrl(), ioe);
             }
             channel.setStatus(PodcastStatus.ERROR);
             channel.setErrorMessage(getErrorMessage(ioe));
@@ -400,36 +407,41 @@ public class PodcastServiceImpl implements PodcastService {
 
     private void downloadImage(PodcastChannel channel) {
 
+        String imageUrl = channel.getImageUrl();
+        if (imageUrl == null) {
+            return;
+        }
+
+        Path dir = getChannelDirectory(channel);
+        MediaFile channelMediaFile = writableMediaFileService.getMediaFile(dir);
+        if (channelMediaFile == null) {
+            return;
+        }
+
+        Path existingCoverArt = mediaFileService.getCoverArt(channelMediaFile);
+        boolean imageFileExists = existingCoverArt != null
+                && writableMediaFileService.getMediaFile(existingCoverArt) == null;
+        if (imageFileExists) {
+            return;
+        }
+
+        Path saved = null;
         try (CloseableHttpClient client = HttpClients.createDefault()) {
-            String imageUrl = channel.getImageUrl();
-            if (imageUrl == null) {
-                return;
-            }
-
-            Path dir = getChannelDirectory(channel);
-            MediaFile channelMediaFile = writableMediaFileService.getMediaFile(dir);
-            if (channelMediaFile == null) {
-                return;
-            }
-            Path existingCoverArt = mediaFileService.getCoverArt(channelMediaFile);
-            boolean imageFileExists = existingCoverArt != null
-                    && writableMediaFileService.getMediaFile(existingCoverArt) == null;
-            if (imageFileExists) {
-                return;
-            }
-
-            HttpGet method = new HttpGet(URI.create(imageUrl));
-            try (CloseableHttpResponse response = client.execute(method)) {
-                Path f = Path.of(dir.toString(), "cover." + getCoverArtSuffix(response));
-                try (InputStream in = response.getEntity().getContent(); OutputStream out = Files.newOutputStream(f)) {
+            saved = client.execute(new HttpGet(URI.create(imageUrl)), (response) -> {
+                Path coverPath = Path.of(dir.toString(), "cover." + getCoverArtSuffix(response));
+                try (InputStream in = response.getEntity().getContent();
+                        OutputStream out = Files.newOutputStream(coverPath)) {
                     IOUtils.copy(in, out);
                 }
-                writableMediaFileService.refreshCoverArt(channelMediaFile);
-            }
+                return coverPath;
+            });
         } catch (UnsupportedOperationException | IOException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to download cover art for podcast channel '" + channel.getTitle() + "'", e);
+                LOG.warn("Failed to DL podcast channel cover art'" + channel.getTitle() + "'", e);
             }
+        }
+        if (saved != null) {
+            writableMediaFileService.refreshCoverArt(channelMediaFile);
         }
     }
 
@@ -675,11 +687,7 @@ public class PodcastServiceImpl implements PodcastService {
                     return;
                 }
 
-                HttpGet httpGet = createHttpGet(episode.getUrl());
-
-                try (CloseableHttpResponse response = client.execute(httpGet);
-                        InputStream in = response.getEntity().getContent()) {
-
+                client.execute(createHttpGet(episode.getUrl()), response -> {
                     synchronized (fileLock) {
 
                         Path path = getFile(channel, episode);
@@ -689,7 +697,7 @@ public class PodcastServiceImpl implements PodcastService {
                         episode.setPath(path.toString());
                         podcastDao.updateEpisode(episode);
 
-                        long bytesDownloaded = updateEpisode(episode, path, in);
+                        long bytesDownloaded = updateEpisode(episode, path, response.getEntity().getContent());
 
                         if (isEpisodeDeleted(episode)) {
                             writeInfo("Podcast " + episode.getUrl() + " was deleted. Aborting download.");
@@ -705,9 +713,8 @@ public class PodcastServiceImpl implements PodcastService {
                             deleteObsoleteEpisodes(channel);
                         }
                     }
-                } catch (UnsupportedOperationException | IOException e) {
-                    consumeDownloadError(episode, e);
-                }
+                    return null;
+                });
             } catch (IOException e) {
                 consumeDownloadError(episode, e);
             } finally {

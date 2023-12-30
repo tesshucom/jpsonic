@@ -40,8 +40,10 @@ import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.hc.client5.http.ClientProtocolException;
+import org.apache.hc.client5.http.HttpResponseException;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
+import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.io.entity.StringEntity;
@@ -136,7 +138,7 @@ public class ListenBrainzScrobbler {
     /**
      * Returns if submission succeeds.
      */
-    private static boolean submit(RegistrationData registrationData) throws ExecutionException {
+    static boolean submit(RegistrationData registrationData) throws ExecutionException {
         Map<String, Object> additionalInfo = LegacyMap.of();
         additionalInfo.computeIfAbsent("release_mbid", k -> registrationData.getMusicBrainzReleaseId());
         additionalInfo.computeIfAbsent("recording_mbid", k -> registrationData.getMusicBrainzRecordingId());
@@ -175,9 +177,8 @@ public class ListenBrainzScrobbler {
             throw new ExecutionException("Error when writing Json", e);
         }
 
-        executeJsonPostRequest("https://api.listenbrainz.org/1/submit-listens", registrationData.getToken(), json);
-
-        return true;
+        return executeJsonPostRequest("https://api.listenbrainz.org/1/submit-listens", registrationData.getToken(),
+                json);
     }
 
     private static boolean executeJsonPostRequest(String url, String token, String json) throws ExecutionException {
@@ -185,17 +186,28 @@ public class ListenBrainzScrobbler {
         request.setEntity(new StringEntity(json, Charset.forName(StringUtil.ENCODING_UTF8)));
         request.setHeader("Authorization", "token " + token);
         request.setHeader("Content-type", "application/json; charset=utf-8");
-
-        executeRequest(request);
-        return true;
+        return executeRequest(request);
     }
 
-    private static void executeRequest(HttpUriRequest request) throws ExecutionException {
+    private static boolean executeRequest(HttpUriRequest request) throws ExecutionException {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
-            client.execute(request);
+            String result = client.execute(request, new BasicHttpClientResponseHandler());
+            // In the original code, submission success/failure determination is not implemented.
+            // return e.g. "{\"status\": \"ok\"}".equals(result);
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Successful submission communication - {}", result);
+            }
+            return true;
+        } catch (HttpResponseException e) {
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Submit failed", e);
+            } else if (LOG.isWarnEnabled()) {
+                LOG.warn("Submit failed - {}", e.getMessage());
+            }
         } catch (IOException e) {
             throw new ExecutionException("Unable to execute Http request.", e);
         }
+        return false;
     }
 
     protected static void writeWarn(String msg) {
@@ -279,7 +291,7 @@ public class ListenBrainzScrobbler {
         }
     }
 
-    private static class RegistrationData {
+    static class RegistrationData {
         private final String token;
         private final String artist;
         private final String album;
