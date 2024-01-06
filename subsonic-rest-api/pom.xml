@@ -1,55 +1,53 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
-    <artifactId>subsonic-rest-api</artifactId>
-    <name>Subsonic REST API</name>
+  <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>com.tesshu.jpsonic.player</groupId>
-        <artifactId>jpsonic</artifactId>
+  <parent>
+    <groupId>com.tesshu.jpsonic.player</groupId>
+    <artifactId>jpsonic</artifactId>
     <version>114.0.0-SNAPSHOT</version>
-    </parent>
+  </parent>
+  <artifactId>subsonic-rest-api</artifactId>
+  <name>Subsonic REST API</name>
 
-    <dependencies>
-        <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
+  <dependencies>
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jaxb</groupId>
+      <artifactId>jaxb-runtime</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.jvnet.jaxb2.maven2</groupId>
-                <artifactId>maven-jaxb2-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <extension>true</extension>
-                    <args>
-                        <arg>-Xannotate</arg>
-                    </args>
-                    <generatePackage>org.subsonic.restapi</generatePackage>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.jvnet.jaxb2_commons</groupId>
-                            <artifactId>jaxb2-basics-annotate</artifactId>
-                            <version>1.1.0</version>
-                        </plugin>
-                    </plugins>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-xjc-plugin</artifactId>
+        <version>4.0.0</version>
+        <configuration>
+          <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
+          <xsdOptions>
+            <xsdOption>
+              <xsd>${basedir}/src/main/resources/subsonic-rest-api.xsd</xsd>
+              <packagename>org.subsonic.restapi</packagename>
+            </xsdOption>
+          </xsdOptions>
+        </configuration>
+        <executions>
+          <execution>
+            <id>xjc</id>
+            <goals>
+              <goal>xsdtojava</goal>
+            </goals>
+            <phase>generate-sources</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>

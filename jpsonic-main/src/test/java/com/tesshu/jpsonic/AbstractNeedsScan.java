@@ -28,8 +28,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-import javax.annotation.PostConstruct;
-
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.dao.base.DaoHelper;
@@ -42,6 +40,7 @@ import com.tesshu.jpsonic.service.scanner.MediaScannerServiceImpl;
 import com.tesshu.jpsonic.service.scanner.MusicFolderServiceImpl;
 import com.tesshu.jpsonic.service.scanner.ScannerProcedureService;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
+import jakarta.annotation.PostConstruct;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

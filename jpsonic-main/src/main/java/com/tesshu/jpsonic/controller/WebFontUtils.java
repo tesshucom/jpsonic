@@ -21,11 +21,10 @@ package com.tesshu.jpsonic.controller;
 
 import static org.springframework.util.StringUtils.hasLength;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.tesshu.jpsonic.command.PersonalSettingsCommand;
 import com.tesshu.jpsonic.domain.FontScheme;
 import com.tesshu.jpsonic.domain.UserSettings;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.ObjectUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
 

@@ -37,8 +37,14 @@ public final class TomcatApplicationHelper {
         tomcatFactory.addContextCustomizers(context -> {
 
             StandardJarScanFilter standardJarScanFilter = new StandardJarScanFilter();
-            standardJarScanFilter.setTldScan(
-                    "dwr-*.jar,jstl-*.jar,spring-security-taglibs-*.jar,spring-web-*.jar,spring-webmvc-*.jar,string-*.jar,taglibs-standard-impl-*.jar,tomcat-annotations-api-*.jar,tomcat-embed-jasper-*.jar");
+            standardJarScanFilter.setTldScan("""
+                    jakarta.servlet.jsp.jstl*.jar,\
+                    spring-web-*.jar,\
+                    spring-webmvc-*.jar,\
+                    spring-security-taglibs-*.jar,\
+                    dwr-*.jar,\
+                    airsonic-taglibs*.jar\
+                    """);
             standardJarScanFilter.setTldSkip("*");
             context.getJarScanner().setJarScanFilter(standardJarScanFilter);
 

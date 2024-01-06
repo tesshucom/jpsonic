@@ -35,10 +35,6 @@ import java.util.GregorianCalendar;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -46,6 +42,10 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.StringUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.persistence.jaxb.JAXBContext;
 import org.eclipse.persistence.jaxb.MarshallerProperties;
@@ -64,7 +64,7 @@ public final class JAXBWriter {
     private static final Logger LOG = LoggerFactory.getLogger(JAXBWriter.class);
 
     private final SettingsService settingsService;
-    private final javax.xml.bind.JAXBContext jaxbContext;
+    private final jakarta.xml.bind.JAXBContext jaxbContext;
     private final DatatypeFactory datatypeFactory;
     private final String restProtocolVersion;
 

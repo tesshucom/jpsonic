@@ -23,13 +23,13 @@ package com.tesshu.jpsonic.spring;
 
 import java.util.List;
 
-import javax.annotation.PreDestroy;
-
 import com.tesshu.jpsonic.cache.CacheFactory;
+import jakarta.annotation.PreDestroy;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -63,11 +63,13 @@ public class EhcacheConfiguration {
     }
 
     @Bean
+    @Qualifier("mediaFileMemoryCache")
     public Ehcache mediaFileMemoryCache(CacheFactory cacheFactory) {
         return cacheFactory.getCache("mediaFileMemoryCache");
     }
 
     @Bean
+    @Qualifier("searchCache")
     public Ehcache searchCache(CacheFactory cacheFactory) {
         return cacheFactory.getCache("searchCache");
     }
@@ -77,6 +79,7 @@ public class EhcacheConfiguration {
     }
 
     @Bean
+    @Qualifier("randomCache")
     public Ehcache randomCache(CacheFactory cacheFactory) {
         return cacheFactory.getCache("randomCache");
     }
@@ -86,6 +89,7 @@ public class EhcacheConfiguration {
     }
 
     @Bean
+    @Qualifier("fontCache")
     public Ehcache fontCache(CacheFactory cacheFactory) {
         return cacheFactory.getCache("fontCache");
     }

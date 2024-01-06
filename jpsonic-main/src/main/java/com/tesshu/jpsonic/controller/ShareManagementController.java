@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PlayQueue;
 import com.tesshu.jpsonic.domain.Player;
@@ -37,6 +35,7 @@ import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.util.LegacyMap;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;

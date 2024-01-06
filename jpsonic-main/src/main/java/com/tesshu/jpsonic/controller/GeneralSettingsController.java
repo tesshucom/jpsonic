@@ -26,8 +26,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.tesshu.jpsonic.command.GeneralSettingsCommand;
 import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.domain.Theme;
@@ -41,6 +39,7 @@ import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.util.PathValidator;
 import com.tesshu.jpsonic.util.PlayerUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

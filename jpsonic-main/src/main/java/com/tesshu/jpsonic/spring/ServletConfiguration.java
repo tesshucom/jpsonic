@@ -21,7 +21,7 @@
 
 package com.tesshu.jpsonic.spring;
 
-import java.util.Properties;
+import java.util.Map;
 
 import com.tesshu.jpsonic.controller.PodcastController;
 import com.tesshu.jpsonic.i18n.AirsonicLocaleResolver;
@@ -33,6 +33,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
+import org.springframework.web.util.UrlPathHelper;
 
 @Configuration
 public class ServletConfiguration implements WebMvcConfigurer {
@@ -47,10 +48,10 @@ public class ServletConfiguration implements WebMvcConfigurer {
     @Bean
     public SimpleUrlHandlerMapping podcastUrlMapping(PodcastController podcastController) {
         SimpleUrlHandlerMapping handlerMapping = new SimpleUrlHandlerMapping();
-        handlerMapping.setAlwaysUseFullPath(true);
-        Properties properties = new Properties();
-        properties.put("/podcast/**", podcastController);
-        handlerMapping.setMappings(properties);
+        handlerMapping.setUrlMap(Map.of("/podcast/**", podcastController));
+        UrlPathHelper pathHelper = new UrlPathHelper();
+        pathHelper.setAlwaysUseFullPath(true);
+        handlerMapping.setUrlPathHelper(pathHelper);
         return handlerMapping;
     }
 

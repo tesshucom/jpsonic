@@ -62,6 +62,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -95,7 +96,8 @@ public class TranscodingService {
     private final Object dirLock = new Object();
 
     public TranscodingService(SettingsService settingsService, SecurityService securityService,
-            TranscodingDao transcodingDao, @Lazy PlayerService playerService, Executor shortExecutor) {
+            TranscodingDao transcodingDao, @Lazy PlayerService playerService,
+            @Qualifier("shortExecutor") Executor shortExecutor) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;

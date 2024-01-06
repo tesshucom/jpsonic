@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -42,7 +43,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.util.concurrent.ListenableFuture;
 
 @SpringBootTest
 @ExtendWith(NeedsHome.class)
@@ -99,18 +99,13 @@ class ExecutorConfigurationTest {
     }
 
     /*
-     * Basically, we should use Future, but if use a derivative of Future, please check the operation in advance.
+     * ListenableFuture should not be used(Deprecated since 6.0).
      */
     @Nested
-    class DeprecatedFuture {
+    class FutureRequiresAttention {
 
-        /*
-         * We should be able to use ListenableFuture to represent success and failure cases, but it seems to require
-         * some background knowledge. Internally, it seems that submitListenable is calling Runnable ... despite
-         * "submit".
-         */
         @Test
-        void testDeprecatedListenableFuture() {
+        void testCompletableFuture() {
 
             int len = shortThreadPoolConf.getCorePoolSize();
 
@@ -119,7 +114,7 @@ class ExecutorConfigurationTest {
             AtomicInteger c3 = new AtomicInteger();
             AtomicInteger c4 = new AtomicInteger();
 
-            List<ListenableFuture<Integer>> futures = new ArrayList<>();
+            List<CompletableFuture<Integer>> futures = new ArrayList<>();
             for (int i = 0; i < len; i++) {
                 Callable<Integer> callable = () -> {
                     try {
@@ -129,20 +124,20 @@ class ExecutorConfigurationTest {
                     }
                     throw new OutOfMemoryError(); // OutOfMemoryError!
                 };
-                futures.add(shortExecutor.submitListenable(callable));
+                futures.add(shortExecutor.submitCompletable(callable));
             }
 
             assertThrows(InternalError.class, () -> { // InternalError
                 futures.stream().mapToInt(future -> {
-                    future.addCallback((i) -> {
-                        c1.addAndGet(1); // This route does not pass ...
-                    }, (e) -> {
-                        MatcherAssert.assertThat(e.getCause(),
-                                CoreMatchers.is(CoreMatchers.instanceOf(OutOfMemoryError.class)));
-                        c3.addAndGet(1); // This route does not pass ...
-
-                        // should be logging ... ...
-
+                    future.whenComplete((i, e) -> {
+                        if (e == null) {
+                            c1.addAndGet(1); // This route does not pass ...
+                        } else {
+                            MatcherAssert.assertThat(e.getCause(),
+                                    CoreMatchers.is(CoreMatchers.instanceOf(OutOfMemoryError.class)));
+                            c3.addAndGet(1); // This route does not pass ...
+                            // // should be logging ... ...
+                        }
                     });
 
                     try {
@@ -165,18 +160,14 @@ class ExecutorConfigurationTest {
             }, "Bubbling is incorrect");
 
             /*
-             * In other words, there are 3 cases of success/failure/runtime(Yes, it depends on Spring and is different
-             * from regular Future.). If we're investigating a bug and don't know this behavior, may be confusing. For
-             * batches, coding like ShortExecutor#testThrowable() is less misleading.
-             *
-             * It may be not bad to use on Contloller methods. (ExceptionHandler of Spring is used as the error handler
-             * when Future#get. Processing may not be passed to Callback.)
+             * There are 3 cases of success/failure/runtime. There are probably cases in previous versions of Spring
+             * where failure/success judgments malfunction when performing asynchronous processing. If we're
+             * investigating a bug and don't know this behavior, may be confusing.
              */
-            assertEquals(0, c1.get()); // 0 ...
+            assertEquals(0, c1.get());
             assertEquals(0, c2.get());
-            assertEquals(0, c3.get()); // 0 ...
-            assertEquals(1, c4.get()); // 1 ...
-
+            assertEquals(1, c3.get());
+            assertEquals(1, c4.get());
         }
     }
 

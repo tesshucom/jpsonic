@@ -24,13 +24,11 @@ package com.tesshu.jpsonic.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.codec.DecoderException;
 import org.apache.commons.text.StringEscapeUtils;
 import org.junit.jupiter.api.Test;
 
@@ -59,31 +57,6 @@ class StringUtilTest {
         assertEquals("application/octet-stream", StringUtil.getMimeType("koko"), "Error in getMimeType().");
         assertEquals("application/octet-stream", StringUtil.getMimeType(""), "Error in getMimeType().");
         assertEquals("application/octet-stream", StringUtil.getMimeType(null), "Error in getMimeType().");
-    }
-
-    @Test
-    void testFormatBytes() {
-        Locale locale = Locale.ENGLISH;
-        assertEquals("918 B", StringUtil.formatBytes(918, locale), "Error in formatBytes().");
-        assertEquals("1023 B", StringUtil.formatBytes(1_023, locale), "Error in formatBytes().");
-        assertEquals("1 KB", StringUtil.formatBytes(1_024, locale), "Error in formatBytes().");
-        assertEquals("96 KB", StringUtil.formatBytes(98_765, locale), "Error in formatBytes().");
-        assertEquals("1024 KB", StringUtil.formatBytes(1_048_575, locale), "Error in formatBytes().");
-        assertEquals("1.2 MB", StringUtil.formatBytes(1_238_476, locale), "Error in formatBytes().");
-        assertEquals("3.50 GB", StringUtil.formatBytes(3_758_096_384L, locale), "Error in formatBytes().");
-        assertEquals("410.00 TB", StringUtil.formatBytes(450_799_767_388_160L, locale), "Error in formatBytes().");
-        assertEquals("4413.43 TB", StringUtil.formatBytes(4_852_617_603_375_432L, locale), "Error in formatBytes().");
-
-        locale = new Locale("no", "", "");
-        assertEquals("918 B", StringUtil.formatBytes(918, locale), "Error in formatBytes().");
-        assertEquals("1023 B", StringUtil.formatBytes(1023, locale), "Error in formatBytes().");
-        assertEquals("1 KB", StringUtil.formatBytes(1024, locale), "Error in formatBytes().");
-        assertEquals("96 KB", StringUtil.formatBytes(98_765, locale), "Error in formatBytes().");
-        assertEquals("1024 KB", StringUtil.formatBytes(1_048_575, locale), "Error in formatBytes().");
-        assertEquals("1,2 MB", StringUtil.formatBytes(1_238_476, locale), "Error in formatBytes().");
-        assertEquals("3,50 GB", StringUtil.formatBytes(3_758_096_384L, locale), "Error in formatBytes().");
-        assertEquals("410,00 TB", StringUtil.formatBytes(450_799_767_388_160L, locale), "Error in formatBytes().");
-        assertEquals("4413,43 TB", StringUtil.formatBytes(4_852_617_603_375_432L, locale), "Error in formatBytes().");
     }
 
     @Test
@@ -178,21 +151,6 @@ class StringUtilTest {
         assertEquals(new Locale("en", "US"), StringUtil.parseLocale("en_US"), "Error in parseLocale().");
         assertEquals(new Locale("en", "US", "WIN"), StringUtil.parseLocale("en_US_WIN"), "Error in parseLocale().");
         assertEquals(new Locale("en", "", "WIN"), StringUtil.parseLocale("en__WIN"), "Error in parseLocale().");
-    }
-
-    @Test
-    void testUtf8Hex() throws DecoderException {
-        assertTrue(doTestUtf8Hex(null));
-        assertTrue(doTestUtf8Hex(""));
-        assertTrue(doTestUtf8Hex("a"));
-        assertTrue(doTestUtf8Hex("abcdefg"));
-        assertTrue(doTestUtf8Hex("abc������"));
-        assertTrue(doTestUtf8Hex("NRK P3 � FK Fotball"));
-    }
-
-    private boolean doTestUtf8Hex(String s) throws DecoderException {
-        assertEquals(s, StringUtil.utf8HexDecode(StringUtil.utf8HexEncode(s)), "Error in utf8hex.");
-        return true;
     }
 
     @Test

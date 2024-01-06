@@ -23,13 +23,12 @@ package com.tesshu.jpsonic.controller;
 
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.tesshu.jpsonic.domain.PodcastEpisode;
 import com.tesshu.jpsonic.domain.PodcastStatus;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.util.StringUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;

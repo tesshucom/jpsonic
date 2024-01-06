@@ -79,7 +79,7 @@ $(document).ready(function(){
                                 <c:param name="id" value="${channel.key.id}"/>
                             </c:url>
                             <td class="name"><span><a href="${targetUrl}" title="${fn:escapeXml(channel.key.title)}">${fn:escapeXml(channel.key.title)}</a></span></td>
-                            <td class="description"><span><str:truncateNicely upper="${50}" lower="${70}" >${fn:escapeXml(channel.key.description)}</str:truncateNicely></span></td>
+                            <td class="description"><span><sub:truncateNicely upper="${50}" lower="${70}" >${fn:escapeXml(channel.key.description)}</sub:truncateNicely></span></td>
                             <td class="count">${fn:length(channel.value)}</td>
                             <td class="status"><fmt:message key="podcastreceiver.status.${fn:toLowerCase(channel.key.status)}"/></td>
                             <td class="url"><input type="text" value="${channel.key.url}" readonly class="url"></td>

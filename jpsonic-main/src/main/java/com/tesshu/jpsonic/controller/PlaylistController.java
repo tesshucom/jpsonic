@@ -24,9 +24,6 @@ package com.tesshu.jpsonic.controller;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.Playlist;
@@ -36,6 +33,8 @@ import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.util.LegacyMap;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;

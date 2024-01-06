@@ -31,13 +31,8 @@ import java.io.OutputStream;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.annotation.Nullable;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.controller.Attributes.Request;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PlayQueue;
 import com.tesshu.jpsonic.domain.Player;
@@ -56,6 +51,11 @@ import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.spring.LoggingExceptionResolver;
 import com.tesshu.jpsonic.util.HttpRange;
 import com.tesshu.jpsonic.util.PlayerUtils;
+import jakarta.annotation.Nullable;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -377,8 +377,7 @@ public class StreamController {
     }
 
     @GetMapping
-    public void handleRequest(HttpServletRequest req, HttpServletResponse res, Boolean isRest)
-            throws ServletRequestBindingException {
+    public void handleRequest(HttpServletRequest req, HttpServletResponse res) throws ServletRequestBindingException {
 
         final Player player = playerService.getPlayer(req, res, false, true);
         final User user = securityService.getUserByName(player.getUsername());
@@ -402,6 +401,7 @@ public class StreamController {
 
         MediaFile file = streamService.getSingleFile(req);
         boolean isSingleFile = file != null;
+        boolean isRest = Boolean.valueOf(String.valueOf(req.getAttribute(Request.IS_REST.value())));
         String format = streamService.getFormat(req, player, isRest);
         Integer maxBitRate = getMaxBitRate(req);
 

@@ -30,13 +30,12 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import com.tesshu.jpsonic.service.upnp.ApacheUpnpServiceConfiguration;
 import com.tesshu.jpsonic.service.upnp.CustomContentDirectory;
 import com.tesshu.jpsonic.service.upnp.MSMediaReceiverRegistrarService;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.fourthline.cling.UpnpService;
 import org.fourthline.cling.UpnpServiceImpl;
 import org.fourthline.cling.binding.annotations.AnnotationLocalServiceBinder;

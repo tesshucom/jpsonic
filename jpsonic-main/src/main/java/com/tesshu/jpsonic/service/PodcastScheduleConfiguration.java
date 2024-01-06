@@ -24,8 +24,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.Objects;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,19 +91,7 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
         @Override
         public Date nextExecutionTime(TriggerContext triggerContext) {
 
-            int hoursBetween = this.settingsService.getPodcastUpdateInterval();
-            if (hoursBetween == -1) {
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Automatic Podcast update disabled.");
-                }
-                return null;
-            }
-
-            Instant lastTime = Optional.ofNullable(triggerContext.lastCompletionTime()).filter(Objects::nonNull)
-                    .map(d -> d.toInstant()).orElse(null);
-            boolean isReschedule = lastTime == null || this.scannerStateService.isScanning();
-            Instant nextTime = isReschedule ? createFirstTime() : lastTime.plus(hoursBetween, ChronoUnit.HOURS);
-
+            Instant nextTime = nextExecution(triggerContext);
             String nextTimeString = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault())
                     .format(nextTime);
 
@@ -113,7 +99,8 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
             if (this.scannerStateService.isScanning()) {
                 msg = "Auto Podcast update has been rescheduled because being scanning. (Next {})";
             } else {
-                msg = "Auto Podcast update every " + hoursBetween + " hours was scheduled. (Next {})";
+                msg = "Auto Podcast update every " + settingsService.getPodcastUpdateInterval()
+                        + " hours was scheduled. (Next {})";
             }
 
             if (LOG.isInfoEnabled()) {
@@ -121,6 +108,20 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
             }
 
             return Date.from(nextTime);
+        }
+
+        @Override
+        public Instant nextExecution(TriggerContext triggerContext) {
+            int hoursBetween = settingsService.getPodcastUpdateInterval();
+            if (hoursBetween == -1) {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Automatic Podcast update disabled.");
+                }
+                return null;
+            }
+            Instant lastTime = triggerContext.lastCompletion();
+            boolean isReschedule = lastTime == null || this.scannerStateService.isScanning();
+            return isReschedule ? createFirstTime() : lastTime.plus(hoursBetween, ChronoUnit.HOURS);
         }
     }
 }

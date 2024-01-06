@@ -29,6 +29,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -39,7 +40,7 @@ public class FontLoader {
 
     private final Ehcache fontCache;
 
-    public FontLoader(Ehcache fontCache) {
+    public FontLoader(@Qualifier("fontCache") Ehcache fontCache) {
         this.fontCache = fontCache;
     }
 

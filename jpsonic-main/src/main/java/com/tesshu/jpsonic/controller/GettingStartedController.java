@@ -24,10 +24,9 @@ package com.tesshu.jpsonic.controller;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.tesshu.jpsonic.command.GettingStartedCommand;
 import com.tesshu.jpsonic.service.SettingsService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

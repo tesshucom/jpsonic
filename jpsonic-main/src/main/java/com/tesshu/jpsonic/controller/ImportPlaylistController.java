@@ -26,19 +26,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.fileupload2.core.DiskFileItem;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.jakarta.JakartaServletDiskFileUpload;
+import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -63,7 +61,7 @@ public class ImportPlaylistController {
         this.playlistService = playlistService;
     }
 
-    private void playListSizeCheck(FileItem item) throws ExecutionException {
+    private void playListSizeCheck(DiskFileItem item) throws ExecutionException {
         if (item.getSize() > MAX_PLAYLIST_SIZE_MB * 1024L * 1024L) {
             throw new ExecutionException(new IOException(
                     "The playlist file is too large. Max file size is " + MAX_PLAYLIST_SIZE_MB + " MB."));
@@ -76,11 +74,11 @@ public class ImportPlaylistController {
         Map<String, Object> map = LegacyMap.of();
 
         try {
-            if (ServletFileUpload.isMultipartContent(request)) {
-                FileItemFactory factory = new DiskFileItemFactory();
-                ServletFileUpload upload = new ServletFileUpload(factory);
-                List<FileItem> items = upload.parseRequest(request);
-                for (FileItem item : items) {
+            if (JakartaServletFileUpload.isMultipartContent(request)) {
+                DiskFileItemFactory factory = DiskFileItemFactory.builder().get();
+                JakartaServletDiskFileUpload upload = new JakartaServletDiskFileUpload(factory);
+                List<DiskFileItem> items = upload.parseRequest(request);
+                for (DiskFileItem item : items) {
                     if (FIELD_NAME_FILE.equals(item.getFieldName()) && !StringUtils.isBlank(item.getName())) {
                         playListSizeCheck(item);
                         String playlistName = FilenameUtils.getBaseName(item.getName());
@@ -92,7 +90,7 @@ public class ImportPlaylistController {
                     }
                 }
             }
-        } catch (FileUploadException | IOException e) {
+        } catch (IOException e) {
             map.put("Error in uploading playlist", e.getMessage());
         } catch (ExecutionException e) {
             ConcurrentUtils.handleCauseUnchecked(e);

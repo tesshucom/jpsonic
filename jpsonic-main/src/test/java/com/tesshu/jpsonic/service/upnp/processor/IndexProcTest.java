@@ -66,7 +66,7 @@ import org.junit.jupiter.api.TestClassOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
-@SuppressWarnings("PMD.TooManyStaticImports")
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.InstantiationToGetClass" })
 class IndexProcTest {
 
     @Nested
@@ -129,13 +129,14 @@ class IndexProcTest {
             MusicIndex musicIndex = new MusicIndex("A");
             SortedMap<MusicIndex, Integer> map = new TreeMap<>((a, b) -> 0);
             map.put(musicIndex, 99);
-            when(musicIndexService.getMusicFolderContentCounts(anyList(), any(MediaType.class)))
+            when(musicIndexService.getMusicFolderContentCounts(anyList(), any(new MediaType[0].getClass())))
                     .thenReturn(new MusicFolderContent.Counts(map, 0));
 
             assertEquals(Collections.emptyList(), proc.getDirectChildren(0, 0));
-            verify(musicIndexService, times(1)).getMusicFolderContentCounts(anyList(), any(MediaType.class));
+            verify(musicIndexService, times(1)).getMusicFolderContentCounts(anyList(),
+                    any(new MediaType[0].getClass()));
             verify(mediaFileService, times(1)).getDirectChildFiles(anyList(), anyLong(), anyLong(),
-                    any(MediaType.class));
+                    any(new MediaType[0].getClass()));
         }
 
         @Test
@@ -143,7 +144,7 @@ class IndexProcTest {
             MusicIndex musicIndex = new MusicIndex("A");
             SortedMap<MusicIndex, Integer> map = new TreeMap<>((a, b) -> 0);
             map.put(musicIndex, 99);
-            when(musicIndexService.getMusicFolderContentCounts(anyList(), any(MediaType.class)))
+            when(musicIndexService.getMusicFolderContentCounts(anyList(), any(new MediaType[0].getClass())))
                     .thenReturn(new MusicFolderContent.Counts(map, 1));
             assertEquals(2, proc.getDirectChildrenCount());
         }
@@ -153,7 +154,7 @@ class IndexProcTest {
             MusicIndex musicIndex = new MusicIndex("A");
             SortedMap<MusicIndex, Integer> map = new TreeMap<>((a, b) -> 0);
             map.put(musicIndex, 99);
-            when(musicIndexService.getMusicFolderContentCounts(anyList(), any(MediaType.class)))
+            when(musicIndexService.getMusicFolderContentCounts(anyList(), any(new MediaType[0].getClass())))
                     .thenReturn(new MusicFolderContent.Counts(map, 1));
 
             IndexOrSong indexOrSong = proc.getDirectChild("A");
@@ -177,7 +178,7 @@ class IndexProcTest {
             MusicIndex musicIndex = new MusicIndex("A");
             assertEquals(Collections.emptyList(), proc.getChildren(new IndexOrSong(musicIndex), 0, 100));
             verify(mediaFileService, times(1)).getChildrenOf(anyList(), any(MusicIndex.class), anyLong(), anyLong(),
-                    any(MediaType.class));
+                    any(new MediaType[0].getClass()));
         }
 
         @Test
@@ -187,7 +188,7 @@ class IndexProcTest {
 
             SortedMap<MusicIndex, Integer> map = new TreeMap<>((a, b) -> 0);
             map.put(musicIndex, 99);
-            when(musicIndexService.getMusicFolderContentCounts(anyList(), any(MediaType.class)))
+            when(musicIndexService.getMusicFolderContentCounts(anyList(), any(new MediaType[0].getClass())))
                     .thenReturn(new MusicFolderContent.Counts(map, 0));
             assertEquals(99, proc.getChildSizeOf(new IndexOrSong(musicIndex)));
 

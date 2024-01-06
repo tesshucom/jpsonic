@@ -62,7 +62,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals", "PMD.InstantiationToGetClass" })
 class MediaFileProcTest {
 
     @Nested
@@ -151,7 +151,7 @@ class MediaFileProcTest {
                 mfolder2.setPathString("/path2");
                 mfolder3.setPathString("/path3");
                 when(mediaFileService.getChildrenOf(any(MediaFile.class), anyLong(), anyLong(), any(ChildOrder.class),
-                        any(MediaType.class))).thenReturn(
+                        any(new MediaType[0].getClass()))).thenReturn(
                                 List.of(new MediaFile(), new MediaFile(), new MediaFile(), new MediaFile()));
             }
 
@@ -206,7 +206,7 @@ class MediaFileProcTest {
             void testSingleFolder() {
                 when(util.getGuestFolders()).thenReturn(List.of(folder1));
                 assertEquals(0, proc.getDirectChildrenCount());
-                verify(mediaFileService, times(1)).getChildSizeOf(anyList(), any(MediaType.class));
+                verify(mediaFileService, times(1)).getChildSizeOf(anyList(), any(new MediaType[0].getClass()));
             }
 
             @Test
@@ -254,7 +254,8 @@ class MediaFileProcTest {
         @Test
         void testGetChildSizeOf() {
             assertEquals(0, proc.getChildSizeOf(null));
-            verify(mediaFileService, times(1)).getChildSizeOf(nullable(MediaFile.class), any(MediaType.class));
+            verify(mediaFileService, times(1)).getChildSizeOf(nullable(MediaFile.class),
+                    any(new MediaType[0].getClass()));
         }
 
         @Test

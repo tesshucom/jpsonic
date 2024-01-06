@@ -28,8 +28,6 @@ import java.lang.annotation.Documented;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.tesshu.jpsonic.dao.TranscodingDao;
 import com.tesshu.jpsonic.domain.PreferredFormatSheme;
 import com.tesshu.jpsonic.domain.Transcoding;
@@ -39,6 +37,7 @@ import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

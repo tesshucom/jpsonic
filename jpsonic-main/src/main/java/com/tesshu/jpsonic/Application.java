@@ -24,9 +24,6 @@ package com.tesshu.jpsonic;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import javax.servlet.Filter;
-import javax.servlet.Servlet;
-
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.filter.BootstrapVerificationFilter;
 import com.tesshu.jpsonic.filter.FontSchemeFilter;
@@ -37,6 +34,8 @@ import com.tesshu.jpsonic.filter.RequestEncodingFilter;
 import com.tesshu.jpsonic.filter.ResponseHeaderFilter;
 import com.tesshu.jpsonic.spring.DatabaseConfiguration.ProfileNameConstants;
 import com.tesshu.jpsonic.util.LegacyHsqlUtil;
+import jakarta.servlet.Filter;
+import jakarta.servlet.Servlet;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.directwebremoting.servlet.DwrServlet;
 import org.slf4j.Logger;

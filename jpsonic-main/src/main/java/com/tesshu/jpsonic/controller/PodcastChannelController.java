@@ -25,13 +25,12 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.tesshu.jpsonic.domain.CoverArtScheme;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.util.LegacyMap;
+import jakarta.servlet.http.HttpServletRequest;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;

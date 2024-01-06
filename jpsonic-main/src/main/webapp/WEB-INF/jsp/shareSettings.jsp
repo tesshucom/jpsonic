@@ -53,7 +53,7 @@
                                     <dt><fmt:message key="sharesettings.visits" /></dt>
                                     <dd>${share.visitCount}</dd>
                                     <dt><fmt:message key="sharesettings.files" /></dt>
-                                    <dd><a href="${albumUrl}" title="${shareInfo.dir.name}"><str:truncateNicely upper="30">${fn:escapeXml(shareInfo.dir.name)}</str:truncateNicely></a></dd>
+                                    <dd><a href="${albumUrl}" title="${shareInfo.dir.name}"><sub:truncateNicely upper="30">${fn:escapeXml(shareInfo.dir.name)}</sub:truncateNicely></a></dd>
                                     <dt><fmt:message key="sharesettings.expires" /></dt>
                                     <dd>
                                         <fmt:parseDate value="${share.expiresWithZone}" type="date" pattern="yyyy-MM-dd'T'HH:mm:ss" var="parsedDate" />
