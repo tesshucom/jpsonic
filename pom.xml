@@ -19,9 +19,9 @@
     <antlr.version>4.13.1</antlr.version>
     <docker.container.repo>jpsonic/jpsonic</docker.container.repo>
     <failOnDependencyWarning>false</failOnDependencyWarning>
-    <jackson.version>2.16.0</jackson.version>
+    <jackson.version>2.16.1</jackson.version>
     <java.version>17</java.version>
-    <log4j.version>2.22.0</log4j.version>
+    <log4j.version>2.22.1</log4j.version>
     <logback.version>1.4.14</logback.version>
     <maven.compiler.release>${java.version}</maven.compiler.release>
     <pmd.version>6.55.0</pmd.version>
@@ -89,7 +89,7 @@
       <dependency>
         <groupId>org.checkerframework</groupId>
         <artifactId>checker-qual</artifactId>
-        <version>3.41.0</version>
+        <version>3.42.0</version>
         <scope>compile</scope>
       </dependency>
 
@@ -268,7 +268,7 @@
       <dependency>
         <groupId>org.liquibase</groupId>
         <artifactId>liquibase-core</artifactId>
-        <version>4.24.0</version>
+        <version>4.25.1</version>
       </dependency>
       <dependency>
         <groupId>org.hsqldb</groupId>
@@ -321,7 +321,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.11.0</version>
+          <version>3.12.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -387,7 +387,7 @@
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>10.12.6</version>
+              <version>10.12.7</version>
             </dependency>
           </dependencies>
           <executions>
@@ -470,7 +470,7 @@
         <plugin>
           <groupId>org.owasp</groupId>
           <artifactId>dependency-check-maven</artifactId>
-          <version>9.0.6</version>
+          <version>9.0.7</version>
           <inherited>true</inherited>
           <configuration>
             <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
