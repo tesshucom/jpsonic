@@ -9,13 +9,13 @@
     <parent>
         <groupId>com.tesshu.jpsonic.player</groupId>
         <artifactId>jpsonic</artifactId>
-    <version>113.0.1</version>
+    <version>113.0.2</version>
     </parent>
 
     <properties>
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
-        <lucene.version>9.9.0</lucene.version>
+        <lucene.version>9.9.1</lucene.version>
     </properties>
 
     <dependencies>
@@ -799,7 +799,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
-                <version>3.3.1</version>
+                <version>3.3.2</version>
             </plugin>
         </plugins>
     </reporting>
