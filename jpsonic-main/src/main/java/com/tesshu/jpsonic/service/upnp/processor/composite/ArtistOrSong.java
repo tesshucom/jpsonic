@@ -17,27 +17,25 @@
  * (C) 2023 tesshucom
  */
 
-package com.tesshu.jpsonic.service.upnp.composite;
+package com.tesshu.jpsonic.service.upnp.processor.composite;
 
 import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.MusicFolder;
+import com.tesshu.jpsonic.domain.MediaFile;
 
-public final class FolderOrArtist {
-
-    private static final String TYPE_PREFIX_ARTIST = "artist:";
+public class ArtistOrSong {
 
     private final Object o;
 
-    public FolderOrArtist(MusicFolder folder) {
-        this.o = folder;
+    public ArtistOrSong(MediaFile song) {
+        this.o = song;
     }
 
-    public FolderOrArtist(Artist artist) {
+    public ArtistOrSong(Artist artist) {
         this.o = artist;
     }
 
-    public MusicFolder getFolder() {
-        return (MusicFolder) o;
+    public MediaFile getSong() {
+        return (MediaFile) o;
     }
 
     public Artist getArtist() {
@@ -46,17 +44,5 @@ public final class FolderOrArtist {
 
     public boolean isArtist() {
         return o instanceof Artist;
-    }
-
-    public String createCompositeId() {
-        return TYPE_PREFIX_ARTIST.concat(Integer.toString(getArtist().getId()));
-    }
-
-    public static boolean isArtistId(String compositeId) {
-        return compositeId.startsWith(TYPE_PREFIX_ARTIST);
-    }
-
-    public static int toId(String compositeId) {
-        return Integer.parseInt(compositeId.replaceAll("^.*:", ""));
     }
 }

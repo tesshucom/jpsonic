@@ -17,7 +17,7 @@
  * (C) 2023 tesshucom
  */
 
-package com.tesshu.jpsonic.service.upnp.composite;
+package com.tesshu.jpsonic.service.upnp.processor.composite;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicIndex;

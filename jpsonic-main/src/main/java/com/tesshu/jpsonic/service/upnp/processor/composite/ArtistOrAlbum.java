@@ -17,29 +17,29 @@
  * (C) 2023 tesshucom
  */
 
-package com.tesshu.jpsonic.service.upnp.composite;
+package com.tesshu.jpsonic.service.upnp.processor.composite;
 
+import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.domain.MediaFile;
 
-public class ArtistOrSong {
+public class ArtistOrAlbum {
 
     private final Object o;
 
-    public ArtistOrSong(MediaFile song) {
-        this.o = song;
-    }
-
-    public ArtistOrSong(Artist artist) {
+    public ArtistOrAlbum(Artist artist) {
         this.o = artist;
     }
 
-    public MediaFile getSong() {
-        return (MediaFile) o;
+    public ArtistOrAlbum(Album album) {
+        this.o = album;
     }
 
     public Artist getArtist() {
         return (Artist) o;
+    }
+
+    public Album getAlbum() {
+        return (Album) o;
     }
 
     public boolean isArtist() {
