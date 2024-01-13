@@ -56,13 +56,13 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.upnp.ProcId;
 import com.tesshu.jpsonic.service.upnp.composite.IndexOrSong;
-import org.fourthline.cling.support.model.DIDLContent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestClassOrder;
+import org.jupnp.support.model.DIDLContent;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)

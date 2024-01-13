@@ -453,29 +453,14 @@
     </dependency>
 
     <dependency>
-      <groupId>com.hoodcomputing</groupId>
-      <artifactId>natpmp</artifactId>
-      <version>0.1</version>
+      <groupId>org.jupnp</groupId>
+      <artifactId>org.jupnp</artifactId>
+      <version>2.7.1</version>
     </dependency>
     <dependency>
-      <!-- UPNP -->
-      <groupId>org.fourthline.cling</groupId>
-      <artifactId>cling-core</artifactId>
-      <!-- Cling removed the org.fourthline.cling.transport.impl.apache package in 2.1, which is needed to make Cling work with Tomcat. -->
-      <!-- Don't upgrade this unless you can test UPnP support properly! -->
-      <version>2.0.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.fourthline.cling</groupId>
-      <artifactId>cling-support</artifactId>
-      <!-- Cling removed the org.fourthline.cling.transport.impl.apache package in 2.1, which is needed to make Cling work with Tomcat. -->
-      <!-- Don't upgrade this unless you can test UPnP support properly! -->
-      <version>2.0.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.seamless</groupId>
-      <artifactId>seamless-util</artifactId>
-      <version>1.1.0</version>
+      <groupId>org.jupnp</groupId>
+      <artifactId>org.jupnp.support</artifactId>
+      <version>2.7.1</version>
     </dependency>
 
     <dependency>

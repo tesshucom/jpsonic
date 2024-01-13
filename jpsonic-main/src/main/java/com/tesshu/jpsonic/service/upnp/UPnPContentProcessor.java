@@ -22,10 +22,10 @@ package com.tesshu.jpsonic.service.upnp;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import org.fourthline.cling.support.contentdirectory.DIDLParser;
-import org.fourthline.cling.support.model.BrowseResult;
-import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.container.Container;
+import org.jupnp.support.contentdirectory.DIDLParser;
+import org.jupnp.support.model.BrowseResult;
+import org.jupnp.support.model.DIDLContent;
+import org.jupnp.support.model.container.Container;
 
 /**
  * An interface for representing a typical UPnP node tree with domain object.

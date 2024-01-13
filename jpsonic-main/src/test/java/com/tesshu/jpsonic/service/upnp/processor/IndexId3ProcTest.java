@@ -31,11 +31,11 @@ import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.MusicIndex;
-import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.container.Container;
-import org.fourthline.cling.support.model.container.GenreContainer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.jupnp.support.model.DIDLContent;
+import org.jupnp.support.model.container.Container;
+import org.jupnp.support.model.container.GenreContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 
 class IndexId3ProcTest extends AbstractNeedsScan {

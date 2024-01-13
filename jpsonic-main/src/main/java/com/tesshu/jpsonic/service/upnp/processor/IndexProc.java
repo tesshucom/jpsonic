@@ -34,8 +34,8 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.MusicIndexService;
 import com.tesshu.jpsonic.service.upnp.ProcId;
 import com.tesshu.jpsonic.service.upnp.composite.IndexOrSong;
-import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.container.Container;
+import org.jupnp.support.model.DIDLContent;
+import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Service;
 
 @Service

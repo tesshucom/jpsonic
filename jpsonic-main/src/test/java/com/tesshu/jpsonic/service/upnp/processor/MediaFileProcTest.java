@@ -54,11 +54,11 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ParamSearchResult;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.upnp.ProcId;
-import org.fourthline.cling.support.model.BrowseResult;
-import org.fourthline.cling.support.model.DIDLContent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.jupnp.support.model.BrowseResult;
+import org.jupnp.support.model.DIDLContent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -467,7 +467,7 @@ class MediaFileProcTest {
             assertTrue(browseResult.getResult().contains("""
                     </upnp:albumArtURI>\
                     <dc:description/>\
-                    <res protocolInfo="http-get:*:audio/mpeg:*">\
+                    <res protocolInfo="http-get:*:audio/mpeg:*" size="13579">\
                     """));
             // ... https://192.168.1.1:4040/ext/stream?
             // id=***&amp;player=***&amp;jwt=*** ...

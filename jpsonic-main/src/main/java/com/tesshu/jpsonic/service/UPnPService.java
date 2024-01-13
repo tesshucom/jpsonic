@@ -30,35 +30,35 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.tesshu.jpsonic.service.upnp.ApacheUpnpServiceConfiguration;
 import com.tesshu.jpsonic.service.upnp.CustomContentDirectory;
 import com.tesshu.jpsonic.service.upnp.MSMediaReceiverRegistrarService;
+import com.tesshu.jpsonic.service.upnp.transport.JpsonicUpnpServiceConf;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import org.fourthline.cling.UpnpService;
-import org.fourthline.cling.UpnpServiceImpl;
-import org.fourthline.cling.binding.annotations.AnnotationLocalServiceBinder;
-import org.fourthline.cling.model.DefaultServiceManager;
-import org.fourthline.cling.model.ValidationException;
-import org.fourthline.cling.model.meta.Device;
-import org.fourthline.cling.model.meta.DeviceDetails;
-import org.fourthline.cling.model.meta.DeviceIdentity;
-import org.fourthline.cling.model.meta.Icon;
-import org.fourthline.cling.model.meta.LocalDevice;
-import org.fourthline.cling.model.meta.LocalService;
-import org.fourthline.cling.model.meta.ManufacturerDetails;
-import org.fourthline.cling.model.meta.ModelDetails;
-import org.fourthline.cling.model.meta.RemoteDevice;
-import org.fourthline.cling.model.types.DLNADoc;
-import org.fourthline.cling.model.types.DeviceType;
-import org.fourthline.cling.model.types.UDADeviceType;
-import org.fourthline.cling.model.types.UDN;
-import org.fourthline.cling.support.connectionmanager.ConnectionManagerService;
-import org.fourthline.cling.support.model.ProtocolInfos;
-import org.fourthline.cling.support.model.dlna.DLNAProfiles;
-import org.fourthline.cling.support.model.dlna.DLNAProtocolInfo;
-import org.fourthline.cling.transport.RouterException;
+import org.jupnp.UpnpService;
+import org.jupnp.UpnpServiceImpl;
+import org.jupnp.binding.annotations.AnnotationLocalServiceBinder;
+import org.jupnp.model.DefaultServiceManager;
+import org.jupnp.model.ValidationException;
+import org.jupnp.model.meta.Device;
+import org.jupnp.model.meta.DeviceDetails;
+import org.jupnp.model.meta.DeviceIdentity;
+import org.jupnp.model.meta.Icon;
+import org.jupnp.model.meta.LocalDevice;
+import org.jupnp.model.meta.LocalService;
+import org.jupnp.model.meta.ManufacturerDetails;
+import org.jupnp.model.meta.ModelDetails;
+import org.jupnp.model.meta.RemoteDevice;
+import org.jupnp.model.types.DLNADoc;
+import org.jupnp.model.types.DeviceType;
+import org.jupnp.model.types.UDADeviceType;
+import org.jupnp.model.types.UDN;
+import org.jupnp.support.connectionmanager.ConnectionManagerService;
+import org.jupnp.support.model.ProtocolInfos;
+import org.jupnp.support.model.dlna.DLNAProfiles;
+import org.jupnp.support.model.dlna.DLNAProtocolInfo;
+import org.jupnp.transport.RouterException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -152,7 +152,9 @@ public class UPnPService {
     private void createService() {
         synchronized (lock) {
             try {
-                deligate = new UpnpServiceImpl(new ApacheUpnpServiceConfiguration());
+                deligate =
+                        new UpnpServiceImpl(new JpsonicUpnpServiceConf(SettingsService.getBrand(),
+                                versionService.getLocalVersion()));
             } catch (RuntimeException e) {
                 // The exception is wrapped in Runtime and thrown!
                 if (e.getCause() instanceof RouterException) {
@@ -164,6 +166,7 @@ public class UPnPService {
                 // Other than this, it is not inspected, so rethrow
                 throw e;
             }
+            deligate.startup();
 
             // Asynch search for other devices (most importantly UPnP-enabled routers for port-mapping)
             try {

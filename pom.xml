@@ -618,6 +618,7 @@
           <excludes>
             <exclude>com/tesshu/jpsonic/security/GlobalSecurityConfig.java</exclude>
             <exclude>com/tesshu/jpsonic/domain/ScanEvent.java</exclude>
+            <exclude>com/tesshu/jpsonic/service/upnp/transport/*.java</exclude>
           </excludes>
         </configuration>
       </plugin>

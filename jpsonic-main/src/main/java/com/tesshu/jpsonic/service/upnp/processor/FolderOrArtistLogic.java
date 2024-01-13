@@ -28,8 +28,8 @@ import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.upnp.ProcId;
 import com.tesshu.jpsonic.service.upnp.composite.FolderOrArtist;
-import org.fourthline.cling.support.model.container.Container;
-import org.fourthline.cling.support.model.container.MusicArtist;
+import org.jupnp.support.model.container.Container;
+import org.jupnp.support.model.container.MusicArtist;
 import org.springframework.stereotype.Service;
 
 @Service

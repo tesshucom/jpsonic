@@ -27,8 +27,8 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.upnp.ProcId;
-import org.fourthline.cling.support.model.BrowseResult;
-import org.fourthline.cling.support.model.DIDLContent;
+import org.jupnp.support.model.BrowseResult;
+import org.jupnp.support.model.DIDLContent;
 import org.springframework.stereotype.Service;
 
 @Service

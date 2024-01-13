@@ -45,10 +45,10 @@ import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.upnp.composite.ArtistOrSong;
 import com.tesshu.jpsonic.service.upnp.composite.FolderOrArtist;
-import org.fourthline.cling.support.model.DIDLContent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.jupnp.support.model.DIDLContent;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 
