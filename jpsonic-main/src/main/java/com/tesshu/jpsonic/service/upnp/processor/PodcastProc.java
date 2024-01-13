@@ -24,7 +24,6 @@ import java.util.List;
 import com.tesshu.jpsonic.domain.PodcastChannel;
 import com.tesshu.jpsonic.domain.PodcastEpisode;
 import com.tesshu.jpsonic.service.PodcastService;
-import com.tesshu.jpsonic.service.upnp.ProcId;
 import net.sf.ehcache.util.FindBugsSuppressWarnings;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;

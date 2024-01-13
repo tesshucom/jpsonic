@@ -21,8 +21,6 @@
 
 package com.tesshu.jpsonic.service.upnp.processor;
 
-import com.tesshu.jpsonic.service.upnp.ProcId;
-import com.tesshu.jpsonic.service.upnp.UPnPContentProcessor;
 import org.jupnp.support.model.container.Container;
 import org.jupnp.support.model.container.StorageFolder;
 

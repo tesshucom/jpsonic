@@ -26,7 +26,6 @@ import java.util.List;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.Playlist;
 import com.tesshu.jpsonic.service.PlaylistService;
-import com.tesshu.jpsonic.service.upnp.ProcId;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Component;

@@ -25,7 +25,6 @@ import java.util.List;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.service.upnp.ProcId;
 import com.tesshu.jpsonic.service.upnp.processor.composite.ArtistOrAlbum;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrArtist;
 import org.jupnp.support.model.DIDLContent;

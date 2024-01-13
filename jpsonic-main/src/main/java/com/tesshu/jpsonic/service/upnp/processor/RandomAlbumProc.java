@@ -26,7 +26,6 @@ import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.upnp.ProcId;
 import org.springframework.stereotype.Service;
 
 @Service

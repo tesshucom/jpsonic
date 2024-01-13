@@ -27,7 +27,6 @@ import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.ParamSearchResult;
 import com.tesshu.jpsonic.service.MediaFileService;
-import com.tesshu.jpsonic.service.upnp.ProcId;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.jupnp.support.model.BrowseResult;
 import org.jupnp.support.model.DIDLContent;

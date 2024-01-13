@@ -17,7 +17,7 @@
  * (C) 2023 tesshucom
  */
 
-package com.tesshu.jpsonic.service.upnp;
+package com.tesshu.jpsonic.service.upnp.processor;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;

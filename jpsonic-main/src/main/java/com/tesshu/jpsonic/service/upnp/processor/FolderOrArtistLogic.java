@@ -26,7 +26,6 @@ import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MusicFolderDao;
 import com.tesshu.jpsonic.domain.Artist;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.service.upnp.ProcId;
 import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrArtist;
 import org.jupnp.support.model.container.Container;
 import org.jupnp.support.model.container.MusicArtist;

@@ -26,7 +26,6 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MediaFile.MediaType;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
-import com.tesshu.jpsonic.service.upnp.ProcId;
 import org.jupnp.support.model.DIDLContent;
 import org.springframework.stereotype.Service;
 

@@ -19,7 +19,7 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.service.upnp;
+package com.tesshu.jpsonic.service.upnp.processor;
 
 import java.util.Arrays;
 import java.util.Collections;

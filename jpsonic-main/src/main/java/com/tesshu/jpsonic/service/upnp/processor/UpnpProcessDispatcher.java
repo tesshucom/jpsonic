@@ -17,7 +17,7 @@
  * (C) 2018 tesshucom
  */
 
-package com.tesshu.jpsonic.service.upnp;
+package com.tesshu.jpsonic.service.upnp.processor;
 
 /**
  * Interface for searching UPnPContentProcessor. Each UPnPContentProcessor will need to hold the ID defined here and be

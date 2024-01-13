@@ -24,9 +24,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.upnp.ProcId;
-import com.tesshu.jpsonic.service.upnp.UPnPContentProcessor;
-import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.WriteStatus;
 import org.jupnp.support.model.container.Container;

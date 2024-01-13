@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.tesshu.jpsonic.service.upnp.CustomContentDirectory;
 import com.tesshu.jpsonic.service.upnp.MSMediaReceiverRegistrarService;
+import com.tesshu.jpsonic.service.upnp.processor.CustomContentDirectory;
 import com.tesshu.jpsonic.service.upnp.transport.JpsonicUpnpServiceConf;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import jakarta.annotation.PostConstruct;
