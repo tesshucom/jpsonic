@@ -46,13 +46,13 @@ import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import org.apache.commons.lang3.StringUtils;
-import org.fourthline.cling.support.model.BrowseResult;
-import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.AUTHOR;
-import org.fourthline.cling.support.model.item.MusicTrack;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.jupnp.support.model.BrowseResult;
+import org.jupnp.support.model.DIDLObject.Property.UPNP.AUTHOR;
+import org.jupnp.support.model.item.MusicTrack;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 

@@ -207,10 +207,10 @@ public class DLNASettingsController {
 
         // If some properties are changed, UPnP will be started, stopped and restarted.
         if (isEnabledChanged) {
-            upnpService.setMediaServerEnabled(command.isDlnaEnabled());
+            upnpService.setEnabled(command.isDlnaEnabled());
         } else if (isNameOrUrlChanged && settingsService.isDlnaEnabled()) {
-            upnpService.setMediaServerEnabled(false);
-            upnpService.setMediaServerEnabled(true);
+            upnpService.setEnabled(false);
+            upnpService.setEnabled(true);
         }
 
         // for view page control

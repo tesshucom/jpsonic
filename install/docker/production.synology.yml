@@ -5,15 +5,18 @@
 # usage: 
 #   docker-compose -f production.synology.yml up -d
 #
-# @since v112.2.3
+# @since v114.0.0
 #
 
 services:
   app:
     image: 'jpsonic/jpsonic:latest'
     container_name: 'jpsonic'
+
+    # Not required. However, if you specify, please specify the correct name.
+    #　hostname: 'SynologyNAS'
+
     network_mode: 'host'
-    hostname: 'SynologyNAS'
     pid: host
 
     # This image is automatically updated by watchtower.
@@ -81,21 +84,40 @@ services:
      CONTEXT_PATH: '/'
 
      # Whether to log the logo at startup. [OFF|CONSOLE|LOG]
-     BANNER_MODE: 'OFF'
+     #
+     #BANNER_MODE: 'OFF'
 
      # Granularity of output logs. [ERROR|WARN|INFO|DEBUG|TRACE]
-     LOG_LEVEL: 'WARN'
+     #
+     #LOG_LEVEL: 'WARN'
 
      # Whether to scan at startup. False is recommended for Docker.
-     SCAN_ON_BOOT: 'false'
+     #
+     #SCAN_ON_BOOT: 'false'
 
      # If false, use the logical font of JRE (JDK) for Cover Art.
      # If true, preferentially use embedded fonts.
-     EMBEDDED_FONT: 'false'
+     #
+     #EMBEDDED_FONT: 'false'
 
      # You can override the MIME of DSD according to your device.
-     MIME_DSF: 'audio/x-dsd'
-     MIME_DFF: 'audio/x-dsd'
+     #
+     #MIME_DSF: 'audio/x-dsd'
+     #MIME_DFF: 'audio/x-dsd'
+
+     # It is possible to override some of the UPnP server parameters.
+     # https://docs.oracle.com/en/java/javase/21/docs/api/jdk.httpserver/module-summary.html
+     # Please note that these apply only to UPnP communication.
+     # Communication of images and media files is not controlled.
+     #
+     #UPNP_IDLE_INTERVAL: '30'
+     #UPNP_MAX_CONNECTIONS: '-1'
+     #UPNP_MAX_IDLE_CONNECTIONS: '200'
+     #UPNP_DRAIN_AMOUNT: '65536'
+     #UPNP_MAX_REQ_HEADERS: '200'
+     #UPNP_MAX_REQ_TIME: '2000'
+     #UPNP_MAX_RSP_TIME: '2000'
+     #UPNP_NODELAY: 'true'
 
     # Usually no need to change.
     # Unlike other Sonic servers, Jpsonic has a graceful shutdown implemented.
