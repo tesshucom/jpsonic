@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.UPnPService;
@@ -53,9 +54,11 @@ import org.jupnp.support.model.dlna.DLNAProtocolInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 @Component
+@DependsOn({ "upnpExecutorService" })
 public class UpnpServiceFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(UpnpServiceFactory.class);
@@ -68,17 +71,20 @@ public class UpnpServiceFactory {
     private final SettingsService settingsService;
     private final VersionService versionService;
     private final CustomContentDirectory dispatchingContentDirectory;
+    private final ExecutorService upnpExecutorService;
 
     public UpnpServiceFactory(SettingsService settingsService, VersionService versionService,
-            @Qualifier("dispatchingContentDirectory") CustomContentDirectory dispatchingContentDirectory) {
+            @Qualifier("dispatchingContentDirectory") CustomContentDirectory dispatchingContentDirectory,
+            @Qualifier("upnpExecutorService") ExecutorService upnpExecutorService) {
         super();
         this.settingsService = settingsService;
         this.versionService = versionService;
         this.dispatchingContentDirectory = dispatchingContentDirectory;
+        this.upnpExecutorService = upnpExecutorService;
     }
 
     public UpnpService createUpnpService() {
-        UpnpServiceConfiguration conf = new JpsonicUpnpServiceConf(SettingsService.getBrand(),
+        UpnpServiceConfiguration conf = new JpsonicUpnpServiceConf(upnpExecutorService, SettingsService.getBrand(),
                 versionService.getLocalVersion());
         return new UpnpServiceImpl(conf);
     }

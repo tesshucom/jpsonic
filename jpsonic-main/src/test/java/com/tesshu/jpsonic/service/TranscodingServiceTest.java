@@ -75,7 +75,7 @@ import org.mockito.Mockito;
  * This test class is a white-box. The goal is to refactor logic or add new logic while ensuring
  * that the logic remains as it is.
  */
-@SuppressWarnings({ "PMD.JUnitTestsShouldIncludeAssert", "PMD.DoNotUseThreads", "PMD.TooManyStaticImports" })
+@SuppressWarnings({ "PMD.JUnitTestsShouldIncludeAssert", "PMD.TooManyStaticImports" })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class TranscodingServiceTest {
 

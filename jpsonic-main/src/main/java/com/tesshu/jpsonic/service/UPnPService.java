@@ -36,7 +36,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 @Service
-@DependsOn("shutdownHook")
+@DependsOn({ "shutdownHook", "upnpServiceFactory" })
 public class UPnPService {
 
     private static final Logger LOG = LoggerFactory.getLogger(UPnPService.class);

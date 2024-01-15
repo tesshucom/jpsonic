@@ -25,7 +25,6 @@ import java.util.concurrent.ExecutorService;
  * Default settings for the UPnP Client used by Jpsonic.
  * It will be mainly used for device searches.
  */
-@SuppressWarnings("PMD.DoNotUseThreads")
 public record DefaultStreamClientConf(
         ExecutorService executorService, 
         int defaultMaxPerRoute,

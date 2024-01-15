@@ -19,9 +19,10 @@
 
 package com.tesshu.jpsonic.service.upnp.transport;
 
+import java.util.concurrent.ExecutorService;
+
 import com.tesshu.jpsonic.domain.Version;
 import com.tesshu.jpsonic.service.SettingsService;
-import org.jupnp.DefaultUpnpServiceConfiguration;
 import org.jupnp.model.ServerClientTokens;
 import org.jupnp.transport.spi.NetworkAddressFactory;
 import org.jupnp.transport.spi.StreamClient;
@@ -30,12 +31,13 @@ import org.jupnp.transport.spi.StreamServer;
 /**
  * Default settings for the UPnP Service used by Jpsonic.
  */
-public class JpsonicUpnpServiceConf extends DefaultUpnpServiceConfiguration {
+public class JpsonicUpnpServiceConf extends UpnpServiceConfigurationAdapter {
 
     private final ServerClientTokens tokens;
 
-    public JpsonicUpnpServiceConf(String brand, Version version) {
-        super();
+    public JpsonicUpnpServiceConf(ExecutorService executorService, String brand,
+            Version version) {
+        super(executorService);
         tokens = new ServerClientTokens(brand, version.toString());
     }
 

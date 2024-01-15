@@ -132,7 +132,14 @@
     </rule>
 
     <!-- Java Rules:Multithreading -->
-    <rule ref="category/java/multithreading.xml" />
+	<rule ref="category/java/multithreading.xml">
+		<!-- In legacy servers, thread generation was done freely in various places. 
+			That's the worst. Currently, it has been improved so that it can be used 
+			via pooling, and Executor etc. are used as accessors. In the future these 
+			could be replaced by virtual threads. Regarding this matter, it is necessary 
+			to consider the newer J2EE/JEE specifications than PMD. -->
+		<exclude name="DoNotUseThreads" />
+	</rule>
 
     <!-- Java Rules:Performance -->
     <rule ref="category/java/performance.xml" />
