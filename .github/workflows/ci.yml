@@ -243,27 +243,42 @@ jobs:
       - name: Release with Version Tag
         if: "(github.ref == 'refs/heads/master')"
         run: |
-          cd install/docker/alpine
-          sed -i -e "s/21-jdk-alpine/21-jre-alpine/g" Dockerfile
-          sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
-          mvn -DdockerTag=${{ env.DOCKER_TAG }} package
-          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-          docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }} .
-          mvn -DdockerTag=${DOCKER_TAG%.*} package
-          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-          docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${DOCKER_TAG%.*} .
-          mvn -DdockerTag=${DOCKER_TAG%.*.*} package
-          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-          docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*} .
+          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            cd install/docker/alpine
+            sed -i -e "s/21-jdk-alpine/21-jre-alpine/g" Dockerfile
+            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
+            mvn -DdockerTag=${{ env.DOCKER_TAG }} package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }} .
+            mvn -DdockerTag=${DOCKER_TAG%.*} package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${DOCKER_TAG%.*} .
+            mvn -DdockerTag=${DOCKER_TAG%.*.*} package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*} .
+          fi
       - name: Release with Latest Tag
         if: github.ref == 'refs/heads/master'
         run: |
-          cd install/docker/alpine
-          sed -i -e "s/21-jdk-alpine/21-jre-alpine/g" Dockerfile
-          sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
-          mvn -DdockerTag=latest package
-          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-          docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:latest .
+          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            cd install/docker/alpine
+            sed -i -e "s/21-jdk-alpine/21-jre-alpine/g" Dockerfile
+            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
+            mvn -DdockerTag=latest package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:latest .
+          fi
+      - name: Release with Alpha/Beta Tag
+        if: github.ref == 'refs/heads/master'
+        run: |
+          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)+\.[0-9]+$ ]]; then
+            cd install/docker/alpine
+            sed -i -e "s/21-jdk-alpine/21-jre-alpine/g" Dockerfile
+            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
+            mvn -DdockerTag=latest package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }} .
+          fi
       - name: Release with Early-Access Tag
         if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature/docker'
         run: |
@@ -305,27 +320,42 @@ jobs:
       - name: Release with Version Tag
         if: "(github.ref == 'refs/heads/master')"
         run: |
-          cd install/docker/jammy
-          sed -i -e "s/21-jdk-jammy/21-jre-jammy/g" Dockerfile
-          sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
-          mvn -DdockerTag=${{ env.DOCKER_TAG }}-jammy package
-          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-          docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-jammy .
-          mvn -DdockerTag=${DOCKER_TAG%.*}-jammy package
-          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-          docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:${DOCKER_TAG%.*}-jammy .
-          mvn -DdockerTag=${DOCKER_TAG%.*.*}-jammy package
-          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-          docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*}-jammy .
+          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            cd install/docker/jammy
+            sed -i -e "s/21-jdk-jammy/21-jre-jammy/g" Dockerfile
+            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
+            mvn -DdockerTag=${{ env.DOCKER_TAG }}-jammy package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-jammy .
+            mvn -DdockerTag=${DOCKER_TAG%.*}-jammy package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:${DOCKER_TAG%.*}-jammy .
+            mvn -DdockerTag=${DOCKER_TAG%.*.*}-jammy package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*}-jammy .
+          fi
       - name: Release with Latest Tag
         if: github.ref == 'refs/heads/master'
         run: |
-          cd install/docker/jammy
-          sed -i -e "s/21-jdk-jammy/21-jre-jammy/g" Dockerfile
-          sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
-          mvn -DdockerTag=latest-jammy package
-          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-          docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:latest-jammy .
+          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            cd install/docker/jammy
+            sed -i -e "s/21-jdk-jammy/21-jre-jammy/g" Dockerfile
+            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
+            mvn -DdockerTag=latest-jammy package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:latest-jammy .
+          fi
+      - name: Release with Alpha/Beta Tag
+        if: github.ref == 'refs/heads/master'
+        run: |
+          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)+\.[0-9]+$ ]]; then
+            cd install/docker/jammy
+            sed -i -e "s/21-jdk-jammy/21-jre-jammy/g" Dockerfile
+            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
+            mvn -DdockerTag=latest-jammy package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-jammy .
+          fi
       - name: Release with Early-Access Tag
         if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature/docker'
         run: |
@@ -367,27 +397,42 @@ jobs:
       - name: Release with Version Tag
         if: "(github.ref == 'refs/heads/master')"
         run: |
-          cd install/docker/jammy
-          sed -i -e "s/21-jdk-jammy/17-jre-jammy/g" Dockerfile
-          sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
-          mvn -DdockerTag=${{ env.DOCKER_TAG }}-jammy package
-          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-          docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-jammy-v7 .
-          mvn -DdockerTag=${DOCKER_TAG%.*}-jammy package
-          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-          docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${DOCKER_TAG%.*}-jammy-v7 .
-          mvn -DdockerTag=${DOCKER_TAG%.*.*}-jammy package
-          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-          docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*}-jammy-v7 .
+          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            cd install/docker/jammy
+            sed -i -e "s/21-jdk-jammy/17-jre-jammy/g" Dockerfile
+            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
+            mvn -DdockerTag=${{ env.DOCKER_TAG }}-jammy package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-jammy-v7 .
+            mvn -DdockerTag=${DOCKER_TAG%.*}-jammy package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${DOCKER_TAG%.*}-jammy-v7 .
+            mvn -DdockerTag=${DOCKER_TAG%.*.*}-jammy package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*}-jammy-v7 .
+          fi
       - name: Release with Latest Tag
         if: github.ref == 'refs/heads/master'
         run: |
-          cd install/docker/jammy
-          sed -i -e "s/21-jdk-jammy/17-jre-jammy/g" Dockerfile
-          sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
-          mvn -DdockerTag=latest-jammy package
-          docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-          docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:latest-jammy-v7 .
+          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            cd install/docker/jammy
+            sed -i -e "s/21-jdk-jammy/17-jre-jammy/g" Dockerfile
+            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
+            mvn -DdockerTag=latest-jammy package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:latest-jammy-v7 .
+          fi
+      - name: Release with Alpha/Beta Tag
+        if: github.ref == 'refs/heads/master'
+        run: |
+          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)+\.[0-9]+$ ]]; then
+            cd install/docker/jammy
+            sed -i -e "s/21-jdk-jammy/17-jre-jammy/g" Dockerfile
+            sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
+            mvn -DdockerTag=latest-jammy package
+            docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
+            docker buildx build --push --platform linux/arm/v7 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }}-jammy-v7 .
+          fi
   ##########################################################################
   run-docker4latest:
     name: Run ${{ matrix.tag }}
