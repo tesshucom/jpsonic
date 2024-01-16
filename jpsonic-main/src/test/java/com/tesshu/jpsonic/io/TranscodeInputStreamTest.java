@@ -55,7 +55,7 @@ class TranscodeInputStreamTest {
             }
         }
 
-        @SuppressWarnings({ "PMD.DoNotUseThreads", "PMD.CloseResource" })
+        @SuppressWarnings("PMD.CloseResource")
         // [CloseResource] False positives occur only on JDK19
         @Test
         void testRun() throws IOException, InterruptedException, ExecutionException {

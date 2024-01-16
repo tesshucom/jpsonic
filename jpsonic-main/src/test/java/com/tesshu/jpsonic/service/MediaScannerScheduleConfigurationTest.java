@@ -29,7 +29,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 
 import ch.qos.logback.classic.Level;
 import com.tesshu.jpsonic.TestCaseUtils;
@@ -119,8 +118,8 @@ class MediaScannerScheduleConfigurationTest {
             TriggerContext triggerContext = mock(TriggerContext.class);
 
             // Operation check at the first startup
-            Date firstTime = trigger.nextExecutionTime(triggerContext);
-            LocalDateTime firstDateTime = Instant.ofEpochMilli(firstTime.getTime()).atZone(ZoneId.systemDefault())
+            Instant firstTime = trigger.nextExecution(triggerContext);
+            LocalDateTime firstDateTime = Instant.ofEpochMilli(firstTime.toEpochMilli()).atZone(ZoneId.systemDefault())
                     .toLocalDateTime();
             assertEquals(now.plus(1, ChronoUnit.DAYS).getDayOfMonth(), firstDateTime.getDayOfMonth());
             assertEquals(0, firstDateTime.getHour());
@@ -128,8 +127,9 @@ class MediaScannerScheduleConfigurationTest {
 
             int hour = 23;
             Mockito.when(settingsService.getIndexCreationHour()).thenReturn(hour);
-            firstTime = trigger.nextExecutionTime(triggerContext);
-            firstDateTime = Instant.ofEpochMilli(firstTime.getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime();
+            firstTime = trigger.nextExecution(triggerContext);
+            firstDateTime = Instant.ofEpochMilli(firstTime.toEpochMilli()).atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
             assertEquals(
                     now.plus(now.compareTo(now.withHour(hour).withMinute(0).withSecond(0)) > 0 ? 1 : 0, ChronoUnit.DAYS)
                             .getDayOfMonth(),
@@ -138,8 +138,8 @@ class MediaScannerScheduleConfigurationTest {
             assertEquals(0, firstDateTime.getMinute());
 
             // Operation check at the second and subsequent startups
-            Mockito.when(triggerContext.lastCompletionTime()).thenReturn(firstTime);
-            LocalDateTime secondDateTime = Instant.ofEpochMilli(trigger.nextExecutionTime(triggerContext).getTime())
+            Mockito.when(triggerContext.lastCompletion()).thenReturn(firstTime);
+            LocalDateTime secondDateTime = Instant.ofEpochMilli(trigger.nextExecution(triggerContext).toEpochMilli())
                     .atZone(ZoneId.systemDefault()).toLocalDateTime();
 
             assertEquals(hour, secondDateTime.getHour());
@@ -163,11 +163,11 @@ class MediaScannerScheduleConfigurationTest {
 
             TriggerContext triggerContext = mock(TriggerContext.class);
             Mockito.when(mediaScannerService.neverScanned()).thenReturn(false);
-            trigger.nextExecutionTime(triggerContext);
+            trigger.nextExecution(triggerContext);
             Mockito.verify(mediaScannerService, Mockito.never()).scanLibrary();
 
             Mockito.when(mediaScannerService.neverScanned()).thenReturn(true);
-            trigger.nextExecutionTime(triggerContext);
+            trigger.nextExecution(triggerContext);
             Mockito.verify(mediaScannerService, Mockito.times(1)).scanLibrary();
         }
     }

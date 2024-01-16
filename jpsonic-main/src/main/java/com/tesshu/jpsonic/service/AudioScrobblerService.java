@@ -28,6 +28,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.scrobbler.LastFMScrobbler;
 import com.tesshu.jpsonic.service.scrobbler.ListenBrainzScrobbler;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +47,7 @@ public class AudioScrobblerService {
     private LastFMScrobbler lastFMScrobbler;
     private ListenBrainzScrobbler listenBrainzScrobbler;
 
-    public AudioScrobblerService(SecurityService securityService, Executor shortExecutor) {
+    public AudioScrobblerService(SecurityService securityService, @Qualifier("shortExecutor") Executor shortExecutor) {
         this.securityService = securityService;
         this.shortExecutor = shortExecutor;
     }

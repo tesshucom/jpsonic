@@ -40,8 +40,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import javax.servlet.http.HttpServletResponse;
-
 import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.controller.CoverArtController.AlbumCoverArtRequest;
 import com.tesshu.jpsonic.controller.CoverArtController.ArtistCoverArtRequest;
@@ -62,6 +60,7 @@ import com.tesshu.jpsonic.service.PlaylistService;
 import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.metadata.FFmpeg;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

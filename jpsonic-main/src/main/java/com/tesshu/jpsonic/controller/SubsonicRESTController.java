@@ -38,9 +38,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
@@ -48,6 +45,7 @@ import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.ajax.LyricsInfo;
 import com.tesshu.jpsonic.ajax.LyricsService;
 import com.tesshu.jpsonic.command.UserSettingsCommand;
+import com.tesshu.jpsonic.controller.Attributes.Request;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
@@ -94,9 +92,12 @@ import com.tesshu.jpsonic.service.search.SearchCriteria;
 import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import com.tesshu.jpsonic.util.StringUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpStatus;
+import org.apache.hc.core5.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -1497,8 +1498,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
                     user.getUsername() + " is not authorized to play files.");
             return;
         }
-
-        streamController.handleRequest(request, response, true);
+        req.setAttribute(Request.IS_REST.value(), "true");
+        streamController.handleRequest(request, response);
     }
 
     @RequestMapping({ "/hls", "/hls.view" })

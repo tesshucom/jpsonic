@@ -24,14 +24,13 @@ package com.tesshu.jpsonic.controller;
 import java.security.SecureRandom;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.RecoverService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

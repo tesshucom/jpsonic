@@ -33,8 +33,6 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.function.Function;
 
-import javax.annotation.PostConstruct;
-
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
@@ -46,6 +44,7 @@ import com.tesshu.jpsonic.domain.ParamSearchResult;
 import com.tesshu.jpsonic.domain.SearchResult;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.spring.EhcacheConfiguration.RandomCacheKey;
+import jakarta.annotation.PostConstruct;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.apache.commons.collections4.CollectionUtils;
@@ -74,9 +73,7 @@ public class SearchServiceUtilities {
 
     /* Search by id only. */
     private final AlbumDao albumDao;
-    @Qualifier("searchCache")
     private final Ehcache searchCache;
-    @Qualifier("randomCache")
     private final Ehcache randomCache;
 
     private Random random;
@@ -119,8 +116,8 @@ public class SearchServiceUtilities {
         return fieldName;
     };
 
-    public SearchServiceUtilities(ArtistDao artistDao, AlbumDao albumDao, Ehcache searchCache, Ehcache randomCache,
-            MediaFileService mediaFileService) {
+    public SearchServiceUtilities(ArtistDao artistDao, AlbumDao albumDao, @Qualifier("searchCache") Ehcache searchCache,
+            @Qualifier("randomCache") Ehcache randomCache, MediaFileService mediaFileService) {
         super();
         this.artistDao = artistDao;
         this.albumDao = albumDao;

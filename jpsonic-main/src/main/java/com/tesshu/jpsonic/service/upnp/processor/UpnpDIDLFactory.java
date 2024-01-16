@@ -46,25 +46,24 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.service.upnp.ProcId;
 import com.tesshu.jpsonic.util.StringUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.fourthline.cling.support.model.DIDLObject.Property;
-import org.fourthline.cling.support.model.DIDLObject.Property.UPNP;
-import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
-import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.AUTHOR;
-import org.fourthline.cling.support.model.PersonWithRole;
-import org.fourthline.cling.support.model.Res;
-import org.fourthline.cling.support.model.container.GenreContainer;
-import org.fourthline.cling.support.model.container.MusicAlbum;
-import org.fourthline.cling.support.model.container.MusicArtist;
-import org.fourthline.cling.support.model.container.PlaylistContainer;
-import org.fourthline.cling.support.model.container.StorageFolder;
-import org.fourthline.cling.support.model.item.MusicTrack;
-import org.fourthline.cling.support.model.item.VideoItem;
-import org.seamless.util.MimeType;
+import org.jupnp.support.model.DIDLObject.Property;
+import org.jupnp.support.model.DIDLObject.Property.UPNP;
+import org.jupnp.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
+import org.jupnp.support.model.DIDLObject.Property.UPNP.AUTHOR;
+import org.jupnp.support.model.PersonWithRole;
+import org.jupnp.support.model.Res;
+import org.jupnp.support.model.container.GenreContainer;
+import org.jupnp.support.model.container.MusicAlbum;
+import org.jupnp.support.model.container.MusicArtist;
+import org.jupnp.support.model.container.PlaylistContainer;
+import org.jupnp.support.model.container.StorageFolder;
+import org.jupnp.support.model.item.MusicTrack;
+import org.jupnp.support.model.item.VideoItem;
+import org.jupnp.util.MimeType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -195,6 +194,7 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
         String suffix = song.isVideo() ? FilenameUtils.getExtension(song.getPathString())
                 : transcodingService.getSuffix(player, song, null);
         String mimeTypeString = StringUtil.getMimeType(suffix);
+
         return mimeTypeString == null ? null : MimeType.valueOf(mimeTypeString);
     }
 
@@ -308,7 +308,7 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
     private Res toRes(MediaFile file) {
         Player player = playerService.getGuestPlayer(null);
         MimeType mimeType = getMimeType(file, player);
-        Res res = new Res(mimeType, null, createStreamURI(file, player));
+        Res res = new Res(mimeType, file.getFileSize(), createStreamURI(file, player));
         res.setDuration(formatDuration(file.getDurationSeconds()));
         return res;
     }

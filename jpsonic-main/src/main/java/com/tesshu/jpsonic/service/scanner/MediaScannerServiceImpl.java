@@ -34,6 +34,7 @@ import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
@@ -58,7 +59,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
     public MediaScannerServiceImpl(SettingsService settingsService, ScannerStateServiceImpl scannerState,
             ScannerProcedureService procedure, ExpungeService expungeService, StaticsDao staticsDao,
-            ThreadPoolTaskExecutor scanExecutor) {
+            @Qualifier("scanExecutor") ThreadPoolTaskExecutor scanExecutor) {
         super();
         this.settingsService = settingsService;
         this.scannerState = scannerState;

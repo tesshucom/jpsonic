@@ -24,10 +24,10 @@ package com.tesshu.jpsonic.dao.base;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
 
 import ch.qos.logback.classic.Level;
+import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;

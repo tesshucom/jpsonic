@@ -45,11 +45,11 @@ import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
-import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.container.Container;
-import org.fourthline.cling.support.model.container.GenreContainer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.jupnp.support.model.DIDLContent;
+import org.jupnp.support.model.container.Container;
+import org.jupnp.support.model.container.GenreContainer;
 
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class AlbumByGenreProcTest {

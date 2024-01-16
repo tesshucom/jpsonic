@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.util.concurrent;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -29,6 +30,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.core.task.support.ExecutorServiceAdapter;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.DefaultManagedAwareThreadFactory;
@@ -185,6 +188,33 @@ public class ExecutorConfiguration {
         return scheduler;
     }
 
+    /**
+     * @see org.jupnp.DefaultUpnpServiceConfiguration.JUPnPExecutor
+     */
+    @Lazy
+    @Bean
+    @DependsOn("legacyDaoHelper")
+    public ExecutorService upnpExecutorService() {
+        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setWaitForTasksToCompleteOnShutdown(false);
+        executor.setAllowCoreThreadTimeOut(true);
+        executor.setRejectedExecutionHandler(
+                (runnable, threadPoolExecutor) -> LoggerFactory.getLogger(runnable.getClass())
+                        .info("Thread pool(%s) rejected execution.".formatted(threadPoolExecutor.getClass())));
+
+        executor.setCorePoolSize(16);
+        executor.setMaxPoolSize(200);
+        executor.setKeepAliveSeconds(10);
+        executor.setQueueCapacity(1_000);
+
+        String threadGroupName = "upnp-default";
+        executor.setThreadNamePrefix(createThreadNamePrefix(threadGroupName));
+        executor.setThreadFactory(createThreadFactory(threadGroupName, Thread.NORM_PRIORITY));
+
+        executor.initialize();
+        return new ExecutorServiceAdapter(executor);
+    }
+
     private String createThreadNamePrefix(String threadGroupName) {
         return threadGroupName + "-pool-";
     }
@@ -223,12 +253,10 @@ public class ExecutorConfiguration {
         }
 
         @Override
-        @SuppressWarnings("PMD.DoNotUseThreads") // Required to set UncaughtExceptionHandler.
         public Thread newThread(Runnable run) {
             Thread thread = super.newThread(run);
             thread.setUncaughtExceptionHandler(handler);
             return thread;
         }
     }
-
 }

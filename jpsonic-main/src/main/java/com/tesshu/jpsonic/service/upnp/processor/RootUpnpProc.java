@@ -24,13 +24,10 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.upnp.ProcId;
-import com.tesshu.jpsonic.service.upnp.UPnPContentProcessor;
-import com.tesshu.jpsonic.service.upnp.UpnpProcessDispatcher;
-import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.WriteStatus;
-import org.fourthline.cling.support.model.container.Container;
-import org.fourthline.cling.support.model.container.StorageFolder;
+import org.jupnp.support.model.DIDLContent;
+import org.jupnp.support.model.WriteStatus;
+import org.jupnp.support.model.container.Container;
+import org.jupnp.support.model.container.StorageFolder;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 

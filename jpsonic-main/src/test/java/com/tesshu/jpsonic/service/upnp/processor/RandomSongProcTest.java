@@ -27,9 +27,9 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
-import org.fourthline.cling.support.model.BrowseResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.jupnp.support.model.BrowseResult;
 import org.mockito.Mockito;
 
 class RandomSongProcTest {

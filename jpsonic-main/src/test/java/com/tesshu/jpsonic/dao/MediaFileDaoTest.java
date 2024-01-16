@@ -85,7 +85,8 @@ class MediaFileDaoTest {
             mediaFileDao.updateArtistSort(cands);
             assertEquals("update media_file set artist_reading=?, artist_sort=?, music_index = ? where id = ?",
                     queryCaptor.getValue());
-            assertEquals(4, argCaptor.getAllValues().size());
+            assertEquals(1, argCaptor.getAllValues().size());
+            assertEquals(4, argCaptor.getValue().length);
 
             ArtistSortCandidate artistOfSong = new ArtistSortCandidate("artist", "artistSort", 1, "MUSIC",
                     TargetField.ARTIST.getValue());
@@ -95,7 +96,8 @@ class MediaFileDaoTest {
             Mockito.when(jdbcTemplate.update(queryCaptor.capture(), argCaptor.capture())).thenReturn(0);
             mediaFileDao.updateArtistSort(cands);
             assertEquals("update media_file set artist_reading=?, artist_sort=? where id = ?", queryCaptor.getValue());
-            assertEquals(3, argCaptor.getAllValues().size());
+            assertEquals(1, argCaptor.getAllValues().size());
+            assertEquals(3, argCaptor.getValue().length);
 
             ArtistSortCandidate albumArtist = new ArtistSortCandidate("albumArtist", "albumArtistSort", 1, "MUSIC",
                     TargetField.ALBUM_ARTIST.getValue());
@@ -107,7 +109,8 @@ class MediaFileDaoTest {
             assertEquals(
                     "update media_file set artist_reading=?, artist_sort=?, album_artist_reading=?, album_artist_sort=? where id = ?",
                     queryCaptor.getValue());
-            assertEquals(5, argCaptor.getAllValues().size());
+            assertEquals(1, argCaptor.getAllValues().size());
+            assertEquals(5, argCaptor.getValue().length);
 
             ArtistSortCandidate composer = new ArtistSortCandidate("albumArtist", "albumArtistSort", 1, "MUSIC",
                     TargetField.COMPOSER.getValue());
@@ -119,7 +122,8 @@ class MediaFileDaoTest {
             assertEquals(
                     "update media_file set artist_reading=?, artist_sort=?, album_artist_reading=?, album_artist_sort=?, composer_sort=? where id = ?",
                     queryCaptor.getValue());
-            assertEquals(6, argCaptor.getAllValues().size());
+            assertEquals(1, argCaptor.getAllValues().size());
+            assertEquals(6, argCaptor.getValue().length);
         }
 
         @Nested

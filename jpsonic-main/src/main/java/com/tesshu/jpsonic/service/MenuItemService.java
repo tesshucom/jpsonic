@@ -22,12 +22,12 @@ package com.tesshu.jpsonic.service;
 import java.util.List;
 import java.util.Locale;
 
-import javax.annotation.Resource;
-
 import com.tesshu.jpsonic.dao.MenuItemDao;
 import com.tesshu.jpsonic.domain.MenuItem;
 import com.tesshu.jpsonic.domain.MenuItem.ViewType;
 import com.tesshu.jpsonic.domain.MenuItemId;
+import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -37,11 +37,11 @@ public class MenuItemService {
 
     private final SettingsService settingsService;
     private final MenuItemDao menuItemDao;
-    @Lazy
-    @Resource(name = "menuItemSource")
+    @Resource
     private final MessageSource menuItemSource;
 
-    public MenuItemService(SettingsService settingsService, MenuItemDao menuItemDao, MessageSource menuItemSource) {
+    public MenuItemService(SettingsService settingsService, MenuItemDao menuItemDao,
+            @Lazy @Qualifier("menuItemSource") MessageSource menuItemSource) {
         this.settingsService = settingsService;
         this.menuItemDao = menuItemDao;
         this.menuItemSource = menuItemSource;

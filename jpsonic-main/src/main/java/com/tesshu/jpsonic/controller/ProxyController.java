@@ -28,15 +28,15 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.concurrent.ExecutionException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.util.Timeout;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -58,13 +58,15 @@ public class ProxyController {
             throws ServletRequestBindingException, ExecutionException {
         String url = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.URL.value());
 
-        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(15_000).setSocketTimeout(15_000).build();
+        RequestConfig requestConfig = RequestConfig.custom().setConnectionRequestTimeout(Timeout.ofSeconds(15))
+                .setResponseTimeout(Timeout.ofSeconds(15)).build();
         HttpGet method = new HttpGet(URI.create(url));
         method.setConfig(requestConfig);
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {
+            // Use HttpClientResponseHandler
             try (CloseableHttpResponse resp = client.execute(method)) {
-                int statusCode = resp.getStatusLine().getStatusCode();
+                int statusCode = resp.getCode();
                 if (statusCode == OK.value()) {
                     try (InputStream in = resp.getEntity().getContent()) {
                         IOUtils.copy(in, response.getOutputStream());

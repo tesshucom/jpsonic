@@ -24,9 +24,9 @@ package com.tesshu.jpsonic.service.scrobbler;
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,17 +42,18 @@ import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hc.core5.util.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,8 +65,8 @@ public class LastFMScrobbler {
 
     private static final Logger LOG = LoggerFactory.getLogger(LastFMScrobbler.class);
     private static final int MAX_PENDING_REGISTRATION = 2000;
-    private static final RequestConfig REQUEST_CONFIG = RequestConfig.custom().setConnectTimeout(15_000)
-            .setSocketTimeout(15_000).build();
+    private static final RequestConfig REQUEST_CONFIG = RequestConfig.custom()
+            .setConnectionRequestTimeout(Timeout.ofSeconds(15)).setResponseTimeout(Timeout.ofSeconds(15)).build();
     private static final String MSG_PREF_ON_FAIL = "Failed to scrobble song '";
 
     private final LinkedBlockingQueue<RegistrationData> queue;
@@ -269,18 +270,14 @@ public class LastFMScrobbler {
         }
 
         HttpPost request = new HttpPost(url);
-        try {
-            request.setEntity(new UrlEncodedFormEntity(params, StringUtil.ENCODING_UTF8));
-        } catch (UnsupportedEncodingException e) {
-            throw new ExecutionException("Unknown encoding.", e);
-        }
+        request.setEntity(new UrlEncodedFormEntity(params, Charset.forName(StringUtil.ENCODING_UTF8)));
         request.setConfig(REQUEST_CONFIG);
         return executeRequest(request);
     }
 
     private static String[] executeRequest(HttpUriRequest request) throws ExecutionException {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
-            ResponseHandler<String> responseHandler = new BasicResponseHandler();
+            HttpClientResponseHandler<String> responseHandler = new BasicHttpClientResponseHandler();
             String response = client.execute(request, responseHandler);
             return response.split("\\r?\\n");
         } catch (IOException e) {
