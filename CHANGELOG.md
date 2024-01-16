@@ -3,7 +3,22 @@
 # jpsonic/jpsonic
 # -->
 
-## v113.0.0
+
+## v114.0.0.alpha.1
+
+#### Maintenance
+
+  * Bump spring-boot 2.7.18 to 3.2.1 ([#2531](https://github.com/tesshucom/jpsonic/issues/2531))
+  * Migrate cling to jupnp ([#2541](https://github.com/tesshucom/jpsonic/issues/2541))
+
+#### Update Libs
+
+  - [v113.0.1](https://github.com/tesshucom/jpsonic/issues/2511)
+  - [v113.0.2](https://github.com/tesshucom/jpsonic/issues/2532)
+  - [v113.0.2](https://github.com/tesshucom/jpsonic/issues/2543)
+
+<details>
+<summary>v113.0.0</summary>
 
 #### Bug fixes
 
@@ -61,6 +76,7 @@
   - [v112.2.13](https://github.com/tesshucom/jpsonic/issues/2484)
   - [v112.2.14](https://github.com/tesshucom/jpsonic/issues/2493)
 
+</details>
 <details>
 <summary>v112.2.0</summary>
 
