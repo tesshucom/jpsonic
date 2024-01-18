@@ -40,6 +40,9 @@
 
         <!-- It is also possible to organize, after improving coverage. -->
         <exclude name="JUnitTestContainsTooManyAsserts" />
+        
+        <!-- Degrade pmd/pmd#1218 -->
+        <exclude name="LooseCoupling" />
     </rule>
 
     <!-- Java Rules:Code Style -->
