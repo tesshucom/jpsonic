@@ -123,10 +123,7 @@ public final class ComplementaryFilter extends TokenFilter {
     }
 
     private boolean isHiraKataOnly(String str) {
-        if (isEmpty(str)) {
-            return false;
-        }
-        return Stream.of(str.split(EMPTY)).allMatch(s -> {
+        return !isEmpty(str) && Stream.of(str.split(EMPTY)).allMatch(s -> {
             Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
             return Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b);
         });

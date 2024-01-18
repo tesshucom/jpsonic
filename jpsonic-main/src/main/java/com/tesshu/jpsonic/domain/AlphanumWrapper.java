@@ -118,6 +118,7 @@ class AlphanumWrapper extends Collator {
     }
 
     @Override
+    @SuppressWarnings("PMD.SimplifyBooleanReturns")
     public boolean equals(Object o) {
         if (o == this) {
             return true;

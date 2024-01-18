@@ -259,10 +259,7 @@ public class JapaneseReadingUtils {
     }
 
     private static boolean isJapaneseReading(@Nullable String str) {
-        if (isEmpty(str)) {
-            return false;
-        }
-        return Stream.of(str.split(EMPTY)).anyMatch(s -> {
+        return !isEmpty(str) && Stream.of(str.split(EMPTY)).anyMatch(s -> {
             Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
             return Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)
                     || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b)
@@ -273,10 +270,7 @@ public class JapaneseReadingUtils {
 
     /* AtoZ only true. */
     static boolean isStartWithAlpha(@Nullable String s) {
-        if (isEmpty(s)) {
-            return false;
-        }
-        return ALPHA.matcher(s.substring(0, 1)).matches();
+        return !isEmpty(s) && ALPHA.matcher(s.substring(0, 1)).matches();
     }
 
     boolean isJapaneseReadable(@Nullable String str) {

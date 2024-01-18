@@ -85,10 +85,8 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
         }
         UriComponents expected = UriComponentsBuilder.fromUriString(expectedRaw).build();
         UriComponents requested = UriComponentsBuilder.fromUriString(requestedPathRaw).build();
-        if (!Objects.equals(expected.getPath(), requested.getPath())) {
-            return false;
-        }
-        return expectedJWTParam(expected.getQueryParams(), requested.getQueryParams());
+        return Objects.equals(expected.getPath(), requested.getPath())
+                && expectedJWTParam(expected.getQueryParams(), requested.getQueryParams());
     }
 
     static boolean expectedJWTParam(@NonNull Map<String, List<String>> left, @NonNull Map<String, List<String>> right) {

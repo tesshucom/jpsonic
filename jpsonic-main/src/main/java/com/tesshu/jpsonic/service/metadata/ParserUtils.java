@@ -192,10 +192,8 @@ public final class ParserUtils {
             return false;
         }
         String extension = FilenameUtils.getExtension(fileName.toString());
-        if (extension == null) {
-            return false;
-        }
-        return IMG_APPLICABLES.contains(extension.toLowerCase(Locale.ENGLISH));
+        return FilenameUtils.getExtension(fileName.toString()) != null
+                && IMG_APPLICABLES.contains(extension.toLowerCase(Locale.ENGLISH));
     }
 
     public static Optional<Artwork> getEmbeddedArtwork(Path path) {
