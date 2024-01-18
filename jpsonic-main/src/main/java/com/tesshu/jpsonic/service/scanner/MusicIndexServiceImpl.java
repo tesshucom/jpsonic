@@ -98,7 +98,7 @@ public class MusicIndexServiceImpl implements MusicIndexService {
         settingsService.getShortcutsAsArray().forEach(shortcuts -> {
             musicFolders.forEach(musicFolder -> {
                 MediaFile shortcut = mediaFileService.getMediaFile(Path.of(musicFolder.getPathString(), shortcuts));
-                if (shortcut != null && mediaFileService.getChildrenOf(shortcut, true, true).size() > 0
+                if (shortcut != null && !mediaFileService.getChildrenOf(shortcut, true, true).isEmpty()
                         && !result.contains(shortcut)) {
                     result.add(shortcut);
                 }
