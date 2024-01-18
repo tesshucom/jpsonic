@@ -52,7 +52,7 @@ class StatusServiceTest {
     private Player player1;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         player1 = new Player();
         player1.setId(1);
     }
