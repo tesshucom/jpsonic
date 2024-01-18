@@ -71,7 +71,7 @@ public class MusicIndexServiceImpl implements MusicIndexService {
         indexables.forEach(indexable -> {
             MusicIndex musicIndex = getParser().getIndex(indexable.getMusicIndex());
             if (!iaMap.containsKey(musicIndex)) {
-                iaMap.put(musicIndex, new ArrayList<T>());
+                iaMap.put(musicIndex, new ArrayList<>());
             }
             iaMap.get(musicIndex).add(indexable);
         });

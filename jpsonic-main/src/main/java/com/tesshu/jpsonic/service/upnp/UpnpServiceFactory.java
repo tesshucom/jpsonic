@@ -122,13 +122,12 @@ public class UpnpServiceFactory {
         @SuppressWarnings("unchecked")
         LocalService<ConnectionManagerService> connetionManagerService = new AnnotationLocalServiceBinder()
                 .read(ConnectionManagerService.class);
-        connetionManagerService
-                .setManager(new DefaultServiceManager<ConnectionManagerService>(connetionManagerService) {
-                    @Override
-                    protected ConnectionManagerService createServiceInstance() {
-                        return new ConnectionManagerService(protocols, null);
-                    }
-                });
+        connetionManagerService.setManager(new DefaultServiceManager<>(connetionManagerService) {
+            @Override
+            protected ConnectionManagerService createServiceInstance() {
+                return new ConnectionManagerService(protocols, null);
+            }
+        });
 
         // For compatibility with Microsoft
         @SuppressWarnings("unchecked")

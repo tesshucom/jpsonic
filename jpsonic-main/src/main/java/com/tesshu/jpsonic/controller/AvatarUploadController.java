@@ -63,7 +63,8 @@ public class AvatarUploadController {
         this.avatarService = avatarService;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Exception) Not reusable
+    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseDiamondOperator", "rawtypes", "unchecked" })
+    // TODO UseDiamondOperator -> 114.0.0.beta.1
     @PostMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request) throws FileUploadException {
 
