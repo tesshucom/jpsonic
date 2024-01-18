@@ -107,8 +107,8 @@ public class ScanLogController {
         model.put("showOutlineHelp", outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
 
         UserSettings userSettings = securityService.getUserSettings(user.getUsername());
-        if (userSettings.isShowScannedCount() != Boolean.valueOf(reqShowCount)) {
-            userSettings.setShowScannedCount(Boolean.valueOf(reqShowCount));
+        if (userSettings.isShowScannedCount() != Boolean.parseBoolean(reqShowCount)) {
+            userSettings.setShowScannedCount(Boolean.parseBoolean(reqShowCount));
             securityService.updateUserSettings(userSettings);
         }
         boolean showScannedCount = userSettings.isShowScannedCount();

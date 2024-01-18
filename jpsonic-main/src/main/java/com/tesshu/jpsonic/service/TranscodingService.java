@@ -595,9 +595,8 @@ public class TranscodingService {
                 && settingsService.isInUPnPRange(player.getIpAddress());
         final Player playerForTranscode = useGuestPlayer ? playerService.getGuestPlayer(null) : player;
 
-        final TranscodeScheme transcodeScheme = getTranscodeScheme(playerForTranscode)
-                .strictest(TranscodeScheme.fromMaxBitRate(
-                        maxBitRate == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate()) : maxBitRate));
+        final TranscodeScheme transcodeScheme = getTranscodeScheme(playerForTranscode).strictest(
+                TranscodeScheme.fromMaxBitRate(maxBitRate == null ? TranscodeScheme.OFF.getMaxBitRate() : maxBitRate));
         final boolean hls = videoTranscodingSettings != null && videoTranscodingSettings.isHls();
         @Nullable
         final Transcoding transcoding = getTranscoding(mediaFile, playerForTranscode, preferredTargetFormat, hls);
@@ -632,7 +631,7 @@ public class TranscodingService {
     int createBitrate(@NonNull MediaFile mediaFile, @Nullable Transcoding transcoding) {
         // If null assume unlimited bitrate
         Integer br = mediaFile.getBitRate();
-        int bitRate = br == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate()) : br;
+        int bitRate = br == null ? TranscodeScheme.OFF.getMaxBitRate() : br;
         if (!mediaFile.isVideo()) {
             if (mediaFile.isVariableBitRate() && transcoding == null
                     || transcoding != null && !FORMAT_FLAC.equalsIgnoreCase(transcoding.getTargetFormat())) {

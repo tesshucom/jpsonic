@@ -438,7 +438,7 @@ class MediaScannerServiceImplTest {
             assertEquals("albumArtistA", album.getArtist());
             assertNull(album.getAlbumArtist());
             assertEquals("genreA", album.getGenre());
-            assertEquals(Integer.valueOf(2001), album.getYear());
+            assertEquals(2001, album.getYear());
             assertNull(album.getMusicBrainzReleaseId());
             assertNull(album.getMusicBrainzRecordingId());
 
@@ -450,13 +450,13 @@ class MediaScannerServiceImplTest {
             assertEquals("albumA", albumA.getName());
             assertEquals("albumArtistA", albumA.getArtist());
             assertEquals("genreA", albumA.getGenre());
-            assertEquals(Integer.valueOf(2001), albumA.getYear());
+            assertEquals(2001, albumA.getYear());
             assertNull(albumA.getMusicBrainzReleaseId());
             Album albumB = albumId3Map.get("albumArtistB");
             assertEquals("albumA", albumB.getName());
             assertEquals("albumArtistB", albumB.getArtist());
             assertEquals("genreB", albumB.getGenre());
-            assertEquals(Integer.valueOf(2002), albumB.getYear());
+            assertEquals(2002, albumB.getYear());
             assertNull(albumB.getMusicBrainzReleaseId());
 
             // Null
@@ -487,7 +487,7 @@ class MediaScannerServiceImplTest {
             assertEquals("albumC", albumA.getName());
             assertEquals("albumArtistC", albumA.getArtist());
             assertEquals("genreC", albumA.getGenre());
-            assertEquals(Integer.valueOf(2002), albumA.getYear());
+            assertEquals(2002, albumA.getYear());
             assertNull(albumA.getMusicBrainzReleaseId());
 
             // Reverse
@@ -500,7 +500,7 @@ class MediaScannerServiceImplTest {
             assertEquals("albumArtistD", album.getArtist());
             assertNull(album.getAlbumArtist());
             assertEquals("genreD", album.getGenre());
-            assertEquals(Integer.valueOf(2001), album.getYear());
+            assertEquals(2001, album.getYear());
             assertNull(album.getMusicBrainzReleaseId());
             assertNull(album.getMusicBrainzRecordingId());
 
@@ -511,14 +511,14 @@ class MediaScannerServiceImplTest {
             assertEquals("albumD", albumA.getName());
             assertEquals("albumArtistD", albumA.getArtist());
             assertEquals("genreD", albumA.getGenre());
-            assertEquals(Integer.valueOf(2001), albumA.getYear());
+            assertEquals(2001, albumA.getYear());
             assertNull(albumA.getMusicBrainzReleaseId());
 
             albumA = albumId3s.get(1);
             assertEquals("albumE", albumA.getName());
             assertEquals("albumArtistE", albumA.getArtist());
             assertEquals("genreE", albumA.getGenre());
-            assertEquals(Integer.valueOf(2002), albumA.getYear());
+            assertEquals(2002, albumA.getYear());
             assertNull(albumA.getMusicBrainzReleaseId());
         }
     }

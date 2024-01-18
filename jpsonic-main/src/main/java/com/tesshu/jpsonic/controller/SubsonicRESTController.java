@@ -1112,8 +1112,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
         }
         List<Integer> songIndexesToRemove = new ArrayList<>(tmp);
         Collections.reverse(songIndexesToRemove);
-        for (Integer songIndexToRemove : songIndexesToRemove) {
-            songs.remove(songIndexToRemove.intValue());
+        for (int songIndexToRemove : songIndexesToRemove) {
+            songs.remove(songIndexToRemove);
             songsChanged = true;
         }
         for (int songToAdd : toAdd) {

@@ -38,7 +38,7 @@ class CacheElementTest {
     void testCreateId() {
         long ecpected = CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
         long actual = CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
-        assertEquals(Long.valueOf(ecpected), Long.valueOf(actual));
+        assertEquals(ecpected, actual);
 
         ecpected = CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
         actual = CacheElement.createId(2, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");

@@ -147,7 +147,7 @@ public final class ParserUtils {
             }
         }
 
-        if (Integer.valueOf(0).equals(result)) {
+        if (result == 0) {
             return null;
         }
         return result;

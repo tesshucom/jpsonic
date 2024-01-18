@@ -40,10 +40,10 @@ class HLSControllerTest {
     @Test
     void testParseBitRateSuccess() {
         Pair<Integer, Dimension> pair = controller.parseBitRate("1000");
-        assertEquals(1000, pair.getLeft().intValue());
+        assertEquals(1000, pair.getLeft());
         assertNull(pair.getRight());
         pair = controller.parseBitRate("1000@400x300");
-        assertEquals(1000, pair.getLeft().intValue());
+        assertEquals(1000, pair.getLeft());
         assertEquals(400, pair.getRight().width);
         assertEquals(300, pair.getRight().height);
     }

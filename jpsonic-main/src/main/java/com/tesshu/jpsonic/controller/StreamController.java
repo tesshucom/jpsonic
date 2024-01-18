@@ -116,6 +116,7 @@ public class StreamController {
         }
     }
 
+    @SuppressWarnings("PMD.UnnecessaryBoxing") // false positive
     private static Integer getMaxBitRate(HttpServletRequest request) throws ServletRequestBindingException {
         Integer maxBitRate = getIntParameter(request, Attributes.Request.MAX_BIT_RATE.value());
         if (Integer.valueOf(0).equals(maxBitRate)) {
@@ -279,6 +280,7 @@ public class StreamController {
         }
     }
 
+    @SuppressWarnings("PMD.UnnecessaryBoxing")
     private static void applyContentDuration(HttpServletResponse response, MediaFile file) {
         Integer duration = file.getDurationSeconds();
         if (duration != null) {
@@ -401,7 +403,7 @@ public class StreamController {
 
         MediaFile file = streamService.getSingleFile(req);
         boolean isSingleFile = file != null;
-        boolean isRest = Boolean.valueOf(String.valueOf(req.getAttribute(Request.IS_REST.value())));
+        boolean isRest = Boolean.parseBoolean(String.valueOf(req.getAttribute(Request.IS_REST.value())));
         String format = streamService.getFormat(req, player, isRest);
         Integer maxBitRate = getMaxBitRate(req);
 

@@ -363,13 +363,13 @@ class MusicParserTest {
                     assertEquals("Mp3tag:AlbumArtist", metaData.getAlbumArtist());
                     assertEquals("Mp3tag:Album", metaData.getAlbumName());
                     assertEquals("Mp3tag:Artist", metaData.getArtist());
-                    assertEquals(Integer.valueOf(98), metaData.getDiscNumber());
+                    assertEquals(98, metaData.getDiscNumber());
                     assertEquals("Mp3tag:Genre", metaData.getGenre());
                     assertEquals("Mp3tag:MusicBrainzTrackId", metaData.getMusicBrainzRecordingId());
                     assertEquals("Mp3tag:MusicBrainzReleaseId", metaData.getMusicBrainzReleaseId());
                     assertEquals("Mp3tag:Title", metaData.getTitle());
-                    assertEquals(Integer.valueOf(96), metaData.getTrackNumber());
-                    assertEquals(Integer.valueOf(2022), metaData.getYear());
+                    assertEquals(96, metaData.getTrackNumber());
+                    assertEquals(2022, metaData.getYear());
                     assertEquals("Mp3tag:ArtistReading", metaData.getArtistSort());
                     assertEquals("Mp3tag:AlbumReading", metaData.getAlbumSort());
                     assertEquals("Mp3tag:TitleReading", metaData.getTitleSort());
@@ -382,13 +382,13 @@ class MusicParserTest {
                     assertEquals("MC4PC:AlbumArtist", metaData.getAlbumArtist());
                     assertEquals("MC4PC:Album", metaData.getAlbumName());
                     assertEquals("MC4PC:Artist", metaData.getArtist());
-                    assertEquals(Integer.valueOf(98), metaData.getDiscNumber());
+                    assertEquals(98, metaData.getDiscNumber());
                     assertEquals("MC4PC:Genre", metaData.getGenre());
                     assertEquals("Mp3tag:MusicBrainzTrackId", metaData.getMusicBrainzRecordingId());
                     assertEquals("Mp3tag:MusicBrainzReleaseId", metaData.getMusicBrainzReleaseId());
                     assertEquals("MC4PC:Title", metaData.getTitle());
-                    assertEquals(Integer.valueOf(96), metaData.getTrackNumber());
-                    assertEquals(Integer.valueOf(2022), metaData.getYear());
+                    assertEquals(96, metaData.getTrackNumber());
+                    assertEquals(2022, metaData.getYear());
                     assertEquals("MC4PC:ArtistReading", metaData.getArtistSort());
                     assertEquals("MC4PC:AlbumReading", metaData.getAlbumSort());
                     assertEquals("MC4PC:TitleReading", metaData.getTitleSort());
@@ -404,8 +404,8 @@ class MusicParserTest {
                     assertNotNull(metaData);
                     assertTagsWrittenByMp3tag(metaData);
                     assertTrue(metaData.isVariableBitRate());
-                    assertEquals(Integer.valueOf(192), metaData.getBitRate());
-                    assertEquals(Integer.valueOf(1), metaData.getDurationSeconds());
+                    assertEquals(192, metaData.getBitRate());
+                    assertEquals(1, metaData.getDurationSeconds());
                 }
 
                 @Test
@@ -415,8 +415,8 @@ class MusicParserTest {
                     assertNotNull(metaData);
                     assertTagsWrittenByMC4PCAndMp3tag(metaData);
                     assertTrue(metaData.isVariableBitRate());
-                    assertEquals(Integer.valueOf(192), metaData.getBitRate());
-                    assertEquals(Integer.valueOf(5), metaData.getDurationSeconds());
+                    assertEquals(192, metaData.getBitRate());
+                    assertEquals(5, metaData.getDurationSeconds());
                 }
 
                 @Test
@@ -426,8 +426,8 @@ class MusicParserTest {
                     assertNotNull(metaData);
                     assertTagsWrittenByMp3tag(metaData);
                     assertFalse(metaData.isVariableBitRate());
-                    assertEquals(Integer.valueOf(64), metaData.getBitRate());
-                    assertEquals(Integer.valueOf(14), metaData.getDurationSeconds());
+                    assertEquals(64, metaData.getBitRate());
+                    assertEquals(14, metaData.getDurationSeconds());
                 }
 
                 @Test
@@ -444,8 +444,8 @@ class MusicParserTest {
                     assertNull(metaData.getMusicBrainzRecordingId());
                     assertNull(metaData.getMusicBrainzReleaseId());
                     assertEquals("Mp3tag:Title", metaData.getTitle());
-                    assertEquals(Integer.valueOf(96), metaData.getTrackNumber());
-                    assertEquals(Integer.valueOf(2022), metaData.getYear());
+                    assertEquals(96, metaData.getTrackNumber());
+                    assertEquals(2022, metaData.getYear());
                     assertNull(metaData.getArtistSort());
                     assertNull(metaData.getAlbumSort());
                     assertNull(metaData.getTitleSort());
@@ -454,8 +454,8 @@ class MusicParserTest {
                     assertNull(metaData.getComposerSort());
 
                     assertFalse(metaData.isVariableBitRate());
-                    assertEquals(Integer.valueOf(320), metaData.getBitRate());
-                    assertEquals(Integer.valueOf(0), metaData.getDurationSeconds());
+                    assertEquals(320, metaData.getBitRate());
+                    assertEquals(0, metaData.getDurationSeconds());
                 }
 
                 @Test
@@ -465,8 +465,8 @@ class MusicParserTest {
                     assertNotNull(metaData);
                     assertTagsWrittenByMp3tag(metaData);
                     assertTrue(metaData.isVariableBitRate());
-                    assertEquals(Integer.valueOf(128), metaData.getBitRate());
-                    assertEquals(Integer.valueOf(242), metaData.getDurationSeconds());
+                    assertEquals(128, metaData.getBitRate());
+                    assertEquals(242, metaData.getDurationSeconds());
                 }
 
                 /*
@@ -483,8 +483,8 @@ class MusicParserTest {
                     assertTrue(isEmptyMetaData(metaData));
                     // Only audio headers will be used.
                     assertFalse(metaData.isVariableBitRate());
-                    assertEquals(Integer.valueOf(176), metaData.getBitRate());
-                    assertEquals(Integer.valueOf(14), metaData.getDurationSeconds());
+                    assertEquals(176, metaData.getBitRate());
+                    assertEquals(14, metaData.getDurationSeconds());
                 }
 
                 @Test
@@ -493,8 +493,8 @@ class MusicParserTest {
                     assertNotNull(metaData);
                     assertFalse(isEmptyMetaData(metaData));
                     assertFalse(metaData.isVariableBitRate());
-                    assertEquals(Integer.valueOf(176), metaData.getBitRate());
-                    assertEquals(Integer.valueOf(14), metaData.getDurationSeconds());
+                    assertEquals(176, metaData.getBitRate());
+                    assertEquals(14, metaData.getDurationSeconds());
                 }
 
                 @Test
@@ -504,8 +504,8 @@ class MusicParserTest {
                     assertNotNull(metaData);
                     assertTagsWrittenByMC4PCAndMp3tag(metaData);
                     assertFalse(metaData.isVariableBitRate());
-                    assertEquals(Integer.valueOf(32), metaData.getBitRate());
-                    assertEquals(Integer.valueOf(220), metaData.getDurationSeconds());
+                    assertEquals(32, metaData.getBitRate());
+                    assertEquals(220, metaData.getDurationSeconds());
                 }
 
                 @Test
@@ -516,8 +516,8 @@ class MusicParserTest {
                     assertNotNull(metaData);
                     assertFalse(isEmptyMetaData(metaData));
                     assertFalse(metaData.isVariableBitRate());
-                    assertEquals(Integer.valueOf(128), metaData.getBitRate());
-                    assertEquals(Integer.valueOf(3), metaData.getDurationSeconds());
+                    assertEquals(128, metaData.getBitRate());
+                    assertEquals(3, metaData.getDurationSeconds());
                 }
 
                 @Test
@@ -528,8 +528,8 @@ class MusicParserTest {
                     assertNotNull(metaData);
                     assertTagsWrittenByMC4PCAndMp3tag(metaData);
                     assertFalse(metaData.isVariableBitRate());
-                    assertEquals(Integer.valueOf(5_644_800), metaData.getBitRate());
-                    assertEquals(Integer.valueOf(5), metaData.getDurationSeconds());
+                    assertEquals(5_644_800, metaData.getBitRate());
+                    assertEquals(5, metaData.getDurationSeconds());
                 }
 
                 @Test
@@ -542,8 +542,8 @@ class MusicParserTest {
                     assertTrue(isEmptyMetaData(metaData));
                     // Only audio headers will be used.
                     assertFalse(metaData.isVariableBitRate());
-                    assertEquals(Integer.valueOf(5_644_800), metaData.getBitRate());
-                    assertEquals(Integer.valueOf(5), metaData.getDurationSeconds());
+                    assertEquals(5_644_800, metaData.getBitRate());
+                    assertEquals(5, metaData.getDurationSeconds());
                 }
             }
         }
@@ -953,11 +953,11 @@ class MusicParserTest {
             assertNull(metaData.getHeight());
             assertNull(metaData.getMusicBrainzReleaseId());
             assertFalse(metaData.isVariableBitRate());
-            assertEquals(Integer.valueOf(2019), metaData.getYear());
-            assertEquals(Integer.valueOf(1), metaData.getTrackNumber());
-            assertEquals(Integer.valueOf(3), metaData.getDiscNumber());
-            assertEquals(Integer.valueOf(0), metaData.getDurationSeconds());
-            assertEquals(Integer.valueOf(320), metaData.getBitRate());
+            assertEquals(2019, metaData.getYear());
+            assertEquals(1, metaData.getTrackNumber());
+            assertEquals(3, metaData.getDiscNumber());
+            assertEquals(0, metaData.getDurationSeconds());
+            assertEquals(320, metaData.getBitRate());
         }
 
         private void assertITunesJP(Path path, boolean isAlbumArtist) {
@@ -974,11 +974,11 @@ class MusicParserTest {
             assertNull(metaData.getHeight());
             assertNull(metaData.getMusicBrainzReleaseId());
             assertFalse(metaData.isVariableBitRate());
-            assertEquals(Integer.valueOf(2019), metaData.getYear());
-            assertEquals(Integer.valueOf(1), metaData.getTrackNumber());
-            assertEquals(Integer.valueOf(3), metaData.getDiscNumber());
-            assertEquals(Integer.valueOf(0), metaData.getDurationSeconds());
-            assertEquals(Integer.valueOf(320), metaData.getBitRate());
+            assertEquals(2019, metaData.getYear());
+            assertEquals(1, metaData.getTrackNumber());
+            assertEquals(3, metaData.getDiscNumber());
+            assertEquals(0, metaData.getDurationSeconds());
+            assertEquals(320, metaData.getBitRate());
         }
 
         @Test
@@ -1089,13 +1089,13 @@ class MusicParserTest {
             assertEquals("MusicCenter-Album", metaData.getAlbumName());
             assertEquals("MusicCenter-Album(Reading)", metaData.getAlbumSort());
             assertEquals("Rock", metaData.getGenre());
-            assertEquals(Integer.valueOf(2019), metaData.getYear());
+            assertEquals(2019, metaData.getYear());
             assertEquals("MusicCenter-Composer", metaData.getComposer());
             assertNull(metaData.getComposerSort());
             assertNull(metaData.getTrackNumber()); // If track is not input, output 1.0.
-            assertEquals(Integer.valueOf(3), metaData.getDiscNumber());
-            assertEquals(Integer.valueOf(0), metaData.getDurationSeconds());
-            assertEquals(Integer.valueOf(320), metaData.getBitRate());
+            assertEquals(3, metaData.getDiscNumber());
+            assertEquals(0, metaData.getDurationSeconds());
+            assertEquals(320, metaData.getBitRate());
             assertNull(metaData.getHeight());
             assertNull(metaData.getMusicBrainzReleaseId());
             assertFalse(metaData.isVariableBitRate());
@@ -1114,13 +1114,13 @@ class MusicParserTest {
             assertEquals("MusicCenter～アルバム", metaData.getAlbumName());
             assertEquals("MusicCenter～アルバム(読み)", metaData.getAlbumSort());
             assertEquals("ロック", metaData.getGenre());
-            assertEquals(Integer.valueOf(2019), metaData.getYear());
+            assertEquals(2019, metaData.getYear());
             assertEquals("作曲者", metaData.getComposer());
             assertNull(metaData.getComposerSort());
-            assertEquals(Integer.valueOf(1), metaData.getTrackNumber());
-            assertEquals(Integer.valueOf(3), metaData.getDiscNumber());
-            assertEquals(Integer.valueOf(0), metaData.getDurationSeconds());
-            assertEquals(Integer.valueOf(320), metaData.getBitRate());
+            assertEquals(1, metaData.getTrackNumber());
+            assertEquals(3, metaData.getDiscNumber());
+            assertEquals(0, metaData.getDurationSeconds());
+            assertEquals(320, metaData.getBitRate());
             assertNull(metaData.getHeight());
             assertNull(metaData.getMusicBrainzReleaseId());
             assertFalse(metaData.isVariableBitRate());
@@ -1139,13 +1139,13 @@ class MusicParserTest {
             assertEquals("MusicCenter～アルバム", metaData.getAlbumName());
             assertEquals("MusicCenter～アルバム(読み)", metaData.getAlbumSort());
             assertEquals("ロック", metaData.getGenre());
-            assertEquals(Integer.valueOf(2019), metaData.getYear());
+            assertEquals(2019, metaData.getYear());
             assertEquals("作曲者", metaData.getComposer());
             assertEquals("作曲者(読み)", metaData.getComposerSort());
-            assertEquals(Integer.valueOf(1), metaData.getTrackNumber());
-            assertEquals(Integer.valueOf(3), metaData.getDiscNumber());
-            assertEquals(Integer.valueOf(0), metaData.getDurationSeconds());
-            assertEquals(Integer.valueOf(320), metaData.getBitRate());
+            assertEquals(1, metaData.getTrackNumber());
+            assertEquals(3, metaData.getDiscNumber());
+            assertEquals(0, metaData.getDurationSeconds());
+            assertEquals(320, metaData.getBitRate());
             assertNull(metaData.getHeight());
             assertNull(metaData.getMusicBrainzReleaseId());
             assertFalse(metaData.isVariableBitRate());
@@ -1164,13 +1164,13 @@ class MusicParserTest {
             assertEquals("MusicCenter～アルバム", metaData.getAlbumName());
             assertEquals("MusicCenter～アルバム(読み)", metaData.getAlbumSort());
             assertEquals("ロック", metaData.getGenre());
-            assertEquals(Integer.valueOf(2019), metaData.getYear());
+            assertEquals(2019, metaData.getYear());
             assertEquals("作曲者", metaData.getComposer());
             assertEquals("作曲者(読み)", metaData.getComposerSort());
-            assertEquals(Integer.valueOf(1), metaData.getTrackNumber());
-            assertEquals(Integer.valueOf(3), metaData.getDiscNumber());
-            assertEquals(Integer.valueOf(0), metaData.getDurationSeconds());
-            assertEquals(Integer.valueOf(320), metaData.getBitRate());
+            assertEquals(1, metaData.getTrackNumber());
+            assertEquals(3, metaData.getDiscNumber());
+            assertEquals(0, metaData.getDurationSeconds());
+            assertEquals(320, metaData.getBitRate());
             assertNull(metaData.getHeight());
             assertNull(metaData.getMusicBrainzReleaseId());
             assertFalse(metaData.isVariableBitRate());

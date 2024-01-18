@@ -187,8 +187,7 @@ class UserSettingsControllerTest {
             UserSettings updatedSettings = settingsCaptor.getValue();
             assertEquals(TranscodeScheme.OFF, updatedSettings.getTranscodeScheme());
             assertNotNull(updatedSettings.getChanged());
-            assertEquals(Arrays.asList(Integer.valueOf(1), Integer.valueOf(2), Integer.valueOf(3)),
-                    idsCaptor.getValue());
+            assertEquals(Arrays.asList(1, 2, 3), idsCaptor.getValue());
         }
 
         @Test
