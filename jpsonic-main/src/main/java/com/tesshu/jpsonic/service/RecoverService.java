@@ -113,7 +113,7 @@ public class RecoverService {
 
             try (Transport trans = session.getTransport(prot)) {
                 if (props.get(SESSION_KEY_MAIL_PREF + prot + ".auth") != null
-                        && props.get(SESSION_KEY_MAIL_PREF + prot + ".auth").equals(SESSION_VALUE_TRUE)) {
+                        && SESSION_VALUE_TRUE.equals(props.get(SESSION_KEY_MAIL_PREF + prot + ".auth"))) {
                     trans.connect(settingsService.getSmtpServer(), settingsService.getSmtpUser(),
                             settingsService.getSmtpPassword());
                 } else {
