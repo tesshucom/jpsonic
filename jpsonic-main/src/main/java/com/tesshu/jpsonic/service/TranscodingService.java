@@ -534,6 +534,7 @@ public class TranscodingService {
                 && isTranscoderInstalled(transcoding.getStep3());
     }
 
+    @SuppressWarnings("PMD.UnusedPrivateMethod") // false positive
     private boolean isTranscoderInstalled(String step) {
 
         if (!Files.exists(getTranscodeDirectory())) {

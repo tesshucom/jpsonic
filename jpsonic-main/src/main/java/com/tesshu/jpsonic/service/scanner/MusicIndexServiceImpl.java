@@ -181,6 +181,7 @@ public class MusicIndexServiceImpl implements MusicIndexService {
                     .findFirst().orElse(MusicIndex.OTHER);
         }
 
+        @SuppressWarnings("PMD.UnusedPrivateMethod") // false positive
         private MusicIndex getIndex(String index) {
             return indexes.stream().filter(musicIndex -> musicIndex.getIndex().equals(index)).findFirst()
                     .orElse(MusicIndex.OTHER);

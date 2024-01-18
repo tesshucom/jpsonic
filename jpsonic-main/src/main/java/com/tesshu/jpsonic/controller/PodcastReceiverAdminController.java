@@ -125,6 +125,7 @@ public class PodcastReceiverAdminController {
         return false;
     }
 
+    @SuppressWarnings("PMD.UnusedPrivateMethod") // false positive
     private void download(int... episodeIds) {
         for (int episodeId : episodeIds) {
             PodcastEpisode episode = podcastService.getEpisode(episodeId, false);
