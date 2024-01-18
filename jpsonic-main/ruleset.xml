@@ -65,6 +65,9 @@
 
         <!-- Rather recommended. -->
         <exclude name="OnlyOneReturn" />
+        
+        <!-- Degrade pmd/pmd#4785 -->
+        <exclude name="UnnecessaryImport" />
     </rule>
 
     <!-- Java Rules:Design -->
