@@ -447,8 +447,8 @@ public class InternetRadioService {
                 redirectCount += 1;
                 if (maxRedirects > 0 && redirectCount > maxRedirects) {
                     connection.disconnect();
-                    throw new PlaylistHasTooManyRedirects(
-                            "Too many redirects (%d) for URL %s".formatted(redirectCount, url));
+                    throw new ExecutionException("Redirect failed.", new PlaylistHasTooManyRedirects(
+                            "Too many redirects (%d) for URL %s".formatted(redirectCount, url)));
                 }
 
                 // Reconnect to the new URL.
@@ -459,7 +459,7 @@ public class InternetRadioService {
 
             // Return the last connection that did not redirect.
             return connection;
-        } catch (IOException | PlaylistHasTooManyRedirects e) {
+        } catch (IOException e) {
             throw new ExecutionException("Redirect failed.", e);
         }
     }

@@ -105,6 +105,10 @@ public class UploadController {
             model.put("exception", new IllegalArgumentException("Currently scanning. Please try again after a while."));
             return new ModelAndView("upload", "model", model);
         }
+        if (!JakartaServletFileUpload.isMultipartContent(request)) {
+            model.put("exception", new IOException("Illegal request."));
+            return new ModelAndView("upload", "model", model);
+        }
 
         TransferStatus status = null;
         UnzipResult result = null;
@@ -114,11 +118,6 @@ public class UploadController {
             status.setBytesTotal(request.getContentLength());
 
             request.getSession().setAttribute(Attributes.Session.UPLOAD_STATUS.value(), status);
-
-            // Check that we have a file upload request
-            if (!JakartaServletFileUpload.isMultipartContent(request)) {
-                throw new ExecutionException(new IOException("Illegal request."));
-            }
 
             List<DiskFileItem> items = getUploadItems(request, status);
             Path dir = getDir(items);
