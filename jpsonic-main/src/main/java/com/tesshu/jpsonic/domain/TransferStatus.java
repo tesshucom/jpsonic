@@ -173,7 +173,7 @@ public final class TransferStatus implements Serializable {
         }
     }
 
-    public static class Sample {
+    public static final class Sample {
         private final long bytesTransfered;
         private final long timestamp;
 
@@ -198,7 +198,7 @@ public final class TransferStatus implements Serializable {
     }
 
     @SuppressWarnings("serial")
-    public static class SampleHistory extends CircularFifoQueue<Sample> {
+    public static final class SampleHistory extends CircularFifoQueue<Sample> {
 
         public SampleHistory(int length) {
             super(length);
