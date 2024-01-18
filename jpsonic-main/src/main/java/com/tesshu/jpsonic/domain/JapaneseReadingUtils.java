@@ -144,8 +144,7 @@ public class JapaneseReadingUtils {
         int start = 0;
         int i = s.indexOf(TILDE);
         while (-1 != i) {
-            excluded.append(Normalizer.normalize(s.substring(start, i), Normalizer.Form.NFKC));
-            excluded.append(TILDE);
+            excluded.append(Normalizer.normalize(s.substring(start, i), Normalizer.Form.NFKC)).append(TILDE);
             start = i + 1;
             i = s.indexOf(TILDE, i + 1);
         }
