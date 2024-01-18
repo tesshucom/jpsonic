@@ -170,8 +170,8 @@ public final class AnalyzerFactory {
      */
     private Analyzer createArtistReadingAnalyzer() throws IOException {
         return new StopwordAnalyzerBase() {
-            CharArraySet stopWords4Artist = loadWords(STOP_WARDS_FOR_ARTIST);
-            Set<String> stopTagset = loadStopTags();
+            private final CharArraySet stopWords4Artist = loadWords(STOP_WARDS_FOR_ARTIST);
+            private final Set<String> stopTagset = loadStopTags();
 
             @SuppressWarnings("PMD.CloseResource") // False positive. Stream is reused by ReuseStrategy.
             @Override
@@ -199,8 +199,8 @@ public final class AnalyzerFactory {
      */
     private Analyzer createRomanizedAnalyzer() throws IOException {
         return new StopwordAnalyzerBase() {
-            Set<String> stopTagset = loadStopTags();
-            CharArraySet stopWords4Artist = loadWords(STOP_WARDS_FOR_ARTIST);
+            private final Set<String> stopTagset = loadStopTags();
+            private final CharArraySet stopWords4Artist = loadWords(STOP_WARDS_FOR_ARTIST);
 
             @SuppressWarnings("PMD.CloseResource") // False positive. Stream is reused by ReuseStrategy.
             @Override

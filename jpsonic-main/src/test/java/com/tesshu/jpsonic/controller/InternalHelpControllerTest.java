@@ -67,8 +67,8 @@ class InternalHelpControllerTest {
     @Nested
     class DoesLocaleSupportUtf8Test {
 
-        private InternalHelpController controller = new InternalHelpController(null, null, null, null, null, null, null,
-                null);
+        private final InternalHelpController controller = new InternalHelpController(null, null, null, null, null, null,
+                null, null);
 
         @Test
         void testNull() {

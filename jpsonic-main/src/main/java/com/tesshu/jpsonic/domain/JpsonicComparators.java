@@ -65,7 +65,7 @@ public class JpsonicComparators {
      */
     public Comparator<Album> albumOrderByAlpha() {
         return new Comparator<>() {
-            private Collator collator = createCollator();
+            private final Collator collator = createCollator();
 
             @Override
             public int compare(Album o1, Album o2) {
@@ -82,7 +82,7 @@ public class JpsonicComparators {
      */
     public Comparator<Artist> artistOrderByAlpha() {
         return new Comparator<>() {
-            private Collator collator = createCollator();
+            private final Collator collator = createCollator();
 
             @Override
             public int compare(Artist o1, Artist o2) {

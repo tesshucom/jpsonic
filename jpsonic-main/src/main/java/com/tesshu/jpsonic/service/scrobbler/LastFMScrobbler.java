@@ -357,7 +357,7 @@ public class LastFMScrobbler {
         private final String title;
         private final int duration;
         private final Instant time;
-        public boolean submission;
+        public final boolean submission;
 
         public RegistrationData(MediaFile mediaFile, String username, String password, boolean submission,
                 Instant time) {
