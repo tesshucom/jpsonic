@@ -218,7 +218,7 @@ class ScannerStateServiceImplTest {
                 }
 
                 @interface ScanCountEqZero {
-                };
+                }
             }
         }
     }
