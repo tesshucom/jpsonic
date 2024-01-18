@@ -166,8 +166,7 @@ class UserSettingsControllerTest {
             Mockito.doNothing().when(securityService).updateUserSettings(settingsCaptor.capture());
             @SuppressWarnings("unchecked")
             ArgumentCaptor<List<Integer>> idsCaptor = ArgumentCaptor.forClass(List.class);
-            Mockito.doNothing().when(musicFolderService).setMusicFoldersForUser(Mockito.anyString(),
-                    idsCaptor.capture());
+            Mockito.doNothing().when(musicFolderService).setMusicFoldersForUser(anyString(), idsCaptor.capture());
 
             controller.updateUser(command);
 

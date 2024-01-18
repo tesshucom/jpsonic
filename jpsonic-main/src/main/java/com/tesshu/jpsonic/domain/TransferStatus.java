@@ -79,7 +79,7 @@ public final class TransferStatus implements Serializable {
             history.add(new Sample(bytesTransfered, now));
         } else {
             Sample lastSample = history.getLast();
-            if (force || now - lastSample.getTimestamp() > TransferStatus.SAMPLE_INTERVAL_MILLIS) {
+            if (force || now - lastSample.getTimestamp() > SAMPLE_INTERVAL_MILLIS) {
                 history.add(new Sample(bytesTransfered, now));
             }
         }
@@ -141,7 +141,7 @@ public final class TransferStatus implements Serializable {
     }
 
     public long getHistoryLengthMillis() {
-        return TransferStatus.SAMPLE_INTERVAL_MILLIS * (TransferStatus.HISTORY_LENGTH - 1);
+        return SAMPLE_INTERVAL_MILLIS * (HISTORY_LENGTH - 1);
     }
 
     public void terminate() {

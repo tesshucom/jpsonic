@@ -74,7 +74,7 @@ public final class ComplementaryFilter extends TokenFilter {
         }
 
         public static Optional<Mode> fromValue(final String value) {
-            return Stream.of(Mode.values()).filter(m -> m.v.equals(value)).findFirst();
+            return Stream.of(values()).filter(m -> m.v.equals(value)).findFirst();
         }
 
     }

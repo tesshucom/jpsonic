@@ -88,13 +88,13 @@ public class JWTSecurityService {
     }
 
     public UriComponentsBuilder addJWTToken(UriComponentsBuilder builder, Instant expires) {
-        String token = JWTSecurityService.createToken(settingsService.getJWTKey(), builder.toUriString(), expires);
-        builder.queryParam(JWTSecurityService.JWT_PARAM_NAME, token);
+        String token = createToken(settingsService.getJWTKey(), builder.toUriString(), expires);
+        builder.queryParam(JWT_PARAM_NAME, token);
         return builder;
     }
 
     public static DecodedJWT verify(String jwtKey, String token) {
-        Algorithm algorithm = JWTSecurityService.getAlgorithm(jwtKey);
+        Algorithm algorithm = getAlgorithm(jwtKey);
         JWTVerifier verifier = JWT.require(algorithm).withClaimPresence(CLAIM_PATH).build();
         try {
             DecodedJWT decoded = verifier.verify(

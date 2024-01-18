@@ -86,7 +86,7 @@ class MusicIndexServiceImplTest {
 
     @Test
     void testGetMusicFolderContent() {
-        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(new MediaFile());
+        Mockito.when(mediaFileService.getMediaFile(any(Path.class))).thenReturn(new MediaFile());
         MediaFile artist1 = new MediaFile();
         artist1.setTitle("The Flipper's Guitar");
         artist1.setPathString("path1");
@@ -96,7 +96,7 @@ class MusicIndexServiceImplTest {
         artist2.setPathString("path2");
         artist2.setMusicIndex("A");
         List<MediaFile> artists = Arrays.asList(artist1, artist2);
-        Mockito.when(mediaFileService.getIndexedDirs(Mockito.anyList())).thenReturn(artists);
+        Mockito.when(mediaFileService.getIndexedDirs(anyList())).thenReturn(artists);
 
         MediaFile song = new MediaFile();
         song.setTitle("It's file directly under the music folder");
@@ -154,7 +154,7 @@ class MusicIndexServiceImplTest {
 
         MediaFile artist = new MediaFile();
         artist.setPathString("path");
-        Mockito.when(mediaFileService.getMediaFile(Mockito.any(Path.class))).thenReturn(artist);
+        Mockito.when(mediaFileService.getMediaFile(any(Path.class))).thenReturn(artist);
         assertEquals(0, musicIndexService.getShortcuts(Arrays.asList(folder)).size());
 
         artist.setPathString(

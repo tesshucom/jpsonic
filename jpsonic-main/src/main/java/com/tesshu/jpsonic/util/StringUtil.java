@@ -251,7 +251,7 @@ public final class StringUtil {
      */
     public static String urlEncode(String s) {
         try {
-            return URLEncoder.encode(s, StringUtil.ENCODING_UTF8);
+            return URLEncoder.encode(s, ENCODING_UTF8);
         } catch (UnsupportedEncodingException x) {
             throw new CompletionException(x);
         }
@@ -262,7 +262,7 @@ public final class StringUtil {
      */
     public static String urlDecode(String s) {
         try {
-            return URLDecoder.decode(s, StringUtil.ENCODING_UTF8);
+            return URLDecoder.decode(s, ENCODING_UTF8);
         } catch (UnsupportedEncodingException x) {
             throw new CompletionException(x);
         }

@@ -230,7 +230,7 @@ public class JapaneseReadingUtils {
         }
 
         public static @NonNull Tag of(String name) {
-            return Stream.of(Tag.values()).filter(t -> t.value.equals(name)).findAny().orElse(UNUSED);
+            return Stream.of(values()).filter(t -> t.value.equals(name)).findAny().orElse(UNUSED);
         }
     }
 

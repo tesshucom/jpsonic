@@ -68,7 +68,7 @@ class FolderOrArtistLogicTest {
     void testCreateContainerWithFolder() {
         MusicFolder folder = new MusicFolder(99, "/Nusic", "Music", true, null, null, false);
         FolderOrArtist folderOrArtist = new FolderOrArtist(folder);
-        Mockito.when(artistDao.getArtistsCount(Mockito.anyList())).thenReturn(100);
+        Mockito.when(artistDao.getArtistsCount(anyList())).thenReturn(100);
         Container container = logic.createContainer(ProcId.RANDOM_SONG_BY_FOLDER_ARTIST, folderOrArtist);
         assertInstanceOf(StorageFolder.class, container);
         assertEquals("randomSongByFolderArtist/99", container.getId());
@@ -121,12 +121,12 @@ class FolderOrArtistLogicTest {
         List<MusicFolder> folders = List.of(folder1, folder2, folder3);
         Mockito.when(util.getGuestFolders()).thenReturn(folders);
         assertEquals(3, logic.getDirectChildrenCount());
-        Mockito.verify(artistDao, Mockito.never()).getArtistsCount(Mockito.anyList());
+        Mockito.verify(artistDao, Mockito.never()).getArtistsCount(anyList());
 
         folders = List.of(folder1);
         Mockito.when(util.getGuestFolders()).thenReturn(folders);
         assertEquals(0, logic.getDirectChildrenCount());
-        Mockito.verify(artistDao, Mockito.times(1)).getArtistsCount(Mockito.anyList());
+        Mockito.verify(artistDao, Mockito.times(1)).getArtistsCount(anyList());
     }
 
     @Test
