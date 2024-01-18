@@ -1349,7 +1349,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         return createJaxbChild(new Child(), player, mediaFile, username);
     }
 
-    @SuppressWarnings("PMD.CognitiveComplexity") // #1020 Move to support class or service
+    @SuppressWarnings({ "PMD.CognitiveComplexity", "PMD.NPathComplexity" })
     private <T extends Child> T createJaxbChild(T child, Player player, MediaFile mediaFile, String username) {
         MediaFile parent = mediaFileService.getParentOf(mediaFile);
         if (parent != null) {
