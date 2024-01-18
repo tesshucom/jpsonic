@@ -337,6 +337,7 @@ class SearchServiceTest {
             }
         }
 
+        @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
         private String[] createRandomWords(int count) {
             String[] randomStrings = new String[count];
             Random random = new Random();
