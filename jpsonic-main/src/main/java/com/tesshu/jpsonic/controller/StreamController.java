@@ -368,7 +368,7 @@ public class StreamController {
 
     private static void writeErrorLog(IOException e, HttpServletRequest req) {
         Throwable cause = e.getCause();
-        if (cause != null && cause instanceof TimeoutException || LoggingExceptionResolver.isSuppressedException(e)) {
+        if (cause instanceof TimeoutException || LoggingExceptionResolver.isSuppressedException(e)) {
             if (LOG.isTraceEnabled()) {
                 LOG.trace(req.getRemoteAddr() + ": Client unexpectedly closed connection while loading "
                         + req.getRemoteAddr() + " (" + PlayerUtils.getAnonymizedURLForRequest(req) + ")", e);
