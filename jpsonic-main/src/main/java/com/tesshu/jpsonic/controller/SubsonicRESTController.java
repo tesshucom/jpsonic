@@ -1532,7 +1532,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         HttpServletRequest request = wrapRequest(req);
         int[] ids = ServletRequestUtils.getRequiredIntParameters(request, Attributes.Request.ID.value());
         long[] times = ServletRequestUtils.getLongParameters(request, "time");
-        if (times.length > 0 && (int) times.length != (int) ids.length) {
+        if (times.length > 0 && times.length != ids.length) {
             writeError(request, response, ErrorCode.GENERIC, "Wrong number of timestamps: " + times.length);
             return;
         }
@@ -2503,7 +2503,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void getScanStatus(HttpServletRequest req, HttpServletResponse response) {
         ScanStatus scanStatus = new ScanStatus();
         scanStatus.setScanning(this.mediaScannerService.isScanning());
-        scanStatus.setCount((long) this.mediaScannerService.getScanCount());
+        scanStatus.setCount(this.mediaScannerService.getScanCount());
 
         Response res = createResponse();
         res.setScanStatus(scanStatus);

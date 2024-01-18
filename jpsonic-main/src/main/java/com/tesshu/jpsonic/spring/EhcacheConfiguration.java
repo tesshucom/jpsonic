@@ -57,7 +57,7 @@ public class EhcacheConfiguration {
                 LOG.info("Shutting down " + knownCacheManagers.size() + " CacheManagers.");
             }
             while (!knownCacheManagers.isEmpty()) {
-                ((CacheManager) CacheManager.ALL_CACHE_MANAGERS.get(0)).shutdown();
+                (CacheManager.ALL_CACHE_MANAGERS.get(0)).shutdown();
             }
         }
     }

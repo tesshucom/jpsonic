@@ -131,6 +131,7 @@ public class WMPProc {
         return new BrowseResult(result, count, totalMatches);
     }
 
+    @SuppressWarnings("PMD.UnnecessaryCast") // false positive (ZeroDivision)
     private BrowseResult createAudioItemBrowseResult(long count, long offset) {
         if (offset == 0) {
             LOG.info("object.item.audioItem data crawling started.");
@@ -152,6 +153,7 @@ public class WMPProc {
         }
     }
 
+    @SuppressWarnings("PMD.UnnecessaryCast") // false positive (ZeroDivision)
     private BrowseResult createVideoItemBrowseResult(long count, long offset) {
         if (offset == 0) {
             LOG.info("object.item.videoItem data crawling started.");

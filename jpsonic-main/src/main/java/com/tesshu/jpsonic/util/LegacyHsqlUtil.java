@@ -87,7 +87,7 @@ public final class LegacyHsqlUtil {
         // Check the database driver version
         String driverVersion;
         try {
-            Driver driver = (Driver) Class
+            Driver driver = Class
                     .forName("org.hsqldb.jdbc.JDBCDriver", true, Thread.currentThread().getContextClassLoader())
                     .asSubclass(JDBCDriver.class).getDeclaredConstructor().newInstance();
             driverVersion = String.format("%d.%d", driver.getMajorVersion(), driver.getMinorVersion());
