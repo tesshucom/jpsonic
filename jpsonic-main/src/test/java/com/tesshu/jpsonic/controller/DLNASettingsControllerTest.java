@@ -59,6 +59,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+@SuppressWarnings("PMD.SingularField") // pmd/pmd#4616
 class DLNASettingsControllerTest {
 
     private SettingsService settingsService;

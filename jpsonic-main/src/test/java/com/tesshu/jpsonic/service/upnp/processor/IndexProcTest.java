@@ -72,7 +72,6 @@ class IndexProcTest {
     @Order(1)
     class UnitTest {
 
-        private UpnpProcessorUtil util;
         private UpnpDIDLFactory factory;
         private MediaFileService mediaFileService;
         private MusicIndexService musicIndexService;
@@ -80,10 +79,10 @@ class IndexProcTest {
 
         @BeforeEach
         public void setup() {
-            util = mock(UpnpProcessorUtil.class);
             factory = mock(UpnpDIDLFactory.class);
             mediaFileService = mock(MediaFileService.class);
             musicIndexService = mock(MusicIndexService.class);
+            UpnpProcessorUtil util = mock(UpnpProcessorUtil.class);
             proc = new IndexProc(util, factory, mediaFileService, musicIndexService);
         }
 

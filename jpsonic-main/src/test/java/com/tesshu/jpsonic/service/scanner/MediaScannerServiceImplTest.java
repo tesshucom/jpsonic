@@ -182,6 +182,7 @@ class MediaScannerServiceImplTest {
 
     }
 
+    @SuppressWarnings("PMD.SingularField") // pmd/pmd#4616
     @Nested
     class UnitTest {
 
@@ -201,6 +202,7 @@ class MediaScannerServiceImplTest {
 
         @BeforeEach
         public void setup() {
+
             settingsService = mock(SettingsService.class);
             indexManager = mock(IndexManager.class);
             mediaFileService = mock(MediaFileService.class);
@@ -1090,44 +1092,38 @@ class MediaScannerServiceImplTest {
     class StrictSortTest {
 
         private SettingsService settingsService;
-        private IndexManager indexManager;
         private ArtistDao artistDao;
-        private AlbumDao albumDao;
-        private MediaFileService mediaFileService;
         private MediaFileDao mediaFileDao;
-        private StaticsDao staticsDao;
         private ScannerStateServiceImpl scannerStateService;
-        private ThreadPoolTaskExecutor executor;
         private SortProcedureService sortProcedureService;
         private MusicFolderServiceImpl musicFolderService;
-        private ScannerProcedureService scannerProcedureService;
-        private WritableMediaFileService writableMediaFileService;
         private MediaScannerServiceImpl mediaScannerService;
         private JpsonicComparators comparators;
 
         @BeforeEach
         public void setup() {
             settingsService = mock(SettingsService.class);
-            indexManager = mock(IndexManager.class);
-            mediaFileService = mock(MediaFileService.class);
             mediaFileDao = mock(MediaFileDao.class);
             artistDao = mock(ArtistDao.class);
-            albumDao = mock(AlbumDao.class);
-            executor = mock(ThreadPoolTaskExecutor.class);
             sortProcedureService = mock(SortProcedureService.class);
-            staticsDao = mock(StaticsDao.class);
             scannerStateService = mock(ScannerStateServiceImpl.class);
-            writableMediaFileService = new WritableMediaFileService(mediaFileDao, scannerStateService, mediaFileService,
-                    albumDao, mock(MediaFileCache.class), mock(MusicParser.class), mock(VideoParser.class),
-                    settingsService, mock(SecurityService.class), null, mock(IndexManager.class),
-                    mock(MusicIndexServiceImpl.class));
+            MediaFileService mediaFileService = mock(MediaFileService.class);
+            AlbumDao albumDao = mock(AlbumDao.class);
+            WritableMediaFileService writableMediaFileService = new WritableMediaFileService(mediaFileDao,
+                    scannerStateService, mediaFileService, albumDao, mock(MediaFileCache.class),
+                    mock(MusicParser.class), mock(VideoParser.class), settingsService, mock(SecurityService.class),
+                    null, mock(IndexManager.class), mock(MusicIndexServiceImpl.class));
             musicFolderService = mock(MusicFolderServiceImpl.class);
             comparators = mock(JpsonicComparators.class);
-            scannerProcedureService = new ScannerProcedureService(settingsService, musicFolderService, indexManager,
-                    mediaFileService, writableMediaFileService, mock(PlaylistService.class),
-                    mock(TemplateWrapper.class), mediaFileDao, artistDao, albumDao, staticsDao, sortProcedureService,
-                    scannerStateService, mock(MusicIndexServiceImpl.class), mock(MediaFileCache.class),
-                    mock(JapaneseReadingUtils.class), comparators, mock(ThreadPoolTaskExecutor.class));
+            StaticsDao staticsDao = mock(StaticsDao.class);
+            IndexManager indexManager = mock(IndexManager.class);
+            ThreadPoolTaskExecutor executor = mock(ThreadPoolTaskExecutor.class);
+            ScannerProcedureService scannerProcedureService = new ScannerProcedureService(settingsService,
+                    musicFolderService, indexManager, mediaFileService, writableMediaFileService,
+                    mock(PlaylistService.class), mock(TemplateWrapper.class), mediaFileDao, artistDao, albumDao,
+                    staticsDao, sortProcedureService, scannerStateService, mock(MusicIndexServiceImpl.class),
+                    mock(MediaFileCache.class), mock(JapaneseReadingUtils.class), comparators,
+                    mock(ThreadPoolTaskExecutor.class));
             mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
                     scannerProcedureService, mock(ExpungeService.class), staticsDao, executor);
         }

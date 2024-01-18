@@ -66,6 +66,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
 class SongByGenreProcTest {
 
+    @SuppressWarnings("PMD.SingularField") // pmd/pmd#4616
     @Nested
     class UnitTest {
         private SettingsService settingsService;

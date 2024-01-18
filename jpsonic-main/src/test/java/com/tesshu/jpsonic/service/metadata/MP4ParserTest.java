@@ -44,7 +44,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
-@SuppressWarnings("PMD.TooManyStaticImports")
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.SingularField" }) // pmd/pmd#4616
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MP4ParserTest {
 

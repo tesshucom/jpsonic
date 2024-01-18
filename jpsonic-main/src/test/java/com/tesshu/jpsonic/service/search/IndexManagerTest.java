@@ -67,14 +67,13 @@ class IndexManagerTest {
     @Nested
     class UnitTest {
 
-        private SettingsService settingsService;
         private ArtistDao artistDao;
         private AlbumDao albumDao;
         private IndexManager indexManager;
 
         @BeforeEach
         public void setup() {
-            settingsService = Mockito.mock(SettingsService.class);
+            SettingsService settingsService = Mockito.mock(SettingsService.class);
             artistDao = mock(ArtistDao.class);
             albumDao = mock(AlbumDao.class);
             indexManager = new IndexManager(null, null, null, null, null, settingsService, null, artistDao, albumDao);

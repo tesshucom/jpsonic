@@ -87,6 +87,7 @@ class MetaDataParserTest {
         };
     }
 
+    @SuppressWarnings("PMD.SingularField") // pmd/pmd#4616
     @Nested
     class GetMetaDataTest {
 
