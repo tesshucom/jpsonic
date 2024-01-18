@@ -99,6 +99,9 @@
         <!-- References to traditionally existing ghost rules. Suppress log warnings.
             This rule cannot be used even if the suppression is removed. -->
         <exclude name="LoosePackageCoupling" />
+
+        <!-- Spring beans are not applicable. -->
+        <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal" />
     </rule>
 
     <!-- Java Rules:Documentation -->

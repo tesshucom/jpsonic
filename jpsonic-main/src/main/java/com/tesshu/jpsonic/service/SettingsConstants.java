@@ -55,9 +55,9 @@ final class SettingsConstants {
     static final Pair<String> REMEMBER_ME_KEY = Pair.of("RememberMeKey", null);
     static final Pair<Long> SETTINGS_CHANGED = Pair.of("SettingsChanged", 0L);
 
-    static class MusicFolder {
+    static final class MusicFolder {
 
-        static class Scan {
+        static final class Scan {
             static final Pair<Boolean> IGNORE_FILE_TIMESTAMPS = Pair.of("IgnoreFileTimestamps", false);
             static final Pair<Integer> INDEX_CREATION_INTERVAL = Pair.of("IndexCreationInterval", 1);
             static final Pair<Integer> INDEX_CREATION_HOUR = Pair.of("IndexCreationHour", 3);
@@ -66,7 +66,7 @@ final class SettingsConstants {
             }
         }
 
-        static class Exclusion {
+        static final class Exclusion {
             static final Pair<String> EXCLUDE_PATTERN_STRING = Pair.of("ExcludePattern", null);
             static final Pair<Boolean> IGNORE_SYMLINKS = Pair.of("IgnoreSymLinks", false);
 
@@ -78,9 +78,9 @@ final class SettingsConstants {
         }
     }
 
-    static class General {
+    static final class General {
 
-        static class ThemeAndLang {
+        static final class ThemeAndLang {
             static final Pair<String> LOCALE_LANGUAGE = Pair.of("LocaleLanguage", "ja");
             static final Pair<String> LOCALE_COUNTRY = Pair.of("LocaleCountry", "jp");
             static final Pair<String> LOCALE_VARIANT = Pair.of("LocaleVariant", "");
@@ -90,7 +90,7 @@ final class SettingsConstants {
             }
         }
 
-        static class Index {
+        static final class Index {
             static final Pair<String> INDEX_STRING = Pair.of("IndexString", DEFAULT_INDEX_STRING);
             static final Pair<String> IGNORED_ARTICLES = Pair.of("IgnoredArticles", "The El La Las Le Les");
 
@@ -98,7 +98,7 @@ final class SettingsConstants {
             }
         }
 
-        static class Sort {
+        static final class Sort {
             static final Pair<Boolean> ALBUMS_BY_YEAR = Pair.of("SortAlbumsByYear", true);
             static final Pair<Boolean> GENRES_BY_ALPHABET = Pair.of("SortGenresByAlphabet", true);
             static final Pair<Boolean> PROHIBIT_SORT_VARIOUS = Pair.of("ProhibitSortVarious", true);
@@ -107,7 +107,7 @@ final class SettingsConstants {
             }
         }
 
-        static class Search {
+        static final class Search {
             static final Pair<Boolean> SEARCH_COMPOSER = Pair.of("SearchComposer", false);
             static final Pair<Boolean> OUTPUT_SEARCH_QUERY = Pair.of("OutputSearchQuery", false);
 
@@ -115,7 +115,7 @@ final class SettingsConstants {
             }
         }
 
-        static class Legacy {
+        static final class Legacy {
             static final Pair<Boolean> SHOW_SERVER_LOG = Pair.of("ShowServerLog", false);
             static final Pair<Boolean> SHOW_STATUS = Pair.of("ShowStatus", false);
             static final Pair<Boolean> OTHERS_PLAYING_ENABLED = Pair.of("OthersPlayingEnabled", false);
@@ -137,7 +137,7 @@ final class SettingsConstants {
             }
         }
 
-        static class Extension {
+        static final class Extension {
             static final Pair<String> MUSIC_FILE_TYPES = Pair.of("MusicFileTypes",
                     "mp3 ogg oga aac m4a m4b flac wav wma aif aiff aifc ape mpc shn mka opus dsf dsd");
             static final Pair<String> VIDEO_FILE_TYPES = Pair.of("VideoFileTypes",
@@ -154,7 +154,7 @@ final class SettingsConstants {
             }
         }
 
-        static class Welcome {
+        static final class Welcome {
             static final Pair<Boolean> GETTING_STARTED_ENABLED = Pair.of("GettingStartedEnabled", true);
             static final Pair<String> TITLE = Pair.of("WelcomeTitle", DEFAULT_WELCOME_TITLE);
             static final Pair<String> SUBTITLE = Pair.of("WelcomeSubtitle", null);
@@ -169,12 +169,12 @@ final class SettingsConstants {
         }
     }
 
-    static class Advanced {
+    static final class Advanced {
 
         private Advanced() {
         }
 
-        static class Bandwidth {
+        static final class Bandwidth {
 
             static final Pair<Long> DOWNLOAD_BITRATE_LIMIT = Pair.of("DownloadBitrateLimit", 0L);
             static final Pair<Long> UPLOAD_BITRATE_LIMIT = Pair.of("UploadBitrateLimit", 0L);
@@ -184,7 +184,7 @@ final class SettingsConstants {
             }
         }
 
-        static class Smtp {
+        static final class Smtp {
             static final Pair<String> FROM = Pair.of("SmtpFrom", "jpsonic@tesshu.com");
             static final Pair<String> SERVER = Pair.of("SmtpServer", null);
             static final Pair<String> PORT = Pair.of("SmtpPort", "25");
@@ -196,7 +196,7 @@ final class SettingsConstants {
             }
         }
 
-        static class Ldap {
+        static final class Ldap {
             static final Pair<Boolean> ENABLED = Pair.of("LdapEnabled", false);
             static final Pair<String> URL = Pair.of("LdapUrl", "ldap://host.domain.com:389/cn=Users,dc=domain,dc=com");
             static final Pair<String> SEARCH_FILTER = Pair.of("LdapSearchFilter", "(sAMAccountName={0})");
@@ -208,7 +208,7 @@ final class SettingsConstants {
             }
         }
 
-        static class Captcha {
+        static final class Captcha {
             static final Pair<Boolean> ENABLED = Pair.of("CaptchaEnabled", false);
             static final Pair<String> SITE_KEY = Pair.of("ReCaptchaSiteKey",
                     "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI");
@@ -219,7 +219,7 @@ final class SettingsConstants {
             }
         }
 
-        static class ScanLog {
+        static final class ScanLog {
             static final Pair<Boolean> USE_SCAN_LOG = Pair.of("UseScanLog", false);
             static final Pair<Integer> SCAN_LOG_RETENTION = Pair.of("ScanLogRetention", -1);
             static final Pair<Boolean> USE_SCAN_EVENTS = Pair.of("UseScanEvents", false);
@@ -229,7 +229,7 @@ final class SettingsConstants {
             }
         }
 
-        static class Index {
+        static final class Index {
             static final Pair<String> INDEX_SCHEME_NAME = Pair.of("IndexSchemeName",
                     IndexScheme.NATIVE_JAPANESE.name());
             static final Pair<Boolean> FORCE_INTERNAL_VALUE_INSTEAD_OF_TAGS = Pair.of("ForceInternalValueInsteadOfTags",
@@ -241,7 +241,7 @@ final class SettingsConstants {
             }
         }
 
-        static class Sort {
+        static final class Sort {
             static final Pair<Boolean> ALPHANUM = Pair.of("SortAlphanum", true);
             static final Pair<Boolean> STRICT = Pair.of("SortStrict", true);
 
@@ -251,7 +251,7 @@ final class SettingsConstants {
 
     }
 
-    static class Podcast {
+    static final class Podcast {
         static final Pair<String> FOLDER = Pair.of("PodcastFolder", PlayerUtils.getDefaultPodcastFolder());
         static final Pair<Integer> UPDATE_INTERVAL = Pair.of("PodcastUpdateInterval", 24);
         static final Pair<Integer> EPISODE_RETENTION_COUNT = Pair.of("PodcastEpisodeRetentionCount", 10);
@@ -261,12 +261,12 @@ final class SettingsConstants {
         }
     }
 
-    static class UPnP {
+    static final class UPnP {
 
         private UPnP() {
         }
 
-        static class Basic {
+        static final class Basic {
             static final Pair<Boolean> ENABLED = Pair.of("DlnaEnabled", false);
             static final Pair<String> SERVER_NAME = Pair.of("DlnaServerName", "Jpsonic");
             static final Pair<String> BASE_LAN_URL = Pair.of("DlnaBaseLANURL", null);
@@ -276,7 +276,7 @@ final class SettingsConstants {
             }
         }
 
-        static class Processor {
+        static final class Processor {
             static final Pair<Boolean> INDEX = Pair.of("DlnaIndexVisible", true);
             static final Pair<Boolean> INDEX_ID3 = Pair.of("DlnaIndexId3Visible", false);
             static final Pair<Boolean> FOLDER = Pair.of("DlnaFolderVisible", true);
@@ -299,7 +299,7 @@ final class SettingsConstants {
             }
         }
 
-        static class Options {
+        static final class Options {
             static final Pair<Boolean> GENRE_COUNT = Pair.of("DlnaGenreCountVisible", false);
             static final Pair<Integer> RANDOM_MAX = Pair.of("DlnaRandomMax", 50);
             static final Pair<Boolean> GUEST_PUBLISH = Pair.of("DlnaGuestPublish", true);
@@ -309,7 +309,7 @@ final class SettingsConstants {
         }
     }
 
-    static class Sonos {
+    static final class Sonos {
         static final Pair<Boolean> ENABLED = Pair.of("SonosEnabled", false);
         static final Pair<String> SERVICE_NAME = Pair.of("SonosServiceName", "Jpsonic");
 
@@ -317,7 +317,7 @@ final class SettingsConstants {
         }
     }
 
-    static class Transcoding {
+    static final class Transcoding {
         static final Pair<String> PREFERRED_FORMAT_SHEME_NAME = Pair.of("PreferredFormatShemeName",
                 PreferredFormatSheme.ANNOYMOUS.name());
         static final Pair<String> PREFERRED_FORMAT = Pair.of("PreferredFormatSheme", "mp3");
@@ -328,7 +328,7 @@ final class SettingsConstants {
         }
     }
 
-    static class Database {
+    static final class Database {
         static final Pair<String> TYPE = Pair.of("DatabaseConfigType", DataSourceConfigType.HOST.name());
         static final Pair<String> EMBED_DRIVER = Pair.of("DatabaseConfigEmbedDriver", null);
         static final Pair<String> EMBED_URL = Pair.of("DatabaseConfigEmbedUrl", null);
@@ -342,7 +342,7 @@ final class SettingsConstants {
         }
     }
 
-    static class Pair<V> {
+    static final class Pair<V> {
         final String key;
         final V defaultValue;
 

@@ -33,7 +33,7 @@ import org.apache.commons.collections4.queue.CircularFifoQueue;
  *
  * @author Sindre Mehus
  */
-public class TransferStatus implements Serializable {
+public final class TransferStatus implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private static final int HISTORY_LENGTH = 200;

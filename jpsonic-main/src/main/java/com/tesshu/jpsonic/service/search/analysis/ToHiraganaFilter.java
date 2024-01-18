@@ -77,7 +77,7 @@ public final class ToHiraganaFilter extends TokenFilter {
     /**
      * Wrap a {@link CharTermAttribute} with the Replaceable API.
      */
-    private static class ReplaceableTermAttribute implements Replaceable {
+    private static final class ReplaceableTermAttribute implements Replaceable {
         private char[] buffer;
         private int unitLength;
         private CharTermAttribute token;

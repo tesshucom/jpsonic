@@ -333,7 +333,7 @@ public final class StringUtil {
     }
 
     @SuppressWarnings("PMD.ShortClassName")
-    static class Pair<V> {
+    static final class Pair<V> {
         final String key;
         final V defaultValue;
 

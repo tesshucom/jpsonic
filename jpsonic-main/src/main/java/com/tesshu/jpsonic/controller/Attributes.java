@@ -26,7 +26,7 @@ package com.tesshu.jpsonic.controller;
  * The immediate purpose is to port the legacy. It is useful for preventing spelling mistakes, understanding the
  * hierarchical structure, identifying where to use it, and considering better management methods. #820
  */
-public class Attributes {
+public final class Attributes {
 
     public enum Model {
 
@@ -155,7 +155,7 @@ public class Attributes {
             return v;
         }
 
-        public static class NameConstants { // Used from annotation
+        public static final class NameConstants { // Used from annotation
             public static final String ACTION = "action";
             public static final String ADD = "add";
             public static final String ADD_TO_PLAYLIST = "addToPlaylist";
