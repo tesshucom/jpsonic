@@ -131,7 +131,7 @@ public final class ToHiraganaFilter extends TokenFilter {
             token.setLength(unitLength);
         }
 
-        protected void setText(final CharTermAttribute token) {
+        private void setText(final CharTermAttribute token) {
             this.token = token;
             this.buffer = token.buffer();
             this.unitLength = token.length();
