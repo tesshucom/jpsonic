@@ -1358,7 +1358,9 @@ public class SubsonicRESTController implements CoverArtPresentation {
                     child.setParent(String.valueOf(parent.getId()));
                 }
             } catch (SecurityException e) {
-                LOG.trace("Error in getMusicDirectory", new AssertionError("Errors with unclear cases.", e));
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Error in getMusicDirectory", new AssertionError("Errors with unclear cases.", e));
+                }
             }
             child.setCoverArt(findCoverArt(mediaFile, parent));
         }
