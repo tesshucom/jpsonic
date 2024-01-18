@@ -217,6 +217,7 @@ public final class Attributes {
             public static final String ERROR = "error";
             public static final String EXPIREIN = "expireIn";
             public static final String EXPIRES = "expires";
+            public static final String EXEPTION = "exception";
             public static final String EXPUNGE = "expunge";
             public static final String F = "f";
             public static final String FORCE_CUSTOM = "forceCustom";
