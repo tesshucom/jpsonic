@@ -19,11 +19,27 @@
 
 package com.tesshu.jpsonic.service.upnp;
 
+import static org.jupnp.support.model.dlna.DLNAProfiles.AAC_ADTS;
+import static org.jupnp.support.model.dlna.DLNAProfiles.AAC_ADTS_320;
+import static org.jupnp.support.model.dlna.DLNAProfiles.AAC_MULT5_ADTS;
+import static org.jupnp.support.model.dlna.DLNAProfiles.HEAAC_L2_ADTS;
+import static org.jupnp.support.model.dlna.DLNAProfiles.HEAAC_L2_ADTS_320;
+import static org.jupnp.support.model.dlna.DLNAProfiles.HEAAC_L3_ADTS;
+import static org.jupnp.support.model.dlna.DLNAProfiles.HEAAC_MULT5_ADTS;
+import static org.jupnp.support.model.dlna.DLNAProfiles.HEAACv2_L2;
+import static org.jupnp.support.model.dlna.DLNAProfiles.HEAACv2_L2_320;
+import static org.jupnp.support.model.dlna.DLNAProfiles.HEAACv2_L3;
+import static org.jupnp.support.model.dlna.DLNAProfiles.HEAACv2_MULT5;
+import static org.jupnp.support.model.dlna.DLNAProfiles.NONE;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.UPnPService;
@@ -51,17 +67,14 @@ import org.jupnp.support.connectionmanager.ConnectionManagerService;
 import org.jupnp.support.model.ProtocolInfos;
 import org.jupnp.support.model.dlna.DLNAProfiles;
 import org.jupnp.support.model.dlna.DLNAProtocolInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
+@SuppressWarnings("PMD.TooManyStaticImports")
 @Component
 @DependsOn({ "upnpExecutorService" })
 public class UpnpServiceFactory {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UpnpServiceFactory.class);
 
     /*
      * WMP handles this value rigorously. If you adopt the Cling default, the device will disconnect in 30 minutes.
@@ -97,19 +110,14 @@ public class UpnpServiceFactory {
         ServiceManager serviceManager = new ServiceManager(directoryservice, dispatchingContentDirectory);
         directoryservice.setManager(serviceManager);
 
+        Map<String, DLNAProfiles> excludes = Stream
+                .of(NONE, AAC_ADTS, AAC_ADTS_320, AAC_MULT5_ADTS, HEAAC_L2_ADTS, HEAAC_L2_ADTS_320, HEAAC_L3_ADTS,
+                        HEAAC_MULT5_ADTS, HEAACv2_L2, HEAACv2_L2_320, HEAACv2_L3, HEAACv2_MULT5)
+                .collect(Collectors.toMap(DLNAProfiles::getCode, p -> p));
+
         final ProtocolInfos protocols = new ProtocolInfos();
-        for (DLNAProfiles dlnaProfile : DLNAProfiles.values()) {
-            if (dlnaProfile == DLNAProfiles.NONE) {
-                continue;
-            }
-            try {
-                protocols.add(new DLNAProtocolInfo(dlnaProfile));
-            } catch (IllegalArgumentException e) {
-                if (LOG.isTraceEnabled()) {
-                    LOG.trace("Error in adding dlna protocols with unclear cases.", e);
-                }
-            }
-        }
+        Stream.of(DLNAProfiles.values()).filter(profile -> !excludes.containsKey(profile.getCode()))
+                .map(DLNAProtocolInfo::new).forEach(info -> protocols.add(info));
 
         @SuppressWarnings("unchecked")
         LocalService<ConnectionManagerService> connetionManagerService = new AnnotationLocalServiceBinder()
