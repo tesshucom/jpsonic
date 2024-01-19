@@ -180,6 +180,7 @@ class ExecutorConfigurationTest {
          */
         @Order(1)
         @Test
+        @SuppressWarnings("PMD.ExceptionAsFlowControl") // Intentional control flow for test
         void testWithRunnableWithinCorePool() {
             if (LOG.isInfoEnabled()) {
                 LOG.error("***** It is a test of logging (testWithRunnableWithinCorePool). *****");
@@ -205,6 +206,7 @@ class ExecutorConfigurationTest {
          */
         @Order(2)
         @Test
+        @SuppressWarnings("PMD.ExceptionAsFlowControl") // Intentional control flow for test
         void testWithRunnableOverPool() {
             if (LOG.isInfoEnabled()) {
                 LOG.error("***** It is a test of logging (testWithRunnableOverPool). *****");
@@ -238,6 +240,7 @@ class ExecutorConfigurationTest {
          */
         @Order(3)
         @Test
+        @SuppressWarnings("PMD.ExceptionAsFlowControl") // Intentional control flow for test
         void testWithRunnableWithinQueue() {
             try {
                 Thread.sleep(PROCESS_DELAY_MILL_SECONDS * 2);
@@ -281,6 +284,7 @@ class ExecutorConfigurationTest {
          */
         @Order(4)
         @Test
+        @SuppressWarnings("PMD.ExceptionAsFlowControl") // Intentional control flow for test
         void testWithRunnableOverQueue() {
             if (LOG.isInfoEnabled()) {
                 LOG.error("***** It is a test of logging (testWithRunnableOverQueue). *****");

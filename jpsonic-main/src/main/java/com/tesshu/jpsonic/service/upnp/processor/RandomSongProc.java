@@ -62,7 +62,7 @@ public class RandomSongProc extends MediaFileProc implements CountLimitProc {
         int offset = (int) firstResult;
         int max = getDirectChildrenCount();
         int count = toCount(firstResult, maxResults, max);
-        return searchService.getRandomSongs((int) count, (int) offset, max, util.getGuestFolders());
+        return searchService.getRandomSongs(count, offset, max, util.getGuestFolders());
     }
 
     @Override

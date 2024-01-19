@@ -228,10 +228,7 @@ public class MusicParser extends MetaDataParser {
             return false;
         }
         String extension = FilenameUtils.getExtension(fileName.toString());
-        if (extension == null) {
-            return false;
-        }
-        return APPLICABLES.contains(extension.toLowerCase(Locale.ENGLISH));
+        return extension != null && APPLICABLES.contains(extension.toLowerCase(Locale.ENGLISH));
     }
 
     @Override

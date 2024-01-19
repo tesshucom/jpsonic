@@ -112,12 +112,14 @@ public final class LegacyMap {
                 k12, v12, k13, v13, k14, v14, k15, v15);
     }
 
+    @SuppressWarnings("PMD.UseConcurrentHashMap")
     public static <K, V> java.util.Map<K, V> of(K key, V value) {
         java.util.Map<K, V> result = new HashMap<>(1);
         result.put(key, value);
         return result;
     }
 
+    @SuppressWarnings("PMD.UseConcurrentHashMap")
     private static <K, V> java.util.Map<K, V> createMapN(Object... input) {
         if ((input.length & 1) != 0) {
             throw new InternalError("length is odd");

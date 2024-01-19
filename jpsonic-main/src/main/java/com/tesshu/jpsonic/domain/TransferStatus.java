@@ -33,7 +33,7 @@ import org.apache.commons.collections4.queue.CircularFifoQueue;
  *
  * @author Sindre Mehus
  */
-public class TransferStatus implements Serializable {
+public final class TransferStatus implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private static final int HISTORY_LENGTH = 200;
@@ -79,7 +79,7 @@ public class TransferStatus implements Serializable {
             history.add(new Sample(bytesTransfered, now));
         } else {
             Sample lastSample = history.getLast();
-            if (force || now - lastSample.getTimestamp() > TransferStatus.SAMPLE_INTERVAL_MILLIS) {
+            if (force || now - lastSample.getTimestamp() > SAMPLE_INTERVAL_MILLIS) {
                 history.add(new Sample(bytesTransfered, now));
             }
         }
@@ -141,7 +141,7 @@ public class TransferStatus implements Serializable {
     }
 
     public long getHistoryLengthMillis() {
-        return TransferStatus.SAMPLE_INTERVAL_MILLIS * (TransferStatus.HISTORY_LENGTH - 1);
+        return SAMPLE_INTERVAL_MILLIS * (HISTORY_LENGTH - 1);
     }
 
     public void terminate() {
@@ -173,7 +173,7 @@ public class TransferStatus implements Serializable {
         }
     }
 
-    public static class Sample {
+    public static final class Sample {
         private final long bytesTransfered;
         private final long timestamp;
 
@@ -198,7 +198,7 @@ public class TransferStatus implements Serializable {
     }
 
     @SuppressWarnings("serial")
-    public static class SampleHistory extends CircularFifoQueue<Sample> {
+    public static final class SampleHistory extends CircularFifoQueue<Sample> {
 
         public SampleHistory(int length) {
             super(length);

@@ -44,7 +44,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
-@SuppressWarnings("PMD.TooManyStaticImports")
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.SingularField" }) // pmd/pmd#4616
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MP4ParserTest {
 
@@ -75,13 +75,13 @@ class MP4ParserTest {
         assertEquals("Mp3tag:AlbumArtist", metaData.getAlbumArtist());
         assertEquals("Mp3tag:Album", metaData.getAlbumName());
         assertEquals("Mp3tag:Artist", metaData.getArtist());
-        assertEquals(Integer.valueOf(98), metaData.getDiscNumber());
+        assertEquals(98, metaData.getDiscNumber());
         assertEquals("Mp3tag:Genre", metaData.getGenre());
         assertNull(metaData.getMusicBrainzRecordingId());
         assertNull(metaData.getMusicBrainzReleaseId());
         assertEquals("Mp3tag:Title", metaData.getTitle());
-        assertEquals(Integer.valueOf(96), metaData.getTrackNumber());
-        assertEquals(Integer.valueOf(2022), metaData.getYear());
+        assertEquals(96, metaData.getTrackNumber());
+        assertEquals(2022, metaData.getYear());
         assertNull(metaData.getArtistSort());
         assertNull(metaData.getAlbumSort());
         assertNull(metaData.getTitleSort());

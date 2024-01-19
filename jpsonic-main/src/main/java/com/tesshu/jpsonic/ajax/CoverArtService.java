@@ -22,7 +22,6 @@
 package com.tesshu.jpsonic.ajax;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
@@ -127,13 +126,13 @@ public class CoverArtService {
             HttpGet method = new HttpGet(URI.create(url));
             method.setConfig(requestConfig);
 
-            try (InputStream input = client.execute(method, (response) -> {
+            int copied = client.execute(method, (response) -> {
                 try (OutputStream output = Files.newOutputStream(newCoverFile)) {
-                    IOUtils.copy(response.getEntity().getContent(), output);
+                    return IOUtils.copy(response.getEntity().getContent(), output);
                 }
-                return null;
-            })) {
+            });
 
+            if (0 < copied) {
                 MediaFile dir = mediaFileService.getMediaFileStrict(pathString);
 
                 // Refresh database.
@@ -143,6 +142,7 @@ public class CoverArtService {
                 // Rename existing cover files if new cover file is not the preferred.
                 renameWithoutReplacement(dir, newCoverFile);
             }
+
         } catch (UnsupportedOperationException | IOException e) {
             throw new ExecutionException("Failed to save coverArt: " + pathString, e);
         }

@@ -21,6 +21,8 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.tesshu.jpsonic.controller.Attributes.Request.NameConstants.EXEPTION;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -102,7 +104,12 @@ public class UploadController {
 
         Map<String, Object> model = LegacyMap.of();
         if (scannerStateService.isScanning()) {
-            model.put("exception", new IllegalArgumentException("Currently scanning. Please try again after a while."));
+
+            model.put(EXEPTION, new IllegalArgumentException("Currently scanning. Please try again after a while."));
+            return new ModelAndView("upload", "model", model);
+        }
+        if (!JakartaServletFileUpload.isMultipartContent(request)) {
+            model.put(EXEPTION, new IOException("Illegal request."));
             return new ModelAndView("upload", "model", model);
         }
 
@@ -115,11 +122,6 @@ public class UploadController {
 
             request.getSession().setAttribute(Attributes.Session.UPLOAD_STATUS.value(), status);
 
-            // Check that we have a file upload request
-            if (!JakartaServletFileUpload.isMultipartContent(request)) {
-                throw new ExecutionException(new IOException("Illegal request."));
-            }
-
             List<DiskFileItem> items = getUploadItems(request, status);
             Path dir = getDir(items);
             boolean unzip = isUnzip(items);
@@ -129,13 +131,13 @@ public class UploadController {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Uploading failed. {}", e.getMessage());
             }
-            model.put("exception", e);
+            model.put(EXEPTION, e);
         } catch (ExecutionException e) {
             ConcurrentUtils.handleCauseUnchecked(e);
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Uploading failed. {}", e.getMessage());
             }
-            model.put("exception", e);
+            model.put(EXEPTION, e);
         } finally {
             afterUpload(request, status);
         }

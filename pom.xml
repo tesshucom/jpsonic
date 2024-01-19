@@ -24,7 +24,7 @@
     <log4j.version>2.22.1</log4j.version>
     <logback.version>1.4.14</logback.version>
     <maven.compiler.release>${java.version}</maven.compiler.release>
-    <pmd.version>6.55.0</pmd.version>
+    <pmd.version>7.0.0-rc4</pmd.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.inceptionYear>2018</project.inceptionYear>
   </properties>
@@ -137,7 +137,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-fileupload2-core</artifactId>
-        <version>2.0.0-M1</version>
+        <version>2.0.0-M2</version>
       </dependency>
 
       <dependency>
@@ -321,7 +321,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.12.0</version>
+          <version>3.12.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -403,7 +403,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-pmd-plugin</artifactId>
-          <version>3.21.2</version>
+          <version>3.21.1-pmd-7.0.0-SNAPSHOT</version>
           <dependencies>
             <dependency>
               <groupId>net.sourceforge.pmd</groupId>
@@ -470,7 +470,7 @@
         <plugin>
           <groupId>org.owasp</groupId>
           <artifactId>dependency-check-maven</artifactId>
-          <version>9.0.8</version>
+          <version>9.0.9</version>
           <inherited>true</inherited>
           <configuration>
             <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
@@ -760,6 +760,18 @@
       <name>Local Repository</name>
       <url>file://${project.basedir}/../repo</url>
     </pluginRepository>
+    <pluginRepository>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>apache.snapshots</id>
+      <name>Apache Snapshot Repository</name>
+      <url>https://repository.apache.org/snapshots</url>
+    </pluginRepository>
+
   </pluginRepositories>
   <profiles>
     <profile>

@@ -1145,7 +1145,7 @@ class JpsonicComparatorsTest extends AbstractNeedsScan {
             };
 
             populateDatabaseOnlyOnce(() -> {
-                if (0 == playlistDao.getAllPlaylists().size()) {
+                if (playlistDao.getAllPlaylists().isEmpty()) {
                     List<String> shallow = new ArrayList<>(JpsonicComparatorsTestUtils.JPSONIC_NATURAL_LIST);
                     Collections.shuffle(shallow);
                     shallow.stream().map(toPlaylist).forEach(p -> playlistDao.createPlaylist(p));

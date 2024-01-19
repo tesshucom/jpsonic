@@ -20,9 +20,9 @@
 package com.tesshu.jpsonic.service.upnp.transport;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertArrayEquals; // NOPMD pmd/pmd#4432
 
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.StandardCharsets; // NOPMD pmd/pmd#4432
 
 import com.sun.net.httpserver.HttpExchange;
 import org.junit.jupiter.api.BeforeEach;

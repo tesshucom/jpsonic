@@ -165,6 +165,8 @@ public class FFprobe {
             try (InputStream is = process.getInputStream(); OutputStream os = process.getOutputStream();
                     InputStream es = process.getErrorStream(); BufferedInputStream bis = new BufferedInputStream(is);) {
                 node = OBJECT_MAPPER.readTree(bis);
+                os.close();
+                es.close();
             } finally {
                 process.destroy();
             }

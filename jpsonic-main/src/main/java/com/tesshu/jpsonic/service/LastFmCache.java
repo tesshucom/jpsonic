@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Sindre Mehus
  */
-public class LastFmCache extends Cache {
+public final class LastFmCache extends Cache {
 
     private static final Logger LOG = LoggerFactory.getLogger(LastFmCache.class);
 

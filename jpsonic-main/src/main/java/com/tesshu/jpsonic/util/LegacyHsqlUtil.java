@@ -87,7 +87,7 @@ public final class LegacyHsqlUtil {
         // Check the database driver version
         String driverVersion;
         try {
-            Driver driver = (Driver) Class
+            Driver driver = Class
                     .forName("org.hsqldb.jdbc.JDBCDriver", true, Thread.currentThread().getContextClassLoader())
                     .asSubclass(JDBCDriver.class).getDeclaredConstructor().newInstance();
             driverVersion = String.format("%d.%d", driver.getMajorVersion(), driver.getMinorVersion());
@@ -109,10 +109,7 @@ public final class LegacyHsqlUtil {
             return;
         }
 
-        if (currentVersion.startsWith(driverVersion)) {
-            // If we're already on the same version as the driver, nothing should happen.
-            return;
-        } else if (UPGRADE_NEEDED_VERSION1.equals(currentVersion) || UPGRADE_NEEDED_VERSION2.equals(currentVersion)) {
+        if (UPGRADE_NEEDED_VERSION1.equals(currentVersion) || UPGRADE_NEEDED_VERSION2.equals(currentVersion)) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("""
                         HSQLDB database upgrade needed, from version {} to {}.
@@ -123,7 +120,6 @@ public final class LegacyHsqlUtil {
                          *
                         """, currentVersion, driverVersion);
             }
-            return;
         } else {
             // The expected conversion version is from '2.5.0 to 2.7'.
             // HSQLDB 2.5.0 is the last to include a legacy converter that can convert 1.8.x data.
@@ -132,7 +128,6 @@ public final class LegacyHsqlUtil {
             // So the data between 2.5.0 and 2.7.0 (All of Jpsonic v111.x.x) is reversible.
             LOG.info("HSQLDB database version changed, from version {} to {}", currentVersion, driverVersion);
             // If you see this message, the database properties file version has probably been rewritten.
-            return;
         }
     }
 }

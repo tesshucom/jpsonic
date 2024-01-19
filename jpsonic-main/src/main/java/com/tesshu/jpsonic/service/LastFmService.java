@@ -86,6 +86,22 @@ public class LastFmService {
         caller.setCache(new LastFmCache(cacheDir, CACHE_TIME_TO_LIVE_MILLIS));
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (MediaFile) Not reusable
+    private List<MediaFile> fillUpWithNonPresentArtists(List<MediaFile> result, Collection<Artist> similarArtists,
+            int count, List<MusicFolder> musicFolders) {
+        for (Iterator<Artist> i = similarArtists.iterator(); i.hasNext() && result.size() != count;) {
+            Artist lastFmArtist = i.next();
+            MediaFile similarArtist = mediaFileDao.getArtistByName(lastFmArtist.getName(), musicFolders);
+            if (similarArtist == null) {
+                MediaFile notPresentArtist = new MediaFile();
+                notPresentArtist.setId(-1);
+                notPresentArtist.setArtist(lastFmArtist.getName());
+                result.add(notPresentArtist);
+            }
+        }
+        return result;
+    }
+
     /**
      * Returns similar artists, using last.fm REST API.
      *
@@ -135,17 +151,7 @@ public class LastFmService {
         }
 
         // Then fill up with non-present artists
-        for (Iterator<Artist> i = similarArtists.iterator(); i.hasNext() && result.size() != count;) {
-            Artist lastFmArtist = i.next();
-            MediaFile similarArtist = mediaFileDao.getArtistByName(lastFmArtist.getName(), musicFolders);
-            if (similarArtist == null) {
-                MediaFile notPresentArtist = new MediaFile();
-                notPresentArtist.setId(-1);
-                notPresentArtist.setArtist(lastFmArtist.getName());
-                result.add(notPresentArtist);
-            }
-        }
-        return result;
+        return fillUpWithNonPresentArtists(result, similarArtists, count, musicFolders);
     }
 
     /**

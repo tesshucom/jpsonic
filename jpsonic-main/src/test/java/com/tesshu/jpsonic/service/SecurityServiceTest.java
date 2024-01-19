@@ -107,7 +107,7 @@ class SecurityServiceTest {
             assertEquals(FontScheme.DEFAULT.name(), userSettings.getFontSchemeName());
             assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, userSettings.getFontFamily());
             assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, userSettings.getFontSize());
-            assertEquals(Integer.valueOf(101), userSettings.getSystemAvatarId());
+            assertEquals(101, userSettings.getSystemAvatarId());
         }
 
         @Test
@@ -186,7 +186,7 @@ class SecurityServiceTest {
         assertEquals(FontScheme.DEFAULT.name(), tabletSettings.getFontSchemeName());
         assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, tabletSettings.getFontFamily());
         assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, tabletSettings.getFontSize());
-        assertEquals(Integer.valueOf(101), tabletSettings.getSystemAvatarId());
+        assertEquals(101, tabletSettings.getSystemAvatarId());
     }
 
     @Test
@@ -215,7 +215,7 @@ class SecurityServiceTest {
         assertEquals(FontScheme.DEFAULT.name(), smartphoneSettings.getFontSchemeName());
         assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, smartphoneSettings.getFontFamily());
         assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, smartphoneSettings.getFontSize());
-        assertEquals(Integer.valueOf(101), smartphoneSettings.getSystemAvatarId());
+        assertEquals(101, smartphoneSettings.getSystemAvatarId());
     }
 
     @Test

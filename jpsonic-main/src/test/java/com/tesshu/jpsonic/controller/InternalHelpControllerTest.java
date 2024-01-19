@@ -21,6 +21,7 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -61,6 +62,29 @@ class InternalHelpControllerTest {
     @WithMockUser(username = "user", roles = { "USER" })
     void testNotOkForUsers() throws Exception {
         mockMvc.perform(get("/internalhelp").contentType(MediaType.TEXT_HTML)).andExpect(status().isForbidden());
+    }
+
+    @Nested
+    class DoesLocaleSupportUtf8Test {
+
+        private final InternalHelpController controller = new InternalHelpController(null, null, null, null, null, null,
+                null, null);
+
+        @Test
+        void testNull() {
+            assertFalse(controller.doesLocaleSupportUtf8(null));
+        }
+
+        @Test
+        void testContainsUtf8() {
+            assertTrue(controller.doesLocaleSupportUtf8("utf8"));
+            assertTrue(controller.doesLocaleSupportUtf8("utf-8"));
+        }
+
+        @Test
+        void testNotContainsUtf8() {
+            assertFalse(controller.doesLocaleSupportUtf8("MS932"));
+        }
     }
 
     @Nested

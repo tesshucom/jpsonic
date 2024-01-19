@@ -112,8 +112,8 @@ public final class StreamServerImpl implements StreamServer<DefaultStreamServerC
 
     private static boolean isAcceptable(RequestInfo requestInfo) {
         return switch (requestInfo.method) {
-            case GET, POST -> true;
-            case MSEARCH, NOTIFY, SUBSCRIBE, UNKNOWN, UNSUBSCRIBE -> false;
+            case GET, POST, SUBSCRIBE, UNSUBSCRIBE -> true;
+            case MSEARCH, NOTIFY, UNKNOWN  -> false;
         };
     }
 

@@ -51,7 +51,8 @@ import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.container.Container;
 import org.jupnp.support.model.container.GenreContainer;
 
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
+//pmd/pmd#4616
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals", "PMD.SingularField" })
 class AlbumByGenreProcTest {
 
     private SettingsService settingsService;

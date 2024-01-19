@@ -236,15 +236,15 @@ class PlayQueueTest {
         playQueue.addFiles(true, new TestMediaFile(3, "Artist B", "Album A"));
         playQueue.addFiles(true, new TestMediaFile(null, "Artist D", "Album D"));
         playQueue.setIndex(2);
-        assertEquals(Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber(), "Error in sort.");
+        assertEquals(3, playQueue.getCurrentFile().getTrackNumber(), "Error in sort.");
 
         // Order by track.
         playQueue.sort(jpsonicComparators.mediaFileOrderBy(JpsonicComparators.OrderBy.TRACK));
         assertNull(playQueue.getFile(0).getTrackNumber(), "Error in sort().");
-        assertEquals(Integer.valueOf(1), playQueue.getFile(1).getTrackNumber(), "Error in sort.");
-        assertEquals(Integer.valueOf(2), playQueue.getFile(2).getTrackNumber(), "Error in sort.");
-        assertEquals(Integer.valueOf(3), playQueue.getFile(3).getTrackNumber(), "Error in sort.");
-        assertEquals(Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber());
+        assertEquals(1, playQueue.getFile(1).getTrackNumber(), "Error in sort.");
+        assertEquals(2, playQueue.getFile(2).getTrackNumber(), "Error in sort.");
+        assertEquals(3, playQueue.getFile(3).getTrackNumber(), "Error in sort.");
+        assertEquals(3, playQueue.getCurrentFile().getTrackNumber());
 
         // Order by artist.
         playQueue.sort(jpsonicComparators.mediaFileOrderBy(JpsonicComparators.OrderBy.ARTIST));
@@ -252,7 +252,7 @@ class PlayQueueTest {
         assertEquals("Artist B", playQueue.getFile(1).getArtist(), "Error in sort.");
         assertEquals("Artist C", playQueue.getFile(2).getArtist(), "Error in sort.");
         assertEquals("Artist D", playQueue.getFile(3).getArtist(), "Error in sort.");
-        assertEquals(Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber(), "Error in sort.");
+        assertEquals(3, playQueue.getCurrentFile().getTrackNumber(), "Error in sort.");
 
         // Order by album.
         playQueue.sort(jpsonicComparators.mediaFileOrderBy(JpsonicComparators.OrderBy.ALBUM));
@@ -260,7 +260,7 @@ class PlayQueueTest {
         assertEquals("Album B", playQueue.getFile(1).getAlbumName(), "Error in sort.");
         assertEquals("Album C", playQueue.getFile(2).getAlbumName(), "Error in sort.");
         assertEquals("Album D", playQueue.getFile(3).getAlbumName(), "Error in sort.");
-        assertEquals(Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber(), "Error in sort.");
+        assertEquals(3, playQueue.getCurrentFile().getTrackNumber(), "Error in sort.");
     }
 
     private void assertPlaylistEquals(PlayQueue playQueue, int index, String... songs) {

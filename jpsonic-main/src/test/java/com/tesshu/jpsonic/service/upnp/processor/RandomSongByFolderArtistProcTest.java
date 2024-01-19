@@ -59,9 +59,7 @@ class RandomSongByFolderArtistProcTest {
     class UnitTest {
 
         private UpnpProcessorUtil util;
-        private UpnpDIDLFactory factory;
         private ArtistDao artistDao;
-        private MusicFolderDao musicFolderDao;
         private SearchService searchService;
         private SettingsService settingsService;
         private FolderOrArtistLogic folderOrArtistProc;
@@ -70,12 +68,12 @@ class RandomSongByFolderArtistProcTest {
         @BeforeEach
         public void setup() {
             util = mock(UpnpProcessorUtil.class);
-            factory = new UpnpDIDLFactory(settingsService, mock(JWTSecurityService.class), mock(MediaFileService.class),
-                    mock(PlayerService.class), mock(TranscodingService.class));
             artistDao = mock(ArtistDao.class);
-            musicFolderDao = mock(MusicFolderDao.class);
+            MusicFolderDao musicFolderDao = mock(MusicFolderDao.class);
             searchService = mock(SearchService.class);
             settingsService = mock(SettingsService.class);
+            UpnpDIDLFactory factory = new UpnpDIDLFactory(settingsService, mock(JWTSecurityService.class),
+                    mock(MediaFileService.class), mock(PlayerService.class), mock(TranscodingService.class));
             folderOrArtistProc = new FolderOrArtistLogic(util, factory, musicFolderDao, artistDao);
             proc = new RandomSongByFolderArtistProc(util, factory, artistDao, searchService, settingsService,
                     folderOrArtistProc);

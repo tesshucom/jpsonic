@@ -1112,8 +1112,8 @@ public class SubsonicRESTController implements CoverArtPresentation {
         }
         List<Integer> songIndexesToRemove = new ArrayList<>(tmp);
         Collections.reverse(songIndexesToRemove);
-        for (Integer songIndexToRemove : songIndexesToRemove) {
-            songs.remove(songIndexToRemove.intValue());
+        for (int songIndexToRemove : songIndexesToRemove) {
+            songs.remove(songIndexToRemove);
             songsChanged = true;
         }
         for (int songToAdd : toAdd) {
@@ -1349,7 +1349,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         return createJaxbChild(new Child(), player, mediaFile, username);
     }
 
-    @SuppressWarnings("PMD.CognitiveComplexity") // #1020 Move to support class or service
+    @SuppressWarnings({ "PMD.CognitiveComplexity", "PMD.NPathComplexity" })
     private <T extends Child> T createJaxbChild(T child, Player player, MediaFile mediaFile, String username) {
         MediaFile parent = mediaFileService.getParentOf(mediaFile);
         if (parent != null) {
@@ -1358,7 +1358,9 @@ public class SubsonicRESTController implements CoverArtPresentation {
                     child.setParent(String.valueOf(parent.getId()));
                 }
             } catch (SecurityException e) {
-                LOG.trace("Error in getMusicDirectory", new AssertionError("Errors with unclear cases.", e));
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Error in getMusicDirectory", new AssertionError("Errors with unclear cases.", e));
+                }
             }
             child.setCoverArt(findCoverArt(mediaFile, parent));
         }
@@ -1530,7 +1532,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         HttpServletRequest request = wrapRequest(req);
         int[] ids = ServletRequestUtils.getRequiredIntParameters(request, Attributes.Request.ID.value());
         long[] times = ServletRequestUtils.getLongParameters(request, "time");
-        if (times.length > 0 && (int) times.length != (int) ids.length) {
+        if (times.length > 0 && times.length != ids.length) {
             writeError(request, response, ErrorCode.GENERIC, "Wrong number of timestamps: " + times.length);
             return;
         }
@@ -2501,7 +2503,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void getScanStatus(HttpServletRequest req, HttpServletResponse response) {
         ScanStatus scanStatus = new ScanStatus();
         scanStatus.setScanning(this.mediaScannerService.isScanning());
-        scanStatus.setCount((long) this.mediaScannerService.getScanCount());
+        scanStatus.setCount(this.mediaScannerService.getScanCount());
 
         Response res = createResponse();
         res.setScanStatus(scanStatus);

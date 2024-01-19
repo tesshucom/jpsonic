@@ -247,9 +247,7 @@ public class DownloadController {
             if (Arrays.binarySearch(attrChar, b) >= 0) {
                 sb.append((char) b);
             } else {
-                sb.append('%');
-                sb.append(digits[0x0f & (b >>> 4)]);
-                sb.append(digits[b & 0x0f]);
+                sb.append('%').append(digits[0x0f & (b >>> 4)]).append(digits[b & 0x0f]);
             }
         }
         return sb.toString();

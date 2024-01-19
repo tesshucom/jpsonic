@@ -74,7 +74,7 @@ public final class ComplementaryFilter extends TokenFilter {
         }
 
         public static Optional<Mode> fromValue(final String value) {
-            return Stream.of(Mode.values()).filter(m -> m.v.equals(value)).findFirst();
+            return Stream.of(values()).filter(m -> m.v.equals(value)).findFirst();
         }
 
     }
@@ -97,8 +97,7 @@ public final class ComplementaryFilter extends TokenFilter {
                     CharArraySet stops = WordlistLoader.getWordSet(reader, "#", new CharArraySet(16, true));
                     StringBuilder sb = new StringBuilder();
                     stops.forEach(s -> {
-                        sb.append((char[]) s);
-                        sb.append('|');
+                        sb.append((char[]) s).append('|');
                     });
                     onlyStopWords = Pattern.compile("^(" + sb.toString().replaceAll("^\\||\\|$", "") + ")*$");
                 } catch (IOException e) {
@@ -123,10 +122,7 @@ public final class ComplementaryFilter extends TokenFilter {
     }
 
     private boolean isHiraKataOnly(String str) {
-        if (isEmpty(str)) {
-            return false;
-        }
-        return Stream.of(str.split(EMPTY)).allMatch(s -> {
+        return !isEmpty(str) && Stream.of(str.split(EMPTY)).allMatch(s -> {
             Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
             return Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b);
         });

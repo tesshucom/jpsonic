@@ -184,7 +184,7 @@ class PlaylistProcTest {
                 return playlist;
             };
 
-            if (0 == playlistDao.getAllPlaylists().size()) {
+            if (playlistDao.getAllPlaylists().isEmpty()) {
                 List<String> shallow = new ArrayList<>();
                 shallow.addAll(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST);
                 Collections.shuffle(shallow);
