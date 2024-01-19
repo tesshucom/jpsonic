@@ -37,7 +37,6 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -129,6 +128,6 @@ public class DefaultPlaylistImportHandler implements PlaylistImportHandler {
 
     @Override
     public int getOrder() {
-        return Ordered.LOWEST_PRECEDENCE;
+        return LOWEST_PRECEDENCE;
     }
 }

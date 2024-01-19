@@ -541,7 +541,7 @@ public class SecurityService implements UserDetailsService {
         }
     }
 
-    @SuppressWarnings({ "PMD.GuardLogStatement", "PMD.NPathComplexity" })
+    @SuppressWarnings({ "PMD.GuardLogStatement", "PMD.NPathComplexity", "PMD.SimplifyBooleanReturns" })
     // NPathComplexity : Redundantly coded for readability, but not difficult to understand
     public boolean isExcluded(Path path) {
         if (settingsService.isIgnoreSymLinks() && Files.isSymbolicLink(path)) {

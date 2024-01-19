@@ -214,12 +214,8 @@ public class InternalHelpController {
      *
      * See: https://superuser.com/questions/999133/differences-between-en-us-utf8-and-en-us-utf-8
      */
-    private boolean doesLocaleSupportUtf8(String locale) {
-        if (locale == null) {
-            return false;
-        } else {
-            return StringUtils.containsIgnoreCase(locale.replaceAll("\\W", ""), "utf8");
-        }
+    boolean doesLocaleSupportUtf8(String locale) {
+        return locale != null && StringUtils.containsIgnoreCase(locale.replaceAll("\\W", ""), "utf8");
     }
 
     private void gatherLocaleInfo(Map<String, Object> map) {

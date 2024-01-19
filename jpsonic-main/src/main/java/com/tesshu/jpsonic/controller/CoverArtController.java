@@ -412,7 +412,9 @@ public class CoverArtController implements CoverArtPresentation {
         private CoverArtRequest(CoverArtController controller, FontLoader fontLoader, String coverArtPath) {
             this.controller = controller;
             this.fontLoader = fontLoader;
-            this.coverArt = coverArtPath == null ? null : Path.of(coverArtPath);
+            if (coverArtPath != null) {
+                this.coverArt = Path.of(coverArtPath);
+            }
         }
 
         private Path getCoverArt() {

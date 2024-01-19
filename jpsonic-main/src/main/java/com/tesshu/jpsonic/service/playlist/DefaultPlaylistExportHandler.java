@@ -31,7 +31,6 @@ import chameleon.playlist.SpecificPlaylist;
 import chameleon.playlist.SpecificPlaylistProvider;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.MediaFile;
-import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -74,6 +73,6 @@ public class DefaultPlaylistExportHandler implements PlaylistExportHandler {
 
     @Override
     public int getOrder() {
-        return Ordered.LOWEST_PRECEDENCE;
+        return LOWEST_PRECEDENCE;
     }
 }

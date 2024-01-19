@@ -92,6 +92,8 @@ public class FFmpeg {
             try (InputStream is = process.getInputStream(); OutputStream os = process.getOutputStream();
                     InputStream es = process.getErrorStream(); BufferedInputStream bis = new BufferedInputStream(is);) {
                 result = ImageIO.read(bis);
+                os.close();
+                es.close();
             } finally {
                 process.destroy();
             }

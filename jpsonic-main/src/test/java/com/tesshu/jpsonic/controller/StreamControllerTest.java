@@ -462,6 +462,7 @@ class StreamControllerTest {
         @ApplyRangeDecision.Result.Status.Ok200
         @ApplyRangeDecision.Result.Header.AcceptRanges.NotExist
         @Test
+        @SuppressWarnings("PMD.UnnecessaryBoxing") // false positive
         void cr00() throws Exception {
             MediaFile song = new MediaFile();
             song.setPathString(TEST_PATH);

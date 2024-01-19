@@ -337,7 +337,7 @@ class SearchServiceTest {
             }
         }
 
-        @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (word) Not reusable.
+        @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
         private String[] createRandomWords(int count) {
             String[] randomStrings = new String[count];
             Random random = new Random();
@@ -346,7 +346,7 @@ class SearchServiceTest {
                 for (int j = 0; j < word.length; j++) {
                     word[j] = (char) ('a' + random.nextInt(26));
                 }
-                randomStrings[i] = new String(word);
+                randomStrings[i] = String.valueOf(word);
             }
             return randomStrings;
         }

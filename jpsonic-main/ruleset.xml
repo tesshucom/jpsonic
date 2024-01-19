@@ -40,6 +40,9 @@
 
         <!-- It is also possible to organize, after improving coverage. -->
         <exclude name="JUnitTestContainsTooManyAsserts" />
+        
+        <!-- Degrade pmd/pmd#1218 -->
+        <exclude name="LooseCoupling" />
     </rule>
 
     <!-- Java Rules:Code Style -->
@@ -62,6 +65,9 @@
 
         <!-- Rather recommended. -->
         <exclude name="OnlyOneReturn" />
+        
+        <!-- Degrade pmd/pmd#4785 -->
+        <exclude name="UnnecessaryImport" />
     </rule>
 
     <!-- Java Rules:Design -->
@@ -99,6 +105,9 @@
         <!-- References to traditionally existing ghost rules. Suppress log warnings.
             This rule cannot be used even if the suppression is removed. -->
         <exclude name="LoosePackageCoupling" />
+
+        <!-- Spring beans are not applicable. -->
+        <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal" />
     </rule>
 
     <!-- Java Rules:Documentation -->
@@ -115,6 +124,16 @@
 
         <!-- Because not needed for this project. -->
         <exclude name="MissingSerialVersionUID" />
+
+        <!-- Degrade pmd/pmd#4514 -->
+        <exclude name="AvoidLiteralsInIfCondition" />
+        <!-- 0L was added.
+        <rule ref="category/java/errorprone.xml/AvoidLiteralsInIfCondition">
+            <properties>
+                <property name="ignoreMagicNumbers" value="-1,0,0L" />
+            </properties>
+        </rule>
+         -->
     </rule>
 
     <!-- Because annotations and Dao (literals for building SQL) are skipped. -->
@@ -123,23 +142,16 @@
             <property name="skipAnnotations" value="true" />
         </properties>
     </rule>
-    
-    <!-- 0L was added. -->
-    <rule ref="category/java/errorprone.xml/AvoidLiteralsInIfCondition">
-        <properties>
-            <property name="ignoreMagicNumbers" value="-1,0,0L" />
-        </properties>
-    </rule>
 
     <!-- Java Rules:Multithreading -->
-	<rule ref="category/java/multithreading.xml">
-		<!-- In legacy servers, thread generation was done freely in various places. 
-			That's the worst. Currently, it has been improved so that it can be used 
-			via pooling, and Executor etc. are used as accessors. In the future these 
-			could be replaced by virtual threads. Regarding this matter, it is necessary 
-			to consider the newer J2EE/JEE specifications than PMD. -->
-		<exclude name="DoNotUseThreads" />
-	</rule>
+    <rule ref="category/java/multithreading.xml">
+        <!-- In legacy servers, thread generation was done freely in various places. 
+            That's the worst. Currently, it has been improved so that it can be used 
+            via pooling, and Executor etc. are used as accessors. In the future these 
+            could be replaced by virtual threads. Regarding this matter, it is necessary 
+            to consider the newer J2EE/JEE specifications than PMD. -->
+        <exclude name="DoNotUseThreads" />
+    </rule>
 
     <!-- Java Rules:Performance -->
     <rule ref="category/java/performance.xml" />

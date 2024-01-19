@@ -77,7 +77,7 @@ public class StatusChartController extends AbstractChartController {
         this.fontLoader = fontLoader;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Millisecond, Date) Not reusable
+    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UselessParentheses" })
     @Override
     @GetMapping
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {

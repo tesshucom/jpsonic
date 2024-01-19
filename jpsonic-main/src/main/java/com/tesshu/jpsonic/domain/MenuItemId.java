@@ -64,6 +64,6 @@ public enum MenuItemId {
     }
 
     public static @NonNull MenuItemId of(int value) {
-        return Stream.of(MenuItemId.values()).filter(id -> id.v == value).findFirst().orElse(ROOT);
+        return Stream.of(values()).filter(id -> id.v == value).findFirst().orElse(ROOT);
     }
 }

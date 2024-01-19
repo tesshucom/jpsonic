@@ -40,7 +40,7 @@ public final class MusicFolderTestDataUtils {
     }
 
     public static String resolveMusicFolderPath() {
-        return MusicFolderTestDataUtils.resolveBaseMediaPath() + "Music";
+        return resolveBaseMediaPath() + "Music";
     }
 
 }

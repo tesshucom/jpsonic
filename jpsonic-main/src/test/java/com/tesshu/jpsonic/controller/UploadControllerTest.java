@@ -24,6 +24,8 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -84,7 +86,7 @@ class UploadControllerTest {
     @SuppressWarnings({ "unchecked", "PMD.DefaultPackage" })
     // @Test Currently it is not possible to run two tests in a row
     @WithMockUser(username = "admin")
-    void testHandleRequestInternalWithFile(@TempDir Path tempDirPath) throws Exception {
+    void testHandleRequestInternalWithFile(@TempDir Path tempDirPath) throws IOException, URISyntaxException {
 
         MusicFolder musicFolder = new MusicFolder(0, tempDirPath.toString(), "Incoming1", true, now(), 1, false);
         musicFolderDao.createMusicFolder(musicFolder);

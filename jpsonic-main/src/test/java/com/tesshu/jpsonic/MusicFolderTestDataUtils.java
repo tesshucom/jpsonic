@@ -48,21 +48,19 @@ public final class MusicFolderTestDataUtils {
     }
 
     public static String resolveMusicFolderPath() {
-        return MusicFolderTestDataUtils.resolveBaseMediaPath() + "Music";
+        return resolveBaseMediaPath() + "Music";
     }
 
     public static String resolveMusic2FolderPath() {
-        return MusicFolderTestDataUtils.resolveBaseMediaPath() + "Music2";
+        return resolveBaseMediaPath() + "Music2";
     }
 
     public static String resolveMusic3FolderPath() {
-        return MusicFolderTestDataUtils.resolveBaseMediaPath() + "Music3";
+        return resolveBaseMediaPath() + "Music3";
     }
 
     public static List<MusicFolder> getTestMusicFolders() {
-        return Arrays.asList(
-                new MusicFolder(1, MusicFolderTestDataUtils.resolveMusicFolderPath(), "Music", true, now(), 0, false),
-                new MusicFolder(2, MusicFolderTestDataUtils.resolveMusic2FolderPath(), "Music2", true, now(), 1,
-                        false));
+        return Arrays.asList(new MusicFolder(1, resolveMusicFolderPath(), "Music", true, now(), 0, false),
+                new MusicFolder(2, resolveMusic2FolderPath(), "Music2", true, now(), 1, false));
     }
 }

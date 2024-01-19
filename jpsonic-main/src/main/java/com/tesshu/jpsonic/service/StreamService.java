@@ -176,6 +176,7 @@ public class StreamService {
         return null;
     }
 
+    @SuppressWarnings("PMD.UnnecessaryBoxing") // false positive
     protected Dimension getSuitableVideoSize(Integer existingWidth, Integer existingHeight, Integer maxBitRate) {
         if (maxBitRate == null) {
             return new Dimension(400, 224);

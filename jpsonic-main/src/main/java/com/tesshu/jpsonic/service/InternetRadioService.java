@@ -440,15 +440,15 @@ public class InternetRadioService {
             HttpURLConnection connection = connectToURL(currentURL);
 
             // While it redirects, follow redirects in new connections.
-            while ((int) connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM
-                    || (int) connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP
-                    || (int) connection.getResponseCode() == HttpURLConnection.HTTP_SEE_OTHER) {
+            while (connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM
+                    || connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP
+                    || connection.getResponseCode() == HttpURLConnection.HTTP_SEE_OTHER) {
                 // Check if redirect count is not too large.
                 redirectCount += 1;
                 if (maxRedirects > 0 && redirectCount > maxRedirects) {
                     connection.disconnect();
-                    throw new PlaylistHasTooManyRedirects(
-                            "Too many redirects (%d) for URL %s".formatted(redirectCount, url));
+                    throw new ExecutionException("Redirect failed.", new PlaylistHasTooManyRedirects(
+                            "Too many redirects (%d) for URL %s".formatted(redirectCount, url)));
                 }
 
                 // Reconnect to the new URL.
@@ -459,7 +459,7 @@ public class InternetRadioService {
 
             // Return the last connection that did not redirect.
             return connection;
-        } catch (IOException | PlaylistHasTooManyRedirects e) {
+        } catch (IOException e) {
             throw new ExecutionException("Redirect failed.", e);
         }
     }

@@ -21,17 +21,14 @@
 
 package com.tesshu.jpsonic.dao.base;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import javax.sql.DataSource;
 
 import ch.qos.logback.classic.Level;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceUtils;
 
 /**
  * Special Dao Helper with additional features for managing the legacy embedded HSQL database.
@@ -71,14 +68,12 @@ public class LegacyHsqlDaoHelper extends GenericDaoHelper {
             if (dataSource == null) {
                 LOG.debug("Cannot get dataSource.");
             } else {
-                try (Connection conn = DataSourceUtils.getConnection(dataSource)) {
-                    jdbcTemplate.execute("SHUTDOWN");
-                }
+                jdbcTemplate.execute("SHUTDOWN");
                 // Force log level change
                 ((ch.qos.logback.classic.Logger) LOG).setLevel(Level.INFO);
                 LOG.info("Embedded database shutdown complete.");
             }
-        } catch (SQLException e) {
+        } catch (DataAccessException e) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Embedded database shutdown failed", e);
             }

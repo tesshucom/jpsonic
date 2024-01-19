@@ -228,7 +228,7 @@ class UserDaoTest {
         assertFalse(userSettings.isPartyModeEnabled(), "Error in getUserSettings().");
         assertFalse(userSettings.isNowPlayingAllowed(), "Error in getUserSettings().");
         Assertions.assertSame(AvatarScheme.NONE, userSettings.getAvatarScheme(), "Error in getUserSettings().");
-        assertEquals(Integer.valueOf(101), userSettings.getSystemAvatarId(), "Error in getUserSettings().");
+        assertEquals(101, userSettings.getSystemAvatarId(), "Error in getUserSettings().");
         assertTrue(userSettings.isKeyboardShortcutsEnabled(), "Error in getUserSettings().");
         assertEquals(40, userSettings.getPaginationSize(), "Error in getUserSettings().");
 
@@ -292,7 +292,7 @@ class UserDaoTest {
         assertTrue(userSettings.isPartyModeEnabled(), "Error in getUserSettings().");
         assertTrue(userSettings.isNowPlayingAllowed(), "Error in getUserSettings().");
         Assertions.assertSame(AvatarScheme.SYSTEM, userSettings.getAvatarScheme(), "Error in getUserSettings().");
-        assertEquals(102, userSettings.getSystemAvatarId().intValue(), "Error in getUserSettings().");
+        assertEquals(102, userSettings.getSystemAvatarId(), "Error in getUserSettings().");
         assertEquals(Instant.ofEpochMilli(9412L), userSettings.getChanged(), "Error in getUserSettings().");
         assertTrue(userSettings.isKeyboardShortcutsEnabled(), "Error in getUserSettings().");
         assertEquals(120, userSettings.getPaginationSize(), "Error in getUserSettings().");
