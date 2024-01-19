@@ -403,7 +403,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-pmd-plugin</artifactId>
-          <version>3.21.1-pmd-7.0.0-SNAPSHOT</version>
+          <version>3.21.2</version>
           <dependencies>
             <dependency>
               <groupId>net.sourceforge.pmd</groupId>
