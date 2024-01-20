@@ -32,6 +32,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.task.support.ExecutorServiceAdapter;
+import org.springframework.core.task.support.TaskExecutorAdapter;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.DefaultManagedAwareThreadFactory;
@@ -213,6 +214,23 @@ public class ExecutorConfiguration {
 
         executor.initialize();
         return new ExecutorServiceAdapter(executor);
+    }
+
+    @Lazy
+    @Bean
+    public ExecutorService asyncProtocolExecutorService() {
+        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setWaitForTasksToCompleteOnShutdown(false);
+        executor.setAwaitTerminationMillis(SHORT_AWAIT_TERMINATION);
+        executor.setCorePoolSize(3);
+        executor.setMaxPoolSize(3);
+        String threadGroupName = "upnp-discovery";
+        executor.setThreadNamePrefix(createThreadNamePrefix(threadGroupName));
+        executor.setThreadFactory(createThreadFactory(threadGroupName, Thread.MIN_PRIORITY));
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.setDaemon(true);
+        executor.initialize();
+        return new ExecutorServiceAdapter(new TaskExecutorAdapter(executor));
     }
 
     private String createThreadNamePrefix(String threadGroupName) {
