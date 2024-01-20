@@ -31,6 +31,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.support.ExecutorServiceAdapter;
 import org.springframework.core.task.support.TaskExecutorAdapter;
 import org.springframework.scheduling.TaskScheduler;
@@ -83,7 +84,7 @@ public class ExecutorConfiguration {
      */
     @Bean
     @DependsOn({ "legacyDaoHelper", "cacheDisposer" })
-    public ThreadPoolTaskExecutor shortExecutor() {
+    public AsyncTaskExecutor shortExecutor() {
 
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 
