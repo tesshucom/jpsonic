@@ -95,9 +95,7 @@ public class ExecutorConfiguration {
         executor.setMaxPoolSize(poolConf.getMaxPoolSize());
         suppressIfLargePool(executor);
 
-        String threadGroupName = "short-task";
-        executor.setThreadNamePrefix(createThreadNamePrefix(threadGroupName));
-        executor.setThreadFactory(createThreadFactory(threadGroupName, Thread.MIN_PRIORITY));
+        executor.setThreadFactory(createThreadFactory(true, "short-task", Thread.MIN_PRIORITY));
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         executor.setDaemon(true);
 
@@ -111,19 +109,13 @@ public class ExecutorConfiguration {
     @Bean
     @DependsOn({ "legacyDaoHelper", "cacheDisposer" })
     public ThreadPoolTaskExecutor podcastDownloadExecutor() {
-
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-
         executor.setWaitForTasksToCompleteOnShutdown(true); // To handle IO
         executor.setAwaitTerminationMillis(PODCAST_DOWNLOAD_AWAIT_TERMINATION);
         executor.setCorePoolSize(3);
         executor.setMaxPoolSize(3);
         suppressIfLargePool(executor);
-
-        String threadGroupName = "podcast-download-task";
-        executor.setThreadNamePrefix(createThreadNamePrefix(threadGroupName));
-        executor.setThreadFactory(createThreadFactory(threadGroupName, Thread.MIN_PRIORITY));
-
+        executor.setThreadFactory(createThreadFactory(true, "podcast-download-task", Thread.MIN_PRIORITY));
         executor.initialize();
         return executor;
     }
@@ -134,19 +126,13 @@ public class ExecutorConfiguration {
     @Bean
     @DependsOn({ "legacyDaoHelper", "cacheDisposer", "podcastDownloadExecutor" })
     public ThreadPoolTaskExecutor podcastRefreshExecutor() {
-
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-
         executor.setWaitForTasksToCompleteOnShutdown(true); // To call download
         executor.setAwaitTerminationMillis(PODCAST_REFRESH_AWAIT_TERMINATION);
         executor.setCorePoolSize(5);
         executor.setMaxPoolSize(5);
         suppressIfLargePool(executor);
-
-        String threadGroupName = "podcast-refresh-task";
-        executor.setThreadNamePrefix(createThreadNamePrefix(threadGroupName));
-        executor.setThreadFactory(createThreadFactory(threadGroupName, Thread.MIN_PRIORITY));
-
+        executor.setThreadFactory(createThreadFactory(true, "podcast-refresh-task", Thread.MIN_PRIORITY));
         executor.initialize();
         return executor;
     }
@@ -157,19 +143,13 @@ public class ExecutorConfiguration {
     @Bean
     @DependsOn({ "legacyDaoHelper", "cacheDisposer", "podcastRefreshExecutor" })
     public ThreadPoolTaskExecutor scanExecutor() {
-
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-
         executor.setWaitForTasksToCompleteOnShutdown(true); // To handle IO
         executor.setAwaitTerminationMillis(SCAN_AWAIT_TERMINATION);
         // In v110.0.0, run in single thread
         executor.setCorePoolSize(1);
         executor.setMaxPoolSize(1);
-
-        String threadGroupName = "scan-task";
-        executor.setThreadNamePrefix(createThreadNamePrefix(threadGroupName));
-        executor.setThreadFactory(createThreadFactory(threadGroupName, Thread.MIN_PRIORITY));
-
+        executor.setThreadFactory(createThreadFactory(true, "scan-task", Thread.MIN_PRIORITY));
         executor.initialize();
         return executor;
     }
@@ -177,16 +157,10 @@ public class ExecutorConfiguration {
     @Bean
     @DependsOn("legacyDaoHelper")
     public TaskScheduler taskScheduler() {
-
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-
         scheduler.setWaitForTasksToCompleteOnShutdown(false);
         scheduler.setPoolSize(2); // scan and podcast. See *ScheduleConfiguration.
-
-        String threadGroupName = "task-scheduler";
-        scheduler.setThreadNamePrefix(createThreadNamePrefix(threadGroupName));
-        scheduler.setThreadFactory(createThreadFactory(threadGroupName, Thread.MIN_PRIORITY));
-
+        scheduler.setThreadFactory(createThreadFactory(true, "task-scheduler", Thread.MIN_PRIORITY));
         return scheduler;
     }
 
@@ -203,16 +177,11 @@ public class ExecutorConfiguration {
         executor.setRejectedExecutionHandler(
                 (runnable, threadPoolExecutor) -> LoggerFactory.getLogger(runnable.getClass())
                         .info("Thread pool(%s) rejected execution.".formatted(threadPoolExecutor.getClass())));
-
         executor.setCorePoolSize(16);
         executor.setMaxPoolSize(200);
         executor.setKeepAliveSeconds(10);
         executor.setQueueCapacity(1_000);
-
-        String threadGroupName = "upnp-default";
-        executor.setThreadNamePrefix(createThreadNamePrefix(threadGroupName));
-        executor.setThreadFactory(createThreadFactory(threadGroupName, Thread.NORM_PRIORITY));
-
+        executor.setThreadFactory(createThreadFactory(true, "upnp-default", Thread.NORM_PRIORITY));
         executor.initialize();
         return new ExecutorServiceAdapter(executor);
     }
@@ -225,24 +194,18 @@ public class ExecutorConfiguration {
         executor.setAwaitTerminationMillis(SHORT_AWAIT_TERMINATION);
         executor.setCorePoolSize(3);
         executor.setMaxPoolSize(3);
-        String threadGroupName = "upnp-discovery";
-        executor.setThreadNamePrefix(createThreadNamePrefix(threadGroupName));
-        executor.setThreadFactory(createThreadFactory(threadGroupName, Thread.MIN_PRIORITY));
+        executor.setThreadFactory(createThreadFactory(true, "upnp-discovery", Thread.MIN_PRIORITY));
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         executor.setDaemon(true);
         executor.initialize();
         return new ExecutorServiceAdapter(new TaskExecutorAdapter(executor));
     }
 
-    private String createThreadNamePrefix(String threadGroupName) {
-        return threadGroupName + "-pool-";
-    }
-
-    private ThreadFactory createThreadFactory(String threadGroupName, int threadPriority) {
+    private ThreadFactory createThreadFactory(boolean isPool, String threadGroupName, int threadPriority) {
         JpsonicThreadFactory th = new JpsonicThreadFactory((thread, throwable) -> LoggerFactory
                 .getLogger(thread.getName()).error("An error occurred in the pooling thread.", throwable));
         th.setThreadGroupName(threadGroupName);
-        th.setThreadNamePrefix(createThreadNamePrefix(threadGroupName));
+        th.setThreadNamePrefix("jps-" + threadGroupName + (isPool ? "-pool-" : "-"));
         th.setThreadPriority(threadPriority);
 
         try {
