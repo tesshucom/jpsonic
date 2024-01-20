@@ -31,7 +31,7 @@
     </dependency>
     <dependency>
       <groupId>com.tesshu.jpsonic.player</groupId>
-      <artifactId>jpsonic-concurent17</artifactId>
+      <artifactId>${jpsonic.concurent.module}</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
