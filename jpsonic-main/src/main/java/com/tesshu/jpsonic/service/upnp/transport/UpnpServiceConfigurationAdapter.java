@@ -35,34 +35,43 @@ public class UpnpServiceConfigurationAdapter extends DefaultUpnpServiceConfigura
     private static final Logger LOG =
             LoggerFactory.getLogger(UpnpServiceConfigurationAdapter.class);
 
-    private final ExecutorService executorService;
+    private final ExecutorService defaultExecutorService;
+    private final ExecutorService asyncExecutorService;
 
-    public UpnpServiceConfigurationAdapter(ExecutorService executorService) {
+    public UpnpServiceConfigurationAdapter(ExecutorService defaultExecutorService,
+            ExecutorService asyncExecutorService) {
         super();
-        this.executorService = executorService;
+        this.defaultExecutorService = defaultExecutorService;
+        this.asyncExecutorService = asyncExecutorService;
     }
 
-    public UpnpServiceConfigurationAdapter(ExecutorService executorService, int streamListenPort) {
+    public UpnpServiceConfigurationAdapter(ExecutorService executorService,
+            ExecutorService asyncExecutorService, int streamListenPort) {
         super(streamListenPort);
-        this.executorService = executorService;
+        this.defaultExecutorService = executorService;
+        this.asyncExecutorService = asyncExecutorService;
     }
 
-    public UpnpServiceConfigurationAdapter(ExecutorService executorService, int streamListenPort,
-            int multicastResponsePort) {
+    public UpnpServiceConfigurationAdapter(ExecutorService executorService,
+            ExecutorService asyncExecutorService, int streamListenPort, int multicastResponsePort) {
         super(streamListenPort, multicastResponsePort);
-        this.executorService = executorService;
+        this.defaultExecutorService = executorService;
+        this.asyncExecutorService = asyncExecutorService;
     }
 
     protected UpnpServiceConfigurationAdapter(ExecutorService executorService,
-            boolean checkRuntime) {
+            ExecutorService asyncExecutorService, boolean checkRuntime) {
         super(checkRuntime);
-        this.executorService = executorService;
+        this.defaultExecutorService = executorService;
+        this.asyncExecutorService = asyncExecutorService;
     }
 
-    protected UpnpServiceConfigurationAdapter(ExecutorService executorService, int streamListenPort,
-            int multicastResponsePort, boolean checkRuntime) {
+    protected UpnpServiceConfigurationAdapter(ExecutorService executorService,
+            ExecutorService asyncExecutorService, int streamListenPort, int multicastResponsePort,
+            boolean checkRuntime) {
         super(streamListenPort, multicastResponsePort, checkRuntime);
-        this.executorService = executorService;
+        this.defaultExecutorService = executorService;
+        this.asyncExecutorService = asyncExecutorService;
     }
 
     /**
@@ -78,7 +87,12 @@ public class UpnpServiceConfigurationAdapter extends DefaultUpnpServiceConfigura
 
     @Override
     protected ExecutorService getDefaultExecutorService() {
-        return executorService;
+        return defaultExecutorService;
+    }
+
+    @Override
+    public ExecutorService getAsyncProtocolExecutor() {
+        return asyncExecutorService;
     }
 
     @Override

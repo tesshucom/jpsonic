@@ -51,7 +51,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.ServletRequestBindingException;
 
@@ -74,13 +74,13 @@ public class StreamService {
     private final WritableMediaFileService writableMediaFileService;
     private final SearchService searchService;
     // Used to perform transcoding in subthreads (Priority changes)
-    private final ThreadPoolTaskExecutor shortExecutor;
+    private final AsyncTaskExecutor shortExecutor;
 
     public StreamService(StatusService statusService, PlaylistService playlistService, SecurityService securityService,
             SettingsService settingsService, TranscodingService transcodingService,
             AudioScrobblerService audioScrobblerService, MediaFileService mediaFileService,
             WritableMediaFileService writableMediaFileService, SearchService searchService,
-            @Qualifier("shortExecutor") ThreadPoolTaskExecutor shortExecutor) {
+            @Qualifier("shortExecutor") AsyncTaskExecutor shortExecutor) {
         super();
         this.statusService = statusService;
         this.playlistService = playlistService;

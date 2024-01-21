@@ -84,21 +84,24 @@ public class UpnpServiceFactory {
     private final SettingsService settingsService;
     private final VersionService versionService;
     private final CustomContentDirectory dispatchingContentDirectory;
-    private final ExecutorService upnpExecutorService;
+    private final ExecutorService defaultExecutorService;
+    private final ExecutorService asyncExecutorService;
 
     public UpnpServiceFactory(SettingsService settingsService, VersionService versionService,
             @Qualifier("dispatchingContentDirectory") CustomContentDirectory dispatchingContentDirectory,
-            @Qualifier("upnpExecutorService") ExecutorService upnpExecutorService) {
+            @Qualifier("upnpExecutorService") ExecutorService defaultExecutorService,
+            @Qualifier("asyncProtocolExecutorService") ExecutorService asyncExecutorService) {
         super();
         this.settingsService = settingsService;
         this.versionService = versionService;
         this.dispatchingContentDirectory = dispatchingContentDirectory;
-        this.upnpExecutorService = upnpExecutorService;
+        this.defaultExecutorService = defaultExecutorService;
+        this.asyncExecutorService = asyncExecutorService;
     }
 
     public UpnpService createUpnpService() {
-        UpnpServiceConfiguration conf = new JpsonicUpnpServiceConf(upnpExecutorService, SettingsService.getBrand(),
-                versionService.getLocalVersion());
+        UpnpServiceConfiguration conf = new JpsonicUpnpServiceConf(defaultExecutorService, asyncExecutorService,
+                SettingsService.getBrand(), versionService.getLocalVersion());
         return new UpnpServiceImpl(conf);
     }
 

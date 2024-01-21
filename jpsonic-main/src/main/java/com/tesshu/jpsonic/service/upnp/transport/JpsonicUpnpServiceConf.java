@@ -35,9 +35,9 @@ public class JpsonicUpnpServiceConf extends UpnpServiceConfigurationAdapter {
 
     private final ServerClientTokens tokens;
 
-    public JpsonicUpnpServiceConf(ExecutorService executorService, String brand,
+    public JpsonicUpnpServiceConf(ExecutorService defaultExecutorService, ExecutorService asyncExecutorService, String brand,
             Version version) {
-        super(executorService);
+        super(defaultExecutorService, asyncExecutorService);
         tokens = new ServerClientTokens(brand, version.toString());
     }
 
