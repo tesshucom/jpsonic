@@ -171,7 +171,7 @@ public final class UpnpStreamImpl extends UpnpStream {
     @SuppressWarnings("PMD.AvoidCatchingThrowable") // Unchecked Error is rethrown
     @Override
     public void run() {
-        try {
+        try (httpExchange) {
 
             traceIfEnabled("Processing HTTP request: %s %s"
                     .formatted(httpExchange.getRequestMethod(), httpExchange.getRequestURI()));
