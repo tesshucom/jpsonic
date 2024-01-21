@@ -76,7 +76,8 @@ class IndexManagerTest {
             SettingsService settingsService = Mockito.mock(SettingsService.class);
             artistDao = mock(ArtistDao.class);
             albumDao = mock(AlbumDao.class);
-            indexManager = new IndexManager(null, null, null, null, null, settingsService, null, artistDao, albumDao);
+            indexManager = new IndexManager(null, null, null, null, null, settingsService, null, artistDao, albumDao,
+                    null);
         }
 
         @AfterEach

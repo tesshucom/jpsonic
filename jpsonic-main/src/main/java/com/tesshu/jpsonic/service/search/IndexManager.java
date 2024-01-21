@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -58,6 +59,7 @@ import jakarta.annotation.PostConstruct;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.FieldInfos;
 import org.apache.lucene.index.IndexNotFoundException;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexableField;
@@ -66,6 +68,7 @@ import org.apache.lucene.misc.HighFreqTerms;
 import org.apache.lucene.misc.TermStats;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.SearcherFactory;
 import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
@@ -73,6 +76,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 /**
@@ -84,6 +89,7 @@ import org.springframework.stereotype.Component;
  * methods of index operations other than search essentially use this class directly.
  */
 @Component
+@DependsOn("shortExecutor")
 public class IndexManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(IndexManager.class);
@@ -117,6 +123,7 @@ public class IndexManager {
     private final ScannerStateServiceImpl scannerState;
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
+    private final Executor shortExecutor;
 
     private final Map<IndexType, SearcherManager> searchers;
     private final Map<IndexType, IndexWriter> writers;
@@ -133,7 +140,8 @@ public class IndexManager {
 
     public IndexManager(AnalyzerFactory analyzerFactory, DocumentFactory documentFactory, QueryFactory queryFactory,
             SearchServiceUtilities util, JpsonicComparators comparators, SettingsService settingsService,
-            ScannerStateServiceImpl scannerState, ArtistDao artistDao, AlbumDao albumDao) {
+            ScannerStateServiceImpl scannerState, ArtistDao artistDao, AlbumDao albumDao,
+            @Qualifier("shortExecutor") Executor shortExecutor) {
         super();
         this.analyzerFactory = analyzerFactory;
         this.documentFactory = documentFactory;
@@ -144,6 +152,7 @@ public class IndexManager {
         this.scannerState = scannerState;
         this.artistDao = artistDao;
         this.albumDao = albumDao;
+        this.shortExecutor = shortExecutor;
         searchers = new ConcurrentHashMap<>();
         writers = new ConcurrentHashMap<>();
         multiGenreMaster = new ConcurrentHashMap<>();
@@ -395,7 +404,9 @@ public class IndexManager {
                 Path indexDirectory = getIndexDirectory(indexType);
                 try {
                     if (Files.exists(indexDirectory)) {
-                        SearcherManager manager = new SearcherManager(FSDirectory.open(indexDirectory), null);
+                        SearcherFactory searcherFactory = new CustomSearcherFactory(shortExecutor);
+                        SearcherManager manager = new SearcherManager(FSDirectory.open(indexDirectory),
+                                searcherFactory);
                         searchers.put(indexType, manager);
                     } else if (LOG.isWarnEnabled()) {
                         LOG.warn("{} does not exist. Please run a scan.", indexDirectory);
@@ -672,5 +683,21 @@ public class IndexManager {
             release(IndexType.ALBUM, albumSearcher);
         }
 
+    }
+
+    private static class CustomSearcherFactory extends SearcherFactory {
+
+        private final Executor executor;
+
+        public CustomSearcherFactory(Executor executor) {
+            super();
+            this.executor = executor;
+        }
+
+        @Override
+        public IndexSearcher newSearcher(IndexReader reader, IndexReader previousReader) throws IOException {
+
+            return new IndexSearcher(reader, executor);
+        }
     }
 }
