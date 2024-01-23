@@ -82,8 +82,6 @@ import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.service.search.IndexType;
 import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
 import com.tesshu.jpsonic.util.FileUtil;
-import com.tesshu.jpsonic.util.concurrent.ExecutorConfiguration;
-import com.tesshu.jpsonic.util.concurrent.ShortTaskPoolConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -237,17 +235,10 @@ class MediaScannerServiceImplTest {
             MediaFile mediaFile = new MediaFile();
             mediaFile.setPathString(podcastPath.toString());
             Mockito.when(mediaFileService.getMediaFile(podcastPath)).thenReturn(mediaFile);
-
-            ShortTaskPoolConfiguration poolConf = new ShortTaskPoolConfiguration();
-            poolConf.setQueueCapacity("0");
-            poolConf.setCorePoolSize("1");
-            poolConf.setMaxPoolSize("1");
-            ExecutorConfiguration executorConf = new ExecutorConfiguration(poolConf);
-            final ThreadPoolTaskExecutor executor = executorConf.scanExecutor();
             mediaScannerService = new MediaScannerServiceImpl(settingsService, scannerStateService,
-                    scannerProcedureService, mock(ExpungeService.class), mock(StaticsDao.class), executor);
+                    scannerProcedureService, mock(ExpungeService.class), mock(StaticsDao.class),
+                    mock(ThreadPoolTaskExecutor.class));
             mediaScannerService.scanLibrary();
-            executor.shutdown();
         }
 
         @Nested

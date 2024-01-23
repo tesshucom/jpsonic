@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.service.upnp.transport;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
 import org.jupnp.DefaultUpnpServiceConfiguration;
@@ -35,34 +36,54 @@ public class UpnpServiceConfigurationAdapter extends DefaultUpnpServiceConfigura
     private static final Logger LOG =
             LoggerFactory.getLogger(UpnpServiceConfigurationAdapter.class);
 
-    private final ExecutorService executorService;
+    private final ExecutorService defaultExecutorService;
+    private final ExecutorService asyncExecutorService;
+    private final Executor registryMaintainerExecutor;
 
-    public UpnpServiceConfigurationAdapter(ExecutorService executorService) {
+    public UpnpServiceConfigurationAdapter(ExecutorService defaultExecutorService,
+            ExecutorService asyncExecutorService, Executor registryMaintainerExecutor) {
         super();
-        this.executorService = executorService;
+        this.defaultExecutorService = defaultExecutorService;
+        this.asyncExecutorService = asyncExecutorService;
+        this.registryMaintainerExecutor = registryMaintainerExecutor;
     }
 
-    public UpnpServiceConfigurationAdapter(ExecutorService executorService, int streamListenPort) {
+    public UpnpServiceConfigurationAdapter(ExecutorService executorService,
+            ExecutorService asyncExecutorService, Executor registryMaintainerExecutor, int streamListenPort) {
         super(streamListenPort);
-        this.executorService = executorService;
+        this.defaultExecutorService = executorService;
+        this.asyncExecutorService = asyncExecutorService;
+        this.registryMaintainerExecutor = registryMaintainerExecutor;
     }
 
-    public UpnpServiceConfigurationAdapter(ExecutorService executorService, int streamListenPort,
-            int multicastResponsePort) {
+    public UpnpServiceConfigurationAdapter(ExecutorService executorService,
+            ExecutorService asyncExecutorService, Executor registryMaintainerExecutor, int streamListenPort, int multicastResponsePort) {
         super(streamListenPort, multicastResponsePort);
-        this.executorService = executorService;
+        this.defaultExecutorService = executorService;
+        this.asyncExecutorService = asyncExecutorService;
+        this.registryMaintainerExecutor = registryMaintainerExecutor;
     }
 
     protected UpnpServiceConfigurationAdapter(ExecutorService executorService,
-            boolean checkRuntime) {
+            ExecutorService asyncExecutorService, Executor registryMaintainerExecutor, boolean checkRuntime) {
         super(checkRuntime);
-        this.executorService = executorService;
+        this.defaultExecutorService = executorService;
+        this.asyncExecutorService = asyncExecutorService;
+        this.registryMaintainerExecutor = registryMaintainerExecutor;
     }
 
-    protected UpnpServiceConfigurationAdapter(ExecutorService executorService, int streamListenPort,
-            int multicastResponsePort, boolean checkRuntime) {
+    protected UpnpServiceConfigurationAdapter(ExecutorService executorService,
+            ExecutorService asyncExecutorService, Executor registryMaintainerExecutor, int streamListenPort, int multicastResponsePort,
+            boolean checkRuntime) {
         super(streamListenPort, multicastResponsePort, checkRuntime);
-        this.executorService = executorService;
+        this.defaultExecutorService = executorService;
+        this.asyncExecutorService = asyncExecutorService;
+        this.registryMaintainerExecutor = registryMaintainerExecutor;
+    }
+
+    @Override
+    public Executor getRegistryMaintainerExecutor() {
+        return registryMaintainerExecutor;
     }
 
     /**
@@ -78,7 +99,12 @@ public class UpnpServiceConfigurationAdapter extends DefaultUpnpServiceConfigura
 
     @Override
     protected ExecutorService getDefaultExecutorService() {
-        return executorService;
+        return defaultExecutorService;
+    }
+
+    @Override
+    public ExecutorService getAsyncProtocolExecutor() {
+        return asyncExecutorService;
     }
 
     @Override

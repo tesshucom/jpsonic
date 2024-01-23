@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>114.0.0.alpha.1.2</version>
+    <version>114.0.0.alpha.2-SNAPSHOT</version>
   </parent>
   <artifactId>jpsonic-main</artifactId>
   <packaging>war</packaging>
@@ -27,6 +27,11 @@
     <dependency>
       <groupId>com.tesshu.jpsonic.player</groupId>
       <artifactId>airsonic-taglibs</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.tesshu.jpsonic.player</groupId>
+      <artifactId>${jpsonic.concurent.module}</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
