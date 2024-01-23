@@ -37,6 +37,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -86,22 +87,25 @@ public class UpnpServiceFactory {
     private final CustomContentDirectory dispatchingContentDirectory;
     private final ExecutorService defaultExecutorService;
     private final ExecutorService asyncExecutorService;
+    private final Executor registryMaintainerExecutor;
 
     public UpnpServiceFactory(SettingsService settingsService, VersionService versionService,
             @Qualifier("dispatchingContentDirectory") CustomContentDirectory dispatchingContentDirectory,
             @Qualifier("upnpExecutorService") ExecutorService defaultExecutorService,
-            @Qualifier("asyncProtocolExecutorService") ExecutorService asyncExecutorService) {
+            @Qualifier("asyncProtocolExecutorService") ExecutorService asyncExecutorService,
+            @Qualifier("registryMaintainerExecutor") Executor registryMaintainerExecutor) {
         super();
         this.settingsService = settingsService;
         this.versionService = versionService;
         this.dispatchingContentDirectory = dispatchingContentDirectory;
         this.defaultExecutorService = defaultExecutorService;
         this.asyncExecutorService = asyncExecutorService;
+        this.registryMaintainerExecutor = registryMaintainerExecutor;
     }
 
     public UpnpService createUpnpService() {
         UpnpServiceConfiguration conf = new JpsonicUpnpServiceConf(defaultExecutorService, asyncExecutorService,
-                SettingsService.getBrand(), versionService.getLocalVersion());
+                registryMaintainerExecutor, SettingsService.getBrand(), versionService.getLocalVersion());
         return new UpnpServiceImpl(conf);
     }
 

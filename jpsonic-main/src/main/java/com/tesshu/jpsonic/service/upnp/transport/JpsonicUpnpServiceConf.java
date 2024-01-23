@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.service.upnp.transport;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
 import com.tesshu.jpsonic.domain.Version;
@@ -35,9 +36,10 @@ public class JpsonicUpnpServiceConf extends UpnpServiceConfigurationAdapter {
 
     private final ServerClientTokens tokens;
 
-    public JpsonicUpnpServiceConf(ExecutorService defaultExecutorService, ExecutorService asyncExecutorService, String brand,
+    public JpsonicUpnpServiceConf(ExecutorService defaultExecutorService,
+            ExecutorService asyncExecutorService, Executor registryMaintainerExecutor, String brand,
             Version version) {
-        super(defaultExecutorService, asyncExecutorService);
+        super(defaultExecutorService, asyncExecutorService, registryMaintainerExecutor);
         tokens = new ServerClientTokens(brand, version.toString());
     }
 

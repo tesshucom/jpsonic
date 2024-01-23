@@ -19,7 +19,9 @@
 
 package com.tesshu.jpsonic.util.concurrent;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -159,7 +161,9 @@ public class ExecutorConfiguration {
     public TaskScheduler taskScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
         scheduler.setWaitForTasksToCompleteOnShutdown(false);
-        scheduler.setPoolSize(2); // scan and podcast. See *ScheduleConfiguration.
+        // scan, podcast. See *ScheduleConfiguration.
+        // upnp registry maintainer. See UpnpServiceConfigurationAdapter
+        scheduler.setPoolSize(3);
         scheduler.setThreadFactory(createThreadFactory(true, "task-scheduler", Thread.MIN_PRIORITY));
         return scheduler;
     }
@@ -199,6 +203,12 @@ public class ExecutorConfiguration {
         executor.setDaemon(true);
         executor.initialize();
         return new ExecutorServiceAdapter(new TaskExecutorAdapter(executor));
+    }
+
+    @Bean
+    public Executor registryMaintainerExecutor() {
+        return Executors
+                .newSingleThreadExecutor(createThreadFactory(true, "upnp-registry-maintainer", Thread.MIN_PRIORITY));
     }
 
     private ThreadFactory createThreadFactory(boolean isPool, String threadGroupName, int threadPriority) {

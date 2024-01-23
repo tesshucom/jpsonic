@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.util.concurrent;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -161,6 +162,12 @@ public class ExecutorConfiguration {
                 @Autowired @Qualifier("virtualExecutorService") ExecutorService executorService) {
             return executorService;
         }
+    }
+
+    @Bean
+    public Executor registryMaintainerExecutor() {
+        return Executors.newSingleThreadExecutor(
+                createThreadFactory(false, "upnp-registry-maintainer", Thread.MIN_PRIORITY));
     }
 
     private ThreadFactory createThreadFactory(boolean isPool, String threadGroupName, int threadPriority) {
