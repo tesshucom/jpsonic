@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.service.upnp.transport;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
 import org.jupnp.DefaultUpnpServiceConfiguration;
@@ -37,41 +38,52 @@ public class UpnpServiceConfigurationAdapter extends DefaultUpnpServiceConfigura
 
     private final ExecutorService defaultExecutorService;
     private final ExecutorService asyncExecutorService;
+    private final Executor registryMaintainerExecutor;
 
     public UpnpServiceConfigurationAdapter(ExecutorService defaultExecutorService,
-            ExecutorService asyncExecutorService) {
+            ExecutorService asyncExecutorService, Executor registryMaintainerExecutor) {
         super();
         this.defaultExecutorService = defaultExecutorService;
         this.asyncExecutorService = asyncExecutorService;
+        this.registryMaintainerExecutor = registryMaintainerExecutor;
     }
 
     public UpnpServiceConfigurationAdapter(ExecutorService executorService,
-            ExecutorService asyncExecutorService, int streamListenPort) {
+            ExecutorService asyncExecutorService, Executor registryMaintainerExecutor, int streamListenPort) {
         super(streamListenPort);
         this.defaultExecutorService = executorService;
         this.asyncExecutorService = asyncExecutorService;
+        this.registryMaintainerExecutor = registryMaintainerExecutor;
     }
 
     public UpnpServiceConfigurationAdapter(ExecutorService executorService,
-            ExecutorService asyncExecutorService, int streamListenPort, int multicastResponsePort) {
+            ExecutorService asyncExecutorService, Executor registryMaintainerExecutor, int streamListenPort, int multicastResponsePort) {
         super(streamListenPort, multicastResponsePort);
         this.defaultExecutorService = executorService;
         this.asyncExecutorService = asyncExecutorService;
+        this.registryMaintainerExecutor = registryMaintainerExecutor;
     }
 
     protected UpnpServiceConfigurationAdapter(ExecutorService executorService,
-            ExecutorService asyncExecutorService, boolean checkRuntime) {
+            ExecutorService asyncExecutorService, Executor registryMaintainerExecutor, boolean checkRuntime) {
         super(checkRuntime);
         this.defaultExecutorService = executorService;
         this.asyncExecutorService = asyncExecutorService;
+        this.registryMaintainerExecutor = registryMaintainerExecutor;
     }
 
     protected UpnpServiceConfigurationAdapter(ExecutorService executorService,
-            ExecutorService asyncExecutorService, int streamListenPort, int multicastResponsePort,
+            ExecutorService asyncExecutorService, Executor registryMaintainerExecutor, int streamListenPort, int multicastResponsePort,
             boolean checkRuntime) {
         super(streamListenPort, multicastResponsePort, checkRuntime);
         this.defaultExecutorService = executorService;
         this.asyncExecutorService = asyncExecutorService;
+        this.registryMaintainerExecutor = registryMaintainerExecutor;
+    }
+
+    @Override
+    public Executor getRegistryMaintainerExecutor() {
+        return registryMaintainerExecutor;
     }
 
     /**

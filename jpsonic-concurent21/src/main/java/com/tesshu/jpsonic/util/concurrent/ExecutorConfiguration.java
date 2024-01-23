@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.util.concurrent;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -75,6 +76,11 @@ public class ExecutorConfiguration {
     @Bean
     @DependsOn({ "legacyDaoHelper", "cacheDisposer" })
     public AsyncTaskExecutor shortExecutor() {
+        // @see TaskExecutorConfigurations
+        // shortExecutor(SimpleAsyncTaskExecutorBuilder builder)
+        // return builder.threadNamePrefix("jps-").build();
+
+        // ... Vanilla is enough for now.
         return new TaskExecutorAdapter(Executors.newVirtualThreadPerTaskExecutor());
     }
 
@@ -139,21 +145,49 @@ public class ExecutorConfiguration {
         return scheduler;
     }
 
+    /**
+     * @see org.jupnp.DefaultUpnpServiceConfiguration.JUPnPExecutor
+     * @see com.tesshu.jpsonic.service.upnp.transport.UpnpServiceConfigurationAdapter
+     */
     @Lazy
     @Bean
     @DependsOn("legacyDaoHelper")
-    public ExecutorService virtualExecutorService() {
-        return new ExecutorServiceAdapter(
-                new TaskExecutorAdapter(Executors.newVirtualThreadPerTaskExecutor()));
+    public ExecutorService upnpExecutorService() {
+        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setWaitForTasksToCompleteOnShutdown(false);
+        executor.setAllowCoreThreadTimeOut(true);
+        executor.setRejectedExecutionHandler(
+                (runnable, threadPoolExecutor) -> LoggerFactory.getLogger(runnable.getClass())
+                        .info("Thread pool(%s) rejected execution.".formatted(threadPoolExecutor.getClass())));
+        executor.setCorePoolSize(16);
+        executor.setMaxPoolSize(200);
+        executor.setKeepAliveSeconds(10);
+        executor.setQueueCapacity(1_000);
+        executor.setThreadFactory(createThreadFactory(true, "upnp-default", Thread.NORM_PRIORITY));
+        executor.initialize();
+        return new ExecutorServiceAdapter(executor);
     }
 
     @Configuration
-    public class UPnPExecutorConfiguration {
-        @Bean(name = {"upnpExecutorService", "asyncProtocolExecutorService"})
+    public class VirtualExecutorServiceConfiguration {
+        @Lazy
+        @Bean("virtualExecutorService")
+        public ExecutorService createVirtualExecutorService(
+                @Autowired @Qualifier("shortExecutor") AsyncTaskExecutor shortExecutor) {
+            return new ExecutorServiceAdapter(shortExecutor);
+        }
+
+        @Bean("asyncProtocolExecutorService")
         public ExecutorService createUpnpServices(
                 @Autowired @Qualifier("virtualExecutorService") ExecutorService executorService) {
             return executorService;
         }
+    }
+
+    @Bean
+    public Executor registryMaintainerExecutor() {
+        return Executors.newSingleThreadExecutor(
+                createThreadFactory(false, "upnp-registry-maintainer", Thread.MIN_PRIORITY));
     }
 
     private ThreadFactory createThreadFactory(boolean isPool, String threadGroupName, int threadPriority) {
