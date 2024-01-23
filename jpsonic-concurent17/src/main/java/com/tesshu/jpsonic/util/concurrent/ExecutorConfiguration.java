@@ -29,13 +29,14 @@ import javax.naming.NamingException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.support.ExecutorServiceAdapter;
-import org.springframework.core.task.support.TaskExecutorAdapter;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.DefaultManagedAwareThreadFactory;
@@ -170,6 +171,7 @@ public class ExecutorConfiguration {
 
     /**
      * @see org.jupnp.DefaultUpnpServiceConfiguration.JUPnPExecutor
+     * @see com.tesshu.jpsonic.service.upnp.transport.UpnpServiceConfigurationAdapter
      */
     @Lazy
     @Bean
@@ -190,25 +192,27 @@ public class ExecutorConfiguration {
         return new ExecutorServiceAdapter(executor);
     }
 
-    @Lazy
-    @Bean
-    public ExecutorService asyncProtocolExecutorService() {
-        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setWaitForTasksToCompleteOnShutdown(false);
-        executor.setAwaitTerminationMillis(SHORT_AWAIT_TERMINATION);
-        executor.setCorePoolSize(3);
-        executor.setMaxPoolSize(3);
-        executor.setThreadFactory(createThreadFactory(true, "upnp-discovery", Thread.MIN_PRIORITY));
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-        executor.setDaemon(true);
-        executor.initialize();
-        return new ExecutorServiceAdapter(new TaskExecutorAdapter(executor));
+    @Configuration
+    public class VirtualExecutorServiceConfiguration {
+        @Lazy
+        @Bean("virtualExecutorService")
+        public ExecutorService createVirtualExecutorService(
+                @Autowired @Qualifier("shortExecutor") AsyncTaskExecutor shortExecutor) {
+            return new ExecutorServiceAdapter(shortExecutor);
+        }
+
+        @Lazy
+        @Bean("asyncProtocolExecutorService")
+        public ExecutorService asyncProtocolExecutorService(
+                @Autowired @Qualifier("virtualExecutorService") ExecutorService virtualExecutorService) {
+            return virtualExecutorService;
+        }
     }
 
     @Bean
     public Executor registryMaintainerExecutor() {
         return Executors
-                .newSingleThreadExecutor(createThreadFactory(true, "upnp-registry-maintainer", Thread.MIN_PRIORITY));
+                .newSingleThreadExecutor(createThreadFactory(false, "upnp-registry-maintainer", Thread.MIN_PRIORITY));
     }
 
     private ThreadFactory createThreadFactory(boolean isPool, String threadGroupName, int threadPriority) {
