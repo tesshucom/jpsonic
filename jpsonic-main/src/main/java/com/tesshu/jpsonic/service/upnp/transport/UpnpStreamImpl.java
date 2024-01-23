@@ -187,8 +187,8 @@ public final class UpnpStreamImpl extends UpnpStream {
             try {
                 httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_INTERNAL_ERROR, -1);
             } catch (IOException e) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Couldn't send error response.", e);
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Couldn't send error response.", e);
                 }
             }
             ConcurrentUtils.handleCauseUnchecked(new ExecutionException(t));
