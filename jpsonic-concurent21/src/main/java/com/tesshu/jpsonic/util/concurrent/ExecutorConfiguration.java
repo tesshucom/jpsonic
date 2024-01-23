@@ -75,6 +75,11 @@ public class ExecutorConfiguration {
     @Bean
     @DependsOn({ "legacyDaoHelper", "cacheDisposer" })
     public AsyncTaskExecutor shortExecutor() {
+        // @see TaskExecutorConfigurations
+        // shortExecutor(SimpleAsyncTaskExecutorBuilder builder)
+        // return builder.threadNamePrefix("jps-").build();
+
+        // ... Vanilla is enough for now.
         return new TaskExecutorAdapter(Executors.newVirtualThreadPerTaskExecutor());
     }
 
@@ -139,12 +144,14 @@ public class ExecutorConfiguration {
         return scheduler;
     }
 
-    @Lazy
-    @Bean
-    @DependsOn("legacyDaoHelper")
-    public ExecutorService virtualExecutorService() {
-        return new ExecutorServiceAdapter(
-                new TaskExecutorAdapter(Executors.newVirtualThreadPerTaskExecutor()));
+    @Configuration
+    public class VirtualExecutorServiceConfiguration {
+        @Lazy
+        @Bean(name = {"virtualExecutorService"})
+        public ExecutorService createVirtualExecutorService(
+                @Autowired @Qualifier("shortExecutor") AsyncTaskExecutor shortExecutor) {
+            return new ExecutorServiceAdapter(shortExecutor);
+        }
     }
 
     @Configuration
