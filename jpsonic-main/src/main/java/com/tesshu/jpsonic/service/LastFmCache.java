@@ -51,7 +51,6 @@ public final class LastFmCache extends Cache {
 
     private final Path cacheDir;
     private final long ttl;
-    private final Object lock = new Object();
 
     public LastFmCache(Path cacheDir, final long ttl) {
         super();
@@ -82,8 +81,7 @@ public final class LastFmCache extends Cache {
 
     @Override
     public void store(String cacheEntryName, InputStream inputStream, long expirationDate) {
-        createCache();
-
+        FileUtil.createDirectories(cacheDir);
         Path xmlFile = getXmlFile(cacheEntryName);
         try (OutputStream xmlOut = Files.newOutputStream(xmlFile)) {
 
@@ -108,17 +106,6 @@ public final class LastFmCache extends Cache {
 
     private long getExpirationDate() {
         return Instant.now().toEpochMilli() + ttl;
-    }
-
-    private void createCache() {
-        if (!Files.exists(cacheDir)) {
-            synchronized (lock) {
-                if (FileUtil.createDirectories(cacheDir) == null && LOG.isWarnEnabled()) {
-                    LOG.warn("The directory '{}' could not be created.", cacheDir);
-                }
-
-            }
-        }
     }
 
     @Override

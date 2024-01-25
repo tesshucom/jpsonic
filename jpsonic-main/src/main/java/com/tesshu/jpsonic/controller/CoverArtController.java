@@ -104,7 +104,6 @@ public class CoverArtController implements CoverArtPresentation {
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
     private final FontLoader fontLoader;
-    private final Object dirLock = new Object();
 
     private Semaphore semaphore;
 
@@ -361,15 +360,10 @@ public class CoverArtController implements CoverArtPresentation {
         return ffmpeg.createImage(mediaFile.toPath(), width, height, offset);
     }
 
-    private Path getImageCacheDirectory(int size) {
+    @Nullable
+    Path getImageCacheDirectory(int size) {
         Path dir = Path.of(SettingsService.getJpsonicHome().toString(), "thumbs", String.valueOf(size));
-        if (!Files.exists(dir)) {
-            synchronized (dirLock) {
-                if (FileUtil.createDirectories(dir) == null && LOG.isErrorEnabled()) {
-                    LOG.error("Failed to create thumbnail cache " + dir);
-                }
-            }
-        }
+        FileUtil.createDirectories(dir);
         return dir;
     }
 

@@ -89,10 +89,7 @@ public class M3UController {
             out.print("\ufeff");
         }
         out.println("#EXTM3U");
-        List<MediaFile> result;
-        synchronized (player.getPlayQueue()) {
-            result = player.getPlayQueue().getFiles();
-        }
+        List<MediaFile> result = player.getPlayQueue().getFiles();
         for (MediaFile mediaFile : result) {
             Integer duration = mediaFile.getDurationSeconds();
             if (duration == null) {

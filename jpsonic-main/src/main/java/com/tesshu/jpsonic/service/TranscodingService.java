@@ -93,8 +93,6 @@ public class TranscodingService {
     private final String transcodePath;
     private Path transcodeDirectory;
 
-    private final Object dirLock = new Object();
-
     public TranscodingService(SettingsService settingsService, SecurityService securityService,
             TranscodingDao transcodingDao, @Lazy PlayerService playerService,
             @Qualifier("shortExecutor") Executor shortExecutor) {
@@ -116,30 +114,20 @@ public class TranscodingService {
      * Returns the directory in which all transcoders are installed.
      */
     public @NonNull Path getTranscodeDirectory() {
-        synchronized (dirLock) {
-            if (!isEmpty(transcodeDirectory)) {
-                return transcodeDirectory;
-            }
-            if (isEmpty(transcodePath)) {
-                transcodeDirectory = Path.of(SettingsService.getJpsonicHome().toString(), "transcode");
-                if (!Files.exists(transcodeDirectory)) {
-                    synchronized (dirLock) {
-                        if (FileUtil.createDirectories(transcodeDirectory) == null && LOG.isWarnEnabled()) {
-                            LOG.warn("The directory '{}' could not be created.", transcodeDirectory);
-                        }
-                    }
-                }
-            } else {
-                transcodeDirectory = Path.of(transcodePath);
-            }
+        if (!isEmpty(transcodeDirectory)) {
             return transcodeDirectory;
         }
+        if (isEmpty(transcodePath)) {
+            transcodeDirectory = Path.of(SettingsService.getJpsonicHome().toString(), "transcode");
+            FileUtil.createDirectories(transcodeDirectory);
+        } else {
+            transcodeDirectory = Path.of(transcodePath);
+        }
+        return transcodeDirectory;
     }
 
     protected void setTranscodeDirectory(@Nullable Path transcodeDirectory) {
-        synchronized (dirLock) {
-            this.transcodeDirectory = transcodeDirectory;
-        }
+        this.transcodeDirectory = transcodeDirectory;
     }
 
     /**
