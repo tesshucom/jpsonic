@@ -24,6 +24,7 @@ import java.awt.FontFormatException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantLock;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -35,9 +36,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class FontLoader {
 
-    private final Object lock = new Object();
-
     private final Ehcache fontCache;
+    private final ReentrantLock fontLock = new ReentrantLock();
 
     public FontLoader(@Qualifier("fontCache") Ehcache fontCache) {
         this.fontCache = fontCache;
@@ -50,7 +50,8 @@ public class FontLoader {
     public @NonNull Font getFont(float fontSize) {
         Font font = null;
         String key = Float.toString(fontSize);
-        synchronized (lock) {
+        fontLock.lock();
+        try {
             Element element = fontCache.get(key);
             if (element == null) {
                 if (isEmbeddedFonts()) {
@@ -63,6 +64,8 @@ public class FontLoader {
             } else {
                 return (Font) element.getObjectValue();
             }
+        } finally {
+            fontLock.unlock();
         }
         return font;
     }
@@ -72,7 +75,7 @@ public class FontLoader {
      * the Docker image provided by Jpsonic.
      */
     private @NonNull Font getFontFromResource(float fontSize) {
-        Font font = null;
+        Font font;
         try (InputStream fontStream = FontLoader.class.getResourceAsStream("/fonts/kazesawa/Kazesawa-Regular.ttf")) {
             font = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(fontSize);
         } catch (IOException | FontFormatException e) {

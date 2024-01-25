@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.dao.PodcastDao;
@@ -125,8 +126,8 @@ public class PodcastServiceImpl implements PodcastService {
     private final IndexManager indexManager;
 
     private final AtomicBoolean destroy = new AtomicBoolean();
-    private final Object episodesLock = new Object();
-    private final Object fileLock = new Object();
+    private final ReentrantLock episodesLock = new ReentrantLock();
+    private final ReentrantLock fileLock = new ReentrantLock();
 
     public PodcastServiceImpl(PodcastDao podcastDao, SettingsService settingsService, SecurityService securityService,
             MediaFileService mediaFileService, WritableMediaFileService writableMediaFileService,
@@ -149,14 +150,19 @@ public class PodcastServiceImpl implements PodcastService {
     @PostConstruct
     public void init() {
         // Clean up partial downloads.
-        synchronized (episodesLock) {
+        episodesLock.lock();
+        try {
             getAllChannels().forEach(channel -> getEpisodes(channel.getId()).forEach(episode -> {
                 if (episode.getStatus() == PodcastStatus.DOWNLOADING) {
                     deleteEpisode(episode.getId(), false);
-                    writeInfo("Deleted Podcast episode '" + channel.getTitle() + "(" + episode.getTitle()
-                            + ")' since download was interrupted.");
+                    writeInfo("""
+                            Deleted Podcast episode '%s(%s)' \
+                            since download was interrupted.
+                            """.formatted(channel.getTitle(), episode.getTitle()));
                 }
             }));
+        } finally {
+            episodesLock.unlock();
         }
         destroy.set(false);
     }
@@ -665,7 +671,8 @@ public class PodcastServiceImpl implements PodcastService {
             return;
         }
 
-        synchronized (episodesLock) {
+        episodesLock.lock();
+        try {
 
             if (!scannerState.tryScanningLock()) {
                 return;
@@ -688,7 +695,8 @@ public class PodcastServiceImpl implements PodcastService {
                 }
 
                 client.execute(createHttpGet(episode.getUrl()), response -> {
-                    synchronized (fileLock) {
+                    fileLock.lock();
+                    try {
 
                         Path path = getFile(channel, episode);
                         episode.setStatus(PodcastStatus.DOWNLOADING);
@@ -712,7 +720,10 @@ public class PodcastServiceImpl implements PodcastService {
                             podcastDao.updateEpisode(episode);
                             deleteObsoleteEpisodes(channel);
                         }
+                    } finally {
+                        fileLock.unlock();
                     }
+
                     return null;
                 });
             } catch (IOException e) {
@@ -721,6 +732,8 @@ public class PodcastServiceImpl implements PodcastService {
                 indexManager.stopIndexing();
                 scannerState.unlockScanning();
             }
+        } finally {
+            episodesLock.unlock();
         }
     }
 
@@ -771,7 +784,8 @@ public class PodcastServiceImpl implements PodcastService {
     }
 
     private void deleteObsoleteEpisodes(PodcastChannel channel) {
-        synchronized (episodesLock) {
+        episodesLock.lock();
+        try {
             int episodeCount = settingsService.getPodcastEpisodeRetentionCount();
             if (episodeCount == -1) {
                 return;
@@ -794,6 +808,8 @@ public class PodcastServiceImpl implements PodcastService {
                 deleteEpisode(episodes.get(i).getId(), true);
                 writeInfo("Deleted old Podcast episode " + episodes.get(i).getUrl());
             }
+        } finally {
+            episodesLock.unlock();
         }
     }
 
@@ -877,8 +893,11 @@ public class PodcastServiceImpl implements PodcastService {
 
         String episodePath = episode.getPath();
         if (episodePath != null) {
-            synchronized (fileLock) {
+            fileLock.lock();
+            try {
                 FileUtil.deleteIfExists(Path.of(episodePath));
+            } finally {
+                fileLock.unlock();
             }
         }
 

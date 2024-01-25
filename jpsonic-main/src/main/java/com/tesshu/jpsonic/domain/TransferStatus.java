@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 
@@ -45,9 +46,9 @@ public final class TransferStatus implements Serializable {
     private final AtomicLong bytesSkipped;
     private final AtomicLong bytesTotal;
     private final SampleHistory history;
+    private final ReentrantLock historyLock = new ReentrantLock();
     private boolean terminated;
     private boolean active;
-    private final Object historyLock = new Object();
 
     public TransferStatus() {
         bytesTransfered = new AtomicLong();
@@ -66,9 +67,12 @@ public final class TransferStatus implements Serializable {
     }
 
     public void setBytesTransfered(long bytesTransfered) {
-        synchronized (historyLock) {
+        historyLock.lock();
+        try {
             this.bytesTransfered.set(bytesTransfered);
             createSample(bytesTransfered, false);
+        } finally {
+            historyLock.unlock();
         }
     }
 
@@ -86,11 +90,14 @@ public final class TransferStatus implements Serializable {
     }
 
     public long getMillisSinceLastUpdate() {
-        synchronized (historyLock) {
+        historyLock.lock();
+        try {
             if (history.isEmpty()) {
                 return 0L;
             }
             return Instant.now().toEpochMilli() - history.getLast().getTimestamp();
+        } finally {
+            historyLock.unlock();
         }
     }
 
@@ -135,8 +142,11 @@ public final class TransferStatus implements Serializable {
     }
 
     public SampleHistory getHistory() {
-        synchronized (historyLock) {
+        historyLock.lock();
+        try {
             return new SampleHistory(HISTORY_LENGTH, history);
+        } finally {
+            historyLock.unlock();
         }
     }
 
@@ -155,13 +165,17 @@ public final class TransferStatus implements Serializable {
     }
 
     public boolean isActive() {
-        synchronized (historyLock) {
+        historyLock.lock();
+        try {
             return active;
+        } finally {
+            historyLock.unlock();
         }
     }
 
     public void setActive(boolean active) {
-        synchronized (historyLock) {
+        historyLock.lock();
+        try {
             this.active = active;
             if (active) {
                 bytesSkipped.set(0);
@@ -170,6 +184,8 @@ public final class TransferStatus implements Serializable {
             } else {
                 createSample(getBytesTransfered(), true);
             }
+        } finally {
+            historyLock.unlock();
         }
     }
 
