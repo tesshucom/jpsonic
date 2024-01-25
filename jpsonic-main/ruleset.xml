@@ -65,9 +65,12 @@
 
         <!-- Rather recommended. -->
         <exclude name="OnlyOneReturn" />
-        
+
         <!-- Degrade pmd/pmd#4785 -->
         <exclude name="UnnecessaryImport" />
+
+        <!-- allowCommentedBlocks will be ignored. (And duplicate with Checkstyle) -->
+        <exclude name="EmptyControlStatement" />
     </rule>
 
     <!-- Java Rules:Design -->

@@ -27,15 +27,14 @@ import java.util.Optional;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.exception.UncheckedException;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
 public class FontLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FontLoader.class);
     private final Object lock = new Object();
 
     private final Ehcache fontCache;
@@ -48,7 +47,7 @@ public class FontLoader {
         return Optional.ofNullable(System.getProperty("jpsonic.embeddedfont")).map(Boolean::parseBoolean).orElse(false);
     }
 
-    public Font getFont(float fontSize) {
+    public @NonNull Font getFont(float fontSize) {
         Font font = null;
         String key = Float.toString(fontSize);
         synchronized (lock) {
@@ -69,19 +68,16 @@ public class FontLoader {
     }
 
     /*
-     * Font stream may not be obtained except for general OpenJDK (based on Windows or Linux glibc).
+     * Font stream may not be obtained except for general OpenJDK (based on Windows or Linux glibc). It is NonNull on
+     * the Docker image provided by Jpsonic.
      */
-    private Font getFontFromResource(float fontSize) {
+    private @NonNull Font getFontFromResource(float fontSize) {
         Font font = null;
         try (InputStream fontStream = FontLoader.class.getResourceAsStream("/fonts/kazesawa/Kazesawa-Regular.ttf")) {
             font = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(fontSize);
         } catch (IOException | FontFormatException e) {
-            // do nothing if not available
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Failed to load font.");
-            }
+            throw new UncheckedException(e);
         }
         return font;
     }
-
 }

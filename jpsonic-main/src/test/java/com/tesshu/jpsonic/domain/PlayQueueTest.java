@@ -24,22 +24,35 @@ package com.tesshu.jpsonic.domain;
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.Random;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
+import com.codahale.metrics.ConsoleReporter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.tesshu.jpsonic.service.SettingsService;
+import org.apache.commons.lang3.exception.UncheckedException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
  * Unit test of {@link PlayQueue}.
  *
  * @author Sindre Mehus
  */
-@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TestClassWithoutTestCases" })
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TestClassWithoutTestCases", "PMD.TooManyStaticImports" })
 class PlayQueueTest {
 
     private JpsonicComparators jpsonicComparators;
@@ -198,6 +211,62 @@ class PlayQueueTest {
         playQueue.addFilesAt(Arrays.asList(new TestMediaFile("F")), 0);
         assertPlaylistEquals(playQueue, 0, "F", "A", "D", "E", "B", "C");
 
+    }
+
+    @Test
+    @SuppressWarnings("PMD.UnusedLocalVariable")
+    void testLock() throws Exception {
+
+        int threadsCount = 1_000;
+
+        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setWaitForTasksToCompleteOnShutdown(true); // To handle Stream
+        executor.setAwaitTerminationMillis(1_000);
+        executor.setQueueCapacity(threadsCount);
+        executor.setCorePoolSize(threadsCount);
+        executor.setMaxPoolSize(threadsCount);
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.setDaemon(true);
+        executor.initialize();
+
+        MetricRegistry metrics = new MetricRegistry();
+        List<Future<Integer>> futures = new ArrayList<>();
+        Timer globalTimer = metrics.timer(MetricRegistry.name(PlayQueueTest.class, "PlayQueue#setIndex"));
+
+        String[] songs = new String[threadsCount];
+        for (int i = 0; i < songs.length; i++) {
+            songs[i] = String.valueOf(i);
+        }
+
+        PlayQueue playQueue = createPlaylist(0, songs);
+        Random random = new Random();
+
+        for (int i = 0; i < threadsCount; i++) {
+            futures.add(executor.submit(() -> {
+                try (Timer.Context globalTimerContext = globalTimer.time()) {
+                    playQueue.setIndex(random.nextInt(threadsCount));
+                } catch (IllegalArgumentException e) {
+                    throw new UncheckedException(e);
+                }
+                return 1;
+            }));
+        }
+
+        assertEquals(threadsCount, futures.stream().mapToInt(future -> {
+            try {
+                assertNotNull(future.get());
+            } catch (InterruptedException | ExecutionException e) {
+                throw new UncheckedException(e);
+            }
+            return 1;
+        }).sum());
+        executor.shutdown();
+
+        ConsoleReporter.Builder builder = ConsoleReporter.forRegistry(metrics).convertRatesTo(TimeUnit.SECONDS)
+                .convertDurationsTo(TimeUnit.MILLISECONDS);
+        try (ConsoleReporter reporter = builder.build()) {
+            // to be none
+        }
     }
 
     @Test
