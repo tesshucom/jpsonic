@@ -37,6 +37,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -55,6 +56,7 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.scanner.ScannerStateServiceImpl;
 import com.tesshu.jpsonic.util.FileUtil;
+import com.tesshu.jpsonic.util.concurrent.ReadWriteLockSupport;
 import jakarta.annotation.PostConstruct;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.FieldInfos;
@@ -90,7 +92,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @DependsOn("shortExecutor")
-public class IndexManager {
+public class IndexManager implements ReadWriteLockSupport {
 
     private static final Logger LOG = LoggerFactory.getLogger(IndexManager.class);
 
@@ -108,7 +110,7 @@ public class IndexManager {
      */
     private static final String INDEX_ROOT_DIR_NAME = "index-JP";
 
-    private final Object genreLock = new Object();
+    private final ReentrantReadWriteLock genreLock = new ReentrantReadWriteLock();
 
     private enum GenreSort {
         ALBUM_COUNT, SONG_COUNT, ALBUM_ALPHABETICAL, SONG_ALPHABETICAL
@@ -230,8 +232,11 @@ public class IndexManager {
     }
 
     private void clearMultiGenreMaster() {
-        synchronized (genreLock) {
+        writeLock(genreLock);
+        try {
             multiGenreMaster.clear();
+        } finally {
+            writeUnlock(genreLock);
         }
     }
 
@@ -284,7 +289,8 @@ public class IndexManager {
 
     @SuppressWarnings({ "PMD.AvoidCatchingGenericException" }) // lucene/HighFreqTerms#getHighFreqTerms
     public void expungeGenreOtherThan(List<Genre> existing) {
-        synchronized (genreLock) {
+        writeLock(genreLock);
+        try {
 
             // This method is executed during scanning.
 
@@ -335,6 +341,8 @@ public class IndexManager {
 
             // Don't call it asynchronously. Genre is required for subsequent processing of the scan.
             refreshMultiGenreMaster();
+        } finally {
+            writeUnlock(genreLock);
         }
     }
 
@@ -399,9 +407,11 @@ public class IndexManager {
      * finished using it. No explicit close is done here.
      */
     public @Nullable IndexSearcher getSearcher(@NonNull IndexType indexType) {
-        synchronized (genreLock) {
+        readLock(genreLock);
+        try {
             if (!searchers.containsKey(indexType)) {
                 Path indexDirectory = getIndexDirectory(indexType);
+                writeLock(genreLock);
                 try {
                     if (Files.exists(indexDirectory)) {
                         SearcherFactory searcherFactory = new CustomSearcherFactory(shortExecutor);
@@ -420,6 +430,9 @@ public class IndexManager {
                 } catch (IOException e) {
                     LOG.warn("Failed to initialize SearcherManager.", e);
                     return null;
+                } finally {
+                    writeUnlock(genreLock);
+                    readLock(genreLock);
                 }
             }
             try {
@@ -430,12 +443,15 @@ public class IndexManager {
             } catch (ClassCastException | IOException e) {
                 LOG.warn("Failed to acquire IndexSearcher.", e);
             }
+        } finally {
+            readUnlock(genreLock);
         }
         return null;
     }
 
     public void release(IndexType indexType, IndexSearcher indexSearcher) {
-        synchronized (genreLock) {
+        writeLock(genreLock);
+        try {
             if (searchers.containsKey(indexType)) {
                 try {
                     searchers.get(indexType).release(indexSearcher);
@@ -456,6 +472,8 @@ public class IndexManager {
                     throw new UncheckedIOException(e);
                 }
             }
+        } finally {
+            writeUnlock(genreLock);
         }
     }
 
@@ -553,11 +571,14 @@ public class IndexManager {
         }
 
         IndexSearcher searcher;
-        synchronized (genreLock) {
+        readLock(genreLock);
+        try {
             searcher = getSearcher(IndexType.GENRE);
             if (isEmpty(searcher)) {
                 return result;
             }
+        } finally {
+            readUnlock(genreLock);
         }
 
         try {
@@ -586,7 +607,8 @@ public class IndexManager {
     }
 
     public List<Genre> getGenres(boolean sortByAlbum) {
-        synchronized (genreLock) {
+        readLock(genreLock);
+        try {
             if (multiGenreMaster.isEmpty()) {
                 refreshMultiGenreMaster();
             }
@@ -617,6 +639,8 @@ public class IndexManager {
             List<Genre> genres = sortByAlbum ? multiGenreMaster.get(GenreSort.ALBUM_COUNT)
                     : multiGenreMaster.get(GenreSort.SONG_COUNT);
             return isEmpty(genres) ? Collections.emptyList() : genres;
+        } finally {
+            readUnlock(genreLock);
         }
     }
 

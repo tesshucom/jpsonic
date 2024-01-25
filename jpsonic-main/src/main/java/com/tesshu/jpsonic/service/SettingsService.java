@@ -34,10 +34,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.Theme;
@@ -46,6 +46,7 @@ import com.tesshu.jpsonic.spring.DataSourceConfigType;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.PlayerUtils;
 import com.tesshu.jpsonic.util.StringUtil;
+import com.tesshu.jpsonic.util.concurrent.ReadWriteLockSupport;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -65,17 +66,19 @@ import org.springframework.stereotype.Service;
  * [DefaultPackage] A remnant of legacy, some methods are implemented in package private. This is intended not to be
  * used by other than Service. Little bad practices. Design improvements can be made by resolving Godclass.
  */
-public class SettingsService {
+public class SettingsService implements ReadWriteLockSupport {
 
     private static final Logger LOG = LoggerFactory.getLogger(SettingsService.class);
 
-    private enum LocksKeys {
-        HOME, MUSIC_FILE, VIDEO_FILE, COVER_ART, EXCLUDED_COVER_ART, THEMES, LOCALES, LOCALE, ARTICLES
-    }
-
-    @SuppressWarnings("PMD.UseConcurrentHashMap") // Already thread-safe
-    private static final Map<LocksKeys, Object> LOCKS = Collections
-            .unmodifiableMap(Arrays.stream(LocksKeys.values()).collect(Collectors.toMap(k -> k, k -> new Object())));
+    private static final ReentrantLock HOME_LOCK = new ReentrantLock();
+    private static final ReentrantLock THEMES_LOCK = new ReentrantLock();
+    private final ReentrantReadWriteLock musicFileTypesLock = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock videoFileTypesLock = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock coverArtFileTypesLock = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock excludedCoverArtsLock = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock localeLock = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock ignoredArticlesLock = new ReentrantReadWriteLock();
+    private final ReentrantLock availableLocalesLock = new ReentrantLock();
 
     private static final String LOCALES_FILE = "/com/tesshu/jpsonic/i18n/locales.txt";
     private static final String THEMES_FILE = "/com/tesshu/jpsonic/theme/themes.txt";
@@ -101,8 +104,8 @@ public class SettingsService {
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
-    private static List<Theme> themes = new ArrayList<>();
-    private static List<Locale> locales = new ArrayList<>();
+    private static List<Theme> themes = Collections.synchronizedList(new ArrayList<>());
+    private static List<Locale> locales = Collections.synchronizedList(new ArrayList<>());
     private static List<String> coverArtFileTypes = new ArrayList<>();
     private static List<String> excludedCoverArts = new ArrayList<>();
     private static List<String> musicFileTypes = new ArrayList<>();
@@ -112,6 +115,8 @@ public class SettingsService {
     private final ApacheCommonsConfigurationService configurationService;
     private final UPnPSubnet uPnPSubnet;
 
+    private static boolean developmentMode;
+    private static Path home;
     private Pattern excludePattern;
     private Locale locale;
 
@@ -125,7 +130,11 @@ public class SettingsService {
     }
 
     public static boolean isDevelopmentMode() {
-        return System.getProperty("airsonic.development") != null;
+        return developmentMode;
+    }
+
+    public static void setDevelopmentMode(boolean b) {
+        developmentMode = b;
     }
 
     private void removeObsoleteProperties() {
@@ -140,21 +149,26 @@ public class SettingsService {
     }
 
     private static void ensureDirectoryPresent(Path home) {
-        if (!Files.exists(home) && !Files.isDirectory(home)) {
-            synchronized (LOCKS.get(LocksKeys.HOME)) {
-                if (FileUtil.createDirectories(home) == null) {
-                    throw new IllegalStateException(
-                            "The directory " + home + " does not exist. Please create it and make it writable. "
-                                    + "(You can override the directory location "
-                                    + "by specifying -Djpsonic.home=... when starting the servlet container.)");
-                }
-            }
+        if (!Files.exists(home) && !Files.isDirectory(home) && FileUtil.createDirectories(home) == null) {
+            throw new IllegalStateException("""
+                    The directory %s does not exist. \
+                    Please create it and make it writable. \
+                    (You can override the directory location \
+                    by specifying -Djpsonic.home=...
+                    when starting the servlet container.)
+                    """.formatted(home));
         }
     }
 
     public static @NonNull Path getJpsonicHome() {
-        Path home;
-        synchronized (LOCKS.get(LocksKeys.HOME)) {
+        if (home != null && !isDevelopmentMode()) {
+            return home;
+        }
+        HOME_LOCK.lock();
+        try {
+            if (home != null && !isDevelopmentMode()) {
+                return home;
+            }
             String overrideHome = System.getProperty("jpsonic.home");
             String oldHome = System.getProperty("libresonic.home");
             if (overrideHome != null) {
@@ -165,6 +179,8 @@ public class SettingsService {
                 home = PlayerUtils.isWindows() ? JPSONIC_HOME_WINDOWS : JPSONIC_HOME_OTHER;
             }
             ensureDirectoryPresent(home);
+        } finally {
+            HOME_LOCK.unlock();
         }
         return home;
     }
@@ -344,7 +360,11 @@ public class SettingsService {
     }
 
     public List<Locale> getAvailableLocales() {
-        synchronized (LOCKS.get(LocksKeys.LOCALES)) {
+        if (!locales.isEmpty()) {
+            return locales;
+        }
+        availableLocalesLock.lock();
+        try {
             if (locales.isEmpty()) {
                 try (InputStream in = SettingsService.class.getResourceAsStream(LOCALES_FILE)) {
                     for (String line : StringUtil.readLines(in)) {
@@ -356,6 +376,8 @@ public class SettingsService {
                 }
             }
             return locales;
+        } finally {
+            availableLocalesLock.unlock();
         }
     }
 
@@ -364,24 +386,36 @@ public class SettingsService {
     }
 
     public Locale getLocale() {
-        synchronized (LOCKS.get(LocksKeys.LOCALE)) {
-            if (isEmpty(locale)) {
+        readLock(localeLock);
+        try {
+            if (!isEmpty(locale)) {
+                return locale;
+            }
+            writeLock(localeLock);
+            try {
                 String language = getString(SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE);
                 String country = getString(SettingsConstants.General.ThemeAndLang.LOCALE_COUNTRY);
                 String variant = getString(SettingsConstants.General.ThemeAndLang.LOCALE_VARIANT);
                 locale = new Locale(language, country, variant);
+                return locale;
+            } finally {
+                writeUnlock(localeLock);
             }
-            return locale;
+        } finally {
+            readUnlock(localeLock);
         }
     }
 
     @SuppressWarnings("PMD.NullAssignment") // (locale) Intentional allocation to clear cache
     public void setLocale(Locale locale) {
-        synchronized (LOCKS.get(LocksKeys.LOCALE)) {
+        writeLock(localeLock);
+        try {
             this.locale = null;
             setProperty(SettingsConstants.General.ThemeAndLang.LOCALE_LANGUAGE, locale.getLanguage());
             setProperty(SettingsConstants.General.ThemeAndLang.LOCALE_COUNTRY, locale.getCountry());
             setProperty(SettingsConstants.General.ThemeAndLang.LOCALE_VARIANT, locale.getVariant());
+        } finally {
+            writeUnlock(localeLock);
         }
     }
 
@@ -397,25 +431,30 @@ public class SettingsService {
      * as they now contain unnecessary processing.
      */
     public static List<Theme> getAvailableThemes() {
-        synchronized (LOCKS.get(LocksKeys.THEMES)) {
-            if (themes.isEmpty()) {
-                try (InputStream in = SettingsService.class.getResourceAsStream(THEMES_FILE)) {
-                    for (String line : StringUtil.readLines(in)) {
-                        List<String> elements = StringUtil.split(line);
-                        if (elements.size() == ELEMENT_COUNT_IN_LINE_OF_THEME) {
-                            themes.add(new Theme(elements.get(0), elements.get(1)));
-                        } else {
-                            if (LOG.isWarnEnabled()) {
-                                LOG.warn("Failed to parse theme from line: [" + line + "].");
-                            }
-                        }
+        if (!themes.isEmpty()) {
+            return themes;
+        }
+        THEMES_LOCK.lock();
+        try (InputStream in = SettingsService.class.getResourceAsStream(THEMES_FILE)) {
+            if (!themes.isEmpty()) {
+                return themes;
+            }
+            for (String line : StringUtil.readLines(in)) {
+                List<String> elements = StringUtil.split(line);
+                if (elements.size() == ELEMENT_COUNT_IN_LINE_OF_THEME) {
+                    themes.add(new Theme(elements.get(0), elements.get(1)));
+                } else {
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("Failed to parse theme from line: [" + line + "].");
                     }
-                } catch (IOException e) {
-                    themes.add(new Theme("default", "Jpsonic default"));
-                    throw new UncheckedIOException(e);
                 }
             }
             return themes;
+        } catch (IOException e) {
+            themes.add(new Theme("default", "Jpsonic default"));
+            throw new UncheckedIOException(e);
+        } finally {
+            THEMES_LOCK.unlock();
         }
     }
 
@@ -440,22 +479,33 @@ public class SettingsService {
     }
 
     public String getIgnoredArticles() {
-        return getString(SettingsConstants.General.Index.IGNORED_ARTICLES);
+        readLock(ignoredArticlesLock);
+        try {
+            return getString(SettingsConstants.General.Index.IGNORED_ARTICLES);
+        } finally {
+            readUnlock(ignoredArticlesLock);
+        }
     }
 
     public void setIgnoredArticles(String s) {
-        synchronized (LOCKS.get(LocksKeys.ARTICLES)) {
+        writeLock(ignoredArticlesLock);
+        try {
             setProperty(SettingsConstants.General.Index.IGNORED_ARTICLES, s);
             ignoredArticles.clear();
+        } finally {
+            writeUnlock(ignoredArticlesLock);
         }
     }
 
     public List<String> getIgnoredArticlesAsArray() {
-        synchronized (LOCKS.get(LocksKeys.ARTICLES)) {
+        readLock(ignoredArticlesLock);
+        try {
             if (ignoredArticles.isEmpty() && !isEmpty(getIgnoredArticles())) {
                 ignoredArticles.addAll(Arrays.asList(getIgnoredArticles().split(CONSECUTIVE_WHITESPACE)));
             }
             return ignoredArticles;
+        } finally {
+            readUnlock(ignoredArticlesLock);
         }
     }
 
@@ -632,8 +682,11 @@ public class SettingsService {
     }
 
     public String getMusicFileTypes() {
-        synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
+        readLock(musicFileTypesLock);
+        try {
             return getString(SettingsConstants.General.Extension.MUSIC_FILE_TYPES);
+        } finally {
+            readUnlock(musicFileTypesLock);
         }
     }
 
@@ -642,24 +695,33 @@ public class SettingsService {
     }
 
     public void setMusicFileTypes(String s) {
-        synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
+        writeLock(musicFileTypesLock);
+        try {
             setProperty(SettingsConstants.General.Extension.MUSIC_FILE_TYPES, s);
             musicFileTypes.clear();
+        } finally {
+            writeUnlock(musicFileTypesLock);
         }
     }
 
     public List<String> getMusicFileTypesAsArray() {
-        synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
+        readLock(musicFileTypesLock);
+        try {
             if (musicFileTypes.isEmpty() && !isEmpty(getDefaultMusicFileTypes())) {
                 musicFileTypes.addAll(Arrays.asList(getDefaultMusicFileTypes().split(CONSECUTIVE_WHITESPACE)));
             }
             return musicFileTypes;
+        } finally {
+            readUnlock(musicFileTypesLock);
         }
     }
 
     public String getVideoFileTypes() {
-        synchronized (LOCKS.get(LocksKeys.VIDEO_FILE)) {
+        readLock(videoFileTypesLock);
+        try {
             return getString(SettingsConstants.General.Extension.VIDEO_FILE_TYPES);
+        } finally {
+            readUnlock(musicFileTypesLock);
         }
     }
 
@@ -668,24 +730,33 @@ public class SettingsService {
     }
 
     public void setVideoFileTypes(String s) {
-        synchronized (LOCKS.get(LocksKeys.VIDEO_FILE)) {
+        writeLock(videoFileTypesLock);
+        try {
             setProperty(SettingsConstants.General.Extension.VIDEO_FILE_TYPES, s);
             videoFileTypes.clear();
+        } finally {
+            writeUnlock(videoFileTypesLock);
         }
     }
 
     public List<String> getVideoFileTypesAsArray() {
-        synchronized (LOCKS.get(LocksKeys.VIDEO_FILE)) {
+        readLock(videoFileTypesLock);
+        try {
             if (videoFileTypes.isEmpty()) {
                 videoFileTypes.addAll(Arrays.asList(getVideoFileTypes().split(CONSECUTIVE_WHITESPACE)));
             }
             return videoFileTypes;
+        } finally {
+            readUnlock(videoFileTypesLock);
         }
     }
 
     public String getCoverArtFileTypes() {
-        synchronized (LOCKS.get(LocksKeys.COVER_ART)) {
+        readLock(coverArtFileTypesLock);
+        try {
             return getString(SettingsConstants.General.Extension.COVER_ART_FILE_TYPES);
+        } finally {
+            readUnlock(coverArtFileTypesLock);
         }
     }
 
@@ -694,24 +765,33 @@ public class SettingsService {
     }
 
     public void setCoverArtFileTypes(String s) {
-        synchronized (LOCKS.get(LocksKeys.COVER_ART)) {
+        writeLock(coverArtFileTypesLock);
+        try {
             setProperty(SettingsConstants.General.Extension.COVER_ART_FILE_TYPES, s);
             coverArtFileTypes.clear();
+        } finally {
+            writeUnlock(coverArtFileTypesLock);
         }
     }
 
     public List<String> getCoverArtFileTypesAsArray() {
-        synchronized (LOCKS.get(LocksKeys.COVER_ART)) {
+        readLock(coverArtFileTypesLock);
+        try {
             if (coverArtFileTypes.isEmpty() && !isEmpty(getCoverArtFileTypes())) {
                 coverArtFileTypes.addAll(Arrays.asList(getCoverArtFileTypes().split(CONSECUTIVE_WHITESPACE)));
             }
             return coverArtFileTypes;
+        } finally {
+            readUnlock(coverArtFileTypesLock);
         }
     }
 
     public String getExcludedCoverArts() {
-        synchronized (LOCKS.get(LocksKeys.EXCLUDED_COVER_ART)) {
+        readLock(excludedCoverArtsLock);
+        try {
             return getString(SettingsConstants.General.Extension.EXCLUDED_COVER_ART);
+        } finally {
+            readUnlock(excludedCoverArtsLock);
         }
     }
 
@@ -720,18 +800,24 @@ public class SettingsService {
     }
 
     public void setExcludedCoverArts(String s) {
-        synchronized (LOCKS.get(LocksKeys.EXCLUDED_COVER_ART)) {
+        writeLock(excludedCoverArtsLock);
+        try {
             setProperty(SettingsConstants.General.Extension.EXCLUDED_COVER_ART, s);
             excludedCoverArts.clear();
+        } finally {
+            writeUnlock(excludedCoverArtsLock);
         }
     }
 
     public List<String> getExcludedCoverArtsAsArray() {
-        synchronized (LOCKS.get(LocksKeys.EXCLUDED_COVER_ART)) {
+        readLock(excludedCoverArtsLock);
+        try {
             if (excludedCoverArts.isEmpty()) {
                 excludedCoverArts.addAll(Arrays.asList(getDefaultExcludedCoverArts().split(CONSECUTIVE_WHITESPACE)));
             }
             return excludedCoverArts;
+        } finally {
+            readUnlock(excludedCoverArtsLock);
         }
     }
 

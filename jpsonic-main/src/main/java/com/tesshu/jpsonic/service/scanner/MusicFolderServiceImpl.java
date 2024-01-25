@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.dao.MusicFolderDao;
@@ -33,6 +34,7 @@ import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.ScanEvent.ScanEventType;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.util.concurrent.ReadWriteLockSupport;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.context.annotation.DependsOn;
@@ -43,7 +45,7 @@ import org.springframework.stereotype.Service;
  */
 @Service("musicFolderService")
 @DependsOn("scannerStateService")
-public class MusicFolderServiceImpl implements MusicFolderService {
+public class MusicFolderServiceImpl implements MusicFolderService, ReadWriteLockSupport {
 
     private final ConcurrentMap<String, List<MusicFolder>> cachedUserFolders;
     private List<MusicFolder> cachedMusicFolders;
@@ -52,7 +54,7 @@ public class MusicFolderServiceImpl implements MusicFolderService {
     private final StaticsDao staticsDao;
     private final SettingsService settingsService;
     private final ScannerStateServiceImpl scannerStateService;
-    private final Object lock = new Object();
+    private final ReentrantReadWriteLock cacheLock = new ReentrantReadWriteLock();
 
     public MusicFolderServiceImpl(MusicFolderDao musicFolderDao, StaticsDao staticsDao, SettingsService settingsService,
             ScannerStateServiceImpl scannerStateService) {
@@ -70,25 +72,36 @@ public class MusicFolderServiceImpl implements MusicFolderService {
 
     @Override
     public List<MusicFolder> getAllMusicFolders(boolean includeDisabled, boolean includeNonExisting) {
-        synchronized (lock) {
+        readLock(cacheLock);
+        try {
             if (cachedMusicFolders == null) {
                 cachedMusicFolders = musicFolderDao.getAllMusicFolders();
             }
             return cachedMusicFolders.stream().filter(folder -> includeDisabled || folder.isEnabled())
                     .filter(folder -> includeNonExisting || Files.exists(folder.toPath())).collect(Collectors.toList());
+        } finally {
+            readUnlock(cacheLock);
         }
     }
 
     @Override
     public List<MusicFolder> getMusicFoldersForUser(@NonNull String username) {
-        synchronized (lock) {
+        readLock(cacheLock);
+        try {
             List<MusicFolder> result = cachedUserFolders.get(username);
             if (result == null) {
-                result = musicFolderDao.getMusicFoldersForUser(username);
-                result.retainAll(getAllMusicFolders());
-                cachedUserFolders.put(username, result);
+                writeLock(cacheLock);
+                try {
+                    result = musicFolderDao.getMusicFoldersForUser(username);
+                    result.retainAll(getAllMusicFolders());
+                    cachedUserFolders.put(username, result);
+                } finally {
+                    writeUnlock(cacheLock);
+                }
             }
             return result;
+        } finally {
+            readUnlock(cacheLock);
         }
     }
 
@@ -105,8 +118,11 @@ public class MusicFolderServiceImpl implements MusicFolderService {
     @Override
     public void setMusicFoldersForUser(@NonNull String username, List<Integer> musicFolderIds) {
         musicFolderDao.setMusicFoldersForUser(username, musicFolderIds);
-        synchronized (lock) {
+        writeLock(cacheLock);
+        try {
             cachedUserFolders.remove(username);
+        } finally {
+            writeUnlock(cacheLock);
         }
     }
 
@@ -174,9 +190,12 @@ public class MusicFolderServiceImpl implements MusicFolderService {
 
     @SuppressWarnings("PMD.NullAssignment") // (cachedMusicFolders) Intentional allocation to clear cache
     public void clearMusicFolderCache() {
-        synchronized (lock) {
+        writeLock(cacheLock);
+        try {
             cachedMusicFolders = null;
             cachedUserFolders.clear();
+        } finally {
+            writeUnlock(cacheLock);
         }
     }
 }
