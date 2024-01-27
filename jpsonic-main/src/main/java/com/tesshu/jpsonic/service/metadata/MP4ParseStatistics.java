@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.ThreadSafe;
@@ -62,8 +63,8 @@ public class MP4ParseStatistics {
      */
     private static final int SAMPLE_SIZE_LOWER_LIMIT = 2;
 
-    private final Object cmdLock = new Object();
-    private final Object tikaLock = new Object();
+    private final ReentrantLock cmdLock = new ReentrantLock();
+    private final ReentrantLock tikaLock = new ReentrantLock();
 
     List<Long> leadTimeCmd;
     List<long[]> leadTimeTika;
@@ -74,14 +75,20 @@ public class MP4ParseStatistics {
     }
 
     public void addCmdLeadTime(long leadTime) {
-        synchronized (cmdLock) {
+        cmdLock.lock();
+        try {
             leadTimeCmd.add(leadTime);
+        } finally {
+            cmdLock.unlock();
         }
     }
 
     public void addTikaLeadTime(long size, long leadTime) {
-        synchronized (tikaLock) {
+        tikaLock.lock();
+        try {
             leadTimeTika.add(new long[] { size, leadTime });
+        } finally {
+            tikaLock.unlock();
         }
     }
 
@@ -91,7 +98,8 @@ public class MP4ParseStatistics {
     long getCmdLeadTimeEstimate() {
 
         List<Long> sample;
-        synchronized (cmdLock) {
+        cmdLock.lock();
+        try {
             if (leadTimeCmd.size() < SAMPLE_SIZE_LOWER_LIMIT) {
                 return CMD_LEAD_TIME_DEFAULT;
             }
@@ -99,6 +107,8 @@ public class MP4ParseStatistics {
                     leadTimeCmd.subList(leadTimeCmd.size() > SAMPLE_SIZE_MAX ? leadTimeCmd.size() - SAMPLE_SIZE_MAX : 0,
                             leadTimeCmd.size()));
             Collections.sort(sample);
+        } finally {
+            cmdLock.unlock();
         }
 
         /*
@@ -113,10 +123,13 @@ public class MP4ParseStatistics {
                 .getAsDouble();
 
         // Rotate
-        synchronized (tikaLock) {
+        tikaLock.lock();
+        try {
             if (HISTORY_SIZE_MAX < leadTimeCmd.size()) {
                 leadTimeCmd = leadTimeCmd.subList(leadTimeCmd.size() - SAMPLE_SIZE_MAX, leadTimeCmd.size());
             }
+        } finally {
+            tikaLock.unlock();
         }
 
         return average;
@@ -128,13 +141,16 @@ public class MP4ParseStatistics {
     long getTikaBpmsEstimate() {
 
         List<long[]> sample;
-        synchronized (tikaLock) {
+        tikaLock.lock();
+        try {
             if (leadTimeTika.size() < SAMPLE_SIZE_LOWER_LIMIT) {
                 return TIKA_BPMS_DEFAULT;
             }
             sample = new CopyOnWriteArrayList<>(leadTimeTika.subList(
                     leadTimeTika.size() > SAMPLE_SIZE_MAX ? leadTimeTika.size() - SAMPLE_SIZE_MAX : 0,
                     leadTimeTika.size()));
+        } finally {
+            tikaLock.unlock();
         }
 
         /*
@@ -151,10 +167,13 @@ public class MP4ParseStatistics {
                 bpmsList.stream().map(x -> Math.pow(x - bpmsAverage, 2.0)).mapToDouble(x -> x).average().getAsDouble());
 
         // Rotate
-        synchronized (tikaLock) {
+        tikaLock.lock();
+        try {
             if (HISTORY_SIZE_MAX < leadTimeTika.size()) {
                 leadTimeTika = leadTimeTika.subList(leadTimeTika.size() - SAMPLE_SIZE_MAX, leadTimeTika.size());
             }
+        } finally {
+            tikaLock.unlock();
         }
 
         return (long) (bpmsAverage + siguma);

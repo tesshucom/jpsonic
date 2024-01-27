@@ -23,6 +23,7 @@ package com.tesshu.jpsonic.service;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.tesshu.jpsonic.service.upnp.UpnpServiceFactory;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
@@ -44,7 +45,7 @@ public class UPnPService {
     private final SettingsService settingsService;
     private final UpnpServiceFactory upnpServiceFactory;
     private final AtomicReference<Boolean> running;
-    private final Object lock = new Object();
+    private final ReentrantLock runningLock = new ReentrantLock();
 
     private UpnpService deligate;
 
@@ -78,57 +79,64 @@ public class UPnPService {
     }
 
     private void start() {
-        running.getAndUpdate(isRunning -> {
-            if (isRunning) {
-                return true;
-            } else {
-                infoIfEnabled("Starting UPnP service...");
-                createService();
-                if (0 < SettingsService.getDefaultUPnPPort()) {
-                    infoIfEnabled("Successfully started UPnP service on port %s!"
-                            .formatted(SettingsService.getDefaultUPnPPort()));
+        runningLock.lock();
+        try {
+            running.getAndUpdate(isRunning -> {
+                if (isRunning) {
+                    return true;
                 } else {
-                    infoIfEnabled("Starting UPnP service - Done!");
+                    infoIfEnabled("Starting UPnP service...");
+                    createService();
+                    if (0 < SettingsService.getDefaultUPnPPort()) {
+                        infoIfEnabled("Successfully started UPnP service on port %s!"
+                                .formatted(SettingsService.getDefaultUPnPPort()));
+                    } else {
+                        infoIfEnabled("Starting UPnP service - Done!");
+                    }
+                    return true;
                 }
-                return true;
-            }
-        });
+            });
+        } finally {
+            runningLock.unlock();
+        }
     }
 
     @PreDestroy()
     private void stop() {
-        running.getAndUpdate(isRunning -> {
-            if (deligate != null && isRunning) {
-                infoIfEnabled("Shutting down UPnP service...");
-                deligate.shutdown();
-                infoIfEnabled("Shutting down UPnP service - Done!");
-            }
-            return false;
-        });
+        runningLock.lock();
+        try {
+            running.getAndUpdate(isRunning -> {
+                if (deligate != null && isRunning) {
+                    infoIfEnabled("Shutting down UPnP service...");
+                    deligate.shutdown();
+                    infoIfEnabled("Shutting down UPnP service - Done!");
+                }
+                return false;
+            });
+        } finally {
+            runningLock.unlock();
+        }
     }
 
     @SuppressWarnings("PMD.AvoidCatchingGenericException")
     private void createService() {
-        synchronized (lock) {
+        deligate = upnpServiceFactory.createUpnpService();
 
-            deligate = upnpServiceFactory.createUpnpService();
-
-            try {
-                deligate.startup();
-            } catch (RuntimeException e) {
-                // RouterException: The exception is wrapped in Runtime and thrown...
-                if (e.getCause() instanceof RouterException) {
-                    errorIfEnabled("Failed to start UPnP service.", e);
-                    return;
-                }
-                throw e;
+        try {
+            deligate.startup();
+        } catch (RuntimeException e) {
+            // RouterException: The exception is wrapped in Runtime and thrown...
+            if (e.getCause() instanceof RouterException) {
+                errorIfEnabled("Failed to start UPnP service.", e);
+                return;
             }
+            throw e;
+        }
 
-            try {
-                deligate.getControlPoint().search();
-            } catch (IllegalArgumentException e) {
-                errorIfEnabled("Network search failed.", e);
-            }
+        try {
+            deligate.getControlPoint().search();
+        } catch (IllegalArgumentException e) {
+            errorIfEnabled("Network search failed.", e);
         }
     }
 

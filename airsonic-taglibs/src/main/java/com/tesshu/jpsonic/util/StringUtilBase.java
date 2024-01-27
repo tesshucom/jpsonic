@@ -39,7 +39,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public final class StringUtilBase {
 
     private static final long BINARY_1KB = 1024L;
-    public static final Object FORMAT_LOCK = new Object();
 
     /**
      * Disallow external instantiation.
@@ -64,33 +63,31 @@ public final class StringUtilBase {
      * @return The formatted string.
      */
     public static String formatBytes(long byteCount, Locale locale) {
-        synchronized (FORMAT_LOCK) {
-            // More than 1 TB?
-            if (byteCount >= BINARY_1KB * 1024 * 1024 * 1024) {
-                NumberFormat teraByteFormat = new DecimalFormat("0.00 TB", new DecimalFormatSymbols(locale));
-                return teraByteFormat.format(byteCount / ((double) 1024 * 1024 * 1024 * 1024));
-            }
-
-            // More than 1 GB?
-            if (byteCount >= BINARY_1KB * 1024 * 1024) {
-                NumberFormat gigaByteFormat = new DecimalFormat("0.00 GB", new DecimalFormatSymbols(locale));
-                return gigaByteFormat.format(byteCount / ((double) 1024 * 1024 * 1024));
-            }
-
-            // More than 1 MB?
-            if (byteCount >= BINARY_1KB * 1024) {
-                NumberFormat megaByteFormat = new DecimalFormat("0.0 MB", new DecimalFormatSymbols(locale));
-                return megaByteFormat.format(byteCount / ((double) 1024 * 1024));
-            }
-
-            // More than 1 KB?
-            if (byteCount >= BINARY_1KB) {
-                NumberFormat kiloByteFormat = new DecimalFormat("0 KB", new DecimalFormatSymbols(locale));
-                return kiloByteFormat.format((double) byteCount / 1024);
-            }
-
-            return byteCount + " B";
+        // More than 1 TB?
+        if (byteCount >= BINARY_1KB * 1024 * 1024 * 1024) {
+            NumberFormat teraByteFormat = new DecimalFormat("0.00 TB", new DecimalFormatSymbols(locale));
+            return teraByteFormat.format(byteCount / ((double) 1024 * 1024 * 1024 * 1024));
         }
+
+        // More than 1 GB?
+        if (byteCount >= BINARY_1KB * 1024 * 1024) {
+            NumberFormat gigaByteFormat = new DecimalFormat("0.00 GB", new DecimalFormatSymbols(locale));
+            return gigaByteFormat.format(byteCount / ((double) 1024 * 1024 * 1024));
+        }
+
+        // More than 1 MB?
+        if (byteCount >= BINARY_1KB * 1024) {
+            NumberFormat megaByteFormat = new DecimalFormat("0.0 MB", new DecimalFormatSymbols(locale));
+            return megaByteFormat.format(byteCount / ((double) 1024 * 1024));
+        }
+
+        // More than 1 KB?
+        if (byteCount >= BINARY_1KB) {
+            NumberFormat kiloByteFormat = new DecimalFormat("0 KB", new DecimalFormatSymbols(locale));
+            return kiloByteFormat.format((double) byteCount / 1024);
+        }
+
+        return byteCount + " B";
     }
 
     /**

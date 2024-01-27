@@ -28,6 +28,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.controller.Attributes;
@@ -40,6 +41,7 @@ import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.util.StringUtil;
+import com.tesshu.jpsonic.util.concurrent.ReadWriteLockSupport;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -62,7 +64,7 @@ import org.springframework.web.bind.ServletRequestBindingException;
  */
 @Service
 @DependsOn("liquibase")
-public class PlayerService {
+public class PlayerService implements ReadWriteLockSupport {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlayerService.class);
 
@@ -77,7 +79,7 @@ public class PlayerService {
     private final SecurityService securityService;
     private final TranscodingService transcodingService;
 
-    private final Object playerLock = new Object();
+    private final ReentrantReadWriteLock playerLock = new ReentrantReadWriteLock();
 
     public PlayerService(PlayerDao playerDao, StatusService statusService, SettingsService settingsService,
             SecurityService securityService, TranscodingService transcodingService) {
@@ -91,9 +93,14 @@ public class PlayerService {
 
     @PostConstruct
     public void init() {
-        playerDao.deleteOldPlayers(60);
-        if (!settingsService.isUseExternalPlayer()) {
-            resetExternalPlayer();
+        writeLock(playerLock);
+        try {
+            playerDao.deleteOldPlayers(60);
+            if (!settingsService.isUseExternalPlayer()) {
+                resetExternalPlayer();
+            }
+        } finally {
+            writeUnlock(playerLock);
         }
     }
 
@@ -120,8 +127,8 @@ public class PlayerService {
      */
     public Player getPlayer(HttpServletRequest request, HttpServletResponse response, boolean remoteControlEnabled,
             boolean isStreamRequest) {
-
-        synchronized (playerLock) {
+        readLock(playerLock);
+        try {
 
             // Get player.
             Player player = findOrCreatePlayer(request, remoteControlEnabled);
@@ -132,6 +139,7 @@ public class PlayerService {
             // Update player data.
             if (isUpdate) {
                 updatePlayer(player);
+                readLock(playerLock);
             }
 
             // Set cookie in response.
@@ -156,6 +164,8 @@ public class PlayerService {
             }
 
             return player;
+        } finally {
+            readUnlock(playerLock);
         }
     }
 
@@ -246,7 +256,12 @@ public class PlayerService {
      *            The player to update.
      */
     public void updatePlayer(Player player) {
-        playerDao.updatePlayer(player);
+        writeLock(playerLock);
+        try {
+            playerDao.updatePlayer(player);
+        } finally {
+            writeUnlock(playerLock);
+        }
     }
 
     /**
@@ -258,10 +273,15 @@ public class PlayerService {
      * @return The player with the given ID, or <code>null</code> if no such player exists.
      */
     public @Nullable Player getPlayerById(Integer id) {
-        if (id == null) {
-            return null;
-        } else {
-            return playerDao.getPlayerById(id);
+        readLock(playerLock);
+        try {
+            if (id == null) {
+                return null;
+            } else {
+                return playerDao.getPlayerById(id);
+            }
+        } finally {
+            readUnlock(playerLock);
         }
     }
 
@@ -348,7 +368,12 @@ public class PlayerService {
      * @return All relevant players.
      */
     public List<Player> getPlayersForUserAndClientId(String username, String clientId) {
-        return playerDao.getPlayersForUserAndClientId(username, clientId);
+        readLock(playerLock);
+        try {
+            return playerDao.getPlayersForUserAndClientId(username, clientId);
+        } finally {
+            readUnlock(playerLock);
+        }
     }
 
     /**
@@ -357,7 +382,12 @@ public class PlayerService {
      * @return All currently registered players.
      */
     public List<Player> getAllPlayers() {
-        return playerDao.getAllPlayers();
+        readLock(playerLock);
+        try {
+            return playerDao.getAllPlayers();
+        } finally {
+            readUnlock(playerLock);
+        }
     }
 
     /**
@@ -367,8 +397,11 @@ public class PlayerService {
      *            The unique player ID.
      */
     public void removePlayerById(int id) {
-        synchronized (playerLock) {
+        writeLock(playerLock);
+        try {
             playerDao.deletePlayer(id);
+        } finally {
+            writeUnlock(playerLock);
         }
     }
 
@@ -381,17 +414,22 @@ public class PlayerService {
      * @return The cloned player.
      */
     public Player clonePlayer(int playerId) {
-        Player player = getPlayerById(playerId);
-        if (player == null) {
-            throw new IllegalArgumentException("The specified Player cannot be found.");
-        }
+        writeLock(playerLock);
+        try {
+            Player player = getPlayerById(playerId);
+            if (player == null) {
+                throw new IllegalArgumentException("The specified Player cannot be found.");
+            }
 
-        if (player.getName() != null) {
-            player.setName(player.getName() + " (copy)");
-        }
+            if (player.getName() != null) {
+                player.setName(player.getName() + " (copy)");
+            }
 
-        createPlayer(player);
-        return player;
+            createPlayer(player);
+            return player;
+        } finally {
+            writeUnlock(playerLock);
+        }
     }
 
     /**
@@ -405,7 +443,8 @@ public class PlayerService {
     }
 
     private void createPlayer(Player player, boolean isInitTranscoding) {
-        synchronized (playerLock) {
+        writeLock(playerLock);
+        try {
             UserSettings userSettings = securityService
                     .getUserSettings(JWTAuthenticationToken.USERNAME_ANONYMOUS.equals(player.getUsername())
                             ? User.USERNAME_GUEST : player.getUsername());
@@ -415,6 +454,8 @@ public class PlayerService {
                 transcodingService.setTranscodingsForPlayer(player, transcodingService.getAllTranscodings().stream()
                         .filter(Transcoding::isDefaultActive).collect(Collectors.toList()));
             }
+        } finally {
+            writeUnlock(playerLock);
         }
     }
 
@@ -440,7 +481,7 @@ public class PlayerService {
             Player player = oldPlayer.get();
             if (player.getLastSeen().plus(1, ChronoUnit.DAYS).isBefore(now)) {
                 player.setLastSeen(now);
-                playerDao.updatePlayer(player);
+                updatePlayer(player);
             }
             return player;
         }
@@ -462,14 +503,19 @@ public class PlayerService {
      * Initializes the properties of a player that has a setting to use external player.
      */
     public void resetExternalPlayer() {
-        for (Player player : playerDao.getAllPlayers()) {
-            if (PlayerTechnology.EXTERNAL == player.getTechnology()
-                    || PlayerTechnology.EXTERNAL_WITH_PLAYLIST == player.getTechnology()) {
-                player.setTechnology(PlayerTechnology.WEB);
-                player.setAutoControlEnabled(true);
-                player.setM3uBomEnabled(true);
-                playerDao.updatePlayer(player);
+        writeLock(playerLock);
+        try {
+            for (Player player : playerDao.getAllPlayers()) {
+                if (PlayerTechnology.EXTERNAL == player.getTechnology()
+                        || PlayerTechnology.EXTERNAL_WITH_PLAYLIST == player.getTechnology()) {
+                    player.setTechnology(PlayerTechnology.WEB);
+                    player.setAutoControlEnabled(true);
+                    player.setM3uBomEnabled(true);
+                    updatePlayer(player);
+                }
             }
+        } finally {
+            writeUnlock(playerLock);
         }
     }
 }

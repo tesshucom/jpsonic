@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -70,7 +71,7 @@ public class LastFMScrobbler {
     private static final String MSG_PREF_ON_FAIL = "Failed to scrobble song '";
 
     private final LinkedBlockingQueue<RegistrationData> queue;
-    private final Object registrationLock = new Object();
+    private final ReentrantLock registrationLock = new ReentrantLock();
 
     private RegistrationTask task;
 
@@ -96,7 +97,8 @@ public class LastFMScrobbler {
     public void register(MediaFile mediaFile, String username, String password, boolean submission, Instant time,
             Executor executor) {
 
-        synchronized (registrationLock) {
+        registrationLock.lock();
+        try {
 
             if (task == null) {
                 task = new RegistrationTask(queue);
@@ -114,6 +116,8 @@ public class LastFMScrobbler {
             } catch (InterruptedException e) {
                 writeWarn("Interrupted while queuing Last.fm scrobble.", e);
             }
+        } finally {
+            registrationLock.unlock();
         }
     }
 
