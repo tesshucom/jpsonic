@@ -24,6 +24,7 @@ package com.tesshu.jpsonic.service.scanner;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.ScanEvent;
@@ -55,7 +56,7 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     private final StaticsDao staticsDao;
     private final ThreadPoolTaskExecutor scanExecutor;
 
-    private final Object cancelLock = new Object();
+    private final ReentrantLock cancelLock = new ReentrantLock();
 
     public MediaScannerServiceImpl(SettingsService settingsService, ScannerStateServiceImpl scannerState,
             ScannerProcedureService procedure, ExpungeService expungeService, StaticsDao staticsDao,
@@ -86,10 +87,13 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
     @Override
     public void tryCancel() {
-        synchronized (cancelLock) {
+        cancelLock.lock();
+        try {
             if (isScanning()) {
                 procedure.setCancel(true);
             }
+        } finally {
+            cancelLock.unlock();
         }
     }
 
@@ -200,9 +204,12 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
         procedure.rotateScanLog();
 
-        synchronized (cancelLock) {
+        cancelLock.lock();
+        try {
             scannerState.unlockScanning();
             procedure.setCancel(false);
+        } finally {
+            cancelLock.unlock();
         }
     }
 }

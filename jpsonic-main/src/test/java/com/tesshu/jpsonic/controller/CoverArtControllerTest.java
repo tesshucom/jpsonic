@@ -36,10 +36,19 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import com.codahale.metrics.ConsoleReporter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.controller.CoverArtController.AlbumCoverArtRequest;
 import com.tesshu.jpsonic.controller.CoverArtController.ArtistCoverArtRequest;
@@ -61,13 +70,16 @@ import com.tesshu.jpsonic.service.PodcastService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.metadata.FFmpeg;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.exception.UncheckedException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -98,7 +110,6 @@ class CoverArtControllerTest {
         fontLoader = mock(FontLoader.class);
         controller = new CoverArtController(mediaFileService, ffmpeg, playlistService, mock(PodcastService.class),
                 mock(ArtistDao.class), mock(AlbumDao.class), fontLoader);
-        controller.init();
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -490,4 +501,84 @@ class CoverArtControllerTest {
             assertEquals(changed.toEpochMilli(), request.lastModified());
         }
     }
+
+    @Nested
+    class GetImageCacheDirectoryTest {
+
+        private final CoverArtController controller = new CoverArtController(mediaFileService, null, null, null, null,
+                null, null);
+
+        @Test
+        void testGetImageCacheDirectory(@TempDir Path tmp) {
+            final String home = System.getProperty("jpsonic.home");
+            System.setProperty("jpsonic.home", tmp.toString());
+
+            Path path = controller.getImageCacheDirectory(150);
+            assertNotNull(path);
+
+            System.setProperty("jpsonic.home", home);
+        }
+
+        abstract class IntRunnable implements Callable<Path> {
+            int i;
+
+            public IntRunnable(int i) {
+                this.i = i;
+            }
+        }
+
+        @Test
+        @SuppressWarnings("PMD.UnusedLocalVariable")
+        void testLock() throws Exception {
+
+            int threadsCount = 1_000;
+
+            final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+            executor.setWaitForTasksToCompleteOnShutdown(true); // To handle Stream
+            executor.setAwaitTerminationMillis(1_000);
+            executor.setQueueCapacity(threadsCount);
+            executor.setCorePoolSize(threadsCount);
+            executor.setMaxPoolSize(threadsCount);
+            executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+            executor.setDaemon(true);
+            executor.initialize();
+
+            MetricRegistry metrics = new MetricRegistry();
+            List<Future<Path>> futures = new ArrayList<>();
+            Timer globalTimer = metrics
+                    .timer(MetricRegistry.name(FontLoaderTest.class, "SpeedOfGetImageCacheDirectory"));
+
+            for (int i = 0; i < threadsCount; i++) {
+                futures.add(executor.submit(new IntRunnable(i) {
+                    @Override
+                    public Path call() {
+                        Path path;
+                        try (Timer.Context globalTimerContext = globalTimer.time()) {
+                            path = controller.getImageCacheDirectory(i % 10);
+                        } catch (IllegalArgumentException e) {
+                            throw new UncheckedException(e);
+                        }
+                        return path;
+                    }
+                }));
+            }
+
+            assertEquals(threadsCount, futures.stream().mapToInt(future -> {
+                try {
+                    assertNotNull(future.get());
+                } catch (InterruptedException | ExecutionException e) {
+                    throw new UncheckedException(e);
+                }
+                return 1;
+            }).sum());
+            executor.shutdown();
+
+            ConsoleReporter.Builder builder = ConsoleReporter.forRegistry(metrics).convertRatesTo(TimeUnit.SECONDS)
+                    .convertDurationsTo(TimeUnit.MILLISECONDS);
+            try (ConsoleReporter reporter = builder.build()) {
+                // to be none
+            }
+        }
+    }
+
 }

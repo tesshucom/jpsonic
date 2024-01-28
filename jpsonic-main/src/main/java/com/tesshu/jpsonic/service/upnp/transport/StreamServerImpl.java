@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -45,10 +46,10 @@ import org.slf4j.LoggerFactory;
 public final class StreamServerImpl implements StreamServer<DefaultStreamServerConf> {
 
     private static final Logger LOG = LoggerFactory.getLogger(StreamServerImpl.class);
-    public static final Object SERVER_LOCK = new Object();
 
     private final DefaultStreamServerConf conf;
     private HttpServer server;
+    public final ReentrantLock serverLock = new ReentrantLock();
 
     public StreamServerImpl(DefaultStreamServerConf conf) {
         this.conf = conf;
@@ -57,22 +58,21 @@ public final class StreamServerImpl implements StreamServer<DefaultStreamServerC
     @Override
     public void init(InetAddress address, Router router) {
         InetSocketAddress socketAddress = new InetSocketAddress(address, conf.getListenPort());
-        synchronized (SERVER_LOCK) {
-            try {
-                server = HttpServer.create(socketAddress, conf.tcpConnectionBacklog());
-                server.createContext("/", new RequestHttpHandler(router, conf.serverClientTokens()));
-                server.setExecutor(router.getConfiguration().getStreamServerExecutorService());
-            } catch (IOException e) {
-                throw new InitializationException("Could not initialize UPnP server.", e);
-            }
+        serverLock.lock();
+        try {
+            server = HttpServer.create(socketAddress, conf.tcpConnectionBacklog());
+            server.createContext("/", new RequestHttpHandler(router, conf.serverClientTokens()));
+            server.setExecutor(router.getConfiguration().getStreamServerExecutorService());
+        } catch (IOException e) {
+            throw new InitializationException("Could not initialize UPnP server.", e);
+        } finally {
+            serverLock.unlock();
         }
     }
 
     @Override
     public int getPort() {
-        synchronized (SERVER_LOCK) {
-            return server.getAddress().getPort();
-        }
+        return server.getAddress().getPort();
     }
 
     @Override
@@ -82,17 +82,23 @@ public final class StreamServerImpl implements StreamServer<DefaultStreamServerC
 
     @Override
     public void run() {
-        synchronized (SERVER_LOCK) {
+        serverLock.lock();
+        try {
             server.start();
+        } finally {
+            serverLock.unlock();
         }
     }
 
     @Override
     public void stop() {
-        synchronized (SERVER_LOCK) {
+        serverLock.lock();
+        try {
             if (server != null) {
                 server.stop(0);
             }
+        } finally {
+            serverLock.unlock();
         }
     }
 

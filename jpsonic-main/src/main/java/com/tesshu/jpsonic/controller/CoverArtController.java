@@ -35,14 +35,15 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.imageio.ImageIO;
 
@@ -66,7 +67,6 @@ import com.tesshu.jpsonic.spring.LoggingExceptionResolver;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -94,8 +94,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class CoverArtController implements CoverArtPresentation {
 
     private static final Logger LOG = LoggerFactory.getLogger(CoverArtController.class);
-    private static final int COVER_ART_CONCURRENCY = 4;
-    private static final Map<String, Object> IMG_LOCKS = new ConcurrentHashMap<>();
 
     private final MediaFileService mediaFileService;
     private final FFmpeg ffmpeg;
@@ -104,9 +102,11 @@ public class CoverArtController implements CoverArtPresentation {
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
     private final FontLoader fontLoader;
-    private final Object dirLock = new Object();
 
-    private Semaphore semaphore;
+    private static final int COVER_ART_CONCURRENCY = 4;
+    private final Semaphore semaphore = new Semaphore(COVER_ART_CONCURRENCY);
+    private final List<Path> writingCache = Collections.synchronizedList(new ArrayList<>());
+    private final ReentrantLock writingCacheLock = new ReentrantLock();
 
     public CoverArtController(MediaFileService mediaFileService, FFmpeg ffmpeg, PlaylistService playlistService,
             PodcastService podcastService, ArtistDao artistDao, AlbumDao albumDao, FontLoader fontLoader) {
@@ -118,11 +118,6 @@ public class CoverArtController implements CoverArtPresentation {
         this.artistDao = artistDao;
         this.albumDao = albumDao;
         this.fontLoader = fontLoader;
-    }
-
-    @PostConstruct
-    public void init() {
-        semaphore = new Semaphore(COVER_ART_CONCURRENCY);
     }
 
     private static void warnLog(String msg, Throwable t) {
@@ -279,36 +274,93 @@ public class CoverArtController implements CoverArtPresentation {
         }
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // false positive
+    private void waitWriting(Path path) throws ExecutionException {
+        int waitingTime = 0;
+        while (writingCache.contains(path)) {
+            try {
+                TimeUnit.MILLISECONDS.sleep(200);
+            } catch (InterruptedException e) {
+                throw new ExecutionException(e);
+            }
+            waitingTime += 200;
+            if (waitingTime > 5_000) {
+                throw new ExecutionException(new InterruptedException("Coverart cache write wait exceeded 5 seconds"));
+            }
+        }
+    }
+
+    private boolean isCacheExist(Path cache, CoverArtRequest request) throws ExecutionException {
+        try {
+            if (Files.exists(cache) && request.lastModified() <= Files.getLastModifiedTime(cache).toMillis()) {
+                return true;
+            }
+        } catch (IOException e) {
+            throw new ExecutionException(e);
+        }
+        return false;
+    }
+
+    private boolean tryCacheWriting(Path cache) {
+        writingCacheLock.lock();
+        try {
+            if (writingCache.contains(cache)) {
+                return true;
+            }
+            writingCache.add(cache);
+            return false;
+        } finally {
+            writingCacheLock.unlock();
+        }
+    }
+
+    private void releaseCacheWriting(Path cache) {
+        writingCacheLock.lock();
+        try {
+            writingCache.remove(cache);
+        } finally {
+            writingCacheLock.unlock();
+        }
+    }
+
     @SuppressFBWarnings(value = "WEAK_MESSAGE_DIGEST_MD5", justification = "It has nothing to do with security. The chances of a collision are also low enough")
     private Path getCachedImage(CoverArtRequest request, int size) throws ExecutionException {
         String encoding = request.getCoverArt() == null ? "png" : "jpeg";
-        Path cachedImage = Path.of(getImageCacheDirectory(size).toString(),
+        Path cachePath = Path.of(getImageCacheDirectory(size).toString(),
                 DigestUtils.md5Hex(request.getKey()) + "." + encoding);
-        String lockKey = cachedImage.toString();
 
-        Object lock = new Object();
-        IMG_LOCKS.putIfAbsent(lockKey, lock);
-
-        synchronized (IMG_LOCKS.get(lockKey)) {
-            try {
-                if (IMG_LOCKS.get(lockKey) != null && IMG_LOCKS.get(lockKey).equals(lock) && (!Files.exists(cachedImage)
-                        || request.lastModified() > Files.getLastModifiedTime(cachedImage).toMillis())) {
-                    try (OutputStream out = Files.newOutputStream(cachedImage)) {
-                        semaphore.acquire();
-                        BufferedImage image = request.createImage(size);
-                        ImageIO.write(image, encoding, out);
-                    } catch (InterruptedException | IOException e) {
-                        FileUtil.deleteIfExists(cachedImage);
-                    } finally {
-                        semaphore.release();
-                        IMG_LOCKS.remove(lockKey, lock);
-                    }
-                }
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-            return cachedImage;
+        // Use cache if enabled (It's already created)
+        if (isCacheExist(cachePath, request)) {
+            return cachePath;
         }
+
+        // Wait if writing is already in progress
+        if (tryCacheWriting(cachePath)) {
+            waitWriting(cachePath);
+            // Use cache if enabled (It was created while waiting)
+            if (isCacheExist(cachePath, request)) {
+                return cachePath;
+            }
+        }
+
+        // Create cache if it does not exist
+        try {
+            // However, the number of simultaneous writes will be limited.
+            semaphore.acquire();
+            try (OutputStream out = Files.newOutputStream(cachePath)) {
+                BufferedImage image = request.createImage(size);
+                ImageIO.write(image, encoding, out);
+            } finally {
+                semaphore.release();
+                releaseCacheWriting(cachePath);
+            }
+        } catch (InterruptedException e) {
+            FileUtil.deleteIfExists(cachePath);
+        } catch (IOException e) {
+            FileUtil.deleteIfExists(cachePath);
+            throw new UncheckedIOException(e);
+        }
+        return cachePath;
     }
 
     /**
@@ -361,15 +413,10 @@ public class CoverArtController implements CoverArtPresentation {
         return ffmpeg.createImage(mediaFile.toPath(), width, height, offset);
     }
 
-    private Path getImageCacheDirectory(int size) {
+    @Nullable
+    Path getImageCacheDirectory(int size) {
         Path dir = Path.of(SettingsService.getJpsonicHome().toString(), "thumbs", String.valueOf(size));
-        if (!Files.exists(dir)) {
-            synchronized (dirLock) {
-                if (FileUtil.createDirectories(dir) == null && LOG.isErrorEnabled()) {
-                    LOG.error("Failed to create thumbnail cache " + dir);
-                }
-            }
-        }
+        FileUtil.createDirectories(dir);
         return dir;
     }
 

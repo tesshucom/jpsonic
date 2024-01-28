@@ -47,8 +47,10 @@ import com.tesshu.jpsonic.service.MediaScannerService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.FileUtil;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
@@ -60,9 +62,19 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ObjectUtils;
 
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals", "PMD.UseUtilityClass" })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class IndexManagerTest {
+
+    @BeforeAll
+    public static void setUpOnce() throws InterruptedException {
+        SettingsService.setDevelopmentMode(true);
+    }
+
+    @AfterAll
+    public static void tearDownOnce() throws InterruptedException {
+        SettingsService.setDevelopmentMode(false);
+    }
 
     @Nested
     class UnitTest {

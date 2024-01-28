@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -45,7 +46,7 @@ import org.slf4j.LoggerFactory;
 public final class ComplementaryFilter extends TokenFilter {
 
     private static final AtomicBoolean STOPWORD_LOADED = new AtomicBoolean();
-    private static final Object LOCK = new Object();
+    private final ReentrantLock readerLock = new ReentrantLock();
 
     private static Pattern onlyStopWords;
 
@@ -92,7 +93,8 @@ public final class ComplementaryFilter extends TokenFilter {
     @Override
     public boolean incrementToken() throws IOException {
         if (!STOPWORD_LOADED.get() && Mode.HIRA_KATA_ONLY != mode) {
-            synchronized (LOCK) {
+            readerLock.lock();
+            try {
                 try (Reader reader = getReafer(getClass())) {
                     CharArraySet stops = WordlistLoader.getWordSet(reader, "#", new CharArraySet(16, true));
                     StringBuilder sb = new StringBuilder();
@@ -104,6 +106,8 @@ public final class ComplementaryFilter extends TokenFilter {
                     LoggerFactory.getLogger(ComplementaryFilter.class).error("Initialization error.", e);
                 }
                 STOPWORD_LOADED.set(true);
+            } finally {
+                readerLock.unlock();
             }
         }
 

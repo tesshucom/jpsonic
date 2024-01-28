@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -60,7 +61,7 @@ public class ListenBrainzScrobbler {
     private static final int MAX_PENDING_REGISTRATION = 2000;
 
     private final LinkedBlockingQueue<RegistrationData> queue;
-    private final Object registrationLock = new Object();
+    private final ReentrantLock registrationLock = new ReentrantLock();
 
     private RegistrationTask task;
 
@@ -88,7 +89,8 @@ public class ListenBrainzScrobbler {
      */
     public void register(MediaFile mediaFile, String token, boolean submission, Instant time, Executor executor) {
 
-        synchronized (registrationLock) {
+        registrationLock.lock();
+        try {
 
             if (task == null) {
                 task = new RegistrationTask(queue);
@@ -106,8 +108,9 @@ public class ListenBrainzScrobbler {
             } catch (InterruptedException e) {
                 writeWarn("Interrupted while queuing ListenBrainz scrobble.", e);
             }
+        } finally {
+            registrationLock.unlock();
         }
-
     }
 
     /**

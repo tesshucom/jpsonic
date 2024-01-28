@@ -353,9 +353,7 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
             musicTrack.addProperty(toPodcastArt(channel));
         }
         if (!isEmpty(episode.getPublishDate())) {
-            synchronized (DATE_FORMAT) {
-                musicTrack.setDate(DATE_FORMAT.get().format(episode.getPublishDate()));
-            }
+            musicTrack.setDate(DATE_FORMAT.get().format(episode.getPublishDate()));
         }
         if (episode.getStatus() == PodcastStatus.COMPLETED && !isEmpty(episode.getMediaFileId())) {
             MediaFile song = mediaFileService.getMediaFileStrict(episode.getMediaFileId());
