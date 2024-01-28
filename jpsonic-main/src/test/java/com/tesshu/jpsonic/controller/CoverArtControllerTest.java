@@ -110,7 +110,6 @@ class CoverArtControllerTest {
         fontLoader = mock(FontLoader.class);
         controller = new CoverArtController(mediaFileService, ffmpeg, playlistService, mock(PodcastService.class),
                 mock(ArtistDao.class), mock(AlbumDao.class), fontLoader);
-        controller.init();
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
