@@ -14,7 +14,7 @@
 
   <properties>
     <chameleon.version>1.2.1-RELEASE</chameleon.version>
-    <lucene.version>9.9.1</lucene.version>
+    <lucene.version>9.9.2</lucene.version>
     <tomcat.server.scope>provided</tomcat.server.scope>
   </properties>
 
