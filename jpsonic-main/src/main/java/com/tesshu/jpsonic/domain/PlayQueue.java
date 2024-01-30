@@ -547,11 +547,11 @@ public class PlayQueue implements ReadWriteLockSupport {
      */
     public long length() {
         long length;
-        writeLock(sequenceLock);
+        readLock(sequenceLock);
         try {
             length = files.stream().mapToLong(MediaFile::getFileSize).sum();
         } finally {
-            writeUnlock(sequenceLock);
+            readLock(sequenceLock);
         }
         return length;
     }
