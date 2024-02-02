@@ -5,7 +5,7 @@
 <%@ include file="jquery.jsp" %>
 <style type="text/css">
     #progressBar {width: 350px; height: 10px; border: 1px solid black; display:none;}
-    #progressBarContent {width: 0; height: 10px; background: url("<c:url value="/icons/default_light/progress.png"/>") repeat;}
+    #progressBarContent {width: 0; height: 10px; background: url("<c:url value="/icons/progress.png"/>") repeat;}
 </style>
 <script src="<c:url value='/dwr/engine.js'/>"></script>
 <script src="<c:url value='/dwr/interface/transferService.js'/>"></script>
