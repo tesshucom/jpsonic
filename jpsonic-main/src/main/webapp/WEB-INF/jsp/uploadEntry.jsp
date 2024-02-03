@@ -75,13 +75,17 @@ $(function() {
             <dt><fmt:message key="more.upload.target"/></dt>
             <dd><input type="text" id="dir" name="dir" value="${model.uploadDirectory}"/></dd>
             <dt></dt>
-            <dd><input type="checkbox" checked name="unzip" id="unzip"/><label for="unzip"><fmt:message key="more.upload.unzip"/></label></dd>
+            <dd>
+                <input type="checkbox" id="unzip" name="unzip" class="checkbox" checked/>
+                <label for="unzip"><fmt:message key="more.upload.unzip"/></label>
+            </dd>
         </dl>
 
-        <p class="detail" id="progressText"/>
-        
-        <div id="progressBar">
-            <div id="progressBarContent"></div>
+        <div class="responce">
+            <p class="detail" id="progressText"/>
+            <div id="progressBar">
+                <div id="progressBarContent"></div>
+            </div>
         </div>
 
         <div class="submits">
