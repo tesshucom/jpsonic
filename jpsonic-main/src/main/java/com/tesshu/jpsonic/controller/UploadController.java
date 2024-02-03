@@ -48,7 +48,6 @@ import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.StatusService;
-import com.tesshu.jpsonic.upload.UploadListener;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
@@ -57,6 +56,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.fileupload2.core.DiskFileItem;
 import org.apache.commons.fileupload2.core.DiskFileItemFactory;
 import org.apache.commons.fileupload2.core.FileUploadException;
+import org.apache.commons.fileupload2.core.ProgressListener;
 import org.apache.commons.fileupload2.jakarta.JakartaServletDiskFileUpload;
 import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
@@ -104,7 +104,6 @@ public class UploadController {
 
         Map<String, Object> model = LegacyMap.of();
         if (scannerStateService.isScanning()) {
-
             model.put(EXEPTION, new IllegalArgumentException("Currently scanning. Please try again after a while."));
             return new ModelAndView("upload", "model", model);
         }
@@ -171,11 +170,9 @@ public class UploadController {
 
     private List<DiskFileItem> getUploadItems(HttpServletRequest request, TransferStatus status)
             throws FileUploadException {
-        // Migration code. Temporarily do not use Listner
-        @SuppressWarnings({ "unused", "PMD.PrematureDeclaration" })
-        UploadListener listener = new UploadListenerImpl(status, statusService, settingsService);
         DiskFileItemFactory factory = DiskFileItemFactory.builder().get();
         JakartaServletDiskFileUpload upload = new JakartaServletDiskFileUpload(factory);
+        upload.setProgressListener(new UploadListenerImpl(status, statusService, settingsService));
         return upload.parseRequest(request);
     }
 
@@ -326,7 +323,7 @@ public class UploadController {
     /**
      * Receives callbacks as the file upload progresses.
      */
-    private static class UploadListenerImpl implements UploadListener {
+    private static class UploadListenerImpl implements ProgressListener {
 
         private final TransferStatus status;
         private final StatusService statusService;
@@ -343,21 +340,13 @@ public class UploadController {
         }
 
         @Override
-        public void start(String path) {
-            status.setPathString(path);
-        }
-
-        @Override
-        public void bytesRead(long bytesRead) {
-
-            // Throttle bitrate.
-            long byteCount = status.getBytesTransfered() + bytesRead;
-            long bitCount = byteCount * 8L;
+        public void update(long pBytesRead, long pContentLength, int pItems) {
+            long bitCount = pBytesRead * 8L;
             float elapsedMillis = Math.max(1, Instant.now().toEpochMilli() - startTime);
             float elapsedSeconds = elapsedMillis / 1000.0F;
             long maxBitsPerSecond = getBitrateLimit();
 
-            status.setBytesTransfered(byteCount);
+            status.setBytesTransfered(pBytesRead);
 
             try {
                 doSleep(maxBitsPerSecond, bitCount, elapsedSeconds);
@@ -382,5 +371,4 @@ public class UploadController {
                     / Math.max(1, this.statusService.getAllUploadStatuses().size());
         }
     }
-
 }

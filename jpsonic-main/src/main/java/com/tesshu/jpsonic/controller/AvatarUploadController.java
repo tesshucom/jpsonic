@@ -93,7 +93,7 @@ public class AvatarUploadController {
     }
 
     @SuppressFBWarnings(value = "FILE_UPLOAD_FILENAME", justification = "Limited features used by privileged users")
-    private void createAvatar(FileItem fileItem, String username, Map<String, Object> map) {
+    private void createAvatar(FileItem<?> fileItem, String username, Map<String, Object> map) {
         if (StringUtils.isNotBlank(fileItem.getName()) && fileItem.getSize() > 0) {
             try {
                 boolean resized = avatarService.createAvatar(fileItem.getFieldName(), fileItem.getInputStream(),
