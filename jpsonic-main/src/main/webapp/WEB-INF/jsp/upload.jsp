@@ -2,26 +2,31 @@
 
 <html><head>
     <%@ include file="head.jsp" %>
-</head><body>
+</head>
+<body class="mainframe upload">
+    <section>
+        <h1 class="upload"><fmt:message key="more.upload.title"/></h1>
+    </section>
 
-<h1><fmt:message key="upload.title"/></h1>
+    <div class="responce">
+        <c:forEach items="${model.uploadedFiles}" var="path">
+            <fmt:message key="upload.success"><fmt:param value="${path}"/></fmt:message><br/>
+        </c:forEach>
+        <c:forEach items="${model.unzippedFiles}" var="path">
+            <fmt:message key="upload.unzipped"><fmt:param value="${path}"/></fmt:message><br/>
+        </c:forEach>
+        <c:choose>
+            <c:when test="${not empty model.exception}">
+                <p><fmt:message key="upload.failed"><fmt:param value="${model.exception.message}"/></fmt:message></p>
+            </c:when>
+            <c:when test="${empty model.uploadedFiles}">
+                <p><fmt:message key="upload.empty"/></p>
+            </c:when>
+        </c:choose>
+    </div>
 
-<c:forEach items="${model.uploadedFiles}" var="path">
-    <p><fmt:message key="upload.success"><fmt:param value="${path}"/></fmt:message></p>
-</c:forEach>
-
-<c:forEach items="${model.unzippedFiles}" var="path">
-    <fmt:message key="upload.unzipped"><fmt:param value="${path}"/></fmt:message><br/>
-</c:forEach>
-
-<c:choose>
-    <c:when test="${not empty model.exception}">
-        <p><fmt:message key="upload.failed"><fmt:param value="${model.exception.message}"/></fmt:message></p>
-    </c:when>
-    <c:when test="${empty model.uploadedFiles}">
-        <p><fmt:message key="upload.empty"/></p>
-    </c:when>
-</c:choose>
-
-<div><a href="uploadEntry.view?"><fmt:message key="common.back"/></a></div>
-</body></html>
+    <div class="submits">
+        <input type="button" onClick="location.href='uploadEntry.view?'" value="<fmt:message key='common.back'/>" />
+    </div>
+</body>
+</html>

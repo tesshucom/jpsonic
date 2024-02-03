@@ -5,7 +5,7 @@
 <%@ include file="jquery.jsp" %>
 <style type="text/css">
     #progressBar {width: 350px; height: 10px; border: 1px solid black; display:none;}
-    #progressBarContent {width: 0; height: 10px; background: url("<c:url value="/icons/default_light/progress.png"/>") repeat;}
+    #progressBarContent {width: 0; height: 10px; background: url("<c:url value="/icons/progress.png"/>") repeat;}
 </style>
 <script src="<c:url value='/dwr/engine.js'/>"></script>
 <script src="<c:url value='/dwr/interface/transferService.js'/>"></script>
@@ -75,13 +75,17 @@ $(function() {
             <dt><fmt:message key="more.upload.target"/></dt>
             <dd><input type="text" id="dir" name="dir" value="${model.uploadDirectory}"/></dd>
             <dt></dt>
-            <dd><input type="checkbox" checked name="unzip" id="unzip"/><label for="unzip"><fmt:message key="more.upload.unzip"/></label></dd>
+            <dd>
+                <input type="checkbox" id="unzip" name="unzip" class="checkbox" checked/>
+                <label for="unzip"><fmt:message key="more.upload.unzip"/></label>
+            </dd>
         </dl>
 
-        <p class="detail" id="progressText"/>
-        
-        <div id="progressBar">
-            <div id="progressBarContent"></div>
+        <div class="responce">
+            <p class="detail" id="progressText"/>
+            <div id="progressBar">
+                <div id="progressBarContent"></div>
+            </div>
         </div>
 
         <div class="submits">
