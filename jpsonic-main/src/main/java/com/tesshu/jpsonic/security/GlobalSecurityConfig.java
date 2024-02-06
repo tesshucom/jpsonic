@@ -76,61 +76,11 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
 
     private final SecurityService securityService;
     private final SettingsService settingsService;
-    private final CustomUserDetailsContextMapper customUserDetailsContextMapper;
 
-    public GlobalSecurityConfig(SecurityService securityService, SettingsService settingsService,
-            CustomUserDetailsContextMapper customUserDetailsContextMapper) {
+    public GlobalSecurityConfig(SecurityService securityService, SettingsService settingsService) {
         super();
         this.securityService = securityService;
         this.settingsService = settingsService;
-        this.customUserDetailsContextMapper = customUserDetailsContextMapper;
-    }
-
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        if (settingsService.isLdapEnabled()) {
-            auth.ldapAuthentication().contextSource().managerDn(settingsService.getLdapManagerDn())
-                    .managerPassword(settingsService.getLdapManagerPassword())
-                    .url(settingsService.getLdapUrl()).and()
-                    .userSearchFilter(settingsService.getLdapSearchFilter())
-                    .userDetailsContextMapper(customUserDetailsContextMapper);
-        }
-        auth.userDetailsService(securityService);
-        String jwtKey = settingsService.getJWTKey();
-        if (StringUtils.isBlank(jwtKey)) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Generating new jwt key");
-            }
-            jwtKey = JWTSecurityService.generateKey();
-            settingsService.setJWTKey(jwtKey);
-            settingsService.save();
-        }
-        auth.authenticationProvider(new JWTAuthenticationProvider(jwtKey));
-    }
-
-    @Bean
-    public PasswordEncoder delegatingPasswordEncoder() {
-
-        // Spring Security 5 require storing the encoder id alongside the encoded password
-        // (e.g. "{md5}hash" for an MD5-encoded password hash), which differs from previous
-        // versions.
-        //
-        // Airsonic unfortunately stores passwords in plain-text, which is why we are setting
-        // the "no-op" (plain-text) password encoder as a default here. This default will be
-        // used when no encoder id is present.
-        //
-        // This means that legacy Airsonic passwords (stored simply as "password" in the db)
-        // will be matched like "{noop}password" and will be recognized successfully. In the
-        // future password encoding updates will be done here.
-
-        PasswordEncoder defaultEncoder = NoOpPasswordEncoder.getInstance();
-        String defaultIdForEncode = "noop";
-
-        Map<String, PasswordEncoder> encoders = LegacyMap.of(defaultIdForEncode, defaultEncoder);
-        DelegatingPasswordEncoder passworEncoder = new DelegatingPasswordEncoder(defaultIdForEncode, encoders);
-        passworEncoder.setDefaultPasswordEncoderForMatches(defaultEncoder);
-
-        return passworEncoder;
     }
 
     @Bean
@@ -139,31 +89,66 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+    public PasswordEncoder delegatingPasswordEncoder() {
+        PasswordEncoder defaultEncoder = NoOpPasswordEncoder.getInstance();
+        String defaultIdForEncode = "noop";
+        Map<String, PasswordEncoder> encoders = LegacyMap.of(defaultIdForEncode, defaultEncoder);
+        DelegatingPasswordEncoder passworEncoder =
+                new DelegatingPasswordEncoder(defaultIdForEncode, encoders);
+        passworEncoder.setDefaultPasswordEncoderForMatches(defaultEncoder);
+        return passworEncoder;
+    }
+
+    @EnableWebSecurity
+    public class AuthenticationManagerConfig {
+
+        @Autowired
+        public void configure(AuthenticationManagerBuilder auth,
+                CustomUserDetailsContextMapper customUserDetailsContextMapper) throws Exception {
+            if (settingsService.isLdapEnabled()) {
+                auth.ldapAuthentication().contextSource()
+                        .managerDn(settingsService.getLdapManagerDn())
+                        .managerPassword(settingsService.getLdapManagerPassword())
+                        .url(settingsService.getLdapUrl()).and()
+                        .userSearchFilter(settingsService.getLdapSearchFilter())
+                        .userDetailsContextMapper(customUserDetailsContextMapper);
+            }
+            auth.userDetailsService(securityService);
+            String jwtKey = settingsService.getJWTKey();
+            if (StringUtils.isBlank(jwtKey)) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Generating new jwt key");
+                }
+                jwtKey = JWTSecurityService.generateKey();
+                settingsService.setJWTKey(jwtKey);
+                settingsService.save();
+            }
+            auth.authenticationProvider(new JWTAuthenticationProvider(jwtKey));
+        }
+
+        @Bean
+        public AuthenticationManager authenticationManager(
+                AuthenticationConfiguration authenticationConfiguration) throws Exception {
+            return authenticationConfiguration.getAuthenticationManager();
+        }
     }
 
     @EnableWebSecurity
     @Order(1)
     public class ExtSecurityConfig {
 
-        private final CsrfSecurityRequestMatcher csrfSecurityRequestMatcher;
-
-        public ExtSecurityConfig(CsrfSecurityRequestMatcher csrfSecurityRequestMatcher) {
-            this.csrfSecurityRequestMatcher = csrfSecurityRequestMatcher;
-        }
-
         @Bean
-        public SecurityFilterChain extSecurityFilterChain(HttpSecurity http) throws Exception {
+        public SecurityFilterChain extSecurityFilterChain(
+                HttpSecurity http,
+                AuthenticationManager authMan,
+                CsrfSecurityRequestMatcher csrfMatcher) throws Exception {
+
             http
                     .addFilter(new WebAsyncManagerIntegrationFilter())
-                    .addFilterBefore(new JWTRequestParameterProcessingFilter(
-                            authenticationManager(
-                                    http.getSharedObject(AuthenticationConfiguration.class)),
-                            FAILURE_URL), UsernamePasswordAuthenticationFilter.class)
+                    .addFilterBefore(new JWTRequestParameterProcessingFilter(authMan, FAILURE_URL),
+                            UsernamePasswordAuthenticationFilter.class)
                     .securityMatchers((matchers) -> matchers.requestMatchers(antMatcher("/ext/**")))
-                    .csrf(config -> config.requireCsrfProtectionMatcher(csrfSecurityRequestMatcher))
+                    .csrf(config -> config.requireCsrfProtectionMatcher(csrfMatcher))
                     .headers(headers -> headers.frameOptions(options -> options.sameOrigin()))
                     .authorizeHttpRequests((authz) -> authz.requestMatchers(
                             antMatcher("/ext/stream/**"),
@@ -189,28 +174,14 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
     public class SecurityConfig  {
 
         private static final Logger LOG = LoggerFactory.getLogger(SecurityConfig.class);
-
-        private final CsrfSecurityRequestMatcher csrfSecurityRequestMatcher;
-        private final ApplicationEventPublisher eventPublisher;
         private final Random random = new SecureRandom();
-        private final SecurityService securityService;
-        private final SettingsService settingsService;
-
-        public SecurityConfig(CsrfSecurityRequestMatcher csrfSecurityRequestMatcher,
-                ApplicationEventPublisher eventPublisher, SecurityService securityService,
-                SettingsService settingsService) {
-            this.csrfSecurityRequestMatcher = csrfSecurityRequestMatcher;
-            this.eventPublisher = eventPublisher;
-            this.securityService = securityService;
-            this.settingsService = settingsService;
-        }
 
         private String generateRememberMeKey() {
             byte[] array = new byte[32];
             random.nextBytes(array);
             return new String(array, StandardCharsets.UTF_8);
         }
-        
+
         private String getRememberMeKey() {
 
             // Try to load the 'remember me' key.
@@ -248,16 +219,21 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
         }
 
         @Bean
-        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        public SecurityFilterChain securityFilterChain(
+                HttpSecurity http,
+                ApplicationEventPublisher eventPublisher,
+                AuthenticationManager authMan,
+                CsrfSecurityRequestMatcher csrfMatcher) throws Exception {
 
-            RESTRequestParameterProcessingFilter restAuthenticationFilter = new RESTRequestParameterProcessingFilter();
-            restAuthenticationFilter.setAuthenticationManager(authenticationManager(http.getSharedObject(AuthenticationConfiguration.class)));
-            restAuthenticationFilter.setSecurityService(securityService);
-            restAuthenticationFilter.setEventPublisher(eventPublisher);
-            http.addFilterBefore(restAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            RESTRequestParameterProcessingFilter restRPPFilter =
+                    new RESTRequestParameterProcessingFilter();
+            restRPPFilter.setAuthenticationManager(authMan);
+            restRPPFilter.setSecurityService(securityService);
+            restRPPFilter.setEventPublisher(eventPublisher);
 
             http
-                    .csrf(config -> config.requireCsrfProtectionMatcher(csrfSecurityRequestMatcher))
+                    .addFilterBefore(restRPPFilter, UsernamePasswordAuthenticationFilter.class)
+                    .csrf(config -> config.requireCsrfProtectionMatcher(csrfMatcher))
                     .headers(config -> config.frameOptions(opts -> opts.sameOrigin()))
                     .authorizeHttpRequests(config -> config
                         .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR)
