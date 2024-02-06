@@ -70,18 +70,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableMethodSecurity(securedEnabled = true)
 public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GlobalSecurityConfig.class);
     private static final String FAILURE_URL = "/login?error=1";
     private static final String DEVELOPMENT_REMEMBER_ME_KEY = "jpsonic";
-
-    private final SecurityService securityService;
-    private final SettingsService settingsService;
-
-    public GlobalSecurityConfig(SecurityService securityService, SettingsService settingsService) {
-        super();
-        this.securityService = securityService;
-        this.settingsService = settingsService;
-    }
 
     @Bean
     public ServletContextInitializer servletContextInitializer() {
@@ -102,8 +92,17 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
     @EnableWebSecurity
     public class AuthenticationManagerConfig {
 
+        private final SettingsService settingsService;
+
+        public AuthenticationManagerConfig(SettingsService settingsService) {
+            super();
+            this.settingsService = settingsService;
+        }
+
         @Autowired
-        public void configure(AuthenticationManagerBuilder auth,
+        public void configure(
+                SecurityService securityService,
+                AuthenticationManagerBuilder auth,
                 CustomUserDetailsContextMapper customUserDetailsContextMapper) throws Exception {
             if (settingsService.isLdapEnabled()) {
                 auth.ldapAuthentication().contextSource()
@@ -116,9 +115,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
             auth.userDetailsService(securityService);
             String jwtKey = settingsService.getJWTKey();
             if (StringUtils.isBlank(jwtKey)) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Generating new jwt key");
-                }
+                LoggerFactory.getLogger(GlobalSecurityConfig.class).warn("Generating new jwt key");
                 jwtKey = JWTSecurityService.generateKey();
                 settingsService.setJWTKey(jwtKey);
                 settingsService.save();
@@ -138,15 +135,20 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
     public class ExtSecurityConfig {
 
         @Bean
+        public JWTRequestParameterProcessingFilter jwtRPPFilter(
+                AuthenticationManager authenticationManager) {
+            return new JWTRequestParameterProcessingFilter(authenticationManager, FAILURE_URL);
+        }
+
+        @Bean
         public SecurityFilterChain extSecurityFilterChain(
                 HttpSecurity http,
-                AuthenticationManager authMan,
+                JWTRequestParameterProcessingFilter jwtRPPFilter,
                 CsrfSecurityRequestMatcher csrfMatcher) throws Exception {
 
             http
                     .addFilter(new WebAsyncManagerIntegrationFilter())
-                    .addFilterBefore(new JWTRequestParameterProcessingFilter(authMan, FAILURE_URL),
-                            UsernamePasswordAuthenticationFilter.class)
+                    .addFilterBefore(jwtRPPFilter, UsernamePasswordAuthenticationFilter.class)
                     .securityMatchers((matchers) -> matchers.requestMatchers(antMatcher("/ext/**")))
                     .csrf(config -> config.requireCsrfProtectionMatcher(csrfMatcher))
                     .headers(headers -> headers.frameOptions(options -> options.sameOrigin()))
@@ -173,63 +175,30 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
     @Order(2)
     public class SecurityConfig  {
 
-        private static final Logger LOG = LoggerFactory.getLogger(SecurityConfig.class);
-        private final Random random = new SecureRandom();
-
-        private String generateRememberMeKey() {
-            byte[] array = new byte[32];
-            random.nextBytes(array);
-            return new String(array, StandardCharsets.UTF_8);
+        @Bean
+        public RESTRequestParameterProcessingFilter restRPPFilter(
+                SecurityService securityService,
+                AuthenticationManager authenticationManager,
+                ApplicationEventPublisher eventPublisher) {
+            RESTRequestParameterProcessingFilter restRPPFilter =
+                    new RESTRequestParameterProcessingFilter();
+            restRPPFilter.setAuthenticationManager(authenticationManager);
+            restRPPFilter.setSecurityService(securityService);
+            restRPPFilter.setEventPublisher(eventPublisher);
+            return restRPPFilter;
         }
 
-        private String getRememberMeKey() {
-
-            // Try to load the 'remember me' key.
-            //
-            // Note that using a fixed key compromises security as perfect
-            // forward secrecy is not guaranteed anymore.
-            //
-            // An external entity can then re-use our authentication cookies before
-            // the expiration time, or even, given enough time, recover the password
-            // from the MD5 hash.
-            //
-            // See: https://docs.spring.io/spring-security/site/docs/3.0.x/reference/remember-me.html
-
-            String rememberMeKey = settingsService.getRememberMeKey();
-            boolean development = SettingsService.isDevelopmentMode();
-            if (StringUtils.isBlank(rememberMeKey) && !development) {
-                // ...if it is empty, generate a random key on startup (default).
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Generating a new ephemeral 'remember me' key in a secure way.");
-                }
-                rememberMeKey = generateRememberMeKey();
-            } else if (StringUtils.isBlank(rememberMeKey) && development) {
-                // ...if we are in development mode, we can use a fixed key.
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Using a fixed 'remember me' key because we're in development mode, this is INSECURE.");
-                }
-                rememberMeKey = DEVELOPMENT_REMEMBER_ME_KEY;
-            } else {
-                // ...otherwise, use the custom key directly.
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Using a fixed 'remember me' key from system properties, this is insecure.");
-                }
-            }
-            return rememberMeKey;
+        @Bean
+        public RememberMeKeyGenerator rememberMeKeyGenerator(SettingsService settingsService) {
+            return new RememberMeKeyGenerator(settingsService);
         }
 
         @Bean
         public SecurityFilterChain securityFilterChain(
                 HttpSecurity http,
-                ApplicationEventPublisher eventPublisher,
-                AuthenticationManager authMan,
+                RESTRequestParameterProcessingFilter restRPPFilter,
+                RememberMeKeyGenerator keyGenerator,
                 CsrfSecurityRequestMatcher csrfMatcher) throws Exception {
-
-            RESTRequestParameterProcessingFilter restRPPFilter =
-                    new RESTRequestParameterProcessingFilter();
-            restRPPFilter.setAuthenticationManager(authMan);
-            restRPPFilter.setSecurityService(securityService);
-            restRPPFilter.setEventPublisher(eventPublisher);
 
             http
                     .addFilterBefore(restRPPFilter, UsernamePasswordAuthenticationFilter.class)
@@ -303,8 +272,62 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
                     .logout(config -> config
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
                         .logoutSuccessUrl("/login?logout"))
-                    .rememberMe(config -> config.key(getRememberMeKey()));
+                    .rememberMe(config -> config.key(keyGenerator.get()));
             return http.build();
+        }
+    }
+
+    public static class RememberMeKeyGenerator {
+
+        private static final Logger LOG = LoggerFactory.getLogger(SecurityConfig.class);
+        private final SettingsService settingsService;
+        private final Random random = new SecureRandom();
+        
+        public RememberMeKeyGenerator(SettingsService settingsService) {
+            super();
+            this.settingsService = settingsService;
+        }
+
+        private String generateRememberMeKey() {
+            byte[] array = new byte[32];
+            random.nextBytes(array);
+            return new String(array, StandardCharsets.UTF_8);
+        }
+
+        public String get() {
+
+            // Try to load the 'remember me' key.
+            //
+            // Note that using a fixed key compromises security as perfect
+            // forward secrecy is not guaranteed anymore.
+            //
+            // An external entity can then re-use our authentication cookies before
+            // the expiration time, or even, given enough time, recover the password
+            // from the MD5 hash.
+            //
+            // See: https://docs.spring.io/spring-security/site/docs/3.0.x/reference/remember-me.html
+
+            String rememberMeKey = settingsService.getRememberMeKey();
+            boolean development = SettingsService.isDevelopmentMode();
+            if (StringUtils.isBlank(rememberMeKey) && !development) {
+                // ...if it is empty, generate a random key on startup (default).
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Generating a new ephemeral 'remember me' key in a secure way.");
+                }
+                rememberMeKey = generateRememberMeKey();
+            } else if (StringUtils.isBlank(rememberMeKey) && development) {
+                // ...if we are in development mode, we can use a fixed key.
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Using a fixed 'remember me' key because we're in development mode, this is INSECURE.");
+                }
+                rememberMeKey = DEVELOPMENT_REMEMBER_ME_KEY;
+            } else {
+                // ...otherwise, use the custom key directly.
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Using a fixed 'remember me' key from system properties, this is insecure.");
+                }
+            }
+            return rememberMeKey;
         }
     }
 }
