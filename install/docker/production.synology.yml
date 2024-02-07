@@ -5,7 +5,7 @@
 # usage: 
 #   docker-compose -f production.synology.yml up -d
 #
-# @since 114.0.0.alpha.2.1
+# @since 114.0.0
 #
 
 services:
@@ -126,17 +126,19 @@ services:
      #  -Djava.rmi.server.hostname=SynologyNAS
 
      # It is possible to override some of the UPnP server parameters.
+     # Synology DS220+ and general network spec are assumed.
+     # If Timout occurs during UPnP Browsing, consider increasing these values.
      # https://docs.oracle.com/en/java/javase/21/docs/api/jdk.httpserver/module-summary.html
      # Please note that these apply only to UPnP communication.
      # Communication of images and media files is not controlled.
      #
      #UPNP_IDLE_INTERVAL: '30'
-     #UPNP_MAX_CONNECTIONS: '-1'
-     #UPNP_MAX_IDLE_CONNECTIONS: '200'
+     #UPNP_MAX_CONNECTIONS: '50'
+     #UPNP_MAX_IDLE_CONNECTIONS: '30'
      #UPNP_DRAIN_AMOUNT: '65536'
      #UPNP_MAX_REQ_HEADERS: '200'
-     #UPNP_MAX_REQ_TIME: '2000'
-     #UPNP_MAX_RSP_TIME: '2000'
+     #UPNP_MAX_REQ_TIME: '500'
+     #UPNP_MAX_RSP_TIME: '500'
      #UPNP_NODELAY: 'true'
 
     # Usually no need to change.
