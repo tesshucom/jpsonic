@@ -33,9 +33,9 @@ import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.util.LegacyMap;
-import org.fourthline.cling.support.model.BrowseResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.jupnp.support.model.BrowseResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
 class RecentAlbumProcTest extends AbstractNeedsScan {

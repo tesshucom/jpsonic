@@ -24,12 +24,25 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import ch.qos.logback.classic.Level;
 import com.tesshu.jpsonic.TestCaseUtils;
+import com.tesshu.jpsonic.service.SettingsService;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class LegacyHsqlUtilTest {
+
+    @BeforeAll
+    public static void setUpOnce() throws InterruptedException {
+        SettingsService.setDevelopmentMode(true);
+    }
+
+    @AfterAll
+    public static void tearDownOnce() throws InterruptedException {
+        SettingsService.setDevelopmentMode(false);
+    }
 
     @BeforeEach
     public void setup() {

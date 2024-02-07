@@ -30,11 +30,11 @@ import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.fourthline.cling.support.contentdirectory.DIDLParser;
-import org.fourthline.cling.support.model.BrowseResult;
-import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.DIDLObject.Property.UPNP;
-import org.fourthline.cling.support.model.item.MusicTrack;
+import org.jupnp.support.contentdirectory.DIDLParser;
+import org.jupnp.support.model.BrowseResult;
+import org.jupnp.support.model.DIDLContent;
+import org.jupnp.support.model.DIDLObject.Property.UPNP;
+import org.jupnp.support.model.item.MusicTrack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -131,6 +131,7 @@ public class WMPProc {
         return new BrowseResult(result, count, totalMatches);
     }
 
+    @SuppressWarnings("PMD.UnnecessaryCast") // false positive (ZeroDivision)
     private BrowseResult createAudioItemBrowseResult(long count, long offset) {
         if (offset == 0) {
             LOG.info("object.item.audioItem data crawling started.");
@@ -152,6 +153,7 @@ public class WMPProc {
         }
     }
 
+    @SuppressWarnings("PMD.UnnecessaryCast") // false positive (ZeroDivision)
     private BrowseResult createVideoItemBrowseResult(long count, long offset) {
         if (offset == 0) {
             LOG.info("object.item.videoItem data crawling started.");

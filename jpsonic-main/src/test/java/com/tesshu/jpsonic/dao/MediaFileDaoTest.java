@@ -85,7 +85,8 @@ class MediaFileDaoTest {
             mediaFileDao.updateArtistSort(cands);
             assertEquals("update media_file set artist_reading=?, artist_sort=?, music_index = ? where id = ?",
                     queryCaptor.getValue());
-            assertEquals(4, argCaptor.getAllValues().size());
+            assertEquals(1, argCaptor.getAllValues().size());
+            assertEquals(4, argCaptor.getValue().length);
 
             ArtistSortCandidate artistOfSong = new ArtistSortCandidate("artist", "artistSort", 1, "MUSIC",
                     TargetField.ARTIST.getValue());
@@ -95,7 +96,8 @@ class MediaFileDaoTest {
             Mockito.when(jdbcTemplate.update(queryCaptor.capture(), argCaptor.capture())).thenReturn(0);
             mediaFileDao.updateArtistSort(cands);
             assertEquals("update media_file set artist_reading=?, artist_sort=? where id = ?", queryCaptor.getValue());
-            assertEquals(3, argCaptor.getAllValues().size());
+            assertEquals(1, argCaptor.getAllValues().size());
+            assertEquals(3, argCaptor.getValue().length);
 
             ArtistSortCandidate albumArtist = new ArtistSortCandidate("albumArtist", "albumArtistSort", 1, "MUSIC",
                     TargetField.ALBUM_ARTIST.getValue());
@@ -107,7 +109,8 @@ class MediaFileDaoTest {
             assertEquals(
                     "update media_file set artist_reading=?, artist_sort=?, album_artist_reading=?, album_artist_sort=? where id = ?",
                     queryCaptor.getValue());
-            assertEquals(5, argCaptor.getAllValues().size());
+            assertEquals(1, argCaptor.getAllValues().size());
+            assertEquals(5, argCaptor.getValue().length);
 
             ArtistSortCandidate composer = new ArtistSortCandidate("albumArtist", "albumArtistSort", 1, "MUSIC",
                     TargetField.COMPOSER.getValue());
@@ -119,7 +122,8 @@ class MediaFileDaoTest {
             assertEquals(
                     "update media_file set artist_reading=?, artist_sort=?, album_artist_reading=?, album_artist_sort=?, composer_sort=? where id = ?",
                     queryCaptor.getValue());
-            assertEquals(6, argCaptor.getAllValues().size());
+            assertEquals(1, argCaptor.getAllValues().size());
+            assertEquals(6, argCaptor.getValue().length);
         }
 
         @Nested
@@ -247,22 +251,22 @@ class MediaFileDaoTest {
 
                 criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, 1, null, null, null, false,
                         false, null);
-                assertEquals(Integer.valueOf(1), criteria.getMinAlbumRating());
+                assertEquals(1, criteria.getMinAlbumRating());
                 builder = new RandomSongsQueryBuilder(criteria);
                 op = builder.getIfJoinAlbumRating();
                 assertEquals(CONDITION_JOIN2, op.get());
 
                 criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, 1, null, null, false,
                         false, null);
-                assertEquals(Integer.valueOf(1), criteria.getMaxAlbumRating());
+                assertEquals(1, criteria.getMaxAlbumRating());
                 builder = new RandomSongsQueryBuilder(criteria);
                 op = builder.getIfJoinAlbumRating();
                 assertEquals(CONDITION_JOIN2, op.get());
 
                 criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, 1, 1, null, null, false,
                         false, null);
-                assertEquals(Integer.valueOf(1), criteria.getMinAlbumRating());
-                assertEquals(Integer.valueOf(1), criteria.getMaxAlbumRating());
+                assertEquals(1, criteria.getMinAlbumRating());
+                assertEquals(1, criteria.getMaxAlbumRating());
                 builder = new RandomSongsQueryBuilder(criteria);
                 op = builder.getIfJoinAlbumRating();
                 assertEquals(CONDITION_JOIN2, op.get());
@@ -425,7 +429,7 @@ class MediaFileDaoTest {
 
                 criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, 1, null, null, null, false,
                         false, null);
-                assertEquals(Integer.valueOf(1), criteria.getMinAlbumRating());
+                assertEquals(1, criteria.getMinAlbumRating());
                 builder = new RandomSongsQueryBuilder(criteria);
                 op = builder.getMinAlbumRatingCondition();
                 assertEquals(CONDITION_MIN_ALBUM_RATING, op.get());
@@ -447,8 +451,8 @@ class MediaFileDaoTest {
 
                 criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, 1, 2, null, null, false,
                         false, null);
-                assertEquals(Integer.valueOf(1), criteria.getMinAlbumRating());
-                assertEquals(Integer.valueOf(2), criteria.getMaxAlbumRating());
+                assertEquals(1, criteria.getMinAlbumRating());
+                assertEquals(2, criteria.getMaxAlbumRating());
                 builder = new RandomSongsQueryBuilder(criteria);
                 op = builder.getMaxAlbumRatingCondition();
                 assertEquals(condition1, op.get());
@@ -456,7 +460,7 @@ class MediaFileDaoTest {
                 criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, 1, null, null, false,
                         false, null);
                 assertNull(criteria.getMinAlbumRating());
-                assertEquals(Integer.valueOf(1), criteria.getMaxAlbumRating());
+                assertEquals(1, criteria.getMaxAlbumRating());
                 builder = new RandomSongsQueryBuilder(criteria);
                 op = builder.getMaxAlbumRatingCondition();
                 assertEquals(condition2, op.get());
@@ -475,7 +479,7 @@ class MediaFileDaoTest {
 
                 criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, null, 1, null, false,
                         false, null);
-                assertEquals(Integer.valueOf(1), criteria.getMinPlayCount());
+                assertEquals(1, criteria.getMinPlayCount());
                 builder = new RandomSongsQueryBuilder(criteria);
                 op = builder.getMinPlayCountCondition();
                 assertEquals(condition, op.get());
@@ -497,8 +501,8 @@ class MediaFileDaoTest {
 
                 criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, null, 1, 2, false,
                         false, null);
-                assertEquals(Integer.valueOf(1), criteria.getMinPlayCount());
-                assertEquals(Integer.valueOf(2), criteria.getMaxPlayCount());
+                assertEquals(1, criteria.getMinPlayCount());
+                assertEquals(2, criteria.getMaxPlayCount());
                 builder = new RandomSongsQueryBuilder(criteria);
                 op = builder.getMaxPlayCountCondition();
                 assertEquals(condition1, op.get());
@@ -506,7 +510,7 @@ class MediaFileDaoTest {
                 criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, null, null, 1, false,
                         false, null);
                 assertNull(criteria.getMinPlayCount());
-                assertEquals(Integer.valueOf(1), criteria.getMaxPlayCount());
+                assertEquals(1, criteria.getMaxPlayCount());
                 builder = new RandomSongsQueryBuilder(criteria);
                 op = builder.getMaxPlayCountCondition();
                 assertEquals(condition2, op.get());

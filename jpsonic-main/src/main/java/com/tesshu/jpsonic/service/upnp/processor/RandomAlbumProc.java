@@ -26,7 +26,6 @@ import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.upnp.ProcId;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -59,6 +58,6 @@ public class RandomAlbumProc extends AlbumProc implements CountLimitProc {
         int offset = (int) firstResults;
         int max = getDirectChildrenCount();
         int count = toCount(firstResults, maxResults, max);
-        return searchService.getRandomAlbumsId3((int) count, (int) offset, max, util.getGuestFolders());
+        return searchService.getRandomAlbumsId3(count, offset, max, util.getGuestFolders());
     }
 }

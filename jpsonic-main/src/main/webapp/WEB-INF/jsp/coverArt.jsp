@@ -27,10 +27,10 @@ PARAMETERS
 
 <c:set var="captionCount" value="${empty param.captionCount ? 0 : param.captionCount}"/>
 
-<str:randomString count="5" type="alphabet" var="divId"/>
-<str:randomString count="5" type="alphabet" var="imgId"/>
-<str:randomString count="5" type="alphabet" var="playId"/>
-<str:randomString count="5" type="alphabet" var="addId"/>
+<sub:randomString count="5" var="divId"/>
+<sub:randomString count="5" var="imgId"/>
+<sub:randomString count="5" var="playId"/>
+<sub:randomString count="5" var="addId"/>
 
 <div class="coverart">
     <div style="width:${size};max-width:${size};min-width:${size};height:${size};max-height:${size};cursor:pointer;<c:if test='${param.hideOverflow}'>overflow:hidden</c:if>;" title="${param.caption1}" id="${divId}">

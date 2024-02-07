@@ -24,15 +24,14 @@ import static com.tesshu.jpsonic.util.PlayerUtils.now;
 import java.util.Date;
 import java.util.Properties;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
 import com.tesshu.jpsonic.domain.User;
 import de.triology.recaptchav2java.ReCaptcha;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -114,7 +113,7 @@ public class RecoverService {
 
             try (Transport trans = session.getTransport(prot)) {
                 if (props.get(SESSION_KEY_MAIL_PREF + prot + ".auth") != null
-                        && props.get(SESSION_KEY_MAIL_PREF + prot + ".auth").equals(SESSION_VALUE_TRUE)) {
+                        && SESSION_VALUE_TRUE.equals(props.get(SESSION_KEY_MAIL_PREF + prot + ".auth"))) {
                     trans.connect(settingsService.getSmtpServer(), settingsService.getSmtpUser(),
                             settingsService.getSmtpPassword());
                 } else {

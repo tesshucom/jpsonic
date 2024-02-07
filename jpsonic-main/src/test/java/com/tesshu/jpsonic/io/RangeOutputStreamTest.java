@@ -75,7 +75,7 @@ class RangeOutputStreamTest {
         byte[] source = createSource(sourceSize);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try (OutputStream rangeOut = RangeOutputStream.wrap(out,
-                new HttpRange(first, last == null ? null : last.longValue()))) {
+                new HttpRange(first, last == null ? null : (long) last))) {
             copy(source, rangeOut, bufferSize);
         }
         verify(out.toByteArray(), first, last, sourceSize);

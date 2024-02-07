@@ -48,6 +48,14 @@ if [[ $# -lt 1 ]] || [[ ! "$1" == "java"* ]]; then
      -Djpsonic.mime.dsf="$MIME_DSF" \
      -Djpsonic.mime.dff="$MIME_DFF" \
      -DUPNP_PORT="$UPNP_PORT" \
+     -Dsun.net.httpserver.idleInterval="$UPNP_IDLE_INTERVAL" \
+     -Djdk.httpserver.maxConnections="$UPNP_MAX_CONNECTIONS" \
+     -Dsun.net.httpserver.maxIdleConnections="$UPNP_MAX_IDLE_CONNECTIONS" \
+     -Dsun.net.httpserver.drainAmount="$UPNP_DRAIN_AMOUNT" \
+     -Dsun.net.httpserver.maxReqHeaders="$UPNP_MAX_REQ_HEADERS" \
+     -Dsun.net.httpserver.maxReqTime="$UPNP_MAX_REQ_TIME" \
+     -Dsun.net.httpserver.maxRspTime="$UPNP_MAX_RSP_TIME" \
+     -Dsun.net.httpserver.nodelay="$UPNP_NODELAY" \
      -Dspring.main.banner-mode="$BANNER_MODE" \
      -Dlogging.level.com.tesshu.jpsonic="$LOG_LEVEL" \
      -Djava.awt.headless=true \

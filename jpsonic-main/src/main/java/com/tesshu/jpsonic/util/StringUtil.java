@@ -32,9 +32,6 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,7 +44,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -65,10 +61,8 @@ public final class StringUtil {
     public static final String ENCODING_UTF8 = "UTF-8";
     private static final Pattern SPLIT_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
     private static final String MP4 = "audio/mp4";
-    private static final long BINARY_1KB = 1024L;
     private static final long DURATION_FORMAT_THRESHOLD = 3600;
     private static final String[] FILE_SYSTEM_UNSAFE = { "/", "\\", "..", ":", "\"", "?", "*", "|" };
-    public static final Object FORMAT_LOCK = new Object();
     private static final String[][] MIME_TYPES = { { "mp3", "audio/mpeg" }, { "ogg", "audio/ogg" },
             { "oga", "audio/ogg" }, { "opus", "audio/ogg" }, { "ogx", "application/ogg" }, { "aac", MP4 },
             { "m4a", MP4 }, { "m4b", MP4 }, { "flac", "audio/flac" }, { "wav", "audio/x-wav" },
@@ -125,50 +119,8 @@ public final class StringUtil {
         return null;
     }
 
-    /**
-     * Converts a byte-count to a formatted string suitable for display to the user. For instance:
-     * <ul>
-     * <li><code>format(918)</code> returns <em>"918 B"</em>.</li>
-     * <li><code>format(98765)</code> returns <em>"96 KB"</em>.</li>
-     * <li><code>format(1238476)</code> returns <em>"1.2 MB"</em>.</li>
-     * </ul>
-     * This method assumes that 1 KB is 1024 bytes.
-     *
-     * @param byteCount
-     *            The number of bytes.
-     * @param locale
-     *            The locale used for formatting.
-     *
-     * @return The formatted string.
-     */
     public static String formatBytes(long byteCount, Locale locale) {
-        synchronized (FORMAT_LOCK) {
-            // More than 1 TB?
-            if (byteCount >= BINARY_1KB * 1024 * 1024 * 1024) {
-                NumberFormat teraByteFormat = new DecimalFormat("0.00 TB", new DecimalFormatSymbols(locale));
-                return teraByteFormat.format(byteCount / ((double) 1024 * 1024 * 1024 * 1024));
-            }
-
-            // More than 1 GB?
-            if (byteCount >= BINARY_1KB * 1024 * 1024) {
-                NumberFormat gigaByteFormat = new DecimalFormat("0.00 GB", new DecimalFormatSymbols(locale));
-                return gigaByteFormat.format(byteCount / ((double) 1024 * 1024 * 1024));
-            }
-
-            // More than 1 MB?
-            if (byteCount >= BINARY_1KB * 1024) {
-                NumberFormat megaByteFormat = new DecimalFormat("0.0 MB", new DecimalFormatSymbols(locale));
-                return megaByteFormat.format(byteCount / ((double) 1024 * 1024));
-            }
-
-            // More than 1 KB?
-            if (byteCount >= BINARY_1KB) {
-                NumberFormat kiloByteFormat = new DecimalFormat("0 KB", new DecimalFormatSymbols(locale));
-                return kiloByteFormat.format((double) byteCount / 1024);
-            }
-
-            return byteCount + " B";
-        }
+        return StringUtilBase.formatBytes(byteCount, locale);
     }
 
     /**
@@ -299,7 +251,7 @@ public final class StringUtil {
      */
     public static String urlEncode(String s) {
         try {
-            return URLEncoder.encode(s, StringUtil.ENCODING_UTF8);
+            return URLEncoder.encode(s, ENCODING_UTF8);
         } catch (UnsupportedEncodingException x) {
             throw new CompletionException(x);
         }
@@ -310,45 +262,18 @@ public final class StringUtil {
      */
     public static String urlDecode(String s) {
         try {
-            return URLDecoder.decode(s, StringUtil.ENCODING_UTF8);
+            return URLDecoder.decode(s, ENCODING_UTF8);
         } catch (UnsupportedEncodingException x) {
             throw new CompletionException(x);
         }
     }
 
-    /**
-     * Encodes the given string by using the hexadecimal representation of its UTF-8 bytes.
-     *
-     * @param s
-     *            The string to encode.
-     *
-     * @return The encoded string.
-     */
     public static @Nullable String utf8HexEncode(String s) {
-        if (s == null) {
-            return null;
-        }
-        byte[] utf8;
-        utf8 = s.getBytes(StandardCharsets.UTF_8);
-        return String.valueOf(Hex.encodeHex(utf8));
+        return StringUtilBase.utf8HexEncode(s);
     }
 
-    /**
-     * Decodes the given string by using the hexadecimal representation of its UTF-8 bytes.
-     *
-     * @param s
-     *            The string to decode.
-     *
-     * @return The decoded string.
-     *
-     * @throws DecoderException
-     *             If an error occurs.
-     */
     public static @Nullable String utf8HexDecode(String s) throws DecoderException {
-        if (s == null) {
-            return null;
-        }
-        return new String(Hex.decodeHex(s.toCharArray()), StandardCharsets.UTF_8);
+        return StringUtilBase.utf8HexDecode(s);
     }
 
     /**
@@ -408,7 +333,7 @@ public final class StringUtil {
     }
 
     @SuppressWarnings("PMD.ShortClassName")
-    static class Pair<V> {
+    static final class Pair<V> {
         final String key;
         final V defaultValue;
 

@@ -24,19 +24,17 @@ package com.tesshu.jpsonic;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import javax.servlet.Filter;
-import javax.servlet.Servlet;
-
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.filter.BootstrapVerificationFilter;
 import com.tesshu.jpsonic.filter.FontSchemeFilter;
-import com.tesshu.jpsonic.filter.MetricsFilter;
 import com.tesshu.jpsonic.filter.ParameterDecodingFilter;
 import com.tesshu.jpsonic.filter.RESTFilter;
 import com.tesshu.jpsonic.filter.RequestEncodingFilter;
 import com.tesshu.jpsonic.filter.ResponseHeaderFilter;
 import com.tesshu.jpsonic.spring.DatabaseConfiguration.ProfileNameConstants;
 import com.tesshu.jpsonic.util.LegacyHsqlUtil;
+import jakarta.servlet.Filter;
+import jakarta.servlet.Servlet;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.directwebremoting.servlet.DwrServlet;
 import org.slf4j.Logger;
@@ -64,8 +62,7 @@ import org.springframework.util.ReflectionUtils;
 
 @SpringBootApplication(exclude = { JmxAutoConfiguration.class, JdbcTemplateAutoConfiguration.class,
         DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class,
-        MultipartAutoConfiguration.class,
-        LiquibaseAutoConfiguration.class }, scanBasePackages = { "com.tesshu.jpsonic", "com.tesshu.jpsonic" })
+        MultipartAutoConfiguration.class, LiquibaseAutoConfiguration.class }, scanBasePackages = "com.tesshu.jpsonic")
 @EnableScheduling
 public class Application extends SpringBootServletInitializer
         implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
@@ -179,19 +176,6 @@ public class Application extends SpringBootServletInitializer
     }
 
     @Bean
-    public Filter metricsFilter() {
-        return new MetricsFilter();
-    }
-
-    @Bean
-    public FilterRegistrationBean<Filter> metricsFilterRegistration() {
-        FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(metricsFilter());
-        registration.setOrder(7);
-        return registration;
-    }
-
-    @Bean
     public FilterRegistrationBean<FontSchemeFilter> fontSchemeFilterRegistration() {
         FilterRegistrationBean<FontSchemeFilter> registration = new FilterRegistrationBean<>();
         registration.setFilter(new FontSchemeFilter());
@@ -226,14 +210,13 @@ public class Application extends SpringBootServletInitializer
 
     private void invokeHelper(@NonNull Class<?> helperClass, @NonNull Class<?> factoryClass,
             @NonNull Object factoryInstance) {
+        Method configure = ReflectionUtils.findMethod(helperClass, "configure", factoryClass);
+        if (configure == null) {
+            throw new IllegalArgumentException(
+                    "Unreachable code: The configure method does not exist in the helper class.");
+        }
         try {
-            Method configure = ReflectionUtils.findMethod(helperClass, "configure", factoryClass);
-            if (configure == null) {
-                throw new IllegalArgumentException(
-                        "Unreachable code: The configure method does not exist in the helper class.");
-            } else {
-                configure.invoke(null, factoryInstance);
-            }
+            configure.invoke(null, factoryInstance);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Failed to apply ApplicationHelper.", e);

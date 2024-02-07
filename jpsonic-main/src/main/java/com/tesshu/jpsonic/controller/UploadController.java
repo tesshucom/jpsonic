@@ -21,6 +21,8 @@
 
 package com.tesshu.jpsonic.controller;
 
+import static com.tesshu.jpsonic.controller.Attributes.Request.NameConstants.EXEPTION;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,9 +39,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.domain.TransferStatus;
@@ -49,15 +48,17 @@ import com.tesshu.jpsonic.service.ScannerStateService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.StatusService;
-import com.tesshu.jpsonic.upload.MonitoredDiskFileItemFactory;
-import com.tesshu.jpsonic.upload.UploadListener;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.fileupload2.core.DiskFileItem;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.core.FileUploadException;
+import org.apache.commons.fileupload2.core.ProgressListener;
+import org.apache.commons.fileupload2.jakarta.JakartaServletDiskFileUpload;
+import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -103,7 +104,11 @@ public class UploadController {
 
         Map<String, Object> model = LegacyMap.of();
         if (scannerStateService.isScanning()) {
-            model.put("exception", new IllegalArgumentException("Currently scanning. Please try again after a while."));
+            model.put(EXEPTION, new IllegalArgumentException("Currently scanning. Please try again after a while."));
+            return new ModelAndView("upload", "model", model);
+        }
+        if (!JakartaServletFileUpload.isMultipartContent(request)) {
+            model.put(EXEPTION, new IOException("Illegal request."));
             return new ModelAndView("upload", "model", model);
         }
 
@@ -116,27 +121,22 @@ public class UploadController {
 
             request.getSession().setAttribute(Attributes.Session.UPLOAD_STATUS.value(), status);
 
-            // Check that we have a file upload request
-            if (!ServletFileUpload.isMultipartContent(request)) {
-                throw new ExecutionException(new IOException("Illegal request."));
-            }
-
-            List<FileItem> items = getUploadItems(request, status);
+            List<DiskFileItem> items = getUploadItems(request, status);
             Path dir = getDir(items);
             boolean unzip = isUnzip(items);
             result = doUnzip(items, dir, unzip);
 
-        } catch (IOException | FileUploadException e) {
+        } catch (IOException e) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Uploading failed. {}", e.getMessage());
             }
-            model.put("exception", e);
+            model.put(EXEPTION, e);
         } catch (ExecutionException e) {
             ConcurrentUtils.handleCauseUnchecked(e);
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Uploading failed. {}", e.getMessage());
             }
-            model.put("exception", e);
+            model.put(EXEPTION, e);
         } finally {
             afterUpload(request, status);
         }
@@ -150,8 +150,8 @@ public class UploadController {
     }
 
     @SuppressWarnings("PMD.UseIOStreamsWithApacheCommonsFileItem") // #1539
-    private @NonNull Path getDir(List<FileItem> items) throws IOException {
-        for (FileItem item : items) {
+    private @NonNull Path getDir(List<DiskFileItem> items) throws IOException {
+        for (DiskFileItem item : items) {
             if (item.isFormField() && FIELD_NAME_DIR.equals(item.getFieldName())) {
                 return Path.of(item.getString());
             }
@@ -159,8 +159,8 @@ public class UploadController {
         throw new IOException("Missing 'dir' parameter.");
     }
 
-    private boolean isUnzip(List<FileItem> items) {
-        for (FileItem item : items) {
+    private boolean isUnzip(List<DiskFileItem> items) {
+        for (DiskFileItem item : items) {
             if (item.isFormField() && FIELD_NAME_UNZIP.equals(item.getFieldName())) {
                 return true;
             }
@@ -168,11 +168,11 @@ public class UploadController {
         return false;
     }
 
-    private List<FileItem> getUploadItems(HttpServletRequest request, TransferStatus status)
+    private List<DiskFileItem> getUploadItems(HttpServletRequest request, TransferStatus status)
             throws FileUploadException {
-        UploadListener listener = new UploadListenerImpl(status, statusService, settingsService);
-        FileItemFactory factory = new MonitoredDiskFileItemFactory(listener);
-        ServletFileUpload upload = new ServletFileUpload(factory);
+        DiskFileItemFactory factory = DiskFileItemFactory.builder().get();
+        JakartaServletDiskFileUpload upload = new JakartaServletDiskFileUpload(factory);
+        upload.setProgressListener(new UploadListenerImpl(status, statusService, settingsService));
         return upload.parseRequest(request);
     }
 
@@ -206,7 +206,7 @@ public class UploadController {
     }
 
     @SuppressFBWarnings(value = "FILE_UPLOAD_FILENAME", justification = "Limited features used by privileged users")
-    private UnzipResult doUnzip(List<FileItem> items, Path dir, boolean unzip) throws ExecutionException {
+    private UnzipResult doUnzip(List<DiskFileItem> items, Path dir, boolean unzip) throws ExecutionException {
         List<Path> uploadedFiles = new ArrayList<>();
         List<Path> unzippedFiles = new ArrayList<>();
 
@@ -215,7 +215,7 @@ public class UploadController {
         }
 
         // Look for file items.
-        for (FileItem item : items) {
+        for (DiskFileItem item : items) {
             if (!item.isFormField() && !StringUtils.isAllBlank(item.getName())) {
 
                 Path targetFile = Path.of(dir.toString(), item.getName());
@@ -234,7 +234,7 @@ public class UploadController {
     }
 
     @SuppressWarnings("PMD.AvoidCatchingGenericException") // apache-commons/FileItem#write
-    private List<Path> upload(FileItem targetItem, Path targetFile) throws ExecutionException {
+    private List<Path> upload(DiskFileItem targetItem, Path targetFile) throws ExecutionException {
 
         if (!securityService.isUploadAllowed(targetFile)) {
             throw new ExecutionException(new GeneralSecurityException(
@@ -243,7 +243,7 @@ public class UploadController {
 
         List<Path> uploadedFiles = new ArrayList<>();
         try {
-            targetItem.write(targetFile.toFile());
+            targetItem.write(targetFile);
             uploadedFiles.add(targetFile);
         } catch (Exception e) {
             throw new ExecutionException("Unable to write item.", e);
@@ -323,7 +323,7 @@ public class UploadController {
     /**
      * Receives callbacks as the file upload progresses.
      */
-    private static class UploadListenerImpl implements UploadListener {
+    private static class UploadListenerImpl implements ProgressListener {
 
         private final TransferStatus status;
         private final StatusService statusService;
@@ -340,21 +340,13 @@ public class UploadController {
         }
 
         @Override
-        public void start(String path) {
-            status.setPathString(path);
-        }
-
-        @Override
-        public void bytesRead(long bytesRead) {
-
-            // Throttle bitrate.
-            long byteCount = status.getBytesTransfered() + bytesRead;
-            long bitCount = byteCount * 8L;
+        public void update(long pBytesRead, long pContentLength, int pItems) {
+            long bitCount = pBytesRead * 8L;
             float elapsedMillis = Math.max(1, Instant.now().toEpochMilli() - startTime);
             float elapsedSeconds = elapsedMillis / 1000.0F;
             long maxBitsPerSecond = getBitrateLimit();
 
-            status.setBytesTransfered(byteCount);
+            status.setBytesTransfered(pBytesRead);
 
             try {
                 doSleep(maxBitsPerSecond, bitCount, elapsedSeconds);
@@ -379,5 +371,4 @@ public class UploadController {
                     / Math.max(1, this.statusService.getAllUploadStatuses().size());
         }
     }
-
 }

@@ -84,7 +84,9 @@ public class UserSettingsCommand extends SettingsPageCommons {
     }
 
     public void setUser(User user) {
-        username = user == null ? null : user.getUsername();
+        if (user != null) {
+            username = user.getUsername();
+        }
         adminRole = user != null && user.isAdminRole();
         downloadRole = user != null && user.isDownloadRole();
         uploadRole = user != null && user.isUploadRole();

@@ -34,8 +34,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
-
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.dao.MediaFileDao;
 import com.tesshu.jpsonic.domain.AlbumNotes;
@@ -49,6 +47,7 @@ import de.umass.lastfm.CallException;
 import de.umass.lastfm.Caller;
 import de.umass.lastfm.ImageSize;
 import de.umass.lastfm.Track;
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -85,6 +84,22 @@ public class LastFmService {
 
         Path cacheDir = Path.of(SettingsService.getJpsonicHome().toString(), "lastfmcache");
         caller.setCache(new LastFmCache(cacheDir, CACHE_TIME_TO_LIVE_MILLIS));
+    }
+
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (MediaFile) Not reusable
+    private List<MediaFile> fillUpWithNonPresentArtists(List<MediaFile> result, Collection<Artist> similarArtists,
+            int count, List<MusicFolder> musicFolders) {
+        for (Iterator<Artist> i = similarArtists.iterator(); i.hasNext() && result.size() != count;) {
+            Artist lastFmArtist = i.next();
+            MediaFile similarArtist = mediaFileDao.getArtistByName(lastFmArtist.getName(), musicFolders);
+            if (similarArtist == null) {
+                MediaFile notPresentArtist = new MediaFile();
+                notPresentArtist.setId(-1);
+                notPresentArtist.setArtist(lastFmArtist.getName());
+                result.add(notPresentArtist);
+            }
+        }
+        return result;
     }
 
     /**
@@ -136,17 +151,7 @@ public class LastFmService {
         }
 
         // Then fill up with non-present artists
-        for (Iterator<Artist> i = similarArtists.iterator(); i.hasNext() && result.size() != count;) {
-            Artist lastFmArtist = i.next();
-            MediaFile similarArtist = mediaFileDao.getArtistByName(lastFmArtist.getName(), musicFolders);
-            if (similarArtist == null) {
-                MediaFile notPresentArtist = new MediaFile();
-                notPresentArtist.setId(-1);
-                notPresentArtist.setArtist(lastFmArtist.getName());
-                result.add(notPresentArtist);
-            }
-        }
-        return result;
+        return fillUpWithNonPresentArtists(result, similarArtists, count, musicFolders);
     }
 
     /**

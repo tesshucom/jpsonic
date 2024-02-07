@@ -30,9 +30,6 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.domain.MediaFile;
@@ -46,12 +43,15 @@ import com.tesshu.jpsonic.io.PlayQueueInputStream;
 import com.tesshu.jpsonic.security.JWTAuthenticationToken;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.util.PlayerUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.ServletRequestBindingException;
 
@@ -74,13 +74,13 @@ public class StreamService {
     private final WritableMediaFileService writableMediaFileService;
     private final SearchService searchService;
     // Used to perform transcoding in subthreads (Priority changes)
-    private final ThreadPoolTaskExecutor shortExecutor;
+    private final AsyncTaskExecutor shortExecutor;
 
     public StreamService(StatusService statusService, PlaylistService playlistService, SecurityService securityService,
             SettingsService settingsService, TranscodingService transcodingService,
             AudioScrobblerService audioScrobblerService, MediaFileService mediaFileService,
             WritableMediaFileService writableMediaFileService, SearchService searchService,
-            ThreadPoolTaskExecutor shortExecutor) {
+            @Qualifier("shortExecutor") AsyncTaskExecutor shortExecutor) {
         super();
         this.statusService = statusService;
         this.playlistService = playlistService;
@@ -176,6 +176,7 @@ public class StreamService {
         return null;
     }
 
+    @SuppressWarnings("PMD.UnnecessaryBoxing") // false positive
     protected Dimension getSuitableVideoSize(Integer existingWidth, Integer existingHeight, Integer maxBitRate) {
         if (maxBitRate == null) {
             return new Dimension(400, 224);

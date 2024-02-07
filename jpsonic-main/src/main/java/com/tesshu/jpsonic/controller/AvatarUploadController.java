@@ -25,17 +25,16 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.service.AvatarService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.util.LegacyMap;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.core.FileItemFactory;
+import org.apache.commons.fileupload2.core.FileUploadException;
+import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,19 +63,20 @@ public class AvatarUploadController {
         this.avatarService = avatarService;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Exception) Not reusable
+    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseDiamondOperator", "rawtypes", "unchecked" })
+    // TODO UseDiamondOperator -> 114.0.0.beta.1
     @PostMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request) throws FileUploadException {
 
         // Check that we have a file upload request.
-        if (!ServletFileUpload.isMultipartContent(request)) {
+        if (!JakartaServletFileUpload.isMultipartContent(request)) {
             throw new IllegalArgumentException("Illegal request.");
         }
 
         String username = securityService.getCurrentUsername(request);
 
-        FileItemFactory factory = new DiskFileItemFactory();
-        ServletFileUpload upload = new ServletFileUpload(factory);
+        FileItemFactory factory = DiskFileItemFactory.builder().get();
+        JakartaServletFileUpload upload = new JakartaServletFileUpload(factory);
         List<FileItem> items = upload.parseRequest(request);
 
         Map<String, Object> map = LegacyMap.of();
@@ -93,7 +93,7 @@ public class AvatarUploadController {
     }
 
     @SuppressFBWarnings(value = "FILE_UPLOAD_FILENAME", justification = "Limited features used by privileged users")
-    private void createAvatar(FileItem fileItem, String username, Map<String, Object> map) {
+    private void createAvatar(FileItem<?> fileItem, String username, Map<String, Object> map) {
         if (StringUtils.isNotBlank(fileItem.getName()) && fileItem.getSize() > 0) {
             try {
                 boolean resized = avatarService.createAvatar(fileItem.getFieldName(), fileItem.getInputStream(),

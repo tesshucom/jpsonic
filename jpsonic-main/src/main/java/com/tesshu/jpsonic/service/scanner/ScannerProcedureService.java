@@ -65,6 +65,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -121,7 +122,7 @@ public class ScannerProcedureService {
             AlbumDao albumDao, StaticsDao staticsDao, SortProcedureService sortProcedure,
             ScannerStateServiceImpl scannerStateService, MusicIndexServiceImpl musicIndexService,
             MediaFileCache mediaFileCache, JapaneseReadingUtils readingUtils, JpsonicComparators comparators,
-            ThreadPoolTaskExecutor scanExecutor) {
+            @Qualifier("scanExecutor") ThreadPoolTaskExecutor scanExecutor) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;

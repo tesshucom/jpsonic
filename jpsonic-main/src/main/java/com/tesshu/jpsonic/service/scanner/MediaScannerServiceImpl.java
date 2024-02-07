@@ -24,6 +24,7 @@ package com.tesshu.jpsonic.service.scanner;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.domain.ScanEvent;
@@ -34,6 +35,7 @@ import com.tesshu.jpsonic.service.SettingsService;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
@@ -54,11 +56,11 @@ public class MediaScannerServiceImpl implements MediaScannerService {
     private final StaticsDao staticsDao;
     private final ThreadPoolTaskExecutor scanExecutor;
 
-    private final Object cancelLock = new Object();
+    private final ReentrantLock cancelLock = new ReentrantLock();
 
     public MediaScannerServiceImpl(SettingsService settingsService, ScannerStateServiceImpl scannerState,
             ScannerProcedureService procedure, ExpungeService expungeService, StaticsDao staticsDao,
-            ThreadPoolTaskExecutor scanExecutor) {
+            @Qualifier("scanExecutor") ThreadPoolTaskExecutor scanExecutor) {
         super();
         this.settingsService = settingsService;
         this.scannerState = scannerState;
@@ -85,10 +87,13 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
     @Override
     public void tryCancel() {
-        synchronized (cancelLock) {
+        cancelLock.lock();
+        try {
             if (isScanning()) {
                 procedure.setCancel(true);
             }
+        } finally {
+            cancelLock.unlock();
         }
     }
 
@@ -199,9 +204,12 @@ public class MediaScannerServiceImpl implements MediaScannerService {
 
         procedure.rotateScanLog();
 
-        synchronized (cancelLock) {
+        cancelLock.lock();
+        try {
             scannerState.unlockScanning();
             procedure.setCancel(false);
+        } finally {
+            cancelLock.unlock();
         }
     }
 }

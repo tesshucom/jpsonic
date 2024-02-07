@@ -31,11 +31,10 @@ import java.awt.geom.RoundRectangle2D;
 import java.io.IOException;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.service.SecurityService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
@@ -50,6 +49,8 @@ import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -63,6 +64,8 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 @RequestMapping("/userChart.view")
 public class UserChartController extends AbstractChartController {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UserChartController.class);
 
     public static final int IMAGE_WIDTH = 400;
     public static final int IMAGE_MIN_HEIGHT = 200;
@@ -86,7 +89,14 @@ public class UserChartController extends AbstractChartController {
 
         int imageHeight = Math.max(IMAGE_MIN_HEIGHT, 15 * dataset.getColumnCount());
 
-        ChartUtils.writeChartAsPNG(response.getOutputStream(), chart, IMAGE_WIDTH, imageHeight);
+        try {
+            ChartUtils.writeChartAsPNG(response.getOutputStream(), chart, IMAGE_WIDTH, imageHeight);
+        } catch (IOException e) {
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Client may have closed the Stream.", e);
+            }
+        }
+
         return null;
     }
 

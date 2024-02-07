@@ -32,15 +32,13 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.util.StringUtil;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpResponseException;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.ConnectTimeoutException;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.ConnectTimeoutException;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.util.Timeout;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -83,13 +81,6 @@ public class LyricsService {
             String xml = executeGetRequest(url);
             lyrics = parseSearchResult(xml);
 
-        } catch (HttpResponseException e) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to get lyrics for song '{}'. Request failed: {}", song, e.toString());
-            }
-            if (HttpStatus.SC_SERVICE_UNAVAILABLE == e.getStatusCode()) {
-                lyrics.setTryLater(true);
-            }
         } catch (SocketException | ConnectTimeoutException e) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to get lyrics for song '{}': {}", song, e.toString());
@@ -128,12 +119,12 @@ public class LyricsService {
     }
 
     private String executeGetRequest(String url) throws IOException {
-        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(15_000).setSocketTimeout(15_000).build();
+        RequestConfig requestConfig = RequestConfig.custom().setConnectionRequestTimeout(Timeout.ofSeconds(15))
+                .setResponseTimeout(Timeout.ofSeconds(15)).build();
         HttpGet method = new HttpGet(URI.create(url));
         method.setConfig(requestConfig);
         try (CloseableHttpClient client = HttpClients.createDefault()) {
-            ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            return client.execute(method, responseHandler);
+            return client.execute(method, new BasicHttpClientResponseHandler());
         }
     }
 }

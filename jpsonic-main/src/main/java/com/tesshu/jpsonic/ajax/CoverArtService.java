@@ -22,7 +22,6 @@
 package com.tesshu.jpsonic.ajax;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
@@ -42,10 +41,11 @@ import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.util.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -120,18 +120,19 @@ public class CoverArtService {
         backup(newCoverFile, Path.of(pathString, "cover." + suffix + ".backup"));
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {
-            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(2000).setSocketTimeout(2000).build();
+
+            RequestConfig requestConfig = RequestConfig.custom().setConnectionRequestTimeout(Timeout.ofSeconds(2))
+                    .setResponseTimeout(Timeout.ofSeconds(2)).build();
             HttpGet method = new HttpGet(URI.create(url));
             method.setConfig(requestConfig);
 
-            try (InputStream input = client.execute(method).getEntity().getContent()) {
-
-                // Write file.
+            int copied = client.execute(method, (response) -> {
                 try (OutputStream output = Files.newOutputStream(newCoverFile)) {
-                    IOUtils.copy(input, output);
-                    input.close();
+                    return IOUtils.copy(response.getEntity().getContent(), output);
                 }
+            });
 
+            if (0 < copied) {
                 MediaFile dir = mediaFileService.getMediaFileStrict(pathString);
 
                 // Refresh database.
@@ -141,6 +142,7 @@ public class CoverArtService {
                 // Rename existing cover files if new cover file is not the preferred.
                 renameWithoutReplacement(dir, newCoverFile);
             }
+
         } catch (UnsupportedOperationException | IOException e) {
             throw new ExecutionException("Failed to save coverArt: " + pathString, e);
         }

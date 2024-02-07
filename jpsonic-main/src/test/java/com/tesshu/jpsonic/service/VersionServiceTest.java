@@ -19,10 +19,12 @@
 
 package com.tesshu.jpsonic.service;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
 
+import com.tesshu.jpsonic.domain.Version;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -45,5 +47,11 @@ class VersionServiceTest {
         assertEquals(2001, localDate.getYear());
         assertEquals(2, localDate.getMonthValue());
         assertEquals(3, localDate.getDayOfMonth());
+    }
+
+    @Test
+    void testGetLatestFinalVersion() {
+        Version version = versionService.getLatestFinalVersion();
+        assertNotNull(version);
     }
 }

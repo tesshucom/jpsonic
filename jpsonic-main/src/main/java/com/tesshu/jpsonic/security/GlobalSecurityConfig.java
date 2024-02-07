@@ -28,15 +28,14 @@ import java.security.SecureRandom;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
-
-import javax.servlet.SessionTrackingMode;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.service.JWTSecurityService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.util.LegacyMap;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.SessionTrackingMode;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,180 +46,245 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.authentication.configuration.GlobalAuthenticationConfigurerAdapter;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+// Usually not desirable. But that's spring justice
+@SuppressWarnings({"PMD.AvoidReassigningParameters", "PMD.SignatureDeclareThrowsException"})
 @Configuration
-@SuppressWarnings("PMD.AvoidReassigningParameters")
-/*
- * Spring manners. Usually not desirable. Code that issues this warning in the future needs scrutiny.
- */
 @Order(SecurityProperties.BASIC_AUTH_ORDER - 2)
 @EnableMethodSecurity(securedEnabled = true)
 public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GlobalSecurityConfig.class);
     private static final String FAILURE_URL = "/login?error=1";
     private static final String DEVELOPMENT_REMEMBER_ME_KEY = "jpsonic";
-
-    private final SecurityService securityService;
-    private final SettingsService settingsService;
-    private final CustomUserDetailsContextMapper customUserDetailsContextMapper;
-
-    public GlobalSecurityConfig(SecurityService securityService, SettingsService settingsService,
-            CustomUserDetailsContextMapper customUserDetailsContextMapper) {
-        super();
-        this.securityService = securityService;
-        this.settingsService = settingsService;
-        this.customUserDetailsContextMapper = customUserDetailsContextMapper;
-    }
-
-    @SuppressWarnings("PMD.AvoidCatchingGenericException")
-    // springframework/AuthenticationManagerBuilder#ldapAuthentication
-    // springframework/AuthenticationManagerBuilder#userDetailsService
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws ExecutionException {
-        if (settingsService.isLdapEnabled()) {
-            try {
-                auth.ldapAuthentication().contextSource().managerDn(settingsService.getLdapManagerDn())
-                        .managerPassword(settingsService.getLdapManagerPassword()).url(settingsService.getLdapUrl())
-                        .and().userSearchFilter(settingsService.getLdapSearchFilter())
-                        .userDetailsContextMapper(customUserDetailsContextMapper);
-            } catch (Exception e) {
-                throw new ExecutionException("Ldap authentication failed.", e);
-            }
-        }
-        try {
-            auth.userDetailsService(securityService);
-        } catch (Exception e) {
-            throw new ExecutionException("Ldap additional authentication failed.", e);
-        }
-        String jwtKey = settingsService.getJWTKey();
-        if (StringUtils.isBlank(jwtKey)) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Generating new jwt key");
-            }
-            jwtKey = JWTSecurityService.generateKey();
-            settingsService.setJWTKey(jwtKey);
-            settingsService.save();
-        }
-        auth.authenticationProvider(new JWTAuthenticationProvider(jwtKey));
-    }
-
-    @Bean
-    public PasswordEncoder delegatingPasswordEncoder() {
-
-        // Spring Security 5 require storing the encoder id alongside the encoded password
-        // (e.g. "{md5}hash" for an MD5-encoded password hash), which differs from previous
-        // versions.
-        //
-        // Airsonic unfortunately stores passwords in plain-text, which is why we are setting
-        // the "no-op" (plain-text) password encoder as a default here. This default will be
-        // used when no encoder id is present.
-        //
-        // This means that legacy Airsonic passwords (stored simply as "password" in the db)
-        // will be matched like "{noop}password" and will be recognized successfully. In the
-        // future password encoding updates will be done here.
-
-        PasswordEncoder defaultEncoder = NoOpPasswordEncoder.getInstance();
-        String defaultIdForEncode = "noop";
-
-        Map<String, PasswordEncoder> encoders = LegacyMap.of(defaultIdForEncode, defaultEncoder);
-        DelegatingPasswordEncoder passworEncoder = new DelegatingPasswordEncoder(defaultIdForEncode, encoders);
-        passworEncoder.setDefaultPasswordEncoderForMatches(defaultEncoder);
-
-        return passworEncoder;
-    }
 
     @Bean
     public ServletContextInitializer servletContextInitializer() {
         return context -> context.setSessionTrackingModes(EnumSet.of(SessionTrackingMode.COOKIE));
     }
 
-    @Configuration
-    @Order(1)
-    public static class ExtSecurityConfiguration extends WebSecurityConfigurerAdapter {
+    @Bean
+    public PasswordEncoder delegatingPasswordEncoder() {
+        PasswordEncoder defaultEncoder = NoOpPasswordEncoder.getInstance();
+        String defaultIdForEncode = "noop";
+        Map<String, PasswordEncoder> encoders = LegacyMap.of(defaultIdForEncode, defaultEncoder);
+        DelegatingPasswordEncoder passworEncoder =
+                new DelegatingPasswordEncoder(defaultIdForEncode, encoders);
+        passworEncoder.setDefaultPasswordEncoderForMatches(defaultEncoder);
+        return passworEncoder;
+    }
 
-        private final CsrfSecurityRequestMatcher csrfSecurityRequestMatcher;
+    @EnableWebSecurity
+    public class AuthenticationManagerConfig {
 
-        public ExtSecurityConfiguration(CsrfSecurityRequestMatcher csrfSecurityRequestMatcher) {
-            super(true);
-            this.csrfSecurityRequestMatcher = csrfSecurityRequestMatcher;
+        private final SettingsService settingsService;
+
+        public AuthenticationManagerConfig(SettingsService settingsService) {
+            super();
+            this.settingsService = settingsService;
         }
 
-        @SuppressWarnings("PMD.AvoidCatchingGenericException") // springframework/WebSecurityConfigurerAdapter#authenticationManager
-        @Bean(name = "jwtAuthenticationFilter")
-        public JWTRequestParameterProcessingFilter jwtAuthFilter() throws ExecutionException {
-            try {
-                return new JWTRequestParameterProcessingFilter(authenticationManager(), FAILURE_URL);
-            } catch (Exception e) {
-                throw new ExecutionException("AuthenticationManager initialization failed.", e);
+        @Autowired
+        public void configure(
+                SecurityService securityService,
+                AuthenticationManagerBuilder auth,
+                CustomUserDetailsContextMapper customUserDetailsContextMapper) throws Exception {
+            if (settingsService.isLdapEnabled()) {
+                auth.ldapAuthentication().contextSource()
+                        .managerDn(settingsService.getLdapManagerDn())
+                        .managerPassword(settingsService.getLdapManagerPassword())
+                        .url(settingsService.getLdapUrl()).and()
+                        .userSearchFilter(settingsService.getLdapSearchFilter())
+                        .userDetailsContextMapper(customUserDetailsContextMapper);
             }
+            auth.userDetailsService(securityService);
+            String jwtKey = settingsService.getJWTKey();
+            if (StringUtils.isBlank(jwtKey)) {
+                LoggerFactory.getLogger(GlobalSecurityConfig.class).warn("Generating new jwt key");
+                jwtKey = JWTSecurityService.generateKey();
+                settingsService.setJWTKey(jwtKey);
+                settingsService.save();
+            }
+            auth.authenticationProvider(new JWTAuthenticationProvider(jwtKey));
         }
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                .addFilter(new WebAsyncManagerIntegrationFilter())
-                .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
-                .securityMatchers((matchers) -> matchers
-                        .requestMatchers(
-                                antMatcher("/ext/**")))
-                    .csrf()
-                    .requireCsrfProtectionMatcher(csrfSecurityRequestMatcher)
-                .and().headers()
-                    .frameOptions().sameOrigin()
-                // .and().authorizeHttpRequests((authz) -> authz
-                //     .requestMatchers(
-                //         antMatcher("/ext/stream/**"),
-                //         antMatcher("/ext/coverArt*"),
-                //         antMatcher("/ext/share/**"),
-                //         antMatcher("/ext/hls/**"))
-                //         .hasAnyRole("TEMP", "USER")
-                //         .anyRequest()
-                //         .authenticated())
-                .and().authorizeRequests()
-                    .antMatchers("/ext/stream/**", "/ext/coverArt*", "/ext/share/**", "/ext/hls/**")
-                    .hasAnyRole("TEMP", "USER")
-                .and().sessionManagement((sessions) -> sessions
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling()
-                .and().securityContext()
-                .and().requestCache()
-                .and().anonymous()
-                .and().servletApi();
+        @Bean
+        public AuthenticationManager authenticationManager(
+                AuthenticationConfiguration authenticationConfiguration) throws Exception {
+            return authenticationConfiguration.getAuthenticationManager();
         }
     }
 
-    @Configuration
+    @EnableWebSecurity
+    @Order(1)
+    public class ExtSecurityConfig {
+
+        @Bean
+        public JWTRequestParameterProcessingFilter jwtRPPFilter(
+                AuthenticationManager authenticationManager) {
+            return new JWTRequestParameterProcessingFilter(authenticationManager, FAILURE_URL);
+        }
+
+        @Bean
+        public SecurityFilterChain extSecurityFilterChain(
+                HttpSecurity http,
+                JWTRequestParameterProcessingFilter jwtRPPFilter,
+                CsrfSecurityRequestMatcher csrfMatcher) throws Exception {
+
+            http
+                    .addFilter(new WebAsyncManagerIntegrationFilter())
+                    .addFilterBefore(jwtRPPFilter, UsernamePasswordAuthenticationFilter.class)
+                    .securityMatchers((matchers) -> matchers.requestMatchers(antMatcher("/ext/**")))
+                    .csrf(config -> config.requireCsrfProtectionMatcher(csrfMatcher))
+                    .headers(headers -> headers.frameOptions(options -> options.sameOrigin()))
+                    .authorizeHttpRequests((authz) -> authz.requestMatchers(
+                            antMatcher("/ext/stream/**"),
+                            antMatcher("/ext/coverArt*"),
+                            antMatcher("/ext/share/**"),
+                            antMatcher("/ext/hls/**"))
+                                .hasAnyRole("TEMP", "USER")
+                                .anyRequest()
+                                .authenticated())
+                    .sessionManagement((sessions) -> sessions
+                            .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                    .exceptionHandling(Customizer.withDefaults())
+                    .securityContext(Customizer.withDefaults())
+                    .requestCache(Customizer.withDefaults())
+                    .anonymous(Customizer.withDefaults())
+                    .servletApi(Customizer.withDefaults());
+            return http.build();
+        }
+    }
+
+    @EnableWebSecurity
     @Order(2)
-    public static class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
+    public class SecurityConfig  {
 
-        private static final Logger LOG = LoggerFactory.getLogger(WebSecurityConfiguration.class);
+        @Bean
+        public RESTRequestParameterProcessingFilter restRPPFilter(
+                SecurityService securityService,
+                AuthenticationManager authenticationManager,
+                ApplicationEventPublisher eventPublisher) {
+            RESTRequestParameterProcessingFilter restRPPFilter =
+                    new RESTRequestParameterProcessingFilter();
+            restRPPFilter.setAuthenticationManager(authenticationManager);
+            restRPPFilter.setSecurityService(securityService);
+            restRPPFilter.setEventPublisher(eventPublisher);
+            return restRPPFilter;
+        }
 
-        private final CsrfSecurityRequestMatcher csrfSecurityRequestMatcher;
-        private final ApplicationEventPublisher eventPublisher;
-        private final Random random = new SecureRandom();
-        private final SecurityService securityService;
+        @Bean
+        public RememberMeKeyGenerator rememberMeKeyGenerator(SettingsService settingsService) {
+            return new RememberMeKeyGenerator(settingsService);
+        }
+
+        @Bean
+        public SecurityFilterChain securityFilterChain(
+                HttpSecurity http,
+                RESTRequestParameterProcessingFilter restRPPFilter,
+                RememberMeKeyGenerator keyGenerator,
+                CsrfSecurityRequestMatcher csrfMatcher) throws Exception {
+
+            http
+                    .addFilterBefore(restRPPFilter, UsernamePasswordAuthenticationFilter.class)
+                    .csrf(config -> config.requireCsrfProtectionMatcher(csrfMatcher))
+                    .headers(config -> config.frameOptions(opts -> opts.sameOrigin()))
+                    .authorizeHttpRequests(config -> config
+                        .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR)
+                            .permitAll()
+                        .requestMatchers(
+                                antMatcher("/recover*"),
+                                antMatcher("/accessDenied*"),
+                                antMatcher("/style/**"),
+                                antMatcher("/icons/**"),
+                                antMatcher("/flash/**"),
+                                antMatcher("/script/**"),
+                                antMatcher("/login"),
+                                antMatcher("/login.view"),
+                                antMatcher("/error"))
+                            .permitAll()
+                        .requestMatchers(
+                                antMatcher("/personalSettings*"),
+                                antMatcher("/passwordSettings*"),
+                                antMatcher("/playerSettings*"),
+                                antMatcher("/shareSettings*"),
+                                antMatcher("/passwordSettings*"))
+                            .hasRole("SETTINGS")
+                        .requestMatchers(
+                                antMatcher("/generalSettings*"),
+                                antMatcher("/advancedSettings*"),
+                                antMatcher("/userSettings*"),
+                                antMatcher("/internalhelp*"),
+                                antMatcher("/musicFolderSettings*"),
+                                antMatcher("/databaseSettings*"),
+                                antMatcher("/transcodeSettings*"),
+                                antMatcher("/rest/startScan*"))
+                            .hasRole("ADMIN")
+                        .requestMatchers(
+                                antMatcher("/deletePlaylist*"),
+                                antMatcher("/savePlaylist*"))
+                            .hasRole("PLAYLIST")
+                        .requestMatchers(
+                                antMatcher("/download*"))
+                            .hasRole("DOWNLOAD")
+                        .requestMatchers(
+                                antMatcher("/upload*"))
+                            .hasRole("UPLOAD")
+                        .requestMatchers(
+                                antMatcher("/createShare*"))
+                            .hasRole("SHARE")
+                        .requestMatchers(
+                                antMatcher("/changeCoverArt*"),
+                                antMatcher("/editTags*"))
+                            .hasRole("COVERART")
+                        .requestMatchers(
+                                antMatcher("/setMusicFileInfo*"))
+                            .hasRole("COMMENT")
+                        .requestMatchers(
+                                antMatcher("/podcastReceiverAdmin*"))
+                            .hasRole("PODCAST")
+                        .requestMatchers(
+                                antMatcher("/**"))
+                            .hasRole("USER")
+                        .anyRequest()
+                            .authenticated())
+                    .formLogin(config -> config
+                        .loginPage("/login").permitAll()
+                        .defaultSuccessUrl("/index", true)
+                        .failureUrl(FAILURE_URL)
+                        .usernameParameter(Attributes.Request.J_USERNAME.value())
+                        .passwordParameter(Attributes.Request.J_PASSWORD.value()))
+                    .logout(config -> config
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
+                        .logoutSuccessUrl("/login?logout"))
+                    .rememberMe(config -> config.key(keyGenerator.get()));
+            return http.build();
+        }
+    }
+
+    public static class RememberMeKeyGenerator {
+
+        private static final Logger LOG = LoggerFactory.getLogger(SecurityConfig.class);
         private final SettingsService settingsService;
-
-        public WebSecurityConfiguration(CsrfSecurityRequestMatcher csrfSecurityRequestMatcher,
-                ApplicationEventPublisher eventPublisher, SecurityService securityService,
-                SettingsService settingsService) {
+        private final Random random = new SecureRandom();
+        
+        public RememberMeKeyGenerator(SettingsService settingsService) {
             super();
-            this.csrfSecurityRequestMatcher = csrfSecurityRequestMatcher;
-            this.eventPublisher = eventPublisher;
-            this.securityService = securityService;
             this.settingsService = settingsService;
         }
 
@@ -230,14 +294,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
             return new String(array, StandardCharsets.UTF_8);
         }
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-
-            RESTRequestParameterProcessingFilter restAuthenticationFilter = new RESTRequestParameterProcessingFilter();
-            restAuthenticationFilter.setAuthenticationManager(authenticationManagerBean());
-            restAuthenticationFilter.setSecurityService(securityService);
-            restAuthenticationFilter.setEventPublisher(eventPublisher);
-            http = http.addFilterBefore(restAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        public String get() {
 
             // Try to load the 'remember me' key.
             //
@@ -270,80 +327,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
                     LOG.info("Using a fixed 'remember me' key from system properties, this is insecure.");
                 }
             }
-
-            http
-                .csrf()
-                    .requireCsrfProtectionMatcher(csrfSecurityRequestMatcher)
-                .and().headers()
-                    .frameOptions().sameOrigin()
-                .and().authorizeHttpRequests()
-                    .requestMatchers(
-                            antMatcher("/recover*"),
-                            antMatcher("/accessDenied*"),
-                            antMatcher("/style/**"),
-                            antMatcher("/icons/**"),
-                            antMatcher("/flash/**"),
-                            antMatcher("/script/**"),
-                            antMatcher("/login"),
-                            antMatcher("/error"))
-                        .permitAll()
-                    .requestMatchers(
-                            antMatcher("/personalSettings*"),
-                            antMatcher("/passwordSettings*"),
-                            antMatcher("/playerSettings*"),
-                            antMatcher("/shareSettings*"),
-                            antMatcher("/passwordSettings*"))
-                        .hasRole("SETTINGS")
-                    .requestMatchers(
-                            antMatcher("/generalSettings*"),
-                            antMatcher("/advancedSettings*"),
-                            antMatcher("/userSettings*"),
-                            antMatcher("/internalhelp*"),
-                            antMatcher("/musicFolderSettings*"),
-                            antMatcher("/databaseSettings*"),
-                            antMatcher("/transcodeSettings*"),
-                            antMatcher("/rest/startScan*"))
-                        .hasRole("ADMIN")
-                    .requestMatchers(
-                            antMatcher("/deletePlaylist*"),
-                            antMatcher("/savePlaylist*"))
-                        .hasRole("PLAYLIST")
-                    .requestMatchers(
-                            antMatcher("/download*"))
-                        .hasRole("DOWNLOAD")
-                    .requestMatchers(
-                            antMatcher("/upload*"))
-                        .hasRole("UPLOAD")
-                    .requestMatchers(
-                            antMatcher("/createShare*"))
-                        .hasRole("SHARE")
-                    .requestMatchers(
-                            antMatcher("/changeCoverArt*"),
-                            antMatcher("/editTags*"))
-                        .hasRole("COVERART")
-                    .requestMatchers(
-                            antMatcher("/setMusicFileInfo*"))
-                        .hasRole("COMMENT")
-                    .requestMatchers(
-                            antMatcher("/podcastReceiverAdmin*"))
-                        .hasRole("PODCAST")
-                    .requestMatchers(
-                            antMatcher("/**"))
-                        .hasRole("USER")
-                    .anyRequest()
-                        .authenticated()
-                .and().formLogin()
-                    .loginPage("/login").permitAll()
-                    .defaultSuccessUrl("/index", true)
-                    .failureUrl(FAILURE_URL)
-                    .usernameParameter(Attributes.Request.J_USERNAME.value())
-                    .passwordParameter(Attributes.Request.J_PASSWORD.value())
-                .and().logout()
-                    // see http://docs.spring.io/spring-security/site/docs/3.2.4.RELEASE/reference/htmlsingle/#csrf-logout
-                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
-                    .logoutSuccessUrl("/login?logout")
-                .and().rememberMe()
-                    .key(rememberMeKey);
+            return rememberMeKey;
         }
     }
 }

@@ -21,10 +21,9 @@ package com.tesshu.jpsonic.controller;
 
 import static com.tesshu.jpsonic.util.PlayerUtils.now;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.SecurityService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.ServletRequestUtils;
 

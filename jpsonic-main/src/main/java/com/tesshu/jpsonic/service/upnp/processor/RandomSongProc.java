@@ -26,9 +26,8 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
-import com.tesshu.jpsonic.service.upnp.ProcId;
-import org.fourthline.cling.support.model.BrowseResult;
-import org.fourthline.cling.support.model.DIDLContent;
+import org.jupnp.support.model.BrowseResult;
+import org.jupnp.support.model.DIDLContent;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -63,7 +62,7 @@ public class RandomSongProc extends MediaFileProc implements CountLimitProc {
         int offset = (int) firstResult;
         int max = getDirectChildrenCount();
         int count = toCount(firstResult, maxResults, max);
-        return searchService.getRandomSongs((int) count, (int) offset, max, util.getGuestFolders());
+        return searchService.getRandomSongs(count, offset, max, util.getGuestFolders());
     }
 
     @Override

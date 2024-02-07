@@ -45,8 +45,6 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.StaticsDao;
 import com.tesshu.jpsonic.dao.base.DaoHelper;
@@ -62,6 +60,7 @@ import com.tesshu.jpsonic.spring.DatabaseConfiguration.ProfileNameConstants;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.LegacyMap;
 import com.tesshu.jpsonic.util.StringUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
@@ -215,12 +214,8 @@ public class InternalHelpController {
      *
      * See: https://superuser.com/questions/999133/differences-between-en-us-utf8-and-en-us-utf-8
      */
-    private boolean doesLocaleSupportUtf8(String locale) {
-        if (locale == null) {
-            return false;
-        } else {
-            return StringUtils.containsIgnoreCase(locale.replaceAll("\\W", ""), "utf8");
-        }
+    boolean doesLocaleSupportUtf8(String locale) {
+        return locale != null && StringUtils.containsIgnoreCase(locale.replaceAll("\\W", ""), "utf8");
     }
 
     private void gatherLocaleInfo(Map<String, Object> map) {

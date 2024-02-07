@@ -49,18 +49,19 @@ import com.tesshu.jpsonic.service.SearchService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.util.LegacyMap;
-import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.container.Container;
-import org.fourthline.cling.support.model.container.MusicArtist;
-import org.fourthline.cling.support.model.item.MusicTrack;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.jupnp.support.model.DIDLContent;
+import org.jupnp.support.model.container.Container;
+import org.jupnp.support.model.container.MusicArtist;
+import org.jupnp.support.model.item.MusicTrack;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @SuppressWarnings("PMD.TooManyStaticImports")
 class RandomSongByArtistProcTest {
 
+    @SuppressWarnings("PMD.SingularField") // pmd/pmd#4616
     @Nested
     class UnitTest {
 

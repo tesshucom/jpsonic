@@ -21,13 +21,12 @@
 
 package com.tesshu.jpsonic.command;
 
-import javax.validation.constraints.NotNull;
-
 import com.tesshu.jpsonic.spring.DataSourceConfigType;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 public class DatabaseSettingsCommand extends SettingsPageCommons {
 
-    @NotNull
+    @NonNull
     private DataSourceConfigType configType;
 
     private String embedDriver;

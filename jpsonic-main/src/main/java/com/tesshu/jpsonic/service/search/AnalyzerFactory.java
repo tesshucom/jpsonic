@@ -29,6 +29,7 @@ import java.io.Reader;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.tesshu.jpsonic.domain.IndexScheme;
 import com.tesshu.jpsonic.service.SettingsService;
@@ -82,7 +83,7 @@ public final class AnalyzerFactory {
     private static final String FILTER_ATTR_ALL = "all";
 
     private final SettingsService settingsService;
-    private final Object analyzerLock = new Object();
+    private final ReentrantLock analyzerLock = new ReentrantLock();
     private Analyzer analyzer;
 
     public AnalyzerFactory(SettingsService settingsService) {
@@ -170,8 +171,8 @@ public final class AnalyzerFactory {
      */
     private Analyzer createArtistReadingAnalyzer() throws IOException {
         return new StopwordAnalyzerBase() {
-            CharArraySet stopWords4Artist = loadWords(STOP_WARDS_FOR_ARTIST);
-            Set<String> stopTagset = loadStopTags();
+            private final CharArraySet stopWords4Artist = loadWords(STOP_WARDS_FOR_ARTIST);
+            private final Set<String> stopTagset = loadStopTags();
 
             @SuppressWarnings("PMD.CloseResource") // False positive. Stream is reused by ReuseStrategy.
             @Override
@@ -199,8 +200,8 @@ public final class AnalyzerFactory {
      */
     private Analyzer createRomanizedAnalyzer() throws IOException {
         return new StopwordAnalyzerBase() {
-            Set<String> stopTagset = loadStopTags();
-            CharArraySet stopWords4Artist = loadWords(STOP_WARDS_FOR_ARTIST);
+            private final Set<String> stopTagset = loadStopTags();
+            private final CharArraySet stopWords4Artist = loadWords(STOP_WARDS_FOR_ARTIST);
 
             @SuppressWarnings("PMD.CloseResource") // False positive. Stream is reused by ReuseStrategy.
             @Override
@@ -263,7 +264,8 @@ public final class AnalyzerFactory {
      */
     @SuppressWarnings("PMD.CloseResource") // False positive. Stream is reused by ReuseStrategy.
     public Analyzer getAnalyzer() {
-        synchronized (analyzerLock) {
+        analyzerLock.lock();
+        try {
             if (isEmpty(analyzer)) {
                 try {
 
@@ -293,6 +295,8 @@ public final class AnalyzerFactory {
                 }
             }
             return analyzer;
+        } finally {
+            analyzerLock.unlock();
         }
     }
 }

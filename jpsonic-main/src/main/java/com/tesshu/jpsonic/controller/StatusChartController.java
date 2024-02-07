@@ -30,11 +30,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.tesshu.jpsonic.domain.TransferStatus;
 import com.tesshu.jpsonic.service.StatusService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
@@ -50,6 +49,8 @@ import org.jfree.data.time.MovingAverage;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.time.TimeSeriesDataItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -65,9 +66,10 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/statusChart.view")
 public class StatusChartController extends AbstractChartController {
 
+    private static final Logger LOG = LoggerFactory.getLogger(StatusChartController.class);
+
     public static final int IMAGE_WIDTH = 240;
     public static final int IMAGE_HEIGHT = 150;
-    public static final Object LOCK = new Object();
 
     private final StatusService statusService;
     private final FontLoader fontLoader;
@@ -78,13 +80,7 @@ public class StatusChartController extends AbstractChartController {
         this.fontLoader = fontLoader;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Millisecond, Date) Not reusable
-    @Override
-    @GetMapping
-    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String type = request.getParameter(Attributes.Request.TYPE.value());
-        int index = ServletRequestUtils.getIntParameter(request, Attributes.Request.INDEX.value(), 0);
-
+    private List<TransferStatus> getStatuses(String type) {
         List<TransferStatus> statuses = Collections.emptyList();
         if ("stream".equals(type)) {
             statuses = statusService.getAllStreamStatuses();
@@ -93,7 +89,17 @@ public class StatusChartController extends AbstractChartController {
         } else if ("upload".equals(type)) {
             statuses = statusService.getAllUploadStatuses();
         }
+        return statuses;
+    }
 
+    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UselessParentheses" })
+    @Override
+    @GetMapping
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String type = request.getParameter(Attributes.Request.TYPE.value());
+        List<TransferStatus> statuses = getStatuses(type);
+
+        int index = ServletRequestUtils.getIntParameter(request, Attributes.Request.INDEX.value(), 0);
         if (index < 0 || index >= statuses.size()) {
             return null;
         }
@@ -185,8 +191,12 @@ public class StatusChartController extends AbstractChartController {
         rangeAxis.setTickMarkPaint(fgColor);
         rangeAxis.setAxisLinePaint(fgColor);
 
-        synchronized (LOCK) {
+        try {
             ChartUtils.writeChartAsPNG(response.getOutputStream(), chart, IMAGE_WIDTH, IMAGE_HEIGHT);
+        } catch (IOException e) {
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Client may have closed the Stream.", e);
+            }
         }
 
         return null;

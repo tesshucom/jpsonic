@@ -43,11 +43,11 @@ import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.TranscodingService;
-import com.tesshu.jpsonic.service.upnp.composite.ArtistOrAlbum;
-import com.tesshu.jpsonic.service.upnp.composite.FolderOrArtist;
-import org.fourthline.cling.support.model.DIDLContent;
+import com.tesshu.jpsonic.service.upnp.processor.composite.ArtistOrAlbum;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrArtist;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.jupnp.support.model.DIDLContent;
 import org.mockito.Mockito;
 
 @SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })

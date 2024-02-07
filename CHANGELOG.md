@@ -3,7 +3,39 @@
 # jpsonic/jpsonic
 # -->
 
-## v113.0.0
+
+## v114.0.0
+
+#### Enhancement
+
+  * Migrate cling to jupnp ([#2541](https://github.com/tesshucom/jpsonic/issues/2541))
+  * Migrate to Virtual Thread ([#2558](https://github.com/tesshucom/jpsonic/issues/2558))
+  * Use virtual threads with IndexSearcher ([#2559](https://github.com/tesshucom/jpsonic/issues/2559))
+  * Organize UPnP Executors ([#2560](https://github.com/tesshucom/jpsonic/issues/2560))
+
+#### Maintenance
+
+  * Bump spring-boot 2.7.18 to 3.2.1 ([#2531](https://github.com/tesshucom/jpsonic/issues/2531))
+  * Fix the problem of not being able to connect with wmp12  ([#2550](https://github.com/tesshucom/jpsonic/issues/2550))
+  * Migrate to ReentrantLock ([#2564](https://github.com/tesshucom/jpsonic/issues/2564))
+  * Fix that coverArt cache creation can be processed in parallel ([#2567](https://github.com/tesshucom/jpsonic/issues/2567))
+  * Add JMX Options to production.synology.yml ([#2565](https://github.com/tesshucom/jpsonic/issues/2565))
+  * Migrate Upload Features ([#2573](https://github.com/tesshucom/jpsonic/issues/2573))
+  * Fix to enable deployment to App Server rather than just standalone ([#2574](https://github.com/tesshucom/jpsonic/issues/2574))
+  * Fix initialization of AuthenticationManager ([#2576](https://github.com/tesshucom/jpsonic/issues/2576))
+  * Migrate to OncePerRequestFilter ([#2577](https://github.com/tesshucom/jpsonic/issues/2577))
+  * Change default params of UPnP server ([#2578](https://github.com/tesshucom/jpsonic/issues/2578))
+
+#### Update Libs
+
+  - [v113.0.1](https://github.com/tesshucom/jpsonic/issues/2511)
+  - [v113.0.2](https://github.com/tesshucom/jpsonic/issues/2532)
+  - [v113.0.2](https://github.com/tesshucom/jpsonic/issues/2543)
+  - [v114.0.0.alpha.1.2](https://github.com/tesshucom/jpsonic/issues/2561)
+  - [v114.0.0.alpha.2.2](https://github.com/tesshucom/jpsonic/issues/2572)
+
+<details>
+<summary>v113.0.0</summary>
 
 #### Bug fixes
 
@@ -61,6 +93,7 @@
   - [v112.2.13](https://github.com/tesshucom/jpsonic/issues/2484)
   - [v112.2.14](https://github.com/tesshucom/jpsonic/issues/2493)
 
+</details>
 <details>
 <summary>v112.2.0</summary>
 

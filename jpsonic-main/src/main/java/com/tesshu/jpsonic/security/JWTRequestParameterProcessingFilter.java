@@ -24,16 +24,11 @@ package com.tesshu.jpsonic.security;
 import java.io.IOException;
 import java.util.Optional;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.tesshu.jpsonic.service.JWTSecurityService;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -47,8 +42,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.filter.OncePerRequestFilter;
 
-public class JWTRequestParameterProcessingFilter implements Filter {
+public class JWTRequestParameterProcessingFilter extends OncePerRequestFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(JWTRequestParameterProcessingFilter.class);
 
@@ -56,6 +52,7 @@ public class JWTRequestParameterProcessingFilter implements Filter {
     private final AuthenticationFailureHandler failureHandler;
 
     protected JWTRequestParameterProcessingFilter(AuthenticationManager authenticationManager, String failureUrl) {
+        super();
         this.authenticationManager = authenticationManager;
         failureHandler = new SimpleUrlAuthenticationFailureHandler(failureUrl);
     }
@@ -78,16 +75,10 @@ public class JWTRequestParameterProcessingFilter implements Filter {
     }
 
     @Override
-    public void init(FilterConfig filterConfig) {
-        // Don't remove this method.
-    }
-
-    @Override
-    public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
-            throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) req;
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         if (!findToken(request).isPresent()) {
-            chain.doFilter(req, resp);
+            filterChain.doFilter(request, response);
             return;
         }
 
@@ -95,7 +86,6 @@ public class JWTRequestParameterProcessingFilter implements Filter {
             LOG.debug("Request is to process authentication");
         }
 
-        HttpServletResponse response = (HttpServletResponse) resp;
         Authentication authResult;
         try {
             authResult = attemptAuthentication(request, response);
@@ -134,7 +124,7 @@ public class JWTRequestParameterProcessingFilter implements Filter {
 
         SecurityContextHolder.getContext().setAuthentication(authResult);
 
-        chain.doFilter(request, response);
+        filterChain.doFilter(request, response);
     }
 
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
@@ -149,10 +139,4 @@ public class JWTRequestParameterProcessingFilter implements Filter {
 
         failureHandler.onAuthenticationFailure(request, response, failed);
     }
-
-    @Override
-    public void destroy() {
-        // Don't remove this method.
-    }
-
 }

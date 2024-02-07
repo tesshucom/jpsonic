@@ -26,7 +26,7 @@ package com.tesshu.jpsonic.controller;
  * The immediate purpose is to port the legacy. It is useful for preventing spelling mistakes, understanding the
  * hierarchical structure, identifying where to use it, and considering better management methods. #820
  */
-public class Attributes {
+public final class Attributes {
 
     public enum Model {
 
@@ -122,15 +122,15 @@ public class Attributes {
         HLS_COMMAND(NameConstants.HLS_COMMAND), HOMEPAGE_URL(NameConstants.HOMEPAGE_URL), I(NameConstants.I),
         ID(NameConstants.ID), IF_MODIFIED_SINCE(NameConstants.IF_MODIFIED_SINCE),
         INCLUDE_EPISODES(NameConstants.INCLUDE_EPISODES), INCLUDE_NOT_PRESENT(NameConstants.INCLUDE_NOT_PRESENT),
-        INDEX(NameConstants.INDEX), J_PASSWORD(NameConstants.J_PASSWORD), J_USERNAME(NameConstants.J_USERNAME),
-        LDAP_AUTHENTICATED(NameConstants.LDAP_AUTHENTICATED), LIST_OFFSET(NameConstants.LIST_OFFSET),
-        LIST_TYPE(NameConstants.LIST_TYPE), LOGOUT(NameConstants.LOGOUT), MAX_BIT_RATE(NameConstants.MAX_BIT_RATE),
-        MUSIC_FOLDER_ID(NameConstants.MUSIC_FOLDER_ID), NAME(NameConstants.NAME), OFFSET(NameConstants.OFFSET),
-        OFFSET_SECONDS(NameConstants.OFFSET_SECONDS), P(NameConstants.P), PASSWORD(NameConstants.PASSWORD),
-        PATH(NameConstants.PATH), PLAYER(NameConstants.PLAYER), PLAYLIST(NameConstants.PLAYLIST),
-        PLAYLIST_ID(NameConstants.PLAYLIST_ID), PODCAST_ROLE(NameConstants.PODCAST_ROLE),
-        POSITION(NameConstants.POSITION), PUBLIC(NameConstants.PUBLIC), QUERY(NameConstants.QUERY),
-        RATING(NameConstants.RATING), REFRESH(NameConstants.REFRESH), S(NameConstants.S),
+        INDEX(NameConstants.INDEX), IS_REST(NameConstants.IS_REST), J_PASSWORD(NameConstants.J_PASSWORD),
+        J_USERNAME(NameConstants.J_USERNAME), LDAP_AUTHENTICATED(NameConstants.LDAP_AUTHENTICATED),
+        LIST_OFFSET(NameConstants.LIST_OFFSET), LIST_TYPE(NameConstants.LIST_TYPE), LOGOUT(NameConstants.LOGOUT),
+        MAX_BIT_RATE(NameConstants.MAX_BIT_RATE), MUSIC_FOLDER_ID(NameConstants.MUSIC_FOLDER_ID),
+        NAME(NameConstants.NAME), OFFSET(NameConstants.OFFSET), OFFSET_SECONDS(NameConstants.OFFSET_SECONDS),
+        P(NameConstants.P), PASSWORD(NameConstants.PASSWORD), PATH(NameConstants.PATH), PLAYER(NameConstants.PLAYER),
+        PLAYLIST(NameConstants.PLAYLIST), PLAYLIST_ID(NameConstants.PLAYLIST_ID),
+        PODCAST_ROLE(NameConstants.PODCAST_ROLE), POSITION(NameConstants.POSITION), PUBLIC(NameConstants.PUBLIC),
+        QUERY(NameConstants.QUERY), RATING(NameConstants.RATING), REFRESH(NameConstants.REFRESH), S(NameConstants.S),
         SETTINGS_ROLE(NameConstants.SETTINGS_ROLE), SHARE_ROLE(NameConstants.SHARE_ROLE),
         SHOW_OUTLINE_HELP(NameConstants.SHOW_OUTLINE_HELP), SIZE(NameConstants.SIZE), SONG(NameConstants.SONG),
         SONG_COUNT(NameConstants.SONG_COUNT), SONG_ID(NameConstants.SONG_ID),
@@ -155,7 +155,7 @@ public class Attributes {
             return v;
         }
 
-        public static class NameConstants { // Used from annotation
+        public static final class NameConstants { // Used from annotation
             public static final String ACTION = "action";
             public static final String ADD = "add";
             public static final String ADD_TO_PLAYLIST = "addToPlaylist";
@@ -217,6 +217,7 @@ public class Attributes {
             public static final String ERROR = "error";
             public static final String EXPIREIN = "expireIn";
             public static final String EXPIRES = "expires";
+            public static final String EXEPTION = "exception";
             public static final String EXPUNGE = "expunge";
             public static final String F = "f";
             public static final String FORCE_CUSTOM = "forceCustom";
@@ -235,6 +236,7 @@ public class Attributes {
             public static final String INCLUDE_EPISODES = "includeEpisodes";
             public static final String INCLUDE_NOT_PRESENT = "includeNotPresent";
             public static final String INDEX = "index";
+            public static final String IS_REST = "isRest";
             public static final String J_PASSWORD = "j_password";
             public static final String J_USERNAME = "j_username";
             public static final String LAST_PLAYED_COMP = "lastPlayedComp";

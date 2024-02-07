@@ -37,23 +37,23 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.PostConstruct;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.tesshu.jpsonic.domain.Version;
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.ConnectTimeoutException;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.ConnectTimeoutException;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.BasicHttpClientResponseHandler;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.util.Timeout;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -80,10 +80,10 @@ public class VersionService {
      */
     private static final long LAST_VERSION_FETCH_INTERVAL = 7L * 24L * 3600L * 1000L; // One week
 
-    private final Object latestLock = new Object();
-    private final Object localVersionLock = new Object();
-    private final Object localBuildDateLock = new Object();
-    private final Object localBuildNumberLock = new Object();
+    private final ReentrantLock latestLock = new ReentrantLock();
+    private final ReentrantLock localVersionLock = new ReentrantLock();
+    private final ReentrantLock localBuildDateLock = new ReentrantLock();
+    private final ReentrantLock localBuildNumberLock = new ReentrantLock();
 
     private Version latestFinalVersion;
     private Version latestBetaVersion;
@@ -110,11 +110,14 @@ public class VersionService {
      * @return The version number for the locally installed Jpsonic version.
      */
     public Version getLocalVersion() {
-        synchronized (localVersionLock) {
+        localVersionLock.lock();
+        try {
             if (localVersion == null) {
                 localVersion = new Version(readLineFromResource("/version.txt"));
             }
             return localVersion;
+        } finally {
+            localVersionLock.unlock();
         }
     }
 
@@ -147,13 +150,12 @@ public class VersionService {
      *         resolved.
      */
     public LocalDate getLocalBuildDate() {
-        synchronized (localBuildDateLock) {
+        localBuildDateLock.lock();
+        try {
             if (localBuildDate == null) {
                 try {
                     String date = readLineFromResource("/build_date.txt");
-                    synchronized (DATE_FORMAT) {
-                        localBuildDate = parseLocalBuildDate(date);
-                    }
+                    localBuildDate = parseLocalBuildDate(date);
                 } catch (DateTimeParseException e) {
                     if (LOG.isWarnEnabled()) {
                         LOG.warn("Failed to resolve local Jpsonic build date.", e);
@@ -161,14 +163,14 @@ public class VersionService {
                 }
             }
             return localBuildDate;
+        } finally {
+            localBuildDateLock.unlock();
         }
     }
 
     @Nullable
     LocalDate parseLocalBuildDate(String date) {
-        synchronized (DATE_FORMAT) {
-            return LocalDate.parse(date, DATE_FORMAT.get());
-        }
+        return LocalDate.parse(date, DATE_FORMAT.get());
     }
 
     /**
@@ -178,11 +180,14 @@ public class VersionService {
      *         can't be resolved.
      */
     public String getLocalBuildNumber() {
-        synchronized (localBuildNumberLock) {
+        localBuildNumberLock.lock();
+        try {
             if (localBuildNumber == null) {
                 localBuildNumber = readLineFromResource("/build_number.txt");
             }
             return localBuildNumber;
+        } finally {
+            localBuildNumberLock.unlock();
         }
     }
 
@@ -262,19 +267,19 @@ public class VersionService {
      */
     private void readLatestVersion() throws IOException {
 
-        synchronized (latestLock) {
+        latestLock.lock();
+        try {
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Starting to read latest version");
             }
-            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(10_000).setSocketTimeout(10_000)
-                    .build();
+            RequestConfig requestConfig = RequestConfig.custom().setConnectionRequestTimeout(Timeout.ofSeconds(10))
+                    .setResponseTimeout(Timeout.ofSeconds(10)).build();
             HttpGet method = new HttpGet(URI.create(VERSION_URL + "?v=" + getLocalVersion()));
             method.setConfig(requestConfig);
             String content;
             try (CloseableHttpClient client = HttpClients.createDefault()) {
-                ResponseHandler<String> responseHandler = new BasicResponseHandler();
-                content = client.execute(method, responseHandler);
+                content = client.execute(method, new BasicHttpClientResponseHandler());
             } catch (ConnectTimeoutException e) {
                 if (LOG.isWarnEnabled()) {
                     LOG.warn("Got a timeout when trying to reach {}", VERSION_URL);
@@ -310,6 +315,8 @@ public class VersionService {
 
             latestBetaVersion = betaV.get();
             latestFinalVersion = finalV.get();
+        } finally {
+            latestLock.unlock();
         }
     }
 }

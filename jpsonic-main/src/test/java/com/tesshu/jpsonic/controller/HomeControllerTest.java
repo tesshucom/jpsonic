@@ -95,10 +95,7 @@ class HomeControllerTest {
     @Nested
     class GetTest {
 
-        private SettingsService settingsService;
-        private SecurityService securityService;
         private MusicFolderService musicFolderService;
-        private ScannerStateService scannerStateService;
         private RatingService ratingService;
         private MediaFileService mediaFileService;
         private SearchService searchService;
@@ -107,14 +104,14 @@ class HomeControllerTest {
 
         @BeforeEach
         public void setup() throws ExecutionException {
-            settingsService = mock(SettingsService.class);
-            securityService = mock(SecurityService.class);
             musicFolderService = mock(MusicFolderService.class);
-            scannerStateService = mock(ScannerStateService.class);
             ratingService = mock(RatingService.class);
             mediaFileService = mock(MediaFileService.class);
             searchService = mock(SearchService.class);
             musicIndexService = mock(MusicIndexService.class);
+            SettingsService settingsService = mock(SettingsService.class);
+            SecurityService securityService = mock(SecurityService.class);
+            ScannerStateService scannerStateService = mock(ScannerStateService.class);
             controller = new HomeController(settingsService, securityService, musicFolderService, scannerStateService,
                     ratingService, mediaFileService, searchService, musicIndexService);
         }

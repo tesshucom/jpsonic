@@ -25,9 +25,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PlayQueue;
@@ -37,6 +34,8 @@ import com.tesshu.jpsonic.service.NetworkUtils;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.util.StringUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -90,10 +89,7 @@ public class M3UController {
             out.print("\ufeff");
         }
         out.println("#EXTM3U");
-        List<MediaFile> result;
-        synchronized (player.getPlayQueue()) {
-            result = player.getPlayQueue().getFiles();
-        }
+        List<MediaFile> result = player.getPlayQueue().getFiles();
         for (MediaFile mediaFile : result) {
             Integer duration = mediaFile.getDurationSeconds();
             if (duration == null) {

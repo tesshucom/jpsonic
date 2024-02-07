@@ -31,7 +31,7 @@ import java.util.List;
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.MusicFolder;
-import com.tesshu.jpsonic.service.upnp.composite.IndexOrSong;
+import com.tesshu.jpsonic.service.upnp.processor.composite.IndexOrSong;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.Nested;

@@ -28,8 +28,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.tesshu.jpsonic.command.DLNASettingsCommand;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
@@ -42,6 +40,7 @@ import com.tesshu.jpsonic.service.SettingsService;
 import com.tesshu.jpsonic.service.ShareService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UPnPService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -208,10 +207,10 @@ public class DLNASettingsController {
 
         // If some properties are changed, UPnP will be started, stopped and restarted.
         if (isEnabledChanged) {
-            upnpService.setMediaServerEnabled(command.isDlnaEnabled());
+            upnpService.setEnabled(command.isDlnaEnabled());
         } else if (isNameOrUrlChanged && settingsService.isDlnaEnabled()) {
-            upnpService.setMediaServerEnabled(false);
-            upnpService.setMediaServerEnabled(true);
+            upnpService.setEnabled(false);
+            upnpService.setEnabled(true);
         }
 
         // for view page control

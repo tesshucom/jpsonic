@@ -31,13 +31,8 @@ import java.io.OutputStream;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.annotation.Nullable;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.controller.Attributes.Request;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PlayQueue;
 import com.tesshu.jpsonic.domain.Player;
@@ -56,6 +51,11 @@ import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.spring.LoggingExceptionResolver;
 import com.tesshu.jpsonic.util.HttpRange;
 import com.tesshu.jpsonic.util.PlayerUtils;
+import jakarta.annotation.Nullable;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,6 +116,7 @@ public class StreamController {
         }
     }
 
+    @SuppressWarnings("PMD.UnnecessaryBoxing") // false positive
     private static Integer getMaxBitRate(HttpServletRequest request) throws ServletRequestBindingException {
         Integer maxBitRate = getIntParameter(request, Attributes.Request.MAX_BIT_RATE.value());
         if (Integer.valueOf(0).equals(maxBitRate)) {
@@ -279,6 +280,7 @@ public class StreamController {
         }
     }
 
+    @SuppressWarnings("PMD.UnnecessaryBoxing")
     private static void applyContentDuration(HttpServletResponse response, MediaFile file) {
         Integer duration = file.getDurationSeconds();
         if (duration != null) {
@@ -366,7 +368,7 @@ public class StreamController {
 
     private static void writeErrorLog(IOException e, HttpServletRequest req) {
         Throwable cause = e.getCause();
-        if (cause != null && cause instanceof TimeoutException || LoggingExceptionResolver.isSuppressedException(e)) {
+        if (cause instanceof TimeoutException || LoggingExceptionResolver.isSuppressedException(e)) {
             if (LOG.isTraceEnabled()) {
                 LOG.trace(req.getRemoteAddr() + ": Client unexpectedly closed connection while loading "
                         + req.getRemoteAddr() + " (" + PlayerUtils.getAnonymizedURLForRequest(req) + ")", e);
@@ -377,8 +379,7 @@ public class StreamController {
     }
 
     @GetMapping
-    public void handleRequest(HttpServletRequest req, HttpServletResponse res, Boolean isRest)
-            throws ServletRequestBindingException {
+    public void handleRequest(HttpServletRequest req, HttpServletResponse res) throws ServletRequestBindingException {
 
         final Player player = playerService.getPlayer(req, res, false, true);
         final User user = securityService.getUserByName(player.getUsername());
@@ -402,6 +403,7 @@ public class StreamController {
 
         MediaFile file = streamService.getSingleFile(req);
         boolean isSingleFile = file != null;
+        boolean isRest = Boolean.parseBoolean(String.valueOf(req.getAttribute(Request.IS_REST.value())));
         String format = streamService.getFormat(req, player, isRest);
         Integer maxBitRate = getMaxBitRate(req);
 

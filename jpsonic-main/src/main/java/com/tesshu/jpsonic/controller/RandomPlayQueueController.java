@@ -30,9 +30,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.PlayQueue;
 import com.tesshu.jpsonic.domain.Player;
@@ -44,6 +41,8 @@ import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.service.search.IndexManager;
 import com.tesshu.jpsonic.util.LegacyMap;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -107,7 +106,7 @@ public class RandomPlayQueueController {
             throws ServletRequestBindingException {
 
         // Parse request parameters. All of these results are params to criteria.
-        Integer size = sizeParam == null ? Integer.valueOf(24) : sizeParam;
+        Integer size = sizeParam == null ? 24 : sizeParam;
         List<MusicFolder> musicFolders = getMusicFolders(request);
         LastPlayed lastPlayed = getLastPlayed(lastPlayedValue, lastPlayedComp);
         String genre = StringUtils.equalsIgnoreCase(REQUEST_VALUE_ANY, genreParam) ? null : genreParam;

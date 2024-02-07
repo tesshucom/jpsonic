@@ -23,15 +23,6 @@ package com.tesshu.jpsonic.security;
 
 import java.io.IOException;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.JAXBWriter;
 import com.tesshu.jpsonic.controller.SubsonicRESTController;
@@ -39,6 +30,10 @@ import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.Version;
 import com.tesshu.jpsonic.service.SecurityService;
 import com.tesshu.jpsonic.util.StringUtil;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -53,6 +48,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * Performs authentication based on credentials being present in the HTTP request parameters. Also checks API versions
@@ -65,7 +61,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  *
  * @author Sindre Mehus
  */
-public class RESTRequestParameterProcessingFilter implements Filter {
+public class RESTRequestParameterProcessingFilter extends OncePerRequestFilter {
 
     private static final RequestMatcher REQUIRES_AUTHENTICATION_REQUEST_MATCHER = new RegexRequestMatcher("/rest/.+",
             null);
@@ -82,12 +78,13 @@ public class RESTRequestParameterProcessingFilter implements Filter {
     }
 
     public RESTRequestParameterProcessingFilter() {
+        super();
         authenticationDetailsSource = new WebAuthenticationDetailsSource();
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         if (!(request instanceof HttpServletRequest)) {
             throw new ServletException("Can only process HttpServletRequest");
         }
@@ -95,28 +92,25 @@ public class RESTRequestParameterProcessingFilter implements Filter {
             throw new ServletException("Can only process HttpServletResponse");
         }
 
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-
-        if (!requiresAuthentication(httpRequest, httpResponse)) {
-            chain.doFilter(request, response);
+        if (!requiresAuthentication(request, response)) {
+            filterChain.doFilter(request, response);
             return;
         }
 
-        String username = StringUtils.trimToNull(httpRequest.getParameter(Attributes.Request.U.value()));
-        String password = decrypt(StringUtils.trimToNull(httpRequest.getParameter(Attributes.Request.P.value())));
-        String salt = StringUtils.trimToNull(httpRequest.getParameter(Attributes.Request.S.value()));
-        String token = StringUtils.trimToNull(httpRequest.getParameter(Attributes.Request.T.value()));
-        String version = StringUtils.trimToNull(httpRequest.getParameter(Attributes.Request.V.value()));
-        String client = StringUtils.trimToNull(httpRequest.getParameter(Attributes.Request.C.value()));
+        String username = StringUtils.trimToNull(request.getParameter(Attributes.Request.U.value()));
+        String password = decrypt(StringUtils.trimToNull(request.getParameter(Attributes.Request.P.value())));
+        String salt = StringUtils.trimToNull(request.getParameter(Attributes.Request.S.value()));
+        String token = StringUtils.trimToNull(request.getParameter(Attributes.Request.T.value()));
+        String version = StringUtils.trimToNull(request.getParameter(Attributes.Request.V.value()));
+        String client = StringUtils.trimToNull(request.getParameter(Attributes.Request.C.value()));
 
-        SubsonicRESTController.ErrorCode errorCode = getErrorCode(httpRequest, username, password, salt, token, version,
+        SubsonicRESTController.ErrorCode errorCode = getErrorCode(request, username, password, salt, token, version,
                 client);
         if (errorCode == null) {
-            chain.doFilter(request, response);
+            filterChain.doFilter(request, response);
         } else {
             SecurityContextHolder.getContext().setAuthentication(null);
-            sendErrorXml(httpRequest, httpResponse, errorCode);
+            sendErrorXml(request, response, errorCode);
         }
     }
 
@@ -210,16 +204,6 @@ public class RESTRequestParameterProcessingFilter implements Filter {
     private void sendErrorXml(HttpServletRequest request, HttpServletResponse response,
             SubsonicRESTController.ErrorCode errorCode) {
         jaxbWriter.writeErrorResponse(request, response, errorCode, errorCode.getMessage());
-    }
-
-    @Override
-    public void init(FilterConfig filterConfig) {
-        // Don't remove this method.
-    }
-
-    @Override
-    public void destroy() {
-        // Don't remove this method.
     }
 
     public void setAuthenticationManager(AuthenticationManager authenticationManager) {

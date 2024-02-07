@@ -71,7 +71,7 @@ public class MusicIndexServiceImpl implements MusicIndexService {
         indexables.forEach(indexable -> {
             MusicIndex musicIndex = getParser().getIndex(indexable.getMusicIndex());
             if (!iaMap.containsKey(musicIndex)) {
-                iaMap.put(musicIndex, new ArrayList<T>());
+                iaMap.put(musicIndex, new ArrayList<>());
             }
             iaMap.get(musicIndex).add(indexable);
         });
@@ -98,7 +98,7 @@ public class MusicIndexServiceImpl implements MusicIndexService {
         settingsService.getShortcutsAsArray().forEach(shortcuts -> {
             musicFolders.forEach(musicFolder -> {
                 MediaFile shortcut = mediaFileService.getMediaFile(Path.of(musicFolder.getPathString(), shortcuts));
-                if (shortcut != null && mediaFileService.getChildrenOf(shortcut, true, true).size() > 0
+                if (shortcut != null && !mediaFileService.getChildrenOf(shortcut, true, true).isEmpty()
                         && !result.contains(shortcut)) {
                     result.add(shortcut);
                 }
@@ -181,6 +181,7 @@ public class MusicIndexServiceImpl implements MusicIndexService {
                     .findFirst().orElse(MusicIndex.OTHER);
         }
 
+        @SuppressWarnings("PMD.UnusedPrivateMethod") // false positive
         private MusicIndex getIndex(String index) {
             return indexes.stream().filter(musicIndex -> musicIndex.getIndex().equals(index)).findFirst()
                     .orElse(MusicIndex.OTHER);

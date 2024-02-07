@@ -34,9 +34,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import ch.qos.logback.classic.Level;
 import com.tesshu.jpsonic.TestCaseUtils;
 import com.tesshu.jpsonic.dao.TranscodingDao;
@@ -61,6 +58,9 @@ import com.tesshu.jpsonic.service.StreamService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.TranscodingService.Parameters;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -79,7 +79,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.util.NestedServletException;
 
 @SuppressWarnings({ "PMD.JUnitTestsShouldIncludeAssert", "PMD.SignatureDeclareThrowsException",
         "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
@@ -186,7 +185,7 @@ class StreamControllerTest {
         user.setStreamRole(false);
         HttpServletResponse response = mock(MockHttpServletResponse.class);
         Mockito.doThrow(IOException.class).when(response).sendError(Mockito.anyInt(), Mockito.anyString());
-        streamController.handleRequest(new MockHttpServletRequest(), response, null);
+        streamController.handleRequest(new MockHttpServletRequest(), response);
         assertEquals(0, response.getStatus());
         Mockito.verify(streamService, Mockito.never()).removeStreamStatus(Mockito.nullable(User.class),
                 Mockito.nullable(TransferStatus.class));
@@ -463,6 +462,7 @@ class StreamControllerTest {
         @ApplyRangeDecision.Result.Status.Ok200
         @ApplyRangeDecision.Result.Header.AcceptRanges.NotExist
         @Test
+        @SuppressWarnings("PMD.UnnecessaryBoxing") // false positive
         void cr00() throws Exception {
             MediaFile song = new MediaFile();
             song.setPathString(TEST_PATH);
@@ -639,7 +639,7 @@ class StreamControllerTest {
             song.setFileSize(null); // Assumed unreachble code
             parameters.setExpectedLength(song.getFileSize());
             Mockito.clearInvocations(streamService);
-            assertThrows(NestedServletException.class, () -> mockMvc.perform(
+            assertThrows(ServletException.class, () -> mockMvc.perform(
                     MockMvcRequestBuilders.get(TEST_URL).param(Attributes.Request.OFFSET_SECONDS.value(), "1")));
             Mockito.verify(streamService, Mockito.never()).removeStreamStatus(Mockito.nullable(User.class),
                     Mockito.nullable(TransferStatus.class));

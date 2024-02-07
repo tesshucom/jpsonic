@@ -31,9 +31,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
-
-import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.dao.AlbumDao;
@@ -46,6 +45,7 @@ import com.tesshu.jpsonic.domain.ParamSearchResult;
 import com.tesshu.jpsonic.domain.SearchResult;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.spring.EhcacheConfiguration.RandomCacheKey;
+import jakarta.annotation.PostConstruct;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.apache.commons.collections4.CollectionUtils;
@@ -74,10 +74,11 @@ public class SearchServiceUtilities {
 
     /* Search by id only. */
     private final AlbumDao albumDao;
-    @Qualifier("searchCache")
+
     private final Ehcache searchCache;
-    @Qualifier("randomCache")
     private final Ehcache randomCache;
+    private final ReentrantLock searchCacheLock = new ReentrantLock();
+    private final ReentrantLock randomCacheLock = new ReentrantLock();
 
     private Random random;
 
@@ -119,8 +120,8 @@ public class SearchServiceUtilities {
         return fieldName;
     };
 
-    public SearchServiceUtilities(ArtistDao artistDao, AlbumDao albumDao, Ehcache searchCache, Ehcache randomCache,
-            MediaFileService mediaFileService) {
+    public SearchServiceUtilities(ArtistDao artistDao, AlbumDao albumDao, @Qualifier("searchCache") Ehcache searchCache,
+            @Qualifier("randomCache") Ehcache randomCache, MediaFileService mediaFileService) {
         super();
         this.artistDao = artistDao;
         this.albumDao = albumDao;
@@ -130,6 +131,7 @@ public class SearchServiceUtilities {
     }
 
     @SuppressFBWarnings(value = "PREDICTABLE_RANDOM", justification = "The Random class is only used if the native random number generator is not available")
+    @SuppressWarnings("PMD.UnusedAssignment") // false positive
     @PostConstruct
     public void postConstruct() {
         try {
@@ -243,8 +245,11 @@ public class SearchServiceUtilities {
     public Optional<List<MediaFile>> getCache(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
         List<MediaFile> mediaFiles = null;
         Element element;
-        synchronized (searchCache) {
+        searchCacheLock.lock();
+        try {
             element = searchCache.get(createCacheKey(genres, musicFolders, indexType));
+        } finally {
+            searchCacheLock.unlock();
         }
         if (!isEmpty(element)) {
             mediaFiles = (List<MediaFile>) element.getObjectValue();
@@ -257,8 +262,11 @@ public class SearchServiceUtilities {
             String... additional) {
         List<MediaFile> mediaFiles = null;
         Element element;
-        synchronized (randomCache) {
+        randomCacheLock.lock();
+        try {
             element = randomCache.get(createCacheKey(key, casheMax, musicFolders, additional));
+        } finally {
+            randomCacheLock.unlock();
         }
         if (!isEmpty(element)) {
             mediaFiles = (List<MediaFile>) element.getObjectValue();
@@ -270,8 +278,11 @@ public class SearchServiceUtilities {
     public Optional<List<Integer>> getCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders) {
         List<Integer> ids = null;
         Element element;
-        synchronized (randomCache) {
+        randomCacheLock.lock();
+        try {
             element = randomCache.get(createCacheKey(key, casheMax, musicFolders));
+        } finally {
+            randomCacheLock.unlock();
         }
         if (!isEmpty(element)) {
             ids = (List<Integer>) element.getObjectValue();
@@ -280,22 +291,30 @@ public class SearchServiceUtilities {
     }
 
     public void putCache(String genres, List<MusicFolder> musicFolders, IndexType indexType, List<MediaFile> value) {
-        synchronized (searchCache) {
+        searchCacheLock.lock();
+        try {
             searchCache.put(new Element(createCacheKey(genres, musicFolders, indexType), value));
+        } finally {
+            searchCacheLock.unlock();
         }
     }
 
     public void putCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders, List<Integer> value) {
-        synchronized (randomCache) {
+        randomCacheLock.lock();
+        try {
             randomCache.put(new Element(createCacheKey(key, casheMax, musicFolders), value));
+        } finally {
+            randomCacheLock.unlock();
         }
     }
 
     public void putCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders, List<MediaFile> value,
             String... additional) {
-        synchronized (randomCache) {
+        randomCacheLock.lock();
+        try {
             randomCache.put(new Element(createCacheKey(key, casheMax, musicFolders, additional), value));
+        } finally {
+            randomCacheLock.unlock();
         }
     }
-
 }

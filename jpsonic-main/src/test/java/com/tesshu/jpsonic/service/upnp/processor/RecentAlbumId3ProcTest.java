@@ -41,10 +41,10 @@ import com.tesshu.jpsonic.domain.Album;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.service.MediaFileService;
 import com.tesshu.jpsonic.util.LegacyMap;
-import org.fourthline.cling.support.model.BrowseResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.jupnp.support.model.BrowseResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @SuppressWarnings("PMD.TooManyStaticImports")

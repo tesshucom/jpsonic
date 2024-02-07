@@ -61,11 +61,11 @@ public enum TranscodeScheme {
      * @return The strictest scheme.
      */
     public @NonNull TranscodeScheme strictest(TranscodeScheme other) {
-        if (other == null || other == TranscodeScheme.OFF) {
+        if (other == null || other == OFF) {
             return this;
         }
 
-        if (this == TranscodeScheme.OFF) {
+        if (this == OFF) {
             return other;
         }
 
@@ -115,7 +115,7 @@ public enum TranscodeScheme {
     }
 
     public static @Nullable TranscodeScheme fromMaxBitRate(int maxBitRate) {
-        List<TranscodeScheme> sorted = Arrays.stream(TranscodeScheme.values()).sorted((a, b) -> {
+        List<TranscodeScheme> sorted = Arrays.stream(values()).sorted((a, b) -> {
             return Integer.compare(a.getMaxBitRate(), b.getMaxBitRate());
         }).collect(Collectors.toList());
         for (TranscodeScheme transcodeScheme : sorted) {

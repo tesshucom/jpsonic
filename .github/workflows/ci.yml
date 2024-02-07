@@ -83,7 +83,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Cache Maven packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -125,7 +125,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Cache Maven packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -175,7 +175,7 @@ jobs:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
       - name: Cache Maven packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -271,7 +271,7 @@ jobs:
       - name: Release with Alpha/Beta Tag
         if: github.ref == 'refs/heads/master'
         run: |
-          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)+\.[0-9]+$ ]]; then
+          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)\.[0-9]+\.[0-9]+$ ]]; then
             cd install/docker/alpine
             sed -i -e "s/21-jdk-alpine/21-jre-alpine/g" Dockerfile
             sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
@@ -348,7 +348,7 @@ jobs:
       - name: Release with Alpha/Beta Tag
         if: github.ref == 'refs/heads/master'
         run: |
-          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)+\.[0-9]+$ ]]; then
+          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)\.[0-9]+\.[0-9]+$ ]]; then
             cd install/docker/jammy
             sed -i -e "s/21-jdk-jammy/21-jre-jammy/g" Dockerfile
             sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
@@ -425,7 +425,7 @@ jobs:
       - name: Release with Alpha/Beta Tag
         if: github.ref == 'refs/heads/master'
         run: |
-          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)+\.[0-9]+$ ]]; then
+          if [[ ${{ env.DOCKER_TAG }} =~ ^[0-9]+\.[0-9]+\.[0-9]+\.(alpha|beta)\.[0-9]+\.[0-9]+$ ]]; then
             cd install/docker/jammy
             sed -i -e "s/21-jdk-jammy/17-jre-jammy/g" Dockerfile
             sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile

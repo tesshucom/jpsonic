@@ -24,22 +24,35 @@ package com.tesshu.jpsonic.domain;
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.Random;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
+import com.codahale.metrics.ConsoleReporter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.tesshu.jpsonic.service.SettingsService;
+import org.apache.commons.lang3.exception.UncheckedException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
  * Unit test of {@link PlayQueue}.
  *
  * @author Sindre Mehus
  */
-@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TestClassWithoutTestCases" })
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.TestClassWithoutTestCases", "PMD.TooManyStaticImports" })
 class PlayQueueTest {
 
     private JpsonicComparators jpsonicComparators;
@@ -201,6 +214,62 @@ class PlayQueueTest {
     }
 
     @Test
+    @SuppressWarnings("PMD.UnusedLocalVariable")
+    void testLock() throws Exception {
+
+        int threadsCount = 1_000;
+
+        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setWaitForTasksToCompleteOnShutdown(true); // To handle Stream
+        executor.setAwaitTerminationMillis(1_000);
+        executor.setQueueCapacity(threadsCount);
+        executor.setCorePoolSize(threadsCount);
+        executor.setMaxPoolSize(threadsCount);
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.setDaemon(true);
+        executor.initialize();
+
+        MetricRegistry metrics = new MetricRegistry();
+        List<Future<Integer>> futures = new ArrayList<>();
+        Timer globalTimer = metrics.timer(MetricRegistry.name(PlayQueueTest.class, "PlayQueue#setIndex"));
+
+        String[] songs = new String[threadsCount];
+        for (int i = 0; i < songs.length; i++) {
+            songs[i] = String.valueOf(i);
+        }
+
+        PlayQueue playQueue = createPlaylist(0, songs);
+        Random random = new Random();
+
+        for (int i = 0; i < threadsCount; i++) {
+            futures.add(executor.submit(() -> {
+                try (Timer.Context globalTimerContext = globalTimer.time()) {
+                    playQueue.setIndex(random.nextInt(threadsCount));
+                } catch (IllegalArgumentException e) {
+                    throw new UncheckedException(e);
+                }
+                return 1;
+            }));
+        }
+
+        assertEquals(threadsCount, futures.stream().mapToInt(future -> {
+            try {
+                assertNotNull(future.get());
+            } catch (InterruptedException | ExecutionException e) {
+                throw new UncheckedException(e);
+            }
+            return 1;
+        }).sum());
+        executor.shutdown();
+
+        ConsoleReporter.Builder builder = ConsoleReporter.forRegistry(metrics).convertRatesTo(TimeUnit.SECONDS)
+                .convertDurationsTo(TimeUnit.MILLISECONDS);
+        try (ConsoleReporter reporter = builder.build()) {
+            // to be none
+        }
+    }
+
+    @Test
     void testUndo() {
         PlayQueue playQueue = createPlaylist(0, "A", "B", "C");
         playQueue.setIndex(2);
@@ -236,15 +305,15 @@ class PlayQueueTest {
         playQueue.addFiles(true, new TestMediaFile(3, "Artist B", "Album A"));
         playQueue.addFiles(true, new TestMediaFile(null, "Artist D", "Album D"));
         playQueue.setIndex(2);
-        assertEquals(Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber(), "Error in sort.");
+        assertEquals(3, playQueue.getCurrentFile().getTrackNumber(), "Error in sort.");
 
         // Order by track.
         playQueue.sort(jpsonicComparators.mediaFileOrderBy(JpsonicComparators.OrderBy.TRACK));
         assertNull(playQueue.getFile(0).getTrackNumber(), "Error in sort().");
-        assertEquals(Integer.valueOf(1), playQueue.getFile(1).getTrackNumber(), "Error in sort.");
-        assertEquals(Integer.valueOf(2), playQueue.getFile(2).getTrackNumber(), "Error in sort.");
-        assertEquals(Integer.valueOf(3), playQueue.getFile(3).getTrackNumber(), "Error in sort.");
-        assertEquals(Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber());
+        assertEquals(1, playQueue.getFile(1).getTrackNumber(), "Error in sort.");
+        assertEquals(2, playQueue.getFile(2).getTrackNumber(), "Error in sort.");
+        assertEquals(3, playQueue.getFile(3).getTrackNumber(), "Error in sort.");
+        assertEquals(3, playQueue.getCurrentFile().getTrackNumber());
 
         // Order by artist.
         playQueue.sort(jpsonicComparators.mediaFileOrderBy(JpsonicComparators.OrderBy.ARTIST));
@@ -252,7 +321,7 @@ class PlayQueueTest {
         assertEquals("Artist B", playQueue.getFile(1).getArtist(), "Error in sort.");
         assertEquals("Artist C", playQueue.getFile(2).getArtist(), "Error in sort.");
         assertEquals("Artist D", playQueue.getFile(3).getArtist(), "Error in sort.");
-        assertEquals(Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber(), "Error in sort.");
+        assertEquals(3, playQueue.getCurrentFile().getTrackNumber(), "Error in sort.");
 
         // Order by album.
         playQueue.sort(jpsonicComparators.mediaFileOrderBy(JpsonicComparators.OrderBy.ALBUM));
@@ -260,7 +329,7 @@ class PlayQueueTest {
         assertEquals("Album B", playQueue.getFile(1).getAlbumName(), "Error in sort.");
         assertEquals("Album C", playQueue.getFile(2).getAlbumName(), "Error in sort.");
         assertEquals("Album D", playQueue.getFile(3).getAlbumName(), "Error in sort.");
-        assertEquals(Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber(), "Error in sort.");
+        assertEquals(3, playQueue.getCurrentFile().getTrackNumber(), "Error in sort.");
     }
 
     private void assertPlaylistEquals(PlayQueue playQueue, int index, String... songs) {

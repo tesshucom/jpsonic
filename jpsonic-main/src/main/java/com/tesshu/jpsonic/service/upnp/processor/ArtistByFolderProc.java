@@ -25,11 +25,10 @@ import java.util.List;
 import com.tesshu.jpsonic.dao.AlbumDao;
 import com.tesshu.jpsonic.dao.ArtistDao;
 import com.tesshu.jpsonic.domain.Artist;
-import com.tesshu.jpsonic.service.upnp.ProcId;
-import com.tesshu.jpsonic.service.upnp.composite.ArtistOrAlbum;
-import com.tesshu.jpsonic.service.upnp.composite.FolderOrArtist;
-import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.container.Container;
+import com.tesshu.jpsonic.service.upnp.processor.composite.ArtistOrAlbum;
+import com.tesshu.jpsonic.service.upnp.processor.composite.FolderOrArtist;
+import org.jupnp.support.model.DIDLContent;
+import org.jupnp.support.model.container.Container;
 import org.springframework.stereotype.Service;
 
 @Service

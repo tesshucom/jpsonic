@@ -32,10 +32,8 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.JAXB;
 
 import com.tesshu.jpsonic.AbstractNeedsScan;
 import com.tesshu.jpsonic.TestCaseUtils;
@@ -80,6 +78,8 @@ import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.scanner.WritableMediaFileService;
 import com.tesshu.jpsonic.service.search.SearchCriteriaDirector;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.xml.bind.JAXB;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -1242,11 +1242,12 @@ class SubsonicRESTControllerTest {
                 assertNotNull(song);
                 req.setParameter(Attributes.Request.PATH.value(), song.getPathString());
                 res = new MockHttpServletResponse();
-                streamController.handleRequest(req, res, true);
+                streamController.handleRequest(req, res);
                 assertNotEquals(0, res.getContentLength());
 
-                statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
-                        .findFirst().ifPresentOrElse((status) -> {
+                statusService.getAllStreamStatuses().stream()
+                        .filter(t -> Objects.equals(player.getId(), t.getPlayer().getId())).findFirst()
+                        .ifPresentOrElse((status) -> {
                             assertNotNull(status.getPathString());
                             assertNotNull(status.toPath());
                             assertEquals(song.toPath(), status.toPath());
@@ -1266,8 +1267,9 @@ class SubsonicRESTControllerTest {
                 assertNotNull(nowPlaying);
                 assertEquals(0, nowPlaying.getEntry().size()); // Entry can't be obtained
 
-                statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
-                        .findFirst().ifPresentOrElse((status) -> {
+                statusService.getAllStreamStatuses().stream()
+                        .filter(t -> Objects.equals(player.getId(), t.getPlayer().getId())).findFirst()
+                        .ifPresentOrElse((status) -> {
                             assertNotNull(status.getPathString());
                             assertNotNull(status.toPath());
                             assertEquals(song.toPath(), status.toPath());
@@ -1301,11 +1303,12 @@ class SubsonicRESTControllerTest {
                 assertNotNull(song);
                 req.setParameter(Attributes.Request.PATH.value(), song.getPathString());
                 res = new MockHttpServletResponse();
-                streamController.handleRequest(req, res, true);
+                streamController.handleRequest(req, res);
                 assertNotEquals(0, res.getContentLength());
 
-                statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
-                        .findFirst().ifPresentOrElse((status) -> {
+                statusService.getAllStreamStatuses().stream()
+                        .filter(t -> Objects.equals(player.getId(), t.getPlayer().getId())).findFirst()
+                        .ifPresentOrElse((status) -> {
                             assertNotNull(status.getPathString());
                             assertNotNull(status.toPath());
                             assertEquals(song.toPath(), status.toPath());
@@ -1327,8 +1330,9 @@ class SubsonicRESTControllerTest {
                 assertNotNull(nowPlaying);
                 assertNotEquals(0, nowPlaying.getEntry().size()); // Entry can be obtained
 
-                statusService.getAllStreamStatuses().stream().filter(t -> player.getId() == t.getPlayer().getId())
-                        .findFirst().ifPresentOrElse((status) -> {
+                statusService.getAllStreamStatuses().stream()
+                        .filter(t -> Objects.equals(player.getId(), t.getPlayer().getId())).findFirst()
+                        .ifPresentOrElse((status) -> {
                             assertNotNull(status.getPathString());
                             assertNotNull(status.toPath());
                             assertEquals(song.toPath(), status.toPath());

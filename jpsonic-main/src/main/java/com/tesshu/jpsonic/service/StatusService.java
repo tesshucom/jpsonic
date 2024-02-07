@@ -31,6 +31,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PlayStatus;
@@ -65,10 +66,10 @@ public class StatusService {
     // Maps from player ID to latest inactive stream status.
     private final Map<Integer, TransferStatus> inactiveStreamStatuses;
 
-    private final Object streamLock = new Object();
-    private final Object downloadLock = new Object();
-    private final Object uploadLock = new Object();
-    private final Object remotelock = new Object();
+    private final ReentrantLock streamLock = new ReentrantLock();
+    private final ReentrantLock downloadLock = new ReentrantLock();
+    private final ReentrantLock uploadLock = new ReentrantLock();
+    private final ReentrantLock remotelock = new ReentrantLock();
 
     public StatusService(MediaFileService mediaFileService) {
         this.mediaFileService = mediaFileService;
@@ -80,7 +81,8 @@ public class StatusService {
     }
 
     public TransferStatus createStreamStatus(Player player) {
-        synchronized (streamLock) {
+        streamLock.lock();
+        try {
             // Reuse existing status, if possible.
             TransferStatus status = inactiveStreamStatuses.get(player.getId());
             if (status == null) {
@@ -89,20 +91,26 @@ public class StatusService {
                 status.setActive(true);
             }
             return status;
+        } finally {
+            streamLock.unlock();
         }
     }
 
     public void removeStreamStatus(TransferStatus status) {
-        synchronized (streamLock) {
+        streamLock.lock();
+        try {
             // Move it to the map of inactive statuses.
             status.setActive(false);
             inactiveStreamStatuses.put(status.getPlayer().getId(), status);
             streamStatuses.remove(status);
+        } finally {
+            streamLock.unlock();
         }
     }
 
     public List<TransferStatus> getAllStreamStatuses() {
-        synchronized (streamLock) {
+        streamLock.lock();
+        try {
 
             List<TransferStatus> result = new ArrayList<>(streamStatuses);
 
@@ -118,11 +126,14 @@ public class StatusService {
                 }
             }
             return unmodifiableList(result);
+        } finally {
+            streamLock.unlock();
         }
     }
 
     public List<TransferStatus> getStreamStatusesForPlayer(Player player) {
-        synchronized (streamLock) {
+        streamLock.lock();
+        try {
             List<TransferStatus> result = new ArrayList<>();
             for (TransferStatus status : streamStatuses) {
                 if (status.getPlayer().getId().equals(player.getId())) {
@@ -139,56 +150,81 @@ public class StatusService {
             }
 
             return unmodifiableList(result);
+        } finally {
+            streamLock.unlock();
         }
     }
 
     public TransferStatus createDownloadStatus(Player player) {
-        synchronized (downloadLock) {
+        downloadLock.lock();
+        try {
             return createStatus(player, downloadStatuses);
+        } finally {
+            downloadLock.unlock();
         }
     }
 
     public void removeDownloadStatus(TransferStatus status) {
-        synchronized (downloadLock) {
+        downloadLock.lock();
+        try {
             downloadStatuses.remove(status);
+        } finally {
+            downloadLock.unlock();
         }
     }
 
     public List<TransferStatus> getAllDownloadStatuses() {
-        synchronized (downloadLock) {
+        downloadLock.lock();
+        try {
             return unmodifiableList(downloadStatuses);
+        } finally {
+            downloadLock.unlock();
         }
     }
 
     public TransferStatus createUploadStatus(Player player) {
-        synchronized (uploadLock) {
+        uploadLock.lock();
+        try {
             return createStatus(player, uploadStatuses);
+        } finally {
+            uploadLock.unlock();
         }
     }
 
     public void removeUploadStatus(TransferStatus status) {
-        synchronized (uploadLock) {
+        uploadLock.lock();
+        try {
             uploadStatuses.remove(status);
+        } finally {
+            uploadLock.unlock();
         }
     }
 
     public List<TransferStatus> getAllUploadStatuses() {
-        synchronized (uploadLock) {
+        uploadLock.lock();
+        try {
             return unmodifiableList(uploadStatuses);
+        } finally {
+            uploadLock.unlock();
         }
     }
 
     public void addRemotePlay(PlayStatus playStatus) {
-        synchronized (remotelock) {
+        remotelock.lock();
+        try {
             remotePlays.removeIf(PlayStatus::isExpired);
             remotePlays.add(playStatus);
+        } finally {
+            remotelock.lock();
         }
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Date, PlayStatus) Not reusable
     public List<PlayStatus> getPlayStatuses() {
-        synchronized (streamLock) {
-            synchronized (remotelock) {
+        streamLock.lock();
+        try {
+            remotelock.lock();
+            try {
 
                 Map<Integer, PlayStatus> result = new LinkedHashMap<>();
                 for (PlayStatus remotePlay : remotePlays) {
@@ -216,7 +252,11 @@ public class StatusService {
                     result.put(player.getId(), new PlayStatus(mediaFile, player, time));
                 }
                 return unmodifiableList(new ArrayList<>(result.values()));
+            } finally {
+                remotelock.unlock();
             }
+        } finally {
+            streamLock.unlock();
         }
     }
 

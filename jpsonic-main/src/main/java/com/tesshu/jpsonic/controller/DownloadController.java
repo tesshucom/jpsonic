@@ -38,9 +38,6 @@ import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.tesshu.jpsonic.SuppressLint;
 import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.PlayQueue;
@@ -58,6 +55,8 @@ import com.tesshu.jpsonic.service.StatusService;
 import com.tesshu.jpsonic.util.FileUtil;
 import com.tesshu.jpsonic.util.HttpRange;
 import com.tesshu.jpsonic.util.PlayerUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
@@ -248,9 +247,7 @@ public class DownloadController {
             if (Arrays.binarySearch(attrChar, b) >= 0) {
                 sb.append((char) b);
             } else {
-                sb.append('%');
-                sb.append(digits[0x0f & (b >>> 4)]);
-                sb.append(digits[b & 0x0f]);
+                sb.append('%').append(digits[0x0f & (b >>> 4)]).append(digits[b & 0x0f]);
             }
         }
         return sb.toString();

@@ -106,7 +106,7 @@ public class MenuItem {
         }
 
         public static @NonNull ViewType of(int value) {
-            return Stream.of(ViewType.values()).filter(id -> id.v == value).findFirst().orElse(ANY);
+            return Stream.of(values()).filter(id -> id.v == value).findFirst().orElse(ANY);
         }
     }
 }

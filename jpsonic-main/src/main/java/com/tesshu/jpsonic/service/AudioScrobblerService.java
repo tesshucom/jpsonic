@@ -28,6 +28,7 @@ import com.tesshu.jpsonic.domain.MediaFile;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.scrobbler.LastFMScrobbler;
 import com.tesshu.jpsonic.service.scrobbler.ListenBrainzScrobbler;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
@@ -40,13 +41,11 @@ public class AudioScrobblerService {
 
     private final SecurityService securityService;
     private final Executor shortExecutor;
-    private final Object fmLock = new Object();
-    private final Object brainzLock = new Object();
 
     private LastFMScrobbler lastFMScrobbler;
     private ListenBrainzScrobbler listenBrainzScrobbler;
 
-    public AudioScrobblerService(SecurityService securityService, Executor shortExecutor) {
+    public AudioScrobblerService(SecurityService securityService, @Qualifier("shortExecutor") Executor shortExecutor) {
         this.securityService = securityService;
         this.shortExecutor = shortExecutor;
     }
@@ -72,23 +71,19 @@ public class AudioScrobblerService {
         UserSettings userSettings = securityService.getUserSettings(username);
         if (userSettings.isLastFmEnabled() && userSettings.getLastFmUsername() != null
                 && userSettings.getLastFmPassword() != null) {
-            synchronized (fmLock) {
-                if (lastFMScrobbler == null) {
-                    lastFMScrobbler = new LastFMScrobbler();
-                }
-                lastFMScrobbler.register(mediaFile, userSettings.getLastFmUsername(), userSettings.getLastFmPassword(),
-                        submission, time, shortExecutor);
+            if (lastFMScrobbler == null) {
+                lastFMScrobbler = new LastFMScrobbler();
             }
+            lastFMScrobbler.register(mediaFile, userSettings.getLastFmUsername(), userSettings.getLastFmPassword(),
+                    submission, time, shortExecutor);
         }
 
         if (userSettings.isListenBrainzEnabled() && userSettings.getListenBrainzToken() != null) {
-            synchronized (brainzLock) {
-                if (listenBrainzScrobbler == null) {
-                    listenBrainzScrobbler = new ListenBrainzScrobbler();
-                }
-                listenBrainzScrobbler.register(mediaFile, userSettings.getListenBrainzToken(), submission, time,
-                        shortExecutor);
+            if (listenBrainzScrobbler == null) {
+                listenBrainzScrobbler = new ListenBrainzScrobbler();
             }
+            listenBrainzScrobbler.register(mediaFile, userSettings.getListenBrainzToken(), submission, time,
+                    shortExecutor);
         }
     }
 
