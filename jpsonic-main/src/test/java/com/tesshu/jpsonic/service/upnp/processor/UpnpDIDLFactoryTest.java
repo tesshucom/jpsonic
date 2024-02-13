@@ -20,7 +20,7 @@
 package com.tesshu.jpsonic.service.upnp.processor;
 
 import static com.tesshu.jpsonic.service.ServiceMockUtils.mock;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -91,6 +91,6 @@ class UpnpDIDLFactoryTest {
         MediaFile song = new MediaFile();
         song.setFileSize(123L);
         Res res = factory.toRes(song);
-        assertEquals(123L, res.getSize());
+        assertNull(res.getSize());
     }
 }

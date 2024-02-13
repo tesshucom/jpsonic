@@ -466,7 +466,7 @@ class MediaFileProcTest {
             assertTrue(browseResult.getResult().contains("""
                     </upnp:albumArtURI>\
                     <dc:description/>\
-                    <res protocolInfo="http-get:*:audio/mpeg:*" size="13579">\
+                    <res protocolInfo="http-get:*:audio/mpeg:*">\
                     """));
             // ... https://192.168.1.1:4040/ext/stream?
             // id=***&amp;player=***&amp;jwt=*** ...

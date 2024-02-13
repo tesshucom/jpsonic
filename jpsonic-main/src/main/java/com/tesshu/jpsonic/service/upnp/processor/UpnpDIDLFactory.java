@@ -308,7 +308,7 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
     Res toRes(MediaFile file) {
         Player player = playerService.getGuestPlayer(null);
         MimeType mimeType = getMimeType(file, player);
-        Res res = new Res(mimeType, file.getFileSize(), createStreamURI(file, player));
+        Res res = new Res(mimeType, null, createStreamURI(file, player));
         res.setDuration(formatDuration(file.getDurationSeconds()));
         return res;
     }
