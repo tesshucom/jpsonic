@@ -216,19 +216,19 @@ function resetExtension() {
         </c:if>
 
         <dl>
-            <dt></dt>
+            <dt><strong>Deprecated. Will be removed.</strong></dt>
             <dd>
                 <form:checkbox path="showServerLog" id="showServerLog"/>
                 <label for="showServerLog"><fmt:message key="generalsettings.showserverlog"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="showserverlog"/></c:import>
             </dd>
-            <dt></dt>
+            <dt><strong>Deprecated. Will be removed.</strong></dt>
             <dd>
                 <form:checkbox path="showStatus" id="showStatus"/>
                 <label for="showStatus"><fmt:message key="generalsettings.showstatus"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="showstatus"/></c:import>
             </dd>
-            <dt></dt>
+            <dt><strong>Deprecated. Will be removed.</strong></dt>
             <dd>
                 <form:checkbox path="othersPlayingEnabled" id="othersPlayingEnabled"/>
                 <label for="othersPlayingEnabled"><fmt:message key="generalsettings.othersplayingenabled"/></label>
@@ -240,7 +240,7 @@ function resetExtension() {
                 <label for="showRememberMe"><fmt:message key="generalsettings.showrememberme"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="showrememberme"/></c:import>
             </dd>
-            <dt></dt>
+            <dt><strong>Deprecated. Will be removed.</strong></dt>
             <dd>
                 <form:checkbox path="publishPodcast" id="publishPodcast"/>
                 <label for="publishPodcast"><fmt:message key="generalsettings.publishpodcast"/></label>
@@ -252,13 +252,13 @@ function resetExtension() {
                 <label for="useRadio"><fmt:message key="generalsettings.useradio"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="useradio"/></c:import>
             </dd>
-            <dt></dt>
+            <dt><strong>Deprecated. Will be removed.</strong></dt>
             <dd>
                 <form:checkbox path="useExternalPlayer" id="useExternalPlayer"/>
                 <label for="useExternalPlayer"><fmt:message key="generalsettings.useexternalplayer"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="useexternalplayer"/></c:import>
             </dd>
-            <dt></dt>
+            <dt><strong>Deprecated. Will be removed.</strong></dt>
             <dd>
                 <form:checkbox path="useCopyOfAsciiUnprintable" id="useCopyOfAsciiUnprintable"/>
                 <label for="useCopyOfAsciiUnprintable"><fmt:message key="generalsettings.usecopyofasciiunprintable"/></label>
@@ -270,19 +270,19 @@ function resetExtension() {
                 <label for="useJsonp"><fmt:message key="generalsettings.usejsonp"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="usejsonp"/></c:import>
             </dd>
-            <dt></dt>
+            <dt><strong>Deprecated. Will be removed.</strong></dt>
             <dd>
                 <form:checkbox path="useRemovingTrackFromId3Title" id="useRemovingTrackFromId3Title" disabled="${command.scanning}"/>
                 <label for="useRemovingTrackFromId3Title"><fmt:message key="generalsettings.useremovingtrackfromid3title"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="useremovingtrackfromid3title"/></c:import>
             </dd>
-            <dt></dt>
+            <dt><strong>Deprecated. Will be removed.</strong></dt>
             <dd>
                 <form:checkbox path="useCleanUp" id="useCleanUp" disabled="${command.scanning}"/>
                 <label for="useCleanUp"><fmt:message key="generalsettings.usecleanup"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="usecleanup"/></c:import>
             </dd>
-            <dt></dt>
+            <dt><strong>Deprecated. Will be removed.</strong></dt>
             <dd>
                 <form:checkbox path="redundantFolderCheck" id="redundantFolderCheck" disabled="${command.scanning}"/>
                 <label for="redundantFolderCheck"><fmt:message key="generalsettings.redundantfoldercheck"/></label>
