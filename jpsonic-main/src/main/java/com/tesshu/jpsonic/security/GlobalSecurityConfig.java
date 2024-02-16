@@ -92,15 +92,9 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
     @EnableWebSecurity
     public class AuthenticationManagerConfig {
 
-        private final SettingsService settingsService;
-
-        public AuthenticationManagerConfig(SettingsService settingsService) {
-            super();
-            this.settingsService = settingsService;
-        }
-
         @Autowired
         public void configure(
+                SettingsService settingsService,
                 SecurityService securityService,
                 AuthenticationManagerBuilder auth,
                 CustomUserDetailsContextMapper customUserDetailsContextMapper) throws Exception {
