@@ -458,12 +458,12 @@
     <dependency>
       <groupId>org.jupnp</groupId>
       <artifactId>org.jupnp</artifactId>
-      <version>2.7.1</version>
+      <version>3.0.0</version>
     </dependency>
     <dependency>
       <groupId>org.jupnp</groupId>
       <artifactId>org.jupnp.support</artifactId>
-      <version>2.7.1</version>
+      <version>3.0.0</version>
     </dependency>
 
     <dependency>
