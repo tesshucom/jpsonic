@@ -29,6 +29,7 @@
     <pmd.version>7.0.0-rc4</pmd.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.inceptionYear>2018</project.inceptionYear>
+    <spring-boot.version>3.2.3</spring-boot.version>
     <spring-security.version>6.2.2</spring-security.version>
   </properties>
 
@@ -38,7 +39,7 @@
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
-        <version>3.2.2</version>
+        <version>${spring-boot.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -80,7 +81,7 @@
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-validation</artifactId>
-        <version>3.2.2</version>
+        <version>${spring-boot.version}</version>
         <exclusions>
           <exclusion>
             <groupId>org.hibernate.validator</groupId>
@@ -205,7 +206,7 @@
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-tomcat</artifactId>
-        <version>3.2.2</version>
+        <version>${spring-boot.version}</version>
         <scope>provided</scope>
         <exclusions>
           <exclusion>
@@ -218,7 +219,7 @@
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-jetty</artifactId>
-        <version>3.2.2</version>
+        <version>${spring-boot.version}</version>
         <scope>provided</scope>
         <exclusions>
           <exclusion>
