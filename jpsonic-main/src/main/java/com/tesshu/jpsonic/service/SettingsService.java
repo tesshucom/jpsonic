@@ -721,7 +721,7 @@ public class SettingsService implements ReadWriteLockSupport {
         try {
             return getString(SettingsConstants.General.Extension.VIDEO_FILE_TYPES);
         } finally {
-            readUnlock(musicFileTypesLock);
+            readUnlock(videoFileTypesLock);
         }
     }
 
