@@ -20,7 +20,7 @@
     <antlr.version>4.13.1</antlr.version>
     <docker.container.repo>jpsonic/jpsonic</docker.container.repo>
     <failOnDependencyWarning>false</failOnDependencyWarning>
-    <jackson.version>2.16.1</jackson.version>
+    <jackson.version>2.17.0</jackson.version>
     <java.version>17</java.version>
     <jpsonic.concurent.module>jpsonic-concurent17</jpsonic.concurent.module>
     <log4j.version>2.22.1</log4j.version>
