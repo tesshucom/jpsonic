@@ -20,7 +20,7 @@
     <antlr.version>4.13.1</antlr.version>
     <docker.container.repo>jpsonic/jpsonic</docker.container.repo>
     <failOnDependencyWarning>false</failOnDependencyWarning>
-    <jackson.version>2.16.1</jackson.version>
+    <jackson.version>2.17.0</jackson.version>
     <java.version>17</java.version>
     <jpsonic.concurent.module>jpsonic-concurent17</jpsonic.concurent.module>
     <log4j.version>2.22.1</log4j.version>
@@ -272,7 +272,7 @@
       <dependency>
         <groupId>org.liquibase</groupId>
         <artifactId>liquibase-core</artifactId>
-        <version>4.25.1</version>
+        <version>4.26.0</version>
       </dependency>
       <dependency>
         <groupId>org.hsqldb</groupId>
@@ -687,7 +687,7 @@
                 <requireMavenVersion>
                   <version>3.8.6</version>
                 </requireMavenVersion>
-                <dependencyConvergence/>
+                <dependencyConvergence></dependencyConvergence>
               </rules>
             </configuration>
           </execution>
