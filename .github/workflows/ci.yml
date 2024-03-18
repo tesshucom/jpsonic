@@ -249,13 +249,13 @@ jobs:
             sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
             mvn -DdockerTag=${{ env.DOCKER_TAG }} package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-            docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }} .
+            docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }} .
             mvn -DdockerTag=${DOCKER_TAG%.*} package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-            docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${DOCKER_TAG%.*} .
+            docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:${DOCKER_TAG%.*} .
             mvn -DdockerTag=${DOCKER_TAG%.*.*} package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-            docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*} .
+            docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:${DOCKER_TAG%.*.*} .
           fi
       - name: Release with Latest Tag
         if: github.ref == 'refs/heads/master'
@@ -266,7 +266,7 @@ jobs:
             sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
             mvn -DdockerTag=latest package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-            docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:latest .
+            docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:latest .
           fi
       - name: Release with Alpha/Beta Tag
         if: github.ref == 'refs/heads/master'
@@ -277,7 +277,7 @@ jobs:
             sed -i -e "s/EXPOSE 3333/#EXPOSE 3333/g" Dockerfile
             mvn -DdockerTag=latest package
             docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-            docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }} .
+            docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:${{ env.DOCKER_TAG }} .
           fi
       - name: Release with Early-Access Tag
         if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/feature/docker'
@@ -285,7 +285,7 @@ jobs:
           cd install/docker/alpine
           mvn -DdockerTag=ea package
           docker import target/docker/jpsonic/jpsonic/tmp/docker-build.tar
-          docker buildx build --push --platform linux/amd64 -t jpsonic/jpsonic:ea .
+          docker buildx build --push --platform linux/amd64,linux/arm64/v8 -t jpsonic/jpsonic:ea .
   ##########################################################################
   ship-docker-image-jammy:
     name: Docker(jammy-amd,arm)
