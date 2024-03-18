@@ -14,7 +14,7 @@
 
   <properties>
     <chameleon.version>1.2.1-RELEASE</chameleon.version>
-    <lucene.version>9.9.2</lucene.version>
+    <lucene.version>9.10.0</lucene.version>
     <tomcat.server.scope>provided</tomcat.server.scope>
   </properties>
 
@@ -674,18 +674,18 @@
             <phase>generate-resources</phase>
             <configuration>
               <target>
-                <tstamp></tstamp>
-                <copy file="${basedir}/src/main/resources/com/tesshu/jpsonic/i18n/ResourceBundle_en.properties" tofile="${project.build.directory}/classes/com/tesshu/jpsonic/i18n/ResourceBundle.properties"></copy>
+                <tstamp/>
+                <copy file="${basedir}/src/main/resources/com/tesshu/jpsonic/i18n/ResourceBundle_en.properties" tofile="${project.build.directory}/classes/com/tesshu/jpsonic/i18n/ResourceBundle.properties"/>
                 <echo file="${project.build.directory}/classes/build_number.txt">${buildNumber}</echo>
                 <!--suppress MavenModelInspection -->
                 <echo file="${project.build.directory}/classes/build_date.txt">${DSTAMP}</echo>
                 <echo file="${project.build.directory}/classes/version.txt">${project.version}</echo>
                 <copy todir="${project.build.directory}/classes/fonts">
-                  <fileset dir="src/main/webapp/fonts" includes="**/"></fileset>
+                  <fileset dir="src/main/webapp/fonts" includes="**/"/>
                 </copy>
                 <!--Because when generating a CSS map it will generate a valid link to the source with a relative path　-->
                 <copy todir="${project.build.directory}/jpsonic/scss/">
-                  <fileset dir="${basedir}/src/main/webapp/scss" includes="**"></fileset>
+                  <fileset dir="${basedir}/src/main/webapp/scss" includes="**"/>
                 </copy>
               </target>
             </configuration>
@@ -700,7 +700,7 @@
               <target>
                 <delete>
                   <!--This is because *ApplicationHelper may depend on a particular vendor class.　-->
-                  <fileset dir="${project.build.directory}/classes/com/tesshu/jpsonic" includes="${helper.excludes}"></fileset>
+                  <fileset dir="${project.build.directory}/classes/com/tesshu/jpsonic" includes="${helper.excludes}"/>
                 </delete>
               </target>
             </configuration>
