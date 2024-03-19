@@ -30,7 +30,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.inceptionYear>2018</project.inceptionYear>
     <spring-boot.version>3.2.3</spring-boot.version>
-    <spring-security.version>6.2.2</spring-security.version>
+    <spring-security.version>6.2.3</spring-security.version>
   </properties>
 
   <dependencyManagement>
@@ -687,7 +687,7 @@
                 <requireMavenVersion>
                   <version>3.8.6</version>
                 </requireMavenVersion>
-                <dependencyConvergence></dependencyConvergence>
+                <dependencyConvergence/>
               </rules>
             </configuration>
           </execution>
