@@ -34,7 +34,6 @@ COPY local.conf /etc/fonts
 RUN apk --no-cache add \
     su-exec \
     bash \
-    curl \
     tini \
     ffmpeg \
     font-noto-cjk \
