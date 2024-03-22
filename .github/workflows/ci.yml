@@ -462,7 +462,7 @@ jobs:
           cat production.windows.yml
           set -x
           docker-compose -f production.windows.yml up -d
-          for i in {1..30};do sleep 1;docker exec jpsonic_${{ matrix.tag }} bash -c "curl http://localhost:4040/rest/ping"&&break;done
+          for i in {1..30};do sleep 1;curl http://localhost:8080/rest/ping&&break;done
   ##########################################################################
   run-docker4ea:
     name: Run ${{ matrix.tag }}
@@ -492,4 +492,4 @@ jobs:
           cat production.windows.yml
           set -x
           docker-compose -f production.windows.yml up -d
-          for i in {1..30};do sleep 1;docker exec jpsonic_${{ matrix.tag }} bash -c "curl http://localhost:4040/rest/ping"&&break;done
+          for i in {1..30};do sleep 1;curl http://localhost:8080/rest/ping&&break;done
