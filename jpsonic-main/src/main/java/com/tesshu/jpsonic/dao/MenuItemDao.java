@@ -21,6 +21,7 @@ package com.tesshu.jpsonic.dao;
 
 import java.sql.ResultSet;
 import java.util.List;
+import java.util.Map;
 
 import com.tesshu.jpsonic.dao.base.TemplateWrapper;
 import com.tesshu.jpsonic.domain.MenuItem;
@@ -43,19 +44,57 @@ public class MenuItemDao {
         template = templateWrapper;
     }
 
-    public List<MenuItem> getTopMenuItems(ViewType viewType) {
-        return template.query("select " + QUERY_COLUMNS + """
+    public MenuItem getMenuItem(int id) {
+        return template.queryOne("select " + QUERY_COLUMNS + """
                 from menu_item
-                where view_type=? and parent=?
-                order by menu_item_order, id
-                """, rowMapper, viewType.value(), MenuItemId.ROOT.value());
+                where id=?
+                """, rowMapper, id);
     }
 
-    public List<MenuItem> getChildlenOf(ViewType viewType, MenuItemId id) {
-        return template.query("select " + QUERY_COLUMNS + """
+    public int getTopMenuItemCount(ViewType viewType) {
+        return template.queryForInt("""
+                select count(id) from menu_item
+                where view_type=? and parent=? and enabled=?
+                """, 0, viewType.value(), MenuItemId.ROOT.value(), true);
+    }
+
+    public List<MenuItem> getTopMenuItems(ViewType viewType, boolean enabledOnly, long offset, long count) {
+        Map<String, Object> args = Map.of("type", viewType.value(), "parentId", MenuItemId.ROOT.value(), "enabledOnly",
+                enabledOnly, "count", count, "offset", offset);
+        return template.namedQuery("select " + QUERY_COLUMNS + """
                 from menu_item
-                where view_type=? and parent=?
+                where view_type=:type and parent=:parentId %s
                 order by menu_item_order, id
-                """, rowMapper, viewType.value(), id.value());
+                limit :count offset :offset
+                """.formatted(enabledOnly ? "and enabled=:enabledOnly" : ""), rowMapper, args);
+    }
+
+    public int getChildSizeOf(ViewType viewType, MenuItemId id) {
+        return template.queryForInt("""
+                select count(id) from menu_item
+                where view_type=? and parent=? and enabled=?
+                """, 0, viewType.value(), id.value(), true);
+    }
+
+    public List<MenuItem> getChildlenOf(ViewType viewType, MenuItemId id, boolean enabledOnly, long offset,
+            long count) {
+        Map<String, Object> args = Map.of("type", viewType.value(), "parentId", id.value(), "enabledOnly", enabledOnly,
+                "count", count, "offset", offset);
+        return template.namedQuery("select " + QUERY_COLUMNS + """
+                from menu_item
+                where view_type=:type and parent=:parentId %s
+                order by menu_item_order, id
+                limit :count offset :offset
+                """.formatted(enabledOnly ? "and enabled=:enabledOnly" : ""), rowMapper, args);
+    }
+
+    public void updateMenuItem(MenuItem menuItem) {
+        String sql = """
+                update menu_item
+                set view_type=?, parent=?, name=?, enabled=?, menu_item_order=?
+                where id=?
+                """;
+        template.update(sql, menuItem.getViewType().value(), menuItem.getParent().value(), menuItem.getName(),
+                menuItem.isEnabled(), menuItem.getMenuItemOrder(), menuItem.getId().value());
     }
 }
