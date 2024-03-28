@@ -50,20 +50,43 @@ public class MenuItemService {
     String getItemName(MenuItemId id) {
         Locale locale = Locale.JAPAN.getLanguage().equals(settingsService.getLocale().getLanguage()) ? Locale.JAPAN
                 : Locale.US;
-        return menuItemSource.getMessage("defaultname." + id.toString().toLowerCase(Locale.US), null, locale);
+        return menuItemSource.getMessage("defaultname." + id.name().replaceAll("_", "").toLowerCase(Locale.ROOT), null,
+                locale);
     }
 
-    public List<MenuItem> getTopMenuItems(ViewType viewType) {
-        List<MenuItem> menuItems = menuItemDao.getTopMenuItems(viewType);
+    public MenuItem getMenuItem(String id) {
+        return menuItemDao.getMenuItem(Integer.parseInt(id));
+    }
+
+    public MenuItem getMenuItem(MenuItemId id) {
+        return menuItemDao.getMenuItem(id.value());
+    }
+
+    public int getTopMenuItemCount(ViewType viewType) {
+        return menuItemDao.getTopMenuItemCount(viewType);
+    }
+
+    public List<MenuItem> getTopMenuItems(ViewType viewType, boolean enabledOnly, long offset, long count) {
+        List<MenuItem> menuItems = menuItemDao.getTopMenuItems(viewType, enabledOnly, offset, count);
         menuItems.stream().filter(item -> item.getName().isBlank())
                 .forEach(item -> item.setName(getItemName(item.getId())));
         return menuItems;
     }
 
-    public List<MenuItem> getChildlenOf(ViewType viewType, MenuItemId id) {
-        List<MenuItem> menuItems = menuItemDao.getChildlenOf(viewType, id);
+    public int getChildSizeOf(ViewType viewType, MenuItemId id) {
+        return menuItemDao.getChildSizeOf(viewType, id);
+    }
+
+    public List<MenuItem> getChildlenOf(ViewType viewType, MenuItemId id, boolean enabledOnly, long offset,
+            long count) {
+        List<MenuItem> menuItems = menuItemDao.getChildlenOf(viewType, id, enabledOnly, offset, count);
         menuItems.stream().filter(item -> item.getName().isBlank())
                 .forEach(item -> item.setName(getItemName(item.getId())));
         return menuItems;
     }
+
+    public void updateMenuItem(MenuItem menuItem) {
+        menuItemDao.updateMenuItem(menuItem);
+    }
+
 }

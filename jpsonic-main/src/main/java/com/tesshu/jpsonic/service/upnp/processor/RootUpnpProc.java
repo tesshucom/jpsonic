@@ -14,16 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2018 tesshucom
+ * (C) 2024 tesshucom
  */
 
 package com.tesshu.jpsonic.service.upnp.processor;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
+import java.util.concurrent.ExecutionException;
 
-import com.tesshu.jpsonic.service.SettingsService;
+import com.tesshu.jpsonic.domain.MenuItem;
+import com.tesshu.jpsonic.domain.MenuItem.ViewType;
+import com.tesshu.jpsonic.service.MenuItemService;
+import org.jupnp.support.model.BrowseResult;
 import org.jupnp.support.model.DIDLContent;
 import org.jupnp.support.model.WriteStatus;
 import org.jupnp.support.model.container.Container;
@@ -32,18 +34,18 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RootUpnpProc implements UPnPContentProcessor<Container, Container> {
+public class RootUpnpProc implements UPnPContentProcessor<MenuItem, MenuItem> {
 
-    private final List<Container> containers = new ArrayList<>();
+    private final MenuItemService menuItemService;
     private final UpnpProcessDispatcher dispatcher;
-    private final SettingsService settingsService;
-    private final ResourceBundle resourceBundle;
 
-    public RootUpnpProc(@Lazy UpnpProcessDispatcher dispatcher, SettingsService settingsService) {
+    public RootUpnpProc(MenuItemService menuItemService, @Lazy UpnpProcessDispatcher dispatcher) {
+        this.menuItemService = menuItemService;
         this.dispatcher = dispatcher;
-        this.settingsService = settingsService;
-        this.resourceBundle = ResourceBundle.getBundle("com.tesshu.jpsonic.i18n.ResourceBundle",
-                settingsService.getLocale());
+    }
+
+    private UPnPContentProcessor<?, ?> findProcessor(MenuItem menuItem) {
+        return dispatcher.findProcessor(ProcId.of(menuItem.getId()));
     }
 
     @Override
@@ -71,136 +73,73 @@ public class RootUpnpProc implements UPnPContentProcessor<Container, Container> 
         root.setRestricted(true);
         root.setSearchable(true);
         root.setWriteStatus(WriteStatus.NOT_WRITABLE);
-        root.setChildCount(6);
+        root.setChildCount(getDirectChildrenCount());
         return root;
     }
 
     @Override
-    public Container createContainer(Container item) {
-        return item;
+    public Container createContainer(MenuItem parentMenu) {
+        StorageFolder container = new StorageFolder();
+        container.setId(ProcId.ROOT.getValue() + ProcId.CID_SEPA + parentMenu.getId().value());
+        container.setParentID(ProcId.ROOT.getValue());
+        container.setStorageUsed(-1L);
+        container.setTitle(parentMenu.getName());
+        container.setRestricted(true);
+        container.setSearchable(true);
+        container.setWriteStatus(WriteStatus.NOT_WRITABLE);
+        container.setChildCount(getChildSizeOf(parentMenu));
+        return container;
+    }
+
+    @Override
+    public List<MenuItem> getDirectChildren(long offset, long maxResults) {
+        return menuItemService.getTopMenuItems(ViewType.UPNP, true, offset, maxResults);
     }
 
     @Override
     public int getDirectChildrenCount() {
-        return containers.size();
-    }
-
-    private void addContainer(ProcId id) {
-        UPnPContentProcessor<?, ?> proc = dispatcher.findProcessor(id);
-        if (id != ProcId.ROOT) {
-            String key = switch (id) {
-            case ROOT -> "none";
-            case FOLDER -> "dlna.title.folders";
-            case ARTIST, ARTIST_BY_FOLDER -> "dlna.title.artists";
-            case ALBUM -> "dlna.title.albums";
-            case ALBUM_BY_GENRE -> "dlna.title.albumbygenres";
-            case INDEX, INDEX_ID3 -> "dlna.title.index";
-            case PLAYLIST -> "dlna.title.playlists";
-            case PODCAST -> "dlna.title.podcast";
-            case RANDOM_ALBUM -> "dlna.title.randomAlbum";
-            case RANDOM_SONG -> "dlna.title.randomSong";
-            case RANDOM_SONG_BY_ARTIST, RANDOM_SONG_BY_FOLDER_ARTIST -> "dlna.title.randomSongByArtist";
-            case RECENT -> "dlna.title.recentAlbums";
-            case RECENT_ID3 -> "dlna.title.recentAlbumsId3";
-            case SONG_BY_GENRE -> "dlna.title.songbygenres";
-            };
-            proc.setProcTitle(resourceBundle.getString(key));
-        }
-        containers.add(proc.createRootContainer());
+        return menuItemService.getTopMenuItemCount(ViewType.UPNP);
     }
 
     @Override
-    public List<Container> getDirectChildren(long offset, long maxResults) {
-        containers.clear();
-        applyIndexContainer();
-        if (settingsService.isDlnaFolderVisible()) {
-            addContainer(ProcId.FOLDER);
-        }
-        applyArtistContainer();
-        if (settingsService.isDlnaAlbumVisible()) {
-            addContainer(ProcId.ALBUM);
-        }
-        if (settingsService.isDlnaPlaylistVisible()) {
-            addContainer(ProcId.PLAYLIST);
-        }
-        if (settingsService.isDlnaAlbumByGenreVisible()) {
-            addContainer(ProcId.ALBUM_BY_GENRE);
-        }
-        if (settingsService.isDlnaSongByGenreVisible()) {
-            addContainer(ProcId.SONG_BY_GENRE);
-        }
-        applyRecentAlbumContainer();
-        applyRandomContainer();
-        if (settingsService.isDlnaPodcastVisible()) {
-            addContainer(ProcId.PODCAST);
-        }
-
-        return containers.stream().skip(offset).limit(maxResults).toList();
-    }
-
-    private void applyIndexContainer() {
-        if (settingsService.isDlnaIndexVisible()) {
-            addContainer(ProcId.INDEX);
-        }
-        if (settingsService.isDlnaIndexId3Visible()) {
-            addContainer(ProcId.INDEX_ID3);
-        }
-    }
-
-    private void applyArtistContainer() {
-        if (settingsService.isDlnaArtistVisible()) {
-            addContainer(ProcId.ARTIST);
-        }
-        if (settingsService.isDlnaArtistByFolderVisible()) {
-            addContainer(ProcId.ARTIST_BY_FOLDER);
-        }
-    }
-
-    private void applyRecentAlbumContainer() {
-        if (settingsService.isDlnaRecentAlbumVisible()) {
-            addContainer(ProcId.RECENT);
-        }
-        if (settingsService.isDlnaRecentAlbumId3Visible()) {
-            addContainer(ProcId.RECENT_ID3);
-        }
-    }
-
-    private void applyRandomContainer() {
-        if (settingsService.isDlnaRandomSongVisible()) {
-            addContainer(ProcId.RANDOM_SONG);
-        }
-        if (settingsService.isDlnaRandomAlbumVisible()) {
-            addContainer(ProcId.RANDOM_ALBUM);
-        }
-        if (settingsService.isDlnaRandomSongByArtistVisible()) {
-            addContainer(ProcId.RANDOM_SONG_BY_ARTIST);
-        }
-        if (settingsService.isDlnaRandomSongByFolderArtistVisible()) {
-            addContainer(ProcId.RANDOM_SONG_BY_FOLDER_ARTIST);
-        }
+    public MenuItem getDirectChild(String id) {
+        return menuItemService.getMenuItem(id);
     }
 
     @Override
-    public Container getDirectChild(String id) {
-        return createRootContainer();
+    public int getChildSizeOf(MenuItem parentMenu) {
+        int childSize = menuItemService.getChildSizeOf(ViewType.UPNP, parentMenu.getId());
+        if (childSize == 1) {
+            List<MenuItem> childlen = menuItemService.getChildlenOf(ViewType.UPNP, parentMenu.getId(), true, 0, 1);
+            if (childlen.size() == 1) {
+                return findProcessor(childlen.get(0)).getDirectChildrenCount();
+            }
+        }
+        return childSize;
     }
 
     @Override
-    public int getChildSizeOf(Container item) {
-        return getChildren(item).size();
-    }
-
-    public final List<Container> getChildren(Container item) {
-        return containers;
+    public List<MenuItem> getChildren(MenuItem parentMenu, long offset, long maxResults) {
+        return menuItemService.getChildlenOf(ViewType.UPNP, parentMenu.getId(), true, offset, maxResults);
     }
 
     @Override
-    public List<Container> getChildren(Container item, long offset, long maxResults) {
-        return getChildren(item).stream().skip(offset).limit(maxResults).toList();
+    public void addChild(DIDLContent parent, MenuItem child) {
+        UPnPContentProcessor<?, ?> proc = findProcessor(child);
+        proc.setProcTitle(child.getName());
+        parent.addContainer(proc.createRootContainer());
     }
 
     @Override
-    public void addChild(DIDLContent parent, Container child) {
-        // to be none
+    public BrowseResult browseLeaf(String id, String filter, long offset, long maxLength) throws ExecutionException {
+        MenuItem parentMenu = getDirectChild(id);
+        int childSize = menuItemService.getChildSizeOf(ViewType.UPNP, parentMenu.getId());
+        if (childSize == 1) {
+            List<MenuItem> childlen = menuItemService.getChildlenOf(ViewType.UPNP, parentMenu.getId(), true, 0, 1);
+            if (childlen.size() == 1) {
+                return findProcessor(childlen.get(0)).browseRoot(filter, offset, maxLength);
+            }
+        }
+        return UPnPContentProcessor.super.browseLeaf(id, filter, offset, maxLength);
     }
 }

@@ -53,9 +53,14 @@ class MenuItemServiceTest {
     }
 
     @Test
+    void testGetTopMenuItemCount() {
+        assertEquals(8, menuItemService.getTopMenuItemCount(ViewType.UPNP));
+    }
+
+    @Test
     void testGetTopMenuItems() {
-        List<MenuItem> menuItems = menuItemService.getTopMenuItems(ViewType.UPNP);
-        assertEquals(8, menuItems.size());
+        List<MenuItem> menuItems = menuItemService.getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE);
+        assertEquals(menuItemService.getTopMenuItemCount(ViewType.UPNP), menuItems.size());
         assertEquals("Folder", menuItems.get(0).getName());
         assertEquals("Album Artist", menuItems.get(1).getName());
         assertEquals("Album", menuItems.get(2).getName());
@@ -68,40 +73,41 @@ class MenuItemServiceTest {
 
     @Test
     void testGetChildlenOf() {
-        List<MenuItem> menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.FOLDER);
+        List<MenuItem> menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.FOLDER, false, 0,
+                Integer.MAX_VALUE);
         assertEquals(2, menuItems.size());
         assertEquals("Folder with Index", menuItems.get(0).getName());
         assertEquals("File Structure", menuItems.get(1).getName());
 
-        menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.ARTIST);
+        menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.ARTIST, false, 0, Integer.MAX_VALUE);
         assertEquals(3, menuItems.size());
         assertEquals("Album Artist with Index", menuItems.get(0).getName());
         assertEquals("Album Artist All", menuItems.get(1).getName());
         assertEquals("Album Artist All(by Folder)", menuItems.get(2).getName());
 
-        menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.ALBUM);
+        menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.ALBUM, false, 0, Integer.MAX_VALUE);
         assertEquals(1, menuItems.size());
         assertEquals("Album All(ID3)", menuItems.get(0).getName());
 
-        menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE);
+        menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.GENRE, false, 0, Integer.MAX_VALUE);
         assertEquals(2, menuItems.size());
         assertEquals("Albums by Genre(File Structure)", menuItems.get(0).getName());
         assertEquals("All Music by Genre", menuItems.get(1).getName());
 
-        menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.PODCAST);
+        menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.PODCAST, false, 0, Integer.MAX_VALUE);
         assertEquals(1, menuItems.size());
         assertEquals("Podcast Channels All", menuItems.get(0).getName());
 
-        menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.PLAYLISTS);
+        menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.PLAYLISTS, false, 0, Integer.MAX_VALUE);
         assertEquals(1, menuItems.size());
         assertEquals("Playlists All", menuItems.get(0).getName());
 
-        menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.RECENTLY);
+        menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.RECENTLY, false, 0, Integer.MAX_VALUE);
         assertEquals(2, menuItems.size());
         assertEquals("Recently Added Albums", menuItems.get(0).getName());
         assertEquals("Recently Tagged Albums", menuItems.get(1).getName());
 
-        menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.SHUFFLE);
+        menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.SHUFFLE, false, 0, Integer.MAX_VALUE);
         assertEquals(4, menuItems.size());
         assertEquals("Random Album(ID3)", menuItems.get(0).getName());
         assertEquals("Random Music", menuItems.get(1).getName());

@@ -32,7 +32,7 @@ public class MessageSourceConfiguration {
         final ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
         messageSource.setBasename("classpath:com/tesshu/jpsonic/i18n/menuItem");
         messageSource.setFallbackToSystemLocale(false);
-        messageSource.setCacheSeconds(0);
+        messageSource.setCacheSeconds(-1);
         return messageSource;
     }
 }
