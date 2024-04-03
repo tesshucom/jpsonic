@@ -22,6 +22,7 @@
 <%@ include file="head.jsp" %>
 <%@ include file="jquery.jsp" %>
 <%@ page import="com.tesshu.jpsonic.domain.TranscodeScheme" %>
+<%@ page import="com.tesshu.jpsonic.domain.MenuItemId" %>
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script>
 
@@ -119,9 +120,9 @@
                     </c:forEach>
                 </form:select>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="transcode"/></c:import>
-				<c:if test="${not command.transcodingSupported}">
-                	<strong><fmt:message key="playersettings.notranscoder"/></strong>
-				</c:if>
+                <c:if test="${not command.transcodingSupported}">
+                    <strong><fmt:message key="playersettings.notranscoder"/></strong>
+                </c:if>
             </dd>
             <dt></dt>
             <dd>
@@ -132,178 +133,128 @@
     </details>
 
     <details ${isOpen}>
-        <summary class="jpsonic"><fmt:message key="dlnasettings.view"/></summary>
+        <summary class="jpsonic"><fmt:message key="dlnasettings.submenu"/></summary>
 
-        <table class="tabular dlna-display">
+        <table class="tabular sub-menus">
             <thead>
                 <tr>
-                    <th><fmt:message key="dlnasettings.functionName"/></th>
+                    <th><fmt:message key="dlnasettings.menuname"/></th>
+                    <th><fmt:message key="dlnasettings.menuenabled"/></th>
                     <th><fmt:message key="dlnasettings.nameOnClient"/></th>
+                    <th><fmt:message key="dlnasettings.contentoverview"/></th>
+                    <th><fmt:message key="dlnasettings.viewopt"/></th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>
-                        <form:checkbox path="dlnaIndexVisible" id="dlnaIndexVisible"/>
-                        <label for="dlnaIndexVisible"><fmt:message key="dlna.title.index"/></label>
-                    </td>
-                    <td rowspan="2">
-                        <fmt:message key="dlna.title.index"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <form:checkbox path="dlnaIndexId3Visible" id="dlnaIndexId3Visible"/>
-                        <label for="dlnaIndexId3Visible"><fmt:message key="dlna.title.index"/> [ID3]</label>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <form:checkbox path="dlnaFolderVisible" id="dlnaFolderVisible"/>
-                        <label for="dlnaFolderVisible"><fmt:message key="dlna.title.folders"/></label>
-                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnafolder"/></c:import>
-                    </td>
-                    <td>
-                        <fmt:message key="dlna.title.folders"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <form:checkbox path="dlnaArtistVisible" id="dlnaArtistVisible"/>
-                        <label for="dlnaArtistVisible"><fmt:message key="dlna.title.artists"/> [ID3]</label>
-                    </td>
-                    <td rowspan="2">
-                        <fmt:message key="dlna.title.artists"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <form:checkbox path="dlnaArtistByFolderVisible" id="dlnaArtistByFolderVisible"/>
-                        <label for="dlnaArtistByFolderVisible"><fmt:message key="dlna.title.artistsByFolder"/> [ID3]</label>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <form:checkbox path="dlnaAlbumVisible" id="dlnaAlbumVisible"/>
-                        <label for="dlnaAlbumVisible"><fmt:message key="dlna.title.albums"/> [ID3]</label>
-                    </td>
-                    <td>
-                        <fmt:message key="dlna.title.albums"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <form:checkbox path="dlnaPlaylistVisible" id="dlnaPlaylistVisible"/>
-                        <label for="dlnaPlaylistVisible"><fmt:message key="dlna.title.playlists"/></label>
-                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnaplaylist"/></c:import>
-                    </td>
-                    <td>
-                        <fmt:message key="dlna.title.playlists"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <form:checkbox path="dlnaAlbumByGenreVisible" id="dlnaAlbumByGenreVisible"/>
-                        <label for="dlnaAlbumByGenreVisible"><fmt:message key="dlna.title.albumbygenres"/></label>
-                    </td>
-                    <td>
-                        <fmt:message key="dlna.title.albumbygenres"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <form:checkbox path="dlnaSongByGenreVisible" id="dlnaSongByGenreVisible"/>
-                        <label for="dlnaSongByGenreVisible"><fmt:message key="dlna.title.songbygenres"/></label>
-                    </td>
-                    <td>
-                        <fmt:message key="dlna.title.songbygenres"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <form:checkbox path="dlnaRecentAlbumVisible" id="dlnaRecentAlbumVisible"/>
-                        <label for="dlnaRecentAlbumVisible"><fmt:message key="dlna.title.recentAlbums"/></label>
-                    </td>
-                    <td>
-                        <fmt:message key="dlna.title.recentAlbums"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <form:checkbox path="dlnaRecentAlbumId3Visible" id="dlnaRecentAlbumId3Visible"/>
-                        <label for="dlnaRecentAlbumId3Visible"><fmt:message key="dlna.title.recentAlbumsId3"/> [ID3]</label>
-                    </td>
-                    <td>
-                        <fmt:message key="dlna.title.recentAlbumsId3"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <form:checkbox path="dlnaRandomSongVisible" id="dlnaRandomSongVisible"/>
-                        <label for="dlnaRandomSongVisible"><fmt:message key="dlna.title.randomSong"/></label>
-                    </td>
-                    <td>
-                        <fmt:message key="dlna.title.randomSong"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <form:checkbox path="dlnaRandomAlbumVisible" id="dlnaRandomAlbumVisible"/>
-                        <label for="dlnaRandomAlbumVisible"><fmt:message key="dlna.title.randomAlbum"/></label>
-                    </td>
-                    <td>
-                        <fmt:message key="dlna.title.randomAlbum"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <form:checkbox path="dlnaRandomSongByArtistVisible" id="dlnaRandomSongByArtistVisible"/>
-                        <label for="dlnaRandomSongByArtistVisible"><fmt:message key="dlna.title.randomSongByArtist"/></label>
-                    </td>
-                    <td rowspan="2" class="labeled">
-                        <fmt:message key="dlna.title.randomSongByArtist"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <form:checkbox path="dlnaRandomSongByFolderArtistVisible" id="dlnaRandomSongByFolderArtistVisible"/>
-                        <label for="dlnaRandomSongByFolderArtistVisible"><fmt:message key="dlna.title.randomSongByFolderArtist"/></label>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <form:checkbox path="dlnaPodcastVisible" id="dlnaPodcastVisible"/>
-                        <label for="dlnaPodcastVisible"><fmt:message key="dlna.title.podcast"/></label>
-                    </td>
-                    <td>
-                        <fmt:message key="dlna.title.podcast"/>
-                    </td>
-                </tr>
+                <c:forEach items="${command.subMenuItems}" var="subMenuItem" varStatus="loopStatus">
+                    <c:set var="rowInfo" value="${command.subMenuItemRowInfos[subMenuItem.parent]}" />
+                    <c:set var="isFirstSubMenu" value="${subMenuItem.parent eq rowInfo.firstChild().parent and subMenuItem.id eq rowInfo.firstChild().id}" />
+                    <c:choose>
+                        <c:when test="${loopStatus.count eq 13}">
+                            <!-- 13: It will be rewritten when Menu is implemented. -->
+                            <tr class="lastMenu">
+                        </c:when>
+                        <c:otherwise>
+                            <tr>
+                        </c:otherwise>
+                    </c:choose>
+                        <c:choose>
+                            <c:when test="${isFirstSubMenu}">
+                                <td rowspan="${rowInfo.count()}">${subMenuItem.parent.name()}</td>
+                            </c:when>
+                            <c:otherwise>
+                            </c:otherwise>
+                        </c:choose>
+                        <td class="chk-container"><form:checkbox path="subMenuItems[${loopStatus.count-1}].enabled" /></td>
+                        <td class="input-text-container">
+                            <form:input path="subMenuItems[${loopStatus.count-1}].name" placeholder="${subMenuItem.defaultName}" value="${subMenuItem.name}" class="subMenuName"/>
+                        </td>
+                        <c:choose>
+                            <c:when test="${subMenuItem.id eq MenuItemId.INDEX}">
+                                <td>[Index] [Artist Folder] [Album Folder] [Song]</td>
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.MEDIA_FILE}">
+                                <td>[Folder ... ] [Song]</td>
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.INDEX_ID3}">
+                                <td>[Index] [Artist] [Album] [Song]</td>
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ARTIST}">
+                                <td>[Artist] [Album] [Song]</td>
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ARTIST_BY_FOLDER}">
+                                <td>[Music Folder] [Artist] [Album] [Song]</td>
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ID3}">
+                                <td>[Album] [Song]</td>
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_BY_GENRE}">
+                                <td>[Genre] [Album Folder] [Song]</td>
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.SONG_BY_GENRE}">
+                                <td>[Genre] [Song]</td>
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.PODCAST_DEFALT}">
+                                <td>[Channel] [Episode] [Media Content(Audio)]</td>
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.PLAYLISTS_DEFALT}">
+                                <td>[Playlist] [Song]</td>
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.RECENTLY_ADDED_ALBUM}">
+                                <td>[Album] [Song]</td>
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.RECENTLY_TAGGED_ALBUM}">
+                                <td>[Album] [Song]</td>
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_ALBUM}">
+                                <td>[Random Album] [Song]</td>
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_SONG}">
+                                <td>[Random Song]</td>
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_SONG_BY_ARTIST}">
+                                <td>[Artist] [Random Song]</td>
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_SONG_BY_FOLDER_ARTIST}">
+                                <td>[Music Folder] [Artist] [Random Song]</td>
+                            </c:when>
+                            <c:otherwise>
+                            </c:otherwise>
+                        </c:choose>
+                        <c:choose>
+                            <c:when test="${isFirstSubMenu}">
+                                <c:choose>
+                                    <c:when test="${subMenuItem.parent eq MenuItemId.GENRE}">
+                                        <td rowspan="${rowInfo.count()}">
+                                            <form:checkbox path="dlnaGenreCountVisible" id="dlnaGenreCountVisible"/>
+                                            <label for="dlnaGenreCountVisible"><fmt:message key="dlnasettings.genreCountVisible"/></label>
+                                            <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnagenrecountvisible"/></c:import>
+                                        </td>
+                                    </c:when>
+                                    <c:when test="${subMenuItem.parent eq MenuItemId.SHUFFLE}">
+                                        <td rowspan="${rowInfo.count()}">
+                                            <label for="dlnaRandomMax"><fmt:message key="dlnasettings.randommax"/></label>
+                                            <form:input path="dlnaRandomMax" id="dlnaRandomMax" maxlength="4"/>
+                                        </td>
+                                    </c:when>
+                                    <c:when test="${subMenuItem.parent eq MenuItemId.PLAYLISTS}">
+                                        <td rowspan="${rowInfo.count()}">
+                                            <form:checkbox path="dlnaGuestPublish" id="dlnaGuestPublish"/>
+                                            <label for=dlnaGuestPublish><fmt:message key="dlnasettings.guestpublish"/></label>
+                                        </td>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <td rowspan="${rowInfo.count()}"></td>
+                                    </c:otherwise>
+                                </c:choose>
+                            </c:when>
+                            <c:otherwise>
+                            </c:otherwise>
+                        </c:choose>
+                    </tr>
+                </c:forEach>
             </tbody>
         </table>
-
-    </details>
-
-    <details ${isOpen}>
-        <summary class="jpsonic"><fmt:message key="dlnasettings.viewopt"/> / <fmt:message key="dlnasettings.accesscontrol"/></summary>
-        <dl>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="dlnaGenreCountVisible" id="dlnaGenreCountVisible"/>
-                <label for="dlnaGenreCountVisible"><fmt:message key="dlnasettings.genreCountVisible"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnagenrecountvisible"/></c:import>
-            </dd>
-            <dt><label for="dlnaRandomMax"><fmt:message key="dlnasettings.randommax"/></label></dt>
-            <dd>
-                <form:input path="dlnaRandomMax" id="dlnaRandomMax" maxlength="4"/>
-            </dd>
-
-            <dt></dt>
-            <dd>
-                <form:checkbox path="dlnaGuestPublish" id="dlnaGuestPublish"/>
-                <label for=dlnaGuestPublish><fmt:message key="dlnasettings.guestpublish"/></label>
-            </dd>
-        </dl>
     </details>
 
     <div class="submits">

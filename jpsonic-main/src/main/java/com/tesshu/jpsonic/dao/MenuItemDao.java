@@ -31,6 +31,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public class MenuItemDao {
 
     private static final String QUERY_COLUMNS = """
@@ -96,5 +97,16 @@ public class MenuItemDao {
                 """;
         template.update(sql, menuItem.getViewType().value(), menuItem.getParent().value(), menuItem.getName(),
                 menuItem.isEnabled(), menuItem.getMenuItemOrder(), menuItem.getId().value());
+    }
+
+    public List<MenuItem> getSubMenuItems(ViewType viewType) {
+        Map<String, Object> args = Map.of("type", viewType.value(), "rootId", MenuItemId.ROOT.value());
+        return template.namedQuery("select " + QUERY_COLUMNS + """
+                from menu_item sub
+                join menu_item top
+                on sub.parent = top.id
+                where sub.view_type=:type and sub.parent <> :rootId
+                order by top.menu_item_order, top.id, sub.menu_item_order, sub.id
+                """, rowMapper, args);
     }
 }
