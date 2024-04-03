@@ -51,7 +51,10 @@ public enum MenuItemId {
 
     RADIO(120),
 
-    BOOKMARK(130);
+    BOOKMARK(130),
+
+    // None of these (unreachable)
+    ANY(999);
 
     private final int v;
 
@@ -64,6 +67,6 @@ public enum MenuItemId {
     }
 
     public static @NonNull MenuItemId of(int value) {
-        return Stream.of(values()).filter(id -> id.v == value).findFirst().orElse(ROOT);
+        return Stream.of(values()).filter(id -> id.v == value).findFirst().orElse(ANY);
     }
 }

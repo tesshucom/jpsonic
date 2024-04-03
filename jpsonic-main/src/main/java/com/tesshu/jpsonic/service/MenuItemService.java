@@ -37,6 +37,7 @@ public class MenuItemService {
 
     private final SettingsService settingsService;
     private final MenuItemDao menuItemDao;
+
     @Resource
     private final MessageSource menuItemSource;
 
@@ -86,7 +87,40 @@ public class MenuItemService {
     }
 
     public void updateMenuItem(MenuItem menuItem) {
-        menuItemDao.updateMenuItem(menuItem);
+        MenuItem stored = menuItemDao.getMenuItem(menuItem.getId().value());
+        String defaultName = getItemName(menuItem.getId());
+        stored.setEnabled(menuItem.isEnabled());
+        if (stored.getName().equals(defaultName) || menuItem.getName().isBlank()) {
+            stored.setName("");
+        } else {
+            stored.setName(menuItem.getName());
+        }
+        stored.setMenuItemOrder(menuItem.getMenuItemOrder());
+        menuItemDao.updateMenuItem(stored);
     }
 
+    public List<MenuItemWithDefaultName> getSubMenuItems(ViewType viewType) {
+        return menuItemDao.getSubMenuItems(viewType).stream().map(item -> {
+            String defaultName = getItemName(item.getId());
+            if (item.getName().isBlank()) {
+                item.setName(defaultName);
+            }
+            return new MenuItemWithDefaultName(item, defaultName);
+        }).toList();
+    }
+
+    public static class MenuItemWithDefaultName extends MenuItem {
+
+        private final String defaultName;
+
+        public MenuItemWithDefaultName(MenuItem menuItem, String defaultName) {
+            super(menuItem.getViewType(), menuItem.getId(), menuItem.getParent(), menuItem.getName(),
+                    menuItem.isEnabled(), menuItem.getMenuItemOrder());
+            this.defaultName = defaultName;
+        }
+
+        public String getDefaultName() {
+            return defaultName;
+        }
+    }
 }
