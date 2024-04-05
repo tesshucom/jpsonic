@@ -19,6 +19,7 @@
 
 package com.tesshu.jpsonic.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -74,6 +75,11 @@ public class MenuItemService {
         return menuItems;
     }
 
+    public List<MenuItemWithDefaultName> getTopMenuItems(ViewType viewType) {
+        return getTopMenuItems(viewType, false, 0, Integer.MAX_VALUE).stream()
+                .map(menuItem -> new MenuItemWithDefaultName(menuItem, getItemName(menuItem.getId()))).toList();
+    }
+
     public int getChildSizeOf(ViewType viewType, MenuItemId id) {
         return menuItemDao.getChildSizeOf(viewType, id);
     }
@@ -97,6 +103,25 @@ public class MenuItemService {
         }
         stored.setMenuItemOrder(menuItem.getMenuItemOrder());
         menuItemDao.updateMenuItem(stored);
+    }
+
+    public void updateMenuItemOrder(ViewType viewType, int menuItemId) {
+        List<MenuItem> menuItems = getTopMenuItems(viewType, false, 0, Integer.MAX_VALUE);
+        int position = -1;
+        for (int i = 0; i < menuItems.size(); i++) {
+            if (menuItemId == menuItems.get(i).getId().value()) {
+                position = i;
+                break;
+            }
+        }
+        if (0 < position) {
+            Collections.swap(menuItems, position - 1, position);
+            for (int i = 0; i < menuItems.size(); i++) {
+                MenuItem menuItem = menuItems.get(i);
+                menuItem.setMenuItemOrder(i);
+                menuItemDao.updateMenuItem(menuItem);
+            }
+        }
     }
 
     public List<MenuItemWithDefaultName> getSubMenuItems(ViewType viewType) {

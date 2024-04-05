@@ -19,6 +19,8 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static com.tesshu.jpsonic.dao.base.DaoUtils.prefix;
+
 import java.sql.ResultSet;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +67,7 @@ public class MenuItemDao {
         return template.namedQuery("select " + QUERY_COLUMNS + """
                 from menu_item
                 where view_type=:type and parent=:parentId %s
-                order by menu_item_order, id
+                order by enabled desc, menu_item_order, id
                 limit :count offset :offset
                 """.formatted(enabledOnly ? "and enabled=:enabledOnly" : ""), rowMapper, args);
     }
@@ -101,12 +103,12 @@ public class MenuItemDao {
 
     public List<MenuItem> getSubMenuItems(ViewType viewType) {
         Map<String, Object> args = Map.of("type", viewType.value(), "rootId", MenuItemId.ROOT.value());
-        return template.namedQuery("select " + QUERY_COLUMNS + """
+        return template.namedQuery("select " + prefix(QUERY_COLUMNS, "sub") + """
                 from menu_item sub
                 join menu_item top
                 on sub.parent = top.id
                 where sub.view_type=:type and sub.parent <> :rootId
-                order by top.menu_item_order, top.id, sub.menu_item_order, sub.id
+                order by top.enabled desc, top.menu_item_order, sub.enabled desc, sub.menu_item_order, top.id, sub.id
                 """, rowMapper, args);
     }
 }

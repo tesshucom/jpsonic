@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.command.DLNASettingsCommand;
 import com.tesshu.jpsonic.command.DLNASettingsCommand.SubMenuItemRowInfo;
@@ -52,10 +53,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
@@ -96,7 +99,13 @@ public class DLNASettingsController {
     }
 
     @ModelAttribute
-    protected void formBackingObject(HttpServletRequest request, Model model) {
+    protected void formBackingObject(HttpServletRequest request, Model model,
+            @RequestParam(value = Attributes.Request.NameConstants.UPWARD, required = false) Integer id) {
+
+        if (!ObjectUtils.isEmpty(id)) {
+            menuItemService.updateMenuItemOrder(ViewType.UPNP, id);
+        }
+
         DLNASettingsCommand command = new DLNASettingsCommand();
 
         // UPnP basic settings
@@ -115,8 +124,13 @@ public class DLNASettingsController {
         command.setTranscodeScheme(guestPlayer.getTranscodeScheme());
         command.setUriWithFileExtensions(settingsService.isUriWithFileExtensions());
 
-        // Menu Details
-        List<MenuItem> topMenuItems = menuItemService.getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE);
+        // Menu settings
+        List<MenuItemWithDefaultName> topMenuItems = menuItemService.getTopMenuItems(ViewType.UPNP);
+        command.setTopMenuItems(topMenuItems);
+
+        // Menu detail settings
+        command.setTopMenuEnableds(
+                topMenuItems.stream().collect(Collectors.toMap(MenuItem::getId, MenuItem::isEnabled)));
         List<MenuItemWithDefaultName> subMenuItems = menuItemService.getSubMenuItems(ViewType.UPNP);
         command.setSubMenuItems(subMenuItems);
 
@@ -201,7 +215,7 @@ public class DLNASettingsController {
         playerService.updatePlayer(guestPlayer);
 
         // Menu detail settings
-        command.getSubMenuItems().forEach(in -> {
+        Stream.concat(command.getTopMenuItems().stream(), command.getSubMenuItems().stream()).forEach(in -> {
             MenuItem menuItem = menuItemService.getMenuItem(in.getId());
             if (menuItem.isEnabled() == in.isEnabled() && menuItem.getName().equals(in.getName())) {
                 return;
