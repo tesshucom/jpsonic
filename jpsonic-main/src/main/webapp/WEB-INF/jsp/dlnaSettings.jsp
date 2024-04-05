@@ -132,6 +132,39 @@
         </dl>
     </details>
 
+    <details open>
+        <summary class="jpsonic"><fmt:message key="dlnasettings.menu"/></summary>
+
+        <table class="tabular menus">
+            <thead>
+                <tr>
+                    <th><fmt:message key="dlnasettings.menuname"/></th>
+                    <th><fmt:message key="dlnasettings.menuenabled"/></th>
+                    <th><fmt:message key="dlnasettings.nameOnClient"/></th>
+                    <th><fmt:message key="musicfoldersettings.order"/></th>
+                </tr>
+            </thead>
+            <tbody>
+                <c:forEach items="${command.topMenuItems}" var="topMenuItem" varStatus="loopStatus">
+                    <c:set var="ifDisabled" value='${(topMenuItem.enabled == false) ? "disabledNow" : ""}' />
+                    <tr>
+                        <td class="${ifDisabled}">${topMenuItem.id.name()}</td>
+                        <td class="chk-container ${ifDisabled}"><form:checkbox path="topMenuItems[${loopStatus.count-1}].enabled" /></td>
+                        <td class="input-text-container ${ifDisabled}">
+                            <form:input path="topMenuItems[${loopStatus.count-1}].name" placeholder="${topMenuItem.defaultName}" value="${topMenuItem.name}" class="subMenuName"/>
+                        </td>
+                        <td class="${ifDisabled}">
+                            <c:if test="${loopStatus.count != 1 && command.topMenuItems[loopStatus.count-1].enabled}">
+                                <a href="javaScript:location.href='dlnaSettings.view?upward=${topMenuItem.id.value()}'" class="control up"></a>
+                            </c:if>
+                        </td>
+                    </tr>
+                </c:forEach>
+            </tbody>
+        </table>
+    </details>
+
+
     <details ${isOpen}>
         <summary class="jpsonic"><fmt:message key="dlnasettings.submenu"/></summary>
 
@@ -149,108 +182,111 @@
                 <c:forEach items="${command.subMenuItems}" var="subMenuItem" varStatus="loopStatus">
                     <c:set var="rowInfo" value="${command.subMenuItemRowInfos[subMenuItem.parent]}" />
                     <c:set var="isFirstSubMenu" value="${subMenuItem.parent eq rowInfo.firstChild().parent and subMenuItem.id eq rowInfo.firstChild().id}" />
+                    <c:set var="isLastMenu" value="${subMenuItem.parent eq command.topMenuItems[fn:length(command.topMenuItems) - 1].id}" />
+                    <c:set var="ifDisabled" value='${(!subMenuItem.enabled or !command.topMenuEnableds.get(subMenuItem.parent)) ? "disabledNow" : ""}' />
                     <c:choose>
-                        <c:when test="${loopStatus.count eq 13}">
-                            <!-- 13: It will be rewritten when Menu is implemented. -->
+                        <c:when test="${isLastMenu}">
                             <tr class="lastMenu">
                         </c:when>
                         <c:otherwise>
                             <tr>
                         </c:otherwise>
                     </c:choose>
-                        <c:choose>
-                            <c:when test="${isFirstSubMenu}">
-                                <td rowspan="${rowInfo.count()}">${subMenuItem.parent.name()}</td>
-                            </c:when>
-                            <c:otherwise>
-                            </c:otherwise>
-                        </c:choose>
-                        <td class="chk-container"><form:checkbox path="subMenuItems[${loopStatus.count-1}].enabled" /></td>
-                        <td class="input-text-container">
-                            <form:input path="subMenuItems[${loopStatus.count-1}].name" placeholder="${subMenuItem.defaultName}" value="${subMenuItem.name}" class="subMenuName"/>
-                        </td>
+                    <c:choose>
+                        <c:when test="${isFirstSubMenu}">
+                            <td rowspan="${rowInfo.count()}" class="${ifDisabled}">${subMenuItem.parent.name()}</td>
+                        </c:when>
+                        <c:otherwise>
+                        </c:otherwise>
+                    </c:choose>
+                    <td class="chk-container ${ifDisabled}"><form:checkbox path="subMenuItems[${loopStatus.count-1}].enabled" /></td>
+                    <td class="input-text-container ${ifDisabled}">
+                        <form:input path="subMenuItems[${loopStatus.count-1}].name" placeholder="${subMenuItem.defaultName}" value="${subMenuItem.name}" class="subMenuName"/>
+                    </td>
+                    <td class="hierarchy ${ifDisabled}">
                         <c:choose>
                             <c:when test="${subMenuItem.id eq MenuItemId.INDEX}">
-                                <td>[Index] [Artist Folder] [Album Folder] [Song]</td>
+                                [Index] [Artist Folder] [Album Folder] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.MEDIA_FILE}">
-                                <td>[Folder ... ] [Song]</td>
+                                [Folder ... ] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.INDEX_ID3}">
-                                <td>[Index] [Artist] [Album] [Song]</td>
+                                [Index] [Artist] [Album] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ARTIST}">
-                                <td>[Artist] [Album] [Song]</td>
+                                [Artist] [Album] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ARTIST_BY_FOLDER}">
-                                <td>[Music Folder] [Artist] [Album] [Song]</td>
+                                [Music Folder] [Artist] [Album] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_ID3}">
-                                <td>[Album] [Song]</td>
+                                [Album] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.ALBUM_BY_GENRE}">
-                                <td>[Genre] [Album Folder] [Song]</td>
+                                [Genre] [Album Folder] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.SONG_BY_GENRE}">
-                                <td>[Genre] [Song]</td>
+                                [Genre] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.PODCAST_DEFALT}">
-                                <td>[Channel] [Episode] [Media Content(Audio)]</td>
+                                [Channel] [Episode] [Media(Audio)]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.PLAYLISTS_DEFALT}">
-                                <td>[Playlist] [Song]</td>
+                                [Playlist] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.RECENTLY_ADDED_ALBUM}">
-                                <td>[Album] [Song]</td>
+                                [Album] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.RECENTLY_TAGGED_ALBUM}">
-                                <td>[Album] [Song]</td>
+                                [Album] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_ALBUM}">
-                                <td>[Random Album] [Song]</td>
+                                [Random Album] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_SONG}">
-                                <td>[Random Song]</td>
+                                [Random Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_SONG_BY_ARTIST}">
-                                <td>[Artist] [Random Song]</td>
+                                [Artist] [Random Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.RANDOM_SONG_BY_FOLDER_ARTIST}">
-                                <td>[Music Folder] [Artist] [Random Song]</td>
+                                [Music Folder] [Artist] [Random Song]
                             </c:when>
                             <c:otherwise>
                             </c:otherwise>
                         </c:choose>
-                        <c:choose>
-                            <c:when test="${isFirstSubMenu}">
-                                <c:choose>
-                                    <c:when test="${subMenuItem.parent eq MenuItemId.GENRE}">
-                                        <td rowspan="${rowInfo.count()}">
-                                            <form:checkbox path="dlnaGenreCountVisible" id="dlnaGenreCountVisible"/>
-                                            <label for="dlnaGenreCountVisible"><fmt:message key="dlnasettings.genreCountVisible"/></label>
-                                            <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnagenrecountvisible"/></c:import>
-                                        </td>
-                                    </c:when>
-                                    <c:when test="${subMenuItem.parent eq MenuItemId.SHUFFLE}">
-                                        <td rowspan="${rowInfo.count()}">
-                                            <label for="dlnaRandomMax"><fmt:message key="dlnasettings.randommax"/></label>
-                                            <form:input path="dlnaRandomMax" id="dlnaRandomMax" maxlength="4"/>
-                                        </td>
-                                    </c:when>
-                                    <c:when test="${subMenuItem.parent eq MenuItemId.PLAYLISTS}">
-                                        <td rowspan="${rowInfo.count()}">
-                                            <form:checkbox path="dlnaGuestPublish" id="dlnaGuestPublish"/>
-                                            <label for=dlnaGuestPublish><fmt:message key="dlnasettings.guestpublish"/></label>
-                                        </td>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <td rowspan="${rowInfo.count()}"></td>
-                                    </c:otherwise>
-                                </c:choose>
-                            </c:when>
-                            <c:otherwise>
-                            </c:otherwise>
-                        </c:choose>
+                    </td>
+                    <c:choose>
+                        <c:when test="${isFirstSubMenu}">
+                            <c:choose>
+                                <c:when test="${subMenuItem.parent eq MenuItemId.GENRE}">
+                                    <td rowspan="${rowInfo.count()}" class="${ifDisabled}">
+                                        <form:checkbox path="dlnaGenreCountVisible" id="dlnaGenreCountVisible"/>
+                                        <label for="dlnaGenreCountVisible"><fmt:message key="dlnasettings.genreCountVisible"/></label>
+                                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnagenrecountvisible"/></c:import>
+                                    </td>
+                                </c:when>
+                                <c:when test="${subMenuItem.parent eq MenuItemId.SHUFFLE}">
+                                    <td rowspan="${rowInfo.count()}" class="${ifDisabled}">
+                                        <label for="dlnaRandomMax"><fmt:message key="dlnasettings.randommax"/></label>
+                                        <form:input path="dlnaRandomMax" id="dlnaRandomMax" maxlength="4"/>
+                                    </td>
+                                </c:when>
+                                <c:when test="${subMenuItem.parent eq MenuItemId.PLAYLISTS}">
+                                    <td rowspan="${rowInfo.count()}" class="${ifDisabled}">
+                                        <form:checkbox path="dlnaGuestPublish" id="dlnaGuestPublish"/>
+                                        <label for=dlnaGuestPublish><fmt:message key="dlnasettings.guestpublish"/></label>
+                                    </td>
+                                </c:when>
+                                <c:otherwise>
+                                    <td rowspan="${rowInfo.count()}" class="${ifDisabled}"></td>
+                                </c:otherwise>
+                            </c:choose>
+                        </c:when>
+                        <c:otherwise>
+                        </c:otherwise>
+                    </c:choose>
                     </tr>
                 </c:forEach>
             </tbody>

@@ -136,6 +136,7 @@ class DLNASettingsControllerTest {
         DLNASettingsCommand command = new DLNASettingsCommand();
         command.setActiveTranscodingIds(0);
         command.setTranscodeScheme(TranscodeScheme.MAX_1411);
+        command.setTopMenuItems(Collections.emptyList());
         command.setSubMenuItems(Collections.emptyList());
         ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
         controller.post(command, Mockito.mock(RedirectAttributes.class));
@@ -156,7 +157,7 @@ class DLNASettingsControllerTest {
                     mock(MenuItemService.class), mock(OutlineHelpSelector.class));
             mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
             Model model = new ExtendedModelMap();
-            controller.formBackingObject(Mockito.mock(HttpServletRequest.class), model);
+            controller.formBackingObject(Mockito.mock(HttpServletRequest.class), model, null);
 
             DLNASettingsCommand command = (DLNASettingsCommand) model.getAttribute(Attributes.Model.Command.VALUE);
             assertEquals(0, command.getSubMenuItems().size());
@@ -176,12 +177,14 @@ class DLNASettingsControllerTest {
             mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
             // Create dummy data
-            List<MenuItem> topMenuItems = new ArrayList<>();
-            topMenuItems.add(new MenuItem(ViewType.UPNP, MenuItemId.FOLDER, MenuItemId.ROOT, "", true, 1));
-            topMenuItems.add(new MenuItem(ViewType.UPNP, MenuItemId.ARTIST, MenuItemId.ROOT, "", true, 2));
-            topMenuItems.add(new MenuItem(ViewType.UPNP, MenuItemId.ALBUM, MenuItemId.ROOT, "", false, 3));
-            Mockito.when(menuItemService.getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE))
-                    .thenReturn(topMenuItems);
+            List<MenuItemWithDefaultName> topMenuItems = new ArrayList<>();
+            topMenuItems.add(new MenuItemWithDefaultName(
+                    new MenuItem(ViewType.UPNP, MenuItemId.FOLDER, MenuItemId.ROOT, "", true, 1), "top1"));
+            topMenuItems.add(new MenuItemWithDefaultName(
+                    new MenuItem(ViewType.UPNP, MenuItemId.ARTIST, MenuItemId.ROOT, "", true, 2), "top2"));
+            topMenuItems.add(new MenuItemWithDefaultName(
+                    new MenuItem(ViewType.UPNP, MenuItemId.ALBUM, MenuItemId.ROOT, "", false, 3), "top3"));
+            Mockito.when(menuItemService.getTopMenuItems(ViewType.UPNP)).thenReturn(topMenuItems);
 
             List<MenuItemWithDefaultName> subMenuItems = new ArrayList<>();
             subMenuItems.add(new MenuItemWithDefaultName(
@@ -199,7 +202,7 @@ class DLNASettingsControllerTest {
 
             // Exec
             Model model = new ExtendedModelMap();
-            controller.formBackingObject(Mockito.mock(HttpServletRequest.class), model);
+            controller.formBackingObject(Mockito.mock(HttpServletRequest.class), model, null);
 
             DLNASettingsCommand command = (DLNASettingsCommand) model.getAttribute(Attributes.Model.Command.VALUE);
             assertEquals(5, command.getSubMenuItems().size());
@@ -229,6 +232,7 @@ class DLNASettingsControllerTest {
 
         DLNASettingsCommand command = new DLNASettingsCommand();
         command.setDlnaGenreCountVisible(false);
+        command.setTopMenuItems(Collections.emptyList());
         command.setSubMenuItems(Collections.emptyList());
         ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
         Mockito.doNothing().when(settingsService).setDlnaGenreCountVisible(captor.capture());
@@ -279,6 +283,7 @@ class DLNASettingsControllerTest {
             mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
             DLNASettingsCommand command = new DLNASettingsCommand();
+            command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
             command.setSubMenuItemRowInfos(Collections.emptyMap());
 
@@ -315,6 +320,7 @@ class DLNASettingsControllerTest {
                     menuItem -> Mockito.when(menuItemService.getMenuItem(menuItem.getId())).thenReturn(menuItem));
 
             DLNASettingsCommand command = new DLNASettingsCommand();
+            command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(subMenuItems);
             ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
             Mockito.doNothing().when(menuItemService).updateMenuItem(menuItemCaptor.capture());
@@ -358,6 +364,7 @@ class DLNASettingsControllerTest {
             });
 
             DLNASettingsCommand command = new DLNASettingsCommand();
+            command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(subMenuItems);
             ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
             Mockito.doNothing().when(menuItemService).updateMenuItem(menuItemCaptor.capture());
@@ -403,6 +410,7 @@ class DLNASettingsControllerTest {
             });
 
             DLNASettingsCommand command = new DLNASettingsCommand();
+            command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(subMenuItems);
             ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
             Mockito.doNothing().when(menuItemService).updateMenuItem(menuItemCaptor.capture());
@@ -481,6 +489,7 @@ class DLNASettingsControllerTest {
             command.setDlnaEnabled(false);
             command.setDlnaServerName(DLNA_SERVER_NAME);
             command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
+            command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
 
             controller.post(command, Mockito.mock(RedirectAttributes.class));
@@ -502,6 +511,7 @@ class DLNASettingsControllerTest {
             command.setDlnaEnabled(true);
             command.setDlnaServerName(DLNA_SERVER_NAME);
             command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
+            command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
 
             ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
@@ -526,6 +536,7 @@ class DLNASettingsControllerTest {
             command.setDlnaEnabled(false);
             command.setDlnaServerName(DLNA_SERVER_NAME);
             command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
+            command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
 
             ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);
@@ -550,6 +561,7 @@ class DLNASettingsControllerTest {
             command.setDlnaEnabled(false);
             command.setDlnaServerName("changedDlnaServerName");
             command.setDlnaBaseLANURL(DLNA_BASE_LAN_URL);
+            command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
 
             controller.post(command, Mockito.mock(RedirectAttributes.class));
@@ -572,6 +584,7 @@ class DLNASettingsControllerTest {
             command.setDlnaEnabled(true);
             command.setDlnaServerName(DLNA_SERVER_NAME);
             command.setDlnaBaseLANURL("changedDlnaBaseLANURL");
+            command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(Collections.emptyList());
 
             ArgumentCaptor<Boolean> captor = ArgumentCaptor.forClass(boolean.class);

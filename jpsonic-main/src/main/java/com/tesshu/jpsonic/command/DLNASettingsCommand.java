@@ -43,7 +43,11 @@ public class DLNASettingsCommand extends SettingsPageCommons {
     private boolean transcodingSupported;
     private boolean uriWithFileExtensions;
 
+    // Menu settings
+    private List<MenuItemWithDefaultName> topMenuItems;
+
     // Menu detail settings
+    private Map<MenuItemId, Boolean> topMenuEnableds;
     private List<MenuItemWithDefaultName> subMenuItems;
     private Map<MenuItemId, SubMenuItemRowInfo> subMenuItemRowInfos;
 
@@ -134,6 +138,22 @@ public class DLNASettingsCommand extends SettingsPageCommons {
 
     public void setUriWithFileExtensions(boolean uriWithFileExtensions) {
         this.uriWithFileExtensions = uriWithFileExtensions;
+    }
+
+    public List<MenuItemWithDefaultName> getTopMenuItems() {
+        return topMenuItems;
+    }
+
+    public void setTopMenuItems(List<MenuItemWithDefaultName> topMenuItems) {
+        this.topMenuItems = topMenuItems;
+    }
+
+    public Map<MenuItemId, Boolean> getTopMenuEnableds() {
+        return topMenuEnableds;
+    }
+
+    public void setTopMenuEnableds(Map<MenuItemId, Boolean> topMenuEnableds) {
+        this.topMenuEnableds = topMenuEnableds;
     }
 
     public List<MenuItemWithDefaultName> getSubMenuItems() {
