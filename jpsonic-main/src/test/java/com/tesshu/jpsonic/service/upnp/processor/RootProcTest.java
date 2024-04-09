@@ -135,9 +135,9 @@ class RootProcTest extends AbstractNeedsScan {
         @Test
         void testMultiSubMenues() {
             MenuItem parent = menuItemService.getMenuItem(MenuItemId.FOLDER);
-            MenuItem sub1 = menuItemService.getMenuItem(MenuItemId.INDEX);
+            MenuItem sub1 = menuItemService.getMenuItem(MenuItemId.MEDIA_FILE);
             assertTrue(sub1.isEnabled());
-            MenuItem sub2 = menuItemService.getMenuItem(MenuItemId.MEDIA_FILE);
+            MenuItem sub2 = menuItemService.getMenuItem(MenuItemId.INDEX);
             assertFalse(sub2.isEnabled());
             assertEquals(0, proc.getChildSizeOf(parent));
 
@@ -152,20 +152,14 @@ class RootProcTest extends AbstractNeedsScan {
 
     @Test
     void testGetChildren() {
-
-        /*
-         * By default, one of the submenus will be enabled. These definitions are tentative and subject to change in the
-         * future.
-         */
-
         List<MenuItem> children = proc.getChildren(menuItemService.getMenuItem(MenuItemId.FOLDER), 0,
                 Integer.MAX_VALUE);
         assertEquals(1, children.size());
-        assertEquals(MenuItemId.INDEX, children.get(0).getId());
+        assertEquals(MenuItemId.MEDIA_FILE, children.get(0).getId());
 
         children = proc.getChildren(menuItemService.getMenuItem(MenuItemId.ARTIST), 0, Integer.MAX_VALUE);
         assertEquals(1, children.size());
-        assertEquals(MenuItemId.INDEX_ID3, children.get(0).getId());
+        assertEquals(MenuItemId.ALBUM_ARTIST, children.get(0).getId());
 
         children = proc.getChildren(menuItemService.getMenuItem(MenuItemId.ALBUM), 0, Integer.MAX_VALUE);
         assertEquals(1, children.size());
@@ -173,7 +167,7 @@ class RootProcTest extends AbstractNeedsScan {
 
         children = proc.getChildren(menuItemService.getMenuItem(MenuItemId.GENRE), 0, Integer.MAX_VALUE);
         assertEquals(1, children.size());
-        assertEquals(MenuItemId.ALBUM_BY_GENRE, children.get(0).getId());
+        assertEquals(MenuItemId.SONG_BY_GENRE, children.get(0).getId());
 
         children = proc.getChildren(menuItemService.getMenuItem(MenuItemId.PODCAST), 0, Integer.MAX_VALUE);
         assertEquals(1, children.size());
@@ -189,7 +183,7 @@ class RootProcTest extends AbstractNeedsScan {
 
         children = proc.getChildren(menuItemService.getMenuItem(MenuItemId.SHUFFLE), 0, Integer.MAX_VALUE);
         assertEquals(1, children.size());
-        assertEquals(MenuItemId.RANDOM_ALBUM, children.get(0).getId());
+        assertEquals(MenuItemId.RANDOM_SONG, children.get(0).getId());
     }
 
     @Test
@@ -209,18 +203,18 @@ class RootProcTest extends AbstractNeedsScan {
 
         @Test
         void testSingleSubMenues() throws ExecutionException {
-            BrowseResult result = proc.browseLeaf(Integer.toString(MenuItemId.FOLDER.value()), null, 0,
+            BrowseResult result = proc.browseLeaf(Integer.toString(MenuItemId.MEDIA_FILE.value()), null, 0,
                     Integer.MAX_VALUE);
             assertEquals(0L, result.getCount().getValue());
         }
 
         @Test
         void testMultiSubMenues() throws ExecutionException {
-            MenuItem sub1 = menuItemService.getMenuItem(MenuItemId.INDEX);
+            MenuItem sub1 = menuItemService.getMenuItem(MenuItemId.MEDIA_FILE);
             assertTrue(sub1.isEnabled());
-            MenuItem sub2 = menuItemService.getMenuItem(MenuItemId.MEDIA_FILE);
+            MenuItem sub2 = menuItemService.getMenuItem(MenuItemId.INDEX);
             assertFalse(sub2.isEnabled());
-            BrowseResult result = proc.browseLeaf(Integer.toString(MenuItemId.FOLDER.value()), null, 0,
+            BrowseResult result = proc.browseLeaf(Integer.toString(MenuItemId.MEDIA_FILE.value()), null, 0,
                     Integer.MAX_VALUE);
             assertEquals(0L, result.getCount().getValue());
 
