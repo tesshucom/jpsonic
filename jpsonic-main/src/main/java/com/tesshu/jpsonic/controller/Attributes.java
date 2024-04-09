@@ -130,16 +130,17 @@ public final class Attributes {
         P(NameConstants.P), PASSWORD(NameConstants.PASSWORD), PATH(NameConstants.PATH), PLAYER(NameConstants.PLAYER),
         PLAYLIST(NameConstants.PLAYLIST), PLAYLIST_ID(NameConstants.PLAYLIST_ID),
         PODCAST_ROLE(NameConstants.PODCAST_ROLE), POSITION(NameConstants.POSITION), PUBLIC(NameConstants.PUBLIC),
-        QUERY(NameConstants.QUERY), RATING(NameConstants.RATING), REFRESH(NameConstants.REFRESH), S(NameConstants.S),
-        SETTINGS_ROLE(NameConstants.SETTINGS_ROLE), SHARE_ROLE(NameConstants.SHARE_ROLE),
-        SHOW_OUTLINE_HELP(NameConstants.SHOW_OUTLINE_HELP), SIZE(NameConstants.SIZE), SONG(NameConstants.SONG),
-        SONG_COUNT(NameConstants.SONG_COUNT), SONG_ID(NameConstants.SONG_ID),
-        SONG_ID_TO_ADD(NameConstants.SONG_ID_TO_ADD), SONG_INDEX_TO_REMOVE(NameConstants.SONG_INDEX_TO_REMOVE),
-        SONG_OFFSET(NameConstants.SONG_OFFSET), SOURCE_FORMATS(NameConstants.SOURCE_FORMATS),
-        STEP1(NameConstants.STEP1), STEP2(NameConstants.STEP2), STREAM_ROLE(NameConstants.STREAM_ROLE),
-        STREAM_URL(NameConstants.STREAM_URL), SUBMISSION(NameConstants.SUBMISSION), SUFFIX(NameConstants.SUFFIX),
-        T(NameConstants.T), TARGET_FORMAT(NameConstants.TARGET_FORMAT), TIME_OFFSET(NameConstants.TIME_OFFSET),
-        TITLE(NameConstants.TITLE), TO_YEAR(NameConstants.TO_YEAR), TYPE(NameConstants.TYPE), U(NameConstants.U),
+        QUERY(NameConstants.QUERY), RATING(NameConstants.RATING), REFRESH(NameConstants.REFRESH),
+        RESET(NameConstants.RESET), S(NameConstants.S), SETTINGS_ROLE(NameConstants.SETTINGS_ROLE),
+        SHARE_ROLE(NameConstants.SHARE_ROLE), SHOW_OUTLINE_HELP(NameConstants.SHOW_OUTLINE_HELP),
+        SIZE(NameConstants.SIZE), SONG(NameConstants.SONG), SONG_COUNT(NameConstants.SONG_COUNT),
+        SONG_ID(NameConstants.SONG_ID), SONG_ID_TO_ADD(NameConstants.SONG_ID_TO_ADD),
+        SONG_INDEX_TO_REMOVE(NameConstants.SONG_INDEX_TO_REMOVE), SONG_OFFSET(NameConstants.SONG_OFFSET),
+        SOURCE_FORMATS(NameConstants.SOURCE_FORMATS), STEP1(NameConstants.STEP1), STEP2(NameConstants.STEP2),
+        STREAM_ROLE(NameConstants.STREAM_ROLE), STREAM_URL(NameConstants.STREAM_URL),
+        SUBMISSION(NameConstants.SUBMISSION), SUFFIX(NameConstants.SUFFIX), T(NameConstants.T),
+        TARGET_FORMAT(NameConstants.TARGET_FORMAT), TIME_OFFSET(NameConstants.TIME_OFFSET), TITLE(NameConstants.TITLE),
+        TO_YEAR(NameConstants.TO_YEAR), TYPE(NameConstants.TYPE), U(NameConstants.U),
         UPLOAD_ROLE(NameConstants.UPLOAD_ROLE), URL(NameConstants.URL), USER(NameConstants.USER),
         USER_INDEX(NameConstants.USERINDEX), USER_NAME(NameConstants.USERNAME),
         USERNAME_OR_EMAIL(NameConstants.USERNAME_OR_EMAIL), V(NameConstants.V),
@@ -264,6 +265,7 @@ public final class Attributes {
             public static final String QUERY = "query";
             public static final String RATING = "rating";
             public static final String REFRESH = "refresh";
+            public static final String RESET = "reset";
             public static final String S = "s";
             public static final String SCAN_NOW = "scanNow";
             public static final String SCAN_CANCEL = "scanCancel";

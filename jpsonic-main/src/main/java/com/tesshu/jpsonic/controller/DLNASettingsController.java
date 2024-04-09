@@ -27,6 +27,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,6 +43,7 @@ import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MenuItemService;
 import com.tesshu.jpsonic.service.MenuItemService.MenuItemWithDefaultName;
+import com.tesshu.jpsonic.service.MenuItemService.ResetMode;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -53,7 +55,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -100,11 +101,11 @@ public class DLNASettingsController {
 
     @ModelAttribute
     protected void formBackingObject(HttpServletRequest request, Model model,
-            @RequestParam(value = Attributes.Request.NameConstants.UPWARD, required = false) Integer id) {
+            @RequestParam(value = Attributes.Request.NameConstants.UPWARD, required = false) Optional<Integer> id,
+            @RequestParam(value = Attributes.Request.NameConstants.RESET, required = false) Optional<String> mode) {
 
-        if (!ObjectUtils.isEmpty(id)) {
-            menuItemService.updateMenuItemOrder(ViewType.UPNP, id);
-        }
+        id.ifPresent(i -> menuItemService.updateMenuItemOrder(ViewType.UPNP, i));
+        mode.ifPresent(m -> menuItemService.resetMenuItem(ViewType.UPNP, ResetMode.of(m)));
 
         DLNASettingsCommand command = new DLNASettingsCommand();
 
@@ -215,15 +216,8 @@ public class DLNASettingsController {
         playerService.updatePlayer(guestPlayer);
 
         // Menu detail settings
-        Stream.concat(command.getTopMenuItems().stream(), command.getSubMenuItems().stream()).forEach(in -> {
-            MenuItem menuItem = menuItemService.getMenuItem(in.getId());
-            if (menuItem.isEnabled() == in.isEnabled() && menuItem.getName().equals(in.getName())) {
-                return;
-            }
-            menuItem.setEnabled(in.isEnabled());
-            menuItem.setName(in.getName());
-            menuItemService.updateMenuItem(menuItem);
-        });
+        menuItemService
+                .updateMenuItems(Stream.concat(command.getTopMenuItems().stream(), command.getSubMenuItems().stream()));
 
         /*
          * Service reboot: If some properties are changed, UPnP will be restarted. (Do not restart if the settings

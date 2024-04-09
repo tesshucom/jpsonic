@@ -23,6 +23,8 @@
 <%@ include file="jquery.jsp" %>
 <%@ page import="com.tesshu.jpsonic.domain.TranscodeScheme" %>
 <%@ page import="com.tesshu.jpsonic.domain.MenuItemId" %>
+<%@ page import="com.tesshu.jpsonic.service.MenuItemService.ResetMode" %>
+
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script>
 
@@ -135,6 +137,16 @@
     <details open>
         <summary class="jpsonic"><fmt:message key="dlnasettings.menu"/></summary>
 
+        <div class="actions">
+            <ul class="controls">
+                <li>
+                    <a href="javaScript:location.href='dlnaSettings.view?reset=topMenu'" title="<fmt:message key='common.reset'/>" class="control reset">
+                        <fmt:message key="common.reset"/>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
         <table class="tabular menus">
             <thead>
                 <tr>
@@ -167,6 +179,16 @@
 
     <details ${isOpen}>
         <summary class="jpsonic"><fmt:message key="dlnasettings.submenu"/></summary>
+
+        <div class="actions">
+            <ul class="controls">
+                <li>
+                    <a href="javaScript:location.href='dlnaSettings.view?reset=subMenu'" title="<fmt:message key='common.reset'/>" class="control reset">
+                        <fmt:message key="common.reset"/>
+                    </a>
+                </li>
+            </ul>
+        </div>
 
         <table class="tabular sub-menus">
             <thead>

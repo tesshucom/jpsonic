@@ -1,0 +1,22 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="change-upnp-menu-item-enabled" author="tesshucom">
+        <validCheckSum>ANY</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="menu_item" />
+        </preConditions>
+        <!-- See com.tesshu.jpsonic.service.MenuItemService#ensureUPnPSubMenuEnabled -->
+        <sql>update menu_item set enabled = false where view_type = 1 and parent != 0</sql>
+        <sql>update menu_item set enabled = true  where id = 12</sql>
+        <sql>update menu_item set enabled = true  where id = 22</sql>
+        <sql>update menu_item set enabled = true  where id = 31</sql>
+        <sql>update menu_item set enabled = true  where id = 42</sql>
+        <sql>update menu_item set enabled = true  where id = 51</sql>
+        <sql>update menu_item set enabled = true  where id = 61</sql>
+        <sql>update menu_item set enabled = true  where id = 71</sql>
+        <sql>update menu_item set enabled = true  where id = 82</sql>
+        <rollback />
+    </changeSet>
+</databaseChangeLog>

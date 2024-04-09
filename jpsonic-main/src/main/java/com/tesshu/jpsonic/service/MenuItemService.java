@@ -20,14 +20,17 @@
 package com.tesshu.jpsonic.service;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.dao.MenuItemDao;
 import com.tesshu.jpsonic.domain.MenuItem;
 import com.tesshu.jpsonic.domain.MenuItem.ViewType;
 import com.tesshu.jpsonic.domain.MenuItemId;
 import jakarta.annotation.Resource;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Lazy;
@@ -94,15 +97,44 @@ public class MenuItemService {
 
     public void updateMenuItem(MenuItem menuItem) {
         MenuItem stored = menuItemDao.getMenuItem(menuItem.getId().value());
-        String defaultName = getItemName(menuItem.getId());
         stored.setEnabled(menuItem.isEnabled());
-        if (stored.getName().equals(defaultName) || menuItem.getName().isBlank()) {
-            stored.setName("");
-        } else {
-            stored.setName(menuItem.getName());
-        }
+        stored.setName(menuItem.getName().equals(getItemName(menuItem.getId())) ? "" : menuItem.getName());
         stored.setMenuItemOrder(menuItem.getMenuItemOrder());
         menuItemDao.updateMenuItem(stored);
+    }
+
+    /**
+     * Ensure at least one submenu is enabled within a category. If not, the default SubMenu will be enabled.
+     */
+    public void ensureUPnPSubMenuEnabled() {
+        List<MenuItem> subMenus = menuItemDao.getSubMenuItems(ViewType.UPNP);
+        getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE).forEach(topMenu -> {
+            long enableCounts = subMenus.stream().filter(subMenu -> subMenu.getParent() == topMenu.getId())
+                    .filter(subMenu -> subMenu.isEnabled()).count();
+            if (enableCounts == 0) {
+                MenuItemId defaultSubMenuItemId = switch (topMenu.getId()) {
+                case FOLDER -> MenuItemId.MEDIA_FILE;
+                case ARTIST -> MenuItemId.ALBUM_ARTIST;
+                case ALBUM -> MenuItemId.ALBUM_ID3;
+                case GENRE -> MenuItemId.SONG_BY_GENRE;
+                case PODCAST -> MenuItemId.PODCAST_DEFALT;
+                case PLAYLISTS -> MenuItemId.PLAYLISTS_DEFALT;
+                case RECENTLY -> MenuItemId.RECENTLY_ADDED_ALBUM;
+                case SHUFFLE -> MenuItemId.RANDOM_SONG;
+                default -> throw new IllegalArgumentException("Unexpected value: " + topMenu);
+                };
+                subMenus.stream().filter(menuItem -> menuItem.getId() == defaultSubMenuItemId).findFirst()
+                        .ifPresent(menuItem -> {
+                            menuItem.setEnabled(true);
+                            menuItemDao.updateMenuItem(menuItem);
+                        });
+            }
+        });
+    }
+
+    public void updateMenuItems(Stream<MenuItem> menuItems) {
+        menuItems.forEach(this::updateMenuItem);
+        ensureUPnPSubMenuEnabled();
     }
 
     public void updateMenuItemOrder(ViewType viewType, int menuItemId) {
@@ -134,6 +166,23 @@ public class MenuItemService {
         }).toList();
     }
 
+    public void resetMenuItem(ViewType viewType, ResetMode mode) {
+        List<MenuItem> menuItems = switch (mode) {
+        case TOP_MENU -> menuItemDao.getTopMenuItems(viewType, false, 0, Integer.MAX_VALUE);
+        case SUB_MENU -> menuItemDao.getSubMenuItems(viewType);
+        case ANY -> Collections.emptyList();
+        };
+        menuItems.sort(Comparator.comparingInt(m -> m.getId().getDefaultOrder()));
+        for (int i = 0; i < menuItems.size(); i++) {
+            MenuItem menuItem = menuItems.get(i);
+            menuItem.setEnabled(mode == ResetMode.TOP_MENU);
+            menuItem.setName("");
+            menuItem.setMenuItemOrder(i);
+            menuItemDao.updateMenuItem(menuItem);
+        }
+        ensureUPnPSubMenuEnabled();
+    }
+
     public static class MenuItemWithDefaultName extends MenuItem {
 
         private final String defaultName;
@@ -146,6 +195,21 @@ public class MenuItemService {
 
         public String getDefaultName() {
             return defaultName;
+        }
+    }
+
+    public enum ResetMode {
+
+        TOP_MENU("topMenu"), SUB_MENU("subMenu"), ANY("");
+
+        private final String v;
+
+        ResetMode(String v) {
+            this.v = v;
+        }
+
+        public static @NonNull ResetMode of(String value) {
+            return Stream.of(values()).filter(id -> id.v.equals(value)).findFirst().orElse(ANY);
         }
     }
 }

@@ -24,15 +24,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.lang.annotation.Documented;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.command.DLNASettingsCommand;
+import com.tesshu.jpsonic.dao.MenuItemDao;
 import com.tesshu.jpsonic.domain.MenuItem;
 import com.tesshu.jpsonic.domain.MenuItem.ViewType;
 import com.tesshu.jpsonic.domain.MenuItemId;
@@ -58,6 +61,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.springframework.context.MessageSource;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -157,7 +161,8 @@ class DLNASettingsControllerTest {
                     mock(MenuItemService.class), mock(OutlineHelpSelector.class));
             mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
             Model model = new ExtendedModelMap();
-            controller.formBackingObject(Mockito.mock(HttpServletRequest.class), model, null);
+            controller.formBackingObject(Mockito.mock(HttpServletRequest.class), model, Optional.empty(),
+                    Optional.empty());
 
             DLNASettingsCommand command = (DLNASettingsCommand) model.getAttribute(Attributes.Model.Command.VALUE);
             assertEquals(0, command.getSubMenuItems().size());
@@ -202,7 +207,8 @@ class DLNASettingsControllerTest {
 
             // Exec
             Model model = new ExtendedModelMap();
-            controller.formBackingObject(Mockito.mock(HttpServletRequest.class), model, null);
+            controller.formBackingObject(Mockito.mock(HttpServletRequest.class), model, Optional.empty(),
+                    Optional.empty());
 
             DLNASettingsCommand command = (DLNASettingsCommand) model.getAttribute(Attributes.Model.Command.VALUE);
             assertEquals(5, command.getSubMenuItems().size());
@@ -276,7 +282,9 @@ class DLNASettingsControllerTest {
             settingsService = mock(SettingsService.class);
             musicFolderService = mock(MusicFolderService.class);
             upnpService = mock(UPnPService.class);
-            MenuItemService menuItemService = mock(MenuItemService.class);
+            MenuItemDao menuItemDao = mock(MenuItemDao.class);
+            MenuItemService menuItemService = new MenuItemService(settingsService, menuItemDao,
+                    mock(MessageSource.class));
             controller = new DLNASettingsController(settingsService, musicFolderService, mock(SecurityService.class),
                     mock(PlayerService.class), mock(TranscodingService.class), upnpService, mock(ShareService.class),
                     menuItemService, mock(OutlineHelpSelector.class));
@@ -288,7 +296,7 @@ class DLNASettingsControllerTest {
             command.setSubMenuItemRowInfos(Collections.emptyMap());
 
             ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
-            Mockito.doNothing().when(menuItemService).updateMenuItem(menuItemCaptor.capture());
+            Mockito.doNothing().when(menuItemDao).updateMenuItem(menuItemCaptor.capture());
 
             controller.post(command, Mockito.mock(RedirectAttributes.class));
             assertEquals(0, menuItemCaptor.getAllValues().size());
@@ -299,7 +307,9 @@ class DLNASettingsControllerTest {
             settingsService = mock(SettingsService.class);
             musicFolderService = mock(MusicFolderService.class);
             upnpService = mock(UPnPService.class);
-            MenuItemService menuItemService = mock(MenuItemService.class);
+            MenuItemDao menuItemDao = mock(MenuItemDao.class);
+            MenuItemService menuItemService = new MenuItemService(settingsService, menuItemDao,
+                    mock(MessageSource.class));
             controller = new DLNASettingsController(settingsService, musicFolderService, mock(SecurityService.class),
                     mock(PlayerService.class), mock(TranscodingService.class), upnpService, mock(ShareService.class),
                     menuItemService, mock(OutlineHelpSelector.class));
@@ -317,16 +327,16 @@ class DLNASettingsControllerTest {
             subMenuItems.add(new MenuItemWithDefaultName(
                     new MenuItem(ViewType.UPNP, MenuItemId.ALBUM_ID3, MenuItemId.ALBUM, "", false, 5), "sub5"));
             subMenuItems.forEach(
-                    menuItem -> Mockito.when(menuItemService.getMenuItem(menuItem.getId())).thenReturn(menuItem));
+                    menuItem -> Mockito.when(menuItemDao.getMenuItem(menuItem.getId().value())).thenReturn(menuItem));
 
             DLNASettingsCommand command = new DLNASettingsCommand();
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(subMenuItems);
             ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
-            Mockito.doNothing().when(menuItemService).updateMenuItem(menuItemCaptor.capture());
+            Mockito.doNothing().when(menuItemDao).updateMenuItem(menuItemCaptor.capture());
 
             controller.post(command, Mockito.mock(RedirectAttributes.class));
-            assertEquals(0, menuItemCaptor.getAllValues().size());
+            assertEquals(5, menuItemCaptor.getAllValues().size());
         }
 
         @Test
@@ -334,7 +344,9 @@ class DLNASettingsControllerTest {
             settingsService = mock(SettingsService.class);
             musicFolderService = mock(MusicFolderService.class);
             upnpService = mock(UPnPService.class);
-            MenuItemService menuItemService = mock(MenuItemService.class);
+            MenuItemDao menuItemDao = mock(MenuItemDao.class);
+            MenuItemService menuItemService = new MenuItemService(settingsService, menuItemDao,
+                    mock(MessageSource.class));
             controller = new DLNASettingsController(settingsService, musicFolderService, mock(SecurityService.class),
                     mock(PlayerService.class), mock(TranscodingService.class), upnpService, mock(ShareService.class),
                     menuItemService, mock(OutlineHelpSelector.class));
@@ -354,12 +366,12 @@ class DLNASettingsControllerTest {
                     new MenuItem(ViewType.UPNP, MenuItemId.ALBUM_ID3, MenuItemId.ALBUM, "", false, 5), "sub5"));
             subMenuItems.forEach(menuItem -> {
                 if (menuItem.getId() == MenuItemId.MEDIA_FILE) {
-                    Mockito.when(menuItemService.getMenuItem(MenuItemId.MEDIA_FILE))
+                    Mockito.when(menuItemDao.getMenuItem(MenuItemId.MEDIA_FILE.value()))
                             .thenReturn(new MenuItemWithDefaultName(
                                     new MenuItem(ViewType.UPNP, MenuItemId.MEDIA_FILE, MenuItemId.FOLDER, "", false, 1),
                                     "sub1"));
                 } else {
-                    Mockito.when(menuItemService.getMenuItem(menuItem.getId())).thenReturn(menuItem);
+                    Mockito.when(menuItemDao.getMenuItem(menuItem.getId().value())).thenReturn(menuItem);
                 }
             });
 
@@ -367,11 +379,13 @@ class DLNASettingsControllerTest {
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(subMenuItems);
             ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
-            Mockito.doNothing().when(menuItemService).updateMenuItem(menuItemCaptor.capture());
+            Mockito.doNothing().when(menuItemDao).updateMenuItem(menuItemCaptor.capture());
             controller.post(command, Mockito.mock(RedirectAttributes.class));
-            assertEquals(1, menuItemCaptor.getAllValues().size());
-            assertEquals(MenuItemId.MEDIA_FILE, menuItemCaptor.getValue().getId());
-            assertTrue(menuItemCaptor.getValue().isEnabled());
+
+            List<MenuItem> results = menuItemCaptor.getAllValues();
+            assertEquals(5, results.size());
+            results.stream().filter(menuItem -> menuItem.getId() == MenuItemId.MEDIA_FILE).findFirst()
+                    .ifPresentOrElse(menuItem -> assertTrue(menuItem.isEnabled()), () -> fail());
         }
 
         @Test
@@ -379,7 +393,9 @@ class DLNASettingsControllerTest {
             settingsService = mock(SettingsService.class);
             musicFolderService = mock(MusicFolderService.class);
             upnpService = mock(UPnPService.class);
-            MenuItemService menuItemService = mock(MenuItemService.class);
+            MenuItemDao menuItemDao = mock(MenuItemDao.class);
+            MenuItemService menuItemService = new MenuItemService(settingsService, menuItemDao,
+                    mock(MessageSource.class));
             controller = new DLNASettingsController(settingsService, musicFolderService, mock(SecurityService.class),
                     mock(PlayerService.class), mock(TranscodingService.class), upnpService, mock(ShareService.class),
                     menuItemService, mock(OutlineHelpSelector.class));
@@ -405,7 +421,7 @@ class DLNASettingsControllerTest {
                                     new MenuItem(ViewType.UPNP, MenuItemId.MEDIA_FILE, MenuItemId.FOLDER, "", false, 1),
                                     "sub1"));
                 } else {
-                    Mockito.when(menuItemService.getMenuItem(menuItem.getId())).thenReturn(menuItem);
+                    Mockito.when(menuItemDao.getMenuItem(menuItem.getId().value())).thenReturn(menuItem);
                 }
             });
 
@@ -413,12 +429,13 @@ class DLNASettingsControllerTest {
             command.setTopMenuItems(Collections.emptyList());
             command.setSubMenuItems(subMenuItems);
             ArgumentCaptor<MenuItem> menuItemCaptor = ArgumentCaptor.forClass(MenuItem.class);
-            Mockito.doNothing().when(menuItemService).updateMenuItem(menuItemCaptor.capture());
+            Mockito.doNothing().when(menuItemDao).updateMenuItem(menuItemCaptor.capture());
             controller.post(command, Mockito.mock(RedirectAttributes.class));
-            assertEquals(1, menuItemCaptor.getAllValues().size());
-            assertEquals(MenuItemId.MEDIA_FILE, menuItemCaptor.getValue().getId());
-            assertTrue(menuItemCaptor.getValue().isEnabled());
-            assertEquals("Changed Sub1", menuItemCaptor.getValue().getName());
+
+            List<MenuItem> results = menuItemCaptor.getAllValues();
+            assertEquals(5, results.size());
+            results.stream().filter(menuItem -> menuItem.getId() == MenuItemId.MEDIA_FILE).findFirst()
+                    .ifPresentOrElse(menuItem -> assertEquals("Changed Sub1", menuItem.getName()), () -> fail());
         }
     }
 
