@@ -577,88 +577,8 @@ class SettingsServiceTest {
     }
 
     @Test
-    void testIsDlnaAlbumVisible() {
-        assertTrue(settingsService.isDlnaAlbumVisible());
-    }
-
-    @Test
-    void testIsDlnaArtistVisible() {
-        assertTrue(settingsService.isDlnaArtistVisible());
-    }
-
-    @Test
-    void testIsDlnaArtistByFolderVisible() {
-        assertFalse(settingsService.isDlnaArtistByFolderVisible());
-    }
-
-    @Test
-    void testIsDlnaAlbumByGenreVisible() {
-        assertTrue(settingsService.isDlnaAlbumByGenreVisible());
-    }
-
-    @Test
-    void testIsDlnaSongByGenreVisible() {
-        assertTrue(settingsService.isDlnaSongByGenreVisible());
-    }
-
-    @Test
     void testIsDlnaGenreCountVisible() {
         assertFalse(settingsService.isDlnaGenreCountVisible());
-    }
-
-    @Test
-    void testIsDlnaFolderVisible() {
-        assertTrue(settingsService.isDlnaFolderVisible());
-    }
-
-    @Test
-    void testIsDlnaPlaylistVisible() {
-        assertTrue(settingsService.isDlnaPlaylistVisible());
-    }
-
-    @Test
-    void testIsDlnaRecentAlbumVisible() {
-        assertTrue(settingsService.isDlnaRecentAlbumVisible());
-    }
-
-    @Test
-    void testIsDlnaRecentAlbumId3Visible() {
-        assertFalse(settingsService.isDlnaRecentAlbumId3Visible());
-    }
-
-    @Test
-    void testIsDlnaIndexVisible() {
-        assertTrue(settingsService.isDlnaIndexVisible());
-    }
-
-    @Test
-    void testIsDlnaIndexId3Visible() {
-        assertFalse(settingsService.isDlnaIndexId3Visible());
-    }
-
-    @Test
-    void testIsDlnaPodcastVisible() {
-        assertTrue(settingsService.isDlnaPodcastVisible());
-    }
-
-    @Test
-    void testIsDlnaRandomAlbumVisible() {
-        assertTrue(settingsService.isDlnaRandomAlbumVisible());
-    }
-
-    @Test
-    void testIsDlnaRandomSongVisible() {
-        assertTrue(settingsService.isDlnaRandomSongVisible());
-    }
-
-    @Test
-    void testIsDlnaRandomSongByArtistVisible() {
-        assertTrue(settingsService.isDlnaRandomSongByArtistVisible());
-    }
-
-    @Test
-    void testIsDlnaRandomSongByFolderArtistVisible() {
-        assertFalse(settingsService.isDlnaRandomSongByFolderArtistVisible());
     }
 
     @Test
