@@ -118,15 +118,15 @@ public class DLNASettingsController {
         // Menu Details
         List<MenuItem> topMenuItems = menuItemService.getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE);
         List<MenuItemWithDefaultName> subMenuItems = menuItemService.getSubMenuItems(ViewType.UPNP);
-        Map<MenuItemId, SubMenuItemRowInfo> subMenuItemRowInfos = new ConcurrentHashMap<>();
+        command.setSubMenuItems(subMenuItems);
 
+        Map<MenuItemId, SubMenuItemRowInfo> subMenuItemRowInfos = new ConcurrentHashMap<>();
         topMenuItems.stream().map(topMenu -> topMenu.getId()).forEach(topMenuItemId -> {
             int count = (int) subMenuItems.stream().filter(subMenuItem -> subMenuItem.getParent() == topMenuItemId)
                     .count();
             subMenuItems.stream().filter(subMenuItem -> subMenuItem.getParent() == topMenuItemId).findFirst().ifPresent(
                     firstChild -> subMenuItemRowInfos.put(topMenuItemId, new SubMenuItemRowInfo(firstChild, count)));
         });
-        command.setSubMenuItems(subMenuItems);
         command.setSubMenuItemRowInfos(subMenuItemRowInfos);
 
         // Display options / Access control

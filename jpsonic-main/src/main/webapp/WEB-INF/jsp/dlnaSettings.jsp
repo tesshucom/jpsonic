@@ -148,7 +148,7 @@
             <tbody>
                 <c:forEach items="${command.subMenuItems}" var="subMenuItem" varStatus="loopStatus">
                     <c:set var="rowInfo" value="${command.subMenuItemRowInfos[subMenuItem.parent]}" />
-                    <c:set var="isFirstSubMenu" value="${subMenuItem.parent eq rowInfo.firstChild.parent and subMenuItem.id eq rowInfo.firstChild.id}" />
+                    <c:set var="isFirstSubMenu" value="${subMenuItem.parent eq rowInfo.firstChild().parent and subMenuItem.id eq rowInfo.firstChild().id}" />
                     <c:choose>
                         <c:when test="${loopStatus.count eq 13}">
                             <!-- 13: It will be rewritten when Menu is implemented. -->
@@ -160,7 +160,7 @@
                     </c:choose>
                         <c:choose>
                             <c:when test="${isFirstSubMenu}">
-                                <td rowspan="${rowInfo.count}">${subMenuItem.parent.name()}</td>
+                                <td rowspan="${rowInfo.count()}">${subMenuItem.parent.name()}</td>
                             </c:when>
                             <c:otherwise>
                             </c:otherwise>
@@ -225,26 +225,26 @@
                             <c:when test="${isFirstSubMenu}">
                                 <c:choose>
                                     <c:when test="${subMenuItem.parent eq MenuItemId.GENRE}">
-                                        <td rowspan="${rowInfo.count}">
+                                        <td rowspan="${rowInfo.count()}">
                                             <form:checkbox path="dlnaGenreCountVisible" id="dlnaGenreCountVisible"/>
                                             <label for="dlnaGenreCountVisible"><fmt:message key="dlnasettings.genreCountVisible"/></label>
                                             <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnagenrecountvisible"/></c:import>
                                         </td>
                                     </c:when>
                                     <c:when test="${subMenuItem.parent eq MenuItemId.SHUFFLE}">
-                                        <td rowspan="${rowInfo.count}">
+                                        <td rowspan="${rowInfo.count()}">
                                             <label for="dlnaRandomMax"><fmt:message key="dlnasettings.randommax"/></label>
                                             <form:input path="dlnaRandomMax" id="dlnaRandomMax" maxlength="4"/>
                                         </td>
                                     </c:when>
                                     <c:when test="${subMenuItem.parent eq MenuItemId.PLAYLISTS}">
-                                        <td rowspan="${rowInfo.count}">
+                                        <td rowspan="${rowInfo.count()}">
                                             <form:checkbox path="dlnaGuestPublish" id="dlnaGuestPublish"/>
                                             <label for=dlnaGuestPublish><fmt:message key="dlnasettings.guestpublish"/></label>
                                         </td>
                                     </c:when>
                                     <c:otherwise>
-                                        <td rowspan="${rowInfo.count}"></td>
+                                        <td rowspan="${rowInfo.count()}"></td>
                                     </c:otherwise>
                                 </c:choose>
                             </c:when>

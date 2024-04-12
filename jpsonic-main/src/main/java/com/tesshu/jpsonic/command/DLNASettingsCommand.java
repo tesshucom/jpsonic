@@ -176,31 +176,6 @@ public class DLNASettingsCommand extends SettingsPageCommons {
         this.dlnaGuestPublish = dlnaGuestPublish;
     }
 
-    public static class SubMenuItemRowInfo {
-
-        private MenuItem firstChild;
-        private int count;
-
-        public SubMenuItemRowInfo(MenuItem firstChild, int count) {
-            super();
-            this.firstChild = firstChild;
-            this.count = count;
-        }
-
-        public MenuItem getFirstChild() {
-            return firstChild;
-        }
-
-        public void setFirstChild(MenuItem firstChild) {
-            this.firstChild = firstChild;
-        }
-
-        public int getCount() {
-            return count;
-        }
-
-        public void setCount(int count) {
-            this.count = count;
-        }
+    public record SubMenuItemRowInfo(MenuItem firstChild, int count) {
     }
 }
