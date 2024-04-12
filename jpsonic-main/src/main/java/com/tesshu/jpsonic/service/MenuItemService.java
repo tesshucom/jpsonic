@@ -97,13 +97,9 @@ public class MenuItemService {
 
     public void updateMenuItem(MenuItem menuItem) {
         MenuItem stored = menuItemDao.getMenuItem(menuItem.getId().value());
-        String defaultName = getItemName(menuItem.getId());
         stored.setEnabled(menuItem.isEnabled());
-        if (stored.getName().equals(defaultName) || menuItem.getName().isBlank()) {
-            stored.setName("");
-        } else {
-            stored.setName(menuItem.getName());
-        }
+        String defaultName = getItemName(menuItem.getId());
+        stored.setName(defaultName.equals(menuItem.getName()) ? "" : menuItem.getName());
         stored.setMenuItemOrder(menuItem.getMenuItemOrder());
         menuItemDao.updateMenuItem(stored);
     }
@@ -138,14 +134,7 @@ public class MenuItemService {
     }
 
     public void updateMenuItems(Stream<MenuItem> menuItems) {
-        menuItems.forEach(in -> {
-            MenuItem menuItem = getMenuItem(in.getId());
-            if (menuItem.isEnabled() != in.isEnabled() || !menuItem.getName().equals(in.getName())) {
-                menuItem.setEnabled(in.isEnabled());
-                menuItem.setName(in.getName());
-                updateMenuItem(menuItem);
-            }
-        });
+        menuItems.forEach(menuItem -> updateMenuItem(menuItem));
         ensureUPnPSubMenuEnabled();
     }
 
