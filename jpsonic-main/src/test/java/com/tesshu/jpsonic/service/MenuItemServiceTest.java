@@ -20,16 +20,22 @@
 package com.tesshu.jpsonic.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.NeedsHome;
 import com.tesshu.jpsonic.domain.MenuItem;
 import com.tesshu.jpsonic.domain.MenuItem.ViewType;
 import com.tesshu.jpsonic.domain.MenuItemId;
+import com.tesshu.jpsonic.service.MenuItemService.MenuItemWithDefaultName;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +76,29 @@ class MenuItemServiceTest {
         assertEquals("Playlists", menuItems.get(5).getName());
         assertEquals("Recently", menuItems.get(6).getName());
         assertEquals("Shuffle", menuItems.get(7).getName());
+    }
+
+    @Test
+    void testGetTopMenuItemsWithType() {
+        List<MenuItemWithDefaultName> menuItems = menuItemService.getTopMenuItems(ViewType.UPNP);
+        assertEquals(menuItemService.getTopMenuItemCount(ViewType.UPNP), menuItems.size());
+        assertEquals("Folder", menuItems.get(0).getName());
+        assertEquals("Album Artist", menuItems.get(1).getName());
+        assertEquals("Album", menuItems.get(2).getName());
+        assertEquals("Genre", menuItems.get(3).getName());
+        assertEquals("Podcast", menuItems.get(4).getName());
+        assertEquals("Playlists", menuItems.get(5).getName());
+        assertEquals("Recently", menuItems.get(6).getName());
+        assertEquals("Shuffle", menuItems.get(7).getName());
+
+        assertEquals("Folder", menuItems.get(0).getDefaultName());
+        assertEquals("Album Artist", menuItems.get(1).getDefaultName());
+        assertEquals("Album", menuItems.get(2).getDefaultName());
+        assertEquals("Genre", menuItems.get(3).getDefaultName());
+        assertEquals("Podcast", menuItems.get(4).getDefaultName());
+        assertEquals("Playlists", menuItems.get(5).getDefaultName());
+        assertEquals("Recently", menuItems.get(6).getDefaultName());
+        assertEquals("Shuffle", menuItems.get(7).getDefaultName());
     }
 
     @Test
@@ -114,5 +143,97 @@ class MenuItemServiceTest {
         assertEquals("Music By Artist", menuItems.get(1).getName());
         assertEquals("Music By Folder/Artist", menuItems.get(2).getName());
         assertEquals("Album", menuItems.get(3).getName());
+    }
+
+    @Test
+    void testUpdateMenuItem() {
+        MenuItem menuItem = menuItemService.getMenuItem(MenuItemId.FOLDER);
+        assertTrue(menuItem.getName().isBlank());
+
+        // Blank if the same value as the default name is attempted to be registered.
+        menuItem.setName("Folder");
+        menuItemService.updateMenuItem(menuItem);
+        menuItem = menuItemService.getMenuItem(MenuItemId.FOLDER);
+        assertTrue(menuItem.getName().isBlank());
+
+        menuItem.setName("Folder2");
+        menuItemService.updateMenuItem(menuItem);
+        menuItem = menuItemService.getMenuItem(MenuItemId.FOLDER);
+        assertFalse(menuItem.getName().isBlank());
+        assertEquals("Folder2", menuItem.getName());
+
+        menuItem.setName("Folder");
+        menuItemService.updateMenuItem(menuItem);
+        menuItem = menuItemService.getMenuItem(MenuItemId.FOLDER);
+        assertTrue(menuItem.getName().isBlank());
+    }
+
+    @Nested
+    class EnsureUPnPSubMenuEnabledTest {
+
+        @Test
+        void testDoNothing() {
+            int topMenuItemCount = menuItemService.getTopMenuItemCount(ViewType.UPNP);
+            int enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream()
+                    .filter(menuItem -> menuItem.isEnabled()).count();
+            assertEquals(topMenuItemCount, enabledSubMenuCount);
+            menuItemService.ensureUPnPSubMenuEnabled();
+            enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream()
+                    .filter(menuItem -> menuItem.isEnabled()).count();
+            assertEquals(topMenuItemCount, enabledSubMenuCount);
+        }
+
+        @Test
+        void testEnsureUPnPSubMenuEnabled() {
+            int topMenuItemCount = menuItemService.getTopMenuItemCount(ViewType.UPNP);
+            int enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream()
+                    .filter(menuItem -> menuItem.isEnabled()).count();
+            assertEquals(topMenuItemCount, enabledSubMenuCount);
+
+            menuItemService.getSubMenuItems(ViewType.UPNP).stream().forEach(menuItem -> {
+                menuItem.setEnabled(false);
+                menuItemService.updateMenuItem(menuItem);
+            });
+
+            enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream()
+                    .filter(menuItem -> menuItem.isEnabled()).count();
+            assertEquals(0, enabledSubMenuCount);
+
+            menuItemService.ensureUPnPSubMenuEnabled();
+            enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream()
+                    .filter(menuItem -> menuItem.isEnabled()).count();
+            assertEquals(topMenuItemCount, enabledSubMenuCount);
+        }
+    }
+
+    @Test
+    void testUpdateMenuItems() {
+        List<MenuItemWithDefaultName> topMenuItems = menuItemService.getTopMenuItems(ViewType.UPNP);
+        topMenuItems.stream().filter(menuItem -> menuItem.getId() == MenuItemId.FOLDER).findFirst()
+                .ifPresentOrElse(menuItem -> assertTrue(menuItem.isEnabled()), () -> fail());
+        int enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream()
+                .filter(menuItem -> menuItem.isEnabled()).count();
+        assertEquals(topMenuItems.size(), enabledSubMenuCount);
+        topMenuItems.stream().filter(menuItem -> menuItem.getId() == MenuItemId.FOLDER).findFirst()
+                .ifPresent(menuItem -> menuItem.setEnabled(false));
+
+        List<MenuItemWithDefaultName> subMenuItems = menuItemService.getSubMenuItems(ViewType.UPNP);
+        subMenuItems.stream().forEach(menuItem -> menuItem.setEnabled(false));
+
+        menuItemService.updateMenuItems(Stream.concat(topMenuItems.stream(), subMenuItems.stream()));
+
+        topMenuItems = menuItemService.getTopMenuItems(ViewType.UPNP);
+        topMenuItems.stream().filter(menuItem -> menuItem.getId() == MenuItemId.FOLDER).findFirst()
+                .ifPresentOrElse(menuItem -> assertFalse(menuItem.isEnabled()), () -> fail());
+        enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream()
+                .filter(menuItem -> menuItem.isEnabled()).count();
+        assertEquals(topMenuItems.size(), enabledSubMenuCount);
+
+        // tearDown
+        topMenuItems.stream().filter(menuItem -> menuItem.getId() == MenuItemId.FOLDER).findFirst()
+                .ifPresentOrElse(menuItem -> {
+                    menuItem.setEnabled(true);
+                    menuItemService.updateMenuItem(menuItem);
+                }, () -> fail());
     }
 }
