@@ -69,17 +69,17 @@
     <c:set var="isOpen" value='${command.openDetailSetting ? "open" : ""}' />
     <details open>
 
-        <div class="actions">
-            <ul class="controls">
-                <li><a href="javascript:resetBasicSettings()" title="<fmt:message key='common.reset'/>" class="control reset"><fmt:message key="common.reset"/></a></li>
-            </ul>
-        </div>
-
         <summary class="jpsonic"><fmt:message key="dlnasettings.basic"/></summary>
 
         <c:if test="${command.showOutlineHelp}">
             <div class="outlineHelp"><fmt:message key="dlnasettings.basicoutline"/></div>
         </c:if>
+
+        <div class="actions">
+            <ul class="controls">
+                <li><a href="javascript:resetBasicSettings()" title="<fmt:message key='common.reset'/>" class="control reset"><fmt:message key="common.reset"/></a></li>
+            </ul>
+        </div>
 
         <dl>
             <dt></dt>
@@ -135,7 +135,12 @@
     </details>
 
     <details open>
+
         <summary class="jpsonic"><fmt:message key="dlnasettings.menu"/></summary>
+
+        <c:if test="${command.showOutlineHelp}">
+            <div class="outlineHelp"><fmt:message key="dlnasettings.menuoutline"/></div>
+        </c:if>
 
         <div class="actions">
             <ul class="controls">
@@ -179,6 +184,10 @@
 
     <details ${isOpen}>
         <summary class="jpsonic"><fmt:message key="dlnasettings.submenu"/></summary>
+
+        <c:if test="${command.showOutlineHelp}">
+            <div class="outlineHelp"><fmt:message key="dlnasettings.submenuoutline"/></div>
+        </c:if>
 
         <div class="actions">
             <ul class="controls">
