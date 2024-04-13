@@ -26,13 +26,24 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.tesshu.jpsonic.command.DLNASettingsCommand;
+import com.tesshu.jpsonic.command.DLNASettingsCommand.SubMenuItemRowInfo;
+import com.tesshu.jpsonic.domain.MenuItem;
+import com.tesshu.jpsonic.domain.MenuItem.ViewType;
+import com.tesshu.jpsonic.domain.MenuItemId;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
+import com.tesshu.jpsonic.service.MenuItemService;
+import com.tesshu.jpsonic.service.MenuItemService.MenuItemWithDefaultName;
+import com.tesshu.jpsonic.service.MenuItemService.ResetMode;
 import com.tesshu.jpsonic.service.MusicFolderService;
 import com.tesshu.jpsonic.service.PlayerService;
 import com.tesshu.jpsonic.service.SecurityService;
@@ -48,6 +59,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
@@ -68,11 +80,13 @@ public class DLNASettingsController {
     private final TranscodingService transcodingService;
     private final UPnPService upnpService;
     private final ShareService shareService;
+    private final MenuItemService menuItemService;
     private final OutlineHelpSelector outlineHelpSelector;
 
     public DLNASettingsController(SettingsService settingsService, MusicFolderService musicFolderService,
             SecurityService securityService, PlayerService playerService, TranscodingService transcodingService,
-            UPnPService upnpService, ShareService shareService, OutlineHelpSelector outlineHelpSelector) {
+            UPnPService upnpService, ShareService shareService, MenuItemService menuItemService,
+            OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsService = settingsService;
         this.musicFolderService = musicFolderService;
@@ -81,11 +95,18 @@ public class DLNASettingsController {
         this.transcodingService = transcodingService;
         this.upnpService = upnpService;
         this.shareService = shareService;
+        this.menuItemService = menuItemService;
         this.outlineHelpSelector = outlineHelpSelector;
     }
 
     @ModelAttribute
-    protected void formBackingObject(HttpServletRequest request, Model model) {
+    protected void formBackingObject(HttpServletRequest request, Model model,
+            @RequestParam(value = Attributes.Request.NameConstants.UPWARD, required = false) Optional<Integer> id,
+            @RequestParam(value = Attributes.Request.NameConstants.RESET, required = false) Optional<String> mode) {
+
+        id.ifPresent(i -> menuItemService.updateMenuItemOrder(ViewType.UPNP, i));
+        mode.ifPresent(m -> menuItemService.resetMenuItem(ViewType.UPNP, ResetMode.of(m)));
+
         DLNASettingsCommand command = new DLNASettingsCommand();
 
         // UPnP basic settings
@@ -104,23 +125,24 @@ public class DLNASettingsController {
         command.setTranscodeScheme(guestPlayer.getTranscodeScheme());
         command.setUriWithFileExtensions(settingsService.isUriWithFileExtensions());
 
-        // Items to display
-        command.setDlnaIndexVisible(settingsService.isDlnaIndexVisible());
-        command.setDlnaIndexId3Visible(settingsService.isDlnaIndexId3Visible());
-        command.setDlnaFolderVisible(settingsService.isDlnaFolderVisible());
-        command.setDlnaArtistVisible(settingsService.isDlnaArtistVisible());
-        command.setDlnaArtistByFolderVisible(settingsService.isDlnaArtistByFolderVisible());
-        command.setDlnaAlbumVisible(settingsService.isDlnaAlbumVisible());
-        command.setDlnaPlaylistVisible(settingsService.isDlnaPlaylistVisible());
-        command.setDlnaAlbumByGenreVisible(settingsService.isDlnaAlbumByGenreVisible());
-        command.setDlnaSongByGenreVisible(settingsService.isDlnaSongByGenreVisible());
-        command.setDlnaRecentAlbumVisible(settingsService.isDlnaRecentAlbumVisible());
-        command.setDlnaRecentAlbumId3Visible(settingsService.isDlnaRecentAlbumId3Visible());
-        command.setDlnaRandomSongVisible(settingsService.isDlnaRandomSongVisible());
-        command.setDlnaRandomAlbumVisible(settingsService.isDlnaRandomAlbumVisible());
-        command.setDlnaRandomSongByArtistVisible(settingsService.isDlnaRandomSongByArtistVisible());
-        command.setDlnaRandomSongByFolderArtistVisible(settingsService.isDlnaRandomSongByFolderArtistVisible());
-        command.setDlnaPodcastVisible(settingsService.isDlnaPodcastVisible());
+        // Menu settings
+        List<MenuItemWithDefaultName> topMenuItems = menuItemService.getTopMenuItems(ViewType.UPNP);
+        command.setTopMenuItems(topMenuItems);
+
+        // Menu detail settings
+        command.setTopMenuEnableds(
+                topMenuItems.stream().collect(Collectors.toMap(MenuItem::getId, MenuItem::isEnabled)));
+        List<MenuItemWithDefaultName> subMenuItems = menuItemService.getSubMenuItems(ViewType.UPNP);
+        command.setSubMenuItems(subMenuItems);
+
+        Map<MenuItemId, SubMenuItemRowInfo> subMenuItemRowInfos = new ConcurrentHashMap<>();
+        topMenuItems.stream().map(topMenu -> topMenu.getId()).forEach(topMenuItemId -> {
+            int count = (int) subMenuItems.stream().filter(subMenuItem -> subMenuItem.getParent() == topMenuItemId)
+                    .count();
+            subMenuItems.stream().filter(subMenuItem -> subMenuItem.getParent() == topMenuItemId).findFirst().ifPresent(
+                    firstChild -> subMenuItemRowInfos.put(topMenuItemId, new SubMenuItemRowInfo(firstChild, count)));
+        });
+        command.setSubMenuItemRowInfos(subMenuItemRowInfos);
 
         // Display options / Access control
         command.setDlnaGenreCountVisible(settingsService.isDlnaGenreCountVisible());
@@ -153,7 +175,9 @@ public class DLNASettingsController {
                 || !isEmpty(command.getDlnaBaseLANURL())
                         && !command.getDlnaBaseLANURL().equals(settingsService.getDlnaBaseLANURL());
 
-        // # Changes to property file
+        /*
+         * Changes to property file
+         */
 
         // UPnP basic settings
         settingsService.setDlnaEnabled(command.isDlnaEnabled());
@@ -161,24 +185,6 @@ public class DLNASettingsController {
                 .setDlnaServerName(StringUtils.defaultIfEmpty(command.getDlnaServerName(), SettingsService.getBrand()));
         settingsService.setDlnaBaseLANURL(command.getDlnaBaseLANURL());
         settingsService.setUriWithFileExtensions(command.isUriWithFileExtensions());
-
-        // Items to display
-        settingsService.setDlnaIndexVisible(command.isDlnaIndexVisible());
-        settingsService.setDlnaIndexId3Visible(command.isDlnaIndexId3Visible());
-        settingsService.setDlnaFolderVisible(command.isDlnaFolderVisible());
-        settingsService.setDlnaArtistVisible(command.isDlnaArtistVisible());
-        settingsService.setDlnaArtistByFolderVisible(command.isDlnaArtistByFolderVisible());
-        settingsService.setDlnaAlbumVisible(command.isDlnaAlbumVisible());
-        settingsService.setDlnaPlaylistVisible(command.isDlnaPlaylistVisible());
-        settingsService.setDlnaAlbumByGenreVisible(command.isDlnaAlbumByGenreVisible());
-        settingsService.setDlnaSongByGenreVisible(command.isDlnaSongByGenreVisible());
-        settingsService.setDlnaRecentAlbumVisible(command.isDlnaRecentAlbumVisible());
-        settingsService.setDlnaRecentAlbumId3Visible(command.isDlnaRecentAlbumId3Visible());
-        settingsService.setDlnaRandomSongVisible(command.isDlnaRandomSongVisible());
-        settingsService.setDlnaRandomAlbumVisible(command.isDlnaRandomAlbumVisible());
-        settingsService.setDlnaRandomSongByArtistVisible(command.isDlnaRandomSongByArtistVisible());
-        settingsService.setDlnaRandomSongByFolderArtistVisible(command.isDlnaRandomSongByFolderArtistVisible());
-        settingsService.setDlnaPodcastVisible(command.isDlnaPodcastVisible());
 
         // Display options / Access control
         final List<Integer> allowedIds = Arrays.stream(command.getAllowedMusicFolderIds()).boxed()
@@ -190,7 +196,11 @@ public class DLNASettingsController {
 
         settingsService.save();
 
-        // # Changes to the database
+        /*
+         * Changes to the database
+         */
+
+        // UPnP basic settings
         User guestUser = securityService.getGuestUser();
         musicFolderService.setMusicFoldersForUser(guestUser.getUsername(), allowedIds);
         UserSettings userSettings = securityService.getUserSettings(guestUser.getUsername());
@@ -205,7 +215,15 @@ public class DLNASettingsController {
         }
         playerService.updatePlayer(guestPlayer);
 
-        // If some properties are changed, UPnP will be started, stopped and restarted.
+        // Menu detail settings
+        menuItemService
+                .updateMenuItems(Stream.concat(command.getTopMenuItems().stream(), command.getSubMenuItems().stream()));
+
+        /*
+         * Service reboot: If some properties are changed, UPnP will be restarted. (Do not restart if the settings
+         * related to the contents that can be changed dynamically are changed.)
+         */
+
         if (isEnabledChanged) {
             upnpService.setEnabled(command.isDlnaEnabled());
         } else if (isNameOrUrlChanged && settingsService.isDlnaEnabled()) {
@@ -213,7 +231,9 @@ public class DLNASettingsController {
             upnpService.setEnabled(true);
         }
 
-        // for view page control
+        /*
+         * For view page control
+         */
         redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
 
         return new ModelAndView(new RedirectView(ViewName.DLNA_SETTINGS.value()));

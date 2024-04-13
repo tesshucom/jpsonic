@@ -1,0 +1,43 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="change-upnp-menu-item-order" author="tesshucom">
+        <validCheckSum>ANY</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="menu_item" />
+        </preConditions>
+        <!-- See com.tesshu.jpsonic.domain.MenuItemId -->
+        <sql>update menu_item set menu_item_order = 0  where id = 0</sql>
+        <sql>update menu_item set menu_item_order = 1  where id = 10</sql>
+        <sql>update menu_item set menu_item_order = 2  where id = 20</sql>
+        <sql>update menu_item set menu_item_order = 3  where id = 30</sql>
+        <sql>update menu_item set menu_item_order = 4  where id = 40</sql>
+        <sql>update menu_item set menu_item_order = 5  where id = 50</sql>
+        <sql>update menu_item set menu_item_order = 6  where id = 60</sql>
+        <sql>update menu_item set menu_item_order = 7  where id = 70</sql>
+        <sql>update menu_item set menu_item_order = 8  where id = 80</sql>
+        <sql>update menu_item set menu_item_order = 9  where id = 90</sql>
+        <sql>update menu_item set menu_item_order = 10  where id = 100</sql>
+        <sql>update menu_item set menu_item_order = 11  where id = 110</sql>
+        <sql>update menu_item set menu_item_order = 12  where id = 120</sql>
+        <sql>update menu_item set menu_item_order = 13  where id = 130</sql>
+        <sql>update menu_item set menu_item_order = 12  where id = 11</sql>
+        <sql>update menu_item set menu_item_order = 11  where id = 12</sql>
+        <sql>update menu_item set menu_item_order = 23  where id = 21</sql>
+        <sql>update menu_item set menu_item_order = 21  where id = 22</sql>
+        <sql>update menu_item set menu_item_order = 22  where id = 23</sql>
+        <sql>update menu_item set menu_item_order = 31  where id = 31</sql>
+        <sql>update menu_item set menu_item_order = 42  where id = 41</sql>
+        <sql>update menu_item set menu_item_order = 41  where id = 42</sql>
+        <sql>update menu_item set menu_item_order = 51  where id = 51</sql>
+        <sql>update menu_item set menu_item_order = 61  where id = 61</sql>
+        <sql>update menu_item set menu_item_order = 71  where id = 71</sql>
+        <sql>update menu_item set menu_item_order = 72  where id = 72</sql>
+        <sql>update menu_item set menu_item_order = 84  where id = 81</sql>
+        <sql>update menu_item set menu_item_order = 81  where id = 82</sql>
+        <sql>update menu_item set menu_item_order = 82  where id = 83</sql>
+        <sql>update menu_item set menu_item_order = 83  where id = 84</sql>
+        <rollback />
+    </changeSet>
+</databaseChangeLog>

@@ -25,45 +25,55 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
 public enum MenuItemId {
 
-    ROOT(0),
+    ROOT(0, 0),
 
-    FOLDER(10), INDEX(11), MEDIA_FILE(12),
+    FOLDER(10, 1), INDEX(11, 12), MEDIA_FILE(12, 11),
 
-    ARTIST(20), INDEX_ID3(21), ALBUM_ARTIST(22), ALBUM_ARTIST_BY_FOLDER(23),
+    ARTIST(20, 2), INDEX_ID3(21, 23), ALBUM_ARTIST(22, 21), ALBUM_ARTIST_BY_FOLDER(23, 22),
 
-    ALBUM(30), ALBUM_ID3(31),
+    ALBUM(30, 3), ALBUM_ID3(31, 31),
 
-    GENRE(40), ALBUM_BY_GENRE(41), SONG_BY_GENRE(42),
+    GENRE(40, 4), ALBUM_BY_GENRE(41, 42), SONG_BY_GENRE(42, 41),
 
-    PODCAST(50), PODCAST_DEFALT(51),
+    PODCAST(50, 5), PODCAST_DEFALT(51, 51),
 
-    PLAYLISTS(60), PLAYLISTS_DEFALT(61),
+    PLAYLISTS(60, 6), PLAYLISTS_DEFALT(61, 61),
 
-    RECENTLY(70), RECENTLY_ADDED_ALBUM(71), RECENTLY_TAGGED_ALBUM(72),
+    RECENTLY(70, 7), RECENTLY_ADDED_ALBUM(71, 71), RECENTLY_TAGGED_ALBUM(72, 72),
 
-    SHUFFLE(80), RANDOM_ALBUM(81), RANDOM_SONG(82), RANDOM_SONG_BY_ARTIST(83), RANDOM_SONG_BY_FOLDER_ARTIST(84),
+    SHUFFLE(80, 8), RANDOM_ALBUM(81, 84), RANDOM_SONG(82, 81), RANDOM_SONG_BY_ARTIST(83, 82),
+    RANDOM_SONG_BY_FOLDER_ARTIST(84, 83),
 
-    YEAR(90),
+    YEAR(90, 9),
 
-    AUDIOBOOK(100),
+    AUDIOBOOK(100, 10),
 
-    VIDEO(110),
+    VIDEO(110, 11),
 
-    RADIO(120),
+    RADIO(120, 12),
 
-    BOOKMARK(130);
+    BOOKMARK(130, 13),
 
-    private final int v;
+    // None of these (unreachable)
+    ANY(999, 999);
 
-    MenuItemId(int v) {
-        this.v = v;
+    private final int id;
+    private final int defaultOrder;
+
+    MenuItemId(int id, int defaultOrder) {
+        this.id = id;
+        this.defaultOrder = defaultOrder;
     }
 
     public int value() {
-        return v;
+        return id;
+    }
+
+    public int getDefaultOrder() {
+        return defaultOrder;
     }
 
     public static @NonNull MenuItemId of(int value) {
-        return Stream.of(values()).filter(id -> id.v == value).findFirst().orElse(ROOT);
+        return Stream.of(values()).filter(id -> id.id == value).findFirst().orElse(ANY);
     }
 }
