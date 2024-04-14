@@ -301,7 +301,7 @@
                                 <c:when test="${subMenuItem.parent eq MenuItemId.SHUFFLE}">
                                     <td rowspan="${rowInfo.count()}" class="${ifDisabled}">
                                         <label for="dlnaRandomMax"><fmt:message key="dlnasettings.randommax"/></label>
-                                        <form:input path="dlnaRandomMax" id="dlnaRandomMax" maxlength="4"/>
+                                        <form:input type="text" inputmode="numeric" path="dlnaRandomMax" id="dlnaRandomMax" maxlength="4"/>
                                     </td>
                                 </c:when>
                                 <c:when test="${subMenuItem.parent eq MenuItemId.PLAYLISTS}">

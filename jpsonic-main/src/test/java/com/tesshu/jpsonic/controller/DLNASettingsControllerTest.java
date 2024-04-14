@@ -275,6 +275,103 @@ class DLNASettingsControllerTest {
     }
 
     @Nested
+    class RandomMaxTest {
+
+        private DLNASettingsCommand command;
+
+        @BeforeEach
+        public void setup() {
+            settingsService = mock(SettingsService.class);
+            controller = new DLNASettingsController(settingsService, mock(MusicFolderService.class),
+                    mock(SecurityService.class), mock(PlayerService.class), mock(TranscodingService.class),
+                    mock(UPnPService.class), mock(ShareService.class), mock(MenuItemService.class),
+                    mock(OutlineHelpSelector.class));
+            command = new DLNASettingsCommand();
+            command.setTopMenuItems(Collections.emptyList());
+            command.setSubMenuItems(Collections.emptyList());
+        }
+
+        @Test
+        void testNull() {
+            ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(int.class);
+            Mockito.doNothing().when(settingsService).setDlnaRandomMax(captor.capture());
+            controller.post(command, Mockito.mock(RedirectAttributes.class));
+            Mockito.verify(settingsService, Mockito.times(1)).setDlnaRandomMax(Mockito.any(int.class));
+            assertEquals(50, captor.getValue());
+        }
+
+        @Test
+        void test0() {
+            command.setDlnaRandomMax(0);
+            ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(int.class);
+            Mockito.doNothing().when(settingsService).setDlnaRandomMax(captor.capture());
+            controller.post(command, Mockito.mock(RedirectAttributes.class));
+            Mockito.verify(settingsService, Mockito.times(1)).setDlnaRandomMax(Mockito.any(int.class));
+            assertEquals(50, captor.getValue());
+        }
+
+        @Test
+        void test1() {
+            command.setDlnaRandomMax(1);
+            ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(int.class);
+            Mockito.doNothing().when(settingsService).setDlnaRandomMax(captor.capture());
+            controller.post(command, Mockito.mock(RedirectAttributes.class));
+            Mockito.verify(settingsService, Mockito.times(1)).setDlnaRandomMax(Mockito.any(int.class));
+            assertEquals(1, captor.getValue());
+        }
+
+        @Test
+        void test49() {
+            command.setDlnaRandomMax(49);
+            ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(int.class);
+            Mockito.doNothing().when(settingsService).setDlnaRandomMax(captor.capture());
+            controller.post(command, Mockito.mock(RedirectAttributes.class));
+            Mockito.verify(settingsService, Mockito.times(1)).setDlnaRandomMax(Mockito.any(int.class));
+            assertEquals(49, captor.getValue());
+        }
+
+        @Test
+        void test50() {
+            command.setDlnaRandomMax(50);
+            ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(int.class);
+            Mockito.doNothing().when(settingsService).setDlnaRandomMax(captor.capture());
+            controller.post(command, Mockito.mock(RedirectAttributes.class));
+            Mockito.verify(settingsService, Mockito.times(1)).setDlnaRandomMax(Mockito.any(int.class));
+            assertEquals(50, captor.getValue());
+        }
+
+        @Test
+        void test51() {
+            command.setDlnaRandomMax(51);
+            ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(int.class);
+            Mockito.doNothing().when(settingsService).setDlnaRandomMax(captor.capture());
+            controller.post(command, Mockito.mock(RedirectAttributes.class));
+            Mockito.verify(settingsService, Mockito.times(1)).setDlnaRandomMax(Mockito.any(int.class));
+            assertEquals(51, captor.getValue());
+        }
+
+        @Test
+        void test1999() {
+            command.setDlnaRandomMax(1999);
+            ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(int.class);
+            Mockito.doNothing().when(settingsService).setDlnaRandomMax(captor.capture());
+            controller.post(command, Mockito.mock(RedirectAttributes.class));
+            Mockito.verify(settingsService, Mockito.times(1)).setDlnaRandomMax(Mockito.any(int.class));
+            assertEquals(1999, captor.getValue());
+        }
+
+        @Test
+        void test2000() {
+            command.setDlnaRandomMax(2000);
+            ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(int.class);
+            Mockito.doNothing().when(settingsService).setDlnaRandomMax(captor.capture());
+            controller.post(command, Mockito.mock(RedirectAttributes.class));
+            Mockito.verify(settingsService, Mockito.times(1)).setDlnaRandomMax(Mockito.any(int.class));
+            assertEquals(1999, captor.getValue());
+        }
+    }
+
+    @Nested
     class UpdateSubMenuItemsTest {
 
         @Test

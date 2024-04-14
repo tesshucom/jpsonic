@@ -53,7 +53,7 @@ public class DLNASettingsCommand extends SettingsPageCommons {
 
     // Display options / Access control
     private boolean dlnaGenreCountVisible;
-    private int dlnaRandomMax;
+    private Integer dlnaRandomMax;
     private boolean dlnaGuestPublish;
 
     public boolean isDlnaEnabled() {
@@ -180,11 +180,11 @@ public class DLNASettingsCommand extends SettingsPageCommons {
         this.dlnaGenreCountVisible = dlnaGenreCountVisible;
     }
 
-    public int getDlnaRandomMax() {
+    public Integer getDlnaRandomMax() {
         return dlnaRandomMax;
     }
 
-    public void setDlnaRandomMax(int dlnaRandomMax) {
+    public void setDlnaRandomMax(Integer dlnaRandomMax) {
         this.dlnaRandomMax = dlnaRandomMax;
     }
 
