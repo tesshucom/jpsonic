@@ -27,6 +27,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -72,6 +73,9 @@ import org.springframework.web.servlet.view.RedirectView;
 @Controller
 @RequestMapping({ "/dlnaSettings", "/dlnaSettings.view" })
 public class DLNASettingsController {
+
+    private static final int DLNA_RANDOM_DEFAULT = 50;
+    private static final int DLNA_RANDOM_LIMIT = 1999;
 
     private final SettingsService settingsService;
     private final MusicFolderService musicFolderService;
@@ -193,6 +197,9 @@ public class DLNASettingsController {
                 .collect(Collectors.toList());
         settingsService.setDlnaGenreCountVisible(command.isDlnaGenreCountVisible() && allIds.equals(allowedIds));
         settingsService.setDlnaGuestPublish(command.isDlnaGuestPublish());
+        int randomMax = Objects.isNull(command.getDlnaRandomMax()) || command.getDlnaRandomMax() == 0
+                ? DLNA_RANDOM_DEFAULT : command.getDlnaRandomMax();
+        settingsService.setDlnaRandomMax(Math.min(randomMax, DLNA_RANDOM_LIMIT));
 
         settingsService.save();
 
