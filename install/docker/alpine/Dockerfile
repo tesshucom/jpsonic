@@ -32,6 +32,7 @@ WORKDIR $JPSONIC_DIR
 COPY local.conf /etc/fonts
 
 RUN apk --no-cache add \
+    openssl \
     su-exec \
     bash \
     tini \
@@ -41,7 +42,8 @@ RUN apk --no-cache add \
     && rm /usr/share/fonts/noto/NotoSansCJK-Bold.ttc \
     && rm /usr/share/fonts/noto/NotoSerifCJK-Bold.ttc \
     && rm /usr/share/fonts/noto/NotoSerifCJK-Regular.ttc \
-    && fc-cache -vf
+    && fc-cache -vf \
+    && rm -f /usr/lib/librav1e.so.0.6.6
 
 EXPOSE $JPSONIC_PORT
 EXPOSE $UPNP_PORT
