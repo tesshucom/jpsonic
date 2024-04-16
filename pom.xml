@@ -31,7 +31,7 @@
     <project.inceptionYear>2018</project.inceptionYear>
     <spring-boot.version>3.2.4</spring-boot.version>
     <spring-security.version>6.2.3</spring-security.version>
-    <spring-web.version>6.1.5</spring-web.version>
+    <spring-web.version>6.1.6</spring-web.version>
   </properties>
 
   <dependencyManagement>
