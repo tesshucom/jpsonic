@@ -248,7 +248,7 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
     public MusicArtist toArtist(MediaFile artist, int childCount) {
         MusicArtist container = new MusicArtist();
         container.setTitle(artist.getName());
-        container.setId(ProcId.FOLDER.getValue() + ProcId.CID_SEPA + artist.getId());
+        container.setId(ProcId.MEDIA_FILE.getValue() + ProcId.CID_SEPA + artist.getId());
         mediaFileService.getParent(artist).ifPresent(parent -> container.setParentID(String.valueOf(parent.getId())));
         artist.getCoverArtPath().ifPresent(path -> container.addProperty(toArtistArt(artist)));
         container.setChildCount(childCount);
@@ -269,7 +269,7 @@ public class UpnpDIDLFactory implements CoverArtPresentation {
 
     public MusicAlbum toAlbum(MediaFile album, int childCount) {
         MusicAlbum container = new MusicAlbum();
-        container.setId(ProcId.FOLDER.getValue() + ProcId.CID_SEPA + album.getId());
+        container.setId(ProcId.MEDIA_FILE.getValue() + ProcId.CID_SEPA + album.getId());
         mediaFileService.getParent(album).ifPresent(parent -> container.setParentID(String.valueOf(parent.getId())));
         container.setChildCount(childCount);
         container.setTitle(album.getName());
