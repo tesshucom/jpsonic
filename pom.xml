@@ -29,7 +29,7 @@
     <pmd.version>7.0.0-rc4</pmd.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.inceptionYear>2018</project.inceptionYear>
-    <spring-boot.version>3.2.3</spring-boot.version>
+    <spring-boot.version>3.2.4</spring-boot.version>
     <spring-security.version>6.2.3</spring-security.version>
     <spring-web.version>6.1.5</spring-web.version>
   </properties>
@@ -693,7 +693,7 @@
                 <requireMavenVersion>
                   <version>3.8.6</version>
                 </requireMavenVersion>
-                <dependencyConvergence></dependencyConvergence>
+                <dependencyConvergence/>
               </rules>
             </configuration>
           </execution>
