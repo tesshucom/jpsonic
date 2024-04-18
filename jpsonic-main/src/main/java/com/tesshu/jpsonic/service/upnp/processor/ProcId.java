@@ -28,8 +28,8 @@ import com.tesshu.jpsonic.domain.MenuItemId;
  */
 public enum ProcId {
 
-    ROOT("0"), PLAYLIST("playlist"), FOLDER("folder"), ALBUM("album"), ARTIST("artist"),
-    ARTIST_BY_FOLDER("artistByFolder"), ALBUM_BY_GENRE("abg"), SONG_BY_GENRE("sbg"), RECENT("recent"),
+    ROOT("0"), PLAYLIST("playlist"), MEDIA_FILE("mediaFile"), MEDIA_FILE_BY_FOLDER("folder"), ALBUM("album"),
+    ARTIST("artist"), ARTIST_BY_FOLDER("artistByFolder"), ALBUM_BY_GENRE("abg"), SONG_BY_GENRE("sbg"), RECENT("recent"),
     RECENT_ID3("recentId3"), INDEX("index"), INDEX_ID3("indexId3"), PODCAST("podcast"), RANDOM_ALBUM("randomAlbum"),
     RANDOM_SONG("randomSong"), RANDOM_SONG_BY_ARTIST("randomSongByArtist"),
     RANDOM_SONG_BY_FOLDER_ARTIST("randomSongByFolderArtist");
@@ -56,7 +56,8 @@ public enum ProcId {
     public static ProcId from(MenuItemId menuItemId) {
         return switch (menuItemId) {
         case INDEX -> INDEX;
-        case MEDIA_FILE -> FOLDER;
+        case MEDIA_FILE -> MEDIA_FILE;
+        case MEDIA_FILE_BY_FOLDER -> MEDIA_FILE_BY_FOLDER;
         case INDEX_ID3 -> INDEX_ID3;
         case ALBUM_ARTIST -> ARTIST;
         case ALBUM_ARTIST_BY_FOLDER -> ARTIST_BY_FOLDER;

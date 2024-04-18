@@ -110,9 +110,10 @@ class MenuItemServiceTest {
     void testGetChildlenOf() {
         List<MenuItem> menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.FOLDER, false, 0,
                 Integer.MAX_VALUE);
-        assertEquals(2, menuItems.size());
+        assertEquals(3, menuItems.size());
         assertEquals("Simple List", menuItems.get(0).getName());
-        assertEquals("With Index", menuItems.get(1).getName());
+        assertEquals("By Folder", menuItems.get(1).getName());
+        assertEquals("With Index", menuItems.get(2).getName());
 
         menuItems = menuItemService.getChildlenOf(ViewType.UPNP, MenuItemId.ARTIST, false, 0, Integer.MAX_VALUE);
         assertEquals(3, menuItems.size());
@@ -302,21 +303,22 @@ class MenuItemServiceTest {
     void testResetMenuItem() {
         Function<List<MenuItem>, Boolean> validateDefaultSubMenuItems = (subMenuItems) -> {
             assertEquals(MenuItemId.MEDIA_FILE, subMenuItems.get(0).getId());
-            assertEquals(MenuItemId.INDEX, subMenuItems.get(1).getId());
-            assertEquals(MenuItemId.ALBUM_ARTIST, subMenuItems.get(2).getId());
-            assertEquals(MenuItemId.ALBUM_ARTIST_BY_FOLDER, subMenuItems.get(3).getId());
-            assertEquals(MenuItemId.INDEX_ID3, subMenuItems.get(4).getId());
-            assertEquals(MenuItemId.ALBUM_ID3, subMenuItems.get(5).getId());
-            assertEquals(MenuItemId.SONG_BY_GENRE, subMenuItems.get(6).getId());
-            assertEquals(MenuItemId.ALBUM_BY_GENRE, subMenuItems.get(7).getId());
-            assertEquals(MenuItemId.PODCAST_DEFALT, subMenuItems.get(8).getId());
-            assertEquals(MenuItemId.PLAYLISTS_DEFALT, subMenuItems.get(9).getId());
-            assertEquals(MenuItemId.RECENTLY_ADDED_ALBUM, subMenuItems.get(10).getId());
-            assertEquals(MenuItemId.RECENTLY_TAGGED_ALBUM, subMenuItems.get(11).getId());
-            assertEquals(MenuItemId.RANDOM_SONG, subMenuItems.get(12).getId());
-            assertEquals(MenuItemId.RANDOM_SONG_BY_ARTIST, subMenuItems.get(13).getId());
-            assertEquals(MenuItemId.RANDOM_SONG_BY_FOLDER_ARTIST, subMenuItems.get(14).getId());
-            assertEquals(MenuItemId.RANDOM_ALBUM, subMenuItems.get(15).getId());
+            assertEquals(MenuItemId.MEDIA_FILE_BY_FOLDER, subMenuItems.get(1).getId());
+            assertEquals(MenuItemId.INDEX, subMenuItems.get(2).getId());
+            assertEquals(MenuItemId.ALBUM_ARTIST, subMenuItems.get(3).getId());
+            assertEquals(MenuItemId.ALBUM_ARTIST_BY_FOLDER, subMenuItems.get(4).getId());
+            assertEquals(MenuItemId.INDEX_ID3, subMenuItems.get(5).getId());
+            assertEquals(MenuItemId.ALBUM_ID3, subMenuItems.get(6).getId());
+            assertEquals(MenuItemId.SONG_BY_GENRE, subMenuItems.get(7).getId());
+            assertEquals(MenuItemId.ALBUM_BY_GENRE, subMenuItems.get(8).getId());
+            assertEquals(MenuItemId.PODCAST_DEFALT, subMenuItems.get(9).getId());
+            assertEquals(MenuItemId.PLAYLISTS_DEFALT, subMenuItems.get(10).getId());
+            assertEquals(MenuItemId.RECENTLY_ADDED_ALBUM, subMenuItems.get(11).getId());
+            assertEquals(MenuItemId.RECENTLY_TAGGED_ALBUM, subMenuItems.get(12).getId());
+            assertEquals(MenuItemId.RANDOM_SONG, subMenuItems.get(13).getId());
+            assertEquals(MenuItemId.RANDOM_SONG_BY_ARTIST, subMenuItems.get(14).getId());
+            assertEquals(MenuItemId.RANDOM_SONG_BY_FOLDER_ARTIST, subMenuItems.get(15).getId());
+            assertEquals(MenuItemId.RANDOM_ALBUM, subMenuItems.get(16).getId());
             subMenuItems.forEach(menuItem -> {
                 assertTrue(menuItem.getName().isBlank());
                 boolean enabled = switch (menuItem.getId()) {

@@ -236,11 +236,14 @@
                     </td>
                     <td class="hierarchy ${ifDisabled}">
                         <c:choose>
-                            <c:when test="${subMenuItem.id eq MenuItemId.INDEX}">
-                                [Index] [Artist Folder] [Album Folder] [Song]
-                            </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.MEDIA_FILE}">
                                 [Folder ... ] [Song]
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.MEDIA_FILE_BY_FOLDER}">
+                                [Music Folder] [Folder ... ] [Song]
+                            </c:when>
+                            <c:when test="${subMenuItem.id eq MenuItemId.INDEX}">
+                                [Index] [Folder ... ] [Song]
                             </c:when>
                             <c:when test="${subMenuItem.id eq MenuItemId.INDEX_ID3}">
                                 [Index] [Artist] [Album] [Song]

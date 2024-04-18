@@ -29,7 +29,7 @@ import org.jupnp.support.model.DIDLContent;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RecentAlbumProc extends MediaFileProc implements CountLimitProc {
+public class RecentAlbumProc extends MediaFileByFolderProc implements CountLimitProc {
 
     private static final int RECENT_COUNT = 50;
 

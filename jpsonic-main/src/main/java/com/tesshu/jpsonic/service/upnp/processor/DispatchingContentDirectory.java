@@ -55,6 +55,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory
 
     private final RootUpnpProc rootProc;
     private final MediaFileProc mediaFileProc;
+    private final MediaFileByFolderProc mediaFileByFolderProc;
     private final PlaylistProc playlistProc;
     private final AlbumProc albumProc;
     private final RecentAlbumProc recentAlbumProc;
@@ -76,8 +77,8 @@ public class DispatchingContentDirectory extends CustomContentDirectory
     private final SearchService searchService;
 
     public DispatchingContentDirectory(RootUpnpProc rp, @Qualifier("mediaFileProc") MediaFileProc mfp,
-            @Lazy PlaylistProc playp, @Lazy @Qualifier("albumProc") AlbumProc ap,
-            @Lazy @Qualifier("recentAlbumProc") RecentAlbumProc rap,
+            @Lazy @Qualifier("mediaFileByFolderProc") MediaFileByFolderProc mfbfp, @Lazy PlaylistProc playp,
+            @Lazy @Qualifier("albumProc") AlbumProc ap, @Lazy @Qualifier("recentAlbumProc") RecentAlbumProc rap,
             @Lazy @Qualifier("recentAlbumId3Proc") RecentAlbumId3Proc raip, @Lazy ArtistProc arP,
             @Lazy ArtistByFolderProc abfP, @Lazy @Qualifier("albumByGenreProc") AlbumByGenreProc abgp,
             @Lazy @Qualifier("songByGenreProc") SongByGenreProc sbgp, @Lazy @Qualifier("indexProc") IndexProc ip,
@@ -89,6 +90,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         super();
         rootProc = rp;
         mediaFileProc = mfp;
+        mediaFileByFolderProc = mfbfp;
         playlistProc = playp;
         albumProc = ap;
         recentAlbumProc = rap;
@@ -115,7 +117,8 @@ public class DispatchingContentDirectory extends CustomContentDirectory
         return switch (id) {
         case ROOT -> rootProc;
         case PLAYLIST -> playlistProc;
-        case FOLDER -> mediaFileProc;
+        case MEDIA_FILE -> mediaFileProc;
+        case MEDIA_FILE_BY_FOLDER -> mediaFileByFolderProc;
         case ALBUM -> albumProc;
         case RECENT -> recentAlbumProc;
         case RECENT_ID3 -> recentAlbumId3Proc;

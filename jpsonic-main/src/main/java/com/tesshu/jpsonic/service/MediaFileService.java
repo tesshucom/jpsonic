@@ -157,6 +157,10 @@ public class MediaFileService {
         return mediaFileDao.getChildrenOf(parent.getPathString(), offset, count, childOrder, excludes);
     }
 
+    public List<MediaFile> getChildrenOf(List<MusicFolder> folders, long offset, long count, MediaType... excludes) {
+        return mediaFileDao.getChildrenOf(folders, offset, count, excludes);
+    }
+
     public List<MediaFile> getChildrenOf(List<MusicFolder> folders, MusicIndex musicIndex, long offset, long count,
             MediaType... excludes) {
         return mediaFileDao.getChildrenOf(folders, musicIndex, offset, count, excludes);
