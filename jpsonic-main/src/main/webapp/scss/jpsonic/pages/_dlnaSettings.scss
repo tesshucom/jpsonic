@@ -5,13 +5,18 @@
   input#dlnaBaseLANURL {
     @include dlInputWidth(13);
   }
+  input.subMenuName {
+    margin: 0;
+
+    @include tabularInputWidth(6);
+  }
   input#dlnaRandomMax {
-    @include dlInputWidth(2);
+    @include tabularInputWidth(2);
   }
 
-  table.tabular.dlna-display {
-    width: 640px;
-    margin: 30px 0 0 calc((100% - 640px) / 2);
+  table.tabular.menus {
+    width: 400px;
+    margin: 30px 0 0 calc((100% - 400px) / 2);
     th {
       text-align: center;
     }
@@ -20,19 +25,91 @@
         background-color: inherit;
       }
       td {
-        font-size: .86rem;
         &:nth-child(1) {
-          width: 420px;
           padding-left: 10px;
           text-align: left;
-          .popup.help {
-            vertical-align: middle;
-          }
         }
         &:nth-child(2) {
-          width: 220px;
-          padding-left: 10px;
+          width: 60px;
+          text-align: right;
+        }
+        &:nth-child(3) {
+          width: 180px;
+          text-align: center;
+        }
+        &:nth-child(4) {
+          width: 60px;
           text-align: left;
+        }
+        &.disabledNow {
+          background-color: $jp-color-mask-light-gray;
+        }
+      }
+    }
+    td > a {
+      position: relative;
+      top: -2.5px;
+    }
+  }
+
+  table.tabular.sub-menus {
+    width: calc(100% - 30px);
+    margin: 30px 0 0 30px;
+    text-align: left;
+    th {
+      text-align: center;
+    }
+    tbody {
+      tr {
+        &:hover {
+          background-color: inherit;
+        }
+        td {
+          font-size: .86rem;
+          &:nth-child(1) {
+            padding-left: 10px;
+          }
+          &:nth-child(5) {
+            padding-right: 10px;
+            .popup.help {
+              vertical-align: middle;
+            }
+          }
+          &.chk-container {
+            width: 60px;
+            padding: 0;
+            text-align: right;
+          }
+          &.input-text-container {
+            width: 180px;
+            padding: 0;
+          }
+          &.hierarchy {
+            overflow: hidden;
+            max-width: 240px;
+            white-space: nowrap;
+          }
+
+          &.disabledNow {
+            background-color: $jp-color-mask-light-gray;
+          }
+        }
+        &.lastMenu {
+          td {
+            &:first-child {
+              @include borderRadius(lower-left);
+            }
+            &:last-child {
+              @include borderRadius(lower-right);
+            }
+          }
+          td.chk-container,
+          td.hierarchy {
+            &:first-child,
+            &:last-child {
+              @include borderRadius(none);
+            }
+          }
         }
       }
     }

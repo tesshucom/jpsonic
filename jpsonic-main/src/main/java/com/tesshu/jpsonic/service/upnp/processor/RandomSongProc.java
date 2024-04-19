@@ -31,7 +31,7 @@ import org.jupnp.support.model.DIDLContent;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RandomSongProc extends MediaFileProc implements CountLimitProc {
+public class RandomSongProc extends MediaFileByFolderProc implements CountLimitProc {
 
     private final UpnpProcessorUtil util;
     private final SearchService searchService;

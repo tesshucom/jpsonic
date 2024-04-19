@@ -1,0 +1,42 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="add-menu-item-upnp-media-file2" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from menu_item where id = 13</sqlCheck>
+        </preConditions>
+        <insert tableName="menu_item">
+            <column name="view_type" valueNumeric="1" />
+            <column name="id" valueNumeric="13" />
+            <column name="parent" valueNumeric="10" />
+            <column name="name" value="" />
+            <column name="enabled" valueBoolean="true" />
+            <column name="menu_item_order" valueNumeric="11" />
+        </insert>
+        <rollback>
+            <delete tableName="menu_item">
+                <where>id = 13</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="change-upnp-menu-item-enabled2" author="tesshucom">
+        <validCheckSum>ANY</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="menu_item" />
+        </preConditions>
+        <sql>update menu_item set enabled = false  where id = 12</sql>
+        <rollback />
+    </changeSet>
+    <changeSet id="change-upnp-menu-item-order2" author="tesshucom">
+        <validCheckSum>ANY</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="menu_item" />
+        </preConditions>
+        <!-- See com.tesshu.jpsonic.domain.MenuItemId -->
+        <sql>update menu_item set menu_item_order = 13  where id = 11</sql>
+        <sql>update menu_item set menu_item_order = 12  where id = 12</sql>
+        <sql>update menu_item set menu_item_order = 11  where id = 13</sql>
+        <rollback />
+    </changeSet>
+</databaseChangeLog>
