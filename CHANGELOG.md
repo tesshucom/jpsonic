@@ -3,8 +3,34 @@
 # jpsonic/jpsonic
 # -->
 
+## v114.1.0
 
-## v114.0.0
+#### Bug fixes
+
+  * Fix bug that UPnP resource properties included size ([#2584](https://github.com/tesshucom/jpsonic/issues/2584))
+  * Fix bug that settings could not be made on the "General Settings" ([#2592](https://github.com/tesshucom/jpsonic/issues/2592))
+  * Fix bug that the random maximum value of UPnP could not be set ([#2616](https://github.com/tesshucom/jpsonic/issues/2616))
+
+#### Enhancement
+
+  * Migrate UPnP menu to customizable ([#2615](https://github.com/tesshucom/jpsonic/issues/2615))
+  * Add new subitem to UPnP Folder menu ([#2622](https://github.com/tesshucom/jpsonic/issues/2622))
+
+#### Maintenance
+
+  * Mark features scheduled for removal as Deprecated ([#2585](https://github.com/tesshucom/jpsonic/issues/2585))
+  * Add arm64/v8 Alpine Image ([#2606](https://github.com/tesshucom/jpsonic/issues/2606))
+
+#### Update Libs
+
+  - [v114.0.2](https://github.com/tesshucom/jpsonic/issues/2594)
+  - [v114.0.4](https://github.com/tesshucom/jpsonic/issues/2606)
+  - [v114.0.5](https://github.com/tesshucom/jpsonic/issues/2610)
+  - [v114.0.6](https://github.com/tesshucom/jpsonic/issues/2617)
+  - [v114.0.7](https://github.com/tesshucom/jpsonic/issues/2621)
+
+<details>
+<summary>v114.0.0</summary>
 
 #### Enhancement
 
@@ -34,6 +60,7 @@
   - [v114.0.0.alpha.1.2](https://github.com/tesshucom/jpsonic/issues/2561)
   - [v114.0.0.alpha.2.2](https://github.com/tesshucom/jpsonic/issues/2572)
 
+</details>
 <details>
 <summary>v113.0.0</summary>
 
