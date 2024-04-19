@@ -276,29 +276,6 @@ final class SettingsConstants {
             }
         }
 
-        static final class Processor {
-            static final Pair<Boolean> INDEX = Pair.of("DlnaIndexVisible", true);
-            static final Pair<Boolean> INDEX_ID3 = Pair.of("DlnaIndexId3Visible", false);
-            static final Pair<Boolean> FOLDER = Pair.of("DlnaFolderVisible", true);
-            static final Pair<Boolean> ARTIST = Pair.of("DlnaArtistVisible", true);
-            static final Pair<Boolean> ARTIST_BY_FOLDER = Pair.of("DlnaArtistByFolderVisible", false);
-            static final Pair<Boolean> ALBUM = Pair.of("DlnaAlbumVisible", true);
-            static final Pair<Boolean> PLAYLIST = Pair.of("DlnaPlaylistVisible", true);
-            static final Pair<Boolean> ALBUM_BY_GENRE = Pair.of("DlnaAlbumByGenreVisible", true);
-            static final Pair<Boolean> SONG_BY_GENRE = Pair.of("DlnaSongByGenreVisible", true);
-            static final Pair<Boolean> RECENT_ALBUM = Pair.of("DlnaRecentAlbumVisible", true);
-            static final Pair<Boolean> RECENT_ALBUM_ID3 = Pair.of("DlnaRecentAlbumId3Visible", false);
-            static final Pair<Boolean> RANDOM_SONG = Pair.of("DlnaRandomSongVisible", true);
-            static final Pair<Boolean> RANDOM_ALBUM = Pair.of("DlnaRandomAlbumVisible", true);
-            static final Pair<Boolean> RANDOM_SONG_BY_ARTIST = Pair.of("DlnaRandomSongByArtistVisible", true);
-            static final Pair<Boolean> RANDOM_SONG_BY_FOLDER_ARTIST = Pair.of("DlnaRandomSongByFolderArtistVisible",
-                    false);
-            static final Pair<Boolean> PODCAST = Pair.of("DlnaPodcastVisible", true);
-
-            private Processor() {
-            }
-        }
-
         static final class Options {
             static final Pair<Boolean> GENRE_COUNT = Pair.of("DlnaGenreCountVisible", false);
             static final Pair<Integer> RANDOM_MAX = Pair.of("DlnaRandomMax", 50);

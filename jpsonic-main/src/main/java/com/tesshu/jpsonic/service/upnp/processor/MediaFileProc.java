@@ -14,14 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2009 Sindre Mehus
- * (C) 2017 Airsonic Authors
- * (C) 2018 tesshucom
+ * (C) 2024 tesshucom
  */
 
 package com.tesshu.jpsonic.service.upnp.processor;
-
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import java.util.Collections;
 import java.util.List;
@@ -60,7 +56,7 @@ public class MediaFileProc extends DirectChildrenContentProc<MediaFile, MediaFil
 
     @Override
     public ProcId getProcId() {
-        return ProcId.FOLDER;
+        return ProcId.MEDIA_FILE;
     }
 
     @Override
@@ -68,8 +64,7 @@ public class MediaFileProc extends DirectChildrenContentProc<MediaFile, MediaFil
         int childSize = getChildSizeOf(entity);
         return switch (entity.getMediaType()) {
         case ALBUM -> factory.toAlbum(entity, childSize);
-        case DIRECTORY -> isEmpty(entity.getArtist()) ? factory.toMusicFolder(entity, getProcId(), childSize)
-                : factory.toArtist(entity, childSize);
+        case DIRECTORY -> factory.toArtist(entity, childSize);
         default -> throw new IllegalArgumentException("Unexpected value: " + entity.getMediaType());
         };
     }
@@ -88,21 +83,13 @@ public class MediaFileProc extends DirectChildrenContentProc<MediaFile, MediaFil
         List<MusicFolder> folders = util.getGuestFolders();
         if (folders.isEmpty()) {
             return Collections.emptyList();
-        } else if (folders.size() == SINGLE_MUSIC_FOLDER) {
-            MediaFile folder = mediaFileService.getMediaFileStrict(folders.get(0).getPathString());
-            return getChildren(folder, offset, count);
         }
-        return folders.stream().skip(offset).limit(count).map(folder -> mediaFileService.getMediaFile(folder.toPath()))
-                .toList();
+        return mediaFileService.getChildrenOf(util.getGuestFolders(), offset, count, EXCLUDED_TYPES);
     }
 
     @Override
     public int getDirectChildrenCount() {
-        List<MusicFolder> folders = util.getGuestFolders();
-        if (folders.size() == SINGLE_MUSIC_FOLDER) {
-            return mediaFileService.getChildSizeOf(folders, EXCLUDED_TYPES);
-        }
-        return folders.size();
+        return mediaFileService.getChildSizeOf(util.getGuestFolders(), EXCLUDED_TYPES);
     }
 
     @Override

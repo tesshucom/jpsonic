@@ -99,8 +99,12 @@ public class SettingsService implements ReadWriteLockSupport {
             "database.config.jndi.name", "database.usertable.quote", "ShowJavaJukebox", "AnonymousTranscoding",
             "UseSonos", "SearchMethodLegacy", "SearchMethodChanged", "FastCacheEnabled", "UseRefresh", "ShowRefresh",
             "VerboseLogStart", "VerboseLogScanning", "VerboseLogPlaying", "VerboseLogShutdown",
-            "IgnoreFileTimestampsNext", "FileModifiedCheckSchemeName", "IgnoreFileTimestampsForEachAlbum",
-            "BufferSize");
+            "IgnoreFileTimestampsNext", "FileModifiedCheckSchemeName", "IgnoreFileTimestampsForEachAlbum", "BufferSize",
+            "DlnaIndexVisible", "DlnaIndexId3Visible", "DlnaFolderVisible", "DlnaArtistVisible",
+            "DlnaArtistByFolderVisible", "DlnaAlbumVisible", "DlnaPlaylistVisible", "DlnaAlbumByGenreVisible",
+            "DlnaSongByGenreVisible", "DlnaRecentAlbumVisible", "DlnaRecentAlbumId3Visible", "DlnaRandomSongVisible",
+            "DlnaRandomAlbumVisible", "DlnaRandomSongByArtistVisible", "DlnaRandomSongByFolderArtistVisible",
+            "DlnaPodcastVisible");
 
     private static final int ELEMENT_COUNT_IN_LINE_OF_THEME = 2;
 
@@ -1238,134 +1242,6 @@ public class SettingsService implements ReadWriteLockSupport {
 
     public void setUriWithFileExtensions(boolean b) {
         setProperty(SettingsConstants.UPnP.Basic.URI_WITH_FILE_EXTENSIONS, b);
-    }
-
-    public boolean isDlnaIndexVisible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.INDEX);
-    }
-
-    public void setDlnaIndexVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.INDEX, b);
-    }
-
-    public boolean isDlnaIndexId3Visible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.INDEX_ID3);
-    }
-
-    public void setDlnaIndexId3Visible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.INDEX_ID3, b);
-    }
-
-    public boolean isDlnaFolderVisible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.FOLDER);
-    }
-
-    public void setDlnaFolderVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.FOLDER, b);
-    }
-
-    public boolean isDlnaArtistVisible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.ARTIST);
-    }
-
-    public void setDlnaArtistVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.ARTIST, b);
-    }
-
-    public boolean isDlnaArtistByFolderVisible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.ARTIST_BY_FOLDER);
-    }
-
-    public void setDlnaArtistByFolderVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.ARTIST_BY_FOLDER, b);
-    }
-
-    public boolean isDlnaAlbumVisible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.ALBUM);
-    }
-
-    public void setDlnaAlbumVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.ALBUM, b);
-    }
-
-    public boolean isDlnaPlaylistVisible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.PLAYLIST);
-    }
-
-    public void setDlnaPlaylistVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.PLAYLIST, b);
-    }
-
-    public boolean isDlnaAlbumByGenreVisible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.ALBUM_BY_GENRE);
-    }
-
-    public void setDlnaAlbumByGenreVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.ALBUM_BY_GENRE, b);
-    }
-
-    public boolean isDlnaSongByGenreVisible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.SONG_BY_GENRE);
-    }
-
-    public void setDlnaSongByGenreVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.SONG_BY_GENRE, b);
-    }
-
-    public boolean isDlnaRecentAlbumVisible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.RECENT_ALBUM);
-    }
-
-    public void setDlnaRecentAlbumVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.RECENT_ALBUM, b);
-    }
-
-    public boolean isDlnaRecentAlbumId3Visible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.RECENT_ALBUM_ID3);
-    }
-
-    public void setDlnaRecentAlbumId3Visible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.RECENT_ALBUM_ID3, b);
-    }
-
-    public boolean isDlnaRandomSongVisible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.RANDOM_SONG);
-    }
-
-    public void setDlnaRandomSongVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.RANDOM_SONG, b);
-    }
-
-    public boolean isDlnaRandomAlbumVisible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.RANDOM_ALBUM);
-    }
-
-    public void setDlnaRandomAlbumVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.RANDOM_ALBUM, b);
-    }
-
-    public boolean isDlnaRandomSongByArtistVisible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.RANDOM_SONG_BY_ARTIST);
-    }
-
-    public void setDlnaRandomSongByArtistVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.RANDOM_SONG_BY_ARTIST, b);
-    }
-
-    public boolean isDlnaRandomSongByFolderArtistVisible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.RANDOM_SONG_BY_FOLDER_ARTIST);
-    }
-
-    public void setDlnaRandomSongByFolderArtistVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.RANDOM_SONG_BY_FOLDER_ARTIST, b);
-    }
-
-    public boolean isDlnaPodcastVisible() {
-        return getBoolean(SettingsConstants.UPnP.Processor.PODCAST);
-    }
-
-    public void setDlnaPodcastVisible(boolean b) {
-        setProperty(SettingsConstants.UPnP.Processor.PODCAST, b);
     }
 
     public boolean isDlnaGenreCountVisible() {

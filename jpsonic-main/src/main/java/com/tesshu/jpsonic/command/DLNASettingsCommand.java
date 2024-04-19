@@ -20,10 +20,14 @@
 package com.tesshu.jpsonic.command;
 
 import java.util.List;
+import java.util.Map;
 
+import com.tesshu.jpsonic.domain.MenuItem;
+import com.tesshu.jpsonic.domain.MenuItemId;
 import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
 import com.tesshu.jpsonic.domain.Transcoding;
+import com.tesshu.jpsonic.service.MenuItemService.MenuItemWithDefaultName;
 
 public class DLNASettingsCommand extends SettingsPageCommons {
 
@@ -39,27 +43,17 @@ public class DLNASettingsCommand extends SettingsPageCommons {
     private boolean transcodingSupported;
     private boolean uriWithFileExtensions;
 
-    // Items to display
-    private boolean dlnaIndexVisible;
-    private boolean dlnaIndexId3Visible;
-    private boolean dlnaFolderVisible;
-    private boolean dlnaArtistVisible;
-    private boolean dlnaArtistByFolderVisible;
-    private boolean dlnaAlbumVisible;
-    private boolean dlnaPlaylistVisible;
-    private boolean dlnaAlbumByGenreVisible;
-    private boolean dlnaSongByGenreVisible;
-    private boolean dlnaRecentAlbumVisible;
-    private boolean dlnaRecentAlbumId3Visible;
-    private boolean dlnaRandomSongVisible;
-    private boolean dlnaRandomAlbumVisible;
-    private boolean dlnaRandomSongByArtistVisible;
-    private boolean dlnaRandomSongByFolderArtistVisible;
-    private boolean dlnaPodcastVisible;
+    // Menu settings
+    private List<MenuItemWithDefaultName> topMenuItems;
+
+    // Menu detail settings
+    private Map<MenuItemId, Boolean> topMenuEnableds;
+    private List<MenuItemWithDefaultName> subMenuItems;
+    private Map<MenuItemId, SubMenuItemRowInfo> subMenuItemRowInfos;
 
     // Display options / Access control
     private boolean dlnaGenreCountVisible;
-    private int dlnaRandomMax;
+    private Integer dlnaRandomMax;
     private boolean dlnaGuestPublish;
 
     public boolean isDlnaEnabled() {
@@ -146,132 +140,36 @@ public class DLNASettingsCommand extends SettingsPageCommons {
         this.uriWithFileExtensions = uriWithFileExtensions;
     }
 
-    public boolean isDlnaIndexVisible() {
-        return dlnaIndexVisible;
+    public List<MenuItemWithDefaultName> getTopMenuItems() {
+        return topMenuItems;
     }
 
-    public void setDlnaIndexVisible(boolean dlnaIndexVisible) {
-        this.dlnaIndexVisible = dlnaIndexVisible;
+    public void setTopMenuItems(List<MenuItemWithDefaultName> topMenuItems) {
+        this.topMenuItems = topMenuItems;
     }
 
-    public boolean isDlnaIndexId3Visible() {
-        return dlnaIndexId3Visible;
+    public Map<MenuItemId, Boolean> getTopMenuEnableds() {
+        return topMenuEnableds;
     }
 
-    public void setDlnaIndexId3Visible(boolean dlnaIndexId3Visible) {
-        this.dlnaIndexId3Visible = dlnaIndexId3Visible;
+    public void setTopMenuEnableds(Map<MenuItemId, Boolean> topMenuEnableds) {
+        this.topMenuEnableds = topMenuEnableds;
     }
 
-    public boolean isDlnaFolderVisible() {
-        return dlnaFolderVisible;
+    public List<MenuItemWithDefaultName> getSubMenuItems() {
+        return subMenuItems;
     }
 
-    public void setDlnaFolderVisible(boolean dlnaFolderVisible) {
-        this.dlnaFolderVisible = dlnaFolderVisible;
+    public void setSubMenuItems(List<MenuItemWithDefaultName> menuItems) {
+        this.subMenuItems = menuItems;
     }
 
-    public boolean isDlnaArtistVisible() {
-        return dlnaArtistVisible;
+    public Map<MenuItemId, SubMenuItemRowInfo> getSubMenuItemRowInfos() {
+        return subMenuItemRowInfos;
     }
 
-    public void setDlnaArtistVisible(boolean dlnaArtistVisible) {
-        this.dlnaArtistVisible = dlnaArtistVisible;
-    }
-
-    public boolean isDlnaArtistByFolderVisible() {
-        return dlnaArtistByFolderVisible;
-    }
-
-    public void setDlnaArtistByFolderVisible(boolean dlnaArtistByFolderVisible) {
-        this.dlnaArtistByFolderVisible = dlnaArtistByFolderVisible;
-    }
-
-    public boolean isDlnaAlbumVisible() {
-        return dlnaAlbumVisible;
-    }
-
-    public void setDlnaAlbumVisible(boolean dlnaAlbumVisible) {
-        this.dlnaAlbumVisible = dlnaAlbumVisible;
-    }
-
-    public boolean isDlnaPlaylistVisible() {
-        return dlnaPlaylistVisible;
-    }
-
-    public void setDlnaPlaylistVisible(boolean dlnaPlaylistVisible) {
-        this.dlnaPlaylistVisible = dlnaPlaylistVisible;
-    }
-
-    public boolean isDlnaAlbumByGenreVisible() {
-        return dlnaAlbumByGenreVisible;
-    }
-
-    public void setDlnaAlbumByGenreVisible(boolean dlnaAlbumByGenreVisible) {
-        this.dlnaAlbumByGenreVisible = dlnaAlbumByGenreVisible;
-    }
-
-    public boolean isDlnaSongByGenreVisible() {
-        return dlnaSongByGenreVisible;
-    }
-
-    public void setDlnaSongByGenreVisible(boolean dlnaSongByGenreVisible) {
-        this.dlnaSongByGenreVisible = dlnaSongByGenreVisible;
-    }
-
-    public boolean isDlnaRecentAlbumVisible() {
-        return dlnaRecentAlbumVisible;
-    }
-
-    public void setDlnaRecentAlbumVisible(boolean dlnaRecentAlbumVisible) {
-        this.dlnaRecentAlbumVisible = dlnaRecentAlbumVisible;
-    }
-
-    public boolean isDlnaRecentAlbumId3Visible() {
-        return dlnaRecentAlbumId3Visible;
-    }
-
-    public void setDlnaRecentAlbumId3Visible(boolean dlnaRecentAlbumId3Visible) {
-        this.dlnaRecentAlbumId3Visible = dlnaRecentAlbumId3Visible;
-    }
-
-    public boolean isDlnaRandomSongVisible() {
-        return dlnaRandomSongVisible;
-    }
-
-    public void setDlnaRandomSongVisible(boolean dlnaRandomSongVisible) {
-        this.dlnaRandomSongVisible = dlnaRandomSongVisible;
-    }
-
-    public boolean isDlnaRandomAlbumVisible() {
-        return dlnaRandomAlbumVisible;
-    }
-
-    public void setDlnaRandomAlbumVisible(boolean dlnaRandomAlbumVisible) {
-        this.dlnaRandomAlbumVisible = dlnaRandomAlbumVisible;
-    }
-
-    public boolean isDlnaRandomSongByArtistVisible() {
-        return dlnaRandomSongByArtistVisible;
-    }
-
-    public void setDlnaRandomSongByArtistVisible(boolean dlnaRandomSongByArtistVisible) {
-        this.dlnaRandomSongByArtistVisible = dlnaRandomSongByArtistVisible;
-    }
-
-    public boolean isDlnaRandomSongByFolderArtistVisible() {
-        return dlnaRandomSongByFolderArtistVisible;
-    }
-
-    public void setDlnaRandomSongByFolderArtistVisible(boolean dlnaRandomSongByFolderArtistVisible) {
-        this.dlnaRandomSongByFolderArtistVisible = dlnaRandomSongByFolderArtistVisible;
-    }
-
-    public boolean isDlnaPodcastVisible() {
-        return dlnaPodcastVisible;
-    }
-
-    public void setDlnaPodcastVisible(boolean dlnaPodcastVisible) {
-        this.dlnaPodcastVisible = dlnaPodcastVisible;
+    public void setSubMenuItemRowInfos(Map<MenuItemId, SubMenuItemRowInfo> subMenuItemRowInfos) {
+        this.subMenuItemRowInfos = subMenuItemRowInfos;
     }
 
     public boolean isDlnaGenreCountVisible() {
@@ -282,11 +180,11 @@ public class DLNASettingsCommand extends SettingsPageCommons {
         this.dlnaGenreCountVisible = dlnaGenreCountVisible;
     }
 
-    public int getDlnaRandomMax() {
+    public Integer getDlnaRandomMax() {
         return dlnaRandomMax;
     }
 
-    public void setDlnaRandomMax(int dlnaRandomMax) {
+    public void setDlnaRandomMax(Integer dlnaRandomMax) {
         this.dlnaRandomMax = dlnaRandomMax;
     }
 
@@ -296,5 +194,8 @@ public class DLNASettingsCommand extends SettingsPageCommons {
 
     public void setDlnaGuestPublish(boolean dlnaGuestPublish) {
         this.dlnaGuestPublish = dlnaGuestPublish;
+    }
+
+    public record SubMenuItemRowInfo(MenuItem firstChild, int count) {
     }
 }

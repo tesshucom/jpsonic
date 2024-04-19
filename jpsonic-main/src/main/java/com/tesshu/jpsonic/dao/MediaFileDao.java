@@ -268,6 +268,30 @@ public class MediaFileDao {
                 """.formatted(typeFilter, order), rowMapper, args);
     }
 
+    public List<MediaFile> getChildrenOf(List<MusicFolder> folders, long offset, long count, MediaType... excludes) {
+        Map<String, Object> args = LegacyMap.of("directory", MediaFile.MediaType.DIRECTORY.name(), "album",
+                MediaFile.MediaType.ALBUM.name(), "music", MediaFile.MediaType.MUSIC.name(), "audiobook",
+                MediaFile.MediaType.AUDIOBOOK.name(), "video", MediaFile.MediaType.VIDEO.name(), "folders",
+                MusicFolder.toPathList(folders), "count", count, "offset", offset, "excludes",
+                Stream.of(excludes).map(MediaType::name).toList());
+        String typeFilter = excludes.length == 0 ? "" : "and type not in(:excludes)";
+        return template.namedQuery("select " + QUERY_COLUMNS + """
+                        ,
+                        case type
+                            when :directory then 1
+                            when :album then 2
+                            when :music then 3
+                            when :audiobook then 4
+                            when :video then 5
+                        end as type_order
+                from media_file
+                where present and parent_path in (:folders)
+                %s
+                order by type_order, media_file_order
+                offset :offset limit :count
+                """.formatted(typeFilter), rowMapper, args);
+    }
+
     public List<MediaFile> getChildrenOf(List<MusicFolder> folders, MusicIndex musicIndex, long offset, long count,
             MediaType... excludes) {
         Map<String, Object> args = LegacyMap.of("directory", MediaFile.MediaType.DIRECTORY.name(), "album",
