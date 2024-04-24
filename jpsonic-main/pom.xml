@@ -15,6 +15,7 @@
   <properties>
     <chameleon.version>1.2.1-RELEASE</chameleon.version>
     <lucene.version>9.10.0</lucene.version>
+    <main.basedir>${project.parent.basedir}</main.basedir>
     <tomcat.server.scope>provided</tomcat.server.scope>
   </properties>
 

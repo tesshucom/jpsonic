@@ -25,6 +25,7 @@
     <jpsonic.concurent.module>jpsonic-concurent17</jpsonic.concurent.module>
     <log4j.version>2.22.1</log4j.version>
     <logback.version>1.4.14</logback.version>
+    <main.basedir>${project.basedir}</main.basedir>
     <maven.compiler.release>${java.version}</maven.compiler.release>
     <pmd.version>7.0.0-rc4</pmd.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -676,6 +677,14 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+        <version>2.16.2</version>
+        <configuration>
+          <rulesUri>file:///${main.basedir}/versions-ignored.xml</rulesUri>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
