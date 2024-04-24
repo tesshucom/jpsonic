@@ -17,6 +17,7 @@
     <lucene.version>9.10.0</lucene.version>
     <main.basedir>${project.parent.basedir}</main.basedir>
     <tomcat.server.scope>provided</tomcat.server.scope>
+    <main.basedir>${project.parent.basedir}</main.basedir>
   </properties>
 
   <dependencies>
