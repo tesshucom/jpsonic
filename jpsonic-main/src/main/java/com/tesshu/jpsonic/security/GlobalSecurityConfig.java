@@ -90,7 +90,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
     }
 
     @EnableWebSecurity
-    public class AuthenticationManagerConfig {
+    public static class AuthenticationManagerConfig {
 
         @Autowired
         public void configure(
@@ -126,7 +126,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
 
     @EnableWebSecurity
     @Order(1)
-    public class ExtSecurityConfig {
+    public static class ExtSecurityConfig {
 
         @Bean
         public JWTRequestParameterProcessingFilter jwtRPPFilter(
@@ -167,7 +167,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
 
     @EnableWebSecurity
     @Order(2)
-    public class SecurityConfig  {
+    public static class SecurityConfig  {
 
         @Bean
         public RESTRequestParameterProcessingFilter restRPPFilter(
