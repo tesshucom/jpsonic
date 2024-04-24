@@ -139,8 +139,8 @@ public class MusicFolderSettingsController {
     }
 
     List<MusicFolderSettingsCommand.MusicFolderInfo> wrap(List<MusicFolder> musicFolders) {
-        var folders = musicFolders.stream().map(MusicFolderSettingsCommand.MusicFolderInfo::new)
-                .collect(Collectors.toCollection(ArrayList::new));
+        List<MusicFolderSettingsCommand.MusicFolderInfo> folders = musicFolders.stream()
+                .map(MusicFolderSettingsCommand.MusicFolderInfo::new).collect(Collectors.toCollection(ArrayList::new));
         if (settingsService.isRedundantFolderCheck()) {
             folders.forEach(folder -> {
                 Path path = Path.of(folder.getPath());
