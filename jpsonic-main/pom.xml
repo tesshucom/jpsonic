@@ -463,7 +463,7 @@
     <dependency>
       <groupId>org.jupnp</groupId>
       <artifactId>org.jupnp.support</artifactId>
-      <version>3.0.0</version>
+      <version>3.0.1</version>
     </dependency>
 
     <dependency>
