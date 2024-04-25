@@ -24,13 +24,13 @@
     <java.version>17</java.version>
     <jpsonic.concurent.module>jpsonic-concurent17</jpsonic.concurent.module>
     <log4j.version>2.22.1</log4j.version>
-    <logback.version>1.4.14</logback.version>
+    <logback.version>1.5.6</logback.version>
     <main.basedir>${project.basedir}</main.basedir>
     <maven.compiler.release>${java.version}</maven.compiler.release>
     <pmd.version>7.0.0</pmd.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.inceptionYear>2018</project.inceptionYear>
-    <spring-boot.version>3.2.4</spring-boot.version>
+    <spring-boot.version>3.2.5</spring-boot.version>
     <spring-security.version>6.2.4</spring-security.version>
     <spring-web.version>6.1.6</spring-web.version>
   </properties>
