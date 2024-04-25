@@ -40,6 +40,10 @@
         <!-- Not important for now -->
         <Bug pattern="EI_EXPOSE_REP2" />
     </Match>
+    <Match>
+        <!-- Not compatible with Spring DI -->
+        <Bug pattern="CT_CONSTRUCTOR_THROW" />
+    </Match>
 
     <!-- find-sec-bugs -->
     <Match>
