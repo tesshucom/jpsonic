@@ -528,8 +528,6 @@ public class PodcastServiceImpl implements PodcastService {
         for (Element episodeElement : episodeElements) {
 
             String title = StringUtil.removeMarkup(episodeElement.getChildTextTrim("title"));
-            String duration = formatDuration(getITunesElement(episodeElement, "duration"));
-            String description = getDescription(episodeElement);
 
             Element enclosure = episodeElement.getChild("enclosure");
             if (enclosure == null) {
@@ -555,6 +553,8 @@ public class PodcastServiceImpl implements PodcastService {
                 }
 
                 Instant date = parseDate(episodeElement.getChildTextTrim("pubDate"));
+                String duration = formatDuration(getITunesElement(episodeElement, "duration"));
+                String description = getDescription(episodeElement);
                 PodcastEpisode episode = new PodcastEpisode(null, channelId, url, null, title, description, date,
                         duration, length, 0L, PodcastStatus.NEW, null);
                 episodes.add(episode);

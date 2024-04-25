@@ -85,12 +85,6 @@ public class RESTRequestParameterProcessingFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        if (!(request instanceof HttpServletRequest)) {
-            throw new ServletException("Can only process HttpServletRequest");
-        }
-        if (!(response instanceof HttpServletResponse)) {
-            throw new ServletException("Can only process HttpServletResponse");
-        }
 
         if (!requiresAuthentication(request, response)) {
             filterChain.doFilter(request, response);

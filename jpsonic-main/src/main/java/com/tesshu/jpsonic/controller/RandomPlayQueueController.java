@@ -106,7 +106,7 @@ public class RandomPlayQueueController {
             throws ServletRequestBindingException {
 
         // Parse request parameters. All of these results are params to criteria.
-        Integer size = sizeParam == null ? 24 : sizeParam;
+        int size = sizeParam == null ? 24 : sizeParam;
         List<MusicFolder> musicFolders = getMusicFolders(request);
         LastPlayed lastPlayed = getLastPlayed(lastPlayedValue, lastPlayedComp);
         String genre = StringUtils.equalsIgnoreCase(REQUEST_VALUE_ANY, genreParam) ? null : genreParam;
