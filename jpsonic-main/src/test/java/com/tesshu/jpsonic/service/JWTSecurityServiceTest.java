@@ -105,7 +105,7 @@ class JWTSecurityServiceTest {
             assertEquals("\"" + PATH + "\"", decoded.getClaim("path").toString());
             assertNull(decoded.getContentType());
             assertEquals(current.truncatedTo(ChronoUnit.SECONDS), decoded.getExpiresAt().toInstant());
-            assertEquals("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9", decoded.getHeader());
+            assertEquals("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9", decoded.getHeader());
             assertNull(decoded.getId());
             assertNull(decoded.getIssuer());
             assertNull(decoded.getKeyId());
