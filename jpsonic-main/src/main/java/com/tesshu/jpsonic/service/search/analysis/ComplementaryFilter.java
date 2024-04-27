@@ -47,12 +47,10 @@ public final class ComplementaryFilter extends TokenFilter {
 
     private static final AtomicBoolean STOPWORD_LOADED = new AtomicBoolean();
     private final ReentrantLock readerLock = new ReentrantLock();
-
-    private static Pattern onlyStopWords;
-
     private final Mode mode;
     private final String stopwards;
     private final CharTermAttribute termAtt;
+    private Pattern onlyStopWords;
 
     private Reader getReafer(Class<?> clazz) {
         if (stopwards != null) {

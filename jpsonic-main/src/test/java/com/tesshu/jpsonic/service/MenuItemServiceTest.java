@@ -37,6 +37,7 @@ import com.tesshu.jpsonic.domain.MenuItem.ViewType;
 import com.tesshu.jpsonic.domain.MenuItemId;
 import com.tesshu.jpsonic.service.MenuItemService.MenuItemWithDefaultName;
 import com.tesshu.jpsonic.service.MenuItemService.ResetMode;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -181,11 +182,11 @@ class MenuItemServiceTest {
         void testDoNothing() {
             int topMenuItemCount = menuItemService.getTopMenuItemCount(ViewType.UPNP);
             int enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream()
-                    .filter(menuItem -> menuItem.isEnabled()).count();
+                    .filter(MenuItem::isEnabled).count();
             assertEquals(topMenuItemCount, enabledSubMenuCount);
             menuItemService.ensureUPnPSubMenuEnabled();
             enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream()
-                    .filter(menuItem -> menuItem.isEnabled()).count();
+                    .filter(MenuItem::isEnabled).count();
             assertEquals(topMenuItemCount, enabledSubMenuCount);
         }
 
@@ -193,7 +194,7 @@ class MenuItemServiceTest {
         void testEnsureUPnPSubMenuEnabled() {
             int topMenuItemCount = menuItemService.getTopMenuItemCount(ViewType.UPNP);
             int enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream()
-                    .filter(menuItem -> menuItem.isEnabled()).count();
+                    .filter(MenuItem::isEnabled).count();
             assertEquals(topMenuItemCount, enabledSubMenuCount);
 
             menuItemService.getSubMenuItems(ViewType.UPNP).stream().forEach(menuItem -> {
@@ -202,12 +203,12 @@ class MenuItemServiceTest {
             });
 
             enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream()
-                    .filter(menuItem -> menuItem.isEnabled()).count();
+                    .filter(MenuItem::isEnabled).count();
             assertEquals(0, enabledSubMenuCount);
 
             menuItemService.ensureUPnPSubMenuEnabled();
             enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream()
-                    .filter(menuItem -> menuItem.isEnabled()).count();
+                    .filter(MenuItem::isEnabled).count();
             assertEquals(topMenuItemCount, enabledSubMenuCount);
         }
     }
@@ -216,9 +217,9 @@ class MenuItemServiceTest {
     void testUpdateMenuItems() {
         List<MenuItemWithDefaultName> topMenuItems = menuItemService.getTopMenuItems(ViewType.UPNP);
         topMenuItems.stream().filter(menuItem -> menuItem.getId() == MenuItemId.FOLDER).findFirst()
-                .ifPresentOrElse(menuItem -> assertTrue(menuItem.isEnabled()), () -> fail());
+                .ifPresentOrElse(menuItem -> assertTrue(menuItem.isEnabled()), Assertions::fail);
         int enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream()
-                .filter(menuItem -> menuItem.isEnabled()).count();
+                .filter(MenuItem::isEnabled).count();
         assertEquals(topMenuItems.size(), enabledSubMenuCount);
         topMenuItems.stream().filter(menuItem -> menuItem.getId() == MenuItemId.FOLDER).findFirst()
                 .ifPresent(menuItem -> menuItem.setEnabled(false));
@@ -230,9 +231,9 @@ class MenuItemServiceTest {
 
         topMenuItems = menuItemService.getTopMenuItems(ViewType.UPNP);
         topMenuItems.stream().filter(menuItem -> menuItem.getId() == MenuItemId.FOLDER).findFirst()
-                .ifPresentOrElse(menuItem -> assertFalse(menuItem.isEnabled()), () -> fail());
-        enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream()
-                .filter(menuItem -> menuItem.isEnabled()).count();
+                .ifPresentOrElse(menuItem -> assertFalse(menuItem.isEnabled()), Assertions::fail);
+        enabledSubMenuCount = (int) menuItemService.getSubMenuItems(ViewType.UPNP).stream().filter(MenuItem::isEnabled)
+                .count();
         assertEquals(topMenuItems.size(), enabledSubMenuCount);
 
         // tearDown
@@ -240,7 +241,7 @@ class MenuItemServiceTest {
                 .ifPresentOrElse(menuItem -> {
                     menuItem.setEnabled(true);
                     menuItemService.updateMenuItem(menuItem);
-                }, () -> fail());
+                }, Assertions::fail);
     }
 
     @Nested

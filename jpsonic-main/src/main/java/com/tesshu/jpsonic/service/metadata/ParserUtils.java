@@ -38,6 +38,7 @@ import java.util.logging.LogManager;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.MediaFile;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -124,6 +125,7 @@ public final class ParserUtils {
         return genre;
     }
 
+    @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_EXCEPTION") // false positive
     private static Integer parseInt(String str, Pattern pattern) {
         if (str == null) {
             return null;

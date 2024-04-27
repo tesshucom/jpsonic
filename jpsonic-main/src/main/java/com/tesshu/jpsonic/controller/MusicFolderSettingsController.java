@@ -113,7 +113,7 @@ public class MusicFolderSettingsController {
         command.setNewMusicFolder(new MusicFolderSettingsCommand.MusicFolderInfo());
 
         // Run a scan
-        mediaScannerService.getLastScanEventType().ifPresent(type -> command.setLastScanEventType(type));
+        mediaScannerService.getLastScanEventType().ifPresent(command::setLastScanEventType);
         command.setIgnoreFileTimestamps(settingsService.isIgnoreFileTimestamps());
         command.setInterval(String.valueOf(settingsService.getIndexCreationInterval()));
         command.setHour(String.valueOf(settingsService.getIndexCreationHour()));
@@ -139,8 +139,8 @@ public class MusicFolderSettingsController {
     }
 
     List<MusicFolderSettingsCommand.MusicFolderInfo> wrap(List<MusicFolder> musicFolders) {
-        var folders = musicFolders.stream().map(MusicFolderSettingsCommand.MusicFolderInfo::new)
-                .collect(Collectors.toCollection(ArrayList::new));
+        List<MusicFolderSettingsCommand.MusicFolderInfo> folders = musicFolders.stream()
+                .map(MusicFolderSettingsCommand.MusicFolderInfo::new).collect(Collectors.toCollection(ArrayList::new));
         if (settingsService.isRedundantFolderCheck()) {
             folders.forEach(folder -> {
                 Path path = Path.of(folder.getPath());

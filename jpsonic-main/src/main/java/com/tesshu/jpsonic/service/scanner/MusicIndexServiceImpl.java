@@ -161,7 +161,7 @@ public class MusicIndexServiceImpl implements MusicIndexService {
                     index.addPrefix(token);
                 } else {
                     Stream.of(token.substring(separatorIndex + 1, token.length() - 1).split(""))
-                            .forEach(prefix -> index.addPrefix(prefix));
+                            .forEach(index::addPrefix);
                 }
                 result.add(index);
             });

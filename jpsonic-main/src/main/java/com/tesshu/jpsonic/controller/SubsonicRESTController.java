@@ -777,7 +777,6 @@ public class SubsonicRESTController implements CoverArtPresentation {
             return;
         }
 
-        Player player = playerService.getPlayer(request, response);
         MediaFile parent = mediaFileService.getParentOf(dir);
         Directory directory = new Directory();
         directory.setId(String.valueOf(id));
@@ -799,6 +798,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
             directory.setUserRating(ratingService.getRatingForUser(username, dir));
         }
 
+        Player player = playerService.getPlayer(request, response);
         for (MediaFile child : mediaFileService.getChildrenOf(dir, true, true)) {
             directory.getChild().add(createJaxbChild(player, child, username));
         }
@@ -861,7 +861,6 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void search2(HttpServletRequest req, HttpServletResponse response)
             throws IOException, ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        Player player = playerService.getPlayer(request, response);
         User user = securityService.getCurrentUserStrict(request);
         String username = user.getUsername();
         Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
@@ -887,6 +886,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.ALBUM_OFFSET.value(), 0);
         count = ServletRequestUtils.getIntParameter(request, Attributes.Request.ALBUM_COUNT.value(), 20);
         criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.ALBUM);
+        Player player = playerService.getPlayer(request, response);
         com.tesshu.jpsonic.domain.SearchResult albums = searchService.search(criteria);
         for (MediaFile mediaFile : albums.getMediaFiles()) {
             searchResult.getAlbum().add(createJaxbChild(player, mediaFile, username));
@@ -910,7 +910,6 @@ public class SubsonicRESTController implements CoverArtPresentation {
     public void search3(HttpServletRequest req, HttpServletResponse response)
             throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
-        Player player = playerService.getPlayer(request, response);
         User user = securityService.getCurrentUserStrict(request);
         String username = user.getUsername();
         Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
@@ -944,6 +943,7 @@ public class SubsonicRESTController implements CoverArtPresentation {
         offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.SONG_OFFSET.value(), 0);
         count = ServletRequestUtils.getIntParameter(request, Attributes.Request.SONG_COUNT.value(), 20);
         criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.SONG);
+        Player player = playerService.getPlayer(request, response);
         result = searchService.search(criteria);
         for (MediaFile song : result.getMediaFiles()) {
             searchResult.getSong().add(createJaxbChild(player, song, username));

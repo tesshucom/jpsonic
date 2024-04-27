@@ -124,7 +124,7 @@ public class UpnpServiceFactory {
 
         final ProtocolInfos protocols = new ProtocolInfos();
         Stream.of(DLNAProfiles.values()).filter(profile -> !excludes.containsKey(profile.getCode()))
-                .map(DLNAProtocolInfo::new).forEach(info -> protocols.add(info));
+                .map(DLNAProtocolInfo::new).forEach(protocols::add);
 
         @SuppressWarnings("unchecked")
         LocalService<ConnectionManagerService> connetionManagerService = new AnnotationLocalServiceBinder()

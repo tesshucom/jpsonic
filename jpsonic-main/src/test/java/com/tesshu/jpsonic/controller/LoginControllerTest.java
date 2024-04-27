@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -89,6 +90,7 @@ import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.condition.PathPatternsRequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.pattern.PathPattern;
@@ -207,9 +209,9 @@ class LoginControllerTest {
                     .getHandlerMethods();
 
             List<PathPattern> loginPathPatterns = handlerMethods.keySet().stream()
-                    .map(info -> info.getPathPatternsCondition()).map(condition -> condition.getPatterns())
+                    .map(RequestMappingInfo::getPathPatternsCondition).map(PathPatternsRequestCondition::getPatterns)
                     .filter(pathPattern -> StringUtils.containsIgnoreCase(pathPattern.toString(), "login"))
-                    .flatMap(patterns -> patterns.stream()).sorted().toList();
+                    .flatMap(Collection::stream).sorted().toList();
 
             assertEquals(2, loginPathPatterns.size());
             assertEquals("/login.view", loginPathPatterns.get(0).getPatternString());

@@ -13,8 +13,7 @@
   <name>Jpsonic Main</name>
 
   <properties>
-    <chameleon.version>1.2.1-RELEASE</chameleon.version>
-    <lucene.version>9.10.0</lucene.version>
+    <main.basedir>${project.parent.basedir}</main.basedir>
     <tomcat.server.scope>provided</tomcat.server.scope>
   </properties>
 
@@ -42,7 +41,6 @@
     <dependency>
       <groupId>com.github.muff1nman.chameleon</groupId>
       <artifactId>core</artifactId>
-      <version>${chameleon.version}</version>
       <exclusions>
         <exclusion>
           <groupId>commons-logging</groupId>
@@ -61,7 +59,6 @@
     <dependency>
       <groupId>com.github.muff1nman.chameleon</groupId>
       <artifactId>playlist-xspf</artifactId>
-      <version>${chameleon.version}</version>
       <scope>compile</scope>
       <exclusions>
         <exclusion>
@@ -73,7 +70,6 @@
     <dependency>
       <groupId>com.github.muff1nman.chameleon</groupId>
       <artifactId>playlist-all</artifactId>
-      <version>${chameleon.version}</version>
       <scope>runtime</scope>
       <exclusions>
         <exclusion>
@@ -95,7 +91,6 @@
     <dependency>
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
-      <version>1.9.4</version>
       <scope>runtime</scope>
       <exclusions>
         <exclusion>
@@ -107,7 +102,6 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-collections4</artifactId>
-      <version>4.4</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -144,7 +138,6 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-configuration2</artifactId>
-      <version>2.10.1</version>
       <exclusions>
         <exclusion>
           <groupId>commons-logging</groupId>
@@ -245,19 +238,16 @@
     <dependency>
       <groupId>com.auth0</groupId>
       <artifactId>java-jwt</artifactId>
-      <version>4.3.0</version>
     </dependency>
 
     <dependency>
       <groupId>org.directwebremoting</groupId>
       <artifactId>dwr-JakartaEE</artifactId>
-      <version>4.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <!--Needed by dwr-->
       <groupId>com.yahoo.platform.yui</groupId>
       <artifactId>yuicompressor</artifactId>
-      <version>2.4.8</version>
       <scope>runtime</scope>
       <!-- Necessary to avoid StringIndexOutOfBoundsException when running as a JAR -->
       <!-- See: https://github.com/yui/yuicompressor/issues/161 -->
@@ -298,14 +288,10 @@
     <dependency>
       <groupId>com.zaxxer</groupId>
       <artifactId>HikariCP</artifactId>
-      <version>5.1.0</version>
-      <!--$NO-MVN-MAN-VER$-->
     </dependency>
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>42.7.3</version>
-      <!--$NO-MVN-MAN-VER$-->
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -321,7 +307,6 @@
     <dependency>
       <groupId>com.impossibl.pgjdbc-ng</groupId>
       <artifactId>pgjdbc-ng</artifactId>
-      <version>0.8.9</version>
     </dependency>
     <dependency>
       <groupId>org.hsqldb</groupId>
@@ -341,7 +326,6 @@
     <dependency>
       <groupId>com.mattbertolini</groupId>
       <artifactId>liquibase-slf4j</artifactId>
-      <version>5.0.0</version>
       <scope>runtime</scope>
     </dependency>
 
@@ -379,32 +363,26 @@
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-core</artifactId>
-      <version>${lucene.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-analysis-common</artifactId>
-      <version>${lucene.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-misc</artifactId>
-      <version>${lucene.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-analysis-kuromoji</artifactId>
-      <version>${lucene.version}</version>
     </dependency>
     <dependency>
       <groupId>com.atilika.kuromoji</groupId>
       <artifactId>kuromoji-ipadic</artifactId>
-      <version>0.9.0</version>
     </dependency>
     <dependency>
       <groupId>com.ibm.icu</groupId>
       <artifactId>icu4j</artifactId>
-      <version>74.2</version>
     </dependency>
 
     <dependency>
@@ -415,13 +393,11 @@
     <dependency>
       <groupId>net.jthink</groupId>
       <artifactId>jaudiotagger</artifactId>
-      <version>3.0.1</version>
     </dependency>
 
     <dependency>
       <groupId>org.jfree</groupId>
       <artifactId>jfreechart</artifactId>
-      <version>1.5.4</version>
       <exclusions>
         <exclusion>
           <groupId>junit</groupId>
@@ -437,13 +413,11 @@
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache-core</artifactId>
-      <version>2.6.11</version>
     </dependency>
 
     <dependency>
       <groupId>org.eclipse.persistence</groupId>
       <artifactId>org.eclipse.persistence.moxy</artifactId>
-      <version>4.0.2</version>
     </dependency>
 
     <dependency>
@@ -458,24 +432,20 @@
     <dependency>
       <groupId>org.jupnp</groupId>
       <artifactId>org.jupnp</artifactId>
-      <version>3.0.0</version>
     </dependency>
     <dependency>
       <groupId>org.jupnp</groupId>
       <artifactId>org.jupnp.support</artifactId>
-      <version>3.0.0</version>
     </dependency>
 
     <dependency>
       <groupId>de.u-mass</groupId>
       <artifactId>lastfm-java</artifactId>
-      <version>0.1.2</version>
     </dependency>
 
     <dependency>
       <groupId>de.triology.recaptchav2-java</groupId>
       <artifactId>recaptchav2-java</artifactId>
-      <version>1.0.4</version>
     </dependency>
 
     <dependency>
@@ -504,18 +474,15 @@
     <dependency>
       <groupId>org.apache.tika</groupId>
       <artifactId>tika-core</artifactId>
-      <version>2.9.1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.tika</groupId>
       <artifactId>tika-parser-audiovideo-module</artifactId>
-      <version>2.9.1</version>
     </dependency>
 
     <dependency>
       <groupId>com.jsoftbiz</groupId>
       <artifactId>os-platform-finder</artifactId>
-      <version>1.1</version>
     </dependency>
 
     <dependency>
@@ -568,7 +535,6 @@
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-artifact</artifactId>
-      <version>3.9.6</version>
     </dependency>
 
     <dependency>
@@ -622,7 +588,7 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-        <version>2.7.18</version>
+        <version>3.2.5</version>
         <configuration>
           <mainClass>com.tesshu.jpsonic.Application</mainClass>
           <layout>WAR</layout>

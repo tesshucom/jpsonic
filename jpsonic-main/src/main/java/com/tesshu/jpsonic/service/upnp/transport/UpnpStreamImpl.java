@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import com.sun.net.httpserver.HttpExchange;
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.util.concurrent.ConcurrentUtils;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -157,6 +158,7 @@ public final class UpnpStreamImpl extends UpnpStream {
     }
 
     @SuppressWarnings("PMD.AvoidCatchingThrowable") // Unchecked Error is rethrown
+    @SuppressFBWarnings("NP_NULL_ON_SOME_PATH") // false positive
     @Override
     public void run() {
         try (httpExchange) {

@@ -229,7 +229,7 @@ public class UserDao {
      */
     public List<String> getRolesForUser(String username) {
         String sql = "select r.name from role r, user_role ur where ur.username=? and ur.role_id=r.id";
-        return template.getJdbcTemplate().queryForList(sql, String.class, new Object[] { username });
+        return template.getJdbcTemplate().queryForList(sql, String.class, username);
     }
 
     /**
@@ -312,8 +312,7 @@ public class UserDao {
 
     private void readRoles(User user) {
         String sql = "select role_id from user_role where username=?";
-        List<?> roles = template.getJdbcTemplate().queryForList(sql, Integer.class,
-                new Object[] { user.getUsername() });
+        List<?> roles = template.getJdbcTemplate().queryForList(sql, Integer.class, user.getUsername());
         roles.forEach(role -> {
             switch ((Integer) role) {
             case ROLE_ID_ADMIN -> user.setAdminRole(true);

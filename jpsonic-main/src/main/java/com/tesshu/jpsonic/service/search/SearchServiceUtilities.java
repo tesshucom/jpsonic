@@ -80,6 +80,7 @@ public class SearchServiceUtilities {
     private final ReentrantLock searchCacheLock = new ReentrantLock();
     private final ReentrantLock randomCacheLock = new ReentrantLock();
 
+    @SuppressWarnings("PMD.SingularField")
     private Random random;
 
     /*
@@ -88,6 +89,7 @@ public class SearchServiceUtilities {
      */
     private final MediaFileService mediaFileService;
 
+    @SuppressWarnings("PMD.LambdaCanBeMethodReference")
     public Function<Integer, Integer> nextInt = (range) -> random.nextInt(range);
 
     // return

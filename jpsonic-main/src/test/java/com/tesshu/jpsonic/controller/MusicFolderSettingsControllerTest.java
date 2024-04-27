@@ -65,7 +65,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals" })
+@SuppressWarnings({ "PMD.TooManyStaticImports", "PMD.AvoidDuplicateLiterals", "PMD.UseExplicitTypes" })
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MusicFolderSettingsControllerTest {
 
@@ -249,7 +249,7 @@ class MusicFolderSettingsControllerTest {
         assertEquals(captorDelete.getValue(), musicFolder1.getId());
         assertEquals(2, captorUpdate.getAllValues().size());
         Map<String, MusicFolder> updateCalled = captorUpdate.getAllValues().stream()
-                .collect(Collectors.toMap(m -> m.getName(), m -> m));
+                .collect(Collectors.toMap(MusicFolder::getName, m -> m));
         assertEquals(MusicFolderTestDataUtils.resolveMusic2FolderPath(), updateCalled.get("Music2").getPathString());
         assertEquals("UnknownPath", updateCalled.get("Music4").getPathString());
     }
