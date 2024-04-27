@@ -323,9 +323,9 @@ public class IndexManager implements ReadWriteLockSupport {
                         new HighFreqTerms.DocFreqComparator());
                 List<String> indexedNames = Arrays.stream(stats).map(t -> t.termtext.utf8ToString())
                         .collect(Collectors.toList());
-                List<String> existingNames = existing.stream().map(g -> g.getName()).collect(Collectors.toList());
+                List<String> existingNames = existing.stream().map(Genre::getName).collect(Collectors.toList());
                 Term[] primarykeys = indexedNames.stream().filter(name -> !existingNames.contains(name))
-                        .map(name -> name.hashCode()).map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
+                        .map(String::hashCode).map(DocumentFactory::createPrimarykey).toArray(Term[]::new);
 
                 // Reopen Writer for editing.
                 writers.put(IndexType.GENRE, createIndexWriter(IndexType.GENRE));

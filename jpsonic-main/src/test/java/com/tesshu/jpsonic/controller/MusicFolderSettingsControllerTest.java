@@ -249,7 +249,7 @@ class MusicFolderSettingsControllerTest {
         assertEquals(captorDelete.getValue(), musicFolder1.getId());
         assertEquals(2, captorUpdate.getAllValues().size());
         Map<String, MusicFolder> updateCalled = captorUpdate.getAllValues().stream()
-                .collect(Collectors.toMap(m -> m.getName(), m -> m));
+                .collect(Collectors.toMap(MusicFolder::getName, m -> m));
         assertEquals(MusicFolderTestDataUtils.resolveMusic2FolderPath(), updateCalled.get("Music2").getPathString());
         assertEquals("UnknownPath", updateCalled.get("Music4").getPathString());
     }

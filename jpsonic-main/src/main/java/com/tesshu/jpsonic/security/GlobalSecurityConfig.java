@@ -54,6 +54,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
@@ -145,7 +146,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
                     .addFilterBefore(jwtRPPFilter, UsernamePasswordAuthenticationFilter.class)
                     .securityMatchers((matchers) -> matchers.requestMatchers(antMatcher("/ext/**")))
                     .csrf(config -> config.requireCsrfProtectionMatcher(csrfMatcher))
-                    .headers(headers -> headers.frameOptions(options -> options.sameOrigin()))
+                    .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin))
                     .authorizeHttpRequests((authz) -> authz.requestMatchers(
                             antMatcher("/ext/stream/**"),
                             antMatcher("/ext/coverArt*"),
@@ -197,7 +198,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
             http
                     .addFilterBefore(restRPPFilter, UsernamePasswordAuthenticationFilter.class)
                     .csrf(config -> config.requireCsrfProtectionMatcher(csrfMatcher))
-                    .headers(config -> config.frameOptions(opts -> opts.sameOrigin()))
+                    .headers(config -> config.frameOptions(FrameOptionsConfig::sameOrigin))
                     .authorizeHttpRequests(config -> config
                         .dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR)
                             .permitAll()

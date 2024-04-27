@@ -178,7 +178,7 @@ public class JapaneseReadingUtils {
                 break;
             }
             String next = result.substring(start + 1, start + 2);
-            if (Stream.of("a", "i", "u", "e", "o").anyMatch(s -> next.equals(s))) {
+            if (Stream.of("a", "i", "u", "e", "o").anyMatch(next::equals)) {
                 // Small kana -> remove tildes.
                 result = result.substring(0, start) + result.substring(start + 1);
             } else {

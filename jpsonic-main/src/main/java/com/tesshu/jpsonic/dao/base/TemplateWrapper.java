@@ -143,7 +143,7 @@ public class TemplateWrapper {
     public Instant queryForInstant(String sql, Instant defaultValue, Object... args) {
         long startTimeNano = System.nanoTime();
         Instant result = getJdbcTemplate().queryForList(sql, Timestamp.class, castArgs(args)).stream()
-                .filter(Objects::nonNull).findFirst().map(t -> t.toInstant()).orElse(defaultValue);
+                .filter(Objects::nonNull).findFirst().map(Timestamp::toInstant).orElse(defaultValue);
         writeLog(sql, startTimeNano);
         return result;
     }

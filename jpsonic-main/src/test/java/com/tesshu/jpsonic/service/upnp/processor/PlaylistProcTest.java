@@ -188,7 +188,7 @@ class PlaylistProcTest {
                 List<String> shallow = new ArrayList<>();
                 shallow.addAll(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST);
                 Collections.shuffle(shallow);
-                shallow.stream().map(toPlaylist).forEach(p -> playlistDao.createPlaylist(p));
+                shallow.stream().map(toPlaylist).forEach(playlistDao::createPlaylist);
             }
 
             List<Album> albums = albumProc.getDirectChildren(0, 100);

@@ -56,6 +56,7 @@ import com.tesshu.jpsonic.service.TranscodingService;
 import com.tesshu.jpsonic.service.UPnPService;
 import com.tesshu.jpsonic.service.UPnPSubnet;
 import jakarta.servlet.http.HttpServletRequest;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -482,7 +483,7 @@ class DLNASettingsControllerTest {
             List<MenuItem> results = menuItemCaptor.getAllValues();
             assertEquals(5, results.size());
             results.stream().filter(menuItem -> menuItem.getId() == MenuItemId.MEDIA_FILE).findFirst()
-                    .ifPresentOrElse(menuItem -> assertTrue(menuItem.isEnabled()), () -> fail());
+                    .ifPresentOrElse(menuItem -> assertTrue(menuItem.isEnabled()), Assertions::fail);
         }
 
         @Test
@@ -532,7 +533,7 @@ class DLNASettingsControllerTest {
             List<MenuItem> results = menuItemCaptor.getAllValues();
             assertEquals(5, results.size());
             results.stream().filter(menuItem -> menuItem.getId() == MenuItemId.MEDIA_FILE).findFirst()
-                    .ifPresentOrElse(menuItem -> assertEquals("Changed Sub1", menuItem.getName()), () -> fail());
+                    .ifPresentOrElse(menuItem -> assertEquals("Changed Sub1", menuItem.getName()), Assertions::fail);
         }
     }
 

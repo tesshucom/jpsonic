@@ -88,6 +88,7 @@ public class SearchServiceUtilities {
      */
     private final MediaFileService mediaFileService;
 
+    @SuppressWarnings("PMD.LambdaCanBeMethodReference")
     public Function<Integer, Integer> nextInt = (range) -> random.nextInt(range);
 
     // return

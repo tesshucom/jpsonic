@@ -157,7 +157,7 @@ class TranscodingServiceTest {
         assertEquals(MOCK_PLAYER_ID, idCaptor.getValue());
 
         int[] registered = transcodingCaptor.getValue();
-        assertArrayEquals(defaulTranscodings.stream().map(t -> t.getId()).mapToInt(i -> i).toArray(), registered);
+        assertArrayEquals(defaulTranscodings.stream().map(Transcoding::getId).mapToInt(i -> i).toArray(), registered);
 
         assertTrue(defaulTranscodings.stream().allMatch(t -> Arrays.binarySearch(registered, t.getId()) != -1));
         assertEquals(registered.length, defaulTranscodings.size());
@@ -602,7 +602,7 @@ class TranscodingServiceTest {
             Transcoding transcoding = transcodingService.getTranscoding(mediaFile, player, preferredTargetFormat, hls);
             Assertions.assertNotNull(transcoding.getId());
             assertEquals(Transcodings.MP3.getName(), transcoding.getName());
-            assertTrue(transcoding.getSourceFormatsAsList().stream().anyMatch(f -> FMT_FLAC.equals(f)));
+            assertTrue(transcoding.getSourceFormatsAsList().stream().anyMatch(FMT_FLAC::equals));
             assertEquals(FMT_MP3, transcoding.getTargetFormat());
 
         }
@@ -624,7 +624,7 @@ class TranscodingServiceTest {
             Transcoding transcoding = transcodingService.getTranscoding(mediaFile, player, preferredTargetFormat, hls);
             Assertions.assertNotNull(transcoding.getId());
             assertEquals(Transcodings.MP3.getName(), transcoding.getName());
-            assertTrue(transcoding.getSourceFormatsAsList().stream().anyMatch(f -> FMT_FLAC.equals(f)));
+            assertTrue(transcoding.getSourceFormatsAsList().stream().anyMatch(FMT_FLAC::equals));
             assertEquals(FMT_MP3, transcoding.getTargetFormat());
         }
 
@@ -663,7 +663,7 @@ class TranscodingServiceTest {
             Transcoding transcoding = transcodingService.getTranscoding(mediaFile, player, preferredTargetFormat, hls);
             Assertions.assertNotNull(transcoding.getId());
             assertEquals(Transcodings.FLV.getName(), transcoding.getName());
-            assertTrue(transcoding.getSourceFormatsAsList().stream().anyMatch(f -> FMT_MPEG.equals(f)));
+            assertTrue(transcoding.getSourceFormatsAsList().stream().anyMatch(FMT_MPEG::equals));
             assertEquals(FMT_FLV, transcoding.getTargetFormat());
         }
 
@@ -685,7 +685,7 @@ class TranscodingServiceTest {
             Transcoding transcoding = transcodingService.getTranscoding(mediaFile, player, preferredTargetFormat, hls);
             Assertions.assertNotNull(transcoding.getId());
             assertEquals(Transcodings.FLV.getName(), transcoding.getName());
-            assertFalse(transcoding.getSourceFormatsAsList().stream().allMatch(f -> FMT_FLV.equals(f)));
+            assertFalse(transcoding.getSourceFormatsAsList().stream().allMatch(FMT_FLV::equals));
             assertEquals(FMT_FLV, transcoding.getTargetFormat());
         }
     }
