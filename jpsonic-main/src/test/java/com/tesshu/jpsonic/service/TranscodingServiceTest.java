@@ -197,7 +197,7 @@ class TranscodingServiceTest {
             ArgumentCaptor<int[]> idsCaptor = ArgumentCaptor.forClass(int[].class);
             Mockito.doNothing().when(transcodingDao).setTranscodingsForPlayer(Mockito.anyInt(), idsCaptor.capture());
 
-            transcodingService.setTranscodingsForPlayer(player, new int[] { 1, 2, 3 });
+            transcodingService.setTranscodingsForPlayer(player, 1, 2, 3);
 
             Mockito.verify(playerDao, Mockito.never()).updatePlayer(Mockito.any(Player.class));
             assertArrayEquals(new int[] { 1, 2, 3 }, idsCaptor.getValue());
@@ -217,7 +217,7 @@ class TranscodingServiceTest {
             ArgumentCaptor<int[]> idsCaptor = ArgumentCaptor.forClass(int[].class);
             Mockito.doNothing().when(transcodingDao).setTranscodingsForPlayer(Mockito.anyInt(), idsCaptor.capture());
 
-            transcodingService.setTranscodingsForPlayer(player, new int[] {});
+            transcodingService.setTranscodingsForPlayer(player);
 
             assertEquals(player, playerCaptor.getValue());
             assertEquals(TranscodeScheme.MAX_256, playerCaptor.getValue().getTranscodeScheme());
@@ -238,7 +238,7 @@ class TranscodingServiceTest {
             ArgumentCaptor<int[]> idsCaptor = ArgumentCaptor.forClass(int[].class);
             Mockito.doNothing().when(transcodingDao).setTranscodingsForPlayer(Mockito.anyInt(), idsCaptor.capture());
 
-            transcodingService.setTranscodingsForPlayer(player, new int[] {});
+            transcodingService.setTranscodingsForPlayer(player);
 
             assertEquals(player, playerCaptor.getValue());
             assertEquals(TranscodeScheme.MAX_128, playerCaptor.getValue().getTranscodeScheme());
