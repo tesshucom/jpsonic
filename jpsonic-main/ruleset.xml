@@ -135,6 +135,11 @@
             </properties>
         </rule>
          -->
+
+        <!-- It's too early(bug rule). Type determination is inaccurate. Cases in 
+            which accurate boxing is expected are also detected excessively. Or may not 
+            work on Windows. Or workarounds always conflict with Unnecessary**Cast rules. -->
+        <exclude name="ConfusingArgumentToVarargsMethod" />
     </rule>
 
     <!-- Because annotations and Dao (literals for building SQL) are skipped. -->
