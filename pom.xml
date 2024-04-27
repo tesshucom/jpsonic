@@ -75,10 +75,10 @@
     <versions.mysql-connector-j>8.3.0</versions.mysql-connector-j>
     <versions.os-platform-finder>1.1</versions.os-platform-finder>
     <versions.pgjdbc-ng>0.8.9</versions.pgjdbc-ng>
-    <versions.pmd>7.0.0</versions.pmd>
+    <versions.pmd>7.1.0</versions.pmd>
     <versions.postgresql>42.7.3</versions.postgresql>
     <versions.recaptcha>1.0.4</versions.recaptcha>
-    <versions.spotbugs>4.8.3</versions.spotbugs>
+    <versions.spotbugs>4.8.4</versions.spotbugs>
     <versions.spring-boot>3.2.5</versions.spring-boot>
     <versions.spring-security>6.2.4</versions.spring-security>
     <versions.spring-web>6.1.6</versions.spring-web>
@@ -639,7 +639,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-pmd-plugin</artifactId>
-          <version>3.21.2</version>
+          <version>3.22.0</version>
           <dependencies>
             <dependency>
               <groupId>net.sourceforge.pmd</groupId>

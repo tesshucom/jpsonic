@@ -272,7 +272,7 @@ class MediaScannerServiceImplTest {
                 scannerStateService.setReady();
                 ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
                 executor.initialize();
-                executor.submit(() -> scannerStateService.tryScanningLock());
+                executor.submit(scannerStateService::tryScanningLock);
                 Thread.sleep(50);
                 assertTrue(scannerStateService.isScanning());
                 assertFalse(mediaScannerService.isCancel());
@@ -436,7 +436,7 @@ class MediaScannerServiceImplTest {
             assertNull(album.getMusicBrainzRecordingId());
 
             List<Album> albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, folder);
-            Map<String, Album> albumId3Map = albumId3s.stream().collect(Collectors.toMap(a -> a.getArtist(), a -> a));
+            Map<String, Album> albumId3Map = albumId3s.stream().collect(Collectors.toMap(Album::getArtist, a -> a));
 
             assertEquals(2, albumId3s.size());
             Album albumA = albumId3Map.get("albumArtistA");
@@ -811,10 +811,10 @@ class MediaScannerServiceImplTest {
 
             // Add below with Jpsonic. Whether MediaFile#folder is registered correctly.
             Map<String, MusicFolder> folders = musicFolderDao.getAllMusicFolders().stream()
-                    .collect(Collectors.toMap(m -> m.getName(), m -> m));
+                    .collect(Collectors.toMap(MusicFolder::getName, m -> m));
             Map<String, MediaFile> albums = mediaFileDao
                     .getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolderDao.getAllMusicFolders()).stream()
-                    .collect(Collectors.toMap(m -> m.getName(), m -> m));
+                    .collect(Collectors.toMap(MediaFile::getName, m -> m));
             assertEquals(5, albums.size());
             assertEquals(folders.get("Music").getPathString(),
                     albums.get("_DIR_ Céline Frisch- Café Zimmermann - Bach- Goldberg Variations, Canons [Disc 1]")
@@ -990,7 +990,7 @@ class MediaScannerServiceImplTest {
             assertEquals(this.song, song.toPath());
 
             Map<String, MusicFolder> folders = musicFolders.stream()
-                    .collect(Collectors.toMap(mf -> mf.getName(), mf -> mf));
+                    .collect(Collectors.toMap(MusicFolder::getName, mf -> mf));
             assertEquals(song.getFolder(), folders.get("musicFolder1").getPathString());
 
             // Create a directory and move the files there

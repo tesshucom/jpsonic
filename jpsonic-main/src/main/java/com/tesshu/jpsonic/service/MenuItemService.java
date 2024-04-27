@@ -110,7 +110,7 @@ public class MenuItemService {
         List<MenuItem> subMenus = menuItemDao.getSubMenuItems(ViewType.UPNP);
         getTopMenuItems(ViewType.UPNP, false, 0, Integer.MAX_VALUE).forEach(topMenu -> {
             long enableCounts = subMenus.stream().filter(subMenu -> subMenu.getParent() == topMenu.getId())
-                    .filter(subMenu -> subMenu.isEnabled()).count();
+                    .filter(MenuItem::isEnabled).count();
             if (enableCounts == 0) {
                 MenuItemId defaultSubMenuItemId = switch (topMenu.getId()) {
                 case FOLDER -> MenuItemId.MEDIA_FILE;

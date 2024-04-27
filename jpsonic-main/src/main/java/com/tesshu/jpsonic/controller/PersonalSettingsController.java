@@ -95,7 +95,7 @@ public class PersonalSettingsController {
         settingsService.getAvailableLocales().stream().filter(locale -> locale.equals(settingsService.getLocale()))
                 .findFirst().ifPresent(locale -> command
                         .setLocaleIndex(String.valueOf(settingsService.getAvailableLocales().indexOf(locale))));
-        command.setLocales(settingsService.getAvailableLocales().stream().map(locale -> locale.getDisplayName())
+        command.setLocales(settingsService.getAvailableLocales().stream().map(Locale::getDisplayName)
                 .collect(Collectors.toList()));
 
         // - Theme

@@ -130,15 +130,15 @@ public class FFprobe {
         if (isEmpty(tags)) {
             return result;
         }
-        getField(tags, FFmpegFieldKey.ALBUM_ARTIST).ifPresent(s -> result.setAlbumArtist(s));
-        getField(tags, FFmpegFieldKey.ALBUM).ifPresent(s -> result.setAlbumName(s));
-        getField(tags, FFmpegFieldKey.ARTIST).ifPresent(s -> result.setArtist(s));
+        getField(tags, FFmpegFieldKey.ALBUM_ARTIST).ifPresent(result::setAlbumArtist);
+        getField(tags, FFmpegFieldKey.ALBUM).ifPresent(result::setAlbumName);
+        getField(tags, FFmpegFieldKey.ARTIST).ifPresent(result::setArtist);
         getField(tags, FFmpegFieldKey.DISC_NO).ifPresent(s -> result.setDiscNumber(ParserUtils.parseInt(s)));
-        getField(tags, FFmpegFieldKey.GENRE).ifPresent(s -> result.setGenre(s));
-        getField(tags, FFmpegFieldKey.TITLE).ifPresent(s -> result.setTitle(s));
+        getField(tags, FFmpegFieldKey.GENRE).ifPresent(result::setGenre);
+        getField(tags, FFmpegFieldKey.TITLE).ifPresent(result::setTitle);
         getField(tags, FFmpegFieldKey.TRACK).ifPresent(s -> result.setTrackNumber(ParserUtils.parseTrackNumber(s)));
         getField(tags, FFmpegFieldKey.YEAR).ifPresent(s -> result.setYear(ParserUtils.parseYear(s)));
-        getField(tags, FFmpegFieldKey.COMPOSER).ifPresent(s -> result.setComposer(s));
+        getField(tags, FFmpegFieldKey.COMPOSER).ifPresent(result::setComposer);
 
         return result;
     }

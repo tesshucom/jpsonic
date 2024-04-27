@@ -261,7 +261,7 @@ public class PlayQueue implements ReadWriteLockSupport {
                 index = 0;
                 files.clear();
             }
-            mediaFiles.forEach(m -> files.add(m));
+            mediaFiles.forEach(files::add);
             setStatus(Status.PLAYING);
         } finally {
             writeUnlock(sequenceLock);

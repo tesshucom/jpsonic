@@ -63,7 +63,7 @@ class JWTSecurityServiceTest {
         jwtSecurityService = new JWTSecurityService(mock(SettingsService.class));
     }
 
-    @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert") // false positive
+    @SuppressWarnings({ "PMD.JUnitTestsShouldIncludeAssert", "PMD.UnnecessaryVarargsArrayCreation" }) // false positive
     @Test
     void testAddJWTToken() {
         // Originally Parameterized was used. If possible, it is better to rewrite to the new

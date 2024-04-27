@@ -126,7 +126,7 @@ class ScannerStateServiceImplTest {
             assertFalse(scannerStateService.isDestroy());
             ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
             executor.initialize();
-            executor.submit(() -> scannerStateService.tryScanningLock()).get();
+            executor.submit(scannerStateService::tryScanningLock).get();
             assertTrue(scannerStateService.isScanning());
             assertFalse(scannerStateService.tryScanningLock());
             executor.shutdown();
@@ -233,7 +233,7 @@ class ScannerStateServiceImplTest {
         void c01() {
             assertFalse(scannerStateService.isScanning());
             assertThatExceptionOfType(IllegalMonitorStateException.class)
-                    .isThrownBy(() -> scannerStateService.unlockScanning()).withNoCause();
+                    .isThrownBy(scannerStateService::unlockScanning).withNoCause();
         }
 
         @Test
@@ -245,10 +245,10 @@ class ScannerStateServiceImplTest {
             assertFalse(scannerStateService.isDestroy());
             ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
             executor.initialize();
-            executor.submit(() -> scannerStateService.tryScanningLock()).get();
+            executor.submit(scannerStateService::tryScanningLock).get();
             assertTrue(scannerStateService.isScanning());
             assertThatExceptionOfType(IllegalMonitorStateException.class)
-                    .isThrownBy(() -> scannerStateService.unlockScanning()).withNoCause();
+                    .isThrownBy(scannerStateService::unlockScanning).withNoCause();
             executor.shutdown();
         }
 
