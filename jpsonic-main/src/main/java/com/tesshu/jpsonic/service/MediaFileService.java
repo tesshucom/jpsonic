@@ -266,7 +266,7 @@ public class MediaFileService {
 
         // Look for embedded images in audiofiles. (Only check first audio file encountered).
         try (Stream<Path> children = Files.list(parent)) {
-            return children.filter(p -> ParserUtils.isEmbeddedArtworkApplicable(p)).findFirst();
+            return children.filter(ParserUtils::isEmbeddedArtworkApplicable).findFirst();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

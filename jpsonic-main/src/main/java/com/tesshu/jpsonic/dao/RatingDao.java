@@ -86,7 +86,7 @@ public class RatingDao {
                     select avg(rating)
                     from user_rating
                     where path=?
-                    """, Double.class, new Object[] { mediaFile.getPathString() });
+                    """, Double.class, mediaFile.getPathString());
         } catch (EmptyResultDataAccessException x) {
             return null;
         }
@@ -98,7 +98,7 @@ public class RatingDao {
                     select rating
                     from user_rating
                     where username=? and path=?
-                    """, null, new Object[] { username, mediaFile.getPathString() });
+                    """, null, username, mediaFile.getPathString());
         } catch (EmptyResultDataAccessException x) {
             return null;
         }

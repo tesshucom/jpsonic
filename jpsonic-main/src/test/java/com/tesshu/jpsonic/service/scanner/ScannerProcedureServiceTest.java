@@ -219,7 +219,7 @@ class ScannerProcedureServiceTest {
         Mockito.when(wmfs.updateOrder(captor.capture())).thenReturn(1);
 
         int count = scannerProcedureService.invokeUpdateOrder(Arrays.asList(m2, m3, m1), comparators.songsDefault(),
-                (song) -> wmfs.updateOrder(song));
+                wmfs::updateOrder);
         assertEquals(3, count);
 
         List<MediaFile> result = captor.getAllValues();
@@ -230,14 +230,14 @@ class ScannerProcedureServiceTest {
 
         captor = ArgumentCaptor.forClass(MediaFile.class);
         Mockito.when(wmfs.updateOrder(captor.capture())).thenReturn(1);
-        scannerProcedureService.invokeUpdateOrder(result, comparators.songsDefault(), (song) -> wmfs.updateOrder(song));
+        scannerProcedureService.invokeUpdateOrder(result, comparators.songsDefault(), wmfs::updateOrder);
         assertEquals(0, captor.getAllValues().size());
 
         m1.setOrder(3);
         m2.setOrder(2);
         m3.setOrder(1);
         count = scannerProcedureService.invokeUpdateOrder(Arrays.asList(m1, m2, m3), comparators.songsDefault(),
-                (song) -> wmfs.updateOrder(song));
+                wmfs::updateOrder);
         assertEquals(2, count);
         result = captor.getAllValues();
         assertEquals(2, result.size());
@@ -248,7 +248,7 @@ class ScannerProcedureServiceTest {
 
         captor = ArgumentCaptor.forClass(MediaFile.class);
         Mockito.when(wmfs.updateOrder(captor.capture())).thenReturn(1);
-        scannerProcedureService.invokeUpdateOrder(result, comparators.songsDefault(), (song) -> wmfs.updateOrder(song));
+        scannerProcedureService.invokeUpdateOrder(result, comparators.songsDefault(), wmfs::updateOrder);
         result = captor.getAllValues();
         assertEquals(1, result.size());
         assertEquals("path3", result.get(0).getPathString());
@@ -256,14 +256,14 @@ class ScannerProcedureServiceTest {
 
         captor = ArgumentCaptor.forClass(MediaFile.class);
         Mockito.when(wmfs.updateOrder(captor.capture())).thenReturn(1);
-        scannerProcedureService.invokeUpdateOrder(result, comparators.songsDefault(), (song) -> wmfs.updateOrder(song));
+        scannerProcedureService.invokeUpdateOrder(result, comparators.songsDefault(), wmfs::updateOrder);
         result = captor.getAllValues();
         assertEquals(1, result.size());
         assertEquals(1, result.get(0).getOrder());
 
         captor = ArgumentCaptor.forClass(MediaFile.class);
         Mockito.when(wmfs.updateOrder(captor.capture())).thenReturn(1);
-        scannerProcedureService.invokeUpdateOrder(result, comparators.songsDefault(), (song) -> wmfs.updateOrder(song));
+        scannerProcedureService.invokeUpdateOrder(result, comparators.songsDefault(), wmfs::updateOrder);
         result = captor.getAllValues();
         assertEquals(0, result.size());
     }

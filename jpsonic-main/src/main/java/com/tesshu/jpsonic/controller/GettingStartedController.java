@@ -54,7 +54,7 @@ public class GettingStartedController {
         settingsService.getAvailableLocales().stream().filter(locale -> locale.equals(settingsService.getLocale()))
                 .findFirst().ifPresent(locale -> command
                         .setLocaleIndex(String.valueOf(settingsService.getAvailableLocales().indexOf(locale))));
-        command.setLocales(settingsService.getAvailableLocales().stream().map(locale -> locale.getDisplayName())
+        command.setLocales(settingsService.getAvailableLocales().stream().map(Locale::getDisplayName)
                 .collect(Collectors.toList()));
         model.addAttribute(Attributes.Model.Command.VALUE, command);
         model.addAttribute("runningAsRoot", "root".equals(System.getProperty("user.name")));

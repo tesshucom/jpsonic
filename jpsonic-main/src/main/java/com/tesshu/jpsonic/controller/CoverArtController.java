@@ -413,7 +413,7 @@ public class CoverArtController implements CoverArtPresentation {
         return ffmpeg.createImage(mediaFile.toPath(), width, height, offset);
     }
 
-    @Nullable
+    @NonNull
     Path getImageCacheDirectory(int size) {
         Path dir = Path.of(SettingsService.getJpsonicHome().toString(), "thumbs", String.valueOf(size));
         FileUtil.createDirectories(dir);

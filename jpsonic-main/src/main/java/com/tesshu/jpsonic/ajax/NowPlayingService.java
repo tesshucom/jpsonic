@@ -130,17 +130,12 @@ public class NowPlayingService {
 
             String artist = mediaFile.getArtist();
             String title = mediaFile.getTitle();
-            String streamUrl = url + "stream?player=" + player.getId() + "&id=" + mediaFile.getId();
-            String albumUrl = url + ViewName.MAIN.value() + "?id=" + mediaFile.getId();
             String lyricsUrl = null;
             if (!mediaFile.isVideo()) {
                 lyricsUrl = url + ViewName.LYRICS.value() + "?artistUtf8Hex=" + StringUtil.utf8HexEncode(artist)
                         + "&songUtf8Hex=" + StringUtil.utf8HexEncode(title);
             }
 
-            String coverArtUrl = url + ViewName.COVER_ART.value() + "?size=60&id=" + mediaFile.getId();
-            String avatarUrl = avatarService.createAvatarUrl(url, userSettings);
-            String tooltip = StringEscapeUtils.escapeHtml4(artist) + " &ndash; " + StringEscapeUtils.escapeHtml4(title);
             artist = StringEscapeUtils.escapeHtml4(StringUtils.abbreviate(artist, 25));
             title = StringEscapeUtils.escapeHtml4(StringUtils.abbreviate(title, 25));
 
@@ -151,7 +146,13 @@ public class NowPlayingService {
             username = StringEscapeUtils.escapeHtml4(StringUtils.abbreviate(username, 25));
 
             long minutesAgo = status.getMinutesAgo();
-            if (minutesAgo < LIMIT_OF_HISTORY_TO_BE_PRESENTED) {
+            if (status.getMinutesAgo() < LIMIT_OF_HISTORY_TO_BE_PRESENTED) {
+                String tooltip = StringEscapeUtils.escapeHtml4(artist) + " &ndash; "
+                        + StringEscapeUtils.escapeHtml4(title);
+                String streamUrl = url + "stream?player=" + player.getId() + "&id=" + mediaFile.getId();
+                String albumUrl = url + ViewName.MAIN.value() + "?id=" + mediaFile.getId();
+                String coverArtUrl = url + ViewName.COVER_ART.value() + "?size=60&id=" + mediaFile.getId();
+                String avatarUrl = avatarService.createAvatarUrl(url, userSettings);
                 result.add(new NowPlayingInfo(player.getId(), username, artist, title, tooltip, streamUrl, albumUrl,
                         lyricsUrl, coverArtUrl, avatarUrl, (int) minutesAgo));
             }

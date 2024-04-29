@@ -38,8 +38,10 @@ import com.tesshu.jpsonic.command.DLNASettingsCommand.SubMenuItemRowInfo;
 import com.tesshu.jpsonic.domain.MenuItem;
 import com.tesshu.jpsonic.domain.MenuItem.ViewType;
 import com.tesshu.jpsonic.domain.MenuItemId;
+import com.tesshu.jpsonic.domain.MusicFolder;
 import com.tesshu.jpsonic.domain.Player;
 import com.tesshu.jpsonic.domain.TranscodeScheme;
+import com.tesshu.jpsonic.domain.Transcoding;
 import com.tesshu.jpsonic.domain.User;
 import com.tesshu.jpsonic.domain.UserSettings;
 import com.tesshu.jpsonic.service.MenuItemService;
@@ -120,11 +122,11 @@ public class DLNASettingsController {
         command.setAllMusicFolders(musicFolderService.getAllMusicFolders());
         User guestUser = securityService.getGuestUser();
         command.setAllowedMusicFolderIds(musicFolderService.getMusicFoldersForUser(guestUser.getUsername()).stream()
-                .mapToInt(m -> m.getId()).toArray());
+                .mapToInt(MusicFolder::getId).toArray());
         command.setAllTranscodings(transcodingService.getAllTranscodings());
         Player guestPlayer = playerService.getGuestPlayer(null);
-        command.setActiveTranscodingIds(
-                transcodingService.getTranscodingsForPlayer(guestPlayer).stream().mapToInt(m -> m.getId()).toArray());
+        command.setActiveTranscodingIds(transcodingService.getTranscodingsForPlayer(guestPlayer).stream()
+                .mapToInt(Transcoding::getId).toArray());
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
         command.setTranscodeScheme(guestPlayer.getTranscodeScheme());
         command.setUriWithFileExtensions(settingsService.isUriWithFileExtensions());
@@ -140,7 +142,7 @@ public class DLNASettingsController {
         command.setSubMenuItems(subMenuItems);
 
         Map<MenuItemId, SubMenuItemRowInfo> subMenuItemRowInfos = new ConcurrentHashMap<>();
-        topMenuItems.stream().map(topMenu -> topMenu.getId()).forEach(topMenuItemId -> {
+        topMenuItems.stream().map(MenuItem::getId).forEach(topMenuItemId -> {
             int count = (int) subMenuItems.stream().filter(subMenuItem -> subMenuItem.getParent() == topMenuItemId)
                     .count();
             subMenuItems.stream().filter(subMenuItem -> subMenuItem.getParent() == topMenuItemId).findFirst().ifPresent(
@@ -193,7 +195,7 @@ public class DLNASettingsController {
         // Display options / Access control
         final List<Integer> allowedIds = Arrays.stream(command.getAllowedMusicFolderIds()).boxed()
                 .collect(Collectors.toList());
-        List<Integer> allIds = musicFolderService.getAllMusicFolders().stream().map(m -> m.getId())
+        List<Integer> allIds = musicFolderService.getAllMusicFolders().stream().map(MusicFolder::getId)
                 .collect(Collectors.toList());
         settingsService.setDlnaGenreCountVisible(command.isDlnaGenreCountVisible() && allIds.equals(allowedIds));
         settingsService.setDlnaGuestPublish(command.isDlnaGuestPublish());
